@@ -1,4 +1,7 @@
-#include:
-#  - project: arc-one/infrastructure/gitlab-ci
-#    ref: main
-#    file: pipeline_biopro_domain.gitlab-ci.yml
+include:
+  - project: arc-one/infrastructure/gitlab-ci
+    ref: main
+    file: pipeline_biopro_domain.gitlab-ci.yml
+
+.ui_list:
+  - distribution-ui
