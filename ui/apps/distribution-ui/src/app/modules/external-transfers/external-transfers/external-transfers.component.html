@@ -1,0 +1,279 @@
+<div class="flex flex-col flex-auto space-y-1">
+  <rsa-process-header
+    [subTitle]="header.subTitle$ | async | translate"
+    [title]="header.title$ | async | translate"
+    [buttons]="actionButtonsTpl"
+  ></rsa-process-header>
+
+  <div class="w-full flex flex-row space-x-8 p-4">
+    <div
+      class="flex flex-col"
+      [ngClass]="{
+        'w-4/12': !productSelectionStep,
+        'w-full': productSelectionStep
+      }"
+    >
+      <mat-horizontal-stepper linear #stepper (selectionChange)="stepSelectionChange($event)">
+        <!-- STEP 1 - TRANSFER INFORMATION FORM -->
+        <mat-step [stepControl]="transferInfoGroup" [label]="'transfer-information.label' | translate">
+          <form
+            id="projectInfoForm"
+            [formGroup]="transferInfoGroup"
+            class="flex flex-col w-full mt-3"
+            rsaGroupErrorMatcher
+          >
+            <div class="flex flex-col space-y-3 mb-8">
+              <div class="flex flex-col flex-auto space-y-1">
+                <mat-form-field class="flex-auto">
+                  <mat-label>{{ 'external-transfer-order-id.label' | translate }}</mat-label>
+                  <input
+                    id="externalTransferOrderId"
+                    matInput
+                    autocomplete="off"
+                    formControlName="externalTransferOrderId"
+                    [maxLength]="EXTERNAL_ORDER_ID_MAX_LENGTH"
+                  />
+                </mat-form-field>
+              </div>
+
+              <div class="flex flex-col flex-auto mb-2 space-y-1">
+                <label class="block font-bold min-w-60">{{ 'customer-search-criteria.label' | translate }}</label>
+                <div class="flex flex-col mb-4">
+                  <mat-radio-group
+                    id="customerSearchCriteria"
+                    class="flex pt-2"
+                    formControlName="customerSearchCriteria"
+                  >
+                    <mat-radio-button class="mr-4" [value]="'name'">{{
+                      'customer-name.label' | translate
+                    }}</mat-radio-button>
+                    <mat-radio-button [value]="'id'">{{ 'customer-id.label' | translate }}</mat-radio-button>
+                  </mat-radio-group>
+                </div>
+              </div>
+
+              <div class="flex flex-col flex-auto space-y-1">
+                <mat-form-field appearance="fill" class="block w-full" rsaControlErrorContainer>
+                  <mat-label>{{ 'transfer-to-customer.label' | translate }}</mat-label>
+                  <input
+                    id="transferToCustomer"
+                    matInput
+                    formControlName="transferToCustomer"
+                    validateOn="blur"
+                    required
+                    [matAutocomplete]="customerAuto"
+                    [customErrors]="{
+                      required: 'transfer-to-customer.label' | validation: validationType.REQUIRED,
+                      noMatchingCustomer: 'no-matching-customer.label' | translate
+                    }"
+                  />
+                  <mat-autocomplete #customerAuto="matAutocomplete" [displayWith]="displayCustomerFn">
+                    <mat-option
+                      *ngFor="let option of customers | async"
+                      [value]="option"
+                      (onSelectionChange)="customerChanged(option)"
+                    >
+                      {{ option.externalId + ' - ' + option.name }}
+                    </mat-option>
+                  </mat-autocomplete>
+                </mat-form-field>
+              </div>
+
+              <div class="flex flex-col flex-auto">
+                <mat-form-field appearance="fill" class="block w-full">
+                  <mat-label>{{ 'transfer-date.label' | translate }}</mat-label>
+                  <input
+                    id="transferDate"
+                    matInput
+                    [max]="today"
+                    formControlName="transferDate"
+                    validateOn="touchedState"
+                    autocomplete="off"
+                    placeholder="MM/DD/YYYY"
+                    required
+                    rsaNoControlErrors
+                    [matDatepicker]="transferDatePicker"
+                    (dateChange)="transferDateChanged($event)"
+                  />
+                  <mat-datepicker-toggle matSuffix [for]="transferDatePicker"></mat-datepicker-toggle>
+                  <mat-datepicker #transferDatePicker></mat-datepicker>
+                </mat-form-field>
+                <ng-container
+                  *ngIf="
+                    transferInfoGroup?.controls?.transferDate?.touched &&
+                    transferInfoGroup?.controls?.transferDate?.errors
+                  "
+                >
+                  <rsa-control-error
+                    [hide]="false"
+                    [text]="
+                      'transfer-date.label'
+                        | validation
+                          : (transferInfoGroup.controls.transferDate.hasError('invalidDate')
+                              ? validationType.INVALID
+                              : validationType.REQUIRED)
+                    "
+                  ></rsa-control-error>
+                </ng-container>
+              </div>
+            </div>
+
+            <div class="flex flex-row-reverse mt-2">
+              <button
+                id="step1NextBtn"
+                class="bg-gray-light"
+                mat-stroked-button
+                [disabled]="!transferInfoGroup.valid || !selectedCustomer"
+                (click)="step1NextClick()"
+              >
+                {{ 'next.label' | translate }}
+              </button>
+            </div>
+          </form>
+        </mat-step>
+
+        <!-- STEP 2 - PRODUCT SELECTION -->
+        <mat-step [stepControl]="productSelection" [label]="'product-selection.label' | translate">
+          <form id="productSelectionForm" class="mt-3" rsaGroupErrorMatcher>
+            <div class="flex flex-col px-8 pt-4 w-1/5 input-with-validation">
+              <mat-form-field appearance="fill" class="block w-full" rsaControlErrorContainer>
+                <mat-label>{{ 'unit-number.label' | translate }}:</mat-label>
+                <input
+                  matInput
+                  id="unitNumberId"
+                  autocomplete="off"
+                  required
+                  validateOn="blur"
+                  [formControl]="unitNumberControl"
+                  [placeholder]="'scan-unit-number.label' | translate"
+                  [customErrors]="{
+                    required: 'unit-number.label' | validation: validationType.REQUIRED,
+                    invalidUnitNumber: 'unit-number.label' | validation: validationType.INVALID
+                  }"
+                  [(rsaAutoFocusIf)]="unitNumberFocus"
+                  (keydown.enter)="onUnitNumberKeyOrTab()"
+                  (keydown.tab)="onUnitNumberKeyOrTab()"
+                />
+              </mat-form-field>
+            </div>
+          </form>
+          <!-- PRODUCT INFORMATION TABLE -->
+          <treo-card class="flex-col m-8 pb-4">
+            <!-- HEADER SECTION -->
+            <div class="treo-card-title">
+              <div class="flex flex-row w-full justify-between px-5 items-baseline">
+                <h3>{{ 'product-information.label' | translate }}</h3>
+                <button
+                  id="removeAllProdBtn"
+                  class="bg-purple-light justify-center"
+                  mat-stroked-button
+                  *ngIf="products?.length"
+                  (click)="removeAll()"
+                >
+                  {{ 'remove-all.label' | translate }}
+                </button>
+              </div>
+            </div>
+            <mat-divider></mat-divider>
+            <div class="table-wrapper">
+              <p-table
+                #productTable
+                id="productsTableId"
+                dataKey="inventoryId"
+                styleClass="p-datatable-customers p-datatable-sm"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                [value]="products"
+                [columns]="columns"
+                [rows]="10"
+                [rowsPerPageOptions]="[10, 25, 50]"
+                [showCurrentPageReport]="true"
+                [paginator]="true"
+              >
+                <ng-template pTemplate="header" let-columns>
+                  <tr>
+                    <th
+                      [pSortableColumn]="col.sortable ? (col.sortFieldName ? col.sortFieldName : col.field) : null"
+                      [ngClass]="col.headerCls"
+                      *ngFor="let col of columns; let i = index"
+                    >
+                      <div class="flex items-center p-d-flex p-jc-between p-ai-center">
+                        {{ col.header | translate }}
+                        <p-sortIcon [field]="col.sortFieldName ? col.sortFieldName : col.field" *ngIf="col.sortable">
+                        </p-sortIcon>
+                      </div>
+                    </th>
+                  </tr>
+                </ng-template>
+                <ng-template #dateTpl let-product let-field="field">
+                  {{ product[field] | date: 'MM/dd/yyyy' }}
+                </ng-template>
+                <ng-template #actionTpl let-product>
+                  <button
+                    id="removeProdBtn"
+                    class="bg-purple-light justify-center"
+                    mat-stroked-button
+                    (click)="remove(product)"
+                  >
+                    {{ 'remove.label' | translate }}
+                  </button>
+                </ng-template>
+                <ng-template pTemplate="body" let-product let-expanded="expanded" let-columns="columns">
+                  <tr>
+                    <td *ngFor="let col of columns; let i = index" class="break-all">
+                      <ng-container *ngIf="{ dateTpl: dateTpl, actionTpl: actionTpl } as templates">
+                        <ng-container *ngIf="col?.templateRef">
+                          <ng-container
+                            *ngTemplateOutlet="
+                              templates[col?.templateRef];
+                              context: { $implicit: product, field: col?.field }
+                            "
+                          ></ng-container>
+                        </ng-container>
+                      </ng-container>
+
+                      <ng-container *ngIf="!col?.templateRef">
+                        {{ product[col.field]?.toString() | translate | uppercase }}
+                      </ng-container>
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="footer">
+                  <tr>
+                    <td [attr.colspan]="7" class="p-text-right">
+                      <span class="ml-6">({{ products?.length }}) {{ 'total-products.label' | translate }}</span>
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+          </treo-card>
+
+          <div class="flex flex-row-reverse m-4">
+            <button
+              id="step2CompleteBtn"
+              type="button"
+              mat-stroked-button
+              class="ml-2"
+              [ngClass]="{ 'bg-green': products?.length > 0, 'bg-gray-light': !products?.length }"
+              [disabled]="!transferInfoGroup.valid || !products?.length"
+              (click)="onComplete()"
+            >
+              {{ 'complete.label' | translate }}
+            </button>
+            <button id="step2BackBtn" mat-stroked-button matStepperPrevious (click)="step2BackClick()">
+              {{ 'back.label' | translate }}
+            </button>
+          </div>
+        </mat-step>
+      </mat-horizontal-stepper>
+    </div>
+  </div>
+</div>
+
+<ng-template #actionButtonsTpl>
+  <div class="flex flex-row space-x-2">
+    <button id="cancelproductBtn" class="primary" mat-stroked-button (click)="cancel()">
+      {{ 'cancel.label' | translate }}
+    </button>
+  </div>
+</ng-template>

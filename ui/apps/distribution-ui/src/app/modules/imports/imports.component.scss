@@ -1,0 +1,35 @@
+::ng-deep .mat-horizontal-stepper-header {
+  pointer-events: none !important;
+}
+
+treo-card {
+  overflow: initial !important;
+}
+
+mat-label {
+  font-weight: 500 !important;
+}
+
+.plusTemperatureBtn {
+  margin-left: -4px !important;
+  border-left: none !important;
+  color: white !important;
+}
+
+.minusTemperatureBtn {
+  border-right: none;
+  color: white !important;
+}
+
+span.badge {
+  background-color: #ffc300;
+}
+
+treo-card,
+::ng-deep div.mat-horizontal-content-container {
+  overflow: initial !important;
+}
+
+.input-with-validation {
+  min-height: 7rem;
+}

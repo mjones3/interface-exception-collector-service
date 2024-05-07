@@ -1,0 +1,52 @@
+<treo-card class="w-full flex flex-col">
+  <!-- Card Title -->
+  <div class="treo-card-title pb-0">
+    <div class="flex justify-between items-center">
+      <div>
+        <div class="font-bold text-md text-secondary tracking-wider">{{ title | translate }}</div>
+        <div *ngIf="subtitle" class="font-medium uppercase text-sm">{{ subtitle | translate }}</div>
+      </div>
+      <mat-icon
+        *ngIf="hasMenu"
+        [matMenuTriggerFor]="matResultsMenu"
+        [svgIcon]="'hi_outline:dots-vertical'"
+        class="cursor-pointer"
+      ></mat-icon>
+    </div>
+    <mat-menu #matResultsMenu="matMenu">
+      <div *ngIf="!subMenu">
+        <button mat-menu-item *ngFor="let menu of menus" (click)="menu.click()">
+          <mat-icon *ngIf="menu.icon" [svgIcon]="menu.icon"></mat-icon>
+          <span>{{ menu.label | translate }}</span>
+        </button>
+      </div>
+      <div *ngIf="subMenu">
+        <button mat-menu-item [matMenuTriggerFor]="subMenu">{{ menuTitle | translate }}</button>
+        <mat-menu #subMenu="matMenu">
+          <button mat-menu-item *ngFor="let menu of menus" (click)="menu.click()">
+            <mat-icon *ngIf="menu.icon" [svgIcon]="menu.icon"></mat-icon>
+            <span>{{ menu.label | translate }}</span>
+          </button>
+        </mat-menu>
+      </div>
+    </mat-menu>
+  </div>
+  <div class="w-full px-5 pb-6">
+    <div class="w-full mt-4 pb-0" *ngFor="let singleInfoData of infoData; let index = index">
+      <div class="font-bold text-md text-secondary mb-1 tracking-wider">{{ singleInfoData.title | translate }}</div>
+      <table class="table-auto w-full" *ngIf="!templateRef">
+        <tr *ngFor="let data of singleInfoData.data">
+          <td class="font-bold w-6/12">
+            {{ data.descriptionKey | translate }}
+          </td>
+          <td class="pl-5">
+            {{ data.value?.toString() | translate | uppercase }}
+          </td>
+        </tr>
+      </table>
+      <mat-divider *ngIf="index != infoData.length - 1" class="mt-3 pb-0"></mat-divider>
+    </div>
+
+    <ng-template *ngIf="templateRef" [ngTemplateOutlet]="templateRef"></ng-template>
+  </div>
+</treo-card>

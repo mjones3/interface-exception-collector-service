@@ -1,0 +1,47 @@
+<div id="filterableDropDownListWrapper" class="min-w-140 min-h-120 flex flex-col">
+  <!-- Header Section -->
+  <div class="flex justify-between items-center mb-4">
+    <h2 [id]="'filterableListModalTitle'" mat-dialog-title class="m-0">{{ dialogTitle | translate }}</h2>
+    <button id="closeModalBtn" class="treo-message-dismiss-button" mat-icon-button mat-dialog-close *ngIf="closable">
+      <mat-icon [svgIcon]="'hi_outline:x'"></mat-icon>
+    </button>
+  </div>
+
+  <div mat-dialog-content class="border-t px-0 flex flex-col flex-1">
+    <!-- Input for search Criteria Section -->
+    <form [formGroup]="filterForm">
+      <div class="flex flex-col p-4">
+        <rsa-input-keyboard
+          id="filterableListInputKeyboard"
+          [inputId]="'filterInput'"
+          class="w-full"
+          [placeholder]="inputPlaceholder"
+          [formControlName]="'filterCriteria'"
+          [iconName]="iconName"
+          (optionSelected)="selectValue($event)"
+          [options]="options"
+          [optionsLabel]="optionsLabel"
+        ></rsa-input-keyboard>
+      </div>
+    </form>
+
+    <!-- Filtered List Section -->
+    <div [ngClass]="filterableContainerClasses">
+      <div
+        class="scrollable-content"
+        treoScrollbar
+        #treoScrollbar="treoScrollbar"
+        [treoScrollbarOptions]="{ wheelPropagation: false, suppressScrollX: true }"
+      >
+        <mat-selection-list [id]="'filteredList'" [multiple]="false" class="p-0 border-t">
+          <mat-list-option *ngFor="let item of filteredList" (click)="selectValue(item)">
+            <span class="pl-4 text-2xl"
+              >{{ optionsLabel ? (item[optionsLabel] | translate | uppercase) : (item | translate | uppercase) }}
+            </span>
+            <mat-divider></mat-divider>
+          </mat-list-option>
+        </mat-selection-list>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,27 @@
+<div id="scanProductCodeWrapper" class="flex flex-col w-full flex-grow p-4 items-center justify-center">
+  <treo-card [ngClass]="{ 'shadow-none': noShadow }">
+    <div class="w-full flex px-16 py-30">
+      <form [formGroup]="scanProductCodeForm">
+        <div class="flex flex-row items-baseline">
+          <label class="mr-4 font-bold">{{ labelTitle | translate }}</label>
+          <div class="flex flex-col">
+            <rsa-input-keyboard
+              id="productCodeField"
+              [formControlName]="'prodCode'"
+              [inputWidth]="'w-60'"
+              rsaFullProductCode
+              [iconName]="'opacity'"
+              [inputFocus]="true"
+              [customErrors]="{
+                invalidProductCode: 'product-code.label' | validation: validationType.INVALID,
+                required: 'product-code.label' | validation: validationType.REQUIRED
+              }"
+              (tabOrEnterPressed)="onFormSubmit()"
+              [inputId]="'productCodeInput'"
+            ></rsa-input-keyboard>
+          </div>
+        </div>
+      </form>
+    </div>
+  </treo-card>
+</div>

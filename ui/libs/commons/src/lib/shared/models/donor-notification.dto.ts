@@ -1,0 +1,40 @@
+import { NotificationFormDto, ThirdPartyDto } from './donor-name.dto';
+
+export interface DonorNotificationDto {
+  id: number;
+  firstName?: string;
+  lastName?: string;
+  birthDate?: string;
+  donorId: number;
+  address?: string;
+  unitNumber?: string;
+  creationTypeKey?: string;
+  phoneNumbers?: string;
+  phoneType?: string;
+  drawDate?: Date;
+  donationTypeKey?: string;
+  typeKey?: string;
+  donationId?: number;
+  testResultGroupKey?: string;
+  statusKey?: string;
+  notificationType?: string;
+  comments?: string;
+  cancelComment?: string;
+  region?: string;
+  regionName?: string;
+  regionId?: number;
+  donorNotificationCriteriaId?: number;
+  testResultsGrouping?: string;
+  thirdParties?: Array<ThirdPartyDto>;
+  notificationForms?: Array<NotificationFormDto>;
+  formCodes?: string;
+  facilityId?: number;
+  exportDate?: Date;
+  exportDocumentId?: string;
+  exportEmployeeId?: string;
+  employeeId?: string;
+  createDate?: Date;
+  modificationDate?: Date;
+  deleteDate?: Date;
+  clientTimezone?: string;
+}

@@ -1,0 +1,31 @@
+:host {
+  ::ng-deep {
+    .mat-form-field.mat-form-field-appearance-fill
+      .mat-form-field-wrapper
+      .mat-form-field-flex
+      .mat-form-field-infix
+      .mat-form-field-label-wrapper {
+      top: -28px;
+    }
+
+    .align-card-info {
+      flex: 1 0 50% !important;
+      max-width: 50%;
+    }
+
+    treo-card {
+      overflow: initial !important;
+    }
+
+    #unitNumberId::placeholder,
+    #productCodeId::placeholder {
+      color: #cfd8e3;
+    }
+  }
+}
+
+.custom-label {
+  color: #27303f;
+  font-weight: 500;
+  border-color: #e2e8f0;
+}

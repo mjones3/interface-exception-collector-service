@@ -1,0 +1,25 @@
+#facilityListWrapper {
+  .treo-message-dismiss-button {
+    background: #97a6ba61;
+  }
+
+  /*
+  * Scrollable Sections
+  */
+  ::ng-deep {
+    .scrollable-content {
+      overflow: auto;
+      box-sizing: border-box;
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    // Keep scroll bar displayed
+    .ps > .ps__rail-y {
+      opacity: 0.6 !important;
+    }
+  }
+}

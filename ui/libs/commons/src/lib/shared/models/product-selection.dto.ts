@@ -1,0 +1,31 @@
+export interface ProductSelectionDto {
+    id?: number;
+    parentId?: number;
+    productCode?: string;
+    bagTypeId?: string;
+    bagTypeKey?: string;
+    donationTypeId?: number;
+    donationTypeKey?: string;
+    minimumVolume?: number;
+    maximumVolume?: number;
+    allogeneic?: boolean;
+    autologous?: boolean;
+    directed?: boolean;
+    hereditatry?: boolean;
+    testosterone?: boolean;
+    active?: boolean;
+    productFamily?: string;
+    productDescription?: string;
+    processPathway?: string;
+    lowTiterPathway?: string;
+    filtrationPathway?: string;
+    rbcSolutionPathway?: string;
+    separationPathway?: string;
+    hoursBetweenDrawTimeAndCryothawing?: number;
+    hoursBetweenCryothawingAndCryopreparation?: number;
+    minutesBetweenCryoseparationAndCryopreparation?: number;
+    hoursBetweenDrawTimeAndCryoreducedplasma?: number;
+    hoursBetweenCryothawingAndCryoreducedplasma?: number;
+    hoursBetweenCryoseparationAndCryoreducedplasma?: number;
+    createDate?: Date;
+  }

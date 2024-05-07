@@ -1,0 +1,181 @@
+<div class="flex flex-col flex-auto">
+  <rsa-process-header
+    [subTitle]="header.subTitle$ | async | translate"
+    [title]="header.title$ | async | translate"
+    [buttons]="actionButtonsTpl"
+  ></rsa-process-header>
+  <div class="w-full flex flex-row space-x-8 p-6">
+    <div
+      class="flex flex-col md:w-9/12 sm:w-10/12"
+      [ngClass]="{
+        'w-8/12': productSelectionStep,
+        'w-7/12': !productSelectionStep
+      }"
+    >
+      <treo-card class="flex flex-col w-full">
+        <mat-horizontal-stepper linear #stepper (selectionChange)="stepSelectionChange($event)">
+          <!-- STEP 1 - TRANSFER INFORMATION FORM -->
+          <mat-step
+            [stepControl]="transferInfoGroup"
+            [completed]="false"
+            [label]="'transfer-information.label' | translate"
+          >
+            <form
+              id="projectInfoForm"
+              [formGroup]="transferInfoGroup"
+              class="flex flex-col w-full mt-3"
+              rsaGroupErrorMatcher
+            >
+              <div class="flex flex-col my-4">
+                <div class="flex flex-col flex-auto my-2">
+                  <mat-form-field class="flex-auto" rsaControlErrorContainer>
+                    <mat-label>{{ 'transfer-order-number.label' | translate }}</mat-label>
+                    <input
+                      id="transferOrderNumber"
+                      matInput
+                      autocomplete="off"
+                      required
+                      formControlName="transferOrderNumber"
+                      validateOn="blur"
+                      [rsaAutoFocusIf]="focusTransferOrderNumber"
+                      [maxLength]="ORDER_NUMBER_MAX_LENGTH"
+                      (blur)="transferOrderNumberBlur($event)"
+                    />
+                  </mat-form-field>
+                </div>
+
+                <div class="flex flex-col my-2" *ngIf="isLabelingProdCategoryRoomTemperature">
+                  <rsa-transit-time
+                    [timezones]="timezones"
+                    [labelingProductCategoryValue]="getLabelingProductCategoryDescription"
+                    (transitTimeChanged)="updateTransitTime($event)"
+                  ></rsa-transit-time>
+                </div>
+
+                <div class="flex flex-col my-2" *ngIf="labelingProductCategory && !isLabelingProdCategoryFrozen">
+                  <mat-label class="font-medium">{{ 'temperature.label' | translate }} *</mat-label>
+                  <div class="flex flex-col flex-auto space-y-1" rsaControlErrorContainer>
+                    <rsa-temperature-input formControlName="temperature" [inputWidth]="'w-80'"></rsa-temperature-input>
+                  </div>
+                </div>
+                <div class="flex flex-col flex-auto my-2 space-y-1">
+                  <label class="custom-label min-w-60">{{ 'inspection.label' | translate }} *</label>
+                  <div class="flex flex-col mb-4">
+                    <mat-radio-group id="inspectionId" class="flex pt-2" required formControlName="inspection">
+                      <mat-radio-button
+                        *ngFor="let inspection of inspections"
+                        class="mr-4"
+                        [value]="inspection.optionValue"
+                      >
+                        {{ inspection.descriptionKey | translate }}
+                      </mat-radio-button>
+                    </mat-radio-group>
+                  </div>
+                </div>
+              </div>
+              <mat-divider></mat-divider>
+              <div class="flex flex-row-reverse mt-2">
+                <button
+                  id="step1NextBtn"
+                  class="bg-gray-light"
+                  mat-stroked-button
+                  [disabled]="!transferInfoGroup.valid || !commentControl.valid"
+                  (click)="step1NextClick()"
+                >
+                  {{ 'next.label' | translate }}
+                </button>
+              </div>
+            </form>
+          </mat-step>
+
+          <!-- STEP 2 - PRODUCT SELECTION -->
+          <mat-step
+            [stepControl]="productSelectionGroup"
+            [completed]="false"
+            [label]="'product-selection.label' | translate"
+          >
+            <rsa-transfer-receipt-product-selection
+              *ngIf="currentOrder && productSelectionStep"
+              [markForQuarantine]="consequences.length > 0"
+              [transferInfoGroup]="transferInfoGroup"
+              [currentOrder]="currentOrder"
+              (rsaOnProductSelectionChange)="handleProductSelectionChange($event)"
+            ></rsa-transfer-receipt-product-selection>
+            <div class="flex flex-row-reverse m-4">
+              <button
+                id="step2CompleteBtn"
+                type="button"
+                mat-stroked-button
+                class="ml-2"
+                [ngClass]="{ 'bg-green': products?.length > 0, 'bg-gray-light': !products?.length }"
+                [disabled]="!enableCompleteButton"
+                (click)="onComplete()"
+              >
+                {{ 'complete.label' | translate }}
+              </button>
+              <button id="step2BackBtn" mat-stroked-button matStepperPrevious (click)="step2BackClick()">
+                {{ 'back.label' | translate }}
+              </button>
+            </div>
+          </mat-step>
+        </mat-horizontal-stepper>
+      </treo-card>
+
+      <treo-card class="flex-col my-6 p-6 w-full">
+        <mat-form-field class="w-full" rsaControlErrorContainer>
+          <mat-label class="text-bold">{{ 'comment.label' | translate }}</mat-label>
+          <textarea
+            id="commentsTextArea"
+            [formControl]="commentControl"
+            matInput
+            [maxlength]="maxChars"
+            rows="6"
+            validateOn="touchedState"
+            autocomplete="off"
+          ></textarea>
+        </mat-form-field>
+        <div class="text-right pr-3">{{ commentControl?.value?.trim()?.length || 0 }}/{{ maxChars }}</div>
+      </treo-card>
+    </div>
+    <!--WIDGET-->
+    <div class="flex flex-col flex-auto w-4/12" *ngIf="productSelectionStep">
+      <rsa-common-widget
+        [color]="'#E25063'"
+        [hasBorder]="true"
+        [title]="'transfer-information.label'"
+        [subtitle]="'transfer-information.label'"
+        [templateRef]="widgetInformationContent"
+      >
+        <ng-template #widgetInformationContent>
+          <div class="flex flex-col">
+            <rsa-description-card
+              [descriptions]="transferInformation"
+              [embedded]="true"
+              [maxCols]="1"
+              [labelClasses]="'align-card-info'"
+              [valueClasses]="'align-card-info'"
+            ></rsa-description-card>
+          </div>
+        </ng-template>
+      </rsa-common-widget>
+    </div>
+  </div>
+</div>
+
+<ng-template #actionButtonsTpl>
+  <div class="flex flex-row space-x-2">
+    <button id="cancelproductBtn" class="primary" mat-stroked-button (click)="cancel()">
+      {{ 'cancel.label' | translate }}
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #optionDescriptionTpl>
+  <div class="flex flex-col space-y-3">
+    <div>
+      <span class="font-bold mr-2">{{ 'unit-number.label' | translate }}:</span>
+      <span>{{ productSelectionGroup.get('unitNumber')?.value }}</span>
+    </div>
+    <div>{{ 'please-select-product.label' | translate }}.</div>
+  </div>
+</ng-template>

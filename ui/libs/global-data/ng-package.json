@@ -1,0 +1,10 @@
+{
+  "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
+  "dest": "../../dist/libs/@rsa/global-data",
+  "lib": {
+    "entryFile": "src/index.ts",
+    "umdId": "rsa.globalData",
+    "umdModuleIds": {},
+    "styleIncludePaths": ["../shared/styles/src/lib"]
+  }
+}

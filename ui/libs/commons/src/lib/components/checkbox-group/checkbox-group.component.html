@@ -1,0 +1,7 @@
+<ul class="flex flex-col">
+  <li *ngFor="let item of itemsList; let i = index" [ngClass]="{ 'pb-4': i < itemsList.length - 1 }">
+    <mat-checkbox [value]="item.value" (change)="setValue(item)">
+      <span class="pl-6">{{ item.descriptionKey?.toString() | translate | uppercase }}</span>
+    </mat-checkbox>
+  </li>
+</ul>

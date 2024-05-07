@@ -1,0 +1,93 @@
+@import '../utilities/loader';
+
+/**
+ * Loading indicator and toaster blocking backdrop css classes
+ */
+.rsa-locked::before,
+.rsa-loading::before,
+.rsa-blocking-backdrop::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.rsa-locked {
+  position: relative;
+}
+
+.rsa-locked::before {
+  content: '';
+  z-index: 1;
+  -webkit-transition: 0.3s;
+  -o-transition: 0.3s;
+  transition: 0.3s;
+}
+
+.rsa-locked.rsa-loading::before,
+.rsa-blocking-backdrop::before {
+  opacity: 0.5;
+}
+
+.rsa-loading {
+  position: relative;
+  -webkit-animation-name: fadein;
+  animation-name: fadeIn;
+  -webkit-animation-duration: 0.5s;
+  animation-duration: 0.5s;
+}
+
+.rsa-blocking-backdrop::before {
+  content: '';
+  z-index: 1001;
+  -webkit-transition: 0.3s;
+  -o-transition: 0.3s;
+  transition: 0.3s;
+  background-color: #fff;
+}
+
+.rsa-loading::before {
+  content: '';
+  z-index: 900;
+  -webkit-transition: 0.3s;
+  -o-transition: 0.3s;
+  transition: 0.3s;
+  background-color: #fff;
+}
+
+.rsa-loading::after {
+  @include loading-svg();
+
+  position: absolute;
+  width: 4.375rem;
+  height: 1rem;
+  top: 45%;
+  left: 47%;
+  -webkit-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  z-index: 901;
+}
+
+.rsa-loading-gradient::before {
+  background-color: transparent;
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#fff), to(rgba(255, 255, 255, 0)));
+  background-image: -webkit-linear-gradient(top, #fff 0%, rgba(255, 255, 255, 0) 100%);
+  background-image: -o-linear-gradient(top, #fff 0%, rgba(255, 255, 255, 0) 100%);
+  background-image: linear-gradient(180deg, #fff 0%, rgba(255, 255, 255, 0) 100%);
+  border-radius: 0.125rem;
+}
+
+.rsa-loading.rsa-full-screen {
+  overflow: hidden;
+}
+
+.rsa-loading.rsa-full-screen::before,
+.rsa-loading.rsa-full-screen::after {
+  z-index: 1080;
+}
+
+.rsa-loading.rsa-full-screen::after {
+  position: fixed;
+}

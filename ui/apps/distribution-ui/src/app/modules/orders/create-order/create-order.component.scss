@@ -1,0 +1,19 @@
+:host {
+  ::ng-deep {
+    .mat-horizontal-stepper-header {
+      pointer-events: none !important;
+    }
+
+    .gt-xs\:min-w-44 {
+      min-width: 11rem !important;
+    }
+  }
+}
+
+treo-card {
+  overflow: initial !important;
+}
+
+.past-order-warning {
+  color: #b5be00;
+}

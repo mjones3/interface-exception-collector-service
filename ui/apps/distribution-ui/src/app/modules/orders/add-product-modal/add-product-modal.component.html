@@ -1,0 +1,134 @@
+<rsa-common-modal-template
+  [title]="(!data.currentProduct ? 'add-product.label' : 'edit-product.label') | translate"
+  [cancelTitle]="'cancel.label'"
+  [acceptTitle]="(!data.currentProduct ? 'add.label' : 'edit.label') | translate"
+  (acceptSelection)="addProduct()"
+  [isValid]="productGroup.valid"
+>
+  <div class="flex">
+    <!-- Left Content - Add/Edit Test Result Form -->
+    <div class="w-full p-4">
+      <form [formGroup]="productGroup" id="productGroupId" class="text-left w-full">
+        <div class="flex flex-col">
+          <div class="flex flex-col space-y-2 mb-2">
+            <mat-label class="font-bold">{{ 'product-family.label' | translate }}</mat-label>
+            <mat-form-field appearance="fill" class="block w-full" rsaControlErrorContainer>
+              <mat-select
+                id="productFamilyId"
+                formControlName="productFamily"
+                validateOn="touchedState"
+                [customErrors]="{
+                  required: 'product-family.label' | validation: validationType.REQUIRED
+                }"
+                [placeholder]="'select-an-option.label' | translate"
+                (selectionChange)="selectedFamilyProduct($event)"
+              >
+                <mat-option *ngFor="let family of productFamilies" [value]="family">{{
+                  family.descriptionKey | translate
+                }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="flex flex-col space-y-3 mb-6">
+            <mat-label class="block font-bold min-w-40">{{ 'product-attributes.label' | translate }}</mat-label>
+            <div class="flex flex-row justify-start items-baseline space-x-8">
+              <div
+                class="flex flex-row justify-start items-baseline space-x-4"
+                *ngFor="let prodAttr of productAttributes; let i = index"
+              >
+                <div class="flex flex-col">
+                  <mat-checkbox
+                    [id]="'productAttributesChkId' + i"
+                    [color]="'primary'"
+                    [checked]="isProdAttrChecked(prodAttr)"
+                    (change)="onCheckboxChange($event)"
+                    formArrayName="productAttributes"
+                    [value]="prodAttr"
+                    >{{ productAttributes[i]?.descriptionKey | translate }}</mat-checkbox
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-col space-y-3 mb-6" *ngIf="showAntigensTestedControl">
+            <mat-label class="block font-bold min-w-40">{{ 'select-antigen-tested.label' | translate }}</mat-label>
+            <div class="flex flex-col">
+              <p-selectButton
+                id="antigensTestedSelId"
+                [options]="antigensTested"
+                formControlName="antigensTested"
+                multiple="multiple"
+                optionLabel="descriptionKey"
+              >
+                <ng-template pTemplate="itemTemplate" let-option>
+                  <span class="p-button-label">{{ option.descriptionKey | translate }}</span>
+                </ng-template>
+              </p-selectButton>
+            </div>
+          </div>
+          <div class="flex flex-col space-y-3 mb-2">
+            <mat-label class="block font-bold min-w-40">{{ 'blood-type-quantity.label' | translate }}</mat-label>
+            <div class="flex flex-col">
+              <div class="flex flex-row flex-wrap space-x-6">
+                <div
+                  class="flex flex-col"
+                  *ngFor="let bTypeAndQuantity of bloodTypeAndQuantityArray?.controls; let i = index"
+                >
+                  <mat-label>{{
+                    bTypeAndQuantity.get('bloodType')?.value?.descriptionKey | translate | uppercase
+                  }}</mat-label>
+                  <mat-form-field
+                    class="flex-auto w-20"
+                    [class.mat-form-field-invalid]="
+                      productGroup.controls.bloodTypeAndQuantity?.touched &&
+                      productGroup.controls.bloodTypeAndQuantity?.errors &&
+                      !bTypeAndQuantity.get('quantity').disabled
+                    "
+                    rsaControlErrorContainer
+                    formArrayName="bloodTypeAndQuantity"
+                  >
+                    <input
+                      matInput
+                      [id]="'quantityInpId' + i"
+                      [formControl]="bTypeAndQuantity.get('quantity')"
+                      rsaMaskRegex
+                      allowedCharsRegex="[0-9]+"
+                      autocomplete="off"
+                      [customErrors]="{ min: 'quantity.label' | validation: validationType.INVALID }"
+                    />
+                  </mat-form-field>
+                </div>
+              </div>
+            </div>
+            <rsa-control-error
+              *ngIf="
+                productGroup.controls.bloodTypeAndQuantity?.touched &&
+                productGroup.controls.bloodTypeAndQuantity?.errors
+              "
+              [hide]="false"
+              [text]="'blood-type-quantity.label' | validation: validationType.REQUIRED"
+            ></rsa-control-error>
+          </div>
+          <div class="flex flex-col">
+            <div class="flex flex-col space-y-2">
+              <mat-label class="font-bold">{{ 'product-comments.label' | translate }}</mat-label>
+              <mat-form-field appearance="fill" class="flex-auto w-full">
+                <textarea
+                  formControlName="productComment"
+                  id="productCommentTaId"
+                  matInput
+                  cdkTextareaAutosize
+                  [maxLength]="maxChars"
+                  [cdkAutosizeMinRows]="3"
+                ></textarea>
+              </mat-form-field>
+            </div>
+            <div class="text-right pr-3 mb-2">
+              {{ productGroup.get('productComment')?.value?.trim()?.length || 0 }} / {{ maxChars }}
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</rsa-common-modal-template>

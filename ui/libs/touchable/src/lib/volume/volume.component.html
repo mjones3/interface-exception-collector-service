@@ -1,0 +1,105 @@
+<div id="calculateVolumeWrapper" class="flex flex-col h-full w-full">
+  <form [formGroup]="form" rsaFormSubmit class="flex flex-col h-full w-full">
+    <!-- Body Section -->
+    <mat-card-content class="flex flex-col h-full">
+      <!-- Dynamic Information Section -->
+      <div id="dynamicInfoSection" class="mb-4">
+        <ng-content></ng-content>
+      </div>
+
+      <!-- Calculate Volume Section -->
+      <treo-card id="calculateVolumeSection" class="flex flex-1 flex-col">
+        <!-- Header Section -->
+        <div class="flex justify-between items-center">
+          <div class="treo-card-title flex items-center">
+            <h3>{{ (!disabledVolume ? headerTitle : 'default-volume.label') | translate }}</h3>
+          </div>
+          <div class="flex flex-row items-center">
+            <label class="mr-6 font-bold" *ngIf="!disabledVolume">{{ 'use-integrated-scale.label' | translate }}</label>
+            <mat-button-toggle-group
+              id="useScaleYesNo"
+              appearance="legacy"
+              *ngIf="!disabledVolume"
+              formControlName="useIntegratedScale"
+              class="flex items-baseline mr-2"
+              (ngModelChange)="useIntegratedScaleChange($event)"
+              [attr.aria-label]="'use-integrated-scale.label' | translate"
+            >
+              <mat-button-toggle id="useScaleYes" [value]="true">{{
+                'yes.label' | translate | titlecase
+              }}</mat-button-toggle>
+              <mat-button-toggle id="useScaleNo" [value]="false">{{
+                'no.label' | translate | titlecase
+              }}</mat-button-toggle>
+            </mat-button-toggle-group>
+
+            <button
+              id="calculateVolumeBtn"
+              type="submit"
+              mat-raised-button
+              class="action-button mr-4"
+              (click)="calculateVolume()"
+              [disabled]="enableCalculateVolume(form)"
+              *ngIf="!disabledVolume"
+            >
+              <mat-icon [svgIcon]="'rsa:calculate-vol'" class="product-icon"></mat-icon>
+              <span>{{ 'calculate-volume.label' | translate }}</span>
+            </button>
+          </div>
+        </div>
+        <mat-divider></mat-divider>
+
+        <!-- Content Section -->
+        <div class="flex flex-1 flex-col px-4">
+          <!-- Description Section -->
+          <div class="text-left p-4" *ngIf="!disabledVolume">{{ subTitleInstructions | translate }}</div>
+
+          <div class="flex flex-1 flex-col justify-center py-10 align-center">
+            <div class="flex flex-row items-baseline justify-center align-center" *ngIf="!disabledVolume">
+              <span class="font-bold mb-2 text-left mr-6 mb-0">{{ 'weight-g.label' | translate }}</span>
+              <div class="flex flex-col">
+                <div>
+                  <rsa-input-keyboard
+                    [inputId]="'weightInput'"
+                    formControlName="weight"
+                    [iconName]="'opacity'"
+                    [(inputFocus)]="inputFocus"
+                    [customErrors]="{
+                      required: 'weight.label' | validation: validationType.REQUIRED,
+                      pattern: 'weight-invalid.label' | translate
+                    }"
+                    [keyboardType]="keyboardType.NUMERIC"
+                    validateOn="blur"
+                  >
+                  </rsa-input-keyboard>
+                </div>
+              </div>
+            </div>
+            <div class="flex flex-row items-baseline justify-center align-center py-2">
+              <span class="font-bold mb-2 text-left mr-4 mb-0">{{ 'volume-ml.label' | translate }}</span>
+              <div class="flex flex-col">
+                <div>
+                  <rsa-input-keyboard
+                    [inputId]="'volumeInput'"
+                    [formControlName]="'volume'"
+                    [iconName]="'opacity'"
+                    [customErrors]="{
+                      required: 'volume.label' | validation: validationType.REQUIRED,
+                      pattern: 'volume.label' | validation: validationType.INVALID,
+                      min:
+                        'min-volume-validation.label' | translateInterpolation: { minVolumeAllowed: minVolumeAllowed },
+                      max:
+                        'max-volume-validation.label' | translateInterpolation: { maxVolumeAllowed: maxVolumeAllowed }
+                    }"
+                    [keyboardType]="keyboardType.NUMERIC"
+                  >
+                  </rsa-input-keyboard>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </treo-card>
+    </mat-card-content>
+  </form>
+</div>

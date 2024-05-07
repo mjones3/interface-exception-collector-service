@@ -1,0 +1,21 @@
+.hide-select-panel {
+  display: none;
+}
+
+.mat-select .mat-select-arrow-wrapper {
+  display: none;
+}
+
+mat-form-field {
+  position: relative;
+}
+
+.dd-input .mat-form-field.mat-form-field-disabled .mat-form-field-suffix .mat-icon {
+  color: #97a6ba !important;
+}
+
+rsa-select-options-picker rsa-control-error {
+  position: absolute;
+  bottom: -25px;
+  left: 0;
+}

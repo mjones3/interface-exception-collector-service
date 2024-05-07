@@ -1,0 +1,33 @@
+#unitObjectBatchWrapper {
+  .product-button {
+    width: 20rem;
+
+    &:hover {
+      cursor: pointer;
+    }
+
+    mat-icon {
+      height: 60px;
+      width: 60px;
+      min-width: 60px;
+      min-height: 60px;
+    }
+  }
+
+  .basis-0 {
+    flex-basis: 0;
+  }
+
+  .min-h-70 {
+    min-height: 17rem !important;
+  }
+
+  // Keep scroll bar displayed
+  ::ng-deep .ps > .ps__rail-y {
+    opacity: 0.6 !important;
+  }
+
+  .red-card {
+    background: #f49597;
+  }
+}

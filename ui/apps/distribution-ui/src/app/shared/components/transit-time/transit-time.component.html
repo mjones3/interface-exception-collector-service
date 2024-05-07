@@ -1,0 +1,223 @@
+<form [formGroup]="transitTimeGroup">
+  <div class="flex flex-row space-x-8">
+    <div class="min-w-36 w-3/12 flex flex-col flex-auto space-y-3">
+      <div class="flex flex-col">
+        <mat-form-field appearance="fill">
+          <mat-label>{{ 'transit-start-date.label' | translate }}</mat-label>
+          <input
+            id="transitStartDate"
+            matInput
+            formControlName="transitStartDate"
+            required
+            autocomplete="off"
+            placeholder="MM/DD/YYYY"
+            validateOn="touchedState"
+            rsaNoControlErrors
+            [matDatepicker]="transitStartDate"
+            (dateChange)="resetTransitionTime()"
+          />
+          <mat-datepicker-toggle matSuffix [for]="transitStartDate"></mat-datepicker-toggle>
+          <mat-datepicker #transitStartDate></mat-datepicker>
+        </mat-form-field>
+        <rsa-control-error
+          [hide]="
+            !transitTimeGroup.controls.transitStartDate.touched || !transitTimeGroup.controls.transitStartDate.errors
+          "
+          [text]="startTransitTimeErrorMessage"
+        ></rsa-control-error>
+      </div>
+    </div>
+    <div class="w-2/12 flex flex-col flex-auto space-y-1">
+      <div class="flex flex-col">
+        <mat-form-field class="flex-auto" rsaControlErrorContainer>
+          <mat-label>{{ 'hh.label' | translate }}</mat-label>
+          <input
+            id="transitStartTimeHours"
+            matInput
+            required
+            rsaMaskRegex
+            allowedCharsRegex="[0-9]+"
+            [maxLength]="2"
+            placeholder="HH"
+            formControlName="transitStartTimeHours"
+            autocomplete="off"
+            validateOn="blur"
+            (ngModelChange)="resetTransitionTime()"
+            [customErrors]="{
+              required: 'hh.label' | validation: validationType.REQUIRED,
+              max: 'hh.label' | validation: validationType.INVALID
+            }"
+          />
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="w-2/12 flex flex-col flex-auto space-y-1">
+      <div class="flex flex-col">
+        <mat-form-field class="flex-auto" rsaControlErrorContainer>
+          <mat-label>{{ 'mm.label' | translate }}</mat-label>
+          <input
+            id="transitStartTimeMinutes"
+            matInput
+            required
+            rsaMaskRegex
+            allowedCharsRegex="[0-9]+"
+            [maxLength]="2"
+            placeholder="MM"
+            formControlName="transitStartTimeMinutes"
+            autocomplete="off"
+            validateOn="blur"
+            (ngModelChange)="resetTransitionTime()"
+            [customErrors]="{
+              required: 'mm.label' | validation: validationType.REQUIRED,
+              max: 'mm.label' | validation: validationType.INVALID
+            }"
+          />
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="w-3/12 flex flex-col flex-auto space-y-2">
+      <div class="flex flex-col">
+        <mat-form-field appearance="fill" class="block w-full" rsaControlErrorContainer>
+          <mat-label>{{ 'timezone.label' | translate }}</mat-label>
+          <mat-select
+            id="transitStartTimezone"
+            formControlName="transitStartTimezone"
+            required
+            validateOn="touchedState"
+            [placeholder]="'select-an-option.label' | translate"
+            [customErrors]="{
+              required: 'timezone.label' | validation: validationType.REQUIRED
+            }"
+            (selectionChange)="resetTransitionTime()"
+          >
+            <mat-option *ngFor="let timezone of timezones" [value]="timezone.optionValue">
+              {{ timezone.descriptionKey | translate }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+  </div>
+  <div class="flex flex-row space-x-8">
+    <div class="min-w-36 w-3/12 flex flex-col flex-auto space-y-3">
+      <div class="flex flex-col">
+        <mat-form-field appearance="fill">
+          <mat-label>
+            {{ 'transit-end-date.label' | translate }}
+          </mat-label>
+          <input
+            id="transitEndDate"
+            matInput
+            required
+            formControlName="transitEndDate"
+            autocomplete="off"
+            placeholder="MM/DD/YYYY"
+            validateOn="touchedState"
+            rsaNoControlErrors
+            [matDatepicker]="transitEndDate"
+            (dateChange)="resetTransitionTime()"
+          />
+          <mat-datepicker-toggle matSuffix [for]="transitEndDate"></mat-datepicker-toggle>
+          <mat-datepicker #transitEndDate></mat-datepicker>
+        </mat-form-field>
+        <rsa-control-error
+          [hide]="!transitTimeGroup.controls.transitEndDate.touched || !transitTimeGroup.controls.transitEndDate.errors"
+          [text]="endTransitTimeErrorMessage"
+        ></rsa-control-error>
+      </div>
+    </div>
+    <div class="w-2/12 flex flex-col flex-auto space-y-1">
+      <div class="flex flex-col">
+        <mat-form-field appearance="fill" rsaControlErrorContainer>
+          <mat-label>{{ 'hh.label' | translate }}</mat-label>
+          <input
+            id="transitEndTimeHours"
+            matInput
+            required
+            rsaMaskRegex
+            allowedCharsRegex="[0-9]+"
+            [maxLength]="2"
+            placeholder="HH"
+            formControlName="transitEndTimeHours"
+            autocomplete="off"
+            validateOn="blur"
+            [customErrors]="{
+              required: 'hh.label' | validation: validationType.REQUIRED,
+              max: 'hh.label' | validation: validationType.INVALID
+            }"
+            (ngModelChange)="resetTransitionTime()"
+          />
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="w-2/12 flex flex-col flex-auto space-y-1">
+      <div class="flex flex-col">
+        <mat-form-field class="flex-auto" rsaControlErrorContainer>
+          <mat-label>{{ 'mm.label' | translate }}</mat-label>
+          <input
+            id="transitEndTimeMinutes"
+            matInput
+            required
+            rsaMaskRegex
+            allowedCharsRegex="[0-9]+"
+            [maxLength]="2"
+            placeholder="MM"
+            formControlName="transitEndTimeMinutes"
+            autocomplete="off"
+            validateOn="blur"
+            [customErrors]="{
+              required: 'mm.label' | validation: validationType.REQUIRED,
+              max: 'mm.label' | validation: validationType.INVALID
+            }"
+            (ngModelChange)="resetTransitionTime()"
+          />
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="w-3/12 flex flex-col flex-auto space-y-2">
+      <div class="flex flex-col">
+        <mat-form-field appearance="fill" class="block w-full" rsaControlErrorContainer>
+          <mat-label>
+            {{ 'timezone.label' | translate }}
+          </mat-label>
+          <mat-select
+            id="transitEndTimezone"
+            formControlName="transitEndTimezone"
+            required
+            validateOn="touchedState"
+            [placeholder]="'select-an-option.label' | translate"
+            [customErrors]="{
+              required: 'timezone.label' | validation: validationType.REQUIRED
+            }"
+            (selectionChange)="resetTransitionTime()"
+          >
+            <mat-option *ngFor="let timezone of timezones" [value]="timezone.optionValue">{{
+              timezone.descriptionKey | translate
+            }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+  </div>
+  <div class="flex flex-row space-x-8">
+    <div class="flex flex-col flex-auto space-y-3">
+      <div class="flex flex-col">
+        <mat-label class="font-medium">{{ 'transit-time.label' | translate }}</mat-label>
+        <div class="flex flex-row items-center space-x-3">
+          <mat-label [ngStyle]="{ color: transitTimeColor }">{{ transitTime ? transitTime : '--:--' }} </mat-label>
+          <div class="flex flex-row">
+            <button
+              id="calculatebtn"
+              mat-stroked-button
+              class="btn-red-light"
+              (click)="calculateTime()"
+              [disabled]="!transitTimeGroup.valid"
+            >
+              {{ 'calculate.label' | translate }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

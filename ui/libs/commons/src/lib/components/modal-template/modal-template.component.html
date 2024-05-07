@@ -1,0 +1,24 @@
+<div class="modal-body-width">
+  <!-- Header Section -->
+  <div class="flex justify-between items-center mb-2">
+    <h2 mat-dialog-title class="m-0">{{ title | translate }}</h2>
+    <button class="treo-message-dismiss-button" mat-icon-button mat-dialog-close *ngIf="displayCloseButton">
+      <mat-icon [svgIcon]="'hi_outline:x'"></mat-icon>
+    </button>
+  </div>
+
+  <!-- Body Section -->
+  <mat-dialog-content class="mat-dialog-content mat-typography border py-2" [ngClass]="dialogContentAlign">
+    <ng-content></ng-content>
+  </mat-dialog-content>
+
+  <!-- Actions Buttons Section -->
+  <mat-dialog-actions class="flex justify-end w-full p-0 mt-2 mb-0" *ngIf="displayActionButtons">
+    <button class="action-button dialog-close" [ngClass]="cancelBtnClass" mat-raised-button mat-dialog-close>
+      <span class="px-4">{{ cancelTitle | translate }}</span>
+    </button>
+    <button class="action-button" [ngClass]="acceptBtnClass" mat-raised-button (click)="accept()" [disabled]="!isValid">
+      <span class="px-4">{{ acceptTitle | translate }}</span>
+    </button>
+  </mat-dialog-actions>
+</div>

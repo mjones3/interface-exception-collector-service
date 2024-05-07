@@ -1,0 +1,512 @@
+image: bitnami/node:14.21.0
+
+include:
+  - project: 'arc-one/rsa/gitlab-templates'
+    file: 'Helm-Package.gitlab-ci.yml'
+
+variables:
+  GIT_STRATEGY: clone # clone entire repo instead of reusing workspace
+  GIT_DEPTH: 0 # avoid shallow clone to give sonar all the info it needs
+  ARTIFACT_COMPRESSION_LEVEL: 'fast'
+  CACHE_COMPRESSION_LEVEL: 'fast'
+  FF_USE_FASTZIP: 'true'
+  SONAR_USER_HOME: '${CI_PROJECT_DIR}/.sonar' # Defines the location of the analysis task cache
+
+stages:
+  - setup
+  - distributed-tasks
+  - test
+  - docker-build
+  - docker-push
+  - deploy
+
+.yarn-cache: &yarn-cache
+  key:
+    files:
+      - yarn.lock
+  paths:
+    - node_modules
+    - .yarn
+  policy: pull
+
+.build-cache: &build-cache
+  key: build-$CI_JOB_IMAGE
+  paths:
+    - .cache
+    - dist
+
+.distributed:
+  interruptible: true
+  cache:
+    - <<: *yarn-cache
+    - <<: *build-cache
+  before_script:
+    - NX_HEAD=$CI_COMMIT_SHA
+    - NX_BASE=${CI_MERGE_REQUEST_DIFF_BASE_SHA:-$CI_COMMIT_BEFORE_SHA}
+  artifacts:
+    paths:
+      - node_modules/.cache/nx
+
+# Jobs
+Install Dependencies:
+  stage: setup
+  cache:
+    - <<: *yarn-cache
+      policy: pull-push
+  script:
+    - node --version
+    - npm --version
+    - yarn install --cache-folder .yarn
+
+build:
+  stage: distributed-tasks
+  extends: .distributed
+  script:
+    - echo "NX_HEAD $NX_HEAD"
+    - echo "NX_BASE $NX_BASE"
+    - npx nx run-many --target=build --all --prod --with-deps --parallel=3
+  artifacts:
+    paths:
+      - dist
+
+#############################
+# Docker Build
+#############################
+
+sonarcloud-check:
+  image:
+    name: sonarsource/sonar-scanner-cli:latest
+    entrypoint: ['']
+  cache:
+    key: '${CI_JOB_NAME}'
+    paths:
+      - .sonar/cache
+  script:
+    - sonar-scanner
+  only:
+    - merge_requests
+    - master
+    - develop
+
+#############################
+# Docker Build
+#############################
+
+.docker-build:
+  stage: docker-build
+  extends: .distributed
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: ['']
+  before_script:
+    - mkdir images
+  script:
+    - /kaniko/executor --context . --dockerfile ./docker/$APP_CONTAINER.Dockerfile --destination $APP_CONTAINER:$CI_COMMIT_SHORT_SHA --no-push --tarPath images/$APP_CONTAINER
+  artifacts:
+    paths:
+      - images
+
+manufacturing:build:
+  extends: .docker-build
+  variables:
+    APP_CONTAINER: manufacturing-ui
+  only:
+    - master
+    - tags
+
+donor:build:
+  extends: .docker-build
+  variables:
+    APP_CONTAINER: donor-ui
+  only:
+    - master
+    - tags
+
+admin:build:
+  extends: .docker-build
+  variables:
+    APP_CONTAINER: admin-ui
+  only:
+    - master
+    - tags
+
+distribution:build:
+  extends: .docker-build
+  variables:
+    APP_CONTAINER: distribution-ui
+  only:
+    - master
+    - tags
+
+specialty-lab:build:
+  extends: .docker-build
+  variables:
+    APP_CONTAINER: specialty-lab-ui
+  only:
+    - master
+    - tags
+
+manufacturing:build-branch:
+  extends: .docker-build
+  variables:
+    APP_CONTAINER: manufacturing-ui
+  except:
+    - master
+    - tags
+  when: manual
+
+donor:build-branch:
+  extends: .docker-build
+  variables:
+    APP_CONTAINER: donor-ui
+  except:
+    - master
+    - tags
+  when: manual
+
+admin:build-branch:
+  extends: .docker-build
+  variables:
+    APP_CONTAINER: admin-ui
+  except:
+    - master
+    - tags
+  when: manual
+
+distribution:build-branch:
+  extends: .docker-build
+  variables:
+    APP_CONTAINER: distribution-ui
+  except:
+    - master
+    - tags
+  when: manual
+
+specialty-lab:build-branch:
+  extends: .docker-build
+  variables:
+    APP_CONTAINER: specialty-lab-ui
+  except:
+    - master
+    - tags
+  when: manual
+
+#############################
+# Docker Push Nexus
+#############################
+
+.docker-push:
+  stage: docker-push
+  extends: .distributed
+  image: docker:19.03.12
+  services:
+    - docker:19.03.12-dind
+  before_script:
+    - docker info
+  script:
+    - export DOCKER_TAG=${CI_COMMIT_TAG:-$CI_COMMIT_SHORT_SHA}
+    - docker load -i images/$APP_CONTAINER
+    - docker login -u $DOCKER_NEXUS_USER -p $DOCKER_NEXUS_PASSWORD $DOCKER_NEXUS_REGISTRY
+    - docker tag $APP_CONTAINER:$CI_COMMIT_SHORT_SHA $DOCKER_NEXUS_REGISTRY/$APP_CONTAINER:$DOCKER_TAG
+    - docker tag $APP_CONTAINER:$CI_COMMIT_SHORT_SHA $DOCKER_NEXUS_REGISTRY/$APP_CONTAINER:latest
+    - docker push $DOCKER_NEXUS_REGISTRY/$APP_CONTAINER:$DOCKER_TAG
+    - docker push $DOCKER_NEXUS_REGISTRY/$APP_CONTAINER:latest
+
+manufacturing:package:
+  extends: .docker-push
+  variables:
+    APP_CONTAINER: manufacturing-ui
+  only:
+    - master
+    - tags
+
+donor:package:
+  extends: .docker-push
+  variables:
+    APP_CONTAINER: donor-ui
+  only:
+    - master
+    - tags
+
+admin:package:
+  extends: .docker-push
+  variables:
+    APP_CONTAINER: admin-ui
+  only:
+    - master
+    - tags
+
+distribution:package:
+  extends: .docker-push
+  variables:
+    APP_CONTAINER: distribution-ui
+  only:
+    - master
+    - tags
+
+specialty-lab:package:
+  extends: .docker-push
+  variables:
+    APP_CONTAINER: specialty-lab-ui
+  only:
+    - master
+    - tags
+
+manufacturing:package-branch:
+  extends: .docker-push
+  variables:
+    APP_CONTAINER: manufacturing-ui
+  except:
+    - master
+    - tags
+  when: manual
+
+donor:package-branch:
+  extends: .docker-push
+  variables:
+    APP_CONTAINER: donor-ui
+  except:
+    - master
+    - tags
+  when: manual
+
+admin:package-branch:
+  extends: .docker-push
+  variables:
+    APP_CONTAINER: admin-ui
+  except:
+    - master
+    - tags
+  when: manual
+
+distribution:package-branch:
+  extends: .docker-push
+  variables:
+    APP_CONTAINER: distribution-ui
+  except:
+    - master
+    - tags
+  when: manual
+
+specialty-lab:package-branch:
+  extends: .docker-push
+  variables:
+    APP_CONTAINER: specialty-lab-ui
+  except:
+    - master
+    - tags
+  when: manual
+
+#############################
+# Kubernetes Deploy
+#############################
+
+.kubernetes-deploy:
+  stage: deploy
+  extends: .distributed
+  image: dtzar/helm-kubectl:3.3.4
+  before_script:
+    - helm repo add stable https://arc-one.gitlab.io/rsa/helm-charts/
+    - helm repo update
+  script:
+    - helm dependency update "charts/${CHART}/"
+    - helm dependency build "charts/${CHART}/"
+    - export API_VERSION="$(grep "appVersion" charts/${CHART}/Chart.yaml | cut -d" " -f2)"
+    - export RELEASE_NAME="${CHART}-v${API_VERSION/./-}"
+    - export DEPLOYS=$(helm ls | grep $RELEASE_NAME | wc -l)
+    - export HELM_ACTION=$(if [ ${DEPLOYS} -eq 0 ]; then echo "install"; else echo "upgrade"; fi)
+    - >
+      helm $HELM_ACTION --wait
+      --set gitlab.app="$CI_PROJECT_PATH_SLUG"
+      --set gitlab.env="$CI_ENVIRONMENT_SLUG"
+      --set keycloak.host="$SL_KEYCLOAK_HOST"
+      --set api.domain="$SL_API_HOST"
+      --set api.environment="$SL_ENVIRONMENT"
+      --set image.repository="${DOCKER_NEXUS_REGISTRY}/${CHART}"
+      --set image.tag="${CI_COMMIT_SHORT_SHA}"
+      --set annotations."app\.gitlab\.com/app"="${CI_PROJECT_PATH_SLUG}"
+      --set annotations."app\.gitlab\.com/env"="${CI_ENVIRONMENT_SLUG}"
+      --set podAnnotations."app\.gitlab\.com/app"="${CI_PROJECT_PATH_SLUG}"
+      --set podAnnotations."app\.gitlab\.com/env"="${CI_ENVIRONMENT_SLUG}"
+      --namespace="$NAMESPACE"
+      ${RELEASE_NAME}
+      "charts/${CHART}/";
+
+manufacturing:development:
+  extends: .kubernetes-deploy
+  variables:
+    CHART: manufacturing-ui
+    NAMESPACE: ui
+  environment:
+    name: development
+    url: https://manufacturing.dev.ao.arc-one.com
+    kubernetes:
+      namespace: ui
+  only:
+    - master
+
+donor:development:
+  extends: .kubernetes-deploy
+  variables:
+    CHART: donor-ui
+    NAMESPACE: ui
+  environment:
+    name: development
+    url: https://donor.dev.ao.arc-one.com
+    kubernetes:
+      namespace: ui
+  only:
+    - master
+
+admin:development:
+  extends: .kubernetes-deploy
+  variables:
+    CHART: admin-ui
+    NAMESPACE: ui
+  environment:
+    name: development
+    url: https://admin.dev.ao.arc-one.com
+    kubernetes:
+      namespace: ui
+  only:
+    - master
+
+distribution:development:
+  extends: .kubernetes-deploy
+  variables:
+    CHART: distribution-ui
+    NAMESPACE: ui
+  environment:
+    name: development
+    url: https://distribution.dev.ao.arc-one.com
+    kubernetes:
+      namespace: ui
+  only:
+    - master
+
+specialty-lab:development:
+  extends: .kubernetes-deploy
+  variables:
+    CHART: specialty-lab-ui
+    NAMESPACE: ui
+  environment:
+    name: development
+    url: https://specialty-lab.dev.ao.arc-one.com
+    kubernetes:
+      namespace: ui
+  only:
+    - master
+
+#############################
+# Stage Deployment
+#############################
+
+admin:deploy-stage:
+  stage: deploy
+  image: $DOCKER_NEXUS_REGISTRY/api
+  cache: []
+  dependencies: []
+  script:
+    - api deploy --namespace ui --api-name admin-ui
+    - echo 'Update versioning enabled? ' $ENABLE_API_VERSIONING
+    - |
+      if [ $ENABLE_API_VERSIONING == true ]; then
+      echo 'updating version number'
+      apt-get update
+      apt-get -y install postgresql-client
+      psql -c "CALL PROCESS.UPDATE_ALL_MODULE_BUILD_NUMBER('Auto generating build number (admin ui)')" $DB_CONNECTION_STRING_PIPELINE_VERSIONING
+      fi
+  when: manual
+  environment:
+    name: stage
+  only:
+    - master
+    - tags
+
+distribution:deploy-stage:
+  stage: deploy
+  image: $DOCKER_NEXUS_REGISTRY/api
+  cache: []
+  dependencies: []
+  script:
+    - api deploy --namespace ui --api-name distribution-ui
+    - echo 'Update versioning enabled? ' $ENABLE_API_VERSIONING
+    - |
+      if [ $ENABLE_API_VERSIONING == true ]; then
+      echo 'updating version number'
+      apt-get update
+      apt-get -y install postgresql-client
+      psql -c "CALL PROCESS.UPDATE_ALL_MODULE_BUILD_NUMBER('Auto generating build number (distribution ui)')" $DB_CONNECTION_STRING_PIPELINE_VERSIONING
+      fi
+  when: manual
+  environment:
+    name: stage
+  only:
+    - master
+    - tags
+
+donor:deploy-stage:
+  stage: deploy
+  image: $DOCKER_NEXUS_REGISTRY/api
+  cache: []
+  dependencies: []
+  script:
+    - api deploy --namespace ui --api-name donor-ui
+    - echo 'Update versioning enabled? ' $ENABLE_API_VERSIONING
+    - |
+      if [ $ENABLE_API_VERSIONING == true ]; then
+      echo 'updating version number'
+      apt-get update
+      apt-get -y install postgresql-client
+      psql -c "CALL PROCESS.UPDATE_ALL_MODULE_BUILD_NUMBER('Auto generating build number (donor ui)')" $DB_CONNECTION_STRING_PIPELINE_VERSIONING
+      fi
+  when: manual
+  environment:
+    name: stage
+  only:
+    - master
+    - tags
+
+manufacturing:deploy-stage:
+  stage: deploy
+  image: $DOCKER_NEXUS_REGISTRY/api
+  cache: []
+  dependencies: []
+  script:
+    - api deploy --namespace ui --api-name manufacturing-ui
+    - echo 'Update versioning enabled? ' $ENABLE_API_VERSIONING
+    - |
+      if [ $ENABLE_API_VERSIONING == true ]; then
+      echo 'updating version number'
+      apt-get update
+      apt-get -y install postgresql-client
+      psql -c "CALL PROCESS.UPDATE_ALL_MODULE_BUILD_NUMBER('Auto generating build number (manufacturing ui)')" $DB_CONNECTION_STRING_PIPELINE_VERSIONING
+      fi
+  when: manual
+  environment:
+    name: stage
+  only:
+    - master
+    - tags
+
+specialty-lab:deploy-stage:
+  stage: deploy
+  image: $DOCKER_NEXUS_REGISTRY/api
+  cache: []
+  dependencies: []
+  script:
+    - api deploy --namespace ui --api-name specialty-lab-ui
+    - echo 'Update versioning enabled? ' $ENABLE_API_VERSIONING
+    - |
+      if [ $ENABLE_API_VERSIONING == true ]; then
+      echo 'updating version number'
+      apt-get update
+      apt-get -y install postgresql-client
+      psql -c "CALL PROCESS.UPDATE_ALL_MODULE_BUILD_NUMBER('Auto generating build number (specialty-lab ui)')" $DB_CONNECTION_STRING_PIPELINE_VERSIONING
+      fi
+  when: manual
+  environment:
+    name: stage
+  only:
+    - master
+    - tags

@@ -1,0 +1,13 @@
+rsa-volume {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+}
+
+mat-error {
+  max-width: 200px !important;
+}
+
+mat-button-toggle {
+  min-width: 110px !important;
+}

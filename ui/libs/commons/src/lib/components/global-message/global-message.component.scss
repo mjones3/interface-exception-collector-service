@@ -1,0 +1,63 @@
+#messageBox {
+  border-radius: 8px;
+  border: 1px solid;
+  position: relative;
+
+  .message-text {
+    color: #27303f;
+  }
+
+  .message-title {
+    font-weight: bold;
+  }
+
+  .close-message {
+    position: absolute;
+    right: 5px;
+  }
+
+  // SUCCESS
+  &.success-message {
+    background-color: #c2e7da;
+    border-color: #adc;
+
+    .message-title,
+    .message-icon {
+      color: #0e553d;
+    }
+  }
+
+  // WARNING
+  &.warning-message,
+  &.block-message {
+    background-color: #f7e7cd;
+    border-color: #f2deba;
+
+    .message-title,
+    .message-icon {
+      color: #936818;
+    }
+  }
+
+  // ERROR
+  &.error-message {
+    background-color: #f1c5c6;
+    border-color: #ecb0b0;
+
+    .message-title,
+    .message-icon {
+      color: #711616;
+    }
+  }
+
+  // PRIMARY
+  &.primary-message {
+    background-color: #bfe2ea;
+    border-color: #a5d6e2;
+
+    .message-title,
+    .message-icon {
+      color: #055569;
+    }
+  }
+}

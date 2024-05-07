@@ -1,0 +1,12 @@
+#filterableDropDownListWrapper {
+
+  .treo-message-dismiss-button {
+    background: #97a6ba61;
+  }
+
+  // Keep scroll bar displayed
+  ::ng-deep .ps > .ps__rail-y {
+    opacity: 0.6!important;
+  }
+
+}

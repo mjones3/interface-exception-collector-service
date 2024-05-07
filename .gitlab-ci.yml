@@ -1,0 +1,4 @@
+#include:
+#  - project: arc-one/infrastructure/gitlab-ci
+#    ref: main
+#    file: pipeline_biopro_domain.gitlab-ci.yml

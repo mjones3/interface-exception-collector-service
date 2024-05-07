@@ -1,0 +1,119 @@
+{
+  "npmScope": "rsa",
+  "affected": {
+    "defaultBase": "master"
+  },
+  "implicitDependencies": {
+    "angular.json": "*",
+    "package.json": {
+      "dependencies": "*",
+      "devDependencies": "*"
+    },
+    "tsconfig.base.json": "*",
+    "tslint.json": "*",
+    "nx.json": "*"
+  },
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "@nrwl/workspace/tasks-runners/default",
+      "options": {
+        "cacheDirectory": ".nx-cache",
+        "cacheableOperations": [
+          "build",
+          "lint",
+          "test",
+          "e2e",
+          "build-storybook"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "manufacturing-ui-e2e": {
+      "tags": ["type:e2e"],
+      "implicitDependencies": ["manufacturing-ui"]
+    },
+    "manufacturing-ui": {
+      "tags": ["type:app"],
+      "implicitDependencies": ["touchable"]
+    },
+    "admin-ui-e2e": {
+      "tags": ["type:e2e"],
+      "implicitDependencies": ["admin-ui"]
+    },
+    "admin-ui": {
+      "tags": ["type:app"],
+      "implicitDependencies": ["theme"]
+    },
+    "specialty-lab-ui-e2e": {
+      "tags": ["type:e2e"],
+      "implicitDependencies": ["specialty-lab-ui"]
+    },
+    "specialty-lab-ui": {
+      "tags": ["type:app"],
+      "implicitDependencies": ["theme"]
+    },
+    "dashboard-ui-e2e": {
+      "tags": ["type:e2e"],
+      "implicitDependencies": ["dashboard-ui"]
+    },
+    "dashboard-ui": {
+      "tags": ["type:app"],
+      "implicitDependencies": ["theme"]
+    },
+    "commons": {
+      "tags": ["type:library"],
+      "implicitDependencies": ["treo", "material"]
+    },
+    "theme": {
+      "tags": ["type:library"],
+      "implicitDependencies": ["commons"]
+    },
+    "touchable-e2e": {
+      "tags": ["type:e2e"],
+      "implicitDependencies": ["touchable"]
+    },
+    "touchable": {
+      "tags": ["type:library"],
+      "implicitDependencies": ["theme"]
+    },
+    "treo": {
+      "tags": ["type:library"]
+    },
+    "material": {
+      "tags": ["type:library"],
+      "implicitDependencies": ["shared-assets", "shared-styles"]
+    },
+    "shared-assets": {
+      "tags": ["scope:shared", "type:assets"]
+    },
+    "shared-styles": {
+      "tags": ["scope:shared"]
+    },
+    "testing": {
+      "tags": ["type:library"]
+    },
+    "errors": {
+      "tags": []
+    },
+    "donor-ui": {
+      "tags": ["type:app"],
+      "implicitDependencies": ["treo"]
+    },
+    "donor-ui-e2e": {
+      "tags": [],
+      "implicitDependencies": ["donor-ui"]
+    },
+    "global-data": {
+      "tags": []
+    },
+    "distribution-ui": {
+      "tags": ["type:app"],
+      "implicitDependencies": ["treo"]
+    },
+    "distribution-ui-e2e": {
+      "tags": [],
+      "implicitDependencies": ["distribution-ui"]
+    }
+  }
+}

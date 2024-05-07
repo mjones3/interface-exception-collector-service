@@ -1,0 +1,48 @@
+@import '../../../../../shared/styles/src/lib/treo';
+
+.toast-top-right {
+  top: 125px;
+  right: 15px;
+}
+
+.rsa-toast {
+  pointer-events: auto;
+}
+
+.toast-container {
+  width: 400px;
+  max-width: 400px;
+}
+
+.toast-container .rsa-toast {
+  position: relative;
+  overflow: hidden;
+  margin: 0 0 6px;
+  padding: 15px 15px 15px 50px;
+  width: 350px;
+  border-radius: 3px 3px 3px 3px;
+  text-align: left;
+}
+
+.toast-container .rsa-toast:hover {
+  opacity: 1;
+  cursor: pointer;
+}
+
+// -----------------------------------------------------------------------------------------------------
+// @ Theming
+// -----------------------------------------------------------------------------------------------------
+@include treo-theme {
+  treo-message {
+    .treo-message-container {
+      // Icon
+      .treo-message-dismiss-button {
+        .mat-icon {
+          color: currentColor !important;
+        }
+      }
+
+      white-space: pre-line !important;
+    }
+  }
+}

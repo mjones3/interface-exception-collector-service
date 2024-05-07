@@ -1,0 +1,75 @@
+<div
+  class="flex flex-col h-full"
+  [ngClass]="{ 'col-options-picker': options?.length < 5 && !embedded, embedded: embedded, 'w-full': fullWidth }"
+>
+  <!-- Transparent Header -->
+  <mat-card-header *ngIf="transparentHeader && !embedded" class="flex mb-4">
+    <mat-card-title [id]="'optionsPickerTitle'">{{ headerTitle | translate }}</mat-card-title>
+  </mat-card-header>
+
+  <!-- White card -->
+  <treo-card class="flex-1 justify-center" [ngClass]="{ 'w-full': fullWidth }">
+    <form class="rounded overflow-hidden flex-auto">
+      <div class="flex h-full flex-col options-card-wrapper w-full" [ngClass]="{ 'px-0': !transparentHeader }">
+        <!-- White Header -->
+        <mat-card-header class="border-b border-gray-200" *ngIf="!transparentHeader && !embedded && showTitle">
+          <div [id]="'optionsPickerTitle'" class="treo-card-title">
+            <h3>{{ headerTitle | translate }}</h3>
+          </div>
+        </mat-card-header>
+
+        <!-- Card Content -->
+        <div class="p-8" *ngIf="textContent">{{ textContent | translate }}</div>
+        <div class="flex flex-1 justify-center">
+          <div class="m-auto">
+            <div
+              [id]="optionsId"
+              class="flex flex-wrap options-content text-center"
+              [ngClass]="{ 'p-4': !transparentHeader || !embedded || p4 }"
+            >
+              <div class="grid gap-2" [ngClass]="'grid-cols-' + columns">
+                <button
+                  *ngFor="let option of options; let i = index"
+                  mat-raised-button
+                  [ngClass]="{ 'max-w-100': columns > 2, 'w-100': columns <= 2, preselectedBtn: option.selected }"
+                  class="col-span-1 product-button m-2 hover:text-white text-left"
+                  [disabled]="option.disabled"
+                  [id]="optionsLabel ? getButtonId(option) : option"
+                  (click)="selectOption(option)"
+                  type="button"
+                  [color]="getOptionColor(option)"
+                >
+                  <span [ngClass]="{ 'flex flex-col': showStatus }">
+                    <mat-icon
+                      [svgIcon]="
+                        option.icon
+                          ? 'rsa:' + option.icon
+                          : defaultIconName
+                          ? 'rsa:' + defaultIconName
+                          : 'rsa:dialog-confirmation'
+                      "
+                    ></mat-icon>
+                    <span
+                      class="block mt-2 status text-sm py-1 text-center"
+                      [ngClass]="option.statusClasses"
+                      *ngIf="showStatus"
+                      >{{ option.status | translate }}</span
+                    >
+                  </span>
+
+                  <!-- Using pre-defined button content -->
+                  <span class="ml-2 px-6" *ngIf="!buttonTemplate">
+                    <span class="block">{{ (optionsLabel ? getOptionLabel(option) : option) | translate }}</span>
+                  </span>
+
+                  <!-- Using a Template as Button Content -->
+                  <ng-container *ngTemplateOutlet="buttonTemplate; context: { option: option }"></ng-container>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </treo-card>
+</div>

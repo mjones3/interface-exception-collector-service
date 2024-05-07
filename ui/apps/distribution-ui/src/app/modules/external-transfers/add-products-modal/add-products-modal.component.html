@@ -1,0 +1,119 @@
+<rsa-common-modal-template
+  [title]="'available-products.label' | translate"
+  [cancelTitle]="'cancel.label'"
+  [acceptTitle]="'add.label' | translate"
+  (acceptSelection)="addProduct()"
+  [isValid]="addedProducts.length > 0"
+>
+  <div class="flex">
+    <!-- Add Products Modal -->
+    <div class="w-full p-4">
+      <div class="text-left flex flex-col space-y-4 w-full" id="addOrRemoveProdGroup">
+        <div class="flex w-full flex-row space-x-3">
+          <div class="flex flex-col">
+            <div class="flex flex-row items-center flex-auto space-x-1">
+              <mat-label class="block font-bold w-32">{{ 'unit-number.label' | translate }}:</mat-label>
+              <div class="flex flex-col w-100">
+                <mat-form-field appearance="fill" class="block w-full" rsaControlErrorContainer>
+                  <input
+                    matInput
+                    id="unitNumberId"
+                    [formControl]="unitNumberControl"
+                    rsaBarcode
+                    autocomplete="off"
+                    [placeholder]="'scan-unit-number.label' | translate"
+                    [customErrors]="{ invalidUnitNumber: 'unit-number.label' | validation: validationType.INVALID }"
+                  />
+                </mat-form-field>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="flex w-full flex-row space-x-3 items-end" cdkDropListGroup>
+          <div class="flex flex-col w-1/2">
+            <mat-label class="mb-3">{{ 'available-products.label' | translate }}</mat-label>
+            <div
+              class="scrollable-content min-h-40 max-h-40 border rounded"
+              treoScrollbar
+              #availableProdScrollbar="treoScrollbar"
+              [treoScrollbarOptions]="{ wheelPropagation: false, suppressScrollX: true }"
+              cdkDropList
+              #availableProductsList="cdkDropList"
+              [cdkDropListData]="availableProducts"
+              [cdkDropListConnectedTo]="[addedProductList]"
+              (cdkDropListDropped)="drop($event)"
+            >
+              <mat-selection-list [multiple]="false" class="p-0 border-gray-300" id="availableProductsList">
+                <mat-list-option
+                  cdkDrag
+                  class="drag-item"
+                  *ngFor="let item of availableProducts; let i = index"
+                  (click)="selectAvailablePro(item, i)"
+                >
+                  <div class="flex flex-row space-x-6">
+                    <span>{{ item.description | translate | uppercase }}</span>
+                    <span>{{ item.productCode | uppercase }}</span>
+                  </div>
+                  <mat-divider></mat-divider>
+                </mat-list-option>
+              </mat-selection-list>
+            </div>
+            <mat-label class="mt-1 drag-drop-text">{{ 'drag-from.label' | translate }}</mat-label>
+          </div>
+          <div class="flex flex-col w-1/2">
+            <div class="flex flex-row justify-between items-baseline mb-1">
+              <mat-label class="mb-2">
+                {{ 'products-currently-added.label' | translate }}
+              </mat-label>
+              <button
+                mat-stroked-button
+                id="removeAllButton"
+                type="button"
+                class="bg-purple-light"
+                (click)="removeAllProds()"
+                *ngIf="addedProducts?.length"
+              >
+                {{ 'remove-all.label' | translate }}
+              </button>
+            </div>
+
+            <div
+              class="scrollable-content min-h-40 max-h-40 border rounded"
+              treoScrollbar
+              #addedProdScrollbar="treoScrollbar"
+              [treoScrollbarOptions]="{ wheelPropagation: false, suppressScrollX: true }"
+              cdkDropList
+              #addedProductList="cdkDropList"
+              [cdkDropListData]="addedProducts"
+              [cdkDropListConnectedTo]="[availableProductsList]"
+              (cdkDropListDropped)="drop($event)"
+            >
+              <mat-selection-list [multiple]="false" class="p-0 border-gray-300" id="addedProductsList">
+                <mat-list-option *ngFor="let item of addedProducts" cdkDrag class="drag-item">
+                  <div class="flex flex-row justify-between items-center">
+                    <div class="flex flex-row space-x-4">
+                      <span>{{ item.description | translate | uppercase }}</span>
+                      <span>{{ item.productCode | translate }}</span>
+                    </div>
+                    <button
+                      mat-stroked-button
+                      id="removeButton"
+                      type="button"
+                      class="bg-purple-light ml-2"
+                      (click)="removeProduct(item)"
+                    >
+                      {{ 'remove.label' | translate }}
+                    </button>
+                  </div>
+
+                  <mat-divider></mat-divider>
+                </mat-list-option>
+              </mat-selection-list>
+            </div>
+            <mat-label class="mt-1 drag-drop-text">{{ 'drag-here.label' | translate }}</mat-label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</rsa-common-modal-template>

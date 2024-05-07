@@ -1,0 +1,10 @@
+// This icon file is generated automatically.
+import { IconDefinition } from '../../types';
+
+export const UserCheckRsa: IconDefinition = {
+  name: 'user-check',
+  theme: 'rsa',
+  icon: `<svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 34 34"><g id="Group_5601" data-name="Group 5601" transform="translate(-2447 2150)"><circle id="Ellipse_1423" data-name="Ellipse 1423" cx="17" cy="17" r="17" transform="translate(2447 -2150)" fill="#9aa6b8"/>
+    <path id="Icon_awesome-user-check" data-name="Icon awesome-user-check" d="M7,8A4,4,0,1,0,3,4,4,4,0,0,0,7,8ZM9.8,9H9.278A5.44,5.44,0,0,1,4.722,9H4.2A4.2,4.2,0,0,0,0,13.2v1.3A1.5,1.5,0,0,0,1.5,16h11A1.5,1.5,0,0,0,14,14.5V13.2A4.2,4.2,0,0,0,9.8,9ZM19.894,4.987l-.869-.878a.371.371,0,0,0-.525,0l-3.275,3.25L13.8,5.925a.371.371,0,0,0-.525,0l-.878.872a.371.371,0,0,0,0,.525L14.95,9.891a.371.371,0,0,0,.525,0l4.416-4.381a.373.373,0,0,0,0-.525Z" transform="translate(2455 -2142)" fill="#fff"/></g>
+</svg>`,
+};

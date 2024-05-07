@@ -1,0 +1,38 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "es2015",
+    "module": "esnext",
+    "typeRoots": ["node_modules/@types"],
+    "lib": ["es2018", "dom"],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@rsa/admin/*": ["apps/admin-ui/src/app/*"],
+      "@rsa/commons": ["libs/commons/src/index.ts"],
+      "@rsa/dashboard/*": ["apps/dashboard-ui/src/app/*"],
+      "@rsa/distribution/*": ["apps/distribution-ui/src/app/*"],
+      "@rsa/donor/*": ["apps/donor-ui/src/app/*"],
+      "@rsa/errors": ["libs/errors/src/index.ts"],
+      "@rsa/global-data": ["libs/global-data/src/index.ts"],
+      "@rsa/material": ["libs/material/src/index.ts"],
+      "@rsa/shared/styles": ["libs/shared/styles/src/index.ts"],
+      "@rsa/specialty-lab/*": ["apps/specialty-lab-ui/src/app/*"],
+      "@rsa/testing": ["libs/testing/src/index.ts"],
+      "@rsa/theme": ["libs/theme/src/index.ts"],
+      "@rsa/touchable": ["libs/touchable/src/index.ts"],
+      "@treo": ["libs/treo/src/index.ts"],
+      "@treo/*": ["libs/treo/src/lib/*"],
+      "app/*": ["apps/manufacturing-ui/src/app/*"]
+    }
+  },
+  "exclude": ["node_modules", "tmp"]
+}

@@ -1,0 +1,166 @@
+<form
+  id="productSelectionForm"
+  class="flex flex-row space-x-8 items-center mt-3"
+  [formGroup]="productSelectionGroup"
+  rsaGroupErrorMatcher
+>
+  <div id="fillOrderForm" class="w-full flex flex-col" [formGroup]="productSelectionGroup">
+    <div class="flex flex-row space-x-10 pt-4">
+      <div class="flex flex-row items-baseline w-1/2 space-x-1">
+        <mat-label class="block font-bold mr-6">{{ 'unit-number.label' | translate }}:</mat-label>
+        <div class="flex flex-col flex-auto">
+          <mat-form-field appearance="fill" class="block w-full" rsaControlErrorContainer>
+            <input
+              #unitNumberInput
+              matInput
+              id="unitNumberId"
+              formControlName="unitNumber"
+              validateOn="blur"
+              autocomplete="off"
+              required
+              cdkFocusInitial
+              [rsaAutoFocusIf]="unitNumberFocus"
+              [placeholder]="'scan-unit-number.label' | translate"
+              [customErrors]="{
+                required: 'unit-number.label' | validation: validationType.REQUIRED,
+                invalidUnitNumber: 'unit-number.label' | validation: validationType.INVALID
+              }"
+              (keydown.enter)="onUnitNumberKeyOrTab()"
+              (keydown.tab)="onUnitNumberKeyOrTab()"
+            />
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="flex flex-row items-baseline flex-auto space-x-1" [ngClass]="{ hidden: isUnlabeled }">
+        <mat-label class="block font-bold mr-6">{{ 'product-code.label' | translate }}:</mat-label>
+        <div class="flex flex-col flex-auto">
+          <mat-form-field appearance="fill" class="block w-full" rsaControlErrorContainer>
+            <input
+              #productCodeInput
+              matInput
+              id="productCodeId"
+              formControlName="productCode"
+              rsaFullProductCode
+              required
+              autocomplete="off"
+              [placeholder]="'scan-product-code.label' | translate"
+              [customErrors]="{
+                required: 'product-code.label' | validation: validationType.REQUIRED,
+                invalidProductCode: 'product-code.label' | validation: validationType.INVALID
+              }"
+              (keydown.enter)="onProductCodeKeyOrTab()"
+              (keydown.tab)="onProductCodeKeyOrTab()"
+            />
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #optionDescriptionTpl>
+    <div class="flex flex-col space-y-3">
+      <div>
+        <span class="font-bold mr-2">{{ 'unit-number.label' | translate }}:</span>
+        <span>{{ productSelectionGroup.get('unitNumber')?.value }}</span>
+      </div>
+      <div>{{ 'please-select-product.label' | translate }}.</div>
+    </div>
+  </ng-template>
+</form>
+<div class="flex flex-row-reverse pr-8">
+  <button
+    id="addProductBtn"
+    class="bg-green justify-center"
+    mat-stroked-button
+    (click)="onProductCodeKeyOrTab()"
+    *ngIf="isLabeled"
+    [disabled]="!productSelectionGroup.get('unitNumber')?.value || !productSelectionGroup.get('productCode')?.value"
+  >
+    {{ 'add.label' | translate }}
+  </button>
+</div>
+<!-- PRODUCT INFORMATION TABLE -->
+<treo-card class="flex-col my-8 pb-4">
+  <!-- HEADER SECTION -->
+  <div class="treo-card-title">
+    <div class="flex flex-row w-full justify-between px-5 items-baseline">
+      <h3>{{ 'product-information.label' | translate }}</h3>
+      <button
+        id="removeAllProdBtn"
+        class="bg-purple-light justify-center"
+        mat-stroked-button
+        *ngIf="products?.length"
+        (click)="removeAll()"
+      >
+        {{ 'remove-all.label' | translate }}
+      </button>
+    </div>
+  </div>
+  <mat-divider></mat-divider>
+  <div class="table-wrapper">
+    <p-table
+      #productTable
+      id="transferReceiptProductsTableId"
+      dataKey="inventoryId"
+      styleClass="p-datatable-customers p-datatable-sm"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+      [value]="products"
+      [columns]="selectedColumns"
+      [showCurrentPageReport]="true"
+    >
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th
+            [pSortableColumn]="col.sortable ? (col.sortFieldName ? col.sortFieldName : col.field) : null"
+            [ngClass]="col.headerCls"
+            *ngFor="let col of columns; let i = index"
+          >
+            <div [ngClass]="{ 'ml-6': i === 0 }" class="flex items-center p-d-flex p-jc-between p-ai-center">
+              {{ col.header | translate }}
+              <p-sortIcon [field]="col.sortFieldName ? col.sortFieldName : col.field" *ngIf="col.sortable">
+              </p-sortIcon>
+            </div>
+          </th>
+        </tr>
+      </ng-template>
+
+      <ng-template #actionTpl let-product>
+        <button id="removeProdBtn" class="bg-purple-light justify-center" mat-stroked-button (click)="remove(product)">
+          {{ 'remove.label' | translate }}
+        </button>
+      </ng-template>
+
+      <ng-template #quarantineTpl let-product>
+        <mat-icon *ngIf="product.quarantine" [svgIcon]="'check_circle'"></mat-icon>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-product let-expanded="expanded" let-columns="columns">
+        <tr>
+          <td *ngFor="let col of columns; let i = index" class="break-all">
+            <ng-container *ngIf="{ actionTpl: actionTpl, quarantineTpl: quarantineTpl } as templates">
+              <ng-container *ngIf="col?.templateRef">
+                <ng-container
+                  *ngTemplateOutlet="templates[col?.templateRef]; context: { $implicit: product, field: col?.field }"
+                ></ng-container>
+              </ng-container>
+            </ng-container>
+
+            <ng-container *ngIf="!col?.templateRef">
+              <div [ngClass]="{ 'ml-6': i === 0 }">
+                {{ product[col.field]?.toString() | translate | uppercase }}
+              </div>
+            </ng-container>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="footer">
+        <tr>
+          <td [attr.colspan]="7" class="p-text-right">
+            <span class="ml-6">({{ products?.length }}) {{ 'total-products.label' | translate }}</span>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</treo-card>

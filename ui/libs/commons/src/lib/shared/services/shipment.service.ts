@@ -1,0 +1,102 @@
+import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import {
+  CurrentTimeDto,
+  LocationInventoryHistoryDto,
+  ReturnsDto,
+  ShipmentDto,
+  TransitTimeRequestDto,
+  TransitTimeResponseDto,
+} from '../models';
+import { ExternalTransferDto } from '../models/external-transfer.dto';
+import { EnvironmentConfigService } from './environment-config.service';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class ShipmentService {
+  shipmentEndpoint: string;
+  transitTimeEndpoint: string;
+  returnsEndpoint: string;
+  externalTransferEndpoint: string;
+  locationInventoryHistoriesEndpoint: string;
+
+  constructor(private httpClient: HttpClient, private config: EnvironmentConfigService) {
+    this.shipmentEndpoint = `${config.env.serverApiURL}/v1/shipments`;
+    this.transitTimeEndpoint = `${config.env.serverApiURL}/v1/transit-time/calculate`;
+    this.returnsEndpoint = `${config.env.serverApiURL}/v1/returns`;
+    this.externalTransferEndpoint = `${config.env.serverApiURL}/v1/external-transfers`;
+    this.locationInventoryHistoriesEndpoint = `${config.env.serverApiURL}/v1/location-inventory-histories`;
+  }
+
+  //#region SHIPMENT
+
+  public getShipmentByCriteria(criteria?: {}): Observable<HttpResponse<ShipmentDto[]>> {
+    return this.httpClient
+      .get<ShipmentDto[]>(`${this.shipmentEndpoint}`, {
+        params: { ...criteria },
+        observe: 'response',
+      })
+      .pipe(catchError(this.errorHandler));
+  }
+
+  public createShipment(shipment: ShipmentDto): Observable<HttpResponse<ShipmentDto>> {
+    return this.httpClient.post<ShipmentDto>(this.shipmentEndpoint, shipment, { observe: 'response' });
+  }
+
+  //#endregion
+
+  //#region TRANSIT TIME
+
+  public currentTime(timezone: string): Observable<CurrentTimeDto> {
+    return this.httpClient
+      .get<CurrentTimeDto>(`${this.transitTimeEndpoint}/current-time`, {
+        params: { timezone },
+      })
+      .pipe(catchError(this.errorHandler));
+  }
+
+  public calculateTransiteTime(dto: TransitTimeRequestDto): Observable<TransitTimeResponseDto> {
+    return this.httpClient
+      .post<TransitTimeResponseDto>(this.transitTimeEndpoint, dto)
+      .pipe(catchError(this.errorHandler));
+  }
+
+  //#endregion
+
+  //#region RETURNS
+
+  public confirmReturn(dto: ReturnsDto): Observable<ReturnsDto> {
+    return this.httpClient.post<ReturnsDto>(this.returnsEndpoint, dto).pipe(catchError(this.errorHandler));
+  }
+
+  //#endregion
+
+  //#region EXTERNAL TRANSFER
+
+  public createExternalTransfer(dto: ExternalTransferDto): Observable<ExternalTransferDto> {
+    return this.httpClient
+      .post<ExternalTransferDto>(this.externalTransferEndpoint, dto)
+      .pipe(catchError(this.errorHandler));
+  }
+
+  //#endregion
+
+  //#region INVENTORY HISTORIES
+
+  public getInventoryHistoriesByCriteria(criteria?: { [key: string]: any }): Observable<LocationInventoryHistoryDto[]> {
+    return this.httpClient
+      .get<LocationInventoryHistoryDto[]>(`${this.locationInventoryHistoriesEndpoint}`, {
+        params: { ...criteria },
+      })
+      .pipe(catchError(this.errorHandler));
+  }
+
+  //#endregion
+
+  public errorHandler(error: HttpErrorResponse): Observable<any> {
+    return throwError(error);
+  }
+}

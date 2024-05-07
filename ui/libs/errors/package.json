@@ -1,0 +1,13 @@
+{
+  "name": "@rsa/errors",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@angular/common": "^11.0.3",
+    "@angular/core": "^11.0.3",
+    "lodash": "^4.17.19",
+    "rxjs": "6.5.5"
+  },
+  "dependencies": {
+    "tslib": "^2.0.0"
+  }
+}

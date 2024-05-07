@@ -1,0 +1,11 @@
+export const DISTRIBUTION_LOCATION_TYPE_IDS = [1, 4, 5];
+
+export const SPECIALTY_LAB_LOCATION_TYPE_IDS = [8];
+
+export const MANUFACTURING_LOCATION_TYPE_IDS = [1, 4, 5, 8];
+
+export const DONOR_LOCATION_TYPE_IDS = [1];
+
+export const ADMIN_LOCATION_TYPE_IDS = [1, 2, 5, 7, 8, 9];
+
+export const EVENT_MANAGEMENT_LOCATION_TYPE_IDS = [10];

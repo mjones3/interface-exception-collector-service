@@ -1,0 +1,20 @@
+#confirmationModalWrapper {
+
+  mat-dialog-actions {
+    button {
+      font-weight: 700;
+      margin-left: 20px;
+
+      span {
+        min-width: auto;
+      }
+    }
+  }
+
+  .treo-message-dismiss-button {
+    background: #97a6ba61;
+  }
+
+}
+
+

@@ -1,0 +1,35 @@
+<rsa-common-modal-template
+  [title]="'cancel-order.label' | translate"
+  [cancelTitle]="'cancel.label'"
+  [acceptTitle]="'save.label'"
+  (acceptSelection)="cancelOrder()"
+  [isValid]="cancelOrderGroup.valid"
+>
+  <div class="flex">
+    <!-- Cancel Order -->
+    <div class="w-full p-4">
+      <form [formGroup]="cancelOrderGroup" class="text-left w-full">
+        <div class="flex flex-col">
+          <div class="flex flex-col space-y-2 mb-2">
+            <mat-label class="font-bold">{{ 'cancellation-reason.label' | translate }}</mat-label>
+            <mat-form-field appearance="fill" class="block w-full" rsaControlErrorContainer>
+              <mat-select
+                id="cancellationReasonSelId"
+                formControlName="reason"
+                validateOn="touchedState"
+                [customErrors]="{
+                  required: 'cancellation-reason.label' | validation: validationType.REQUIRED
+                }"
+                [placeholder]="'select-an-option.label' | translate"
+              >
+                <mat-option *ngFor="let reason of cancellationReasons" [value]="reason.id">{{
+                  reason.descriptionKey | translate
+                }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</rsa-common-modal-template>

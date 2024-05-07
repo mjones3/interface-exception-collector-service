@@ -1,0 +1,5 @@
+{
+  "hooks": {
+     "pre-commit": "npm run affected:lint --parallel --maxParallel=5 && npm run affected:test --parallel --maxParallel=5"
+  }
+}

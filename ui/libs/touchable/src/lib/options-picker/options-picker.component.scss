@@ -1,0 +1,83 @@
+rsa-options-picker {
+  width: 100%;
+}
+
+.col-options-picker {
+  margin: auto;
+
+  &,
+  treo-card {
+    width: fit-content;
+  }
+
+  .options-content {
+    flex-direction: column;
+  }
+}
+
+.embedded {
+  margin-left: -0.5rem;
+
+  treo-card {
+    background-color: transparent;
+    box-shadow: none;
+  }
+
+  &,
+  .options-card-wrapper {
+    padding: 0 !important;
+  }
+}
+
+.w-fix-content {
+  width: fit-content;
+}
+
+.product-button {
+  min-height: auto;
+  max-height: initial;
+  height: auto;
+  padding: 5px;
+  white-space: pre-wrap !important;
+  font-weight: 700;
+
+  span {
+    flex: 1;
+  }
+
+  ::ng-deep.mat-button-wrapper {
+    width: 100%;
+  }
+}
+
+.status {
+  width: 104px;
+  min-width: 104px;
+  border-radius: 20px;
+  color: white;
+
+  &.label {
+    background-color: #4caf50;
+  }
+
+  &.relabel {
+    background-color: #0c5f0f;
+  }
+}
+
+::ng-deep.product-button > span > mat-icon > svg {
+  max-width: 96px !important;
+  max-height: 96px !important;
+}
+
+.preselectedBtn {
+  background-color: #0c8cad !important;
+}
+
+.treo-theme-light {
+  color: black !important;
+}
+
+.treo-theme-light [disabled] * {
+  color: #c1c5c7;
+}

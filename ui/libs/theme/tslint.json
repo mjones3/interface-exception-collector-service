@@ -1,0 +1,26 @@
+{
+  "extends": "../../tslint.json",
+  "rules": {
+    "directive-selector": [
+      true,
+      "attribute",
+      "rsa",
+      "camelCase"
+    ],
+    "component-selector": [
+      true,
+      "element",
+      "rsa",
+      "kebab-case"
+    ]
+  },
+  "linterOptions": {
+    "exclude": [
+      "!**/*",
+      "icon-svg/**",
+      "src/lib/icons/**",
+      "src/lib/manifest.ts",
+      "src/lib/public_api.ts"
+    ]
+  }
+}

@@ -1,0 +1,76 @@
+<rsa-common-modal-template
+  [title]="'service-fee.label'"
+  [cancelTitle]="'cancel.label'"
+  [acceptTitle]="'submit.label'"
+  (acceptSelection)="saveFees()"
+  [isValid]="serviceFeeGroup.valid"
+>
+  <div class="flex">
+    <!-- Left Content - Add/Edit Test Result Form -->
+    <div class="w-full p-4">
+      <form [formGroup]="serviceFeeGroup" class="text-left w-full">
+        <div class="flex flex-col">
+          <div
+            class="flex flex-row justify-start items-center space-x-8"
+            *ngFor="let feeGroup of serviceFeeArray.controls; let i = index"
+          >
+            <div class="flex flex-row justify-start items-baseline space-x-4">
+              <mat-label class="block font-bold min-w-40">{{ 'service-fee.label' | translate }}</mat-label>
+              <div class="flex flex-col min-w-50">
+                <mat-form-field appearance="fill" class="block w-full" rsaControlErrorContainer>
+                  <mat-select
+                    [id]="'serviceFee' + i"
+                    validateOn="touchedState"
+                    [formControl]="feeGroup.get('serviceFee')"
+                    [customErrors]="{
+                      required: 'service-fee.label' | validation: validationType.REQUIRED
+                    }"
+                    [placeholder]="'select-an-option.label' | translate"
+                  >
+                    <mat-option *ngFor="let fee of serviceFees" [value]="fee.optionValue">{{
+                      fee.descriptionKey | translate
+                    }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="flex flex-row justify-start items-center">
+              <mat-label class="block font-bold min-w-40">{{ 'quantity.label' | translate }}</mat-label>
+              <div class="flex flex-col min-w-40">
+                <mat-form-field class="flex-auto" rsaControlErrorContainer>
+                  <input
+                    [id]="'quantity' + i"
+                    matInput
+                    [formControl]="feeGroup.get('quantity')"
+                    autocomplete="off"
+                    validateOn="blur"
+                    rsaMaskRegex
+                    allowedCharsRegex="[0-9]+"
+                    [customErrors]="{
+                      required: 'quantity.label' | validation: validationType.REQUIRED,
+                      min: 'quantity.label' | validation: validationType.INVALID
+                    }"
+                  />
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="flex flex-col">
+              <mat-icon
+                [id]="'removeServiceFee' + i"
+                class="w-8 h-8 cursor-pointer"
+                [svgIcon]="'hi_outline:trash'"
+                (click)="removeFeeClick(i)"
+              ></mat-icon>
+            </div>
+          </div>
+        </div>
+        <div class="flex flex-row justify-start items-center">
+          <button id="addServiceFee" mat-button (click)="addFeeClick()">
+            <mat-icon class="icon-size-20 mr-1" [svgIcon]="'hi_solid:plus-circle'"></mat-icon>
+            <span class="font-bold">{{ 'add-service-fee.label' | translate }}</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</rsa-common-modal-template>

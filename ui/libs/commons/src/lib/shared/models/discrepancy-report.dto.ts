@@ -1,0 +1,36 @@
+export interface DiscrepancyReportDto {
+  id: number;
+  unitNumber: string;
+  donationId: number;
+  entryResult: string;
+  comments: string;
+  entryDate: Date;
+  entryTestType: string;
+  testedByEmployeeId: string;
+  resolvedResult: string;
+  resolvedDateTimezone: string;
+  resolvedByEmployeeId: string;
+  resultConsequenceKey: string;
+  reasonKey: string;
+  manufacturer?: string;
+  lotNumber?: string;
+  kitName?: string;
+  entryDateTimezone: string;
+  discrepancyType: string;
+  createDate: Date;
+  createDateTimezone: string;
+  deleteDate: Date;
+  deleteDateTimeZone: string;
+  resolvedDate: Date;
+  donorRecordResult: string;
+  status: string;
+  reagent: string;
+  reagentHtmlTag?: string;
+  testingMethod: string;
+  testingLocationId: number;
+  locationName: string;
+  antigenEntryId?: number;
+  hgbsEntryId?: number;
+  workstations: number[];
+  hlaHpaAntigenEntryId: number[];
+}

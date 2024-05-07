@@ -1,0 +1,60 @@
+<div class="flex flex-col flex-auto">
+  <div class="flex items-center mb-4" *ngIf="showTitlesWhenEmpty || documents.controls.length > 0">
+    <div class="w-20 text-left font-bold">{{ 'format.label' | translate }}</div>
+    <div class="font-bold text-left">{{ 'document-name.label' | translate }}</div>
+  </div>
+
+  <div *ngIf="documents?.controls?.length">
+    <form [formGroup]="documentsForm">
+      <div formArrayName="documents" *ngFor="let item of documents.controls; let i = index">
+        <div [formGroupName]="i" class="flex mb-2">
+          <div class="w-20 text-left px-2">
+            <mat-icon class="document-icon" [svgIcon]="getIconType(i)"></mat-icon>
+          </div>
+          <div class="w-full flex-col space-y-1">
+            <div class="flex space-x-3 flex-1 items-center w-full">
+              <mat-form-field appearance="fill" class="w-full mr-2">
+                <input formControlName="documentName" matInput autocomplete="off" rsaNoControlErrors />
+              </mat-form-field>
+              <a [href]="item?.get('tmpUrl')?.value" target="_blank" *ngIf="downloadLocalDocument">
+                <mat-icon [svgIcon]="'hi_outline:download'"></mat-icon>
+              </a>
+              <div class="trash-icon" (click)="removeDocument(i)">
+                <mat-icon [svgIcon]="'hi_solid:trash'"></mat-icon>
+              </div>
+            </div>
+            <ng-container *ngIf="item?.get('documentName')?.errors">
+              <mat-error *ngIf="item?.get('documentName')?.hasError('maxlength'); else isRequired">
+                {{ 'document-name-exceeds-character-limit.label' | translate }}
+              </mat-error>
+              <ng-template #isRequired>
+                <mat-error>
+                  {{ 'document-name-is-required.label' | translate }}
+                </mat-error>
+              </ng-template>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="py-4" *ngIf="documents?.controls?.length === 0 && showEmptyValidation">
+    {{ 'no-added-document.label' | translate }}
+  </div>
+
+  <div [class.mt-4]="(documents?.controls?.length === 0 && showEmptyValidation) || documents?.controls?.length > 0">
+    <input
+      type="file"
+      multiple
+      class="file-upload-input"
+      (change)="loadDocuments($event)"
+      #fileUpload
+      [accept]="formatAllowed"
+    />
+    <div id="uploadBtn" class="file-upload flex items-center" (click)="fileUpload.click()">
+      <mat-icon id="uploadBtnIcon" [svgIcon]="'hi_solid:plus-circle'"></mat-icon>
+      <div class="ml-2" id="uploadBtnLabel">{{ addDocumentLabel | translate }}</div>
+    </div>
+  </div>
+</div>

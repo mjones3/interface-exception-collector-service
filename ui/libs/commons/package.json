@@ -1,0 +1,14 @@
+{
+  "name": "@rsa/commons",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@angular/common": "^10.0.4",
+    "@angular/core": "^10.0.4",
+    "lodash": "^4.17.19",
+    "rxjs": "6.5.5",
+    "tslib": "^2.0.0"
+  },
+ "editor.codeActionsOnSave": {
+    "source.organizeImports": true
+  }
+}
