@@ -88,6 +88,8 @@ out/
 *.war
 *.ear
 *.db
+*.zip
+*.exe
 
 ######################
 # Windows
