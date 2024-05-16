@@ -1,6 +1,14 @@
+CREATE TABLE bld_shipping_service
+(
+    id                int8 NOT NULL,
+    create_date       TIMESTAMP WITH TIME ZONE NOT NULL,
+    modification_date TIMESTAMP WITH TIME ZONE NOT NULL,
+    CONSTRAINT pk_bld_shipping_service PRIMARY KEY (id)
+);
+
 CREATE TABLE bld_order (
     -- order
-                           id SERIAL NOT NULL,
+                           id BIGSERIAL NOT NULL,
                            order_number int4 NOT NULL,
                            location_code int8 NULL,
                            delivery_type varchar(255) NOT NULL,
@@ -30,7 +38,7 @@ CREATE TABLE bld_order (
 );
 
 CREATE TABLE bld_order_item (
-                                id SERIAL NOT NULL,
+                                id BIGSERIAL NOT NULL,
                                 order_id int8 NOT NULL,
                                 product_family varchar(255) NOT NULL,
                                 blood_type varchar(255) NOT NULL,
