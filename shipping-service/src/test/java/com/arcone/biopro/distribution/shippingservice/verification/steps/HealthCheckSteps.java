@@ -27,7 +27,7 @@ public class HealthCheckSteps {
     public void i_check_the_health_endpoint() {
         // Using WebTestClient to hit the health check endpoint.
         result = webTestClient.get()
-            .uri("/actuator/health")
+            .uri("/management/health")
             .exchange()
             .expectStatus().isOk()
             .expectBody(String.class)
