@@ -27,8 +27,12 @@ public class ShipmentItem implements Serializable, Persistable<Long> {
     private Long shipmentId;
 
     @NotNull
-    @Column("inventory_id")
-    private Long inventoryId;
+    @Column("unit_number")
+    private String unit_number;
+
+    @NotNull
+    @Column("product_code")
+    private String product_code;
 
     @NotNull
     @Column("create_date")

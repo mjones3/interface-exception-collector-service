@@ -29,15 +29,12 @@ public class Shipment implements Serializable, Persistable<Long> {
     @Column("order_id")
     private Long orderId;
 
-    @Column("customer_id")
-    private Long customerId;
+    @Column("customer_code")
+    private Long customerCode;
 
     @NotNull
-    @Column("location_id")
-    private Integer locationId;
-
-    @Column("location_id_to")
-    private Integer locationIdTo;
+    @Column("location_code")
+    private Integer locationCode;
 
     @NotNull
     @Size(max = 255)
@@ -48,11 +45,6 @@ public class Shipment implements Serializable, Persistable<Long> {
     @Size(max = 255)
     @Column("shipment_method")
     private String shipmentMethod;
-
-    @NotNull
-    @Size(max = 50)
-    @Column("employee_id")
-    private String employeeId;
 
     @NotNull
     @Size(max = 255)
@@ -122,10 +114,6 @@ public class Shipment implements Serializable, Persistable<Long> {
     @Size(max = 50)
     @Column("delete_date_timezone")
     private String deleteDateTimezone;
-
-    @Size(max = 50)
-    @Column("external_id")
-    private String externalId;
 
     @Override
     public boolean isNew() {
