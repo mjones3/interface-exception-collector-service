@@ -73,7 +73,7 @@ CREATE TABLE bld_shipment (
     modification_date          TIMESTAMP WITH TIME ZONE NOT NULL,
     modification_date_timezone VARCHAR(50),
     delete_date                TIMESTAMP WITH TIME ZONE,
-    delete_date_timezone       VARCHAR(50),
+    delete_date_timezone       VARCHAR(50)
 );
 CREATE TABLE bld_shipment_item (
     id BIGSERIAL               NOT NULL
