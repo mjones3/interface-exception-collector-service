@@ -40,11 +40,19 @@ class KafkaConfiguration {
     }
 
     @Bean
+    NewTopic orderFulfilledTopic(
+        @Value("${order.fulfilled.partitions:1}") Integer partitions,
+        @Value("${order.fulfilled.replicas:1}") Integer replicas
+    ) {
+        return TopicBuilder.name("order.fulfilled").partitions(partitions).replicas(replicas).build();
+    }
+
+    @Bean
     ReceiverOptions<String, String> shippingServiceReceiverOptions(KafkaProperties kafkaProperties) {
         return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
             .commitInterval(Duration.ZERO) // Disable periodic commits
             .commitBatchSize(0) // Disable commits by batch size
-            .subscription(List.of("topic.received"));
+            .subscription(List.of("topic.received","order.fulfilled"));
     }
 
     @Bean
