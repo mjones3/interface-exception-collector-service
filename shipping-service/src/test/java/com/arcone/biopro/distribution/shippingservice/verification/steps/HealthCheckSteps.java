@@ -1,20 +1,21 @@
 package com.arcone.biopro.distribution.shippingservice.verification.steps;
 
+import com.arcone.biopro.distribution.shippingservice.verification.support.ApiHelper;
+import com.arcone.biopro.distribution.shippingservice.verification.support.Endpoints;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class HealthCheckSteps {
 
-    private EntityExchangeResult<String> result;
-
     @Autowired
-    private WebTestClient webTestClient;
+    private ApiHelper apiHelper;
+
+    private EntityExchangeResult<String> result;
 
     @Given("the application is started")
     public void the_application_is_started() {
@@ -26,12 +27,7 @@ public class HealthCheckSteps {
     @When("I check the health endpoint")
     public void i_check_the_health_endpoint() {
         // Using WebTestClient to hit the health check endpoint.
-        result = webTestClient.get()
-            .uri("/management/health")
-            .exchange()
-            .expectStatus().isOk()
-            .expectBody(String.class)
-            .returnResult();
+        result = apiHelper.getRequest(Endpoints.CHECK_HEALTH);
     }
 
     @Then("the response status should be 200")
