@@ -48,3 +48,40 @@ CREATE TABLE bld_order_item (
                                 CONSTRAINT pk_bld_order_item PRIMARY KEY (id),
                                 CONSTRAINT fk_order_order_item FOREIGN KEY (order_id) REFERENCES bld_order(id)
 );
+
+-- SHIPMENT
+CREATE TABLE bld_shipment (
+    id                         BIGSERIAL NOT NULL
+        CONSTRAINT pk_bld_shipment PRIMARY KEY,
+    order_id                   BIGINT NOT NULL
+        CONSTRAINT fk_bld_shipment_order_id REFERENCES bld_order,
+    customer_code              BIGINT,
+    location_code              INTEGER NOT NULL,
+    delivery_type              VARCHAR(255)             NOT NULL,
+    shipment_method            VARCHAR(255)             NOT NULL,
+    status_key                 VARCHAR(255)             NOT NULL,
+    state                      VARCHAR(50)              NOT NULL,
+    postal_code                VARCHAR(10)              NOT NULL,
+    country                    VARCHAR(10)              NOT NULL,
+    country_code               VARCHAR(10)              NOT NULL,
+    city                       VARCHAR(255)             NOT NULL,
+    district                   VARCHAR(50),
+    address_line1              VARCHAR(255)             NOT NULL,
+    address_line2              VARCHAR(255),
+    create_date                TIMESTAMP WITH TIME ZONE NOT NULL,
+    create_date_timezone       VARCHAR(50),
+    modification_date          TIMESTAMP WITH TIME ZONE NOT NULL,
+    modification_date_timezone VARCHAR(50),
+    delete_date                TIMESTAMP WITH TIME ZONE,
+    delete_date_timezone       VARCHAR(50)
+);
+CREATE TABLE bld_shipment_item (
+    id BIGSERIAL               NOT NULL
+        CONSTRAINT pk_bld_shipment_item PRIMARY KEY,
+    shipment_id BIGINT         NOT NULL
+        CONSTRAINT fk_shipment_shipment_item REFERENCES bld_shipment,
+    unit_number                VARCHAR(255) NOT NULL,
+    product_code               VARCHAR(255) NOT NULL,
+    create_date                TIMESTAMP WITH TIME ZONE NOT NULL,
+    modification_date          TIMESTAMP WITH TIME ZONE NOT NULL
+);
