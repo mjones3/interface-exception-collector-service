@@ -69,11 +69,8 @@ CREATE TABLE bld_shipment (
     address_line1              VARCHAR(255)             NOT NULL,
     address_line2              VARCHAR(255),
     create_date                TIMESTAMP WITH TIME ZONE NOT NULL,
-    create_date_timezone       VARCHAR(50),
     modification_date          TIMESTAMP WITH TIME ZONE NOT NULL,
-    modification_date_timezone VARCHAR(50),
-    delete_date                TIMESTAMP WITH TIME ZONE,
-    delete_date_timezone       VARCHAR(50)
+    delete_date                TIMESTAMP WITH TIME ZONE
 );
 CREATE TABLE bld_shipment_item (
     id BIGSERIAL               NOT NULL
@@ -85,3 +82,20 @@ CREATE TABLE bld_shipment_item (
     create_date                TIMESTAMP WITH TIME ZONE NOT NULL,
     modification_date          TIMESTAMP WITH TIME ZONE NOT NULL
 );
+
+-- PRODUCT
+CREATE TABLE bld_product (
+    id                         BIGSERIAL NOT NULL
+        CONSTRAINT pk_bld_product PRIMARY KEY,
+    unit_number                VARCHAR(36) NOT NULL,
+    product_code               VARCHAR(50) NOT NULL,
+    product_description        VARCHAR(255) NOT NULL,
+    isbt_product_code          VARCHAR(20) NOT NULL,
+    expiration_date            TIMESTAMP WITH TIME ZONE NOT NULL,
+    quarantined                BOOLEAN NOT NULL,
+    discarded                  BOOLEAN NOT NULL,
+    labeled                    BOOLEAN NOT NULL,
+    storage_location           VARCHAR(255) NOT NULL,
+    create_date                TIMESTAMP WITH TIME ZONE NOT NULL
+);
+CREATE UNIQUE INDEX idx_bld_product_key ON bld_product (unit_number, product_code);
