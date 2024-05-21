@@ -95,25 +95,13 @@ public class Shipment implements Serializable, Persistable<Long> {
     @InsertOnlyProperty
     private ZonedDateTime createDate;
 
-    @Size(max = 50)
-    @Column("create_date_timezone")
-    private String createDateTimezone;
-
     @NotNull
     @Column("modification_date")
     @LastModifiedDate
     private ZonedDateTime modificationDate;
 
-    @Size(max = 50)
-    @Column("modification_date_timezone")
-    private String modificationDateTimezone;
-
     @Column("delete_date")
     private ZonedDateTime deleteDate;
-
-    @Size(max = 50)
-    @Column("delete_date_timezone")
-    private String deleteDateTimezone;
 
     @Override
     public boolean isNew() {
