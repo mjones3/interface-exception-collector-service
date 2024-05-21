@@ -15,11 +15,13 @@ public class ApiHelper {
     @Value("${base.url}")
     private String baseUrl;
 
-    public EntityExchangeResult<String> getRequest(String endpoint) {
-        String uri = baseUrl + endpoint;
+    public EntityExchangeResult<String> getRequest(String endpoint, String customBaseUrl) throws InterruptedException {
+        String url = customBaseUrl == null ? baseUrl : customBaseUrl;
+        String uri = url + endpoint;
         return webTestClient.get()
             .uri(uri)
             .exchange()
+            .expectStatus().isOk()
             .expectBody(String.class)
             .returnResult();
     }

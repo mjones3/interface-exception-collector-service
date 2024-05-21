@@ -25,9 +25,9 @@ public class HealthCheckSteps {
     }
 
     @When("I check the health endpoint")
-    public void i_check_the_health_endpoint() {
+    public void i_check_the_health_endpoint() throws InterruptedException {
         // Using WebTestClient to hit the health check endpoint.
-        result = apiHelper.getRequest(Endpoints.CHECK_HEALTH);
+        result = apiHelper.getRequest(Endpoints.CHECK_HEALTH, null);
     }
 
     @Then("the response status should be 200")
