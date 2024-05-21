@@ -1,6 +1,5 @@
 package com.arcone.biopro.distribution.shippingservice.infrastructure.listener.dto;
 
-
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
