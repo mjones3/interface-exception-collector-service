@@ -22,20 +22,19 @@ public class TestUtils {
     @Value("${redpanda.url}")
     private String redpandaUrl;
 
-    public static String resource(String fileName) throws Exception {
+    public String getResource(String fileName) throws Exception {
         ClassLoader classLoader = TestUtils.class.getClassLoader();
         URL resource = classLoader.getResource(fileName);
         return FileUtils.readFileToString(new File(resource.toURI()));
 
     }
 
-    public void kafkaSender(String resourceName, String topic) throws Exception {
-        String data = resource(resourceName);
-        StringBuilder dataBuilder = getStringBuilder(topic, data);
+    public void kafkaSender(String resource, String topic) {
+        StringBuilder dataBuilder = getStringBuilder(topic, resource);
 
         log.info("BODY: {}", dataBuilder);
         log.info("TOPIC: {}", topic);
-        log.info("DATA: {}", data);
+        log.info("DATA: {}", resource);
 
         WebClient
             .builder()

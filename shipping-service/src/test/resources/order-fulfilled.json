@@ -1,5 +1,5 @@
 {
-  "orderNumber": 2,
+  "orderNumber": {order.number},
   "priority": "ASAP",
   "status": "OPEN",
   "shippingCustomerCode": 1,
@@ -31,6 +31,12 @@
       "productFamily": "Transfusable Plasma",
       "bloodType": "AN",
       "quantity": 5,
+      "comments": "comments..."
+    },
+    {
+      "productFamily": "Transfusable Plasma",
+      "bloodType": "OP",
+      "quantity": 8,
       "comments": "comments..."
     }
   ]

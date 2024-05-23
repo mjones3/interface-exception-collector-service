@@ -7,7 +7,7 @@ public interface Endpoints {
 
     // Order endpoints
     String LIST_ORDER = "/v1/orders";
-    String GET_ORDER = "/v1/orders/{id}";
+    String GET_ORDER = "/v1/orders/{order.number}";
 
     // Shipping endpoints
     String LIST_SHIPPING = "/v1/shipping";
