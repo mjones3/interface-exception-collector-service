@@ -1,10 +1,11 @@
 import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, throwError } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { toasterDefaultConfig } from '../../components/toaster/toaster-default.config';
 import { ProcessProductDto, ProcessProductVersionDto } from '../models';
 import { EnvironmentConfigService } from './environment-config.service';
+import { PROCESS_CONFIGURATION, PROCESS_PRODUCT_VERSION } from './mocks/process-mock';
 
 type processProductArrayResponseType = HttpResponse<ProcessProductDto[]>;
 type processProductResponseType = HttpResponse<ProcessProductDto>;
@@ -52,9 +53,12 @@ export class ProcessService {
    * @param uuid Process Id
    */
   getProcessConfiguration(uuid: string): Observable<processProductResponseType> {
+    return of(PROCESS_CONFIGURATION);
+    /*
     return this.httpClient
       .get<ProcessProductDto>(`${this.processUrl}/${uuid}`, { observe: 'response' })
       .pipe(catchError(this.handleError));
+     */
   }
 
   /**
@@ -62,6 +66,8 @@ export class ProcessService {
    * @param uuid Product Id
    */
   getProcessProductVersion(uuid: string): Observable<processProductVersionResponseType> {
+    return of(PROCESS_PRODUCT_VERSION);
+    /*
     const params = new HttpParams().set('versionType', 'build_version');
 
     return this.httpClient
@@ -70,6 +76,7 @@ export class ProcessService {
         observe: 'response',
       })
       .pipe(catchError(this.handleError));
+     */
   }
 
   /**

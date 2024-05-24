@@ -1,8 +1,8 @@
 {
   "serverApiURL": "http://localhost:4200",
-  "url": "https://id.dev.ao.arc-one.com/auth",
-  "realm": "rsa",
-  "clientId": "distribution-app",
+  "url": "http://id.local.gd",
+  "realm": "biopro",
+  "clientId": "web_app",
   "environment": "DEVELOPMENT",
   "uuid": "215b898c-0f1e-43e8-abd1-f835bef767e3"
 }
