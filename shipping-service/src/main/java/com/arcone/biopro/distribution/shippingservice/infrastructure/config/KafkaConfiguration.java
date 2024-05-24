@@ -29,17 +29,6 @@ import java.util.List;
 class KafkaConfiguration {
 
     @Bean
-    NewTopic shippingServiceTopic(
-        @Value("${topic.shipping-service.partitions:1}") Integer partitions,
-        @Value("${topic.shipping-service.replicas:1}") Integer replicas
-    ) {
-        return TopicBuilder.name("shipping-service.produced")
-            .partitions(partitions)
-            .replicas(replicas)
-            .build();
-    }
-
-    @Bean
     NewTopic orderFulfilledTopic(
         @Value("${order.fulfilled.partitions:1}") Integer partitions,
         @Value("${order.fulfilled.replicas:1}") Integer replicas
@@ -52,7 +41,7 @@ class KafkaConfiguration {
         return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
             .commitInterval(Duration.ZERO) // Disable periodic commits
             .commitBatchSize(0) // Disable commits by batch size
-            .subscription(List.of("topic.received","order.fulfilled"));
+            .subscription(List.of("order.fulfilled"));
     }
 
     @Bean

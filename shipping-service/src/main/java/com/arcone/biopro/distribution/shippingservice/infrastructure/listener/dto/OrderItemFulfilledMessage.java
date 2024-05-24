@@ -2,6 +2,7 @@ package com.arcone.biopro.distribution.shippingservice.infrastructure.listener.d
 
 
 import java.io.Serializable;
+import java.util.List;
 
 public record OrderItemFulfilledMessage(
     Long id,
@@ -11,5 +12,8 @@ public record OrderItemFulfilledMessage(
 
     String bloodType,
     Integer quantity,
-    String comments
+    String comments,
+    Integer totalAvailable,
+    List<ShortDateItem> shortDateProducts
+
 ) implements Serializable {}

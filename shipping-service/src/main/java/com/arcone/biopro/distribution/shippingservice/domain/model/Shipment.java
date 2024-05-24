@@ -1,5 +1,7 @@
 package com.arcone.biopro.distribution.shippingservice.domain.model;
 
+import com.arcone.biopro.distribution.shippingservice.domain.model.enumeration.ShipmentPriority;
+import com.arcone.biopro.distribution.shippingservice.domain.model.enumeration.ShipmentStatus;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
@@ -13,6 +15,7 @@ import org.springframework.data.relational.core.mapping.InsertOnlyProperty;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
 
 @Data
@@ -26,11 +29,17 @@ public class Shipment implements Serializable, Persistable<Long> {
     private Long id;
 
     @NotNull
-    @Column("order_id")
-    private Long orderId;
+    @Column("order_number")
+    private Long orderNumber;
 
+    @NotNull
     @Column("customer_code")
     private Long customerCode;
+
+    @NotNull
+    @Column("customer_name")
+    @Size(max = 255)
+    private String customerName;
 
     @NotNull
     @Column("location_code")
@@ -47,9 +56,22 @@ public class Shipment implements Serializable, Persistable<Long> {
     private String shipmentMethod;
 
     @NotNull
+    @Column("product_category")
+    private String productCategory;
+
+    @NotNull
     @Size(max = 255)
-    @Column("status_key")
-    private String statusKey;
+    @Column("priority")
+    private ShipmentPriority priority;
+
+    @NotNull
+    @Size(max = 255)
+    @Column("status")
+    private ShipmentStatus status;
+
+    @Column("customer_phone_number")
+    @Size(min = 1, max = 255)
+    private String customerPhoneNumber;
 
     @NotNull
     @Size(max = 50)
@@ -89,6 +111,14 @@ public class Shipment implements Serializable, Persistable<Long> {
     @Column("address_line2")
     private String addressLine2;
 
+    @Size(max = 255)
+    @Column("address_contact_name")
+    private String addressContactName;
+
+    @NotNull
+    @Column("shipping_date")
+    private LocalDate shippingDate;
+
     @NotNull
     @Column("create_date")
     @CreatedDate
@@ -102,6 +132,7 @@ public class Shipment implements Serializable, Persistable<Long> {
 
     @Column("delete_date")
     private ZonedDateTime deleteDate;
+
 
     @Override
     public boolean isNew() {

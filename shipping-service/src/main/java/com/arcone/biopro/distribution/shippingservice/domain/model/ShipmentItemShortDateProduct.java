@@ -1,6 +1,6 @@
 package com.arcone.biopro.distribution.shippingservice.domain.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
@@ -16,25 +16,47 @@ import java.time.ZonedDateTime;
 
 @Data
 @Builder
-@Table("bld_shipping_service")
-public class ShippingService implements Serializable, Persistable<Long> {
+@Table(name = "bld_shipment_item_short_date_product")
+public class ShipmentItemShortDateProduct implements Serializable, Persistable<Long> {
 
     @Id
     @Column("id")
+    @InsertOnlyProperty
     private Long id;
 
+    @NotNull
+    @Column("shipment_item_id")
+    private Long shipmentItemId;
+
+    @NotNull
+    @Column("unit_number")
+    private String unitNumber;
+
+    @NotNull
+    @Column("product_code")
+    private String productCode;
+
+    @NotNull
+    @Column("storage_location")
+    private String storageLocation;
+
+    @Column("comments")
+    private String comments;
+
+    @NotNull
     @Column("create_date")
-    @CreatedDate
     @InsertOnlyProperty
+    @CreatedDate
     private ZonedDateTime createDate;
 
+    @NotNull
     @Column("modification_date")
     @LastModifiedDate
     private ZonedDateTime modificationDate;
 
-    @JsonIgnore
     @Override
     public boolean isNew() {
         return createDate == null;
     }
+
 }

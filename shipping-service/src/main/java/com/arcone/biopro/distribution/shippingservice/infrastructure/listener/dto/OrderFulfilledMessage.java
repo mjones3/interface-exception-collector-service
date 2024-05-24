@@ -13,7 +13,7 @@ public record OrderFulfilledMessage(
     Long shippingCustomerCode,
 
     Long billingCustomerCode,
-    Long locationCode,
+    Integer locationCode,
 
     String deliveryType,
 

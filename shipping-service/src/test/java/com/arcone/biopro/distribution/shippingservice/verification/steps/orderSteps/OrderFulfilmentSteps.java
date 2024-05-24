@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.shippingservice.verification.steps.orderS
 import com.arcone.biopro.distribution.shippingservice.verification.support.Controllers.OrderTestingController;
 import com.arcone.biopro.distribution.shippingservice.verification.support.Types.ListOrdersResponseType;
 import com.arcone.biopro.distribution.shippingservice.verification.support.Types.OrderDetailsResponseType;
+import com.arcone.biopro.distribution.shippingservice.verification.support.Types.OrderItemShortDateResponseType;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -13,7 +14,11 @@ import org.springframework.test.web.reactive.server.EntityExchangeResult;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @Slf4j
 public class OrderFulfilmentSteps {
@@ -22,6 +27,8 @@ public class OrderFulfilmentSteps {
     private List<ListOrdersResponseType> orders;
     private OrderDetailsResponseType order;
     private long orderNumber;
+
+    private long shipmentId;
 
     @Autowired
     private OrderTestingController orderTestingController;
@@ -39,15 +46,26 @@ public class OrderFulfilmentSteps {
         this.orderNumber = orderTestingController.createOrderRequest();
     }
 
-    @Then("The shipment request will be available in the Distribution local data store and I can fill the order.")
+    @Then("The shipment request will be available in the Distribution local data store and I can fill the shipment.")
     public void verifyOrderPersistence() throws Exception {
         // Getting the order
-        this.result = orderTestingController.getOrderDetails(this.orderNumber);
+        this.orders = orderTestingController.parseOrderList(orderTestingController.listOrders());
+        setShipmentId();
+
+        this.result = orderTestingController.getOrderDetails(this.shipmentId);
         this.order = orderTestingController.parseOrderDetail(result);
 
         assertNotNull(this.order, "Failed to get order fulfillment details.");
         assertEquals(this.orderNumber, this.order.getOrderNumber(), "Failed to get order by number.");
 
+    }
+
+    private void setShipmentId() {
+        var orderFilter =  this.orders.stream().filter(x -> x.getOrderNumber().equals(this.orderNumber)).findAny().orElse(null);
+        if(orderFilter != null){
+            this.shipmentId = orderFilter.getId();
+            log.info("Found Shipment by Order Number");
+        }
     }
 
     @Given("I have a shipment request persisted.")
@@ -71,9 +89,10 @@ public class OrderFulfilmentSteps {
         log.info("Order list is not empty. Total orders: {}", this.orders.size());
     }
 
-    @When("I retrieve one shipment by order number.")
+    @When("I retrieve one shipment by shipment id.")
     public void retrieveOneOrder() throws Exception {
-        this.result = orderTestingController.getOrderDetails(this.orderNumber);
+        setShipmentId();
+        this.result = orderTestingController.getOrderDetails(this.shipmentId);
         this.order = orderTestingController.parseOrderDetail(result);
 
         assertEquals(200, result.getStatus().value(), "Failed to get order fulfillment requests.");
@@ -102,6 +121,12 @@ public class OrderFulfilmentSteps {
                 assertTrue(orderItems.stream().anyMatch(item -> item.getQuantity().equals(Integer.parseInt(value))), "Failed to find quantity.");
                 log.info("Quantity found: {}", value);
                 break;
+            case "Unit Number":
+                orderItems.stream().forEach(item -> childAttributeValueMatch("Unit Number",value,item.getShortDateProducts()));
+                break;
+            case "Product Code":
+                orderItems.stream().forEach(item -> childAttributeValueMatch("Product Code",value,item.getShortDateProducts()));
+                break;
             default:
                 fail("Invalid attribute.");
         }
@@ -112,6 +137,9 @@ public class OrderFulfilmentSteps {
         log.info("Asserting if the attribute {} is not empty.", attribute);
         var orderItems = this.order.getItems();
         switch (attribute) {
+            case "Order Number":
+                assertFalse(this.order.getOrderNumber().describeConstable().isEmpty(), "Failed to find Order Number.");
+                break;
             case "Product Family":
                 assertTrue(orderItems.stream().noneMatch(item -> item.getProductFamily().describeConstable().isEmpty()), "Failed to find product family.");
                 break;
@@ -121,11 +149,27 @@ public class OrderFulfilmentSteps {
             case "Product Quantity":
                 assertTrue(orderItems.stream().noneMatch(item -> item.getQuantity().describeConstable().isEmpty()), "Failed to find quantity.");
                 break;
-            case "Order Number":
-                assertTrue(orderItems.stream().noneMatch(item -> item.getOrderId().describeConstable().isEmpty()), "Failed to find order number.");
+            case "Shipment id":
+                assertTrue(orderItems.stream().noneMatch(item -> item.getShipmentId().describeConstable().isEmpty()), "Failed to find shipment id.");
                 break;
             default:
                 fail("Invalid attribute.");
+        }
+    }
+
+    public void childAttributeValueMatch(String attribute , String valueMatch, List<OrderItemShortDateResponseType> items){
+        if(!valueMatch.equals("") && !valueMatch.isEmpty() && items != null && !items.isEmpty()){
+            switch (attribute) {
+                case "Unit Number":
+                    log.info("Comparing Unit : {}" , valueMatch);
+                    assertTrue(items.stream().anyMatch(x -> x.getUnitNumber().equals(valueMatch)),"Failed to find Unit Number.");
+                    break;
+                case "Product Code":
+                    log.info("Product Code : {}" , valueMatch);
+                    assertTrue(items.stream().anyMatch(x -> x.getProductCode().equals(valueMatch)),"Failed to find Product Code.");
+                    break;
+
+            }
         }
     }
 }

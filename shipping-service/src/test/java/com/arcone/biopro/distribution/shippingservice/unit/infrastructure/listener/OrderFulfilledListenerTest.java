@@ -1,6 +1,6 @@
 package com.arcone.biopro.distribution.shippingservice.unit.infrastructure.listener;
 
-import com.arcone.biopro.distribution.shippingservice.domain.service.OrderFulfilledService;
+import com.arcone.biopro.distribution.shippingservice.domain.service.ShipmentService;
 import com.arcone.biopro.distribution.shippingservice.infrastructure.listener.OrderFulfilledListener;
 import com.arcone.biopro.distribution.shippingservice.infrastructure.listener.dto.OrderFulfilledMessage;
 import com.arcone.biopro.distribution.shippingservice.unit.util.TestUtil;
@@ -27,7 +27,7 @@ class OrderFulfilledListenerTest {
 
         ConsumerRecord<String,String> consumerRecordMock = Mockito.mock(ConsumerRecord.class);
 
-        OrderFulfilledService service = Mockito.mock(OrderFulfilledService.class);
+        ShipmentService service = Mockito.mock(ShipmentService.class);
         Mockito.when(service.create(Mockito.any(OrderFulfilledMessage.class))).thenReturn(Mono.empty());
 
         OrderFulfilledMessage message = Mockito.mock(OrderFulfilledMessage.class);
@@ -58,7 +58,7 @@ class OrderFulfilledListenerTest {
 
         ConsumerRecord<String,String> consumerRecordMock = Mockito.mock(ConsumerRecord.class);
 
-        OrderFulfilledService service = Mockito.mock(OrderFulfilledService.class);
+        ShipmentService service = Mockito.mock(ShipmentService.class);
         Mockito.when(service.create(Mockito.any(OrderFulfilledMessage.class))).thenReturn(Mono.empty());
 
         OrderFulfilledMessage message = Mockito.mock(OrderFulfilledMessage.class);

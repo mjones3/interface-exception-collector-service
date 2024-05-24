@@ -1,7 +1,7 @@
 package com.arcone.biopro.distribution.shippingservice.infrastructure.listener;
 
-import com.arcone.biopro.distribution.shippingservice.domain.model.Order;
-import com.arcone.biopro.distribution.shippingservice.domain.service.OrderFulfilledService;
+import com.arcone.biopro.distribution.shippingservice.domain.model.Shipment;
+import com.arcone.biopro.distribution.shippingservice.domain.service.ShipmentService;
 import com.arcone.biopro.distribution.shippingservice.infrastructure.listener.dto.OrderFulfilledMessage;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,7 +32,7 @@ public class OrderFulfilledListener implements CommandLineRunner {
         "schedulers"
     );
 
-    private final OrderFulfilledService orderFulfilledService;
+    private final ShipmentService shipmentService;
     @Override
     public void run(String... args) throws Exception {
         consumeOrderFulfilled().publishOn(scheduler).subscribe();
@@ -40,7 +40,7 @@ public class OrderFulfilledListener implements CommandLineRunner {
     }
 
 
-    private Flux<Order> consumeOrderFulfilled() {
+    private Flux<Shipment> consumeOrderFulfilled() {
         return consumer
             .receiveAutoAck()
             .doOnNext(
@@ -59,11 +59,11 @@ public class OrderFulfilledListener implements CommandLineRunner {
             .doOnError(throwable -> log.error("something bad happened while consuming : {}", throwable.getMessage()));
     }
 
-    private Mono<Order> handleMessage(String value) {
+    private Mono<Shipment> handleMessage(String value) {
         try {
             var message = objectMapper.readValue(value, OrderFulfilledMessage.class);
             log.info("Message Handled....{}",message);
-            return orderFulfilledService.create(message);
+            return shipmentService.create(message);
         } catch (JsonProcessingException e) {
             log.error(String.format("Problem deserializing an instance of [%s] " +
                 "with the following json: %s ", OrderFulfilledMessage.class.getSimpleName(), value), e);

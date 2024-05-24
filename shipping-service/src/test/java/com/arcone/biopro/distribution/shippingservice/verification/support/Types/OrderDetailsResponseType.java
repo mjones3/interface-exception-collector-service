@@ -1,7 +1,6 @@
 package com.arcone.biopro.distribution.shippingservice.verification.support.Types;
 
-import com.arcone.biopro.distribution.shippingservice.domain.model.enumeration.OrderPriority;
-import com.arcone.biopro.distribution.shippingservice.domain.model.enumeration.OrderStatus;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -9,11 +8,12 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 @Data
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class OrderDetailsResponseType {
     Long id;
     Long orderNumber;
-    OrderPriority priority;
-    OrderStatus status;
+    String priority;
+    String status;
     ZonedDateTime createDate;
     Long shippingCustomerCode;
     Long billingCustomerCode;
