@@ -1,7 +1,7 @@
 package com.arcone.biopro.distribution.shippingservice.adapter.in.web.dto;
 
-import com.arcone.biopro.distribution.shippingservice.domain.model.enumeration.OrderPriority;
-import com.arcone.biopro.distribution.shippingservice.domain.model.enumeration.OrderStatus;
+import com.arcone.biopro.distribution.shippingservice.domain.model.enumeration.ShipmentPriority;
+import com.arcone.biopro.distribution.shippingservice.domain.model.enumeration.ShipmentStatus;
 import lombok.Builder;
 
 import java.io.Serializable;
@@ -10,21 +10,19 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 @Builder
-public record OrderFulfilledDetailResponseDTO(
+public record ShipmentDetailResponseDTO(
     Long id,
     Long orderNumber,
-    OrderPriority priority,
-    OrderStatus status,
+    ShipmentPriority priority,
+    ShipmentStatus status,
     ZonedDateTime createDate,
     Long shippingCustomerCode,
-    Long billingCustomerCode,
-    Long locationCode,
+    Integer locationCode,
     String deliveryType,
     String shippingMethod,
     String productCategory,
     LocalDate shippingDate,
     String shippingCustomerName,
-    String billingCustomerName,
     String customerPhoneNumber,
     String customerAddressState,
     String customerAddressPostalCode,
@@ -35,7 +33,7 @@ public record OrderFulfilledDetailResponseDTO(
     String customerAddressAddressLine1,
     String customerAddressAddressLine2,
 
-    List<OrderFulFilledItemResponseDTO> items
+    List<ShipmentItemResponseDTO> items
 
 ) implements Serializable {
 }

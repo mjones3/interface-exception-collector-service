@@ -5,7 +5,7 @@ Feature: Shipment fulfillment request
         Scenario: Receive shipment fulfillment request
             Given I have no shipment fulfillment requests.
             When I receive a shipment fulfillment request event.
-            Then The shipment request will be available in the Distribution local data store and I can fill the order.
+            Then The shipment request will be available in the Distribution local data store and I can fill the shipment.
 
     Rule: I should be able to list the pending shipment fulfillment request.
         Rule: I should be able to view the shipment fulfillment details.
@@ -13,14 +13,41 @@ Feature: Shipment fulfillment request
             Given I have a shipment request persisted.
             When I retrieve the shipment list.
             Then I am able to see the requests.
-            When I retrieve one shipment by order number.
+            When I retrieve one shipment by shipment id.
             Then I am able to view the shipment fulfillment details.
             And The attribute "Product Family" contains "Transfusable Plasma".
             And The attribute "Blood Type" contains "<Group Value>".
             And The attribute "Product Quantity" contains "<Quantity>".
-            And The attribute "Order Number" is not empty.
+            And The attribute "Shipment id" is not empty.
             Examples:
                 | Group Value | Quantity |
                 | AP          | 10       |
                 | AN          | 5        |
                 | OP          | 8        |
+
+    Rule: I should be able to receive the shipment fulfillment request with short date product details.
+        Rule: I should be able to persist with the short date shipment fulfilled request on the local store.
+        Scenario: Receive shipment fulfillment request
+            Given I have no shipment fulfillment requests.
+            When I receive a shipment fulfillment request event.
+            Then The shipment request will be available in the Distribution local data store and I can fill the shipment.
+
+    Rule: I should be able to list the pending shipment fulfillment request.
+        Rule: I should be able to view the shipment fulfillment details with short date products.
+        Scenario Outline: View shipment's fulfillment details
+            Given I have a shipment request persisted.
+            When I retrieve the shipment list.
+            Then I am able to see the requests.
+            When I retrieve one shipment by shipment id.
+            Then I am able to view the shipment fulfillment details.
+            And The attribute "Shipment id" is not empty.
+            And The attribute "Order Number" is not empty.
+            And The attribute "Product Family" contains "Transfusable Plasma".
+            And The attribute "Blood Type" contains "<Group Value>".
+            And The attribute "Product Quantity" contains "<Quantity>".
+            And The attribute "Unit Number" contains "<Unit Number>".
+            And The attribute "Product Code" contains "<Product Code>".
+            Examples:
+                | Group Value | Quantity | Unit Number    | Product Code |
+                | AP          | 10       | W036810946277  | E9747D1      |
+                | AN          | 5        | W036810946279  | E9747D2      |

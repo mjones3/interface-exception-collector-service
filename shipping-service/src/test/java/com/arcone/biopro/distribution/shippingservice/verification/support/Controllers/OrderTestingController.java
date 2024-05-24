@@ -36,7 +36,7 @@ public class OrderTestingController {
 
         utils.kafkaSender(resource, Topics.ORDER_FULFILLED);
         // Add sleep to wait for the message to be consumed.
-        Thread.sleep(10000);
+        Thread.sleep(2000);
 
         log.info("Message sent to create the order: {}", orderId);
         return orderId;
@@ -44,11 +44,11 @@ public class OrderTestingController {
 
     public EntityExchangeResult<String> listOrders() {
         log.info("Listing orders.");
-        return apiHelper.getRequest(Endpoints.LIST_ORDER);
+        return apiHelper.getRequest(Endpoints.LIST_SHIPMENTS);
     }
 
     public EntityExchangeResult<String> getOrderDetails(long orderNumber) {
-        var endpoint = Endpoints.GET_ORDER.replace("{order.number}", String.valueOf(orderNumber));
+        var endpoint = Endpoints.GET_SHIPMENT.replace("{shipment.id}", String.valueOf(orderNumber));
         log.info("Getting order details for order: {}", orderNumber);
         return apiHelper.getRequest(endpoint);
     }

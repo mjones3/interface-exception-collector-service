@@ -4,15 +4,19 @@ import com.arcone.biopro.distribution.shippingservice.domain.model.enumeration.B
 import lombok.Builder;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Builder
-public record OrderFulFilledItemResponseDTO(
+public record ShipmentItemResponseDTO(
     Long id,
 
-    Long orderId,
+    Long shipmentId,
     String productFamily,
 
     BloodType bloodType,
     Integer quantity,
-    String comments
+
+    String comments,
+
+    List<ShipmentItemShortDateProductResponseDTO> shortDateProducts
 ) implements Serializable {}
