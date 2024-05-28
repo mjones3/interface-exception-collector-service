@@ -8,12 +8,12 @@ import java.util.List;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class OrderItemResponseType {
+public class ShipmentFulfillmentRequest {
     Long id;
     Long shipmentId;
     String productFamily;
     BloodType bloodType;
     Integer quantity;
     String comments;
-    List<OrderItemShortDateResponseType> shortDateProducts;
+    List<ShipmentItemShortDateResponseType> shortDateProducts;
 }
