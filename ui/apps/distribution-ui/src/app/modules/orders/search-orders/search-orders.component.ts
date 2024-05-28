@@ -72,8 +72,8 @@ export class SearchOrdersComponent implements OnInit {
   };
   columns: Column[] = [
     {
-      field: 'externalId',
-      header: 'external-order-id.label',
+      field: 'id',
+      header: 'shipment-id.label',
       sortable: true,
       default: true,
     },
@@ -96,24 +96,6 @@ export class SearchOrdersComponent implements OnInit {
       hidden: true,
     },
     {
-      field: 'shippingCustomerName',
-      header: 'ship-to-customer-name.label',
-      sortable: true,
-      default: true,
-    },
-    {
-      field: 'billingCustomerExternalId',
-      header: 'bill-to-customer-id.label',
-      sortable: true,
-      hidden: true,
-    },
-    {
-      field: 'billingCustomerName',
-      header: 'bill-to-customer-name.label',
-      sortable: true,
-      default: true,
-    },
-    {
       field: 'createDate',
       header: 'create-date.label',
       templateRef: 'dateTpl',
@@ -128,18 +110,24 @@ export class SearchOrdersComponent implements OnInit {
       hidden: true,
     },
     {
-      field: 'deliveryTypeDescriptionKey',
+      field: 'priority',
       header: 'priority.label',
       sortable: true,
       sortFieldName: 'priority',
       default: true,
     },
     {
-      field: 'statusDescriptionKey',
+      field: 'status',
       header: 'status.label',
-      templateRef: 'statusTpl',
       sortable: true,
-      sortFieldName: 'statusOptionValue',
+      sortFieldName: 'status',
+      default: true,
+    },
+    {
+      field: 'createDate',
+      header: 'create-date.label',
+      sortable: true,
+      sortFieldName: 'createDate',
       default: true,
     },
     {
@@ -237,12 +225,7 @@ export class SearchOrdersComponent implements OnInit {
     }
 
     this.orderService
-      .getOrdersSummaryByCriteria({
-        ...this.filters,
-        page: event.first / event.rows,
-        size: event.rows,
-        sort: `${event.sortField ?? this.defaultSortField},${event.sortOrder === 1 ? 'ASC' : 'DESC'}`,
-      })
+      .getOrdersSummaryByCriteria()
       .pipe(finalize(() => (this.loading = false)))
       .subscribe(
         response => {

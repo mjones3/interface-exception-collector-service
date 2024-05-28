@@ -18,19 +18,6 @@ export class SearchOrdersResolver implements Resolve<any> {
   constructor(private lookUpService: LookUpService, private processService: ProcessService) {}
 
   resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<any> | Promise<any> | any {
-    return forkJoin([
-      this.lookUpService
-        .getLookUpDataByTypes([ORDER_STATUS, ORDER_DELIVERY_TYPE, ORDER_SHIPMENT_TYPE])
-        .pipe(catchError(() => of({ body: [] } as HttpResponse<LookUpDto[]>))),
-      this.processService.getProcessConfiguration(ORDER_PROCESS_UUID).pipe(
-        catchError(() =>
-          of({
-            body: {
-              properties: new Map<string, string>(),
-            },
-          } as HttpResponse<ProcessProductDto>)
-        )
-      ),
-    ]);
+    return null;
   }
 }
