@@ -9,7 +9,7 @@ import java.time.ZonedDateTime;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
-public class OrderItemShortDateResponseType implements Serializable {
+public class ShipmentItemShortDateResponseType implements Serializable {
 
     Long id;
     Long shipmentItemId;

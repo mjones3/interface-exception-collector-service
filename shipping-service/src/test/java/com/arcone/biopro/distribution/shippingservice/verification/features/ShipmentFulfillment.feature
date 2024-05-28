@@ -15,10 +15,10 @@ Feature: Shipment fulfillment request
             Then I am able to see the requests.
             When I retrieve one shipment by shipment id.
             Then I am able to view the shipment fulfillment details.
-            And The attribute "Product Family" contains "Transfusable Plasma".
-            And The attribute "Blood Type" contains "<Group Value>".
-            And The attribute "Product Quantity" contains "<Quantity>".
-            And The attribute "Shipment id" is not empty.
+            And The item attribute "Product Family" contains "Transfusable Plasma".
+            And The item attribute "Blood Type" contains "<Group Value>".
+            And The item attribute "Product Quantity" contains "<Quantity>".
+            And The item attribute "Shipment Id" is not empty.
             Examples:
                 | Group Value | Quantity |
                 | AP          | 10       |
@@ -40,13 +40,13 @@ Feature: Shipment fulfillment request
             Then I am able to see the requests.
             When I retrieve one shipment by shipment id.
             Then I am able to view the shipment fulfillment details.
-            And The attribute "Shipment id" is not empty.
-            And The attribute "Order Number" is not empty.
-            And The attribute "Product Family" contains "Transfusable Plasma".
-            And The attribute "Blood Type" contains "<Group Value>".
-            And The attribute "Product Quantity" contains "<Quantity>".
-            And The attribute "Unit Number" contains "<Unit Number>".
-            And The attribute "Product Code" contains "<Product Code>".
+            And The fulfillment request attribute "Order Number" is not empty.
+            And The item attribute "Shipment Id" is not empty.
+            And The item attribute "Product Family" contains "Transfusable Plasma".
+            And The item attribute "Blood Type" contains "<Group Value>".
+            And The item attribute "Product Quantity" contains "<Quantity>".
+            And The short date item attribute "Unit Number" contains "<Unit Number>".
+            And The short date item attribute "Product Code" contains "<Product Code>".
             Examples:
                 | Group Value | Quantity | Unit Number    | Product Code |
                 | AP          | 10       | W036810946277  | E9747D1      |

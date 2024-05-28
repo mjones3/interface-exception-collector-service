@@ -5,7 +5,7 @@ import lombok.Data;
 import java.time.ZonedDateTime;
 
 @Data
-public class ListOrdersResponseType {
+public class ListShipmentsResponseType {
     Long id;
     Long orderNumber;
     String priority;

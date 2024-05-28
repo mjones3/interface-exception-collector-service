@@ -17,10 +17,22 @@ public class ApiHelper {
     @Value("${base.url}")
     private String baseUrl;
 
+    /**
+     * This method is used to send a GET request to a specified endpoint and return the response.
+     * It first checks if a custom base URL is provided. If not, it uses the default base URL.
+     * It then constructs the full URI by appending the endpoint to the base URL.
+     * It sends a GET request to the URI using the WebTestClient, and expects a 200 OK status.
+     * The response body is expected to be a string.
+     * It logs the URI and the response body, then returns the response.
+     *
+     * @param endpoint      The endpoint to which the GET request will be sent.
+     * @param customBaseUrl The custom base URL to be used instead of the default one. If null, the default base URL is used.
+     * @return An EntityExchangeResult object containing the response.
+     */
     public EntityExchangeResult<String> getRequest(String endpoint, String customBaseUrl) {
         String url = customBaseUrl == null ? baseUrl : customBaseUrl;
         String uri = url + endpoint;
-        var response =  webTestClient.get()
+        var response = webTestClient.get()
             .uri(uri)
             .exchange()
             .expectStatus().isOk()
@@ -30,6 +42,13 @@ public class ApiHelper {
         return response;
     }
 
+    /**
+     * This method is a convenience method that sends a GET request to a specified endpoint using the default base URL.
+     * It simply calls the getRequest method with the endpoint and null as the custom base URL.
+     *
+     * @param endpoint The endpoint to which the GET request will be sent.
+     * @return An EntityExchangeResult object containing the response.
+     */
     public EntityExchangeResult<String> getRequest(String endpoint) {
         return getRequest(endpoint, null);
     }

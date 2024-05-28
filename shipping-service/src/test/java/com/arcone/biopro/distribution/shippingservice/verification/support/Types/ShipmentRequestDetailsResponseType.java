@@ -9,7 +9,7 @@ import java.util.List;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class OrderDetailsResponseType {
+public class ShipmentRequestDetailsResponseType {
     Long id;
     Long orderNumber;
     String priority;
@@ -34,5 +34,5 @@ public class OrderDetailsResponseType {
     String customerAddressAddressLine1;
     String customerAddressAddressLine2;
 
-    List<OrderItemResponseType> items;
+    List<ShipmentFulfillmentRequest> items;
 }
