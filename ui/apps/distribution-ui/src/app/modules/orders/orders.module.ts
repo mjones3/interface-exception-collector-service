@@ -29,6 +29,7 @@ import { OrdersRoutingModule } from './orders-routing.module';
 import { SearchOrdersComponent } from './search-orders/search-orders.component';
 import { ServiceFeeModalComponent } from './service-fee-modal/service-fee-modal.component';
 import { ValidateOrderComponent } from './validate-order/validate-order.component';
+import { ViewPickListComponent } from './view-pick-list/view-pick-list.component';
 
 @NgModule({
   declarations: [
@@ -41,6 +42,7 @@ import { ValidateOrderComponent } from './validate-order/validate-order.componen
     FillOrderComponent,
     ValidateOrderComponent,
     CloseOrderModalComponent,
+    ViewPickListComponent,
   ],
   imports: [
     SharedModule,
