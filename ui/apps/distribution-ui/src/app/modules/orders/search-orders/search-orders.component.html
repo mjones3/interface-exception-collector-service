@@ -10,8 +10,20 @@
         <treo-card class="flex-col pb-4">
           <!-- Header Section -->
           <div class="treo-card-title">
-            <div class="flex flex-row w-full justify-between px-5 items-baseline">
+            <div class="flex flex-row w-full justify-between px-3 items-center">
               <h3>{{ 'results.label' | translate }}</h3>
+              <span class="p-buttonset">
+                <p-button id="showPickListBtn"
+                          label="View"
+                          (click)="openPickListDialog($event)"
+                          icon="pi pi-file"
+                          styleClass="p-button-sm"
+                ></p-button>
+                <p-button icon="pi pi-print"
+                          styleClass="p-button-sm"
+                          (click)="this.toaster.info(null, 'Printing...', { timeOut: 4000 })"
+                ></p-button>
+              </span>
             </div>
           </div>
           <mat-divider></mat-divider>
@@ -34,10 +46,10 @@
               [sortField]="defaultSortField"
               [expandedRowKeys]="expandedRows"
               (onLazyLoad)="fetchOrders($event)"
-              >              
+              >
               <ng-template pTemplate="header" let-columns>
                 <tr>
-                  <th class="w-12">                    
+                  <th class="w-12">
                   </th>
                   <th
                     [pSortableColumn]="col.sortable ? (col.sortFieldName ? col.sortFieldName : col.field) : null"

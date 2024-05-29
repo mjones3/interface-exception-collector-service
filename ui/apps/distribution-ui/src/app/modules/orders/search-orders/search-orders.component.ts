@@ -39,6 +39,8 @@ import { MultiSelect } from 'primeng/multiselect';
 import { Table } from 'primeng/table';
 import { Observable, of } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, finalize, map, switchMap } from 'rxjs/operators';
+import { MatDialog } from '@angular/material/dialog';
+import { ViewPickListComponent } from '@rsa/distribution/modules/orders/view-pick-list/view-pick-list.component';
 
 const ALL_LABEL = 'all.label';
 
@@ -170,13 +172,14 @@ export class SearchOrdersComponent implements OnInit {
   constructor(
     private customerService: CustomerService,
     private orderService: OrderService,
-    private toaster: ToastrService,
     private route: ActivatedRoute,
     private router: Router,
     private translateService: TranslateService,
+    private matDialog: MatDialog,
+    private fb: FormBuilder,
     public header: ProcessHeaderService,
     public locationService: LocationService,
-    protected fb: FormBuilder,
+    public toaster: ToastrService,
     @Inject(LOCALE_ID) public locale: string
   ) {
     this.createSearchFormGroup();
@@ -612,4 +615,19 @@ export class SearchOrdersComponent implements OnInit {
       this.orderSearchGroup.removeControl('shipToLocation');
     }
   }
+
+  openPickListDialog(event?: MouseEvent): void {
+    const dialogRef = this.matDialog
+      .open(ViewPickListComponent,
+        {
+          width: '60rem',
+          minHeight: '40rem',
+          data: {}
+        });
+
+    dialogRef.afterClosed()
+      .subscribe(result => {
+      });
+  }
+
 }
