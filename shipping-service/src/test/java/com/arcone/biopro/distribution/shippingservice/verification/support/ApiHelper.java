@@ -14,7 +14,7 @@ public class ApiHelper {
     @Autowired
     private WebTestClient webTestClient;
 
-    @Value("${base.url}")
+    @Value("${api.base.url}")
     private String baseUrl;
 
     /**
