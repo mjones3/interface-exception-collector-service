@@ -616,13 +616,21 @@ export class SearchOrdersComponent implements OnInit {
     }
   }
 
-  openPickListDialog(event?: MouseEvent): void {
+  openPickListDialog(event?: MouseEvent, print: boolean = false): void {
     const dialogRef = this.matDialog
       .open(ViewPickListComponent,
         {
-          width: '60rem',
-          minHeight: '40rem',
-          data: {}
+          data: {},
+          ...(print
+            ? {
+                hasBackdrop: false,
+                panelClass: 'hidden',
+              }
+            : {
+                width: '60rem',
+                minHeight: '40rem',
+              }
+          )
         });
 
     dialogRef.afterClosed()
