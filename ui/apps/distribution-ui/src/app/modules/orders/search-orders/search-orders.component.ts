@@ -255,8 +255,9 @@ export class SearchOrdersComponent implements OnInit {
       );
   }
 
-  details(order: OrderSummary) {
-    this.router.navigateByUrl(`/orders/${order.id}/details`);
+  // TO BE FIXED WHEN WORKING ON SEARCH ORDER
+  details(shipment: OrderSummary) {
+    this.router.navigateByUrl(`/shipment/${shipment.id}/shipment-details`);
   }
 
   expandAll() {

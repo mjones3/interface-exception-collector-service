@@ -2,11 +2,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { TranslateLoader } from '@ngx-translate/core';
 import { Observable, of, throwError } from 'rxjs';
-import { catchError, retry } from 'rxjs/operators';
 import { EnvironmentConfigService } from '../../shared/services';
-import { HeaderValue } from '../../shared/types/header-value.enum';
-import { getLoaderHeaders } from '../../shared/utils/utils';
-import { CUSTOM_TRANSLATIONS } from './mocks/custom-translations-mock';
 import { TRANSLATIONS } from './mocks/translations-mock';
 
 @Injectable({
@@ -22,10 +18,8 @@ export class TranslationLoaderService implements TranslateLoader {
    */
   getTranslation(language: string): Observable<any> {
     // FIXME Mocking while backend is not ready
-    return of(TRANSLATIONS);
-    /*
+    // return of(TRANSLATIONS);
     return this.getCustomTranslation(language, 'common');
-     */
   }
 
   /*
@@ -33,7 +27,7 @@ export class TranslationLoaderService implements TranslateLoader {
    */
   getCustomTranslation(language: string, module: string): Observable<any> {
     // FIXME Mocking while backend is not ready
-    return of(CUSTOM_TRANSLATIONS);
+    return of(TRANSLATIONS);
     /*
     this.resourceUrl = this.config.env.serverApiURL + '/v1/translations';
     return this.httpClient
