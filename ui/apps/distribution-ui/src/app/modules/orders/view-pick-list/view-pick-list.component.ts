@@ -1,10 +1,8 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { MatDialogRef } from '@angular/material/dialog';
-import { Observable, of } from 'rxjs';
+import { Component, OnInit } from '@angular/core';
+import { Observable } from 'rxjs';
 import {
   DeepPartial,
   ShipmentDetailResponseDTO,
-  VIEW_PICK_LIST_MOCK,
 } from '@rsa/distribution/modules/orders/view-pick-list/view-pick-list.mock';
 
 @Component({
@@ -14,14 +12,9 @@ import {
 })
 export class ViewPickListComponent implements OnInit {
 
-  @Input("model") model$: Observable<DeepPartial<ShipmentDetailResponseDTO>>;
+  model$: Observable<DeepPartial<ShipmentDetailResponseDTO>>;
 
-  constructor(
-    private matDialogRef: MatDialogRef<ViewPickListComponent, DeepPartial<ShipmentDetailResponseDTO>>
-  ) {
-    // FIXME Remove this mock after integration with API
-    this.model$ = of(VIEW_PICK_LIST_MOCK);
-  }
+  constructor() {}
 
   ngOnInit(): void {
   }

@@ -41,6 +41,8 @@ import { Observable, of } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, finalize, map, switchMap } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { ViewPickListComponent } from '@rsa/distribution/modules/orders/view-pick-list/view-pick-list.component';
+import { PrintService } from '@rsa/distribution/core/print/print.service';
+import { VIEW_PICK_LIST_MOCK } from '@rsa/distribution/modules/orders/view-pick-list/view-pick-list.mock';
 
 const ALL_LABEL = 'all.label';
 
@@ -176,6 +178,7 @@ export class SearchOrdersComponent implements OnInit {
     private router: Router,
     private translateService: TranslateService,
     private matDialog: MatDialog,
+    private printService: PrintService,
     private fb: FormBuilder,
     public header: ProcessHeaderService,
     public locationService: LocationService,
@@ -620,7 +623,6 @@ export class SearchOrdersComponent implements OnInit {
     const dialogRef = this.matDialog
       .open(ViewPickListComponent,
         {
-          data: {},
           ...(print
             ? {
                 hasBackdrop: false,
@@ -632,10 +634,7 @@ export class SearchOrdersComponent implements OnInit {
               }
           )
         });
-
-    dialogRef.afterClosed()
-      .subscribe(result => {
-      });
+    dialogRef.componentInstance.model$ = of(VIEW_PICK_LIST_MOCK);
   }
 
 }
