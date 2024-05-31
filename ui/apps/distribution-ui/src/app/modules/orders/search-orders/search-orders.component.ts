@@ -20,14 +20,14 @@ import {
 } from '@rsa/commons';
 import {
   OPEN_OPTION_VALUE,
+  OrderStatuses,
+  OrderSummary,
   ORDER_BILLING_CUSTOMER,
   ORDER_DELIVERY_TYPE,
   ORDER_LOCATION_TYPE_ID,
   ORDER_SHIPMENT_TYPE,
   ORDER_SHIPPING_CUSTOMER,
   ORDER_STATUS,
-  OrderStatuses,
-  OrderSummary,
   ShipmentType,
 } from '@rsa/distribution/core/models/orders.model';
 import { orderFieldsMock } from '@rsa/distribution/data/mock/orders.mock';
@@ -170,13 +170,13 @@ export class SearchOrdersComponent implements OnInit {
   constructor(
     private customerService: CustomerService,
     private orderService: OrderService,
+    private toaster: ToastrService,
     private route: ActivatedRoute,
     private router: Router,
     private translateService: TranslateService,
-    private fb: FormBuilder,
     public header: ProcessHeaderService,
     public locationService: LocationService,
-    public toaster: ToastrService,
+    protected fb: FormBuilder,
     @Inject(LOCALE_ID) public locale: string
   ) {
     this.createSearchFormGroup();
@@ -612,5 +612,4 @@ export class SearchOrdersComponent implements OnInit {
       this.orderSearchGroup.removeControl('shipToLocation');
     }
   }
-
 }
