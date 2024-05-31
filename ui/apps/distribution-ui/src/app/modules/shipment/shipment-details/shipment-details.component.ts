@@ -1,6 +1,5 @@
 import { HttpResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   Description,
@@ -25,8 +24,7 @@ export class ShipmentDetailsComponent implements OnInit {
     private route: ActivatedRoute,
     public header: ProcessHeaderService,
     private shipmentService: ShipmentService,
-    private sortService: SortService,
-    private matDialog: MatDialog
+    private sortService: SortService
   ) {}
 
   orderInfoDescriptions: Description[] = [];
