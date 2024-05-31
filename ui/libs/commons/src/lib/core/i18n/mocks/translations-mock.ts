@@ -9948,4 +9948,6 @@ export const TRANSLATIONS = {
   'shipment.label': 'Shipment',
   'shipment-details.label': 'Shipment Details',
   'view-pick-list.label': 'View Pick List',
+  'blood-group.label': 'Blood Group',
+  'fill-Product.label': 'Fill Product',
 };

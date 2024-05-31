@@ -34,6 +34,7 @@
       <rsa-order-widget-sidebar
         [orderInfoDescriptions]="orderInfoDescriptions"
         [shippingInfoDescriptions]="shippingInfoDescriptions"
+        [hasContentOrNot]="hasContentOrNot"
       ></rsa-order-widget-sidebar>
     </div>
   </div>
@@ -107,10 +108,10 @@
                   <p-sortIcon field="quantity"></p-sortIcon>
                 </div>
               </th>
-              <th pSortableColumn="bloodType">
+              <th pSortableColumn="bloodGroup">
                 <div class="p-d-flex p-jc-between p-ai-center">
-                  {{ 'blood-type.label' | translate }}
-                  <p-sortIcon field="bloodType"></p-sortIcon>
+                  {{ 'blood-group.label' | translate }}
+                  <p-sortIcon field="bloodGroup"></p-sortIcon>
                 </div>
               </th>
               <th></th>
@@ -140,12 +141,12 @@
                 {{ product?.quantity }}
               </td>
               <td>
-                {{ product?.bloodType | translate | uppercase }}
+                {{ product?.bloodGroup | translate | uppercase }}
               </td>
               <td>
                 <div class="flex flex-row space-x-4 justify-center">
-                  <button id="fillOrderBtn" mat-raised-button class="bg-custom-red" (click)="fillOrder()">
-                    {{ 'fill-order.label' | translate }}
+                  <button id="fillShipmentBtn" mat-raised-button class="bg-custom-red" (click)="fillOrder()">
+                    {{ 'fill-Product.label' | translate }}
                   </button>
                 </div>
               </td>
