@@ -38,7 +38,6 @@ import {
 import { IMPORTS_BLOOD_TYPES } from '@rsa/distribution/core/models/imports.models';
 import { ORDER_PRODUCT_CATEGORY_REFRIGERATED } from '@rsa/distribution/core/models/orders.model';
 import { TransitTimeComponent } from '@rsa/distribution/shared/components/transit-time/transit-time.component';
-import { WidgetModule } from '@rsa/donor/modules/widget/widget.module';
 import { MatDialogRefMock } from '@rsa/testing';
 import { TreoCardModule } from '@treo';
 import { ToastrService } from 'ngx-toastr';
@@ -96,7 +95,6 @@ describe('TransferReceiptComponent', () => {
       ],
       imports: [
         RsaCommonsModule,
-        WidgetModule,
         MatStepperModule,
         MatFormFieldModule,
         MatSelectModule,
