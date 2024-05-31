@@ -20,14 +20,14 @@ import {
 } from '@rsa/commons';
 import {
   OPEN_OPTION_VALUE,
-  OrderStatuses,
-  OrderSummary,
   ORDER_BILLING_CUSTOMER,
   ORDER_DELIVERY_TYPE,
   ORDER_LOCATION_TYPE_ID,
   ORDER_SHIPMENT_TYPE,
   ORDER_SHIPPING_CUSTOMER,
   ORDER_STATUS,
+  OrderStatuses,
+  OrderSummary,
   ShipmentType,
 } from '@rsa/distribution/core/models/orders.model';
 import { orderFieldsMock } from '@rsa/distribution/data/mock/orders.mock';
@@ -39,10 +39,6 @@ import { MultiSelect } from 'primeng/multiselect';
 import { Table } from 'primeng/table';
 import { Observable, of } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, finalize, map, switchMap } from 'rxjs/operators';
-import { MatDialog } from '@angular/material/dialog';
-import { ViewPickListComponent } from '@rsa/distribution/modules/orders/view-pick-list/view-pick-list.component';
-import { PrintService } from '@rsa/distribution/core/print/print.service';
-import { VIEW_PICK_LIST_MOCK } from '@rsa/distribution/modules/orders/view-pick-list/view-pick-list.mock';
 
 const ALL_LABEL = 'all.label';
 
@@ -177,8 +173,6 @@ export class SearchOrdersComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private translateService: TranslateService,
-    private matDialog: MatDialog,
-    private printService: PrintService,
     private fb: FormBuilder,
     public header: ProcessHeaderService,
     public locationService: LocationService,
@@ -617,24 +611,6 @@ export class SearchOrdersComponent implements OnInit {
 
       this.orderSearchGroup.removeControl('shipToLocation');
     }
-  }
-
-  openPickListDialog(event?: MouseEvent, print: boolean = false): void {
-    const dialogRef = this.matDialog
-      .open(ViewPickListComponent,
-        {
-          ...(print
-            ? {
-                hasBackdrop: false,
-                panelClass: 'hidden',
-              }
-            : {
-                width: '60rem',
-                minHeight: '40rem',
-              }
-          )
-        });
-    dialogRef.componentInstance.model$ = of(VIEW_PICK_LIST_MOCK);
   }
 
 }

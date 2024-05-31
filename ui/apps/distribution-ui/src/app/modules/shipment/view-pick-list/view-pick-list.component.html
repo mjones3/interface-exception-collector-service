@@ -8,14 +8,14 @@
   <div id="viewPickListReport">
     <div class="text-gray-700" *ngIf="(model$ | async) as orderFulfilledMessage" style="font-family: serif;">
       <div class="text-4xl mt-0 mb-2 p-0 font-bold border-b border-black text-center">
-        {{ 'pick_list' | translate }}
+        {{ 'pick-list.label' | translate }}
       </div>
       <table id="pickListTable" class="table-fixed w-full">
         <thead>
         <tr class="bg-gray-200">
-          <th>{{ 'order_number' | translate }}</th>
-          <th>{{ 'customer_id' | translate }}</th>
-          <th>{{ 'customer_name' | translate }}</th>
+          <th>{{ 'order-number.label' | translate }}</th>
+          <th>{{ 'customer-id.label' | translate }}</th>
+          <th>{{ 'customer-name.label' | translate }}</th>
         </tr>
         </thead>
 
@@ -29,15 +29,15 @@
       </table>
 
       <div class="text-3xl mt-5 mb-2 p-0 border-b border-black">
-        {{ 'product_details' | translate }}
+        {{ 'product-details.label' | translate }}
       </div>
       <table id="productDetailsTable" class="table-fixed w-full">
         <thead>
         <tr class="bg-gray-200">
-          <th>{{ 'quantity' | translate }}</th>
-          <th>{{ 'product' | translate }}</th>
-          <th>{{ 'blood_type' | translate }}</th>
-          <th>{{ 'comments' | translate }}</th>
+          <th>{{ 'quantity.label' | translate }}</th>
+          <th>{{ 'product.label' | translate }}</th>
+          <th>{{ 'blood-type.label' | translate }}</th>
+          <th>{{ 'comments.label' | translate }}</th>
         </tr>
         </thead>
 
@@ -52,14 +52,14 @@
       </table>
 
       <div class="text-3xl mt-5 mb-2 p-0 border-b border-black">
-        {{ 'short_date_details' | translate }}
+        {{ 'short-date-details.label' | translate }}
       </div>
       <table id="shortDateDetailsTable" class="table-fixed w-full" *ngIf="hasAnyShortDate(orderFulfilledMessage);else shortDateDetailsEmptyMessage">
         <thead>
         <tr class="bg-gray-200">
-          <th>{{ 'unit_number' | translate }}</th>
-          <th>{{ 'product_code' | translate }}</th>
-          <th>{{ 'blood_type' | translate }}</th>
+          <th>{{ 'unit-number.label' | translate }}</th>
+          <th>{{ 'product-code.label' | translate }}</th>
+          <th>{{ 'blood-type.label' | translate }}</th>
         </tr>
         </thead>
 
@@ -73,7 +73,7 @@
       </table>
       <ng-template #shortDateDetailsEmptyMessage>
         <div id="shortDateDetailsEmpty">
-          {{ 'no_suggested_short_dated_products_message' | translate }}
+          {{ 'no-suggested-short-dated-products-message.label' | translate }}
         </div>
       </ng-template>
     </div>

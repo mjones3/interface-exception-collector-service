@@ -1,9 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
-import {
-  DeepPartial,
-  ShipmentDetailResponseDTO,
-} from '@rsa/distribution/modules/orders/view-pick-list/view-pick-list.mock';
+import { ShipmentInfoDto } from '@rsa/commons';
 
 @Component({
   selector: 'rsa-view-pick-list',
@@ -12,14 +9,14 @@ import {
 })
 export class ViewPickListComponent implements OnInit {
 
-  model$: Observable<DeepPartial<ShipmentDetailResponseDTO>>;
+  model$: Observable<ShipmentInfoDto>;
 
   constructor() {}
 
   ngOnInit(): void {
   }
 
-  hasAnyShortDate(model: DeepPartial<ShipmentDetailResponseDTO>): boolean {
+  hasAnyShortDate(model: ShipmentInfoDto): boolean {
     return !!model?.items?.some(i => i.shortDateProducts?.length);
   }
 

@@ -12,6 +12,9 @@ import {
 } from '@rsa/commons';
 import { SortService } from '@rsa/distribution/core/services/sort.service';
 import { SortEvent } from 'primeng/api';
+import { ViewPickListComponent } from '@rsa/distribution/modules/shipment/view-pick-list/view-pick-list.component';
+import { of } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'rsa-shipment-details',
@@ -24,7 +27,8 @@ export class ShipmentDetailsComponent implements OnInit {
     private route: ActivatedRoute,
     public header: ProcessHeaderService,
     private shipmentService: ShipmentService,
-    private sortService: SortService
+    private sortService: SortService,
+    private matDialog: MatDialog,
   ) {}
 
   orderInfoDescriptions: Description[] = [];
@@ -97,7 +101,13 @@ export class ShipmentDetailsComponent implements OnInit {
   }
 
   viewPickList(): void {
-    //TODO
+    const dialogRef = this.matDialog
+      .open(ViewPickListComponent,
+        {
+          width: '60rem',
+          minHeight: '40rem',
+        });
+    dialogRef.componentInstance.model$ = of(this.shipmentInfo);
   }
 
   customSort(event: SortEvent) {
