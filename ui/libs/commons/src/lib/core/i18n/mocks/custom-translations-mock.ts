@@ -20,6 +20,7 @@ export const NEW_TRANSLATIONS: Translation = {
   short_date_details: 'Short Date Details',
   unit_number: 'Unit Number',
   product_code: 'Product Code',
+  no_suggested_short_dated_products_message: "There are no suggested short-dated products.",
 }
 
 export const CUSTOM_TRANSLATIONS: Readonly<Partial<CustomTranslation>> = Object.freeze({

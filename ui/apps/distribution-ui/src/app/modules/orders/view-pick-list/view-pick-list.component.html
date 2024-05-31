@@ -51,10 +51,10 @@
         </tbody>
       </table>
 
-      <div class="text-3xl mt-5 mb-2 p-0 border-b border-black" *ngIf="false">
+      <div class="text-3xl mt-5 mb-2 p-0 border-b border-black">
         {{ 'short_date_details' | translate }}
       </div>
-      <table id="shortDateDetailsTable" class="table-fixed w-full" *ngIf="false">
+      <table id="shortDateDetailsTable" class="table-fixed w-full" *ngIf="hasAnyShortDate(orderFulfilledMessage);else shortDateDetailsEmptyMessage">
         <thead>
         <tr class="bg-gray-200">
           <th>{{ 'unit_number' | translate }}</th>
@@ -63,14 +63,19 @@
         </tr>
         </thead>
 
-        <tbody>
-        <tr>
-          <td class="text-center"></td>
-          <td class="text-center"></td>
-          <td class="text-center"></td>
+        <tbody *ngFor="let orderItemFulfilledMessage of orderFulfilledMessage.items">
+        <tr *ngFor="let shortDateProduct of orderItemFulfilledMessage.shortDateProducts">
+          <td class="text-center">{{ shortDateProduct.unitNumber }}</td>
+          <td class="text-center">{{ shortDateProduct.productCode }}</td>
+          <td class="text-center">{{ orderItemFulfilledMessage.bloodType }}</td>
         </tr>
         </tbody>
       </table>
+      <ng-template #shortDateDetailsEmptyMessage>
+        <div id="shortDateDetailsEmpty">
+          {{ 'no_suggested_short_dated_products_message' | translate }}
+        </div>
+      </ng-template>
     </div>
   </div>
 </div>

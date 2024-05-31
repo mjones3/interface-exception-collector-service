@@ -19,4 +19,8 @@ export class ViewPickListComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  hasAnyShortDate(model: DeepPartial<ShipmentDetailResponseDTO>): boolean {
+    return !!model?.items?.some(i => i.shortDateProducts?.length);
+  }
+
 }
