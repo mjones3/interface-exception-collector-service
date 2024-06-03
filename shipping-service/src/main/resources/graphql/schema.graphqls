@@ -1,0 +1,11 @@
+scalar DateTime
+@specifiedBy(url: "https://scalars.graphql.org/andimarek/date-time.html")
+
+type ShippingService {
+    id: ID!
+}
+
+# The Root Query for the application
+type Query {
+  shippingServiceList: [ShippingService]!
+}
