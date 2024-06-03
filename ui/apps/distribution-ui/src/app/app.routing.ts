@@ -25,6 +25,10 @@ export const appRoutes: Route[] = [
       { path: 'returns', loadChildren: () => import('./modules/returns/returns.module').then(m => m.ReturnsModule) },
       { path: 'imports', loadChildren: () => import('./modules/imports/imports.module').then(m => m.ImportsModule) },
       {
+        path: 'shipment',
+        loadChildren: () => import('./modules/shipment/shipment.module').then(m => m.ShipmentModule),
+      },
+      {
         path: 'external-transfers',
         loadChildren: () =>
           import('./modules/external-transfers/external-transfers.module').then(m => m.ExternalTransfersModule),

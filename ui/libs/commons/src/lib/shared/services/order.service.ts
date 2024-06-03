@@ -36,7 +36,7 @@ export class OrderService {
 
   constructor(private httpClient: HttpClient, private config: EnvironmentConfigService) {
     this.orderEndpoint = config.env.serverApiURL + '/v1/orders';
-    this.orderSummaryEndpoint = config.env.serverApiURL + '/v1/orders-summary';
+    this.orderSummaryEndpoint = config.env.serverApiURL + '/v1/shipments';
     this.nextOrderNumberEndpoint = config.env.serverApiURL + '/v1/orders/next-order-number';
     this.orderBloodTypeEndpoint = config.env.serverApiURL + '/v1/order-blood-types';
     this.orderProductAttributesEndpoint = config.env.serverApiURL + '/v1/order-product-attributes';
@@ -69,7 +69,7 @@ export class OrderService {
         label: 'status.label',
         value: this.getLookUpDescriptionKey(order?.statusKey, statuses),
       },
-      { label: 'external-order-id.label', value: order?.externalId || 'N/A' },
+      { label: 'shipment-id.label', value: order?.externalId || 'N/A' },
       { label: 'labeling-product-category.label', value: labelingProductCategory },
       ...(order.shipmentType === 'INTERNAL' ? [{ label: 'label-status.label', value: order.labelStatus }] : []),
     ];

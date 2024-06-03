@@ -1,7 +1,7 @@
 [
   {
     "context": ["/v1"],
-    "target": "https://api.dev01.ao.arc-one.com/v1",
+    "target": "http://api.local.gd/v1",
     "secure": true,
     "changeOrigin": true,
     "pathRewrite": {

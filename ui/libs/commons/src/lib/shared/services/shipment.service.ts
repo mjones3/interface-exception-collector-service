@@ -1,12 +1,15 @@
 import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import * as moment from 'moment';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import {
   CurrentTimeDto,
+  Description,
   LocationInventoryHistoryDto,
   ReturnsDto,
   ShipmentDto,
+  ShipmentInfoDto,
   TransitTimeRequestDto,
   TransitTimeResponseDto,
 } from '../models';
@@ -41,6 +44,48 @@ export class ShipmentService {
       })
       .pipe(catchError(this.errorHandler));
   }
+
+  public getShipmentById(id: number): Observable<HttpResponse<ShipmentInfoDto>> {
+    return this.httpClient
+      .get<ShipmentInfoDto[]>(`${this.shipmentEndpoint}/${id}`, {
+        params: {},
+        observe: 'response',
+      })
+      .pipe(catchError(this.errorHandler));
+  }
+
+  //#region Descriptions
+  public getOrderInfoDescriptions(shipmentInfo: ShipmentInfoDto): Description[] {
+    return [
+      { label: 'order-number.label', value: shipmentInfo?.orderNumber?.toString() },
+      {
+        label: 'priority.label',
+        value: shipmentInfo?.priority,
+      },
+      {
+        label: 'status.label',
+        value: shipmentInfo?.status,
+      },
+      { label: 'labeling-product-category.label', value: shipmentInfo?.productCategory },
+    ];
+  }
+
+  public getShippingInfoDescriptions(shipmentInfo: ShipmentInfoDto): Description[] {
+    return [
+      { label: 'customer-id.label', value: shipmentInfo?.shippingCustomerCode.toString() },
+      { label: 'customer-name.label', value: shipmentInfo?.shippingCustomerName },
+      {
+        label: 'ship-date.label',
+        value: shipmentInfo?.shippingDate ? moment(shipmentInfo.shippingDate).format('MM/DD/YYYY') : '',
+      },
+      {
+        label: 'ship-method.label',
+        value: shipmentInfo?.shippingMethod,
+      },
+    ];
+  }
+
+  //#endregion
 
   public createShipment(shipment: ShipmentDto): Observable<HttpResponse<ShipmentDto>> {
     return this.httpClient.post<ShipmentDto>(this.shipmentEndpoint, shipment, { observe: 'response' });

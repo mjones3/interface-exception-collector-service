@@ -31,7 +31,6 @@ import {
   RsaCommonsModule,
   RuleInputsDto,
   RuleResponseDto,
-  RulesService,
   toasterMockProvider,
   ValidationPipe,
 } from '@rsa/commons';
@@ -52,7 +51,6 @@ import {
   UNIT_NUMBER_REF,
   UNIT_NUMBER_SCANNED_REF,
 } from '@rsa/distribution/modules/transfer-receipt/transfer-receipt-product-selection/transfer-receipt.test.mock';
-import { WidgetModule } from '@rsa/donor/modules/widget/widget.module';
 import { MatDialogRefMock } from '@rsa/testing';
 import { TreoCardModule } from '@treo';
 import { ButtonModule } from 'primeng/button';
@@ -100,7 +98,6 @@ describe('TransferReceiptProductSelectionComponent', () => {
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
       imports: [
         RsaCommonsModule,
-        WidgetModule,
         MatStepperModule,
         MatFormFieldModule,
         MatSelectModule,
