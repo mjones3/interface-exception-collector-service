@@ -6,10 +6,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.*;
 import org.springframework.test.context.event.annotation.AfterTestExecution;
 
 @Lazy
@@ -25,6 +22,7 @@ public class LocalWebDriverConfig {
 
     @Bean
     @ConditionalOnProperty(name = "testing.browser", havingValue = "firefox")
+    @Scope("browserscope")
     public WebDriver firefoxDriver() {
         WebDriverManager.firefoxdriver().setup();
         return new FirefoxDriver();
@@ -32,6 +30,7 @@ public class LocalWebDriverConfig {
 
     @Bean
     @ConditionalOnMissingBean
+    @Scope("browserscope")
     public WebDriver chromeDriver() {
         WebDriverManager.chromedriver().setup();
         return new ChromeDriver();

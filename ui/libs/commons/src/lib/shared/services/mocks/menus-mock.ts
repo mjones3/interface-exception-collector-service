@@ -3,7 +3,7 @@ import { MenuDto } from '@rsa/commons';
 export const MENUS: MenuDto[] = [
   {
     id: 1,
-    title: 'Shipments',
+    title: 'Shipping',
     subtitle: '',
     type: 'COLLAPSABLE',
     link: '',
@@ -17,7 +17,7 @@ export const MENUS: MenuDto[] = [
   },
   {
     id: 2,
-    title: 'Requests',
+    title: 'Order Fulfillments',
     subtitle: '',
     type: 'BASIC',
     link: '/orders/search',

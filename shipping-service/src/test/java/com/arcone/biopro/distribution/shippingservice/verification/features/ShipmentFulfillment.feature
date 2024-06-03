@@ -22,7 +22,7 @@ Feature: Shipment fulfillment request
             Examples:
                 | Group Value | Quantity |
                 | AP          | 10       |
-                | AN          | 5        |
+                | BP          | 5        |
                 | OP          | 8        |
 
     Rule: I should be able to receive the shipment fulfillment request with short date product details.
@@ -49,5 +49,5 @@ Feature: Shipment fulfillment request
             And The short date item attribute "Product Code" contains "<Product Code>".
             Examples:
                 | Group Value | Quantity | Unit Number    | Product Code |
-                | AP          | 10       | W036810946277  | E9747D1      |
-                | AN          | 5        | W036810946279  | E9747D2      |
+                | AP          | 10       | W036810946300  | E086900      |
+                | BP          | 5        | W036810946301  | E070700      |

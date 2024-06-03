@@ -1,11 +1,14 @@
 package com.arcone.biopro.distribution.shippingservice.verification.support;
 
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
+
+import java.time.Duration;
 
 @Component
 @Slf4j
@@ -32,6 +35,9 @@ public class ApiHelper {
     public EntityExchangeResult<String> getRequest(String endpoint, String customBaseUrl) {
         String url = customBaseUrl == null ? baseUrl : customBaseUrl;
         String uri = url + endpoint;
+
+
+
         var response = webTestClient.get()
             .uri(uri)
             .exchange()
@@ -51,5 +57,12 @@ public class ApiHelper {
      */
     public EntityExchangeResult<String> getRequest(String endpoint) {
         return getRequest(endpoint, null);
+    }
+
+    @PostConstruct
+    public void setupWebClient(){
+        webTestClient = webTestClient.mutate()
+            .responseTimeout(Duration.ofMillis(30000))
+            .build();
     }
 }

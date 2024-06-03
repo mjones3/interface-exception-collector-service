@@ -1,5 +1,6 @@
 import { HttpResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   Description,
@@ -11,10 +12,9 @@ import {
   ValidationType,
 } from '@rsa/commons';
 import { SortService } from '@rsa/distribution/core/services/sort.service';
-import { SortEvent } from 'primeng/api';
 import { ViewPickListComponent } from '@rsa/distribution/modules/shipment/view-pick-list/view-pick-list.component';
+import { SortEvent } from 'primeng/api';
 import { of } from 'rxjs';
-import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'rsa-shipment-details',
@@ -28,7 +28,7 @@ export class ShipmentDetailsComponent implements OnInit {
     public header: ProcessHeaderService,
     private shipmentService: ShipmentService,
     private sortService: SortService,
-    private matDialog: MatDialog,
+    private matDialog: MatDialog
   ) {}
 
   orderInfoDescriptions: Description[] = [];
@@ -101,12 +101,11 @@ export class ShipmentDetailsComponent implements OnInit {
   }
 
   viewPickList(): void {
-    const dialogRef = this.matDialog
-      .open(ViewPickListComponent,
-        {
-          width: '60rem',
-          minHeight: '40rem',
-        });
+    const dialogRef = this.matDialog.open(ViewPickListComponent, {
+      id: 'ViewPickListDialog',
+      width: '60rem',
+      minHeight: '40rem',
+    });
     dialogRef.componentInstance.model$ = of(this.shipmentInfo);
   }
 
