@@ -13,7 +13,6 @@ export class OrderWidgetsSidebarComponent implements OnInit {
   @Input() billInfoDescriptions: Description[] = [];
   @Input() shippingInfoDescriptions: Description[] = [];
   @Input() feesInfoDescriptions: Description[] = [];
-  @Input() hasContentOrNot: boolean;
 
   constructor(
     protected router: Router,

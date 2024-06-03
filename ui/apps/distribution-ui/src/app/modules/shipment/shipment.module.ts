@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { ViewPickListComponent } from '@rsa/distribution/modules/shipment/view-pick-list/view-pick-list.component';
 import { OrderWidgetsSidebarModule } from '@rsa/distribution/shared/components/order-widgets-sidebar/order-widgets-sidebar.module';
 import { SharedModule } from '@rsa/distribution/shared/shared.module';
 import { ButtonModule } from 'primeng/button';
@@ -13,7 +14,7 @@ import { ShipmentDetailsComponent } from './shipment-details/shipment-details.co
 import { ShipmentRoutingModule } from './shipment-routing.module';
 
 @NgModule({
-  declarations: [ShipmentDetailsComponent],
+  declarations: [ShipmentDetailsComponent, ViewPickListComponent],
   imports: [
     CommonModule,
     ShipmentRoutingModule,

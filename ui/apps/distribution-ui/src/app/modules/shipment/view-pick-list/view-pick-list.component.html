@@ -1,0 +1,85 @@
+<div class="modal-body-width">
+  <div class="flex justify-end items-center mb-2">
+    <button class="treo-message-dismiss-button" mat-icon-button mat-dialog-close>
+      <mat-icon [svgIcon]="'hi_outline:x'"></mat-icon>
+    </button>
+  </div>
+
+  <div id="viewPickListReport">
+    <div class="text-gray-700" *ngIf="model$ | async as orderFulfilledMessage" style="font-family: serif">
+      <div class="text-4xl mt-0 mb-2 p-0 font-bold border-b border-black text-center">
+        {{ 'pick-list.label' | translate }}
+      </div>
+      <table id="pickListTable" class="table-fixed w-full">
+        <thead>
+          <tr class="bg-gray-200">
+            <th>{{ 'order-number.label' | translate }}</th>
+            <th>{{ 'customer-id.label' | translate }}</th>
+            <th>{{ 'customer-name.label' | translate }}</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td class="text-center">{{ orderFulfilledMessage.orderNumber }}</td>
+            <td class="text-center">{{ orderFulfilledMessage.shippingCustomerCode }}</td>
+            <td class="text-center">{{ orderFulfilledMessage.shippingCustomerName }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="text-3xl mt-5 mb-2 p-0 border-b border-black">
+        {{ 'product-details.label' | translate }}
+      </div>
+      <table id="productDetailsTable" class="table-fixed w-full">
+        <thead>
+          <tr class="bg-gray-200">
+            <th>{{ 'quantity.label' | translate }}</th>
+            <th>{{ 'product.label' | translate }}</th>
+            <th>{{ 'blood-type.label' | translate }}</th>
+            <th>{{ 'comments.label' | translate }}</th>
+          </tr>
+        </thead>
+
+        <tbody *ngIf="orderFulfilledMessage.items?.length">
+          <tr *ngFor="let orderItemFulfilledMessage of orderFulfilledMessage.items">
+            <td class="text-center">{{ orderItemFulfilledMessage.quantity }}</td>
+            <td class="text-center">{{ orderItemFulfilledMessage.productFamily }}</td>
+            <td class="text-center">{{ orderItemFulfilledMessage.bloodType }}</td>
+            <td class="text-center">{{ orderItemFulfilledMessage.comments }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="text-3xl mt-5 mb-2 p-0 border-b border-black">
+        {{ 'short-date-details.label' | translate }}
+      </div>
+      <table
+        id="shortDateDetailsTable"
+        class="table-fixed w-full"
+        *ngIf="hasAnyShortDate(orderFulfilledMessage); else shortDateDetailsEmptyMessage"
+      >
+        <thead>
+          <tr class="bg-gray-200">
+            <th>{{ 'unit-number.label' | translate }}</th>
+            <th>{{ 'product-code.label' | translate }}</th>
+            <th>{{ 'blood-type.label' | translate }}</th>
+          </tr>
+        </thead>
+
+        <tbody *ngFor="let orderItemFulfilledMessage of orderFulfilledMessage.items">
+          <tr *ngFor="let shortDateProduct of orderItemFulfilledMessage.shortDateProducts">
+            <td class="text-center">{{ shortDateProduct.unitNumber }}</td>
+            <td class="text-center">{{ shortDateProduct.productCode }}</td>
+            <td class="text-center">{{ orderItemFulfilledMessage.bloodType }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <ng-template #shortDateDetailsEmptyMessage>
+        <div id="shortDateDetailsEmpty">
+          {{ 'no-suggested-short-dated-products-message.label' | translate }}
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</div>
