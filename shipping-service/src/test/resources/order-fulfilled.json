@@ -21,7 +21,7 @@
   "items": [
     {
       "productFamily": "Transfusable Plasma",
-      "bloodType": "AP",
+      "bloodType": "A",
       "quantity": 10,
       "totalAvailable": 10,
       "comments": "Needs to be shipped ASAP",
@@ -60,7 +60,7 @@
     },
     {
       "productFamily": "Transfusable Plasma",
-      "bloodType": "BP",
+      "bloodType": "B",
       "quantity": 5,
       "totalAvailable": 10,
       "comments": "Contact the customer before shipping",
@@ -79,7 +79,7 @@
     },
     {
       "productFamily": "Transfusable Plasma",
-      "bloodType": "OP",
+      "bloodType": "O",
       "quantity": 8,
       "shortDateProducts": [
         {
@@ -96,5 +96,4 @@
     }
   ]
 }
-
 

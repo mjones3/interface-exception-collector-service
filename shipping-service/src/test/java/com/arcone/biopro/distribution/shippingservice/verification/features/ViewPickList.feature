@@ -15,7 +15,7 @@ Feature: View Pick List
 
         Examples:
         |orderNumber | Customer ID | Customer Name      | Quantity | BloodType | ProductFamily                                              |shortDateMessage                             |
-        |1           | 1           | Testing Customer   | 10,5,8   | AP,BP,OP  |Transfusable Plasma,Transfusable Plasma,Transfusable Plasma|There are no suggested short-dated products. |
+        |1           | 1           | Testing Customer   | 10,5,8   | A,B,O  |Transfusable Plasma,Transfusable Plasma,Transfusable Plasma|There are no suggested short-dated products. |
 
 
     Rule: I should be able to view the line order in the pick list with short date products.
@@ -29,4 +29,4 @@ Feature: View Pick List
 
             Examples:
                 |orderNumber | Customer ID | Customer Name    | Quantity | BloodType | ProductFamily                                             | UnitNumber                 | ProductCode   |
-                |2           | 1           | Testing Customer | 10,5,23  | AP,AN,OP  |Transfusable Plasma,Transfusable Plasma,Transfusable Plasma|W036810946400,W036810946401 |E246300,E255500|
+                |2           | 1           | Testing Customer | 10,5,23  | A,B,O     |Transfusable Plasma,Transfusable Plasma,Transfusable Plasma|W036810946400,W036810946401 |E246300,E255500|
