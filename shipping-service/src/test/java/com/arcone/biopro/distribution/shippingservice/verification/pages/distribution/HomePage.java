@@ -28,7 +28,7 @@ public class HomePage extends CommonPageFactory {
     @FindBy(id = "companyLogo")
     private List<WebElement> aoLogo;
 
-    @FindBy(xpath = "//h5[normalize-space()='distribution.label']")
+    @FindBy(xpath = "//h5[normalize-space()='Distribution']")
     private WebElement distributionMenuLabel;
 
     //    Page Actions
@@ -37,8 +37,9 @@ public class HomePage extends CommonPageFactory {
         return !aoLogo.isEmpty();
     }
 
-    public void goTo() {
+    public void goTo() throws InterruptedException {
         this.driver.get(baseUrl);
+        Thread.sleep(1000);
         if (!isLoaded()) {
             loginPage.login();
         }
