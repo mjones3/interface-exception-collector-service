@@ -102,6 +102,7 @@ export class ShipmentDetailsComponent implements OnInit {
 
   viewPickList(): void {
     const dialogRef = this.matDialog.open(ViewPickListComponent, {
+      id: 'ViewPickListDialog',
       width: '60rem',
       minHeight: '40rem',
     });

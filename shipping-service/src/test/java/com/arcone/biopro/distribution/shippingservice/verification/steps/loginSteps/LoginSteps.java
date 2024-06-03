@@ -10,7 +10,7 @@ public class LoginSteps {
     private HomePage homePage;
 
     @Given("I have successfully logged into Distribution module.")
-    public void iHaveLoggedIntoDistribution() {
+    public void iHaveLoggedIntoDistribution() throws InterruptedException {
         homePage.goTo();
     }
 }

@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.shippingservice.verification.support.Types;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -8,6 +9,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 @Data
+@Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ShipmentRequestDetailsResponseType {
     Long id;

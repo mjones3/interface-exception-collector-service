@@ -8,10 +8,7 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.*;
 import org.springframework.test.context.event.annotation.AfterTestExecution;
 
 import java.net.MalformedURLException;
@@ -29,6 +26,7 @@ public class RemoteWebDriverConfig {
 
     @Bean
     @ConditionalOnProperty(name = "browser", havingValue = "firefox")
+    @Scope("browserscope")
     public WebDriver firefoxDriver() throws MalformedURLException, URISyntaxException {
         FirefoxOptions options = new FirefoxOptions();
         return new RemoteWebDriver(new URI(seleniumGridUrl).toURL(), options);
@@ -36,6 +34,7 @@ public class RemoteWebDriverConfig {
 
     @Bean
     @ConditionalOnMissingBean
+    @Scope("browserscope")
     public WebDriver chromeDriver() throws URISyntaxException, MalformedURLException {
         ChromeOptions options = new ChromeOptions();
         return new RemoteWebDriver(new URI(seleniumGridUrl).toURL(), options);
