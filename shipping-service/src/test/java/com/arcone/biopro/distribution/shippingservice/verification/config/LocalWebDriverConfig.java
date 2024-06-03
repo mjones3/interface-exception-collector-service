@@ -21,6 +21,7 @@ public class LocalWebDriverConfig {
 
 
     @Bean
+    @Lazy
     @ConditionalOnProperty(name = "testing.browser", havingValue = "firefox")
     @Scope("browserscope")
     public WebDriver firefoxDriver() {
@@ -29,6 +30,7 @@ public class LocalWebDriverConfig {
     }
 
     @Bean
+    @Lazy
     @ConditionalOnMissingBean
     @Scope("browserscope")
     public WebDriver chromeDriver() {

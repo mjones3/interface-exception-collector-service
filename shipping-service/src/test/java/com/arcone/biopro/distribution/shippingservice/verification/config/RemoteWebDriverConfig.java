@@ -25,6 +25,7 @@ public class RemoteWebDriverConfig {
 
 
     @Bean
+    @Lazy
     @ConditionalOnProperty(name = "browser", havingValue = "firefox")
     @Scope("browserscope")
     public WebDriver firefoxDriver() throws MalformedURLException, URISyntaxException {
@@ -33,6 +34,7 @@ public class RemoteWebDriverConfig {
     }
 
     @Bean
+    @Lazy
     @ConditionalOnMissingBean
     @Scope("browserscope")
     public WebDriver chromeDriver() throws URISyntaxException, MalformedURLException {

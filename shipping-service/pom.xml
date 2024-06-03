@@ -74,6 +74,8 @@
         <springdoc-openapi-starter-webflux-api.version>2.5.0</springdoc-openapi-starter-webflux-api.version>
         <testng.version>7.10.0</testng.version>
         <tsid-creator.version>5.2.6</tsid-creator.version>
+        <allure.version>2.25.0</allure.version>
+        <aspectj.version>1.9.21</aspectj.version>
     </properties>
 
     <dependencyManagement>
@@ -139,6 +141,13 @@
                 <groupId>com.graphql-java</groupId>
                 <artifactId>graphql-java-extended-scalars</artifactId>
                 <version>${graphql-java-extended-scalars.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.qameta.allure</groupId>
+                <artifactId>allure-bom</artifactId>
+                <version>${allure.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -352,6 +361,11 @@
             <artifactId>cucumber-spring</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-junit</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <!-- Rest Assured -->
         <dependency>
@@ -395,6 +409,18 @@
             <version>5.8.0</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- Allure Report -->
+            <dependency>
+                <groupId>io.qameta.allure</groupId>
+                <artifactId>allure-cucumber7-jvm</artifactId>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.qameta.allure</groupId>
+                <artifactId>allure-junit-platform</artifactId>
+                <scope>test</scope>
+            </dependency>
 
     </dependencies>
 
@@ -795,6 +821,23 @@
                     <groupId>org.sonarsource.scanner.maven</groupId>
                     <artifactId>sonar-maven-plugin</artifactId>
                     <version>${sonar-maven-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.2.3</version>
+                    <configuration>
+                        <argLine>
+                            -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"
+                        </argLine>
+                    </configuration>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.aspectj</groupId>
+                            <artifactId>aspectjweaver</artifactId>
+                            <version>${aspectj.version}</version>
+                        </dependency>
+                    </dependencies>
                 </plugin>
             </plugins>
         </pluginManagement>

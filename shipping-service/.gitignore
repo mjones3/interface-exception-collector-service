@@ -2,6 +2,9 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+report/screenshots/*
+report/allure-report/*
+report/allure-results/*
 
 ### Node.js ###
 node_modules/

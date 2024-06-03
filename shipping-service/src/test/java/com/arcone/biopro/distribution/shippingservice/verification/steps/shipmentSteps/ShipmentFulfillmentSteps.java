@@ -1,8 +1,7 @@
-package com.arcone.biopro.distribution.shippingservice.verification.steps.orderSteps;
+package com.arcone.biopro.distribution.shippingservice.verification.steps.shipmentSteps;
 
 import com.arcone.biopro.distribution.shippingservice.verification.support.Controllers.ShipmentTestingController;
 import com.arcone.biopro.distribution.shippingservice.verification.support.StaticValuesMapper;
-import com.arcone.biopro.distribution.shippingservice.verification.support.TestUtils;
 import com.arcone.biopro.distribution.shippingservice.verification.support.Types.ListShipmentsResponseType;
 import com.arcone.biopro.distribution.shippingservice.verification.support.Types.ShipmentRequestDetailsResponseType;
 import io.cucumber.java.en.And;
@@ -12,17 +11,15 @@ import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
+@SpringBootTest
 public class ShipmentFulfillmentSteps {
 
     private EntityExchangeResult<String> result;
@@ -34,9 +31,6 @@ public class ShipmentFulfillmentSteps {
 
     @Autowired
     private ShipmentTestingController shipmentTestingController;
-
-    @Autowired
-    private TestUtils utils;
 
     @Given("I have no shipment fulfillment requests.")
     public void noOrderFulfillmentRequest() throws Exception {

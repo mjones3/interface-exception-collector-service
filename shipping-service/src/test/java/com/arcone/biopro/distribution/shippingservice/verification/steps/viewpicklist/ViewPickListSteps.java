@@ -5,6 +5,7 @@ import com.arcone.biopro.distribution.shippingservice.verification.pages.distrib
 import com.arcone.biopro.distribution.shippingservice.verification.pages.distribution.ShipmentDetailPage;
 import com.arcone.biopro.distribution.shippingservice.verification.pages.distribution.ViewPickListPage;
 import com.arcone.biopro.distribution.shippingservice.verification.support.Controllers.ShipmentTestingController;
+import com.arcone.biopro.distribution.shippingservice.verification.support.ScreenshotService;
 import com.arcone.biopro.distribution.shippingservice.verification.support.Types.ShipmentRequestDetailsResponseType;
 import graphql.Assert;
 import io.cucumber.java.en.And;
@@ -14,6 +15,7 @@ import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.WebDriver;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.event.annotation.AfterTestExecution;
 
 import java.time.LocalDate;
@@ -42,6 +44,12 @@ public class ViewPickListSteps {
 
     @Autowired
     private WebDriver driver;
+
+    @Autowired
+    private ScreenshotService screenshot;
+
+    @Value("${save.all.screenshots}")
+    private boolean saveAllScreenshots;
 
     @Given("The shipment details are order Number {string} , customer ID {string} , Customer Name {string} , Product Details : Quantities {string} , Blood Types : {string} , Product Families {string}.")
     public void buildOrderFulfilmentRequest(String orderNumber, String customerId , String customerName
@@ -100,6 +108,7 @@ public class ViewPickListSteps {
         }
         homePage.goTo();
         this.shipmentDetailPage.goTo(this.shipmentId);
+        screenshot.attachConditionalScreenshot(saveAllScreenshots);
     }
 
     @When("I choose to view the Pick List.")
@@ -110,6 +119,7 @@ public class ViewPickListSteps {
     @Then("I am able to view the correct Order Details.")
     public void matchOrderDetails(){
         var shipmentDetails = this.viewPickListPage.getShipmentDetailsTableContent();
+        screenshot.attachConditionalScreenshot(saveAllScreenshots);
         Assert.assertNotNull(shipmentDetails);
         Assert.assertTrue(this.shipmentDetailType.getOrderNumber().equals(Long.valueOf(shipmentDetails.get("orderNumber"))));
         Assert.assertTrue(this.shipmentDetailType.getShippingCustomerCode().equals(Long.valueOf(shipmentDetails.get("customerId"))));
@@ -121,6 +131,7 @@ public class ViewPickListSteps {
         var productDetails = this.viewPickListPage.getProductDetailsTableContent();
         log.info("productDetails {}", this.shipmentDetailType.getItems());
         log.info("Map Details {}", productDetails);
+        screenshot.attachConditionalScreenshot(saveAllScreenshots);
         Assert.assertNotNull(productDetails);
         if(this.shipmentDetailType.getItems() != null && !this.shipmentDetailType.getItems().isEmpty()){
             this.shipmentDetailType.getItems().forEach(item -> {
@@ -149,6 +160,7 @@ public class ViewPickListSteps {
         log.info("productDetails {}", this.shipmentDetailType.getItems());
         log.info("Map Details {}", productDetails);
         log.info("Short Date Map Details {}", shortDateDetails);
+        screenshot.attachConditionalScreenshot(saveAllScreenshots);
         Assert.assertNotNull(productDetails);
         if(this.shipmentDetailType.getItems() != null && !this.shipmentDetailType.getItems().isEmpty()){
             this.shipmentDetailType.getItems().forEach(item -> {
