@@ -2,6 +2,7 @@ package com.arcone.biopro.distribution.shippingservice.verification.pages.distri
 
 import com.arcone.biopro.distribution.shippingservice.verification.pages.CommonPageFactory;
 import com.arcone.biopro.distribution.shippingservice.verification.pages.SharedActions;
+import com.arcone.biopro.distribution.shippingservice.verification.support.ScreenshotService;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,9 @@ public class HomePage extends CommonPageFactory {
     @FindBy(xpath = "//h5[normalize-space()='Distribution']")
     private WebElement distributionMenuLabel;
 
+    @Autowired
+    private ScreenshotService screenshot;
+
     //    Page Actions
     @Override
     public boolean isLoaded() {
@@ -41,6 +45,7 @@ public class HomePage extends CommonPageFactory {
         this.driver.get(baseUrl);
         Thread.sleep(1000);
         if (!isLoaded()) {
+            screenshot.attachScreenshot();
             loginPage.login();
         }
         sharedActions.waitForVisible(distributionMenuLabel);
