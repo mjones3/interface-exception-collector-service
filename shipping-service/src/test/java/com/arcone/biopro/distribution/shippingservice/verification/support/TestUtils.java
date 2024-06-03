@@ -14,7 +14,6 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-
 @Component
 @Slf4j
 public class TestUtils {
@@ -100,4 +99,5 @@ public class TestUtils {
         dataBuilder.append(json);
         return dataBuilder;
     }
+
 }

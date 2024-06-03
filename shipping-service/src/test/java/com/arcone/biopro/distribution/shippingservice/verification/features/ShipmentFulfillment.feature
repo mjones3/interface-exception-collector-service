@@ -21,9 +21,9 @@ Feature: Shipment fulfillment request
             And The item attribute "Shipment Id" is not empty.
             Examples:
                 | Group Value | Quantity |
-                | AP          | 10       |
-                | BP          | 5        |
-                | OP          | 8        |
+                | A          | 10       |
+                | B          | 5        |
+                | O          | 8        |
 
     Rule: I should be able to receive the shipment fulfillment request with short date product details.
         Rule: I should be able to persist with the short date shipment fulfilled request on the local store.
@@ -49,5 +49,5 @@ Feature: Shipment fulfillment request
             And The short date item attribute "Product Code" contains "<Product Code>".
             Examples:
                 | Group Value | Quantity | Unit Number    | Product Code |
-                | AP          | 10       | W036810946300  | E086900      |
-                | BP          | 5        | W036810946301  | E070700      |
+                | A          | 10       | W036810946300  | E086900      |
+                | B          | 5        | W036810946301  | E070700      |
