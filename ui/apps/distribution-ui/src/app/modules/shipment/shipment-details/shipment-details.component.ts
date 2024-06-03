@@ -88,7 +88,7 @@ export class ShipmentDetailsComponent implements OnInit {
       quantity: item.quantity,
       productComment: item.comments,
       productFamily: item.productFamily,
-      bloodGroup: item.bloodType,
+      bloodType: item.bloodType,
     };
   }
 

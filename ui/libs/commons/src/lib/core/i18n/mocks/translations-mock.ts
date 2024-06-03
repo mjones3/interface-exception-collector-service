@@ -9951,6 +9951,5 @@ export const TRANSLATIONS = {
   'pick-list.label': 'Pick List',
   'short-date-details.label': 'Short Date Details',
   'no-suggested-short-dated-products-message.label': 'There are no suggested short-dated products.',
-  'blood-group.label': 'Blood Group',
   'fill-Product.label': 'Fill Product',
 };

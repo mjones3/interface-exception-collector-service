@@ -70,7 +70,7 @@
       <!-- Header Section -->
       <div class="treo-card-title">
         <div class="flex flex-row w-full justify-between px-5 items-baseline">
-          <h3>{{ 'added-products.label' | translate }}</h3>
+          <h3>{{ 'product-details.label' | translate }}</h3>
         </div>
       </div>
       <mat-divider></mat-divider>
@@ -107,10 +107,10 @@
                   <p-sortIcon field="quantity"></p-sortIcon>
                 </div>
               </th>
-              <th pSortableColumn="bloodGroup">
+              <th pSortableColumn="bloodType">
                 <div class="p-d-flex p-jc-between p-ai-center">
-                  {{ 'blood-group.label' | translate }}
-                  <p-sortIcon field="bloodGroup"></p-sortIcon>
+                  {{ 'blood-type.label' | translate }}
+                  <p-sortIcon field="bloodType"></p-sortIcon>
                 </div>
               </th>
               <th></th>
@@ -140,7 +140,7 @@
                 {{ product?.quantity }}
               </td>
               <td>
-                {{ product?.bloodGroup | translate | uppercase }}
+                {{ product?.bloodType | translate | uppercase }}
               </td>
               <td>
                 <div class="flex flex-row space-x-4 justify-center">
