@@ -11,9 +11,13 @@ import { SelectButtonModule } from 'primeng/selectbutton';
 import { TableModule } from 'primeng/table';
 import { ShipmentDetailsComponent } from './shipment-details/shipment-details.component';
 import { ShipmentRoutingModule } from './shipment-routing.module';
+import { ViewPickListComponent } from '@rsa/distribution/modules/shipment/view-pick-list/view-pick-list.component';
 
 @NgModule({
-  declarations: [ShipmentDetailsComponent],
+  declarations: [
+    ShipmentDetailsComponent,
+    ViewPickListComponent,
+  ],
   imports: [
     CommonModule,
     ShipmentRoutingModule,

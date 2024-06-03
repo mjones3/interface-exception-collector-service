@@ -34,10 +34,10 @@
               [sortField]="defaultSortField"
               [expandedRowKeys]="expandedRows"
               (onLazyLoad)="fetchOrders($event)"
-              >              
+              >
               <ng-template pTemplate="header" let-columns>
                 <tr>
-                  <th class="w-12">                    
+                  <th class="w-12">
                   </th>
                   <th
                     [pSortableColumn]="col.sortable ? (col.sortFieldName ? col.sortFieldName : col.field) : null"

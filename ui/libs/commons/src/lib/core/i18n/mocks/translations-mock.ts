@@ -9948,4 +9948,7 @@ export const TRANSLATIONS = {
   'shipment.label': 'Shipment',
   'shipment-details.label': 'Shipment Details',
   'view-pick-list.label': 'View Pick List',
+  'pick-list.label': 'Pick List',
+  'short-date-details.label': 'Short Date Details',
+  'no-suggested-short-dated-products-message.label': "There are no suggested short-dated products.",
 };
