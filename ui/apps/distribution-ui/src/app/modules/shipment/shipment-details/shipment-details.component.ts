@@ -72,7 +72,7 @@ export class ShipmentDetailsComponent implements OnInit {
   fetchShipmentDetails(): void {
     this.shipmentService.getShipmentById(this.shipmentId).subscribe(result => {
       this.shipmentInfo = result.body;
-      this.products = this.shipmentInfo?.items?.map(item => this.convertOrderItemToOrderProduct(item)) ?? [];
+      this.products = this.shipmentInfo?.items?.map(item => this.convertItemToProduct(item)) ?? [];
       this.updateWidgets();
     });
   }
@@ -82,7 +82,7 @@ export class ShipmentDetailsComponent implements OnInit {
     this.shippingInfoDescriptions = this.shipmentService.getShippingInfoDescriptions(this.shipmentInfo);
   }
 
-  private convertOrderItemToOrderProduct(item: ShipmentInfoItemDto) {
+  private convertItemToProduct(item: ShipmentInfoItemDto) {
     return <ShipmentInfoItemDto>{
       id: item.id,
       quantity: item.quantity,
