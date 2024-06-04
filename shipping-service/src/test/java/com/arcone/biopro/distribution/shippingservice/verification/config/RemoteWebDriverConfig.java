@@ -1,6 +1,5 @@
 package com.arcone.biopro.distribution.shippingservice.verification.config;
 
-import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxOptions;
@@ -9,7 +8,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.*;
-import org.springframework.test.context.event.annotation.AfterTestExecution;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -40,10 +38,5 @@ public class RemoteWebDriverConfig {
     public WebDriver chromeDriver() throws URISyntaxException, MalformedURLException {
         ChromeOptions options = new ChromeOptions();
         return new RemoteWebDriver(new URI(seleniumGridUrl).toURL(), options);
-    }
-
-    @AfterTestExecution
-    public void afterTestExecution() {
-        WebDriverManager.getInstance().quit();
     }
 }

@@ -7,18 +7,11 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.*;
-import org.springframework.test.context.event.annotation.AfterTestExecution;
 
 @Lazy
 @Configuration
 @Profile("!remote")
 public class LocalWebDriverConfig {
-
-    @AfterTestExecution
-    public void afterTestExecution() {
-        WebDriverManager.getInstance().quit();
-    }
-
 
     @Bean
     @Lazy
