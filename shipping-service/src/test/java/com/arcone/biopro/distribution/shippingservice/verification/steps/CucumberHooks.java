@@ -5,8 +5,10 @@ import io.cucumber.java.After;
 import io.cucumber.java.AfterStep;
 import io.cucumber.java.Scenario;
 import lombok.extern.slf4j.Slf4j;
+import org.openqa.selenium.WebDriver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
 
 @Lazy
@@ -17,6 +19,9 @@ public class CucumberHooks {
     @Lazy
     @Autowired
     private ScreenshotService screenshot;
+
+    @Autowired
+    public ApplicationContext ctx;
 
     @AfterStep
     public void afterStep(Scenario scenario) {
@@ -29,8 +34,8 @@ public class CucumberHooks {
     }
 
     @After
-    public void after() {
-        log.info("After hook called.");
+    public void afterScenario(){
+        this.ctx.getBean(WebDriver.class).quit();
     }
 
 }
