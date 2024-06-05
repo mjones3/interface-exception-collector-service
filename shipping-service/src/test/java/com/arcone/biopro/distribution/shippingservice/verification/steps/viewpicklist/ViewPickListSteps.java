@@ -146,7 +146,7 @@ public class ViewPickListSteps {
     public void buildOrderFulfilmentRequestWithShortDate(String orderNumber, String customerId , String customerName
         , String quantities , String bloodTypes , String productFamilies , String unitNumbers , String productCodes) throws  Exception{
 
-       this.shipmentDetailType =  setupOrderFulfillmentRequest(orderNumber, customerId , customerName
+        this.shipmentDetailType =  setupOrderFulfillmentRequest(orderNumber, customerId , customerName
             , quantities ,  bloodTypes ,  productFamilies ,  unitNumbers ,  productCodes);
 
         Assert.assertNotNull(shipmentDetailType);
@@ -182,5 +182,4 @@ public class ViewPickListSteps {
     public void matchNoShortDateProductsMessage(String message){
         Assert.assertTrue(message.equals(this.viewPickListPage.getNoShortDateMessageContent()));
     }
-
 }
