@@ -9,6 +9,7 @@
     <ng-template #orderInfoTpl>
       <div class="flex flex-col">
         <rsa-description-card
+          id="orderInfoDescriptions"
           [descriptions]="orderInfoDescriptions"
           [showColon]="true"
           [embedded]="true"
@@ -38,6 +39,7 @@
     <ng-template #shipInfoTpl>
       <div class="flex flex-col">
         <rsa-description-card
+          id="shippingInfoDescriptions"
           [descriptions]="shippingInfoDescriptions"
           [showColon]="true"
           [embedded]="true"
