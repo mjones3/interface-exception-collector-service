@@ -17,6 +17,7 @@ import {
   PendingRsa,
   PlusCircleHeroiconsSolid,
   PlusHeroiconsSolid,
+  PrinterHeroiconsOutline,
   ProductPlasmaRsa,
   ProductPlateletsRsa,
   ProductRbcRsa,
@@ -60,6 +61,7 @@ export const HEROIC_ICONS = [
   XCircleHeroiconsOutline,
   ToDoDripicons,
   DownloadHeroiconsOutline,
+  PrinterHeroiconsOutline,
 ];
 
 export const DRIP_ICONS = [

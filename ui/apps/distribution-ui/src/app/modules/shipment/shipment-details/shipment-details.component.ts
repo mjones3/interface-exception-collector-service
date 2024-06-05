@@ -103,8 +103,8 @@ export class ShipmentDetailsComponent implements OnInit {
   viewPickList(): void {
     const dialogRef = this.matDialog.open(ViewPickListComponent, {
       id: 'ViewPickListDialog',
-      width: '60rem',
-      minHeight: '40rem',
+      width: '210mm', // A4 Sheet width
+      height: 'calc(100vh - 20px)',
     });
     dialogRef.componentInstance.model$ = of(this.shipmentInfo);
   }

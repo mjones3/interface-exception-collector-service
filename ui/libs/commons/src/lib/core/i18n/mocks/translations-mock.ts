@@ -724,7 +724,7 @@ export const TRANSLATIONS = {
   'warning-message.label': 'Warning Message',
   'babesia-nat-ind-indefinite.label': 'BABESIA NAT IND INDEFINITE',
   'bag-type.label': 'Bag Type',
-  'print.label': 'Print Label',
+  'print.label': 'Print',
   'sampler-unit-number': 'Sampler Unit Number',
   'isbt.ea070-aph-plt-vc-bm24-b.label':
     'Apheresis PLATELETS|ACD-A/XX/20-24C|2nd container|<3E11 plts|Bacterial monitoring >=24h',
