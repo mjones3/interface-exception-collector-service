@@ -1,11 +1,19 @@
 <div class="modal-body-width">
-  <div class="flex justify-end items-center mb-2">
-    <button class="treo-message-dismiss-button" mat-icon-button mat-dialog-close>
+  <div class="flex flex-row gap-2 justify-end items-center mb-2">
+    <button title="{{ 'print.label' | translate }}" (click)="print()" mat-icon-button>
+      <mat-icon [svgIcon]="'hi_outline:printer'"></mat-icon>
+    </button>
+    <button
+      title="{{ 'close.label' | translate }}"
+      class="treo-message-dismiss-button"
+      mat-icon-button
+      mat-dialog-close
+    >
       <mat-icon [svgIcon]="'hi_outline:x'"></mat-icon>
     </button>
   </div>
 
-  <div id="viewPickListReport">
+  <div id="viewPickListReport" class="py-0 px-5">
     <div class="text-gray-700" *ngIf="model$ | async as orderFulfilledMessage" style="font-family: serif">
       <div class="text-4xl mt-0 mb-2 p-0 font-bold border-b border-black text-center">
         {{ 'pick-list.label' | translate }}
