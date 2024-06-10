@@ -1,29 +1,22 @@
-package com.arcone.biopro.distribution.shippingservice.verification.steps.shipmentDetailSteps;
+package com.arcone.biopro.distribution.shippingservice.verification.steps.shipment;
 
 import com.arcone.biopro.distribution.shippingservice.verification.pages.distribution.HomePage;
 import com.arcone.biopro.distribution.shippingservice.verification.pages.distribution.ShipmentDetailPage;
-import com.arcone.biopro.distribution.shippingservice.verification.pages.distribution.ViewPickListPage;
 import com.arcone.biopro.distribution.shippingservice.verification.support.ScreenshotService;
-import com.arcone.biopro.distribution.shippingservice.verification.support.TestUtils;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
 
 
 @Slf4j
+@SpringBootTest
 public class ShipmentDetailPageSteps {
-    private HomePage homePage;
 
     @Autowired
     private ShipmentDetailPage shipmentDetailPage;
-
-    @Autowired
-    private ViewPickListPage viewPickListPage;
-
-    @Autowired
-    private TestUtils utils;
 
     @Autowired
     private ScreenshotService screenshot;

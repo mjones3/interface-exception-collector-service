@@ -4,7 +4,7 @@ Feature: View Pick List
         Rule: I should be able to see the order number and customer details in the pick list.
     Rule: I should be able to view the number of products that are ready to be filled in an order.
         Scenario Outline: View Shipment details.
-            Given The shipment details are order Number "<orderNumber>" , customer ID "<Customer ID>" , Customer Name "<Customer Name>" , Product Details : Quantities "<Quantity>" , Blood Types : "<BloodType>" , Product Families "<ProductFamily>".
+            Given The shipment details are order Number "<orderNumber>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>".
             And I have received a shipment fulfillment request with above details.
             And I am on the Shipment Fulfillment Details page.
             When I choose to view the Pick List.
@@ -19,7 +19,7 @@ Feature: View Pick List
 
     Rule: I should be able to view the line order in the pick list with short date products.
         Scenario Outline: View Shipment details with short date products.
-            Given The shipment details are order Number "<orderNumber>" , customer ID "<Customer ID>" , Customer Name "<Customer Name>" , Product Details : Quantities "<Quantity>" , Blood Types : "<BloodType>" , Product Families "<ProductFamily>" , Short Date Products "<UnitNumber>" , Product Code "<ProductCode>".
+            Given The shipment details are order Number "<orderNumber>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>", Short Date Products "<UnitNumber>", Product Code "<ProductCode>".
             And I have received a shipment fulfillment request with above details.
             And I am on the Shipment Fulfillment Details page.
             When I choose to view the Pick List.

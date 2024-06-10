@@ -13,8 +13,6 @@ import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
-
 
 
 @Component
@@ -91,7 +89,7 @@ public class ShipmentDetailPage extends CommonPageFactory {
         sharedActions.click(viewPickListButton);
     }
 
-    public void viewAmountOfProductsFilled() throws Exception {
+    public void viewAmountOfProductsFilled() {
         sharedActions.waitForVisible(amountOfProductsFilled);
         wait.until((ExpectedCondition<Boolean>) wd ->
             ((JavascriptExecutor) wd).executeScript("return document.readyState").equals("complete"));
