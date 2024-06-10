@@ -188,6 +188,10 @@ spring:
             client-secret: web_app
             scope: openid, profile, email, offline_access # last one for refresh tokens
 
+  rsocket:
+    server:
+      port: 8585
+      transport: tcp
 otel:
   service:
     name: ${spring.application.name}
@@ -257,3 +261,15 @@ application:
       audience:
         - account
         - api://default
+
+async-call:
+  inventory:
+    tcp-address: localhost
+    tcp-port: 8585
+    max-attempts: 2
+    duration: 2
+
+
+
+
+

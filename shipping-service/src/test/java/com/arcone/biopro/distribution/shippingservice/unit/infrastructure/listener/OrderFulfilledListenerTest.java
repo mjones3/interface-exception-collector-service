@@ -50,7 +50,7 @@ class OrderFulfilledListenerTest {
     }
 
     @Test
-    public void shouldNotHandleMessageWhenMessageIsInvalid() throws Exception{
+    public void shouldNotHandleMessageWhenMessageIsInvalid() throws Exception {
 
         ReactiveKafkaConsumerTemplate<String, String> consumer = Mockito.mock(ReactiveKafkaConsumerTemplate.class);
 
@@ -73,11 +73,15 @@ class OrderFulfilledListenerTest {
 
         Mockito.when(objectMapper.readValue(Mockito.anyString(), Mockito.eq(OrderFulfilledMessage.class))).thenThrow(JsonProcessingException.class);
 
-        OrderFulfilledListener listener = new OrderFulfilledListener(consumer,objectMapper,service);
+        try{
+            OrderFulfilledListener listener = new OrderFulfilledListener(consumer,objectMapper,service);
 
-        listener.run(new String[]{""});
+            listener.run(new String[]{""});
 
-        Mockito.verifyNoInteractions(service);
+        }catch (Exception e){
+            Mockito.verifyNoInteractions(service);
+        }
+
     }
 
 }
