@@ -18,6 +18,8 @@
   "customerAddressDistrict": "Miami-Dade",
   "customerAddressAddressLine1": "36544 SW 27th St",
   "customerAddressAddressLine2": "North Miami",
+  "comments": "Distribution Comments",
+  "departmentName": "Department",
   "items": [
     {
       "productFamily": "Transfusable Plasma",

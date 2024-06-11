@@ -133,6 +133,19 @@ public class Shipment implements Serializable, Persistable<Long> {
     @Column("delete_date")
     private ZonedDateTime deleteDate;
 
+    @Column("created_by_employee_id")
+    private String createdByEmployeeId;
+    @Column("completed_by_employee_id")
+    private String completedByEmployeeId;
+
+    @Column("comments")
+    private String comments;
+
+    @Column("department_name")
+    private String departmentName;
+
+    @Column("complete_date")
+    private ZonedDateTime completeDate;
 
     @Override
     public boolean isNew() {

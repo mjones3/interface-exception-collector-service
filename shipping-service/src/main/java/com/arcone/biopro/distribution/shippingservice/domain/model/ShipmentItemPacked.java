@@ -25,8 +25,8 @@ public class ShipmentItemPacked implements Serializable, Persistable<Long> {
     private Long id;
 
     @NotNull
-    @Column("shipment_id")
-    private Long shipmentId;
+    @Column("shipment_item_id")
+    private Long shipmentItemId;
 
     @NotNull
     @Column("unit_number")
@@ -35,6 +35,24 @@ public class ShipmentItemPacked implements Serializable, Persistable<Long> {
     @NotNull
     @Column("product_code")
     private String productCode;
+
+    @NotNull
+    @Column("product_description")
+    private String productDescription;
+
+    @Column("packed_by_employee_id")
+    private String packedByEmployeeId;
+
+    @NotNull
+    @Column("abo_rh")
+    private String aboRh;
+
+    @NotNull
+    @Column("expiration_date")
+    private ZonedDateTime expirationDate;
+
+    @Column("collection_date")
+    private ZonedDateTime collectionDate;
 
     @NotNull
     @Column("create_date")
