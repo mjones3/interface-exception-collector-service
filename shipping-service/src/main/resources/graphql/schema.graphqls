@@ -1,11 +1,54 @@
 scalar DateTime
 @specifiedBy(url: "https://scalars.graphql.org/andimarek/date-time.html")
 
-type ShippingService {
-    id: ID!
+type Query {
+    generatePackingListLabel(shipmentId: ID!):PackingListLabelDTO!
 }
 
-# The Root Query for the application
-type Query {
-  shippingServiceList: [ShippingService]!
+type PackingListLabelDTO {
+
+    shipmentId: ID!
+    orderNumber: Int!
+    orderIdBase64Barcode: String
+    shipmentIdBase64Barcode: String
+    dateTimePacked: DateTime
+    packedBy: String
+    enteredBy: String
+    quantity: Int
+    shipFrom: ShipFromDTO
+    shipTo: ShipToDTO
+    distributionComments: String
+    packedItems:[ShipmentItemPackedDTO]
+}
+
+type ShipFromDTO {
+    bloodCenterCode: String
+    bloodCenterName: String
+    bloodCenterAddressLine1: String
+    bloodCenterAddressLine2: String
+    bloodCenterAddressComplement: String
+}
+
+type ShipToDTO {
+
+    customerCode: Int
+    customerName: String
+    department: String
+    addressLine1: String
+    addressLine2: String
+    addressComplement: String
+
+}
+
+type ShipmentItemPackedDTO {
+
+    shipmentItemId: Int
+    inventoryId: Int
+    unitNumber: String
+    productCode: String
+    aboRh: String
+    productDescription:String
+    productFamily:String
+    expirationDate: DateTime
+    collectionDate: DateTime
 }

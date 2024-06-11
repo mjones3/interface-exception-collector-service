@@ -24,7 +24,11 @@ CREATE TABLE bld_shipment (
     shipping_date DATE NOT NULL,
     create_date                TIMESTAMP WITH TIME ZONE NOT NULL,
     modification_date          TIMESTAMP WITH TIME ZONE NOT NULL,
-    delete_date                TIMESTAMP WITH TIME ZONE
+    delete_date                TIMESTAMP WITH TIME ZONE,
+    "comments" varchar(1000) NULL,
+    department_name varchar(255) NULL,
+    created_by_employee_id varchar(50) NULL,
+    completed_by_employee_id varchar(50) NULL
 );
 
 CREATE TABLE bld_shipment_item (
@@ -57,10 +61,15 @@ CREATE TABLE bld_shipment_item_short_date_product (
 CREATE TABLE bld_shipment_item_packed (
     id BIGSERIAL               NOT NULL
         CONSTRAINT pk_bld_shipment_item_packed PRIMARY KEY,
-    shipment_id BIGINT         NOT NULL
-        CONSTRAINT fk_shipment_shipment_item_packed REFERENCES bld_shipment,
+    shipment_item_id BIGINT         NOT NULL
+        CONSTRAINT fk_shipment_item_shipment_item_packed REFERENCES bld_shipment_item,
     unit_number                VARCHAR(255) NOT NULL,
     product_code               VARCHAR(255) NOT NULL,
+    product_description        VARCHAR(255) NOT NULL,
+    abo_rh                     VARCHAR(10) NOT NULL,
+    packed_by_employee_id      varchar(50) NOT NULL,
+    expiration_date          TIMESTAMP WITH TIME ZONE NOT NULL,
+    collection_date          TIMESTAMP WITH TIME ZONE NULL,
     create_date                TIMESTAMP WITH TIME ZONE NOT NULL,
     modification_date          TIMESTAMP WITH TIME ZONE NOT NULL
 );

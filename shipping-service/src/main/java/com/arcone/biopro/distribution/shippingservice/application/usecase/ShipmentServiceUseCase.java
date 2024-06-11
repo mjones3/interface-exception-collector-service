@@ -66,6 +66,9 @@ public class ShipmentServiceUseCase implements ShipmentService {
             .postalCode(message.customerAddressPostalCode())
             .state(message.customerAddressState())
             .district(message.customerAddressDistrict())
+            .comments(message.comments())
+            .departmentName(message.departmentName())
+            .createdByEmployeeId("mock-employee-id")
             .build();
 
         return shipmentRepository.save(shipment)

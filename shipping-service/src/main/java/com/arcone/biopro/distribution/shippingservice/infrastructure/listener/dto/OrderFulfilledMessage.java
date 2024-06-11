@@ -46,6 +46,8 @@ public record OrderFulfilledMessage(
 
     String customerAddressAddressLine2,
 
+    String comments,
+    String departmentName,
 
     List<OrderItemFulfilledMessage> items
 
