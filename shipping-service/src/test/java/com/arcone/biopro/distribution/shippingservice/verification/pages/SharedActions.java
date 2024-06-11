@@ -24,8 +24,8 @@ public class SharedActions {
                 return element.isDisplayed();
             });
             log.debug("Element {} is visible now.", element.toString());
-        } catch (Exception e) {
-            log.error("Element {} is not visible in the specified timeout.", element.toString());
+        }catch (NoSuchElementException e) {
+            log.error("Element {} not found.", element.toString());
             throw e;
         }
     }

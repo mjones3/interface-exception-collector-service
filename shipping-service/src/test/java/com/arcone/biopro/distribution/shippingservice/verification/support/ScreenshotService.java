@@ -30,19 +30,19 @@ public class ScreenshotService implements TestWatcher {
     }
 
     public void attachScreenshot() {
-        var driver = ctx.getBean(WebDriver.class);
-        if (driver instanceof TakesScreenshot) {
-            byte[] screenshotBytes = ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
-            if (screenshotBytes == null) {
-                log.info("Failed to capture screenshot. Bytes are null.");
+            var driver = ctx.getBean(WebDriver.class);
+            if (driver instanceof TakesScreenshot) {
+                byte[] screenshotBytes = ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
+                if (screenshotBytes == null) {
+                    log.info("Failed to capture screenshot. Bytes are null.");
+                } else {
+                    log.info("Screenshot captured. Attaching to Allure report...");
+                    Allure.addAttachment("Screenshot", new ByteArrayInputStream(screenshotBytes));
+                    log.info("Screenshot attached to Allure report.");
+                }
             } else {
-                log.info("Screenshot captured. Attaching to Allure report...");
-                Allure.addAttachment("Screenshot", new ByteArrayInputStream(screenshotBytes));
-                log.info("Screenshot attached to Allure report.");
+                log.info("Driver does not support screenshots.");
             }
-        } else {
-            log.info("Driver does not support screenshots.");
-        }
     }
 
     public void attachConditionalScreenshot(boolean condition) {
