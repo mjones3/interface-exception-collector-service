@@ -209,3 +209,4 @@ export * from './volume-type.dto';
 export * from './volume.dto';
 export * from './wafer-lot-number.dto';
 export * from './workstation.dto';
+export * from './packing-list.model';

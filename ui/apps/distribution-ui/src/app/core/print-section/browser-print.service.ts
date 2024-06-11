@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import { PrintModel } from '@rsa/distribution/core/print/print-model';
+import { BrowserPrintModel } from '@rsa/distribution/core/print-section/browser-print.model';
 
 @Injectable({
   providedIn: 'root',
 })
-export class PrintService {
+export class BrowserPrintService {
 
   /**
    * Updates the default values for input elements.
@@ -120,9 +120,9 @@ export class PrintService {
    * Prints the specified content using the provided print options.
    *
    * @param {string} printSectionId - the HTML tag that is used as section to print
-   * @param {PrintModel} options - printing customization options
+   * @param {BrowserPrintModel} options - printing customization options
    */
-  public print(printSectionId: string, options?: Partial<PrintModel>): void {
+  public print(printSectionId: string, options?: Partial<BrowserPrintModel>): void {
     const printOptions = {
       printTitle: '&nbsp;',
       useExistingCss: true,

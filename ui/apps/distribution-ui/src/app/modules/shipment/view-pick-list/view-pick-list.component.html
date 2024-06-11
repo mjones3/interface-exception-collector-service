@@ -14,16 +14,23 @@
   </div>
 
   <div id="viewPickListReport" class="py-0 px-5">
-    <div class="text-gray-700" *ngIf="model$ | async as orderFulfilledMessage" style="font-family: serif">
-      <div class="text-4xl mt-0 mb-2 p-0 font-bold border-b border-black text-center">
-        {{ 'pick-list.label' | translate }}
-      </div>
-      <table id="pickListTable" class="table-fixed w-full">
+    <div class="text-gray-700 flex flex-col gap-4" *ngIf="model$ | async as orderFulfilledMessage" style="font-family: serif;">
+      <table id="pageHeader" class="table-fixed border-separate w-full">
+        <tbody>
+        <tr>
+          <td class="text-4xl font-bold border-b border-black text-center">
+            {{ 'pick-list.label' | translate }}
+          </td>
+        </tr>
+        </tbody>
+      </table>
+
+      <table id="pickListTable" class="table-fixed border-separate w-full">
         <thead>
           <tr class="bg-gray-200">
-            <th>{{ 'order-number.label' | translate }}</th>
-            <th>{{ 'customer-id.label' | translate }}</th>
-            <th>{{ 'customer-name.label' | translate }}</th>
+            <th class="border-b-2 border-gray-400">{{ 'order-number.label' | translate }}</th>
+            <th class="border-b-2 border-gray-400">{{ 'customer-id.label' | translate }}</th>
+            <th class="border-b-2 border-gray-400">{{ 'customer-name.label' | translate }}</th>
           </tr>
         </thead>
 
@@ -39,13 +46,13 @@
       <div class="text-3xl mt-5 mb-2 p-0 border-b border-black">
         {{ 'product-details.label' | translate }}
       </div>
-      <table id="productDetailsTable" class="table-fixed w-full">
+      <table id="productDetailsTable" class="table-fixed border-separate w-full">
         <thead>
           <tr class="bg-gray-200">
-            <th>{{ 'quantity.label' | translate }}</th>
-            <th>{{ 'product.label' | translate }}</th>
-            <th>{{ 'blood-type.label' | translate }}</th>
-            <th>{{ 'comments.label' | translate }}</th>
+            <th class="border-b-2 border-gray-400">{{ 'quantity.label' | translate }}</th>
+            <th class="border-b-2 border-gray-400">{{ 'product.label' | translate }}</th>
+            <th class="border-b-2 border-gray-400">{{ 'blood-type.label' | translate }}</th>
+            <th class="border-b-2 border-gray-400">{{ 'comments.label' | translate }}</th>
           </tr>
         </thead>
 
@@ -64,14 +71,14 @@
       </div>
       <table
         id="shortDateDetailsTable"
-        class="table-fixed w-full"
+        class="table-fixed border-separate w-full"
         *ngIf="hasAnyShortDate(orderFulfilledMessage); else shortDateDetailsEmptyMessage"
       >
         <thead>
           <tr class="bg-gray-200">
-            <th>{{ 'unit-number.label' | translate }}</th>
-            <th>{{ 'product-code.label' | translate }}</th>
-            <th>{{ 'blood-type.label' | translate }}</th>
+            <th class="border-b-2 border-gray-400">{{ 'unit-number.label' | translate }}</th>
+            <th class="border-b-2 border-gray-400">{{ 'product-code.label' | translate }}</th>
+            <th class="border-b-2 border-gray-400">{{ 'blood-type.label' | translate }}</th>
           </tr>
         </thead>
 

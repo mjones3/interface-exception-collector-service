@@ -31,7 +31,11 @@ export enum PageSize {
   'ledger landscape',
 }
 
-export type PrintModel = {
+export const DEFAULT_PAGE_SIZE: keyof typeof PageSize = 'A4 portrait';
+export const DEFAULT_PAGE_SIZE_DIALOG_WIDTH = '210mm';
+export const DEFAULT_PAGE_SIZE_DIALOG_HEIGHT = 'calc(100vh - 2rem)';
+
+export type BrowserPrintModel = {
   printTitle: string;
   useExistingCss: boolean;
   bodyClass: string;
