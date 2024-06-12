@@ -28,7 +28,8 @@ CREATE TABLE bld_shipment (
     "comments" varchar(1000) NULL,
     department_name varchar(255) NULL,
     created_by_employee_id varchar(50) NULL,
-    completed_by_employee_id varchar(50) NULL
+    completed_by_employee_id varchar(50) NULL,
+    complete_date TIMESTAMP WITH TIME ZONE
 );
 
 CREATE TABLE bld_shipment_item (

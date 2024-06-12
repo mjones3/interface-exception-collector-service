@@ -48,7 +48,6 @@ public class ShipmentLabelServiceUseCase implements ShipmentLabelService {
                     var packingListLabel = PackingListLabelDTO.builder()
                         .shipmentId(shipment.getId())
                         .packedItems(new ArrayList<>())
-                        .dateTimePacked(shipment.getModificationDate())
                         .orderNumber(shipment.getOrderNumber())
                         .orderIdBase64Barcode(barcodeGenerator.generateCode128BarcodeBase64(String.format("%d", shipment.getOrderNumber())))
                         .shipmentIdBase64Barcode(barcodeGenerator.generateCode128BarcodeBase64(String.format("%d",shipment.getId())))
