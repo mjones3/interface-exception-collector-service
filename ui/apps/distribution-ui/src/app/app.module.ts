@@ -12,6 +12,7 @@ import { LayoutModule } from '@rsa/distribution/layout/layout.module';
 import { TreoConfigModule, TreoMockApiModule, TreoModule } from '@treo';
 import { ToastrModule } from 'ngx-toastr';
 import { AppComponent } from './app.component';
+import { GraphQLModule } from '@rsa/distribution/graphql.module';
 
 @NgModule({
   declarations: [AppComponent],
@@ -41,6 +42,7 @@ import { AppComponent } from './app.component';
     // 3rd party modules
     ReactiveFormsModule,
     FormsModule,
+    GraphQLModule,
   ],
   providers: [],
   bootstrap: [AppComponent],

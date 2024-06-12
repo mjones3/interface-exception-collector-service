@@ -9,6 +9,15 @@
     }
   },
   {
+    "context": ["/graphql"],
+    "target": "http://localhost:8080/graphql",
+    "secure": true,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/graphql": ""
+    }
+  },
+  {
     "context": ["/request-token"],
     "target": "https://api.dev01.ao.arc-one.com/request-token",
     "secure": true,
