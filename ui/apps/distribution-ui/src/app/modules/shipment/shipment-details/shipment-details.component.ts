@@ -1,6 +1,6 @@
 import { HttpResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   Description,
@@ -16,6 +16,16 @@ import { SortService } from '@rsa/distribution/core/services/sort.service';
 import { ViewPickListComponent } from '@rsa/distribution/modules/shipment/view-pick-list/view-pick-list.component';
 import { SortEvent } from 'primeng/api';
 import { of } from 'rxjs';
+import {
+  DEFAULT_PAGE_SIZE,
+  DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
+  DEFAULT_PAGE_SIZE_DIALOG_WIDTH,
+} from '@rsa/distribution/core/print-section/browser-printing.model';
+import {
+  ViewPackingListComponent
+} from '@rsa/distribution/modules/shipment/view-packing-list/view-packing-list.component';
+import { switchMap } from 'rxjs/operators';
+import { BrowserPrintingService } from '@rsa/distribution/core/print-section/browser-printing.service';
 
 @Component({
   selector: 'rsa-shipment-details',
@@ -31,7 +41,8 @@ export class ShipmentDetailsComponent implements OnInit {
     private shipmentService: ShipmentService,
     private sortService: SortService,
     private packingListService: PackingListService,
-    private matDialog: MatDialog
+    private matDialog: MatDialog,
+    private browserPrintService: BrowserPrintingService,
   ) {}
 
   orderInfoDescriptions: Description[] = [];
@@ -106,10 +117,43 @@ export class ShipmentDetailsComponent implements OnInit {
   viewPickList(): void {
     const dialogRef = this.matDialog.open(ViewPickListComponent, {
       id: 'ViewPickListDialog',
-      width: '210mm', // A4 Sheet width
-      height: 'calc(100vh - 20px)',
+      width: DEFAULT_PAGE_SIZE_DIALOG_WIDTH,
+      height: DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
     });
     dialogRef.componentInstance.model$ = of(this.shipmentInfo);
+  }
+
+  viewPackingList(print?: boolean): void {
+    let dialogRef: MatDialogRef<ViewPackingListComponent>;
+    this.packingListService
+      .getLabel(this.shipmentInfo.id)
+      .pipe(
+        switchMap(response => {
+          const packingListLabel = response?.data?.generatePackingListLabel;
+          dialogRef = this.matDialog.open(ViewPackingListComponent, {
+            id: 'ViewPackingListDialog',
+            ...(print
+                ? {
+                  hasBackdrop: false,
+                  panelClass: 'hidden',
+                }
+                : {
+                  width: DEFAULT_PAGE_SIZE_DIALOG_WIDTH,
+                  height: DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
+                }
+            )
+          });
+          dialogRef.componentInstance.model$ = of(packingListLabel);
+          return dialogRef.afterOpened();
+        })
+      )
+      .subscribe(() => {
+        this.browserPrintService.print(
+          'viewPackingListReport',
+          { pagesize: DEFAULT_PAGE_SIZE }
+        );
+        dialogRef?.close();
+      });
   }
 
   customSort(event: SortEvent) {

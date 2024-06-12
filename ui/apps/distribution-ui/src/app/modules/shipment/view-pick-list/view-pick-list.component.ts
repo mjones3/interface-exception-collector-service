@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ShipmentInfoDto } from '@rsa/commons';
 import { Observable } from 'rxjs';
-import { BrowserPrintService } from '@rsa/distribution/core/print-section/browser-print.service';
+import { BrowserPrintingService } from '@rsa/distribution/core/print-section/browser-printing.service';
 
 @Component({
   selector: 'rsa-view-pick-list',
@@ -11,7 +11,7 @@ export class ViewPickListComponent implements OnInit {
   model$: Observable<ShipmentInfoDto>;
 
   constructor(
-    private browserPrintService: BrowserPrintService
+    private browserPrintService: BrowserPrintingService
   ) {}
 
   ngOnInit(): void {}
