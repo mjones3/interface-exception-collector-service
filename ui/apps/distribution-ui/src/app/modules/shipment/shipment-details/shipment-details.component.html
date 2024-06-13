@@ -86,6 +86,7 @@
     </div>
   </div>
 
+  <!--Shipment Details Table-->
   <div class="flex flex-col flex-auto space-y-1">
     <treo-card class="flex-col pb-4">
       <!-- Header Section -->
@@ -128,6 +129,12 @@
                   <p-sortIcon field="quantity"></p-sortIcon>
                 </div>
               </th>
+              <th>
+                <div pSortableColumn="quantityFilledProducts" class="p-d-flex p-jc-between p-ai-center">
+                  {{ 'filled.label' | translate }}
+                  <p-sortIcon field="quantityFilledProducts"></p-sortIcon>
+                </div>
+              </th>
               <th id="bloodTypeColumn" pSortableColumn="bloodType">
                 <div class="p-d-flex p-jc-between p-ai-center">
                   {{ 'blood-type.label' | translate }}
@@ -146,7 +153,7 @@
                   class="p-button-text p-button-rounded p-button-plain"
                   pButton
                   pRipple
-                  *ngIf="product?.productComment"
+                  *ngIf="product?.comments"
                   [pRowToggler]="product"
                   [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
                 ></button>
@@ -161,11 +168,29 @@
                 {{ product?.quantity }}
               </td>
               <td>
+                <!-- TODO-->
+                <div class="flex flex-row items-center justify-start space-x-2">
+                  <span>{{ product?.quantityFilledProducts || 0 }}</span>
+                  <span class="w-10">
+                    <mat-progress-bar
+                      mode="determinate"
+                      [value]="(product?.quantityFilledProducts / product?.quantity) * 100"
+                    ></mat-progress-bar
+                  ></span>
+                  <mat-icon
+                    class="text-custom-green"
+                    [svgIcon]="'hi_outline:clock'"
+                    *ngIf="product?.quantityFilledProducts"
+                  ></mat-icon>
+                </div>
+              </td>
+              <!--END-->
+              <td>
                 {{ product?.bloodType | translate | uppercase }}
               </td>
               <td>
                 <div class="flex flex-row space-x-4 justify-center">
-                  <button id="fillShipmentBtn" mat-raised-button class="bg-custom-red" (click)="fillOrder()">
+                  <button id="fillShipmentBtn" mat-raised-button class="bg-custom-red" (click)="fillProducts(product)">
                     {{ 'fill-Product.label' | translate }}
                   </button>
                 </div>
@@ -177,9 +202,9 @@
               <td [attr.colspan]="6">
                 <div class="p-4">
                   <div class="flex flex-col space-y-2">
-                    <div class="flex flex-row space-x-4 w-full text-wrap" *ngIf="product?.productComment">
+                    <div class="flex flex-row space-x-4 w-full text-wrap" *ngIf="product?.comments">
                       <span class="font-bold mb-1 text-left mr-4 w-60">{{ 'comments.label' | translate }}</span>
-                      <span class="text-overflow text-left">{{ product?.productComment | uppercase }}</span>
+                      <span class="text-overflow text-left">{{ product?.comments | uppercase }}</span>
                     </div>
                   </div>
                 </div>
@@ -198,7 +223,85 @@
     </treo-card>
   </div>
 
-  <div class="flex flex-col flex-auto space-y-1 mt-6" *ngIf="shipmentsCount">
+  <!--TODO-->
+
+  <!--Filled Packed products Table-->
+  <div class="flex flex-col flex-auto space-y-1 mt-6">
+    <treo-card class="flex-col pb-4">
+      <!-- Header Section -->
+      <div class="flex flex-row justify-between items-end">
+        <div class="treo-card-title">
+          <div class="flex flex-row w-full justify-between px-5 items-baseline">
+            <h3>{{ 'packed-products.label' | translate }}</h3>
+          </div>
+        </div>
+
+        <div class="flex flex-row space-x-2 mr-4 p-2">
+          <button
+            id="completeShipmentBtn"
+            class="action-button primary px-4"
+            mat-stroked-button
+            (click)="completeShipment()"
+          >
+            {{ 'complete-shipment.label' | translate }}
+          </button>
+        </div>
+      </div>
+      <mat-divider></mat-divider>
+
+      <div class="table-wrapper">
+        <p-table
+          id="filledProdTableId"
+          dataKey="id"
+          [rows]="10"
+          [showCurrentPageReport]="true"
+          [rowsPerPageOptions]="[10, 25, 50]"
+          [loading]="loading"
+          styleClass="p-datatable-customers p-datatable-sm"
+          [paginator]="true"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th class="px-8">
+                <div class="p-d-flex p-jc-between p-ai-center">
+                  {{ 'unit-number.label' | translate }}
+                </div>
+              </th>
+              <th>
+                <div class="p-d-flex p-jc-between p-ai-center">
+                  {{ 'product-code.label' | translate }}
+                </div>
+              </th>
+              <th>
+                <div class="p-d-flex p-jc-between p-ai-center">
+                  {{ 'description.label' | translate }}
+                </div>
+              </th>
+              <th></th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body">
+            <tr></tr>
+          </ng-template>
+
+          <ng-template pTemplate="footer">
+            <tr>
+              <td [attr.colspan]="4" class="p-text-right">
+                <span class="ml-6">({{ totalFilledProducts }}) {{ 'total-filled-products.label' | translate }}</span>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </treo-card>
+  </div>
+
+  <!--END-->
+
+  <!--Shipped products Table-->
+  <div class="flex flex-col flex-auto space-y-1 mt-6">
     <treo-card class="flex-col pb-4">
       <!-- Header Section -->
       <div class="treo-card-title">
@@ -229,7 +332,7 @@
               </th>
               <th>
                 <div class="p-d-flex p-jc-between p-ai-center">
-                  {{ 'shipment-date.label' | translate }}
+                  {{ 'shipment-date-and-time.label' | translate }}
                 </div>
               </th>
               <th>

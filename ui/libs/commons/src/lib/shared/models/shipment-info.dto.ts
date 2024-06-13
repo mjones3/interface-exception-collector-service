@@ -31,6 +31,7 @@ export interface ShipmentInfoItemDto {
   quantity: number;
   comments?: string;
   shortDateProducts?: ShortDateProductDto[];
+  shipmentItemPacked?: FilledProductInfoDto[];
 }
 
 export interface ShortDateProductDto {
@@ -42,4 +43,35 @@ export interface ShortDateProductDto {
   comments?: string;
   createDate?: string;
   modificationDate?: string;
+}
+
+export interface FilledProductInfoDto {
+  shipmentId: number;
+  unitNumber: string;
+  productCode?: string;
+  productDescription?: string;
+  visualInspection?: string;
+  collectionDate?: string;
+  productFamily?: string;
+  expirationDate?: string;
+  aboRh?: string;
+  storageLocation?: string;
+  locationCode?: number;
+  createDate?: string;
+  modificationDate?: string;
+}
+
+export interface VerifyProduct {
+  shipmentItemId: number;
+  unitNumber: string;
+  productCode: string;
+  locationCode: number;
+  employeeId: string;
+  visualInspection: string;
+}
+
+export interface VerifyFilledProduct {
+  unitNumber: string;
+  productCode: string;
+  visualInspection: string;
 }

@@ -1,7 +1,7 @@
 [
   {
     "context": ["/v1"],
-    "target": "http://api.local.gd/v1",
+    "target": "http://localhost:8080/v1",
     "secure": true,
     "changeOrigin": true,
     "pathRewrite": {

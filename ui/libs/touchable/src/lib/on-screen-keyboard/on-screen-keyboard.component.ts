@@ -42,6 +42,7 @@ export class OnScreenKeyboardComponent implements OnInit {
   inputTypeEnum = InputType;
   inputFocus = false;
   inputControl = new FormControl('');
+  upperCase: boolean;
 
   constructor(private translateService: TranslateService) {}
 
