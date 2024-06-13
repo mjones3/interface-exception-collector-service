@@ -9970,7 +9970,7 @@ export const TRANSLATIONS = {
   'expiration.label': 'Expiration',
   'distribution-comments.label': 'Distribution Comments',
   'inspection-statement.label': 'Inspection Statement',
-  'inspection-statement.value': 'All products in this shipment have been inspected and found suitable for distribution.',
+  'inspection-statement.value': 'All products in this shipment have been inspected and found to be suitable for distribution.',
   'service-fees-code.label': 'Service Fees Code',
   'service-fees-description.label': 'Service Fees Description',
   'service-fees-quantity.label': 'Service Fees Quantity',
