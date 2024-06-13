@@ -79,6 +79,9 @@ public class ShipmentDetailPage extends CommonPageFactory {
     @FindBy(id = "quantityColumn")
     private WebElement quantityColumn;
 
+    @FindBy(id = "viewPackingListBtn")
+    private WebElement viewPackingListButton;
+
     @Override
     public boolean isLoaded() {
         return sharedActions.isElementVisible(productTable);
@@ -130,5 +133,14 @@ public class ShipmentDetailPage extends CommonPageFactory {
 
     public void waitForLoad(){
         sharedActions.waitForVisible(productTable);
+    }
+
+    public void clickViewPackingSlip() {
+        log.info("Clicking on the View Packing Slip button.");
+        sharedActions.clickElementAndMoveToNewTab(driver, viewPackingListButton);
+    }
+
+    public void viewPackingSlipButtonIsNotVisible(){
+        sharedActions.waitForNotVisible(viewPackingListButton);
     }
 }
