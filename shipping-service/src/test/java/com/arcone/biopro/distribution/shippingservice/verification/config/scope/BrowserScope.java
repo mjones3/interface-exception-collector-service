@@ -1,6 +1,5 @@
 package com.arcone.biopro.distribution.shippingservice.verification.config.scope;
 
-import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.remote.SessionId;
 import org.springframework.beans.factory.ObjectFactory;
