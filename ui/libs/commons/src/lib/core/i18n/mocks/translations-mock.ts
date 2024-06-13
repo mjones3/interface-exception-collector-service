@@ -9996,4 +9996,22 @@ export const TRANSLATIONS = {
   'complete-shipment.label': 'Complete Shipment',
   'packed-products.label': 'Packed Products',
   'total-packed-products.label': 'Total Packed Products',
+  'scan-or-enter-unit-number.label': 'Scan or Enter Unit Number',
+  'completed-shipment-success.label': 'This shipment has been completed successfully.',
+  'inventory-expired.label': 'This product has been expired and cannot be shipped.',
+  'inventory-discarded.label': 'This product has been discarded and cannot be shipped.',
+  'inventory-quarantined.label': 'This product has been quarantined and cannot be shipped.',
+  'product-criteria-blood-type-does-not-match.error':
+    'This product does not match the order criteria and cannot be shipped.',
+  'inventory-not-found.label': 'This product is not in the inventory and cannot be shipped.',
+  'product-criteria-family-does-not-match.error':
+    'This product does not match the order criteria and cannot be shipped.',
+  'product-criteria-quantity-exceeded.error': 'Shipment Quantity Reached',
+  'product-is-already-used.error': 'Product Already packed',
+  'back-to-shipment-details.label': 'Back to Shipment Details',
+  'fill-products.label': 'Fill Products',
+  'scan-or-enter-product-code.label': 'Scan or Enter Product Code',
+  'complete-shipment.label': 'Complete Shipment',
+  'packed-products.label': 'Packed Products',
+  'total-packed-products.label': 'Total Packed Products',
 };

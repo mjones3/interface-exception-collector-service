@@ -104,7 +104,7 @@ export class ShipmentDetailsComponent implements OnInit {
     return <ShipmentInfoItemDto>{
       id: item.id,
       quantity: item.quantity,
-      productComment: item.comments,
+      comments: item.comments,
       productFamily: item.productFamily,
       bloodType: item.bloodType,
     };
