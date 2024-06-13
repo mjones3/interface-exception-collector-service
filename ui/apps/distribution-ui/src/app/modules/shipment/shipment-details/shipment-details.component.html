@@ -61,6 +61,7 @@
         class="action-button bg-purple-light px-4"
         mat-stroked-button
         (click)="viewPickList()"
+        *ngIf="shipmentInfo?.status === 'OPEN'"
       >
         {{ 'view-pick-list.label' | translate }}
       </button>
@@ -69,7 +70,7 @@
         class="action-button bg-purple-light px-4"
         mat-stroked-button
         (click)="viewPackingList(true)"
-        *ngIf="shipmentInfo.status === 'COMPLETED'"
+        *ngIf="shipmentInfo?.status === 'COMPLETED'"
       >
         {{ 'print-packing-list.label' | translate }}
       </button>
