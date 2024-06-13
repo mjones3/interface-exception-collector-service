@@ -11,7 +11,9 @@ public record ShipToDTO(
     String department,
     String addressLine1,
     String addressLine2,
-    String addressComplement
+    String addressComplement,
+    String phoneNumber
+
 
 ) implements Serializable {
 }
