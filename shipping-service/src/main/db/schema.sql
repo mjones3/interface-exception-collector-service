@@ -72,7 +72,8 @@ CREATE TABLE bld_shipment_item_packed (
     expiration_date          TIMESTAMP WITH TIME ZONE NOT NULL,
     collection_date          TIMESTAMP WITH TIME ZONE NULL,
     create_date                TIMESTAMP WITH TIME ZONE NOT NULL,
-    modification_date          TIMESTAMP WITH TIME ZONE NOT NULL
+    modification_date          TIMESTAMP WITH TIME ZONE NOT NULL,
+    visual_inspection          VARCHAR(50) NOT NULL
 );
 
 -- PRODUCT

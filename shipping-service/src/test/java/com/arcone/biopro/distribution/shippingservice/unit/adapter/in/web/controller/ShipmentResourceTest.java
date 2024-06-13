@@ -3,10 +3,14 @@ package com.arcone.biopro.distribution.shippingservice.unit.adapter.in.web.contr
 import com.arcone.biopro.distribution.shippingservice.adapter.in.web.controller.ShipmentResource;
 import com.arcone.biopro.distribution.shippingservice.adapter.in.web.dto.ShipmentDetailResponseDTO;
 import com.arcone.biopro.distribution.shippingservice.adapter.in.web.dto.ShipmentResponseDTO;
+import com.arcone.biopro.distribution.shippingservice.application.dto.PackItemRequest;
+import com.arcone.biopro.distribution.shippingservice.application.dto.RuleResponseDTO;
+import com.arcone.biopro.distribution.shippingservice.domain.model.enumeration.VisualInspection;
 import com.arcone.biopro.distribution.shippingservice.domain.service.ShipmentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -67,6 +71,29 @@ class ShipmentResourceTest {
             .exchange()
             .expectStatus().isOk()
             .expectBody().isEmpty();
+
+    }
+
+    @Test
+    public void shouldPackItem(){
+
+        Mockito.when(service.packItem(Mockito.any())).thenReturn(Mono.just(RuleResponseDTO
+            .builder()
+                .ruleCode(HttpStatus.OK)
+            .build()));
+
+        webTestClient.post().uri("/v1/shipments/pack-item")
+            .bodyValue(PackItemRequest.builder()
+                .unitNumber("TEST")
+                .visualInspection(VisualInspection.SATISFACTORY)
+                .productCode("123")
+                .employeeId("test")
+                .build())
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .jsonPath("$.ruleCode").isEqualTo("OK");
+
 
     }
 }

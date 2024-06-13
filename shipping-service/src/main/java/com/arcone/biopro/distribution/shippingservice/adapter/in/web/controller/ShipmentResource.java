@@ -2,12 +2,17 @@ package com.arcone.biopro.distribution.shippingservice.adapter.in.web.controller
 
 import com.arcone.biopro.distribution.shippingservice.adapter.in.web.dto.ShipmentDetailResponseDTO;
 import com.arcone.biopro.distribution.shippingservice.adapter.in.web.dto.ShipmentResponseDTO;
+import com.arcone.biopro.distribution.shippingservice.application.dto.PackItemRequest;
+import com.arcone.biopro.distribution.shippingservice.application.dto.RuleResponseDTO;
 import com.arcone.biopro.distribution.shippingservice.domain.model.Shipment;
 import com.arcone.biopro.distribution.shippingservice.domain.service.ShipmentService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -28,5 +33,11 @@ public class ShipmentResource {
     public Mono<ShipmentDetailResponseDTO> getShipmentDetailsById(@PathVariable("shipmentId") long shipmentId) {
         log.info("Requesting Pending order requests.....");
         return shipmentService.getShipmentById(shipmentId);
+    }
+
+    @PostMapping("/v1/shipments/pack-item")
+    public Mono<RuleResponseDTO> packItem(@Valid @RequestBody PackItemRequest packItemRequest) {
+        log.info("Request to pack a product {}", packItemRequest);
+        return shipmentService.packItem(packItemRequest);
     }
 }
