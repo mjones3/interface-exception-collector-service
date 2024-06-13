@@ -8,7 +8,6 @@ import org.springframework.context.support.SimpleThreadScope;
 
 import java.util.Objects;
 
-@Slf4j
 public class BrowserScope extends SimpleThreadScope {
 
     @Override
@@ -20,7 +19,6 @@ public class BrowserScope extends SimpleThreadScope {
             o = super.get(name, objectFactory);
         }
         return o;
-
     }
 
     @Override
