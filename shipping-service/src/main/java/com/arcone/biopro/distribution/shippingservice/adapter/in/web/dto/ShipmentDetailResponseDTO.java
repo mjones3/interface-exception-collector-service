@@ -32,6 +32,8 @@ public record ShipmentDetailResponseDTO(
     String customerAddressDistrict,
     String customerAddressAddressLine1,
     String customerAddressAddressLine2,
+    ZonedDateTime completeDate,
+    String completedByEmployeeId,
 
     List<ShipmentItemResponseDTO> items
 

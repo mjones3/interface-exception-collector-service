@@ -2,6 +2,7 @@ package com.arcone.biopro.distribution.shippingservice.adapter.in.web.controller
 
 import com.arcone.biopro.distribution.shippingservice.adapter.in.web.dto.ShipmentDetailResponseDTO;
 import com.arcone.biopro.distribution.shippingservice.adapter.in.web.dto.ShipmentResponseDTO;
+import com.arcone.biopro.distribution.shippingservice.application.dto.CompleteShipmentRequest;
 import com.arcone.biopro.distribution.shippingservice.application.dto.PackItemRequest;
 import com.arcone.biopro.distribution.shippingservice.application.dto.RuleResponseDTO;
 import com.arcone.biopro.distribution.shippingservice.domain.model.Shipment;
@@ -39,5 +40,10 @@ public class ShipmentResource {
     public Mono<RuleResponseDTO> packItem(@Valid @RequestBody PackItemRequest packItemRequest) {
         log.info("Request to pack a product {}", packItemRequest);
         return shipmentService.packItem(packItemRequest);
+    }
+    @PostMapping("/v1/shipments/complete")
+    public Mono<RuleResponseDTO> completeShipment(@Valid @RequestBody CompleteShipmentRequest completeShipmentRequest) {
+        log.info("Request to complete a shipment {}", completeShipmentRequest);
+        return shipmentService.completeShipment(completeShipmentRequest);
     }
 }

@@ -2,10 +2,11 @@ package com.arcone.biopro.distribution.shippingservice.unit.application.usecase;
 
 import com.arcone.biopro.distribution.shippingservice.adapter.in.web.dto.ShipmentDetailResponseDTO;
 import com.arcone.biopro.distribution.shippingservice.adapter.in.web.dto.ShipmentItemResponseDTO;
-import com.arcone.biopro.distribution.shippingservice.adapter.in.web.dto.ShipmentResponseDTO;
+import com.arcone.biopro.distribution.shippingservice.application.dto.CompleteShipmentRequest;
 import com.arcone.biopro.distribution.shippingservice.application.dto.PackItemRequest;
 import com.arcone.biopro.distribution.shippingservice.application.dto.RuleResponseDTO;
 import com.arcone.biopro.distribution.shippingservice.application.usecase.ShipmentServiceUseCase;
+import com.arcone.biopro.distribution.shippingservice.domain.event.ShipmentCompletedEvent;
 import com.arcone.biopro.distribution.shippingservice.domain.model.Shipment;
 import com.arcone.biopro.distribution.shippingservice.domain.model.ShipmentItem;
 import com.arcone.biopro.distribution.shippingservice.domain.model.ShipmentItemPacked;
@@ -26,24 +27,28 @@ import com.arcone.biopro.distribution.shippingservice.infrastructure.listener.dt
 import com.arcone.biopro.distribution.shippingservice.infrastructure.listener.dto.OrderItemFulfilledMessage;
 import com.arcone.biopro.distribution.shippingservice.infrastructure.listener.dto.ShortDateItem;
 import com.arcone.biopro.distribution.shippingservice.infrastructure.service.InventoryRsocketClient;
-import graphql.Assert;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
+import org.apache.kafka.common.TopicPartition;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
+import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.kafka.sender.SenderResult;
 import reactor.test.StepVerifier;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 @RunWith(MockitoJUnitRunner.class)
 class ShipmentServiceUseCaseTest {
@@ -55,6 +60,9 @@ class ShipmentServiceUseCaseTest {
 
     private InventoryRsocketClient inventoryRsocketClient;
     private ShipmentItemPackedRepository shipmentItemPackedRepository;
+    private ReactiveKafkaProducerTemplate<String, ShipmentCompletedEvent> producerTemplate;
+
+    private ShipmentServiceUseCase useCase;
 
     @BeforeEach
     public void setUp(){
@@ -63,11 +71,11 @@ class ShipmentServiceUseCaseTest {
         shipmentItemShortDateProductRepository = Mockito.mock(ShipmentItemShortDateProductRepository.class);
         inventoryRsocketClient = Mockito.mock(InventoryRsocketClient.class);
         shipmentItemPackedRepository = Mockito.mock( ShipmentItemPackedRepository.class);
+        producerTemplate =  Mockito.mock(ReactiveKafkaProducerTemplate.class);
+        useCase = new ShipmentServiceUseCase(shipmentRepository,shipmentItemRepository,shipmentItemShortDateProductRepository,inventoryRsocketClient,shipmentItemPackedRepository,producerTemplate);
     }
     @Test
     public void shouldCreateShipment(){
-
-        ShipmentServiceUseCase useCase = new ShipmentServiceUseCase(shipmentRepository,shipmentItemRepository,shipmentItemShortDateProductRepository,inventoryRsocketClient,shipmentItemPackedRepository);
 
         OrderFulfilledMessage message = Mockito.mock(OrderFulfilledMessage.class);
         Mockito.when(message.orderNumber()).thenReturn(56L);
@@ -116,8 +124,6 @@ class ShipmentServiceUseCaseTest {
 
         Mockito.when(shipmentRepository.findAll()).thenReturn(Flux.just(shipment));
 
-        ShipmentServiceUseCase useCase = new ShipmentServiceUseCase(shipmentRepository,shipmentItemRepository,shipmentItemShortDateProductRepository, inventoryRsocketClient,shipmentItemPackedRepository);
-
         StepVerifier
             .create(useCase.listShipments())
             .expectNextCount(1L)
@@ -140,6 +146,7 @@ class ShipmentServiceUseCaseTest {
 
         ShipmentItem item = Mockito.mock(ShipmentItem.class);
         Mockito.when(item.getId()).thenReturn(1L);
+        Mockito.when(item.getProductFamily()).thenReturn("product_family");
         Mockito.when(item.getBloodType()).thenReturn(BloodType.AP);
 
         Mockito.when(shipmentItemRepository.findAllByShipmentId(1L)).thenReturn(Flux.just(item));
@@ -151,8 +158,12 @@ class ShipmentServiceUseCaseTest {
 
         Mockito.when(shipmentItemShortDateProductRepository.findAllByShipmentItemId(1L)).thenReturn(Flux.just(shortDateItem));
 
-        ShipmentServiceUseCase useCase = new ShipmentServiceUseCase(shipmentRepository,shipmentItemRepository,shipmentItemShortDateProductRepository, inventoryRsocketClient,shipmentItemPackedRepository);
-
+        Mockito.when(shipmentItemPackedRepository.findAllByShipmentItemId(Mockito.any())).thenReturn(Flux.just(ShipmentItemPacked.builder()
+            .id(1L)
+            .shipmentItemId(1L)
+            .unitNumber("UN")
+            .productCode("product_code")
+            .build()));
 
         Mono<ShipmentDetailResponseDTO>  orderDetail = useCase.getShipmentById(1L);
 
@@ -167,6 +178,9 @@ class ShipmentServiceUseCaseTest {
                 assertEquals(detail.items().get(0).shortDateProducts().size(), 1);
                 assertEquals(Optional.of("ABCD"), Optional.of(detail.items().get(0).shortDateProducts().get(0).productCode()));
                 assertEquals(Optional.of("UNIT_NUMBER"), Optional.of(detail.items().get(0).shortDateProducts().get(0).unitNumber()));
+                assertEquals(detail.items().get(0).packedItems().size(), 1);
+                assertEquals(Optional.of("product_code"), Optional.of(detail.items().get(0).packedItems().get(0).productCode()));
+                assertEquals(Optional.of("UN"), Optional.of(detail.items().get(0).packedItems().get(0).unitNumber()));
             })
             .verifyComplete();
 
@@ -174,8 +188,6 @@ class ShipmentServiceUseCaseTest {
 
     @Test
     public void shouldNotPackItemWhenInventoryValidationFails(){
-
-        ShipmentServiceUseCase useCase = new ShipmentServiceUseCase(shipmentRepository,shipmentItemRepository,shipmentItemShortDateProductRepository, inventoryRsocketClient,shipmentItemPackedRepository);
 
         InventoryValidationResponseDTO validationResponseDTO = Mockito.mock(InventoryValidationResponseDTO.class);
         Mockito.when(validationResponseDTO.inventoryNotificationDTO()).thenReturn(InventoryNotificationDTO.builder()
@@ -207,8 +219,6 @@ class ShipmentServiceUseCaseTest {
 
     @Test
     public void shouldNotPackItemWhenProductCriteriaDoesNotMatch(){
-
-        ShipmentServiceUseCase useCase = new ShipmentServiceUseCase(shipmentRepository,shipmentItemRepository,shipmentItemShortDateProductRepository, inventoryRsocketClient,shipmentItemPackedRepository);
 
         InventoryValidationResponseDTO validationResponseDTO = Mockito.mock(InventoryValidationResponseDTO.class);
         Mockito.when(validationResponseDTO.inventoryResponseDTO()).thenReturn(InventoryResponseDTO
@@ -254,7 +264,6 @@ class ShipmentServiceUseCaseTest {
     @Test
     public void shouldNotPackItemWhenProductCriteriaQuantityHasExceeded(){
 
-        ShipmentServiceUseCase useCase = new ShipmentServiceUseCase(shipmentRepository,shipmentItemRepository,shipmentItemShortDateProductRepository, inventoryRsocketClient,shipmentItemPackedRepository);
 
         InventoryValidationResponseDTO validationResponseDTO = Mockito.mock(InventoryValidationResponseDTO.class);
         Mockito.when(validationResponseDTO.inventoryResponseDTO()).thenReturn(InventoryResponseDTO
@@ -302,7 +311,6 @@ class ShipmentServiceUseCaseTest {
     @Test
     public void shouldNotPackItemWhenProductIsAlreadyFilled(){
 
-        ShipmentServiceUseCase useCase = new ShipmentServiceUseCase(shipmentRepository,shipmentItemRepository,shipmentItemShortDateProductRepository, inventoryRsocketClient,shipmentItemPackedRepository);
 
         InventoryValidationResponseDTO validationResponseDTO = Mockito.mock(InventoryValidationResponseDTO.class);
         Mockito.when(validationResponseDTO.inventoryResponseDTO()).thenReturn(InventoryResponseDTO
@@ -350,7 +358,6 @@ class ShipmentServiceUseCaseTest {
     @Test
     public void shouldPackItemWhenItIsSuitable(){
 
-        ShipmentServiceUseCase useCase = new ShipmentServiceUseCase(shipmentRepository,shipmentItemRepository,shipmentItemShortDateProductRepository, inventoryRsocketClient,shipmentItemPackedRepository);
 
         InventoryValidationResponseDTO validationResponseDTO = Mockito.mock(InventoryValidationResponseDTO.class);
         Mockito.when(validationResponseDTO.inventoryResponseDTO()).thenReturn(InventoryResponseDTO
@@ -425,6 +432,100 @@ class ShipmentServiceUseCaseTest {
                 assertEquals(Optional.of("ABCD"), Optional.of(result.shortDateProducts().get(0).productCode()));
 
 
+            })
+            .verifyComplete();
+    }
+
+    @Test
+    public void shouldNotCompleteShipmentWhenDoesNotExist(){
+
+
+        Mockito.when(shipmentRepository.findById(1L)).thenReturn(Mono.empty());
+
+        Mono<RuleResponseDTO> result = useCase.completeShipment(CompleteShipmentRequest.builder()
+                .shipmentId(1L)
+                .employeeId("test")
+            .build());
+
+
+        StepVerifier
+            .create(result)
+            .consumeNextWith(detail -> {
+                assertEquals(Optional.of(HttpStatus.BAD_REQUEST), Optional.of(detail.ruleCode()));
+                assertEquals(Optional.of(HttpStatus.BAD_REQUEST.value()), Optional.of(detail.notifications().get(0).statusCode()));
+                assertEquals(Optional.of("error"), Optional.of(detail.notifications().get(0).notificationType()));
+                assertEquals(Optional.of("shipment-not-found.error"), Optional.of(detail.notifications().get(0).message()));
+            })
+            .verifyComplete();
+
+    }
+
+    @Test
+    public void shouldNotCompleteShipmentWhenItsAlreadyCompleted(){
+
+        Mockito.when(shipmentRepository.findById(1L)).thenReturn(Mono.just(Shipment.builder()
+                .status(ShipmentStatus.COMPLETED)
+            .build()));
+
+        Mockito.when(shipmentItemPackedRepository.findAllByShipmentItemId(1L)).thenReturn(Flux.empty());
+
+        Mono<RuleResponseDTO> result = useCase.completeShipment(CompleteShipmentRequest.builder()
+            .shipmentId(1L)
+            .employeeId("test")
+            .build());
+
+
+        StepVerifier
+            .create(result)
+            .consumeNextWith(detail -> {
+                assertEquals(Optional.of(HttpStatus.BAD_REQUEST), Optional.of(detail.ruleCode()));
+                assertEquals(Optional.of(HttpStatus.BAD_REQUEST.value()), Optional.of(detail.notifications().get(0).statusCode()));
+                assertEquals(Optional.of("error"), Optional.of(detail.notifications().get(0).notificationType()));
+                assertEquals(Optional.of("shipment-already-completed.error"), Optional.of(detail.notifications().get(0).message()));
+            })
+            .verifyComplete();
+
+    }
+
+    @Test
+    public void shouldCompleteShipment(){
+
+
+        Mockito.when(shipmentRepository.findById(1L)).thenReturn(Mono.just(Shipment.builder()
+            .status(ShipmentStatus.OPEN)
+            .build()));
+
+        Mockito.when(shipmentRepository.save(Mockito.any(Shipment.class))).thenReturn(Mono.just(Shipment.builder()
+                .id(1L)
+                .status(ShipmentStatus.COMPLETED)
+            .build()));
+
+        Mockito.when(shipmentItemPackedRepository.listAllByShipmentId(1L)).thenReturn(Flux.just(ShipmentItemPacked.builder()
+                .id(1L)
+                .shipmentItemId(1L)
+                .unitNumber("UN")
+                .productCode("product_code")
+            .build()));
+
+        RecordMetadata meta = new RecordMetadata(new TopicPartition("ShipmentCompleted", 0), 0L, 0L, 0L, 0L, 0, 2);
+        SenderResult senderResult = Mockito.mock(SenderResult.class);
+        Mockito.when(senderResult.recordMetadata()).thenReturn(meta);
+        Mockito.when(producerTemplate.send(Mockito.any(ProducerRecord.class))).thenReturn(Mono.just(senderResult));
+
+        Mono<RuleResponseDTO> result = useCase.completeShipment(CompleteShipmentRequest.builder()
+            .shipmentId(1L)
+            .employeeId("test")
+            .build());
+
+
+        StepVerifier
+            .create(result)
+            .consumeNextWith(detail -> {
+                assertEquals(Optional.of(HttpStatus.OK), Optional.of(detail.ruleCode()));
+                assertEquals(Optional.of(HttpStatus.OK.value()), Optional.of(detail.notifications().get(0).statusCode()));
+                assertEquals(Optional.of("success"), Optional.of(detail.notifications().get(0).notificationType()));
+                assertEquals(Optional.of("/shipment/1/shipment-details"), Optional.of(detail._links().get("next")));
+                assertEquals(Optional.of("completed-shipment.success"), Optional.of(detail.notifications().get(0).message()));
             })
             .verifyComplete();
     }

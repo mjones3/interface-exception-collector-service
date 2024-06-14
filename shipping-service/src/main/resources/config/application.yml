@@ -97,7 +97,7 @@ logging:
     # set the 4 lines to warn to suppress large config list output on startup
     org.apache.kafka.common.config.AbstractConfig: WARN
     org.apache.kafka.clients.admin.AdminClientConfig: WARN
-    org.apache.kafka.clients.producer.ProducerConfig: WARN
+    org.apache.kafka.clients.producer: DEBUG
     org.apache.kafka.clients.consumer.ConsumerConfig: WARN
     org.apache.kafka: WARN
     com.arcone.biopro: DEBUG

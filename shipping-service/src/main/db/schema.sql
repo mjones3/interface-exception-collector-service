@@ -76,6 +76,8 @@ CREATE TABLE bld_shipment_item_packed (
     visual_inspection          VARCHAR(50) NOT NULL
 );
 
+CREATE UNIQUE INDEX idx_bld_shipment_item_packed ON bld_shipment_item_packed (unit_number, product_code ,shipment_item_id);
+
 -- PRODUCT
 CREATE TABLE bld_product (
     id                         BIGSERIAL NOT NULL
