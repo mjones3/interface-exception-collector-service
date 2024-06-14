@@ -41,7 +41,6 @@ export class ShipmentService {
   //#region SHIPMENT
 
   public verifyShipmentProduct(shipment: VerifyProduct): Observable<HttpResponse<RuleResponseDto>> {
-    console.log('prod');
     return this.httpClient
       .post<RuleResponseDto>(this.shipmentProductItemEndpoint, shipment, { observe: 'response' })
       .pipe(catchError(this.errorHandler));
@@ -73,10 +72,6 @@ export class ShipmentService {
         label: 'priority.label',
         value: shipmentInfo?.priority,
       },
-      {
-        label: 'status.label',
-        value: shipmentInfo?.status,
-      },
       { label: 'labeling-product-category.label', value: shipmentInfo?.productCategory },
     ];
   }
@@ -84,6 +79,10 @@ export class ShipmentService {
   public getShippingInfoDescriptions(shipmentInfo: ShipmentInfoDto): Description[] {
     return [
       { label: 'shipment-id.label', value: shipmentInfo.id.toString() },
+      {
+        label: 'status.label',
+        value: shipmentInfo?.status,
+      },
       { label: 'customer-id.label', value: shipmentInfo?.shippingCustomerCode.toString() },
       { label: 'customer-name.label', value: shipmentInfo?.shippingCustomerName },
       {

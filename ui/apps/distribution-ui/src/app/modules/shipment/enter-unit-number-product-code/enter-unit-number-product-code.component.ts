@@ -14,7 +14,6 @@ export class EnterUnitNumberProductCodeComponent implements OnInit {
   readonly validationType = ValidationType;
 
   @Output() unitNumberProductCodeSelected: EventEmitter<VerifyFilledProduct> = new EventEmitter<VerifyFilledProduct>();
-  @Output() validate: EventEmitter<object> = new EventEmitter<object>();
 
   @ViewChild('unitnumber') unitNumberComponent: ScanUnitNumberCheckDigitComponent;
 
@@ -44,7 +43,10 @@ export class EnterUnitNumberProductCodeComponent implements OnInit {
   }
 
   verifyProduct(): void {
-    this.unitNumberProductCodeSelected.emit(this.productGroup.value);
+    this.unitNumberProductCodeSelected.emit({
+      ...this.productGroup.value,
+      productCode: this.productCode,
+    });
   }
 
   disableProductGroup(): void {
