@@ -1,12 +1,15 @@
 package com.arcone.biopro.distribution.shippingservice.verification.pages;
 
 import lombok.extern.slf4j.Slf4j;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-import org.openqa.selenium.NoSuchElementException;
+
+import static org.openqa.selenium.support.ui.ExpectedConditions.numberOfWindowsToBe;
 
 
 @Component
@@ -24,8 +27,8 @@ public class SharedActions {
                 return element.isDisplayed();
             });
             log.debug("Element {} is visible now.", element.toString());
-        } catch (Exception e) {
-            log.error("Element {} is not visible in the specified timeout.", element.toString());
+        } catch (NoSuchElementException e) {
+            log.error("Element {} not found.", element.toString());
             throw e;
         }
     }
@@ -39,7 +42,7 @@ public class SharedActions {
                     return !element.isDisplayed();
                 } catch (NoSuchElementException ex) {
                     // Element not found, consider it as not visible
-                    log.debug("Element {} not found, considering it as not visible.", element.toString());
+                    log.debug("Element {} not found, considering it as not visible.", element);
                     return true;
                 }
             });
@@ -62,5 +65,17 @@ public class SharedActions {
     public void click(WebElement element) {
         waitForVisible(element);
         element.click();
+    }
+
+    public void clickElementAndMoveToNewTab(WebDriver driver, WebElement element, int expectedWindowsNumber) {
+        this.click(element);
+        wait.until(numberOfWindowsToBe(expectedWindowsNumber));
+        driver.switchTo().window(driver.getWindowHandles().toArray(new String[0])[1]);
+    }
+
+    public void clickElementAndMoveToNewTab(WebDriver driver, WebElement element){
+        // When not specified, the expected quantity of windows will be 3
+        // First tab (original), second tab (after click), and print dialog.
+        this.clickElementAndMoveToNewTab(driver, element, 3);
     }
 }

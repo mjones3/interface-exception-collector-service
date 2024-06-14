@@ -30,11 +30,10 @@ public class CucumberHooks {
             log.info("Taking screenshot for failed scenario: {}", scenario.getName());
             screenshot.attachScreenshot();
         }
-
     }
 
     @After
-    public void afterScenario(){
+    public void afterScenario() {
         this.ctx.getBean(WebDriver.class).quit();
     }
 

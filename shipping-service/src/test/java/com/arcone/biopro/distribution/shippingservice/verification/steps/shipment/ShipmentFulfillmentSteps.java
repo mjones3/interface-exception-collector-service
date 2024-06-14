@@ -1,9 +1,9 @@
-package com.arcone.biopro.distribution.shippingservice.verification.steps.shipmentSteps;
+package com.arcone.biopro.distribution.shippingservice.verification.steps.shipment;
 
-import com.arcone.biopro.distribution.shippingservice.verification.support.Controllers.ShipmentTestingController;
+import com.arcone.biopro.distribution.shippingservice.verification.support.controllers.ShipmentTestingController;
 import com.arcone.biopro.distribution.shippingservice.verification.support.StaticValuesMapper;
-import com.arcone.biopro.distribution.shippingservice.verification.support.Types.ListShipmentsResponseType;
-import com.arcone.biopro.distribution.shippingservice.verification.support.Types.ShipmentRequestDetailsResponseType;
+import com.arcone.biopro.distribution.shippingservice.verification.support.types.ListShipmentsResponseType;
+import com.arcone.biopro.distribution.shippingservice.verification.support.types.ShipmentRequestDetailsResponseType;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -104,7 +104,7 @@ public class ShipmentFulfillmentSteps {
     }
 
     @And("The item attribute {string} contains {string}.")
-    public void itemAttributeContains(String attribute, String value) throws Exception {
+    public void itemAttributeContains(String attribute, String value) {
         log.info("Asserting if the item attribute {} contains {}.", attribute, value);
         var orderItems = this.order.getItems();
         var attributeKey = new StaticValuesMapper().shipmentItemAttributes().get(attribute);
@@ -125,7 +125,7 @@ public class ShipmentFulfillmentSteps {
     }
 
     @And("The short date item attribute {string} contains {string}.")
-    public void shortDateItemAttributeContains(String attribute, String value) throws Exception {
+    public void shortDateItemAttributeContains(String attribute, String value) {
         log.info("Asserting if the short date item attribute {} contains {}.", attribute, value);
         var orderItems = this.order.getItems();
         var attributeKey = new StaticValuesMapper().shipmentItemShortDateAttributes().get(attribute);

@@ -1,4 +1,4 @@
-package com.arcone.biopro.distribution.shippingservice.verification.support.Types;
+package com.arcone.biopro.distribution.shippingservice.verification.support.types;
 
 import lombok.Data;
 

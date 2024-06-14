@@ -1,4 +1,4 @@
-package com.arcone.biopro.distribution.shippingservice.verification.support.Types;
+package com.arcone.biopro.distribution.shippingservice.verification.support.types;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
@@ -24,6 +24,7 @@ public class ShipmentRequestDetailsResponseType {
     String shippingMethod;
     String productCategory;
     LocalDate shippingDate;
+    String department;
     String shippingCustomerName;
     String billingCustomerName;
     String customerPhoneNumber;
@@ -35,6 +36,7 @@ public class ShipmentRequestDetailsResponseType {
     String customerAddressDistrict;
     String customerAddressAddressLine1;
     String customerAddressAddressLine2;
+    String customerAddressAddressComplement;
 
     List<ShipmentFulfillmentRequest> items;
 }

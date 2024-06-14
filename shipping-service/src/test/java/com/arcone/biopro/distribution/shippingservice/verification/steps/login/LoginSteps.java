@@ -1,10 +1,8 @@
-package com.arcone.biopro.distribution.shippingservice.verification.steps.loginSteps;
+package com.arcone.biopro.distribution.shippingservice.verification.steps.login;
 
 import com.arcone.biopro.distribution.shippingservice.verification.pages.distribution.HomePage;
 import com.arcone.biopro.distribution.shippingservice.verification.support.ScreenshotService;
 import io.cucumber.java.en.Given;
-import io.cucumber.java.en.Then;
-import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.WebDriver;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,20 +10,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Lazy;
 
-import java.io.IOException;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 @SpringBootTest
 @Slf4j
 public class LoginSteps {
 
     @Autowired
     private HomePage homePage;
-
-    @Lazy
-    @Autowired
-    private WebDriver driver;
 
     @Lazy
     @Autowired

@@ -13,8 +13,6 @@ import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
-
 
 
 @Component
@@ -81,6 +79,9 @@ public class ShipmentDetailPage extends CommonPageFactory {
     @FindBy(id = "quantityColumn")
     private WebElement quantityColumn;
 
+    @FindBy(id = "viewPackingListBtn")
+    private WebElement viewPackingListButton;
+
     @Override
     public boolean isLoaded() {
         return sharedActions.isElementVisible(productTable);
@@ -91,7 +92,7 @@ public class ShipmentDetailPage extends CommonPageFactory {
         sharedActions.click(viewPickListButton);
     }
 
-    public void viewAmountOfProductsFilled() throws Exception {
+    public void viewAmountOfProductsFilled() {
         sharedActions.waitForVisible(amountOfProductsFilled);
         wait.until((ExpectedCondition<Boolean>) wd ->
             ((JavascriptExecutor) wd).executeScript("return document.readyState").equals("complete"));
@@ -132,5 +133,14 @@ public class ShipmentDetailPage extends CommonPageFactory {
 
     public void waitForLoad(){
         sharedActions.waitForVisible(productTable);
+    }
+
+    public void clickViewPackingSlip() {
+        log.info("Clicking on the View Packing Slip button.");
+        sharedActions.clickElementAndMoveToNewTab(driver, viewPackingListButton);
+    }
+
+    public void viewPackingSlipButtonIsNotVisible(){
+        sharedActions.waitForNotVisible(viewPackingListButton);
     }
 }

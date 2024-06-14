@@ -1,11 +1,11 @@
-package com.arcone.biopro.distribution.shippingservice.verification.support.Controllers;
+package com.arcone.biopro.distribution.shippingservice.verification.support.controllers;
 
 import com.arcone.biopro.distribution.shippingservice.domain.model.enumeration.BloodType;
 import com.arcone.biopro.distribution.shippingservice.verification.support.*;
-import com.arcone.biopro.distribution.shippingservice.verification.support.Types.ListShipmentsResponseType;
-import com.arcone.biopro.distribution.shippingservice.verification.support.Types.ShipmentFulfillmentRequest;
-import com.arcone.biopro.distribution.shippingservice.verification.support.Types.ShipmentItemShortDateResponseType;
-import com.arcone.biopro.distribution.shippingservice.verification.support.Types.ShipmentRequestDetailsResponseType;
+import com.arcone.biopro.distribution.shippingservice.verification.support.types.ListShipmentsResponseType;
+import com.arcone.biopro.distribution.shippingservice.verification.support.types.ShipmentFulfillmentRequest;
+import com.arcone.biopro.distribution.shippingservice.verification.support.types.ShipmentItemShortDateResponseType;
+import com.arcone.biopro.distribution.shippingservice.verification.support.types.ShipmentRequestDetailsResponseType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
@@ -15,11 +15,7 @@ import org.springframework.test.web.reactive.server.EntityExchangeResult;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 
 @Component
@@ -59,6 +55,17 @@ public class ShipmentTestingController {
         return orderId;
     }
 
+    public long getOrderShipmentId(long orderId) throws Exception {
+        var orders = this.parseShipmentList(this.listShipments());
+        var orderFilter = orders.stream().filter(x -> x.getOrderNumber().equals(orderId)).findAny().orElse(null);
+        if (orderFilter != null) {
+            var shipmentId = orderFilter.getId();
+            log.info("Found Shipment by Order Number");
+            return shipmentId;
+        }
+        return 0;
+    }
+
     public EntityExchangeResult<String> listShipments() {
         log.info("Listing orders.");
         return apiHelper.getRequest(Endpoints.LIST_SHIPMENTS);
@@ -92,6 +99,7 @@ public class ShipmentTestingController {
                                                                                       String shippingMethod,
                                                                                       String productCategory,
                                                                                       LocalDate shippingDate,
+                                                                                      String department,
                                                                                       String shippingCustomerName,
                                                                                       String billingCustomerName,
                                                                                       String customerPhoneNumber,
@@ -103,8 +111,9 @@ public class ShipmentTestingController {
                                                                                       String customerAddressDistrict,
                                                                                       String customerAddressAddressLine1,
                                                                                       String customerAddressAddressLine2,
-                                                                                      String quantities ,
-                                                                                      String bloodTypes ,
+                                                                                      String addressComplement,
+                                                                                      String quantities,
+                                                                                      String bloodTypes,
                                                                                       String productFamilies,
                                                                                       String unitNumbers,
                                                                                       String productCodes) {
@@ -116,17 +125,18 @@ public class ShipmentTestingController {
         List<String> quantityList = Arrays.stream(quantities.split(",")).toList();
         List<String> bloodTypeList = Arrays.stream(bloodTypes.split(",")).toList();
         List<String> familyList = Arrays.stream(productFamilies.split(",")).toList();
-        List<String> unitNumberList =  unitNumbers != null && !unitNumbers.isEmpty() ? Arrays.stream(unitNumbers.split(",")).toList() : Collections.emptyList();
-        List<String> productCodeList =  productCodes != null && !productCodes.isEmpty() ? Arrays.stream(productCodes.split(",")).toList() : Collections.emptyList();
+        List<String> unitNumberList = unitNumbers != null && !unitNumbers.isEmpty() ? Arrays.stream(unitNumbers.split(",")).toList() : Collections.emptyList();
+        List<String> productCodeList = productCodes != null && !productCodes.isEmpty() ? Arrays.stream(productCodes.split(",")).toList() : Collections.emptyList();
 
         var shipmentDetailType = ShipmentRequestDetailsResponseType.builder()
-            .orderNumber(Long.valueOf(orderNumber))
+            .orderNumber(orderNumber)
             .priority(priority)
             .status(status)
             .locationCode(locationCode)
             .shippingMethod(shippingMethod)
             .productCategory(productCategory)
             .shippingDate(shippingDate)
+            .department(department)
             .customerPhoneNumber(customerPhoneNumber)
             .customerAddressState(customerAddressState)
             .customerAddressPostalCode(customerAddressPostalCode)
@@ -136,15 +146,17 @@ public class ShipmentTestingController {
             .customerAddressDistrict(customerAddressDistrict)
             .customerAddressAddressLine1(customerAddressAddressLine1)
             .customerAddressAddressLine2(customerAddressAddressLine2)
+            .customerAddressAddressComplement(addressComplement)
             .billingCustomerCode(billingCustomerCode)
             .billingCustomerName(billingCustomerName)
+            .department(department)
             .deliveryType(deliveryType)
             .createDate(ZonedDateTime.now())
             .shippingCustomerCode(shippingCustomerCode)
             .shippingCustomerName(shippingCustomerName)
             .items(new ArrayList<>())
             .build();
-        if (quantityList != null && !quantityList.isEmpty()) {
+        if (!quantityList.isEmpty()) {
             for (int i = 0; i < quantityList.size(); i++) {
 
                 shipmentDetailType.getItems().add(ShipmentFulfillmentRequest
@@ -157,8 +169,8 @@ public class ShipmentTestingController {
             }
         }
 
-        if(unitNumberList != null && !unitNumberList.isEmpty()){
-            for (int u = 0; u < unitNumberList.size(); u++){
+        if (!unitNumberList.isEmpty()) {
+            for (int u = 0; u < unitNumberList.size(); u++) {
                 shipmentDetailType.getItems().get(u).getShortDateProducts().add(ShipmentItemShortDateResponseType
                     .builder()
                     .unitNumber(unitNumberList.get(u))
@@ -168,5 +180,9 @@ public class ShipmentTestingController {
         }
 
         return shipmentDetailType;
+    }
+
+    public ShipmentRequestDetailsResponseType buildShipmentRequestDetailsResponseType(long orderNumber, long locationCode, long customerID, String customerName, String department, String addressLine1, String addressLine2, String addressComplement, String unitNumber, String productCode, String productFamily, String bloodType, String expiration, long quantity) {
+        return this.buildShipmentRequestDetailsResponseType(orderNumber, "ASAP", "OPEN", customerID, 0L, locationCode, "TEST", "TEST", "Frozen", LocalDate.now(), customerName, department, "", "123456789", "FL", "33016", "US", "1", "Miami", "Miami", addressLine1, addressLine2, addressComplement, String.valueOf(quantity), bloodType, productFamily, unitNumber, productCode);
     }
 }

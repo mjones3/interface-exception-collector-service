@@ -1,0 +1,235 @@
+<div class="modal-body-width">
+  <div id="viewPackingListReport" class="py-0 px-5">
+    <div class="text-gray-700 flex flex-col gap-4" *ngIf="model$ | async as packingList" style="font-family: serif;">
+      <table id="pageHeader" class="table-fixed border-separate w-full">
+        <tbody>
+          <tr>
+            <td class="text-4xl font-bold border-b border-black text-center">
+              {{ 'packing-list.label' | translate }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <table id="packingSlipTable" class="table-fixed border-separate w-full">
+        <thead>
+        <tr class="bg-gray-200">
+          <th class="border-b-2 border-gray-400" data-testid="header-order-number-barcode">{{ 'order-number.label' | translate }}</th>
+          <th class="border-b-2 border-gray-400" data-testid="header-date-and-time-packed">{{ 'date-and-time-packed.label' | translate }}</th>
+          <th class="border-b-2 border-gray-400" data-testid="header-shipment-id-barcode">{{ 'shipment-id-barcode.label' | translate }}</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr>
+          <td data-testid="order-number-barcode" class="text-center align-top">
+            <img
+              *ngIf="packingList?.orderIdBase64Barcode"
+              [alt]="packingList?.orderNumber"
+              [src]="getBase64DataImage(packingList?.orderIdBase64Barcode)"
+              class="p-2"
+              style="display: inline-block; aspect-ratio: auto; width: 1.25in;"
+            />
+          </td>
+          <td data-testid="date-and-time-packed" class="text-center align-top">
+            {{ packingList?.dateTimePacked | date: 'MM-dd-yyyy HH:mm:ss aaa' }}
+            {{ localTimezone }}
+          </td>
+          <td data-testid="shipment-id-barcode" class="text-center align-top">
+            <img
+              *ngIf="packingList?.shipmentIdBase64Barcode"
+              [alt]="packingList?.shipmentId"
+              [src]="getBase64DataImage(packingList?.shipmentIdBase64Barcode)"
+              class="p-2"
+              style="display: inline-block; aspect-ratio: auto; width: 1.25in;"
+            />
+          </td>
+        </tr>
+        </tbody>
+      </table>
+
+      <table id="shipFromShipToTable" class="table-fixed border-separate w-full">
+        <thead>
+        <tr class="bg-gray-200">
+          <th class="border-b-2 border-gray-400" data-testid="header-ship-from">{{ 'ship-from.label' | translate }}</th>
+          <th class="border-b-2 border-gray-400" data-testid="header-ship-to">{{ 'ship-to.label' | translate }}</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr>
+          <td data-testid="ship-from" class="text-left align-top">
+            <span class="block">
+              <span data-testid="ship-from-blood-center-facility-code-key" class="font-bold">{{ 'blood-center-facility-code.label' | translate }}:&nbsp;</span>
+              <span data-testid="ship-from-blood-center-facility-code-value">{{ packingList?.shipFrom?.bloodCenterCode }}</span>
+            </span>
+            <span class="block">
+              <span data-testid="ship-from-blood-center-name-key" class="font-bold">{{ 'blood-center-name.label' | translate }}:&nbsp;</span>
+              <span data-testid="ship-from-blood-center-name-value">{{ packingList?.shipFrom?.bloodCenterName }}</span>
+            </span>
+            <span class="block">
+              <span data-testid="ship-from-address-line-1-key" class="font-bold">{{ 'address-line-1.label' | translate }}:&nbsp;</span>
+              <span data-testid="ship-from-address-line-1-value">{{ packingList?.shipFrom?.bloodCenterAddressLine1 }}</span>
+            </span>
+            <span class="block">
+              <span data-testid="ship-from-address-line-2-key" class="font-bold">{{ 'address-line-2.label' | translate }}:&nbsp;</span>
+              <span data-testid="ship-from-address-line-2-value">{{ packingList?.shipFrom?.bloodCenterAddressLine2 }}</span>
+            </span>
+            <span class="block">
+              <span data-testid="ship-from-address-complement-key" class="font-bold">{{ 'address-complement.label' | translate }}:&nbsp;</span>
+              <span data-testid="ship-from-address-complement-value">{{ packingList?.shipFrom?.bloodCenterAddressComplement }}</span>
+            </span>
+          </td>
+          <td data-testid="ship-to" class="text-left align-top">
+            <span class="block">
+              <span data-testid="ship-to-customer-id-key" class="font-bold">{{ 'customer-id.label' | translate }}:&nbsp;</span>
+              <span data-testid="ship-to-customer-id-value">{{ packingList?.shipTo?.customerCode }}</span>
+            </span>
+            <span class="block">
+              <span data-testid="ship-to-customer-name-key" class="font-bold">{{ 'customer-name.label' | translate }}:&nbsp;</span>
+              <span data-testid="ship-to-customer-name-value">{{ packingList?.shipTo?.customerName }}</span>
+            </span>
+            <span class="block">
+              <span data-testid="ship-to-department-key" class="font-bold">{{ 'department.label' | translate }}:&nbsp;</span>
+              <span data-testid="ship-to-department-value">{{ packingList?.shipTo?.department }}</span>
+            </span>
+            <span class="block">
+              <span data-testid="ship-to-address-line-1-key" class="font-bold">{{ 'address-line-1.label' | translate }}:&nbsp;</span>
+              <span data-testid="ship-to-address-line-1-value">{{ packingList?.shipTo?.addressLine1 }}</span>
+            </span>
+            <span class="block">
+              <span data-testid="ship-to-address-line-2-key" class="font-bold">{{ 'address-line-2.label' | translate }}:&nbsp;</span>
+              <span data-testid="ship-to-address-line-2-value">{{ packingList?.shipTo?.addressLine2 }}</span>
+            </span>
+            <span class="block">
+              <span data-testid="ship-to-address-complement-key" class="font-bold">{{ 'address-complement.label' | translate }}:&nbsp;</span>
+              <span data-testid="ship-to-address-complement-value">{{ packingList?.shipTo?.addressComplement }}</span>
+            </span>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+
+      <table id="billedToTable" class="table-fixed border-separate w-full">
+        <thead>
+        <tr class="bg-gray-200">
+          <th colspan="3" class="border-b-2 border-gray-400" data-testid="header-billed-to">{{ 'billed-to.label' | translate }}</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr>
+          <td colspan="3" data-testid="billed-to">
+            <span data-testid="billed-to-key" class="font-bold">{{ 'billed-to.label' | translate }}:&nbsp;</span>
+            <span data-testid="billed-to-value">{{ packingList?.shipTo?.customerName }}</span>
+          </td>
+        </tr>
+        <tr>
+          <td data-testid="purchase-order-number">
+            <span data-testid="purchase-order-number-key" class="font-bold">{{ 'purchase-order-number.label' | translate }}:&nbsp;</span>
+            <span data-testid="purchase-order-number-value">{{ packingList?.orderNumber }}</span>
+          </td>
+          <td data-testid="entered-by">
+            <span data-testid="entered-by-key" class="font-bold">{{ 'entered-by.label' | translate }}:&nbsp;</span>
+            <span data-testid="entered-by-value">{{ packingList?.enteredBy }}</span>
+          </td>
+          <td data-testid="shipment-packed-by">
+            <span data-testid="shipment-packed-by-key" class="font-bold">{{ 'shipment-packed-by.label' | translate }}:&nbsp;</span>
+            <span data-testid="shipment-packed-by-value">{{ packingList?.packedBy }}</span>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+
+      <table id="bloodProductSummaryTable" class="table-fixed border-separate w-full">
+        <thead>
+        <tr class="bg-gray-200">
+          <th colspan="6" class="border-b-2 border-gray-400" data-testid="header-blood-product-summary">{{ 'blood-product-summary.label' | translate }}</th>
+        </tr>
+        <tr class="bg-gray-200">
+          <th class="border-b-2 border-gray-400" data-testid="header-unit-number">{{ 'unit-number.label' | translate }}</th>
+          <th class="border-b-2 border-gray-400" data-testid="header-product-code">{{ 'product-code.label' | translate }}</th>
+          <th class="border-b-2 border-gray-400" data-testid="header-product-family">{{ 'product-family.label' | translate }}</th>
+          <th class="border-b-2 border-gray-400" data-testid="header-product-attributes">{{ 'product-attributes.label' | translate }}</th>
+          <th class="border-b-2 border-gray-400" data-testid="header-blood-type">{{ 'blood-type.label' | translate }}</th>
+          <th class="border-b-2 border-gray-400" data-testid="header-expiration">{{ 'expiration.label' | translate }}</th>
+        </tr>
+        </thead>
+
+        <tbody *ngFor="let packedItem of packingList?.packedItems">
+        <tr>
+          <td class="text-center" data-testid="unit-number">{{ packedItem?.unitNumber }}</td>
+          <td class="text-center" data-testid="product-code">{{ packedItem?.productCode }}</td>
+          <td class="text-center" data-testid="product-family">{{ packedItem?.productFamily }}</td>
+          <td class="text-center" data-testid="product-attributes"><!-- For now, this field is EMPTY --></td>
+          <td class="text-center" data-testid="blood-type">{{ packedItem?.aboRh }}</td>
+          <td class="text-center" data-testid="expiration">{{ packedItem?.expirationDate | date: 'MM-dd-yyyy' }}</td>
+        </tr>
+        </tbody>
+
+        <tbody>
+        <tr>
+          <td colspan="6">
+            <span data-testid="quantity-key" class="font-bold">{{ 'quantity.label' | translate }}:&nbsp;</span>
+            <span data-testid="quantity-value">{{ packingList?.quantity }}</span>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="6">
+            <span data-testid="distribution-comments-key" class="font-bold">{{ 'distribution-comments.label' | translate }}:&nbsp;</span>
+            <span data-testid="distribution-comments-value">{{ packingList?.distributionComments }}</span>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="6">
+            <span data-testid="inspection-statement-key" class="font-bold">{{ 'inspection-statement.label' | translate }}:&nbsp;</span>
+            <span data-testid="inspection-statement-value">{{ 'inspection-statement.value' | translate }}</span>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+
+      <table id="serviceFeesTable" class="table-fixed border-separate w-full">
+        <thead>
+        <tr class="bg-gray-200">
+          <th colspan="3" class="border-b-2 border-gray-400" data-testid="header-service-fees">{{ 'service-fees.label' | translate }}</th>
+        </tr>
+        <tr class="bg-gray-200">
+          <th class="border-b-2 border-gray-400" data-testid="header-service-fees-code">{{ 'service-fees-code.label' | translate }}</th>
+          <th class="border-b-2 border-gray-400" data-testid="header-service-fees-description">{{ 'service-fees-description.label' | translate }}</th>
+          <th class="border-b-2 border-gray-400" data-testid="header-service-fees-quantity">{{ 'service-fees-quantity.label' | translate }}</th>
+        </tr>
+        </thead>
+
+        <!-- For now, no TBODY here -->
+      </table>
+
+      <table id="deliveryTable" class="table-fixed border-separate w-full">
+        <thead>
+        <tr class="bg-gray-200">
+          <th class="border-b-2 border-gray-400" data-testid="header-delivery">{{ 'delivery.label' | translate }}</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr>
+          <td>{{ 'above-units-inspected-and-appear-suitable-for-use.label' | translate }}:</td>
+        </tr>
+        <tr>
+          <td>{{ 'temperature-on-arrival.label' | translate }}:</td>
+        </tr>
+        <tr>
+          <td>{{ 'received-by.label' | translate }}:</td>
+        </tr>
+        <tr>
+          <td>{{ 'date.label' | translate }}:</td>
+        </tr>
+        <tr>
+          <td>{{ 'time.label' | translate }}:</td>
+        </tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>

@@ -1,4 +1,4 @@
-package com.arcone.biopro.distribution.shippingservice.verification.support.Types;
+package com.arcone.biopro.distribution.shippingservice.verification.support.types;
 
 import com.arcone.biopro.distribution.shippingservice.domain.model.enumeration.BloodType;
 import com.fasterxml.jackson.annotation.JsonInclude;
