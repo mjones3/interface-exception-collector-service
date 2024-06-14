@@ -128,7 +128,7 @@ public class ViewPickListSteps {
         screenshot.attachConditionalScreenshot(saveAllScreenshots);
         Assert.assertNotNull(shipmentDetails);
         Assert.assertTrue(this.shipmentDetailType.getOrderNumber().equals(Long.valueOf(shipmentDetails.get("orderNumber"))));
-        Assert.assertTrue(this.shipmentDetailType.getShippingCustomerCode().equals(Long.valueOf(shipmentDetails.get("customerId"))));
+        Assert.assertTrue(this.shipmentDetailType.getShippingCustomerCode().equals(Long.valueOf(shipmentDetails.get("shippingCustomerCode"))));
         Assert.assertTrue(this.shipmentDetailType.getShippingCustomerName().equals(shipmentDetails.get("customerName")));
     }
 
