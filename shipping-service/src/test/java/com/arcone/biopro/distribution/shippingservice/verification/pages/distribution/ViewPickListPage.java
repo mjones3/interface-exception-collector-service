@@ -36,7 +36,7 @@ public class ViewPickListPage extends CommonPageFactory {
 
         var shipmentDetails = new HashMap<String,String>();
         shipmentDetails.put("orderNumber",cellElements.get(0).getText());
-        shipmentDetails.put("customerId",cellElements.get(1).getText());
+        shipmentDetails.put("shippingCustomerCode",cellElements.get(1).getText());
         shipmentDetails.put("customerName",cellElements.get(2).getText());
 
         return shipmentDetails;
