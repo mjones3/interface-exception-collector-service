@@ -1,6 +1,10 @@
 package com.arcone.biopro.distribution.shippingservice.infrastructure.controller;
 
-import com.arcone.biopro.distribution.shippingservice.infrastructure.controller.dto.*;
+import com.arcone.biopro.distribution.shippingservice.infrastructure.controller.dto.InventoryMockData;
+import com.arcone.biopro.distribution.shippingservice.infrastructure.controller.dto.InventoryNotificationDTO;
+import com.arcone.biopro.distribution.shippingservice.infrastructure.controller.dto.InventoryResponseDTO;
+import com.arcone.biopro.distribution.shippingservice.infrastructure.controller.dto.InventoryValidationRequest;
+import com.arcone.biopro.distribution.shippingservice.infrastructure.controller.dto.InventoryValidationResponseDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
