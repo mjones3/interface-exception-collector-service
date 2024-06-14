@@ -71,14 +71,14 @@ public class PrintPackingListSteps {
 
         // TODO: When implemented, update the assertions with the current shipment information
         Assert.assertNotNull(packingList);
-        Assert.assertEquals(999996, packingList.get("orderNumber"));
+        Assert.assertEquals(456, packingList.get("orderNumber"));
         Assert.assertEquals("1", packingList.get("shipmentId"));
 
         // Ship to
         Map<String, Object> shipTo = (Map<String, Object>) packingList.get("shipTo");
-        Assert.assertEquals("Tampa", shipTo.get("customerName"));
-        Assert.assertEquals("36544 SW 27th St", shipTo.get("addressLine1"));
-        Assert.assertEquals("North Miami", shipTo.get("addressLine2"));
+        Assert.assertEquals("Blood Banking", shipTo.get("customerName"));
+        Assert.assertEquals("Street 1", shipTo.get("addressLine1"));
+        Assert.assertEquals("Suite 2", shipTo.get("addressLine2"));
         Assert.assertEquals("Miami, FL, 33016", shipTo.get("addressComplement"));
 
         // Ship from
