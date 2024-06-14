@@ -24,8 +24,12 @@ import {
 import {
   ViewPackingListComponent
 } from '@rsa/distribution/modules/shipment/view-packing-list/view-packing-list.component';
-import { switchMap } from 'rxjs/operators';
+import { catchError, switchMap } from 'rxjs/operators';
 import { BrowserPrintingService } from '@rsa/distribution/core/print-section/browser-printing.service';
+import {
+  ViewShippingLabelComponent
+} from '@rsa/distribution/modules/shipment/view-shipping-label/view-shipping-label.component';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'rsa-shipment-details',
@@ -41,6 +45,7 @@ export class ShipmentDetailsComponent implements OnInit {
     private shipmentService: ShipmentService,
     private sortService: SortService,
     private packingListService: PackingListService,
+    private toaster: ToastrService,
     private matDialog: MatDialog,
     private browserPrintService: BrowserPrintingService,
   ) {}
@@ -126,7 +131,7 @@ export class ShipmentDetailsComponent implements OnInit {
   viewPackingList(print?: boolean): void {
     let dialogRef: MatDialogRef<ViewPackingListComponent>;
     this.packingListService
-      .getLabel(this.shipmentInfo.id)
+      .generatePackingListLabel(this.shipmentInfo.id)
       .pipe(
         switchMap(response => {
           const packingListLabel = response?.data?.generatePackingListLabel;
@@ -145,11 +150,52 @@ export class ShipmentDetailsComponent implements OnInit {
           });
           dialogRef.componentInstance.model$ = of(packingListLabel);
           return dialogRef.afterOpened();
-        })
+        }),
+        catchError(err => {
+          this.toaster.error('something-went-wrong.label');
+          throw err;
+        }),
       )
       .subscribe(() => {
         this.browserPrintService.print(
           'viewPackingListReport',
+          { pagesize: DEFAULT_PAGE_SIZE }
+        );
+        dialogRef?.close();
+      });
+  }
+
+  viewShippingLabel(print?: boolean): void {
+    let dialogRef: MatDialogRef<ViewShippingLabelComponent>;
+    this.packingListService
+      .generateShippingLabel(this.shipmentInfo.id)
+      .pipe(
+        switchMap(response => {
+          const packingListLabel = response?.data?.generateShippingLabel;
+          dialogRef = this.matDialog.open(ViewShippingLabelComponent, {
+            id: 'ViewShippingLabelDialog',
+            ...(print
+                ? {
+                  hasBackdrop: false,
+                  panelClass: 'hidden',
+                }
+                : {
+                  width: DEFAULT_PAGE_SIZE_DIALOG_WIDTH,
+                  height: DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
+                }
+            )
+          });
+          dialogRef.componentInstance.model$ = of(packingListLabel);
+          return dialogRef.afterOpened();
+        }),
+        catchError(err => {
+          this.toaster.error('something-went-wrong.label');
+          throw err;
+        }),
+      )
+      .subscribe(() => {
+        this.browserPrintService.print(
+          'viewShippingLabelReport',
           { pagesize: DEFAULT_PAGE_SIZE }
         );
         dialogRef?.close();
@@ -164,16 +210,6 @@ export class ShipmentDetailsComponent implements OnInit {
     return productFamily && this.processProductConfig?.properties[`icon.${productFamily}`]
       ? 'rsa:' + this.processProductConfig.properties[`icon.${productFamily}`]
       : 'rsa:product-whole-blood';
-  }
-
-  loadLabel(shipmentId: number): void {
-    this.packingListService
-      .getLabel(shipmentId)
-      .subscribe(response => {
-        const packingListLabel = response.data.generatePackingListLabel;
-        console.log(packingListLabel);
-        // FIXME example
-      });
   }
 
 }
