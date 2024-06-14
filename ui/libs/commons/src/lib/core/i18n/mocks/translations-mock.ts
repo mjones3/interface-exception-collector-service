@@ -9978,4 +9978,6 @@ export const TRANSLATIONS = {
   'above-units-inspected-and-appear-suitable-for-use.label': 'Above Units Inspected and Appear Suitable for Use',
   'temperature-on-arrival.label': 'Temperature on Arrival',
   'received-by.label': 'Received By',
+  'packing-slip-enclosed.label': 'Packing Slip Enclosed',
+  'print-shipping-label.label': 'Print Shipping Label',
 };

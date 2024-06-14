@@ -10,7 +10,7 @@
   },
   {
     "context": ["/graphql"],
-    "target": "http://localhost:8080/graphql",
+    "target": "http://api.local.gd/graphql",
     "secure": true,
     "changeOrigin": true,
     "pathRewrite": {

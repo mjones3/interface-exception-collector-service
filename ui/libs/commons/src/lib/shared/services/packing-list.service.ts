@@ -3,7 +3,8 @@ import { Apollo } from 'apollo-angular';
 import { Observable } from 'rxjs';
 import { GENERATE_PACKING_LIST_LABEL } from '../../schemas/graphql/packing-list/query-defintions/packing-list.graphql';
 import { ApolloQueryResult } from '@apollo/client';
-import { PackingListLabelDTO } from '../models';
+import { PackingListLabelDTO, ShippingLabelDTO } from '../models';
+import { GENERATE_SHIPPING_LABEL } from '../../schemas/graphql/shipping-label/query-definitions/shipping-label.graphql';
 
 @Injectable({
   providedIn: 'root',
@@ -14,10 +15,18 @@ export class PackingListService {
     private apollo: Apollo
   ) {}
 
-  getLabel(shipmentId: number): Observable<ApolloQueryResult<{ generatePackingListLabel: PackingListLabelDTO }>> {
+  generatePackingListLabel(shipmentId: number): Observable<ApolloQueryResult<{ generatePackingListLabel: PackingListLabelDTO }>> {
     return this.apollo
       .query<{ generatePackingListLabel: PackingListLabelDTO }>({
         query: GENERATE_PACKING_LIST_LABEL,
+        variables: { shipmentId },
+      });
+  }
+
+  generateShippingLabel(shipmentId: number): Observable<ApolloQueryResult<{ generateShippingLabel: ShippingLabelDTO }>> {
+    return this.apollo
+      .query<{ generateShippingLabel: ShippingLabelDTO }>({
+        query: GENERATE_SHIPPING_LABEL,
         variables: { shipmentId },
       });
   }
