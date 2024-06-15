@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.arcone.biopro.distribution.shippingservice.verification.support.GraphQLQueryMapper.printPackingListQuery;
+import static com.arcone.biopro.distribution.shippingservice.verification.support.GraphQLQueryMapper.printShippingLabelQuery;
 
 @SpringBootTest
 @Slf4j
@@ -63,6 +64,14 @@ public class PrintPackingListSteps {
         screenshotService.attachConditionalScreenshot(saveAllScreenshots);
     }
 
+    @When("I choose to print the Shipping Label.")
+    public void iChooseToPrintTheShippingLabel() throws InterruptedException {
+        shipmentDetailPage.clickPrintShippingLabel();
+        // Wait for the print component to load
+        Thread.sleep(2000);
+        screenshotService.attachConditionalScreenshot(saveAllScreenshots);
+    }
+
     @Then("I am able to see the Packing Slip content.")
     public void iAmAbleToSeeThePackingSlipContent() {
         var query = printPackingListQuery();
@@ -76,6 +85,7 @@ public class PrintPackingListSteps {
 
         // Ship to
         Map<String, Object> shipTo = (Map<String, Object>) packingList.get("shipTo");
+        Assert.assertEquals(1, shipTo.get("customerCode"));
         Assert.assertEquals("Blood Banking", shipTo.get("customerName"));
         Assert.assertEquals("Street 1", shipTo.get("addressLine1"));
         Assert.assertEquals("Suite 2", shipTo.get("addressLine2"));
@@ -103,6 +113,36 @@ public class PrintPackingListSteps {
         });
     }
 
+    @Then("I am able to see the Shipping Label content.")
+    public void iAmAbleToSeeTheShippingLabelContent() {
+        var query = printShippingLabelQuery();
+        var shippingLabel = apiHelper.graphQlRequest(query, "generateShippingLabel");
+        log.info("Shipping label content: {}", shippingLabel);
+
+        // TODO: When implemented, update the assertions with the current shipment information
+        Assert.assertNotNull(shippingLabel);
+        Assert.assertEquals(456, shippingLabel.get("orderNumber"));
+        Assert.assertEquals("1", shippingLabel.get("shipmentId"));
+        Assert.assertNotNull(shippingLabel.get("orderIdBase64Barcode"));
+        Assert.assertNotNull(shippingLabel.get("shipmentIdBase64Barcode"));
+
+        // Ship to
+        Map<String, Object> shipTo = (Map<String, Object>) shippingLabel.get("shipTo");
+        Assert.assertEquals(1, shipTo.get("customerCode"));
+        Assert.assertEquals("Blood Banking", shipTo.get("customerName"));
+        Assert.assertEquals("Street 1", shipTo.get("addressLine1"));
+        Assert.assertEquals("Suite 2", shipTo.get("addressLine2"));
+        Assert.assertEquals("Miami, FL, 33016", shipTo.get("addressComplement"));
+
+        // Ship from
+        Map<String, Object> shipFrom = (Map<String, Object>) shippingLabel.get("shipFrom");
+        Assert.assertEquals("IC39", shipFrom.get("bloodCenterCode"));
+        Assert.assertEquals("Charlotte Main", shipFrom.get("bloodCenterName"));
+        Assert.assertEquals("447 South Blvd, Suite 100", shipFrom.get("bloodCenterAddressLine1"));
+        Assert.assertEquals("", shipFrom.get("bloodCenterAddressLine2"));
+        Assert.assertEquals("Charlotte, NC, 28209", shipFrom.get("bloodCenterAddressComplement"));
+    }
+
     @And("I am able to Print or generate a PDF")
     public void iAmAbleToPrintOrGenerateAPDF() {
     }
@@ -120,7 +160,13 @@ public class PrintPackingListSteps {
 
     @Then("I should not be able to print the Packing List.")
     public void iShouldNotBeAbleToPrintThePackingList() {
-        shipmentDetailPage.viewPackingSlipButtonIsNotVisible();
+        shipmentDetailPage.ensureViewPackingSlipButtonIsNotVisible();
+        screenshotService.attachConditionalScreenshot(saveAllScreenshots);
+    }
+
+    @Then("I should not be able to print the Shipping Label.")
+    public void iShouldNotBeAbleToPrintTheShippingLabel() {
+        shipmentDetailPage.ensureViewShippingLabelButtonIsNotVisible();
         screenshotService.attachConditionalScreenshot(saveAllScreenshots);
     }
 }
