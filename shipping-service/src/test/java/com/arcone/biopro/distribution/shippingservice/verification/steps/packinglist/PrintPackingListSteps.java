@@ -122,7 +122,7 @@ public class PrintPackingListSteps {
         // TODO: When implemented, update the assertions with the current shipment information
         Assert.assertNotNull(shippingLabel);
         Assert.assertEquals(456, shippingLabel.get("orderNumber"));
-        Assert.assertEquals("1", shippingLabel.get("shipmentId"));
+        Assert.assertEquals(1, shippingLabel.get("shipmentId"));
         Assert.assertNotNull(shippingLabel.get("orderIdBase64Barcode"));
         Assert.assertNotNull(shippingLabel.get("shipmentIdBase64Barcode"));
 
@@ -141,10 +141,6 @@ public class PrintPackingListSteps {
         Assert.assertEquals("447 South Blvd, Suite 100", shipFrom.get("bloodCenterAddressLine1"));
         Assert.assertEquals("", shipFrom.get("bloodCenterAddressLine2"));
         Assert.assertEquals("Charlotte, NC, 28209", shipFrom.get("bloodCenterAddressComplement"));
-    }
-
-    @And("I am able to Print or generate a PDF")
-    public void iAmAbleToPrintOrGenerateAPDF() {
     }
 
     @And("I have an open shipment with above details.")

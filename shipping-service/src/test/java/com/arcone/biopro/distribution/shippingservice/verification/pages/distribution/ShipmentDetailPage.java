@@ -90,6 +90,13 @@ public class ShipmentDetailPage extends CommonPageFactory {
         return sharedActions.isElementVisible(productTable);
     }
 
+    @Value("${testing.browser}")
+    private String browser;
+
+    private int getExpectedWindowsNumber() {
+        return "chrome".equals(browser) ? 3 : 2;
+    }
+
     public void openViewPickListModal() {
         sharedActions.waitForVisible(viewPickListButton);
         sharedActions.click(viewPickListButton);
@@ -140,12 +147,12 @@ public class ShipmentDetailPage extends CommonPageFactory {
 
     public void clickViewPackingSlip() {
         log.info("Clicking on the View Packing Slip button.");
-        sharedActions.clickElementAndMoveToNewTab(driver, viewPackingListButton);
+        sharedActions.clickElementAndMoveToNewTab(driver, viewPackingListButton, getExpectedWindowsNumber());
     }
 
     public void clickPrintShippingLabel() {
         log.info("Clicking on the Print Shipping Label button.");
-        sharedActions.clickElementAndMoveToNewTab(driver, printShippingLabelButton);
+        sharedActions.clickElementAndMoveToNewTab(driver, printShippingLabelButton, getExpectedWindowsNumber());
     }
 
     public void ensureViewPackingSlipButtonIsNotVisible() {
