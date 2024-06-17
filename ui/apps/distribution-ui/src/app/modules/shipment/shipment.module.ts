@@ -13,12 +13,14 @@ import { TableModule } from 'primeng/table';
 import { ShipmentDetailsComponent } from './shipment-details/shipment-details.component';
 import { ShipmentRoutingModule } from './shipment-routing.module';
 import { ViewPackingListComponent } from './view-packing-list/view-packing-list.component';
+import { ViewShippingLabelComponent } from './view-shipping-label/view-shipping-label.component';
 
 @NgModule({
   declarations: [
     ShipmentDetailsComponent,
     ViewPickListComponent,
     ViewPackingListComponent,
+    ViewShippingLabelComponent,
   ],
   imports: [
     CommonModule,

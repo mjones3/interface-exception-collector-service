@@ -46,4 +46,37 @@ public class GraphQLQueryMapper {
                 """
         );
     }
+
+    public static String printShippingLabelQuery() {
+        return """
+            query GenerateShippingLabel {
+                generateShippingLabel(shipmentId: "1") {
+                    shipmentId
+                    orderNumber
+                    orderIdBase64Barcode
+                    shipmentIdBase64Barcode
+                    dateTimePacked
+                    shipTo {
+                        customerCode
+                        customerName
+                        department
+                        addressLine1
+                        addressLine2
+                        addressComplement
+                        phoneNumber
+                    }
+                    shipFrom {
+                        bloodCenterCode
+                        bloodCenterName
+                        bloodCenterBase64Barcode
+                        bloodCenterAddressLine1
+                        bloodCenterAddressLine2
+                        bloodCenterAddressComplement
+                        phoneNumber
+                    }
+                }
+            }
+
+            """;
+    }
 }

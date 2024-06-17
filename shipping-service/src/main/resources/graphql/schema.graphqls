@@ -3,6 +3,7 @@ scalar DateTime
 
 type Query {
     generatePackingListLabel(shipmentId: ID!):PackingListLabelDTO!
+    generateShippingLabel(shipmentId: ID!):ShippingLabelDTO!
 }
 
 type PackingListLabelDTO {
@@ -24,9 +25,11 @@ type PackingListLabelDTO {
 type ShipFromDTO {
     bloodCenterCode: String
     bloodCenterName: String
+    bloodCenterBase64Barcode: String
     bloodCenterAddressLine1: String
     bloodCenterAddressLine2: String
     bloodCenterAddressComplement: String
+    phoneNumber:String
 }
 
 type ShipToDTO {
@@ -37,6 +40,7 @@ type ShipToDTO {
     addressLine1: String
     addressLine2: String
     addressComplement: String
+    phoneNumber: String
 
 }
 
@@ -51,4 +55,14 @@ type ShipmentItemPackedDTO {
     productFamily:String
     expirationDate: DateTime
     collectionDate: DateTime
+}
+
+type ShippingLabelDTO {
+    shipmentId: Int
+    orderNumber: Int
+    orderIdBase64Barcode: String
+    shipmentIdBase64Barcode: String
+    shipTo: ShipToDTO
+    shipFrom: ShipFromDTO
+    dateTimePacked: DateTime
 }

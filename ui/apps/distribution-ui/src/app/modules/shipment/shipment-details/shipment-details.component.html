@@ -74,6 +74,15 @@
       >
         {{ 'print-packing-list.label' | translate }}
       </button>
+      <button
+        id="viewShippingLabelBtn"
+        class="action-button bg-purple-light px-4"
+        mat-stroked-button
+        (click)="viewShippingLabel(true)"
+        *ngIf="shipmentInfo?.status === 'COMPLETED'"
+      >
+        {{ 'print-shipping-label.label' | translate }}
+      </button>
     </div>
   </div>
 

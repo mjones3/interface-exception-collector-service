@@ -1,19 +1,4 @@
-export type ShipToDTO = {
-  customerCode: number,
-  customerName: string,
-  department: string,
-  addressLine1: string,
-  addressLine2: string,
-  addressComplement: string
-}
-
-export type ShipFromDTO = {
-  bloodCenterCode: string,
-  bloodCenterName: string,
-  bloodCenterAddressLine1: string,
-  bloodCenterAddressLine2: string,
-  bloodCenterAddressComplement: string
-}
+import { ShipFromDTO, ShipToDTO } from './ship.model';
 
 export type ShipmentItemPackedDTO = {
   shipmentItemId: number,

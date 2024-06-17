@@ -7,12 +7,12 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.How;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 @Component
@@ -28,25 +28,25 @@ public class ShipmentDetailPage extends CommonPageFactory {
     @Value("${ui.shipment-details.url}")
     private String shipmentDetailsUrl;
 
-    @FindBy(how = How.ID , using = "viewPickListBtn")
+    @FindBy(how = How.ID, using = "viewPickListBtn")
     private WebElement viewPickListButton;
 
-    @FindBy(id ="fillShipmentBtn")
+    @FindBy(id = "fillShipmentBtn")
     private WebElement fillProductButton;
 
     @FindBy(id = "prodTableId")
     private WebElement productTable;
 
-    @FindBy(id="detailsBtn")
+    @FindBy(id = "detailsBtn")
     private WebElement productShippingDetailsSection;
 
-    @FindBy(id="percentageId")
+    @FindBy(id = "percentageId")
     private WebElement amountOfProductsFilled;
 
-    @FindBy(id="prodTableId")
+    @FindBy(id = "prodTableId")
     private WebElement orderCriteriaTable;
 
-    @FindBy(id="informationDetails-Labeling Product Category")
+    @FindBy(id = "informationDetails-Labeling Product Category")
     private WebElement productCategory;
 
     @FindBy(id = "informationDetails-Shipping Method")
@@ -82,12 +82,22 @@ public class ShipmentDetailPage extends CommonPageFactory {
     @FindBy(id = "viewPackingListBtn")
     private WebElement viewPackingListButton;
 
+    @FindBy(id = "viewShippingLabelBtn")
+    private WebElement printShippingLabelButton;
+
     @Override
     public boolean isLoaded() {
         return sharedActions.isElementVisible(productTable);
     }
 
-    public void openViewPickListModal(){
+    @Value("${testing.browser}")
+    private String browser;
+
+    private int getExpectedWindowsNumber() {
+        return "chrome".equals(browser) ? 3 : 2;
+    }
+
+    public void openViewPickListModal() {
         sharedActions.waitForVisible(viewPickListButton);
         sharedActions.click(viewPickListButton);
     }
@@ -102,7 +112,7 @@ public class ShipmentDetailPage extends CommonPageFactory {
         assertTrue(isZero, "The amount of products filled is not zero. Current value: " + value);
     }
 
-    public void viewPickListButton () {
+    public void viewPickListButton() {
         sharedActions.waitForVisible(viewPickListButton);
     }
 
@@ -125,22 +135,31 @@ public class ShipmentDetailPage extends CommonPageFactory {
     }
 
     public void goTo(Long shipmentId) {
-        var url = baseUrl+shipmentDetailsUrl.replace("{shipmentId}",String.valueOf(shipmentId));
+        var url = baseUrl + shipmentDetailsUrl.replace("{shipmentId}", String.valueOf(shipmentId));
         this.driver.get(url);
         this.waitForLoad();
         assertTrue(isLoaded());
     }
 
-    public void waitForLoad(){
+    public void waitForLoad() {
         sharedActions.waitForVisible(productTable);
     }
 
     public void clickViewPackingSlip() {
         log.info("Clicking on the View Packing Slip button.");
-        sharedActions.clickElementAndMoveToNewTab(driver, viewPackingListButton);
+        sharedActions.clickElementAndMoveToNewTab(driver, viewPackingListButton, getExpectedWindowsNumber());
     }
 
-    public void viewPackingSlipButtonIsNotVisible(){
+    public void clickPrintShippingLabel() {
+        log.info("Clicking on the Print Shipping Label button.");
+        sharedActions.clickElementAndMoveToNewTab(driver, printShippingLabelButton, getExpectedWindowsNumber());
+    }
+
+    public void ensureViewPackingSlipButtonIsNotVisible() {
         sharedActions.waitForNotVisible(viewPackingListButton);
+    }
+
+    public void ensureViewShippingLabelButtonIsNotVisible() {
+        sharedActions.waitForNotVisible(printShippingLabelButton);
     }
 }

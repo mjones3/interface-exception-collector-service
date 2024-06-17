@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.shippingservice.adapter.in.web.controller;
 
 import com.arcone.biopro.distribution.shippingservice.application.dto.PackingListLabelDTO;
+import com.arcone.biopro.distribution.shippingservice.application.dto.ShippingLabelDTO;
 import com.arcone.biopro.distribution.shippingservice.domain.service.ShipmentLabelService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,5 +20,9 @@ public class ShipmentLabelController {
     @QueryMapping("generatePackingListLabel")
     public Mono<PackingListLabelDTO> generatePackingListLabel(@Argument("shipmentId") long shipmentId){
         return shipmentLabelService.generatePackingListLabel(shipmentId);
+    }
+    @QueryMapping("generateShippingLabel")
+    public Mono<ShippingLabelDTO> generateShippingLabel(@Argument("shipmentId") long shipmentId){
+        return shipmentLabelService.generateShippingLabel(shipmentId);
     }
 }
