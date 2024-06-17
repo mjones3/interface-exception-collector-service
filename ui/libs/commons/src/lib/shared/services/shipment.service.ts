@@ -13,7 +13,7 @@ import {
   ShipmentInfoDto,
   TransitTimeRequestDto,
   TransitTimeResponseDto,
-  VerifyProduct,
+  VerifyProductDto,
 } from '../models';
 import { ExternalTransferDto } from '../models/external-transfer.dto';
 import { EnvironmentConfigService } from './environment-config.service';
@@ -28,6 +28,7 @@ export class ShipmentService {
   externalTransferEndpoint: string;
   locationInventoryHistoriesEndpoint: string;
   shipmentProductItemEndpoint: string;
+  completeShipmentEndpoint: string;
 
   constructor(private httpClient: HttpClient, private config: EnvironmentConfigService) {
     this.shipmentProductItemEndpoint = `${config.env.serverApiURL}/v1/shipments/pack-item`;
@@ -36,11 +37,18 @@ export class ShipmentService {
     this.returnsEndpoint = `${config.env.serverApiURL}/v1/returns`;
     this.externalTransferEndpoint = `${config.env.serverApiURL}/v1/external-transfers`;
     this.locationInventoryHistoriesEndpoint = `${config.env.serverApiURL}/v1/location-inventory-histories`;
+    this.completeShipmentEndpoint = `${config.env.serverApiURL}/v1/shipments/complete`;
   }
 
   //#region SHIPMENT
 
-  public verifyShipmentProduct(shipment: VerifyProduct): Observable<HttpResponse<RuleResponseDto>> {
+  public completeShipment(inputs: any): Observable<HttpResponse<RuleResponseDto>> {
+    return this.httpClient
+      .post<RuleResponseDto>(this.completeShipmentEndpoint, inputs, { observe: 'response' })
+      .pipe(catchError(this.errorHandler));
+  }
+
+  public verifyShipmentProduct(shipment: VerifyProductDto): Observable<HttpResponse<RuleResponseDto>> {
     return this.httpClient
       .post<RuleResponseDto>(this.shipmentProductItemEndpoint, shipment, { observe: 'response' })
       .pipe(catchError(this.errorHandler));
@@ -79,10 +87,6 @@ export class ShipmentService {
   public getShippingInfoDescriptions(shipmentInfo: ShipmentInfoDto): Description[] {
     return [
       { label: 'shipment-id.label', value: shipmentInfo.id.toString() },
-      {
-        label: 'status.label',
-        value: shipmentInfo?.status,
-      },
       { label: 'customer-id.label', value: shipmentInfo?.shippingCustomerCode.toString() },
       { label: 'customer-name.label', value: shipmentInfo?.shippingCustomerName },
       {

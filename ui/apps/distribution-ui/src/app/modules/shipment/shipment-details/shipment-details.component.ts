@@ -1,19 +1,28 @@
+import { formatDate } from '@angular/common';
 import { HttpResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { Inject, LOCALE_ID } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Store } from '@ngrx/store';
 import {
   Description,
+  FilledProductInfoDto,
+  NotificationDto,
   PackingListService,
   ProcessHeaderService,
   ProcessProductDto,
+  ShipmentCompleteInfoDto,
   ShipmentInfoDto,
   ShipmentInfoItemDto,
   ShipmentService,
+  TranslateInterpolationPipe,
   ValidationType,
 } from '@rsa/commons';
 import { SortService } from '@rsa/distribution/core/services/sort.service';
 import { ViewPickListComponent } from '@rsa/distribution/modules/shipment/view-pick-list/view-pick-list.component';
+import { getAuthState } from '@rsa/global-data';
+import { startCase } from 'lodash';
 import { SortEvent } from 'primeng/api';
 import { of } from 'rxjs';
 import {
@@ -30,6 +39,7 @@ import {
   ViewShippingLabelComponent
 } from '@rsa/distribution/modules/shipment/view-shipping-label/view-shipping-label.component';
 import { ToastrService } from 'ngx-toastr';
+import { take } from 'rxjs/operators';
 
 @Component({
   selector: 'rsa-shipment-details',
@@ -44,10 +54,20 @@ export class ShipmentDetailsComponent implements OnInit {
     private shipmentService: ShipmentService,
     private sortService: SortService,
     private packingListService: PackingListService,
-    private toaster: ToastrService,
     private matDialog: MatDialog,
+    private store: Store,
+    private toaster: ToastrService,
     private browserPrintService: BrowserPrintingService,
-  ) {}
+    private translateInterpolationPipe: TranslateInterpolationPipe,
+    @Inject(LOCALE_ID) public locale: string
+  ) {
+    store
+      .select(getAuthState)
+      .pipe(take(1))
+      .subscribe(auth => {
+        this.loggedUserId = auth['id'];
+      });
+  }
 
   orderInfoDescriptions: Description[] = [];
   shippingInfoDescriptions: Description[] = [];
@@ -56,12 +76,16 @@ export class ShipmentDetailsComponent implements OnInit {
   processProductConfig: ProcessProductDto;
   readonly validationType = ValidationType;
 
+  shippedInfoData: ShipmentCompleteInfoDto[] = [];
+  loggedUserId: string;
+  packedItems: FilledProductInfoDto[] = [];
+
   get filledProductsCount() {
-    return 0; // todo : should return number of filled products
+    return this.packedItems?.length;
   }
 
-  get shipmentsCount() {
-    return 0; // todo: should return length of shipment
+  get isProductComplete(): boolean {
+    return this.shipmentInfo?.status === 'COMPLETED';
   }
 
   get labelingProductCategory() {
@@ -91,7 +115,30 @@ export class ShipmentDetailsComponent implements OnInit {
     this.shipmentService.getShipmentById(this.shipmentId).subscribe(result => {
       this.shipmentInfo = result.body;
       this.products = this.shipmentInfo?.items?.map(item => this.convertItemToProduct(item)) ?? [];
+      this.getPackedItems();
       this.updateWidgets();
+      if (this.isProductComplete) {
+        this.getShippedProductsInfo();
+      }
+    });
+  }
+
+  getShippedProductsInfo(): void {
+    this.shippedInfoData = [];
+    const details = {
+      completeDate: formatDate(this.shipmentInfo.completeDate, 'MM/dd/YYYY HH:mm', this.locale),
+      completedByEmployee: this.shipmentInfo.completedByEmployeeId,
+      quantity: this.packedItems?.length,
+    };
+    this.shippedInfoData.push(details);
+  }
+
+  getPackedItems(): void {
+    this.packedItems = [];
+    this.products.forEach(item => {
+      if (item.packedItems?.length) {
+        this.packedItems.push(...item.packedItems);
+      }
     });
   }
 
@@ -107,6 +154,7 @@ export class ShipmentDetailsComponent implements OnInit {
       comments: item.comments,
       productFamily: item.productFamily,
       bloodType: item.bloodType,
+      packedItems: item.packedItems,
     };
   }
 
@@ -221,6 +269,41 @@ export class ShipmentDetailsComponent implements OnInit {
   }
 
   completeShipment() {
-    //Todo
+    this.shipmentService.completeShipment(this.getValidateRuleDto()).subscribe(
+      response => {
+        const value = response.body;
+        const notifications = value.notifications;
+        const url = value._links?.next;
+
+        if (notifications?.length) {
+          this.displayMessageFromNotificationDto(notifications[0]);
+          if (url && notifications[0].notificationType === 'success') {
+            setTimeout(() => {
+              window.open(url, '_self');
+            }, 300);
+          }
+        }
+      },
+      err => {
+        this.toaster.error('something-went-wrong.label');
+        throw err;
+      }
+    );
+  }
+
+  private getValidateRuleDto() {
+    return {
+      shipmentId: this.shipmentId,
+      employeeId: this.loggedUserId,
+    };
+  }
+
+  displayMessageFromNotificationDto(notification: NotificationDto) {
+    this.toaster.show(
+      this.translateInterpolationPipe.transform(notification.message, []),
+      startCase(notification.notificationType),
+      {},
+      notification.notificationType
+    );
   }
 }

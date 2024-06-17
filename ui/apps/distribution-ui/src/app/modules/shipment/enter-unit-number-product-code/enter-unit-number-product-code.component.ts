@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { RsaValidators, ValidationType, VerifyFilledProduct } from '@rsa/commons';
+import { RsaValidators, ValidationType, VerifyFilledProductDto } from '@rsa/commons';
 import { ScanUnitNumberCheckDigitComponent } from '@rsa/distribution/shared/components/scan-unit-number-check-digit/scan-unit-number-check-digit.component';
 
 @Component({
@@ -13,7 +13,9 @@ export class EnterUnitNumberProductCodeComponent implements OnInit {
   unitNumberFocus = true;
   readonly validationType = ValidationType;
 
-  @Output() unitNumberProductCodeSelected: EventEmitter<VerifyFilledProduct> = new EventEmitter<VerifyFilledProduct>();
+  @Output() unitNumberProductCodeSelected: EventEmitter<VerifyFilledProductDto> = new EventEmitter<
+    VerifyFilledProductDto
+  >();
 
   @ViewChild('unitnumber') unitNumberComponent: ScanUnitNumberCheckDigitComponent;
 

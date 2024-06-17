@@ -1,7 +1,7 @@
 export interface ShipmentInfoDto {
   id: number;
   orderNumber: number;
-  priority: string;
+  priority?: string;
   status: string;
   createDate: string;
   shippingCustomerCode?: number;
@@ -9,7 +9,7 @@ export interface ShipmentInfoDto {
   deliveryType?: string;
   shippingMethod: string;
   productCategory?: string;
-  shippingDate: string;
+  shippingDate?: string;
   shippingCustomerName?: string;
   customerPhoneNumber?: string;
   customerAddressState?: string;
@@ -20,18 +20,20 @@ export interface ShipmentInfoDto {
   customerAddressDistrict?: string;
   customerAddressAddressLine1?: string;
   customerAddressAddressLine2?: string;
+  completeDate?: string;
+  completedByEmployeeId?: string;
   items?: ShipmentInfoItemDto[];
 }
 
 export interface ShipmentInfoItemDto {
-  id: number;
+  id?: number;
   shipmentId?: number;
-  productFamily: string;
+  productFamily?: string;
   bloodType?: string;
-  quantity: number;
+  quantity?: number;
   comments?: string;
   shortDateProducts?: ShortDateProductDto[];
-  shipmentItemPacked?: FilledProductInfoDto[];
+  packedItems?: FilledProductInfoDto[];
 }
 
 export interface ShortDateProductDto {
@@ -46,8 +48,9 @@ export interface ShortDateProductDto {
 }
 
 export interface FilledProductInfoDto {
-  shipmentId: number;
-  unitNumber: string;
+  shipmentId?: number;
+  unitNumber?: string;
+  inventoryId?: string;
   productCode?: string;
   productDescription?: string;
   visualInspection?: string;
@@ -58,20 +61,27 @@ export interface FilledProductInfoDto {
   storageLocation?: string;
   locationCode?: number;
   createDate?: string;
+  completeDate?: string;
   modificationDate?: string;
 }
 
-export interface VerifyProduct {
+export interface VerifyProductDto {
   shipmentItemId: number;
   unitNumber: string;
   productCode: string;
-  locationCode: number;
-  employeeId: string;
-  visualInspection: string;
+  locationCode?: number;
+  employeeId?: string;
+  visualInspection?: string;
 }
 
-export interface VerifyFilledProduct {
+export interface VerifyFilledProductDto {
   unitNumber: string;
   productCode: string;
   visualInspection: string;
+}
+
+export interface ShipmentCompleteInfoDto {
+  completedByEmployeeName?: string;
+  completeDate?: string;
+  quantity?: number;
 }

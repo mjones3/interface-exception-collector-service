@@ -6,11 +6,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
+import { provideMockStore } from '@ngrx/store/testing';
 import { TranslateFakeLoader, TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import {
   getAppInitializerMockProvider,
   RsaCommonsModule,
   ShipmentInfoDto,
+  ShipmentInfoItemDto,
   ShipmentService,
   toasterMockProvider,
   ValidationPipe,
@@ -68,6 +70,7 @@ describe('ShipmentDetailsComponent', () => {
             },
           },
         },
+        provideMockStore(),
       ],
     }).compileComponents();
   });
@@ -95,5 +98,39 @@ describe('ShipmentDetailsComponent', () => {
     spyOn(router, 'navigateByUrl');
     component.backToSearch();
     expect(router.navigateByUrl).toBeCalledWith('/orders/search');
+  });
+
+  it('should navigate to fill product when click on Fill Product button', () => {
+    const shipment = {
+      id: 1,
+    };
+    spyOn(router, 'navigateByUrl');
+    component.fillProducts(shipment as ShipmentInfoItemDto);
+    expect(router.navigateByUrl).toBeCalledWith('shipment/1/fill-products/1');
+  });
+
+  it('should complete on click complete shipment button', () => {
+    component.loggedUserId = 'user-id-12';
+    spyOn(shipmentService, 'completeShipment').and.returnValue(
+      of({
+        body: {
+          notifications: [
+            {
+              statusCode: 200,
+              notificationType: 'success',
+              message: 'completed-shipment.success',
+            },
+          ],
+          _links: {
+            next: `/shipment/${SHIPMENT_ID}/shipment-details`,
+          },
+        },
+      })
+    );
+    component.completeShipment();
+    expect(shipmentService.completeShipment).toBeCalledWith({
+      shipmentId: 1,
+      employeeId: 'user-id-12',
+    });
   });
 });

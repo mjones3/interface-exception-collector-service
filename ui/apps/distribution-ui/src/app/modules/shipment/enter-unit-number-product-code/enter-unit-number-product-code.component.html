@@ -47,10 +47,10 @@
           [disabled]="!enableVisualInspection"
           (change)="onSelectVisualInspection()"
         >
-          <mat-radio-button id="satisfactoryRadio" class="mr-4" [value]="'satisfactory'">{{
+          <mat-radio-button id="inspection-satisfactory" class="mr-4" [value]="'satisfactory'">{{
             'satisfactory.label' | translate
           }}</mat-radio-button>
-          <mat-radio-button id="unsatisfactoryRadio" [value]="'unsatisfactory'">{{
+          <mat-radio-button id="inspection-unsatisfactory" [value]="'unsatisfactory'">{{
             'unsatisfactory.label' | translate
           }}</mat-radio-button>
         </mat-radio-group>
