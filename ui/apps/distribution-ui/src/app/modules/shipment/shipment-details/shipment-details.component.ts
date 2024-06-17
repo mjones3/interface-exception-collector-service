@@ -278,9 +278,7 @@ export class ShipmentDetailsComponent implements OnInit {
         if (notifications?.length) {
           this.displayMessageFromNotificationDto(notifications[0]);
           if (url && notifications[0].notificationType === 'success') {
-            setTimeout(() => {
-              window.open(url, '_self');
-            }, 300);
+            this.fetchShipmentDetails();
           }
         }
       },

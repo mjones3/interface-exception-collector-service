@@ -1,6 +1,5 @@
 import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import * as moment from 'moment';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import {
@@ -89,10 +88,6 @@ export class ShipmentService {
       { label: 'shipment-id.label', value: shipmentInfo.id.toString() },
       { label: 'customer-id.label', value: shipmentInfo?.shippingCustomerCode.toString() },
       { label: 'customer-name.label', value: shipmentInfo?.shippingCustomerName },
-      {
-        label: 'ship-date.label',
-        value: shipmentInfo?.shippingDate ? moment(shipmentInfo.shippingDate).format('MM/DD/YYYY') : '',
-      },
       {
         label: 'ship-method.label',
         value: shipmentInfo?.shippingMethod,
