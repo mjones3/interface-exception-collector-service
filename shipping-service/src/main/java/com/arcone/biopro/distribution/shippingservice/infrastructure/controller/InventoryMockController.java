@@ -8,10 +8,10 @@ import com.arcone.biopro.distribution.shippingservice.infrastructure.controller.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.ResourceUtils;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
@@ -97,19 +97,15 @@ public class InventoryMockController {
         }
     }
 
-    private void initInventoryMockList(){
+    private void initInventoryMockList() {
         inventoryResponseDTOList = new ArrayList<>();
         try {
-
-            var file = ResourceUtils.getFile("classpath:mock/inventory/inventory-mock-data.json");
-            var mockData = objectMapper.readValue(file, InventoryMockData.class);
+            var fileInputStream = new ClassPathResource("mock/inventory/inventory-mock-data.json").getInputStream();
+            var mockData = objectMapper.readValue(fileInputStream, InventoryMockData.class);
             inventoryResponseDTOList = mockData.data();
-
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-
     }
 
 }
