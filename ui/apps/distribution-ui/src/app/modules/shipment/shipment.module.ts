@@ -10,6 +10,8 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { RippleModule } from 'primeng/ripple';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { TableModule } from 'primeng/table';
+import { EnterUnitNumberProductCodeComponent } from './enter-unit-number-product-code/enter-unit-number-product-code.component';
+import { FillProductsComponent } from './fill-products/fill-products.component';
 import { ShipmentDetailsComponent } from './shipment-details/shipment-details.component';
 import { ShipmentRoutingModule } from './shipment-routing.module';
 import { ViewPackingListComponent } from './view-packing-list/view-packing-list.component';
@@ -19,6 +21,8 @@ import { ViewShippingLabelComponent } from './view-shipping-label/view-shipping-
   declarations: [
     ShipmentDetailsComponent,
     ViewPickListComponent,
+    FillProductsComponent,
+    EnterUnitNumberProductCodeComponent,  
     ViewPackingListComponent,
     ViewShippingLabelComponent,
   ],

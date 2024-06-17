@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.shippingservice.domain.model;
 
+import com.arcone.biopro.distribution.shippingservice.domain.model.enumeration.VisualInspection;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
@@ -64,6 +65,9 @@ public class ShipmentItemPacked implements Serializable, Persistable<Long> {
     @Column("modification_date")
     @LastModifiedDate
     private ZonedDateTime modificationDate;
+    @NotNull
+    @Column("visual_inspection")
+    private VisualInspection visualInspection;
 
     @Override
     public boolean isNew() {

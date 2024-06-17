@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.shippingservice.adapter.in.web.dto;
 
+import com.arcone.biopro.distribution.shippingservice.application.dto.ShipmentItemPackedDTO;
 import com.arcone.biopro.distribution.shippingservice.domain.model.enumeration.BloodType;
 import lombok.Builder;
 
@@ -18,5 +19,6 @@ public record ShipmentItemResponseDTO(
 
     String comments,
 
-    List<ShipmentItemShortDateProductResponseDTO> shortDateProducts
+    List<ShipmentItemShortDateProductResponseDTO> shortDateProducts,
+    List<ShipmentItemPackedDTO> packedItems
 ) implements Serializable {}

@@ -4,12 +4,12 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   Description,
+  PackingListService,
   ProcessHeaderService,
   ProcessProductDto,
   ShipmentInfoDto,
   ShipmentInfoItemDto,
   ShipmentService,
-  PackingListService,
   ValidationType,
 } from '@rsa/commons';
 import { SortService } from '@rsa/distribution/core/services/sort.service';
@@ -37,7 +37,6 @@ import { ToastrService } from 'ngx-toastr';
   styleUrls: ['./shipment-details.component.scss'],
 })
 export class ShipmentDetailsComponent implements OnInit {
-
   constructor(
     private _router: Router,
     private route: ActivatedRoute,
@@ -115,8 +114,9 @@ export class ShipmentDetailsComponent implements OnInit {
     this._router.navigateByUrl('/orders/search');
   }
 
-  fillOrder() {
-    // TODO
+  fillProducts(item: ShipmentInfoItemDto): void {
+    const url = `shipment/${this.shipmentId}/fill-products/${item.id}`;
+    this._router.navigateByUrl(url);
   }
 
   viewPickList(): void {
@@ -212,4 +212,15 @@ export class ShipmentDetailsComponent implements OnInit {
       : 'rsa:product-whole-blood';
   }
 
+  loadLabel(shipmentId: number): void {
+    this.packingListService.getLabel(shipmentId).subscribe(response => {
+      const packingListLabel = response.data.generatePackingListLabel;
+      console.log(packingListLabel);
+      // FIXME example
+    });
+  }
+
+  completeShipment() {
+    //Todo
+  }
 }
