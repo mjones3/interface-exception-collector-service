@@ -50,7 +50,9 @@ def otel_operator():
             'cert-manager-webhook',
             'cert-manager-cainjector',
             'cert-manager'
-        ]
+        ],
+        trigger_mode=TRIGGER_MODE_MANUAL,
+
     )
 
 
@@ -65,6 +67,7 @@ def zookeeper_service():
     k8s_resource(
         'zookeeper-deployment',
         resource_deps=['cert-manager']
+        ,trigger_mode=TRIGGER_MODE_MANUAL
     )
 
 
@@ -79,6 +82,7 @@ def kafka_service():
         'kafka-deployment',
         port_forwards=29092,
         resource_deps=['zookeeper-deployment']
+        ,trigger_mode=TRIGGER_MODE_MANUAL
     )
 
 
@@ -94,6 +98,7 @@ def redpanda_console_service():
         'redpanda-console-deployment',
         links=['console.local.gd'],
         resource_deps=['kafka-deployment']
+        ,trigger_mode=TRIGGER_MODE_MANUAL
     )
 
 
@@ -115,7 +120,8 @@ def keycloak_service():
         'keycloak-deployment',
         port_forwards=9080,
         links=['id.local.gd'],
-        resource_deps=['cert-manager']
+        resource_deps=['cert-manager'],
+        trigger_mode=TRIGGER_MODE_MANUAL
     )
 
 
@@ -132,6 +138,7 @@ def postgresql_service():
         'postgresql-deployment',
         port_forwards=5432,
         resource_deps=['cert-manager']
+        ,trigger_mode=TRIGGER_MODE_MANUAL
     )
 
 
@@ -146,6 +153,7 @@ def atlas_operator():
     k8s_resource(
         'atlas-operator',
         resource_deps=['postgresql-deployment']
+        ,trigger_mode=TRIGGER_MODE_MANUAL
     )
     configmap_create(
         'biopro-migration',
@@ -176,6 +184,7 @@ def biopro_service():
     k8s_resource(
         'shipping-service-deployment',
         links=['api.local.gd'],
+        trigger_mode=TRIGGER_MODE_MANUAL,
         resource_deps=[
             'postgresql-deployment',
             'kafka-deployment',

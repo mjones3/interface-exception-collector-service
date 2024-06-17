@@ -21,6 +21,8 @@ COPY --from=local-cache /app/pom.xml .
 COPY --from=local-cache /app/sonar-project.properties .
 COPY --from=local-cache /root/.m2 /root/.m2
 
+RUN chmod +x ./src/main/docker/scripts/build_backend_version.sh
+
 # Build
 RUN ./src/main/docker/scripts/build_backend_version.sh
 
