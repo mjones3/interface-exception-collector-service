@@ -91,7 +91,7 @@ describe('ShipmentDetailsComponent', () => {
   it('should fetch shipment details', () => {
     spyOn(shipmentService, 'getShipmentById').and.returnValue(of({ body: { id: 1 } } as HttpResponse<ShipmentInfoDto>));
     component.fetchShipmentDetails();
-    expect(shipmentService.getShipmentById).toBeCalledWith(SHIPMENT_ID);
+    expect(shipmentService.getShipmentById).toBeCalledWith(SHIPMENT_ID, true);
   });
 
   it('should navigate back to search order', () => {
@@ -102,7 +102,7 @@ describe('ShipmentDetailsComponent', () => {
 
   it('should navigate to fill product when click on Fill Product button', () => {
     const shipment = {
-      id: 1,
+      id: '1',
     };
     spyOn(router, 'navigateByUrl');
     component.fillProducts(shipment as ShipmentInfoItemDto);

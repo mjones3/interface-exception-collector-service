@@ -74,10 +74,10 @@ export class FillProductsComponent implements OnInit {
   }
 
   fetchShipmentDetails(): void {
-    this.shipmentService.getShipmentById(this.shipmentId).subscribe(result => {
-      this.shipmentInfo = result.body;
-      this.shipmentProduct = this.shipmentInfo?.items?.find(item => item.id === +this.productId);
-      this.filledProductsData = this.shipmentProduct.packedItems;
+    this.shipmentService.getShipmentById(this.shipmentId, true).subscribe(result => {
+      this.shipmentInfo = result.data?.getShipmentDetailsById;
+      this.shipmentProduct = this.shipmentInfo?.items?.find(item => item.id === this.productId);
+      this.filledProductsData = this.shipmentProduct?.packedItems;
       (this.prodIcon = this.getIcon(this.shipmentProduct?.productFamily)), this.setProdInfo();
       this.updateWidgets();
     });
@@ -105,7 +105,7 @@ export class FillProductsComponent implements OnInit {
       },
       {
         label: 'product-comments.label',
-        value: this.shipmentProduct.comments,
+        value: this.shipmentProduct?.comments,
       },
     ];
   }
@@ -147,11 +147,11 @@ export class FillProductsComponent implements OnInit {
         if (this.productSelection) {
           this.productSelection.resetProductFormGroup();
         }
-        const ruleResult = response?.body;
+        const ruleResult = response?.data.packItem;
         if (ruleResult) {
           this.loading = false;
           const notification = ruleResult.notifications?.length ? ruleResult.notifications[0] : null;
-          if (ruleResult.ruleCode === 'OK') {
+          if (ruleResult.ruleCode === '200 OK') {
             const result = ruleResult?.results?.results[0] || ruleResult?.results[0];
             if (result) {
               this.filledProductsData = result.packedItems;

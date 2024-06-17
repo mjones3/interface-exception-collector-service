@@ -1,6 +1,7 @@
 import { formatDate } from '@angular/common';
 import { HttpResponse } from '@angular/common/http';
-import { Component, Inject, LOCALE_ID, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { Inject, LOCALE_ID } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -33,7 +34,8 @@ import { startCase } from 'lodash';
 import { ToastrService } from 'ngx-toastr';
 import { SortEvent } from 'primeng/api';
 import { of } from 'rxjs';
-import { catchError, switchMap, take } from 'rxjs/operators';
+import { catchError, switchMap } from 'rxjs/operators';
+import { take } from 'rxjs/operators';
 
 @Component({
   selector: 'rsa-shipment-details',
@@ -106,8 +108,8 @@ export class ShipmentDetailsComponent implements OnInit {
   }
 
   fetchShipmentDetails(): void {
-    this.shipmentService.getShipmentById(this.shipmentId).subscribe(result => {
-      this.shipmentInfo = result.body;
+    this.shipmentService.getShipmentById(this.shipmentId, true).subscribe(result => {
+      this.shipmentInfo = result.data?.getShipmentDetailsById;
       this.products = this.shipmentInfo?.items?.map(item => this.convertItemToProduct(item)) ?? [];
       this.getPackedItems();
       this.updateWidgets();
@@ -181,13 +183,13 @@ export class ShipmentDetailsComponent implements OnInit {
             id: 'ViewPackingListDialog',
             ...(print
               ? {
-                  hasBackdrop: false,
-                  panelClass: 'hidden',
-                }
+                hasBackdrop: false,
+                panelClass: 'hidden',
+              }
               : {
-                  width: DEFAULT_PAGE_SIZE_DIALOG_WIDTH,
-                  height: DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
-                }),
+                width: DEFAULT_PAGE_SIZE_DIALOG_WIDTH,
+                height: DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
+              }),
           });
           dialogRef.componentInstance.model$ = of(packingListLabel);
           return dialogRef.afterOpened();
@@ -214,13 +216,13 @@ export class ShipmentDetailsComponent implements OnInit {
             id: 'ViewShippingLabelDialog',
             ...(print
               ? {
-                  hasBackdrop: false,
-                  panelClass: 'hidden',
-                }
+                hasBackdrop: false,
+                panelClass: 'hidden',
+              }
               : {
-                  width: DEFAULT_PAGE_SIZE_DIALOG_WIDTH,
-                  height: DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
-                }),
+                width: DEFAULT_PAGE_SIZE_DIALOG_WIDTH,
+                height: DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
+              }),
           });
           dialogRef.componentInstance.model$ = of(packingListLabel);
           return dialogRef.afterOpened();
@@ -249,7 +251,7 @@ export class ShipmentDetailsComponent implements OnInit {
   completeShipment() {
     this.shipmentService.completeShipment(this.getValidateRuleDto()).subscribe(
       response => {
-        const value = response.body;
+        const value = response.data?.completeShipment;
         const notifications = value.notifications;
         const url = value._links?.next;
 

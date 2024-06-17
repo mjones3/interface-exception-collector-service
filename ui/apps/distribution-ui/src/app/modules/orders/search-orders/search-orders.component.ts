@@ -225,14 +225,14 @@ export class SearchOrdersComponent implements OnInit {
     }
 
     this.orderService
-      .getOrdersSummaryByCriteria()
+      .getOrdersSummaryByCriteria({}, true)
       .pipe(finalize(() => (this.loading = false)))
       .subscribe(
         response => {
-          if (response.body?.length) {
+          if (response.data.listShipments) {
             this.orderTable.sortField = event.sortField ?? this.defaultSortField;
             this.orders =
-              response.body?.map(order => {
+              response.data?.listShipments?.map(order => {
                 const orderSummary: OrderSummary = {
                   ...order,
                   deliveryTypeDescriptionKey:
@@ -243,7 +243,7 @@ export class SearchOrdersComponent implements OnInit {
                 };
                 return orderSummary;
               }) ?? [];
-            this.totalRecords = Number(response.headers.get('x-total-count'));
+            this.totalRecords = Number(0);
           } else {
             this.toaster.error('no-results-found.label');
           }
