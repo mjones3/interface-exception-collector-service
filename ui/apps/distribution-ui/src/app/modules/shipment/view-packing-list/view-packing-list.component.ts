@@ -18,6 +18,10 @@ export class ViewPackingListComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  getPackedItemsQuantity(packingListLabelDTO: Partial<PackingListLabelDTO>) {
+    return packingListLabelDTO?.packedItems?.length ?? 0;
+  }
+
   getBase64DataImage(payload: string): SafeResourceUrl {
     return this.domSanitizer.bypassSecurityTrustResourceUrl(`data:image/*;base64,${payload}`);
   }
