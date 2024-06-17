@@ -10017,4 +10017,5 @@ export const TRANSLATIONS = {
   'total-filled-products.label': 'Total Filled Products',
   'completed-shipment.success': 'Shipment Completed',
   'shipment-already-completed.error': 'Shipment Already Completed',
+  'shipment-date-and-time.label': 'Shipment Date and Time',
 };
