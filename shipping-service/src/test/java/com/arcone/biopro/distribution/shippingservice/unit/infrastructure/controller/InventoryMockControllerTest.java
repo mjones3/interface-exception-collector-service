@@ -32,7 +32,7 @@ class InventoryMockControllerTest {
         var inventoryResponse = target.validateInventory(InventoryValidationRequest.builder()
             .unitNumber("W036898786799")
                 .productCode("E1624V00")
-                .locationCode(1)
+                .locationCode(3)
             .build());
 
         StepVerifier.create(inventoryResponse)
@@ -41,7 +41,7 @@ class InventoryMockControllerTest {
                 assertEquals(Optional.of(1L), Optional.of(detail.inventoryResponseDTO().id()));
                 assertEquals(Optional.of("W036898786799"), Optional.of(detail.inventoryResponseDTO().unitNumber()));
                 assertEquals(Optional.of("E1624V00"), Optional.of(detail.inventoryResponseDTO().productCode()));
-                assertEquals(Optional.of(1), Optional.of(detail.inventoryResponseDTO().locationCode()));
+                assertEquals(Optional.of(3), Optional.of(detail.inventoryResponseDTO().locationCode()));
             })
             .verifyComplete();
     }

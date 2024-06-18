@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.shippingservice.unit.adapter.in.web.contr
 import com.arcone.biopro.distribution.shippingservice.adapter.in.web.controller.ShipmentResource;
 import com.arcone.biopro.distribution.shippingservice.adapter.in.web.dto.ShipmentDetailResponseDTO;
 import com.arcone.biopro.distribution.shippingservice.adapter.in.web.dto.ShipmentResponseDTO;
+import com.arcone.biopro.distribution.shippingservice.application.dto.CompleteShipmentRequest;
 import com.arcone.biopro.distribution.shippingservice.application.dto.PackItemRequest;
 import com.arcone.biopro.distribution.shippingservice.application.dto.RuleResponseDTO;
 import com.arcone.biopro.distribution.shippingservice.domain.model.enumeration.VisualInspection;
@@ -95,5 +96,24 @@ class ShipmentResourceTest {
             .jsonPath("$.ruleCode").isEqualTo("OK");
 
 
+    }
+
+    @Test
+    public void shouldCompleteShipment(){
+
+        Mockito.when(service.completeShipment(Mockito.any())).thenReturn(Mono.just(RuleResponseDTO
+            .builder()
+            .ruleCode(HttpStatus.OK)
+            .build()));
+
+        webTestClient.post().uri("/v1/shipments/complete")
+            .bodyValue(CompleteShipmentRequest.builder()
+                .shipmentId(1L)
+                .employeeId("employee-test")
+                .build())
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .jsonPath("$.ruleCode").isEqualTo("OK");
     }
 }

@@ -4,10 +4,12 @@ import com.arcone.biopro.distribution.shippingservice.adapter.in.web.dto.Shipmen
 import com.arcone.biopro.distribution.shippingservice.adapter.in.web.dto.ShipmentItemResponseDTO;
 import com.arcone.biopro.distribution.shippingservice.adapter.in.web.dto.ShipmentItemShortDateProductResponseDTO;
 import com.arcone.biopro.distribution.shippingservice.adapter.in.web.dto.ShipmentResponseDTO;
+import com.arcone.biopro.distribution.shippingservice.application.dto.CompleteShipmentRequest;
 import com.arcone.biopro.distribution.shippingservice.application.dto.NotificationDTO;
 import com.arcone.biopro.distribution.shippingservice.application.dto.PackItemRequest;
 import com.arcone.biopro.distribution.shippingservice.application.dto.RuleResponseDTO;
 import com.arcone.biopro.distribution.shippingservice.application.dto.ShipmentItemPackedDTO;
+import com.arcone.biopro.distribution.shippingservice.domain.event.ShipmentCompletedEvent;
 import com.arcone.biopro.distribution.shippingservice.domain.model.Shipment;
 import com.arcone.biopro.distribution.shippingservice.domain.model.ShipmentItem;
 import com.arcone.biopro.distribution.shippingservice.domain.model.ShipmentItemPacked;
@@ -30,12 +32,16 @@ import com.arcone.biopro.distribution.shippingservice.infrastructure.service.Inv
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.http.HttpStatus;
+import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +56,8 @@ public class ShipmentServiceUseCase implements ShipmentService {
     private final ShipmentItemShortDateProductRepository shipmentItemShortDateProductRepository;
     private final InventoryRsocketClient inventoryRsocketClient;
     private final ShipmentItemPackedRepository shipmentItemPackedRepository;
+
+    private final ReactiveKafkaProducerTemplate<String, ShipmentCompletedEvent> producerTemplate;
 
 
     @Override
@@ -84,20 +92,14 @@ public class ShipmentServiceUseCase implements ShipmentService {
             .build();
 
         return shipmentRepository.save(shipment)
-            .flatMap(savedShipment -> {
-                return Flux.fromStream(message.items().stream())
-                    .flatMap(orderItemFulfilledMessage -> {
-                        return shipmentItemRepository.save(toShipmentItem(orderItemFulfilledMessage, savedShipment.getId())).flatMap(shipmentItemSaved -> {
-                            var shortDateProducts = orderItemFulfilledMessage.shortDateProducts();
-                            if (shortDateProducts != null) {
-                                return Flux.fromStream(orderItemFulfilledMessage.shortDateProducts().stream()).flatMap(shortDateItem -> {
-                                    return shipmentItemShortDateProductRepository.save(toShipmentItemShortDateProduct(shortDateItem, shipmentItemSaved.getId())).then(Mono.just(""));
-                                }).collectList();
-                            }
-                            return Mono.empty();
-                        }).then(Mono.just(""));
-                    }).collectList();
-            })
+            .flatMap(savedShipment -> Flux.fromStream(message.items().stream())
+                .flatMap(orderItemFulfilledMessage -> shipmentItemRepository.save(toShipmentItem(orderItemFulfilledMessage, savedShipment.getId())).flatMap(shipmentItemSaved -> {
+                    var shortDateProducts = orderItemFulfilledMessage.shortDateProducts();
+                    if (shortDateProducts != null) {
+                        return Flux.fromStream(orderItemFulfilledMessage.shortDateProducts().stream()).flatMap(shortDateItem -> shipmentItemShortDateProductRepository.save(toShipmentItemShortDateProduct(shortDateItem, shipmentItemSaved.getId())).then(Mono.just(""))).collectList();
+                    }
+                    return Mono.empty();
+                }).then(Mono.just(""))).collectList())
             .then(Mono.just(shipment));
     }
 
@@ -124,7 +126,7 @@ public class ShipmentServiceUseCase implements ShipmentService {
     @WithSpan("listShipments")
     public Flux<ShipmentResponseDTO> listShipments() {
         log.info("Listing shipments.....");
-        return shipmentRepository.findAll().switchIfEmpty(Flux.empty()).flatMap(shipment -> convertShipmentResponse(shipment));
+        return shipmentRepository.findAll().switchIfEmpty(Flux.empty()).flatMap(this::convertShipmentResponse);
     }
 
     @Override
@@ -145,6 +147,54 @@ public class ShipmentServiceUseCase implements ShipmentService {
                 log.error("Failed on pack item {} , {} ", packItemRequest, error.getMessage());
                 return buildPackErrorResponse(error.getMessage());
             });
+    }
+
+    @Override
+    @WithSpan("completeShipment")
+    @Transactional
+    public Mono<RuleResponseDTO> completeShipment(CompleteShipmentRequest request) {
+
+        return shipmentRepository.findById(request.shipmentId())
+            .switchIfEmpty(Mono.error(new RuntimeException("shipment-not-found.error")))
+            .flatMap(shipment -> updateShipment(shipment,request))
+            .flatMap(this::raiseShipmentCompleteEvent)
+            .flatMap(shipment -> Mono.just(RuleResponseDTO.builder()
+                .ruleCode(HttpStatus.OK)
+                .notifications(List.of(NotificationDTO.builder()
+                    .message("completed-shipment.success")
+                    .statusCode(HttpStatus.OK.value())
+                    .notificationType("success")
+                    .build()))
+                .results(Map.of("results", List.of(shipment)))
+                ._links(Map.of("next", String.format("/shipment/%s/shipment-details",shipment.getId())))
+                .build()))
+            .onErrorResume(error -> {
+                log.error("Failed on complete shipment {} , {} ", request, error.getMessage());
+                return buildPackErrorResponse(error.getMessage());
+            });
+    }
+
+    private Mono<Shipment> updateShipment(Shipment shipment , CompleteShipmentRequest request){
+        if(ShipmentStatus.COMPLETED.equals(shipment.getStatus())){
+            return Mono.error(new RuntimeException("shipment-already-completed.error"));
+        }
+        shipment.setCompleteDate(ZonedDateTime.now(ZoneId.of("UTC")));
+        shipment.setCompletedByEmployeeId(request.employeeId());
+        shipment.setStatus(ShipmentStatus.COMPLETED);
+        return shipmentRepository.save(shipment);
+
+    }
+
+    private Mono<Shipment> raiseShipmentCompleteEvent(Shipment shipment){
+
+        return Flux.from(shipmentItemPackedRepository.listAllByShipmentId(shipment.getId()).switchIfEmpty(Flux.empty()))
+            .flatMap(itemPacked -> {
+                var message = new ShipmentCompletedEvent(shipment.getId(), shipment.getOrderNumber(), itemPacked.getUnitNumber(), itemPacked.getProductCode(), shipment.getCompletedByEmployeeId(), ZonedDateTime.now(ZoneId.of("UTC")));
+                var producerRecord = new ProducerRecord<>("ShipmentCompleted", String.format("%s", itemPacked.getId()), message);
+                return Mono.just(producerRecord);
+            })
+            .flatMap(producerTemplate::send)
+            .then(Mono.just(shipment));
     }
 
     private Mono<ShipmentItemResponseDTO> getShipmentItemById(Long shipmentItemId) {
@@ -172,20 +222,7 @@ public class ShipmentServiceUseCase implements ShipmentService {
                 }).then(Mono.just(shipmentItemResponse));
             }).zipWith(shipmentItemPackedRepository.findAllByShipmentItemId(shipmentItemId).switchIfEmpty(Flux.empty()).collectList())
             .flatMap(tuple2 -> {
-                tuple2.getT2().forEach(shipmentItemPacked -> tuple2.getT1().packedItems().add(ShipmentItemPackedDTO.builder()
-                    .id(shipmentItemPacked.getId())
-                    .aboRh(shipmentItemPacked.getAboRh())
-                    .expirationDate(shipmentItemPacked.getExpirationDate())
-                    .shipmentItemId(shipmentItemPacked.getShipmentItemId())
-                    .productCode(shipmentItemPacked.getProductCode())
-                    .unitNumber(shipmentItemPacked.getUnitNumber())
-                    .productFamily(tuple2.getT1().productFamily())
-                    .productDescription(shipmentItemPacked.getProductDescription())
-                    .collectionDate(shipmentItemPacked.getCollectionDate())
-                    .packedByEmployeeId(shipmentItemPacked.getPackedByEmployeeId())
-                        .visualInspection(shipmentItemPacked.getVisualInspection())
-                    .build()));
-
+                tuple2.getT2().forEach(shipmentItemPacked -> tuple2.getT1().packedItems().add(toShipmentItemPackedDTO(tuple2.getT1().productFamily(),shipmentItemPacked)));
                 return Mono.just(tuple2.getT1());
             });
     }
@@ -244,7 +281,7 @@ public class ShipmentServiceUseCase implements ShipmentService {
                             .shipmentItemId(tuple2.getT1().getId())
                             .visualInspection(VisualInspection.SATISFACTORY)
                             .build())
-                        .flatMap(savedPacked -> Mono.just(savedPacked));
+                        .flatMap(Mono::just);
                 }
             });
     }
@@ -288,17 +325,19 @@ public class ShipmentServiceUseCase implements ShipmentService {
                     .comments(shipmentItem.getComments())
                     .bloodType(shipmentItem.getBloodType())
                     .shortDateProducts(new ArrayList<>())
+                    .packedItems(new ArrayList<>())
                     .comments(shipmentItem.getComments())
                     .build();
                 shipmentItemList.add(shipmentItemResponse);
+                return Mono.just(shipmentItemResponse);
 
-                log.debug("Fetching Shipment Items Short Date for Shipment Item ID {}", shipmentItem.getId());
-
-                return Flux.from(shipmentItemShortDateProductRepository.findAllByShipmentItemId(shipmentItem.getId()).switchIfEmpty(Flux.empty())).flatMap(shortDateProduct -> {
-                    shipmentItemResponse.shortDateProducts().add(toShipmentItemShortDateProductResponseDTO(shortDateProduct));
-                    return Mono.just(shortDateProduct);
-                }).collectList();
-            })
+            }).flatMap(shipmentItemResponseDTO -> Flux.from(shipmentItemShortDateProductRepository.findAllByShipmentItemId(shipmentItemResponseDTO.id()).switchIfEmpty(Flux.empty())).flatMap(shortDateProduct -> {
+                shipmentItemResponseDTO.shortDateProducts().add(toShipmentItemShortDateProductResponseDTO(shortDateProduct));
+                return Mono.just(shortDateProduct);
+            }).then(Mono.just(shipmentItemResponseDTO))) .flatMap(shipmentItemResponseDTO -> Flux.from(shipmentItemPackedRepository.findAllByShipmentItemId(shipmentItemResponseDTO.id())).switchIfEmpty(Flux.empty()).flatMap(itemPacked -> {
+                shipmentItemResponseDTO.packedItems().add(toShipmentItemPackedDTO(shipmentItemResponseDTO.productFamily(),itemPacked));
+                return Mono.just(itemPacked);
+            }).then(Mono.just(shipmentItemResponseDTO)))
             .then(Mono.empty())
             .then(Mono.just(ShipmentDetailResponseDTO.builder()
                 .id(shipment.getId())
@@ -322,8 +361,26 @@ public class ShipmentServiceUseCase implements ShipmentService {
                 .customerAddressPostalCode(shipment.getPostalCode())
                 .customerAddressState(shipment.getState())
                 .customerAddressDistrict(shipment.getDistrict())
+                .completeDate(shipment.getCompleteDate())
+                .completedByEmployeeId(shipment.getCompletedByEmployeeId())
                 .items(shipmentItemList)
                 .build()));
+    }
+
+    private ShipmentItemPackedDTO toShipmentItemPackedDTO(String productFamily,ShipmentItemPacked shipmentItemPacked){
+        return ShipmentItemPackedDTO.builder()
+            .id(shipmentItemPacked.getId())
+            .aboRh(shipmentItemPacked.getAboRh())
+            .expirationDate(shipmentItemPacked.getExpirationDate())
+            .shipmentItemId(shipmentItemPacked.getShipmentItemId())
+            .productCode(shipmentItemPacked.getProductCode())
+            .unitNumber(shipmentItemPacked.getUnitNumber())
+            .productFamily(productFamily)
+            .productDescription(shipmentItemPacked.getProductDescription())
+            .collectionDate(shipmentItemPacked.getCollectionDate())
+            .packedByEmployeeId(shipmentItemPacked.getPackedByEmployeeId())
+            .visualInspection(shipmentItemPacked.getVisualInspection())
+            .build();
     }
 
     private ShipmentItemShortDateProductResponseDTO toShipmentItemShortDateProductResponseDTO(ShipmentItemShortDateProduct shortDateProduct) {
@@ -344,6 +401,6 @@ public class ShipmentServiceUseCase implements ShipmentService {
     @WithSpan("getShipmentById")
     public Mono<ShipmentDetailResponseDTO> getShipmentById(Long shipmentId) {
         log.info("getting shipment detail by ID {}.....", shipmentId);
-        return shipmentRepository.findById(shipmentId).switchIfEmpty(Mono.empty()).flatMap(shipment -> convertShipmentResponseDetail(shipment));
+        return shipmentRepository.findById(shipmentId).switchIfEmpty(Mono.empty()).flatMap(this::convertShipmentResponseDetail);
     }
 }
