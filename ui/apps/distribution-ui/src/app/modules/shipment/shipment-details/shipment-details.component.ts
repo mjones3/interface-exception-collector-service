@@ -258,15 +258,7 @@ export class ShipmentDetailsComponent implements OnInit {
     return productFamily && this.processProductConfig?.properties[`icon.${productFamily}`]
       ? 'rsa:' + this.processProductConfig.properties[`icon.${productFamily}`]
       : 'rsa:product-whole-blood';
-  }
-
-  loadLabel(shipmentId: number): void {
-    this.packingListService.getLabel(shipmentId).subscribe(response => {
-      const packingListLabel = response.data.generatePackingListLabel;
-      console.log(packingListLabel);
-      // FIXME example
-    });
-  }
+  } 
 
   completeShipment() {
     this.shipmentService.completeShipment(this.getValidateRuleDto()).subscribe(

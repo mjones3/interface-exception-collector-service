@@ -88,6 +88,7 @@ export class ShipmentService {
       { label: 'shipment-id.label', value: shipmentInfo.id.toString() },
       { label: 'customer-id.label', value: shipmentInfo?.shippingCustomerCode.toString() },
       { label: 'customer-name.label', value: shipmentInfo?.shippingCustomerName },
+      { label: 'status.label', value: shipmentInfo?.status },
       {
         label: 'ship-method.label',
         value: shipmentInfo?.shippingMethod,
