@@ -6,7 +6,7 @@
   ></rsa-process-header>
   <div class="w-full flex flex-row space-x-8 p-4">
     <div class="flex flex-col flex-auto w-9/12">
-      <treo-card class="flex flex-row space-x-6 items-center p-6">
+      <treo-card class="flex flex-row space-x-6 items-center p-6" *ngIf="!isProductComplete">
         <div class="flex flex-row space-x-2">
           <span class="text-left font-bold">
             (<span id="filledProductsCount">{{ filledProductsCount }}</span> {{ 'of.label' | translate }}
@@ -168,28 +168,30 @@
                 {{ product?.quantity }}
               </td>
               <td>
-                <!-- TODO-->
                 <div class="flex flex-row items-center justify-start space-x-2">
-                  <span>{{ product?.quantityFilledProducts || 0 }}</span>
+                  <span>{{ product?.packedItems?.length || 0 }}</span>
                   <span class="w-10">
                     <mat-progress-bar
                       mode="determinate"
-                      [value]="(product?.quantityFilledProducts / product?.quantity) * 100"
+                      [id]="'filled' + i"
+                      [value]="((product?.packedItems?.length || 0) / product?.quantity) * 100"
                     ></mat-progress-bar
                   ></span>
                   <mat-icon
                     class="text-custom-green"
                     [svgIcon]="'hi_outline:clock'"
-                    *ngIf="product?.quantityFilledProducts"
+                    *ngIf="product?.packedItems?.length"
                   ></mat-icon>
                 </div>
               </td>
-              <!--END-->
               <td>
                 {{ product?.bloodType | translate | uppercase }}
               </td>
               <td>
-                <div class="flex flex-row space-x-4 justify-center">
+                <div
+                  *ngIf="product?.packedItems?.length !== product?.quantity && !isProductComplete"
+                  class="flex flex-row space-x-4 justify-center"
+                >
                   <button
                     [id]="'fillShipmentBtn' + i"
                     mat-raised-button
@@ -228,10 +230,8 @@
     </treo-card>
   </div>
 
-  <!--TODO-->
-
-  <!--Filled Packed products Table-->
-  <div class="flex flex-col flex-auto space-y-1 mt-6">
+  <!--Packed products Table-->
+  <div *ngIf="packedItems?.length && !isProductComplete" class="flex flex-col flex-auto space-y-1 mt-6">
     <treo-card class="flex-col pb-4">
       <!-- Header Section -->
       <div class="flex flex-row justify-between items-end">
@@ -256,9 +256,10 @@
 
       <div class="table-wrapper">
         <p-table
-          id="filledProdTableId"
+          id="packedProdTableId"
           dataKey="id"
           [rows]="10"
+          [value]="packedItems"
           [showCurrentPageReport]="true"
           [rowsPerPageOptions]="[10, 25, 50]"
           [loading]="loading"
@@ -287,14 +288,25 @@
             </tr>
           </ng-template>
 
-          <ng-template pTemplate="body">
-            <tr></tr>
+          <ng-template pTemplate="body" let-item let-i="rowIndex">
+            <tr>
+              <td class="px-8">
+                {{ item?.unitNumber | translate | uppercase }}
+              </td>
+              <td>
+                {{ item?.productCode }}
+              </td>
+              <td>
+                {{ item?.productDescription }}
+              </td>
+              <td></td>
+            </tr>
           </ng-template>
 
           <ng-template pTemplate="footer">
             <tr>
               <td [attr.colspan]="4" class="p-text-right">
-                <span class="ml-6">({{ totalFilledProducts }}) {{ 'total-filled-products.label' | translate }}</span>
+                <span class="ml-6">({{ packedItems?.length }}) {{ 'total-filled-products.label' | translate }}</span>
               </td>
             </tr>
           </ng-template>
@@ -303,10 +315,8 @@
     </treo-card>
   </div>
 
-  <!--END-->
-
   <!--Shipped products Table-->
-  <div class="flex flex-col flex-auto space-y-1 mt-6">
+  <div *ngIf="shippedInfoData?.length" class="flex flex-col flex-auto space-y-1 mt-6">
     <treo-card class="flex-col pb-4">
       <!-- Header Section -->
       <div class="treo-card-title">
@@ -320,6 +330,7 @@
         <p-table
           id="shippedProdTableId"
           dataKey="id"
+          [value]="shippedInfoData"
           [rows]="10"
           [showCurrentPageReport]="true"
           [rowsPerPageOptions]="[10, 25, 50]"
@@ -349,10 +360,24 @@
             </tr>
           </ng-template>
 
+          <ng-template pTemplate="body" let-completedInfo let-expanded="expanded">
+            <tr>
+              <td class="px-8">
+                {{ completedInfo?.quantity }}
+              </td>
+              <td>
+                {{ completedInfo?.completeDate }}
+              </td>
+              <td>
+                {{ completedInfo?.completedByEmployee | uppercase }}
+              </td>
+            </tr>
+          </ng-template>
+
           <ng-template pTemplate="footer">
             <tr>
               <td [attr.colspan]="4" class="p-text-right">
-                <span class="ml-6">({{ totalShippedProducts }}) {{ 'total-components.label' | translate }}</span>
+                <span class="ml-6">({{ packedItems?.length }}) {{ 'total-components.label' | translate }}</span>
               </td>
             </tr>
           </ng-template>

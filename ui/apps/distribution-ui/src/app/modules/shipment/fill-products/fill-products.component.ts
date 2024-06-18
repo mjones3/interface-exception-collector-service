@@ -14,8 +14,8 @@ import {
   ShipmentService,
   TranslateInterpolationPipe,
   ValidationType,
-  VerifyFilledProduct,
-  VerifyProduct,
+  VerifyFilledProductDto,
+  VerifyProductDto,
 } from '@rsa/commons';
 import { getAuthState } from '@rsa/global-data';
 import { startCase } from 'lodash';
@@ -77,6 +77,7 @@ export class FillProductsComponent implements OnInit {
     this.shipmentService.getShipmentById(this.shipmentId).subscribe(result => {
       this.shipmentInfo = result.body;
       this.shipmentProduct = this.shipmentInfo?.items?.find(item => item.id === +this.productId);
+      this.filledProductsData = this.shipmentProduct.packedItems;
       (this.prodIcon = this.getIcon(this.shipmentProduct?.productFamily)), this.setProdInfo();
       this.updateWidgets();
     });
@@ -125,7 +126,7 @@ export class FillProductsComponent implements OnInit {
     this._router.navigateByUrl(`/shipment/${this.shipmentId}/shipment-details`);
   }
 
-  unitNumberProductCodeSelected(item: VerifyFilledProduct) {
+  unitNumberProductCodeSelected(item: VerifyFilledProductDto) {
     return this.shipmentService
       .verifyShipmentProduct(this.getVerifyUnitNumberProductCodeDto(item))
       .pipe(
@@ -180,7 +181,7 @@ export class FillProductsComponent implements OnInit {
     this.productSelection.disableProductGroup();
   }
 
-  private getVerifyUnitNumberProductCodeDto(item: VerifyFilledProduct): VerifyProduct {
+  private getVerifyUnitNumberProductCodeDto(item: VerifyFilledProductDto): VerifyProductDto {
     return {
       shipmentItemId: +this.productId,
       unitNumber: item.unitNumber,

@@ -13,7 +13,7 @@ import {
   ShipmentService,
   toasterMockProvider,
   ValidationPipe,
-  VerifyFilledProduct,
+  VerifyFilledProductDto,
 } from '@rsa/commons';
 import { of } from 'rxjs';
 import { EnterUnitNumberProductCodeComponent } from '../enter-unit-number-product-code/enter-unit-number-product-code.component';
@@ -74,7 +74,7 @@ describe('FillProductsComponent', () => {
   });
 
   it('should add filled products', () => {
-    const filledProduct: VerifyFilledProduct = {
+    const filledProduct: VerifyFilledProductDto = {
       unitNumber: 'W036898786769',
       productCode: 'E9747D0E',
       visualInspection: 'SATISFACTORY',
