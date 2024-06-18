@@ -9968,7 +9968,8 @@ export const TRANSLATIONS = {
   'expiration.label': 'Expiration',
   'distribution-comments.label': 'Distribution Comments',
   'inspection-statement.label': 'Inspection Statement',
-  'inspection-statement.value': 'All products in this shipment have been inspected and found to be suitable for distribution.',
+  'inspection-statement.value':
+    'All products in this shipment have been inspected and found to be suitable for distribution.',
   'service-fees-code.label': 'Service Fees Code',
   'service-fees-description.label': 'Service Fees Description',
   'service-fees-quantity.label': 'Service Fees Quantity',
@@ -9980,7 +9981,7 @@ export const TRANSLATIONS = {
   'print-shipping-label.label': 'Print Shipping Label',
   'scan-or-enter-unit-number.label': 'Scan or Enter Unit Number',
   'completed-shipment-success.label': 'This shipment has been completed successfully.',
-  'inventory-expired.label': 'This product has been expired and cannot be shipped.',
+  'inventory-expired.label': 'This product is expired and cannot be shipped.',
   'inventory-discarded.label': 'This product has been discarded and cannot be shipped.',
   'inventory-quarantined.label': 'This product has been quarantined and cannot be shipped.',
   'product-criteria-blood-type-does-not-match.error':
@@ -9995,7 +9996,7 @@ export const TRANSLATIONS = {
   'scan-or-enter-product-code.label': 'Scan or Enter Product Code',
   'complete-shipment.label': 'Complete Shipment',
   'packed-products.label': 'Packed Products',
-  'total-packed-products.label': 'Total Packed Products',  
+  'total-packed-products.label': 'Total Packed Products',
   'total-filled-products.label': 'Total Filled Products',
   'completed-shipment.success': 'Shipment Completed',
   'shipment-already-completed.error': 'Shipment Already Completed',
