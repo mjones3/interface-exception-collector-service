@@ -38,6 +38,7 @@ public class LoginPage extends CommonPageFactory {
     }
 
     public void login() {
+        this.driver.manage().window().maximize();
         sharedActions.sendKeys(usernameField, username);
         sharedActions.sendKeys(passwordField, password);
         sharedActions.click(loginButton);

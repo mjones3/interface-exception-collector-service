@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.shippingservice.verification.pages.distri
 import com.arcone.biopro.distribution.shippingservice.verification.pages.CommonPageFactory;
 import com.arcone.biopro.distribution.shippingservice.verification.pages.SharedActions;
 import lombok.extern.slf4j.Slf4j;
+import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -85,6 +86,12 @@ public class ShipmentDetailPage extends CommonPageFactory {
     @FindBy(id = "viewShippingLabelBtn")
     private WebElement printShippingLabelButton;
 
+    @FindBy(id = "completeShipmentBtn")
+    private WebElement completeShipmentButton;
+
+    @FindBy(id = "percentageId")
+    private WebElement pendingPercentage;
+
     @Override
     public boolean isLoaded() {
         return sharedActions.isElementVisible(productTable);
@@ -136,6 +143,7 @@ public class ShipmentDetailPage extends CommonPageFactory {
 
     public void goTo(Long shipmentId) {
         var url = baseUrl + shipmentDetailsUrl.replace("{shipmentId}", String.valueOf(shipmentId));
+        log.info("Navigating to the shipment details page: {}", url);
         this.driver.get(url);
         this.waitForLoad();
         assertTrue(isLoaded());
@@ -162,4 +170,27 @@ public class ShipmentDetailPage extends CommonPageFactory {
     public void ensureViewShippingLabelButtonIsNotVisible() {
         sharedActions.waitForNotVisible(printShippingLabelButton);
     }
+
+    public void clickFillProduct(String familyName, String bloodType) {
+        log.info("Filling product with family {} and blood type {}.", familyName, bloodType);
+        String locator = String.format("//td[normalize-space()='%s']/following-sibling::td[normalize-space()='%s']/following-sibling::td//button", familyName.toUpperCase(), bloodType.toUpperCase());
+        sharedActions.click(driver.findElement(By.xpath(locator)));
+    }
+
+    public void completeShipment() {
+        log.info("Completing shipment.");
+        sharedActions.click(completeShipmentButton);
+    }
+
+    public void checkTotalProductsShipped(int totalProductsShipped) {
+        log.info("Checking if the total of products shipped is {}.", totalProductsShipped);
+        String locator = String.format("//p-table[@id='shippedProdTableId']//tfoot//td[.='(%s) Total Component(s)']", totalProductsShipped);
+        sharedActions.locateXpathAndWaitForVisible(locator, driver);
+    }
+
+    public void checkPendingLogNotVisible() {
+        log.info("Checking if the pending log is not visible.");
+        sharedActions.waitForNotVisible(pendingPercentage);
+    }
+
 }

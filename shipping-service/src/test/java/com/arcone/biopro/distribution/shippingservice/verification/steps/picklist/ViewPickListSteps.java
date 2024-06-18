@@ -54,7 +54,7 @@ public class ViewPickListSteps {
             "OPEN",
             Long.valueOf(customerId),
             0L,
-            1L,
+            3L,
             "TEST",
             "TEST",
             "Frozen",
