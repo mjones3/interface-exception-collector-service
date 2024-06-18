@@ -1,5 +1,7 @@
 package com.arcone.biopro.distribution.shippingservice.verification.steps.shipment;
 
+import com.arcone.biopro.distribution.shippingservice.verification.pages.distribution.FillProductsPage;
+import com.arcone.biopro.distribution.shippingservice.verification.pages.distribution.ShipmentDetailPage;
 import com.arcone.biopro.distribution.shippingservice.verification.support.controllers.ShipmentTestingController;
 import com.arcone.biopro.distribution.shippingservice.verification.support.StaticValuesMapper;
 import com.arcone.biopro.distribution.shippingservice.verification.support.types.ListShipmentsResponseType;
@@ -31,6 +33,12 @@ public class ShipmentFulfillmentSteps {
 
     @Autowired
     private ShipmentTestingController shipmentTestingController;
+
+    @Autowired
+    private ShipmentDetailPage shipmentDetailPage;
+
+    @Autowired
+    private FillProductsPage fillProductsPage;
 
     @Given("I have no shipment fulfillment requests.")
     public void noOrderFulfillmentRequest() throws Exception {
@@ -187,5 +195,30 @@ public class ShipmentFulfillmentSteps {
             log.debug(e.toString());
             fail("Failed to find the product attribute.");
         }
+    }
+
+    @And("I choose to fill product of family {string} and blood type {string}.")
+    public void iHaveFilledTheShipment(String family, String bloodType) {
+        shipmentDetailPage.clickFillProduct(family, bloodType);
+    }
+
+    @When("I add the unit {string} with product code {string}.")
+    public void addUnitWithProductCode(String unit, String productCode) throws InterruptedException {
+        fillProductsPage.addUnitWithProductCode(unit, productCode);
+    }
+
+    @And("I define visual inspection as {string}.")
+    public void defineVisualInspection(String visualInspection) {
+        fillProductsPage.defineVisualInspection(visualInspection);
+    }
+
+    @Then("I should see the list of packed products added including {string} and {string}.")
+    public void verifyPackedProducts(String family, String bloodType) {
+        fillProductsPage.ensureProductIsAdded(family, bloodType);
+    }
+
+    @When("I choose to return to the shipment details page.")
+    public void returnToShipmentDetails() {
+        fillProductsPage.clickBackButton();
     }
 }

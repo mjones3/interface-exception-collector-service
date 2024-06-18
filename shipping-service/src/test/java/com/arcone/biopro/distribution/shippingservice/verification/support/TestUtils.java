@@ -2,6 +2,8 @@ package com.arcone.biopro.distribution.shippingservice.verification.support;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.Cookie;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -20,6 +22,9 @@ public class TestUtils {
 
     @Value("${redpanda.url}")
     private String redpandaUrl;
+
+    @Value("${default.ui.facility}")
+    private String defaultFacility;
 
     /**
      * This method is used to read the contents of a file as a string.
@@ -98,6 +103,16 @@ public class TestUtils {
         StringBuilder dataBuilder = new StringBuilder();
         dataBuilder.append(json);
         return dataBuilder;
+    }
+
+    public void setFacilityCookie(String facilityId, WebDriver driver) {
+        log.info("Setting facility cookie to {}", facilityId);
+        driver.manage().addCookie(new Cookie("x-facility-id", this.defaultFacility));
+    }
+
+    public void setFacilityCookie(WebDriver driver) {
+        log.info("Setting facility cookie to {}", this.defaultFacility);
+        this.setFacilityCookie(this.defaultFacility, driver);
     }
 
 }

@@ -1,6 +1,8 @@
 package com.arcone.biopro.distribution.shippingservice.verification.pages;
 
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Assert;
+import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -77,5 +79,29 @@ public class SharedActions {
         // When not specified, the expected quantity of windows will be 3
         // First tab (original), second tab (after click), and print dialog.
         this.clickElementAndMoveToNewTab(driver, element, 3);
+    }
+
+    public void locateXpathAndWaitForVisible(String locator, WebDriver driver) {
+        try {
+            wait.until(e -> {
+                log.debug("Waiting for element {} to be visible.", locator);
+                return driver.findElement(By.xpath(locator)).isDisplayed();
+            });
+            log.debug("Element {} is visible now.", locator);
+        } catch (NoSuchElementException e) {
+            log.error("Element {} is not visible after the specified timeout.", locator);
+            throw e;
+        }
+    }
+
+    public void verifyMessage(String header, String message) {
+        log.info("Verifying message: {}", message);
+        String bannerMessageLocator = "#toast-container";
+        String msg = wait.until(e -> e.findElement(By.cssSelector(bannerMessageLocator))).getText();
+
+        // Split the message at line break to get header and message
+        String[] msgParts = msg.split("\n");
+        Assert.assertEquals(header.toUpperCase(), msgParts[0].toUpperCase());
+        Assert.assertEquals(message.toUpperCase(), msgParts[1].toUpperCase());
     }
 }
