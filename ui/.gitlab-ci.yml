@@ -1,4 +1,4 @@
-image: bitnami/node:14.21.0
+image: bitnami/node:16.20.2
 
 include:
   - project: 'arc-one/rsa/gitlab-templates'
