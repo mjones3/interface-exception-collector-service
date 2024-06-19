@@ -1,4 +1,4 @@
-import { MenuDto } from '@rsa/commons';
+import { MenuDto } from '../../../../lib/shared/models';
 
 export const MENUS: MenuDto[] = [
   {
