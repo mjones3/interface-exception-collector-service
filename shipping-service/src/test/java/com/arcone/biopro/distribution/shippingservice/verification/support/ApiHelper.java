@@ -66,6 +66,46 @@ public class ApiHelper {
         return getRequest(endpoint, null);
     }
 
+    /**
+     * This method is used to send a POST request to a specified endpoint with a given body and return the response.
+     * It first checks if a custom base URL is provided. If not, it uses the default base URL.
+     * It then constructs the full URI by appending the endpoint to the base URL.
+     * It sends a POST request to the URI using the WebTestClient, with the given body.
+     * The response body is expected to be a string.
+     * It logs the URI, the request body, and the response body, then returns the response.
+     *
+     * @param endpoint      The endpoint to which the POST request will be sent.
+     * @param body          The body of the POST request.
+     * @param customBaseUrl The custom base URL to be used instead of the default one. If null, the default base URL is used.
+     * @return An EntityExchangeResult object containing the response.
+     */
+    public EntityExchangeResult<String> postRequest(String endpoint, String body, String customBaseUrl) {
+        String url = customBaseUrl == null ? baseUrl : customBaseUrl;
+        String uri = url + endpoint;
+
+        var response = webTestClient.post()
+            .uri(uri)
+            .bodyValue(body)
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody(String.class)
+            .returnResult();
+        log.info("POST request to {} with body {} returned: {}", uri, body, response.getResponseBody());
+        return response;
+    }
+
+    /**
+     * This method is a convenience method that sends a POST request to a specified endpoint with a given body using the default base URL.
+     * It simply calls the postRequest method with the endpoint, body, and null as the custom base URL.
+     *
+     * @param endpoint The endpoint to which the POST request will be sent.
+     * @param body     The body of the POST request.
+     * @return An EntityExchangeResult object containing the response.
+     */
+    public EntityExchangeResult<String> postRequest(String endpoint, String body) {
+        return postRequest(endpoint, body, null);
+    }
+
     @PostConstruct
     public void setupWebClient() {
         webTestClient = webTestClient.mutate()

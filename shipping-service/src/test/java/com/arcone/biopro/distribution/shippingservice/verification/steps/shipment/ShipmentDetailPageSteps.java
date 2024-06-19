@@ -1,6 +1,5 @@
 package com.arcone.biopro.distribution.shippingservice.verification.steps.shipment;
 
-import com.arcone.biopro.distribution.shippingservice.verification.pages.distribution.HomePage;
 import com.arcone.biopro.distribution.shippingservice.verification.pages.distribution.ShipmentDetailPage;
 import com.arcone.biopro.distribution.shippingservice.verification.support.ScreenshotService;
 import io.cucumber.java.en.And;
@@ -43,7 +42,7 @@ public class ShipmentDetailPageSteps {
     }
 
     @Then("I should see zero products are filled out of the total number of products to be filled.")
-    public void viewAmountOfProductsFilled() throws Exception {
+    public void viewAmountOfProductsFilled() {
         shipmentDetailPage.viewAmountOfProductsFilled();
         screenshot.attachConditionalScreenshot(saveAllScreenshots);
         // TODO change this from percentage to amount of products filled once selector is added
@@ -63,5 +62,22 @@ public class ShipmentDetailPageSteps {
     @And("no products have been shipped.")
     public void checkNoProductAreShipped() {
         // TODO there is no option to validate this now, update with fill order implementation
+    }
+
+    @And("I choose to complete the Shipment.")
+    public void completeShipment() {
+        shipmentDetailPage.completeShipment();
+    }
+
+    @And("I am able to view the total of {int} products shipped.")
+    public void viewTotalProductsShipped(int totalProductsShipped) {
+        shipmentDetailPage.checkTotalProductsShipped(totalProductsShipped);
+        screenshot.attachConditionalScreenshot(saveAllScreenshots);
+    }
+
+    @And("I am not able to view the pending log of products.")
+    public void checkPendingLogNotVisible() {
+        shipmentDetailPage.checkPendingLogNotVisible();
+        screenshot.attachConditionalScreenshot(saveAllScreenshots);
     }
 }
