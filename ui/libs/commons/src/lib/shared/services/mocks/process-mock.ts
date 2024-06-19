@@ -1,5 +1,5 @@
 import { HttpResponse } from '@angular/common/http';
-import { ProcessProductDto, ProcessProductVersionDto } from '@rsa/commons';
+import { ProcessProductDto, ProcessProductVersionDto } from '../../../../lib/shared/models';
 
 export const PROCESS_CONFIGURATION: HttpResponse<ProcessProductDto> = {
   body: {

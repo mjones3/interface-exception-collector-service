@@ -1,5 +1,5 @@
 import { HttpResponse } from '@angular/common/http';
-import { Facility } from '@rsa/commons';
+import { Facility } from '../../../../lib/shared/models';
 
 export const FACILITIES = [
   {

@@ -29,38 +29,6 @@
     }
   },
   "projects": {
-    "manufacturing-ui-e2e": {
-      "tags": ["type:e2e"],
-      "implicitDependencies": ["manufacturing-ui"]
-    },
-    "manufacturing-ui": {
-      "tags": ["type:app"],
-      "implicitDependencies": ["touchable"]
-    },
-    "admin-ui-e2e": {
-      "tags": ["type:e2e"],
-      "implicitDependencies": ["admin-ui"]
-    },
-    "admin-ui": {
-      "tags": ["type:app"],
-      "implicitDependencies": ["theme"]
-    },
-    "specialty-lab-ui-e2e": {
-      "tags": ["type:e2e"],
-      "implicitDependencies": ["specialty-lab-ui"]
-    },
-    "specialty-lab-ui": {
-      "tags": ["type:app"],
-      "implicitDependencies": ["theme"]
-    },
-    "dashboard-ui-e2e": {
-      "tags": ["type:e2e"],
-      "implicitDependencies": ["dashboard-ui"]
-    },
-    "dashboard-ui": {
-      "tags": ["type:app"],
-      "implicitDependencies": ["theme"]
-    },
     "commons": {
       "tags": ["type:library"],
       "implicitDependencies": ["treo", "material"]
@@ -95,14 +63,6 @@
     },
     "errors": {
       "tags": []
-    },
-    "donor-ui": {
-      "tags": ["type:app"],
-      "implicitDependencies": ["treo"]
-    },
-    "donor-ui-e2e": {
-      "tags": [],
-      "implicitDependencies": ["donor-ui"]
     },
     "global-data": {
       "tags": []
