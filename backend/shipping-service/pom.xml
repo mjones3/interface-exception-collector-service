@@ -840,6 +840,8 @@
                     <configuration>
                         <argLine>
                             -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"
+                            -Dfile.encoding=${project.build.sourceEncoding}
+                            @{argLine} -XX:+AllowRedefinitionToAddDeleteMethods
                         </argLine>
                     </configuration>
                     <dependencies>
