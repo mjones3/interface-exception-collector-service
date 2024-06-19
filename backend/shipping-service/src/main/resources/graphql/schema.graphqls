@@ -1,0 +1,68 @@
+scalar DateTime
+@specifiedBy(url: "https://scalars.graphql.org/andimarek/date-time.html")
+
+type Query {
+    generatePackingListLabel(shipmentId: ID!):PackingListLabelDTO!
+    generateShippingLabel(shipmentId: ID!):ShippingLabelDTO!
+}
+
+type PackingListLabelDTO {
+
+    shipmentId: ID!
+    orderNumber: Int!
+    orderIdBase64Barcode: String
+    shipmentIdBase64Barcode: String
+    dateTimePacked: DateTime
+    packedBy: String
+    enteredBy: String
+    quantity: Int
+    shipFrom: ShipFromDTO
+    shipTo: ShipToDTO
+    distributionComments: String
+    packedItems:[ShipmentItemPackedDTO]
+}
+
+type ShipFromDTO {
+    bloodCenterCode: String
+    bloodCenterName: String
+    bloodCenterBase64Barcode: String
+    bloodCenterAddressLine1: String
+    bloodCenterAddressLine2: String
+    bloodCenterAddressComplement: String
+    phoneNumber:String
+}
+
+type ShipToDTO {
+
+    customerCode: Int
+    customerName: String
+    department: String
+    addressLine1: String
+    addressLine2: String
+    addressComplement: String
+    phoneNumber: String
+
+}
+
+type ShipmentItemPackedDTO {
+
+    shipmentItemId: Int
+    inventoryId: Int
+    unitNumber: String
+    productCode: String
+    aboRh: String
+    productDescription:String
+    productFamily:String
+    expirationDate: DateTime
+    collectionDate: DateTime
+}
+
+type ShippingLabelDTO {
+    shipmentId: Int
+    orderNumber: Int
+    orderIdBase64Barcode: String
+    shipmentIdBase64Barcode: String
+    shipTo: ShipToDTO
+    shipFrom: ShipFromDTO
+    dateTimePacked: DateTime
+}

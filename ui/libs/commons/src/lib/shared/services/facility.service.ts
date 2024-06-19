@@ -2,11 +2,12 @@ import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/htt
 import { Injectable, Type } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { CookieService } from 'ngx-cookie-service';
-import { BehaviorSubject, Observable, Observer, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, Observer, of, throwError } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { Facility } from '../models';
 import { Cookie } from '../types/cookie.enum';
 import { EnvironmentConfigService } from './environment-config.service';
+import { ALL_FACILITIES, FACILITY_BY_ID } from './mocks/facilities-mock';
 
 type EntityResponseType = HttpResponse<Facility>;
 type EntityArrayResponseType = HttpResponse<Facility[]>;
@@ -64,16 +65,22 @@ export class FacilityService {
   }
 
   getAllFacilities(params?: { [key: string]: any }): Observable<EntityArrayResponseType> {
+    return of(ALL_FACILITIES);
+    /*
     return this.httpClient.get<Facility[]>(`${this.config.env.serverApiURL}/v1/locations?size=1000&sort=name,asc`, {
       params,
       observe: 'response',
     });
+     */
   }
 
   getFacilityById(id: number): Observable<EntityResponseType> {
+    return of(FACILITY_BY_ID(id));
+    /*
     return this.httpClient.get<Facility>(`${this.config.env.serverApiURL}/v1/facilities/${id}`, {
       observe: 'response',
     });
+     */
   }
 
   checkFacilityCookie(): boolean {

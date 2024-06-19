@@ -4,11 +4,15 @@ import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import {
   CurrentTimeDto,
+  Description,
   LocationInventoryHistoryDto,
   ReturnsDto,
+  RuleResponseDto,
   ShipmentDto,
+  ShipmentInfoDto,
   TransitTimeRequestDto,
   TransitTimeResponseDto,
+  VerifyProductDto,
 } from '../models';
 import { ExternalTransferDto } from '../models/external-transfer.dto';
 import { EnvironmentConfigService } from './environment-config.service';
@@ -22,16 +26,32 @@ export class ShipmentService {
   returnsEndpoint: string;
   externalTransferEndpoint: string;
   locationInventoryHistoriesEndpoint: string;
+  shipmentProductItemEndpoint: string;
+  completeShipmentEndpoint: string;
 
   constructor(private httpClient: HttpClient, private config: EnvironmentConfigService) {
+    this.shipmentProductItemEndpoint = `${config.env.serverApiURL}/v1/shipments/pack-item`;
     this.shipmentEndpoint = `${config.env.serverApiURL}/v1/shipments`;
     this.transitTimeEndpoint = `${config.env.serverApiURL}/v1/transit-time/calculate`;
     this.returnsEndpoint = `${config.env.serverApiURL}/v1/returns`;
     this.externalTransferEndpoint = `${config.env.serverApiURL}/v1/external-transfers`;
     this.locationInventoryHistoriesEndpoint = `${config.env.serverApiURL}/v1/location-inventory-histories`;
+    this.completeShipmentEndpoint = `${config.env.serverApiURL}/v1/shipments/complete`;
   }
 
   //#region SHIPMENT
+
+  public completeShipment(inputs: any): Observable<HttpResponse<RuleResponseDto>> {
+    return this.httpClient
+      .post<RuleResponseDto>(this.completeShipmentEndpoint, inputs, { observe: 'response' })
+      .pipe(catchError(this.errorHandler));
+  }
+
+  public verifyShipmentProduct(shipment: VerifyProductDto): Observable<HttpResponse<RuleResponseDto>> {
+    return this.httpClient
+      .post<RuleResponseDto>(this.shipmentProductItemEndpoint, shipment, { observe: 'response' })
+      .pipe(catchError(this.errorHandler));
+  }
 
   public getShipmentByCriteria(criteria?: {}): Observable<HttpResponse<ShipmentDto[]>> {
     return this.httpClient
@@ -41,6 +61,42 @@ export class ShipmentService {
       })
       .pipe(catchError(this.errorHandler));
   }
+
+  public getShipmentById(id: number): Observable<HttpResponse<ShipmentInfoDto>> {
+    return this.httpClient
+      .get<ShipmentInfoDto[]>(`${this.shipmentEndpoint}/${id}`, {
+        params: {},
+        observe: 'response',
+      })
+      .pipe(catchError(this.errorHandler));
+  }
+
+  //#region Descriptions
+  public getOrderInfoDescriptions(shipmentInfo: ShipmentInfoDto): Description[] {
+    return [
+      { label: 'order-number.label', value: shipmentInfo?.orderNumber?.toString() },
+      {
+        label: 'priority.label',
+        value: shipmentInfo?.priority,
+      },
+      { label: 'labeling-product-category.label', value: shipmentInfo?.productCategory },
+    ];
+  }
+
+  public getShippingInfoDescriptions(shipmentInfo: ShipmentInfoDto): Description[] {
+    return [
+      { label: 'shipment-id.label', value: shipmentInfo.id.toString() },
+      { label: 'customer-id.label', value: shipmentInfo?.shippingCustomerCode.toString() },
+      { label: 'customer-name.label', value: shipmentInfo?.shippingCustomerName },
+      { label: 'status.label', value: shipmentInfo?.status },
+      {
+        label: 'ship-method.label',
+        value: shipmentInfo?.shippingMethod,
+      },
+    ];
+  }
+
+  //#endregion
 
   public createShipment(shipment: ShipmentDto): Observable<HttpResponse<ShipmentDto>> {
     return this.httpClient.post<ShipmentDto>(this.shipmentEndpoint, shipment, { observe: 'response' });

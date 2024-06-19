@@ -1,0 +1,31 @@
+{
+  "data": [
+    {
+      "id": 3,
+      "partOfId": null,
+      "externalId": "IC39",
+      "name": "Charlotte Main",
+      "description": null,
+      "addressLine1": "447 South Blvd, Suite 100",
+      "addressLine2": "",
+      "postalCode": "28209",
+      "city": "Charlotte",
+      "state": "NC",
+      "locationTypeIds": [
+        1,
+        4,
+        5,
+        7,
+        8,
+        10
+      ],
+      "licenses": [],
+      "properties": {
+        "LICENSE_NUMBER": "1875",
+        "TZ": "America/New_York",
+        "REGISTRATION_NUMBER": "3004054586",
+        "PHONE_NUMBER": "(704) 972-4742"
+      }
+    }
+  ]
+}

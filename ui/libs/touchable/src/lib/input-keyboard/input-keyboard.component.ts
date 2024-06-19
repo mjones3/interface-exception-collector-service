@@ -5,10 +5,13 @@ import {
   EventEmitter,
   HostBinding,
   Input,
+  OnChanges,
   Optional,
   Output,
   Self,
+  SimpleChanges,
   TemplateRef,
+  ViewChild,
 } from '@angular/core';
 import { FormBuilder, NgControl } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -25,13 +28,14 @@ import { OnScreenKeyboardComponent } from '../on-screen-keyboard/on-screen-keybo
   styleUrls: ['./input-keyboard.component.scss'],
 })
 @AutoUnsubscribe()
-export class InputKeyboardComponent extends ControlValueAccessorWithValidator<string> {
+export class InputKeyboardComponent extends ControlValueAccessorWithValidator<string> implements OnChanges {
   @Input() labelTitle: string;
   @Input() labelClasses: string;
   @Input() labelWidth: string;
   @Input() inputWidth = '';
   @Input() inputId: string;
   @Input() inputType: InputType = InputType.TEXT;
+  @Input() upperCase = false;
   @Input() textareaRows = 5;
   @Input() keyboardType: KeyboardTypeEnum;
   @Input() placeholder: string;
@@ -50,6 +54,8 @@ export class InputKeyboardComponent extends ControlValueAccessorWithValidator<st
   @Input() isDecimal = false;
   @Input() showKeyboard = true;
   @Input() suffixTemplateRef: TemplateRef<ElementRef>;
+  @Input() disabled: boolean;
+  @Input() required = false;
 
   @Input()
   set inputFocus(focus: boolean) {
@@ -72,12 +78,21 @@ export class InputKeyboardComponent extends ControlValueAccessorWithValidator<st
   @Output() tabOrEnterPressed: EventEmitter<string> = new EventEmitter<string>();
   @Output() inputChange: EventEmitter<string> = new EventEmitter<string>();
 
+  @Output() keyUp: EventEmitter<string> = new EventEmitter<string>();
+
   @HostBinding('class')
   isInvalid: boolean;
 
   dialogRef: MatDialogRef<OnScreenKeyboardComponent, string>;
   inputTypeEnum = InputType;
   _inputFocus = false;
+
+  @ViewChild('inputField') inputField: ElementRef;
+
+  focusOnInput() {
+    this.required = true;
+    this.inputFocus = true;
+  }
 
   constructor(
     private matDialog: MatDialog,
@@ -87,6 +102,7 @@ export class InputKeyboardComponent extends ControlValueAccessorWithValidator<st
     private el: ElementRef
   ) {
     super();
+
     // Setting CVA for this component and get access to outer NgControl
     if (control) {
       control.valueAccessor = this;
@@ -96,11 +112,32 @@ export class InputKeyboardComponent extends ControlValueAccessorWithValidator<st
     });
 
     this.valueChangesSubscription = this.form.valueChanges.subscribe(data => {
-      this.inputChange.emit(data.input);
-      this.setValueAndTriggerOnChanges(data.input);
+      let normalizedValue = !!data.input ? data.input : '';
+      if (this.upperCase) {
+        normalizedValue = normalizedValue.toUpperCase();
+      }
+
+      this.inputChange.emit(normalizedValue);
+      this.setValueAndTriggerOnChanges(normalizedValue);
     });
     // Adding blur event to the angular component html element
     el.nativeElement.addEventListener('blur', () => {});
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.disabled && changes.disabled.currentValue !== changes.disabled.previousValue) {
+      if (changes.disabled.currentValue) {
+        this.form.controls['input'].disable({ emitEvent: false, onlySelf: true });
+      } else {
+        this.form.controls['input'].enable({ emitEvent: false, onlySelf: true });
+      }
+    }
+  }
+
+  onKeyUp(event: KeyboardEvent): void {
+    if (this.keyUp) {
+      this.keyUp.emit(event.key);
+    }
   }
 
   onTabEnterPressed(): void {
@@ -108,7 +145,11 @@ export class InputKeyboardComponent extends ControlValueAccessorWithValidator<st
   }
 
   writeValue(value: string) {
-    const normalizedValue = !!value ? value : '';
+    let normalizedValue = !!value ? value : '';
+    if (this.upperCase) {
+      normalizedValue = normalizedValue.toUpperCase();
+    }
+
     super.writeValue(normalizedValue);
     if (value === null) {
       this.form.reset({ input: null }, { emitEvent: false });
@@ -133,6 +174,7 @@ export class InputKeyboardComponent extends ControlValueAccessorWithValidator<st
     this.dialogRef.componentInstance.maxLength = this.maxLength;
     this.dialogRef.componentInstance.autocomplete = this.allowAutocomplete;
     this.dialogRef.componentInstance.isDecimal = this.isDecimal;
+    this.dialogRef.componentInstance.upperCase = this.upperCase;
 
     // Handle Enter Key press
     this.dialogRef.componentInstance.returnPressed.pipe(take(1)).subscribe(() => {

@@ -1,0 +1,388 @@
+<div class="flex flex-col flex-auto space-y-1">
+  <rsa-process-header
+    [subTitle]="header.subTitle$ | async | translate"
+    [title]="header.title$ | async | translate"
+    [buttons]="actionButtonsTpl"
+  ></rsa-process-header>
+  <div class="w-full flex flex-row space-x-8 p-4">
+    <div class="flex flex-col flex-auto w-9/12">
+      <treo-card class="flex flex-row space-x-6 items-center p-6" *ngIf="!isProductComplete">
+        <div class="flex flex-row space-x-2">
+          <span class="text-left font-bold">
+            (<span id="filledProductsCount">{{ filledProductsCount }}</span> {{ 'of.label' | translate }}
+            <span id="totalProducts">{{ totalProducts }}</span
+            >)
+          </span>
+          <span class="text-left font-bold">{{ 'filled-products.label' | translate }}</span>
+          <span class="text-left font-bold" id="percentageId">{{ filledProductsCount / totalProducts | percent }}</span>
+        </div>
+        <div class="flex flex-col flex-auto">
+          <mat-progress-bar
+            id="shipmentProgressBarId"
+            class="h-2"
+            mode="determinate"
+            [value]="(filledProductsCount / totalProducts) * 100"
+          ></mat-progress-bar>
+        </div>
+      </treo-card>
+
+      <div class="flex flex-col space-y-3 mb-6">
+        <div class="flex flex-col">
+          <ng-container *ngTemplateOutlet="addedProductTpl; context: { review: true }"></ng-container>
+        </div>
+      </div>
+    </div>
+    <div class="flex flex-col flex-auto w-1/4">
+      <rsa-order-widget-sidebar
+        [orderInfoDescriptions]="orderInfoDescriptions"
+        [shippingInfoDescriptions]="shippingInfoDescriptions"
+      ></rsa-order-widget-sidebar>
+    </div>
+  </div>
+</div>
+
+<ng-template #actionButtonsTpl>
+  <div class="flex flex-row space-x-2">
+    <button id="backBtnId" class="primary" mat-stroked-button (click)="backToSearch()">
+      {{ 'back.label' | translate }}
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #addedProductTpl let-review="review">
+  <div class="flex flex-row justify-between items-end my-4">
+    <div class="flex flex-row">
+      <span class="mb-1 text-left font-bold mr-4 w-60">{{ 'labeling-product-category.label' | translate }}:</span>
+      <span class="flex-auto text-left">{{ labelingProductCategory | translate | uppercase }}</span>
+    </div>
+    <div class="flex flex-row space-x-2">
+      <button
+        id="viewPickListBtn"
+        class="action-button bg-purple-light px-4"
+        mat-stroked-button
+        (click)="viewPickList()"
+        *ngIf="shipmentInfo?.status === 'OPEN'"
+      >
+        {{ 'view-pick-list.label' | translate }}
+      </button>
+      <button
+        id="viewPackingListBtn"
+        class="action-button bg-purple-light px-4"
+        mat-stroked-button
+        (click)="viewPackingList(true)"
+        *ngIf="shipmentInfo?.status === 'COMPLETED'"
+      >
+        {{ 'print-packing-list.label' | translate }}
+      </button>
+      <button
+        id="viewShippingLabelBtn"
+        class="action-button bg-purple-light px-4"
+        mat-stroked-button
+        (click)="viewShippingLabel(true)"
+        *ngIf="shipmentInfo?.status === 'COMPLETED'"
+      >
+        {{ 'print-shipping-label.label' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!--Shipment Details Table-->
+  <div class="flex flex-col flex-auto space-y-1">
+    <treo-card class="flex-col pb-4">
+      <!-- Header Section -->
+      <div class="treo-card-title">
+        <div class="flex flex-row w-full justify-between px-5 items-baseline">
+          <h3>{{ 'product-details.label' | translate }}</h3>
+        </div>
+      </div>
+      <mat-divider></mat-divider>
+
+      <div class="table-wrapper">
+        <p-table
+          id="prodTableId"
+          dataKey="id"
+          styleClass="p-datatable-customers p-datatable-sm"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+          sortField="productFamily.descriptionKey"
+          [customSort]="true"
+          [value]="products"
+          [rows]="10"
+          [showCurrentPageReport]="true"
+          [rowsPerPageOptions]="[10, 25, 50]"
+          [loading]="loading"
+          [paginator]="true"
+          (sortFunction)="customSort($event)"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th class="w-12"></th>
+              <th class="w-12"></th>
+              <th id="productFamilyColumn" pSortableColumn="productFamily">
+                <div class="p-d-flex p-jc-between p-ai-center">
+                  {{ 'product-family.label' | translate }}
+                  <p-sortIcon field="productFamily"></p-sortIcon>
+                </div>
+              </th>
+              <th id="quantityColumn" pSortableColumn="quantity">
+                <div class="p-d-flex p-jc-between p-ai-center">
+                  {{ 'quantity.label' | translate }}
+                  <p-sortIcon field="quantity"></p-sortIcon>
+                </div>
+              </th>
+              <th>
+                <div pSortableColumn="quantityFilledProducts" class="p-d-flex p-jc-between p-ai-center">
+                  {{ 'filled.label' | translate }}
+                  <p-sortIcon field="quantityFilledProducts"></p-sortIcon>
+                </div>
+              </th>
+              <th id="bloodTypeColumn" pSortableColumn="bloodType">
+                <div class="p-d-flex p-jc-between p-ai-center">
+                  {{ 'blood-type.label' | translate }}
+                  <p-sortIcon field="bloodType"></p-sortIcon>
+                </div>
+              </th>
+              <th></th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-product let-expanded="expanded" let-i="rowIndex">
+            <tr>
+              <td [ngStyle]="{ width: '30px' }">
+                <button
+                  id="expandRowBtn"
+                  type="button"
+                  class="p-button-text p-button-rounded p-button-plain"
+                  pButton
+                  pRipple
+                  *ngIf="product?.comments"
+                  [pRowToggler]="product"
+                  [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                ></button>
+              </td>
+              <td>
+                <mat-icon [svgIcon]="getIcon(product?.productFamily)" class="product-icon"></mat-icon>
+              </td>
+              <td>
+                {{ product?.productFamily | translate | uppercase }}
+              </td>
+              <td>
+                {{ product?.quantity }}
+              </td>
+              <td>
+                <div class="flex flex-row items-center justify-start space-x-2">
+                  <span>{{ product?.packedItems?.length || 0 }}</span>
+                  <span class="w-10">
+                    <mat-progress-bar
+                      mode="determinate"
+                      [id]="'filled' + i"
+                      [value]="((product?.packedItems?.length || 0) / product?.quantity) * 100"
+                    ></mat-progress-bar
+                  ></span>
+                  <mat-icon
+                    class="text-custom-green"
+                    [svgIcon]="'hi_outline:clock'"
+                    *ngIf="product?.packedItems?.length"
+                  ></mat-icon>
+                </div>
+              </td>
+              <td>
+                {{ product?.bloodType | translate | uppercase }}
+              </td>
+              <td>
+                <div
+                  *ngIf="product?.packedItems?.length !== product?.quantity && !isProductComplete"
+                  class="flex flex-row space-x-4 justify-center"
+                >
+                  <button
+                    [id]="'fillShipmentBtn' + i"
+                    mat-raised-button
+                    class="bg-custom-red"
+                    (click)="fillProducts(product)"
+                  >
+                    {{ 'fill-Product.label' | translate }}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="rowexpansion" let-product>
+            <tr>
+              <td [attr.colspan]="6">
+                <div class="p-4">
+                  <div class="flex flex-col space-y-2">
+                    <div class="flex flex-row space-x-4 w-full text-wrap" *ngIf="product?.comments">
+                      <span class="font-bold mb-1 text-left mr-4 w-60">{{ 'comments.label' | translate }}</span>
+                      <span class="text-overflow text-left">{{ product?.comments | uppercase }}</span>
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="footer">
+            <tr>
+              <td [attr.colspan]="8" class="p-text-right">
+                <span class="ml-6">({{ totalProducts }}) {{ 'total-components.label' | translate }}</span>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </treo-card>
+  </div>
+
+  <!--Packed products Table-->
+  <div *ngIf="packedItems?.length && !isProductComplete" class="flex flex-col flex-auto space-y-1 mt-6">
+    <treo-card class="flex-col pb-4">
+      <!-- Header Section -->
+      <div class="flex flex-row justify-between items-end">
+        <div class="treo-card-title">
+          <div class="flex flex-row w-full justify-between px-5 items-baseline">
+            <h3>{{ 'packed-products.label' | translate }}</h3>
+          </div>
+        </div>
+
+        <div class="flex flex-row space-x-2 mr-4 p-2">
+          <button
+            id="completeShipmentBtn"
+            class="action-button primary px-4"
+            mat-stroked-button
+            (click)="completeShipment()"
+          >
+            {{ 'complete-shipment.label' | translate }}
+          </button>
+        </div>
+      </div>
+      <mat-divider></mat-divider>
+
+      <div class="table-wrapper">
+        <p-table
+          id="packedProdTableId"
+          dataKey="id"
+          [rows]="10"
+          [value]="packedItems"
+          [showCurrentPageReport]="true"
+          [rowsPerPageOptions]="[10, 25, 50]"
+          [loading]="loading"
+          styleClass="p-datatable-customers p-datatable-sm"
+          [paginator]="true"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th class="px-8">
+                <div class="p-d-flex p-jc-between p-ai-center">
+                  {{ 'unit-number.label' | translate }}
+                </div>
+              </th>
+              <th>
+                <div class="p-d-flex p-jc-between p-ai-center">
+                  {{ 'product-code.label' | translate }}
+                </div>
+              </th>
+              <th>
+                <div class="p-d-flex p-jc-between p-ai-center">
+                  {{ 'description.label' | translate }}
+                </div>
+              </th>
+              <th></th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-item let-i="rowIndex">
+            <tr>
+              <td class="px-8">
+                {{ item?.unitNumber | translate | uppercase }}
+              </td>
+              <td>
+                {{ item?.productCode }}
+              </td>
+              <td>
+                {{ item?.productDescription }}
+              </td>
+              <td></td>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="footer">
+            <tr>
+              <td [attr.colspan]="4" class="p-text-right">
+                <span class="ml-6">({{ packedItems?.length }}) {{ 'total-filled-products.label' | translate }}</span>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </treo-card>
+  </div>
+
+  <!--Shipped products Table-->
+  <div *ngIf="shippedInfoData?.length" class="flex flex-col flex-auto space-y-1 mt-6">
+    <treo-card class="flex-col pb-4">
+      <!-- Header Section -->
+      <div class="treo-card-title">
+        <div class="flex flex-row w-full justify-between px-5 items-baseline">
+          <h3>{{ 'shipped-products.label' | translate }}</h3>
+        </div>
+      </div>
+      <mat-divider></mat-divider>
+
+      <div class="table-wrapper">
+        <p-table
+          id="shippedProdTableId"
+          dataKey="id"
+          [value]="shippedInfoData"
+          [rows]="10"
+          [showCurrentPageReport]="true"
+          [rowsPerPageOptions]="[10, 25, 50]"
+          [loading]="loading"
+          styleClass="p-datatable-customers p-datatable-sm"
+          [paginator]="true"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th class="px-8">
+                <div class="p-d-flex p-jc-between p-ai-center">
+                  {{ 'quantity.label' | translate }}
+                </div>
+              </th>
+              <th>
+                <div class="p-d-flex p-jc-between p-ai-center">
+                  {{ 'shipment-date-and-time.label' | translate }}
+                </div>
+              </th>
+              <th>
+                <div class="p-d-flex p-jc-between p-ai-center">
+                  {{ 'employee.label' | translate }}
+                </div>
+              </th>
+              <th></th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-completedInfo let-expanded="expanded">
+            <tr>
+              <td class="px-8">
+                {{ completedInfo?.quantity }}
+              </td>
+              <td>
+                {{ completedInfo?.completeDate }}
+              </td>
+              <td>
+                {{ completedInfo?.completedByEmployee | uppercase }}
+              </td>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="footer">
+            <tr>
+              <td [attr.colspan]="4" class="p-text-right">
+                <span class="ml-6">({{ packedItems?.length }}) {{ 'total-components.label' | translate }}</span>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </treo-card>
+  </div>
+</ng-template>

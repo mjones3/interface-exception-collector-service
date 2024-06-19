@@ -7,8 +7,8 @@ include:
     file: spec.build_ui.pipeline.yml
     inputs: 
       service: distribution-ui
-  #- project: arc-one/infrastructure/gitlab-ci
-  #  ref: main
-  #  file: spec.backend.pipeline.yml
-  #  inputs: 
-  #    service: <each service>
+  - project: arc-one/infrastructure/gitlab-ci
+    ref: main
+    file: spec.backend.pipeline.yml
+    inputs: 
+      service: shipping-service
