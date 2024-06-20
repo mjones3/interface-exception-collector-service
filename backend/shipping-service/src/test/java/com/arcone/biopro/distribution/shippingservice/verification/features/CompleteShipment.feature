@@ -1,6 +1,9 @@
 Feature: Complete Shipment Feature
     As a distribution technician, I want to complete a shipment, so I can ship products to the customer.
 
+    Background:
+        Given I cleaned up from the database the packed item that used the unit number "W036898786802".
+
     Rule: I should be able to complete a shipment whenever at least one product is filledRule: I should be able to view the list of packed products added once it is filled on the Shipment Fulfillment Details page.
         Rule: I should see a success message when the shipment is completed.
     Rule: I should be able to view the shipping details of the products once it is shipped on the Shipment Fulfillment Details page.
@@ -22,4 +25,4 @@ Feature: Complete Shipment Feature
 
             Examples:
                 | Order Number | Customer ID | Customer Name    | Quantity | BloodType | ProductFamily                                               | Message            | Family              | Type | UN            | Code     | Visual Inspection | Quantity Shipped |
-                | 10           | 1           | Testing Customer | 10,5,8   | A,B,O     | Transfusable Plasma,Transfusable Plasma,Transfusable Plasma | Shipment Completed | Transfusable Plasma | A    | W036898786802 | E7648V00 | Satisfactory      | 1                |
+                | 108          | 1           | Testing Customer | 10,5,8   | A,B,O     | Transfusable Plasma,Transfusable Plasma,Transfusable Plasma | Shipment Completed | Transfusable Plasma | A    | W036898786802 | E7648V00 | Satisfactory      | 1                |

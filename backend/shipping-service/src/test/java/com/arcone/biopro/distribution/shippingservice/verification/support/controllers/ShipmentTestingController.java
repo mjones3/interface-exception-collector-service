@@ -57,7 +57,8 @@ public class ShipmentTestingController {
 
     public long getOrderShipmentId(long orderId) throws Exception {
         var orders = this.parseShipmentList(this.listShipments());
-        var orderFilter = orders.stream().filter(x -> x.getOrderNumber().equals(orderId)).findAny().orElse(null);
+        // Find the last order in the list with the same order number.
+        var orderFilter = orders.stream().filter(x -> x.getOrderNumber().equals(orderId)).reduce((first, second) -> second).orElse(null);
         if (orderFilter != null) {
             var shipmentId = orderFilter.getId();
             log.info("Found Shipment by Order Number");
@@ -111,7 +112,6 @@ public class ShipmentTestingController {
                                                                                       String customerAddressDistrict,
                                                                                       String customerAddressAddressLine1,
                                                                                       String customerAddressAddressLine2,
-                                                                                      String addressComplement,
                                                                                       String quantities,
                                                                                       String bloodTypes,
                                                                                       String productFamilies,
@@ -146,7 +146,6 @@ public class ShipmentTestingController {
             .customerAddressDistrict(customerAddressDistrict)
             .customerAddressAddressLine1(customerAddressAddressLine1)
             .customerAddressAddressLine2(customerAddressAddressLine2)
-            .customerAddressAddressComplement(addressComplement)
             .billingCustomerCode(billingCustomerCode)
             .billingCustomerName(billingCustomerName)
             .department(department)
@@ -182,7 +181,7 @@ public class ShipmentTestingController {
         return shipmentDetailType;
     }
 
-    public ShipmentRequestDetailsResponseType buildShipmentRequestDetailsResponseType(long orderNumber, long locationCode, long customerID, String customerName, String department, String addressLine1, String addressLine2, String addressComplement, String unitNumber, String productCode, String productFamily, String bloodType, String expiration, long quantity) {
-        return this.buildShipmentRequestDetailsResponseType(orderNumber, "ASAP", "OPEN", customerID, 0L, locationCode, "TEST", "TEST", "Frozen", LocalDate.now(), customerName, department, "", "123456789", "FL", "33016", "US", "1", "Miami", "Miami", addressLine1, addressLine2, addressComplement, String.valueOf(quantity), bloodType, productFamily, unitNumber, productCode);
+    public ShipmentRequestDetailsResponseType buildShipmentRequestDetailsResponseType(long orderNumber, long locationCode, long customerID, String customerName, String department, String addressLine1, String addressLine2, String unitNumber, String productCode, String productFamily, String bloodType, String expiration, long quantity) {
+        return this.buildShipmentRequestDetailsResponseType(orderNumber, "ASAP", "OPEN", customerID, 0L, locationCode, "TEST", "TEST", "Frozen", LocalDate.now(), customerName, department, "", "123456789", "FL", "33016", "US", "1", "Miami", "Miami", addressLine1, addressLine2, String.valueOf(quantity), bloodType, productFamily, unitNumber, productCode);
     }
 }

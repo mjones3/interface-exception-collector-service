@@ -85,6 +85,7 @@ public class ApiHelper {
 
         var response = webTestClient.post()
             .uri(uri)
+            .header("Content-Type", "application/json")
             .bodyValue(body)
             .exchange()
             .expectStatus().isOk()

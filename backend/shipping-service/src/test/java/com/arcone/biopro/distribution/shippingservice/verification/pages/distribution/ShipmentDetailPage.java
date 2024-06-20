@@ -32,7 +32,7 @@ public class ShipmentDetailPage extends CommonPageFactory {
     @FindBy(how = How.ID, using = "viewPickListBtn")
     private WebElement viewPickListButton;
 
-    @FindBy(id = "fillShipmentBtn")
+    @FindBy(css = "[id^='fillShipmentBtn']")
     private WebElement fillProductButton;
 
     @FindBy(id = "prodTableId")
@@ -64,9 +64,6 @@ public class ShipmentDetailPage extends CommonPageFactory {
 
     @FindBy(id = "informationDetails-Customer Name")
     private WebElement customerName;
-
-    @FindBy(id = "informationDetails-Ship Date")
-    private WebElement shipDate;
 
     @FindBy(id = "informationDetails-Status")
     private WebElement orderStatus;
@@ -132,7 +129,7 @@ public class ShipmentDetailPage extends CommonPageFactory {
     }
 
     public void viewPageContent() {
-        waitForElementsVisible(quantityColumn, productFamilyColumn, bloodTypeColumn, shippingMethodElement, orderCriteriaTable, productCategory, orderNumber, orderPriority, customerId, customerName, orderStatus, shipDate);
+        waitForElementsVisible(quantityColumn, productFamilyColumn, bloodTypeColumn, shippingMethodElement, orderCriteriaTable, productCategory, orderNumber, orderPriority, customerId, customerName, orderStatus);
     }
 
     private void waitForElementsVisible(WebElement... elements) {

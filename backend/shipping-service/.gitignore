@@ -43,3 +43,7 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+### Report ###
+/report/allure-results/
+/report/allure-report/
