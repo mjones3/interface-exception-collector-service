@@ -33,8 +33,6 @@ public class ViewPickListSteps {
     @Autowired
     private ShipmentTestingController shipmentTestingController;
 
-    private Long shipmentId;
-
     @Autowired
     private HomePage homePage;
 
@@ -71,7 +69,6 @@ public class ViewPickListSteps {
             "Miami-Dade",
             "36544 SW 27th St",
             "North Miami",
-            "Complement",
             quantities,
             bloodTypes,
             productFamilies, unitNumbers, productCodes);
@@ -80,9 +77,9 @@ public class ViewPickListSteps {
     }
 
     private void goToDetailsPage(long orderNumber) throws Exception {
-        this.shipmentId = shipmentTestingController.getOrderShipmentId(orderNumber);
+        Long shipmentId = shipmentTestingController.getOrderShipmentId(orderNumber);
         homePage.goTo();
-        this.shipmentDetailPage.goTo(this.shipmentId);
+        this.shipmentDetailPage.goTo(shipmentId);
         screenshot.attachConditionalScreenshot(saveAllScreenshots);
     }
 

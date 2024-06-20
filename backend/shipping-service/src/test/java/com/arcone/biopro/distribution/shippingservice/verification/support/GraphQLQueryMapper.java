@@ -1,11 +1,11 @@
 package com.arcone.biopro.distribution.shippingservice.verification.support;
 
 public class GraphQLQueryMapper {
-    public static String printPackingListQuery() {
-        return (
+    public static String printPackingListQuery(Long shipmentId) {
+        return (String.format(
             """
                 query GeneratePackingListLabel {
-                    generatePackingListLabel(shipmentId: "1") {
+                    generatePackingListLabel(shipmentId: "%s") {
                         orderNumber
                         orderIdBase64Barcode
                         shipmentIdBase64Barcode
@@ -44,13 +44,13 @@ public class GraphQLQueryMapper {
                     }
                 }
                 """
-        );
+            , shipmentId));
     }
 
-    public static String printShippingLabelQuery() {
-        return """
+    public static String printShippingLabelQuery(long shipmentId){
+        return String.format("""
             query GenerateShippingLabel {
-                generateShippingLabel(shipmentId: "1") {
+                generateShippingLabel(shipmentId: "%s") {
                     shipmentId
                     orderNumber
                     orderIdBase64Barcode
@@ -76,7 +76,6 @@ public class GraphQLQueryMapper {
                     }
                 }
             }
-
-            """;
+            """, shipmentId);
     }
 }
