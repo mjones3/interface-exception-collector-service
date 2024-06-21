@@ -1,8 +1,7 @@
 import { formatDate } from '@angular/common';
 import { HttpResponse } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject, LOCALE_ID, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { Inject, LOCALE_ID } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import {
@@ -19,27 +18,22 @@ import {
   TranslateInterpolationPipe,
   ValidationType,
 } from '@rsa/commons';
-import { SortService } from '@rsa/distribution/core/services/sort.service';
-import { ViewPickListComponent } from '@rsa/distribution/modules/shipment/view-pick-list/view-pick-list.component';
-import { getAuthState } from '@rsa/global-data';
-import { startCase } from 'lodash';
-import { SortEvent } from 'primeng/api';
-import { of } from 'rxjs';
 import {
   DEFAULT_PAGE_SIZE,
   DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
   DEFAULT_PAGE_SIZE_DIALOG_WIDTH,
 } from '@rsa/distribution/core/print-section/browser-printing.model';
-import {
-  ViewPackingListComponent
-} from '@rsa/distribution/modules/shipment/view-packing-list/view-packing-list.component';
-import { catchError, switchMap } from 'rxjs/operators';
 import { BrowserPrintingService } from '@rsa/distribution/core/print-section/browser-printing.service';
-import {
-  ViewShippingLabelComponent
-} from '@rsa/distribution/modules/shipment/view-shipping-label/view-shipping-label.component';
+import { SortService } from '@rsa/distribution/core/services/sort.service';
+import { ViewPackingListComponent } from '@rsa/distribution/modules/shipment/view-packing-list/view-packing-list.component';
+import { ViewPickListComponent } from '@rsa/distribution/modules/shipment/view-pick-list/view-pick-list.component';
+import { ViewShippingLabelComponent } from '@rsa/distribution/modules/shipment/view-shipping-label/view-shipping-label.component';
+import { getAuthState } from '@rsa/global-data';
+import { startCase } from 'lodash';
 import { ToastrService } from 'ngx-toastr';
-import { take } from 'rxjs/operators';
+import { SortEvent } from 'primeng/api';
+import { of } from 'rxjs';
+import { catchError, switchMap, take } from 'rxjs/operators';
 
 @Component({
   selector: 'rsa-shipment-details',
@@ -186,15 +180,14 @@ export class ShipmentDetailsComponent implements OnInit {
           dialogRef = this.matDialog.open(ViewPackingListComponent, {
             id: 'ViewPackingListDialog',
             ...(print
-                ? {
+              ? {
                   hasBackdrop: false,
                   panelClass: 'hidden',
                 }
-                : {
+              : {
                   width: DEFAULT_PAGE_SIZE_DIALOG_WIDTH,
                   height: DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
-                }
-            )
+                }),
           });
           dialogRef.componentInstance.model$ = of(packingListLabel);
           return dialogRef.afterOpened();
@@ -202,13 +195,10 @@ export class ShipmentDetailsComponent implements OnInit {
         catchError(err => {
           this.toaster.error('something-went-wrong.label');
           throw err;
-        }),
+        })
       )
       .subscribe(() => {
-        this.browserPrintService.print(
-          'viewPackingListReport',
-          { pagesize: DEFAULT_PAGE_SIZE }
-        );
+        this.browserPrintService.print('viewPackingListReport', { pagesize: DEFAULT_PAGE_SIZE });
         dialogRef?.close();
       });
   }
@@ -223,15 +213,14 @@ export class ShipmentDetailsComponent implements OnInit {
           dialogRef = this.matDialog.open(ViewShippingLabelComponent, {
             id: 'ViewShippingLabelDialog',
             ...(print
-                ? {
+              ? {
                   hasBackdrop: false,
                   panelClass: 'hidden',
                 }
-                : {
+              : {
                   width: DEFAULT_PAGE_SIZE_DIALOG_WIDTH,
                   height: DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
-                }
-            )
+                }),
           });
           dialogRef.componentInstance.model$ = of(packingListLabel);
           return dialogRef.afterOpened();
@@ -239,13 +228,10 @@ export class ShipmentDetailsComponent implements OnInit {
         catchError(err => {
           this.toaster.error('something-went-wrong.label');
           throw err;
-        }),
+        })
       )
       .subscribe(() => {
-        this.browserPrintService.print(
-          'viewShippingLabelReport',
-          { pagesize: DEFAULT_PAGE_SIZE }
-        );
+        this.browserPrintService.print('viewShippingLabelReport', { pagesize: DEFAULT_PAGE_SIZE });
         dialogRef?.close();
       });
   }
@@ -257,8 +243,8 @@ export class ShipmentDetailsComponent implements OnInit {
   getIcon(productFamily: string): string {
     return productFamily && this.processProductConfig?.properties[`icon.${productFamily}`]
       ? 'rsa:' + this.processProductConfig.properties[`icon.${productFamily}`]
-      : 'rsa:product-whole-blood';
-  } 
+      : 'rsa:product-plasma';
+  }
 
   completeShipment() {
     this.shipmentService.completeShipment(this.getValidateRuleDto()).subscribe(
