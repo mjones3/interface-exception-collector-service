@@ -16,6 +16,7 @@ import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Component
@@ -56,7 +57,7 @@ public class ShipmentTestingController {
     }
 
     public long getOrderShipmentId(long orderId) throws Exception {
-        var orders = this.parseShipmentList(this.listShipments());
+        var orders = this.listShipments();
         // Find the last order in the list with the same order number.
         var orderFilter = orders.stream().filter(x -> x.getOrderNumber().equals(orderId)).reduce((first, second) -> second).orElse(null);
         if (orderFilter != null) {
@@ -67,27 +68,66 @@ public class ShipmentTestingController {
         return 0;
     }
 
-    public EntityExchangeResult<String> listShipments() {
+    public List<ListShipmentsResponseType> listShipments() {
         log.info("Listing orders.");
-        return apiHelper.getRequest(Endpoints.LIST_SHIPMENTS);
+        var response = apiHelper.graphQlRequestObjectList(GraphQLQueryMapper.listShipmentsQuery(),"listShipments");
+        List<ListShipmentsResponseType> responseTypeList = new ArrayList<>();
+        Arrays.stream(response).toList().forEach(o -> {
+            LinkedHashMap linkedHashMap = (LinkedHashMap) o;
+            responseTypeList.add(ListShipmentsResponseType.
+                builder()
+                    .id(Long.valueOf((String) linkedHashMap.get("id")))
+                    .status((String) linkedHashMap.get("status"))
+                    .orderNumber(Long.valueOf((Integer) linkedHashMap.get("orderNumber")))
+                    .priority((String) linkedHashMap.get("priority"))
+                .build());
+
+        });
+
+        return responseTypeList;
     }
 
-    public EntityExchangeResult<String> getShipmentRequestDetails(long shipmentId) {
-        var endpoint = Endpoints.GET_SHIPMENT.replace("{shipment.id}", String.valueOf(shipmentId));
+    public Map getShipmentRequestDetails(long shipmentId) {
         log.info("Getting order details for order: {}", shipmentId);
-        return apiHelper.getRequest(endpoint);
+        return apiHelper.graphQlRequest(GraphQLQueryMapper.shipmentDetailsQuery(shipmentId),"getShipmentDetailsById");
     }
 
-    public List<ListShipmentsResponseType> parseShipmentList(EntityExchangeResult<String> result) throws Exception {
-        var object = List.of(objectMapper.readValue(result.getResponseBody(), ListShipmentsResponseType[].class));
-        log.debug("Order list: {}", object);
-        return object;
-    }
+    public ShipmentRequestDetailsResponseType parseShipmentRequestDetail(Map result) throws Exception {
+        log.debug("Order details: {}", result);
 
-    public ShipmentRequestDetailsResponseType parseShipmentRequestDetail(EntityExchangeResult<String> result) throws Exception {
-        var object = objectMapper.readValue(result.getResponseBody(), ShipmentRequestDetailsResponseType.class);
-        log.debug("Order details: {}", object);
-        return object;
+        List<ShipmentFulfillmentRequest> lineItems = new ArrayList<>();
+        if (result.get("items") != null) {
+            List<LinkedHashMap> items = (List) result.get("items");
+            var shortDateList = new ArrayList<ShipmentItemShortDateResponseType>();
+            lineItems.addAll(items.stream().map(item -> {
+                if (item.get("shortDateProducts") != null) {
+                    List<LinkedHashMap> shortDateProducts = (List<LinkedHashMap>) item.get("shortDateProducts");
+                    shortDateProducts.forEach(shortDate -> shortDateList.add(ShipmentItemShortDateResponseType.
+                        builder()
+                        .id(Long.valueOf((String) shortDate.get("id")))
+                        .shipmentItemId(Long.valueOf((Integer) shortDate.get("shipmentItemId")))
+                        .unitNumber((String) shortDate.get("unitNumber"))
+                        .productCode((String) shortDate.get("productCode"))
+                        .build()));
+
+                }
+
+                return ShipmentFulfillmentRequest.builder()
+                    .id(Long.valueOf((String) item.get("id")))
+                    .shipmentId(Long.valueOf((Integer) item.get("shipmentId")))
+                    .productFamily((String) item.get("productFamily"))
+                    .quantity((Integer) item.get("quantity"))
+                    .bloodType(BloodType.valueOf((String) item.get("bloodType")))
+                    .shortDateProducts(shortDateList)
+                    .build();
+
+            }).toList());
+        }
+        return ShipmentRequestDetailsResponseType.builder()
+            .id(Long.valueOf((String) result.get("id")))
+            .orderNumber(Long.valueOf((Integer) result.get("orderNumber")))
+            .items(lineItems)
+            .build();
     }
 
     public ShipmentRequestDetailsResponseType buildShipmentRequestDetailsResponseType(Long orderNumber,

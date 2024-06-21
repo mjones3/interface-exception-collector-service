@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.shippingservice.verification.steps.packin
 import com.arcone.biopro.distribution.shippingservice.verification.pages.distribution.ShipmentDetailPage;
 import com.arcone.biopro.distribution.shippingservice.verification.support.ApiHelper;
 import com.arcone.biopro.distribution.shippingservice.verification.support.Endpoints;
+import com.arcone.biopro.distribution.shippingservice.verification.support.GraphQLMutationMapper;
 import com.arcone.biopro.distribution.shippingservice.verification.support.ScreenshotService;
 import com.arcone.biopro.distribution.shippingservice.verification.support.controllers.ShipmentTestingController;
 import com.arcone.biopro.distribution.shippingservice.verification.support.types.ShipmentRequestDetailsResponseType;
@@ -71,36 +72,22 @@ public class PrintPackingListSteps {
         this.shipmentId = shipmentTestingController.getOrderShipmentId(this.orderNumber);
         var shipmentDetails = shipmentController.parseShipmentRequestDetail(
             shipmentTestingController.getShipmentRequestDetails(this.shipmentId));
-        var shipmentItem = shipmentDetails.getItems().getFirst().getId();
+        Long shipmentItem;
+        shipmentItem = shipmentDetails.getItems().get(0).getId();
 
-        var item = String.format("""
-            {
-                "shipmentItemId":%s,
-                "unitNumber":"%s",
-                "productCode":"%s",
-                "locationCode":%s,
-                "employeeId":"test-emplyee-id",
-                "visualInspection":"SATISFACTORY"
-            }
-            """, shipmentItem, unitNumber, productCode, facility);
-        var response = apiHelper.postRequest(Endpoints.PACK_ITEM, item);
+        var response = apiHelper.graphQlRequest(GraphQLMutationMapper.packItemMutation(shipmentItem , facility
+            ,unitNumber , "test-emplyee-id", productCode , "SATISFACTORY" ),"packItem");
         log.info("Shipment item successfully packed: {}", response);
-        Assert.assertEquals(200, response.getStatus().value());
+
+        Assert.assertEquals("200 OK",response.get("ruleCode"));
     }
 
     @And("I have completed a shipment with above details.")
     public void completeShipment() {
 
-        var complete = String.format("""
-            {
-                "shipmentId":%s,
-                "employeeId":"test-emplyee-id"
-            }
-            """, this.shipmentId);
-
-        var response = apiHelper.postRequest(Endpoints.COMPLETE_SHIPMENT, complete);
+        var response = apiHelper.graphQlRequest(GraphQLMutationMapper.completeShipmentMutation(this.shipmentId , "test-emplyee-id"),"completeShipment") ;
         log.info("Shipment successfully completed: {}", response);
-        Assert.assertEquals(200, response.getStatus().value());
+        Assert.assertEquals("200 OK", response.get("ruleCode"));
     }
 
     @When("I choose to print the Packing Slip.")

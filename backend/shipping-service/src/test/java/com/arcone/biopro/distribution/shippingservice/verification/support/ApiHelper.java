@@ -118,7 +118,11 @@ public class ApiHelper {
 
     public Map graphQlRequest(String document, String path) {
         HttpGraphQlClient qlClient = HttpGraphQlClient.create(webTestClientGraphQl);
-
         return qlClient.document(document).retrieveSync(path).toEntity(Map.class);
+    }
+
+    public Object[] graphQlRequestObjectList(String document, String path) {
+        HttpGraphQlClient qlClient = HttpGraphQlClient.create(webTestClientGraphQl);
+        return qlClient.document(document).retrieveSync(path).toEntity(Object[].class);
     }
 }

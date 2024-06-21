@@ -17,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -24,7 +25,10 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 public class ShipmentFulfillmentSteps {
 
-    private EntityExchangeResult<String> result;
+    private List<ListShipmentsResponseType>  result;
+
+    private Map resultMap;
+
     private List<ListShipmentsResponseType> orders;
     private ShipmentRequestDetailsResponseType order;
     private long orderNumber;
@@ -44,7 +48,7 @@ public class ShipmentFulfillmentSteps {
     public void noOrderFulfillmentRequest() throws Exception {
         // No action needed. Just logging the initial number of orders.
         this.result = shipmentTestingController.listShipments();
-        var size = shipmentTestingController.parseShipmentList(result).size();
+        var size = result.size();
         log.info("Initial order count: {}", size);
     }
 
@@ -56,11 +60,9 @@ public class ShipmentFulfillmentSteps {
     @Then("The shipment request will be available in the Distribution local data store and I can fill the shipment.")
     public void verifyOrderPersistence() throws Exception {
         // Getting the order
-        this.orders = shipmentTestingController.parseShipmentList(shipmentTestingController.listShipments());
+        this.orders = shipmentTestingController.listShipments();
         setShipmentId();
-
-        this.result = shipmentTestingController.getShipmentRequestDetails(this.shipmentId);
-        this.order = shipmentTestingController.parseShipmentRequestDetail(result);
+        this.order = shipmentTestingController.parseShipmentRequestDetail(shipmentTestingController.getShipmentRequestDetails(this.shipmentId));
 
         assertNotNull(this.order, "Failed to get order fulfillment details.");
         assertEquals(this.orderNumber, this.order.getOrderNumber(), "Failed to get order by number.");
@@ -84,10 +86,10 @@ public class ShipmentFulfillmentSteps {
     @When("I retrieve the shipment list.")
     public void retrieveOrderPendingList() throws Exception {
         this.result = shipmentTestingController.listShipments();
-        this.orders = shipmentTestingController.parseShipmentList(result);
+        this.orders = result;
         log.info("Order list: {}", this.orders);
 
-        assertEquals(200, result.getStatus().value(), "Failed to get order fulfillment requests.");
+        assertNotNull(result, "Failed to get order fulfillment requests.");
     }
 
     @Then("I am able to see the requests.")
@@ -99,10 +101,10 @@ public class ShipmentFulfillmentSteps {
     @When("I retrieve one shipment by shipment id.")
     public void retrieveOneOrder() throws Exception {
         setShipmentId();
-        this.result = shipmentTestingController.getShipmentRequestDetails(this.shipmentId);
-        this.order = shipmentTestingController.parseShipmentRequestDetail(result);
+        this.resultMap = shipmentTestingController.getShipmentRequestDetails(this.shipmentId);
+        this.order = shipmentTestingController.parseShipmentRequestDetail(this.resultMap);
 
-        assertEquals(200, result.getStatus().value(), "Failed to get order fulfillment requests.");
+        assertNotNull(result, "Failed to get order fulfillment requests.");
     }
 
     @Then("I am able to view the shipment fulfillment details.")
