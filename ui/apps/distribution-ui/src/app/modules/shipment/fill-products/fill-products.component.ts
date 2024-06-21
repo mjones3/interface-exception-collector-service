@@ -90,7 +90,7 @@ export class FillProductsComponent implements OnInit {
   getIcon(productFamily: string): string {
     return productFamily && this.processProductConfig?.properties[`icon.${productFamily}`]
       ? 'rsa:' + this.processProductConfig.properties[`icon.${productFamily}`]
-      : 'rsa:product-whole-blood';
+      : 'rsa:product-plasma';
   }
 
   private setProdInfo() {
