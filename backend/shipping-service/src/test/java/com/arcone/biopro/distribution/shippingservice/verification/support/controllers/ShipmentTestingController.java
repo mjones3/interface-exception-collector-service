@@ -37,7 +37,7 @@ public class ShipmentTestingController {
 
         utils.kafkaSender(objectMapper.writeValueAsString(shipmentDetail), Topics.ORDER_FULFILLED);
         // Add sleep to wait for the message to be consumed.
-        Thread.sleep(2000);
+        Thread.sleep(5000);
 
         log.info("Message sent to create the order: {}", shipmentDetail.getOrderNumber());
         return shipmentDetail.getOrderNumber();
