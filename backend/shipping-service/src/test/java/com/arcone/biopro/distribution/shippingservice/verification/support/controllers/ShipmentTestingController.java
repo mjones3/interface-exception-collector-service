@@ -37,7 +37,7 @@ public class ShipmentTestingController {
 
         utils.kafkaSender(objectMapper.writeValueAsString(shipmentDetail), Topics.ORDER_FULFILLED);
         // Add sleep to wait for the message to be consumed.
-        Thread.sleep(5000);
+        Thread.sleep(2000);
 
         log.info("Message sent to create the order: {}", shipmentDetail.getOrderNumber());
         return shipmentDetail.getOrderNumber();
@@ -64,8 +64,9 @@ public class ShipmentTestingController {
             var shipmentId = orderFilter.getId();
             log.info("Found Shipment by Order Number");
             return shipmentId;
+        } else{
+            throw new RuntimeException("Shipments not found.");
         }
-        return 0;
     }
 
     public List<ListShipmentsResponseType> listShipments() {
