@@ -78,4 +78,84 @@ public class GraphQLQueryMapper {
             }
             """, shipmentId);
     }
+
+    public static String listShipmentsQuery(){
+        return """
+            query listShipments {
+                listShipments {
+                  id
+                  orderNumber
+                  priority
+                  status
+                  status
+                  createDate
+                }
+              }
+        """;
+    }
+
+    public static String shipmentDetailsQuery(long shipmentId){
+        return String.format("""
+            query {
+                getShipmentDetailsById(shipmentId:%s) {
+                    id
+                orderNumber
+                priority
+                status
+                createDate
+                shippingCustomerCode
+                locationCode
+                deliveryType:
+                shippingMethod
+                productCategory
+                shippingDate
+                shippingCustomerName
+                customerPhoneNumber
+                customerAddressState
+                customerAddressPostalCode
+                customerAddressCountry
+                customerAddressCountryCode
+                customerAddressCity
+                customerAddressDistrict
+                customerAddressAddressLine1
+                customerAddressAddressLine2
+                completeDate
+                completedByEmployeeId
+                items {
+                    id
+                    shipmentId
+                    productFamily
+                    bloodType
+                    quantity
+                    comments
+                    shortDateProducts {
+                        id
+                        shipmentItemId
+                        unitNumber
+                        productCode
+                        storageLocation
+                        comments
+                        createDate
+                        modificationDate
+                    }
+                    packedItems {
+                        id
+                        shipmentItemId
+                        inventoryId
+                        unitNumber
+                        productCode
+                        aboRh
+                        productDescription
+                        productFamily
+                        expirationDate
+                        collectionDate
+                        packedByEmployeeId
+                        visualInspection
+                    }
+
+                 }
+                }
+            }
+            """, shipmentId);
+    }
 }

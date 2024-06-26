@@ -3,6 +3,7 @@ Feature: Print Shipping Label
 
     Background:
         Given I cleaned up from the database the packed item that used the unit number "W036898786810".
+        And I cleaned up from the database, all shipments with order number "456, 432".
 
     Rule: I should be able to view and print the shipping label in pdf format when the shipment is completed.
         Rule: I should be able to reprint the shipping label if needed.

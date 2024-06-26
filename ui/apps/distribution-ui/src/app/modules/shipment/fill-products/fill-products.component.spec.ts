@@ -82,7 +82,7 @@ describe('FillProductsComponent', () => {
     component.filledProductsData = [];
     spyOn(shipmentService, 'verifyShipmentProduct').and.returnValue(
       of({
-        body: {},
+        data: {},
       })
     );
     component.unitNumberProductCodeSelected(filledProduct);
@@ -92,11 +92,11 @@ describe('FillProductsComponent', () => {
   it('should fetch shipment details', () => {
     spyOn(shipmentService, 'getShipmentById').and.returnValue(
       of({
-        body: {},
+        data: {},
       })
     );
     component.fetchShipmentDetails();
-    expect(shipmentService.getShipmentById).toBeCalledWith('1');
+    expect(shipmentService.getShipmentById).toBeCalledWith('1', true);
   });
 
   it('should navigate back to shipment details page', () => {

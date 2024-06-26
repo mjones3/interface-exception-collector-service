@@ -26,7 +26,7 @@ export interface ShipmentInfoDto {
 }
 
 export interface ShipmentInfoItemDto {
-  id?: number;
+  id?: string;
   shipmentId?: number;
   productFamily?: string;
   bloodType?: string;

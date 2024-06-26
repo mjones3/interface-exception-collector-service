@@ -1,5 +1,8 @@
 Feature: Access Shipment Details Page
 
+    Background:
+        Given I cleaned up from the database, all shipments with order number "999996, 999997, 999998, 999999, 999990".
+
     Rule: I should be able to view order information, shipping information, and order criteria( Pick List)
         Scenario Outline: Selecting and accessing a shipment details
             Given The shipment details are order Number "<orderNumber>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>".

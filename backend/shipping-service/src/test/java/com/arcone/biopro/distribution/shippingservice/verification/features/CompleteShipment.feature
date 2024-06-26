@@ -3,6 +3,7 @@ Feature: Complete Shipment Feature
 
     Background:
         Given I cleaned up from the database the packed item that used the unit number "W036898786802".
+        And I cleaned up from the database, all shipments with order number "108".
 
     Rule: I should be able to complete a shipment whenever at least one product is filledRule: I should be able to view the list of packed products added once it is filled on the Shipment Fulfillment Details page.
         Rule: I should see a success message when the shipment is completed.

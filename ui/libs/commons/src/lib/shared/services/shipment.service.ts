@@ -1,11 +1,17 @@
 import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { ApolloQueryResult } from '@apollo/client';
+import { Apollo } from 'apollo-angular';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { COMPLETE_SHIPMENT, PACK_ITEM } from '../../schemas/graphql/shipment/mutation-definitions/shipment.graphql';
+import { GET_SHIPMENT_BY_ID, LIST_SHIPMENT } from '../../schemas/graphql/shipment/query-definitions/shipment.graphql';
 import {
   CurrentTimeDto,
   Description,
   LocationInventoryHistoryDto,
+  OrderSummaryDto,
+  PackingListLabelDTO,
   ReturnsDto,
   RuleResponseDto,
   ShipmentDto,
@@ -16,7 +22,6 @@ import {
 } from '../models';
 import { ExternalTransferDto } from '../models/external-transfer.dto';
 import { EnvironmentConfigService } from './environment-config.service';
-
 @Injectable({
   providedIn: 'root',
 })
@@ -29,7 +34,7 @@ export class ShipmentService {
   shipmentProductItemEndpoint: string;
   completeShipmentEndpoint: string;
 
-  constructor(private httpClient: HttpClient, private config: EnvironmentConfigService) {
+  constructor(private httpClient: HttpClient, private config: EnvironmentConfigService, private apollo: Apollo) {
     this.shipmentProductItemEndpoint = `${config.env.serverApiURL}/v1/shipments/pack-item`;
     this.shipmentEndpoint = `${config.env.serverApiURL}/v1/shipments`;
     this.transitTimeEndpoint = `${config.env.serverApiURL}/v1/transit-time/calculate`;
@@ -41,15 +46,28 @@ export class ShipmentService {
 
   //#region SHIPMENT
 
-  public completeShipment(inputs: any): Observable<HttpResponse<RuleResponseDto>> {
-    return this.httpClient
-      .post<RuleResponseDto>(this.completeShipmentEndpoint, inputs, { observe: 'response' })
+  public completeShipment(inputs: any, refetch: boolean = false) {
+    return this.apollo
+      .mutate({
+        mutation: COMPLETE_SHIPMENT,
+        variables: { shipmentId: inputs.shipmentId, employeeId: inputs.employeeId },
+      })
       .pipe(catchError(this.errorHandler));
   }
 
-  public verifyShipmentProduct(shipment: VerifyProductDto): Observable<HttpResponse<RuleResponseDto>> {
-    return this.httpClient
-      .post<RuleResponseDto>(this.shipmentProductItemEndpoint, shipment, { observe: 'response' })
+  public verifyShipmentProduct(shipment: VerifyProductDto) {
+    return this.apollo
+      .mutate({
+        mutation: PACK_ITEM,
+        variables: {
+          shipmentItemId: shipment.shipmentItemId,
+          locationCode: shipment.locationCode,
+          unitNumber: shipment.unitNumber,
+          employeeId: shipment.employeeId,
+          productCode: shipment.productCode,
+          visualInspection: shipment.visualInspection,
+        },
+      })
       .pipe(catchError(this.errorHandler));
   }
 
@@ -62,13 +80,15 @@ export class ShipmentService {
       .pipe(catchError(this.errorHandler));
   }
 
-  public getShipmentById(id: number): Observable<HttpResponse<ShipmentInfoDto>> {
-    return this.httpClient
-      .get<ShipmentInfoDto[]>(`${this.shipmentEndpoint}/${id}`, {
-        params: {},
-        observe: 'response',
-      })
-      .pipe(catchError(this.errorHandler));
+  public getShipmentById(
+    shipmentId: number,
+    refetch: boolean = false
+  ): Observable<ApolloQueryResult<{ getShipmentDetailsById: ShipmentInfoDto }>> {
+    return this.apollo.query<{ getShipmentDetailsById: ShipmentInfoDto }>({
+      query: GET_SHIPMENT_BY_ID,
+      variables: { shipmentId },
+      ...(refetch ? { fetchPolicy: 'network-only' } : {}),
+    });
   }
 
   //#region Descriptions
