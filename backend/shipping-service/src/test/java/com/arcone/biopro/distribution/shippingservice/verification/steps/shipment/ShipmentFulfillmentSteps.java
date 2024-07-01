@@ -2,8 +2,8 @@ package com.arcone.biopro.distribution.shippingservice.verification.steps.shipme
 
 import com.arcone.biopro.distribution.shippingservice.verification.pages.distribution.FillProductsPage;
 import com.arcone.biopro.distribution.shippingservice.verification.pages.distribution.ShipmentDetailPage;
-import com.arcone.biopro.distribution.shippingservice.verification.support.controllers.ShipmentTestingController;
 import com.arcone.biopro.distribution.shippingservice.verification.support.StaticValuesMapper;
+import com.arcone.biopro.distribution.shippingservice.verification.support.controllers.ShipmentTestingController;
 import com.arcone.biopro.distribution.shippingservice.verification.support.types.ListShipmentsResponseType;
 import com.arcone.biopro.distribution.shippingservice.verification.support.types.ShipmentRequestDetailsResponseType;
 import io.cucumber.java.en.And;
@@ -14,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.web.reactive.server.EntityExchangeResult;
 
 import java.util.List;
 import java.util.Map;
@@ -25,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 public class ShipmentFulfillmentSteps {
 
-    private List<ListShipmentsResponseType>  result;
+    private List<ListShipmentsResponseType> result;
 
     private Map resultMap;
 
@@ -223,4 +222,11 @@ public class ShipmentFulfillmentSteps {
     public void returnToShipmentDetails() {
         fillProductsPage.clickBackButton();
     }
+
+    @And("I should not see the unit {string} with product code {string} added to the filled products table.")
+    public void verifyProductNotAdded(String unitNumber, String productCode) throws InterruptedException {
+        fillProductsPage.ensureProductIsNotAdded(unitNumber, productCode);
+        log.info("stop");
+    }
 }
+
