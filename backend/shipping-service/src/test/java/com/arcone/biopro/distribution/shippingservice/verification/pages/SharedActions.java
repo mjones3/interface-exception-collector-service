@@ -55,6 +55,25 @@ public class SharedActions {
         }
     }
 
+    public void waitForNotVisible(By locator) {
+        try {
+            wait.until(e -> {
+                log.debug("Waiting for element {} to not be visible.", locator);
+                try {
+                    return !e.findElement(locator).isDisplayed();
+                } catch (NoSuchElementException ex) {
+                    // Element not found, consider it as not visible
+                    log.debug("Element {} not found, considering it as not visible.", locator);
+                    return true;
+                }
+            });
+            log.debug("Element {} is not visible now.", locator);
+        } catch (Exception e) {
+            log.error("Element {} is visible after the specified timeout.", locator);
+            throw e;
+        }
+    }
+
     public boolean isElementVisible(WebElement element) {
         return element.isDisplayed();
     }
@@ -103,5 +122,14 @@ public class SharedActions {
         String[] msgParts = msg.split("\n");
         Assert.assertEquals(header.toUpperCase(), msgParts[0].toUpperCase());
         Assert.assertEquals(message.toUpperCase(), msgParts[1].toUpperCase());
+    }
+
+    public void waitLoadingAnimation() throws InterruptedException {
+        String loadingAnimationLocator = "rsa.loading";
+        Thread.sleep(500);
+        wait.until(e -> {
+            log.debug("Waiting for loading animation to disappear.");
+            return e.findElements(By.cssSelector(loadingAnimationLocator)).isEmpty();
+        });
     }
 }

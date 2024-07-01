@@ -54,6 +54,19 @@ public class PrintPackingListSteps {
 
     private long orderNumber;
 
+    private void fillShipment(long shipmentId, String unitNumber, String productCode) throws Exception {
+        var shipmentDetails = shipmentController.parseShipmentRequestDetail(
+            shipmentTestingController.getShipmentRequestDetails(shipmentId));
+        Long shipmentItem;
+        shipmentItem = shipmentDetails.getItems().get(0).getId();
+
+        var response = apiHelper.graphQlRequest(GraphQLMutationMapper.packItemMutation(shipmentItem , facility
+            ,unitNumber , "test-emplyee-id", productCode , "SATISFACTORY" ),"packItem");
+        log.info("Shipment item successfully packed: {}", response);
+
+        Assert.assertEquals("200 OK",response.get("ruleCode"));
+    }
+
     @Given("The shipment details are Order Number {int}, Location Code {int}, Customer ID {int}, Customer Name {string}, Department {string}, Address Line 1 {string}, Address Line 2 {string}, Unit Number {string}, Product Code {string}, Product Family {string}, Blood Type {string}, Expiration {string}, Quantity {int}.")
     public void setShipmentDetails(int orderNumber, int locationCode, int customerID, String customerName, String department, String addressLine1, String addressLine2, String unitNumber, String productCode, String productFamily, String bloodType, String expiration, int quantity) {
         this.shipmentDetails = shipmentController.buildShipmentRequestDetailsResponseType(orderNumber, locationCode, customerID, customerName, department, addressLine1, addressLine2, unitNumber, productCode, productFamily, bloodType, expiration, quantity);
@@ -68,18 +81,16 @@ public class PrintPackingListSteps {
     }
 
     @And("I have filled the shipment with the unit number {string} and product code {string}.")
-    public void fillShipment(String unitNumber, String productCode) throws Exception {
+    public void fillShipmentStep(String unitNumber, String productCode) throws Exception {
         this.shipmentId = shipmentTestingController.getOrderShipmentId(this.orderNumber);
-        var shipmentDetails = shipmentController.parseShipmentRequestDetail(
-            shipmentTestingController.getShipmentRequestDetails(this.shipmentId));
-        Long shipmentItem;
-        shipmentItem = shipmentDetails.getItems().get(0).getId();
+        this.fillShipment(this.shipmentId, unitNumber, productCode);
+    }
 
-        var response = apiHelper.graphQlRequest(GraphQLMutationMapper.packItemMutation(shipmentItem , facility
-            ,unitNumber , "test-emplyee-id", productCode , "SATISFACTORY" ),"packItem");
-        log.info("Shipment item successfully packed: {}", response);
-
-        Assert.assertEquals("200 OK",response.get("ruleCode"));
+    @And("I have filled the shipment with the unit number {string} and product code {string} for order {string}.")
+    public void fillShipmentForOrder(String unitNumber, String productCode, String orderNumber) throws Exception {
+        this.orderNumber = Long.parseLong(orderNumber);
+        this.shipmentId = shipmentTestingController.getOrderShipmentId(this.orderNumber);
+        this.fillShipment(this.shipmentId, unitNumber, productCode);
     }
 
     @And("I have completed a shipment with above details.")

@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.shippingservice.verification.pages.distri
 import com.arcone.biopro.distribution.shippingservice.verification.pages.CommonPageFactory;
 import com.arcone.biopro.distribution.shippingservice.verification.pages.SharedActions;
 import lombok.extern.slf4j.Slf4j;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,10 +39,19 @@ public class FillProductsPage extends CommonPageFactory {
         return sharedActions.isElementVisible(fillProductsHeader);
     }
 
-    public void addUnitWithProductCode(String unit, String productCode) {
+    private String formatUnitLocator(String unit) {
+        return String.format("//p-table[@id='prodTableId']//td[normalize-space()='%s']", unit);
+    }
+
+    private String formatProductCodeLocator(String productCode) {
+        return String.format("//p-table[@id='prodTableId']//td[normalize-space()='%s']", productCode);
+    }
+
+    public void addUnitWithProductCode(String unit, String productCode) throws InterruptedException {
         log.info("Adding unit {} with product code {}.", unit, productCode);
         sharedActions.sendKeys(unitNumberInput, unit);
         sharedActions.sendKeys(productCodeInput, productCode);
+        sharedActions.waitLoadingAnimation();
     }
 
     public void defineVisualInspection(String visualInspection) {
@@ -53,15 +63,26 @@ public class FillProductsPage extends CommonPageFactory {
     public void ensureProductIsAdded(String unit, String productCode) {
         log.info("Ensuring product with unit {} and product code {} is added.", unit, productCode);
 
-        String unitLocator = String.format("//p-table[@id='prodTableId']//td[normalize-space()='%s']", unit);
-        String productCodeLocator = String.format("//p-table[@id='prodTableId']//td[normalize-space()='%s']", productCode);
+        String unitLocator = this.formatUnitLocator(unit);
+        String productCodeLocator = this.formatProductCodeLocator(productCode);
 
         sharedActions.locateXpathAndWaitForVisible(unitLocator, this.driver);
         sharedActions.locateXpathAndWaitForVisible(productCodeLocator, this.driver);
+    }
+
+    public void ensureProductIsNotAdded(String unit, String productCode) throws InterruptedException {
+        log.info("Ensuring product with unit {} and product code {} wasn't added.", unit, productCode);
+
+        String unitLocator = this.formatUnitLocator(unit);
+        String productCodeLocator = this.formatProductCodeLocator(productCode);
+        sharedActions.waitLoadingAnimation();
+        sharedActions.waitForNotVisible(By.xpath(unitLocator));
+        sharedActions.waitForNotVisible(By.xpath(productCodeLocator));
     }
 
     public void clickBackButton() {
         log.info("Clicking back button.");
         sharedActions.click(backButton);
     }
+
 }

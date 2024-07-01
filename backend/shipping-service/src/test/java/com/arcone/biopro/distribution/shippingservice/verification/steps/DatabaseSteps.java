@@ -22,6 +22,12 @@ public class DatabaseSteps {
 
     @And("I cleaned up from the database, all shipments with order number {string}.")
     public void cleanUpShipments(String orderNumber) {
+        var query0 = String.format("""
+            delete from bld_shipment_item_packed where shipment_item_id in (select shipment_item_id
+                                                                                          from bld_shipment_item where shipment_id in (select id from bld_shipment where order_number in (%s)));
+            """, orderNumber);
+        databaseService.executeSql(query0).block();
+
         var query1 = String.format("""
             delete from bld_shipment_item_short_date_product where shipment_item_id in (select shipment_item_id
                                                                                           from bld_shipment_item where shipment_id in (select id from bld_shipment where order_number in (%s)));
