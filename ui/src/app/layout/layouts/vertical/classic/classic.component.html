@@ -1,0 +1,98 @@
+<!-- Loading bar -->
+<fuse-loading-bar></fuse-loading-bar>
+
+<!-- Navigation -->
+<fuse-vertical-navigation
+    [mode]="isScreenSmall ? 'over' : 'side'"
+    [name]="'mainNavigation'"
+    [navigation]="navigation"
+    [opened]="!isScreenSmall"
+    #fuseVerticalNavigation="fuseVerticalNavigation"
+>
+    <!-- Navigation header hook -->
+    <ng-container fuseVerticalNavigationContentHeader>
+        <!-- Logo -->
+        <div class="flex h-20 items-center p-6 pb-0">
+            <img
+                class="mx-auto my-6 cursor-pointer"
+                style="width: 180px !important"
+                [routerLink]="'/home'"
+                src="images/logo/logo.png"
+                alt="Arc-One Logo"
+            />
+        </div>
+        <h5 class="module-title text-center uppercase">Distribution</h5>
+    </ng-container>
+</fuse-vertical-navigation>
+
+<!-- Wrapper -->
+<div class="wrapper">
+    <!-- Header -->
+    <div class="header">
+        <!-- Navigation toggle button -->
+        <button
+            id="navigationToggleButton"
+            class="navigation-toggle-button"
+            mat-icon-button
+            (click)="toggleNavigation('mainNavigation')"
+        >
+            <mat-icon [svgIcon]="'heroicons_outline:bars-3'"></mat-icon>
+        </button>
+
+        <!-- Top Bar Menu -->
+        <img
+            id="defaultLogo"
+            alt=""
+            style="width: 150px !important; margin-left: 10px"
+            [src]="defaultLogo"
+        />
+
+        <!-- Spacer -->
+        <div class="spacer"></div>
+
+        <!-- Location -->
+        <h4
+            class="mb-8 px-8 text-3xl font-bold text-gray-600"
+            [class.cursor-pointer]="isHomePage()"
+            [matTooltip]="getChangeFacilityTooltip()"
+        >
+            <span id="selectFacilityspan" (click)="changeFacility()">{{
+                (_facilityService.facility$ | async)?.name
+            }}</span>
+        </h4>
+    </div>
+
+    <!-- Content -->
+    <div class="content mb-6 pb-8">
+        <!-- *ngIf="true" hack is required here for router-outlet to work correctly.
+             Otherwise, layout changes won't be registered and the view won't be updated! -->
+        @if (true) {
+            <router-outlet></router-outlet>
+        }
+    </div>
+
+    <!-- Footer -->
+    <div class="footer flex justify-between mt-4 fixed bottom-0"
+    [ngStyle]="{ width: fuseVerticalNavigation.opened ? calcContentWidth : '100%' }"
+    >
+            <div id="copyright">
+                ARC-One Solutions &copy; {{ releaseNumber }}
+                <div
+                    matTooltip="Open Version Details"
+                    (click)="goToBuildDetails()" 
+                    style="cursor: pointer"
+                    *ngIf="processProductVersion"
+                >
+                    Build Version: {{ processProductVersion.buildVersion }}
+                </div>
+            </div>
+
+
+            <span style="color: red; padding: 40px">{{ investigationalDevice }}</span>
+    
+            <div
+                #footerDateTime
+                id="footer-date-time"
+            ></div>       
+    </div>
+</div>

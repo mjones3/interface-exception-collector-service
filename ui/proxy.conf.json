@@ -1,29 +1,29 @@
 [
-  {
-    "context": ["/v1"],
-    "target": "http://api.local.gd/v1",
-    "secure": true,
-    "changeOrigin": true,
-    "pathRewrite": {
-      "^/v1": ""
+    {
+        "context": ["/v1"],
+        "target": "http://api.local.gd/v1",
+        "secure": true,
+        "changeOrigin": true,
+        "pathRewrite": {
+            "^/v1": ""
+        }
+    },
+    {
+        "context": ["/request-token"],
+        "target": "http://api.local.gd/request-token",
+        "secure": true,
+        "changeOrigin": true,
+        "pathRewrite": {
+            "^/request-token": ""
+        }
+    },
+    {
+        "context": ["/graphql"],
+        "target": "http://api.local.gd/graphql",
+        "secure": true,
+        "changeOrigin": true,
+        "pathRewrite": {
+            "^/graphql": ""
+        }
     }
-  },
-  {
-    "context": ["/graphql"],
-    "target": "http://api.local.gd/graphql",
-    "secure": true,
-    "changeOrigin": true,
-    "pathRewrite": {
-      "^/graphql": ""
-    }
-  },
-  {
-    "context": ["/request-token"],
-    "target": "https://api.dev01.ao.arc-one.com/request-token",
-    "secure": true,
-    "changeOrigin": true,
-    "pathRewrite": {
-      "^/request-token": ""
-    }
-  }
 ]

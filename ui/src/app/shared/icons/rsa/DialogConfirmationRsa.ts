@@ -1,0 +1,8 @@
+// This icon file is generated automatically.
+import { IconDefinition } from "../type";
+
+export const DialogConfirmationRsa: IconDefinition = {
+    name: 'dialog-confirmation',
+    theme: 'rsa',
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd" image-rendering="optimizeQuality" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" viewBox="0 0 12.589 12.589"><rect width="12.589" height="12.589" fill="#F2F5F9" rx=".65" ry=".65"/><path fill="#A7C4D2" d="M6.019 10.146l1.861 2.439c1.291-.005 2.777-.021 4.067-.027.282.011.602-.257.613-.638l.029-3.207-4.146-5.134-.199 1.571L6.18 8.385l.66.747-.823.015.002.999z"/><path fill="#008AAD" fill-rule="nonzero" d="M6.179 8.387a11.934 11.934 0 01-.005-.263c0-.345.049-.642.147-.892a2 2 0 01.346-.571 6.63 6.63 0 01.631-.611c.305-.268.502-.481.593-.641a1.04 1.04 0 00.137-.525c0-.343-.133-.644-.4-.904a1.348 1.348 0 00-.979-.39c-.375 0-.686.118-.936.353-.252.237-.415.605-.493 1.106l-.899-.11c.081-.668.321-1.181.722-1.535.402-.355.931-.533 1.591-.533.698 0 1.254.189 1.67.571.415.381.623.843.623 1.384 0 .313-.073.601-.22.864-.146.265-.433.585-.859.963-.286.253-.473.44-.561.56a1.227 1.227 0 00-.195.414c-.042.155-.067.408-.073.76h-.84zm-.16 1.758v-.999h1v.999h-1z"/></svg>'
+};

@@ -1,9 +1,0 @@
-<treo-message
-  [type]="toastPackage?.toastType"
-  [appearance]="appearance"
-  [dismissed]="false"
-  (afterDismissed)="remove()"
->
-  <span treoMessageTitle *ngIf="title">{{ title | translate | uppercase }}</span>
-  {{ message | translate }}
-</treo-message>

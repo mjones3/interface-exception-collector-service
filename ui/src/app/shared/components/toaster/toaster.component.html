@@ -1,0 +1,11 @@
+<fuse-alert
+    [type]="toastPackage?.toastType"
+    [appearance]="appearance"
+    [dismissed]="false"
+    (afterDismissed)="remove()"
+>
+    <span fuseAlertTitle *ngIf="title">{{
+        title | translate | uppercase
+    }}</span>
+    {{ message | translate }}
+</fuse-alert>
