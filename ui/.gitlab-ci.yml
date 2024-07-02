@@ -1,4 +1,4 @@
-image: bitnami/node:14.21.0
+image: bitnami/node:16.20.2
 
 include:
   - project: 'arc-one/rsa/gitlab-templates'
@@ -106,30 +106,6 @@ sonarcloud-check:
     paths:
       - images
 
-manufacturing:build:
-  extends: .docker-build
-  variables:
-    APP_CONTAINER: manufacturing-ui
-  only:
-    - master
-    - tags
-
-donor:build:
-  extends: .docker-build
-  variables:
-    APP_CONTAINER: donor-ui
-  only:
-    - master
-    - tags
-
-admin:build:
-  extends: .docker-build
-  variables:
-    APP_CONTAINER: admin-ui
-  only:
-    - master
-    - tags
-
 distribution:build:
   extends: .docker-build
   variables:
@@ -138,54 +114,10 @@ distribution:build:
     - master
     - tags
 
-specialty-lab:build:
-  extends: .docker-build
-  variables:
-    APP_CONTAINER: specialty-lab-ui
-  only:
-    - master
-    - tags
-
-manufacturing:build-branch:
-  extends: .docker-build
-  variables:
-    APP_CONTAINER: manufacturing-ui
-  except:
-    - master
-    - tags
-  when: manual
-
-donor:build-branch:
-  extends: .docker-build
-  variables:
-    APP_CONTAINER: donor-ui
-  except:
-    - master
-    - tags
-  when: manual
-
-admin:build-branch:
-  extends: .docker-build
-  variables:
-    APP_CONTAINER: admin-ui
-  except:
-    - master
-    - tags
-  when: manual
-
 distribution:build-branch:
   extends: .docker-build
   variables:
     APP_CONTAINER: distribution-ui
-  except:
-    - master
-    - tags
-  when: manual
-
-specialty-lab:build-branch:
-  extends: .docker-build
-  variables:
-    APP_CONTAINER: specialty-lab-ui
   except:
     - master
     - tags
@@ -212,30 +144,6 @@ specialty-lab:build-branch:
     - docker push $DOCKER_NEXUS_REGISTRY/$APP_CONTAINER:$DOCKER_TAG
     - docker push $DOCKER_NEXUS_REGISTRY/$APP_CONTAINER:latest
 
-manufacturing:package:
-  extends: .docker-push
-  variables:
-    APP_CONTAINER: manufacturing-ui
-  only:
-    - master
-    - tags
-
-donor:package:
-  extends: .docker-push
-  variables:
-    APP_CONTAINER: donor-ui
-  only:
-    - master
-    - tags
-
-admin:package:
-  extends: .docker-push
-  variables:
-    APP_CONTAINER: admin-ui
-  only:
-    - master
-    - tags
-
 distribution:package:
   extends: .docker-push
   variables:
@@ -244,54 +152,10 @@ distribution:package:
     - master
     - tags
 
-specialty-lab:package:
-  extends: .docker-push
-  variables:
-    APP_CONTAINER: specialty-lab-ui
-  only:
-    - master
-    - tags
-
-manufacturing:package-branch:
-  extends: .docker-push
-  variables:
-    APP_CONTAINER: manufacturing-ui
-  except:
-    - master
-    - tags
-  when: manual
-
-donor:package-branch:
-  extends: .docker-push
-  variables:
-    APP_CONTAINER: donor-ui
-  except:
-    - master
-    - tags
-  when: manual
-
-admin:package-branch:
-  extends: .docker-push
-  variables:
-    APP_CONTAINER: admin-ui
-  except:
-    - master
-    - tags
-  when: manual
-
 distribution:package-branch:
   extends: .docker-push
   variables:
     APP_CONTAINER: distribution-ui
-  except:
-    - master
-    - tags
-  when: manual
-
-specialty-lab:package-branch:
-  extends: .docker-push
-  variables:
-    APP_CONTAINER: specialty-lab-ui
   except:
     - master
     - tags
@@ -332,45 +196,6 @@ specialty-lab:package-branch:
       ${RELEASE_NAME}
       "charts/${CHART}/";
 
-manufacturing:development:
-  extends: .kubernetes-deploy
-  variables:
-    CHART: manufacturing-ui
-    NAMESPACE: ui
-  environment:
-    name: development
-    url: https://manufacturing.dev.ao.arc-one.com
-    kubernetes:
-      namespace: ui
-  only:
-    - master
-
-donor:development:
-  extends: .kubernetes-deploy
-  variables:
-    CHART: donor-ui
-    NAMESPACE: ui
-  environment:
-    name: development
-    url: https://donor.dev.ao.arc-one.com
-    kubernetes:
-      namespace: ui
-  only:
-    - master
-
-admin:development:
-  extends: .kubernetes-deploy
-  variables:
-    CHART: admin-ui
-    NAMESPACE: ui
-  environment:
-    name: development
-    url: https://admin.dev.ao.arc-one.com
-    kubernetes:
-      namespace: ui
-  only:
-    - master
-
 distribution:development:
   extends: .kubernetes-deploy
   variables:
@@ -384,44 +209,9 @@ distribution:development:
   only:
     - master
 
-specialty-lab:development:
-  extends: .kubernetes-deploy
-  variables:
-    CHART: specialty-lab-ui
-    NAMESPACE: ui
-  environment:
-    name: development
-    url: https://specialty-lab.dev.ao.arc-one.com
-    kubernetes:
-      namespace: ui
-  only:
-    - master
-
 #############################
 # Stage Deployment
 #############################
-
-admin:deploy-stage:
-  stage: deploy
-  image: $DOCKER_NEXUS_REGISTRY/api
-  cache: []
-  dependencies: []
-  script:
-    - api deploy --namespace ui --api-name admin-ui
-    - echo 'Update versioning enabled? ' $ENABLE_API_VERSIONING
-    - |
-      if [ $ENABLE_API_VERSIONING == true ]; then
-      echo 'updating version number'
-      apt-get update
-      apt-get -y install postgresql-client
-      psql -c "CALL PROCESS.UPDATE_ALL_MODULE_BUILD_NUMBER('Auto generating build number (admin ui)')" $DB_CONNECTION_STRING_PIPELINE_VERSIONING
-      fi
-  when: manual
-  environment:
-    name: stage
-  only:
-    - master
-    - tags
 
 distribution:deploy-stage:
   stage: deploy
@@ -437,72 +227,6 @@ distribution:deploy-stage:
       apt-get update
       apt-get -y install postgresql-client
       psql -c "CALL PROCESS.UPDATE_ALL_MODULE_BUILD_NUMBER('Auto generating build number (distribution ui)')" $DB_CONNECTION_STRING_PIPELINE_VERSIONING
-      fi
-  when: manual
-  environment:
-    name: stage
-  only:
-    - master
-    - tags
-
-donor:deploy-stage:
-  stage: deploy
-  image: $DOCKER_NEXUS_REGISTRY/api
-  cache: []
-  dependencies: []
-  script:
-    - api deploy --namespace ui --api-name donor-ui
-    - echo 'Update versioning enabled? ' $ENABLE_API_VERSIONING
-    - |
-      if [ $ENABLE_API_VERSIONING == true ]; then
-      echo 'updating version number'
-      apt-get update
-      apt-get -y install postgresql-client
-      psql -c "CALL PROCESS.UPDATE_ALL_MODULE_BUILD_NUMBER('Auto generating build number (donor ui)')" $DB_CONNECTION_STRING_PIPELINE_VERSIONING
-      fi
-  when: manual
-  environment:
-    name: stage
-  only:
-    - master
-    - tags
-
-manufacturing:deploy-stage:
-  stage: deploy
-  image: $DOCKER_NEXUS_REGISTRY/api
-  cache: []
-  dependencies: []
-  script:
-    - api deploy --namespace ui --api-name manufacturing-ui
-    - echo 'Update versioning enabled? ' $ENABLE_API_VERSIONING
-    - |
-      if [ $ENABLE_API_VERSIONING == true ]; then
-      echo 'updating version number'
-      apt-get update
-      apt-get -y install postgresql-client
-      psql -c "CALL PROCESS.UPDATE_ALL_MODULE_BUILD_NUMBER('Auto generating build number (manufacturing ui)')" $DB_CONNECTION_STRING_PIPELINE_VERSIONING
-      fi
-  when: manual
-  environment:
-    name: stage
-  only:
-    - master
-    - tags
-
-specialty-lab:deploy-stage:
-  stage: deploy
-  image: $DOCKER_NEXUS_REGISTRY/api
-  cache: []
-  dependencies: []
-  script:
-    - api deploy --namespace ui --api-name specialty-lab-ui
-    - echo 'Update versioning enabled? ' $ENABLE_API_VERSIONING
-    - |
-      if [ $ENABLE_API_VERSIONING == true ]; then
-      echo 'updating version number'
-      apt-get update
-      apt-get -y install postgresql-client
-      psql -c "CALL PROCESS.UPDATE_ALL_MODULE_BUILD_NUMBER('Auto generating build number (specialty-lab ui)')" $DB_CONNECTION_STRING_PIPELINE_VERSIONING
       fi
   when: manual
   environment:

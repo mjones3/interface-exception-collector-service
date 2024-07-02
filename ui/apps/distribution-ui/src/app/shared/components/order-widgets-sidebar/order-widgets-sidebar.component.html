@@ -9,6 +9,7 @@
     <ng-template #orderInfoTpl>
       <div class="flex flex-col">
         <rsa-description-card
+          id="orderInfoDescriptions"
           [descriptions]="orderInfoDescriptions"
           [showColon]="true"
           [embedded]="true"
@@ -17,7 +18,7 @@
           [labelClasses]="'align-card-info'"
         ></rsa-description-card>
         <mat-accordion>
-          <mat-expansion-panel>
+          <mat-expansion-panel [disabled]="!order?.comments && !comments">
             <mat-expansion-panel-header>
               <mat-panel-title class="font-bold"> {{ 'comments.label' | translate }}:</mat-panel-title>
             </mat-expansion-panel-header>
@@ -38,6 +39,7 @@
     <ng-template #shipInfoTpl>
       <div class="flex flex-col">
         <rsa-description-card
+          id="shippingInfoDescriptions"
           [descriptions]="shippingInfoDescriptions"
           [showColon]="true"
           [embedded]="true"

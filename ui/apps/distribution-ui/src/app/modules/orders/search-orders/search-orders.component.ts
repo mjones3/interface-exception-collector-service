@@ -72,8 +72,8 @@ export class SearchOrdersComponent implements OnInit {
   };
   columns: Column[] = [
     {
-      field: 'externalId',
-      header: 'external-order-id.label',
+      field: 'id',
+      header: 'shipment-id.label',
       sortable: true,
       default: true,
     },
@@ -96,24 +96,6 @@ export class SearchOrdersComponent implements OnInit {
       hidden: true,
     },
     {
-      field: 'shippingCustomerName',
-      header: 'ship-to-customer-name.label',
-      sortable: true,
-      default: true,
-    },
-    {
-      field: 'billingCustomerExternalId',
-      header: 'bill-to-customer-id.label',
-      sortable: true,
-      hidden: true,
-    },
-    {
-      field: 'billingCustomerName',
-      header: 'bill-to-customer-name.label',
-      sortable: true,
-      default: true,
-    },
-    {
       field: 'createDate',
       header: 'create-date.label',
       templateRef: 'dateTpl',
@@ -128,18 +110,24 @@ export class SearchOrdersComponent implements OnInit {
       hidden: true,
     },
     {
-      field: 'deliveryTypeDescriptionKey',
+      field: 'priority',
       header: 'priority.label',
       sortable: true,
       sortFieldName: 'priority',
       default: true,
     },
     {
-      field: 'statusDescriptionKey',
+      field: 'status',
       header: 'status.label',
-      templateRef: 'statusTpl',
       sortable: true,
-      sortFieldName: 'statusOptionValue',
+      sortFieldName: 'status',
+      default: true,
+    },
+    {
+      field: 'createDate',
+      header: 'create-date.label',
+      sortable: true,
+      sortFieldName: 'createDate',
       default: true,
     },
     {
@@ -237,19 +225,14 @@ export class SearchOrdersComponent implements OnInit {
     }
 
     this.orderService
-      .getOrdersSummaryByCriteria({
-        ...this.filters,
-        page: event.first / event.rows,
-        size: event.rows,
-        sort: `${event.sortField ?? this.defaultSortField},${event.sortOrder === 1 ? 'ASC' : 'DESC'}`,
-      })
+      .getOrdersSummaryByCriteria({}, true)
       .pipe(finalize(() => (this.loading = false)))
       .subscribe(
         response => {
-          if (response.body?.length) {
+          if (response.data.listShipments) {
             this.orderTable.sortField = event.sortField ?? this.defaultSortField;
             this.orders =
-              response.body?.map(order => {
+              response.data?.listShipments?.map(order => {
                 const orderSummary: OrderSummary = {
                   ...order,
                   deliveryTypeDescriptionKey:
@@ -260,7 +243,7 @@ export class SearchOrdersComponent implements OnInit {
                 };
                 return orderSummary;
               }) ?? [];
-            this.totalRecords = Number(response.headers.get('x-total-count'));
+            this.totalRecords = Number(0);
           } else {
             this.toaster.error('no-results-found.label');
           }
@@ -272,8 +255,9 @@ export class SearchOrdersComponent implements OnInit {
       );
   }
 
-  details(order: OrderSummary) {
-    this.router.navigateByUrl(`/orders/${order.id}/details`);
+  // TO BE FIXED WHEN WORKING ON SEARCH ORDER
+  details(shipment: OrderSummary) {
+    this.router.navigateByUrl(`/shipment/${shipment.id}/shipment-details`);
   }
 
   expandAll() {

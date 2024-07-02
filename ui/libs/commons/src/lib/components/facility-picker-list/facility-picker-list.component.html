@@ -27,7 +27,11 @@
         [treoScrollbarOptions]="{ wheelPropagation: false, suppressScrollX: true }"
       >
         <mat-selection-list [id]="'filteredList'" [multiple]="false" class="p-0 border-t">
-          <mat-list-option *ngFor="let item of filteredList" (click)="selectValue(item)">
+          <mat-list-option
+            *ngFor="let item of filteredList; let i = index"
+            [id]="'facilityPickerOption' + i"
+            (click)="selectValue(item)"
+          >
             <span class="pl-4 text-2xl"
               >{{ optionsLabel ? (item[optionsLabel] | translate | uppercase) : (item | translate | uppercase) }}
             </span>

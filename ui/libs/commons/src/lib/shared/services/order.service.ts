@@ -1,8 +1,12 @@
 import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { ApolloQueryResult } from '@apollo/client';
+import { Apollo } from 'apollo-angular';
 import * as moment from 'moment';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { GENERATE_PACKING_LIST_LABEL } from '../../schemas/graphql/packing-list/query-defintions/packing-list.graphql';
+import { LIST_SHIPMENT } from '../../schemas/graphql/shipment/query-definitions/shipment.graphql';
 import {
   CustomerDto,
   Description,
@@ -17,6 +21,7 @@ import {
   OrderProductFamilyDto,
   OrderServiceFeeDto,
   OrderSummaryDto,
+  PackingListLabelDTO,
 } from '../models';
 import { EnvironmentConfigService } from './environment-config.service';
 
@@ -33,10 +38,11 @@ export class OrderService {
   orderItemEndpoint: string;
   orderItemInventoryEndpoint: string;
   orderItemInventoryPendingToShipEndpoint: string;
+  apolloClient: Apollo;
 
-  constructor(private httpClient: HttpClient, private config: EnvironmentConfigService) {
+  constructor(private httpClient: HttpClient, private config: EnvironmentConfigService, private apollo: Apollo) {
     this.orderEndpoint = config.env.serverApiURL + '/v1/orders';
-    this.orderSummaryEndpoint = config.env.serverApiURL + '/v1/orders-summary';
+    this.orderSummaryEndpoint = config.env.serverApiURL + '/v1/shipments';
     this.nextOrderNumberEndpoint = config.env.serverApiURL + '/v1/orders/next-order-number';
     this.orderBloodTypeEndpoint = config.env.serverApiURL + '/v1/order-blood-types';
     this.orderProductAttributesEndpoint = config.env.serverApiURL + '/v1/order-product-attributes';
@@ -45,6 +51,7 @@ export class OrderService {
     this.orderItemInventoryEndpoint = config.env.serverApiURL + '/v1/order-item-inventories';
     this.orderItemInventoryPendingToShipEndpoint =
       config.env.serverApiURL + '/v1/order-item-inventories/pending-to-be-shipped';
+    this.apolloClient = apollo;
   }
 
   //#region Descriptions
@@ -69,7 +76,7 @@ export class OrderService {
         label: 'status.label',
         value: this.getLookUpDescriptionKey(order?.statusKey, statuses),
       },
-      { label: 'external-order-id.label', value: order?.externalId || 'N/A' },
+      { label: 'shipment-id.label', value: order?.externalId || 'N/A' },
       { label: 'labeling-product-category.label', value: labelingProductCategory },
       ...(order.shipmentType === 'INTERNAL' ? [{ label: 'label-status.label', value: order.labelStatus }] : []),
     ];
@@ -118,10 +125,14 @@ export class OrderService {
 
   //#endregion
 
-  public getOrdersSummaryByCriteria(criteria?: {}): Observable<HttpResponse<OrderSummaryDto[]>> {
-    return this.httpClient
-      .get<OrderSummaryDto[]>(this.orderSummaryEndpoint, { params: { ...criteria }, observe: 'response' })
-      .pipe(catchError(this.errorHandler));
+  public getOrdersSummaryByCriteria(
+    criteria?: {},
+    refetch: boolean = false
+  ): Observable<ApolloQueryResult<{ listShipments: OrderSummaryDto[] }>> {
+    return this.apolloClient.query<{ listShipments: OrderSummaryDto[] }>({
+      query: LIST_SHIPMENT,
+      ...(refetch ? { fetchPolicy: 'network-only' } : {}),
+    });
   }
 
   public getOrderById(id: number): Observable<HttpResponse<OrderDto>> {

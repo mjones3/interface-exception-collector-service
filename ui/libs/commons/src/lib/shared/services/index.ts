@@ -137,3 +137,4 @@ export * from './volume-type.service';
 export * from './volume.service';
 export * from './wafer-lot-number.service';
 export * from './work-stations.service';
+export * from './packing-list.service';

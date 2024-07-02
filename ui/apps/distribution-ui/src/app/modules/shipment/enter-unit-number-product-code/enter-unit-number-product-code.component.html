@@ -1,0 +1,60 @@
+<div id="fillProductForm" class="flex flex-col" [formGroup]="productGroup">
+  <div class="flex flex-row space-x-4 px-8 pt-4">
+    <div class="flex flex-col space-y-1 w-full">
+      <mat-label class="block font-bold">{{ 'unit-number.label' | translate }}</mat-label>
+      <rsa-scan-unit-number-check-digit
+        id="scanOrEnterUnitNumberId"
+        [disableCheckDigit]="disableCheckDigit"
+        (validate)="verifyUnit($event)"
+        [showKeyboard]="false"
+        [labelTitle]="''"
+        [inputFocus]="unitNumberFocus"
+        #unitnumber
+      >
+      </rsa-scan-unit-number-check-digit>
+    </div>
+
+    <div class="flex flex-col space-y-1 w-full">
+      <mat-label class="block font-bold">{{ 'product-code.label' | translate }}</mat-label>
+      <div class="flex flex-col mt-0 flex-auto">
+        <mat-form-field appearance="fill" class="block w-full" rsaControlErrorContainer>
+          <input
+            id="productCodeId"
+            matInput
+            formControlName="productCode"
+            autocomplete="off"
+            validateOn="touchedState"
+            rsaBarcode
+            [placeholder]="'scan-or-enter-product-code.label' | translate"
+            [customErrors]="{
+              invalidProductCode: 'product-code.label' | validation: validationType.INVALID,
+              required: 'product-code.label' | validation: validationType.REQUIRED
+            }"
+          />
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="flex flex-col space-y-1 w-full">
+      <label class="block font-bold">{{ 'visual-inspection.label' | translate }}</label>
+      <div class="flex flex-col mb-4">
+        <mat-radio-group
+          id="visualInspectionId"
+          required
+          class="flex pt-2"
+          formControlName="visualInspection"
+          ngDefaultControl
+          [disabled]="!enableVisualInspection"
+          (change)="onSelectVisualInspection()"
+        >
+          <mat-radio-button id="inspection-satisfactory" class="mr-4" [value]="'satisfactory'">{{
+            'satisfactory.label' | translate
+          }}</mat-radio-button>
+          <mat-radio-button id="inspection-unsatisfactory" [value]="'unsatisfactory'">{{
+            'unsatisfactory.label' | translate
+          }}</mat-radio-button>
+        </mat-radio-group>
+      </div>
+    </div>
+  </div>
+</div>

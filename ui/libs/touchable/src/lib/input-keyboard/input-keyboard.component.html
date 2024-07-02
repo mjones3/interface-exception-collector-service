@@ -26,12 +26,16 @@
                 [autocomplete]="allowAutocomplete"
                 [tabindex]="tabindex"
                 [allowedCharsRegex]="regex"
+                [class]="{ 'input-uppercase': upperCase }"
                 [customErrors]="customErrors"
                 [attr.maxLength]="maxLength ? maxLength : null"
                 [(rsaAutoFocusIf)]="inputFocus"
+                [required]="required"
                 (keydown.Tab)="onTabEnterPressed()"
                 (keydown.Enter)="onEnter($event)"
+                (keyup)="onKeyUp($event)"
                 (blur)="onBlur()"
+                #inputField
               />
 
               <!-- Text Area -->
@@ -45,10 +49,12 @@
                 [placeholder]="placeholder | translate"
                 [tabindex]="tabindex"
                 [customErrors]="customErrors"
+                [class]="{ 'input-uppercase': upperCase }"
                 [(rsaAutoFocusIf)]="inputFocus"
                 (keydown.Tab)="onTabEnterPressed()"
                 (keydown.Enter)="onEnter($event)"
                 (blur)="onBlur()"
+                #inputField
               ></textarea>
               <ng-template [ngTemplateOutlet]="suffixTemplateRef"></ng-template>
               <mat-icon *ngIf="iconName" matSuffix [svgIcon]="iconName"></mat-icon>

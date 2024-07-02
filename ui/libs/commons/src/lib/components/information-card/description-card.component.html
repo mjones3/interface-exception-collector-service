@@ -19,7 +19,10 @@
             *ngFor="let description of descriptionGroup; let i = index"
           >
             <div class="flex flex-row items-center">
-              <span class="font-bold mb-1 text-left mr-4 mb-0" [ngClass]="labelClasses"
+              <span
+                id="informationDetails-{{ description.label | translate }}"
+                class="font-bold mb-1 text-left mr-4 mb-0"
+                [ngClass]="labelClasses"
                 >{{ description.label | translate }}<span *ngIf="showColon">: </span></span
               >
               <span
