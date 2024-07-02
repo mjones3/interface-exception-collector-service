@@ -1,5 +1,5 @@
 # Builder
-FROM registry.gitlab.com/arc-one/infrastructure/build/docker_images/java_maven:21.0.2.3.9.7 AS builder
+FROM artifactory.sha.ao.arc-one.com/docker/system/build-cicd/java_maven:21.0.2.3.9.7 AS builder
 
 WORKDIR /app
 
@@ -16,7 +16,7 @@ RUN mvn install -DskipTests && \
     (cd target/dependency; jar -xf ../*.jar)
 
 # Runner
-FROM docker.io/eclipse-temurin:21-jre-alpine AS runner
+FROM artifactory.sha.ao.arc-one.com/docker/system/build-cicd/java_maven:21-jre-alpine AS runner
 
 WORKDIR /app
 
