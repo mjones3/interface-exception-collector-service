@@ -10,13 +10,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.test.web.reactive.server.EntityExchangeResult;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 @Component
@@ -32,12 +31,15 @@ public class ShipmentTestingController {
     @Autowired
     ObjectMapper objectMapper;
 
+    @Value("${kafka.waiting.time}")
+    private long kafkaWaitingTime;
+
 
     public long createShippingRequest(ShipmentRequestDetailsResponseType shipmentDetail) throws Exception {
 
         utils.kafkaSender(objectMapper.writeValueAsString(shipmentDetail), Topics.ORDER_FULFILLED);
         // Add sleep to wait for the message to be consumed.
-        Thread.sleep(2000);
+        Thread.sleep(kafkaWaitingTime);
 
         log.info("Message sent to create the order: {}", shipmentDetail.getOrderNumber());
         return shipmentDetail.getOrderNumber();
@@ -56,7 +58,7 @@ public class ShipmentTestingController {
         return orderId;
     }
 
-    public long getOrderShipmentId(long orderId) throws Exception {
+    public long getOrderShipmentId(long orderId) {
         var orders = this.listShipments();
         // Find the last order in the list with the same order number.
         var orderFilter = orders.stream().filter(x -> x.getOrderNumber().equals(orderId)).reduce((first, second) -> second).orElse(null);
@@ -93,7 +95,7 @@ public class ShipmentTestingController {
         return apiHelper.graphQlRequest(GraphQLQueryMapper.shipmentDetailsQuery(shipmentId),"getShipmentDetailsById");
     }
 
-    public ShipmentRequestDetailsResponseType parseShipmentRequestDetail(Map result) throws Exception {
+    public ShipmentRequestDetailsResponseType parseShipmentRequestDetail(Map result) {
         log.debug("Order details: {}", result);
 
         List<ShipmentFulfillmentRequest> lineItems = new ArrayList<>();

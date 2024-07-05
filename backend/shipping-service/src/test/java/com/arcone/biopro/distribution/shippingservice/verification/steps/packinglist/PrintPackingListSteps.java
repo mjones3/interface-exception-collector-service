@@ -2,7 +2,6 @@ package com.arcone.biopro.distribution.shippingservice.verification.steps.packin
 
 import com.arcone.biopro.distribution.shippingservice.verification.pages.distribution.ShipmentDetailPage;
 import com.arcone.biopro.distribution.shippingservice.verification.support.ApiHelper;
-import com.arcone.biopro.distribution.shippingservice.verification.support.Endpoints;
 import com.arcone.biopro.distribution.shippingservice.verification.support.GraphQLMutationMapper;
 import com.arcone.biopro.distribution.shippingservice.verification.support.ScreenshotService;
 import com.arcone.biopro.distribution.shippingservice.verification.support.controllers.ShipmentTestingController;
@@ -50,6 +49,9 @@ public class PrintPackingListSteps {
     @Value("${default.ui.facility}")
     private String facility;
 
+    @Value("${kafka.waiting.time}")
+    private long kafkaWaitingTime;
+
     private long shipmentId;
 
     private long orderNumber;
@@ -58,13 +60,14 @@ public class PrintPackingListSteps {
         var shipmentDetails = shipmentController.parseShipmentRequestDetail(
             shipmentTestingController.getShipmentRequestDetails(shipmentId));
         Long shipmentItem;
-        shipmentItem = shipmentDetails.getItems().get(0).getId();
+        shipmentItem = shipmentDetails.getItems().getFirst().getId();
 
         var response = apiHelper.graphQlRequest(GraphQLMutationMapper.packItemMutation(shipmentItem , facility
             ,unitNumber , "test-emplyee-id", productCode , "SATISFACTORY" ),"packItem");
         log.info("Shipment item successfully packed: {}", response);
 
         Assert.assertEquals("200 OK",response.get("ruleCode"));
+        Thread.sleep(kafkaWaitingTime);
     }
 
     @Given("The shipment details are Order Number {int}, Location Code {int}, Customer ID {int}, Customer Name {string}, Department {string}, Address Line 1 {string}, Address Line 2 {string}, Unit Number {string}, Product Code {string}, Product Family {string}, Blood Type {string}, Expiration {string}, Quantity {int}.")
