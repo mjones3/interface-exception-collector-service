@@ -1,14 +1,16 @@
 Feature: Shipment fulfillment request
 
     Rule: I should be able to receive the shipment fulfillment request.
-        Rule: I should be able to persist the shipment fulfilled request on the local store.
+    Rule: I should be able to persist the shipment fulfilled request on the local store.
+        @api
         Scenario: Receive shipment fulfillment request
             Given I have no shipment fulfillment requests.
             When I receive a shipment fulfillment request event.
             Then The shipment request will be available in the Distribution local data store and I can fill the shipment.
 
     Rule: I should be able to list the pending shipment fulfillment request.
-        Rule: I should be able to view the shipment fulfillment details.
+    Rule: I should be able to view the shipment fulfillment details.
+        @api
         Scenario Outline: View shipment's fulfillment details
             Given I have a shipment request persisted.
             When I retrieve the shipment list.
@@ -26,14 +28,16 @@ Feature: Shipment fulfillment request
                 | O          | 8        |
 
     Rule: I should be able to receive the shipment fulfillment request with short date product details.
-        Rule: I should be able to persist with the short date shipment fulfilled request on the local store.
+    Rule: I should be able to persist with the short date shipment fulfilled request on the local store.
+        @api
         Scenario: Receive shipment fulfillment request
             Given I have no shipment fulfillment requests.
             When I receive a shipment fulfillment request event.
             Then The shipment request will be available in the Distribution local data store and I can fill the shipment.
 
     Rule: I should be able to list the pending shipment fulfillment request.
-        Rule: I should be able to view the shipment fulfillment details with short date products.
+    Rule: I should be able to view the shipment fulfillment details with short date products.
+        @api
         Scenario Outline: View shipment's fulfillment details
             Given I have a shipment request persisted.
             When I retrieve the shipment list.

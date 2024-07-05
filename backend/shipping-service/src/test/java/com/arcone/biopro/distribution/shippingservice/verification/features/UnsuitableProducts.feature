@@ -3,8 +3,9 @@ Feature: Prevent filling a shipment with unsuitable products
 
     Background:
         Given I cleaned up from the database, all shipments with order number "999771, 999778, 999764".
+        And I cleaned up from the database the packed item that used the unit number "W036898786808, W036898786756, W036898786763".
 
-
+    @ui
     Scenario Outline: Entering an unsuitable product
         Given The shipment details are order Number "<orderNumber>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>".
         And I have received a shipment fulfillment request with above details.
@@ -20,6 +21,7 @@ Feature: Prevent filling a shipment with unsuitable products
             | W036898786756    | E0701V00   | Satisfactory | This product is expired and cannot be shipped.              | 999771      | 999991      | Tampa         | 10,5,23  | AP,AN,OP  | Transfusable Plasma,Transfusable Plasma,Transfusable Plasma |
             | =W03689878676300 | =<E0703V00 | Satisfactory | This product is not in the inventory and cannot be shipped. | 999778      | 999998      | Tampa         | 10,5,23  | AP,AN,OP  | Transfusable Plasma,Transfusable Plasma,Transfusable Plasma |
 
+    @ui
     Scenario Outline: Filling a product which is already filled in another shipment
         Given The shipment details are order Number "<orderNumber>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>".
         And I have received a shipment fulfillment request with above details.
@@ -31,4 +33,4 @@ Feature: Prevent filling a shipment with unsuitable products
         Then I should see a "Error" message: "<Message>".
         Examples:
             | UN            | Code     | Inspection   | Message                | orderNumber | Customer ID | Customer Name | Quantity | BloodType | ProductFamily                                               |
-            | W036898786810 | E4697V00 | Satisfactory | Product Already packed | 999764      | 999991      | Tampa         | 10,5,23  | AP,AN,OP  | Transfusable Plasma,Transfusable Plasma,Transfusable Plasma |
+            | W036898786808 | E4689V00 | Satisfactory | Product Already packed | 999764      | 999991      | Tampa         | 10,5,23  | AP,AN,OP  | Transfusable Plasma,Transfusable Plasma,Transfusable Plasma |
