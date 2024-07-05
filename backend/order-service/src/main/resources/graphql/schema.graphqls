@@ -1,0 +1,18 @@
+scalar DateTime
+@specifiedBy(url: "https://scalars.graphql.org/andimarek/date-time.html")
+
+type Mutation {
+    createOrderService(dto: OrderServiceRequestDTO!): OrderServiceResponseDTO!
+}
+
+type Query {
+    orderServiceList: [OrderServiceResponseDTO]!
+}
+
+input OrderServiceRequestDTO {
+    id: ID!   # Add fields here
+}
+
+type OrderServiceResponseDTO {
+    id: ID!
+}
