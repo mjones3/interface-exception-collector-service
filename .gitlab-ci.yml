@@ -12,3 +12,13 @@ include:
     file: spec.backend.pipeline.yml
     inputs: 
       service: shipping-service
+  - project: arc-one/infrastructure/gitlab-ci
+    ref: main
+    file: spec.backend.pipeline.yml
+    inputs:
+      service: order-service
+  - project: arc-one/infrastructure/gitlab-ci
+    ref: main
+    file: spec.backend.pipeline.yml
+    inputs:
+      service: partner-order-provider-service
