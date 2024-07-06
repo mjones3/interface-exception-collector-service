@@ -5,10 +5,10 @@ import { LuxonDateAdapter } from '@angular/material-luxon-adapter';
 import { DateAdapter, MAT_DATE_FORMATS } from '@angular/material/core';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import {
-  PreloadAllModules,
-  provideRouter,
-  withInMemoryScrolling,
-  withPreloading,
+    PreloadAllModules,
+    provideRouter,
+    withInMemoryScrolling,
+    withPreloading,
 } from '@angular/router';
 import { provideFuse } from '@fuse';
 import { provideTransloco } from '@ngneat/transloco';
@@ -16,6 +16,7 @@ import { provideEffects } from '@ngrx/effects';
 import { provideStore } from '@ngrx/store';
 import { appRoutes } from 'app/app.routes';
 import { provideIcons } from 'app/core/icons/icons.provider';
+import { provideToastr } from 'ngx-toastr';
 import { provideCore } from './core/core.provider';
 import { TranslocoHttpLoader } from './core/transloco/transloco.http-loader';
 import { mockApiServices } from './mock-api';
@@ -75,6 +76,7 @@ export const appConfig: ApplicationConfig = {
             loader: TranslocoHttpLoader,
         }),
         provideCore(),
+        provideToastr(),
 
         // Pipes
         DatePipe,

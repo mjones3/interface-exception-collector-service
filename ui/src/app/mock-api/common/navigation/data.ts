@@ -80,7 +80,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                 title: 'Order Fulfillment',
                 type: 'basic',
                 icon: 'search',
-                link: '/feature',
+                link: 'orders/search',
             }
         ],
     },

@@ -4,8 +4,8 @@
     [dismissed]="false"
     (afterDismissed)="remove()"
 >
-    <span fuseAlertTitle *ngIf="title">{{
-        title | translate | uppercase
-    }}</span>
-    {{ message | translate }}
+  @if(title){
+    <span fuseAlertTitle>{{ title | uppercase }}</span>
+  }  
+    {{ message  }}
 </fuse-alert>

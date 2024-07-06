@@ -67,3 +67,19 @@ export const getTextWidth = (text, font) => {
 };
 
 export const isInputElement = el => /^(?:input|select|textarea)$/i.test(el.nodeName);
+
+/**
+ * Interpolation Messages Utils
+ */
+const interpolationRegex = /<%=[^<]+%>/g;
+export const interpolate = (template, variables, fallback = '') => {
+  return template.replace(interpolationRegex, (match: string) => {
+    const path = match.slice(3, -2).trim();
+    return getObjPath(path, variables, fallback);
+  });
+};
+
+//Get the specified property or nested property of an object
+function getObjPath(path, obj, fallback = '') {
+    return path.split('.').reduce((res, key) => res[key] || fallback, obj);
+  }

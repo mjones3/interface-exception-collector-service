@@ -7,7 +7,7 @@ export const ReWeighRsa: IconDefinition = {
     icon: '<svg xmlns="http://www.w3.org/2000/svg" width="45" height="45.003" viewBox="0 0 45 45.003">\n' +
       '  <g id="Icon_Group" data-name="Icon Group" transform="translate(1998 -1924)">\n' +
       '    <g id="Box" transform="translate(-1998 1924)">\n' +
-      '      <rect id="Background" width="45" height="45" rx="2.556" fill="#008aad"/>\n' +
+      '      <rect id="Background" width="45" height="45" rx="2.556" fill="#a4a900"/>\n' +
       '      <path id="Shadow" d="M1558.262,214.773l17.055,13.176,3.705.005c1.606,0,3.752,0,6.172,0,1.735,0,3.746,0,5.185-.008a2.3,2.3,0,0,0,2.185-2.275V204.54l-7.44-5.331-3.4-3.172-.292,2.625-5.034.261v2.386l5.326.5V215.2l-23.462-.424Z" transform="translate(-1547.666 -182.955)" fill="#006c87" fill-rule="evenodd"/>\n' +
       '    </g>\n' +
       '    <g id="Icon" transform="translate(180.188 40.999)">\n' +

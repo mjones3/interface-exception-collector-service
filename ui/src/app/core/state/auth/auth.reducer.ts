@@ -1,6 +1,5 @@
 import { Action, createReducer, on } from '@ngrx/store';
 import * as AuthActions from './auth.actions';
-import Keycloak from 'keycloak-js';
 
 export const AUTH_FEATURE_KEY = 'auth';
 

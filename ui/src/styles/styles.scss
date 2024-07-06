@@ -134,15 +134,18 @@ rsa-process-header {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
+                flex-direction: column;
 
                 h1 {
-                    font-weight: 600;
-                    color: #565c66;
+                    color: map-get($primary, DEFAULT);
+                    font-size: 24px;
+                    letter-spacing: -0.019em;
                 }
 
                 h3 {
-                    font-weight: 600;
-                    color: #9b9b9b;
+                    padding-left: 0 !important;
+                    font-size: 32px;
+                    letter-spacing: -0.022em;
                 }
             }
         }
@@ -162,7 +165,7 @@ button {
     &.action-button {
         &.primary {
             background-color: map-get($primary, DEFAULT) !important;
-            color: white;
+            color: red;
         }
     }
 }

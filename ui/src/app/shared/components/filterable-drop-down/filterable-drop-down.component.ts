@@ -115,7 +115,6 @@ export class FilterableDropDownComponent implements OnInit, AfterViewInit {
     }
 
     filterList(): void {
-        console.log('this.filterForm ===', this.filterForm.value)
         this.filteredList = this.options.filter((item) => {
             const itemToFilter = this.optionsLabel
                 ? item[this.optionsLabel]

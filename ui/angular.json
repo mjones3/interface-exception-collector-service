@@ -56,7 +56,9 @@
                             "src/styles/vendors.scss",
                             "src/@fuse/styles/main.scss",
                             "src/styles/styles.scss",
-                            "src/styles/tailwind.scss"
+                            "src/styles/tailwind.scss",
+                            "node_modules/ngx-toastr/toastr.css",
+                            "src/@fuse/styles/overrides/angular-material.scss"
                         ],
                         "scripts": []
                     },

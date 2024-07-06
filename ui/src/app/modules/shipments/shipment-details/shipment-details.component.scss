@@ -1,0 +1,21 @@
+:host {
+  ::ng-deep {
+    .p-buttonset .p-button {
+      width: 100px;
+    }
+
+    .mat-mdc-progress-bar {
+      border-radius: 2px;
+
+      .mdc-linear-progress__buffer {
+        background-color:#f4e2e2;
+      }
+    }
+
+   
+
+    // .gt-xs\:min-w-44 {
+    //   min-width: 11rem !important;
+    // }
+  }
+}

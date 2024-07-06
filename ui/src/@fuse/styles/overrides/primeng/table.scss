@@ -1,0 +1,106 @@
+@import '../fuse';
+
+.p-datatable .p-datatable-thead {
+  height: 50px !important;
+
+  & > tr {
+    & > th {
+      text-align: left;
+      padding: 1rem 1rem;
+      border-width: 0 0 1px 0;
+      color: #495057;
+      background: #faf9f8;
+      transition: box-shadow 0.2s;
+
+      &.p-sortable-column.p-highlight {
+        color: #495057;
+        background: #f8f9fa;
+      }
+    }
+  }
+}
+
+.p-datatable {
+  .p-datatable-wrapper {
+    overflow-x: auto !important;
+
+    &::-webkit-scrollbar {
+      width: 12px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: white;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: #dbdada;
+      border-radius: 20px;
+      border: 3px solid white;
+    }
+  }
+
+  table {
+    table-layout: auto !important;
+
+    thead {
+      th {
+        white-space: nowrap !important;
+      }
+    }
+
+    tbody {
+      td {
+        white-space: nowrap !important;
+      }
+    }
+  }
+}
+
+.p-datatable .p-datatable-tfoot > tr {
+  & > td {
+    text-align: left;
+    color: #495057;
+    background: #f8f9fa;
+    transition: box-shadow 0.2s;
+  }
+}
+
+.p-datatable .p-datatable-tbody > tr {
+  height: 32px;
+}
+
+@include fuse-theme {
+  $primary: map-get($theme, primary);
+  $warn: map-get($theme, warn);
+
+  div.p-column-filter-buttonbar button.p-button:not(.p-button-outlined) {
+    background: map-get($primary, default);
+  }
+
+  div.p-column-filter-add-rule .p-column-filter-add-button.p-button.p-button-text {
+    background-color: transparent;
+    color: map-get($primary, default);
+    border-color: transparent;
+  }
+
+  .p-paginator {
+    .p-dropdown {
+      height: 2.25rem;
+
+      .p-inputtext {
+        height: 100%;
+      }
+    }
+
+    .p-paginator-pages .p-paginator-page {
+      height: 2.15rem;
+      min-width: 2.15rem;
+
+      &.p-highlight {
+        background: map-get($primary, 50);
+      }
+    }
+
+    padding: 0.25rem 1rem;
+  }
+}

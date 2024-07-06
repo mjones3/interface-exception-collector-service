@@ -3,6 +3,6 @@
     "clientId": "distribution-resource",
     "environment": "${ENVIRONMENT}",
     "url": "https://id.local.gd/v1/auth",
-    "realm": "rsa",
+    "realm": "biopro",
     "uuid": "3638168f-f78e-4541-8055-af8fdb6f9623"
   }  
