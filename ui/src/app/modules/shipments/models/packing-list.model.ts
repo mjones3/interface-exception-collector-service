@@ -1,6 +1,6 @@
-import { ShipFromDTO, ShipToDTO } from "./ship.model"
+import { ShipFromDTO, ShipToDTO } from './ship.model';
 
-export type ShipmentItemPackedDTO = {
+export interface ShipmentItemPackedDTO {
   shipmentItemId: number,
   inventoryId: number,
   unitNumber: string,
@@ -12,7 +12,7 @@ export type ShipmentItemPackedDTO = {
   collectionDate: string,
 }
 
-export type PackingListLabelDTO = {
+export interface PackingListLabelDTO {
   shipmentId: number,
   orderNumber: number,
   orderIdBase64Barcode: string,

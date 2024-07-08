@@ -1,4 +1,4 @@
-export type ShipToDTO = {
+export interface ShipToDTO {
   customerCode: number,
   customerName: string,
   department: string,
@@ -8,7 +8,7 @@ export type ShipToDTO = {
   phoneNumber: string,
 }
 
-export type ShipFromDTO = {
+export interface ShipFromDTO {
   bloodCenterCode: string,
   bloodCenterName: string,
   bloodCenterBase64Barcode: string,

@@ -35,7 +35,7 @@ export const DEFAULT_PAGE_SIZE: keyof typeof PageSize = 'A4 portrait';
 export const DEFAULT_PAGE_SIZE_DIALOG_WIDTH = '210mm';
 export const DEFAULT_PAGE_SIZE_DIALOG_HEIGHT = 'calc(100vh - 2rem)';
 
-export type BrowserPrintingModel = {
+export interface BrowserPrintingModel {
   printTitle: string;
   useExistingCss: boolean;
   bodyClass: string;
@@ -43,5 +43,5 @@ export type BrowserPrintingModel = {
   previewOnly: boolean;
   closeWindow: boolean;
   printDelay: number;
-  pagesize: keyof typeof PageSize | string
-};
+  pageSize: keyof typeof PageSize | string
+}

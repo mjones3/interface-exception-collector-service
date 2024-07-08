@@ -1,0 +1,239 @@
+<div class="modal-body-width">
+  <div id="viewPackingListReport" class="py-0 px-5">
+    @if (model$ | async; as packingList) {
+    <div class="text-gray-700 flex flex-col gap-4" style="font-family: serif;">
+      <table id="pageHeader" class="table-fixed border-separate w-full">
+        <tbody>
+          <tr>
+            <td class="text-4xl font-bold border-b border-black text-center">Packing List</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <table id="packingSlipTable" class="table-fixed border-separate w-full">
+        <thead>
+        <tr class="bg-gray-200">
+          <th class="border-b-2 border-gray-400" data-testid="header-order-number-barcode">Order Number</th>
+          <th class="border-b-2 border-gray-400" data-testid="header-date-and-time-packed">Date & Time Packed</th>
+          <th class="border-b-2 border-gray-400" data-testid="header-shipment-id-barcode">Shipment ID Barcode</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr>
+          <td data-testid="order-number-barcode" class="text-center align-top">
+            @if (packingList?.orderIdBase64Barcode) {
+            <img
+              [alt]="packingList?.orderNumber"
+              [src]="getBase64DataImage(packingList?.orderIdBase64Barcode)"
+              class="p-2"
+              style="display: inline-block; aspect-ratio: auto; width: 1.25in;"
+            />
+            }
+          </td>
+          <td data-testid="date-and-time-packed" class="text-center align-top">
+            {{ packingList?.dateTimePacked | date: 'MM-dd-yyyy hh:mm:ss aaa' }}
+            {{ localTimezone }}
+          </td>
+          <td data-testid="shipment-id-barcode" class="text-center align-top">
+            @if (packingList?.shipmentIdBase64Barcode) {
+            <img
+              [alt]="packingList?.shipmentId"
+              [src]="getBase64DataImage(packingList?.shipmentIdBase64Barcode)"
+              class="p-2"
+              style="display: inline-block; aspect-ratio: auto; width: 1.25in;"
+            />
+            }
+          </td>
+        </tr>
+        </tbody>
+      </table>
+
+      <table id="shipFromShipToTable" class="table-fixed border-separate w-full">
+        <thead>
+        <tr class="bg-gray-200">
+          <th class="border-b-2 border-gray-400" data-testid="header-ship-from">Ship From</th>
+          <th class="border-b-2 border-gray-400" data-testid="header-ship-to">Ship To</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr>
+          <td data-testid="ship-from" class="text-left align-top">
+            <span class="block">
+              <span data-testid="ship-from-blood-center-facility-code-key" class="font-bold">Blood Center Facility Code:&nbsp;</span>
+              <span data-testid="ship-from-blood-center-facility-code-value">{{ packingList?.shipFrom?.bloodCenterCode }}</span>
+            </span>
+            <span class="block">
+              <span data-testid="ship-from-blood-center-name-key" class="font-bold">Blood Center Name:&nbsp;</span>
+              <span data-testid="ship-from-blood-center-name-value">{{ packingList?.shipFrom?.bloodCenterName }}</span>
+            </span>
+            <span class="block">
+              <span data-testid="ship-from-address-line-1-key" class="font-bold">Address Line 1:&nbsp;</span>
+              <span data-testid="ship-from-address-line-1-value">{{ packingList?.shipFrom?.bloodCenterAddressLine1 }}</span>
+            </span>
+            <span class="block">
+              <span data-testid="ship-from-address-line-2-key" class="font-bold">Address Line 2:&nbsp;</span>
+              <span data-testid="ship-from-address-line-2-value">{{ packingList?.shipFrom?.bloodCenterAddressLine2 }}</span>
+            </span>
+            <span class="block">
+              <span data-testid="ship-from-address-complement-key" class="font-bold">City, State, Zip Code:&nbsp;</span>
+              <span data-testid="ship-from-address-complement-value">{{ packingList?.shipFrom?.bloodCenterAddressComplement }}</span>
+            </span>
+          </td>
+          <td data-testid="ship-to" class="text-left align-top">
+            <span class="block">
+              <span data-testid="ship-to-customer-id-key" class="font-bold">Customer ID:&nbsp;</span>
+              <span data-testid="ship-to-customer-id-value">{{ packingList?.shipTo?.customerCode }}</span>
+            </span>
+            <span class="block">
+              <span data-testid="ship-to-customer-name-key" class="font-bold">Customer Name:&nbsp;</span>
+              <span data-testid="ship-to-customer-name-value">{{ packingList?.shipTo?.customerName }}</span>
+            </span>
+            <span class="block">
+              <span data-testid="ship-to-department-key" class="font-bold">Department:&nbsp;</span>
+              <span data-testid="ship-to-department-value">{{ packingList?.shipTo?.department }}</span>
+            </span>
+            <span class="block">
+              <span data-testid="ship-to-address-line-1-key" class="font-bold">Address Line 1:&nbsp;</span>
+              <span data-testid="ship-to-address-line-1-value">{{ packingList?.shipTo?.addressLine1 }}</span>
+            </span>
+            <span class="block">
+              <span data-testid="ship-to-address-line-2-key" class="font-bold">Address Line 2:&nbsp;</span>
+              <span data-testid="ship-to-address-line-2-value">{{ packingList?.shipTo?.addressLine2 }}</span>
+            </span>
+            <span class="block">
+              <span data-testid="ship-to-address-complement-key" class="font-bold">City, State, Zip Code:&nbsp;</span>
+              <span data-testid="ship-to-address-complement-value">{{ packingList?.shipTo?.addressComplement }}</span>
+            </span>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+
+      <table id="billedToTable" class="table-fixed border-separate w-full">
+        <thead>
+        <tr class="bg-gray-200">
+          <th colspan="3" class="border-b-2 border-gray-400" data-testid="header-billed-to">Billed To</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr>
+          <td colspan="3" data-testid="billed-to">
+            <span data-testid="billed-to-key" class="font-bold">Billed To:&nbsp;</span>
+            <span data-testid="billed-to-value">{{ packingList?.shipTo?.customerName }}</span>
+          </td>
+        </tr>
+        <tr>
+          <td data-testid="purchase-order-number">
+            <span data-testid="purchase-order-number-key" class="font-bold">Purchase Order Number:&nbsp;</span>
+            <span data-testid="purchase-order-number-value">{{ packingList?.orderNumber }}</span>
+          </td>
+          <td data-testid="entered-by">
+            <span data-testid="entered-by-key" class="font-bold">Entered By:&nbsp;</span>
+            <span data-testid="entered-by-value">{{ packingList?.enteredBy }}</span>
+          </td>
+          <td data-testid="shipment-packed-by">
+            <span data-testid="shipment-packed-by-key" class="font-bold">Shipment Packed By:&nbsp;</span>
+            <span data-testid="shipment-packed-by-value">{{ packingList?.packedBy }}</span>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+
+      <table id="bloodProductSummaryTable" class="table-fixed border-separate w-full">
+        <thead>
+        <tr class="bg-gray-200">
+          <th colspan="6" class="border-b-2 border-gray-400" data-testid="header-blood-product-summary">Blood Product Summary</th>
+        </tr>
+        <tr class="bg-gray-200">
+          <th class="border-b-2 border-gray-400" data-testid="header-unit-number">Unit Number</th>
+          <th class="border-b-2 border-gray-400" data-testid="header-product-code">Product Code</th>
+          <th class="border-b-2 border-gray-400" data-testid="header-product-family">Product Family</th>
+          <th class="border-b-2 border-gray-400" data-testid="header-product-attributes">Product Attributes</th>
+          <th class="border-b-2 border-gray-400" data-testid="header-blood-type">Blood Type</th>
+          <th class="border-b-2 border-gray-400" data-testid="header-expiration">Expiration</th>
+        </tr>
+        </thead>
+
+        @for (packedItem of packingList?.packedItems; track $index) {
+        <tbody>
+        <tr>
+          <td class="text-center" data-testid="unit-number">{{ packedItem?.unitNumber }}</td>
+          <td class="text-center" data-testid="product-code">{{ packedItem?.productCode }}</td>
+          <td class="text-center" data-testid="product-family">{{ packedItem?.productFamily }}</td>
+          <td class="text-center" data-testid="product-attributes"><!-- For now, this field is EMPTY --></td>
+          <td class="text-center" data-testid="blood-type">{{ packedItem?.aboRh }}</td>
+          <td class="text-center" data-testid="expiration">{{ packedItem?.expirationDate | date: 'MM-dd-yyyy' }}</td>
+        </tr>
+        </tbody>
+        }
+
+        <tbody>
+        <tr>
+          <td colspan="6">
+            <span data-testid="quantity-key" class="font-bold">Quantity:&nbsp;</span>
+            <span data-testid="quantity-value">{{ getPackedItemsQuantity(packingList) }}</span>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="6">
+            <span data-testid="distribution-comments-key" class="font-bold">Distribution Comments:&nbsp;</span>
+            <span data-testid="distribution-comments-value">{{ packingList?.distributionComments }}</span>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="6">
+            <span data-testid="inspection-statement-key" class="font-bold">Inspection Statement:&nbsp;</span>
+            <span data-testid="inspection-statement-value">All products in this shipment have been inspected and found to be suitable for distribution.</span>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+
+      <table id="serviceFeesTable" class="table-fixed border-separate w-full">
+        <thead>
+        <tr class="bg-gray-200">
+          <th colspan="3" class="border-b-2 border-gray-400" data-testid="header-service-fees">Service Fees</th>
+        </tr>
+        <tr class="bg-gray-200">
+          <th class="border-b-2 border-gray-400" data-testid="header-service-fees-code">Service Fees Code</th>
+          <th class="border-b-2 border-gray-400" data-testid="header-service-fees-description">Service Fees Description</th>
+          <th class="border-b-2 border-gray-400" data-testid="header-service-fees-quantity">Service Fees Quantity</th>
+        </tr>
+        </thead>
+
+        <!-- For now, no TBODY here -->
+      </table>
+
+      <table id="deliveryTable" class="table-fixed border-separate w-full">
+        <thead>
+        <tr class="bg-gray-200">
+          <th class="border-b-2 border-gray-400" data-testid="header-delivery">Delivery</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr>
+          <td>Above Units Inspected and Appear Suitable for Use:</td>
+        </tr>
+        <tr>
+          <td>Temperature on Arrival:</td>
+        </tr>
+        <tr>
+          <td>Received By:</td>
+        </tr>
+        <tr>
+          <td>Date:</td>
+        </tr>
+        <tr>
+          <td>Time:</td>
+        </tr>
+        </tbody>
+      </table>
+
+    </div>
+    }
+  </div>
+</div>

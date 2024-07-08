@@ -2,13 +2,13 @@ import { Injectable } from '@angular/core';
 import { Apollo } from 'apollo-angular';
 import { Observable } from 'rxjs';
 import { ApolloQueryResult } from '@apollo/client';
-import { PackingListLabelDTO } from '../models/packing-list.model';
-import { GENERATE_PACKING_LIST_LABEL } from '../graphql/query-defintions/packing-list.graphql';
+import { ShippingLabelDTO } from '../models/shipping-label.model';
+import { GENERATE_SHIPPING_LABEL } from '../graphql/query-defintions/shipping-label.graphql';
 
 @Injectable({
   providedIn: 'root',
 })
-export class PackingListService {
+export class ShippingLabelService {
 
   constructor(
     private apollo: Apollo
@@ -17,10 +17,10 @@ export class PackingListService {
   public generate(
       shipmentId: number,
       refetch = false,
-  ): Observable<ApolloQueryResult<{ generatePackingListLabel: PackingListLabelDTO }>> {
+  ): Observable<ApolloQueryResult<{ generateShippingLabel: ShippingLabelDTO }>> {
     return this.apollo
-      .query<{ generatePackingListLabel: PackingListLabelDTO }>({
-        query: GENERATE_PACKING_LIST_LABEL,
+      .query<{ generateShippingLabel: ShippingLabelDTO }>({
+        query: GENERATE_SHIPPING_LABEL,
         variables: { shipmentId },
         ...(refetch ? { fetchPolicy: 'network-only' } : {}),
       });

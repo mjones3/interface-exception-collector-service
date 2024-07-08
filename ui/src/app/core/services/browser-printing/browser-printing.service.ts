@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
-import { BrowserPrintingModel } from '../browser-printing.model';
+import { BrowserPrintingModel } from './browser-printing.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class BrowserPrintingService {
 
-  /**
+    /**
    * Updates the default values for input elements.
    *
    * @param {HTMLCollectionOf<HTMLInputElement>} elements - Collection of input elements.
@@ -183,7 +183,7 @@ export class BrowserPrintingService {
             -webkit-print-color-adjust: exact !important;
           }
           @page {
-            size: ${printOptions.pagesize};
+            size: ${printOptions.pageSize};
           }
           </style>
         </head>

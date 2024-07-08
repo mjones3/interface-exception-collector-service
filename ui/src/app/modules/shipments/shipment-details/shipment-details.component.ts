@@ -1,8 +1,8 @@
 import { AsyncPipe, CommonModule, formatDate } from '@angular/common';
 import { HttpResponse } from '@angular/common/http';
-import { Component, Inject, LOCALE_ID } from '@angular/core';
+import { Component, Inject, LOCALE_ID, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -16,20 +16,36 @@ import { ValidationType } from 'app/shared/pipes/validation.pipe';
 import { ProcessHeaderService } from 'app/shared/services/process-header.service';
 import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { TableModule } from 'primeng/table';
-import { FilledProductInfoDto, ShipmentCompleteInfoDto, ShipmentInfoDto, ShipmentInfoItemDto } from '../models/shipment-info.dto';
-import { BrowserPrintingService } from '../services/browser-printing.service';
+import {
+    FilledProductInfoDto,
+    ShipmentCompleteInfoDto,
+    ShipmentInfoDto,
+    ShipmentInfoItemDto,
+} from '../models/shipment-info.dto';
 import { PackingListService } from '../services/packing-list.service';
 import { ShipmentService } from '../services/shipment.service';
 import { OrderWidgetsSidebarComponent } from '../shared/order-widgets-sidebar/order-widgets-sidebar.component';
+import { BrowserPrintingService } from '../../../core/services/browser-printing/browser-printing.service';
+import { ViewPickListComponent } from '../view-pick-list/view-pick-list.component';
+import {
+    DEFAULT_PAGE_SIZE,
+    DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
+    DEFAULT_PAGE_SIZE_DIALOG_WIDTH,
+} from '../../../core/services/browser-printing/browser-printing.model';
+import { of, switchMap } from 'rxjs';
+import { ViewPackingListComponent } from '../view-packing-list/view-packing-list.component';
+import { catchError } from 'rxjs/operators';
+import { ViewShippingLabelComponent } from '../view-shipping-label/view-shipping-label.component';
+import { ShippingLabelService } from '../services/shipping-label.service';
 
 @Component({
   selector: 'app-shipment-details',
   standalone: true,
   imports: [
-    CommonModule, 
-    TableModule, 
-    MatDividerModule, 
-    FuseCardComponent, 
+    CommonModule,
+    TableModule,
+    MatDividerModule,
+    FuseCardComponent,
     AsyncPipe,
     ProcessHeaderComponent,
     ToastrModule,
@@ -41,7 +57,7 @@ import { OrderWidgetsSidebarComponent } from '../shared/order-widgets-sidebar/or
   templateUrl: './shipment-details.component.html',
   styleUrl: './shipment-details.component.scss'
 })
-export class ShipmentDetailsComponent {
+export class ShipmentDetailsComponent implements OnInit {
 
   constructor(
     private _router: Router,
@@ -52,7 +68,8 @@ export class ShipmentDetailsComponent {
     private packingListService: PackingListService,
     private matDialog: MatDialog,
     private store: Store,
-    private browserPrintService: BrowserPrintingService,
+    private shippingLabelService: ShippingLabelService,
+    private browserPrintingService: BrowserPrintingService,
     @Inject(LOCALE_ID) public locale: string
   ) {
     // store
@@ -61,9 +78,7 @@ export class ShipmentDetailsComponent {
     //   .subscribe(auth => {
     //     this.loggedUserId = auth['id'];
     //   });
-
   }
-
 
   expandedRows = {};
   orderInfoDescriptions: Description[] = [];
@@ -107,8 +122,6 @@ export class ShipmentDetailsComponent {
     this.fetchShipmentDetails();
   }
 
-
-  
   fetchShipmentDetails(): void {
     this.shipmentService.getShipmentById(this.shipmentId, true).subscribe(result => {
       this.shipmentInfo = result.data?.getShipmentDetailsById;
@@ -121,8 +134,8 @@ export class ShipmentDetailsComponent {
     });
   }
 
-  private convertItemToProduct(item: ShipmentInfoItemDto) {
-    return <ShipmentInfoItemDto>{
+  private convertItemToProduct(item: ShipmentInfoItemDto): ShipmentInfoItemDto {
+    return {
       id: item.id,
       quantity: item.quantity,
       comments: item.comments,
@@ -167,8 +180,6 @@ export class ShipmentDetailsComponent {
       : 'rsa:product-plasma';
   }
 
-
-  
   backToSearch(): void {
     this._router.navigateByUrl('/orders/search');
   }
@@ -176,5 +187,80 @@ export class ShipmentDetailsComponent {
   // customSort(event: SortEvent) {
   //   this.sortService.customSort(event);
   // }
+
+  viewPickList(): void {
+    const dialogRef = this.matDialog.open(ViewPickListComponent, {
+      id: 'ViewPickListDialog',
+      width: DEFAULT_PAGE_SIZE_DIALOG_WIDTH,
+      height: DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
+    });
+    dialogRef.componentInstance.model$ = of(this.shipmentInfo);
+  }
+
+  viewPackingList(print?: boolean): void {
+    let dialogRef: MatDialogRef<ViewPackingListComponent>;
+    this.packingListService
+      .generate(this.shipmentInfo.id)
+      .pipe(
+        switchMap(response => {
+          const packingListLabel = response?.data?.generatePackingListLabel;
+          dialogRef = this.matDialog.open(ViewPackingListComponent, {
+            id: 'ViewPackingListDialog',
+            ...(print
+              ? {
+                hasBackdrop: false,
+                panelClass: 'hidden',
+              }
+              : {
+                width: DEFAULT_PAGE_SIZE_DIALOG_WIDTH,
+                height: DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
+              }),
+          });
+          dialogRef.componentInstance.model$ = of(packingListLabel);
+          return dialogRef.afterOpened();
+        }),
+        catchError(err => {
+          this.toaster.error('something-went-wrong.label');
+          throw err;
+        })
+      )
+      .subscribe(() => {
+        this.browserPrintingService.print('viewPackingListReport', { pageSize: DEFAULT_PAGE_SIZE });
+        dialogRef?.close();
+      });
+  }
+
+  viewShippingLabel(print?: boolean): void {
+    let dialogRef: MatDialogRef<ViewShippingLabelComponent>;
+    this.shippingLabelService
+      .generate(this.shipmentInfo.id)
+      .pipe(
+        switchMap(response => {
+          const packingListLabel = response?.data?.generateShippingLabel;
+          dialogRef = this.matDialog.open(ViewShippingLabelComponent, {
+            id: 'ViewShippingLabelDialog',
+            ...(print
+              ? {
+                hasBackdrop: false,
+                panelClass: 'hidden',
+              }
+              : {
+                width: DEFAULT_PAGE_SIZE_DIALOG_WIDTH,
+                height: DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
+              }),
+          });
+          dialogRef.componentInstance.model$ = of(packingListLabel);
+          return dialogRef.afterOpened();
+        }),
+        catchError(err => {
+          this.toaster.error('something-went-wrong.label');
+          throw err;
+        })
+      )
+      .subscribe(() => {
+        this.browserPrintingService.print('viewShippingLabelReport', { pageSize: DEFAULT_PAGE_SIZE });
+        dialogRef?.close();
+      });
+  }
 
 }

@@ -1,6 +1,6 @@
 import { gql } from 'apollo-angular';
 
-const GENERATE_SHIPPING_LABEL = gql`
+export const GENERATE_SHIPPING_LABEL = gql`
     query GenerateShippingLabel($shipmentId: ID!) {
         generateShippingLabel(shipmentId: $shipmentId) {
             shipmentId
@@ -29,5 +29,3 @@ const GENERATE_SHIPPING_LABEL = gql`
         }
     }
 `;
-
-export { GENERATE_SHIPPING_LABEL };
