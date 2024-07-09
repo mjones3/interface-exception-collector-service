@@ -52,42 +52,42 @@ public class CustomerSteps {
         customer.addresses().stream()
             .filter(a -> a.addressType().equals(addressType))
             .findFirst()
-                .ifPresent(Assert::assertNotNull);
+            .ifPresent(Assert::assertNotNull);
     }
 
     @And("The attributes {string} are not empty.")
     public void checkCustomerAttributes(String attributes) {
         Arrays.stream(attributes.split(",")).map(String::trim).forEach
-        (attribute -> {
-            switch (attribute) {
-                case "externalId":
-                    Assert.assertNotNull(customer.externalId());
-                    break;
-                case "name":
-                    Assert.assertNotNull(customer.name());
-                    break;
-                case "code":
-                    Assert.assertNotNull(customer.code());
-                    break;
-                case "departmentCode":
-                    Assert.assertNotNull(customer.departmentCode());
-                    break;
-                case "departmentName":
-                    Assert.assertNotNull(customer.departmentName());
-                    break;
-                case "phoneNumber":
-                    Assert.assertNotNull(customer.phoneNumber());
-                    break;
-                case "active":
-                    Assert.assertNotNull(customer.active());
-                    break;
-                case "addresses":
-                    Assert.assertNotNull(customer.addresses());
-                    break;
-                default:
-                    Assert.fail("Attribute not found: " + attribute);
-            }
-        });
+            (attribute -> {
+                switch (attribute) {
+                    case "externalId":
+                        Assert.assertNotNull(customer.externalId());
+                        break;
+                    case "name":
+                        Assert.assertNotNull(customer.name());
+                        break;
+                    case "code":
+                        Assert.assertNotNull(customer.code());
+                        break;
+                    case "departmentCode":
+                        Assert.assertNotNull(customer.departmentCode());
+                        break;
+                    case "departmentName":
+                        Assert.assertNotNull(customer.departmentName());
+                        break;
+                    case "phoneNumber":
+                        Assert.assertNotNull(customer.phoneNumber());
+                        break;
+                    case "active":
+                        Assert.assertNotNull(customer.active());
+                        break;
+                    case "addresses":
+                        Assert.assertNotNull(customer.addresses());
+                        break;
+                    default:
+                        Assert.fail("Attribute not found: " + attribute);
+                }
+            });
     }
 
     @Then("I should see a message {string}.")
