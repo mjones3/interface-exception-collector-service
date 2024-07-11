@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
-import { provideHttpClient } from '@angular/common/http';
-import { ApplicationConfig, isDevMode } from '@angular/core';
+import { HttpClient, provideHttpClient } from '@angular/common/http';
+import { ApplicationConfig, importProvidersFrom } from '@angular/core';
 import { LuxonDateAdapter } from '@angular/material-luxon-adapter';
 import { DateAdapter, MAT_DATE_FORMATS } from '@angular/material/core';
 import { provideAnimations } from '@angular/platform-browser/animations';
@@ -11,19 +11,19 @@ import {
     withPreloading,
 } from '@angular/router';
 import { provideFuse } from '@fuse';
-import { provideTransloco } from '@ngneat/transloco';
 import { provideEffects } from '@ngrx/effects';
 import { provideStore } from '@ngrx/store';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { appRoutes } from 'app/app.routes';
 import { provideIcons } from 'app/core/icons/icons.provider';
 import { provideToastr } from 'ngx-toastr';
 import { provideCore } from './core/core.provider';
-import { TranslocoHttpLoader } from './core/transloco/transloco.http-loader';
 import { mockApiServices } from './mock-api';
 
-// export function createTranslateLoader(http: HttpClient) {
-//     return new TranslateHttpLoader(http, './i18n/', '.json');
-// }
+export function createTranslateLoader(http: HttpClient) {
+    return new TranslateHttpLoader(http, './i18n/', '.json');
+}
 
 export const appConfig: ApplicationConfig = {
     providers: [
@@ -59,22 +59,17 @@ export const appConfig: ApplicationConfig = {
             },
         },
 
-        // Transloco Config
-        provideTransloco({
-            config: {
-                availableLangs: [
-                    {
-                        id: 'en',
-                        label: 'English',
-                    },
-                ],
-                defaultLang: 'en',
-                fallbackLang: 'en',
-                reRenderOnLangChange: true,
-                prodMode: !isDevMode(),
-            },
-            loader: TranslocoHttpLoader,
-        }),
+        // Translate Loader
+        importProvidersFrom(
+            TranslateModule.forRoot({
+                loader: {
+                    provide: TranslateLoader,
+                    useFactory: createTranslateLoader,
+                    deps: [HttpClient],
+                },
+            })
+        ),
+
         provideCore(),
         provideToastr(),
 

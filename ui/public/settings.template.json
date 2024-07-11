@@ -1,8 +1,8 @@
 {
-    "serverApiURL": "https://api.${DOMAIN}",
-    "clientId": "distribution-resource",
+    "serverApiURL": "http://localhost:4200",
+    "clientId": "web_app",
     "environment": "${ENVIRONMENT}",
-    "url": "https://id.local.gd/v1/auth",
+    "url": "https://id.local.gd",
     "realm": "biopro",
-    "uuid": "3638168f-f78e-4541-8055-af8fdb6f9623"
-  }  
+    "uuid": "215b898c-0f1e-43e8-abd1-f835bef767e3"
+}

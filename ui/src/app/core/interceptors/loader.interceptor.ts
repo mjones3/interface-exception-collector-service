@@ -1,12 +1,11 @@
 import {
     HttpErrorResponse,
     HttpEvent,
-    HttpHandler,
-    HttpInterceptor,
+    HttpHandlerFn,
     HttpRequest,
     HttpResponse,
 } from '@angular/common/http';
-import { Inject, Injectable, InjectionToken } from '@angular/core';
+import { InjectionToken, inject } from '@angular/core';
 import { HeaderValue } from 'app/shared/types/header-value.enum';
 import { Headers } from 'app/shared/types/headers.enum';
 import { Observable, throwError } from 'rxjs';
@@ -30,69 +29,60 @@ export const LOADER_BLACKLIST_URLS = new InjectionToken<LoaderBlackListUrls>(
     }
 );
 
-/**
- * Loader http interceptor to track request to handle app loader.
- */
-@Injectable()
-export class LoaderInterceptorService implements HttpInterceptor {
-    private requestsCounter = 0;
+export const loaderInterceptor = (
+    req: HttpRequest<unknown>,
+    next: HttpHandlerFn
+): Observable<HttpEvent<unknown>> => {
+    const loaderService = inject(LoaderService);
+    const blackListUrls = inject(LOADER_BLACKLIST_URLS);
 
-    constructor(
-        private loaderService: LoaderService,
-        @Inject(LOADER_BLACKLIST_URLS)
-        private blackListUrls: LoaderBlackListUrls
-    ) {}
+    let requestsCounter = 0;
 
-    public intercept(
-        req: HttpRequest<any>,
-        next: HttpHandler
-    ): Observable<HttpEvent<any>> {
-        const ignoreLoader =
-            req.headers.get(Headers.XIgnoreLoader) === HeaderValue.True ||
-            this.isInBlackList(req.url);
-        if (!ignoreLoader) {
-            this.setupLoader(req);
+    const decreaseRequests = () => {
+        if (requestsCounter > 0) {
+            requestsCounter--;
         }
-        return next.handle(req).pipe(
-            tap(
-                (event: HttpEvent<any>) => {
-                    if (event instanceof HttpResponse && !ignoreLoader) {
-                        this.decreaseRequests();
-                    }
-                },
-                (err) => {
-                    if (err instanceof HttpErrorResponse) {
-                        if (!ignoreLoader) {
-                            this.decreaseRequests();
-                        }
-                        // TODO log errors
-                    }
-                    return throwError(err);
-                }
-            )
-        );
-    }
-
-    private decreaseRequests() {
-        if (this.requestsCounter > 0) {
-            this.requestsCounter--;
+        if (requestsCounter === 0) {
+            loaderService.hide();
         }
-        if (this.requestsCounter === 0) {
-            this.loaderService.hide();
-        }
-    }
+    };
 
-    private isInBlackList(url: string) {
+    const isInBlackList = (url: string) => {
         return (
-            this.blackListUrls.urls.filter((item) => url.indexOf(item) >= 0)
-                .length > 0
+            blackListUrls.urls.filter((item) => url.indexOf(item) >= 0).length >
+            0
         );
-    }
+    };
 
-    private setupLoader(req: HttpRequest<any>): void {
-        this.requestsCounter++;
+    const setupLoader = (req: HttpRequest<any>) => {
+        requestsCounter++;
         const loaderDebounceTime = req.headers.get(Headers.XLoaderDebounceTime);
         const loaderSelector = req.headers.get(Headers.XLoaderSelector);
-        this.loaderService.show(atob(loaderSelector), +loaderDebounceTime);
+        loaderService.show(atob(loaderSelector), +loaderDebounceTime);
+    };
+
+    const ignoreLoader =
+        req.headers.get(Headers.XIgnoreLoader) === HeaderValue.True ||
+        isInBlackList(req.url);
+    if (!ignoreLoader) {
+        setupLoader(req);
     }
-}
+    return next(req).pipe(
+        tap(
+            (event: HttpEvent<any>) => {
+                if (event instanceof HttpResponse && !ignoreLoader) {
+                    decreaseRequests();
+                }
+            },
+            (err) => {
+                if (err instanceof HttpErrorResponse) {
+                    if (!ignoreLoader) {
+                        decreaseRequests();
+                    }
+                    // TODO log errors
+                }
+                return throwError(err);
+            }
+        )
+    );
+};

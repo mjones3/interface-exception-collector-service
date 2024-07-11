@@ -1,4 +1,4 @@
-import { AsyncPipe, CommonModule, DatePipe, NgIf } from '@angular/common';
+import { AsyncPipe, CommonModule, DatePipe } from '@angular/common';
 import {
     AfterViewInit,
     Component,
@@ -8,7 +8,7 @@ import {
     OnInit,
     Renderer2,
     ViewChild,
-    ViewEncapsulation
+    ViewEncapsulation,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -22,6 +22,7 @@ import {
     FuseVerticalNavigationComponent,
 } from '@fuse/components/navigation';
 import { FuseMediaWatcherService } from '@fuse/services/media-watcher';
+import { TranslateModule } from '@ngx-translate/core';
 import { FilterableDropDownComponent } from 'app/shared/components/filterable-drop-down/filterable-drop-down.component';
 import { ProcessProductVersionModel } from 'app/shared/models/process-product-version.model';
 import { FacilityService, MenuService } from 'app/shared/services';
@@ -36,29 +37,28 @@ import { Subject, takeUntil } from 'rxjs';
     styleUrls: ['./classic.component.scss'],
     standalone: true,
     imports: [
-        FuseLoadingBarComponent,
-        FuseVerticalNavigationComponent,
-        FuseFullscreenComponent,
+        CommonModule,
         RouterOutlet,
         RouterLink,
         MatButtonModule,
         MatIconModule,
         MatTooltipModule,
+        TranslateModule,
         AsyncPipe,
         DatePipe,
-        NgIf,
-        CommonModule
+        FuseLoadingBarComponent,
+        FuseVerticalNavigationComponent,
+        FuseFullscreenComponent,
     ],
 })
 export class ClassicLayoutComponent
     implements OnInit, AfterViewInit, OnDestroy
 {
     readonly sidebarWidth = 280;
-    readonly calcContentWidth = `calc(100% - ${this.sidebarWidth}px)`;    
+    readonly calcContentWidth = `calc(100% - ${this.sidebarWidth}px)`;
     @ViewChild('footerDateTime', { static: false })
     footerDateTime: ElementRef<HTMLDivElement>;
 
-    moduleTitle: string;
     defaultLogo: string;
     releaseNumber: string;
     investigationalDevice: string;
@@ -85,12 +85,11 @@ export class ClassicLayoutComponent
         private _renderer: Renderer2,
         private _zone: NgZone
     ) {
-        const properties = this.config.env.properties || [];
-        this.moduleTitle = 'ARC-One';
+        const properties = this.config.env.properties;
         this.defaultLogo =
-            properties['arc-default-logo'] || 'images/logo/arc.png';
-        this.releaseNumber = properties['release_number'];
-        this.investigationalDevice = properties['INVESTIGATIONAL_DEVICE'];
+            properties.get('arc-default-logo') || 'images/logo/arc.png';
+        this.releaseNumber = properties.get('release_number');
+        this.investigationalDevice = properties.get('INVESTIGATIONAL_DEVICE');
         this.processProductVersion = this.config.env?.productVersion;
 
         // Set the defaults
@@ -193,10 +192,7 @@ export class ClassicLayoutComponent
     changeFacility() {
         if (this.isHomePage()) {
             this._facilityService
-                .getFacilityDialog(
-                    FilterableDropDownComponent,
-                    true
-                )
+                .getFacilityDialog(FilterableDropDownComponent, true)
                 .subscribe();
         }
     }

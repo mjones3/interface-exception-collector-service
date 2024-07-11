@@ -3,11 +3,11 @@
     class="flex min-h-120 min-w-140 flex-col"
 >
     <!-- Header Section -->
-    <div class="p-2 flex items-center justify-between">
+    <div class="flex items-center justify-between p-2">
         <h2 id="'filterableListModalTitle'" mat-dialog-title class="m-0">
             {{ dialogTitle }}
         </h2>
-        @if(closable){
+        @if (closable) {
             <button
                 id="closeModalBtn"
                 class="fuse-message-dismiss-button"
@@ -15,7 +15,7 @@
             >
                 <mat-icon [svgIcon]="'hi_outline:x'"></mat-icon>
             </button>
-         }
+        }
     </div>
 
     <div mat-dialog-content class="flex flex-1 flex-col border-t px-0">
@@ -57,7 +57,12 @@
                         *ngFor="let item of filteredList"
                         (click)="selectValue(item)"
                     >
-                        <span class="pl-4 text-2xl">{{ (optionsLabel ? item[optionsLabel] : item) | uppercase}}
+                        <span class="pl-4 text-2xl"
+                            >{{
+                                (optionsLabel ? item[optionsLabel] : item)
+                                    | translate
+                                    | uppercase
+                            }}
                         </span>
                         <mat-divider></mat-divider>
                     </mat-list-option>

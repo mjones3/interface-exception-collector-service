@@ -35,21 +35,21 @@ export class NavigationMockApi {
         // @ Navigation - GET
         // -----------------------------------------------------------------------------------------------------
         this._fuseMockApiService
-            .onGet('http://api.local.gd/v1/menus')
+            .onGet('http://localhost:4200/v1/menus')
             .reply(() => {
                 // Return the response
                 return [200, cloneDeep(this._defaultNavigation)];
             });
 
         this._fuseMockApiService
-            .onGet('http://api.local.gd/v1/locations')
+            .onGet('http://localhost:4200/v1/locations')
             .reply(() => {
                 // Return the response
                 return [200, cloneDeep(this._locations)];
             });
 
         this._fuseMockApiService
-            .onGet('http://api.local.gd/v1/facilities/1')
+            .onGet('http://localhost:4200/v1/facilities/1')
             .reply(() => {
                 // Return the response
                 return [200, cloneDeep(this._location)];

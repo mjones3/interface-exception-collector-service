@@ -1,17 +1,13 @@
 import { HttpClient, HttpHeaders, HttpRequest } from '@angular/common/http';
-import { Injectable, InjectionToken } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
-import Keycloak from 'keycloak-js';
-
 import { loadAuthSuccess } from 'app/core/state/auth/auth.actions';
+import Keycloak from 'keycloak-js';
 import { from, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { AuthEvent, AuthEventType, AuthHasUserRole, AuthOptions, ExcludedUrl, ExcludedUrlRegex } from '../models';
 
-
 declare var dT_: any;
-
-export const AUTH_SERVICE_TOKEN = new InjectionToken('AUTH_SERVICE_TOKEN');
 
 @Injectable({ providedIn: 'root' })
 export class AuthService implements AuthHasUserRole {
@@ -379,7 +375,7 @@ export class AuthService implements AuthHasUserRole {
    * @returns
    * Boolean indicating if the token is expired.
    */
-  isTokenExpired(minValidity: number = 0): boolean {
+  isTokenExpired(minValidity = 0): boolean {
     return this._instance.isTokenExpired(minValidity);
   }
 

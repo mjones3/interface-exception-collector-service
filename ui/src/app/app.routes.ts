@@ -11,7 +11,7 @@ export const appRoutes: Route[] = [
     {
         path: '',
         component: LayoutComponent,
-        canActivate: [AuthGuard],        
+        canActivate: [AuthGuard],
         resolve: {
             initialData: initialDataResolver,
         },
@@ -20,15 +20,12 @@ export const appRoutes: Route[] = [
                 path: 'home',
                 loadChildren: () => import('app/modules/home/home.routes'),
             },
-            // {
-            //     path: 'feature',
-            //     loadChildren: () =>
-            //         import('app/modules/feature/feature.routes'),
-            // },
             {
                 path: 'orders',
                 loadChildren: () =>
-                    import('app/modules/orders/order/search-orders/search-orders.routes'),
+                    import(
+                        'app/modules/orders/order/search-orders/search-orders.routes'
+                    ),
             },
             {
                 path: 'shipment',

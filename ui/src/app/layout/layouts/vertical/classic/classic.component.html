@@ -72,27 +72,28 @@
     </div>
 
     <!-- Footer -->
-    <div class="footer flex justify-between mt-4 fixed bottom-0"
-    [ngStyle]="{ width: fuseVerticalNavigation.opened ? calcContentWidth : '100%' }"
+    <div
+        class="footer fixed bottom-0 mt-4 flex justify-between"
+        [ngStyle]="{
+            width: fuseVerticalNavigation.opened ? calcContentWidth : '100%',
+        }"
     >
-            <div id="copyright">
-                ARC-One Solutions &copy; {{ releaseNumber }}
-                <div
-                    matTooltip="Open Version Details"
-                    (click)="goToBuildDetails()" 
-                    style="cursor: pointer"
-                    *ngIf="processProductVersion"
-                >
-                    Build Version: {{ processProductVersion.buildVersion }}
-                </div>
-            </div>
-
-
-            <span style="color: red; padding: 40px">{{ investigationalDevice }}</span>
-    
+        <div id="copyright">
+            ARC-One Solutions &copy; {{ releaseNumber }}
             <div
-                #footerDateTime
-                id="footer-date-time"
-            ></div>       
+                matTooltip="Open Version Details"
+                (click)="goToBuildDetails()"
+                style="cursor: pointer"
+                *ngIf="processProductVersion"
+            >
+                Build Version: {{ processProductVersion.buildVersion }}
+            </div>
+        </div>
+
+        <span style="color: red; padding: 40px">{{
+            investigationalDevice
+        }}</span>
+
+        <div #footerDateTime id="footer-date-time"></div>
     </div>
 </div>

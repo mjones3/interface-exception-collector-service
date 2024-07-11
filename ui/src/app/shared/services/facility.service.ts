@@ -67,7 +67,6 @@ export class FacilityService {
     }
 
     getFacilityDialog(component: Type<any>, closable = false): Observable<any> {
-        const title = document.querySelector('.module-title').innerHTML;
         return this.getAllFacilities().pipe(
             switchMap((options) => {
                 const defaults = {
@@ -76,13 +75,9 @@ export class FacilityService {
                     data: {
                         options: options.body,
                         optionsLabel: 'name',
-                        //TODO: Change to propert application name
-                        dialogTitle:
-                            title === 'Distribution'
-                                ? 'Distribution Location'
-                                : 'Select Facility',
+                        dialogTitle: 'Distribution Location',
                         closable,
-                        iconName:'search'
+                        iconName: 'search',
                     },
                 };
                 return new Observable((observer: Observer<boolean>) => {

@@ -8,7 +8,7 @@ import {
     RendererFactory2,
 } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
-import { TranslocoService } from '@ngneat/transloco';
+import { TranslateService } from '@ngx-translate/core';
 import { isFunction } from 'lodash-es';
 import {
     ActiveToast,
@@ -36,7 +36,7 @@ export class ToastrImplService extends ToastrService {
         private rendererFactory: RendererFactory2,
         @Inject(DOCUMENT) private document: any,
         private activeEl: ActiveElementService,
-        private translocoService: TranslocoService
+        private translateService: TranslateService
     ) {
         super(token, overlay, injector, sanitizer, ngZone);
         this.renderer2 = rendererFactory.createRenderer(document.body, null);
@@ -48,8 +48,8 @@ export class ToastrImplService extends ToastrService {
         override?: Partial<IndividualConfig>
     ): ActiveToast<any> {
         title = title
-            ? this.translocoService.translate(title)
-            : this.translocoService.translate(this.getDefaultTitle('error'));
+            ? this.translateService.instant(title)
+            : this.translateService.instant(this.getDefaultTitle('error'));
 
         // Showing backdrop in case of error and disable timeout
         this.showLockingBackdrop();
@@ -70,8 +70,8 @@ export class ToastrImplService extends ToastrService {
         type?: string
     ): ActiveToast<any> {
         title = title
-            ? this.translocoService.translate(title)
-            : this.translocoService.translate(this.getDefaultTitle(type));
+            ? this.translateService.instant(title)
+            : this.translateService.instant(this.getDefaultTitle(type));
 
         if (type === 'error') {
             return this.error(message, title, override);
@@ -128,13 +128,10 @@ export class ToastrImplService extends ToastrService {
         switch (toasterType) {
             case 'success':
                 return 'success.label';
-                break;
             case 'error':
                 return 'error.label';
-                break;
             case 'warning':
                 return 'warning.label';
-                break;
             default:
                 break;
         }

@@ -7,14 +7,13 @@ export const process: ProcessProductModel = {
     orderNumber: 1,
     active: true,
     properties: new Map([
-        ['arc-default-logo', 'assets/images/logo/ARC-logo.PNG'],
+        ['arc-default-logo', 'images/logo/arc.png'],
         [
             'INVESTIGATIONAL_DEVICE',
             'CAUTION – Investigational device. Limited by Federal (or United States) law to investigational use.',
         ],
         ['release_number', 'V1.0 15.01.09282022'],
     ]),
-
 };
 
 export const productVersion: ProcessProductVersionModel = {

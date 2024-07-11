@@ -28,14 +28,14 @@ export class ProcessMockApi {
         // @ Navigation - GET
         // -----------------------------------------------------------------------------------------------------
         this._fuseMockApiService
-            .onGet('http://api.local.gd/v1/processes/products/:uuid')
+            .onGet('http://localhost:4200/v1/processes/products/:uuid')
             .reply(() => {
                 // Return the response
                 return [200, cloneDeep(this._process)];
             });
 
         this._fuseMockApiService
-            .onGet('http://api.local.gd/v1/processes/products-version/:uuid')
+            .onGet('http://localhost:4200/v1/processes/products-version/:uuid')
             .reply(() => {
                 // Return the response
                 return [200, cloneDeep(this._productVersion)];

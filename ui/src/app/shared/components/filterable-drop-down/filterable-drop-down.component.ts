@@ -10,14 +10,18 @@ import {
     ViewChild,
 } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatSelectModule } from '@angular/material/select';
 import { FuseScrollbarDirective } from '@fuse/directives/scrollbar';
-import { TranslocoDirective, TranslocoService } from '@ngneat/transloco';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AutoUnsubscribe } from 'app/shared/decorators/auto-unsubscribe/auto-unsubscribe.decorator';
 import { Pageable, pageableDefault } from 'app/shared/models';
 import { Paginator } from 'app/shared/utils/paginator';
@@ -35,13 +39,13 @@ export const FILTERABLE_DROPDOWN_LOADER_CONTAINER = 'flex flex-1 py-4 relative';
         ReactiveFormsModule,
         MatSelectModule,
         MatListModule,
-        TranslocoDirective,
-        FuseScrollbarDirective,
         MatIconModule,
         MatDialogModule,
         MatFormFieldModule,
+        MatInputModule,
+        TranslateModule,
+        FuseScrollbarDirective,
         InputKeyboardComponent,
-        MatInputModule
     ],
 })
 @AutoUnsubscribe()
@@ -70,7 +74,7 @@ export class FilterableDropDownComponent implements OnInit, AfterViewInit {
         @Inject(MAT_DIALOG_DATA) private data: any,
         public dialogRef: MatDialogRef<FilterableDropDownComponent>,
         private formBuilder: FormBuilder,
-        private translocoService: TranslocoService
+        private translateService: TranslateService
     ) {
         if (data) {
             this.options = data.options ? data.options : [];
@@ -84,7 +88,10 @@ export class FilterableDropDownComponent implements OnInit, AfterViewInit {
             this.iconName = data.iconName ? data.iconName : 'hi_outline:x';
             this.pageable = data.pageable || pageableDefault;
             this.paginator = new Paginator(this.pageable);
-            this.closable = data.hasOwnProperty('closable')
+            this.closable = Object.prototype.hasOwnProperty.call(
+                data,
+                'closable'
+            )
                 ? data.closable
                 : this.closable;
         }
@@ -119,8 +126,8 @@ export class FilterableDropDownComponent implements OnInit, AfterViewInit {
             const itemToFilter = this.optionsLabel
                 ? item[this.optionsLabel]
                 : item;
-            return this.translocoService
-                .translate(itemToFilter)
+            return this.translateService
+                .instant(itemToFilter)
                 .toLowerCase()
                 .includes(
                     this.filterForm.controls[
