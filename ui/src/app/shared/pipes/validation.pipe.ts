@@ -8,13 +8,14 @@ export enum ValidationType {
 }
 
 @Pipe({
+  standalone: true,
   name: 'validation',
 })
 export class ValidationPipe implements PipeTransform {
   readonly validationsKeys = {
-    required: 'required.validation',
-    invalid: 'invalid.validation',
-    alreadyExists: 'already-exists.validation',
+    required: 'Required',
+    invalid: 'Invalid',
+    alreadyExists: 'Already Exists',
   };
 
   constructor(private translateService: TranslateService) {}

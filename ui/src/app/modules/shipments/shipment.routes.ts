@@ -7,14 +7,14 @@ export default [
         path: '',
         component: EmptyLayoutComponent,
         data: {
-            title: 'shipment.label'
+            title: 'Shipment'
         },
         children: [
             {
               path: ':id/shipment-details',
               component: ShipmentDetailsComponent,
               data: {
-                subTitle: 'shipment-details.label',
+                subTitle: 'Shipment Details',
               },
             },
         ]

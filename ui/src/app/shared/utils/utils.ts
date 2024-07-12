@@ -28,6 +28,22 @@ export const getPaginationHeaders = (total: number, link: string) => {
         .set(Headers.XTotalCount, `${total}`);
 };
 
+export const commonRegex = {
+    unitNumber: '^W[0-9]{12}$',
+    unitNumberWithZerosTail: '^=W[0-9]{12}00$',
+    extractUnitNumber: '(^[=])(W[\\d]{12})(00)',
+    bagLetter: '[A-Z]{1}',
+    productCode: '^E\\w{6}$',
+    fullProductCode: '^E\\w{7}$',
+    scannedProductCode: '\\=\\<\\w{8}',
+    extractProductCode: '(^=<)(E[\\d]{4})([^\\d])([\\d]{2})\\S*',
+    extractFullProductCode: '(^)(E[\\d]{4})([^\\d])([\\d]{2})\\S*',
+    codabarUnitNumber: '^d[0-9]{7}d$',
+    codabarProductCode: '^a0[0-9]{5}3b$',
+    aboRh: '^([A-Z]|=%[a-zA-Z]{1}[0-9]{3}|=%[a-zA-Z]{2}[0-9]{2}|=%[0-9]{4})',
+  };
+
+
 export const getLocalTimeZone = (dateInput: Date | string): string => {
     const dateObject = dateInput || new Date(),
         dateString = dateObject + '';

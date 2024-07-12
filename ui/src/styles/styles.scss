@@ -3,535 +3,219 @@
 /*  @ Styles from this file will override 'vendors.scss' and Fuse's base styles.
 /* ----------------------------------------------------------------------------------------------------- */
 
-@use 'sass:map';
-@use '@angular/material' as mat;
-@use 'user-themes' as userThemes;
-@use 'themes' as themes;
+$red-light-color: #cd7b66;
+$custom-red: #cd6666;
+$gray-light-color: #e4e4e4;
+$orange-light-color: #e69c52;
+$purple-light-color: #7986cb;
+$purple-disable-light-color: #bfbfe5;
+$warning-color: #e8ba06;
+$success-color: #4caf50;
+$green-color: #089133;
+$blue-color: #387cb4;
+$custom-gray-color: #7f9ab3;
+$button-highlighted: #99cd66;
+$custom-red-100: #f4e2e2;
 
-/* BioPro */
-$theme: map-get(userThemes.$user-themes, default);
-$primary: map-get($theme, primary);
-$foreground: map-get(themes.$light-base, foreground);
-$background: map-get(themes.$light-base, background);
-$warn: map-get($theme, warn);
-$gray: map-get($theme, gray);
-$moduleLightAccent: #f2f5f9;
 
-/* ----------------------------------------------------------------------------------------------------- */
-/*  @ Import/write your custom styles here.
-/*  @ Styles from this file will override 'vendors.scss' and Fuse's base styles.
-/* ----------------------------------------------------------------------------------------------------- */
-
-html {
-    font-size: 16px;
-}
-
-body {
-    font-size: 0.875rem;
-}
-
-// Headings
-h1, h2, h3, h4, h5, h6 {
-    margin: 1.25em 0 0.5em 0;
-}
-
-h1 {
-    font-size: 32px;
-    font-weight: 800;
-    letter-spacing: -0.022em;
-    line-height: 1.25;
-}
-
-h2 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    letter-spacing: -0.022em;
-    line-height: 1.25;
-}
-
-h3 {
-    font-size: 24px;
-    font-weight: 600;
-    letter-spacing: -0.019em;
-    line-height: 1.25;
-}
-
-h4 {
-    font-size: 20px;
-    font-weight: 500;
-    letter-spacing: -0.017em;
-}
-
-h5 {
-    font-size: 18px;
-    font-weight: 500;
-    letter-spacing: -0.014em;
-}
-
-h6 {
-    font-size: 16px;
-    font-weight: 500;
-    letter-spacing: -0.011em;
-}
-
-button[mat-stroked-button] {
-    border-radius: 4px !important;
-}
-
-.mat-mdc-dialog-container {
-    .mat-mdc-dialog-title {
-        font-size: 1.25rem !important;
-        font-weight: 600 !important;
-    }
-}
-
-.mdc-list-item__end {
-    display: none;
-}
-
-fuse-vertical-navigation {
-
-    /* Aside, Basic, Collapsable, Group */
-    fuse-vertical-navigation-aside-item,
-    fuse-vertical-navigation-basic-item,
-    fuse-vertical-navigation-collapsable-item,
-    fuse-vertical-navigation-group-item {
-        > .fuse-vertical-navigation-item-wrapper {
-            margin: 0 !important;
+.p-datatable .p-datatable-thead {
+    height: 50px !important;
+  
+    & > tr {
+      & > th {
+        text-align: left;
+        padding: 1rem 1rem;
+        border-width: 0 0 1px 0;
+        color: #495057;
+        background: #f8f9fa;
+        transition: box-shadow 0.2s;
+  
+        &.p-sortable-column.p-highlight {
+          color: #495057;
+          background: #f8f9fa;
         }
+      }
     }
-
-}
-
-#badgeCloseBtn {
-    margin-top: 24px;
-    margin-right: 24px;
-}
-
-/* ----------------------------------------------------------------------------------------------------- */
-/* ICON SIZES
-/* ----------------------------------------------------------------------------------------------------- */
-.icon-size-20 {
-  width: 20px !important;
-  height: 20px !important;
-  min-width: 20px !important;
-  min-height: 20px !important;
-  font-size: 20px !important;
-  line-height: 20px !important;
-}
-
-/* ----------------------------------------------------------------------------------------------------- */
-/* RSA PROCESS HEADER
-/* ----------------------------------------------------------------------------------------------------- */
-rsa-process-header {
-    > .content-layout {
-        > .header {
-            padding: 15px 25px;
-            background-color: map-get($background, card);
-            border-bottom: 1px solid map-get($foreground, divider);
-
-            .title-section {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                flex-direction: column;
-
-                h1 {
-                    color: map-get($primary, DEFAULT);
-                    font-size: 24px;
-                    letter-spacing: -0.019em;
-                }
-
-                h3 {
-                    padding-left: 0 !important;
-                    font-size: 32px;
-                    letter-spacing: -0.022em;
-                }
-            }
+  }
+  
+  .p-datatable {
+    .p-datatable-wrapper {
+      overflow-x: auto !important;
+  
+      &::-webkit-scrollbar {
+        width: 12px;
+      }
+  
+      &::-webkit-scrollbar-track {
+        background: white;
+      }
+  
+      &::-webkit-scrollbar-thumb {
+        background-color: #dbdada;
+        border-radius: 20px;
+        border: 3px solid white;
+      }
+    }
+  
+    table {
+      table-layout: auto !important;
+  
+      thead {
+        th {
+          white-space: nowrap !important;
         }
-    }
-
-    .header {
-        border-bottom: 1px solid map-get($primary, DEFAULT);
-    }
-}
-
-button {
-
-    > .mat-icon {
-        color: map-get($primary, DEFAULT);
-    }
-
-    &.action-button {
-        &.primary {
-            background-color: map-get($primary, DEFAULT) !important;
-            color: red;
+      }
+  
+      tbody {
+        td {
+          white-space: nowrap !important;
         }
+      }
     }
-}
-
-// Override links for web apps
-a {
-    color: currentColor;
-    text-decoration: none;
-}
-
-.module-title {
-    color: map-get($primary, DEFAULT);
-}
-
-.process-content {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-}
-
-.fuse-theme-light
-fuse-vertical-navigation
-fuse-vertical-navigation-group-item
-> .fuse-vertical-navigation-item-wrapper
-.fuse-vertical-navigation-item
-.fuse-vertical-navigation-item-title {
-    color: map-get($primary, DEFAULT) !important;
-}
-
-.fuse-theme-light .mat-flat-button.mat-primary,
-.fuse-theme-light .mat-raised-button.mat-primary,
-.fuse-theme-light .mat-fab.mat-primary,
-.fuse-theme-light .mat-mini-fab.mat-primary {
-    background-color: map-get($primary, DEFAULT) !important;
-}
-
-// BUTTONS STYLES
-button.cdk-focused.cdk-keyboard-focused {
-    outline: none !important;
-    background-color: white !important;
-}
-
-fuse-card {
-    .fuse-card-title {
-        padding: 1.25rem;
-
-        h3 {
-            margin: 0;
-            font-weight: 700;
-        }
+  }
+  
+  .p-datatable .p-datatable-tfoot > tr {
+    & > td {
+      text-align: left;
+      color: #495057;
+      background: #f8f9fa;
+      transition: box-shadow 0.2s;
     }
-}
-
-.product-button {
-    mat-icon {
-        width: 100px;
-        height: 100px;
-        min-height: 100px;
-        min-width: 100px;
-    }
-}
-
-.added-unit-button {
-    mat-icon {
-        width: 120px;
-        height: 120px;
-        min-height: 120px;
-        min-width: 120px;
-    }
-}
-
-.action-button {
-    mat-icon {
-        width: 45px;
-        height: 45px;
-    }
-}
-
-.login-style {
-    color: #ffffff;
-}
-
-.login-style-background {
-    background: #eeeeee;
-}
-
-.video-container {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-}
-
-.video-container video {
-    /* Make video to at least 100% wide and tall */
-    min-width: 100%;
-    min-height: 100%;
-
-    /* Setting width & height to auto prevents the browser from stretching or squishing the video */
-    width: auto;
-    height: auto;
-
-    /* Center the video */
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
-.float-container {
-    padding: 2px;
-}
-
-.float-child {
-    float: left;
-    padding: 2px;
-}
-
-.float-container-unit {
-    padding: 0;
-}
-
-.float-child-unit {
-    float: left;
-}
-
-fuse-vertical-navigation {
-    position: sticky;
-    display: flex;
-    flex-direction: column;
-    flex: 1 0 auto;
-    top: 0;
-    width: 280px;
-    min-width: 280px;
-    max-width: 280px;
-    height: 100vh;
-    min-height: 100vh;
-    max-height: 100vh;
-    z-index: 200;
-}
-
-// Vertical Navigation
-.fuse-vertical-navigation-item {
-    margin-bottom: 5px;
-
-    .float-container {
-        display: flex;
-        align-items: center;
-        width: 100%;
-    }
-
-    .fuse-vertical-navigation-item-title {
-        text-transform: uppercase;
-    }
-}
-
-fuse-vertical-navigation-item-title {
-    font-size: medium;
-}
-
-// Action Buttons with Icons
-.action-button {
-    border-left: 4px solid map-get($primary, default);
-    margin-left: 20px;
-    background-color: #fff;
-    padding: 5px;
-    cursor: pointer;
-    min-height: auto;
-    max-height: initial;
-    height: auto;
-
-    .mat-button-wrapper {
-        font-weight: bold;
-    }
-
-    span:not(.mat-button-wrapper) {
-        font-weight: bold;
-        min-width: 120px;
-        padding-right: 10px;
-        padding-left: 10px;
-    }
-
-    &[disabled] {
-        border-left-color: gray !important;
-        box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12) !important;
-        cursor: not-allowed !important;
-
-        mat-icon {
-            -webkit-filter: grayscale(100%);
-            filter: grayscale(100%);
-        }
-
-        span {
-            color: initial !important;
-        }
-    }
-}
-
-// Modal Close Button
-.mat-icon-button.fuse-message-dismiss-button {
-    background-color: $moduleLightAccent;
-}
-
-// Toggle Buttons (Radio Buttons Substitution)
-.mat-button-toggle:not(:last-child) {
-    border-right: 1px solid fuse-color('cool-gray', 300);
-}
-
-.mat-button-toggle-checked {
-    background: map-get($primary, default);
-
-    .mat-button-toggle-label-content {
-        color: #fff;
-    }
-}
-
-.mat-button-toggle-label-content {
-    padding: 5px 25px !important;
-    line-height: 48px !important;
-    color: map-get($foreground, text);
-}
-
-.mat-button-toggle-group {
-    border: none;
-    background: none;
-}
-
-// Define styles for 'fuse-theme-light' components
-.dd-input .mat-form-field .mat-form-field-suffix .mat-icon,
-.rsa-datepicker mat-datepicker-toggle .mat-icon {
-    color: map-get($primary, default) !important;
-    border-radius: 5px;
-    background: #f2f5f9;
-    background: map-get($primary, '50');
-    margin-right: -10px;
-    min-width: 30px !important;
-    min-height: 30px !important;
-    width: 30px !important;
-    height: 30px !important;
-    padding: 4px;
-}
-
-.rsa-datepicker mat-datepicker-toggle .mat-icon:hover {
-    background-color: transparent;
-}
-
-/*
- * custom font size in touchable calendar elements
- */
-.mat-calendar-body {
-    font-size: 16px !important;
-    font-weight: bold;
-}
-
-.mat-calendar-table-header th {
-    font-size: 16px !important;
-    font-weight: bold;
-}
-
-.mat-calendar-body-label,
-.mat-calendar-period-button {
-    font-size: 1.375rem;
-    font-weight: 500;
-}
-
-.mat-calendar-body-selected {
-    background-color: map-get($primary, default);
-    color: map-get($primary, '50');
-}
-
-/*
- * Modifying navigation buttons in Calendar component
- */
-.mat-calendar-previous-button {
-    border-left-width: 2px;
-    transform: translateX(-55px) !important;
-
-    &,
-    .mat-ripple,
-    .mat-button-ripple,
-    .mat-button-ripple-round::after {
-        transform: translateX(-55px);
-    }
-}
-
-.mat-calendar-previous-button::after,
-.mat-calendar-next-button::after {
-    margin: 13.5px !important;
-}
-
-/*
- * Scrollable Sections
- */
-.scrollable-content {
-    overflow: auto;
-    box-sizing: border-box;
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-}
+  }
+  
+  .p-datatable .p-datatable-tbody > tr {
+    height: 32px;
+  }
 
 
-// Filterable DD
-.mat-list-base .mat-list-item,
-.mat-list-base .mat-list-option {
-    height: auto !important;
-}
 
-.mat-list-base .mat-list-item .mat-list-item-content-reverse,
-.mat-list-base .mat-list-option .mat-list-item-content-reverse {
-    padding: 8px 16px !important;
-}
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
-rsa-on-screen-keyboard {
-    .mat-error {
-        margin-top: 0.5rem !important;
-        margin-bottom: 0.5rem !important;
-    }
-}
 
 .content-layout.fullwidth-standard-normal-scroll > .header {
     padding: 15px 25px;
-}
+  }
 
-// Highlight form fields
-.highlight .mat-form-field-flex {
-    border-color: #c81e1e !important;
-}
+  .module-title {
+    color: #e8ba06;
+  }
 
-button.table-action-button {
-    height: 48px !important;
-    min-height: 48px !important;
-    max-height: 48px !important;
-}
+  .text-custom-red {
+    color: $custom-red;
 
-//Data table styles
-tr.mnf-detail-row {
-    height: 0 !important;
-}
+    mat-icon {
+      color: $custom-red;
+    }
+  }
 
-tr.mnf-element-row:not(.mnf-expanded-row):hover {
-    background: whitesmoke;
-}
+  .text-orange-light {
+    color: $orange-light-color;
+  }
 
-tr.mnf-element-row:not(.mnf-expanded-row):active {
-    background: #efefef;
-}
+  button {
+    &.action-button {
+      background-color: #fff;
+      color: #64748b;
+      cursor: pointer;
+      height: 48px;
+      min-height: 48px;
+      max-height: 48px;
 
-.mnf-element-row td {
-    border-bottom-width: 0;
-}
+      &[disabled] {
+        box-shadow: 0 3px 1px -2px rgba(220, 220, 220, 0.11), 0 2px 2px 0 rgba(220, 220, 220, 0.14),
+          0 1px 5px 0 rgba(220, 220, 220, 0.12);
+        cursor: not-allowed !important;
 
-.mnf-element-detail {
-    overflow: hidden;
-    display: flex;
-}
+        mat-icon {
+          -webkit-filter: grayscale(100%);
+          filter: grayscale(100%);
+        }
+      }
+    }
 
-.mnf-element-detail-container {
-    min-width: 100%;
-    border: 2px solid black;
-    padding: 8px;
-    font-weight: lighter;
-    margin: 8px 0;
-    height: auto;
-}
+    &.checkBtn {
+      background-color: #fff;
+      color: greenyellow;
+      border: 1px solid greenyellow;
+      padding: 2px;
+      border-radius: 2px;
+      margin-left: 2px;
+    }
+
+    &.errBtn {
+      background-color: #fff;
+      color: #cd7b66;
+      border: 1px solid #cd7b66;
+      padding: 2px;
+      border-radius: 2px;
+      margin-left: 2px;
+    }
+
+    &.primary {
+      color: #495057;
+    }
+
+    &.edit {
+      background-color: $warning-color;
+      color: white;
+    }
+
+    &.bg-green-highlighted {
+      background-color: $button-highlighted;
+      color: white;
+    }
+
+    &.bg-green {
+      background-color: $green-color;
+      color: white;
+    }
+
+    &.bg-orange-light {
+      background-color: $orange-light-color;
+      color: white;
+    }
+
+    &.bg-gray-light {
+      background-color: $gray-light-color;
+    }
+
+    &.bg-purple-light {
+      background-color: $purple-light-color;
+      color: white;
+
+      &[disabled] {
+        background-color: $purple-disable-light-color;
+      }
+    }
+
+    &.btn-red-light {
+      background-color: $red-light-color;
+      color: white;
+
+      mat-icon {
+        color: white !important;
+      }
+    }
+
+    &.bg-custom-red {
+      background-color: $custom-red;
+      color: white;
+
+      mat-icon {
+        color: white !important;
+      }
+    }
+
+    &.btn-info {
+      background-color: $blue-color;
+      color: white;
+    }
+  }
+
+  rsa-control-error {
+    position: absolute;
+    top: 46px;
+    width: 100%;
+    left: 0px;
+  }

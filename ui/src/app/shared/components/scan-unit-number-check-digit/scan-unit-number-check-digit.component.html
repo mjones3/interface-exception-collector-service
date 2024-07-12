@@ -1,0 +1,49 @@
+<form class="flex flex-row w-full mt-0" [formGroup]="form">
+  <div class="flex flex-row space-x-2 w-full">
+    <div class="flex flex-col items-baseline">
+      <rsa-input-keyboard
+        [inputWidth]="'lt-lg:w-50 gt-md:w-60'"
+        [labelTitle]="labelTitle"
+        [inputId]="'unitNumber'"
+        formControlName="unitNumber"
+        [upperCase]="false"
+        [required]="true"
+        [customErrors]="{
+          required: 'Unit Number' | validation: validationType.REQUIRED,
+          unitNumberInvalid: 'Unit Number' | validation: validationType.INVALID
+        }"
+        (tabOrEnterPressed)="checkValues($event)"
+        (keyUp)="checkValues($event)"
+        #inputUnitNumber
+        [inputId]="'inUnitNumber'"
+        validateOn="touchedState"
+        [inputFocus]="inputFocus"
+        [placeholder]="'Scan or Enter Unit Number'"
+        id="ikUnitNumber"
+        [showKeyboard]="showKeyboard"
+      >
+      </rsa-input-keyboard>
+    </div>
+
+    <div class="flex flex-col items-baseline mb-4" *ngIf="!disableCheckDigit">
+      <rsa-input-keyboard
+        [inputWidth]="'w-20'"
+        [inputId]="'checkDigit'"
+        [labelTitle]="' -'"
+        [upperCase]="false"
+        rsaControlErrorContainer
+        formControlName="checkDigit"
+        [customErrors]="{
+          required: 'Check Digit' | validation: validationType.REQUIRED,
+          invalid: 'Check Digit' | validation: validationType.INVALID,
+          maxlength: 'Check Digit' | validation: validationType.INVALID
+        }"
+        (tabOrEnterPressed)="checkValues($event)"
+        id="ikCheckDigit"
+        #inputCheckDigit
+        [showKeyboard]="showKeyboard"
+      >
+      </rsa-input-keyboard>
+    </div>
+  </div>
+</form>

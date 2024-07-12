@@ -82,6 +82,7 @@ export class InputKeyboardComponent
     @HostBinding('class')
     isInvalid: boolean;
     inputTypeEnum = InputType;
+    @Input() required: boolean = false;
     @ViewChild('inputField') inputField: ElementRef;
 
     constructor(

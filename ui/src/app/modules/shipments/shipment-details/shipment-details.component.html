@@ -7,25 +7,27 @@
 
     <div class="w-full flex flex-row space-x-8 p-4">
       <div class="flex flex-col flex-auto w-9/12">
-        <fuse-card class="flex flex-row space-x-6 items-center p-6" *ngIf="!isProductComplete">
-          <div class="flex flex-row space-x-2">
-            <span class="text-left font-bold">
-              (<span id="filledProductsCount">{{ filledProductsCount }}</span> Of
-              <span id="totalProducts">{{ totalProducts }}</span
-              >)
-            </span>
-            <span class="text-left font-bold"> Filled Product</span>
-            <span class="text-left font-bold" id="percentageId">{{ filledProductsCount / totalProducts | percent }}</span>
-          </div>
-          <div class="flex flex-col flex-auto">
-            <mat-progress-bar
-              id="shipmentProgressBarId"
-              class="h-2"
-              mode="determinate"
-              [value]="(filledProductsCount / totalProducts) * 100"
-            ></mat-progress-bar>
-          </div>
-        </fuse-card>
+        @if(!isProductComplete){
+          <fuse-card class="flex flex-row space-x-6 items-center p-6">
+            <div class="flex flex-row space-x-2">
+              <span class="text-left font-bold">
+                (<span id="filledProductsCount">{{ filledProductsCount }}</span> Of
+                <span id="totalProducts">{{ totalProducts }}</span
+                >)
+              </span>
+              <span class="text-left font-bold"> Filled Product</span>
+              <span class="text-left font-bold" id="percentageId">{{ filledProductsCount / totalProducts | percent }}</span>
+            </div>
+            <div class="flex flex-col flex-auto">
+              <mat-progress-bar
+                id="shipmentProgressBarId"
+                class="h-2"
+                mode="determinate"
+                [value]="(filledProductsCount / totalProducts) * 100"
+              ></mat-progress-bar>
+            </div>
+          </fuse-card>
+        }
 
         <div class="flex flex-col space-y-3 mb-6">
           <div class="flex flex-col">
@@ -46,7 +48,7 @@
 
 <ng-template #actionButtonsTpl>
   <div class="flex flex-row space-x-2">
-    <button id="backBtnId" class="primary" mat-stroked-button (click)="backToSearch()">
+    <button id="backBtnId" class="bg-green-highlighted text-orange-light" mat-stroked-button (click)="backToSearch()">
       Back
     </button>
   </div>
@@ -60,27 +62,31 @@
       <span class="flex-auto text-left">{{ labelingProductCategory | uppercase }}</span>
     </div>
     <div class="flex flex-row space-x-2">
-      <button
+      @if(shipmentInfo?.status === 'OPEN'){
+        <button
         id="viewPickListBtn"
         class="action-button bg-purple-light px-4"
         mat-stroked-button
         (click)="viewPickList()"
-        *ngIf="shipmentInfo?.status === 'OPEN'"
       >View Pick List</button>
-      <button
+      }
+      @if(shipmentInfo?.status === 'COMPLETED'){
+        <button
         id="viewPackingListBtn"
         class="action-button bg-purple-light px-4"
         mat-stroked-button
         (click)="viewPackingList(true)"
-        *ngIf="shipmentInfo?.status === 'COMPLETED'"
       >Print Packing List</button>
-      <button
+      }
+
+      @if(shipmentInfo?.status === 'COMPLETED'){
+        <button
         id="viewShippingLabelBtn"
         class="action-button bg-purple-light px-4"
         mat-stroked-button
         (click)="viewShippingLabel(true)"
-        *ngIf="shipmentInfo?.status === 'COMPLETED'"
       >Print Shipping Label</button>
+      }
     </div>
   </div>
 
@@ -110,6 +116,7 @@
         [paginator]="true"
         [loading]="loading"
         [expandedRowKeys]="expandedRows"
+        (sortFunction)="customSort($event)"
       >
         <ng-template pTemplate="header">
           <tr>
@@ -146,16 +153,18 @@
           <tr>
             <td [ngStyle]="{ width: '30px' }">
               <div class="flex-row space-x-4 justify-center">
-                <button
-                id="expandRowBtn"
-                type="button"
-                class="p-button-text p-button-rounded p-button-plain"
-                pButton
-                pRipple
-                *ngIf="product?.comments"
-                [pRowToggler]="product"
-                [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-              ></button>
+                @if(product?.comments){
+                  <button
+                  id="expandRowBtn"
+                  type="button"
+                  class="p-button-text p-button-rounded p-button-plain"
+                  pButton
+                  pRipple
+                  [pRowToggler]="product"
+                  [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                ></button>
+                }
+              
               </div>
             </td>
             <td>
@@ -177,11 +186,13 @@
                     [value]="((product?.packedItems?.length || 0) / product?.quantity) * 100"
                   ></mat-progress-bar
                 ></span>
-                <mat-icon
+                @if(product?.packedItems?.length){
+                  <mat-icon
                   class="text-custom-green"
                   [svgIcon]="'hi_outline:clock'"
-                  *ngIf="product?.packedItems?.length"
                 ></mat-icon>
+                }
+                
               </div>
             </td>
             <td>
@@ -229,5 +240,167 @@
     </div>
   </fuse-card>
 </div>
+
+<!--Packed products Table-->
+@if(packedItems?.length && !isProductComplete){
+  <div class="flex flex-col flex-auto space-y-1 mt-6">
+    <fuse-card class="flex-col pb-4">
+      <!-- Header Section -->
+      <div class="flex flex-row justify-between items-end">
+        <div class="fuse-card-title">
+          <div class="flex flex-row w-full justify-between px-5 items-baseline">
+            <h3>{{ 'Packed Products'}}</h3>
+          </div>
+        </div>
+  
+        <div class="flex flex-row space-x-2 mr-4 p-2">
+          <button
+            id="completeShipmentBtn"
+            class="action-button bg-purple-light px-4"
+            mat-stroked-button
+            (click)="completeShipment()"
+          >
+            {{ 'Complete Shipment' }}
+          </button>
+        </div>
+      </div>
+      <mat-divider></mat-divider>
+  
+      <div class="table-wrapper">
+        <p-table
+          id="packedProdTableId"
+          dataKey="id"
+          [rows]="10"
+          [value]="packedItems"
+          [showCurrentPageReport]="true"
+          [rowsPerPageOptions]="[10, 25, 50]"
+          [loading]="loading"
+          styleClass="p-datatable-customers p-datatable-sm"
+          [paginator]="true"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th class="px-8">
+                <div class="p-d-flex p-jc-between p-ai-center">
+                  {{ 'Unit Number'}}
+                </div>
+              </th>
+              <th>
+                <div class="p-d-flex p-jc-between p-ai-center">
+                  {{ 'Product Code' }}
+                </div>
+              </th>
+              <th>
+                <div class="p-d-flex p-jc-between p-ai-center">
+                  {{ 'Description' }}
+                </div>
+              </th>
+              <th></th>
+            </tr>
+          </ng-template>
+  
+          <ng-template pTemplate="body" let-item let-i="rowIndex">
+            <tr>
+              <td class="px-8">
+                {{ item?.unitNumber  | uppercase }}
+              </td>
+              <td>
+                {{ item?.productCode }}
+              </td>
+              <td>
+                {{ item?.productDescription }}
+              </td>
+              <td></td>
+            </tr>
+          </ng-template>
+  
+          <ng-template pTemplate="footer">
+            <tr>
+              <td [attr.colspan]="4" class="p-text-right">
+                <span class="ml-6">({{ packedItems?.length }}) Total Filled Products</span>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </fuse-card>
+  </div>
+}
+
+
+
+<!--Shipped products Table-->
+@if(shippedInfoData?.length){
+  <div class="flex flex-col flex-auto space-y-1 mt-6">
+    <fuse-card class="flex-col pb-4">
+      <!-- Header Section -->
+      <div class="fuse-card-title">
+        <div class="flex flex-row w-full justify-between px-5 items-baseline">
+          <h3> Shipped Products </h3>
+        </div>
+      </div>
+      <mat-divider></mat-divider>
+  
+      <div class="table-wrapper">
+        <p-table
+          id="shippedProdTableId"
+          dataKey="id"
+          [value]="shippedInfoData"
+          [rows]="10"
+          [showCurrentPageReport]="true"
+          [rowsPerPageOptions]="[10, 25, 50]"
+          [loading]="loading"
+          styleClass="p-datatable-customers p-datatable-sm"
+          [paginator]="true"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th class="px-8">
+                <div class="p-d-flex p-jc-between p-ai-center">
+                  Quantity
+                </div>
+              </th>
+              <th>
+                <div class="p-d-flex p-jc-between p-ai-center">
+                  Shipment Date and Time
+                </div>
+              </th>
+              <th>
+                <div class="p-d-flex p-jc-between p-ai-center">
+                  Employee
+                </div>
+              </th>
+              <th></th>
+            </tr>
+          </ng-template>
+  
+          <ng-template pTemplate="body" let-completedInfo let-expanded="expanded">
+            <tr>
+              <td class="px-8">
+                {{ completedInfo?.quantity }}
+              </td>
+              <td>
+                {{ completedInfo?.completeDate }}
+              </td>
+              <td>
+                {{ completedInfo?.completedByEmployee | uppercase }}
+              </td>
+            </tr>
+          </ng-template>
+  
+          <ng-template pTemplate="footer">
+            <tr>
+              <td [attr.colspan]="4" class="p-text-right">
+                <span class="ml-6">({{ packedItems?.length }}) Total Components</span>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </fuse-card>
+  </div>
+}
 
 </ng-template>

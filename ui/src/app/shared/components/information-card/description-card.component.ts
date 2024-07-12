@@ -2,11 +2,11 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatIconModule } from '@angular/material/icon';
 import { FuseCardComponent } from '@fuse/components/card';
 import { Description } from 'app/shared/models/description.model';
 
 export type descriptionCardLayout = 'vertical' | 'horizontal';
-
 @Component({
   standalone: true,
   selector: 'rsa-description-card',
@@ -18,7 +18,8 @@ export type descriptionCardLayout = 'vertical' | 'horizontal';
     MatButtonModule,
     MatDividerModule,
     FuseCardComponent,
-    CommonModule
+    CommonModule,
+    MatIconModule
   ]
 })
 export class DescriptionCardComponent implements OnChanges {
@@ -57,7 +58,6 @@ export class DescriptionCardComponent implements OnChanges {
   private orderDescriptionsByColumns() {
     this.descriptionsGroup = [];
     if (this.descriptions.length > this.maxRows * this.maxCols) {
-      // this.maxRows = this.descriptions.length % 2 === 0 ? Math.floor(this.descriptions.length / 2) : Math.floor(this.descriptions.length / 2) + 1;
       this.maxRows = Math.ceil(this.descriptions.length / this.maxCols);
     }
     this.columns = Math.ceil(this.descriptions.length / this.maxRows);

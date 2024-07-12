@@ -56,12 +56,12 @@ export class ProcessHeaderComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnInit() {
     const leftNavigationComponent = this._fuseNavigationService.getComponent('mainNavigation');
-    // this.leftNavigationComponentOpened = leftNavigationComponent.opem;
+    this.leftNavigationComponentOpened = leftNavigationComponent?.opened;
 
-    // this.leftNavigationSubscription = leftNavigationComponent?.openedChanged.subscribe(response => {
-    //   this.leftNavigationComponentOpened = response;
-    //   this.cdr.detectChanges();
-    // });
+    this.leftNavigationSubscription = leftNavigationComponent?.openedChanged.subscribe(response => {
+      this.leftNavigationComponentOpened = response;
+      this.cdr.detectChanges();
+    });
   }
 
   ngOnDestroy() {

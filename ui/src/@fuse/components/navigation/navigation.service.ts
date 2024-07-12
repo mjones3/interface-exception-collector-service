@@ -37,7 +37,7 @@ export class FuseNavigationService {
      *
      * @param name
      */
-    getComponent<T>(name: string): T {
+    getComponent<T>(name: string): any {
         return this._componentRegistry.get(name);
     }
 

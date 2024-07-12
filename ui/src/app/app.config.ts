@@ -19,16 +19,32 @@ import { appRoutes } from 'app/app.routes';
 import { provideIcons } from 'app/core/icons/icons.provider';
 import { provideToastr } from 'ngx-toastr';
 import { provideCore } from './core/core.provider';
+import { AUTH_FEATURE_KEY, authReducerFactory } from './core/state/auth/auth.reducer';
+import { CONFIGURATION_FEATURE_KEY, configurationReducerFactory } from './core/state/configuration/configuration.reducer';
 import { mockApiServices } from './mock-api';
+import { TranslateInterpolationPipe } from './shared/pipes/translate-interpolation.pipe';
 
 export function createTranslateLoader(http: HttpClient) {
     return new TranslateHttpLoader(http, './i18n/', '.json');
 }
 
+
 export const appConfig: ApplicationConfig = {
     providers: [
         provideAnimations(),
         provideHttpClient(),
+       
+           // Translate Loader
+        importProvidersFrom(
+            TranslateModule.forRoot({
+                loader: {
+                    provide: TranslateLoader,
+                    useFactory: createTranslateLoader,
+                    deps: [HttpClient],
+                },
+            })
+        ),
+
         provideRouter(
             appRoutes,
             withPreloading(PreloadAllModules),
@@ -36,8 +52,17 @@ export const appConfig: ApplicationConfig = {
         ),
 
         // initialize the store and effects
-        provideStore(),
+        provideStore({
+            [AUTH_FEATURE_KEY]:  authReducerFactory,
+            [CONFIGURATION_FEATURE_KEY]: configurationReducerFactory
+        }),
+
         provideEffects(),
+
+        {
+            provide: TranslateInterpolationPipe,
+            useValue: TranslateInterpolationPipe
+        },
 
         // Material Date Adapter
         {
@@ -58,17 +83,6 @@ export const appConfig: ApplicationConfig = {
                 },
             },
         },
-
-        // Translate Loader
-        importProvidersFrom(
-            TranslateModule.forRoot({
-                loader: {
-                    provide: TranslateLoader,
-                    useFactory: createTranslateLoader,
-                    deps: [HttpClient],
-                },
-            })
-        ),
 
         provideCore(),
         provideToastr(),

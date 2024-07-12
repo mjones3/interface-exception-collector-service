@@ -1,5 +1,4 @@
 import { AsyncPipe, CommonModule, formatDate } from '@angular/common';
-import { HttpResponse } from '@angular/common/http';
 import { Component, Inject, LOCALE_ID, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -9,34 +8,41 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FuseCardComponent } from '@fuse/components/card';
 import { Store } from '@ngrx/store';
+import { getAuthState } from 'app/core/state/auth/auth.selectors';
 import { ProcessHeaderComponent } from 'app/shared/components/process-header/process-header.component';
 import { Description } from 'app/shared/models/description.model';
+import { NotificationDto } from 'app/shared/models/notification.dto';
 import { ProcessProductDto } from 'app/shared/models/process-product.dto';
+import { TranslateInterpolationPipe } from 'app/shared/pipes/translate-interpolation.pipe';
 import { ValidationType } from 'app/shared/pipes/validation.pipe';
 import { ProcessHeaderService } from 'app/shared/services/process-header.service';
+import { SortService } from 'app/shared/services/sort.service';
+import { startCase } from 'lodash-es';
 import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { SortEvent } from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
+import { of, switchMap } from 'rxjs';
+import { catchError, take } from 'rxjs/operators';
 import {
-    FilledProductInfoDto,
-    ShipmentCompleteInfoDto,
-    ShipmentInfoDto,
-    ShipmentInfoItemDto,
+  DEFAULT_PAGE_SIZE,
+  DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
+  DEFAULT_PAGE_SIZE_DIALOG_WIDTH,
+} from '../../../core/services/browser-printing/browser-printing.model';
+import { BrowserPrintingService } from '../../../core/services/browser-printing/browser-printing.service';
+import {
+  FilledProductInfoDto,
+  ShipmentCompleteInfoDto,
+  ShipmentInfoDto,
+  ShipmentInfoItemDto,
 } from '../models/shipment-info.dto';
 import { PackingListService } from '../services/packing-list.service';
 import { ShipmentService } from '../services/shipment.service';
-import { OrderWidgetsSidebarComponent } from '../shared/order-widgets-sidebar/order-widgets-sidebar.component';
-import { BrowserPrintingService } from '../../../core/services/browser-printing/browser-printing.service';
-import { ViewPickListComponent } from '../view-pick-list/view-pick-list.component';
-import {
-    DEFAULT_PAGE_SIZE,
-    DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
-    DEFAULT_PAGE_SIZE_DIALOG_WIDTH,
-} from '../../../core/services/browser-printing/browser-printing.model';
-import { of, switchMap } from 'rxjs';
-import { ViewPackingListComponent } from '../view-packing-list/view-packing-list.component';
-import { catchError } from 'rxjs/operators';
-import { ViewShippingLabelComponent } from '../view-shipping-label/view-shipping-label.component';
 import { ShippingLabelService } from '../services/shipping-label.service';
+import { OrderWidgetsSidebarComponent } from '../shared/order-widgets-sidebar/order-widgets-sidebar.component';
+import { ViewPackingListComponent } from '../view-packing-list/view-packing-list.component';
+import { ViewPickListComponent } from '../view-pick-list/view-pick-list.component';
+import { ViewShippingLabelComponent } from '../view-shipping-label/view-shipping-label.component';
 
 @Component({
   selector: 'app-shipment-details',
@@ -52,7 +58,8 @@ import { ShippingLabelService } from '../services/shipping-label.service';
     MatIconModule,
     MatButtonModule,
     MatProgressBarModule,
-    OrderWidgetsSidebarComponent
+    OrderWidgetsSidebarComponent,
+    ButtonModule,
   ],
   templateUrl: './shipment-details.component.html',
   styleUrl: './shipment-details.component.scss'
@@ -65,19 +72,21 @@ export class ShipmentDetailsComponent implements OnInit {
     private route: ActivatedRoute,
     private shipmentService: ShipmentService,
     private toaster: ToastrService,
+    private sortService: SortService,
     private packingListService: PackingListService,
     private matDialog: MatDialog,
     private store: Store,
     private shippingLabelService: ShippingLabelService,
     private browserPrintingService: BrowserPrintingService,
-    @Inject(LOCALE_ID) public locale: string
+    private translateInterpolationPipe: TranslateInterpolationPipe,
+    @Inject(LOCALE_ID) public locale: string,
   ) {
-    // store
-    //   .select(getAuthState)
-    //   .pipe(take(1))
-    //   .subscribe(auth => {
-    //     this.loggedUserId = auth['id'];
-    //   });
+    this.store
+      .select(getAuthState)
+      .pipe(take(1))
+      .subscribe(auth => {
+        this.loggedUserId = auth['id'];
+      });
   }
 
   expandedRows = {};
@@ -115,10 +124,6 @@ export class ShipmentDetailsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const shipmentConfigData = this.route.snapshot.data?.shipmentDetailsConfigData as HttpResponse<ProcessProductDto>;
-    if (shipmentConfigData?.body) {
-      this.processProductConfig = shipmentConfigData.body as ProcessProductDto;
-    }
     this.fetchShipmentDetails();
   }
 
@@ -184,9 +189,9 @@ export class ShipmentDetailsComponent implements OnInit {
     this._router.navigateByUrl('/orders/search');
   }
 
-  // customSort(event: SortEvent) {
-  //   this.sortService.customSort(event);
-  // }
+  customSort(event: SortEvent) {
+    this.sortService.customSort(event);
+  }
 
   viewPickList(): void {
     const dialogRef = this.matDialog.open(ViewPickListComponent, {
@@ -220,7 +225,7 @@ export class ShipmentDetailsComponent implements OnInit {
           return dialogRef.afterOpened();
         }),
         catchError(err => {
-          this.toaster.error('something-went-wrong.label');
+          this.toaster.error('Something Went Wrong');
           throw err;
         })
       )
@@ -253,7 +258,7 @@ export class ShipmentDetailsComponent implements OnInit {
           return dialogRef.afterOpened();
         }),
         catchError(err => {
-          this.toaster.error('something-went-wrong.label');
+          this.toaster.error('Something Went Wrong');
           throw err;
         })
       )
@@ -263,4 +268,40 @@ export class ShipmentDetailsComponent implements OnInit {
       });
   }
 
+  completeShipment() {
+    this.shipmentService.completeShipment(this.getValidateRuleDto()).subscribe(
+      response => {
+        const value = response.data?.completeShipment;
+        const notifications = value.notifications;
+        const url = value._links?.next;
+
+        if (notifications?.length) {
+          this.displayMessageFromNotificationDto(notifications[0]);
+          if (url && notifications[0].notificationType === 'success') {
+            this.fetchShipmentDetails();
+          }
+        }
+      },
+      err => {
+        this.toaster.error('something-went-wrong.label');
+        throw err;
+      }
+    );
+  }
+
+  private getValidateRuleDto() {
+    return {
+      shipmentId: this.shipmentId,
+      employeeId: this.loggedUserId,
+    };
+  }
+
+  displayMessageFromNotificationDto(notification: NotificationDto) {
+    this.toaster.show(
+      this.translateInterpolationPipe.transform(notification.message, []),
+      startCase(notification.notificationType),
+      {},
+      notification.notificationType
+    );
+  }
 }

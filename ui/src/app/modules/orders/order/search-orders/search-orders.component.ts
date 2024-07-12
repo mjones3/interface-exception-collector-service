@@ -44,66 +44,66 @@ export class SearchOrdersComponent {
   columns: Column[] = [
     {
       field: 'id',
-      header: 'shipment-id.label', 
+      header: 'Shipment Id', 
       sortable: true,
       default: true,
     },
     {
       field: 'orderNumber',
-      header: 'order-number.label',
+      header: 'Order Number',
       sortable: true,
       default: true,
     },
     {
       field: 'shippingCustomerExternalId',
-      header: 'ship-to-customer-id.label',
+      header: 'Ship to Customer Id',
       sortable: true,
       hidden: true,
     },
     {
       field: 'shipLocationName',
-      header: 'ship-to-location.label',
+      header: 'Ship to Location',
       sortable: true,
       hidden: true,
     },
     {
       field: 'createDate',
-      header: 'create-date.label',
+      header: 'Create Date',
       templateRef: 'dateTpl',
       sortable: true,
       hidden: true,
     },
     {
       field: 'desireShippingDate',
-      header: 'ship-date.label',
+      header: 'Ship Date',
       templateRef: 'dateTpl',
       sortable: true,
       hidden: true,
     },
     {
       field: 'priority',
-      header: 'priority.label',
+      header: 'Priority',
       sortable: true,
       sortFieldName: 'priority',
       default: true,
     },
     {
       field: 'status',
-      header: 'status.label',
+      header: 'Status',
       sortable: true,
       sortFieldName: 'status',
       default: true,
     },
     {
       field: 'createDate',
-      header: 'create-date.label',
+      header: 'Create Date',
       sortable: true,
       sortFieldName: 'createDate',
       default: true,
     },
     {
       field: '',
-      header: 'action.label',
+      header: 'Action',
       templateRef: 'actionTpl',
       hideHeader: true,
       default: true,
@@ -167,11 +167,11 @@ export class SearchOrdersComponent {
               }) ?? [];
             this.totalRecords = Number(0);
           } else {
-            this.toaster.error('no-results-found.label');
+            this.toaster.error('No Results Found');
           }
         },
         err => {
-          this.toaster.error('something-went-wrong.label');
+          this.toaster.error('Something Went Wrong');
           throw err;
         }
       );

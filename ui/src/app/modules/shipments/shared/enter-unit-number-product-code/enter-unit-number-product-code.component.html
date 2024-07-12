@@ -1,0 +1,60 @@
+<div id="fillProductForm" class="flex flex-col" [formGroup]="productGroup">
+  <div class="flex flex-row space-x-4 px-8 pt-4">
+    <div class="flex flex-col space-y-1 w-full">
+      <span class="block font-bold">Unit Number</span>
+      <rsa-scan-unit-number-check-digit
+        id="scanOrEnterUnitNumberId"
+        [disableCheckDigit]="disableCheckDigit"
+        (validate)="verifyUnit($event)"
+        [showKeyboard]="false"
+        [labelTitle]="''"
+        [inputFocus]="unitNumberFocus"
+        #unitnumber
+      >
+      </rsa-scan-unit-number-check-digit>
+    </div>
+
+    <div class="flex flex-col space-y-1 w-full">
+      <div class="flex flex-col mt-0 flex-auto">
+        <mat-form-field appearance="fill" class="block w-full" rsaControlErrorContainer>
+          <mat-label class="block font-bold">Product Code</mat-label>
+          <input
+            id="productCodeId"
+            matInput
+            formControlName="productCode"
+            autocomplete="off"
+            validateOn="touchedState"
+            rsaBarcode
+            (keyup)="enableVisualInspection()"
+            [placeholder]="'Scan or Enter Product Code'"
+            [customErrors]="{
+              invalidProductCode: 'Product Code' | validation: validationType.INVALID,
+              required: 'Product Code' | validation: validationType.REQUIRED
+            }"
+          />
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="flex flex-col space-y-1 w-full">
+      <label class="block font-bold asterix--before">Visual Inspection</label>
+      <div class="flex flex-col mb-4">
+        <mat-radio-group
+          id="visualInspectionId"
+          required
+          [customErrors]="{
+            required: 'Visual Inspection' | validation: validationType.REQUIRED
+          }"
+          class="flex pt-2"
+          formControlName="visualInspection"
+          ngDefaultControl
+          (change)="onSelectVisualInspection()"
+        >
+          <mat-radio-button id="inspection-satisfactory" class="mr-4" [value]="'satisfactory'">Satisfactory</mat-radio-button>
+          <mat-radio-button id="inspection-unsatisfactory" [value]="'unsatisfactory'"> Unsatisfactory
+          </mat-radio-button>
+        </mat-radio-group>
+      </div>
+    </div>
+  </div>
+</div>

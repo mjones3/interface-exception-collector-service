@@ -1,9 +1,9 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { TranslateFakeLoader, TranslateLoader, TranslateModule } from '@ngx-translate/core';
-import { MaterialModule } from '@rsa/material';
-import { createTestContext } from '@rsa/testing';
-import { TreoCardModule } from '@treo';
+import { createTestContext } from 'app/core/test/test-context';
 import { DescriptionCardComponent } from './description-card.component';
 
 describe('DescriptionCardComponent', () => {
@@ -15,9 +15,7 @@ describe('DescriptionCardComponent', () => {
       TestBed.configureTestingModule({
         declarations: [DescriptionCardComponent],
         imports: [
-          MaterialModule,
           NoopAnimationsModule,
-          TreoCardModule,
           TranslateModule.forRoot({
             loader: {
               provide: TranslateLoader,
@@ -25,6 +23,10 @@ describe('DescriptionCardComponent', () => {
             },
           }),
         ],
+        providers: [
+          provideHttpClient(),
+          provideHttpClientTesting()
+        ]
       }).compileComponents();
     })
   );

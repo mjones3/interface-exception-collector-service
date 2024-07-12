@@ -251,6 +251,7 @@
 .mdc-button {
     .mdc-button__label {
         white-space: nowrap;
+        color: white;
     }
 }
 
@@ -314,9 +315,8 @@
 /* -------------------------------------------------------------------------- */
 .mat-mdc-dialog-container {
     .mdc-dialog__surface {
-        border-radius: 4px !important;
-        padding: 0;
-        overflow: hidden;
+        border-radius: 16px !important;
+        padding: 24px;
     }
 }
 
@@ -561,6 +561,7 @@
 
                 /* Floating label - disable floating action */
                 .mat-mdc-floating-label {
+                    display: flex;
                     top: -25px !important;
                     left: 0 !important;
                     width: 100% !important;
@@ -568,6 +569,11 @@
                     pointer-events: auto;
                     font-weight: 500;
                     @apply text-default #{'!important'};
+                }
+
+                .mdc-floating-label--required:not(.mdc-floating-label--hide-required-marker)::after {
+                    color: #c81e1e;
+                    font-weight: bold;
                 }
 
                 /* Textarea */
@@ -1275,7 +1281,7 @@ textarea.mat-mdc-input-element {
 
 .mat-mdc-tooltip .mdc-tooltip__surface {
     background-color: var(--fuse-text-default) !important;
-    color: white !important;
+    color: white;
 
     .dark & {
         background-color: var(--fuse-text-secondary) !important;

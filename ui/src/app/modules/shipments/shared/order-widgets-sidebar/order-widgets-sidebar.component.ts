@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DescriptionCardComponent } from 'app/shared/components/information-card/description-card.component';
 import { WidgetComponent } from 'app/shared/components/widget/widget.component';
@@ -14,7 +15,8 @@ import { ProcessHeaderService } from 'app/shared/services/process-header.service
   imports: [
     CommonModule,
     WidgetComponent,
-    DescriptionCardComponent
+    DescriptionCardComponent,
+    MatExpansionModule
   ]
 })
 export class OrderWidgetsSidebarComponent implements OnInit {

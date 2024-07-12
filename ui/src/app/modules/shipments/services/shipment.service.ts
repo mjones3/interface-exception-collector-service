@@ -3,7 +3,6 @@ import { Injectable } from '@angular/core';
 import { ApolloQueryResult } from '@apollo/client';
 import { Apollo } from 'apollo-angular';
 import { Description } from 'app/shared/models/description.model';
-import { EnvironmentConfigService } from 'app/shared/services';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { COMPLETE_SHIPMENT, PACK_ITEM } from '../graphql/shipment/mutation-definitions/shipment.graphql';
@@ -18,7 +17,6 @@ export class ShipmentService {
   err = new Error('test')
 
   constructor(
-    private config: EnvironmentConfigService, 
     private apollo: Apollo
   ) {}
 
@@ -54,7 +52,7 @@ export class ShipmentService {
   public getShipmentById(
     shipmentId: number,
     refetch: boolean = false
-  ): Observable<ApolloQueryResult<{ getShipmentDetailsById: ShipmentInfoDto }>> {
+  ): Observable<ApolloQueryResult<{ getShipmentDetailsById: ShipmentInfoDto }>> {  
     return this.apollo.query<{ getShipmentDetailsById: ShipmentInfoDto }>({
       query: GET_SHIPMENT_BY_ID,
       variables: { shipmentId },
@@ -65,23 +63,23 @@ export class ShipmentService {
   //#region Descriptions
   public getOrderInfoDescriptions(shipmentInfo: ShipmentInfoDto): Description[] {
     return [
-      { label: 'order-number', value: shipmentInfo?.orderNumber?.toString() },
+      { label: 'Order Number', value: shipmentInfo?.orderNumber?.toString() },
       {
-        label: 'priority',
+        label: 'Priority',
         value: shipmentInfo?.priority,
       },
-      { label: 'labeling-product-category', value: shipmentInfo?.productCategory },
+      { label: 'Labeling Product Category', value: shipmentInfo?.productCategory },
     ];
   }
 
   public getShippingInfoDescriptions(shipmentInfo: ShipmentInfoDto): Description[] {
     return [
-      { label: 'shipment-id', value: shipmentInfo.id.toString() },
-      { label: 'customer-id', value: shipmentInfo?.shippingCustomerCode.toString() },
-      { label: 'customer-name', value: shipmentInfo?.shippingCustomerName },
-      { label: 'status', value: shipmentInfo?.status },
+      { label: 'Shipment Id', value: shipmentInfo.id.toString() },
+      { label: 'Customer Id', value: shipmentInfo?.shippingCustomerCode.toString() },
+      { label: 'Customer Name', value: shipmentInfo?.shippingCustomerName },
+      { label: 'Status', value: shipmentInfo?.status },
       {
-        label: 'ship-method',
+        label: 'Ship Method',
         value: shipmentInfo?.shippingMethod,
       },
     ];

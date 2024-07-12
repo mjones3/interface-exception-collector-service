@@ -1,9 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateFakeLoader, TranslateLoader, TranslateModule } from '@ngx-translate/core';
-import { MaterialModule } from '@rsa/material';
-import { createTestContext } from '@rsa/testing';
-import { TreoCardModule } from '@treo';
+import { createTestContext } from 'app/core/test/test-context';
 import { WidgetComponent } from './widget.component';
 
 describe('WidgetComponent', () => {
@@ -14,9 +12,7 @@ describe('WidgetComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [WidgetComponent],
       imports: [
-        TreoCardModule,
         CommonModule,
-        MaterialModule,
         TranslateModule.forRoot({
           loader: {
             provide: TranslateLoader,
