@@ -269,8 +269,8 @@ export class ShipmentDetailsComponent implements OnInit {
   }
 
   completeShipment() {
-    this.shipmentService.completeShipment(this.getValidateRuleDto()).subscribe(
-      response => {
+    this.shipmentService.completeShipment(this.getValidateRuleDto()).subscribe({
+      next: (response) => {
         const value = response.data?.completeShipment;
         const notifications = value.notifications;
         const url = value._links?.next;
@@ -282,10 +282,11 @@ export class ShipmentDetailsComponent implements OnInit {
           }
         }
       },
-      err => {
+      error: (err) => {
         this.toaster.error('something-went-wrong.label');
         throw err;
       }
+    }
     );
   }
 

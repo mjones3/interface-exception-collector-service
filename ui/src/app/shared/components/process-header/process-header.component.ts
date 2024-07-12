@@ -11,7 +11,7 @@ import {
   TemplateRef,
   ViewEncapsulation,
 } from '@angular/core';
-import { FuseNavigationService } from '@fuse/components/navigation';
+import { FuseNavigationService, FuseVerticalNavigationComponent } from '@fuse/components/navigation';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -55,7 +55,7 @@ export class ProcessHeaderComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnInit() {
-    const leftNavigationComponent = this._fuseNavigationService.getComponent('mainNavigation');
+    const leftNavigationComponent = this._fuseNavigationService.getComponent<FuseVerticalNavigationComponent>('mainNavigation');
     this.leftNavigationComponentOpened = leftNavigationComponent?.opened;
 
     this.leftNavigationSubscription = leftNavigationComponent?.openedChanged.subscribe(response => {
