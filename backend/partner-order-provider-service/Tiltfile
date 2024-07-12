@@ -67,18 +67,48 @@ def keycloak_service():
         resource_deps=['cert-manager']
     )
 
-# Function to build and deploy: redis service
-def redis_service():
+# Function to build and deploy: zookeeper service
+def zookeeper_service():
     # Specify the Kubernetes manifest for the deployment
     k8s_yaml([
-        './src/main/k8s/caching-namespace.yaml',
-        './src/main/k8s/redis-service.yaml',
-        './src/main/k8s/redis-deployment.yaml',
+        './src/main/k8s/queue-namespace.yaml',
+        './src/main/k8s/zookeeper-service.yaml',
+        './src/main/k8s/zookeeper-deployment.yaml'
     ])
     k8s_resource(
-        'redis-deployment',
-        port_forwards=6379,
-        trigger_mode=TRIGGER_MODE_MANUAL
+        'zookeeper-deployment',
+        resource_deps=['cert-manager']
+        ,trigger_mode=TRIGGER_MODE_MANUAL
+    )
+
+# Function to build and deploy: kafka service
+def kafka_service():
+    # Specify the Kubernetes manifest for the deployment
+    k8s_yaml([
+        './src/main/k8s/kafka-service.yaml',
+        './src/main/k8s/kafka-deployment.yaml'
+    ])
+    k8s_resource(
+        'kafka-deployment',
+        port_forwards=29092,
+        resource_deps=['zookeeper-deployment']
+        ,trigger_mode=TRIGGER_MODE_MANUAL
+    )
+
+
+# Function to build and deploy: redpanda console service
+def redpanda_console_service():
+    # Specify the Kubernetes manifest for the deployment
+    k8s_yaml([
+        './src/main/k8s/redpanda-console-service.yaml',
+        './src/main/k8s/redpanda-console-deployment.yaml',
+        './src/main/k8s/redpanda-console-ingress.yaml'
+    ])
+    k8s_resource(
+        'redpanda-console-deployment',
+        links=['console.local.gd'],
+        resource_deps=['kafka-deployment']
+        ,trigger_mode=TRIGGER_MODE_MANUAL
     )
 
 
@@ -102,7 +132,7 @@ def biopro_service():
         links=['interface.local.gd'],
         resource_deps=[
             'keycloak-deployment',
-            'redis-deployment',
+            'kafka-deployment',
             'opentelemetry-collector'
         ],
         trigger_mode=TRIGGER_MODE_MANUAL
@@ -112,5 +142,7 @@ def biopro_service():
 cert_manager()
 otel_operator()
 keycloak_service()
-redis_service()
+zookeeper_service()
+kafka_service()
+redpanda_console_service()
 biopro_service()

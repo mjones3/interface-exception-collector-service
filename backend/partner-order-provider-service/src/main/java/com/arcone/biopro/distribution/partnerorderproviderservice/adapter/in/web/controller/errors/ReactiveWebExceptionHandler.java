@@ -2,6 +2,8 @@ package com.arcone.biopro.distribution.partnerorderproviderservice.adapter.in.we
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.ProblemDetail;
@@ -15,6 +17,7 @@ import reactor.core.publisher.Mono;
  * ResponseStatusException handler for springwebflux(reactive) application
  * that will facilitate the translation to ProblemDetail
  */
+@Configuration
 public class ReactiveWebExceptionHandler implements org.springframework.web.server.WebExceptionHandler {
 
     private final ExceptionTranslation translator;
@@ -54,4 +57,6 @@ public class ReactiveWebExceptionHandler implements org.springframework.web.serv
             return Mono.error(ex);
         }
     }
+
+
 }
