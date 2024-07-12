@@ -99,7 +99,7 @@ logging:
     org.apache.kafka.clients.admin.AdminClientConfig: WARN
     org.apache.kafka.clients.producer.ProducerConfig: WARN
     org.apache.kafka.clients.consumer.ConsumerConfig: WARN
-    org.apache.kafka: WARN
+    org.apache.kafka: DEBUG
     com.arcone.biopro: DEBUG
 
 spring:
@@ -130,6 +130,21 @@ spring:
   main:
     allow-bean-definition-overriding: true
     web-application-type: REACTIVE
+  kafka:
+    bootstrap-servers: localhost:29092
+    consumer:
+      group-id: ${spring.application.name}
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      auto-offset-reset: earliest
+      properties:
+        interceptor.classes: io.opentelemetry.instrumentation.kafkaclients.v2_6.TracingConsumerInterceptor
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.trusted.packages: 'com.arcone.biopro.*' # Allow serialization of our domain objects
+        interceptor.classes: io.opentelemetry.instrumentation.kafkaclients.v2_6.TracingProducerInterceptor
   webflux:
     problemdetails:
       enabled: true
@@ -205,11 +220,19 @@ springwolf:
       version: 0.0.1
   enabled: false
 
+topics:
+  order-received:
+    partitions: 1
+    replicas: 1
+    name: OrderReceived
+
 # ===================================================================
 # BioPro specific properties
 # ===================================================================
 
 application:
+  clientApp:
+    name: BioPro
   http:
     cache: # Used by the CachingHttpHeadersFilter
       timeToLiveInDays: 1461
@@ -240,3 +263,4 @@ application:
       audience:
         - account
         - api://default
+
