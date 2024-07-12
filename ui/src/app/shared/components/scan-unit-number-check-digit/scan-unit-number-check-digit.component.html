@@ -25,25 +25,27 @@
       </rsa-input-keyboard>
     </div>
 
-    <div class="flex flex-col items-baseline mb-4" *ngIf="!disableCheckDigit">
-      <rsa-input-keyboard
-        [inputWidth]="'w-20'"
-        [inputId]="'checkDigit'"
-        [labelTitle]="' -'"
-        [upperCase]="false"
-        rsaControlErrorContainer
-        formControlName="checkDigit"
-        [customErrors]="{
-          required: 'Check Digit' | validation: validationType.REQUIRED,
-          invalid: 'Check Digit' | validation: validationType.INVALID,
-          maxlength: 'Check Digit' | validation: validationType.INVALID
-        }"
-        (tabOrEnterPressed)="checkValues($event)"
-        id="ikCheckDigit"
-        #inputCheckDigit
-        [showKeyboard]="showKeyboard"
-      >
-      </rsa-input-keyboard>
-    </div>
+    @if(!disableCheckDigit){
+      <div class="flex flex-col items-baseline mb-4">
+        <rsa-input-keyboard
+          [inputWidth]="'w-20'"
+          [inputId]="'checkDigit'"
+          [labelTitle]="' -'"
+          [upperCase]="false"
+          rsaControlErrorContainer
+          formControlName="checkDigit"
+          [customErrors]="{
+            required: 'Check Digit' | validation: validationType.REQUIRED,
+            invalid: 'Check Digit' | validation: validationType.INVALID,
+            maxlength: 'Check Digit' | validation: validationType.INVALID
+          }"
+          (tabOrEnterPressed)="checkValues($event)"
+          id="ikCheckDigit"
+          #inputCheckDigit
+          [showKeyboard]="showKeyboard"
+        >
+        </rsa-input-keyboard>
+      </div>
+    }
   </div>
 </form>

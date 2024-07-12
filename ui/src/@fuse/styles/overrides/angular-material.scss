@@ -315,8 +315,9 @@
 /* -------------------------------------------------------------------------- */
 .mat-mdc-dialog-container {
     .mdc-dialog__surface {
-        border-radius: 16px !important;
-        padding: 24px;
+        border-radius: 4px !important;
+        padding: 0;
+        overflow: hidden;
     }
 }
 
@@ -1281,7 +1282,7 @@ textarea.mat-mdc-input-element {
 
 .mat-mdc-tooltip .mdc-tooltip__surface {
     background-color: var(--fuse-text-default) !important;
-    color: white;
+    color: white !important;
 
     .dark & {
         background-color: var(--fuse-text-secondary) !important;

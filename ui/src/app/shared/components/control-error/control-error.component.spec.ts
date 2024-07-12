@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ControlErrorComponent } from './control-error.component';
@@ -8,9 +9,12 @@ describe('ControlErrorComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      imports: [NoopAnimationsModule],
-      declarations: [ControlErrorComponent],
-    })
+      imports: [
+        CommonModule,
+        NoopAnimationsModule,
+        ControlErrorComponent,
+      ],
+  })
       .compileComponents();
   }));
 

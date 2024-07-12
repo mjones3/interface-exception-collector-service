@@ -3,7 +3,6 @@ import { Component, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { Router } from '@angular/router';
-import { FuseAlertComponent, FuseAlertService } from '@fuse/components/alert';
 import { FuseCardComponent } from '@fuse/components/card';
 import { ShipmentInfoDto } from 'app/modules/shipments/models/shipment-info.dto';
 import { ProcessHeaderComponent } from 'app/shared/components/process-header/process-header.component';
@@ -29,7 +28,6 @@ import { OrderService } from '../../services/order.service';
       AsyncPipe,
       ProcessHeaderComponent,
       MatButtonModule,
-      FuseAlertComponent
     ],
   templateUrl: './search-orders.component.html',
 })
@@ -132,7 +130,6 @@ export class SearchOrdersComponent {
     private router: Router,
     public header: ProcessHeaderService,
     private toaster: ToastrService,
-    private fuseAlert: FuseAlertService
   ){}
 
   ngOnInit(): void  {}

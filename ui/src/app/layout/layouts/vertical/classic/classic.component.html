@@ -80,14 +80,16 @@
     >
         <div id="copyright">
             ARC-One Solutions &copy; {{ releaseNumber }}
-            <div
+
+            @if(processProductVersion){
+                <div
                 matTooltip="Open Version Details"
                 (click)="goToBuildDetails()"
                 style="cursor: pointer"
-                *ngIf="processProductVersion"
             >
                 Build Version: {{ processProductVersion.buildVersion }}
             </div>
+            }
         </div>
 
         <span style="color: red; padding: 40px">{{

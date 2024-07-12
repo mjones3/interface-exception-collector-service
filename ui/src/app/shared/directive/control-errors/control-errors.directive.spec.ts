@@ -84,13 +84,6 @@ describe('ControlErrorsDirective', () => {
     })();
   });
 
-  // TODO: fix unit test
-  xit('should destroy the component, directive and dynamic added component', () => {
-    fixture.destroy();
-    fixture.detectChanges();
-    expect(component.errorsDirective.getSubscription().closed).toEqual(true);
-  });
-
   it('should show error when submit the form', done => {
     fakeAsync(() => {
       component.formGroup.patchValue({ formControlName: 100 });

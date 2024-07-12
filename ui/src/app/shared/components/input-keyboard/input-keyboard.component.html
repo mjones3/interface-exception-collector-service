@@ -1,13 +1,14 @@
 <div class="flex">
     <div class="gt-xs:items-baseline flex w-full" [formGroup]="form">
         <!-- Label -->
-        <label
+         @if(labelTitle){
+            <label
             [for]="inputId"
             class="mr-4 font-bold"
-            *ngIf="labelTitle"
             [ngClass]="[labelWidth || '']"
             >{{ labelTitle }}</label
         >
+         }
 
         <!-- Input Section Wrapper -->
         <div class="flex h-full flex-1 flex-col">
@@ -24,8 +25,27 @@
                             [ngClass]="[inputWidth]"
                             rsaControlErrorContainer
                         >
+                        @if(inputType === inputTypeEnum.TEXTAREA){
+                            <textarea
+                                matInput
+                                formControlName="input"
+                                [id]="inputId"
+                                [rows]="textareaRows"
+                                [maxLength]="maxLength"
+                                [placeholder]="placeholder"
+                                [tabindex]="tabindex"
+                                [customErrors]="customErrors"
+                                [class]="{ 'input-uppercase': upperCase }"
+                                [(rsaAutoFocusIf)]="inputFocus"
+                                (keydown.Tab)="onTabEnterPressed()"
+                                (keydown.Enter)="onEnter($event)"
+                                (blur)="onBlur()"
+                                #inputField
+                            ></textarea>
+                        }
+
+                        @if(inputType === inputTypeEnum.TEXT){
                             <input
-                                *ngIf="inputType === inputTypeEnum.TEXT"
                                 matInput
                                 formControlName="input"
                                 rsaMaskRegex
@@ -44,46 +64,33 @@
                                 (blur)="onBlur()"
                                 #inputField
                             />
+                        }
 
                             <!-- Text Area -->
-                            <textarea
-                                *ngIf="inputType === inputTypeEnum.TEXTAREA"
-                                matInput
-                                formControlName="input"
-                                [id]="inputId"
-                                [rows]="textareaRows"
-                                [maxLength]="maxLength"
-                                [placeholder]="placeholder"
-                                [tabindex]="tabindex"
-                                [customErrors]="customErrors"
-                                [class]="{ 'input-uppercase': upperCase }"
-                                [(rsaAutoFocusIf)]="inputFocus"
-                                (keydown.Tab)="onTabEnterPressed()"
-                                (keydown.Enter)="onEnter($event)"
-                                (blur)="onBlur()"
-                                #inputField
-                            ></textarea>
                             <ng-template
                                 [ngTemplateOutlet]="suffixTemplateRef"
                             ></ng-template>
-                            <mat-icon
-                                *ngIf="iconName"
+                            @if(iconName){
+                                <mat-icon
                                 matSuffix
                                 [svgIcon]="iconName"
                             ></mat-icon>
+                            }
+                            
                         </mat-form-field>
                     </div>
                 </div>
 
                 <!-- Characters Counter -->
-                <mat-hint
+                 @if(inputType === inputTypeEnum.TEXTAREA && maxLength){
+                    <mat-hint
                     [ngClass]="[inputWidth ? inputWidth : 'mr-12']"
                     class="text-right"
-                    *ngIf="inputType === inputTypeEnum.TEXTAREA && maxLength"
                 >
                     {{ form.controls['input'].value?.trim().length }} /
                     {{ maxLength }}
                 </mat-hint>
+                 }
             </div>
         </div>
     </div>

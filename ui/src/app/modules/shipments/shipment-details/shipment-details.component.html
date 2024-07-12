@@ -199,8 +199,8 @@
               {{ product?.bloodType | uppercase }}
             </td>
             <td>
-              <div
-                *ngIf="product?.packedItems?.length !== product?.quantity && !isProductComplete"
+              @if(product?.packedItems?.length !== product?.quantity && !isProductComplete){
+                <div
                 class="flex flex-row space-x-4 justify-center"
               >
                 <button
@@ -212,6 +212,8 @@
                   Fill Product
                 </button>
               </div>
+              }
+            
             </td>
           </tr>
         </ng-template>
@@ -220,10 +222,12 @@
             <td [attr.colspan]="6">
               <div class="p-4">
                 <div class="flex flex-col space-y-2">
-                  <div class="flex flex-row space-x-4 w-full text-wrap" *ngIf="product?.comments">
-                    <span class="font-bold mb-1 text-left mr-4 w-60">Comments</span>
-                    <span class="text-overflow text-left">{{ product?.comments | uppercase }}</span>
-                  </div>
+                  @if(product?.comments){
+                    <div class="flex flex-row space-x-4 w-full text-wrap">
+                      <span class="font-bold mb-1 text-left mr-4 w-60">Comments</span>
+                      <span class="text-overflow text-left">{{ product?.comments | uppercase }}</span>
+                    </div>
+                  }
                 </div>
               </div>
             </td>

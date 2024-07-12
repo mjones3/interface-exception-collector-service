@@ -219,3 +219,8 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     width: 100%;
     left: 0px;
   }
+
+  .content-layout.fullwidth-standard-normal-scroll > .header {
+    padding: 15px 25px;
+    background: white;
+  }

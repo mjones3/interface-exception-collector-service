@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FuseCardComponent } from '@fuse/components/card';
+import { MatDividerModule } from '@angular/material/divider';
 import { SearchOrdersComponent } from './search-orders.component';
 
 describe('SearchOrdersComponent', () => {
@@ -8,7 +8,11 @@ describe('SearchOrdersComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SearchOrdersComponent, FuseCardComponent]
+      imports: [
+        SearchOrdersComponent,
+        MatDividerModule,
+        
+      ]
     })
     .compileComponents();
     

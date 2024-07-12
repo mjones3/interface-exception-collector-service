@@ -28,13 +28,14 @@
       </div>
     </ng-template>
   </rsa-common-widget>
-  <rsa-common-widget
+
+  @if(shippingInfoDescriptions?.length){
+    <rsa-common-widget
     svgIcon="remove_shopping_cart"
     svgIconCls="text-custom-red"
     [title]="'Shipping Information'"
     [subtitle]="'General Information'"
     [templateRef]="shipInfoTpl"
-    *ngIf="shippingInfoDescriptions?.length"
   >
     <ng-template #shipInfoTpl>
       <div class="flex flex-col">
@@ -50,4 +51,5 @@
       </div>
     </ng-template>
   </rsa-common-widget>
+  }
 </div>
