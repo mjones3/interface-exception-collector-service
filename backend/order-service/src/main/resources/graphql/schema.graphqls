@@ -1,18 +1,33 @@
 scalar DateTime
 @specifiedBy(url: "https://scalars.graphql.org/andimarek/date-time.html")
 
-type Mutation {
-    createOrderService(dto: OrderServiceRequestDTO!): OrderServiceResponseDTO!
-}
-
 type Query {
-    orderServiceList: [OrderServiceResponseDTO]!
+    findAllLookupsByType(type: String): [Lookup]!
 }
 
-input OrderServiceRequestDTO {
-    id: ID!   # Add fields here
+type Mutation {
+    insertLookup(lookupRequest: LookupRequest!): Lookup!
+    updateLookup(lookupRequest: LookupRequest!): Lookup!
+    deleteLookup(lookupRequest: LookupRequest!): Lookup!
 }
 
-type OrderServiceResponseDTO {
-    id: ID!
+input LookupId {
+    type: String!
+    optionValue: String!
+}
+
+input LookupRequest {
+    type: String!
+    optionValue: String!
+    descriptionKey: String!
+    orderNumber: Int!
+    active: Boolean!
+}
+
+type Lookup {
+    type: String!
+    optionValue: String!
+    descriptionKey: String!
+    orderNumber: Int!
+    active: Boolean!
 }
