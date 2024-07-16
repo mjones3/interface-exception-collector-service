@@ -4,6 +4,7 @@ import { ArrowLeftHeroiconsOutline } from "./hi_outline/ArrowLeftHeroiconsOutlin
 import { CheckHeroiconsOutline } from "./hi_outline/CheckHeroiconsOutline";
 import { ClipboardHeroiconsOutline } from "./hi_outline/ClipboardHeroiconsOutline";
 import { ClipboardListHeroiconsOutline } from "./hi_outline/ClipboardListHeroiconsOutline";
+import { ClockHeroiconsOutline } from "./hi_outline/ClockHeroiconsOutline";
 import { CollectionHeroiconsOutline } from "./hi_outline/CollectionHeroiconsOutline";
 import { FilterHeroiconsOutline } from "./hi_outline/FilterHeroiconsOutline";
 import { RefreshHeroiconsOutline } from "./hi_outline/RefreshHeroiconsOutline";
@@ -63,7 +64,8 @@ export const HEROIC_ICONS = [
     ScaleHeroiconsOutline,
     ArrowLeftHeroiconsOutline,
     ClipboardHeroiconsOutline,
-    ClipboardListHeroiconsOutline
+    ClipboardListHeroiconsOutline,
+    ClockHeroiconsOutline
 ];
 
 export const DRIP_ICONS = [WarningDripicons, ChevronDownDripicons];

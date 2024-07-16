@@ -49,7 +49,7 @@ export class NavigationMockApi {
             });
 
         this._fuseMockApiService
-            .onGet('http://localhost:4200/v1/facilities/1')
+            .onGet('http://localhost:4200/v1/facilities/3')
             .reply(() => {
                 // Return the response
                 return [200, cloneDeep(this._location)];

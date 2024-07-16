@@ -22,7 +22,6 @@ import { provideCore } from './core/core.provider';
 import { AUTH_FEATURE_KEY, authReducerFactory } from './core/state/auth/auth.reducer';
 import { CONFIGURATION_FEATURE_KEY, configurationReducerFactory } from './core/state/configuration/configuration.reducer';
 import { mockApiServices } from './mock-api';
-import { TranslateInterpolationPipe } from './shared/pipes/translate-interpolation.pipe';
 
 export function createTranslateLoader(http: HttpClient) {
     return new TranslateHttpLoader(http, './i18n/', '.json');
@@ -58,11 +57,6 @@ export const appConfig: ApplicationConfig = {
         }),
 
         provideEffects(),
-
-        {
-            provide: TranslateInterpolationPipe,
-            useValue: TranslateInterpolationPipe
-        },
 
         // Material Date Adapter
         {

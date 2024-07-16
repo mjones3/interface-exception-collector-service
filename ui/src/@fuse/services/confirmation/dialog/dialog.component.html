@@ -75,7 +75,7 @@
         >
             <!-- Cancel -->
             @if (data.actions.cancel.show) {
-                <button mat-stroked-button [matDialogClose]="'cancelled'">
+                <button mat-flat-button [matDialogClose]="'cancelled'">
                     {{ data.actions.cancel.label }}
                 </button>
             }

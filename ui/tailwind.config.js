@@ -13,6 +13,18 @@ const generatePalette = require(
  */
 const customPalettes = {
     brand: generatePalette('#2196F3'),
+    distribution: generatePalette({
+        50: '#f5f5f2',
+        100: '#edf0bc',
+        200: '#e0e790',
+        300: '#d4dd63',
+        400: '#cad63e',
+        500: '#c1cf07',
+        600: '#b5be00',
+        700: '#a4a900',
+        800: '#939200',
+        900: '#786c00'
+    })
 };
 
 /**
@@ -22,20 +34,21 @@ const themes = {
     // Default theme is required for theming system to work correctly!
     default: {
         primary: {
-            ...colors.indigo,
-            DEFAULT: colors.indigo[600],
+            ...customPalettes.distribution,            
+            DEFAULT: customPalettes.distribution[700]
         },
         accent: {
-            ...colors.slate,
-            DEFAULT: colors.slate[800],
+            ...colors.gray,
+            DEFAULT: colors.gray[800]
         },
         warn: {
             ...colors.red,
-            DEFAULT: colors.red[600],
+            DEFAULT: colors.red[700]
         },
         'on-warn': {
-            500: colors.red['50'],
-        },
+            500: colors.red['50']
+        }
+
     },
     // Rest of the themes will use the 'default' as the base
     // theme and will extend it with their given configuration.

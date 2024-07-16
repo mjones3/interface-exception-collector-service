@@ -13,15 +13,14 @@ import { DescriptionCardComponent } from 'app/shared/components/information-card
 import { ProcessHeaderComponent } from 'app/shared/components/process-header/process-header.component';
 import { Description } from 'app/shared/models/description.model';
 import { ProcessProductDto } from 'app/shared/models/process-product.dto';
-import { TranslateInterpolationPipe } from 'app/shared/pipes/translate-interpolation.pipe';
 import { ValidationType } from 'app/shared/pipes/validation.pipe';
 import { FacilityService } from 'app/shared/services';
 import { ProcessHeaderService } from 'app/shared/services/process-header.service';
-import { interpolate } from 'app/shared/utils/utils';
 import { startCase } from 'lodash-es';
 import { ToastrService } from 'ngx-toastr';
 import { TableModule } from 'primeng/table';
 import { catchError, finalize, take } from 'rxjs';
+import { ERROR_MESSAGE } from '../../../../../public/i18n/common-labels';
 import { FilledProductInfoDto, ShipmentInfoDto, ShipmentInfoItemDto, VerifyFilledProductDto, VerifyProductDto } from '../models/shipment-info.dto';
 import { ShipmentService } from '../services/shipment.service';
 import { EnterUnitNumberProductCodeComponent } from '../shared/enter-unit-number-product-code/enter-unit-number-product-code.component';
@@ -65,7 +64,6 @@ export class FillProductsComponent implements OnInit{
   processProductConfig: ProcessProductDto;
 
   readonly validationType = ValidationType;
-  translateInterpolationPipe: TranslateInterpolationPipe
 
   @ViewChild('productSelection') productSelection: EnterUnitNumberProductCodeComponent;
 
@@ -87,11 +85,6 @@ export class FillProductsComponent implements OnInit{
       .subscribe(auth => {
         this.loggedUserId = auth['id'];
       });
-  }
-
-  transForm(value: string, args:any){
-    const translateValue: string = this.translateService.instant(value);
-    return interpolate(translateValue, args);
   }
 
   ngOnInit(){
@@ -161,7 +154,7 @@ export class FillProductsComponent implements OnInit{
       .pipe(
         catchError(err => {
           this.loading = false;
-          this.toaster.error('Something Went Wrong');
+          this.toaster.error(ERROR_MESSAGE);
           if (this.productSelection) {
             this.productSelection.resetProductFormGroup();
           }
@@ -189,7 +182,7 @@ export class FillProductsComponent implements OnInit{
           }
           if (notification) {
             this.toaster.show(
-              this.transForm(notification.message,[]),
+              this.translateService.instant(notification.message),
               startCase(notification.notificationType),
               {},
               notification.notificationType

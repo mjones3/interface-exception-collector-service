@@ -94,7 +94,6 @@ $fuse-theme: mat.define-theme((
 
     /* Fix: Disabled placeholder color is too faded on Safari */
     input[disabled] {
-        opacity: 1;
         -webkit-text-fill-color: currentColor;
     }
 

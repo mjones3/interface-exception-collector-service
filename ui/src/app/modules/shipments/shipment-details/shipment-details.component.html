@@ -11,7 +11,7 @@
           <fuse-card class="flex flex-row space-x-6 items-center p-6">
             <div class="flex flex-row space-x-2">
               <span class="text-left font-bold">
-                (<span id="filledProductsCount">{{ filledProductsCount }}</span> Of
+                (<span id="filledProductsCount">{{ filledProductsCount }}</span> of
                 <span id="totalProducts">{{ totalProducts }}</span
                 >)
               </span>
@@ -48,7 +48,7 @@
 
 <ng-template #actionButtonsTpl>
   <div class="flex flex-row space-x-2">
-    <button id="backBtnId" class="bg-green-highlighted text-orange-light" mat-stroked-button (click)="backToSearch()">
+    <button id="backBtnId" class="text-orange-light" mat-flat-button (click)="backToSearch()">
       Back
     </button>
   </div>
@@ -65,8 +65,8 @@
       @if(shipmentInfo?.status === 'OPEN'){
         <button
         id="viewPickListBtn"
-        class="action-button bg-purple-light px-4"
-        mat-stroked-button
+        class="bg-purple-light px-4"
+        mat-flat-button
         (click)="viewPickList()"
       >View Pick List</button>
       }
@@ -74,7 +74,7 @@
         <button
         id="viewPackingListBtn"
         class="action-button bg-purple-light px-4"
-        mat-stroked-button
+        mat-flat-button
         (click)="viewPackingList(true)"
       >Print Packing List</button>
       }
@@ -83,7 +83,7 @@
         <button
         id="viewShippingLabelBtn"
         class="action-button bg-purple-light px-4"
-        mat-stroked-button
+        mat-flat-button
         (click)="viewShippingLabel(true)"
       >Print Shipping Label</button>
       }
@@ -205,7 +205,7 @@
               >
                 <button
                   [id]="'fillShipmentBtn' + i"
-                  mat-stroked-button
+                  mat-flat-button
                   class="bg-custom-red"
                   (click)="fillProducts(product)"
                 >
@@ -261,7 +261,7 @@
           <button
             id="completeShipmentBtn"
             class="action-button bg-purple-light px-4"
-            mat-stroked-button
+            mat-flat-button
             (click)="completeShipment()"
           >
             {{ 'Complete Shipment' }}

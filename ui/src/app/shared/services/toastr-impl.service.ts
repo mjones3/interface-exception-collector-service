@@ -127,11 +127,11 @@ export class ToastrImplService extends ToastrService {
     private getDefaultTitle(toasterType: string): string {
         switch (toasterType) {
             case 'success':
-                return 'success.label';
+                return 'Success';
             case 'error':
-                return 'error.label';
+                return 'Error';
             case 'warning':
-                return 'warning.label';
+                return 'Warning';
             default:
                 break;
         }

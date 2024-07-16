@@ -44,7 +44,7 @@ export class EnterUnitNumberProductCodeComponent implements OnInit {
     this.productGroup = fb.group({
       unitNumber: ['', [Validators.required, RsaValidators.unitNumber]],
       productCode: ['', [RsaValidators.fullProductCode, Validators.required]],
-      visualInspection: ['',  []],
+      visualInspection: [{value: '', disabled: true}, [Validators.required]],
     });
 
     
@@ -54,7 +54,7 @@ export class EnterUnitNumberProductCodeComponent implements OnInit {
 
   verifyUnit(event: { unitNumber: string; checkDigit: string; scanner: boolean }) {
     this.productGroup.controls.unitNumber.setValue(event.unitNumber);
-    // this.enableVisualInspection()
+    this.enableVisualInspection()
   }
 
   onSelectVisualInspection(): void {
@@ -76,10 +76,10 @@ export class EnterUnitNumberProductCodeComponent implements OnInit {
   }
 
   disableProductGroup(): void {
-    // this.productGroup.reset();
+    this.productGroup.reset();
     this.productGroup.disable();
     this.unitNumberComponent.controlUnitNumber.disable();
-    // this.enableVisualInspection()
+    this.enableVisualInspection()
   }
 
   resetProductFormGroup(): void {

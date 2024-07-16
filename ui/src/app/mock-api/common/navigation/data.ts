@@ -2,13 +2,13 @@
 import { FuseNavigationItem } from '@fuse/components/navigation';
 
 export const location: any = {
-    id: 1,
+    id: 3,
     orderNumber: 1,
     active: true,
     locationTypeId: 3,
     partOfId: null,
     externalId: null,
-    name: 'Charlote',
+    name: 'Charlotte',
     description: null,
     properties: {
         LABEL_ADDRESS_TYPE: '3',

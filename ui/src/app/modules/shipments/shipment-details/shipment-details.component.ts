@@ -6,14 +6,14 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FuseCardComponent } from '@fuse/components/card';
+import { FuseCardComponent } from '@fuse/components/card/public-api';
 import { Store } from '@ngrx/store';
+import { TranslateService } from '@ngx-translate/core';
 import { getAuthState } from 'app/core/state/auth/auth.selectors';
 import { ProcessHeaderComponent } from 'app/shared/components/process-header/process-header.component';
 import { Description } from 'app/shared/models/description.model';
 import { NotificationDto } from 'app/shared/models/notification.dto';
 import { ProcessProductDto } from 'app/shared/models/process-product.dto';
-import { TranslateInterpolationPipe } from 'app/shared/pipes/translate-interpolation.pipe';
 import { ValidationType } from 'app/shared/pipes/validation.pipe';
 import { ProcessHeaderService } from 'app/shared/services/process-header.service';
 import { SortService } from 'app/shared/services/sort.service';
@@ -24,6 +24,7 @@ import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { of, switchMap } from 'rxjs';
 import { catchError, take } from 'rxjs/operators';
+import { ERROR_MESSAGE } from '../../../../../public/i18n/common-labels';
 import {
   DEFAULT_PAGE_SIZE,
   DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
@@ -78,7 +79,7 @@ export class ShipmentDetailsComponent implements OnInit {
     private store: Store,
     private shippingLabelService: ShippingLabelService,
     private browserPrintingService: BrowserPrintingService,
-    private translateInterpolationPipe: TranslateInterpolationPipe,
+    private translate: TranslateService,
     @Inject(LOCALE_ID) public locale: string,
   ) {
     this.store
@@ -225,7 +226,7 @@ export class ShipmentDetailsComponent implements OnInit {
           return dialogRef.afterOpened();
         }),
         catchError(err => {
-          this.toaster.error('Something Went Wrong');
+          this.toaster.error(ERROR_MESSAGE);
           throw err;
         })
       )
@@ -283,7 +284,7 @@ export class ShipmentDetailsComponent implements OnInit {
         }
       },
       error: (err) => {
-        this.toaster.error('something-went-wrong.label');
+        this.toaster.error(ERROR_MESSAGE);
         throw err;
       }
     }
@@ -299,7 +300,7 @@ export class ShipmentDetailsComponent implements OnInit {
 
   displayMessageFromNotificationDto(notification: NotificationDto) {
     this.toaster.show(
-      this.translateInterpolationPipe.transform(notification.message, []),
+      this.translate.instant(notification.message),
       startCase(notification.notificationType),
       {},
       notification.notificationType

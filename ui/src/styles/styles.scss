@@ -3,8 +3,30 @@
 /*  @ Styles from this file will override 'vendors.scss' and Fuse's base styles.
 /* ----------------------------------------------------------------------------------------------------- */
 
+@use 'sass:map';
+@use '@angular/material' as mat;
+@use 'user-themes' as userThemes;
+@use 'themes' as themes;
+
+/* BioPro */
+$theme: map-get(userThemes.$user-themes, default);
+$primary: map-get($theme, primary);
+$foreground: map-get(themes.$light-base, foreground);
+$background: map-get(themes.$light-base, background);
+$warn: map-get($theme, warn);
+$gray: map-get($theme, gray);
+$moduleLightAccent: #f2f5f9;
+
+/* ----------------------------------------------------------------------------------------------------- */
+/*  @ Import/write your custom styles here.
+/*  @ Styles from this file will override 'vendors.scss' and Fuse's base styles.
+/* ----------------------------------------------------------------------------------------------------- */
+
+
+
 $red-light-color: #cd7b66;
 $custom-red: #cd6666;
+$custom-red-required: #c81e1e;
 $gray-light-color: #e4e4e4;
 $orange-light-color: #e69c52;
 $purple-light-color: #7986cb;
@@ -98,7 +120,11 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   }
 
   .module-title {
-    color: #e8ba06;
+    color: #A4A900;
+  }
+
+  .custom-required{
+    color: $custom-red-required;
   }
 
   .text-custom-red {
@@ -107,6 +133,10 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     mat-icon {
       color: $custom-red;
     }
+  }
+
+  .custom-red {
+    color: $custom-red;
   }
 
   .text-orange-light {
@@ -211,13 +241,6 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
       background-color: $blue-color;
       color: white;
     }
-  }
-
-  rsa-control-error {
-    position: absolute;
-    top: 46px;
-    width: 100%;
-    left: 0px;
   }
 
   .content-layout.fullwidth-standard-normal-scroll > .header {
