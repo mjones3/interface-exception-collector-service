@@ -57,9 +57,7 @@
                             "src/@fuse/styles/main.scss",
                             "src/styles/styles.scss",
                             "src/styles/tailwind.scss",
-                            "node_modules/ngx-toastr/toastr.css",
                             "./node_modules/primeicons/primeicons.css",
-                            "src/@fuse/styles/overrides/angular-material.scss",
                             "./node_modules/primeng/resources/themes/md-light-indigo/theme.css",
                             "./node_modules/primeng/resources/primeng.min.css"
                         ],

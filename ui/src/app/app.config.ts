@@ -19,21 +19,26 @@ import { appRoutes } from 'app/app.routes';
 import { provideIcons } from 'app/core/icons/icons.provider';
 import { provideToastr } from 'ngx-toastr';
 import { provideCore } from './core/core.provider';
-import { AUTH_FEATURE_KEY, authReducerFactory } from './core/state/auth/auth.reducer';
-import { CONFIGURATION_FEATURE_KEY, configurationReducerFactory } from './core/state/configuration/configuration.reducer';
+import {
+    AUTH_FEATURE_KEY,
+    authReducerFactory,
+} from './core/state/auth/auth.reducer';
+import {
+    CONFIGURATION_FEATURE_KEY,
+    configurationReducerFactory,
+} from './core/state/configuration/configuration.reducer';
 import { mockApiServices } from './mock-api';
 
 export function createTranslateLoader(http: HttpClient) {
     return new TranslateHttpLoader(http, './i18n/', '.json');
 }
 
-
 export const appConfig: ApplicationConfig = {
     providers: [
         provideAnimations(),
         provideHttpClient(),
-       
-           // Translate Loader
+
+        // Translate Loader
         importProvidersFrom(
             TranslateModule.forRoot({
                 loader: {
@@ -52,8 +57,8 @@ export const appConfig: ApplicationConfig = {
 
         // initialize the store and effects
         provideStore({
-            [AUTH_FEATURE_KEY]:  authReducerFactory,
-            [CONFIGURATION_FEATURE_KEY]: configurationReducerFactory
+            [AUTH_FEATURE_KEY]: authReducerFactory,
+            [CONFIGURATION_FEATURE_KEY]: configurationReducerFactory,
         }),
 
         provideEffects(),

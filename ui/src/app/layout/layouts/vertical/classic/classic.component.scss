@@ -57,7 +57,7 @@ classic-layout {
             z-index: 49;
             background: map-get($background, card);
             border-bottom: 1px solid;
-            border-bottom-color: #A4A900;
+            border-bottom-color: #a4a900;
             box-shadow: 0 1px 0 0 map-get($foreground, divider);
 
             .navigation-toggle-button {

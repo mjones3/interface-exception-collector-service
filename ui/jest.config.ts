@@ -1,9 +1,13 @@
 import type { Config } from 'jest';
 
-const jestConfig: Config = {
+const config: Config = {
     preset: 'jest-preset-angular',
-    setupFilesAfterEnv: ['<rootDir>/src/setup.jest.ts'],
-    testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/dist/'],
+    coverageDirectory: '../../coverage/apps/manufacturing-ui',
+    moduleFileExtensions: ['ts', 'js', 'html'],
+    setupFilesAfterEnv: ['<rootDir>/src/setup-jest.ts'],
+    transform: {
+        '^.+\\.(ts|js|html)$': 'jest-preset-angular',
+    },
 };
 
-export default jestConfig;
+export default config;
