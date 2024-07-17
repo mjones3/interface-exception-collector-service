@@ -125,7 +125,7 @@ button {
     }
 
     &.bg-green-highlighted {
-        background-color: $button-highlighted;
+        background-color: $button-highlighted !important;
         color: white;
     }
 
@@ -144,7 +144,7 @@ button {
     }
 
     &.bg-purple-light {
-        background-color: $purple-light-color;
+        background-color: $purple-light-color !important;
         color: white;
 
         &[disabled] {
@@ -162,7 +162,7 @@ button {
     }
 
     &.bg-custom-red {
-        background-color: $custom-red;
+        background-color: $custom-red !important;
         color: white;
 
         mat-icon {
