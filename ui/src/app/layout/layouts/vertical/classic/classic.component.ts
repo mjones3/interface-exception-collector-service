@@ -13,7 +13,7 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Router, RouterLink, RouterOutlet } from '@angular/router';
+import { ActivatedRoute, Data, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { FuseFullscreenComponent } from '@fuse/components/fullscreen';
 import { FuseLoadingBarComponent } from '@fuse/components/loading-bar';
 import {
@@ -23,6 +23,8 @@ import {
 } from '@fuse/components/navigation';
 import { FuseMediaWatcherService } from '@fuse/services/media-watcher';
 import { TranslateModule } from '@ngx-translate/core';
+import { ShortcutsComponent } from 'app/common/shortcuts/shortcuts.component';
+import { UserComponent } from 'app/core/user/user.component';
 import { FilterableDropDownComponent } from 'app/shared/components/filterable-drop-down/filterable-drop-down.component';
 import { ProcessProductVersionModel } from 'app/shared/models/process-product-version.model';
 import { FacilityService, MenuService } from 'app/shared/services';
@@ -49,6 +51,8 @@ import { Subject, takeUntil } from 'rxjs';
         FuseLoadingBarComponent,
         FuseVerticalNavigationComponent,
         FuseFullscreenComponent,
+        UserComponent,
+        ShortcutsComponent
     ],
 })
 export class ClassicLayoutComponent
@@ -67,6 +71,7 @@ export class ClassicLayoutComponent
     fixedFooter: boolean;
     timeInterval: any;
     isScreenSmall: boolean;
+    data: any
     navigation: FuseNavigationItem[];
 
     private _unsubscribeAll: Subject<any> = new Subject<any>();
@@ -78,6 +83,7 @@ export class ClassicLayoutComponent
         public config: EnvironmentConfigService,
         public _facilityService: FacilityService,
         public _menuService: MenuService,
+        private _activatedRoute: ActivatedRoute,
         private _router: Router,
         private _fuseMediaWatcherService: FuseMediaWatcherService,
         private _fuseNavigationService: FuseNavigationService,
@@ -116,6 +122,9 @@ export class ClassicLayoutComponent
      * On init
      */
     ngOnInit(): void {
+        // Subscribe to the resolved route data
+    this._activatedRoute.data.subscribe((data: Data) => (this.data = data.initialData));
+    
         // Subscribe to navigation data
         this._menuService.menus$
             .pipe(takeUntil(this._unsubscribeAll))

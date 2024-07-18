@@ -24,14 +24,11 @@
             formControlName="productCode"
             autocomplete="off"
             validateOn="touchedState"
+            required
             rsaBarcode
             required
             (keyup)="enableVisualInspection()"
-            [placeholder]="'Scan or Enter Product Code'"
-            [customErrors]="{
-              invalidProductCode: 'Product Code' | validation: validationType.INVALID,
-              required: 'Product Code' | validation: validationType.REQUIRED
-            }"
+            [placeholder]="'Scan or Enter Product Code'"  
           />
         </mat-form-field>
       </div>

@@ -178,6 +178,8 @@ export class FillProductsComponent implements OnInit{
             if (result) {
               this.filledProductsData = result.packedItems;
               this.filledProductsData = [...this.filledProductsData];
+              this.productSelection.productGroup.reset();
+              this.productSelection.enableVisualInspection()
             }
           }
           if (notification) {

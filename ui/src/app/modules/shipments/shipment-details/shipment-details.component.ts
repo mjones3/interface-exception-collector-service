@@ -259,7 +259,7 @@ export class ShipmentDetailsComponent implements OnInit {
           return dialogRef.afterOpened();
         }),
         catchError(err => {
-          this.toaster.error('Something Went Wrong');
+          this.toaster.error(ERROR_MESSAGE);
           throw err;
         })
       )

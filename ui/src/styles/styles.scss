@@ -29,7 +29,7 @@ $success-color: #4caf50;
 $green-color: #089133;
 $blue-color: #387cb4;
 $custom-gray-color: #7f9ab3;
-$button-highlighted: #99cd66;
+$button-highlighted: #a4a900;
 $custom-red-100: #f4e2e2;
 
 html,
@@ -194,6 +194,7 @@ rsa-process-header {
         }
 
         h1 {
+            color: map-get($primary, DEFAULT);
             font-size: 24px;
             letter-spacing: -0.019em;
         }

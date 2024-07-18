@@ -1,5 +1,5 @@
 // This icon file is generated automatically.
-import {IconDefinition} from '../../types';
+import { IconDefinition } from "../type";
 
 export const ClipboardListHeroiconsOutline: IconDefinition = {
     name: 'clipboard-list',

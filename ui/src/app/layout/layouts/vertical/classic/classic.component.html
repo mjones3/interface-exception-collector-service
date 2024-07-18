@@ -52,7 +52,7 @@
 
         <!-- Location -->
         <h4
-            class="mb-8 px-8 text-3xl font-bold text-gray-600"
+            class="text-3xl font-bold px-8 text-gray-600"
             [class.cursor-pointer]="isHomePage()"
             [matTooltip]="getChangeFacilityTooltip()"
         >
@@ -60,6 +60,12 @@
                 (_facilityService.facility$ | async)?.name
             }}</span>
         </h4>
+
+        <!-- Shortcuts -->
+        <shortcuts></shortcuts>
+
+        <!-- User -->
+        <user [user]="data?.user"></user>
     </div>
 
     <!-- Content -->
