@@ -21,7 +21,10 @@ import { Subscription } from 'rxjs';
   templateUrl: './process-header.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
-  imports: [CommonModule]
+  imports: [
+    CommonModule
+  ],
+  providers: [FuseNavigationService]
 })
 export class ProcessHeaderComponent implements OnInit, OnChanges, OnDestroy {
   _titleTpl: TemplateRef<any>;

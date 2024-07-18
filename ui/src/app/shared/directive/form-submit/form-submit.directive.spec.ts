@@ -20,7 +20,10 @@ class FormSubmitTestWrapperComponent {
   });
 
   submitForm(values) {
-    console.log('submit', values);
+    if (this.formElRef.nativeElement.classList && this.formElRef.nativeElement.classList.contains('submitted') === false &&
+      this.formGroup.valid) {
+        this.formElRef.nativeElement.classList.add('submitted');
+    }
   }
 }
 

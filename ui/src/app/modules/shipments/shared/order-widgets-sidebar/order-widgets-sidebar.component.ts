@@ -2,10 +2,10 @@ import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DescriptionCardComponent } from 'app/shared/components/information-card/description-card.component';
-import { WidgetComponent } from 'app/shared/components/widget/widget.component';
-import { Description } from 'app/shared/models/description.model';
-import { ProcessHeaderService } from 'app/shared/services/process-header.service';
+import { DescriptionCardComponent } from '../../../../shared/components/information-card/description-card.component';
+import { WidgetComponent } from '../../../../shared/components/widget/widget.component';
+import { Description } from '../../../../shared/models/description.model';
+import { ProcessHeaderService } from '../../../../shared/services/process-header.service';
 
 @Component({
   standalone: true,

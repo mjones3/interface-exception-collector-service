@@ -9,14 +9,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FuseCardComponent } from '@fuse/components/card/public-api';
 import { Store } from '@ngrx/store';
 import { TranslateService } from '@ngx-translate/core';
-import { getAuthState } from 'app/core/state/auth/auth.selectors';
-import { ProcessHeaderComponent } from 'app/shared/components/process-header/process-header.component';
-import { Description } from 'app/shared/models/description.model';
-import { NotificationDto } from 'app/shared/models/notification.dto';
-import { ProcessProductDto } from 'app/shared/models/process-product.dto';
-import { ValidationType } from 'app/shared/pipes/validation.pipe';
-import { ProcessHeaderService } from 'app/shared/services/process-header.service';
-import { SortService } from 'app/shared/services/sort.service';
 import { startCase } from 'lodash-es';
 import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { SortEvent } from 'primeng/api';
@@ -31,6 +23,14 @@ import {
   DEFAULT_PAGE_SIZE_DIALOG_WIDTH,
 } from '../../../core/services/browser-printing/browser-printing.model';
 import { BrowserPrintingService } from '../../../core/services/browser-printing/browser-printing.service';
+import { getAuthState } from '../../../core/state/auth/auth.selectors';
+import { ProcessHeaderComponent } from '../../../shared/components/process-header/process-header.component';
+import { Description } from '../../../shared/models/description.model';
+import { NotificationDto } from '../../../shared/models/notification.dto';
+import { ProcessProductDto } from '../../../shared/models/process-product.dto';
+import { ValidationType } from '../../../shared/pipes/validation.pipe';
+import { ProcessHeaderService } from '../../../shared/services/process-header.service';
+import { SortService } from '../../../shared/services/sort.service';
 import {
   FilledProductInfoDto,
   ShipmentCompleteInfoDto,

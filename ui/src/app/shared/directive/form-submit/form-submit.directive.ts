@@ -1,7 +1,7 @@
-import {Directive, ElementRef, Optional, Renderer2} from '@angular/core';
-import {ControlContainer, NgForm} from '@angular/forms';
-import {fromEvent} from 'rxjs';
-import {shareReplay, tap} from 'rxjs/operators';
+import { Directive, ElementRef, Optional, Renderer2 } from '@angular/core';
+import { ControlContainer } from '@angular/forms';
+import { fromEvent } from 'rxjs';
+import { shareReplay, tap } from 'rxjs/operators';
 
 @Directive({
   selector: '[rsaFormSubmit]'

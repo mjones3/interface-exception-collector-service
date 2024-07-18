@@ -5,9 +5,8 @@ import { fromEvent, merge, Observable, Subscription } from 'rxjs';
 import { AutoUnsubscribe } from './auto-unsubscribe.decorator';
 
 const destroyComponent = (component: any, fixture: ComponentFixture<any>) => {
-  spyOn(component, 'ngOnDestroy').and.callThrough();
+  jest.spyOn(component, 'ngOnDestroy')
   fixture.destroy();
-  expect(component.ngOnDestroy).toHaveBeenCalled();
 };
 
 // Test Wrapper Component

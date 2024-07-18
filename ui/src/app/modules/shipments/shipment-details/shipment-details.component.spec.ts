@@ -1,16 +1,8 @@
-import { HttpResponse, provideHttpClient } from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatIconModule } from '@angular/material/icon';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FuseCardComponent } from '@fuse/components/card';
 import { provideMockStore } from '@ngrx/store/testing';
-import { ButtonModule } from 'primeng/button';
-import { RippleModule } from 'primeng/ripple';
-import { TableModule } from 'primeng/table';
 import { of } from 'rxjs';
 import { ShipmentInfoDto, ShipmentInfoItemDto } from '../models/shipment-info.dto';
 import { ShipmentService } from '../services/shipment.service';
@@ -25,21 +17,10 @@ describe('ShipmentDetailsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [
-        ShipmentDetailsComponent, 
-        FuseCardComponent
-      ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
       imports: [
-        MatDividerModule,
-        MatIconModule,
-        ButtonModule,
-        RippleModule,
-        TableModule,
-        BrowserAnimationsModule,
+        ShipmentDetailsComponent, 
       ],
       providers: [
-        provideHttpClient,
         provideHttpClientTesting,
         {
           provide: ActivatedRoute,

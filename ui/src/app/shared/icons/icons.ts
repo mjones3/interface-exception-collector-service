@@ -1,4 +1,5 @@
 import { ChevronDownDripicons } from "./dripicons/ChevronDownDripicons";
+import { PrintDripicons } from "./dripicons/PrintDripicons";
 import { WarningDripicons } from "./dripicons/WarningDripicons";
 import { ArrowLeftHeroiconsOutline } from "./hi_outline/ArrowLeftHeroiconsOutline";
 import { CheckHeroiconsOutline } from "./hi_outline/CheckHeroiconsOutline";
@@ -49,7 +50,8 @@ export const RSA_ICONS = [
     StorageRsa,
     ApheresisRsa,
     DiscardRsa,
-    QuarantineRsa
+    QuarantineRsa,
+    PrintDripicons
 ];
 
 export const HEROIC_ICONS = [

@@ -5,9 +5,12 @@ const config: Config = {
     coverageDirectory: '../../coverage/apps/distribution-ui',
     moduleFileExtensions: ['ts', 'js', 'html'],
     setupFilesAfterEnv: ['<rootDir>/src/setup-jest.ts'],
-    transform: {
-        '^.+\\.(ts|js|html)$': 'jest-preset-angular',
+    "moduleNameMapper": {
+        "@fuse/(.*)": "<rootDir>/src/@fuse/",
+        '^/(.*)$': '<rootDir>/scr/app/',
+        "^lodash-es$": "lodash"
     },
+    transformIgnorePatterns: ['node_modules/(?!.*\\.mjs$)'],
 };
 
 export default config;

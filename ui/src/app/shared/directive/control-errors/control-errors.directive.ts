@@ -18,12 +18,12 @@ import {
   ViewContainerRef,
 } from '@angular/core';
 import { NgControl } from '@angular/forms';
-import { ControlErrorComponent } from 'app/shared/components/control-error/control-error.component';
-import { FORM_ERRORS } from 'app/shared/forms/default-form-errors';
 import { startCase } from 'lodash';
 import { isFunction } from 'lodash-es';
 import { EMPTY, fromEvent, iif, merge, Observable, Subject, Subscription } from 'rxjs';
 import { debounceTime, delayWhen, distinctUntilChanged, filter, skip, tap } from 'rxjs/operators';
+import { ControlErrorComponent } from '../../../shared/components/control-error/control-error.component';
+import { FORM_ERRORS } from '../../../shared/forms/default-form-errors';
 import { ControlErrorContainerDirective } from '../control-error-container/control-error-container.directive';
 import { FormSubmitDirective } from '../form-submit/form-submit.directive';
 

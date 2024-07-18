@@ -19,12 +19,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { AutoUnsubscribe } from 'app/shared/decorators/auto-unsubscribe/auto-unsubscribe.decorator';
-import { ControlValueAccessorWithValidator } from 'app/shared/forms/base-control-value-accessor-with-validator';
-import { Option } from 'app/shared/models';
-import { Autocomplete } from 'app/shared/types/autocomplete.enum';
-import { InputType } from 'app/shared/types/input-type.enum';
-import { KeyboardTypeEnum } from 'app/shared/types/keyboard-type.enum';
+import { AutoUnsubscribe } from '../../../shared/decorators/auto-unsubscribe/auto-unsubscribe.decorator';
+import { ControlValueAccessorWithValidator } from '../../../shared/forms/base-control-value-accessor-with-validator';
+import { Option } from '../../../shared/models';
+import { Autocomplete } from '../../../shared/types/autocomplete.enum';
+import { InputType } from '../../../shared/types/input-type.enum';
+import { KeyboardTypeEnum } from '../../../shared/types/keyboard-type.enum';
 
 @Component({
     selector: 'rsa-input-keyboard',

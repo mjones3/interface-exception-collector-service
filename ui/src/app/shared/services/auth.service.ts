@@ -1,10 +1,10 @@
 import { HttpClient, HttpHeaders, HttpRequest } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { loadAuthSuccess } from 'app/core/state/auth/auth.actions';
 import Keycloak from 'keycloak-js';
 import { from, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { loadAuthSuccess } from '../../core/state/auth/auth.actions';
 import { AuthEvent, AuthEventType, AuthHasUserRole, AuthOptions, ExcludedUrl, ExcludedUrlRegex } from '../models';
 
 declare var dT_: any;

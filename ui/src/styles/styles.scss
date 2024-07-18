@@ -3,6 +3,7 @@
 /*  @ Styles from this file will override 'vendors.scss' and Fuse's base styles.
 /* ----------------------------------------------------------------------------------------------------- */
 
+@use 'ngx-toastr/toastr';
 @use 'sass:map';
 @use '@angular/material' as mat;
 @use 'user-themes' as userThemes;

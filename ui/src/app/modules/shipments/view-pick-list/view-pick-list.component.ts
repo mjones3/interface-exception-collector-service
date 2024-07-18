@@ -1,12 +1,13 @@
-import { Component } from '@angular/core';
-import { Observable } from 'rxjs';
-import { MatIcon } from '@angular/material/icon';
 import { AsyncPipe } from '@angular/common';
+import { Component } from '@angular/core';
 import { MatIconButton } from '@angular/material/button';
 import { MatDialogClose } from '@angular/material/dialog';
-import { BrowserPrintingService } from '../../../core/services/browser-printing/browser-printing.service';
+import { MatIcon } from '@angular/material/icon';
+import { Observable } from 'rxjs';
 import { DEFAULT_PAGE_SIZE } from '../../../core/services/browser-printing/browser-printing.model';
+import { BrowserPrintingService } from '../../../core/services/browser-printing/browser-printing.service';
 import { ShipmentInfoDto } from '../models/shipment-info.dto';
+
 
 @Component({
   selector: 'app-view-pick-list',

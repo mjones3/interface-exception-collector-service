@@ -1,26 +1,32 @@
 import {
-  Component,
-  EventEmitter,
-  Input,
-  Output,
-  ViewChild,
+    Component,
+    EventEmitter,
+    Input,
+    Output,
+    ViewChild,
 } from '@angular/core';
 import {
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
+    FormBuilder,
+    FormGroup,
+    ReactiveFormsModule,
+    Validators,
 } from '@angular/forms';
-import { RsaValidators } from 'app/shared/forms/rsa-validators';
+import { TranslateService } from '@ngx-translate/core';
+import { RsaValidators } from '../../../shared/forms/rsa-validators';
 import {
-  ValidationPipe,
-  ValidationType,
-} from 'app/shared/pipes/validation.pipe';
+    ValidationPipe,
+    ValidationType,
+} from '../../../shared/pipes/validation.pipe';
 import { InputKeyboardComponent } from '../input-keyboard/input-keyboard.component';
 
 @Component({
     standalone: true,
-    imports: [ReactiveFormsModule, InputKeyboardComponent, ValidationPipe],
+    imports: [
+        ReactiveFormsModule, 
+        InputKeyboardComponent, 
+        ValidationPipe
+    ],
+    providers: [TranslateService],
     selector: 'rsa-scan-unit-number-check-digit',
     templateUrl: './scan-unit-number-check-digit.component.html',
 })
@@ -30,7 +36,6 @@ export class ScanUnitNumberCheckDigitComponent {
     @Output() validate: EventEmitter<object> = new EventEmitter<object>();
     @Input() showKeyboard = true;
     @Input() inputFocus = false;
-
     @ViewChild('inputUnitNumber') inputUnitNumber: InputKeyboardComponent;
     @ViewChild('inputCheckDigit') inputCheckDigit: InputKeyboardComponent;
 

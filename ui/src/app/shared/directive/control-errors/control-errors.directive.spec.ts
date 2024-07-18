@@ -45,7 +45,10 @@ describe('ControlErrorsDirective', () => {
     waitForAsync(() => {
       TestBed.configureTestingModule({
         declarations: [ControlErrorTestWrapperComponent],
-        imports: [CommonModule, ReactiveFormsModule],
+        imports: [
+          CommonModule, 
+          ReactiveFormsModule,
+        ],
       });
     })
   );

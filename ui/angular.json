@@ -3,7 +3,7 @@
     "version": 1,
     "newProjectRoot": "projects",
     "projects": {
-        "fuse": {
+        "distribution": {
             "projectType": "application",
             "schematics": {
                 "@schematics/angular:component": {
@@ -24,17 +24,10 @@
                         "tsConfig": "tsconfig.app.json",
                         "inlineStyleLanguage": "scss",
                         "allowedCommonJsDependencies": [
-                            "apexcharts",
-                            "crypto-js/enc-utf8",
-                            "crypto-js/hmac-sha256",
-                            "crypto-js/enc-base64",
-                            "quill-delta",
-                            "moment",
-                            "lodash",
-                            "simple-keyboard",
-                            "base64-js",
                             "js-sha256",
-                            "rehackt"
+                            "hammerjs",
+                            "lodash",
+                            "highlight.js"
                         ],
                         "assets": [
                             {
@@ -57,6 +50,7 @@
                             "src/@fuse/styles/main.scss",
                             "src/styles/styles.scss",
                             "src/styles/tailwind.scss",
+                            "node_modules/ngx-toastr/toastr.css",
                             "./node_modules/primeicons/primeicons.css",
                             "./node_modules/primeng/resources/themes/md-light-indigo/theme.css",
                             "./node_modules/primeng/resources/primeng.min.css"
@@ -89,16 +83,29 @@
                 },
                 "serve": {
                     "builder": "@angular-devkit/build-angular:dev-server",
+                    "options": {
+                        "buildTarget": "distribution:build",
+                        "proxyConfig": "proxy.conf.json",
+                        "open": true,
+                        "port": 4200
+                    },
                     "configurations": {
                         "production": {
-                            "buildTarget": "fuse:build:production"
+                            "buildTarget": "distribution:build:production"
                         },
                         "development": {
-                            "buildTarget": "fuse:build:development"
+                            "buildTarget": "distribution:build:development"
                         }
                     },
                     "defaultConfiguration": "development"
                 },
+                "test": {
+                    "builder": "@nrwl/jest:jest",
+                    "options": {
+                      "jestConfig": "jest.config.ts",
+                      "passWithNoTests": true
+                    }
+                  },
                 "extract-i18n": {
                     "builder": "@angular-devkit/build-angular:extract-i18n"
                 }

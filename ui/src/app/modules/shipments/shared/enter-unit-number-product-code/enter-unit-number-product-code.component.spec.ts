@@ -1,18 +1,16 @@
-import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {
-  TranslateFakeLoader,
-  TranslateLoader,
-  TranslateModule,
+    TranslateFakeLoader,
+    TranslateLoader,
+    TranslateModule,
 } from '@ngx-translate/core';
-import { ScanUnitNumberCheckDigitComponent } from 'app/shared/components/scan-unit-number-check-digit/scan-unit-number-check-digit.component';
-import { ControlErrorsDirective } from 'app/shared/directive/control-errors/control-errors.directive';
+import { ScanUnitNumberCheckDigitComponent } from '../../../../shared/components/scan-unit-number-check-digit/scan-unit-number-check-digit.component';
 import { EnterUnitNumberProductCodeComponent } from './enter-unit-number-product-code.component';
 
 describe('EnterUnitNumberProductCodeComponent', () => {
-    let component: EnterUnitNumberProductCodeComponent;
+    let component: EnterUnitNumberProductCodeComponent
     let fixture: ComponentFixture<EnterUnitNumberProductCodeComponent>;
 
     beforeEach(async () => {
@@ -20,7 +18,6 @@ describe('EnterUnitNumberProductCodeComponent', () => {
             imports: [
                 EnterUnitNumberProductCodeComponent,
                 ScanUnitNumberCheckDigitComponent,
-                ControlErrorsDirective,
                 BrowserAnimationsModule,
                 TranslateModule.forRoot({
                     loader: {
@@ -29,7 +26,7 @@ describe('EnterUnitNumberProductCodeComponent', () => {
                     },
                 }),
             ],
-            providers: [provideHttpClient(), provideHttpClientTesting()],
+            providers: [provideHttpClientTesting()],
         }).compileComponents();
     });
 
