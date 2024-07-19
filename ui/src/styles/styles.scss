@@ -208,6 +208,22 @@ rsa-process-header {
     }
 }
 
+//Blocking Backdrop for toaster
+.rsa-blocking-backdrop::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0.5;
+    z-index: 1001;
+    -webkit-transition: 0.3s;
+    -o-transition: 0.3s;
+    transition: 0.3s;
+    background-color: #fff;
+}
+
 // -------------------------------------------------------------------------------
 // PRIME NG
 // -------------------------------------------------------------------------------

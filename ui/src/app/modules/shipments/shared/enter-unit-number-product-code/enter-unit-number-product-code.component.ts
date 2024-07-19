@@ -14,13 +14,13 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
-import { ScanUnitNumberCheckDigitComponent } from '../../../../shared/components/scan-unit-number-check-digit/scan-unit-number-check-digit.component';
-import { ControlErrorsDirective } from '../../../../shared/directive/control-errors/control-errors.directive';
-import { RsaValidators } from '../../../../shared/forms/rsa-validators';
+import { ScanUnitNumberCheckDigitComponent } from 'app/shared/components/scan-unit-number-check-digit/scan-unit-number-check-digit.component';
+import { ControlErrorsDirective } from 'app/shared/directive/control-errors/control-errors.directive';
+import { RsaValidators } from 'app/shared/forms/rsa-validators';
 import {
     ValidationPipe,
     ValidationType,
-} from '../../../../shared/pipes/validation.pipe';
+} from 'app/shared/pipes/validation.pipe';
 import { VerifyFilledProductDto } from '../../models/shipment-info.dto';
 
 @Component({

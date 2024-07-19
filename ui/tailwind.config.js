@@ -23,8 +23,8 @@ const customPalettes = {
         600: '#b5be00',
         700: '#a4a900',
         800: '#939200',
-        900: '#786c00'
-    })
+        900: '#786c00',
+    }),
 };
 
 /**
@@ -34,21 +34,20 @@ const themes = {
     // Default theme is required for theming system to work correctly!
     default: {
         primary: {
-            ...customPalettes.distribution,            
-            DEFAULT: customPalettes.distribution[700]
+            ...customPalettes.distribution,
+            DEFAULT: customPalettes.distribution[700],
         },
         accent: {
             ...colors.gray,
-            DEFAULT: colors.gray[800]
+            DEFAULT: colors.gray[800],
         },
         warn: {
             ...colors.red,
-            DEFAULT: colors.red[700]
+            DEFAULT: colors.red[700],
         },
         'on-warn': {
-            500: colors.red['50']
-        }
-
+            500: colors.red['50'],
+        },
     },
     // Rest of the themes will use the 'default' as the base
     // theme and will extend it with their given configuration.

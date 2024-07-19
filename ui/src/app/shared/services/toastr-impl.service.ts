@@ -8,7 +8,7 @@ import {
     RendererFactory2,
 } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
-import { TranslateService } from '@ngx-translate/core';
+import { FuseAlertType } from '@fuse/components/alert';
 import { isFunction } from 'lodash-es';
 import {
     ActiveToast,
@@ -36,10 +36,28 @@ export class ToastrImplService extends ToastrService {
         private rendererFactory: RendererFactory2,
         @Inject(DOCUMENT) private document: any,
         private activeEl: ActiveElementService,
-        private translateService: TranslateService
     ) {
         super(token, overlay, injector, sanitizer, ngZone);
         this.renderer2 = rendererFactory.createRenderer(document.body, null);
+    }
+
+    show(
+        message?: string,
+        title?: string,
+        override?: Partial<IndividualConfig>,
+        type?: FuseAlertType
+    ): ActiveToast<any> {
+        title = title ?? this.getDefaultTitle(type);
+
+        if (type === 'error') {
+            return this.error(message, title, override);
+        }
+
+        const toast = super.show(message, title, override, type);
+        toast.onHidden.subscribe(() => {
+            this.focusElement();
+        });
+        return toast;
     }
 
     error(
@@ -47,9 +65,7 @@ export class ToastrImplService extends ToastrService {
         title?: string,
         override?: Partial<IndividualConfig>
     ): ActiveToast<any> {
-        title = title
-            ? this.translateService.instant(title)
-            : this.translateService.instant(this.getDefaultTitle('error'));
+        title = title ?? this.getDefaultTitle('warn');
 
         // Showing backdrop in case of error and disable timeout
         this.showLockingBackdrop();
@@ -60,27 +76,6 @@ export class ToastrImplService extends ToastrService {
 
         // Subscribe to OnHide event to remove the backdrop in case of error
         this.subscribeOnHideWithError(toast);
-        return toast;
-    }
-
-    show(
-        message?: string,
-        title?: string,
-        override?: Partial<IndividualConfig>,
-        type?: string
-    ): ActiveToast<any> {
-        title = title
-            ? this.translateService.instant(title)
-            : this.translateService.instant(this.getDefaultTitle(type));
-
-        if (type === 'error') {
-            return this.error(message, title, override);
-        }
-
-        const toast = super.show(message, title, override, type);
-        toast.onHidden.subscribe(() => {
-            this.focusElement();
-        });
         return toast;
     }
 
@@ -124,11 +119,11 @@ export class ToastrImplService extends ToastrService {
         }
     }
 
-    private getDefaultTitle(toasterType: string): string {
+    private getDefaultTitle(toasterType: FuseAlertType): string {
         switch (toasterType) {
             case 'success':
                 return 'Success';
-            case 'error':
+            case 'warn':
                 return 'Error';
             case 'warning':
                 return 'Warning';

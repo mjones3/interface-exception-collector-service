@@ -28,6 +28,7 @@ import {
     configurationReducerFactory,
 } from './core/state/configuration/configuration.reducer';
 import { mockApiServices } from './mock-api';
+import { toasterDefaultConfig } from './shared/components/toaster/toaster-default.config';
 
 export function createTranslateLoader(http: HttpClient) {
     return new TranslateHttpLoader(http, './i18n/', '.json');
@@ -84,7 +85,7 @@ export const appConfig: ApplicationConfig = {
         },
 
         provideCore(),
-        provideToastr(),
+        provideToastr(toasterDefaultConfig),
 
         // Pipes
         DatePipe,
