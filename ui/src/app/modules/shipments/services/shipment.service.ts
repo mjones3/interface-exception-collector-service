@@ -77,7 +77,7 @@ export class ShipmentService {
       { label: 'Customer Name', value: shipmentInfo?.shippingCustomerName },
       { label: 'Status', value: shipmentInfo?.status },
       {
-        label: 'Ship Method',
+        label: 'Shipping Method',
         value: shipmentInfo?.shippingMethod,
       },
     ];
