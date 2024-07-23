@@ -1,5 +1,4 @@
-package com.arcone.biopro.distribution.partnerorderproviderservice.infrastructure.listener.dto;
-
+package com.arcone.biopro.distribution.orderservice.application.dto;
 
 import lombok.Builder;
 
@@ -8,7 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Builder
-public record OrderDTO(
+public record OrderReceivedEventDTO(
     UUID id,
     String externalId,
     String orderStatus,
@@ -22,13 +21,9 @@ public record OrderDTO(
     String desiredShippingDate,
     Integer shippingCustomerCode,
     Integer billingCustomerCode,
-
+    String comments,
     boolean willPickUp,
     String willPickUpPhoneNumber,
-
-    String comments,
     List<OrderItemDTO> orderItems
 ) implements Serializable {
-
-
 }

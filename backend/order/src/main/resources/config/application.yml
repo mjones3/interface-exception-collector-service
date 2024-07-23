@@ -240,16 +240,6 @@ springwolf:
         protocol: kafka
         host: ${kafka.bootstrap.servers:localhost:29092}
 
-topics:
-  order-accepted:
-    partitions: 1
-    replicas: 1
-    name: OrderAccepted
-  order-rejected:
-    partitions: 1
-    replicas: 1
-    name: OrderRejected
-
 # ===================================================================
 # BioPro specific properties
 # ===================================================================
@@ -292,3 +282,18 @@ async-call:
     tcp-port: 8585
     max-attempts: 2
     duration: 2
+
+topics:
+  order:
+    order-received:
+      partitions: 1
+      replicas: 1
+      topic-name: OrderReceived
+    order-created:
+      partitions: 1
+      replicas: 1
+      topic-name: OrderCreated
+    order-rejected:
+      partitions: 1
+      replicas: 1
+      topic-name: OrderRejected
