@@ -10,6 +10,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
@@ -20,23 +21,13 @@ class LookupTest {
     LookupRepository lookupRepository;
 
     @Test
-    void testConstructorWithoutId() {
+    void testValidation() {
+        assertThrows(IllegalArgumentException.class, () -> new Lookup(null, null, 1, true));
         assertThrows(IllegalArgumentException.class, () -> new Lookup(null, "description", 1, true));
-    }
-
-    @Test
-    void testConstructorWithoutIdType() {
-        assertThrows(IllegalArgumentException.class, () -> new Lookup(new LookupId("", "description"), "description", 1, true));
-    }
-
-    @Test
-    void testConstructorWithoutIdDescription() {
+        assertThrows(IllegalArgumentException.class, () -> new Lookup(new LookupId("", "optionValue"), "description", 1, true));
         assertThrows(IllegalArgumentException.class, () -> new Lookup(new LookupId("type", ""), "description", 1, true));
-    }
-
-    @Test
-    void testConstructorWithoutDescriptionKey() {
-        assertThrows(IllegalArgumentException.class, () -> new Lookup(new LookupId("type", "description"), "", 1, true));
+        assertThrows(IllegalArgumentException.class, () -> new Lookup(new LookupId("type", "optionValue"), "", 1, true));
+        assertDoesNotThrow(() -> new Lookup(new LookupId("type", "optionValue"), "description", 1, true));
     }
 
     @Test

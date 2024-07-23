@@ -6,12 +6,10 @@ import lombok.Getter;
 import lombok.ToString;
 import reactor.core.publisher.Mono;
 
-import static java.util.Optional.ofNullable;
-
 @Getter
 @EqualsAndHashCode
 @ToString
-public class Lookup {
+public class Lookup implements Validatable {
 
     private LookupId id;
     private String descriptionKey;
@@ -19,16 +17,22 @@ public class Lookup {
     private boolean active;
 
     public Lookup(LookupId id, String descriptionKey, int orderNumber, boolean active) {
-        this.id = ofNullable(id)
-            .filter(LookupId::isValid)
-            .orElseThrow(() -> new IllegalArgumentException("ID cannot be null"));
-
-        this.descriptionKey = ofNullable(descriptionKey)
-            .filter(p -> !p.isBlank())
-            .orElseThrow(() -> new IllegalArgumentException("descriptionKey cannot be null"));
-
+        this.id = id;
+        this.descriptionKey = descriptionKey;
         this.orderNumber = orderNumber;
         this.active = active;
+
+        this.checkValid();
+    }
+
+    @Override
+    public void checkValid() {
+        if (this.id == null) {
+            throw new IllegalArgumentException("id cannot be null");
+        }
+        if (this.descriptionKey == null || this.descriptionKey.isBlank()) {
+            throw new IllegalArgumentException("descriptionKey cannot be null or blank");
+        }
     }
 
     public Mono<Boolean> exists(final LookupRepository lookupRepository) {

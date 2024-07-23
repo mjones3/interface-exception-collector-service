@@ -48,8 +48,8 @@ class LookupMapperTest {
         var result = lookupMapper.mapToDomain(lookupDTO);
 
         // Verify
-        assertEquals("type", result.getId().type());
-        assertEquals("optionValue", result.getId().optionValue());
+        assertEquals("type", result.getId().getType());
+        assertEquals("optionValue", result.getId().getOptionValue());
         assertEquals("description", result.getDescriptionKey());
         assertEquals(1, result.getOrderNumber());
         assertTrue(result.isActive());

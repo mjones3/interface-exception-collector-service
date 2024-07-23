@@ -12,8 +12,8 @@ public class LookupEntityMapper implements PersistenceMapper<Lookup, LookupEntit
 
     public LookupEntity mapToEntity(final Lookup lookup) {
         return LookupEntity.builder()
-            .type(lookup.getId().type())
-            .optionValue(lookup.getId().optionValue())
+            .type(lookup.getId().getType())
+            .optionValue(lookup.getId().getOptionValue())
             .descriptionKey(lookup.getDescriptionKey())
             .orderNumber(lookup.getOrderNumber())
             .active(lookup.isActive())

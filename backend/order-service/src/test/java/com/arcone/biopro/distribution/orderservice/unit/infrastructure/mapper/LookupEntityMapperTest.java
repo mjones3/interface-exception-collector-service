@@ -21,8 +21,8 @@ class LookupEntityMapperTest {
         var lookup = new Lookup(new LookupId("type", "optionValue"), "description", 1, true);
         var entity = mapper.mapToEntity(lookup);
 
-        assertEquals(lookup.getId().type(), entity.getType());
-        assertEquals(lookup.getId().optionValue(), entity.getOptionValue());
+        assertEquals(lookup.getId().getType(), entity.getType());
+        assertEquals(lookup.getId().getOptionValue(), entity.getOptionValue());
         assertEquals(lookup.getDescriptionKey(), entity.getDescriptionKey());
         assertEquals(lookup.getOrderNumber(), entity.getOrderNumber());
         assertEquals(lookup.isActive(), entity.isActive());
@@ -39,8 +39,8 @@ class LookupEntityMapperTest {
             .build();
         var lookup = mapper.mapToDomain(entity);
 
-        assertEquals(entity.getType(), lookup.getId().type());
-        assertEquals(entity.getOptionValue(), lookup.getId().optionValue());
+        assertEquals(entity.getType(), lookup.getId().getType());
+        assertEquals(entity.getOptionValue(), lookup.getId().getOptionValue());
         assertEquals(entity.getDescriptionKey(), lookup.getDescriptionKey());
         assertEquals(entity.getOrderNumber(), lookup.getOrderNumber());
         assertEquals(entity.isActive(), lookup.isActive());

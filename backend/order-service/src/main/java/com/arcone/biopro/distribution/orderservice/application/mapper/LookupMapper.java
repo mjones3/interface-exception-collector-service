@@ -12,8 +12,8 @@ public class LookupMapper {
 
     public LookupDTO mapToDTO(final Lookup lookup) {
         return LookupDTO.builder()
-            .type(lookup.getId().type())
-            .optionValue(lookup.getId().optionValue())
+            .type(lookup.getId().getType())
+            .optionValue(lookup.getId().getOptionValue())
             .descriptionKey(lookup.getDescriptionKey())
             .orderNumber(lookup.getOrderNumber())
             .active(lookup.isActive())

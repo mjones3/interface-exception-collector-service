@@ -190,6 +190,10 @@ spring:
   sql:
     init:
       mode: always
+  rsocket:
+    server:
+      port: 8585
+      transport: tcp
 
 otel:
   service:
@@ -236,6 +240,16 @@ springwolf:
         protocol: kafka
         host: ${kafka.bootstrap.servers:localhost:29092}
 
+topics:
+  order-accepted:
+    partitions: 1
+    replicas: 1
+    name: OrderAccepted
+  order-rejected:
+    partitions: 1
+    replicas: 1
+    name: OrderRejected
+
 # ===================================================================
 # BioPro specific properties
 # ===================================================================
@@ -271,3 +285,10 @@ application:
       audience:
         - account
         - api://default
+
+async-call:
+  customer:
+    tcp-address: localhost
+    tcp-port: 8585
+    max-attempts: 2
+    duration: 2
