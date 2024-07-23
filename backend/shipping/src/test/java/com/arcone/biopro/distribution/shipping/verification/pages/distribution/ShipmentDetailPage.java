@@ -59,7 +59,7 @@ public class ShipmentDetailPage extends CommonPageFactory {
     @FindBy(id = "informationDetails-Priority")
     private WebElement orderPriority;
 
-    @FindBy(id = "informationDetails-Customer ID")
+    @FindBy(id = "informationDetails-Customer Id")
     private WebElement customerId;
 
     @FindBy(id = "informationDetails-Customer Name")
