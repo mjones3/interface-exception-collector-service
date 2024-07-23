@@ -17,8 +17,8 @@ import static io.cucumber.core.options.Constants.*;
     @ConfigurationParameter(key = "cucumber.execution.parallel.enabled", value = "true"),
     @ConfigurationParameter(key = "cucumber.execution.execution-mode.feature", value = "same_thread"),
     @ConfigurationParameter(key = "cucumber.execution.parallel.config.strategy", value = "fixed"),
-    @ConfigurationParameter(key = "cucumber.execution.parallel.config.fixed.parallelism", value = "4"),
-    @ConfigurationParameter(key = "cucumber.execution.parallel.config.fixed.max-pool-size", value = "4")
+    @ConfigurationParameter(key = "cucumber.execution.parallel.config.fixed.parallelism", value = "3"),
+    @ConfigurationParameter(key = "cucumber.execution.parallel.config.fixed.max-pool-size", value = "3")
 })
 public class CucumberSuite {
 }

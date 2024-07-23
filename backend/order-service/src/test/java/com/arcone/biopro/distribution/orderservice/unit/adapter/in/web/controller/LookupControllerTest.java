@@ -15,7 +15,7 @@ import reactor.core.publisher.Mono;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 
 @SpringJUnitConfig(classes = { LookupController.class, LookupMapper.class })
 class LookupControllerTest {
@@ -38,7 +38,8 @@ class LookupControllerTest {
             new Lookup(new LookupId(type, "optionValue2"), "description2", 2, true),
             new Lookup(new LookupId(type, "optionValue3"), "description3", 3, true)
         };
-        when(this.lookupService.findAllByType(type)).thenReturn(Flux.just(lookups));
+        given(this.lookupService.findAllByType(type))
+            .willReturn(Flux.just(lookups));
 
         // Act
         var response = this.lookupController.findAllLookupsByType(type)
@@ -50,8 +51,8 @@ class LookupControllerTest {
             var lookup = lookups[i];
             var lookupDTO = response[i];
 
-            assertEquals(lookup.getId().type(), lookupDTO.type());
-            assertEquals(lookup.getId().optionValue(), lookupDTO.optionValue());
+            assertEquals(lookup.getId().getType(), lookupDTO.type());
+            assertEquals(lookup.getId().getOptionValue(), lookupDTO.optionValue());
             assertEquals(lookup.getDescriptionKey(), lookupDTO.descriptionKey());
             assertEquals(lookup.getOrderNumber(), lookupDTO.orderNumber());
             assertEquals(lookup.isActive(), lookupDTO.active());
@@ -61,14 +62,14 @@ class LookupControllerTest {
     @Test
     void testInsertLookup() {
         var lookup = new Lookup(new LookupId("type", "optionValue"), "description", 1, true);
-        when(this.lookupService.insert(lookup))
-            .thenAnswer(i -> Mono.just(i.getArgument(0)));
+        given(this.lookupService.insert(lookup))
+            .willAnswer(i -> Mono.just(i.getArgument(0)));
 
         var response = this.lookupController
             .insertLookup(
                 LookupDTO.builder()
-                    .type(lookup.getId().type())
-                    .optionValue(lookup.getId().optionValue())
+                    .type(lookup.getId().getType())
+                    .optionValue(lookup.getId().getOptionValue())
                     .descriptionKey(lookup.getDescriptionKey())
                     .orderNumber(lookup.getOrderNumber())
                     .active(lookup.isActive())
@@ -76,8 +77,8 @@ class LookupControllerTest {
             )
             .block();
 
-        assertEquals(lookup.getId().type(), response.type());
-        assertEquals(lookup.getId().optionValue(), response.optionValue());
+        assertEquals(lookup.getId().getType(), response.type());
+        assertEquals(lookup.getId().getOptionValue(), response.optionValue());
         assertEquals(lookup.getDescriptionKey(), response.descriptionKey());
         assertEquals(lookup.getOrderNumber(), response.orderNumber());
         assertEquals(lookup.isActive(), response.active());
@@ -86,14 +87,14 @@ class LookupControllerTest {
     @Test
     void testUpdateLookup() {
         var lookup = new Lookup(new LookupId("type", "optionValue"), "description", 1, true);
-        when(lookupService.update(lookup))
-            .thenAnswer(i -> Mono.just(i.getArgument(0)));
+        given(lookupService.update(lookup))
+            .willAnswer(i -> Mono.just(i.getArgument(0)));
 
         var response = this.lookupController
             .updateLookup(
                 LookupDTO.builder()
-                    .type(lookup.getId().type())
-                    .optionValue(lookup.getId().optionValue())
+                    .type(lookup.getId().getType())
+                    .optionValue(lookup.getId().getOptionValue())
                     .descriptionKey(lookup.getDescriptionKey())
                     .orderNumber(lookup.getOrderNumber())
                     .active(lookup.isActive())
@@ -101,8 +102,8 @@ class LookupControllerTest {
             )
             .block();
 
-        assertEquals(lookup.getId().type(), response.type());
-        assertEquals(lookup.getId().optionValue(), response.optionValue());
+        assertEquals(lookup.getId().getType(), response.type());
+        assertEquals(lookup.getId().getOptionValue(), response.optionValue());
         assertEquals(lookup.getDescriptionKey(), response.descriptionKey());
         assertEquals(lookup.getOrderNumber(), response.orderNumber());
         assertEquals(lookup.isActive(), response.active());
@@ -111,8 +112,8 @@ class LookupControllerTest {
     @Test
     void testDeleteLookup() {
         var lookup = new Lookup(new LookupId("type", "optionValue"), "description", 1, true);
-        when(lookupService.delete(lookup))
-            .thenAnswer(i -> {
+        given(lookupService.delete(lookup))
+            .willAnswer(i -> {
                 var lookupArg = i.<Lookup>getArgument(0);
                 return Mono.just(new Lookup(lookupArg.getId(), lookupArg.getDescriptionKey(), lookupArg.getOrderNumber(), false));
             });
@@ -120,8 +121,8 @@ class LookupControllerTest {
         var response = this.lookupController
             .deleteLookup(
                 LookupDTO.builder()
-                    .type(lookup.getId().type())
-                    .optionValue(lookup.getId().optionValue())
+                    .type(lookup.getId().getType())
+                    .optionValue(lookup.getId().getOptionValue())
                     .descriptionKey(lookup.getDescriptionKey())
                     .orderNumber(lookup.getOrderNumber())
                     .active(lookup.isActive())
@@ -129,8 +130,8 @@ class LookupControllerTest {
             )
             .block();
 
-        assertEquals(lookup.getId().type(), response.type());
-        assertEquals(lookup.getId().optionValue(), response.optionValue());
+        assertEquals(lookup.getId().getType(), response.type());
+        assertEquals(lookup.getId().getOptionValue(), response.optionValue());
         assertEquals(lookup.getDescriptionKey(), response.descriptionKey());
         assertEquals(lookup.getOrderNumber(), response.orderNumber());
         assertFalse(response.active());

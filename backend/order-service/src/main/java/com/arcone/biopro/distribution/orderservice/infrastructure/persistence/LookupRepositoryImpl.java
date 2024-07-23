@@ -25,8 +25,8 @@ public class LookupRepositoryImpl implements LookupRepository {
     private final LookupEntityMapper lookupEntityMapper;
 
     private Query queryByUniqueKey(final LookupId id, final Boolean active) {
-        var criteria = where("type").is(id.type())
-            .and("option_value").is(id.optionValue());
+        var criteria = where("type").is(id.getType())
+            .and("option_value").is(id.getOptionValue());
 
         if (active != null) {
             criteria.and("active").is(active);
@@ -81,8 +81,8 @@ public class LookupRepositoryImpl implements LookupRepository {
         return this.entityTemplate
             .insert(
                 LookupEntity.builder()
-                    .type(lookup.getId().type())
-                    .optionValue(lookup.getId().optionValue())
+                    .type(lookup.getId().getType())
+                    .optionValue(lookup.getId().getOptionValue())
                     .descriptionKey(lookup.getDescriptionKey())
                     .orderNumber(lookup.getOrderNumber())
                     .active(true)
@@ -97,8 +97,8 @@ public class LookupRepositoryImpl implements LookupRepository {
             .flatMap(lookupEntity -> this.entityTemplate
                 .update(
                     lookupEntity.toBuilder()
-                        .type(lookup.getId().type())
-                        .optionValue(lookup.getId().optionValue())
+                        .type(lookup.getId().getType())
+                        .optionValue(lookup.getId().getOptionValue())
                         .descriptionKey(lookup.getDescriptionKey())
                         .orderNumber(lookup.getOrderNumber())
                         .active(lookup.isActive())
