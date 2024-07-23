@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { fromEvent, merge, Observable, Subscription } from 'rxjs';
@@ -18,7 +18,7 @@ const destroyComponent = (component: any, fixture: ComponentFixture<any>) => {
     </form>`
 })
 @AutoUnsubscribe()
-class AutoUnsubscribeWrapperComponent implements AfterViewInit, OnDestroy {
+class AutoUnsubscribeWrapperComponent implements AfterViewInit {
   @ViewChild('formEl', { static: false }) formElRef: ElementRef;
   @ViewChild('buttonElement', { static: false }) buttonEl: ElementRef;
   formGroup: FormGroup = new FormGroup({
@@ -33,9 +33,6 @@ class AutoUnsubscribeWrapperComponent implements AfterViewInit, OnDestroy {
   submitForm(_) {
   }
 
-  // Just declared for AutoUnsubscribe decorator
-  ngOnDestroy(): void {
-  }
 
   ngAfterViewInit(): void {
     this.observable1 = this.formGroup.valueChanges;
@@ -60,9 +57,8 @@ describe('AutoUnsubscribeDecorator', () => {
     fixture.detectChanges();
   }));
 
-  it('It should close the all subscriptions', () => {
+  it('It should close the all subscriptions', () => {   
     destroyComponent(component, fixture);
-    expect(component.ngOnDestroy).toHaveBeenCalled();
     expect(component.subscription1.closed).toEqual(true);
     expect(component.subscription2.closed).toEqual(true);
     expect(component.subscription3.closed).toEqual(true);
@@ -82,7 +78,7 @@ describe('AutoUnsubscribeDecorator', () => {
 @AutoUnsubscribe({
   blackList: ['subscription4', 'subscription5']
 })
-class AutoUnsubscribeParamsWrapperComponent implements AfterViewInit, OnDestroy {
+class AutoUnsubscribeParamsWrapperComponent implements AfterViewInit {
   formGroup: FormGroup = new FormGroup({
     formControlName1: new FormControl('155'),
     formControlName2: new FormControl('155')
@@ -100,9 +96,6 @@ class AutoUnsubscribeParamsWrapperComponent implements AfterViewInit, OnDestroy 
   submitForm(_) {
   }
 
-  // Just declared for AutoUnsubscribe decorator
-  ngOnDestroy(): void {
-  }
 }
 
 describe('AutoUnsubscribeDecoratorWithParams', () => {
@@ -141,7 +134,7 @@ describe('AutoUnsubscribeDecoratorWithParams', () => {
   blackList: ['subscription7'],
   arrayName: 'subscriptionsArray'
 })
-class AutoUnsubscribeParams1WrapperComponent implements AfterViewInit, OnDestroy {
+class AutoUnsubscribeParams1WrapperComponent implements AfterViewInit {
   formGroup: FormGroup = new FormGroup({
     formControlName3: new FormControl('155'),
     formControlName4: new FormControl('155')
@@ -157,10 +150,6 @@ class AutoUnsubscribeParams1WrapperComponent implements AfterViewInit, OnDestroy
   }
 
   submitForm(_) {
-  }
-
-  // Just declared for AutoUnsubscribe decorator
-  ngOnDestroy(): void {
   }
 }
 

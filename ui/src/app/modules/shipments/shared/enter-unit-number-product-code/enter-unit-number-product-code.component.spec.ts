@@ -6,7 +6,6 @@ import {
     TranslateLoader,
     TranslateModule,
 } from '@ngx-translate/core';
-import { ScanUnitNumberCheckDigitComponent } from '../../../../shared/components/scan-unit-number-check-digit/scan-unit-number-check-digit.component';
 import { EnterUnitNumberProductCodeComponent } from './enter-unit-number-product-code.component';
 
 describe('EnterUnitNumberProductCodeComponent', () => {
@@ -17,7 +16,6 @@ describe('EnterUnitNumberProductCodeComponent', () => {
         await TestBed.configureTestingModule({
             imports: [
                 EnterUnitNumberProductCodeComponent,
-                ScanUnitNumberCheckDigitComponent,
                 BrowserAnimationsModule,
                 TranslateModule.forRoot({
                     loader: {

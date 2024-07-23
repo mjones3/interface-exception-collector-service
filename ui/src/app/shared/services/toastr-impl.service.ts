@@ -8,7 +8,7 @@ import {
     RendererFactory2,
 } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
-import { FuseAlertType } from '@fuse/components/alert';
+import { FuseAlertType } from '@fuse/components/alert/alert.types';
 import { isFunction } from 'lodash-es';
 import {
     ActiveToast,

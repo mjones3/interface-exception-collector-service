@@ -3,17 +3,17 @@ import { Component, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { Router } from '@angular/router';
-import { FuseCardComponent } from '@fuse/components/card';
-import { ShipmentInfoDto } from 'app/modules/shipments/models/shipment-info.dto';
-import { ProcessHeaderComponent } from 'app/shared/components/process-header/process-header.component';
-import { LookUpDto } from 'app/shared/models/look-up-dto';
-import { Column } from 'app/shared/models/table.model';
-import { ValidationType } from 'app/shared/pipes/validation.pipe';
-import { ProcessHeaderService } from 'app/shared/services/process-header.service';
+import { FuseCardComponent } from '@fuse/components/card/public-api';
 import { ToastrService } from 'ngx-toastr';
 import { LazyLoadEvent } from 'primeng/api';
 import { Table, TableModule } from 'primeng/table';
 import { finalize } from 'rxjs';
+import { ShipmentInfoDto } from '../../../../modules/shipments/models/shipment-info.dto';
+import { ProcessHeaderComponent } from '../../../../shared/components/process-header/process-header.component';
+import { LookUpDto } from '../../../../shared/models/look-up-dto';
+import { Column } from '../../../../shared/models/table.model';
+import { ValidationType } from '../../../../shared/pipes/validation.pipe';
+import { ProcessHeaderService } from '../../../../shared/services/process-header.service';
 import { OPEN_OPTION_VALUE, OrderStatuses, OrderSummary } from '../../models/order.model';
 import { OrderService } from '../../services/order.service';
 
@@ -21,14 +21,18 @@ import { OrderService } from '../../services/order.service';
   selector: 'app-search-orders',
   standalone: true,
   imports: [
-    CommonModule,
-    TableModule,
-    MatDividerModule,
-    FuseCardComponent,
-    AsyncPipe,
-    ProcessHeaderComponent,
-    MatButtonModule,
-  ],
+      CommonModule, 
+      TableModule, 
+      MatDividerModule, 
+      FuseCardComponent, 
+      AsyncPipe,
+      ProcessHeaderComponent,
+      MatButtonModule,
+    ],
+    providers: [
+      ProcessHeaderService,
+      OrderService
+    ],
   templateUrl: './search-orders.component.html',
 })
 

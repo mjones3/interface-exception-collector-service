@@ -63,10 +63,10 @@ describe('ControlErrorsDirective', () => {
     fakeAsync(() => {
       component.formGroup.patchValue({ formControlName: 120 });
       tick(250);
-      const matErrorEl = fixture.debugElement.query(By.css('mat-error.mat-error')).nativeElement as HTMLElement;
       fixture.detectChanges();
+      const matErrorEl = fixture.debugElement.query(By.css('mat-error')).nativeElement as HTMLElement;
       expect(matErrorEl.innerHTML.trim()).toEqual(`Value should be less than ${component.minValue}`);
-      expect((component.containerEl.nativeElement as HTMLDivElement).classList.contains('control-error')).toEqual(true);
+      expect((component.containerEl.nativeElement as HTMLDivElement).getElementsByClassName('control-error').length).toEqual(1);
       done();
     })();
   });

@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FuseCardComponent } from '@fuse/components/card';
+import { FuseCardComponent } from '@fuse/components/card/public-api';
 import { Store } from '@ngrx/store';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { startCase } from 'lodash-es';
@@ -45,7 +45,7 @@ import { OrderWidgetsSidebarComponent } from '../shared/order-widgets-sidebar/or
   ],
   templateUrl: './fill-products.component.html',
   styleUrl: './fill-products.component.scss',
-  providers: [ShipmentService],
+  providers: [ShipmentService, FacilityService],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FillProductsComponent implements OnInit{

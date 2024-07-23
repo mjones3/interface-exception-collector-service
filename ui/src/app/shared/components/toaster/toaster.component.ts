@@ -1,9 +1,9 @@
 import { UpperCasePipe } from '@angular/common';
 import { Component, Input, ViewEncapsulation } from '@angular/core';
 import {
-    FuseAlertAppearance,
     FuseAlertComponent,
 } from '@fuse/components/alert';
+import { FuseAlertAppearance } from '@fuse/components/alert/alert.types';
 import { Toast, ToastPackage, ToastrService } from 'ngx-toastr';
 
 @Component({

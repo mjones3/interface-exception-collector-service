@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FuseNavigationService } from '@fuse/components/navigation';
 import { ProcessHeaderComponent } from './process-header.component';
 
 describe('ProcessHeaderComponent', () => {
@@ -9,7 +8,6 @@ describe('ProcessHeaderComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ProcessHeaderComponent],
-      providers: [FuseNavigationService]
     })
     .compileComponents();
     

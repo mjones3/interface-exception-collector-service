@@ -47,8 +47,6 @@ export class ShipmentService {
       .pipe(catchError(this.errorHandler));
   }
 
-
-
   public getShipmentById(
     shipmentId: number,
     refetch: boolean = false

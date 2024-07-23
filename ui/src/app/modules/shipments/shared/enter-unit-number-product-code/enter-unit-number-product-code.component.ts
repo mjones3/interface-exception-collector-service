@@ -56,14 +56,8 @@ export class EnterUnitNumberProductCodeComponent {
     ) {
         this.productGroup = fb.group({
             unitNumber: ['', [Validators.required, RsaValidators.unitNumber]],
-            productCode: [
-                '',
-                [RsaValidators.fullProductCode, Validators.required],
-            ],
-            visualInspection: [
-                { value: '', disabled: true },
-                [Validators.required],
-            ],
+            productCode: ['', [RsaValidators.fullProductCode, Validators.required]],
+            visualInspection: [{ value: '', disabled: true },[Validators.required]],
         });
     }
 

@@ -1,10 +1,13 @@
-import { HttpResponse } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router } from '@angular/router';
 import { provideMockStore } from '@ngrx/store/testing';
-import { of } from 'rxjs';
-import { ShipmentInfoDto, ShipmentInfoItemDto } from '../models/shipment-info.dto';
+import { TranslateModule } from '@ngx-translate/core';
+import { ApolloModule } from 'apollo-angular';
+import { ApolloTestingModule } from 'apollo-angular/testing';
+import { ToastrModule } from 'ngx-toastr';
+import { ShipmentInfoItemDto } from '../models/shipment-info.dto';
 import { ShipmentService } from '../services/shipment.service';
 import { ShipmentDetailsComponent } from './shipment-details.component';
 
@@ -19,9 +22,15 @@ describe('ShipmentDetailsComponent', () => {
     await TestBed.configureTestingModule({
       imports: [
         ShipmentDetailsComponent, 
+        ApolloTestingModule,
+        NoopAnimationsModule,
+        ApolloModule,
+        TranslateModule.forRoot(),
+        ToastrModule.forRoot()
       ],
       providers: [
-        provideHttpClientTesting,
+        provideHttpClientTesting(),
+        provideMockStore({}),
         {
           provide: ActivatedRoute,
           useValue: {
@@ -31,12 +40,11 @@ describe('ShipmentDetailsComponent', () => {
               },
               data: {
                 shipmentDetailsConfigData: [],
-              },
-            },
-          },
-        },
-        provideMockStore(),
-      ],
+              }
+            }
+          }
+        }
+      ]
     }).compileComponents();
   });
 
@@ -54,13 +62,13 @@ describe('ShipmentDetailsComponent', () => {
   });
 
   it('should fetch shipment details', () => {
-    spyOn(shipmentService, 'getShipmentById').and.returnValue(of({ body: { id: 1 } } as HttpResponse<ShipmentInfoDto>));
+    jest.spyOn(shipmentService, 'getShipmentById')
     component.fetchShipmentDetails();
     expect(shipmentService.getShipmentById).toHaveBeenCalledWith(SHIPMENT_ID, true);
   });
 
   it('should navigate back to search order', () => {
-    spyOn(router, 'navigateByUrl');
+    jest.spyOn(router, 'navigateByUrl');
     component.backToSearch();
     expect(router.navigateByUrl).toHaveBeenCalledWith('/orders/search');
   });
@@ -69,29 +77,14 @@ describe('ShipmentDetailsComponent', () => {
     const shipment = {
       id: '1',
     };
-    spyOn(router, 'navigateByUrl');
+    jest.spyOn(router, 'navigateByUrl');
     component.fillProducts(shipment as ShipmentInfoItemDto);
     expect(router.navigateByUrl).toHaveBeenCalledWith('shipment/1/fill-products/1');
   });
 
   it('should complete on click complete shipment button', () => {
     component.loggedUserId = 'user-id-12';
-    spyOn(shipmentService, 'completeShipment').and.returnValue(
-      of({
-        body: {
-          notifications: [
-            {
-              statusCode: 200,
-              notificationType: 'success',
-              message: 'completed-shipment.success',
-            },
-          ],
-          _links: {
-            next: `/shipment/${SHIPMENT_ID}/shipment-details`,
-          },
-        },
-      })
-    );
+    jest.spyOn(shipmentService, 'completeShipment')
     component.completeShipment();
     expect(shipmentService.completeShipment).toHaveBeenCalledWith({
       shipmentId: 1,

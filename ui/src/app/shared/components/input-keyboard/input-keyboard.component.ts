@@ -20,6 +20,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { AutoUnsubscribe } from '../../../shared/decorators/auto-unsubscribe/auto-unsubscribe.decorator';
+import { ControlErrorsDirective } from '../../../shared/directive/control-errors/control-errors.directive';
+import { MaskRegexDirective } from '../../../shared/directive/mask-regex/mask-regex.directive';
 import { ControlValueAccessorWithValidator } from '../../../shared/forms/base-control-value-accessor-with-validator';
 import { Option } from '../../../shared/models';
 import { Autocomplete } from '../../../shared/types/autocomplete.enum';
@@ -37,7 +39,9 @@ import { KeyboardTypeEnum } from '../../../shared/types/keyboard-type.enum';
         MatButtonModule,
         MatIconModule,
         MatFormFieldModule,
-        MatInputModule
+        MatInputModule,
+        ControlErrorsDirective,
+        MaskRegexDirective
     ],
 })
 @AutoUnsubscribe()
