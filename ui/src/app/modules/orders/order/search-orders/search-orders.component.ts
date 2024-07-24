@@ -30,7 +30,6 @@ import { OrderService } from '../../services/order.service';
       MatButtonModule,
     ],
     providers: [
-      ProcessHeaderService,
       OrderService
     ],
   templateUrl: './search-orders.component.html',
