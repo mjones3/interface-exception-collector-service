@@ -1,0 +1,23 @@
+{{- if .Values.atlas.enabled -}}
+apiVersion: db.atlasgo.io/v1alpha1
+kind: AtlasSchema
+metadata:
+  name: {{ include "api.fullname" . }}-schema
+  namespace: atlas
+spec:
+  urlFrom:
+    secretKeyRef:
+      key: url
+      name: atlas-credentials
+  schema:
+    configMapKeyRef:
+      key: schema.sql
+      name: {{ include "api.fullname" . }}-schema
+  policy:
+    diff:
+      skip:
+        drop_schema: true
+    lint:
+      destructive:
+        error: true
+{{- end }}

@@ -5,20 +5,35 @@ include:
   - project: arc-one/infrastructure/gitlab-ci
     ref: main
     file: spec.build_ui.pipeline.yml
-    inputs: 
+    inputs:
       service: distribution-ui
   - project: arc-one/infrastructure/gitlab-ci
     ref: main
     file: spec.backend.pipeline.yml
-    inputs: 
-      service: shipping-service
+    inputs:
+      service: shipping
+  - project: arc-one/infrastructure/gitlab-ci
+    ref: main
+    file: spec.helm.pipeline.yml
+    inputs:
+      service: shipping
   - project: arc-one/infrastructure/gitlab-ci
     ref: main
     file: spec.backend.pipeline.yml
     inputs:
-      service: order-service
+      service: order
+  - project: arc-one/infrastructure/gitlab-ci
+    ref: main
+    file: spec.helm.pipeline.yml
+    inputs:
+      service: order
   - project: arc-one/infrastructure/gitlab-ci
     ref: main
     file: spec.backend.pipeline.yml
     inputs:
-      service: partner-order-provider-service
+      service: partner-order-provider
+  - project: arc-one/infrastructure/gitlab-ci
+    ref: main
+    file: spec.helm.pipeline.yml
+    inputs:
+      service: partner-order-provider
