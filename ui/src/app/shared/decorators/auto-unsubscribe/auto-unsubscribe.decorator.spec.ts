@@ -5,7 +5,7 @@ import { fromEvent, merge, Observable, Subscription } from 'rxjs';
 import { AutoUnsubscribe } from './auto-unsubscribe.decorator';
 
 const destroyComponent = (component: any, fixture: ComponentFixture<any>) => {
-  jest.spyOn(component, 'ngOnDestroy')
+  jest.spyOn(component, 'ngOnDestroy');
   fixture.destroy();
 };
 

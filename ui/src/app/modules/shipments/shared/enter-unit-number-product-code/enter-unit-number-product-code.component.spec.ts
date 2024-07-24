@@ -9,7 +9,7 @@ import {
 import { EnterUnitNumberProductCodeComponent } from './enter-unit-number-product-code.component';
 
 describe('EnterUnitNumberProductCodeComponent', () => {
-    let component: EnterUnitNumberProductCodeComponent
+    let component: EnterUnitNumberProductCodeComponent;
     let fixture: ComponentFixture<EnterUnitNumberProductCodeComponent>;
 
     beforeEach(async () => {

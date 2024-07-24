@@ -62,7 +62,7 @@ describe('ShipmentDetailsComponent', () => {
   });
 
   it('should fetch shipment details', () => {
-    jest.spyOn(shipmentService, 'getShipmentById')
+    jest.spyOn(shipmentService, 'getShipmentById');
     component.fetchShipmentDetails();
     expect(shipmentService.getShipmentById).toHaveBeenCalledWith(SHIPMENT_ID, true);
   });
@@ -84,7 +84,7 @@ describe('ShipmentDetailsComponent', () => {
 
   it('should complete on click complete shipment button', () => {
     component.loggedUserId = 'user-id-12';
-    jest.spyOn(shipmentService, 'completeShipment')
+    jest.spyOn(shipmentService, 'completeShipment');
     component.completeShipment();
     expect(shipmentService.completeShipment).toHaveBeenCalledWith({
       shipmentId: 1,

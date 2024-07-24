@@ -45,7 +45,7 @@ import { OrderWidgetsSidebarComponent } from '../shared/order-widgets-sidebar/or
   ],
   templateUrl: './fill-products.component.html',
   styleUrl: './fill-products.component.scss',
-  providers: [ShipmentService, FacilityService],
+  providers: [ShipmentService],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FillProductsComponent implements OnInit{
