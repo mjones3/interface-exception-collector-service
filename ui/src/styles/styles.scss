@@ -48,10 +48,14 @@ body {
 
 .module-title {
     color: map-get($primary, DEFAULT);
+    font-weight: 500;
 }
 
 .custom-required {
-    color: $custom-red-required;
+    @apply text-red-700;
+    font-weight: bold;
+    margin-left: 1px;
+    margin-right: 0px;
 }
 
 .text-custom-red {
@@ -294,4 +298,10 @@ rsa-process-header {
 
 .p-datatable .p-datatable-tbody > tr {
     height: 32px;
+}
+
+.custom-error-message{
+    @apply text-red-700 #{'!important'}; 
+    font-size: 12px;
+    font-weight: 500;
 }

@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import {
     AfterViewInit,
     Component,
+    ElementRef,
     EventEmitter,
     Inject,
     Input,
@@ -26,9 +27,8 @@ import { AutoUnsubscribe } from 'app/shared/decorators/auto-unsubscribe/auto-uns
 import { Pageable, pageableDefault } from 'app/shared/models';
 import { Paginator } from 'app/shared/utils/paginator';
 import { Subscription } from 'rxjs';
-import { InputKeyboardComponent } from '../input-keyboard/input-keyboard.component';
 
-export const FILTERABLE_DROPDOWN_LOADER_CONTAINER = 'flex flex-1 py-4 relative';
+export const FILTERABLE_DROPDOWN_LOADER_CONTAINER = '';
 
 @Component({
     selector: 'rsa-filterable-drop-down',
@@ -44,8 +44,7 @@ export const FILTERABLE_DROPDOWN_LOADER_CONTAINER = 'flex flex-1 py-4 relative';
         MatFormFieldModule,
         MatInputModule,
         TranslateModule,
-        FuseScrollbarDirective,
-        InputKeyboardComponent,
+        FuseScrollbarDirective
     ],
 })
 @AutoUnsubscribe()
@@ -69,12 +68,12 @@ export class FilterableDropDownComponent implements OnInit, AfterViewInit {
     fuseScrollbar: FuseScrollbarDirective;
     private pageChangeSub: Subscription;
     private valueChangesSub: Subscription;
-
     constructor(
         @Inject(MAT_DIALOG_DATA) private data: any,
         public dialogRef: MatDialogRef<FilterableDropDownComponent>,
         private formBuilder: FormBuilder,
-        private translateService: TranslateService
+        private translateService: TranslateService,
+        private el: ElementRef
     ) {
         if (data) {
             this.options = data.options ? data.options : [];

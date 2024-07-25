@@ -1,56 +1,61 @@
 <div id="fillProductForm" class="flex flex-col" [formGroup]="productGroup">
-  <div class="flex flex-row space-x-4 px-8 pt-4">
-    <div class="flex flex-col space-y-1 w-full">
-      <span class="block font-bold">Unit Number</span>
-      <rsa-scan-unit-number-check-digit
-        id="scanOrEnterUnitNumberId"
-        [disableCheckDigit]="disableCheckDigit"
-        (validate)="verifyUnit($event)"
-        [showKeyboard]="false"
-        [labelTitle]="''"
-        [inputFocus]="unitNumberFocus"
-        #unitnumber
-      >
-      </rsa-scan-unit-number-check-digit>
-    </div>
-
-    <div class="flex flex-col space-y-1 w-full">
-      <div class="flex flex-col mt-0 flex-auto">
-        <mat-form-field appearance="fill" class="block w-full">
-          <mat-label class="block font-bold">Product Code</mat-label>
-          <input
-            id="productCodeId"
-            matInput
-            formControlName="productCode"
-            autocomplete="off"
-            validateOn="touchedState"
-            required
-            rsaBarcode
-            (keyup)="enableVisualInspection()"
-            [placeholder]="'Scan or Enter Product Code'"  
-          />
-        </mat-form-field>
-      </div>
-    </div>
-
-    <div class="flex flex-col space-y-1 w-full">
-      <span class="flex">
-        <label for="visualInspectionId" class="font-bold">Visual Inspection</label>
-          <span class="custom-required">*</span>
-      </span>
-      <div class="flex flex-col mb-4"> 
-        <mat-radio-group
-          id="visualInspectionId"
-          required
-          class="flex pt-2"
-          formControlName="visualInspection"
-          ngDefaultControl
-          (change)="onSelectVisualInspection()"
+  <div class="flex flex-row space-x-6 px-8 pt-4 w-full pb-4">
+      <div class="flex flex-col space-y-1 w-3/4">
+        <rsa-scan-unit-number-check-digit
+          id="scanOrEnterUnitNumberId"
+          [disableCheckDigit]="disableCheckDigit"
+          (validate)="verifyUnit($event)"
+          [inputFocus]="unitNumberFocus"
+          #unitnumber
         >
-          <mat-radio-button id="inspection-satisfactory" class="mr-4" [value]="'satisfactory'">Satisfactory</mat-radio-button>
-          <mat-radio-button id="inspection-unsatisfactory" [value]="'unsatisfactory'"> Unsatisfactory
-          </mat-radio-button>
-        </mat-radio-group>
+        </rsa-scan-unit-number-check-digit>
+      </div>
+
+    <div class="w-full flex flex-row space-x-6">
+      <div class="space-y-1 w-2/3">
+        <div class="flex flex-col mt-0 flex-auto">
+          <mat-form-field appearance="fill" class="block w-full">
+            <mat-label class="block font-bold">Product Code</mat-label>
+            <input
+              id="productCodeId"
+              matInput
+              formControlName="productCode"
+              autocomplete="off"
+              validateOn="touchedState"
+              rsaBarcode
+              (keyup)="enableVisualInspection()"
+              (tabOrEnterPressed)="enableVisualInspection()"
+              [placeholder]="'Scan or Enter Product Code'"  
+            />
+            @if(productGroup.get('productCode').hasError('required')){
+              <mat-error >Product Code is Required</mat-error>
+            }
+          </mat-form-field>
+        </div>
+      </div>
+  
+      <div class="flex flex-col space-y-1 w-2/3">
+        <span class="flex pl-2">
+          <label for="visualInspectionId" class="font-bold block">Visual Inspection</label>
+            <span class="custom-required">*</span>
+        </span>
+        <div class="flex flex-col mb-4 w-full"> 
+          <mat-radio-group
+            id="visualInspectionId"
+            required
+            class="flex"
+            formControlName="visualInspection"
+            ngDefaultControl
+            (change)="onSelectVisualInspection()"
+          >
+                <mat-radio-button id="inspection-satisfactory" class="mr-4 font-bold" [value]="'satisfactory'">Satisfactory</mat-radio-button>
+                <mat-radio-button id="inspection-unsatisfactory" class="font-bold" [value]="'unsatisfactory'"> Unsatisfactory
+            </mat-radio-button>
+          </mat-radio-group>
+        </div>
+          @if(productGroup.get('visualInspection').hasError('required')){
+            <span class="custom-error-message" >Visual Inspection is Required</span>
+          }
       </div>
     </div>
   </div>

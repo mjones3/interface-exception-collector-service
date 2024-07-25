@@ -18,25 +18,23 @@
         }
     </div>
 
-    <div mat-dialog-content class="flex flex-1 flex-col border-t px-0">
+    <div mat-dialog-content class="flex flex-col border-t px-0">
         <!-- Input for search Criteria Section -->
         <form [formGroup]="filterForm">
             <div class="flex flex-col px-4">
-                <rsa-input-keyboard
-                    id="filterableListInputKeyboard"
-                    [inputId]="'filterInput'"
-                    class="w-full"
-                    [placeholder]="inputPlaceholder"
-                    [formControlName]="'filterCriteria'"
-                    [iconName]="iconName"
-                    (optionSelected)="selectValue($event)"
-                    [options]="options"
-                    [optionsLabel]="optionsLabel"
-                    [showKeyboard]="showKeyboard"
-                ></rsa-input-keyboard>
+                <mat-form-field class="fuse-mat-no-subscript flex-auto">
+                    <input
+                        matInput
+                        formControlName="filterCriteria"
+                        class="w-full"
+                        id="filterInput"
+                        [placeholder]="inputPlaceholder"
+                        [autocomplete]="'off'"
+                    />
+                        <mat-icon matSuffix [svgIcon]="iconName"></mat-icon>
+                </mat-form-field>    
             </div>
         </form>
-
         <!-- Filtered List Section -->
         <div [ngClass]="filterableContainerClasses">
             <div
@@ -48,16 +46,15 @@
                     suppressScrollX: true,
                 }"
             >
-                <mat-selection-list
-                    [id]="'filteredList'"
-                    [multiple]="false"
+                <mat-list
+                    [id]="'filteredList'"              
                     class="border-t p-0"
                 >
-                    <mat-list-option
+                    <mat-list-item
                         *ngFor="let item of filteredList"
                         (click)="selectValue(item)"
                     >
-                        <span class="pl-4 text-2xl"
+                        <span class="pl-4 text-2xl cursor-pointer"
                             >{{
                                 (optionsLabel ? item[optionsLabel] : item)
                                     | translate
@@ -65,8 +62,8 @@
                             }}
                         </span>
                         <mat-divider></mat-divider>
-                    </mat-list-option>
-                </mat-selection-list>
+                    </mat-list-item>
+                </mat-list>
             </div>
         </div>
     </div>

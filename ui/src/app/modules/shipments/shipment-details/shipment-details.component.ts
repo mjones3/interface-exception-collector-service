@@ -13,6 +13,7 @@ import { startCase } from 'lodash-es';
 import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { SortEvent } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
+import { DropdownModule } from 'primeng/dropdown';
 import { TableModule } from 'primeng/table';
 import { of, switchMap } from 'rxjs';
 import { catchError, take } from 'rxjs/operators';
@@ -61,6 +62,7 @@ import { ViewShippingLabelComponent } from '../view-shipping-label/view-shipping
     MatProgressBarModule,
     OrderWidgetsSidebarComponent,
     ButtonModule,
+    DropdownModule
   ],
   templateUrl: './shipment-details.component.html',
   styleUrl: './shipment-details.component.scss'

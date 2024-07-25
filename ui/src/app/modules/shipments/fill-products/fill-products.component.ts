@@ -126,7 +126,7 @@ export class FillProductsComponent implements OnInit{
         value: this.shipmentProduct?.bloodType,
       },
       {
-        label: 'Product Commnets',
+        label: 'Product Comments',
         value: this.shipmentProduct?.comments,
       },
     ];

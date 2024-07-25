@@ -14,13 +14,12 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
-import { ScanUnitNumberCheckDigitComponent } from 'app/shared/components/scan-unit-number-check-digit/scan-unit-number-check-digit.component';
-import { ControlErrorsDirective } from 'app/shared/directive/control-errors/control-errors.directive';
-import { RsaValidators } from 'app/shared/forms/rsa-validators';
+import { ScanUnitNumberCheckDigitComponent } from '../../../../shared/components/scan-unit-number-check-digit/scan-unit-number-check-digit.component';
+import { RsaValidators } from '../../../../shared/forms/rsa-validators';
 import {
     ValidationPipe,
-    ValidationType,
-} from 'app/shared/pipes/validation.pipe';
+    ValidationType
+} from '../../../../shared/pipes/validation.pipe';
 import { VerifyFilledProductDto } from '../../models/shipment-info.dto';
 
 @Component({
@@ -30,9 +29,8 @@ import { VerifyFilledProductDto } from '../../models/shipment-info.dto';
         MatRadioModule,
         MatFormFieldModule,
         MatInputModule,
-        ControlErrorsDirective,
-        ValidationPipe,
         ScanUnitNumberCheckDigitComponent,
+        ValidationPipe,
     ],
     selector: 'rsa-enter-unit-number-product-code',
     templateUrl: './enter-unit-number-product-code.component.html',

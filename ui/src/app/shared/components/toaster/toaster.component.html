@@ -7,7 +7,7 @@
     (afterDismissed)="remove()"
 >
     @if (title) {
-        <span fuseAlertTitle>{{ title }}</span>
+        <span fuseAlertTitle>{{ title | uppercase}}</span>
     }
     {{ message }}
 </fuse-alert>
