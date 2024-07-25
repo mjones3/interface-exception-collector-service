@@ -1,7 +1,7 @@
 package com.arcone.biopro.distribution.orderservice.domain.repository;
 
 import com.arcone.biopro.distribution.orderservice.domain.model.Lookup;
-import com.arcone.biopro.distribution.orderservice.domain.model.LookupId;
+import com.arcone.biopro.distribution.orderservice.domain.model.vo.LookupId;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

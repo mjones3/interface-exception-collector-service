@@ -1,10 +1,15 @@
 package com.arcone.biopro.distribution.orderservice.domain.model;
 
+import com.arcone.biopro.distribution.orderservice.domain.model.vo.LookupId;
 import com.arcone.biopro.distribution.orderservice.domain.repository.LookupRepository;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import reactor.core.publisher.Mono;
+
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
+import static java.util.Optional.ofNullable;
 
 @Getter
 @EqualsAndHashCode
@@ -36,7 +41,9 @@ public class Lookup implements Validatable {
     }
 
     public Mono<Boolean> exists(final LookupRepository lookupRepository) {
-        return lookupRepository.existsById(this.id, null);
+        return ofNullable(this.id)
+            .map(id -> lookupRepository.existsById(id, TRUE))
+            .orElseGet(() -> Mono.just(FALSE));
     }
 
     public Mono<Lookup> delete(final LookupRepository lookupRepository) {

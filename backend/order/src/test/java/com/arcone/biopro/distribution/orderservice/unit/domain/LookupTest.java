@@ -1,7 +1,7 @@
 package com.arcone.biopro.distribution.orderservice.unit.domain;
 
 import com.arcone.biopro.distribution.orderservice.domain.model.Lookup;
-import com.arcone.biopro.distribution.orderservice.domain.model.LookupId;
+import com.arcone.biopro.distribution.orderservice.domain.model.vo.LookupId;
 import com.arcone.biopro.distribution.orderservice.domain.repository.LookupRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -10,6 +10,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import static java.lang.Boolean.TRUE;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
@@ -34,7 +35,7 @@ class LookupTest {
     void testExists() {
         var lookup = new Lookup(new LookupId("type", "optionValue"), "description", 1, true);
 
-        when(lookupRepository.existsById(lookup.getId(), null)).thenReturn(Mono.just(true));
+        when(lookupRepository.existsById(lookup.getId(), TRUE)).thenReturn(Mono.just(true));
 
         StepVerifier.create(lookup.exists(lookupRepository))
             .expectNext(true)

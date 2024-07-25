@@ -26,21 +26,21 @@ public class LookupController {
     }
 
     @MutationMapping
-    public Mono<LookupDTO> insertLookup(@Argument("lookupRequest") LookupDTO lookupRequest) {
+    public Mono<LookupDTO> insertLookup(@Argument("lookup") LookupDTO lookupRequest) {
         return lookupService.insert(lookupMapper.mapToDomain(lookupRequest))
             .map(lookupMapper::mapToDTO)
             .flatMap(Mono::just);
     }
 
     @MutationMapping
-    public Mono<LookupDTO> updateLookup(@Argument("lookupRequest") LookupDTO lookupRequest) {
+    public Mono<LookupDTO> updateLookup(@Argument("lookup") LookupDTO lookupRequest) {
         return lookupService.update(lookupMapper.mapToDomain(lookupRequest))
             .map(lookupMapper::mapToDTO)
             .flatMap(Mono::just);
     }
 
     @MutationMapping
-    public Mono<LookupDTO> deleteLookup(@Argument("lookupRequest") LookupDTO lookupRequest) {
+    public Mono<LookupDTO> deleteLookup(@Argument("lookup") LookupDTO lookupRequest) {
         return lookupService.delete(lookupMapper.mapToDomain(lookupRequest))
             .map(lookupMapper::mapToDTO)
             .flatMap(Mono::just);

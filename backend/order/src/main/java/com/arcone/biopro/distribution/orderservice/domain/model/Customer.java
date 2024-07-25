@@ -1,5 +1,7 @@
 package com.arcone.biopro.distribution.orderservice.domain.model;
 
+import com.arcone.biopro.distribution.orderservice.domain.model.vo.CustomerAddress;
+import com.arcone.biopro.distribution.orderservice.domain.model.vo.CustomerCode;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -11,8 +13,8 @@ import java.util.List;
 @ToString
 public class Customer implements Validatable {
 
-    static final String ADDRESS_TYPE_SHIPPING = "SHIPPING";
-    static final String ADDRESS_TYPE_BILLING = "BILLING";
+    public static final String ADDRESS_TYPE_SHIPPING = "SHIPPING";
+    public static final String ADDRESS_TYPE_BILLING = "BILLING";
 
     private final CustomerCode code;
     private final String externalId;

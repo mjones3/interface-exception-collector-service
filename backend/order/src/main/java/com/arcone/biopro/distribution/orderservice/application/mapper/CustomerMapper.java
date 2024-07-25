@@ -1,9 +1,9 @@
 package com.arcone.biopro.distribution.orderservice.application.mapper;
 
 import com.arcone.biopro.distribution.orderservice.domain.model.Customer;
-import com.arcone.biopro.distribution.orderservice.domain.model.CustomerAddress;
-import com.arcone.biopro.distribution.orderservice.domain.model.CustomerAddressType;
-import com.arcone.biopro.distribution.orderservice.domain.model.CustomerCode;
+import com.arcone.biopro.distribution.orderservice.domain.model.vo.CustomerAddress;
+import com.arcone.biopro.distribution.orderservice.domain.model.vo.CustomerAddressType;
+import com.arcone.biopro.distribution.orderservice.domain.model.vo.CustomerCode;
 import com.arcone.biopro.distribution.orderservice.infrastructure.service.dto.CustomerAddressDTO;
 import com.arcone.biopro.distribution.orderservice.infrastructure.service.dto.CustomerDTO;
 import lombok.RequiredArgsConstructor;

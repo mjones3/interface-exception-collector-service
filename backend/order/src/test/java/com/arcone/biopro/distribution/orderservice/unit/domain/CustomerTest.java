@@ -1,9 +1,9 @@
 package com.arcone.biopro.distribution.orderservice.unit.domain;
 
 import com.arcone.biopro.distribution.orderservice.domain.model.Customer;
-import com.arcone.biopro.distribution.orderservice.domain.model.CustomerAddress;
-import com.arcone.biopro.distribution.orderservice.domain.model.CustomerAddressType;
-import com.arcone.biopro.distribution.orderservice.domain.model.CustomerCode;
+import com.arcone.biopro.distribution.orderservice.domain.model.vo.CustomerAddress;
+import com.arcone.biopro.distribution.orderservice.domain.model.vo.CustomerAddressType;
+import com.arcone.biopro.distribution.orderservice.domain.model.vo.CustomerCode;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

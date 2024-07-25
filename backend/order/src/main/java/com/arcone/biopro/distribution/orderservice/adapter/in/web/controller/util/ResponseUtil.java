@@ -1,4 +1,4 @@
-package com.arcone.biopro.distribution.orderservice.web.controller.util;
+package com.arcone.biopro.distribution.orderservice.adapter.in.web.controller.util;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

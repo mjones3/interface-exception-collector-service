@@ -2,7 +2,7 @@ package com.arcone.biopro.distribution.orderservice.unit.application.usecase;
 
 import com.arcone.biopro.distribution.orderservice.application.usecase.LookupUseCase;
 import com.arcone.biopro.distribution.orderservice.domain.model.Lookup;
-import com.arcone.biopro.distribution.orderservice.domain.model.LookupId;
+import com.arcone.biopro.distribution.orderservice.domain.model.vo.LookupId;
 import com.arcone.biopro.distribution.orderservice.domain.repository.LookupRepository;
 import com.arcone.biopro.distribution.orderservice.domain.service.LookupService;
 import org.junit.jupiter.api.Test;

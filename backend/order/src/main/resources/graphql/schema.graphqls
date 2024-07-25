@@ -1,27 +1,34 @@
 scalar DateTime
-@specifiedBy(url: "https://scalars.graphql.org/andimarek/date-time.html")
+scalar Date
 
 type Query {
-    # Lookup
+    # Searches over all Lookup records by a grouping type criteria
     findAllLookupsByType(type: String!): [Lookup]!
 
     # Customer
     findAllCustomers: [CustomerDTO]!
     findCustomerByCode(code: String!): CustomerDTO
+    # Searches over all Customers
+    findAllCustomers: [Customer]!
+    # Finds a Customer by its code
+    findCustomerByCode(code: String!): Customer
 }
 
 type Mutation {
     insertLookup(lookupRequest: LookupRequest!): Lookup!
     updateLookup(lookupRequest: LookupRequest!): Lookup!
     deleteLookup(lookupRequest: LookupRequest!): Lookup!
+    insertLookup(lookup: LookupInput!): Lookup!
+    updateLookup(lookup: LookupInput!): Lookup!
+    deleteLookup(lookup: LookupInput!): Lookup!
 }
 
-input LookupId {
+input LookupIdInput {
     type: String!
     optionValue: String!
 }
 
-input LookupRequest {
+input LookupInput {
     type: String!
     optionValue: String!
     descriptionKey: String!
@@ -37,7 +44,7 @@ type Lookup {
     active: Boolean!
 }
 
-type CustomerAddressDTO {
+type CustomerAddress {
     contactName: String!
     addressType: String!
     state: String!
@@ -50,7 +57,7 @@ type CustomerAddressDTO {
     active: String!
 }
 
-type CustomerDTO {
+type Customer {
     externalId: String!
     name: String!
     code: String!
@@ -59,4 +66,6 @@ type CustomerDTO {
     phoneNumber: String!
     active: String!
     addresses: [CustomerAddressDTO]
+    addresses: [CustomerAddress]
+}
 }
