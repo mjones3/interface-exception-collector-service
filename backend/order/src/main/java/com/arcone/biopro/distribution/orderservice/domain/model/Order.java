@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.orderservice.domain.model;
 import com.arcone.biopro.distribution.orderservice.domain.model.vo.*;
 import com.arcone.biopro.distribution.orderservice.domain.repository.OrderRepository;
 import com.arcone.biopro.distribution.orderservice.domain.service.CustomerService;
+import com.arcone.biopro.distribution.orderservice.domain.service.LookupService;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -44,6 +45,7 @@ public class Order implements Validatable {
 
     public Order(
         CustomerService customerService,
+        LookupService lookupService,
         Long id,
         Long orderNumber,
         String externalId,
@@ -71,10 +73,8 @@ public class Order implements Validatable {
             .map(OrderExternalId::new)
             .orElse(null);
         this.locationCode = locationCode;
-        this.shipmentType = ofNullable(shipmentType)
-            .map(ShipmentType::new)
-            .orElse(null);
-        this.shippingMethod = new ShippingMethod(shippingMethod);
+        this.shipmentType = new ShipmentType(shipmentType,lookupService);
+        this.shippingMethod = new ShippingMethod(shippingMethod,lookupService);
         this.shippingCustomer = ofNullable(shippingCustomerCode)
             .map(customerService::getCustomerByCode)
             .map(Mono::block)
@@ -88,10 +88,10 @@ public class Order implements Validatable {
         this.desiredShippingDate = desiredShippingDate;
         this.willCallPickup = willCallPickup;
         this.phoneNumber = phoneNumber;
-        this.productCategory = new ProductCategory(productCategory);
+        this.productCategory = new ProductCategory(productCategory,lookupService);
         this.comments = comments;
-        this.orderStatus = new OrderStatus(orderStatus);
-        this.orderPriority = new OrderPriority(orderPriority);
+        this.orderStatus = new OrderStatus(orderStatus,lookupService);
+        this.orderPriority = new OrderPriority(orderPriority,lookupService);
         this.createEmployeeId = createEmployeeId;
         this.createDate = createDate;
         this.modificationDate = modificationDate;

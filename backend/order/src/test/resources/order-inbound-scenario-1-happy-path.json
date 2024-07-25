@@ -15,8 +15,8 @@
     "shippingMethod": "FEDEX",
     "productCategory": "ORDER_PRODUCT_CATEGORY_FROZEN",
     "desiredShippingDate": "2020-04-25",
-    "shippingCustomerCode": "99741",
-    "billingCustomerCode": "99741",
+    "shippingCustomerCode": "A1235",
+    "billingCustomerCode": "A1235",
     "comments": "string",
     "orderItems": [
       {

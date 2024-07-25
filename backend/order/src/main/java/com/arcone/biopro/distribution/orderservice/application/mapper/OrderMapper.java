@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.orderservice.application.mapper;
 import com.arcone.biopro.distribution.orderservice.adapter.in.web.dto.OrderDTO;
 import com.arcone.biopro.distribution.orderservice.domain.model.Order;
 import com.arcone.biopro.distribution.orderservice.domain.service.CustomerService;
+import com.arcone.biopro.distribution.orderservice.domain.service.LookupService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +17,7 @@ public class OrderMapper {
 
     private final CustomerService customerService;
     private final OrderItemMapper orderItemMapper;
+    private final LookupService lookupService;
 
     public OrderDTO mapToDTO(final Order order) {
         return OrderDTO.builder()
@@ -54,6 +56,7 @@ public class OrderMapper {
     public Order mapToDomain(final OrderDTO orderDTO) {
         return new Order(
             this.customerService,
+            this.lookupService,
             orderDTO.id(),
             orderDTO.orderNumber(),
             orderDTO.externalId(),

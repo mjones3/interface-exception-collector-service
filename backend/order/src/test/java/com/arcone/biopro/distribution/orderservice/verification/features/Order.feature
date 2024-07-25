@@ -3,7 +3,7 @@ Feature: Validate order
     so that I can save the order or decline the order based on the validation result.
 
     Background:
-#        Given I cleaned up from the database the orders with external ID "114117922233598".
+        Given I cleaned up from the database the orders with external ID "114117922233598".
 
     Scenario: Creating a BioPro order from a valid order inbound request
         Given I have received an order inbound request with externalId "114117922233598" and content "order-inbound-scenario-1-happy-path.json".

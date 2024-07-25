@@ -29,9 +29,9 @@ INSERT INTO lk_lookup (type, description_key, option_value, order_number, active
 
 -- Product Category
 INSERT INTO lk_lookup (type, description_key, option_value, order_number, active) VALUES
-  ('PRODUCT_CATEGORY', 'product-category.frozen.label',           'ORDER_PRODUCT_CATEGORY_FROZEN',           1, true),
-  ('PRODUCT_CATEGORY', 'product-category.refrigerated.label',     'ORDER_PRODUCT_CATEGORY_REFRIGERATED',     2, true),
-  ('PRODUCT_CATEGORY', 'product-category.room-temperature.label', 'ORDER_PRODUCT_CATEGORY_ROOM_TEMPERATURE', 3, true)
+  ('PRODUCT_CATEGORY', 'product-category.frozen.label',           'FROZEN',           1, true),
+  ('PRODUCT_CATEGORY', 'product-category.refrigerated.label',     'REFRIGERATED',     2, true),
+  ('PRODUCT_CATEGORY', 'product-category.room-temperature.label', 'ROOM_TEMPERATURE', 3, true)
   ON CONFLICT DO NOTHING;
 
 -- Blood Types
@@ -45,3 +45,22 @@ INSERT INTO lk_lookup (type, description_key, option_value, order_number, active
   ('BLOOD_TYPE', 'blood-type.ab-positive.label', 'ABP', 7, true),
   ('BLOOD_TYPE', 'blood-type.ab-negative.label', 'ABN', 8, true)
   ON CONFLICT DO NOTHING;
+
+INSERT INTO lk_order_blood_type (product_family, blood_type, description_key, order_number, active, create_date, modification_date) VALUES
+  ('PLASMA_TRANSFUSABLE','A','blood-type.a.label',1,true,now(),now()),
+  ('PLASMA_TRANSFUSABLE','B','blood-type.b.label',2,true,now(),now()),
+  ('PLASMA_TRANSFUSABLE','AB','blood-type.ab.label',2,true,now(),now()),
+  ('PLASMA_TRANSFUSABLE','O','blood-type.o.label',2,true,now(),now()),
+  ('PLASMA_TRANSFUSABLE','ANY','blood-type.any.label',2,true,now(),now())
+  ON CONFLICT DO NOTHING;
+
+
+INSERT INTO lk_order_product_family (family_category, family_type, description_key, product_family, order_number, active, create_date, modification_date) VALUES
+ ('FROZEN','TRANSFUSABLE_PRODUCT','PLASMA_TRANSFUSABLE','plasma-transfusable.label',1,true,now(),now())
+  ON CONFLICT DO NOTHING;
+
+
+-- Shipment Type
+INSERT INTO lk_lookup (type, description_key, option_value, order_number, active) VALUES
+    ('ORDER_SHIPMENT_TYPE', 'order-shipment-type.customer.label', 'CUSTOMER', 1, true)
+ ON CONFLICT DO NOTHING;

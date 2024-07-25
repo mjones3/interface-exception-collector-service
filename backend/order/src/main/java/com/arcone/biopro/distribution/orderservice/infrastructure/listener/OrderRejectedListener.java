@@ -4,6 +4,7 @@ import com.arcone.biopro.distribution.orderservice.domain.event.OrderRejectedEve
 import com.arcone.biopro.distribution.orderservice.infrastructure.config.KafkaConfiguration;
 import com.arcone.biopro.distribution.orderservice.infrastructure.dto.OrderRejectedDTO;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
@@ -25,6 +26,18 @@ public class OrderRejectedListener {
 
     @EventListener
     public void handleOrderRejectedEvent(OrderRejectedEvent event) {
-        log.info("Order Rejected event trigger {}", event);
+        log.info("Order Rejected event trigger Event ID {}", event.getEventId());
+
+        var message = OrderRejectedDTO
+            .builder()
+            .eventId(event.getEventId().toString())
+            .occurredOn(event.getOccurredOn())
+            .externalId(event.getPayload().externalId())
+            .rejectedReason(event.getPayload().errorMessage())
+        .build();
+        var producerRecord = new ProducerRecord<>(topicName, String.format("%s", message.eventId()), message);
+        producerTemplate.send(producerRecord)
+            .log()
+            .subscribe();
     }
 }

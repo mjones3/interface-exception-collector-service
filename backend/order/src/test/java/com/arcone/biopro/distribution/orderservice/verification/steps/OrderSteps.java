@@ -39,6 +39,8 @@ public class OrderSteps {
     @Given("I cleaned up from the database the orders with external ID {string}.")
     public void cleanUpOrders(String externalId) {
         var externalIdParam = externalId.replace(",", "','");
+        var childQuery = String.format("DELETE FROM bld_order_item WHERE order_id in ( SELECT id from bld_order WHERE external_id = %s)", externalIdParam);
+        databaseService.executeSql(childQuery).block();
         var query = String.format("DELETE FROM bld_order WHERE external_id in ('%s')", externalIdParam);
         databaseService.executeSql(query).block();
     }

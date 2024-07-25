@@ -33,6 +33,8 @@ class OrderInboundUseCaseTest {
 
         var orderInboundDto = Mockito.mock(OrderInboundDTO.class);
         Mockito.when(orderInboundDto.getExternalId()).thenReturn("123");
+        Mockito.when(orderInboundDto.getBillingCustomerCode()).thenReturn("1");
+        Mockito.when(orderInboundDto.getShippingCustomerCode()).thenReturn("2");
         Mockito.when(orderInboundDto.getOrderStatus()).thenReturn("OPEN");
         Mockito.when(orderInboundDto.getLocationCode()).thenReturn("123");
         Mockito.when(orderInboundDto.getCreateDate()).thenReturn("date");

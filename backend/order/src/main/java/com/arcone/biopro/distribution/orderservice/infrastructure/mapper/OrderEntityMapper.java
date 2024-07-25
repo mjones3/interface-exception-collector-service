@@ -2,6 +2,7 @@ package com.arcone.biopro.distribution.orderservice.infrastructure.mapper;
 
 import com.arcone.biopro.distribution.orderservice.domain.model.Order;
 import com.arcone.biopro.distribution.orderservice.domain.service.CustomerService;
+import com.arcone.biopro.distribution.orderservice.domain.service.LookupService;
 import com.arcone.biopro.distribution.orderservice.infrastructure.persistence.OrderEntity;
 import com.arcone.biopro.distribution.orderservice.infrastructure.persistence.OrderItemEntity;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import static java.util.Optional.ofNullable;
 public class OrderEntityMapper {
 
     private final CustomerService customerService;
+    private final LookupService lookupService;
     private final OrderItemEntityMapper orderItemEntityMapper;
 
     public OrderEntity mapToEntity(final Order order) {
@@ -53,6 +55,7 @@ public class OrderEntityMapper {
     public Order mapToDomain(final OrderEntity orderEntity, final List<OrderItemEntity> orderItemEntities) {
         return new Order(
             this.customerService,
+            this.lookupService,
             orderEntity.getId(),
             orderEntity.getOrderNumber(),
             orderEntity.getExternalId(),

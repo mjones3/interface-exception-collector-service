@@ -1,7 +1,9 @@
 package com.arcone.biopro.distribution.orderservice.infrastructure.listener;
 
+import com.arcone.biopro.distribution.orderservice.application.dto.OrderReceivedEventDTO;
 import com.arcone.biopro.distribution.orderservice.application.dto.OrderReceivedEventPayloadDTO;
-import com.arcone.biopro.distribution.orderservice.domain.service.OrderManagementService;
+import com.arcone.biopro.distribution.orderservice.domain.model.Order;
+import com.arcone.biopro.distribution.orderservice.domain.service.OrderService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +24,7 @@ public class OrderReceivedListener implements CommandLineRunner {
 
 
     private final ReactiveKafkaConsumerTemplate<String, String> consumer;
-    private final OrderManagementService orderManagementService;
+    private final OrderService orderService;
     private final ObjectMapper objectMapper;
 
     private final Scheduler scheduler = Schedulers.newBoundedElastic(
@@ -38,7 +40,7 @@ public class OrderReceivedListener implements CommandLineRunner {
     }
 
 
-    private Flux<OrderReceivedEventPayloadDTO> consumeOrderFulfilled() {
+    private Flux<Order> consumeOrderFulfilled() {
         return consumer
             .receiveAutoAck()
             .doOnNext(
@@ -57,11 +59,11 @@ public class OrderReceivedListener implements CommandLineRunner {
             .doOnError(throwable -> log.error("something bad happened while consuming : {}", throwable.getMessage()));
     }
 
-    private Mono<OrderReceivedEventPayloadDTO> handleMessage(String value) {
+    private Mono<Order> handleMessage(String value) {
         try {
-            var message = objectMapper.readValue(value, OrderReceivedEventPayloadDTO.class);
+            var message = objectMapper.readValue(value, OrderReceivedEventDTO.class);
             log.info("Message Handled....{}",message);
-            return orderManagementService.processOrder(message);
+            return orderService.processOrder(message.payload());
         } catch (JsonProcessingException e) {
             log.error(String.format("Problem deserializing an instance of [%s] " +
                 "with the following json: %s ", OrderReceivedEventPayloadDTO.class.getSimpleName(), value), e);

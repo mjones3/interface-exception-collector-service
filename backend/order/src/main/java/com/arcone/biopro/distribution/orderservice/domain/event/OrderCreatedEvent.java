@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.orderservice.domain.event;
 
-import java.io.Serializable;
+import com.arcone.biopro.distribution.orderservice.domain.model.Order;
+
 import java.time.Instant;
 import java.util.UUID;
 
@@ -9,13 +10,12 @@ public class OrderCreatedEvent implements DomainEvent {
     private final Instant occurredOn;
     private final static String eventVersion = "1.0";
     private final static String eventType = "OrderCreated";
-    private OrderCreatedPayload payload;
+    private Order payload;
 
-    public OrderCreatedEvent (){
-        // TODO add order details once the domain object is defined.
+    public OrderCreatedEvent (Order order){
         this.eventId = UUID.randomUUID();
         this.occurredOn = Instant.now();
-        this.payload = new OrderCreatedPayload(10,"");
+        this.payload = order;
     }
 
     @Override
@@ -39,14 +39,8 @@ public class OrderCreatedEvent implements DomainEvent {
     }
 
     @Override
-    public OrderCreatedPayload getPayload() {
+    public Order getPayload() {
         return payload;
     }
 
-    public record OrderCreatedPayload(
-        Integer errorCode,
-        String errorMessage
-    ) implements Serializable {
-
-    }
 }

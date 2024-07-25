@@ -28,8 +28,9 @@ public class OrderItem implements Validatable {
     public OrderItem(Long id, Long orderId, String productFamily, String bloodType, Integer quantity, String comments, ZonedDateTime createDate, ZonedDateTime modificationDate) {
         this.id = id;
         this.orderId = ofNullable(orderId).map(OrderItemOrderId::new).orElse(null);
-        this.productFamily = new ProductFamily(productFamily);
-        this.bloodType = ofNullable(bloodType).map(BloodType::new).orElse(null);
+        // TODO Fix with the new parameters
+        //this.productFamily = new ProductFamily(productFamily);
+        //this.bloodType = ofNullable(bloodType).map(BloodType::new,null,null).orElse(null);
         this.quantity = quantity;
         this.comments = comments;
         this.createDate = createDate;
