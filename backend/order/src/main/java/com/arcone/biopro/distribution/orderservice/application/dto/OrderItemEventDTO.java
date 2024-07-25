@@ -6,7 +6,7 @@ import lombok.Builder;
 import java.io.Serializable;
 
 @Builder
-public record OrderItemDTO(
+public record OrderItemEventDTO(
     String productFamily,
     String bloodType,
     Integer quantity,

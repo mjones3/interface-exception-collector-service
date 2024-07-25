@@ -1,6 +1,6 @@
 package com.arcone.biopro.distribution.orderservice.unit.infrastructure.listener;
 
-import com.arcone.biopro.distribution.orderservice.application.dto.OrderReceivedEventDTO;
+import com.arcone.biopro.distribution.orderservice.application.dto.OrderReceivedEventPayloadDTO;
 import com.arcone.biopro.distribution.orderservice.domain.service.OrderManagementService;
 import com.arcone.biopro.distribution.orderservice.infrastructure.listener.OrderReceivedListener;
 import com.arcone.biopro.distribution.orderservice.unit.util.TestUtil;
@@ -30,9 +30,9 @@ class OrderReceivedListenerTest {
         ConsumerRecord<String,String> consumerRecordMock = Mockito.mock(ConsumerRecord.class);
 
         OrderManagementService service = Mockito.mock(OrderManagementService.class);
-        Mockito.when(service.processOrder(Mockito.any(OrderReceivedEventDTO.class))).thenReturn(Mono.empty());
+        Mockito.when(service.processOrder(Mockito.any(OrderReceivedEventPayloadDTO.class))).thenReturn(Mono.empty());
 
-        OrderReceivedEventDTO message = Mockito.mock(OrderReceivedEventDTO.class);
+        OrderReceivedEventPayloadDTO message = Mockito.mock(OrderReceivedEventPayloadDTO.class);
 
         Mockito.when(message.id()).thenReturn(UUID.randomUUID());
 
@@ -43,13 +43,13 @@ class OrderReceivedListenerTest {
 
         Mockito.when(consumer.receiveAutoAck()).thenReturn(Flux.just(consumerRecordMock));
 
-        Mockito.when(objectMapper.readValue(Mockito.anyString(), Mockito.eq(OrderReceivedEventDTO.class))).thenReturn(message);
+        Mockito.when(objectMapper.readValue(Mockito.anyString(), Mockito.eq(OrderReceivedEventPayloadDTO.class))).thenReturn(message);
 
         OrderReceivedListener listener = new OrderReceivedListener(consumer,service,objectMapper);
 
         listener.run(new String[]{""});
 
-        Mockito.verify(service).processOrder(Mockito.any(OrderReceivedEventDTO.class));
+        Mockito.verify(service).processOrder(Mockito.any(OrderReceivedEventPayloadDTO.class));
     }
 
     @Test
@@ -62,9 +62,9 @@ class OrderReceivedListenerTest {
         ConsumerRecord<String,String> consumerRecordMock = Mockito.mock(ConsumerRecord.class);
 
         OrderManagementService service = Mockito.mock(OrderManagementService.class);
-        Mockito.when(service.processOrder(Mockito.any(OrderReceivedEventDTO.class))).thenReturn(Mono.empty());
+        Mockito.when(service.processOrder(Mockito.any(OrderReceivedEventPayloadDTO.class))).thenReturn(Mono.empty());
 
-        OrderReceivedEventDTO message = Mockito.mock(OrderReceivedEventDTO.class);
+        OrderReceivedEventPayloadDTO message = Mockito.mock(OrderReceivedEventPayloadDTO.class);
 
         Mockito.when(message.id()).thenReturn(UUID.randomUUID());
 
@@ -75,7 +75,7 @@ class OrderReceivedListenerTest {
 
         Mockito.when(consumer.receiveAutoAck()).thenReturn(Flux.just(consumerRecordMock));
 
-        Mockito.when(objectMapper.readValue(Mockito.anyString(), Mockito.eq(OrderReceivedEventDTO.class))).thenThrow(JsonProcessingException.class);
+        Mockito.when(objectMapper.readValue(Mockito.anyString(), Mockito.eq(OrderReceivedEventPayloadDTO.class))).thenThrow(JsonProcessingException.class);
 
         try{
             OrderReceivedListener listener = new OrderReceivedListener(consumer,service,objectMapper);

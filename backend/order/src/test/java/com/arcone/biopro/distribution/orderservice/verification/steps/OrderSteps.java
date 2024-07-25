@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.orderservice.verification.steps;
 
 import com.arcone.biopro.distribution.orderservice.application.dto.OrderReceivedEventDTO;
+import com.arcone.biopro.distribution.orderservice.application.dto.OrderReceivedEventPayloadDTO;
 import com.arcone.biopro.distribution.orderservice.verification.support.DatabaseService;
 import com.arcone.biopro.distribution.orderservice.verification.support.KafkaHelper;
 import com.arcone.biopro.distribution.orderservice.verification.support.TestUtils;
@@ -51,7 +52,7 @@ public class OrderSteps {
         log.info("JSON PAYLOAD :{}", partnerOrder);
         Assert.assertNotNull(this.externalId);
         Assert.assertNotNull(partnerOrder);
-        var event = kafkaHelper.sendPartnerOrderReceivedEvent(eventPayload.id().toString(),eventPayload).block();
+        var event = kafkaHelper.sendPartnerOrderReceivedEvent(eventPayload.payload().id().toString(),eventPayload).block();
         Assert.assertNotNull(event);
     }
 

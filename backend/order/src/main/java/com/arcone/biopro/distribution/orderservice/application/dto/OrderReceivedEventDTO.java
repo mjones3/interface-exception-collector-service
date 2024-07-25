@@ -8,22 +8,8 @@ import java.util.UUID;
 
 @Builder
 public record OrderReceivedEventDTO(
-    UUID id,
-    String externalId,
-    String orderStatus,
-    String locationCode,
-    String createDate,
-    String createEmployeeCode,
-    String shipmentType,
-    String deliveryType,
-    String shippingMethod,
-    String productCategory,
-    String desiredShippingDate,
-    Integer shippingCustomerCode,
-    Integer billingCustomerCode,
-    String comments,
-    boolean willPickUp,
-    String willPickUpPhoneNumber,
-    List<OrderItemDTO> orderItems
+    String eventType,
+    String eventVersion,
+    OrderReceivedEventPayloadDTO payload
 ) implements Serializable {
 }

@@ -1,6 +1,6 @@
 package com.arcone.biopro.distribution.orderservice.infrastructure.listener;
 
-import com.arcone.biopro.distribution.orderservice.application.dto.OrderReceivedEventDTO;
+import com.arcone.biopro.distribution.orderservice.application.dto.OrderReceivedEventPayloadDTO;
 import com.arcone.biopro.distribution.orderservice.domain.service.OrderManagementService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,7 +38,7 @@ public class OrderReceivedListener implements CommandLineRunner {
     }
 
 
-    private Flux<OrderReceivedEventDTO> consumeOrderFulfilled() {
+    private Flux<OrderReceivedEventPayloadDTO> consumeOrderFulfilled() {
         return consumer
             .receiveAutoAck()
             .doOnNext(
@@ -57,14 +57,14 @@ public class OrderReceivedListener implements CommandLineRunner {
             .doOnError(throwable -> log.error("something bad happened while consuming : {}", throwable.getMessage()));
     }
 
-    private Mono<OrderReceivedEventDTO> handleMessage(String value) {
+    private Mono<OrderReceivedEventPayloadDTO> handleMessage(String value) {
         try {
-            var message = objectMapper.readValue(value, OrderReceivedEventDTO.class);
+            var message = objectMapper.readValue(value, OrderReceivedEventPayloadDTO.class);
             log.info("Message Handled....{}",message);
             return orderManagementService.processOrder(message);
         } catch (JsonProcessingException e) {
             log.error(String.format("Problem deserializing an instance of [%s] " +
-                "with the following json: %s ", OrderReceivedEventDTO.class.getSimpleName(), value), e);
+                "with the following json: %s ", OrderReceivedEventPayloadDTO.class.getSimpleName(), value), e);
             return Mono.error(new RuntimeException(e));
         }
     }

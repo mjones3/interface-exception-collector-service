@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.orderservice.verification.support;
 
 import com.arcone.biopro.distribution.orderservice.application.dto.OrderReceivedEventDTO;
+import com.arcone.biopro.distribution.orderservice.application.dto.OrderReceivedEventPayloadDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.opentelemetry.instrumentation.kafkaclients.v2_6.TracingProducerInterceptor;

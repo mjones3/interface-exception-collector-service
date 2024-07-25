@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.orderservice.verification.support;
 
 import com.arcone.biopro.distribution.orderservice.application.dto.OrderReceivedEventDTO;
+import com.arcone.biopro.distribution.orderservice.application.dto.OrderReceivedEventPayloadDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
