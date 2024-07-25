@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: artifactory.sha.ao.arc-one.com/docker/biopro/backend/partner-order-provider
+  repository: artifactory.sha.ao.arc-one.com/docker/biopro/backend/partnerorderprovider
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
@@ -94,17 +94,17 @@ defaultEnv:
   - name: SPRING_R2DBC_URL
     valueFrom:
       secretKeyRef:
-        name: partner-order-provider-database-secret
+        name: partnerorderprovider-database-secret
         key: url
   - name: SPRING_R2DBC_USERNAME
     valueFrom:
       secretKeyRef:
-        name: partner-order-provider-database-secret
+        name: partnerorderprovider-database-secret
         key: username
   - name: SPRING_R2DBC_PASSWORD
     valueFrom:
       secretKeyRef:
-        name: partner-order-provider-database-secret
+        name: partnerorderprovider-database-secret
         key: password
   - name: SPRING_KAFKA_SECURITY_PROTOCOL
     value: "SSL"
