@@ -1,6 +1,6 @@
-package com.arcone.biopro.distribution.orderservice.unit.domain;
+package com.arcone.biopro.distribution.orderservice.unit.domain.vo;
 
-import com.arcone.biopro.distribution.orderservice.domain.model.LookupId;
+import com.arcone.biopro.distribution.orderservice.domain.model.vo.LookupId;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;

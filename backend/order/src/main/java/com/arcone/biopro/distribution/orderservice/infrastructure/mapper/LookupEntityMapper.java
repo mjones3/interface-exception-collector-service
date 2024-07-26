@@ -1,14 +1,15 @@
 package com.arcone.biopro.distribution.orderservice.infrastructure.mapper;
 
 import com.arcone.biopro.distribution.orderservice.domain.model.Lookup;
-import com.arcone.biopro.distribution.orderservice.domain.model.LookupId;
+import com.arcone.biopro.distribution.orderservice.domain.model.vo.LookupId;
 import com.arcone.biopro.distribution.orderservice.infrastructure.persistence.LookupEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
 
 @Component
 @RequiredArgsConstructor
-public class LookupEntityMapper implements PersistenceMapper<Lookup, LookupEntity> {
+public class LookupEntityMapper {
 
     public LookupEntity mapToEntity(final Lookup lookup) {
         return LookupEntity.builder()
@@ -20,6 +21,10 @@ public class LookupEntityMapper implements PersistenceMapper<Lookup, LookupEntit
             .build();
     }
 
+    public Mono<LookupEntity> flatMapToEntity(final Lookup lookup) {
+        return Mono.just(mapToEntity(lookup));
+    }
+
     public Lookup mapToDomain(final LookupEntity lookupEntity) {
         return new Lookup(
             new LookupId(lookupEntity.getType(), lookupEntity.getOptionValue()),
@@ -27,6 +32,10 @@ public class LookupEntityMapper implements PersistenceMapper<Lookup, LookupEntit
             lookupEntity.getOrderNumber(),
             lookupEntity.isActive()
         );
+    }
+
+    public Mono<Lookup> flatMapToDomain(final LookupEntity lookupEntity) {
+        return Mono.just(mapToDomain(lookupEntity));
     }
 
 }

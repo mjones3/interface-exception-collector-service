@@ -1,7 +1,7 @@
-package com.arcone.biopro.distribution.orderservice.unit.domain;
+package com.arcone.biopro.distribution.orderservice.unit.domain.vo;
 
-import com.arcone.biopro.distribution.orderservice.domain.model.CustomerAddress;
-import com.arcone.biopro.distribution.orderservice.domain.model.CustomerAddressType;
+import com.arcone.biopro.distribution.orderservice.domain.model.vo.CustomerAddress;
+import com.arcone.biopro.distribution.orderservice.domain.model.vo.CustomerAddressType;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
