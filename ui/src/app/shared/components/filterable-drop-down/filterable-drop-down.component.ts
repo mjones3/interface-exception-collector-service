@@ -28,7 +28,6 @@ import { Pageable, pageableDefault } from 'app/shared/models';
 import { Paginator } from 'app/shared/utils/paginator';
 import { Subscription } from 'rxjs';
 
-export const FILTERABLE_DROPDOWN_LOADER_CONTAINER = '';
 
 @Component({
     selector: 'rsa-filterable-drop-down',
@@ -54,7 +53,6 @@ export class FilterableDropDownComponent implements OnInit, AfterViewInit {
     @Input() dialogTitle: string;
     @Input() inputPlaceholder: '';
     @Input() iconName: string;
-    @Input() filterableContainerClasses = FILTERABLE_DROPDOWN_LOADER_CONTAINER;
     @Input() pageable: Pageable;
     @Input() paginator: Paginator;
     @Input() closable = true;

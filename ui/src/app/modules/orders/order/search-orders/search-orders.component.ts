@@ -12,7 +12,6 @@ import { ShipmentInfoDto } from '../../../../modules/shipments/models/shipment-i
 import { ProcessHeaderComponent } from '../../../../shared/components/process-header/process-header.component';
 import { LookUpDto } from '../../../../shared/models/look-up-dto';
 import { Column } from '../../../../shared/models/table.model';
-import { ValidationType } from '../../../../shared/pipes/validation.pipe';
 import { ProcessHeaderService } from '../../../../shared/services/process-header.service';
 import { OPEN_OPTION_VALUE, OrderStatuses, OrderSummary } from '../../models/order.model';
 import { OrderService } from '../../services/order.service';
@@ -36,7 +35,6 @@ import { OrderService } from '../../services/order.service';
 })
 
 export class SearchOrdersComponent {
-  readonly validationType = ValidationType;
   readonly orderStatuses = OrderStatuses;
   processProperties: Map<string, string> = new Map<string, string>();
   statuses: LookUpDto[] = [];

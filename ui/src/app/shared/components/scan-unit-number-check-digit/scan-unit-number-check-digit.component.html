@@ -40,6 +40,9 @@
                 (keyup)="checkValues($event)"
                 (tabOrEnterPressed)="checkValues($event)"
             />
+            @if(form.get('checkDigit').hasError('required')){
+              <mat-error >Check Digit is Required</mat-error>
+            }
           </mat-form-field>
         }
       </div>  

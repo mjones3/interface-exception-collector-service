@@ -17,16 +17,11 @@ import {
 import { MatInputModule } from '@angular/material/input';
 import { TranslateService } from '@ngx-translate/core';
 import { RsaValidators } from '../../../shared/forms/rsa-validators';
-import {
-    ValidationPipe,
-    ValidationType,
-} from '../../../shared/pipes/validation.pipe';
 
 @Component({
     standalone: true,
     imports: [
         ReactiveFormsModule, 
-        ValidationPipe,
         MatInputModule,
         FormsModule,
         CommonModule
@@ -48,7 +43,6 @@ export class ScanUnitNumberCheckDigitComponent {
     checkDigitValidators = [Validators.required, Validators.maxLength(1)];
 
     form: FormGroup;
-    readonly validationType = ValidationType;
 
     constructor(protected fb: FormBuilder,private el: ElementRef) {
         this.form = this.fb.group({
@@ -99,7 +93,7 @@ export class ScanUnitNumberCheckDigitComponent {
             }
 
             const obj = {
-                unitNumber: unitNumber?.toUpperCase(),
+                unitNumber: unitNumber.toUpperCase(),
                 checkDigit: checkDigit?.toUpperCase(),
                 scanner: scanner,
             };

@@ -16,10 +16,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
 import { ScanUnitNumberCheckDigitComponent } from '../../../../shared/components/scan-unit-number-check-digit/scan-unit-number-check-digit.component';
 import { RsaValidators } from '../../../../shared/forms/rsa-validators';
-import {
-    ValidationPipe,
-    ValidationType
-} from '../../../../shared/pipes/validation.pipe';
 import { VerifyFilledProductDto } from '../../models/shipment-info.dto';
 
 @Component({
@@ -29,8 +25,7 @@ import { VerifyFilledProductDto } from '../../models/shipment-info.dto';
         MatRadioModule,
         MatFormFieldModule,
         MatInputModule,
-        ScanUnitNumberCheckDigitComponent,
-        ValidationPipe,
+        ScanUnitNumberCheckDigitComponent
     ],
     selector: 'rsa-enter-unit-number-product-code',
     templateUrl: './enter-unit-number-product-code.component.html',
@@ -39,7 +34,6 @@ export class EnterUnitNumberProductCodeComponent {
     disableCheckDigit = true;
     productGroup: FormGroup;
     unitNumberFocus = true;
-    readonly validationType = ValidationType;
 
     @Output()
     unitNumberProductCodeSelected: EventEmitter<VerifyFilledProductDto> =

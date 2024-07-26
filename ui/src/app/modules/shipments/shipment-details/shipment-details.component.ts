@@ -29,7 +29,6 @@ import { ProcessHeaderComponent } from '../../../shared/components/process-heade
 import { Description } from '../../../shared/models/description.model';
 import { NotificationDto } from '../../../shared/models/notification.dto';
 import { ProcessProductDto } from '../../../shared/models/process-product.dto';
-import { ValidationType } from '../../../shared/pipes/validation.pipe';
 import { ProcessHeaderService } from '../../../shared/services/process-header.service';
 import { SortService } from '../../../shared/services/sort.service';
 import {
@@ -101,7 +100,6 @@ export class ShipmentDetailsComponent implements OnInit {
   shippedInfoData: ShipmentCompleteInfoDto[] = [];
   loggedUserId: string;
   packedItems: FilledProductInfoDto[] = [];
-  readonly validationType = ValidationType;
 
   get filledProductsCount() {
     return this.packedItems?.length;
@@ -211,6 +209,7 @@ export class ShipmentDetailsComponent implements OnInit {
       .generate(this.shipmentInfo.id)
       .pipe(
         switchMap(response => {
+          console.log('respose', response)
           const packingListLabel = response?.data?.generatePackingListLabel;
           dialogRef = this.matDialog.open(ViewPackingListComponent, {
             id: 'ViewPackingListDialog',

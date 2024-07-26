@@ -18,7 +18,6 @@ import { DescriptionCardComponent } from '../../../shared/components/information
 import { ProcessHeaderComponent } from '../../../shared/components/process-header/process-header.component';
 import { Description } from '../../../shared/models/description.model';
 import { ProcessProductDto } from '../../../shared/models/process-product.dto';
-import { ValidationType } from '../../../shared/pipes/validation.pipe';
 import { FacilityService } from '../../../shared/services';
 import { ProcessHeaderService } from '../../../shared/services/process-header.service';
 import { FilledProductInfoDto, ShipmentInfoDto, ShipmentInfoItemDto, VerifyFilledProductDto, VerifyProductDto } from '../models/shipment-info.dto';
@@ -63,7 +62,6 @@ export class FillProductsComponent implements OnInit{
   loggedUserId: string;
   processProductConfig: ProcessProductDto;
 
-  readonly validationType = ValidationType;
 
   @ViewChild('productSelection') productSelection: EnterUnitNumberProductCodeComponent;
 
