@@ -27,6 +27,6 @@ public class InventoryRsocketClient {
     @MessageExceptionHandler(RuntimeException.class)
     public Mono<RuntimeException> exceptionHandler(RuntimeException e) {
         log.error(e.getMessage());
-        return Mono.error(new InventoryServiceNotAvailableException("inventory-service-not-available.error"));
+        return Mono.error(new InventoryServiceNotAvailableException(ShipmentServiceMessages.INVENTORY_SERVICE_NOT_AVAILABLE_ERROR));
     }
 }

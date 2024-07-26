@@ -40,10 +40,10 @@ public class ShipmentLabelServiceUseCase implements ShipmentLabelService {
     @WithSpan("generatePackingListLabel")
     public Mono<PackingListLabelDTO> generatePackingListLabel(Long shipmentId) {
         return shipmentRepository.findById(shipmentId)
-            .switchIfEmpty(Mono.error(new RuntimeException("shipment-not-found.error")))
+            .switchIfEmpty(Mono.error(new RuntimeException(ShipmentServiceMessages.SHIPMENT_NOT_FOUND_ERROR)))
             .flatMap(shipment -> {
                 if(!ShipmentStatus.COMPLETED.equals(shipment.getStatus())){
-                    return Mono.error(new RuntimeException("shipment-open.error"));
+                    return Mono.error(new RuntimeException(ShipmentServiceMessages.SHIPMENT_OPEN_ERROR));
                 }
                 return Mono.from(facilityServiceMock.getFacilityId(shipment.getLocationCode())).flatMap(facilityDTO -> {
                     var packingListLabel = PackingListLabelDTO.builder()
@@ -96,10 +96,10 @@ public class ShipmentLabelServiceUseCase implements ShipmentLabelService {
     @WithSpan("generateShippingLabel")
     public Mono<ShippingLabelDTO> generateShippingLabel(Long shipmentId) {
         return shipmentRepository.findById(shipmentId)
-            .switchIfEmpty(Mono.error(new RuntimeException("shipment-not-found.error")))
+            .switchIfEmpty(Mono.error(new RuntimeException(ShipmentServiceMessages.SHIPMENT_NOT_FOUND_ERROR)))
             .flatMap(shipment -> {
                 if (!ShipmentStatus.COMPLETED.equals(shipment.getStatus())) {
-                    return Mono.error(new RuntimeException("shipment-open.error"));
+                    return Mono.error(new RuntimeException(ShipmentServiceMessages.SHIPMENT_OPEN_ERROR));
                 }
 
                 return Mono.from(facilityServiceMock.getFacilityId(shipment.getLocationCode())).flatMap(facilityDTO -> {

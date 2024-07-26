@@ -63,7 +63,7 @@ class InventoryMockControllerTest {
                 assertNull(detail.inventoryResponseDTO());
                 assertNotNull(detail.inventoryNotificationDTO());
                 assertEquals(Optional.of(1), Optional.of(detail.inventoryNotificationDTO().errorCode()));
-                assertEquals(Optional.of("inventory-not-found.label"), Optional.of(detail.inventoryNotificationDTO().errorMessage()));
+                assertEquals(Optional.of(ShipmentServiceMessages.INVENTORY_NOT_FOUND_ERROR), Optional.of(detail.inventoryNotificationDTO().errorMessage()));
             })
             .verifyComplete();
     }
@@ -85,7 +85,7 @@ class InventoryMockControllerTest {
                 assertNull(detail.inventoryResponseDTO());
                 assertNotNull(detail.inventoryNotificationDTO());
                 assertEquals(Optional.of(4), Optional.of(detail.inventoryNotificationDTO().errorCode()));
-                assertEquals(Optional.of("inventory-quarantined.label"), Optional.of(detail.inventoryNotificationDTO().errorMessage()));
+                assertEquals(Optional.of(ShipmentServiceMessages.INVENTORY_QUARANTINED_ERROR), Optional.of(detail.inventoryNotificationDTO().errorMessage()));
             })
             .verifyComplete();
     }
@@ -106,7 +106,7 @@ class InventoryMockControllerTest {
                 assertNull(detail.inventoryResponseDTO());
                 assertNotNull(detail.inventoryNotificationDTO());
                 assertEquals(Optional.of(3), Optional.of(detail.inventoryNotificationDTO().errorCode()));
-                assertEquals(Optional.of("inventory-discarded.label"), Optional.of(detail.inventoryNotificationDTO().errorMessage()));
+                assertEquals(Optional.of(ShipmentServiceMessages.INVENTORY_DISCARDED_ERROR), Optional.of(detail.inventoryNotificationDTO().errorMessage()));
             })
             .verifyComplete();
     }
@@ -128,7 +128,7 @@ class InventoryMockControllerTest {
                 assertNull(detail.inventoryResponseDTO());
                 assertNotNull(detail.inventoryNotificationDTO());
                 assertEquals(Optional.of(2), Optional.of(detail.inventoryNotificationDTO().errorCode()));
-                assertEquals(Optional.of("inventory-expired.label"), Optional.of(detail.inventoryNotificationDTO().errorMessage()));
+                assertEquals(Optional.of(ShipmentServiceMessages.INVENTORY_EXPIRED_ERROR), Optional.of(detail.inventoryNotificationDTO().errorMessage()));
             })
             .verifyComplete();
     }

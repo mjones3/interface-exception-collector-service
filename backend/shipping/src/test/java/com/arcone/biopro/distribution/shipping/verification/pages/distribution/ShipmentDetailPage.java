@@ -183,7 +183,7 @@ public class ShipmentDetailPage extends CommonPageFactory {
 
     public void checkTotalProductsShipped(int totalProductsShipped) {
         log.info("Checking if the total of products shipped is {}.", totalProductsShipped);
-        String locator = String.format("//p-table[@id='shippedProdTableId']//tfoot//td[.='(%s) Total Component(s)']", totalProductsShipped);
+        String locator = String.format("//p-table[@id='shippedProdTableId']//tfoot//td[.='(%s) Total Components']", totalProductsShipped);
         sharedActions.locateXpathAndWaitForVisible(locator, driver);
     }
 

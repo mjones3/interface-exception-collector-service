@@ -29,7 +29,7 @@ public class FacilityServiceMock {
             .filter(facility -> Objects.equals(facility.id(), facilityId))
             .findAny()
             .map(Mono::just)
-            .orElseGet(() -> Mono.error(new RuntimeException("facility-not-found.error")));
+            .orElseGet(() -> Mono.error(new RuntimeException(ShipmentServiceMessages.FACILITY_NOT_FOUND_ERROR)));
     }
 
     private void initFacilityMockList() {

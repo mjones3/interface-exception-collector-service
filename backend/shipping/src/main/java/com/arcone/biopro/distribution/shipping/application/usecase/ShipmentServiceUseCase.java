@@ -155,13 +155,13 @@ public class ShipmentServiceUseCase implements ShipmentService {
     public Mono<RuleResponseDTO> completeShipment(CompleteShipmentRequest request) {
 
         return shipmentRepository.findById(request.shipmentId())
-            .switchIfEmpty(Mono.error(new RuntimeException("shipment-not-found.error")))
+            .switchIfEmpty(Mono.error(new RuntimeException(ShipmentServiceMessages.SHIPMENT_NOT_FOUND_ERROR)))
             .flatMap(shipment -> updateShipment(shipment,request))
             .flatMap(this::raiseShipmentCompleteEvent)
             .flatMap(shipment -> Mono.just(RuleResponseDTO.builder()
                 .ruleCode(HttpStatus.OK)
                 .notifications(List.of(NotificationDTO.builder()
-                    .message("completed-shipment.success")
+                    .message(ShipmentServiceMessages.SHIPMENT_COMPLETED_SUCCESS)
                     .statusCode(HttpStatus.OK.value())
                     .notificationType("success")
                     .build()))
@@ -176,7 +176,7 @@ public class ShipmentServiceUseCase implements ShipmentService {
 
     private Mono<Shipment> updateShipment(Shipment shipment , CompleteShipmentRequest request){
         if(ShipmentStatus.COMPLETED.equals(shipment.getStatus())){
-            return Mono.error(new RuntimeException("shipment-already-completed.error"));
+            return Mono.error(new RuntimeException(ShipmentServiceMessages.SHIPMENT_COMPLETED_ERROR));
         }
         shipment.setCompleteDate(ZonedDateTime.now(ZoneId.of("UTC")));
         shipment.setCompletedByEmployeeId(request.employeeId());
@@ -200,7 +200,7 @@ public class ShipmentServiceUseCase implements ShipmentService {
     private Mono<ShipmentItemResponseDTO> getShipmentItemById(Long shipmentItemId) {
 
         return shipmentItemRepository.findById(shipmentItemId)
-            .switchIfEmpty(Mono.error(new RuntimeException("shipment-item-not-found.error")))
+            .switchIfEmpty(Mono.error(new RuntimeException(ShipmentServiceMessages.SHIPMENT_ITEM_NOT_FOUND_ERROR)))
             .flatMap(shipmentItem -> {
                 var shipmentItemResponse = ShipmentItemResponseDTO.builder()
                     .id(shipmentItem.getId())
@@ -243,23 +243,23 @@ public class ShipmentServiceUseCase implements ShipmentService {
     private Mono<ShipmentItemPacked> validateProductCriteria(PackItemRequest request, InventoryResponseDTO inventoryResponseDTO) {
 
         return shipmentItemRepository.findById(request.shipmentItemId())
-            .switchIfEmpty(Mono.error(new RuntimeException("shipment-item-not-found.error")))
+            .switchIfEmpty(Mono.error(new RuntimeException(ShipmentServiceMessages.SHIPMENT_ITEM_NOT_FOUND_ERROR)))
             .flatMap(shipmentItem -> {
                 if (!shipmentItem.getProductFamily().equals(inventoryResponseDTO.productFamily())) {
                     log.error("Product Family does not match");
-                    return Mono.error(new RuntimeException("product-criteria-family-does-not-match.error"));
+                    return Mono.error(new RuntimeException(ShipmentServiceMessages.PRODUCT_CRITERIA_FAMILY_ERROR));
                 } else if (!inventoryResponseDTO.aboRh().contains(shipmentItem.getBloodType().name())) {
                     log.error("Blood Type does not match");
-                    return Mono.error(new RuntimeException("product-criteria-blood-type-does-not-match.error"));
+                    return Mono.error(new RuntimeException(ShipmentServiceMessages.PRODUCT_CRITERIA_BLOOD_TYPE_ERROR));
                 } else if(!VisualInspection.SATISFACTORY.equals(request.visualInspection())){
-                    return Mono.error(new RuntimeException("product-criteria-visual-inspection.error"));
+                    return Mono.error(new RuntimeException(ShipmentServiceMessages.PRODUCT_CRITERIA_VISUAL_INSPECTION_ERROR));
                 }
 
                 return Mono.just(shipmentItem);
             }).zipWith(shipmentItemPackedRepository.countAllByUnitNumberAndProductCode(request.unitNumber(), request.productCode()))
             .flatMap(tuple2 -> {
                 if(tuple2.getT2() > 0){
-                    return Mono.error(new RuntimeException("product-is-already-used.error"));
+                    return Mono.error(new RuntimeException(ShipmentServiceMessages.PRODUCT_ALREADY_USED_ERROR));
                 }
                 return Mono.just(tuple2.getT1());
             }).zipWith(shipmentItemPackedRepository.countAllByShipmentItemId(request.shipmentItemId()))
@@ -268,7 +268,7 @@ public class ShipmentServiceUseCase implements ShipmentService {
                 var total = tuple2.getT2() + 1;
                 if (total > tuple2.getT1().getQuantity()) {
                     log.error("Quantity exceeded");
-                    return Mono.error(new RuntimeException("product-criteria-quantity-exceeded.error"));
+                    return Mono.error(new RuntimeException(ShipmentServiceMessages.PRODUCT_CRITERIA_QUANTITY_ERROR));
                 } else {
                     return shipmentItemPackedRepository.save(ShipmentItemPacked.builder()
                             .unitNumber(inventoryResponseDTO.unitNumber())
