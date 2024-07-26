@@ -1,4 +1,4 @@
-package com.arcone.biopro.distribution.orderservice.unit.domain;
+package com.arcone.biopro.distribution.orderservice.unit.domain.vo;
 
 import com.arcone.biopro.distribution.orderservice.domain.model.vo.CustomerCode;
 import org.junit.jupiter.api.Test;
