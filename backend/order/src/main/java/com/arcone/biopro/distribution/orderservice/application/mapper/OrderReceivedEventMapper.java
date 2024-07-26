@@ -4,6 +4,7 @@ import com.arcone.biopro.distribution.orderservice.application.dto.OrderReceived
 import com.arcone.biopro.distribution.orderservice.domain.model.Order;
 import com.arcone.biopro.distribution.orderservice.domain.service.CustomerService;
 import com.arcone.biopro.distribution.orderservice.domain.service.LookupService;
+import com.arcone.biopro.distribution.orderservice.domain.service.OrderConfigService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -18,14 +19,14 @@ public class OrderReceivedEventMapper {
 
     private final CustomerService customerService;
     private final LookupService lookupService;
-    private final OrderItemReceivedEventMapper orderItemReceivedEventMapper;
+    private final OrderConfigService orderConfigService;
 
     public Order mapToDomain(final OrderReceivedEventPayloadDTO orderReceivedEventPayloadDTO) {
-        return new Order(
+        var order =  new Order(
             this.customerService,
            this.lookupService,
             null,
-            123L, // TODO Fix by a method to generate an order number
+            null,
             orderReceivedEventPayloadDTO.externalId(),
             orderReceivedEventPayloadDTO.locationCode(),
             orderReceivedEventPayloadDTO.shipmentType(),
@@ -42,14 +43,17 @@ public class OrderReceivedEventMapper {
             orderReceivedEventPayloadDTO.createEmployeeCode(),
             null,
             null,
-            null,
-            ofNullable(orderReceivedEventPayloadDTO.orderItems())
-                .filter(orderItems -> !orderItems.isEmpty())
-                .orElseGet(Collections::emptyList)
-                .stream()
-                .map(orderItemReceivedEventMapper::mapToDomain)
-                .toList()
-        );
+            null);
 
+        ofNullable(orderReceivedEventPayloadDTO.orderItems())
+            .filter(orderItems -> !orderItems.isEmpty())
+            .orElseGet(Collections::emptyList)
+            .forEach(orderItemDTO -> order.addItem(null
+                    ,orderItemDTO.productFamily(),orderItemDTO.bloodType()
+                    ,orderItemDTO.quantity(),orderItemDTO.comments(),null
+                    ,null,this.orderConfigService
+                )
+            );
+        return order;
     }
 }

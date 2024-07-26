@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.orderservice.infrastructure.mapper;
 import com.arcone.biopro.distribution.orderservice.domain.model.Order;
 import com.arcone.biopro.distribution.orderservice.domain.service.CustomerService;
 import com.arcone.biopro.distribution.orderservice.domain.service.LookupService;
+import com.arcone.biopro.distribution.orderservice.domain.service.OrderConfigService;
 import com.arcone.biopro.distribution.orderservice.infrastructure.persistence.OrderEntity;
 import com.arcone.biopro.distribution.orderservice.infrastructure.persistence.OrderItemEntity;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,7 @@ public class OrderEntityMapper {
 
     private final CustomerService customerService;
     private final LookupService lookupService;
-    private final OrderItemEntityMapper orderItemEntityMapper;
+    private final OrderConfigService orderConfigService;
 
     public OrderEntity mapToEntity(final Order order) {
         return OrderEntity.builder()
@@ -53,7 +54,7 @@ public class OrderEntityMapper {
     }
 
     public Order mapToDomain(final OrderEntity orderEntity, final List<OrderItemEntity> orderItemEntities) {
-        return new Order(
+        var order = new Order(
             this.customerService,
             this.lookupService,
             orderEntity.getId(),
@@ -74,15 +75,19 @@ public class OrderEntityMapper {
             orderEntity.getCreateEmployeeId(),
             orderEntity.getCreateDate(),
             orderEntity.getModificationDate(),
-            orderEntity.getDeleteDate(),
-            ofNullable(orderItemEntities)
-                .filter(orderItems -> !orderItems.isEmpty())
-                .orElseGet(Collections::emptyList)
-                .stream()
-                .map(orderItemEntity -> orderItemEntity.withOrderId(orderEntity.getId()))
-                .map(orderItemEntityMapper::mapToDomain)
-                .toList()
-        );
+            orderEntity.getDeleteDate());
+
+        ofNullable(orderItemEntities)
+            .filter(orderItems -> !orderItems.isEmpty())
+            .orElseGet(Collections::emptyList)
+            .forEach(orderItemEntity -> order.addItem(orderItemEntity.getId()
+                    ,orderItemEntity.getProductFamily(),orderItemEntity.getBloodType()
+                    ,orderItemEntity.getQuantity(),orderItemEntity.getComments(),orderItemEntity.getCreateDate()
+                    ,orderItemEntity.getModificationDate(),this.orderConfigService
+                )
+            );
+
+        return order;
     }
 
     public Mono<Order> flatMapToDomain(final OrderEntity orderEntity, final List<OrderItemEntity> orderItemEntities) {

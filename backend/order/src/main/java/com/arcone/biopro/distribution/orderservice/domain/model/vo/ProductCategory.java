@@ -5,6 +5,7 @@ import com.arcone.biopro.distribution.orderservice.domain.service.LookupService;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import reactor.core.publisher.Mono;
 
 @Getter
 @EqualsAndHashCode
@@ -27,18 +28,17 @@ public class ProductCategory implements Validatable {
             throw new IllegalArgumentException("productCategory cannot be null or blank");
         }
 
-        if(!isValidCategory(productCategory,lookupService)){
-            throw new IllegalArgumentException("productCategory is not a valid category");
-        }
+        isValidCategory(productCategory, lookupService).subscribe();
     }
 
-    private static boolean isValidCategory(String category , LookupService lookupService) {
-
-        var list = lookupService.findAllByType(PRODUCT_CATEGORY_TYPE_CODE).collectList().block();
-        if(list == null || list.isEmpty()) {
-            return false;
-        }
-
-        return list.stream().anyMatch(lookup -> lookup.getId().getOptionValue().equals(category));
+    private static Mono<Void> isValidCategory(String category , LookupService lookupService) {
+        return lookupService.findAllByType(PRODUCT_CATEGORY_TYPE_CODE).collectList()
+            .switchIfEmpty(Mono.error(new IllegalArgumentException("productCategory is not a valid category")))
+            .flatMap(lookups -> {
+                if (lookups.stream().noneMatch(lookup -> lookup.getId().getOptionValue().equals(category))) {
+                    return Mono.error(new IllegalArgumentException("productCategory is not a valid category"));
+                }
+                return Mono.empty();
+            });
     }
 }

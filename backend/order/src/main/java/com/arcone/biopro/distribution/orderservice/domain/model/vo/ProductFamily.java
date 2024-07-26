@@ -5,6 +5,7 @@ import com.arcone.biopro.distribution.orderservice.domain.service.OrderConfigSer
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import reactor.core.publisher.Mono;
 
 @Getter
 @EqualsAndHashCode
@@ -28,20 +29,13 @@ public class ProductFamily implements Validatable {
         if (productFamily == null || productFamily.isBlank()) {
             throw new IllegalArgumentException("productFamily cannot be null or blank");
         }
-        if(!isValidFamily(productFamily,productCategory,orderConfigService)){
-            throw new IllegalArgumentException("Invalid product family for the specified product category:"+productCategory);
-        }
+
+        isValidFamily(productFamily,productCategory,orderConfigService).subscribe();
     }
 
-    private static boolean isValidFamily(String productFamily , String productCategory , OrderConfigService orderConfigService) {
-
-        var bloodTypeResponse = orderConfigService.findProductFamilyByCategory(productCategory, productFamily).block();
-        if(bloodTypeResponse == null || bloodTypeResponse.isBlank()) {
-            return false;
-        }
-
-        return true;
-
+    private static Mono<String> isValidFamily(String productFamily , String productCategory , OrderConfigService orderConfigService) {
+        return orderConfigService.findProductFamilyByCategory(productCategory, productFamily)
+            .switchIfEmpty(Mono.error(new IllegalArgumentException("Invalid product family for the specified product category:"+productCategory)));
     }
 
 }

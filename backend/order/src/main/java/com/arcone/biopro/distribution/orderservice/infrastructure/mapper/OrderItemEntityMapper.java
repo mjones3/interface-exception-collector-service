@@ -25,17 +25,4 @@ public class OrderItemEntityMapper {
             .build();
     }
 
-    public OrderItem mapToDomain(final OrderItemEntity orderItemEntity) {
-        return new OrderItem(
-            orderItemEntity.getId(),
-            orderItemEntity.getOrderId(),
-            orderItemEntity.getProductFamily(),
-            orderItemEntity.getBloodType(),
-            orderItemEntity.getQuantity(),
-            orderItemEntity.getComments(),
-            orderItemEntity.getCreateDate(),
-            orderItemEntity.getModificationDate()
-        );
-    }
-
 }

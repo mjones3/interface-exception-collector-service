@@ -2,7 +2,6 @@ package com.arcone.biopro.distribution.orderservice.domain.model.vo;
 
 import com.arcone.biopro.distribution.orderservice.domain.model.Validatable;
 import com.arcone.biopro.distribution.orderservice.domain.service.CustomerService;
-import com.arcone.biopro.distribution.orderservice.domain.service.LookupService;
 import com.arcone.biopro.distribution.orderservice.infrastructure.controller.error.DataNotFoundException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -17,11 +16,11 @@ public class OrderCustomer implements Validatable {
 
     private String code;
     private String name;
+    private final CustomerService customerService;
 
-
-    public OrderCustomer(String code , String name) {
+    public OrderCustomer(String code, CustomerService customerService) {
         this.code = code;
-        this.name = name;
+        this.customerService = customerService;
         this.checkValid();
     }
 
@@ -31,11 +30,20 @@ public class OrderCustomer implements Validatable {
             throw new IllegalArgumentException("code cannot be null or blank");
         }
 
+        try{
+            var customer = customerService.getCustomerByCode(code).block();
+            if(customer == null) {
+                throw new IllegalArgumentException("Customer not found for code: " + this.code);
+            }
+            this.name = customer.name();
+        }catch (DataNotFoundException ex){
+            log.error("Could not find customer with code {}", code, ex);
+            throw new IllegalArgumentException("Customer not found for code: " + this.code);
+        }
+
         if (this.name == null || this.name.isBlank()) {
             throw new IllegalArgumentException("name cannot be null or blank");
         }
     }
-
-
 
 }

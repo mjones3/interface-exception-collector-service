@@ -11,6 +11,7 @@ import lombok.ToString;
 public class OrderExternalId implements Validatable {
 
     private String orderExternalId;
+    private static final String ALPHANUMERIC_PATTERN = "^[a-zA-Z0-9]+$";
 
     public OrderExternalId(String orderExternalId) {
         this.orderExternalId = orderExternalId;
@@ -22,6 +23,13 @@ public class OrderExternalId implements Validatable {
         if (this.orderExternalId == null || this.orderExternalId.isBlank()) {
             throw new IllegalArgumentException("orderExternalId cannot be null or blank");
         }
+
+        if(!isValidId(orderExternalId)){
+            throw new IllegalArgumentException("orderExternalId is not a valid Format");
+        }
     }
 
+    private static boolean isValidId(String orderExternalId) {
+        return orderExternalId.matches(ALPHANUMERIC_PATTERN);
+    }
 }

@@ -16,4 +16,6 @@ public interface OrderRepository {
 
     Mono<Order> insert(final Order order);
 
+    Mono<Long> countByExternalId(final String externalId);
+
 }

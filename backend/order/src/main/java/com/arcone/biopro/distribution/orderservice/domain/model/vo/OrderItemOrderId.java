@@ -19,9 +19,10 @@ public class OrderItemOrderId implements Validatable {
 
     @Override
     public void checkValid() {
-        if (this.orderId == null) {
+        // TODO refactor when creating a new order the order ID is always null.
+        /*if (this.orderId == null) {
             throw new IllegalArgumentException("orderId cannot be null");
-        }
+        }*/
     }
 
 }

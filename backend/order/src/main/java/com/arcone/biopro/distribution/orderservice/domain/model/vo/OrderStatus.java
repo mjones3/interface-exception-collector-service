@@ -5,6 +5,7 @@ import com.arcone.biopro.distribution.orderservice.domain.service.LookupService;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import reactor.core.publisher.Mono;
 
 @Getter
 @EqualsAndHashCode
@@ -26,19 +27,17 @@ public class OrderStatus implements Validatable {
         if (orderStatus == null || orderStatus.isBlank()) {
             throw new IllegalArgumentException("orderStatus cannot be null or blank");
         }
-        if(!isValidStatus(orderStatus,lookupService)){
-            throw new IllegalArgumentException("orderStatus is not a valid order status");
-        }
+        isValidStatus(orderStatus,lookupService).subscribe();
     }
-
-    private static boolean isValidStatus(String orderStatus , LookupService lookupService) {
-
-        var list = lookupService.findAllByType(ORDER_STATUS_TYPE_CODE).collectList().block();
-        if(list == null || list.isEmpty()) {
-            return false;
-        }
-
-        return list.stream().anyMatch(lookup -> lookup.getId().getOptionValue().equals(orderStatus));
+    private static Mono<Void> isValidStatus(String orderStatus , LookupService lookupService) {
+        return lookupService.findAllByType(ORDER_STATUS_TYPE_CODE).collectList()
+            .switchIfEmpty(Mono.error(new IllegalArgumentException("orderStatus is not a valid order status")))
+            .flatMap(lookups -> {
+                if (lookups.stream().noneMatch(lookup -> lookup.getId().getOptionValue().equals(orderStatus))) {
+                    return Mono.error(new IllegalArgumentException("orderStatus is not a valid order status"));
+                }
+                return Mono.empty();
+            });
     }
 
 }

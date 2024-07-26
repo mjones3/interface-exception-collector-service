@@ -32,6 +32,8 @@ CREATE TABLE bld_order (
     delete_date                TIMESTAMP WITH TIME ZONE
 );
 
+CREATE UNIQUE INDEX uq_idx_bld_order_external_id ON bld_order (external_id);
+
 CREATE TABLE bld_order_item (
     id                BIGSERIAL                   NOT NULL CONSTRAINT pk_bld_order_item PRIMARY KEY,
     order_id          BIGINT                      NOT NULL CONSTRAINT fk_order_order_item references bld_order,
@@ -54,6 +56,8 @@ CREATE TABLE lk_order_blood_type (
     modification_date TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
+CREATE UNIQUE INDEX uq_idx_lk_order_blood_type ON lk_order_blood_type (product_family, blood_type);
+
 CREATE TABLE lk_order_product_family (
     id                BIGSERIAL                NOT NULL CONSTRAINT pk_lk_order_product_family PRIMARY KEY,
     family_category   VARCHAR(255)             NOT NULL,
@@ -65,3 +69,6 @@ CREATE TABLE lk_order_product_family (
     create_date       TIMESTAMP WITH TIME ZONE NOT NULL,
     modification_date TIMESTAMP WITH TIME ZONE NOT NULL
 );
+
+CREATE UNIQUE INDEX uq_idx_lk_order_product_family ON lk_order_product_family (family_category, family_type);
+

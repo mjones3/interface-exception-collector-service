@@ -42,9 +42,7 @@ class OrderStatusTest {
         Lookup lookup = Mockito.mock(Lookup.class);
         Mockito.when(lookup.getId()).thenReturn(new LookupId("TEST2","TEST2"));
         Mockito.when(lookupService.findAllByType(Mockito.anyString())).thenReturn(Flux.just(lookup));
-
         Exception exception = assertThrows(IllegalArgumentException.class, () -> new OrderStatus("TEST", lookupService));
-
         assertEquals("orderStatus is not a valid order status", exception.getMessage());
 
     }

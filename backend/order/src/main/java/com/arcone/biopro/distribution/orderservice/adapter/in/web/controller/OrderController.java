@@ -1,8 +1,6 @@
 package com.arcone.biopro.distribution.orderservice.adapter.in.web.controller;
 
-import com.arcone.biopro.distribution.orderservice.adapter.in.web.dto.LookupDTO;
 import com.arcone.biopro.distribution.orderservice.adapter.in.web.dto.OrderDTO;
-import com.arcone.biopro.distribution.orderservice.application.mapper.LookupMapper;
 import com.arcone.biopro.distribution.orderservice.application.mapper.OrderMapper;
 import com.arcone.biopro.distribution.orderservice.domain.service.OrderService;
 import lombok.RequiredArgsConstructor;

@@ -16,9 +16,10 @@ INSERT INTO lk_lookup (type, description_key, option_value, order_number, active
 -- Order Statuses
 INSERT INTO lk_lookup (type, description_key, option_value, order_number, active) VALUES
   ('ORDER_STATUS', 'order-status.all.label',         'ALL',         1, true),
-  ('ORDER_STATUS', 'order-status.created.label',     'CREATED',     2, true),
-  ('ORDER_STATUS', 'order-status.shipped.label',     'SHIPPED',     3, true),
-  ('ORDER_STATUS', 'order-status.in-progress.label', 'IN_PROGRESS', 4, true)
+  ('ORDER_STATUS', 'order-status.open.label',         'OPEN',       2, true),
+  ('ORDER_STATUS', 'order-status.created.label',     'CREATED',     3, true),
+  ('ORDER_STATUS', 'order-status.shipped.label',     'SHIPPED',     4, true),
+  ('ORDER_STATUS', 'order-status.in-progress.label', 'IN_PROGRESS', 5, true)
   ON CONFLICT DO NOTHING;
 
 -- Shipment Statuses
@@ -56,7 +57,7 @@ INSERT INTO lk_order_blood_type (product_family, blood_type, description_key, or
 
 
 INSERT INTO lk_order_product_family (family_category, family_type, description_key, product_family, order_number, active, create_date, modification_date) VALUES
- ('FROZEN','TRANSFUSABLE_PRODUCT','PLASMA_TRANSFUSABLE','plasma-transfusable.label',1,true,now(),now())
+ ('FROZEN','TRANSFUSABLE_PRODUCT','plasma-transfusable.label','PLASMA_TRANSFUSABLE',1,true,now(),now())
   ON CONFLICT DO NOTHING;
 
 

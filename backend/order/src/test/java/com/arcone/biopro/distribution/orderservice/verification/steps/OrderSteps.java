@@ -39,7 +39,7 @@ public class OrderSteps {
     @Given("I cleaned up from the database the orders with external ID {string}.")
     public void cleanUpOrders(String externalId) {
         var externalIdParam = externalId.replace(",", "','");
-        var childQuery = String.format("DELETE FROM bld_order_item WHERE order_id in ( SELECT id from bld_order WHERE external_id = %s)", externalIdParam);
+        var childQuery = String.format("DELETE FROM bld_order_item WHERE order_id in ( SELECT id from bld_order WHERE external_id in ('%s'))", externalIdParam);
         databaseService.executeSql(childQuery).block();
         var query = String.format("DELETE FROM bld_order WHERE external_id in ('%s')", externalIdParam);
         databaseService.executeSql(query).block();
@@ -72,9 +72,10 @@ public class OrderSteps {
 
     @Then("A biopro Order will not be available in the Distribution local data store.")
     public void checkOrderDoesNotExist() {
-        var query = String.format("SELECT * FROM bld_order WHERE external_id = '%s'", this.externalId);
+        var query = String.format("SELECT count(*) FROM bld_order WHERE external_id = '%s'", this.externalId);
         var data = databaseService.fetchData(query);
-        Assert.assertNull(data.first().block());
+        var records = data.first().block();
+        Assert.assertEquals(1L,records.get("count"));
     }
 
 }

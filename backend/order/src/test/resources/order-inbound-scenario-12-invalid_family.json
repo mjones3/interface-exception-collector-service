@@ -2,7 +2,7 @@
   "eventType": "OrderReceived",
   "eventVersion": "1.0",
   "payload": {
-    "id": "17ff46d1b-14a1-4928-a7cc-40c49155f3bb",
+    "id": "9c491b96-a990-45f7-9d98-7b7642fc3244",
     "externalId": "114117922233519",
     "orderStatus": "OPEN",
     "locationCode": "R08JACKSONVILLEMAINMOB",
@@ -13,10 +13,10 @@
     "willPickUp": true,
     "willPickUpPhoneNumber": "12333333",
     "shippingMethod": "FEDEX",
-    "productCategory": "ORDER_PRODUCT_CATEGORY_FROZEN",
+    "productCategory": "FROZEN",
     "desiredShippingDate": "2020-04-25",
-    "shippingCustomerCode": "99741",
-    "billingCustomerCode": "99741",
+    "shippingCustomerCode": "A1235",
+    "billingCustomerCode": "A1235",
     "comments": "string",
     "orderItems": [
       {

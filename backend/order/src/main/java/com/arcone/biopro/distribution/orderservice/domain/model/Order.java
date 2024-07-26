@@ -1,9 +1,17 @@
 package com.arcone.biopro.distribution.orderservice.domain.model;
 
-import com.arcone.biopro.distribution.orderservice.domain.model.vo.*;
+import com.arcone.biopro.distribution.orderservice.domain.model.vo.OrderCustomer;
+import com.arcone.biopro.distribution.orderservice.domain.model.vo.OrderExternalId;
+import com.arcone.biopro.distribution.orderservice.domain.model.vo.OrderNumber;
+import com.arcone.biopro.distribution.orderservice.domain.model.vo.OrderPriority;
+import com.arcone.biopro.distribution.orderservice.domain.model.vo.OrderStatus;
+import com.arcone.biopro.distribution.orderservice.domain.model.vo.ProductCategory;
+import com.arcone.biopro.distribution.orderservice.domain.model.vo.ShipmentType;
+import com.arcone.biopro.distribution.orderservice.domain.model.vo.ShippingMethod;
 import com.arcone.biopro.distribution.orderservice.domain.repository.OrderRepository;
 import com.arcone.biopro.distribution.orderservice.domain.service.CustomerService;
 import com.arcone.biopro.distribution.orderservice.domain.service.LookupService;
+import com.arcone.biopro.distribution.orderservice.domain.service.OrderConfigService;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -11,6 +19,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.Boolean.FALSE;
@@ -64,27 +73,16 @@ public class Order implements Validatable {
         String createEmployeeId,
         ZonedDateTime createDate,
         ZonedDateTime modificationDate,
-        ZonedDateTime deleteDate,
-        List<OrderItem> orderItems
+        ZonedDateTime deleteDate
     ) {
         this.id = id;
         this.orderNumber = new OrderNumber(orderNumber);
-        this.orderExternalId = ofNullable(externalId)
-            .map(OrderExternalId::new)
-            .orElse(null);
+        this.orderExternalId = new OrderExternalId(externalId);
         this.locationCode = locationCode;
         this.shipmentType = new ShipmentType(shipmentType,lookupService);
         this.shippingMethod = new ShippingMethod(shippingMethod,lookupService);
-        this.shippingCustomer = ofNullable(shippingCustomerCode)
-            .map(customerService::getCustomerByCode)
-            .map(Mono::block)
-            .map(customerDTO -> new OrderCustomer(customerDTO.code(), customerDTO.name()))
-            .orElse(null);
-        this.billingCustomer = ofNullable(billingCustomerCode)
-            .map(customerService::getCustomerByCode)
-            .map(Mono::block)
-            .map(customerDTO -> new OrderCustomer(customerDTO.code(), customerDTO.name()))
-            .orElse(null);
+        this.shippingCustomer = new OrderCustomer(shippingCustomerCode,customerService);
+        this.billingCustomer = new OrderCustomer(billingCustomerCode,customerService);
         this.desiredShippingDate = desiredShippingDate;
         this.willCallPickup = willCallPickup;
         this.phoneNumber = phoneNumber;
@@ -96,7 +94,6 @@ public class Order implements Validatable {
         this.createDate = createDate;
         this.modificationDate = modificationDate;
         this.deleteDate = deleteDate;
-        this.orderItems = orderItems;
 
         this.checkValid();
     }
@@ -136,9 +133,17 @@ public class Order implements Validatable {
         if (this.createEmployeeId == null || this.createEmployeeId.isBlank()) {
             throw new IllegalArgumentException("createEmployeeId cannot be null or blank");
         }
-        if (this.orderItems == null || this.orderItems.isEmpty()) {
-            throw new IllegalArgumentException("orderItems cannot be null or empty");
+    }
+
+    public void addItem(Long id, String productFamily, String bloodType, Integer quantity, String comments
+        , ZonedDateTime createDate, ZonedDateTime modificationDate,OrderConfigService orderConfigService) {
+
+        if(this.orderItems == null){
+            this.orderItems = new ArrayList<>();
         }
+
+        this.orderItems.add(new OrderItem(id , this.id , productFamily, bloodType , quantity , comments , createDate
+            ,modificationDate , this.getProductCategory().getProductCategory() , orderConfigService));
     }
 
     public Mono<Boolean> exists(final OrderRepository orderRepository) {

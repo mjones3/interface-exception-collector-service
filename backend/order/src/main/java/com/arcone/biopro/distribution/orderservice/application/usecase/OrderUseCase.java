@@ -10,6 +10,7 @@ import com.arcone.biopro.distribution.orderservice.domain.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
@@ -48,11 +49,15 @@ public class OrderUseCase implements OrderService {
             return insert(orderReceivedEventMapper.mapToDomain(eventDTO))
                 .flatMap(createdOrder -> publishOrderCreatedEvent(createdOrder))
                 .onErrorResume(error -> {
-                        publishOrderRejectedEvent(eventDTO.externalId(),error.getMessage());
+                        if(error instanceof DuplicateKeyException) {
+                            publishOrderRejectedEvent(eventDTO.externalId(),"Order already exists");
+                        }else{
+                            publishOrderRejectedEvent(eventDTO.externalId(),error.getMessage());
+                        }
                         return Mono.error(new RuntimeException("Error processing Order Received Event", error));
                     }
                 );
-        }catch (Exception e){
+        }catch (Exception e ){
             publishOrderRejectedEvent(eventDTO.externalId(),e.getMessage());
             return Mono.error(new RuntimeException("Error processing Order Received Event", e));
         }

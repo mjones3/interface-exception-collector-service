@@ -5,10 +5,13 @@ import com.arcone.biopro.distribution.orderservice.domain.service.LookupService;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Mono;
 
 @Getter
 @EqualsAndHashCode
 @ToString
+@Slf4j
 public class ShipmentType implements Validatable {
 
     private String shipmentType;
@@ -26,19 +29,22 @@ public class ShipmentType implements Validatable {
         if (shipmentType == null || shipmentType.isBlank()) {
             throw new IllegalArgumentException("shipmentType cannot be null or blank");
         }
-        if(!isValidShipmentType(shipmentType,lookupService)){
-            throw new IllegalArgumentException("shipmentType is not a valid order shipment type");
-        }
+
+        isValidShipmentType(shipmentType,lookupService).subscribe();
     }
 
-    private static boolean isValidShipmentType(String shipmentType , LookupService lookupService) {
+    private static Mono<Void> isValidShipmentType(String shipmentType , LookupService lookupService) {
 
-        var list = lookupService.findAllByType(SHIPMENT_TYPE_CODE).collectList().block();
-        if(list == null || list.isEmpty()) {
-            return false;
-        }
+        log.info("Checking if shipment type {} is valid", shipmentType);
 
-        return list.stream().anyMatch(lookup -> lookup.getId().getOptionValue().equals(shipmentType));
+        return lookupService.findAllByType(SHIPMENT_TYPE_CODE).collectList()
+            .switchIfEmpty(Mono.error(new IllegalArgumentException("shipmentType is not a valid order shipment type")))
+            .flatMap(lookups -> {
+                if (lookups.stream().noneMatch(lookup -> lookup.getId().getOptionValue().equals(shipmentType))) {
+                    return Mono.error(new IllegalArgumentException("shipmentType is not a valid order shipment type"));
+                }
+                return Mono.empty();
+            });
     }
 
 }

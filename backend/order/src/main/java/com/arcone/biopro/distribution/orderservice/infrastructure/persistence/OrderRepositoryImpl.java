@@ -102,4 +102,15 @@ public class OrderRepositoryImpl implements OrderRepository {
             );
     }
 
+    @Override
+    public Mono<Long> countByExternalId(String externalId) {
+        return this.entityTemplate
+            .select(OrderEntity.class)
+            .matching(
+                query(where("external_id").is(externalId)
+                    .and("delete_date").isNull())
+            )
+            .count();
+    }
+
 }

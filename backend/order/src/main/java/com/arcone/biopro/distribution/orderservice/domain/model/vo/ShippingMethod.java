@@ -5,10 +5,13 @@ import com.arcone.biopro.distribution.orderservice.domain.service.LookupService;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Mono;
 
 @Getter
 @EqualsAndHashCode
 @ToString
+@Slf4j
 public class ShippingMethod implements Validatable {
 
     private String shippingMethod;
@@ -26,19 +29,19 @@ public class ShippingMethod implements Validatable {
         if (shippingMethod == null || shippingMethod.isBlank()) {
             throw new IllegalArgumentException("shippingMethod cannot be null or blank");
         }
-        if(!isValidShipmentType(shippingMethod,lookupService)){
-            throw new IllegalArgumentException("shippingMethod is not a valid order shipping method");
-        }
+        isValidShippingMethod(shippingMethod,lookupService).subscribe();
     }
 
-    private static boolean isValidShipmentType(String shippingMethod , LookupService lookupService) {
-
-        var list = lookupService.findAllByType(SHIPPING_METHOD_TYPE_CODE).collectList().block();
-        if(list == null || list.isEmpty()) {
-            return false;
-        }
-
-        return list.stream().anyMatch(lookup -> lookup.getId().getOptionValue().equals(shippingMethod));
+    private static Mono<Void> isValidShippingMethod(String shippingMethod , LookupService lookupService) {
+        log.info("Checking if shippingMethod type {} is valid", shippingMethod);
+        return lookupService.findAllByType(SHIPPING_METHOD_TYPE_CODE).collectList()
+            .switchIfEmpty(Mono.error(new IllegalArgumentException("shippingMethod is not a valid order shipping method")))
+            .flatMap(lookups -> {
+                if (lookups.stream().noneMatch(lookup -> lookup.getId().getOptionValue().equals(shippingMethod))) {
+                    return Mono.error(new IllegalArgumentException("shippingMethod is not a valid order shipping method"));
+                }
+                return Mono.empty();
+            });
     }
 
 }
