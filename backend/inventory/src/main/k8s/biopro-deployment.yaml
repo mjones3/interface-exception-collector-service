@@ -1,0 +1,65 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: inventory-deployment
+  namespace: api
+  labels:
+    app: inventory
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: inventory
+  template:
+    metadata:
+      labels:
+        app: inventory
+    spec:
+      containers:
+        - name: inventory
+          image: local/inventory
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: JAVA_OPTS
+              value: '-Xmx512m -Xms256m'
+            - name: SPRING_PROFILES_ACTIVE
+              value: 'prod,api-docs'
+            - name: MANAGEMENT_PROMETHEUS_METRICS_EXPORT_ENABLED
+              value: 'true'
+            - name: SPRING_R2DBC_URL
+              value: 'r2dbc:postgresql://postgresql-service.db.svc.cluster.local:5432/biopro'
+            - name: SPRING_R2DBC_USERNAME
+              value: 'biopro'
+            - name: SPRING_R2DBC_PASSWORD
+              value: 'biopro-password'
+            - name: SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_OIDC_ISSUER_URI
+              value: 'http://keycloak-service.id.svc.cluster.local:9080/realms/biopro'
+            - name: SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_ID
+              value: 'web_app'
+            - name: SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_SECRET
+              value: 'web_app'
+            - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+              value: 'kafka-service.queue.svc.cluster.local:9092'
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: 'http://api-collector:4318'
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          readinessProbe:
+            httpGet:
+              path: /management/health/readiness
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 15
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /management/health/liveness
+              port: 8080
+            initialDelaySeconds: 120
