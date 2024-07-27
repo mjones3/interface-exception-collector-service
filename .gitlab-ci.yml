@@ -6,7 +6,7 @@ include:
     ref: main
     file: spec.build_ui.pipeline.yml
     inputs:
-      service: distribution-ui
+      service: distribution
   - project: arc-one/infrastructure/gitlab-ci
     ref: main
     file: spec.backend.pipeline.yml
