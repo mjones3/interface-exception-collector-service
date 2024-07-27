@@ -28,17 +28,19 @@ public class ProductCategory implements Validatable {
             throw new IllegalArgumentException("productCategory cannot be null or blank");
         }
 
-        isValidCategory(productCategory, lookupService).subscribe();
+        isValidCategory(productCategory, lookupService);
     }
 
-    private static Mono<Void> isValidCategory(String category , LookupService lookupService) {
-        return lookupService.findAllByType(PRODUCT_CATEGORY_TYPE_CODE).collectList()
-            .switchIfEmpty(Mono.error(new IllegalArgumentException("productCategory is not a valid category")))
-            .flatMap(lookups -> {
-                if (lookups.stream().noneMatch(lookup -> lookup.getId().getOptionValue().equals(category))) {
-                    return Mono.error(new IllegalArgumentException("productCategory is not a valid category"));
-                }
-                return Mono.empty();
-            });
+    private static void isValidCategory(String category , LookupService lookupService) {
+
+        var types = lookupService.findAllByType(PRODUCT_CATEGORY_TYPE_CODE).collectList().block();
+
+        if(types == null || types.isEmpty()) {
+            throw new IllegalArgumentException("Product Category " + category + " is not valid");
+        }
+
+        if (types.stream().noneMatch(lookup -> lookup.getId().getOptionValue().equals(category))) {
+            throw new IllegalArgumentException("Product Category " + category + " is not valid");
+        }
     }
 }

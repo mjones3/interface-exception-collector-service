@@ -75,6 +75,14 @@ public class OrderSteps {
         var query = String.format("SELECT count(*) FROM bld_order WHERE external_id = '%s'", this.externalId);
         var data = databaseService.fetchData(query);
         var records = data.first().block();
+        Assert.assertEquals(0L,records.get("count"));
+    }
+
+    @Then("The duplicated biopro Order will not be available in the Distribution local data store.")
+    public void checkDuplicatedOrderDoesNotExist() {
+        var query = String.format("SELECT count(*) FROM bld_order WHERE external_id = '%s'", this.externalId);
+        var data = databaseService.fetchData(query);
+        var records = data.first().block();
         Assert.assertEquals(1L,records.get("count"));
     }
 

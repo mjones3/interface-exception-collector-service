@@ -46,8 +46,9 @@ public class OrderUseCase implements OrderService {
     public Mono<Order> processOrder(OrderReceivedEventPayloadDTO eventDTO) {
         log.info("Processing Order Received Event {}", eventDTO);
         try{
-            return insert(orderReceivedEventMapper.mapToDomain(eventDTO))
-                .flatMap(createdOrder -> publishOrderCreatedEvent(createdOrder))
+            return orderReceivedEventMapper.mapToDomain(eventDTO)
+                .doOnNext(this::insert)
+                .doOnSuccess(this::publishOrderCreatedEvent)
                 .onErrorResume(error -> {
                         if(error instanceof DuplicateKeyException) {
                             publishOrderRejectedEvent(eventDTO.externalId(),"Order already exists");
@@ -56,21 +57,19 @@ public class OrderUseCase implements OrderService {
                         }
                         return Mono.error(new RuntimeException("Error processing Order Received Event", error));
                     }
-                );
+                ).log();
         }catch (Exception e ){
             publishOrderRejectedEvent(eventDTO.externalId(),e.getMessage());
             return Mono.error(new RuntimeException("Error processing Order Received Event", e));
         }
     }
 
-    private Mono<Order> publishOrderCreatedEvent(Order order) {
+    private void publishOrderCreatedEvent(Order order) {
         applicationEventPublisher.publishEvent(new OrderCreatedEvent(order));
-        return Mono.just(order);
     }
 
-    private Mono<String> publishOrderRejectedEvent(String externalId,String errorMessage) {
+    private void publishOrderRejectedEvent(String externalId,String errorMessage) {
         applicationEventPublisher.publishEvent(new OrderRejectedEvent(externalId,errorMessage));
-        return Mono.just(errorMessage);
     }
 
 }

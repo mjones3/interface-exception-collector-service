@@ -44,7 +44,7 @@ class ShippingMethodTest {
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> new ShippingMethod("TEST", lookupService));
 
-        assertEquals("shippingMethod is not a valid order shipping method", exception.getMessage());
+        assertEquals("Shipment Method TEST is not valid", exception.getMessage());
 
     }
 }

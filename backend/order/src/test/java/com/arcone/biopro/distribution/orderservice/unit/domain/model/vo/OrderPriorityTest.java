@@ -45,7 +45,7 @@ class OrderPriorityTest {
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> new OrderPriority("TEST", lookupService));
 
-        assertEquals("orderPriority is not a valid order priority", exception.getMessage());
+        assertEquals("Order Priority TEST is not valid", exception.getMessage());
 
     }
 

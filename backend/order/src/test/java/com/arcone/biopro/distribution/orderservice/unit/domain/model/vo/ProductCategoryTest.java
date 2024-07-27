@@ -45,7 +45,7 @@ class ProductCategoryTest {
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> new ProductCategory("TEST", lookupService));
 
-        assertEquals("productCategory is not a valid category", exception.getMessage());
+        assertEquals("Product Category TEST is not valid", exception.getMessage());
 
     }
 }

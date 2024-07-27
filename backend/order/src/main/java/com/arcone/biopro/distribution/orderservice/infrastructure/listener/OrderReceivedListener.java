@@ -35,12 +35,12 @@ public class OrderReceivedListener implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        consumeOrderFulfilled().publishOn(scheduler).subscribe();
+        consumeOrderReceived().publishOn(scheduler).subscribe();
 
     }
 
 
-    private Flux<Order> consumeOrderFulfilled() {
+    private Flux<Order> consumeOrderReceived() {
         return consumer
             .receiveAutoAck()
             .doOnNext(

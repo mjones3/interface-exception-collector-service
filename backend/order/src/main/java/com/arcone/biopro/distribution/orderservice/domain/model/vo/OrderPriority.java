@@ -5,7 +5,6 @@ import com.arcone.biopro.distribution.orderservice.domain.service.LookupService;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import reactor.core.publisher.Mono;
 
 @Getter
 @EqualsAndHashCode
@@ -27,18 +26,20 @@ public class OrderPriority implements Validatable {
         if (orderPriority == null || orderPriority.isBlank()) {
             throw new IllegalArgumentException("orderPriority cannot be null or blank");
         }
-        isValidOrderPriority(orderPriority, lookupService).subscribe();
+        isValidOrderPriority(orderPriority, lookupService);
     }
 
 
-    private static Mono<Void> isValidOrderPriority(String orderPriority , LookupService lookupService) {
-        return lookupService.findAllByType(PRIORITY_TYPE_CODE).collectList()
-            .switchIfEmpty(Mono.error(new IllegalArgumentException("orderPriority is not a valid order priority")))
-            .flatMap(lookups -> {
-                if (lookups.stream().noneMatch(lookup -> lookup.getId().getOptionValue().equals(orderPriority))) {
-                    return Mono.error(new IllegalArgumentException("orderPriority is not a valid order priority"));
-                }
-                return Mono.empty();
-            });
+    private static void isValidOrderPriority(String orderPriority , LookupService lookupService) {
+
+        var types = lookupService.findAllByType(PRIORITY_TYPE_CODE).collectList().block();
+
+        if(types == null || types.isEmpty()) {
+            throw new IllegalArgumentException("Order Priority " + orderPriority + " is not valid");
+        }
+
+        if (types.stream().noneMatch(lookup -> lookup.getId().getOptionValue().equals(orderPriority))) {
+            throw new IllegalArgumentException("Order Priority " + orderPriority + " is not valid");
+        }
     }
 }

@@ -52,7 +52,7 @@ public class Order implements Validatable {
     private ZonedDateTime deleteDate;
     private List<OrderItem> orderItems;
 
-    public Order(
+    public Order (
         CustomerService customerService,
         LookupService lookupService,
         Long id,

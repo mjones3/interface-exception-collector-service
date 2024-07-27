@@ -5,7 +5,6 @@ import com.arcone.biopro.distribution.orderservice.domain.service.OrderConfigSer
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import reactor.core.publisher.Mono;
 
 @Getter
 @EqualsAndHashCode
@@ -29,12 +28,16 @@ public class BloodType implements Validatable {
             throw new IllegalArgumentException("bloodType cannot be null or blank");
         }
 
-        isValidBloodType(bloodType,productFamily, orderConfigService).subscribe();
+        isValidBloodType(bloodType,productFamily, orderConfigService);
     }
 
-    private static Mono<String> isValidBloodType(String bloodType , String productFamily , OrderConfigService orderConfigService) {
-        return orderConfigService.findBloodTypeByFamilyAndType(productFamily, bloodType)
-            .switchIfEmpty(Mono.error(new IllegalArgumentException("bloodType is not a valid blood type for this product family "+productFamily)));
+    private static void isValidBloodType(String bloodType , String productFamily , OrderConfigService orderConfigService) {
+
+
+        var bloodTypeResponse = orderConfigService.findBloodTypeByFamilyAndType(productFamily, bloodType).block();
+        if(bloodTypeResponse == null) {
+            throw new IllegalArgumentException("Invalid blood type "+bloodType+" for the specified product family:"+productFamily);
+        }
     }
 
 }

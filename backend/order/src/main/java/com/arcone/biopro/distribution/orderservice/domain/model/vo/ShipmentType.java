@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 @Getter
 @EqualsAndHashCode
@@ -30,21 +31,23 @@ public class ShipmentType implements Validatable {
             throw new IllegalArgumentException("shipmentType cannot be null or blank");
         }
 
-        isValidShipmentType(shipmentType,lookupService).subscribe();
+        isValidShipmentType(shipmentType,lookupService);
     }
 
-    private static Mono<Void> isValidShipmentType(String shipmentType , LookupService lookupService) {
+    private static void isValidShipmentType(String shipmentType , LookupService lookupService) {
 
         log.info("Checking if shipment type {} is valid", shipmentType);
 
-        return lookupService.findAllByType(SHIPMENT_TYPE_CODE).collectList()
-            .switchIfEmpty(Mono.error(new IllegalArgumentException("shipmentType is not a valid order shipment type")))
-            .flatMap(lookups -> {
-                if (lookups.stream().noneMatch(lookup -> lookup.getId().getOptionValue().equals(shipmentType))) {
-                    return Mono.error(new IllegalArgumentException("shipmentType is not a valid order shipment type"));
-                }
-                return Mono.empty();
-            });
+        var types = lookupService.findAllByType(SHIPMENT_TYPE_CODE).collectList().block();
+
+        if(types == null || types.isEmpty()) {
+            throw new IllegalArgumentException("Shipment type " + shipmentType + " is not valid");
+        }
+
+        if (types.stream().noneMatch(lookup -> lookup.getId().getOptionValue().equals(shipmentType))) {
+            throw new IllegalArgumentException("Shipment type " + shipmentType + " is not valid");
+        }
+
     }
 
 }

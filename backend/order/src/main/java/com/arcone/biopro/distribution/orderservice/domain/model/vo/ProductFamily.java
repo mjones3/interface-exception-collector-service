@@ -29,13 +29,15 @@ public class ProductFamily implements Validatable {
         if (productFamily == null || productFamily.isBlank()) {
             throw new IllegalArgumentException("productFamily cannot be null or blank");
         }
-
-        isValidFamily(productFamily,productCategory,orderConfigService).subscribe();
+        isValidFamily(productFamily,productCategory,orderConfigService);
     }
 
-    private static Mono<String> isValidFamily(String productFamily , String productCategory , OrderConfigService orderConfigService) {
-        return orderConfigService.findProductFamilyByCategory(productCategory, productFamily)
-            .switchIfEmpty(Mono.error(new IllegalArgumentException("Invalid product family for the specified product category:"+productCategory)));
+    private static void isValidFamily(String productFamily , String productCategory , OrderConfigService orderConfigService) {
+
+        var family = orderConfigService.findProductFamilyByCategory(productCategory, productFamily).block();
+        if(family == null) {
+            throw new IllegalArgumentException("Invalid product family for the specified product category:"+productCategory);
+        }
     }
 
 }

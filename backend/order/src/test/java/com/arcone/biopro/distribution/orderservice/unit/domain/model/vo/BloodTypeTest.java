@@ -38,7 +38,7 @@ class BloodTypeTest {
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> new BloodType("TEST", "FAMILY_TEST" , orderConfigService));
 
-        assertEquals("bloodType is not a valid blood type for this product family FAMILY_TEST", exception.getMessage());
+        assertEquals("Invalid blood type TEST for the specified product family:FAMILY_TEST", exception.getMessage());
 
     }
 }
