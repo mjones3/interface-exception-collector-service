@@ -8,7 +8,7 @@ spec:
   urlFrom:
     secretKeyRef:
       key: url
-      name: atlas-credentials
+      name: atlas-credentials-{{ include "api.fullname" . }}
   schema:
     configMapKeyRef:
       key: schema.sql

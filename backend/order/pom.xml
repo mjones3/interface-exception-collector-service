@@ -11,8 +11,8 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.arcone.biopro.distribution.orderservice</groupId>
-    <artifactId>order-service</artifactId>
+    <groupId>com.arcone.biopro.distribution</groupId>
+    <artifactId>order</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -29,7 +29,7 @@
         <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-        <start-class>com.arcone.biopro.distribution.orderservice.BioProApplication</start-class>
+        <start-class>com.arcone.biopro.distribution.order.BioProApplication</start-class>
         <argLine>-Djava.security.egd=file:/dev/./urandom -Xmx1G</argLine>
         <m2e.apt.activation>jdt_apt</m2e.apt.activation>
         <run.addResources>false</run.addResources>

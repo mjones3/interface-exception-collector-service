@@ -11,6 +11,16 @@ include:
     ref: main
     file: spec.backend.pipeline.yml
     inputs:
+      service: inventory
+  - project: arc-one/infrastructure/gitlab-ci
+    ref: main
+    file: spec.helm.pipeline.yml
+    inputs:
+      service: inventory
+  - project: arc-one/infrastructure/gitlab-ci
+    ref: main
+    file: spec.backend.pipeline.yml
+    inputs:
       service: shipping
   - project: arc-one/infrastructure/gitlab-ci
     ref: main
@@ -31,9 +41,9 @@ include:
     ref: main
     file: spec.backend.pipeline.yml
     inputs:
-      service: partner-order-provider
+      service: partnerorderprovider
   - project: arc-one/infrastructure/gitlab-ci
     ref: main
     file: spec.helm.pipeline.yml
     inputs:
-      service: partner-order-provider
+      service: partnerorderprovider
