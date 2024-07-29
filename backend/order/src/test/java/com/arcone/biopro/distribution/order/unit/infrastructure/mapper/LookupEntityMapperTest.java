@@ -1,7 +1,7 @@
 package com.arcone.biopro.distribution.order.unit.infrastructure.mapper;
 
 import com.arcone.biopro.distribution.order.domain.model.Lookup;
-import com.arcone.biopro.distribution.order.domain.model.LookupId;
+import com.arcone.biopro.distribution.order.domain.model.vo.LookupId;
 import com.arcone.biopro.distribution.order.infrastructure.mapper.LookupEntityMapper;
 import com.arcone.biopro.distribution.order.infrastructure.persistence.LookupEntity;
 import org.junit.jupiter.api.Test;

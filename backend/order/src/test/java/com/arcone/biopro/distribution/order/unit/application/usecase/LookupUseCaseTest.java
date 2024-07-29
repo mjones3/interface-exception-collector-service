@@ -2,7 +2,7 @@ package com.arcone.biopro.distribution.order.unit.application.usecase;
 
 import com.arcone.biopro.distribution.order.application.usecase.LookupUseCase;
 import com.arcone.biopro.distribution.order.domain.model.Lookup;
-import com.arcone.biopro.distribution.order.domain.model.LookupId;
+import com.arcone.biopro.distribution.order.domain.model.vo.LookupId;
 import com.arcone.biopro.distribution.order.domain.repository.LookupRepository;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
 import org.junit.jupiter.api.Test;
@@ -17,11 +17,11 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@SpringJUnitConfig(classes = { LookupUseCase.class, LookupRepository.class })
+@SpringJUnitConfig(classes = { LookupUseCase.class })
 class LookupUseCaseTest {
 
     @Autowired
-    LookupService lookupUseCase;
+    LookupService lookupService;
 
     @MockBean
     LookupRepository lookupRepository;
@@ -36,7 +36,7 @@ class LookupUseCaseTest {
             new Lookup(new LookupId(type, "optionValue3"), "description3", 3, true)
         ));
 
-        StepVerifier.create(lookupUseCase.findAllByType(type))
+        StepVerifier.create(lookupService.findAllByType(type))
             .expectNextCount(3)
             .verifyComplete();
     }
@@ -49,7 +49,7 @@ class LookupUseCaseTest {
         when(mockLookup.exists(lookupRepository)).thenReturn(Mono.just(false));
         when(lookupRepository.insert(mockLookup)).thenReturn(Mono.just(realLookup));
 
-        StepVerifier.create(lookupUseCase.insert(mockLookup))
+        StepVerifier.create(lookupService.insert(mockLookup))
             .expectNext(realLookup)
             .verifyComplete();
     }
@@ -62,7 +62,7 @@ class LookupUseCaseTest {
         when(mockLookup.exists(lookupRepository)).thenReturn(Mono.just(true));
         when(lookupRepository.update(mockLookup)).thenReturn(Mono.just(realLookup));
 
-        StepVerifier.create(lookupUseCase.update(mockLookup))
+        StepVerifier.create(lookupService.update(mockLookup))
             .expectNext(realLookup)
             .verifyComplete();
     }
@@ -75,7 +75,7 @@ class LookupUseCaseTest {
         when(mockLookup.exists(lookupRepository)).thenReturn(Mono.just(true));
         when(mockLookup.delete(lookupRepository)).thenReturn(Mono.just(realLookup));
 
-        StepVerifier.create(lookupUseCase.delete(mockLookup))
+        StepVerifier.create(lookupService.delete(mockLookup))
             .expectNext(realLookup)
             .verifyComplete();
     }

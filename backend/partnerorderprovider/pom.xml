@@ -12,7 +12,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.arcone.biopro.distribution</groupId>
-    <artifactId>partner-order-provider</artifactId>
+    <artifactId>partnerorderprovider</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>

@@ -22,14 +22,11 @@ WORKDIR /app
 
 ENV API_PORT=${API_PORT:-8080}
 
-ARG START_CLASS
-#=com.arcone.biopro.BioProApplication
 ARG DEPENDENCY=/app/target/dependency
 COPY --from=builder ${DEPENDENCY}/BOOT-INF/lib /app/lib
 COPY --from=builder ${DEPENDENCY}/META-INF /app/META-INF
 COPY --from=builder ${DEPENDENCY}/BOOT-INF/classes /app
-ENV START_CLASS=${START_CLASS}
 
-ENTRYPOINT java -noverify -XX:+AlwaysPreTouch -Djava.security.egd=file:/dev/./urandom -cp .:./lib/* ${START_CLASS} "$@"
+ENTRYPOINT java -noverify -XX:+AlwaysPreTouch -Djava.security.egd=file:/dev/./urandom -cp .:./lib/* "com.arcone.biopro.BioProApplication" "$@"
 
 EXPOSE ${API_PORT}
