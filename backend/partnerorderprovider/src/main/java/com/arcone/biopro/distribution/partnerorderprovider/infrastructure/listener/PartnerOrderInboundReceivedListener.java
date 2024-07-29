@@ -1,9 +1,9 @@
-package com.arcone.biopro.distribution.partnerorderproviderservice.infrastructure.listener;
+package com.arcone.biopro.distribution.partnerorderprovider.infrastructure.listener;
 
-import com.arcone.biopro.distribution.partnerorderproviderservice.domain.event.PartnerOrderInboundReceived;
-import com.arcone.biopro.distribution.partnerorderproviderservice.infrastructure.event.OrderReceivedEvent;
-import com.arcone.biopro.distribution.partnerorderproviderservice.infrastructure.listener.dto.OrderDTO;
-import com.arcone.biopro.distribution.partnerorderproviderservice.infrastructure.listener.dto.OrderItemDTO;
+import com.arcone.biopro.distribution.partnerorderprovider.domain.event.PartnerOrderInboundReceived;
+import com.arcone.biopro.distribution.partnerorderprovider.infrastructure.event.OrderReceivedEvent;
+import com.arcone.biopro.distribution.partnerorderprovider.infrastructure.listener.dto.OrderDTO;
+import com.arcone.biopro.distribution.partnerorderprovider.infrastructure.listener.dto.OrderItemDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Value;
