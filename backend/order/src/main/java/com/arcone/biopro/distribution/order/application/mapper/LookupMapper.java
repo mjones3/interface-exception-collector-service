@@ -2,7 +2,7 @@ package com.arcone.biopro.distribution.order.application.mapper;
 
 import com.arcone.biopro.distribution.order.adapter.in.web.dto.LookupDTO;
 import com.arcone.biopro.distribution.order.domain.model.Lookup;
-import com.arcone.biopro.distribution.order.domain.model.LookupId;
+import com.arcone.biopro.distribution.order.domain.model.vo.LookupId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

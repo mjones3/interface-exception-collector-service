@@ -4,7 +4,7 @@ import com.arcone.biopro.distribution.order.adapter.in.web.controller.LookupCont
 import com.arcone.biopro.distribution.order.adapter.in.web.dto.LookupDTO;
 import com.arcone.biopro.distribution.order.application.mapper.LookupMapper;
 import com.arcone.biopro.distribution.order.domain.model.Lookup;
-import com.arcone.biopro.distribution.order.domain.model.LookupId;
+import com.arcone.biopro.distribution.order.domain.model.vo.LookupId;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

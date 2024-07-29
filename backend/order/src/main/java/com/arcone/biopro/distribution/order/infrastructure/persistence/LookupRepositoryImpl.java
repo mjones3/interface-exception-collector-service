@@ -1,7 +1,7 @@
 package com.arcone.biopro.distribution.order.infrastructure.persistence;
 
 import com.arcone.biopro.distribution.order.domain.model.Lookup;
-import com.arcone.biopro.distribution.order.domain.model.LookupId;
+import com.arcone.biopro.distribution.order.domain.model.vo.LookupId;
 import com.arcone.biopro.distribution.order.domain.repository.LookupRepository;
 import com.arcone.biopro.distribution.order.infrastructure.mapper.LookupEntityMapper;
 import lombok.RequiredArgsConstructor;

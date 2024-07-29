@@ -1,32 +1,71 @@
 scalar DateTime
-@specifiedBy(url: "https://scalars.graphql.org/andimarek/date-time.html")
+scalar Date
 
 type Query {
-    # Lookup
+    # Searches over all Lookup records by a grouping type criteria
     findAllLookupsByType(type: String!): [Lookup]!
 
-    # Customer
-    findAllCustomers: [CustomerDTO]!
-    findCustomerByCode(code: String!): CustomerDTO
+    # Searches over all Customers
+    findAllCustomers: [Customer]!
+    # Finds a Customer by its code
+    findCustomerByCode(code: String!): Customer
+
+    # Searches over all orders
+    findAllOrders: [Order]!
 }
 
 type Mutation {
-    insertLookup(lookupRequest: LookupRequest!): Lookup!
-    updateLookup(lookupRequest: LookupRequest!): Lookup!
-    deleteLookup(lookupRequest: LookupRequest!): Lookup!
+    insertLookup(lookup: LookupInput!): Lookup!
+    updateLookup(lookup: LookupInput!): Lookup!
+    deleteLookup(lookup: LookupInput!): Lookup!
+
+    insertOrder(order: OrderInput!): Order
 }
 
-input LookupId {
+input LookupIdInput {
     type: String!
     optionValue: String!
 }
 
-input LookupRequest {
+input LookupInput {
     type: String!
     optionValue: String!
     descriptionKey: String!
     orderNumber: Int!
     active: Boolean!
+}
+
+input OrderItemInput {
+    productFamily: String!
+    bloodType: String!
+    quantity: Int!
+    comments: String
+    createDate: DateTime
+    modificationDate: DateTime
+}
+
+input OrderInput {
+    orderNumber: Int!
+    externalId: String
+    locationCode: String!
+    shipmentType: String!
+    shippingMethod: String!
+    shippingCustomerName: String
+    shippingCustomerCode: String!
+    billingCustomerName: String
+    billingCustomerCode: String!
+    desiredShippingDate: Date!
+    willCallPickup: Boolean
+    phoneNumber: String
+    productCategory: String!
+    comments: String
+    status: String!
+    priority: String!
+    createEmployeeId: String!
+    createDate: DateTime
+    modificationDate: DateTime
+    deleteDate: DateTime
+    orderItems: [OrderItemInput]!
 }
 
 type Lookup {
@@ -37,7 +76,7 @@ type Lookup {
     active: Boolean!
 }
 
-type CustomerAddressDTO {
+type CustomerAddress {
     contactName: String!
     addressType: String!
     state: String!
@@ -50,7 +89,7 @@ type CustomerAddressDTO {
     active: String!
 }
 
-type CustomerDTO {
+type Customer {
     externalId: String!
     name: String!
     code: String!
@@ -58,5 +97,41 @@ type CustomerDTO {
     departmentName: String!
     phoneNumber: String!
     active: String!
-    addresses: [CustomerAddressDTO]
+    addresses: [CustomerAddress]
+}
+
+type OrderItem {
+    id: Int!
+    orderId: Int!
+    productFamily: String!
+    bloodType: String!
+    quantity: Int!
+    comments: String
+    createDate: DateTime!
+    modificationDate: DateTime!
+}
+
+type Order {
+    id: Int!
+    orderNumber: Int!
+    externalId: String
+    locationCode: String!
+    shipmentType: String!
+    shippingMethod: String!
+    shippingCustomerName: String!
+    shippingCustomerCode: String!
+    billingCustomerName: String!
+    billingCustomerCode: String!
+    desiredShippingDate: Date!
+    willCallPickup: Boolean
+    phoneNumber: String
+    productCategory: String!
+    comments: String
+    status: String!
+    priority: String!
+    createEmployeeId: String!
+    createDate: DateTime!
+    modificationDate: DateTime!
+    deleteDate: DateTime
+    orderItems: [OrderItem]!
 }
