@@ -26,7 +26,8 @@ Feature: Validate order
             | 114117922233518 | order-inbound-scenario-11-invalid_billing_customer.json |
             | 114117922233519 | order-inbound-scenario-12-invalid_family.json           |
             | 114117922233520 | order-inbound-scenario-13_invalid_quantity.json         |
-        Scenario Outline: Creating a BioPro order from an invalid order inbound request
+
+    Scenario Outline: Creating a BioPro order from an invalid order inbound request
             Given I have received an order inbound request with externalId "114117922233598" and content "order-inbound-scenario-1-happy-path.json".
             And   I have received an order inbound request with externalId "<External ID>" and content "<JsonPayloadName>".
             When The system process the order request.

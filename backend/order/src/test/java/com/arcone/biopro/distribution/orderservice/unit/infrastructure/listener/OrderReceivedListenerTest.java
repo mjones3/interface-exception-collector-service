@@ -14,6 +14,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.kafka.core.reactive.ReactiveKafkaConsumerTemplate;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.kafka.receiver.ReceiverRecord;
 
 import java.util.UUID;
 
@@ -25,7 +26,7 @@ class OrderReceivedListenerTest {
 
         ReactiveKafkaConsumerTemplate<String, String> consumer = Mockito.mock(ReactiveKafkaConsumerTemplate.class);
 
-        ConsumerRecord<String,String> consumerRecordMock = Mockito.mock(ConsumerRecord.class);
+        ReceiverRecord<String, String> receiverRecord = Mockito.mock(ReceiverRecord.class);
 
         OrderService service = Mockito.mock(OrderService.class);
         Mockito.when(service.processOrder(Mockito.any(OrderReceivedEventPayloadDTO.class))).thenReturn(Mono.empty());
@@ -34,12 +35,12 @@ class OrderReceivedListenerTest {
 
         Mockito.when(message.id()).thenReturn(UUID.randomUUID());
 
-        Mockito.when(consumerRecordMock.key()).thenReturn("test");
-        Mockito.when(consumerRecordMock.value()).thenReturn(TestUtil.resource("order-inbound-scenario-1-happy-path.json"));
-        Mockito.when(consumerRecordMock.topic()).thenReturn("OrderReceived");
-        Mockito.when(consumerRecordMock.offset()).thenReturn(1L);
+        Mockito.when(receiverRecord.key()).thenReturn("test");
+        Mockito.when(receiverRecord.value()).thenReturn(TestUtil.resource("order-inbound-scenario-1-happy-path.json"));
+        Mockito.when(receiverRecord.topic()).thenReturn("OrderReceived");
+        Mockito.when(receiverRecord.offset()).thenReturn(1L);
 
-        Mockito.when(consumer.receiveAutoAck()).thenReturn(Flux.just(consumerRecordMock));
+        Mockito.when(consumer.receive()).thenReturn(Flux.just(receiverRecord));
 
 
         OrderReceivedListener listener = new OrderReceivedListener(consumer,service,new ObjectMapper());

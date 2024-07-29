@@ -2,21 +2,21 @@ package com.arcone.biopro.distribution.orderservice.infrastructure.listener;
 
 import com.arcone.biopro.distribution.orderservice.application.dto.OrderReceivedEventDTO;
 import com.arcone.biopro.distribution.orderservice.application.dto.OrderReceivedEventPayloadDTO;
-import com.arcone.biopro.distribution.orderservice.domain.model.Order;
 import com.arcone.biopro.distribution.orderservice.domain.service.OrderService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.core.reactive.ReactiveKafkaConsumerTemplate;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
+import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
+import reactor.kafka.receiver.ReceiverRecord;
+import reactor.util.retry.Retry;
 
 @Service
 @Slf4j
@@ -36,44 +36,61 @@ public class OrderReceivedListener implements CommandLineRunner {
     );
 
     @Override
-    public void run(String... args) throws Exception {
-        consumeOrderReceived().publishOn(scheduler)
-            .doOnError(error -> log.error("Error occurred while consuming order received", error))
+    public void run(String... args) {
+        handleEvent();
+    }
+
+
+    private Disposable handleEvent() {
+        return consumer
+            .receive()
+            .doOnError(throwable -> log.error("Error receiving event {}", throwable.getMessage()))
+            .retryWhen(Retry.max(3).transientErrors(true))
+            .repeat()
+            .doOnNext(this::logReceivedMessage)
+            .concatMap(receiverRecord -> handleMessage(receiverRecord)
+                .doOnError(throwable -> {
+                    log.error(
+                        "Error while while processing event from topic={} key={}, value={}, offset={}, error={}",
+                        receiverRecord.topic(),
+                        receiverRecord.key(),
+                        receiverRecord.value(),
+                        receiverRecord.offset(),
+                        throwable.toString());
+                })
+                .onErrorResume(throwable -> {
+                    log.error(throwable.getMessage(), throwable);
+                    receiverRecord.receiverOffset().acknowledge();
+                    return Mono.empty();
+                }))
+            .doOnNext(record -> record.receiverOffset().acknowledge())
+            .publishOn(scheduler)
             .subscribe();
 
     }
 
-
-    private Flux<Order> consumeOrderReceived() {
-        return consumer
-            .receiveAutoAck()
-            .doOnNext(
-                consumerRecord ->
-                    log.info(
-                        "received key={}, value={} from topic={}, offset={}",
-                        consumerRecord.key(),
-                        consumerRecord.value(),
-                        consumerRecord.topic(),
-                        consumerRecord.offset()
-                    )
-            )
-            .map(ConsumerRecord::value)
-            .flatMap(this::handleMessage)
-            .doOnNext(message -> log.info("successfully consumed {}={}", String.class.getSimpleName(), message))
-            .doOnError(throwable -> log.error("something bad happened while consuming : {}", throwable.getMessage()))
-            .onErrorContinue((throwable, o) -> log.info("continuing........"));
-
-    }
-
-    private Mono<Order> handleMessage(String value) {
+    private Mono<ReceiverRecord<String, String>> handleMessage(ReceiverRecord<String, String> event) {
         try {
-            var message = objectMapper.readValue(value, OrderReceivedEventDTO.class);
-            log.info("Message Handled....{}",message);
-            return orderService.processOrder(message.payload());
+
+            var message = objectMapper.readValue(event.value(), OrderReceivedEventDTO.class);
+            return orderService.processOrder(message.payload()).then(Mono.just(event));
+
         } catch (JsonProcessingException e) {
             log.error(String.format("Problem deserializing an instance of [%s] " +
-                "with the following json: %s ", OrderReceivedEventPayloadDTO.class.getSimpleName(), value), e);
+                "with the following json: %s ", OrderReceivedEventPayloadDTO.class.getSimpleName(), event), e);
             return Mono.error(new RuntimeException(e));
         }
     }
+
+
+    private void logReceivedMessage(ReceiverRecord<String, String> event) {
+        log.info(
+            "event received from topic={}, key={}, value={}, offset={}",
+            event.topic(),
+            event.key(),
+            event.value(),
+            event.offset()
+        );
+    }
+
 }
