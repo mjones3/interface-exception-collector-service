@@ -65,9 +65,10 @@ public class OrderSteps {
 
     @Then("A biopro Order will be available in the Distribution local data store.")
     public void checkOrderExists() {
-        var query = String.format("SELECT * FROM bld_order WHERE external_id = '%s'", this.externalId);
+        var query = String.format("SELECT count(*) FROM bld_order WHERE external_id = '%s'", this.externalId);
         var data = databaseService.fetchData(query);
-        Assert.assertNotNull(data.first().block());
+        var records = data.first().block();
+        Assert.assertEquals(1L, records.get("count"));
     }
 
     @Then("A biopro Order will not be available in the Distribution local data store.")
