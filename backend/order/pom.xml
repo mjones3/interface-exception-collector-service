@@ -11,8 +11,8 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.arcone.biopro.distribution.orderservice</groupId>
-    <artifactId>order-service</artifactId>
+    <groupId>com.arcone.biopro.distribution</groupId>
+    <artifactId>order</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>

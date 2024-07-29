@@ -1,0 +1,5 @@
+package com.arcone.biopro.distribution.partnerorderprovider.verification.support;
+
+public interface Endpoints {
+    String ORDER_INBOUND = "/v1/orders";
+}
