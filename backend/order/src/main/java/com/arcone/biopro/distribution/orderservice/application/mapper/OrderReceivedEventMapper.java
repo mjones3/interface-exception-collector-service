@@ -26,47 +26,41 @@ public class OrderReceivedEventMapper {
     private final OrderConfigService orderConfigService;
 
     public Mono<Order> mapToDomain(final OrderReceivedEventPayloadDTO orderReceivedEventPayloadDTO) {
-        try{
+        return Mono.fromCallable(() -> {
+            log.info("Mapping OrderReceivedEventPayloadDTO to Order");
+            var order =  new Order(
+                this.customerService,
+                this.lookupService,
+                null,
+                null,
+                orderReceivedEventPayloadDTO.externalId(),
+                orderReceivedEventPayloadDTO.locationCode(),
+                orderReceivedEventPayloadDTO.shipmentType(),
+                orderReceivedEventPayloadDTO.shippingMethod(),
+                orderReceivedEventPayloadDTO.shippingCustomerCode(),
+                orderReceivedEventPayloadDTO.billingCustomerCode(),
+                LocalDate.parse(orderReceivedEventPayloadDTO.desiredShippingDate()),
+                orderReceivedEventPayloadDTO.willPickUp(),
+                orderReceivedEventPayloadDTO.willPickUpPhoneNumber(),
+                orderReceivedEventPayloadDTO.productCategory(),
+                orderReceivedEventPayloadDTO.comments(),
+                orderReceivedEventPayloadDTO.orderStatus(),
+                orderReceivedEventPayloadDTO.deliveryType(),
+                orderReceivedEventPayloadDTO.createEmployeeCode(),
+                null,
+                null,
+                null);
 
-            return Mono.fromCallable(()-> {
-
-                var order =  new Order(
-                    this.customerService,
-                    this.lookupService,
-                    null,
-                    null,
-                    orderReceivedEventPayloadDTO.externalId(),
-                    orderReceivedEventPayloadDTO.locationCode(),
-                    orderReceivedEventPayloadDTO.shipmentType(),
-                    orderReceivedEventPayloadDTO.shippingMethod(),
-                    orderReceivedEventPayloadDTO.shippingCustomerCode(),
-                    orderReceivedEventPayloadDTO.billingCustomerCode(),
-                    LocalDate.parse(orderReceivedEventPayloadDTO.desiredShippingDate()),
-                    orderReceivedEventPayloadDTO.willPickUp(),
-                    orderReceivedEventPayloadDTO.willPickUpPhoneNumber(),
-                    orderReceivedEventPayloadDTO.productCategory(),
-                    orderReceivedEventPayloadDTO.comments(),
-                    orderReceivedEventPayloadDTO.orderStatus(),
-                    orderReceivedEventPayloadDTO.deliveryType(),
-                    orderReceivedEventPayloadDTO.createEmployeeCode(),
-                    null,
-                    null,
-                    null);
-
-                ofNullable(orderReceivedEventPayloadDTO.orderItems())
-                    .filter(orderItems -> !orderItems.isEmpty())
-                    .orElseGet(Collections::emptyList)
-                    .forEach(orderItemDTO -> order.addItem(null
-                            ,orderItemDTO.productFamily(),orderItemDTO.bloodType()
-                            ,orderItemDTO.quantity(),orderItemDTO.comments(),null
-                            ,null,this.orderConfigService
-                        )
-                    );
-                return order;
-            }).subscribeOn(Schedulers.boundedElastic());
-        }catch (Exception e){
-            log.error("Not able to map OrderReceivedEventPayloadDTO", e);
-            return Mono.error(e);
-        }
+            ofNullable(orderReceivedEventPayloadDTO.orderItems())
+                .filter(orderItems -> !orderItems.isEmpty())
+                .orElseGet(Collections::emptyList)
+                .forEach(orderItemDTO -> order.addItem(null
+                        ,orderItemDTO.productFamily(),orderItemDTO.bloodType()
+                        ,orderItemDTO.quantity(),orderItemDTO.comments(),null
+                        ,null,this.orderConfigService
+                    )
+                );
+            return order;
+        }).publishOn(Schedulers.boundedElastic());
     }
 }

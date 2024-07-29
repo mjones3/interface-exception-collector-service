@@ -7,6 +7,7 @@ import com.arcone.biopro.distribution.orderservice.domain.event.OrderRejectedEve
 import com.arcone.biopro.distribution.orderservice.domain.model.Order;
 import com.arcone.biopro.distribution.orderservice.domain.repository.OrderRepository;
 import com.arcone.biopro.distribution.orderservice.domain.service.OrderService;
+import com.arcone.biopro.distribution.orderservice.infrastructure.listener.OrderCreatedListener;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 @Service
 @RequiredArgsConstructor
@@ -47,8 +49,20 @@ public class OrderUseCase implements OrderService {
         log.info("Processing Order Received Event {}", eventDTO);
         try{
             return orderReceivedEventMapper.mapToDomain(eventDTO)
-                .doOnNext(this::insert)
-                .doOnSuccess(this::publishOrderCreatedEvent)
+                .subscribeOn(Schedulers.boundedElastic())
+                .doOnNext(order -> {
+                        log.info("Result orderReceivedEventMapper.mapToDomain {} , ID {}", order, order.getId());
+                        this.insert(order)
+                            .doOnSuccess(this::publishOrderCreatedEvent)
+                            .doOnError(error -> {
+                                if(error instanceof DuplicateKeyException) {
+                                    publishOrderRejectedEvent(eventDTO.externalId(),"Order already exists");
+                                }else{
+                                    publishOrderRejectedEvent(eventDTO.externalId(),error.getMessage());
+                                }
+                            })
+                            .subscribe();
+                })
                 .onErrorResume(error -> {
                         if(error instanceof DuplicateKeyException) {
                             publishOrderRejectedEvent(eventDTO.externalId(),"Order already exists");
@@ -57,7 +71,7 @@ public class OrderUseCase implements OrderService {
                         }
                         return Mono.error(new RuntimeException("Error processing Order Received Event", error));
                     }
-                ).log();
+                );
         }catch (Exception e ){
             publishOrderRejectedEvent(eventDTO.externalId(),e.getMessage());
             return Mono.error(new RuntimeException("Error processing Order Received Event", e));
@@ -65,6 +79,7 @@ public class OrderUseCase implements OrderService {
     }
 
     private void publishOrderCreatedEvent(Order order) {
+        log.info("Publishing OrderCreatedEvent {} , ID {}", order, order.getId());
         applicationEventPublisher.publishEvent(new OrderCreatedEvent(order));
     }
 

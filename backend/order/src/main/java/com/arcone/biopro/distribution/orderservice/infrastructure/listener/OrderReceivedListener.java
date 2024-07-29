@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.core.reactive.ReactiveKafkaConsumerTemplate;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -20,6 +21,7 @@ import reactor.core.scheduler.Schedulers;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Profile("prod")
 public class OrderReceivedListener implements CommandLineRunner {
 
 
@@ -35,7 +37,9 @@ public class OrderReceivedListener implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        consumeOrderReceived().publishOn(scheduler).subscribe();
+        consumeOrderReceived().publishOn(scheduler)
+            .doOnError(error -> log.error("Error occurred while consuming order received", error))
+            .subscribe();
 
     }
 
@@ -56,7 +60,9 @@ public class OrderReceivedListener implements CommandLineRunner {
             .map(ConsumerRecord::value)
             .flatMap(this::handleMessage)
             .doOnNext(message -> log.info("successfully consumed {}={}", String.class.getSimpleName(), message))
-            .doOnError(throwable -> log.error("something bad happened while consuming : {}", throwable.getMessage()));
+            .doOnError(throwable -> log.error("something bad happened while consuming : {}", throwable.getMessage()))
+            .onErrorContinue((throwable, o) -> log.info("continuing........"));
+
     }
 
     private Mono<Order> handleMessage(String value) {

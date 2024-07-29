@@ -7,12 +7,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.EventListener;
 import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
+@Profile("prod")
 public class OrderRejectedListener {
 
     private final ReactiveKafkaProducerTemplate<String, OrderRejectedDTO> producerTemplate;
