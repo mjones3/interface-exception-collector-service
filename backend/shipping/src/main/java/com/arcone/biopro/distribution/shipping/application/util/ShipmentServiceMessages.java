@@ -1,4 +1,4 @@
-package com.arcone.biopro.distribution.shippingservice.application.util;
+package com.arcone.biopro.distribution.shipping.application.util;
 
 public class ShipmentServiceMessages {
 

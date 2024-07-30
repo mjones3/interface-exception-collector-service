@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.shipping.infrastructure.service;
 
+import com.arcone.biopro.distribution.shipping.application.util.ShipmentServiceMessages;
 import com.arcone.biopro.distribution.shipping.infrastructure.service.dto.FacilityDTO;
 import com.arcone.biopro.distribution.shipping.infrastructure.service.dto.FacilityMockData;
 import com.fasterxml.jackson.databind.ObjectMapper;

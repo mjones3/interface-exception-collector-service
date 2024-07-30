@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.shipping.infrastructure.controller;
 
+import com.arcone.biopro.distribution.shipping.application.util.ShipmentServiceMessages;
 import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryMockData;
 import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryNotificationDTO;
 import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryResponseDTO;

@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.shipping.unit.infrastructure.controller;
 
+import com.arcone.biopro.distribution.shipping.application.util.ShipmentServiceMessages;
 import com.arcone.biopro.distribution.shipping.infrastructure.controller.InventoryMockController;
 import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryValidationRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -6,6 +6,7 @@ import com.arcone.biopro.distribution.shipping.application.dto.ShipFromDTO;
 import com.arcone.biopro.distribution.shipping.application.dto.ShipToDTO;
 import com.arcone.biopro.distribution.shipping.application.dto.ShipmentItemPackedDTO;
 import com.arcone.biopro.distribution.shipping.application.dto.ShippingLabelDTO;
+import com.arcone.biopro.distribution.shipping.application.util.ShipmentServiceMessages;
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.ShipmentStatus;
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemPackedRepository;
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemRepository;
