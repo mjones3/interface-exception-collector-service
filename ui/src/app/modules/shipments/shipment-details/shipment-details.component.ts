@@ -193,17 +193,9 @@ export class ShipmentDetailsComponent implements OnInit {
         this._router.navigateByUrl(url);
     }
 
-    getIcon(productFamily: string): string {
-        return productFamily &&
-            this.processProductConfig?.properties[`icon.${productFamily}`]
-            ? 'rsa:' +
-                  this.processProductConfig.properties[`icon.${productFamily}`]
-            : 'rsa:product-plasma';
-    }
-
-    backToSearch(): void {
-        this._router.navigateByUrl('/orders/search');
-    }
+  backToSearch(): void {
+    this._router.navigateByUrl('/orders/search');
+  }
 
     customSort(event: SortEvent) {
         this.sortService.customSort(event);
@@ -218,42 +210,38 @@ export class ShipmentDetailsComponent implements OnInit {
         dialogRef.componentInstance.model$ = of(this.shipmentInfo);
     }
 
-    viewPackingList(print?: boolean): void {
-        let dialogRef: MatDialogRef<ViewPackingListComponent>;
-        this.packingListService
-            .generate(this.shipmentInfo.id)
-            .pipe(
-                switchMap((response) => {
-                    console.log('respose', response);
-                    const packingListLabel =
-                        response?.data?.generatePackingListLabel;
-                    dialogRef = this.matDialog.open(ViewPackingListComponent, {
-                        id: 'ViewPackingListDialog',
-                        ...(print
-                            ? {
-                                  hasBackdrop: false,
-                                  panelClass: 'hidden',
-                              }
-                            : {
-                                  width: DEFAULT_PAGE_SIZE_DIALOG_WIDTH,
-                                  height: DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
-                              }),
-                    });
-                    dialogRef.componentInstance.model$ = of(packingListLabel);
-                    return dialogRef.afterOpened();
-                }),
-                catchError((err) => {
-                    this.toaster.error(ERROR_MESSAGE);
-                    throw err;
-                })
-            )
-            .subscribe(() => {
-                this.browserPrintingService.print('viewPackingListReport', {
-                    pageSize: DEFAULT_PAGE_SIZE,
-                });
-                dialogRef?.close();
-            });
-    }
+  viewPackingList(print?: boolean): void {
+    let dialogRef: MatDialogRef<ViewPackingListComponent>;
+    this.packingListService
+      .generate(this.shipmentInfo.id)
+      .pipe(
+        switchMap(response => {
+          const packingListLabel = response?.data?.generatePackingListLabel;
+          dialogRef = this.matDialog.open(ViewPackingListComponent, {
+            id: 'ViewPackingListDialog',
+            ...(print
+              ? {
+                hasBackdrop: false,
+                panelClass: 'hidden',
+              }
+              : {
+                width: DEFAULT_PAGE_SIZE_DIALOG_WIDTH,
+                height: DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
+              }),
+          });
+          dialogRef.componentInstance.model$ = of(packingListLabel);
+          return dialogRef.afterOpened();
+        }),
+        catchError(err => {
+          this.toaster.error(ERROR_MESSAGE);
+          throw err;
+        })
+      )
+      .subscribe(() => {
+        this.browserPrintingService.print('viewPackingListReport', { pageSize: DEFAULT_PAGE_SIZE });
+        dialogRef?.close();
+      });
+  }
 
     viewShippingLabel(print?: boolean): void {
         let dialogRef: MatDialogRef<ViewShippingLabelComponent>;

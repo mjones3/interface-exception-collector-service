@@ -73,6 +73,10 @@
             }
         }
 
+        .mat-expansion-panel-header[aria-disabled="true"]{
+            @apply bg-gray-200;
+        }
+
         .mat-expansion-panel-body {
             @apply text-secondary #{'!important'};
         }

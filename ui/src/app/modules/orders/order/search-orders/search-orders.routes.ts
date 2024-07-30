@@ -7,14 +7,14 @@ export default [
         path: '',
         component: EmptyLayoutComponent,
         data: {
-            title: 'Order'
+            title: 'Shipment'
         },
         children: [
             {
               path: 'search',
               component: SearchOrdersComponent,
               data: {
-                subTitle: 'Search Orders',
+                subTitle: 'Order-Fulfillment',
               },
             },
         ]

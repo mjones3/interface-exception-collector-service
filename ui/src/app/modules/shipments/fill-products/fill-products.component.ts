@@ -96,7 +96,6 @@ export class FillProductsComponent implements OnInit{
       this.shipmentProduct = this.shipmentInfo?.items?.find(item => item.id === this.productId);
       this.filledProductsData = this.shipmentProduct?.packedItems;
       
-      this.prodIcon = this.getIcon(this.shipmentProduct?.productFamily);
       this.setProdInfo();
       this.updateWidgets();
       this.cd.detectChanges()
@@ -105,12 +104,6 @@ export class FillProductsComponent implements OnInit{
   private updateWidgets() {
     this.orderInfoDescriptions = this.shipmentService.getOrderInfoDescriptions(this.shipmentInfo);
     this.shippingInfoDescriptions = this.shipmentService.getShippingInfoDescriptions(this.shipmentInfo);
-  }
-
-  getIcon(productFamily: string): string {
-    return productFamily && this.processProductConfig?.properties[`icon.${productFamily}`]
-      ? 'rsa:' + this.processProductConfig.properties[`icon.${productFamily}`]
-      : 'rsa:product-plasma';
   }
 
   private setProdInfo() {
