@@ -65,7 +65,7 @@ export class ToastrImplService extends ToastrService {
         title?: string,
         override?: Partial<IndividualConfig>
     ): ActiveToast<any> {
-        title = title ?? this.getDefaultTitle('warn');
+        title = title ?? this.getDefaultTitle('error');
 
         // Showing backdrop in case of error and disable timeout
         this.showLockingBackdrop();
@@ -97,12 +97,20 @@ export class ToastrImplService extends ToastrService {
 
     private subscribeOnHideWithError(toast: ActiveToast<any>) {
         toast.onHidden.subscribe(() => {
-            this.renderer2.removeClass(
-                this.document.body,
-                this.blockingBackdropClass
-            );
-            this.focusElement();
+            this.hideLockingBackDrop();
         });
+        toast.onTap.subscribe(() => {
+            this.hideLockingBackDrop();
+        });
+       
+    }
+
+    private hideLockingBackDrop(){
+        this.renderer2.removeClass(
+            this.document.body,
+            this.blockingBackdropClass
+        );
+        this.focusElement();
     }
 
     private showLockingBackdrop() {
@@ -125,8 +133,10 @@ export class ToastrImplService extends ToastrService {
                 return 'Success';
             case 'warn':
                 return 'Error';
+            case 'error':
+                return 'Warning Message';    
             case 'warning':
-                return 'Warning';
+                return 'Caution Message';
             default:
                 break;
         }

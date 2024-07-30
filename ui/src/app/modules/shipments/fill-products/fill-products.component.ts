@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    OnInit,
+    ViewChild,
+} from '@angular/core';
 import { FormBuilder, FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
@@ -8,8 +14,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FuseCardComponent } from '@fuse/components/card/public-api';
 import { Store } from '@ngrx/store';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { startCase } from 'lodash-es';
-import { ToastrService } from 'ngx-toastr';
 import { TableModule } from 'primeng/table';
 import { catchError, finalize, take } from 'rxjs';
 import { ERROR_MESSAGE } from '../../../../../public/i18n/common-labels';
@@ -20,32 +24,33 @@ import { Description } from '../../../shared/models/description.model';
 import { ProcessProductDto } from '../../../shared/models/process-product.dto';
 import { FacilityService } from '../../../shared/services';
 import { ProcessHeaderService } from '../../../shared/services/process-header.service';
+import { ToastrImplService } from '../../../shared/services/toastr-impl.service';
 import { FilledProductInfoDto, ShipmentInfoDto, ShipmentInfoItemDto, VerifyFilledProductDto, VerifyProductDto } from '../models/shipment-info.dto';
 import { ShipmentService } from '../services/shipment.service';
 import { EnterUnitNumberProductCodeComponent } from '../shared/enter-unit-number-product-code/enter-unit-number-product-code.component';
 import { OrderWidgetsSidebarComponent } from '../shared/order-widgets-sidebar/order-widgets-sidebar.component';
 
 @Component({
-  selector: 'app-fill-products',
-  standalone: true,
-  imports: [
-    OrderWidgetsSidebarComponent,
-    DescriptionCardComponent, 
-    ProcessHeaderComponent,
-    EnterUnitNumberProductCodeComponent,
-    FuseCardComponent,
-    CommonModule,
-    MatProgressBarModule,
-    TableModule,
-    MatDividerModule,
-    MatButtonModule,
-    FormsModule,
-    TranslateModule
-  ],
-  templateUrl: './fill-products.component.html',
-  styleUrl: './fill-products.component.scss',
-  providers: [ShipmentService],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-fill-products',
+    standalone: true,
+    imports: [
+        OrderWidgetsSidebarComponent,
+        DescriptionCardComponent,
+        ProcessHeaderComponent,
+        EnterUnitNumberProductCodeComponent,
+        FuseCardComponent,
+        CommonModule,
+        MatProgressBarModule,
+        TableModule,
+        MatDividerModule,
+        MatButtonModule,
+        FormsModule,
+        TranslateModule,
+    ],
+    templateUrl: './fill-products.component.html',
+    styleUrl: './fill-products.component.scss',
+    providers: [ShipmentService],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FillProductsComponent implements OnInit{
 
@@ -67,7 +72,7 @@ export class FillProductsComponent implements OnInit{
 
   constructor(
     public header: ProcessHeaderService,
-    private toaster: ToastrService,
+    private toaster: ToastrImplService,
     protected fb: FormBuilder,
     private route: ActivatedRoute,
     private shipmentService: ShipmentService,
@@ -176,13 +181,13 @@ export class FillProductsComponent implements OnInit{
           if (notification) {
             this.toaster.show(
               this.translateService.instant(notification.message),
-              startCase(notification.notificationType),
+              null,
               {},
               notification.notificationType
             );
 
             if (
-              notification.message === 'product-criteria-quantity-exceeded.error' ||
+              notification.message === 'Product Criteria Quantity Exceeded' ||
               this.quantity === this.filledProductsData.length
             ) {
               this.disableFilUnitNumberAndProductCode();

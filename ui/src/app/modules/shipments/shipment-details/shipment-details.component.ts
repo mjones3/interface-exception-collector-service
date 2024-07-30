@@ -9,8 +9,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FuseCardComponent } from '@fuse/components/card/public-api';
 import { Store } from '@ngrx/store';
 import { TranslateService } from '@ngx-translate/core';
-import { startCase } from 'lodash-es';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { ToastrModule } from 'ngx-toastr';
 import { SortEvent } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
@@ -29,6 +28,7 @@ import { ProcessHeaderComponent } from '../../../shared/components/process-heade
 import { Description } from '../../../shared/models/description.model';
 import { NotificationDto } from '../../../shared/models/notification.dto';
 import { ProcessProductDto } from '../../../shared/models/process-product.dto';
+import { ToastrImplService } from '../../../shared/services';
 import { ProcessHeaderService } from '../../../shared/services/process-header.service';
 import { SortService } from '../../../shared/services/sort.service';
 import {
@@ -72,7 +72,7 @@ export class ShipmentDetailsComponent implements OnInit {
         public header: ProcessHeaderService,
         private route: ActivatedRoute,
         private shipmentService: ShipmentService,
-        private toaster: ToastrService,
+        private toaster: ToastrImplService,
         private sortService: SortService,
         private packingListService: PackingListService,
         private matDialog: MatDialog,
@@ -193,9 +193,9 @@ export class ShipmentDetailsComponent implements OnInit {
         this._router.navigateByUrl(url);
     }
 
-  backToSearch(): void {
-    this._router.navigateByUrl('/orders/search');
-  }
+    backToSearch(): void {
+        this._router.navigateByUrl('/orders/search');
+    }
 
     customSort(event: SortEvent) {
         this.sortService.customSort(event);
@@ -210,38 +210,41 @@ export class ShipmentDetailsComponent implements OnInit {
         dialogRef.componentInstance.model$ = of(this.shipmentInfo);
     }
 
-  viewPackingList(print?: boolean): void {
-    let dialogRef: MatDialogRef<ViewPackingListComponent>;
-    this.packingListService
-      .generate(this.shipmentInfo.id)
-      .pipe(
-        switchMap(response => {
-          const packingListLabel = response?.data?.generatePackingListLabel;
-          dialogRef = this.matDialog.open(ViewPackingListComponent, {
-            id: 'ViewPackingListDialog',
-            ...(print
-              ? {
-                hasBackdrop: false,
-                panelClass: 'hidden',
-              }
-              : {
-                width: DEFAULT_PAGE_SIZE_DIALOG_WIDTH,
-                height: DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
-              }),
-          });
-          dialogRef.componentInstance.model$ = of(packingListLabel);
-          return dialogRef.afterOpened();
-        }),
-        catchError(err => {
-          this.toaster.error(ERROR_MESSAGE);
-          throw err;
-        })
-      )
-      .subscribe(() => {
-        this.browserPrintingService.print('viewPackingListReport', { pageSize: DEFAULT_PAGE_SIZE });
-        dialogRef?.close();
-      });
-  }
+    viewPackingList(print?: boolean): void {
+        let dialogRef: MatDialogRef<ViewPackingListComponent>;
+        this.packingListService
+            .generate(this.shipmentInfo.id)
+            .pipe(
+                switchMap((response) => {
+                    const packingListLabel =
+                        response?.data?.generatePackingListLabel;
+                    dialogRef = this.matDialog.open(ViewPackingListComponent, {
+                        id: 'ViewPackingListDialog',
+                        ...(print
+                            ? {
+                                  hasBackdrop: false,
+                                  panelClass: 'hidden',
+                              }
+                            : {
+                                  width: DEFAULT_PAGE_SIZE_DIALOG_WIDTH,
+                                  height: DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
+                              }),
+                    });
+                    dialogRef.componentInstance.model$ = of(packingListLabel);
+                    return dialogRef.afterOpened();
+                }),
+                catchError((err) => {
+                    this.toaster.error(ERROR_MESSAGE);
+                    throw err;
+                })
+            )
+            .subscribe(() => {
+                this.browserPrintingService.print('viewPackingListReport', {
+                    pageSize: DEFAULT_PAGE_SIZE,
+                });
+                dialogRef?.close();
+            });
+    }
 
     viewShippingLabel(print?: boolean): void {
         let dialogRef: MatDialogRef<ViewShippingLabelComponent>;
@@ -320,7 +323,7 @@ export class ShipmentDetailsComponent implements OnInit {
     displayMessageFromNotificationDto(notification: NotificationDto) {
         this.toaster.show(
             this.translate.instant(notification.message),
-            startCase(notification.notificationType),
+            null,
             {},
             notification.notificationType
         );

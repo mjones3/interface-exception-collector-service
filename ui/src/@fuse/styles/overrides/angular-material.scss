@@ -53,6 +53,9 @@
         .mat-expansion-panel-header {
             font-size: 14px;
 
+           --mat-expansion-header-disabled-state-text-color:
+            rgba(26, 27, 31, .38) !important;
+            
             &[aria-disabled='true'] {
                 .mat-expansion-panel-header-description {
                     margin-right: 28px;
@@ -73,9 +76,6 @@
             }
         }
 
-        .mat-expansion-panel-header[aria-disabled="true"]{
-            @apply bg-gray-200;
-        }
 
         .mat-expansion-panel-body {
             @apply text-secondary #{'!important'};
@@ -1293,4 +1293,8 @@ textarea.mat-mdc-input-element {
         background-color: var(--fuse-text-secondary) !important;
         color: var(--fuse-bg-default) !important;
     }
+}
+
+.mat-mdc-radio-button .mdc-radio--disabled+label{
+    color: rgba(26, 27, 31, .38) !important; 
 }

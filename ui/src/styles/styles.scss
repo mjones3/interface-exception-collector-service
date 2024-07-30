@@ -10,13 +10,12 @@
 @use 'themes' as themes;
 
 /* BioPro */
-$theme: map-get(userThemes.$user-themes, default);
-$primary: map-get($theme, primary);
-$foreground: map-get(themes.$light-base, foreground);
-$background: map-get(themes.$light-base, background);
-$warn: map-get($theme, warn);
-$gray: map-get($theme, gray);
-$moduleLightAccent: #f2f5f9;
+$theme: map.get(userThemes.$user-themes, default);
+$primary: map.get($theme, primary);
+$foreground: map.get(themes.$light-base, foreground);
+$background: map.get(themes.$light-base, background);
+$warn: map.get($theme, warn);
+$gray: map.get($theme, gray);
 
 $red-light-color: #cd7b66;
 $custom-red: #cd6666;
@@ -44,11 +43,13 @@ body {
 
 .content-layout.fullwidth-standard-normal-scroll > .header {
     padding: 15px 25px;
+    background: white;
 }
 
 .module-title {
-    color: map-get($primary, DEFAULT);
+    color: map.get($primary, DEFAULT);
     font-weight: 500;
+    font-size: large;
 }
 
 .custom-required {
@@ -84,7 +85,7 @@ button {
         max-height: 48px;
 
         &.primary {
-            background-color: map-get($primary, DEFAULT) !important;
+            background-color: map.get($primary, DEFAULT) !important;
             color: white;
         }
 
@@ -181,11 +182,6 @@ button {
     }
 }
 
-.content-layout.fullwidth-standard-normal-scroll > .header {
-    padding: 15px 25px;
-    background: white;
-}
-
 rsa-process-header {
     .header .title-section {
         flex-direction: column;
@@ -199,7 +195,7 @@ rsa-process-header {
         }
 
         h1 {
-            color: map-get($primary, DEFAULT);
+            color: map.get($primary, DEFAULT);
             font-size: 24px;
             letter-spacing: -0.019em;
         }
@@ -212,7 +208,6 @@ rsa-process-header {
     }
 }
 
-//Blocking Backdrop for toaster
 .rsa-blocking-backdrop::before {
     content: '';
     position: absolute;
@@ -228,16 +223,12 @@ rsa-process-header {
     background-color: #fff;
 }
 
-// -------------------------------------------------------------------------------
-// PRIME NG
-// -------------------------------------------------------------------------------
 .p-datatable .p-datatable-thead {
     height: 50px !important;
 
     & > tr {
         & > th {
             text-align: left;
-            padding: 1rem 1rem;
             border-width: 0 0 1px 0;
             color: #495057;
             background: #f8f9fa;
