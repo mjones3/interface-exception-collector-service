@@ -22,17 +22,4 @@ public class OrderItemMapper {
             .build();
     }
 
-    public OrderItem mapToDomain(final OrderItemDTO orderItemDTO) {
-        return new OrderItem(
-            orderItemDTO.id(),
-            orderItemDTO.orderId(),
-            orderItemDTO.productFamily(),
-            orderItemDTO.bloodType(),
-            orderItemDTO.quantity(),
-            orderItemDTO.comments(),
-            orderItemDTO.createDate(),
-            orderItemDTO.modificationDate()
-        );
-    }
-
 }

@@ -3,13 +3,12 @@ package com.arcone.biopro.distribution.order.domain.model;
 import com.arcone.biopro.distribution.order.domain.model.vo.BloodType;
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderItemOrderId;
 import com.arcone.biopro.distribution.order.domain.model.vo.ProductFamily;
+import com.arcone.biopro.distribution.order.domain.service.OrderConfigService;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
 import java.time.ZonedDateTime;
-
-import static java.util.Optional.ofNullable;
 
 @Getter
 @EqualsAndHashCode
@@ -25,11 +24,12 @@ public class OrderItem implements Validatable {
     private ZonedDateTime createDate;
     private ZonedDateTime modificationDate;
 
-    public OrderItem(Long id, Long orderId, String productFamily, String bloodType, Integer quantity, String comments, ZonedDateTime createDate, ZonedDateTime modificationDate) {
+    public OrderItem(Long id, Long orderId, String productFamily, String bloodType, Integer quantity, String comments
+        , ZonedDateTime createDate, ZonedDateTime modificationDate, String productCategory , OrderConfigService orderConfigService) {
         this.id = id;
-        this.orderId = ofNullable(orderId).map(OrderItemOrderId::new).orElse(null);
-        this.productFamily = new ProductFamily(productFamily);
-        this.bloodType = ofNullable(bloodType).map(BloodType::new).orElse(null);
+        this.orderId = new OrderItemOrderId(orderId);
+        this.productFamily = new ProductFamily(productFamily,productCategory,orderConfigService);
+        this.bloodType = new BloodType(bloodType,productFamily,orderConfigService);
         this.quantity = quantity;
         this.comments = comments;
         this.createDate = createDate;
@@ -48,6 +48,9 @@ public class OrderItem implements Validatable {
         }
         if (this.quantity == null) {
             throw new IllegalArgumentException("quantity cannot be null");
+        }
+        if(this.quantity < 1){
+            throw new IllegalArgumentException("quantity cannot be less than 1");
         }
     }
 

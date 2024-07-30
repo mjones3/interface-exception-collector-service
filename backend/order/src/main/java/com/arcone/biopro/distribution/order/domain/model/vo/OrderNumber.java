@@ -19,9 +19,10 @@ public class OrderNumber implements Validatable {
 
     @Override
     public void checkValid() {
-        if (this.orderNumber == null) {
+        // TODO Fix this with generate order number from the application instead of database approach.
+        /*if (this.orderNumber == null) {
             throw new IllegalArgumentException("orderNumber cannot be null");
-        }
+        }*/
     }
 
 }

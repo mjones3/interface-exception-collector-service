@@ -17,16 +17,16 @@ public class PartnerOrder {
     private String shippingMethod;
     private String productCategory;
     private String desiredShippingDate;
-    private Integer shippingCustomerCode;
-    private Integer billingCustomerCode;
+    private String shippingCustomerCode;
+    private String billingCustomerCode;
     private String comments;
     private PartnerOrderPickUpType partnerOrderPickUpType;
     private List<PartnerOrderItem> orderItems;
 
     public PartnerOrder(UUID id ,String externalId, String orderStatus, String locationCode, String createDate
         , String createEmployeeCode, String shipmentType, String deliveryType, String shippingMethod
-        , String productCategory, String desiredShippingDate, Integer shippingCustomerCode
-        , Integer billingCustomerCode, String comments , PartnerOrderPickUpType partnerOrderPickUpType) {
+        , String productCategory, String desiredShippingDate, String shippingCustomerCode
+        , String billingCustomerCode, String comments , PartnerOrderPickUpType partnerOrderPickUpType) {
         this.id = Objects.requireNonNull(id,"ID cannot be null");
         this.externalId = Objects.requireNonNull(externalId,"External ID cannot be null");
         this.orderStatus = Objects.requireNonNull(orderStatus,"Status cannot be null");
@@ -95,11 +95,11 @@ public class PartnerOrder {
         return desiredShippingDate;
     }
 
-    public Integer getShippingCustomerCode() {
+    public String getShippingCustomerCode() {
         return shippingCustomerCode;
     }
 
-    public Integer getBillingCustomerCode() {
+    public String getBillingCustomerCode() {
         return billingCustomerCode;
     }
 

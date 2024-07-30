@@ -24,6 +24,7 @@ public class OrderEntity {
     private Long id;
 
     @NotNull
+    @InsertOnlyProperty
     @Column("order_number")
     private Long orderNumber;
 

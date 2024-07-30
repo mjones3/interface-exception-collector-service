@@ -4,7 +4,6 @@ import com.arcone.biopro.distribution.partnerorderprovider.domain.event.PartnerO
 import com.arcone.biopro.distribution.partnerorderprovider.infrastructure.event.OrderReceivedEvent;
 import com.arcone.biopro.distribution.partnerorderprovider.infrastructure.listener.dto.OrderDTO;
 import com.arcone.biopro.distribution.partnerorderprovider.infrastructure.listener.dto.OrderItemDTO;
-import com.arcone.biopro.distribution.partnerorderprovider.infrastructure.listener.dto.OrderPickUpTypeDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,11 +48,8 @@ public class PartnerOrderInboundReceivedListener {
             .desiredShippingDate(partnerOrder.getDesiredShippingDate())
             .orderStatus(partnerOrder.getOrderStatus())
             .comments(partnerOrder.getComments())
-            .orderPickUpType(Objects.nonNull(partnerOrder.getPartnerOrderPickUpType()) ? OrderPickUpTypeDTO
-                .builder()
-                .willCallPickUp(partnerOrder.getPartnerOrderPickUpType().isWillCallPickUp())
-                .phoneNumber(partnerOrder.getPartnerOrderPickUpType().getPhoneNumber())
-                .build() : null)
+            .willPickUp(Objects.nonNull(partnerOrder.getPartnerOrderPickUpType()))
+            .willPickUpPhoneNumber(Objects.nonNull(partnerOrder.getPartnerOrderPickUpType()) ? partnerOrder.getPartnerOrderPickUpType().getPhoneNumber(): null)
             .orderItems(partnerOrder.getOrderItems().stream()
                 .map(partnerItem -> OrderItemDTO
                     .builder()

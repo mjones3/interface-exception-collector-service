@@ -3,6 +3,8 @@ package com.arcone.biopro.distribution.order.application.mapper;
 import com.arcone.biopro.distribution.order.adapter.in.web.dto.OrderDTO;
 import com.arcone.biopro.distribution.order.domain.model.Order;
 import com.arcone.biopro.distribution.order.domain.service.CustomerService;
+import com.arcone.biopro.distribution.order.domain.service.LookupService;
+import com.arcone.biopro.distribution.order.domain.service.OrderConfigService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +18,8 @@ public class OrderMapper {
 
     private final CustomerService customerService;
     private final OrderItemMapper orderItemMapper;
+    private final LookupService lookupService;
+    private final OrderConfigService orderConfigService;
 
     public OrderDTO mapToDTO(final Order order) {
         return OrderDTO.builder()
@@ -52,8 +56,9 @@ public class OrderMapper {
     }
 
     public Order mapToDomain(final OrderDTO orderDTO) {
-        return new Order(
+        var order = new Order(
             this.customerService,
+            this.lookupService,
             orderDTO.id(),
             orderDTO.orderNumber(),
             orderDTO.externalId(),
@@ -72,14 +77,18 @@ public class OrderMapper {
             orderDTO.createEmployeeId(),
             orderDTO.createDate(),
             orderDTO.modificationDate(),
-            orderDTO.deleteDate(),
-            ofNullable(orderDTO.orderItems())
-                .filter(orderItems -> !orderItems.isEmpty())
-                .orElseGet(Collections::emptyList)
-                .stream()
-                .map(orderItemMapper::mapToDomain)
-                .toList()
-        );
-    }
+            orderDTO.deleteDate());
 
+        ofNullable(orderDTO.orderItems())
+            .filter(orderItems -> !orderItems.isEmpty())
+            .orElseGet(Collections::emptyList)
+            .forEach(orderItemDTO -> order.addItem(orderItemDTO.id()
+                ,orderItemDTO.productFamily(),orderItemDTO.bloodType()
+                ,orderItemDTO.quantity(),orderItemDTO.comments(),orderItemDTO.createDate()
+                ,orderItemDTO.modificationDate(),this.orderConfigService
+                )
+            );
+
+        return order;
+    }
 }

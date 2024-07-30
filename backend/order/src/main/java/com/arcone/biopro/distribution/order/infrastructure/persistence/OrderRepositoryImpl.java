@@ -5,12 +5,14 @@ import com.arcone.biopro.distribution.order.domain.repository.OrderRepository;
 import com.arcone.biopro.distribution.order.infrastructure.mapper.OrderEntityMapper;
 import com.arcone.biopro.distribution.order.infrastructure.mapper.OrderItemEntityMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.relational.core.query.Query;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.stream.Collectors;
 
@@ -20,6 +22,7 @@ import static org.springframework.data.relational.core.query.Query.query;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class OrderRepositoryImpl implements OrderRepository {
 
     private final R2dbcEntityTemplate entityTemplate;
@@ -90,6 +93,7 @@ public class OrderRepositoryImpl implements OrderRepository {
     @Override
     @Transactional
     public Mono<Order> insert(final Order order) {
+        log.info("Inserting order: {}", order);
         return this.entityTemplate
             .insert(orderEntityMapper.mapToEntity(order))
             .flatMap(orderEntity ->
@@ -98,8 +102,21 @@ public class OrderRepositoryImpl implements OrderRepository {
                     .map(orderItem -> orderItem.withOrderId(orderEntity.getId()))
                     .flatMap(this.entityTemplate::insert)
                     .collect(Collectors.toList())
-                    .map(orderItemEntities -> orderEntityMapper.mapToDomain(orderEntity, orderItemEntities))
+                    .flatMap(orderItemEntities -> Mono.fromCallable(()-> {
+                        return orderEntityMapper.mapToDomain(orderEntity, orderItemEntities);
+                    }).publishOn(Schedulers.boundedElastic()) )
             );
+    }
+
+    @Override
+    public Mono<Long> countByExternalId(String externalId) {
+        return this.entityTemplate
+            .select(OrderEntity.class)
+            .matching(
+                query(where("external_id").is(externalId)
+                    .and("delete_date").isNull())
+            )
+            .count();
     }
 
 }

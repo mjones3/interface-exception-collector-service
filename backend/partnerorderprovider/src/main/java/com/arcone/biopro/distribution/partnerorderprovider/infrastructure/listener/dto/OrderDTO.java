@@ -20,10 +20,13 @@ public record OrderDTO(
     String shippingMethod,
     String productCategory,
     String desiredShippingDate,
-    Integer shippingCustomerCode,
-    Integer billingCustomerCode,
+    String shippingCustomerCode,
+    String billingCustomerCode,
+
+    boolean willPickUp,
+    String willPickUpPhoneNumber,
+
     String comments,
-    OrderPickUpTypeDTO orderPickUpType,
     List<OrderItemDTO> orderItems
 ) implements Serializable {
 

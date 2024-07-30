@@ -31,9 +31,9 @@ public class OrderInboundDTO implements Serializable {
 
     private String desiredShippingDate;
 
-    private Integer shippingCustomerCode;
+    private String shippingCustomerCode;
 
-    private Integer billingCustomerCode;
+    private String billingCustomerCode;
 
     private String comments;
 
