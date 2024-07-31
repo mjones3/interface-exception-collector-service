@@ -1,24 +1,26 @@
 package com.arcone.biopro.distribution.shipping.infrastructure.listener;
 
-import com.arcone.biopro.distribution.shipping.domain.model.Shipment;
 import com.arcone.biopro.distribution.shipping.domain.service.ShipmentService;
 import com.arcone.biopro.distribution.shipping.infrastructure.listener.dto.OrderFulfilledMessage;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.core.reactive.ReactiveKafkaConsumerTemplate;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
+import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
+import reactor.kafka.receiver.ReceiverRecord;
+import reactor.util.retry.Retry;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Profile("prod")
 public class OrderFulfilledListener implements CommandLineRunner {
 
 
@@ -33,41 +35,59 @@ public class OrderFulfilledListener implements CommandLineRunner {
     );
 
     private final ShipmentService shipmentService;
+
     @Override
     public void run(String... args) throws Exception {
-        consumeOrderFulfilled().publishOn(scheduler).subscribe();
-
+        handleEvent();
     }
 
-
-    private Flux<Shipment> consumeOrderFulfilled() {
+    private Disposable handleEvent() {
         return consumer
-            .receiveAutoAck()
-            .doOnNext(
-                consumerRecord ->
-                    log.info(
-                        "received key={}, value={} from topic={}, offset={}",
-                        consumerRecord.key(),
-                        consumerRecord.value(),
-                        consumerRecord.topic(),
-                        consumerRecord.offset()
-                    )
-            )
-            .map(ConsumerRecord::value)
-            .flatMap(this::handleMessage)
-            .doOnNext(message -> log.info("successfully consumed {}={}", String.class.getSimpleName(), message))
-            .doOnError(throwable -> log.error("something bad happened while consuming : {}", throwable.getMessage()));
+            .receive()
+            .doOnError(throwable -> log.error("Error receiving event {}", throwable.getMessage()))
+            .retryWhen(Retry.max(3).transientErrors(true))
+            .repeat()
+            .doOnNext(this::logReceivedMessage)
+            .concatMap(receiverRecord -> handleMessage(receiverRecord)
+                .doOnError(throwable -> {
+                    log.error(
+                        "Error while while processing event from topic={} key={}, value={}, offset={}, error={}",
+                        receiverRecord.topic(),
+                        receiverRecord.key(),
+                        receiverRecord.value(),
+                        receiverRecord.offset(),
+                        throwable.toString());
+                })
+                .onErrorResume(throwable -> {
+                    log.error(throwable.getMessage(), throwable);
+                    receiverRecord.receiverOffset().acknowledge();
+                    return Mono.empty();
+                }))
+            .doOnNext(record -> record.receiverOffset().acknowledge())
+            .publishOn(scheduler)
+            .subscribe();
+
     }
 
-    private Mono<Shipment> handleMessage(String value) {
+    private Mono<ReceiverRecord<String, String>> handleMessage(ReceiverRecord<String, String> event) {
         try {
-            var message = objectMapper.readValue(value, OrderFulfilledMessage.class);
-            log.info("Message Handled....{}",message);
-            return shipmentService.create(message);
+            var message = objectMapper.readValue(event.value(), OrderFulfilledMessage.class);
+            log.info("Message Handled....{}", message);
+            return shipmentService.create(message).then(Mono.just(event));
         } catch (JsonProcessingException e) {
             log.error(String.format("Problem deserializing an instance of [%s] " +
-                "with the following json: %s ", OrderFulfilledMessage.class.getSimpleName(), value), e);
+                "with the following json: %s ", OrderFulfilledMessage.class.getSimpleName(), event.value()), e);
             return Mono.error(new RuntimeException(e));
         }
+    }
+
+    private void logReceivedMessage(ReceiverRecord<String, String> event) {
+        log.info(
+            "event received from topic={}, key={}, value={}, offset={}",
+            event.topic(),
+            event.key(),
+            event.value(),
+            event.offset()
+        );
     }
 }
