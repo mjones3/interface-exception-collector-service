@@ -1,4 +1,5 @@
 /* -------------------------------------------------------------------------- */
+
 /*  @ Overlay
 /* -------------------------------------------------------------------------- */
 .fuse-backdrop-on-mobile {
@@ -6,6 +7,7 @@
 }
 
 /* -------------------------------------------------------------------------- */
+
 /*  @ Font smoothing
 /* -------------------------------------------------------------------------- */
 *[class*='mat-'],
@@ -20,6 +22,7 @@
 }
 
 /* -------------------------------------------------------------------------- */
+
 /*  @ Accordion
 /* -------------------------------------------------------------------------- */
 .mat-accordion {
@@ -27,6 +30,7 @@
         margin-bottom: 24px;
         border-radius: 8px !important;
         transition: box-shadow 225ms cubic-bezier(0.4, 0, 0.2, 1);
+
         @apply shadow #{'!important'};
 
         &:last-child {
@@ -54,7 +58,7 @@
             font-size: 14px;
 
            --mat-expansion-header-disabled-state-text-color:
-            rgba(26, 27, 31, .38) !important;
+            rgb(26 27 31 / 38%) !important;
             
             &[aria-disabled='true'] {
                 .mat-expansion-panel-header-description {
@@ -70,8 +74,8 @@
                 height: 12px;
 
                 /* Do not override the border color of the expansion panel indicator */
-                &:after {
-                    border-color: currentColor !important;
+                &::after {
+                    border-color: currentcolor !important;
                 }
             }
         }
@@ -84,6 +88,7 @@
 }
 
 /* -------------------------------------------------------------------------- */
+
 /*  @ Buttons
 /* -------------------------------------------------------------------------- */
 .mat-mdc-button,
@@ -177,7 +182,7 @@
     .mat-mdc-progress-spinner {
         .mdc-circular-progress__indeterminate-container {
             circle {
-                stroke: currentColor !important;
+                stroke: currentcolor !important;
                 animation-duration: 6000ms;
             }
         }
@@ -192,17 +197,17 @@
     --mat-mdc-button-persistent-ripple-color: theme(
         'colors.gray[400]'
     ) !important;
-    --mat-mdc-button-ripple-color: rgba(0, 0, 0, 0.1) !important;
+    --mat-mdc-button-ripple-color: rgb(0 0 0 / 10%) !important;
 
     .dark & {
         --mat-mdc-button-persistent-ripple-color: theme(
             'colors.black'
         ) !important;
-        --mat-mdc-button-ripple-color: rgba(0, 0, 0, 0.1) !important;
+        --mat-mdc-button-ripple-color: rgb(0 0 0 / 10%) !important;
     }
 
     .mat-icon {
-        color: currentColor !important;
+        color: currentcolor !important;
     }
 
     .mat-ripple-element {
@@ -260,10 +265,12 @@
 }
 
 /* -------------------------------------------------------------------------- */
+
 /*  @ Button Toggle
 /* -------------------------------------------------------------------------- */
 .mat-button-toggle-group {
     border: none !important;
+
     @apply space-x-1;
 
     &.mat-button-toggle-group-appearance-standard {
@@ -287,12 +294,14 @@
         .mat-button-toggle-label-content {
             padding: 0 20px;
             line-height: 40px !important;
+
             @apply text-secondary;
         }
     }
 }
 
 /* -------------------------------------------------------------------------- */
+
 /*  @ Checkbox
 /* -------------------------------------------------------------------------- */
 .mat-mdc-checkbox {
@@ -308,6 +317,7 @@
 }
 
 /* -------------------------------------------------------------------------- */
+
 /*  @ Chip
 /* -------------------------------------------------------------------------- */
 .mat-mdc-chip {
@@ -315,6 +325,7 @@
 }
 
 /* -------------------------------------------------------------------------- */
+
 /*  @ Dialog
 /* -------------------------------------------------------------------------- */
 .mat-mdc-dialog-container {
@@ -326,13 +337,15 @@
 }
 
 /* -------------------------------------------------------------------------- */
+
 /*  @ Drawer
 /* -------------------------------------------------------------------------- */
 .mat-drawer-backdrop.mat-drawer-shown {
-    background-color: rgba(0, 0, 0, 0.6) !important;
+    background-color: rgb(0 0 0 / 60%) !important;
 }
 
 /* -------------------------------------------------------------------------- */
+
 /*  @ Form fields
 /* -------------------------------------------------------------------------- */
 
@@ -400,7 +413,7 @@
                 }
             }
 
-            &:after {
+            &::after {
                 display: none;
             }
         }
@@ -412,6 +425,7 @@
         border-radius: 6px;
         border-width: 1px;
         border-style: solid;
+
         @apply border-gray-300 bg-white shadow-sm dark:border-gray-500 dark:bg-black dark:bg-opacity-5 #{'!important'};
 
         /* Adjust the top spacing and overflow when mat-label present */
@@ -483,6 +497,7 @@
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
+
                 @apply text-hint #{'!important'};
 
                 .mat-mdc-icon-button {
@@ -547,6 +562,7 @@
 
                             .mat-mdc-select-arrow {
                                 min-height: 0;
+
                                 @apply text-gray-500 dark:text-gray-400 #{'!important'};
                             }
                         }
@@ -573,6 +589,7 @@
                     transform: none !important;
                     pointer-events: auto;
                     font-weight: 500;
+
                     @apply text-default #{'!important'};
                 }
 
@@ -609,6 +626,7 @@
         .mat-mdc-form-field-hint-wrapper,
         .mat-mdc-form-field-error-wrapper {
             padding: 0;
+
             @apply text-red-700;
         }
 
@@ -662,9 +680,7 @@
                             margin-right: 4px;
                         }
 
-                        > *:not(.mat-icon):not(.mat-mdc-icon-button):not(
-                                .mat-mdc-select
-                            ):not(.mat-datepicker-toggle) {
+                        > *:not(.mat-icon, .mat-mdc-icon-button, .mat-mdc-select, .mat-datepicker-toggle) {
                             margin-right: 12px;
                         }
                     }
@@ -689,9 +705,7 @@
                             margin-left: 4px !important;
                         }
 
-                        > *:not(.mat-icon):not(.mat-mdc-icon-button):not(
-                                .mat-mdc-select
-                            ):not(.mat-datepicker-toggle) {
+                        > *:not(.mat-icon, .mat-mdc-icon-button, .mat-mdc-select, .mat-datepicker-toggle) {
                             margin-left: 12px !important;
                         }
                     }
@@ -811,9 +825,7 @@
                         margin-right: 8px;
                     }
 
-                    > *:not(.mat-icon):not(.mat-mdc-icon-button):not(
-                            .mat-mdc-select
-                        ):not(.mat-datepicker-toggle) {
+                    > *:not(.mat-icon, .mat-mdc-icon-button, .mat-mdc-select, .mat-datepicker-toggle) {
                         margin-right: 16px;
                     }
                 }
@@ -843,9 +855,7 @@
                         margin-left: 8px;
                     }
 
-                    > *:not(.mat-icon):not(.mat-mdc-icon-button):not(
-                            .mat-mdc-select
-                        ):not(.mat-datepicker-toggle) {
+                    > *:not(.mat-icon, .mat-mdc-icon-button, .mat-mdc-select, .mat-datepicker-toggle) {
                         margin-left: 16px;
                     }
                 }
@@ -914,7 +924,7 @@
         }
     }
 
-    &:not(.mat-focused):not(.mat-form-field-invalid) {
+    &:not(.mat-focused, .mat-form-field-invalid) {
         .mat-mdc-text-field-wrapper {
             .mat-mdc-form-field-flex {
                 .mdc-notched-outline {
@@ -929,6 +939,7 @@
     }
 
     /* Remove the extra border on the right side of the notch */
+
     /* Tailwind's global border setter causes this issue */
     .mat-mdc-text-field-wrapper {
         .mat-mdc-form-field-flex {
@@ -942,10 +953,12 @@
 }
 
 /* -------------------------------------------------------------------------- */
+
 /*  @ Datepicker
 /* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
+
 /*  @ Icon
 /* -------------------------------------------------------------------------- */
 .mat-icon {
@@ -958,30 +971,35 @@
     min-height: 24px;
     font-size: 24px;
     line-height: 24px;
-    -webkit-appearance: none !important;
+    appearance: none !important;
 }
 
 /* -------------------------------------------------------------------------- */
+
 /*  @ Inputs
 /* -------------------------------------------------------------------------- */
 .mat-mdc-input-element {
     &::placeholder {
         transition: none !important;
+
         @apply text-hint #{'!important'};
     }
 
-    &::-moz-placeholder {
+    &::placeholder {
         transition: none !important;
+
         @apply text-hint #{'!important'};
     }
 
-    &::-webkit-input-placeholder {
+    &::input-placeholder {
         transition: none !important;
+
         @apply text-hint #{'!important'};
     }
 
-    &:-ms-input-placeholder {
+    &:input-placeholder {
         transition: none !important;
+
         @apply text-hint #{'!important'};
     }
 }
@@ -994,21 +1012,22 @@
             @apply text-warn #{'!important'};
         }
 
-        &::-moz-placeholder {
+        &::placeholder {
             @apply text-warn #{'!important'};
         }
 
-        &::-webkit-input-placeholder {
+        &::input-placeholder {
             @apply text-warn #{'!important'};
         }
 
-        &:-ms-input-placeholder {
+        &:input-placeholder {
             @apply text-warn #{'!important'};
         }
     }
 }
 
 /* -------------------------------------------------------------------------- */
+
 /*  @ Menu
 /* -------------------------------------------------------------------------- */
 .mat-mdc-menu-panel {
@@ -1024,7 +1043,8 @@
 
             .mat-icon-no-color {
                 --tw-text-opacity: 1;
-                color: rgba(var(--fuse-mat-icon-rgb), var(--tw-text-opacity));
+
+                color: rgb(var(--fuse-mat-icon-rgb) var(--tw-text-opacity));
             }
         }
 
@@ -1036,6 +1056,7 @@
 }
 
 /* -------------------------------------------------------------------------- */
+
 /*  @ Paginator
 /* -------------------------------------------------------------------------- */
 .mat-mdc-paginator {
@@ -1087,6 +1108,7 @@
 }
 
 /* -------------------------------------------------------------------------- */
+
 /*  @ Select
 /* -------------------------------------------------------------------------- */
 .mat-mdc-select {
@@ -1094,6 +1116,7 @@
 
     .mat-mdc-select-placeholder {
         transition: none !important;
+
         @apply text-hint #{'!important'};
     }
 
@@ -1120,35 +1143,39 @@
 
         .mat-mdc-select-arrow {
             margin: 0 0 0 8px;
+
             @apply text-secondary #{!important};
         }
     }
 }
 
 /* -------------------------------------------------------------------------- */
+
 /*  @ Slide Toggle
 /* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
+
 /*  @ Snack bar
 /* -------------------------------------------------------------------------- */
 .mat-mdc-snack-bar-container {
     .mat-mdc-button.mat-mdc-snack-bar-action:not(:disabled) {
-        color: #ffffff !important;
+        color: #fff !important;
 
         .dark & {
-            color: #000000 !important;
+            color: #000 !important;
         }
     }
 }
 
 /* -------------------------------------------------------------------------- */
+
 /*  @ Stepper
 /* -------------------------------------------------------------------------- */
 .mat-step-icon {
     /* Do not override the mat-icon color */
     .mat-icon {
-        color: currentColor !important;
+        color: currentcolor !important;
     }
 }
 
@@ -1158,6 +1185,7 @@
 }
 
 /* -------------------------------------------------------------------------- */
+
 /*  @ Table
 /* -------------------------------------------------------------------------- */
 .mat-mdc-table {
@@ -1167,6 +1195,7 @@
 }
 
 /* -------------------------------------------------------------------------- */
+
 /*  @ Tabs
 /* -------------------------------------------------------------------------- */
 .mat-mdc-tab-group {
@@ -1181,7 +1210,7 @@
         }
     }
 
-    &:not(.mat-background-primary):not(.mat-background-accent) {
+    &:not(.mat-background-primary, .mat-background-accent) {
         .mat-mdc-tab-header {
             .mat-mdc-tab-label-container {
                 box-shadow: inset 0 -1px var(--fuse-border);
@@ -1201,6 +1230,7 @@
 }
 
 /* -------------------------------------------------------------------------- */
+
 /*  @ Textarea
 /* -------------------------------------------------------------------------- */
 textarea.mat-mdc-input-element {
@@ -1208,6 +1238,7 @@ textarea.mat-mdc-input-element {
 }
 
 /* -------------------------------------------------------------------------- */
+
 /*  @ Toolbar
 /* -------------------------------------------------------------------------- */
 .mat-toolbar {
@@ -1282,6 +1313,7 @@ textarea.mat-mdc-input-element {
 }
 
 /* -------------------------------------------------------------------------- */
+
 /*  @ Tooltip
 /* -------------------------------------------------------------------------- */
 
@@ -1296,5 +1328,5 @@ textarea.mat-mdc-input-element {
 }
 
 .mat-mdc-radio-button .mdc-radio--disabled+label{
-    color: rgba(26, 27, 31, .38) !important; 
+    color: rgb(26 27 31 / 38%) !important; 
 }

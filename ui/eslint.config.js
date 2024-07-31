@@ -30,6 +30,7 @@ module.exports = tseslint.config(
             ],
             '@typescript-eslint/no-explicit-any': 'warn',
             '@typescript-eslint/no-unused-vars': ['warn'],
+            '@typescript-eslint/prefer-for-of': 'off',
             '@angular-eslint/template/interactive-supports-focus': 'off',
             '@angular-eslint/template/click-events-have-key-events': 'off',
         },
@@ -41,5 +42,19 @@ module.exports = tseslint.config(
             ...angular.configs.templateAccessibility,
         ],
         rules: {},
+    },
+    {
+        ignores: [
+            '.idea',
+            '.git',
+            '*.sh',
+            '.*ignore',
+            'package*.json',
+            '.husky',
+            'node_modules',
+            'public',
+            'build',
+            'dist',
+        ],
     }
 );

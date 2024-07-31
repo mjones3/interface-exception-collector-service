@@ -1,53 +1,52 @@
-<form class="flex flex-row w-full mt-0" [formGroup]="form">
-  <div class="flex flex-row space-x-2 w-full">
-    <div class="flex flex-col w-full">
-      <mat-form-field appearance="fill" class="block">
-        <mat-label class="font-bold">Unit Number</mat-label>
-        <input
-            id="inUnitNumber"
-            matInput
-            formControlName="unitNumber"
-            [placeholder]="'Scan or Enter Unit Number'"
-            autocomplete=""
-            #inputUnitNumber
-            class="w-full"
-            validateOn="touchedState"
-            (tabOrEnterPressed)="checkValues($event)"
-            (keyup)="checkValues($event)"
-            autofocus
-            #inputField
-        />
-        @if(form.get('unitNumber').hasError('required')){
-          <mat-error >Unit Number is Required</mat-error>
-        }
-        @if(form.get('unitNumber').hasError('invalidUnitNumber')){
-          <mat-error >Unit Number is Invalid</mat-error>
-        }
-        
-      </mat-form-field>
-    </div>
-   
-      <div class="flex flex-col items-baseline mb-4">
-        @if(!disableCheckDigit){
-          <mat-form-field appearance="fill" class="block">
-            <mat-label class="font-bold">Check Digit</mat-label>
-            <input
-                matInput
-                formControlName="checkDigit"
-                id="'inCheckDigit'"
-                required
-                class="w-20"
-                #inputCheckDigit
-                autocomplete="off"
-                validateOn="blur"
-                (keyup)="checkValues($event)"
-                (tabOrEnterPressed)="checkValues($event)"
-            />
-            @if(form.get('checkDigit').hasError('required')){
-              <mat-error >Check Digit is Required</mat-error>
+<form class="mt-0 flex w-full flex-row" [formGroup]="form">
+    <div class="flex w-full flex-row space-x-2">
+        <div class="flex w-full flex-col">
+            <mat-form-field appearance="fill" class="block">
+                <mat-label class="font-bold">Unit Number</mat-label>
+                <input
+                    id="inUnitNumber"
+                    matInput
+                    formControlName="unitNumber"
+                    [placeholder]="'Scan or Enter Unit Number'"
+                    autocomplete=""
+                    #inputUnitNumber
+                    class="w-full"
+                    validateOn="touchedState"
+                    (tabOrEnterPressed)="checkValues()"
+                    (keyup)="checkValues()"
+                    autofocus
+                    #inputField
+                />
+                @if (form.get('unitNumber').hasError('required')) {
+                    <mat-error>Unit Number is Required</mat-error>
+                }
+                @if (form.get('unitNumber').hasError('invalidUnitNumber')) {
+                    <mat-error>Unit Number is Invalid</mat-error>
+                }
+            </mat-form-field>
+        </div>
+
+        <div class="mb-4 flex flex-col items-baseline">
+            @if (!disableCheckDigit) {
+                <mat-form-field appearance="fill" class="block">
+                    <mat-label class="font-bold">Check Digit</mat-label>
+                    <input
+                        matInput
+                        formControlName="checkDigit"
+                        id="'inCheckDigit'"
+                        required
+                        class="w-20"
+                        #inputCheckDigit
+                        autocomplete="off"
+                        validateOn="blur"
+                        (keyup)="checkValues($event)"
+                        (tabOrEnterPressed)="checkValues($event)"
+                    />
+                    @if (form.get('checkDigit').hasError('required')) {
+                        <mat-error>Check Digit is Required</mat-error>
+                    }
+                </mat-form-field>
             }
-          </mat-form-field>
-        }
-      </div>  
-  </div>
+        </div>
+    </div>
 </form>

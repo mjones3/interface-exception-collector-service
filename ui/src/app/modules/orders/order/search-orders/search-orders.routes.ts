@@ -7,17 +7,16 @@ export default [
         path: '',
         component: EmptyLayoutComponent,
         data: {
-            title: 'Shipment'
+            title: 'Shipment',
         },
         children: [
             {
-              path: 'search',
-              component: SearchOrdersComponent,
-              data: {
-                subTitle: 'Order-Fulfillment',
-              },
+                path: 'search',
+                component: SearchOrdersComponent,
+                data: {
+                    subTitle: 'Order-Fulfillment',
+                },
             },
-        ]
-
+        ],
     },
 ] as Routes;
