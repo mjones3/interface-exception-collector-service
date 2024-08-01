@@ -1,0 +1,70 @@
+<div
+    id="filterableDropDownListWrapper"
+    class="flex min-h-120 min-w-140 flex-col"
+>
+    <!-- Header Section -->
+    <div class="flex items-center justify-between p-2">
+        <h2 id="'filterableListModalTitle'" mat-dialog-title class="m-0">
+            {{ dialogTitle }}
+        </h2>
+        @if (closable) {
+            <button
+                id="closeModalBtn"
+                class="fuse-message-dismiss-button"
+                mat-dialog-close
+            >
+                <mat-icon [svgIcon]="'hi_outline:x'"></mat-icon>
+            </button>
+        }
+    </div>
+
+    <div mat-dialog-content class="flex flex-col border-t px-0">
+        <!-- Input for search Criteria Section -->
+        <form [formGroup]="filterForm">
+            <div class="flex flex-col px-4">
+                <mat-form-field class="fuse-mat-no-subscript flex-auto">
+                    <input
+                        matInput
+                        formControlName="filterCriteria"
+                        class="w-full"
+                        id="filterInput"
+                        [placeholder]="inputPlaceholder"
+                        [autocomplete]="'off'"
+                    />
+                        <mat-icon matSuffix [svgIcon]="iconName"></mat-icon>
+                </mat-form-field>    
+            </div>
+        </form>
+        <!-- Filtered List Section -->
+        <div>
+            <div
+                class="scrollable-content"
+                fuseScrollbar
+                #fuseScrollbar="fuseScrollbar"
+                [fuseScrollbarOptions]="{
+                    wheelPropagation: false,
+                    suppressScrollX: true,
+                }"
+            >
+                <mat-list
+                    [id]="'filteredList'"              
+                    class="border-t p-0"
+                >
+                    <mat-list-item
+                        *ngFor="let item of filteredList"
+                        (click)="selectValue(item)"
+                    >
+                        <span class="pl-4 text-2xl cursor-pointer"
+                            >{{
+                                (optionsLabel ? item[optionsLabel] : item)
+                                    | translate
+                                    | uppercase
+                            }}
+                        </span>
+                        <mat-divider></mat-divider>
+                    </mat-list-item>
+                </mat-list>
+            </div>
+        </div>
+    </div>
+</div>

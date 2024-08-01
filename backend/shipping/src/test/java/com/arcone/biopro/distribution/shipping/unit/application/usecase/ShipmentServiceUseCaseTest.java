@@ -6,6 +6,7 @@ import com.arcone.biopro.distribution.shipping.application.dto.CompleteShipmentR
 import com.arcone.biopro.distribution.shipping.application.dto.PackItemRequest;
 import com.arcone.biopro.distribution.shipping.application.dto.RuleResponseDTO;
 import com.arcone.biopro.distribution.shipping.application.usecase.ShipmentServiceUseCase;
+import com.arcone.biopro.distribution.shipping.application.util.ShipmentServiceMessages;
 import com.arcone.biopro.distribution.shipping.domain.event.ShipmentCompletedEvent;
 import com.arcone.biopro.distribution.shipping.domain.model.Shipment;
 import com.arcone.biopro.distribution.shipping.domain.model.ShipmentItem;
@@ -191,7 +192,7 @@ class ShipmentServiceUseCaseTest {
 
         InventoryValidationResponseDTO validationResponseDTO = Mockito.mock(InventoryValidationResponseDTO.class);
         Mockito.when(validationResponseDTO.inventoryNotificationDTO()).thenReturn(InventoryNotificationDTO.builder()
-                .errorMessage("test-error-inventory")
+                .errorMessage(ShipmentServiceMessages.INVENTORY_TEST_ERROR)
                 .errorCode(1)
             .build());
 
@@ -212,7 +213,7 @@ class ShipmentServiceUseCaseTest {
                 assertEquals(Optional.of(HttpStatus.BAD_REQUEST), Optional.of(detail.ruleCode()));
                 assertEquals(Optional.of(HttpStatus.BAD_REQUEST.value()), Optional.of(detail.notifications().get(0).statusCode()));
                 assertEquals(Optional.of("error"), Optional.of(detail.notifications().get(0).notificationType()));
-                assertEquals(Optional.of("test-error-inventory"), Optional.of(detail.notifications().get(0).message()));
+                assertEquals(Optional.of(ShipmentServiceMessages.INVENTORY_TEST_ERROR), Optional.of(detail.notifications().get(0).message()));
             })
             .verifyComplete();
     }
@@ -256,7 +257,7 @@ class ShipmentServiceUseCaseTest {
                 assertEquals(Optional.of(HttpStatus.BAD_REQUEST), Optional.of(detail.ruleCode()));
                 assertEquals(Optional.of(HttpStatus.BAD_REQUEST.value()), Optional.of(detail.notifications().get(0).statusCode()));
                 assertEquals(Optional.of("error"), Optional.of(detail.notifications().get(0).notificationType()));
-                assertEquals(Optional.of("product-criteria-blood-type-does-not-match.error"), Optional.of(detail.notifications().get(0).message()));
+                assertEquals(Optional.of(ShipmentServiceMessages.PRODUCT_CRITERIA_BLOOD_TYPE_ERROR), Optional.of(detail.notifications().get(0).message()));
             })
             .verifyComplete();
     }
@@ -303,7 +304,7 @@ class ShipmentServiceUseCaseTest {
                 assertEquals(Optional.of(HttpStatus.BAD_REQUEST), Optional.of(detail.ruleCode()));
                 assertEquals(Optional.of(HttpStatus.BAD_REQUEST.value()), Optional.of(detail.notifications().get(0).statusCode()));
                 assertEquals(Optional.of("error"), Optional.of(detail.notifications().get(0).notificationType()));
-                assertEquals(Optional.of("product-criteria-quantity-exceeded.error"), Optional.of(detail.notifications().get(0).message()));
+                assertEquals(Optional.of(ShipmentServiceMessages.PRODUCT_CRITERIA_QUANTITY_ERROR), Optional.of(detail.notifications().get(0).message()));
             })
             .verifyComplete();
     }
@@ -350,7 +351,7 @@ class ShipmentServiceUseCaseTest {
                 assertEquals(Optional.of(HttpStatus.BAD_REQUEST), Optional.of(detail.ruleCode()));
                 assertEquals(Optional.of(HttpStatus.BAD_REQUEST.value()), Optional.of(detail.notifications().get(0).statusCode()));
                 assertEquals(Optional.of("error"), Optional.of(detail.notifications().get(0).notificationType()));
-                assertEquals(Optional.of("product-is-already-used.error"), Optional.of(detail.notifications().get(0).message()));
+                assertEquals(Optional.of(ShipmentServiceMessages.PRODUCT_ALREADY_USED_ERROR), Optional.of(detail.notifications().get(0).message()));
             })
             .verifyComplete();
     }
@@ -454,7 +455,7 @@ class ShipmentServiceUseCaseTest {
                 assertEquals(Optional.of(HttpStatus.BAD_REQUEST), Optional.of(detail.ruleCode()));
                 assertEquals(Optional.of(HttpStatus.BAD_REQUEST.value()), Optional.of(detail.notifications().get(0).statusCode()));
                 assertEquals(Optional.of("error"), Optional.of(detail.notifications().get(0).notificationType()));
-                assertEquals(Optional.of("shipment-not-found.error"), Optional.of(detail.notifications().get(0).message()));
+                assertEquals(Optional.of(ShipmentServiceMessages.SHIPMENT_NOT_FOUND_ERROR), Optional.of(detail.notifications().get(0).message()));
             })
             .verifyComplete();
 
@@ -481,7 +482,7 @@ class ShipmentServiceUseCaseTest {
                 assertEquals(Optional.of(HttpStatus.BAD_REQUEST), Optional.of(detail.ruleCode()));
                 assertEquals(Optional.of(HttpStatus.BAD_REQUEST.value()), Optional.of(detail.notifications().get(0).statusCode()));
                 assertEquals(Optional.of("error"), Optional.of(detail.notifications().get(0).notificationType()));
-                assertEquals(Optional.of("shipment-already-completed.error"), Optional.of(detail.notifications().get(0).message()));
+                assertEquals(Optional.of(ShipmentServiceMessages.SHIPMENT_COMPLETED_ERROR), Optional.of(detail.notifications().get(0).message()));
             })
             .verifyComplete();
 
@@ -525,7 +526,7 @@ class ShipmentServiceUseCaseTest {
                 assertEquals(Optional.of(HttpStatus.OK.value()), Optional.of(detail.notifications().get(0).statusCode()));
                 assertEquals(Optional.of("success"), Optional.of(detail.notifications().get(0).notificationType()));
                 assertEquals(Optional.of("/shipment/1/shipment-details"), Optional.of(detail._links().get("next")));
-                assertEquals(Optional.of("completed-shipment.success"), Optional.of(detail.notifications().get(0).message()));
+                assertEquals(Optional.of(ShipmentServiceMessages.SHIPMENT_COMPLETED_SUCCESS), Optional.of(detail.notifications().get(0).message()));
             })
             .verifyComplete();
     }

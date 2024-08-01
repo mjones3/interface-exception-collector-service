@@ -2,8 +2,7 @@ Feature: Prevent filling a shipment with unsuitable products
     As a distribution technician, I want to prevent filling a shipment with unsuitable products, so that I can avoid shipping the wrong products to the customer.
 
     Background:
-        Given I cleaned up from the database, all shipments with order number "999771, 999778, 999764".
-        And I cleaned up from the database the packed item that used the unit number "W036898786808, W036898786756, W036898786763".
+        Given I cleaned up from the database, all shipments with order number "999771,999778,999764".
 
     @ui
     Scenario Outline: Entering an unsuitable product
@@ -13,7 +12,7 @@ Feature: Prevent filling a shipment with unsuitable products
         And I choose to fill product of family "<ProductFamily>" and blood type "<BloodType>".
         And I add the unit "<UN>" with product code "<Code>".
         When I define visual inspection as "<Inspection>".
-        Then I should see a "Error" message: "<Message>".
+        Then I should see a "Warning Message" message: "<Message>".
         And I should not see the unit "<UN>" with product code "<Code>" added to the filled products table.
 
         Examples:
@@ -30,7 +29,7 @@ Feature: Prevent filling a shipment with unsuitable products
         And I choose to fill product of family "<ProductFamily>" and blood type "<BloodType>".
         When I add the unit "<UN>" with product code "<Code>".
         And I define visual inspection as "<Inspection>".
-        Then I should see a "Error" message: "<Message>".
+        Then I should see a "Warning Message" message: "<Message>".
         Examples:
-            | UN            | Code     | Inspection   | Message                | orderNumber | Customer ID | Customer Name | Quantity | BloodType | ProductFamily                                               |
-            | W036898786808 | E4689V00 | Satisfactory | Product Already packed | 999764      | 999991      | Tampa         | 10,5,23  | AP,AN,OP  | Transfusable Plasma,Transfusable Plasma,Transfusable Plasma |
+            | UN            | Code     | Inspection   | Message               | orderNumber | Customer ID | Customer Name | Quantity | BloodType | ProductFamily                                               |
+            | W036898786810 | E4697V00 | Satisfactory | Product Already used. | 999764      | 999991      | Tampa         | 10,5,23  | AP,AN,OP  | Transfusable Plasma,Transfusable Plasma,Transfusable Plasma |

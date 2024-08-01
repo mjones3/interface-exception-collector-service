@@ -2,7 +2,7 @@ Feature: Print Shipping Label
     As a DT, I want to be able to view and print the shipping label, so I can ensure that the box is going to the correct location and place it in the box.
 
     Background:
-        Given I cleaned up from the database the packed item that used the unit number "W036898786810, W036810946401".
+        Given I cleaned up from the database the packed item that used the unit number "W036898786810,W036810946401".
         And I cleaned up from the database, all shipments with order number "456, 432".
 
     Rule: I should be able to view and print the shipping label in pdf format when the shipment is completed.

@@ -31,7 +31,7 @@ public class HomePage extends CommonPageFactory {
     private String baseUrl;
 
     //    Page Locators
-    @FindBy(id = "companyLogo")
+    @FindBy(id = "defaultLogo")
     private List<WebElement> aoLogo;
 
     @FindBy(xpath = "//h5[normalize-space()='Distribution']")

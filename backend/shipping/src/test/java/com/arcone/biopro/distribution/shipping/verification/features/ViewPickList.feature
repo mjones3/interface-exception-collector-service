@@ -1,7 +1,7 @@
 Feature: View Pick List
 
     Background:
-        Given I cleaned up from the database, all shipments with order number "13456, 2345".
+        Given I cleaned up from the database, all shipments with order number "13456,2345".
 
     Rule: I should be able to view the line order in the pick list.
         Rule: I should be able to see the order number and customer details in the pick list.

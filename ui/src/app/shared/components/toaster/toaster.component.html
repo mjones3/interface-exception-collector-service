@@ -1,0 +1,13 @@
+<fuse-alert
+    class="mt-4"
+    [type]="toastPackage?.toastType"
+    [appearance]="appearance"
+    [dismissed]="false"
+    [dismissible]="true"
+    (afterDismissed)="remove()"
+>
+    @if (title) {
+        <span fuseAlertTitle>{{ title }}</span>
+    }
+    {{ message }}
+</fuse-alert>

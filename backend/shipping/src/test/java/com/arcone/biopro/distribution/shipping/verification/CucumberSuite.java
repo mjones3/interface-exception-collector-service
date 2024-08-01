@@ -1,11 +1,13 @@
 package com.arcone.biopro.distribution.shipping.verification;
 
 import org.junit.platform.suite.api.*;
+import org.springframework.test.context.ActiveProfiles;
 
 import static io.cucumber.core.options.Constants.*;
 
 @Suite
 @IncludeEngines("cucumber")
+@ActiveProfiles("AUTOMATION")
 @SelectDirectories("src/test/java/com/arcone/biopro/distribution/shipping/verification/features")
 @ConfigurationParameters({
     @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "com.arcone.biopro.distribution.shipping.verification.steps"),

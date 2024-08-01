@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.shipping.infrastructure.controller;
 
+import com.arcone.biopro.distribution.shipping.application.util.ShipmentServiceMessages;
 import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryMockData;
 import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryNotificationDTO;
 import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryResponseDTO;
@@ -47,7 +48,7 @@ public class InventoryMockController {
                 .inventoryNotificationDTO(InventoryNotificationDTO
                     .builder()
                     .errorCode(2)
-                    .errorMessage("inventory-expired.label")
+                    .errorMessage(ShipmentServiceMessages.INVENTORY_EXPIRED_ERROR)
                     .build())
                 .build());
             case "W036898786757":
@@ -56,7 +57,7 @@ public class InventoryMockController {
                     .inventoryNotificationDTO(InventoryNotificationDTO
                         .builder()
                         .errorCode(3)
-                        .errorMessage("inventory-discarded.label")
+                        .errorMessage(ShipmentServiceMessages.INVENTORY_DISCARDED_ERROR)
                         .build())
                     .build());
             case "W036898786758":
@@ -65,7 +66,7 @@ public class InventoryMockController {
                     .inventoryNotificationDTO(InventoryNotificationDTO
                         .builder()
                         .errorCode(4)
-                        .errorMessage("inventory-quarantined.label")
+                        .errorMessage(ShipmentServiceMessages.INVENTORY_QUARANTINED_ERROR)
                         .build())
                     .build());
             case "W036898786812":
@@ -89,7 +90,7 @@ public class InventoryMockController {
                         .inventoryNotificationDTO(InventoryNotificationDTO
                             .builder()
                             .errorCode(1)
-                            .errorMessage("inventory-not-found.label")
+                            .errorMessage(ShipmentServiceMessages.INVENTORY_NOT_FOUND_ERROR)
                             .build())
                         .build());
                 }

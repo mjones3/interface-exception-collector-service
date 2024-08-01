@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.shipping.infrastructure.service;
 
+import com.arcone.biopro.distribution.shipping.application.util.ShipmentServiceMessages;
 import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryValidationRequest;
 import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryValidationResponseDTO;
 import com.arcone.biopro.distribution.shipping.infrastructure.service.errors.InventoryServiceNotAvailableException;
@@ -27,6 +28,6 @@ public class InventoryRsocketClient {
     @MessageExceptionHandler(RuntimeException.class)
     public Mono<RuntimeException> exceptionHandler(RuntimeException e) {
         log.error(e.getMessage());
-        return Mono.error(new InventoryServiceNotAvailableException("inventory-service-not-available.error"));
+        return Mono.error(new InventoryServiceNotAvailableException(ShipmentServiceMessages.INVENTORY_SERVICE_NOT_AVAILABLE_ERROR));
     }
 }

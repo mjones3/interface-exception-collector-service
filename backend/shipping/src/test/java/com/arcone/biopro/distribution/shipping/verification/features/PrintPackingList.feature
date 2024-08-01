@@ -2,7 +2,7 @@ Feature: Print Packing List
     As a DT, I want to be able to print the packing list, so that I can know the products that are placed in the box.
 
     Background:
-        Given I cleaned up from the database the packed item that used the unit number "W036898786811, W036810946400".
+        Given I cleaned up from the database the packed item that used the unit number "W036898786811,W036810946400".
         And I cleaned up from the database, all shipments with order number "499, 421".
 
     Rule: I should be able to print the packing slip in the PDF format for the shipment when it is completed.

@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.shipping.infrastructure.service;
 
+import com.arcone.biopro.distribution.shipping.application.util.ShipmentServiceMessages;
 import com.arcone.biopro.distribution.shipping.infrastructure.service.dto.FacilityDTO;
 import com.arcone.biopro.distribution.shipping.infrastructure.service.dto.FacilityMockData;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,7 +30,7 @@ public class FacilityServiceMock {
             .filter(facility -> Objects.equals(facility.id(), facilityId))
             .findAny()
             .map(Mono::just)
-            .orElseGet(() -> Mono.error(new RuntimeException("facility-not-found.error")));
+            .orElseGet(() -> Mono.error(new RuntimeException(ShipmentServiceMessages.FACILITY_NOT_FOUND_ERROR)));
     }
 
     private void initFacilityMockList() {

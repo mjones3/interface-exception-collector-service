@@ -6,6 +6,7 @@ import com.arcone.biopro.distribution.shipping.application.dto.ShipFromDTO;
 import com.arcone.biopro.distribution.shipping.application.dto.ShipToDTO;
 import com.arcone.biopro.distribution.shipping.application.dto.ShipmentItemPackedDTO;
 import com.arcone.biopro.distribution.shipping.application.dto.ShippingLabelDTO;
+import com.arcone.biopro.distribution.shipping.application.util.ShipmentServiceMessages;
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.ShipmentStatus;
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemPackedRepository;
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemRepository;
@@ -40,10 +41,10 @@ public class ShipmentLabelServiceUseCase implements ShipmentLabelService {
     @WithSpan("generatePackingListLabel")
     public Mono<PackingListLabelDTO> generatePackingListLabel(Long shipmentId) {
         return shipmentRepository.findById(shipmentId)
-            .switchIfEmpty(Mono.error(new RuntimeException("shipment-not-found.error")))
+            .switchIfEmpty(Mono.error(new RuntimeException(ShipmentServiceMessages.SHIPMENT_NOT_FOUND_ERROR)))
             .flatMap(shipment -> {
                 if(!ShipmentStatus.COMPLETED.equals(shipment.getStatus())){
-                    return Mono.error(new RuntimeException("shipment-open.error"));
+                    return Mono.error(new RuntimeException(ShipmentServiceMessages.SHIPMENT_OPEN_ERROR));
                 }
                 return Mono.from(facilityServiceMock.getFacilityId(shipment.getLocationCode())).flatMap(facilityDTO -> {
                     var packingListLabel = PackingListLabelDTO.builder()
@@ -96,10 +97,10 @@ public class ShipmentLabelServiceUseCase implements ShipmentLabelService {
     @WithSpan("generateShippingLabel")
     public Mono<ShippingLabelDTO> generateShippingLabel(Long shipmentId) {
         return shipmentRepository.findById(shipmentId)
-            .switchIfEmpty(Mono.error(new RuntimeException("shipment-not-found.error")))
+            .switchIfEmpty(Mono.error(new RuntimeException(ShipmentServiceMessages.SHIPMENT_NOT_FOUND_ERROR)))
             .flatMap(shipment -> {
                 if (!ShipmentStatus.COMPLETED.equals(shipment.getStatus())) {
-                    return Mono.error(new RuntimeException("shipment-open.error"));
+                    return Mono.error(new RuntimeException(ShipmentServiceMessages.SHIPMENT_OPEN_ERROR));
                 }
 
                 return Mono.from(facilityServiceMock.getFacilityId(shipment.getLocationCode())).flatMap(facilityDTO -> {
