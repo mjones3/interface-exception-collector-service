@@ -29,4 +29,4 @@ include:
       service: shipping
 
 .use-cache-ui:
-  image: artifactory.sha.ao.arc-one.com/docker/system/build-cicd/nodejs/main:22.5.1-96b5825d
+  image: artifactory.sha.ao.arc-one.com/docker/system/build-cicd/nodejs/main:20.16.0
