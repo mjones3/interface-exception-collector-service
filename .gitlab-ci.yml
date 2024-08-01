@@ -27,3 +27,7 @@ include:
     file: spec.backend.pipeline.yml
     inputs:
       service: shipping
+
+.use-cache-ui:
+  image: artifactory.sha.ao.arc-one.com/docker/system/build-cicd/node:22.5.1-bullseye-slim
+  
