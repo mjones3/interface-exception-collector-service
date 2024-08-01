@@ -1,40 +1,45 @@
 package com.arcone.biopro.distribution.inventory.domain.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Builder;
-import lombok.Data;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.domain.Persistable;
-import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.InsertOnlyProperty;
-import org.springframework.data.relational.core.mapping.Table;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.Location;
+import com.arcone.biopro.distribution.inventory.domain.model.vo.ProductCode;
+import com.arcone.biopro.distribution.inventory.domain.model.vo.UnitNumber;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
-import java.io.Serializable;
 import java.time.ZonedDateTime;
+import java.util.UUID;
 
-@Data
-@Builder
-@Table("bld_inventory")
-public class Inventory implements Serializable, Persistable<Long> {
+@AllArgsConstructor
+@Getter
+public class Inventory {
 
-    @Id
-    @Column("id")
-    private Long id;
+    private UUID id;
 
-    @Column("create_date")
-    @CreatedDate
-    @InsertOnlyProperty
+    private UnitNumber unitNumber;
+
+    private ProductCode productCode;
+
+    private InventoryStatus inventoryStatus;
+
+    private ZonedDateTime expirationDate;
+
+    private Location location;
+
     private ZonedDateTime createDate;
 
-    @Column("modification_date")
-    @LastModifiedDate
     private ZonedDateTime modificationDate;
 
-    @JsonIgnore
-    @Override
-    public boolean isNew() {
-        return createDate == null;
+    public Inventory(
+        UnitNumber unitNumber,
+        ProductCode productCode,
+        ZonedDateTime expirationDate,
+        Location location) {
+        this.unitNumber = unitNumber;
+        this.productCode = productCode;
+        this.expirationDate = expirationDate;
+        this.location = location;
+        this.inventoryStatus = InventoryStatus.AVAILABLE;
+        this.id = UUID.randomUUID();
     }
 }

@@ -268,3 +268,7 @@ application:
       audience:
         - account
         - api://default
+
+topic:
+  label-applied:
+    name: LabelApplied
