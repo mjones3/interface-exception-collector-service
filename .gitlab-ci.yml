@@ -29,5 +29,4 @@ include:
       service: shipping
 
 .use-cache-ui:
-  image: artifactory.sha.ao.arc-one.com/docker/system/build-cicd/node:22.5.1-bullseye-slim
-  
+  image: artifactory.sha.ao.arc-one.com/docker/system/build-cicd/nodejs/main:22.5.1
