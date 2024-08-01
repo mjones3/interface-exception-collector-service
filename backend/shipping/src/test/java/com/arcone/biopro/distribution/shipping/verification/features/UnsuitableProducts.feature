@@ -2,7 +2,7 @@ Feature: Prevent filling a shipment with unsuitable products
     As a distribution technician, I want to prevent filling a shipment with unsuitable products, so that I can avoid shipping the wrong products to the customer.
 
     Background:
-        Given I cleaned up from the database, all shipments with order number "999771, 999778, 999764".
+        Given I cleaned up from the database, all shipments with order number "999771,999778,999764".
 
     @ui
     Scenario Outline: Entering an unsuitable product
