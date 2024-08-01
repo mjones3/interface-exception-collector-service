@@ -14,8 +14,7 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
-import { ScanUnitNumberCheckDigitComponent } from '../../../../shared/components/scan-unit-number-check-digit/scan-unit-number-check-digit.component';
-import { RsaValidators } from '../../../../shared/forms/rsa-validators';
+import { RsaValidators, ScanUnitNumberCheckDigitComponent } from '@shared';
 import { VerifyFilledProductDto } from '../../models/shipment-info.dto';
 
 @Component({
@@ -25,7 +24,7 @@ import { VerifyFilledProductDto } from '../../models/shipment-info.dto';
         MatRadioModule,
         MatFormFieldModule,
         MatInputModule,
-        ScanUnitNumberCheckDigitComponent
+        ScanUnitNumberCheckDigitComponent,
     ],
     selector: 'rsa-enter-unit-number-product-code',
     templateUrl: './enter-unit-number-product-code.component.html',
@@ -48,8 +47,14 @@ export class EnterUnitNumberProductCodeComponent {
     ) {
         this.productGroup = fb.group({
             unitNumber: ['', [Validators.required, RsaValidators.unitNumber]],
-            productCode: ['', [RsaValidators.fullProductCode, Validators.required]],
-            visualInspection: [{ value: '', disabled: true },[Validators.required]],
+            productCode: [
+                '',
+                [RsaValidators.fullProductCode, Validators.required],
+            ],
+            visualInspection: [
+                { value: '', disabled: true },
+                [Validators.required],
+            ],
         });
     }
 

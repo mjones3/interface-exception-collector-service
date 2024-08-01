@@ -5,27 +5,22 @@ import {
     EventEmitter,
     Input,
     Output,
-    ViewChild
+    ViewChild,
 } from '@angular/core';
 import {
     FormBuilder,
     FormGroup,
     FormsModule,
     ReactiveFormsModule,
-    Validators
+    Validators,
 } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { TranslateService } from '@ngx-translate/core';
-import { RsaValidators } from '../../../shared/forms/rsa-validators';
+import { RsaValidators } from 'app/shared/forms/rsa-validators';
 
 @Component({
     standalone: true,
-    imports: [
-        ReactiveFormsModule, 
-        MatInputModule,
-        FormsModule,
-        CommonModule
-    ],
+    imports: [ReactiveFormsModule, MatInputModule, FormsModule, CommonModule],
     providers: [TranslateService],
     selector: 'rsa-scan-unit-number-check-digit',
     templateUrl: './scan-unit-number-check-digit.component.html',
@@ -37,14 +32,18 @@ export class ScanUnitNumberCheckDigitComponent {
     @Input() inputFocus = false;
     @ViewChild('inputUnitNumber') inputUnitNumber: ElementRef;
     @ViewChild('inputCheckDigit') inputCheckDigit: ElementRef;
-    @Output() tabOrEnterPressed: EventEmitter<string> = new EventEmitter<string>();
+    @Output() tabOrEnterPressed: EventEmitter<string> =
+        new EventEmitter<string>();
     @Output() keyUp: EventEmitter<string> = new EventEmitter<string>();
 
     checkDigitValidators = [Validators.required, Validators.maxLength(1)];
 
     form: FormGroup;
 
-    constructor(protected fb: FormBuilder,private el: ElementRef) {
+    constructor(
+        protected fb: FormBuilder,
+        private el: ElementRef
+    ) {
         this.form = this.fb.group({
             unitNumber: [null, [RsaValidators.unitNumber, Validators.required]],
             checkDigit: [
@@ -52,9 +51,9 @@ export class ScanUnitNumberCheckDigitComponent {
                 [...this.checkDigitValidators],
             ],
         });
-        setTimeout(()=>{
+        setTimeout(() => {
             this.focusOnUnitNumber();
-        },0)
+        }, 0);
     }
 
     get controlCheckDigit() {
@@ -65,7 +64,7 @@ export class ScanUnitNumberCheckDigitComponent {
         return this.form.controls['unitNumber'];
     }
 
-    checkValues(event) {
+    checkValues() {
         let unitNumber: string = this.controlUnitNumber.value ?? '';
         const scanner = unitNumber.startsWith('=');
         const checkDigit: string = this.controlCheckDigit.value ?? '';
@@ -114,41 +113,5 @@ export class ScanUnitNumberCheckDigitComponent {
 
     focusOnCheckDigit() {
         this.inputCheckDigit.nativeElement.focus();
-    }
-
-    enabledCheckDigit(event: string) {
-        const scanner = this.controlUnitNumber.value
-            ? this.controlUnitNumber.value.startsWith('=')
-            : false;
-        const value = this.controlUnitNumber.value ?? '';
-
-        if (!this.disableCheckDigit) {
-            if (scanner) {
-                this.controlCheckDigit.disable({
-                    emitEvent: false,
-                    onlySelf: true,
-                });
-                this.controlCheckDigit.updateValueAndValidity();
-            } else {
-                if (value.length === 13) {
-                    this.controlUnitNumber.updateValueAndValidity();
-                }
-
-                if (
-                    this.controlUnitNumber.valid &&
-                    this.controlUnitNumber.value
-                ) {
-                    this.controlCheckDigit.enable({
-                        emitEvent: false,
-                        onlySelf: true,
-                    });
-                } else {
-                    this.controlCheckDigit.disable({
-                        emitEvent: false,
-                        onlySelf: true,
-                    });
-                }
-            }
-        }
     }
 }

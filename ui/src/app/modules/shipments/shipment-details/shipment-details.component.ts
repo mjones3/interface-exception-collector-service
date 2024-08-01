@@ -9,6 +9,23 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FuseCardComponent } from '@fuse/components/card/public-api';
 import { Store } from '@ngrx/store';
 import { TranslateService } from '@ngx-translate/core';
+import {
+    Description,
+    NotificationDto,
+    ProcessHeaderComponent,
+    ProcessHeaderService,
+    ProcessProductModel,
+    SortService,
+    ToastrImplService,
+} from '@shared';
+import { ERROR_MESSAGE } from 'app/core/data/common-labels';
+import {
+    DEFAULT_PAGE_SIZE,
+    DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
+    DEFAULT_PAGE_SIZE_DIALOG_WIDTH,
+} from 'app/core/models/browser-printing.model';
+import { BrowserPrintingService } from 'app/core/services/browser-printing/browser-printing.service';
+import { getAuthState } from 'app/core/state/auth/auth.selectors';
 import { ToastrModule } from 'ngx-toastr';
 import { SortEvent } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -16,21 +33,6 @@ import { DropdownModule } from 'primeng/dropdown';
 import { TableModule } from 'primeng/table';
 import { of, switchMap } from 'rxjs';
 import { catchError, take } from 'rxjs/operators';
-import { ERROR_MESSAGE } from '../../../../../public/i18n/common-labels';
-import {
-    DEFAULT_PAGE_SIZE,
-    DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
-    DEFAULT_PAGE_SIZE_DIALOG_WIDTH,
-} from '../../../core/services/browser-printing/browser-printing.model';
-import { BrowserPrintingService } from '../../../core/services/browser-printing/browser-printing.service';
-import { getAuthState } from '../../../core/state/auth/auth.selectors';
-import { ProcessHeaderComponent } from '../../../shared/components/process-header/process-header.component';
-import { Description } from '../../../shared/models/description.model';
-import { NotificationDto } from '../../../shared/models/notification.dto';
-import { ProcessProductDto } from '../../../shared/models/process-product.dto';
-import { ToastrImplService } from '../../../shared/services';
-import { ProcessHeaderService } from '../../../shared/services/process-header.service';
-import { SortService } from '../../../shared/services/sort.service';
 import {
     FilledProductInfoDto,
     ShipmentCompleteInfoDto,
@@ -95,7 +97,7 @@ export class ShipmentDetailsComponent implements OnInit {
     shippingInfoDescriptions: Description[] = [];
     shipmentInfo: ShipmentInfoDto;
     products: ShipmentInfoItemDto[] = [];
-    processProductConfig: ProcessProductDto;
+    processProductConfig: ProcessProductModel;
     shippedInfoData: ShipmentCompleteInfoDto[] = [];
     loggedUserId: string;
     packedItems: FilledProductInfoDto[] = [];

@@ -1,20 +1,16 @@
 // Components
-export * from './components/control-error/control-error.component';
 export * from './components/filterable-drop-down/filterable-drop-down.component';
 export * from './components/information-card/description-card.component';
-export * from './components/input-keyboard/input-keyboard.component';
 export * from './components/process-header/process-header.component';
 export * from './components/scan-unit-number-check-digit/scan-unit-number-check-digit.component';
 export * from './components/toaster/toaster.component';
 export * from './components/widget/widget.component';
-
 
 // Decorators
 export * from './decorators/auto-unsubscribe/auto-unsubscribe.decorator';
 
 // Directives
 export * from './directive/control-error-container/control-error-container.directive';
-export * from './directive/control-errors/control-errors.directive';
 export * from './directive/form-submit/form-submit.directive';
 export * from './directive/mask-regex/mask-regex.directive';
 
@@ -39,3 +35,8 @@ export * from './icons/hi_outline/XCircleHeroiconsOutline';
 export * from './icons/hi_outline/XHeroiconsOutline';
 export * from './icons/rsa/ProductPlasmaRsa';
 
+//Models
+export * from './models/index';
+
+//Services
+export * from './services/index';

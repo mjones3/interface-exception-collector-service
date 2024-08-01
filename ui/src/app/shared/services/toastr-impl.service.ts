@@ -35,7 +35,7 @@ export class ToastrImplService extends ToastrService {
         ngZone: NgZone,
         private rendererFactory: RendererFactory2,
         @Inject(DOCUMENT) private document: any,
-        private activeEl: ActiveElementService,
+        private activeEl: ActiveElementService
     ) {
         super(token, overlay, injector, sanitizer, ngZone);
         this.renderer2 = rendererFactory.createRenderer(document.body, null);
@@ -102,10 +102,9 @@ export class ToastrImplService extends ToastrService {
         toast.onTap.subscribe(() => {
             this.hideLockingBackDrop();
         });
-       
     }
 
-    private hideLockingBackDrop(){
+    private hideLockingBackDrop() {
         this.renderer2.removeClass(
             this.document.body,
             this.blockingBackdropClass
@@ -134,7 +133,7 @@ export class ToastrImplService extends ToastrService {
             case 'warn':
                 return 'Error';
             case 'error':
-                return 'Warning Message';    
+                return 'Warning Message';
             case 'warning':
                 return 'Caution Message';
             default:

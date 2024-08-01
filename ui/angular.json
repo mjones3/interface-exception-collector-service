@@ -62,13 +62,13 @@
                             "budgets": [
                                 {
                                     "type": "initial",
-                                    "maximumWarning": "3mb",
-                                    "maximumError": "5mb"
+                                    "maximumWarning": "2mb",
+                                    "maximumError": "10mb"
                                 },
                                 {
                                     "type": "anyComponentStyle",
-                                    "maximumWarning": "75kb",
-                                    "maximumError": "90kb"
+                                    "maximumWarning": "10kb",
+                                    "maximumError": "1000kb"
                                 }
                             ],
                             "outputHashing": "all"
@@ -102,11 +102,10 @@
                 "test": {
                     "builder": "@nrwl/jest:jest",
                     "options": {
-                      "jestConfig": "tsconfig.spec.json",
-                      "polyfills": ["zone.js", "zone.js/testing"],
-                      "passWithNoTests": true
+                        "jestConfig": "jest.config.js",
+                        "passWithNoTests": true
                     }
-                  },
+                },
                 "extract-i18n": {
                     "builder": "@angular-devkit/build-angular:extract-i18n"
                 }

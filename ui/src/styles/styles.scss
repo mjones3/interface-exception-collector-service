@@ -1,4 +1,5 @@
 /* ----------------------------------------------------------------------------------------------------- */
+
 /*  @ Import/write your custom styles here.
 /*  @ Styles from this file will override 'vendors.scss' and Fuse's base styles.
 /* ----------------------------------------------------------------------------------------------------- */
@@ -36,6 +37,7 @@ html,
 body {
     height: 100%;
 }
+
 body {
     margin: 0;
     font-family: Roboto, 'Helvetica Neue', sans-serif;
@@ -54,9 +56,10 @@ body {
 
 .custom-required {
     @apply text-red-700;
+
     font-weight: bold;
     margin-left: 1px;
-    margin-right: 0px;
+    margin-right: 0;
 }
 
 .text-custom-red {
@@ -91,13 +94,13 @@ button {
 
         &[disabled] {
             box-shadow:
-                0 3px 1px -2px rgba(220, 220, 220, 0.11),
-                0 2px 2px 0 rgba(220, 220, 220, 0.14),
-                0 1px 5px 0 rgba(220, 220, 220, 0.12);
+                0 3px 1px -2px rgb(220 220 220 / 11%),
+                0 2px 2px 0 rgb(220 220 220 / 14%),
+                0 1px 5px 0 rgb(220 220 220 / 12%);
             cursor: not-allowed !important;
 
             mat-icon {
-                -webkit-filter: grayscale(100%);
+                filter: grayscale(100%);
                 filter: grayscale(100%);
             }
         }
@@ -211,14 +214,11 @@ rsa-process-header {
 .rsa-blocking-backdrop::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0;
     opacity: 0.5;
     z-index: 1001;
-    -webkit-transition: 0.3s;
-    -o-transition: 0.3s;
+    transition: 0.3s;
+    transition: 0.3s;
     transition: 0.3s;
     background-color: #fff;
 }
@@ -229,7 +229,7 @@ rsa-process-header {
     & > tr {
         & > th {
             text-align: left;
-            border-width: 0 0 1px 0;
+            border-width: 0 0 1px;
             color: #495057;
             background: #f8f9fa;
             transition: box-shadow 0.2s;
@@ -293,6 +293,7 @@ rsa-process-header {
 
 .custom-error-message{
     @apply text-red-700 #{'!important'}; 
+
     font-size: 12px;
     font-weight: 500;
 }
