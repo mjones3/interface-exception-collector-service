@@ -6,6 +6,7 @@ import com.arcone.biopro.distribution.order.infrastructure.mapper.OrderEntityMap
 import com.arcone.biopro.distribution.order.infrastructure.mapper.OrderItemEntityMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.relational.core.query.Query;
 import org.springframework.stereotype.Component;
@@ -115,6 +116,7 @@ public class OrderRepositoryImpl implements OrderRepository {
             .matching(
                 query(where("external_id").is(externalId)
                     .and("delete_date").isNull())
+                    .sort(Sort.by(Sort.Direction.ASC, "delete_date"))
             )
             .count();
     }
