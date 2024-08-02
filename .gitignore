@@ -146,3 +146,19 @@ Desktop.ini
 ######################
 .eslintcache
 /build.sh
+
+######################
+# Angular
+######################
+.angular
+package-lock.json
+# misc
+/.angular/cache
+/.sass-cache
+/connect.lock
+/coverage
+/libpeerconnection.log
+npm-debug.log
+yarn-error.log
+testem.log
+/typings
