@@ -2,13 +2,14 @@ package com.arcone.biopro.distribution.inventory.infrastructure.persistence;
 
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.Location;
-import com.arcone.biopro.distribution.inventory.domain.model.vo.ProductCode;
-import com.arcone.biopro.distribution.inventory.domain.model.vo.UnitNumber;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.FieldDefaults;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -19,46 +20,49 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import java.io.Serializable;
 import java.time.ZonedDateTime;
+import java.util.UUID;
 
 @Data
 @Builder
+@EqualsAndHashCode(exclude = {"createDate", "modificationDate"})
 @Table("bld_inventory")
-public class InventoryEntity implements Serializable, Persistable<Long> {
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class InventoryEntity implements Serializable, Persistable<UUID> {
 
     @Id
     @Column("id")
-    private Long id;
+    UUID id;
 
     @NotBlank
     @Column("unit_number")
-    private UnitNumber unitNumber;
+    String unitNumber;
 
     @NotBlank
     @Column("product_code")
-    private ProductCode productCode;
+    String productCode;
 
     @NotNull
     @Column("status")
-    private InventoryStatus inventoryStatus;
+    InventoryStatus inventoryStatus;
 
     @NotNull
     @Column("expiration_date")
-    private ZonedDateTime expirationDate;
+    String expirationDate;
 
     @NotNull
     @Column("location")
-    private Location location;
+    Location location;
 
     @NotNull
     @Column("create_date")
     @CreatedDate
     @InsertOnlyProperty
-    private ZonedDateTime createDate;
+    ZonedDateTime createDate;
 
     @NotNull
     @Column("modification_date")
     @LastModifiedDate
-    private ZonedDateTime modificationDate;
+    ZonedDateTime modificationDate;
 
     @JsonIgnore
     @Override

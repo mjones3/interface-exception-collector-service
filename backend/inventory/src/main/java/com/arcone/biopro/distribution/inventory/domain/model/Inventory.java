@@ -22,7 +22,7 @@ public class Inventory {
 
     private InventoryStatus inventoryStatus;
 
-    private ZonedDateTime expirationDate;
+    private String expirationDate;
 
     private Location location;
 
@@ -30,10 +30,10 @@ public class Inventory {
 
     private ZonedDateTime modificationDate;
 
-    public Inventory(
+    Inventory(
         UnitNumber unitNumber,
         ProductCode productCode,
-        ZonedDateTime expirationDate,
+        String expirationDate,
         Location location) {
         this.unitNumber = unitNumber;
         this.productCode = productCode;
