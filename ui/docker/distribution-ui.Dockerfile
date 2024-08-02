@@ -17,4 +17,4 @@ COPY dist/distribution-ui /var/www/ui
 EXPOSE 7001
 
 ## Run nginx
-CMD ["/bin/sh", "-c", "envsubst < /var/www/ui/assets/settings.template.json > /var/www/ui/assets/settings.json && nginx -g 'daemon off;'"]
+CMD ["/bin/sh", "-c", "envsubst < /var/www/ui/browser/settings.template.json > /var/www/ui/browser/settings.json && nginx -g 'daemon off;'"]
