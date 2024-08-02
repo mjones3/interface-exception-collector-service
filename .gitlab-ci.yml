@@ -7,6 +7,7 @@ include:
     file: spec.build_ui.pipeline.yml
     inputs:
       service: distribution
+      build_cmd: npm test && ng build
   - project: arc-one/infrastructure/gitlab-ci
     ref: main
     file: spec.backend.pipeline.yml
@@ -29,4 +30,4 @@ include:
       service: shipping
 
 .use-cache-ui:
-  image: artifactory.sha.ao.arc-one.com/docker/system/build-cicd/nodejs/main:20.16.0
+  image: artifactory.sha.ao.arc-one.com/docker/system/build-cicd/nodejs/main:20.16.0-bd04c46a
