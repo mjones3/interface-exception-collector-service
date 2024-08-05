@@ -68,18 +68,37 @@ export const locations: any[] = [
 //TODO: Change to the current application menu
 export const defaultNavigation: FuseNavigationItem[] = [
     {
-        id: 1,
-        title: 'Shipment',
+        id: 10,
+        title: 'Orders',
         type: 'collapsable',
         icon: 'shopping_cart',
         children: [
             {
-                id: 2,
-                title: 'Order Fulfillment',
+                id: 11,
+                title: 'Search Orders',
                 type: 'basic',
                 icon: 'search',
                 link: 'orders/search',
+                disabled: false,
             }
         ],
+        disabled: false,
     },
+    {
+        id: 20,
+        title: 'Shipping',
+        type: 'collapsable',
+        icon: 'local_shipping',
+        children: [
+            {
+                id: 21,
+                title: 'Search Shipments',
+                type: 'basic',
+                icon: 'search',
+                link: 'shipments/search',
+                disabled: true,
+            }
+        ],
+        disabled: true,
+    }
 ];
