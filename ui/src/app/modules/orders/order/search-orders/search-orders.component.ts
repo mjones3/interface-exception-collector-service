@@ -4,23 +4,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { Router } from '@angular/router';
 import { FuseCardComponent } from '@fuse/components/card/public-api';
-import {
-    Column,
-    LookUpDto,
-    ProcessHeaderComponent,
-    ProcessHeaderService,
-} from '@shared';
-import { ShipmentInfoDto } from 'app/modules/shipments/models/shipment-info.dto';
+import { Column, FacilityService, ProcessHeaderComponent, ProcessHeaderService } from '@shared';
 import { ToastrService } from 'ngx-toastr';
-import { LazyLoadEvent } from 'primeng/api';
-import { Table, TableModule } from 'primeng/table';
-import { finalize } from 'rxjs';
-import {
-    OPEN_OPTION_VALUE,
-    OrderStatuses,
-    OrderSummary,
-} from '../../models/order.model';
+import { Table, TableLazyLoadEvent, TableModule } from 'primeng/table';
+import { BehaviorSubject, filter, finalize, Subject, tap } from 'rxjs';
+import { OrderSummary } from '../../models/order.model';
 import { OrderService } from '../../services/order.service';
+import { OrderReportDTO } from '../models/search-order.model';
 
 @Component({
     selector: 'app-search-orders',
@@ -36,152 +26,128 @@ import { OrderService } from '../../services/order.service';
     ],
     providers: [OrderService],
     templateUrl: './search-orders.component.html',
+    styleUrls: [ './search-orders.component.scss' ]
 })
 export class SearchOrdersComponent {
-    readonly orderStatuses = OrderStatuses;
-    processProperties: Map<string, string> = new Map<string, string>();
-    statuses: LookUpDto[] = [];
-    deliveryTypes: LookUpDto[] = [];
 
-    columns: Column[] = [
+    readonly hiddenColumns: Column[] = [
         {
-            field: 'id',
-            header: 'Shipment Id',
+            field: 'shippingCustomerCode',
+            header: 'Ship to Customer Code',
             sortable: true,
-            default: true,
+            hidden: true,
         },
+        {
+            field: 'billingCustomerName',
+            header: 'Bill to Customer Name',
+            sortable: true,
+            hidden: true,
+        },
+        {
+            field: 'billingCustomerCode',
+            header: 'Bill to Customer Code',
+            sortable: true,
+            hidden: true,
+        },
+    ];
+    readonly columns: Column[] = [
         {
             field: 'orderNumber',
-            header: 'Order Number',
+            header: 'BioPro Order Number',
             sortable: true,
             default: true,
         },
         {
-            field: 'shippingCustomerExternalId',
-            header: 'Ship to Customer Id',
+            field: 'externalId',
+            header: 'External Order ID',
             sortable: true,
-            hidden: true,
-        },
-        {
-            field: 'shipLocationName',
-            header: 'Ship to Location',
-            sortable: true,
-            hidden: true,
-        },
-        {
-            field: 'createDate',
-            header: 'Create Date',
-            templateRef: 'dateTpl',
-            sortable: true,
-            hidden: true,
-        },
-        {
-            field: 'desireShippingDate',
-            header: 'Ship Date',
-            templateRef: 'dateTpl',
-            sortable: true,
-            hidden: true,
+            default: true,
         },
         {
             field: 'priority',
             header: 'Priority',
+            templateRef: 'priorityTpl',
             sortable: true,
             sortFieldName: 'priority',
             default: true,
         },
         {
-            field: 'status',
+            field: 'orderStatus',
             header: 'Status',
             sortable: true,
             sortFieldName: 'status',
             default: true,
         },
         {
-            field: 'createDate',
-            header: 'Create Date',
+            field: 'orderCustomerReport.name',
+            header: 'Ship to Customer Name',
+            templateRef: 'shipToCustomerTpl',
             sortable: true,
+            default: true,
+        },
+        {
+            field: 'createDate',
+            header: 'Create Date and Time',
+            sortable: true,
+            templateRef: 'dateTimeTpl',
             sortFieldName: 'createDate',
             default: true,
         },
         {
+            field: 'desireShipDate',
+            header: 'Desired Ship Date',
+            templateRef: 'dateTpl',
+            sortable: true,
+            default: true,
+        },
+        ...this.hiddenColumns,
+        {
             field: '',
-            header: 'Action',
+            header: 'Actions',
             templateRef: 'actionTpl',
             hideHeader: true,
             default: true,
         },
     ];
-    orders: OrderSummary[] = [];
-    shipmentInfo: ShipmentInfoDto;
-    totalRecords = 0;
-    loading = true;
-    defaultRowsPerPage = 10;
-    defaultSortField = 'priority';
-    defaultLazyLoadEvent: LazyLoadEvent;
-    shipmentTypes: LookUpDto[] = [];
 
-    alertInfo = {
-        type: null,
-        message: null,
-        title: null,
-    };
+    defaultRowsPerPage = 10;
+    defaultSortField = 'createDate';
+    totalRecords = 0;
+    items$: Subject<OrderReportDTO[]> = new BehaviorSubject([]);
+    loading = true;
 
     @ViewChild('orderTable', { static: true }) orderTable: Table;
+
     private _selectedColumns: Column[] = this.columns.filter(
         (col) => !col.hidden
     );
 
     constructor(
-        private orderService: OrderService,
-        private router: Router,
+        public facilityService: FacilityService,
+        public orderService: OrderService,
+        public router: Router,
+        public toaster: ToastrService,
         public header: ProcessHeaderService,
-        private toaster: ToastrService
     ) {}
 
-    fetchOrders(event?: LazyLoadEvent) {
-        //Cleaning the data when another search or a pagination is done
-        this.orders = [];
-        this.totalRecords = 0;
-
-        if (!event) {
-            event = this.defaultLazyLoadEvent;
-        }
-
+    fetchOrders(event: TableLazyLoadEvent) {
         this.orderService
-            .getOrdersSummaryByCriteria({}, true)
-            .pipe(finalize(() => (this.loading = false)))
-            .subscribe({
-                next: (response) => {
-                    if (response.data.listShipments) {
-                        this.orderTable.sortField =
-                            event.sortField ?? this.defaultSortField;
-                        this.orders =
-                            response.data?.listShipments?.map((order) => {
-                                const orderSummary: OrderSummary = {
-                                    ...order,
-                                    deliveryTypeDescriptionKey:
-                                        this.deliveryTypes?.find(
-                                            (dt) =>
-                                                dt.optionValue ===
-                                                order.deliveryType
-                                        )?.descriptionKey ?? '',
-                                    statusDescriptionKey:
-                                        this.statuses?.find(
-                                            (s) =>
-                                                s.optionValue ===
-                                                order.statusKey
-                                        )?.descriptionKey ?? '',
-                                    statusColor:
-                                        this.processProperties[
-                                            this.orderStatuses[order.statusKey]
-                                        ],
-                                };
-                                return orderSummary;
-                            }) ?? [];
-                        this.totalRecords = Number(0);
-                    } else {
+            .searchOrders({ locationCode: `${this.facilityService.getFacilityId()}` })
+            .pipe(
+                tap(response => {
+                    if (!response?.data?.searchOrders?.length) {
                         this.toaster.error('No Results Found');
                     }
+                }),
+                filter(response => !!response?.data?.searchOrders?.length),
+                finalize(() => this.loading = false)
+            )
+            .subscribe({
+                next: (response) => {
+                    this.orderTable.sortField = typeof event.sortField === 'string'
+                        ? event.sortField
+                        : (event.sortField?.[0] ?? this.defaultSortField);
+                    this.items$.next(response.data.searchOrders ?? []);
                 },
                 error: (err) => {
                     this.toaster.error('Something Went Wrong');
@@ -200,15 +166,7 @@ export class SearchOrdersComponent {
     }
 
     set selectedColumns(val: Column[]) {
-        //restore original order
         this._selectedColumns = this.columns.filter((col) => val.includes(col));
     }
 
-    get openStatus() {
-        return (
-            this.statuses.find(
-                (status) => status.optionValue === OPEN_OPTION_VALUE
-            ) ?? null
-        );
-    }
 }
