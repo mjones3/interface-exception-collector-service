@@ -12,6 +12,7 @@ import {
     providedIn: 'root',
 })
 export class OrderService {
+
     constructor(private apollo: Apollo) {}
 
     public searchOrders(
@@ -26,4 +27,5 @@ export class OrderService {
             ...(refetch ? { fetchPolicy: 'network-only' } : {}),
         });
     }
+
 }
