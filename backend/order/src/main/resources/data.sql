@@ -65,3 +65,12 @@ INSERT INTO lk_order_product_family (family_category, family_type, description_k
 INSERT INTO lk_lookup (type, description_key, option_value, order_number, active) VALUES
     ('ORDER_SHIPMENT_TYPE', 'order-shipment-type.customer.label', 'CUSTOMER', 1, true)
  ON CONFLICT DO NOTHING;
+
+-- Order Status Color
+INSERT INTO lk_lookup (type, description_key, option_value, order_number, active) VALUES
+    ('ORDER_PRIORITY_COLOR', 'STAT', '#ff3333', 1, true),
+    ('ORDER_PRIORITY_COLOR', 'ASAP', '#ffb833', 2, true),
+    ('ORDER_PRIORITY_COLOR', 'ROUTINE', '#d7d6d3', 3, true),
+    ('ORDER_PRIORITY_COLOR', 'SCHEDULED', '#97a6f2', 4, true),
+    ('ORDER_PRIORITY_COLOR', 'DATE-TIME', '#0930f6', 5, true)
+    ON CONFLICT DO NOTHING;
