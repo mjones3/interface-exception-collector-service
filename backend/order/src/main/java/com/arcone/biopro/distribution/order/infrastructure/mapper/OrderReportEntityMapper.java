@@ -1,0 +1,24 @@
+package com.arcone.biopro.distribution.order.infrastructure.mapper;
+
+import com.arcone.biopro.distribution.order.domain.model.OrderReport;
+import com.arcone.biopro.distribution.order.domain.model.vo.OrderCustomerReport;
+import com.arcone.biopro.distribution.order.domain.model.vo.OrderPriorityReport;
+import com.arcone.biopro.distribution.order.infrastructure.persistence.LookupEntity;
+import com.arcone.biopro.distribution.order.infrastructure.persistence.OrderEntity;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+
+@Component
+@RequiredArgsConstructor
+public class OrderReportEntityMapper {
+
+    public OrderReport mapToDomain(OrderEntity orderEntity , LookupEntity lookupEntity) {
+        return new OrderReport(orderEntity.getId()
+            , orderEntity.getOrderNumber(), orderEntity.getExternalId()
+            , new OrderCustomerReport(orderEntity.getShippingCustomerCode() , orderEntity.getShippingCustomerName())
+            , new OrderPriorityReport(orderEntity.getPriority(), lookupEntity.getOptionValue())
+            ,orderEntity.getStatus(), orderEntity.getCreateDate() , orderEntity.getDesiredShippingDate()
+        );
+
+    }
+}

@@ -4,9 +4,19 @@ import com.arcone.biopro.distribution.order.adapter.in.web.dto.OrderQueryCommand
 import com.arcone.biopro.distribution.order.adapter.in.web.dto.QueryOrderByDTO;
 import com.arcone.biopro.distribution.order.adapter.in.web.dto.QuerySortDTO;
 import com.arcone.biopro.distribution.order.application.mapper.OrderQueryMapper;
+import com.arcone.biopro.distribution.order.domain.model.OrderReport;
+import com.arcone.biopro.distribution.order.domain.model.vo.OrderCustomerReport;
+import com.arcone.biopro.distribution.order.domain.model.vo.OrderPriority;
+import com.arcone.biopro.distribution.order.domain.model.vo.OrderPriorityReport;
+import com.arcone.biopro.distribution.order.infrastructure.mapper.OrderReportEntityMapper;
+import com.arcone.biopro.distribution.order.infrastructure.persistence.LookupEntity;
+import com.arcone.biopro.distribution.order.infrastructure.persistence.OrderEntity;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -74,6 +84,50 @@ class OrderQueryMapperTest {
         assertEquals(20, orderQuery.getLimit());
         assertEquals("123", orderQuery.getLocationCode());
         assertNotNull(orderQuery.getQuerySort());
+
+    }
+
+    @Test
+    public void shouldMapToDto(){
+
+        var orderReport = Mockito.mock(OrderReport.class);
+
+        var customerReport = Mockito.mock(OrderCustomerReport.class);
+        Mockito.when(customerReport.getCode()).thenReturn("code");
+        Mockito.when(customerReport.getName()).thenReturn("name");
+        Mockito.when(orderReport.getOrderCustomerReport()).thenReturn(customerReport);
+
+        var orderPriority = Mockito.mock(OrderPriorityReport.class);
+        Mockito.when(orderPriority.getPriority()).thenReturn("PRIORITY");
+        Mockito.when(orderPriority.getPriorityColor()).thenReturn("COLOR");
+
+        Mockito.when(orderReport.getOrderPriorityReport()).thenReturn(orderPriority);
+
+        Mockito.when(orderReport.getOrderId()).thenReturn(1L);
+        Mockito.when(orderReport.getOrderNumber()).thenReturn(1L);
+        Mockito.when(orderReport.getExternalId()).thenReturn("externalId");
+        Mockito.when(orderReport.getOrderStatus()).thenReturn("STATUS");
+
+        Mockito.when(orderReport.getCreateDate()).thenReturn(ZonedDateTime.now());
+        Mockito.when(orderReport.getDesireShipDate()).thenReturn(LocalDate.now());
+
+
+        OrderQueryMapper mapper = new OrderQueryMapper();
+
+        var orderReportDTO = mapper.mapToDTO(orderReport);
+
+        Assertions.assertNotNull(orderReportDTO);
+        Assertions.assertEquals(1L,orderReportDTO.orderId());
+        Assertions.assertEquals(1L,orderReportDTO.orderNumber());
+        Assertions.assertEquals("STATUS",orderReportDTO.orderStatus());
+        Assertions.assertEquals("externalId",orderReportDTO.externalId());
+        Assertions.assertNotNull(orderReportDTO.desireShipDate());
+        Assertions.assertNotNull(orderReportDTO.createDate());
+        Assertions.assertEquals("COLOR",orderReportDTO.orderPriorityReport().priorityColor());
+        Assertions.assertEquals("PRIORITY",orderReportDTO.orderPriorityReport().priority());
+        Assertions.assertEquals("code",orderReportDTO.orderCustomerReport().code());
+        Assertions.assertEquals("name",orderReportDTO.orderCustomerReport().name());
+
 
     }
 
