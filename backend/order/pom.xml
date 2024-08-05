@@ -402,6 +402,20 @@
             <scope>test</scope>
         </dependency>
 
+        <!--        Selenium Webdriver -->
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-java</artifactId>
+            <version>4.21.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.github.bonigarcia</groupId>
+            <artifactId>webdrivermanager</artifactId>
+            <version>5.8.0</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- Test Containers -->
         <dependency>
             <groupId>org.testcontainers</groupId>
