@@ -3,7 +3,7 @@ fuse-card {
     display: flex;
     overflow: visible;
 
-    @apply bg-card rounded-2xl shadow;
+    @apply bg-card rounded-lg drop-shadow-lg;
 
     /* Flippable */
     &.fuse-card-flippable {
@@ -62,12 +62,24 @@ fuse-card {
             overflow: hidden auto;
         }
     }
+
+    p-paginator > .p-paginator {
+        & > .p-paginator-current {
+            font-size: 0.8rem;
+        }
+
+        & .p-paginator-rpp-options {
+            .p-dropdown-label {
+                font-size: 0.8rem;
+            }
+        }
+    }
 }
 
 .fuse-card-title {
     h3 {
-      margin: 1rem;
-      font-weight: 500;
-      font-size:large;
+      margin: calc(3rem / 4) 0;
+      font-weight: bold;
+      font-size: x-large;
     }
   }
