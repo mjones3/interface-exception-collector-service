@@ -73,7 +73,8 @@ class OrderEntityMapperTest {
         assertEquals(order.getProductCategory().getProductCategory(), orderEntity.getProductCategory());
         assertEquals(order.getComments(), orderEntity.getComments());
         assertEquals(order.getOrderStatus().getOrderStatus(), orderEntity.getStatus());
-        assertEquals(order.getOrderPriority().getOrderPriority(), orderEntity.getPriority());
+        assertEquals(order.getOrderPriority().getPriority(), orderEntity.getPriority());
+        assertEquals(order.getOrderPriority().getDeliveryType(), orderEntity.getDeliveryType());
         assertEquals(order.getCreateEmployeeId(), orderEntity.getCreateEmployeeId());
         assertEquals(order.getCreateDate(), orderEntity.getCreateDate());
         assertEquals(order.getModificationDate(), orderEntity.getModificationDate());
@@ -122,7 +123,8 @@ class OrderEntityMapperTest {
             .productCategory("productCategory")
             .comments("comments")
             .status("status")
-            .priority("priority")
+            .priority(1)
+            .deliveryType("deliveryType")
             .createEmployeeId("createEmployeeId")
             .createDate(ZonedDateTime.now())
             .modificationDate(ZonedDateTime.now())
@@ -146,7 +148,8 @@ class OrderEntityMapperTest {
         assertEquals(orderEntity.getProductCategory(), domain.getProductCategory().getProductCategory());
         assertEquals(orderEntity.getComments(), domain.getComments());
         assertEquals(orderEntity.getStatus(), domain.getOrderStatus().getOrderStatus());
-        assertEquals(orderEntity.getPriority(), domain.getOrderPriority().getOrderPriority());
+        assertEquals(orderEntity.getPriority(), domain.getOrderPriority().getPriority());
+        assertEquals(orderEntity.getDeliveryType(), domain.getOrderPriority().getDeliveryType());
         assertEquals(orderEntity.getCreateEmployeeId(), domain.getCreateEmployeeId());
         assertEquals(orderEntity.getCreateDate(), domain.getCreateDate());
         assertEquals(orderEntity.getModificationDate(), domain.getModificationDate());

@@ -39,7 +39,7 @@ public class OrderMapper {
             .productCategory(order.getProductCategory().getProductCategory())
             .comments(order.getComments())
             .status(order.getOrderStatus().getOrderStatus())
-            .priority(order.getOrderPriority().getOrderPriority())
+            .priority(order.getOrderPriority().getDeliveryType())
             .createEmployeeId(order.getCreateEmployeeId())
             .createDate(order.getCreateDate())
             .modificationDate(order.getModificationDate())

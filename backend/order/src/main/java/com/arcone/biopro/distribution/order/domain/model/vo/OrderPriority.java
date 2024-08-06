@@ -11,35 +11,53 @@ import lombok.ToString;
 @ToString
 public class OrderPriority implements Validatable {
 
-    private String orderPriority;
+    private Integer priority;
+    private String deliveryType;
     private static final String PRIORITY_TYPE_CODE = "ORDER_PRIORITY";
     private final LookupService lookupService;
 
-    public OrderPriority(String orderPriority , LookupService lookupService) {
-        this.orderPriority = orderPriority;
+    public OrderPriority(String deliveryType , LookupService lookupService) {
+        this.deliveryType = deliveryType;
         this.lookupService = lookupService;
         this.checkValid();
+        this.priority = definePriority(deliveryType, lookupService);
     }
 
     @Override
     public void checkValid() {
-        if (orderPriority == null || orderPriority.isBlank()) {
+        if (deliveryType == null || deliveryType.isBlank()) {
             throw new IllegalArgumentException("orderPriority cannot be null or blank");
         }
-        isValidOrderPriority(orderPriority, lookupService);
+
+        isValidOrderPriority(deliveryType, lookupService);
     }
 
 
-    private static void isValidOrderPriority(String orderPriority , LookupService lookupService) {
+    private static void isValidOrderPriority(String deliveryType , LookupService lookupService) {
 
         var types = lookupService.findAllByType(PRIORITY_TYPE_CODE).collectList().block();
 
         if(types == null || types.isEmpty()) {
-            throw new IllegalArgumentException("Order Priority " + orderPriority + " is not valid");
+            throw new IllegalArgumentException("Order Priority " + deliveryType + " is not valid");
         }
 
-        if (types.stream().noneMatch(lookup -> lookup.getId().getOptionValue().equals(orderPriority))) {
-            throw new IllegalArgumentException("Order Priority " + orderPriority + " is not valid");
+        if (types.stream().noneMatch(lookup -> lookup.getId().getOptionValue().equals(deliveryType))) {
+            throw new IllegalArgumentException("Order Priority " + deliveryType + " is not valid");
         }
+    }
+
+    private static Integer definePriority(String deliveryType, LookupService lookupService) {
+        var types = lookupService.findAllByType(PRIORITY_TYPE_CODE).collectList().block();
+
+        if(types == null || types.isEmpty()) {
+            throw new IllegalArgumentException("Priority Not found for delivery type " + deliveryType);
+        }
+
+        return types.stream()
+            .filter(lookup -> lookup.getId().getOptionValue().equals(deliveryType))
+            .findFirst()
+            .map(lookup -> lookup.getOrderNumber())
+            .orElse(0);
+
     }
 }

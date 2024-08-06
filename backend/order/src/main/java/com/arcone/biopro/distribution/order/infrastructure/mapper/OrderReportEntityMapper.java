@@ -18,7 +18,7 @@ public class OrderReportEntityMapper {
         return new OrderReport(orderEntity.getId()
             , orderEntity.getOrderNumber(), orderEntity.getExternalId()
             , new OrderCustomerReport(orderEntity.getShippingCustomerCode() , orderEntity.getShippingCustomerName())
-            , new OrderPriorityReport(orderEntity.getPriority(), colorPriority)
+            , new OrderPriorityReport(orderEntity.getDeliveryType(), colorPriority)
             ,orderEntity.getStatus(), orderEntity.getCreateDate() , orderEntity.getDesiredShippingDate()
         );
 
