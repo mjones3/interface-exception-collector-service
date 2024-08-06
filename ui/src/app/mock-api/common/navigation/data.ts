@@ -2,7 +2,7 @@
 import { FuseNavigationItem } from '@fuse/components/navigation';
 
 export const location: any = {
-    id: 3,
+    id: 123456789,
     orderNumber: 1,
     active: true,
     locationTypeId: 3,
@@ -36,7 +36,7 @@ export const locations: any[] = [
         },
     },
     {
-        id: 3,
+        id: 123456789,
         partOfId: null,
         externalId: 'null',
         name: 'Charlotte',
