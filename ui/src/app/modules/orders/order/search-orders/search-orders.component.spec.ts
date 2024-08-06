@@ -1,3 +1,4 @@
+import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { ApolloModule } from 'apollo-angular';
@@ -13,9 +14,10 @@ describe('SearchOrdersComponent', () => {
             imports: [
                 SearchOrdersComponent,
                 ApolloModule,
-                MatIconTestingModule,
                 ToastrModule.forRoot(),
+                MatIconTestingModule,
             ],
+            providers: [provideHttpClient()],
         });
         fixture = TestBed.createComponent(SearchOrdersComponent);
         component = fixture.componentInstance;
