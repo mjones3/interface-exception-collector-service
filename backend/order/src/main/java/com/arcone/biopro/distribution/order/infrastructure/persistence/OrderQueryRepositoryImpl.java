@@ -34,7 +34,7 @@ public class OrderQueryRepositoryImpl implements OrderQueryRepository {
                     .matching(Query.query(criteria)
                         .sort(Sort.by(sort))
                         .limit(orderQueryCommand.getLimit())
-                    ).all().flatMap(orderEntity -> findPriorityColor(orderEntity.getPriority())
+                    ).all().flatMapSequential(orderEntity -> findPriorityColor(orderEntity.getPriority())
                 .map(lookup -> orderReportEntityMapper.mapToDomain(orderEntity,lookup.getOptionValue()))
             );
 
