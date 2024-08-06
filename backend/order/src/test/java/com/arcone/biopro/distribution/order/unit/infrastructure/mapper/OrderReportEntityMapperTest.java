@@ -22,7 +22,8 @@ class OrderReportEntityMapperTest {
         Mockito.when(orderEntity.getOrderNumber()).thenReturn(1L);
         Mockito.when(orderEntity.getExternalId()).thenReturn("externalId");
         Mockito.when(orderEntity.getStatus()).thenReturn("STATUS");
-        Mockito.when(orderEntity.getPriority()).thenReturn("PRIORITY");
+        Mockito.when(orderEntity.getPriority()).thenReturn(1);
+        Mockito.when(orderEntity.getDeliveryType()).thenReturn("DELIVERY_TYPE");
         Mockito.when(orderEntity.getCreateDate()).thenReturn(ZonedDateTime.now());
         Mockito.when(orderEntity.getDesiredShippingDate()).thenReturn(LocalDate.now());
 
@@ -42,7 +43,7 @@ class OrderReportEntityMapperTest {
         Assertions.assertNotNull(domain.getDesireShipDate());
         Assertions.assertNotNull(domain.getCreateDate());
         Assertions.assertEquals("optionValue",domain.getOrderPriorityReport().getPriorityColor());
-        Assertions.assertEquals("PRIORITY",domain.getOrderPriorityReport().getPriority());
+        Assertions.assertEquals("DELIVERY_TYPE",domain.getOrderPriorityReport().getPriority());
         Assertions.assertEquals("code",domain.getOrderCustomerReport().getCode());
         Assertions.assertEquals("name",domain.getOrderCustomerReport().getName());
     }

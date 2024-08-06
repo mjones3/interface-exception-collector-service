@@ -82,7 +82,11 @@ public class OrderEntity {
 
     @NotNull
     @Column("priority")
-    private String priority;
+    private Integer priority;
+
+    @NotNull
+    @Column("delivery_type")
+    private String deliveryType;
 
     @NotNull
     @Column("create_employee_id")
