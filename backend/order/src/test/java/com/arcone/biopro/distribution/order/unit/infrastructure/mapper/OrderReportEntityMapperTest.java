@@ -31,7 +31,7 @@ class OrderReportEntityMapperTest {
 
         OrderReportEntityMapper mapper = new OrderReportEntityMapper();
 
-        var domain = mapper.mapToDomain(orderEntity, lookupEntity);
+        var domain = mapper.mapToDomain(orderEntity, "optionValue");
 
         Assertions.assertNotNull(domain);
         Assertions.assertEquals(1L,domain.getOrderId());

@@ -8,17 +8,21 @@ import com.arcone.biopro.distribution.order.infrastructure.persistence.OrderEnti
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class OrderReportEntityMapper {
 
-    public OrderReport mapToDomain(OrderEntity orderEntity , LookupEntity lookupEntity) {
+    public OrderReport mapToDomain(OrderEntity orderEntity , String colorPriority) {
         return new OrderReport(orderEntity.getId()
             , orderEntity.getOrderNumber(), orderEntity.getExternalId()
             , new OrderCustomerReport(orderEntity.getShippingCustomerCode() , orderEntity.getShippingCustomerName())
-            , new OrderPriorityReport(orderEntity.getPriority(), lookupEntity.getOptionValue())
+            , new OrderPriorityReport(orderEntity.getPriority(), colorPriority)
             ,orderEntity.getStatus(), orderEntity.getCreateDate() , orderEntity.getDesiredShippingDate()
         );
 
     }
+
+
 }
