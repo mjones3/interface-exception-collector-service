@@ -24,7 +24,7 @@ class LabelAppliedUseCase implements UseCase<Mono<InventoryOutput>, InventoryInp
 
     @Override
     public Mono<InventoryOutput> execute(InventoryInput input) {
-        return inventoryAggregateRepository.existsByUnitNumberAndProductCode(input.unitNumber(), input.productCode())
+        return inventoryAggregateRepository.existsByLocationAndUnitNumberAndProductCode(input.location(), input.unitNumber(), input.productCode())
             .flatMap(exists -> {
                 if (exists) {
                     return Mono.error(new InventoryAlreadyExistsException());
