@@ -39,7 +39,7 @@ public class OrderQueryRepositoryImpl implements OrderQueryRepository {
 
         var orders = queryOrdersByCriteria(criteria, Sort.by(sorts), orderQueryCommand.getLimit());
         var priorityMap = queryLookupsByTypeToMapByOrderNumber(ORDER_PRIORITY_COLOR_TYPE);
-        return Flux.zip(orders, priorityMap.repeat())
+        return Flux.zip(orders, priorityMap.cache().repeat())
             .map(tuple -> {
                 var orderReport = tuple.getT1();
                 var orderPriorityLookupColorMap = tuple.getT2();

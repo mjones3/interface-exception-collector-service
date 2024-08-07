@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.order.infrastructure.config;
 
+import com.arcone.biopro.distribution.order.application.exception.QueryDidNotFindAnyResultsException;
 import com.arcone.biopro.distribution.order.infrastructure.controller.error.DataNotFoundException;
 import com.arcone.biopro.distribution.order.infrastructure.controller.error.ServiceNotAvailableException;
 import graphql.GraphQLError;
@@ -34,6 +35,7 @@ public class GraphQLConfig {
             protected GraphQLError resolveToSingleError(Throwable throwable, DataFetchingEnvironment env) {
                 return switch (throwable) {
                     case DataNotFoundException e -> this.buildGraphQLErrorFor(ErrorType.NOT_FOUND, e, env);
+                    case QueryDidNotFindAnyResultsException e -> this.buildGraphQLErrorFor(ErrorType.NOT_FOUND, e, env);
                     case ServiceNotAvailableException e -> this.buildGraphQLErrorFor(ErrorType.INTERNAL_ERROR, e, env);
                     default -> super.resolveToSingleError(throwable, env);
                 };
