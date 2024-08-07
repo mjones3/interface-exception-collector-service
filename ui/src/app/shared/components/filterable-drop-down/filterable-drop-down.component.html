@@ -4,7 +4,11 @@
 >
     <!-- Header Section -->
     <div class="flex items-center justify-between p-2">
-        <h2 id="'filterableListModalTitle'" mat-dialog-title class="m-0">
+        <h2
+            id="'filterableListModalTitle'"
+            mat-dialog-title
+            class="m-0 text-xl font-bold"
+        >
             {{ dialogTitle }}
         </h2>
         @if (closable) {
@@ -31,8 +35,8 @@
                         [placeholder]="inputPlaceholder"
                         [autocomplete]="'off'"
                     />
-                        <mat-icon matSuffix [svgIcon]="iconName"></mat-icon>
-                </mat-form-field>    
+                    <mat-icon matSuffix [svgIcon]="iconName"></mat-icon>
+                </mat-form-field>
             </div>
         </form>
         <!-- Filtered List Section -->
@@ -46,15 +50,12 @@
                     suppressScrollX: true,
                 }"
             >
-                <mat-list
-                    [id]="'filteredList'"              
-                    class="border-t p-0"
-                >
+                <mat-list [id]="'filteredList'" class="border-t p-0">
                     <mat-list-item
                         *ngFor="let item of filteredList"
                         (click)="selectValue(item)"
                     >
-                        <span class="pl-4 text-2xl cursor-pointer"
+                        <span class="cursor-pointer pl-4 text-2xl"
                             >{{
                                 (optionsLabel ? item[optionsLabel] : item)
                                     | translate

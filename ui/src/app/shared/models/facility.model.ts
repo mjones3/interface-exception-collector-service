@@ -1,4 +1,5 @@
 export interface Facility {
+    code: string;
     active: boolean;
     address1: string;
     address2?: string;

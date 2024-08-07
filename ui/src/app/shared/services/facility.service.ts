@@ -75,7 +75,7 @@ export class FacilityService {
                     data: {
                         options: options.body,
                         optionsLabel: 'name',
-                        dialogTitle: 'Distribution Location',
+                        dialogTitle: 'Distribution Locations',
                         closable,
                         iconName: 'search',
                     },
@@ -102,6 +102,11 @@ export class FacilityService {
     getFacilityId(): number {
         const currentFacility = this.facility.getValue();
         return currentFacility ? currentFacility.id : null;
+    }
+
+    getFacilityCode(): string {
+        const currentFacility = this.facility.getValue();
+        return currentFacility ? currentFacility.code : null;
     }
 
     getFacilityProperty(propertyName: string): string {
