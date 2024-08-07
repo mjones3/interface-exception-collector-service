@@ -6,8 +6,10 @@ import com.arcone.biopro.distribution.inventory.application.mapper.InventoryOutp
 import com.arcone.biopro.distribution.inventory.domain.exception.InventoryAlreadyExistsException;
 import com.arcone.biopro.distribution.inventory.domain.model.Inventory;
 import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.Location;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ProductFamily;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.ProductCode;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.UnitNumber;
 import com.arcone.biopro.distribution.inventory.domain.repository.InventoryAggregateRepository;
@@ -50,12 +52,24 @@ class LabelAppliedUseCaseTest {
         Inventory inventory = new Inventory(uuid,
             new UnitNumber("W123456789012"),
             new ProductCode("E1234V12"),
+            "APH PLASMA 24H",
             InventoryStatus.AVAILABLE,
             "2025-01-08T02:05:45.231Z",
+            "2025-01-07T02:05:45.231Z",
             Location.MIAMI,
+            ProductFamily.PLASMA_TRANSFUSABLE,
+            AboRhType.ABN,
             ZonedDateTime.now(),
             ZonedDateTime.now());
-        InventoryInput input = new InventoryInput("W123456789012", "E1234V12", "2025-01-08T02:05:45.231Z", "MIAMI");
+        InventoryInput input = new InventoryInput(
+            "W123456789012",
+            "E1234V12",
+            "APH PLASMA 24H",
+            "2025-01-08T02:05:45.231Z",
+            "2025-01-07T02:05:45.231Z",
+            "MIAMI",
+            ProductFamily.PLASMA_TRANSFUSABLE,
+            AboRhType.ABN);
         InventoryAggregate inventoryAggregate = InventoryAggregate.builder()
             .inventory(inventory)
             .build();
@@ -82,7 +96,15 @@ class LabelAppliedUseCaseTest {
     @Test
     @DisplayName("should Throw InventoryAlreadyExistsException when inventory already exists")
     void createInventoryAlreadyExists() {
-        InventoryInput input = new InventoryInput("W123456789012", "E1234V12", "2025-01-08T02:05:45.231Z", "MIAMI");
+        InventoryInput input = new InventoryInput(
+            "W123456789012",
+            "E1234V12",
+            "APH PLASMA 24H",
+            "2025-01-08T02:05:45.231Z",
+            "2025-01-07T02:05:45.231Z",
+            "MIAMI",
+            ProductFamily.PLASMA_TRANSFUSABLE,
+            AboRhType.ABN);
 
         when(inventoryAggregateRepository.existsByUnitNumberAndProductCode(input.unitNumber(), input.productCode())).thenReturn(Mono.just(true));
 

@@ -1,6 +1,8 @@
 package com.arcone.biopro.distribution.inventory.domain.model;
 
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.Location;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ProductFamily;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.ProductCode;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.UnitNumber;
 import lombok.Builder;
@@ -15,13 +17,21 @@ public class InventoryAggregate {
     public InventoryAggregate createInventory(
         String unitNumber,
         String productCode,
+        String productDescription,
         String expirationDate,
-        String location) {
+        String collectionDate,
+        String location,
+        ProductFamily productFamily,
+        AboRhType aboRhType) {
         this.inventory = new Inventory(
             new UnitNumber(unitNumber),
             new ProductCode(productCode),
+            productDescription,
             expirationDate,
-            Location.valueOf(location));
+            collectionDate,
+            Location.valueOf(location),
+            productFamily,
+            aboRhType);
         return this;
     }
 }
