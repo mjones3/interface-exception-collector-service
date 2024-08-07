@@ -15,9 +15,8 @@ Feature: List of all orders in Search Order
 
         Scenario Outline: List Biopro Orders by priority, status and location
             Given I have a Biopro Order with externalId "<External ID>", Location Code "<LocationCode>", Priority "<Priority>" and Status "<Status>".
-            When I choose search orders.
             And I am logged in the location "<LocationCode>".
-            Then I should see the list of orders based on priority and status.
+            When I choose search orders.
             And I should see the order details.
             And I should see the priority colored as "<Priority Color>"
             And I should see an option to see the order details.
@@ -31,9 +30,8 @@ Feature: List of all orders in Search Order
     Rule: I should be able to configure the color options for the priority column.
         Scenario Outline: List Biopro Orders, changing Status color setup.
             Given I have a Biopro Order with externalId "<External ID>", Location Code "<LocationCode>", Priority "<Priority>" and Status "<Status>".
-            And I have setup the order priority "<Priority>" color configuration as "<Priority Color>"
+            And I have setup the order priority "<Priority>" color configuration as "<Priority Color>".
             When I choose search orders.
-            Then I should see the list of orders based on priority and status.
             And I should see the order details.
             And I should see the priority colored as "<Priority Color>"
 
@@ -45,8 +43,8 @@ Feature: List of all orders in Search Order
 
         Scenario Outline: List Biopro Orders different location
             Given I have a Biopro Order with externalId "<External ID>", Location Code "<Order LocationCode>", Priority "<Priority>" and Status "<Status>".
-            When I choose search orders.
             And I am logged in the location "<User LocationCode>".
+            When I choose search orders.
             Then I should not see the the biopro order in the list of orders.
 
             Examples:

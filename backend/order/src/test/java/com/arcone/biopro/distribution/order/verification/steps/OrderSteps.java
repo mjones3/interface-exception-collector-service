@@ -1,6 +1,9 @@
 package com.arcone.biopro.distribution.order.verification.steps;
 
 import com.arcone.biopro.distribution.order.application.dto.OrderReceivedEventDTO;
+import com.arcone.biopro.distribution.order.verification.controllers.OrderController;
+import com.arcone.biopro.distribution.order.verification.pages.order.HomePage;
+import com.arcone.biopro.distribution.order.verification.pages.order.SearchOrderPage;
 import com.arcone.biopro.distribution.order.verification.support.DatabaseQueries;
 import com.arcone.biopro.distribution.order.verification.support.DatabaseService;
 import com.arcone.biopro.distribution.order.verification.support.KafkaHelper;
@@ -21,8 +24,9 @@ import org.springframework.beans.factory.annotation.Value;
 public class OrderSteps {
 
     private String externalId;
-
+    private OrderController orderController = new OrderController();
     private JSONObject partnerOrder;
+    private boolean isLoggedIn = false;
 
     @Autowired
     private TestUtils testUtils;
@@ -35,6 +39,12 @@ public class OrderSteps {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private SearchOrderPage searchOrderPage;
+
+    @Autowired
+    private HomePage homePage;
 
     @Value("${kafka.waiting.time}")
     private long kafkaWaitingTime;
@@ -104,18 +114,40 @@ public class OrderSteps {
     }
 
     @Given("I have a Biopro Order with externalId {string}, Location Code {string}, Priority {string} and Status {string}.")
-    public void createBioproOrder(String externalId, String locationCode, String priority, String status) throws Exception {
+    public void createBioproOrder(String externalId, String locationCode, String deliveryType, String status) throws Exception {
         this.externalId = externalId;
-        var query = DatabaseQueries.insertBioProOrder(externalId, locationCode, priority, status);
+        var query = DatabaseQueries.insertBioProOrder(externalId, locationCode, orderController.getPriorityValue(deliveryType), deliveryType, status);
         databaseService.executeSql(query).block();
     }
 
     @Given("I have more than {int} Biopro Orders.")
     public void createMultipleBioproOrders(int quantity) throws Exception {
         for (int i = 0; i <= quantity; i++) {
+            var priority = orderController.getRandomPriority();
             var externalId = "EXT_" + i;
-            var query = DatabaseQueries.insertBioProOrder(externalId, "123456789", "STAT", "OPEN");
+            var query = DatabaseQueries.insertBioProOrder(externalId, "123456789", priority.getValue(), priority.getKey(), "OPEN");
             databaseService.executeSql(query).block();
         }
+    }
+
+    @And("I am logged in the location {string}.")
+    public void loginAtLocation(String locationCode) throws InterruptedException {
+        homePage.goTo(locationCode);
+        isLoggedIn = true;
+    }
+
+    @When("I choose search orders.")
+    public void navigateSearchOrdersPage() throws InterruptedException {
+        if (!isLoggedIn) {
+            homePage.goTo();
+        }
+        searchOrderPage.goTo();
+    }
+
+    @And("I have setup the order priority {string} color configuration as {string}.")
+    public void setupOrderPriorityColor(String priority, String color) {
+        var colorHex = orderController.getColorHex(color);
+        var query = DatabaseQueries.updatePriorityColor(priority, colorHex);
+        databaseService.executeSql(query).block();
     }
 }
