@@ -1,32 +1,28 @@
 package com.arcone.biopro.distribution.order.unit.application.usecase;
 
+import com.arcone.biopro.distribution.order.application.dto.OrderReceivedEventPayloadDTO;
+import com.arcone.biopro.distribution.order.application.exception.DomainNotFoundForKeyException;
+import com.arcone.biopro.distribution.order.application.mapper.OrderReceivedEventMapper;
+import com.arcone.biopro.distribution.order.application.usecase.OrderUseCase;
 import com.arcone.biopro.distribution.order.domain.model.Order;
 import com.arcone.biopro.distribution.order.domain.repository.OrderRepository;
 import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
 import com.arcone.biopro.distribution.order.domain.service.OrderConfigService;
-import com.arcone.biopro.distribution.order.domain.service.OrderService;
-import com.arcone.biopro.distribution.order.infrastructure.service.dto.CustomerDTO;
-import org.junit.jupiter.api.BeforeEach;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
-import java.time.LocalDate;
-import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.stream.IntStream;
-
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 
 @SpringJUnitConfig
 public class OrderUseCaseTest {
-
-    @Autowired
-    OrderService orderService;
 
     @MockBean
     CustomerService customerService;
@@ -36,110 +32,79 @@ public class OrderUseCaseTest {
 
     @MockBean
     OrderConfigService orderConfigService;
+
     @MockBean
     LookupService lookupService;
 
-    @BeforeEach
-    void beforeEach() {
-        given(customerService.getCustomerByCode(anyString()))
-            .willReturn(Mono.just(
-                CustomerDTO.builder()
-                    .code("code")
-                    .name("name")
-                    .build()
-            ));
-    }
+    @MockBean
+    OrderReceivedEventMapper eventMapper;
 
-   /* @Test
-    @Disabled("Disabled until Manual Order Creation is implemented")
-    void testFindAll() {
-        var orders = this.createOrders(5);
-        given(this.orderRepository.findAll())
-            .willReturn(Flux.fromIterable(orders));
+    @MockBean
+    ApplicationEventPublisher applicationEventPublisher;
 
-        StepVerifier.create(orderService.findAll())
-            .expectNextCount(5)
-            .verifyComplete();
-    }
-
-    @Disabled("Disabled until Manual Order Creation is implemented")
     @Test
     void testFindOneById() {
-        var order = this.createOrder(1L);
-        given(this.orderRepository.findOneById(1L))
-            .willReturn(Mono.just(order));
 
-        StepVerifier.create(orderService.findOneById(1L))
-            .expectNext(order)
+        var useCase = new OrderUseCase(orderRepository, eventMapper,applicationEventPublisher);
+
+        var orderMock = Mockito.mock(Order.class);
+
+        Mockito.when(orderRepository.findOneById(anyLong())).thenReturn(Mono.just(orderMock));
+
+        StepVerifier.create(useCase.findOneById(1L))
+            .expectNext(orderMock)
             .verifyComplete();
     }
 
-    @Disabled("Disabled until Manual Order Creation is implemented")
     @Test
-    void testInsert() {
-        var mockOrder = mock(Order.class);
-        var realOrder = createOrder(1L);
+    void shouldNotFindOneById() {
 
-        given(orderRepository.insert(mockOrder)).willReturn(Mono.just(realOrder));
+        var useCase = new OrderUseCase(orderRepository, eventMapper,applicationEventPublisher);
 
-        StepVerifier.create(orderService.insert(mockOrder))
-            .expectNext(realOrder)
+        Mockito.when(orderRepository.findOneById(anyLong())).thenReturn(Mono.empty());
+
+        StepVerifier.create(useCase.findOneById(1L))
+            .expectError(DomainNotFoundForKeyException.class)
+            .verify();
+    }
+
+    @Test
+    void shouldProcessOrder(){
+        var useCase = new OrderUseCase(orderRepository, eventMapper,applicationEventPublisher);
+
+        var orderMock = Mockito.mock(Order.class);
+
+        Mockito.when(orderRepository.insert(Mockito.any(Order.class))).thenReturn(Mono.just(orderMock));
+        Mockito.when(eventMapper.mapToDomain(any())).thenReturn(Mono.just(orderMock));
+
+        StepVerifier.create(useCase.processOrder(OrderReceivedEventPayloadDTO.builder().build()))
+            .expectNext(orderMock)
             .verifyComplete();
-    }*/
-
-    private Order createOrder(Long orderId) {
-        return new Order(
-            customerService,
-            lookupService,
-            orderId,
-            orderId,
-            "externalId",
-            "locationCode",
-            "shipmentType",
-            "shippingMethod",
-            "code",
-            "code",
-            LocalDate.now(),
-            Boolean.TRUE,
-            "phoneNumber",
-            "productCategory",
-            "comments",
-            "status",
-            "priority",
-            "createEmployeeId",
-            ZonedDateTime.now(),
-            ZonedDateTime.now(),
-            ZonedDateTime.now()/*,
-            List.of(
-                new OrderItem(
-                    1L,
-                    orderId,
-                    "productFamily1",
-                    "bloodType1",
-                    3,
-                    "comments1",
-                    ZonedDateTime.now(),
-                    ZonedDateTime.now()
-                ),
-                new OrderItem(
-                    2L,
-                    orderId,
-                    "productFamily2",
-                    "bloodType2",
-                    5,
-                    "comments2",
-                    ZonedDateTime.now(),
-                    ZonedDateTime.now()
-                )
-            )*/
-        );
     }
 
-    private List<Order> createOrders(int quantity) {
-        return IntStream.range(0, quantity)
-            .mapToLong(Long::valueOf)
-            .mapToObj(this::createOrder)
-            .toList();
+    @Test
+    void shouldProcessOrderWhenValidationFails(){
+        var useCase = new OrderUseCase(orderRepository, eventMapper,applicationEventPublisher);
+
+        Mockito.when(eventMapper.mapToDomain(any())).thenReturn(Mono.error(new IllegalArgumentException("TEST")));
+
+        StepVerifier.create(useCase.processOrder(OrderReceivedEventPayloadDTO.builder().build()))
+            .expectError()
+            .verify();
     }
 
+    @Test
+    void shouldProcessOrderWhenDuplicatedOrder(){
+        var useCase = new OrderUseCase(orderRepository, eventMapper,applicationEventPublisher);
+
+        var orderMock = Mockito.mock(Order.class);
+
+        Mockito.when(eventMapper.mapToDomain(any())).thenReturn(Mono.just(orderMock));
+
+        Mockito.when(orderRepository.insert(Mockito.any(Order.class))).thenThrow(DuplicateKeyException.class);
+
+        StepVerifier.create(useCase.processOrder(OrderReceivedEventPayloadDTO.builder().build()))
+            .expectError()
+            .verify();
+    }
 }

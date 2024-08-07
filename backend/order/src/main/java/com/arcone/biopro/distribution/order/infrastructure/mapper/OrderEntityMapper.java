@@ -8,7 +8,6 @@ import com.arcone.biopro.distribution.order.infrastructure.persistence.OrderEnti
 import com.arcone.biopro.distribution.order.infrastructure.persistence.OrderItemEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 import java.util.List;
@@ -50,10 +49,6 @@ public class OrderEntityMapper {
             .build();
     }
 
-    public Mono<OrderEntity> flatMapToEntity(final Order domain) {
-        return Mono.just(mapToEntity(domain));
-    }
-
     public Order mapToDomain(final OrderEntity orderEntity, final List<OrderItemEntity> orderItemEntities) {
         var order = new Order(
             this.customerService,
@@ -90,10 +85,6 @@ public class OrderEntityMapper {
             );
 
         return order;
-    }
-
-    public Mono<Order> flatMapToDomain(final OrderEntity orderEntity, final List<OrderItemEntity> orderItemEntities) {
-        return Mono.just(mapToDomain(orderEntity, orderItemEntities));
     }
 
 }
