@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-service-service
+  namespace: api
+spec:
+  selector:
+    app: order-service
+  ports:
+    - name: http
+      port: 8080

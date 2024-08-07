@@ -5,10 +5,29 @@ include:
   - project: arc-one/infrastructure/gitlab-ci
     ref: main
     file: spec.build_ui.pipeline.yml
-    inputs: 
-      service: distribution-ui
+    inputs:
+      service: distribution
+      build_cmd: npm test && ng build --configuration production
   - project: arc-one/infrastructure/gitlab-ci
     ref: main
     file: spec.backend.pipeline.yml
-    inputs: 
-      service: shipping-service
+    inputs:
+      service: inventory
+  - project: arc-one/infrastructure/gitlab-ci
+    ref: main
+    file: spec.backend.pipeline.yml
+    inputs:
+      service: order
+  - project: arc-one/infrastructure/gitlab-ci
+    ref: main
+    file: spec.backend.pipeline.yml
+    inputs:
+      service: partnerorderprovider
+  - project: arc-one/infrastructure/gitlab-ci
+    ref: main
+    file: spec.backend.pipeline.yml
+    inputs:
+      service: shipping
+
+.use-cache-ui:
+  image: artifactory.sha.ao.arc-one.com/docker/system/build-cicd/nodejs/main:20.16.0-bd04c46a
