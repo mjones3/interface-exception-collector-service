@@ -11,7 +11,7 @@ public record PackItemRequest(
     @NotNull Long shipmentItemId,
     @NotNull  String unitNumber,
     @NotNull  String productCode,
-    @NotNull  Integer locationCode,
+    @NotNull  String locationCode,
     @NotNull  String employeeId,
     @NotNull VisualInspection visualInspection
 

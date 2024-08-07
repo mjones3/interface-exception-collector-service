@@ -6,7 +6,7 @@ CREATE TABLE bld_shipment (
     customer_code              BIGINT,
     customer_name varchar(255) NOT NULL,
     customer_phone_number varchar(255) NULL,
-    location_code              INTEGER NOT NULL,
+    location_code              VARCHAR(255) NOT NULL,
     delivery_type              VARCHAR(255)             NOT NULL,
     priority varchar(255) NOT NULL,
     shipment_method            VARCHAR(255)             NOT NULL,

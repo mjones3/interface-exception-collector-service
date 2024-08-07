@@ -21,13 +21,13 @@ public class FacilityServiceMock {
     private final ObjectMapper objectMapper;
     private List<FacilityDTO> facilityDTOList;
 
-    public Mono<FacilityDTO> getFacilityId(Integer facilityId) {
+    public Mono<FacilityDTO> getFacilityId(String facilityCode) {
         if(facilityDTOList == null){
             initFacilityMockList();
         }
 
         return facilityDTOList.stream()
-            .filter(facility -> Objects.equals(facility.id(), facilityId))
+            .filter(facility -> Objects.equals(facility.code(), facilityCode))
             .findAny()
             .map(Mono::just)
             .orElseGet(() -> Mono.error(new RuntimeException(ShipmentServiceMessages.FACILITY_NOT_FOUND_ERROR)));

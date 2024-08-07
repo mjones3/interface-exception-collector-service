@@ -8,7 +8,7 @@ import java.time.ZonedDateTime;
 @Builder
 public record InventoryResponseDTO(
     Long id,
-    Integer locationCode,
+    String locationCode,
     String unitNumber,
     String productCode,
     String productDescription,
