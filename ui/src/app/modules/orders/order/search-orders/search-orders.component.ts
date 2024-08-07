@@ -4,10 +4,15 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { Router } from '@angular/router';
 import { FuseCardComponent } from '@fuse/components/card/public-api';
-import { Column, FacilityService, ProcessHeaderComponent, ProcessHeaderService } from '@shared';
+import {
+    Column,
+    FacilityService,
+    ProcessHeaderComponent,
+    ProcessHeaderService,
+} from '@shared';
 import { ToastrService } from 'ngx-toastr';
 import { Table, TableLazyLoadEvent, TableModule } from 'primeng/table';
-import { BehaviorSubject, filter, finalize, Subject, tap } from 'rxjs';
+import { BehaviorSubject, Subject, filter, finalize, tap } from 'rxjs';
 import { OrderSummary } from '../../models/order.model';
 import { OrderService } from '../../services/order.service';
 import { OrderReportDTO } from '../models/search-order.model';
@@ -26,10 +31,9 @@ import { OrderReportDTO } from '../models/search-order.model';
     ],
     providers: [OrderService],
     templateUrl: './search-orders.component.html',
-    styleUrls: [ './search-orders.component.scss' ]
+    styleUrls: ['./search-orders.component.scss'],
 })
 export class SearchOrdersComponent {
-
     readonly hiddenColumns: Column[] = [
         {
             field: 'shippingCustomerCode',
@@ -110,7 +114,7 @@ export class SearchOrdersComponent {
         },
     ];
 
-    defaultRowsPerPage = 10;
+    defaultRowsPerPage = 20;
     defaultSortField = 'createDate';
     totalRecords = 0;
     items$: Subject<OrderReportDTO[]> = new BehaviorSubject([]);
@@ -127,26 +131,29 @@ export class SearchOrdersComponent {
         public orderService: OrderService,
         public router: Router,
         public toaster: ToastrService,
-        public header: ProcessHeaderService,
+        public header: ProcessHeaderService
     ) {}
 
     fetchOrders(event: TableLazyLoadEvent) {
         this.orderService
-            .searchOrders({ locationCode: `${this.facilityService.getFacilityId()}` })
+            .searchOrders({
+                locationCode: `${this.facilityService.getFacilityId()}`,
+            })
             .pipe(
-                tap(response => {
+                tap((response) => {
                     if (!response?.data?.searchOrders?.length) {
                         this.toaster.error('No Results Found');
                     }
                 }),
-                filter(response => !!response?.data?.searchOrders?.length),
-                finalize(() => this.loading = false)
+                filter((response) => !!response?.data?.searchOrders?.length),
+                finalize(() => (this.loading = false))
             )
             .subscribe({
                 next: (response) => {
-                    this.orderTable.sortField = typeof event.sortField === 'string'
-                        ? event.sortField
-                        : (event.sortField?.[0] ?? this.defaultSortField);
+                    this.orderTable.sortField =
+                        typeof event.sortField === 'string'
+                            ? event.sortField
+                            : event.sortField?.[0] ?? this.defaultSortField;
                     this.items$.next(response.data.searchOrders ?? []);
                 },
                 error: (err) => {
@@ -168,5 +175,4 @@ export class SearchOrdersComponent {
     set selectedColumns(val: Column[]) {
         this._selectedColumns = this.columns.filter((col) => val.includes(col));
     }
-
 }
