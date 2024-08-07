@@ -2,7 +2,6 @@ package com.arcone.biopro.distribution.inventory.domain.model;
 
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
-import com.arcone.biopro.distribution.inventory.domain.model.enumeration.Location;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ProductFamily;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.ProductCode;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.UnitNumber;
@@ -34,7 +33,7 @@ class InventoryAggregateTest {
         assertEquals(new UnitNumber(unitNumber), inventory.getUnitNumber(), "Unit number should match");
         assertEquals(new ProductCode(productCode), inventory.getProductCode(), "Product code should match");
         assertEquals(expirationDate, inventory.getExpirationDate(), "Expiration date should match");
-        assertEquals(Location.MIAMI, inventory.getLocation(), "Location should match");
+        assertEquals("MIAMI", inventory.getLocation(), "Location should match");
         assertEquals(InventoryStatus.AVAILABLE, inventory.getInventoryStatus(), "Status should match");
     }
 }

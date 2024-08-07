@@ -8,7 +8,6 @@ import com.arcone.biopro.distribution.inventory.domain.model.Inventory;
 import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
-import com.arcone.biopro.distribution.inventory.domain.model.enumeration.Location;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ProductFamily;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.ProductCode;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.UnitNumber;
@@ -56,7 +55,7 @@ class LabelAppliedUseCaseTest {
             InventoryStatus.AVAILABLE,
             "2025-01-08T02:05:45.231Z",
             "2025-01-07T02:05:45.231Z",
-            Location.MIAMI,
+            "MIAMI",
             ProductFamily.PLASMA_TRANSFUSABLE,
             AboRhType.ABN,
             ZonedDateTime.now(),
@@ -75,7 +74,7 @@ class LabelAppliedUseCaseTest {
             .build();
         InventoryOutput expectedOutput = new InventoryOutput(uuid, "W123456789012", "E1234V12", InventoryStatus.AVAILABLE, "2025-01-08T02:05:45.231Z", "MIAMI");
 
-        when(inventoryAggregateRepository.existsByUnitNumberAndProductCode(input.unitNumber(), input.productCode())).thenReturn(Mono.just(false));
+        when(inventoryAggregateRepository.existsByLocationAndUnitNumberAndProductCode(input.location(), input.unitNumber(), input.productCode())).thenReturn(Mono.just(false));
         when(inventoryAggregateRepository.saveInventory(any())).thenReturn(Mono.just(inventoryAggregate));
         when(mapper.toOutput(any())).thenReturn(expectedOutput);
 
@@ -90,7 +89,7 @@ class LabelAppliedUseCaseTest {
         assertEquals("W123456789012", savedAggregate.getInventory().getUnitNumber().value());
         assertEquals("E1234V12", savedAggregate.getInventory().getProductCode().value());
         assertEquals("2025-01-08T02:05:45.231Z", savedAggregate.getInventory().getExpirationDate());
-        assertEquals(Location.MIAMI, savedAggregate.getInventory().getLocation());
+        assertEquals("MIAMI", savedAggregate.getInventory().getLocation());
     }
 
     @Test
@@ -106,12 +105,12 @@ class LabelAppliedUseCaseTest {
             ProductFamily.PLASMA_TRANSFUSABLE,
             AboRhType.ABN);
 
-        when(inventoryAggregateRepository.existsByUnitNumberAndProductCode(input.unitNumber(), input.productCode())).thenReturn(Mono.just(true));
+        when(inventoryAggregateRepository.existsByLocationAndUnitNumberAndProductCode(input.location(), input.unitNumber(), input.productCode())).thenReturn(Mono.just(true));
 
         StepVerifier.create(labelAppliedUseCase.execute(input))
             .expectError(InventoryAlreadyExistsException.class)
             .verify();
 
-        verify(inventoryAggregateRepository).existsByUnitNumberAndProductCode(input.unitNumber(), input.productCode());
+        verify(inventoryAggregateRepository).existsByLocationAndUnitNumberAndProductCode(input.location(), input.unitNumber(), input.productCode());
     }
 }
