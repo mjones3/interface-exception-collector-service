@@ -32,8 +32,11 @@ public class KafkaListenersSteps {
          {
             "unitNumber": "W123452622168",
             "productCode": "E0869VA0",
+            "productDescription": "APH PLASMA 24H",
             "expirationDate": "2024-12-31T00:10:00Z",
+            "collectionDate": "2024-12-30T00:10:00Z",
             "location": "ORLANDO",
+            "productFamily": "PLASMA_TRANSFUSABLE",
             "aboRh": "OP",
             "performedBy": "USER_ID",
             "createDate": "2024-07-01T00:10:00Z"

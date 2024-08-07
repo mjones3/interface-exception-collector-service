@@ -1,7 +1,9 @@
 package com.arcone.biopro.distribution.inventory.domain.model;
 
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.Location;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ProductFamily;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.ProductCode;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.UnitNumber;
 import org.junit.jupiter.api.DisplayName;
@@ -17,11 +19,13 @@ class InventoryAggregateTest {
     void createInventorySuccess() {
         String unitNumber = "W123456789012";
         String productCode = "E1234V12";
+        String productDescription = "APH PLASMA 24H";
         String expirationDate = "2025-01-08T02:05:45.231Z";
+        String collectionDate = "2025-01-07T02:05:45.231Z";
         String location = "MIAMI";
 
         InventoryAggregate inventoryAggregate = InventoryAggregate.builder().build();
-        inventoryAggregate.createInventory(unitNumber, productCode, expirationDate, location);
+        inventoryAggregate.createInventory(unitNumber, productCode, productDescription, expirationDate, collectionDate, location, ProductFamily.PLASMA_TRANSFUSABLE, AboRhType.ABN);
 
         Inventory inventory = inventoryAggregate.getInventory();
 

@@ -8,4 +8,4 @@ Feature: Kafka listeners
 
         Examples:
             | Event              | Status      |
-            | Label Applied       | AVAILABLE   |
+            | Label Applied      | AVAILABLE   |
