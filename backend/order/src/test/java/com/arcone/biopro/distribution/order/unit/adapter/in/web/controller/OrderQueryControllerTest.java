@@ -2,7 +2,7 @@ package com.arcone.biopro.distribution.order.unit.adapter.in.web.controller;
 
 import com.arcone.biopro.distribution.order.adapter.in.web.controller.OrderQueryController;
 import com.arcone.biopro.distribution.order.adapter.in.web.dto.OrderQueryCommandDTO;
-import com.arcone.biopro.distribution.order.application.exception.QueryDidNotFindAnyResultsException;
+import com.arcone.biopro.distribution.order.application.exception.QueryDidNotReturnAnyResultsException;
 import com.arcone.biopro.distribution.order.application.mapper.OrderQueryMapper;
 import com.arcone.biopro.distribution.order.domain.model.OrderReport;
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderCustomerReport;
@@ -48,7 +48,7 @@ class OrderQueryControllerTest {
 
         var serviceMock = Mockito.mock(OrderQueryService.class);
 
-        Mockito.when(serviceMock.searchOrders(Mockito.any())).thenReturn(Flux.error(new QueryDidNotFindAnyResultsException()));
+        Mockito.when(serviceMock.searchOrders(Mockito.any())).thenReturn(Flux.error(QueryDidNotReturnAnyResultsException::new));
 
         OrderQueryController orderQueryController = new OrderQueryController(serviceMock,new OrderQueryMapper());
 
@@ -58,7 +58,7 @@ class OrderQueryControllerTest {
             .build();
 
         StepVerifier.create(orderQueryController.searchOrders(command))
-            .expectError(QueryDidNotFindAnyResultsException.class)
+            .expectError(QueryDidNotReturnAnyResultsException.class)
             .verify();
 
     }
