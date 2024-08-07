@@ -4,6 +4,8 @@ import com.arcone.biopro.distribution.partnerorderprovider.domain.event.PartnerO
 import com.arcone.biopro.distribution.partnerorderprovider.domain.model.PartnerOrder;
 import com.arcone.biopro.distribution.partnerorderprovider.infrastructure.event.OrderReceivedEvent;
 import com.arcone.biopro.distribution.partnerorderprovider.infrastructure.listener.PartnerOrderInboundReceivedListener;
+import com.arcone.biopro.distribution.partnerorderprovider.infrastructure.service.FacilityServiceMock;
+import com.arcone.biopro.distribution.partnerorderprovider.infrastructure.service.dto.FacilityDTO;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.TopicPartition;
@@ -20,16 +22,23 @@ class PartnerOrderInboundReceivedListenerTest {
 
     private ReactiveKafkaProducerTemplate<String, OrderReceivedEvent> producerTemplate;
 
+    private FacilityServiceMock facilityServiceMock;
+
 
     @BeforeEach
     public void setUp(){
         producerTemplate = Mockito.mock(ReactiveKafkaProducerTemplate.class);
-        target = new PartnerOrderInboundReceivedListener(producerTemplate,"TestTopic");
+        facilityServiceMock = Mockito.mock(FacilityServiceMock.class);
+        target = new PartnerOrderInboundReceivedListener(producerTemplate,"TestTopic",facilityServiceMock);
     }
 
     @Test
     public void shouldHandlePartnerOrderReceivedEvents(){
         var partnerOrder = Mockito.mock(PartnerOrder.class);
+
+        var facilityMock = Mockito.mock(FacilityDTO.class);
+
+        Mockito.when(facilityServiceMock.getFacilityByExternalCode(Mockito.any())).thenReturn(facilityMock);
 
         RecordMetadata meta = new RecordMetadata(new TopicPartition("TestTopic", 0), 0L, 0L, 0L, 0L, 0, 2);
         SenderResult senderResult = Mockito.mock(SenderResult.class);
