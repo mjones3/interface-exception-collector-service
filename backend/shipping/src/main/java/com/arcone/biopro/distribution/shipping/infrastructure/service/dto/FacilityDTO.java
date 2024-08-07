@@ -9,6 +9,7 @@ import java.util.Map;
 @Builder
 public record FacilityDTO(
     Integer id,
+    String code,
     Integer partOfId,
     String externalId,
     String name,

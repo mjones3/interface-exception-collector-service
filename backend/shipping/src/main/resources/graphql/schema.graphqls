@@ -80,7 +80,7 @@ type ShipmentDetailResponseDTO {
     status:ShipmentStatus
     createDate:DateTime
     shippingCustomerCode: Int
-    locationCode: Int
+    locationCode: String
     deliveryType: String
     shippingMethod: String
     productCategory: String
@@ -141,7 +141,7 @@ input PackItemRequest {
       shipmentItemId : Int!
       unitNumber: String!
       productCode: String!
-      locationCode: Int!
+      locationCode: String!
       employeeId: String!
       visualInspection:VisualInspection!
 }

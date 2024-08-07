@@ -43,7 +43,7 @@ public class Shipment implements Serializable, Persistable<Long> {
 
     @NotNull
     @Column("location_code")
-    private Integer locationCode;
+    private String locationCode;
 
     @NotNull
     @Size(max = 255)

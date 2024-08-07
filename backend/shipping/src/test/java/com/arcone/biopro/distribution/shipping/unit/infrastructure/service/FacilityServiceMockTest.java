@@ -27,15 +27,15 @@ class FacilityServiceMockTest {
 
         var target = new FacilityServiceMock(objectMapper);
 
-        var facility = target.getFacilityId(3);
+        var facility = target.getFacilityId("MDL_HUB_1");
 
         StepVerifier.create(facility)
             .consumeNextWith(detail -> {
-                assertEquals(Optional.of(3), Optional.of(detail.id()));
-                assertEquals(Optional.of("IC39"), Optional.of(detail.externalId()));
-                assertEquals(Optional.of("Charlotte Main"), Optional.of(detail.name()));
+                assertEquals(Optional.of(1), Optional.of(detail.id()));
+                assertEquals(Optional.of("123456789"), Optional.of(detail.externalId()));
+                assertEquals(Optional.of("MDL Hub 1"), Optional.of(detail.name()));
                 assertNotNull(detail.properties());
-                assertEquals(Optional.of("(704) 972-4742"), Optional.of(detail.properties().get("PHONE_NUMBER")));
+                assertEquals(Optional.of("123-456-7894"), Optional.of(detail.properties().get("PHONE_NUMBER")));
             })
             .verifyComplete();
     }
@@ -44,7 +44,7 @@ class FacilityServiceMockTest {
 
         var target = new FacilityServiceMock(objectMapper);
 
-        var facility = target.getFacilityId(5);
+        var facility = target.getFacilityId("TEST");
 
         StepVerifier.create(facility)
             .expectError(RuntimeException.class);
