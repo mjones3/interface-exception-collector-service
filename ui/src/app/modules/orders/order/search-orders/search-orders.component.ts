@@ -3,6 +3,7 @@ import { Component, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { Router } from '@angular/router';
+import { ApolloError } from '@apollo/client';
 import { FuseCardComponent } from '@fuse/components/card/public-api';
 import {
     Column,
@@ -12,7 +13,7 @@ import {
 } from '@shared';
 import { ToastrService } from 'ngx-toastr';
 import { Table, TableLazyLoadEvent, TableModule } from 'primeng/table';
-import { BehaviorSubject, Subject, filter, finalize, tap } from 'rxjs';
+import { BehaviorSubject, Subject, finalize } from 'rxjs';
 import { OrderSummary } from '../../models/order.model';
 import { OrderService } from '../../services/order.service';
 import { OrderReportDTO } from '../models/search-order.model';
@@ -135,19 +136,10 @@ export class SearchOrdersComponent {
     ) {}
 
     fetchOrders(event: TableLazyLoadEvent) {
+        const facilityCode = this.facilityService.getFacilityCode();
         this.orderService
-            .searchOrders({
-                locationCode: `${this.facilityService.getFacilityId()}`,
-            })
-            .pipe(
-                tap((response) => {
-                    if (!response?.data?.searchOrders?.length) {
-                        this.toaster.error('No Results Found');
-                    }
-                }),
-                filter((response) => !!response?.data?.searchOrders?.length),
-                finalize(() => (this.loading = false))
-            )
+            .searchOrders({ locationCode: facilityCode })
+            .pipe(finalize(() => (this.loading = false)))
             .subscribe({
                 next: (response) => {
                     this.orderTable.sortField =
@@ -156,9 +148,15 @@ export class SearchOrdersComponent {
                             : event.sortField?.[0] ?? this.defaultSortField;
                     this.items$.next(response.data.searchOrders ?? []);
                 },
-                error: (err) => {
-                    this.toaster.error('Something Went Wrong');
-                    throw err;
+                error: (e: ApolloError) => {
+                    this.orderTable.sortField = this.defaultSortField;
+                    this.items$.next([]);
+                    if (e?.cause?.message) {
+                        this.toaster.warning(e?.cause?.message);
+                        return;
+                    }
+                    this.toaster.error('Something went wrong.');
+                    throw e;
                 },
             });
     }

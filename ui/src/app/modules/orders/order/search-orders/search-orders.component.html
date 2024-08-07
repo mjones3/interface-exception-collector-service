@@ -1,14 +1,16 @@
-<div class="flex flex-col flex-auto">
-    <biopro-process-header
+<div class="flex flex-auto flex-col">
+    <rsa-process-header
         [subTitle]="header.subTitle | async"
         [title]="header.title | async"
-    ></biopro-process-header>
+    ></rsa-process-header>
     <div class="flex flex-col">
-        <div class="flex flex-row space-x-4 w-full p-4">
+        <div class="flex w-full flex-row space-x-4 p-4">
             <div class="w-full">
                 <fuse-card class="flex-col pb-4">
                     <div class="fuse-card-title">
-                        <div class="flex flex-row w-full justify-between px-5 items-baseline">
+                        <div
+                            class="flex w-full flex-row items-baseline justify-between px-5"
+                        >
                             <h3>Results</h3>
                         </div>
                     </div>
@@ -36,32 +38,78 @@
                                 <tr>
                                     <th class="w-12"></th>
                                     <th
-                                        [pSortableColumn]="col.sortable ? (col.sortFieldName ? col.sortFieldName : col.field) : null"
+                                        [pSortableColumn]="
+                                            col.sortable
+                                                ? col.sortFieldName
+                                                    ? col.sortFieldName
+                                                    : col.field
+                                                : null
+                                        "
                                         [ngClass]="col.headerCls"
-                                        *ngFor="let col of columns; let i = index"
+                                        *ngFor="
+                                            let col of columns;
+                                            let i = index
+                                        "
                                     >
-                                        <div class="flex items-center p-d-flex p-jc-between p-ai-center" *ngIf="!col.hideHeader">
-                                            {{ col.header }}
-                                            <p-sortIcon
-                                                [field]="col.sortFieldName ? col.sortFieldName : col.field"
-                                                *ngIf="col.sortable"
-                                            ></p-sortIcon>
-                                        </div>
+                                        @if (!col.hideHeader) {
+                                            <div
+                                                class="p-d-flex p-jc-between p-ai-center flex items-center"
+                                            >
+                                                {{ col.header }}
+                                                @if (col.sortable) {
+                                                    <p-sortIcon
+                                                        [field]="
+                                                            col.sortFieldName
+                                                                ? col.sortFieldName
+                                                                : col.field
+                                                        "
+                                                    ></p-sortIcon>
+                                                }
+                                            </div>
+                                        }
                                     </th>
                                 </tr>
                             </ng-template>
-                            <ng-template pTemplate="body" let-order let-expanded="expanded" let-columns="columns">
+                            <ng-template
+                                pTemplate="body"
+                                let-order
+                                let-expanded="expanded"
+                                let-columns="columns"
+                            >
                                 <tr [id]="'order-table-row#' + order.orderId">
                                     <th class="w-12"></th>
-                                    <td *ngFor="let col of columns; let i = index" class="break-all">
-                                        <ng-template #shipToCustomerTpl let-order>
+                                    <td
+                                        *ngFor="
+                                            let col of columns;
+                                            let i = index
+                                        "
+                                        class="break-all"
+                                    >
+                                        <ng-template
+                                            #shipToCustomerTpl
+                                            let-order
+                                        >
                                             {{ order.orderCustomerReport.name }}
                                         </ng-template>
-                                        <ng-template #dateTimeTpl let-order let-field="field">
-                                            {{ order[field] | date: 'MM/dd/yyyy hh:mm a' }}
+                                        <ng-template
+                                            #dateTimeTpl
+                                            let-order
+                                            let-field="field"
+                                        >
+                                            {{
+                                                order[field]
+                                                    | date: 'MM/dd/yyyy hh:mm a'
+                                            }}
                                         </ng-template>
-                                        <ng-template #dateTpl let-order let-field="field">
-                                            {{ order[field] | date: 'MM/dd/yyyy' }}
+                                        <ng-template
+                                            #dateTpl
+                                            let-order
+                                            let-field="field"
+                                        >
+                                            {{
+                                                order[field]
+                                                    | date: 'MM/dd/yyyy'
+                                            }}
                                         </ng-template>
                                         <ng-template #actionTpl let-order>
                                             <button
@@ -74,40 +122,80 @@
                                             </button>
                                         </ng-template>
                                         <ng-template #priorityTpl let-order>
-                        <span class="badge rounded-pill" [ngStyle]="{ 'background-color': order?.orderPriorityReport?.priorityColor ?? '#222222' }">
-                          {{ order?.orderPriorityReport?.priority }}
-                        </span>
+                                            <span
+                                                class="badge rounded-pill"
+                                                [ngStyle]="{
+                                                    'background-color':
+                                                        order
+                                                            ?.orderPriorityReport
+                                                            ?.priorityColor ??
+                                                        '#222222',
+                                                }"
+                                            >
+                                                {{
+                                                    order?.orderPriorityReport
+                                                        ?.priority
+                                                }}
+                                            </span>
                                         </ng-template>
 
-                                        <ng-container *ngIf="{
-                          shipToCustomerTpl: shipToCustomerTpl,
-                          dateTimeTpl: dateTimeTpl,
-                          dateTpl: dateTpl,
-                          priorityTpl: priorityTpl,
-                          actionTpl: actionTpl
-                        } as templates">
-                                            <ng-container *ngIf="col?.templateRef">
-                                                <ng-container
-                                                    *ngTemplateOutlet="
-                              templates[col?.templateRef];
-                              context: { $implicit: order, field: col?.field }
-                            "
-                                                ></ng-container>
+                                        @if (
+                                            {
+                                                shipToCustomerTpl:
+                                                    shipToCustomerTpl,
+                                                dateTimeTpl: dateTimeTpl,
+                                                dateTpl: dateTpl,
+                                                priorityTpl: priorityTpl,
+                                                actionTpl: actionTpl,
+                                            };
+                                            as templates
+                                        ) {
+                                            <ng-container>
+                                                @if (col?.templateRef) {
+                                                    <ng-container>
+                                                        <ng-container
+                                                            *ngTemplateOutlet="
+                                                                templates[
+                                                                    col
+                                                                        ?.templateRef
+                                                                ];
+                                                                context: {
+                                                                    $implicit:
+                                                                        order,
+                                                                    field: col?.field,
+                                                                }
+                                                            "
+                                                        ></ng-container>
+                                                    </ng-container>
+                                                }
                                             </ng-container>
-                                        </ng-container>
+                                        }
 
-                                        <ng-container *ngIf="!col?.templateRef">
-                                            {{ order[col.field]?.toString() | uppercase }}
-                                        </ng-container>
+                                        @if (!col?.templateRef) {
+                                            <ng-container>
+                                                {{
+                                                    order[col.field]?.toString()
+                                                        | uppercase
+                                                }}
+                                            </ng-container>
+                                        }
                                     </td>
                                 </tr>
                             </ng-template>
                             <ng-template pTemplate="rowexpansion" let-order>
                                 <tr>
-                                    <td [attr.colspan]="selectedColumns?.length">
+                                    <td
+                                        [attr.colspan]="selectedColumns?.length"
+                                    >
                                         <div class="p-4">
-                                            <span class="font-bold mb-1 text-left mr-4 w-60"> Comments</span>
-                                            <span class="flex-auto text-left">{{ order?.comments | uppercase }}</span>
+                                            <span
+                                                class="mb-1 mr-4 w-60 text-left font-bold"
+                                            >
+                                                Comments</span
+                                            >
+                                            <span class="flex-auto text-left">{{
+                                                order?.comments | uppercase
+                                            }}</span>
                                         </div>
                                     </td>
                                 </tr>
