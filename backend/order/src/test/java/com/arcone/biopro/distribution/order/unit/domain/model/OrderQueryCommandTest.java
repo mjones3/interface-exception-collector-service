@@ -20,6 +20,8 @@ class OrderQueryCommandTest {
         Assertions.assertNotNull(orderQueryCommand.getQuerySort().getQueryOrderByList());
         Assertions.assertEquals("ASC",orderQueryCommand.getQuerySort().getQueryOrderByList().get(0).getDirection());
         Assertions.assertEquals("priority",orderQueryCommand.getQuerySort().getQueryOrderByList().get(0).getProperty());
+        Assertions.assertEquals("ASC",orderQueryCommand.getQuerySort().getQueryOrderByList().get(1).getDirection());
+        Assertions.assertEquals("status",orderQueryCommand.getQuerySort().getQueryOrderByList().get(1).getProperty());
     }
 
     @Test

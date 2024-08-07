@@ -17,7 +17,8 @@ public class OrderQueryCommand implements Validatable {
     private Integer limit;
 
     private static final String DEFAULT_SORT_DIRECTION = "ASC";
-    private static final String DEFAULT_SORT_BY = "priority";
+    private static final String DEFAULT_FIRST_SORT_BY = "priority";
+    private static final String DEFAULT_SECOND_SORT_BY = "status";
     private static final Integer DEFAULT_LIMIT = 20;
 
     public OrderQueryCommand(String locationCode , QuerySort querySort ,   Integer limit) {
@@ -28,7 +29,7 @@ public class OrderQueryCommand implements Validatable {
             this.limit = DEFAULT_LIMIT;
         }
         if(this.querySort == null){
-            this.querySort = new QuerySort(List.of(new QueryOrderBy(DEFAULT_SORT_BY,DEFAULT_SORT_DIRECTION)));
+            this.querySort = new QuerySort(List.of(new QueryOrderBy(DEFAULT_FIRST_SORT_BY,DEFAULT_SORT_DIRECTION),new QueryOrderBy(DEFAULT_SECOND_SORT_BY,DEFAULT_SORT_DIRECTION)));
         }
 
         checkValid();
