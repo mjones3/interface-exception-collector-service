@@ -1,6 +1,6 @@
 package com.arcone.biopro.distribution.order.application.usecase;
 
-import com.arcone.biopro.distribution.order.application.exception.QueryDidNotFindAnyResultsException;
+import com.arcone.biopro.distribution.order.application.exception.QueryDidNotReturnAnyResultsException;
 import com.arcone.biopro.distribution.order.domain.model.OrderQueryCommand;
 import com.arcone.biopro.distribution.order.domain.model.OrderReport;
 import com.arcone.biopro.distribution.order.domain.repository.OrderQueryRepository;
@@ -18,6 +18,6 @@ public class OrderQueryUseCase implements OrderQueryService {
     @Override
     public Flux<OrderReport> searchOrders(OrderQueryCommand orderQueryCommand) {
         return orderQueryRepository.searchOrders(orderQueryCommand)
-            .switchIfEmpty(Flux.error(QueryDidNotFindAnyResultsException::new));
+            .switchIfEmpty(Flux.error(QueryDidNotReturnAnyResultsException::new));
     }
 }
