@@ -32,7 +32,7 @@ public class InventoryAggregateRepositoryImpl implements InventoryAggregateRepos
     }
 
     @Override
-    public Mono<Boolean> existsByUnitNumberAndProductCode(String unitNumber, String productCode) {
-        return inventoryEntityRepository.existsByUnitNumberAndProductCode(unitNumber, productCode);
+    public Mono<Boolean> existsByLocationAndUnitNumberAndProductCode(String location, String unitNumber, String productCode) {
+        return inventoryEntityRepository.existsByLocationAndUnitNumberAndProductCode(location, unitNumber, productCode);
     }
 }

@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.inventory.adapter.in.listener;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
@@ -29,6 +30,7 @@ import java.util.HashMap;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public abstract class AbstractListener<T, G, U> implements CommandLineRunner {
 
+    TypeReference<U> typeReference;
     ReactiveKafkaConsumerTemplate<String, String> consumer;
     ObjectMapper objectMapper;
     ReactiveKafkaProducerTemplate<String, String> producerDLQTemplate;
@@ -38,11 +40,13 @@ public abstract class AbstractListener<T, G, U> implements CommandLineRunner {
     public AbstractListener(ReactiveKafkaConsumerTemplate<String, String> consumer,
                             ObjectMapper objectMapper,
                             ReactiveKafkaProducerTemplate<String, String> producerDLQTemplate,
-                            String topic) {
+                            String topic,
+                            TypeReference<U> typeReference) {
         this.consumer = consumer;
         this.objectMapper = objectMapper;
         this.producerDLQTemplate = producerDLQTemplate;
         this.topicDLQ = topic + "DLQ";
+        this.typeReference = typeReference;
     }
 
     @Override
@@ -71,7 +75,7 @@ public abstract class AbstractListener<T, G, U> implements CommandLineRunner {
 
     private Mono<G> handleMessage(String value) {
         try {
-            U message = objectMapper.readValue(value, getMessageClass());
+            U message = objectMapper.readValue(value, typeReference);
             return processInput(fromMessageToInput(message))
                 .retryWhen(Retry
                     .fixedDelay(3, Duration.ofSeconds(60))
@@ -86,7 +90,7 @@ public abstract class AbstractListener<T, G, U> implements CommandLineRunner {
                     return Mono.empty();
                 });
         } catch (JsonProcessingException e) {
-            log.error(String.format("Problem deserializing an instance of [%s] with the following json: %s ", getMessageClass().getSimpleName(), value), e);
+            log.error(String.format("Problem deserializing an instance of [%s] with the following json: %s ",  typeReference.getType(), value), e);
             sendToDlq(value, e.getMessage());
             return Mono.empty();
         }
@@ -105,8 +109,6 @@ public abstract class AbstractListener<T, G, U> implements CommandLineRunner {
             log.error("Failed to send message to DLQ. Reason: {}", e.getMessage());
         }
     }
-
-    protected abstract Class<U> getMessageClass();
 
     protected abstract Mono<G> processInput(T input);
 

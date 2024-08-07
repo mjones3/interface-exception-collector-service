@@ -2,7 +2,6 @@ package com.arcone.biopro.distribution.inventory.infrastructure.persistence;
 
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
-import com.arcone.biopro.distribution.inventory.domain.model.enumeration.Location;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ProductFamily;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotBlank;
@@ -61,7 +60,7 @@ public class InventoryEntity implements Serializable, Persistable<UUID> {
 
     @NotNull
     @Column("location")
-    Location location;
+    String location;
 
     @NotNull
     @Column("product_family")

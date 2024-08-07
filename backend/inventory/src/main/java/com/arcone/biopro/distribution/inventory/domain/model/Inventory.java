@@ -2,7 +2,6 @@ package com.arcone.biopro.distribution.inventory.domain.model;
 
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
-import com.arcone.biopro.distribution.inventory.domain.model.enumeration.Location;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ProductFamily;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.ProductCode;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.UnitNumber;
@@ -30,7 +29,7 @@ public class Inventory {
 
     private String collectionDate;
 
-    private Location location;
+    private String location;
 
     private ProductFamily productFamily;
 
@@ -46,7 +45,7 @@ public class Inventory {
         String productDescription,
         String expirationDate,
         String collectionDate,
-        Location location,
+        String location,
         ProductFamily productFamily,
         AboRhType aboRh) {
         this.unitNumber = unitNumber;

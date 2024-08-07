@@ -9,5 +9,5 @@ public interface InventoryAggregateRepository {
 
     Mono<InventoryAggregate> saveInventory(InventoryAggregate inventoryAggregate);
 
-    Mono<Boolean> existsByUnitNumberAndProductCode(String unitNumber, String productCode);
+    Mono<Boolean> existsByLocationAndUnitNumberAndProductCode(String location, String unitNumber, String productCode);
 }
