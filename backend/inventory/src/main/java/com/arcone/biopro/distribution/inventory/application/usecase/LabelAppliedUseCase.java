@@ -33,7 +33,7 @@ class LabelAppliedUseCase implements UseCase<Mono<InventoryOutput>, InventoryInp
                         InventoryAggregate.builder().build().createInventory(
                             input.unitNumber(),
                             input.productCode(),
-                            input.productDescription(),
+                            input.shortDescription(),
                             input.expirationDate(),
                             input.collectionDate(),
                             input.location(),

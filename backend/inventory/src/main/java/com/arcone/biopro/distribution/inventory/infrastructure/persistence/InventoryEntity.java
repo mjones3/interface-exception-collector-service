@@ -43,8 +43,8 @@ public class InventoryEntity implements Serializable, Persistable<UUID> {
     String productCode;
 
     @NotBlank
-    @Column("product_description")
-    String productDescription;
+    @Column("short_description")
+    String shortDescription;
 
     @NotNull
     @Column("status")

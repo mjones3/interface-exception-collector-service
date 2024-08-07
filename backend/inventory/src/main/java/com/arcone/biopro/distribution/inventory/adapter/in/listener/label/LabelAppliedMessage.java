@@ -3,7 +3,7 @@ package com.arcone.biopro.distribution.inventory.adapter.in.listener.label;
 public record LabelAppliedMessage(
     String unitNumber,
     String productCode,
-    String productDescription,
+    String shortDescription,
     String expirationDate,
     String collectionDate,
     String location,

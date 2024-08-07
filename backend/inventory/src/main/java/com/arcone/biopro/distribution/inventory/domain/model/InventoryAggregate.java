@@ -16,7 +16,7 @@ public class InventoryAggregate {
     public InventoryAggregate createInventory(
         String unitNumber,
         String productCode,
-        String productDescription,
+        String shortDescription,
         String expirationDate,
         String collectionDate,
         String location,
@@ -25,7 +25,7 @@ public class InventoryAggregate {
         this.inventory = new Inventory(
             new UnitNumber(unitNumber),
             new ProductCode(productCode),
-            productDescription,
+            shortDescription,
             expirationDate,
             collectionDate,
             location,

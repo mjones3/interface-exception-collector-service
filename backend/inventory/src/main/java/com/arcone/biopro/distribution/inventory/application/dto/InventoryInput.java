@@ -6,7 +6,7 @@ import com.arcone.biopro.distribution.inventory.domain.model.enumeration.Product
 public record InventoryInput(
     String unitNumber,
     String productCode,
-    String productDescription,
+    String shortDescription,
     String expirationDate,
     String collectionDate,
     String location,
