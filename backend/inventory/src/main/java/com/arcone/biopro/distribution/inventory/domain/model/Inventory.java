@@ -21,7 +21,7 @@ public class Inventory {
 
     private ProductCode productCode;
 
-    private String productDescription;
+    private String shortDescription;
 
     private InventoryStatus inventoryStatus;
 
@@ -42,7 +42,7 @@ public class Inventory {
     Inventory(
         UnitNumber unitNumber,
         ProductCode productCode,
-        String productDescription,
+        String shortDescription,
         String expirationDate,
         String collectionDate,
         String location,
@@ -50,7 +50,7 @@ public class Inventory {
         AboRhType aboRh) {
         this.unitNumber = unitNumber;
         this.productCode = productCode;
-        this.productDescription = productDescription;
+        this.shortDescription = shortDescription;
         this.expirationDate = expirationDate;
         this.collectionDate = collectionDate;
         this.location = location;

@@ -7,8 +7,12 @@ import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import io.r2dbc.spi.ConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.r2dbc.connection.init.ResourceDatabasePopulator;
+import reactor.core.publisher.Mono;
 
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -28,19 +32,29 @@ public class KafkaListenersSteps {
     @Autowired
     private InventoryEntityRepository inventoryEntityRepository;
 
+    @Value("classpath:/db/data.sql")
+    private Resource testDataSql;
+
+    @Autowired
+    private ConnectionFactory connectionFactory;
+
     private static final String LABEL_APPLIED_MESSAGE = """
          {
-            "unitNumber": "W123452622168",
-            "productCode": "E0869VA0",
-            "productDescription": "APH PLASMA 24H",
-            "expirationDate": "2024-12-31T00:10:00Z",
-            "collectionDate": "2024-12-30T00:10:00Z",
-            "location": "ORLANDO",
-            "productFamily": "PLASMA_TRANSFUSABLE",
-            "aboRh": "OP",
-            "performedBy": "USER_ID",
-            "createDate": "2024-07-01T00:10:00Z"
-        }
+            "eventType":"LabelApplied",
+            "eventVersion":"1.0",
+            "payload":{
+               "unitNumber":"W123452622168",
+               "productCode":"E0869VA0",
+               "shortDescription":"APH PLASMA 24H",
+               "location":"MIAMI",
+               "aboRh":"OP",
+               "productFamily": "PLASMA_TRANSFUSABLE",
+               "collectionDate":"2025-01-08T06:00:00.000Z",
+               "expirationDate":"2025-01-08T06:00:00.000Z",
+               "performedBy":"userId",
+               "createDate":"2025-01-08T06:00:00.000Z"
+            }
+         }
         """;
 
     private static final String EVENT_LABEL_APPLIED = "Label Applied";
@@ -55,6 +69,7 @@ public class KafkaListenersSteps {
 
     @Before
     public void before() {
+        populateTestData();
         topicsMap = Map.of(
             EVENT_LABEL_APPLIED, labelAppliedTopic);
 
@@ -92,6 +107,12 @@ public class KafkaListenersSteps {
         assertEquals("E0869VA0", entity.getProductCode());
         assertEquals("W123452622168", entity.getUnitNumber());
         assertEquals(status, entity.getInventoryStatus().name());
+    }
+
+    public void populateTestData() {
+        ResourceDatabasePopulator resourceDatabasePopulator = new ResourceDatabasePopulator();
+        resourceDatabasePopulator.addScript(testDataSql);
+        Mono.from(resourceDatabasePopulator.populate(connectionFactory)).block();
     }
 
 
