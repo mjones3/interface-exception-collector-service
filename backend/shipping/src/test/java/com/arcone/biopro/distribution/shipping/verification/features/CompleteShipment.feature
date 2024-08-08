@@ -27,4 +27,4 @@ Feature: Complete Shipment Feature
 
             Examples:
                 | Order Number | Customer ID | Customer Name    | Quantity | BloodType | ProductFamily                                               | Message             | Family              | Type | UN            | Code     | Visual Inspection | Quantity Shipped |
-                | 108          | 1           | Testing Customer | 10,5,8   | A,B,O     | Transfusable Plasma,Transfusable Plasma,Transfusable Plasma | Shipment Completed. | Transfusable Plasma | A    | W036898786802 | E7648V00 | Satisfactory      | 1                |
+                | 108          | 1           | Testing Customer | 10,5,8   | A,B,O     | Plasma Transfusable,Plasma Transfusable,Plasma Transfusable | Shipment Completed. | PLASMA TRANSFUSABLE | A    | W036898786802 | E7648V00 | Satisfactory      | 1                |

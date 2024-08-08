@@ -17,7 +17,7 @@ Feature: Shipment fulfillment request
             Then I am able to see the requests.
             When I retrieve one shipment by shipment id.
             Then I am able to view the shipment fulfillment details.
-            And The item attribute "Product Family" contains "Transfusable Plasma".
+            And The item attribute "Product Family" contains "PLASMA_TRANSFUSABLE".
             And The item attribute "Blood Type" contains "<Group Value>".
             And The item attribute "Product Quantity" contains "<Quantity>".
             And The item attribute "Shipment Id" is not empty.
@@ -46,7 +46,7 @@ Feature: Shipment fulfillment request
             Then I am able to view the shipment fulfillment details.
             And The fulfillment request attribute "Order Number" is not empty.
             And The item attribute "Shipment Id" is not empty.
-            And The item attribute "Product Family" contains "Transfusable Plasma".
+            And The item attribute "Product Family" contains "PLASMA_TRANSFUSABLE".
             And The item attribute "Blood Type" contains "<Group Value>".
             And The item attribute "Product Quantity" contains "<Quantity>".
             And The short date item attribute "Unit Number" contains "<Unit Number>".

@@ -52,7 +52,7 @@ public class ViewPickListSteps {
             "OPEN",
             Long.valueOf(customerId),
             0L,
-            3L,
+            "MDL_HUB_1",
             "TEST",
             "TEST",
             "Frozen",
