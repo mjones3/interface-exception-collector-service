@@ -23,7 +23,12 @@ import org.springframework.beans.factory.annotation.Value;
 @Slf4j
 public class OrderSteps {
 
+//    Order details
     private String externalId;
+    private String locationCode;
+    private String priority;
+    private String status;
+
     private OrderController orderController = new OrderController();
     private JSONObject partnerOrder;
     private boolean isLoggedIn = false;
@@ -75,6 +80,12 @@ public class OrderSteps {
         databaseService.executeSql(query).block();
     }
 
+    @And("I have restored the default configuration for the order priority colors.")
+    public void restoreDefaultPriorityColors() {
+        var query = DatabaseQueries.restoreDefaultPriorityColors();
+        databaseService.executeSql(query).block();
+    }
+
     @Given("I have received an order inbound request with externalId {string} and content {string}.")
     public void postOrderReceivedEvent(String externalId, String jsonFileName) throws Exception {
         this.externalId = externalId;
@@ -114,18 +125,21 @@ public class OrderSteps {
     }
 
     @Given("I have a Biopro Order with externalId {string}, Location Code {string}, Priority {string} and Status {string}.")
-    public void createBioproOrder(String externalId, String locationCode, String deliveryType, String status) throws Exception {
+    public void createBioproOrder(String externalId, String locationCode, String priority, String status) {
         this.externalId = externalId;
-        var query = DatabaseQueries.insertBioProOrder(externalId, locationCode, orderController.getPriorityValue(deliveryType), deliveryType, status);
+        this.locationCode = locationCode;
+        this.priority = priority;
+        this.status = status;
+        var query = DatabaseQueries.insertBioProOrder(externalId, locationCode, orderController.getPriorityValue(priority), priority, status);
         databaseService.executeSql(query).block();
     }
 
     @Given("I have more than {int} Biopro Orders.")
-    public void createMultipleBioproOrders(int quantity) throws Exception {
+    public void createMultipleBioproOrders(int quantity) {
         for (int i = 0; i <= quantity; i++) {
             var priority = orderController.getRandomPriority();
             var externalId = "EXT_" + i;
-            var query = DatabaseQueries.insertBioProOrder(externalId, "123456789", priority.getValue(), priority.getKey(), "OPEN");
+            var query = DatabaseQueries.insertBioProOrder(externalId, "MDL_HUB_1", priority.getValue(), priority.getKey(), "OPEN");
             databaseService.executeSql(query).block();
         }
     }
@@ -149,5 +163,44 @@ public class OrderSteps {
         var colorHex = orderController.getColorHex(color);
         var query = DatabaseQueries.updatePriorityColor(priority, colorHex);
         databaseService.executeSql(query).block();
+    }
+
+    @Then("I should see the order details.")
+    public void checkOrderDetails() throws InterruptedException {
+        searchOrderPage.validateOrderDetails(this.externalId, this.status, this.priority);
+    }
+
+    @And("I should see the priority colored as {string}")
+    public void checkPriorityColor(String color) {
+        var priorityElement = searchOrderPage.getPriorityElement(this.externalId, this.priority);
+
+        var actualColor = priorityElement.getCssValue("background-color");
+
+        var expectedColorHex = orderController.getColorHex(color);
+        var expectedColorRGB = testUtils.convertHexToRGBA(expectedColorHex);
+        log.info("Expected color: {}", expectedColorRGB);
+        log.info("Actual color: {}", actualColor);
+        Assert.assertEquals(expectedColorRGB, actualColor);
+    }
+
+    @And("I should see an option to see the order details.")
+    public void checkOrderDetailsOption() {
+        searchOrderPage.verifyOrderDetailsOption(this.externalId);
+    }
+
+    @Then("I should not see the the biopro order in the list of orders.")
+    public void checkOrderNotExists() {
+        searchOrderPage.verifyOrderNotExists(this.externalId);
+    }
+
+    @Then("I should see the list of orders based on priority and status.")
+    public void checkOrderList() {
+        searchOrderPage.verifyPriorityOrderList();
+    }
+
+    @And("I should not see more than {int} orders in the list.")
+    public void checkOrderListSize(int expectedSize) {
+        var actualSize = searchOrderPage.getOrderPriorityList().size();
+        Assert.assertTrue(actualSize <= expectedSize);
     }
 }
