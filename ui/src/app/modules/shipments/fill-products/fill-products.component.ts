@@ -14,10 +14,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FuseCardComponent } from '@fuse/components/card/public-api';
 import { Store } from '@ngrx/store';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+
 import {
     Description,
     DescriptionCardComponent,
-    FacilityService,
     ProcessHeaderComponent,
     ProcessHeaderService,
     ProcessProductModel,
@@ -25,6 +25,8 @@ import {
 } from '@shared';
 import { ERROR_MESSAGE } from 'app/core/data/common-labels';
 import { getAuthState } from 'app/core/state/auth/auth.selectors';
+import { Cookie } from 'app/shared/types/cookie.enum';
+import { CookieService } from 'ngx-cookie-service';
 import { TableModule } from 'primeng/table';
 import { catchError, finalize, take } from 'rxjs';
 import { ProductFamilyMap } from '../../../shared/models/product-family.model';
@@ -85,7 +87,7 @@ export class FillProductsComponent implements OnInit {
         private route: ActivatedRoute,
         private shipmentService: ShipmentService,
         private translateService: TranslateService,
-        private facilityService: FacilityService,
+        private cookieService: CookieService,
         private store: Store,
         private _router: Router,
         private cd: ChangeDetectorRef
@@ -233,7 +235,7 @@ export class FillProductsComponent implements OnInit {
             shipmentItemId: +this.productId,
             unitNumber: item.unitNumber,
             productCode: item.productCode,
-            locationCode: this.facilityService.getFacilityCode(),
+            locationCode: this.cookieService.get(Cookie.XFacility),
             employeeId: this.loggedUserId,
             visualInspection: item.visualInspection.toUpperCase(),
         };
