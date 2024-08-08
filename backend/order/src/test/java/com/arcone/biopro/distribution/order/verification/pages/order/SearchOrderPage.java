@@ -12,7 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -33,7 +36,7 @@ public class SearchOrderPage extends CommonPageFactory {
     private WebElement searchOrdersTitle;
 
     @FindAll({
-        @FindBy(xpath = "//tr[contains(@id,'order-table-row')]")
+        @FindBy(xpath = "//tr[contains(@id,'order-table-row')]//td[position()=3]")
     })
     private List<WebElement> orderPriorityList;
 
@@ -90,10 +93,20 @@ public class SearchOrderPage extends CommonPageFactory {
     }
 
     public void verifyPriorityOrderList() {
+        Set<String> expectedPriority = new LinkedHashSet<>();
+        expectedPriority.add("STAT");
+        expectedPriority.add("ASAP");
+        expectedPriority.add("ROUTINE");
+        expectedPriority.add("SCHEDULED");
+        expectedPriority.add("DATE-TIME");
+
         sharedActions.waitForVisible(orderPriorityList.getFirst());
-        var priorityList = orderPriorityList.stream().toList().stream().map(
-            e -> e.findElement(By.xpath("./span")).getText()
-        );
+
+        var priorityList = orderPriorityList.stream().toList().stream().map(WebElement::getText)
+            .collect(Collectors.toCollection(LinkedHashSet::new));
+        log.info("Priority list: {}", priorityList);
+
+        Assert.assertEquals(expectedPriority, priorityList);
     }
 
     public List<WebElement> getOrderPriorityList() {
