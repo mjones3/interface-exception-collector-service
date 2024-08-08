@@ -70,8 +70,8 @@ public class PrintPackingListSteps {
         Thread.sleep(kafkaWaitingTime);
     }
 
-    @Given("The shipment details are Order Number {int}, Location Code {int}, Customer ID {int}, Customer Name {string}, Department {string}, Address Line 1 {string}, Address Line 2 {string}, Unit Number {string}, Product Code {string}, Product Family {string}, Blood Type {string}, Expiration {string}, Quantity {int}.")
-    public void setShipmentDetails(int orderNumber, int locationCode, int customerID, String customerName, String department, String addressLine1, String addressLine2, String unitNumber, String productCode, String productFamily, String bloodType, String expiration, int quantity) {
+    @Given("The shipment details are Order Number {int}, Location Code {string}, Customer ID {int}, Customer Name {string}, Department {string}, Address Line 1 {string}, Address Line 2 {string}, Unit Number {string}, Product Code {string}, Product Family {string}, Blood Type {string}, Expiration {string}, Quantity {int}.")
+    public void setShipmentDetails(int orderNumber, String locationCode, int customerID, String customerName, String department, String addressLine1, String addressLine2, String unitNumber, String productCode, String productFamily, String bloodType, String expiration, int quantity) {
         this.shipmentDetails = shipmentController.buildShipmentRequestDetailsResponseType(orderNumber, locationCode, customerID, customerName, department, addressLine1, addressLine2, unitNumber, productCode, productFamily, bloodType, expiration, quantity);
         this.orderNumber = orderNumber;
         Assert.assertNotNull(this.shipmentDetails);
@@ -142,9 +142,9 @@ public class PrintPackingListSteps {
 
         // Ship from
         Map<String, Object> shipFrom = (Map<String, Object>) packingList.get("shipFrom");
-        Assert.assertEquals("IC39", shipFrom.get("bloodCenterCode"));
-        Assert.assertEquals("Charlotte Main", shipFrom.get("bloodCenterName"));
-        Assert.assertEquals("447 South Blvd, Suite 100", shipFrom.get("bloodCenterAddressLine1"));
+        Assert.assertEquals("123456789", shipFrom.get("bloodCenterCode"));
+        Assert.assertEquals("MDL Hub 1", shipFrom.get("bloodCenterName"));
+        Assert.assertEquals("444 Main St.", shipFrom.get("bloodCenterAddressLine1"));
         Assert.assertEquals("", shipFrom.get("bloodCenterAddressLine2"));
         Assert.assertEquals("Charlotte, NC, 28209", shipFrom.get("bloodCenterAddressComplement"));
 
