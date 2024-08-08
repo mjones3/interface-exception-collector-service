@@ -14,8 +14,8 @@ import {
 import { ToastrService } from 'ngx-toastr';
 import { Table, TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { BehaviorSubject, Subject, finalize } from 'rxjs';
-import { OrderSummary } from '../../models/order.model';
 import { OrderService } from '../../services/order.service';
+import { OrderSummary } from '../../models/order.model';
 import { OrderReportDTO } from '../models/search-order.model';
 
 @Component({

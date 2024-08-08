@@ -99,7 +99,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                 icon: 'search',
                 link: 'orders/search',
                 disabled: false,
-            }
+            },
         ],
         disabled: false,
     },
@@ -114,10 +114,10 @@ export const defaultNavigation: FuseNavigationItem[] = [
                 title: 'Search Shipments',
                 type: 'basic',
                 icon: 'search',
-                link: 'shipments/search',
-                disabled: true,
-            }
+                link: 'shipment/search',
+                disabled: false,
+            },
         ],
-        disabled: true,
-    }
+        disabled: false,
+    },
 ];
