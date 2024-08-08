@@ -14,8 +14,8 @@ import {
 import { ToastrService } from 'ngx-toastr';
 import { Table, TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { BehaviorSubject, Subject, finalize } from 'rxjs';
+import { OrderSummaryDto } from '../../models/order.dto';
 import { OrderService } from '../../services/order.service';
-import { OrderSummary } from '../../models/order.model';
 import { OrderReportDTO } from '../models/search-order.model';
 
 @Component({
@@ -162,7 +162,7 @@ export class SearchOrdersComponent {
     }
 
     // TO BE FIXED WHEN WORKING ON SEARCH ORDER
-    details(shipment: OrderSummary) {
+    details(shipment: OrderSummaryDto) {
         this.router.navigateByUrl(`/shipment/${shipment.id}/shipment-details`);
     }
 
