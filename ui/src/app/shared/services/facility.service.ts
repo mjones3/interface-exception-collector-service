@@ -121,7 +121,7 @@ export class FacilityService {
             // Store the facility id in cookies
             this.cookieService.set(
                 Cookie.XFacility,
-                String(facility.id),
+                String(facility.code),
                 365,
                 '/'
             );
