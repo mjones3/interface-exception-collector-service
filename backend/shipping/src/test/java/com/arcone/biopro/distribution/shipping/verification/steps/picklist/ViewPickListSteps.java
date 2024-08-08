@@ -129,8 +129,8 @@ public class ViewPickListSteps {
         Assert.assertTrue(this.shipmentDetailType.getShippingCustomerName().equals(shipmentDetails.get("customerName")));
     }
 
-    @And("I am able to view the correct Shipment Details.")
-    public void matchProductDetails() {
+    @And("I am able to view the correct Shipment Details for the {string} product.")
+    public void matchProductDetails(String familyDescription) {
         var productDetails = this.viewPickListPage.getProductDetailsTableContent();
         log.info("productDetails {}", this.shipmentDetailType.getItems());
         log.info("Map Details {}", productDetails);
@@ -138,7 +138,7 @@ public class ViewPickListSteps {
         Assert.assertNotNull(productDetails);
         if (this.shipmentDetailType.getItems() != null && !this.shipmentDetailType.getItems().isEmpty()) {
             this.shipmentDetailType.getItems().forEach(item -> {
-                var mapKey = item.getQuantity() + ":" + item.getProductFamily() + ":" + item.getBloodType();
+                var mapKey = item.getQuantity() + ":" + familyDescription + ":" + item.getBloodType();
                 log.info("comparing key {}", mapKey);
                 Assert.assertNotNull(productDetails.get(mapKey));
             });
@@ -155,8 +155,8 @@ public class ViewPickListSteps {
         Assert.assertNotNull(shipmentDetailType);
     }
 
-    @And("I am able to view the correct Shipment Details with short date products.")
-    public void matchProductDetailsWithShortDate() {
+    @And("I am able to view the correct Shipment Details with short date products for the {string} family.")
+    public void matchProductDetailsWithShortDate(String familyDescription) {
         var productDetails = this.viewPickListPage.getProductDetailsTableContent();
         var shortDateDetails = this.viewPickListPage.getShortDateProductDetailsTableContent();
 
@@ -167,7 +167,7 @@ public class ViewPickListSteps {
         Assert.assertNotNull(productDetails);
         if (this.shipmentDetailType.getItems() != null && !this.shipmentDetailType.getItems().isEmpty()) {
             this.shipmentDetailType.getItems().forEach(item -> {
-                var mapKey = item.getQuantity() + ":" + item.getProductFamily() + ":" + item.getBloodType();
+                var mapKey = item.getQuantity() + ":" + familyDescription + ":" + item.getBloodType();
                 log.info("comparing key {}", mapKey);
                 Assert.assertNotNull(productDetails.get(mapKey));
                 if (item.getShortDateProducts() != null && !item.getShortDateProducts().isEmpty()) {

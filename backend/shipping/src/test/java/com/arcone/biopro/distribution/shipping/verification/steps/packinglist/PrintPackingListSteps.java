@@ -188,9 +188,9 @@ public class PrintPackingListSteps {
 
         // Ship from
         Map<String, Object> shipFrom = (Map<String, Object>) shippingLabel.get("shipFrom");
-        Assert.assertEquals("IC39", shipFrom.get("bloodCenterCode"));
-        Assert.assertEquals("Charlotte Main", shipFrom.get("bloodCenterName"));
-        Assert.assertEquals("447 South Blvd, Suite 100", shipFrom.get("bloodCenterAddressLine1"));
+        Assert.assertEquals("123456789", shipFrom.get("bloodCenterCode"));
+        Assert.assertEquals("MDL Hub 1", shipFrom.get("bloodCenterName"));
+        Assert.assertEquals("444 Main St.", shipFrom.get("bloodCenterAddressLine1"));
         Assert.assertEquals("", shipFrom.get("bloodCenterAddressLine2"));
         Assert.assertEquals("Charlotte, NC, 28209", shipFrom.get("bloodCenterAddressComplement"));
     }
