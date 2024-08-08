@@ -55,7 +55,7 @@ export const provideFuse = (
             // Use the 'outline' appearance on Angular Material form fields by default
             provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
             useValue: {
-                appearance: 'outline',
+                appearance: 'fill',
             },
         },
         {

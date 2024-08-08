@@ -29,10 +29,12 @@ module.exports = tseslint.config(
                 },
             ],
             '@typescript-eslint/no-explicit-any': 'warn',
-            '@typescript-eslint/no-unused-vars': ['warn'],
+            '@typescript-eslint/no-unused-vars': 'warn',
+            '@typescript-eslint/no-empty-function': 'warn',
             '@typescript-eslint/prefer-for-of': 'off',
             '@angular-eslint/template/interactive-supports-focus': 'off',
             '@angular-eslint/template/click-events-have-key-events': 'off',
+            'prefer-rest-params': 'off',
         },
     },
     {

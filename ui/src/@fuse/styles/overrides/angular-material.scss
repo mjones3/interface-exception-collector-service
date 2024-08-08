@@ -1034,6 +1034,8 @@
     min-width: 144px !important;
 
     .mat-mdc-menu-content {
+        background: rgb(var(--fuse-primary-rgb) var(--tw-bg-opacity)) !important;
+
         .mat-mdc-menu-item {
             .mat-mdc-menu-item-text {
                 display: flex;
@@ -1329,4 +1331,14 @@ textarea.mat-mdc-input-element {
 
 .mat-mdc-radio-button .mdc-radio--disabled+label{
     color: rgb(26 27 31 / 38%) !important; 
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+/*  @ Badge
+/* -------------------------------------------------------------------------- */
+.mat-badge{
+    --mat-badge-background-color: #4b5563;
+    --mat-badge-text-color: #fff;
 }

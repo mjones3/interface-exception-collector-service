@@ -1,5 +1,6 @@
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router } from '@angular/router';
 import { provideMockStore } from '@ngrx/store/testing';
@@ -24,6 +25,7 @@ describe('ShipmentDetailsComponent', () => {
                 ShipmentDetailsComponent,
                 ApolloTestingModule,
                 NoopAnimationsModule,
+                MatIconTestingModule,
                 ApolloModule,
                 TranslateModule.forRoot(),
                 ToastrModule.forRoot(),
