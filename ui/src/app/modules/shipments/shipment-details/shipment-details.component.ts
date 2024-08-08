@@ -33,6 +33,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { TableModule } from 'primeng/table';
 import { of, switchMap } from 'rxjs';
 import { catchError, take } from 'rxjs/operators';
+import { ProductFamilyMap } from '../../../shared/models/product-family.model';
 import {
     FilledProductInfoDto,
     ShipmentCompleteInfoDto,
@@ -330,4 +331,6 @@ export class ShipmentDetailsComponent implements OnInit {
             notification.notificationType
         );
     }
+
+    protected readonly ProductFamilyMap = ProductFamilyMap;
 }

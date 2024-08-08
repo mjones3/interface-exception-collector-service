@@ -228,7 +228,10 @@
                                 ></mat-icon>
                             </td>
                             <td>
-                                {{ product?.productFamily | uppercase }}
+                                {{
+                                    ProductFamilyMap[product?.productFamily]
+                                        | uppercase
+                                }}
                             </td>
                             <td>
                                 {{ product?.bloodType | uppercase }}
