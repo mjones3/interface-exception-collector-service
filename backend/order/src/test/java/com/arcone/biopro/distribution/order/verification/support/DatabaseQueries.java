@@ -29,4 +29,14 @@ public class DatabaseQueries {
     public static String updatePriorityColor(String priority, String colorHex){
         return String.format("UPDATE lk_lookup SET option_value = '%s' WHERE type = 'ORDER_PRIORITY_COLOR' and description_key = '%s'", colorHex, priority);
     }
+
+    public static String restoreDefaultPriorityColors(){
+        return """
+            UPDATE lk_lookup SET option_value = '#ff3333' WHERE type = 'ORDER_PRIORITY_COLOR' and description_key = 'STAT';
+            UPDATE lk_lookup SET option_value = '#ffb833' WHERE type = 'ORDER_PRIORITY_COLOR' and description_key = 'ASAP';
+            UPDATE lk_lookup SET option_value = '#d7d6d3' WHERE type = 'ORDER_PRIORITY_COLOR' and description_key = 'ROUTINE';
+            UPDATE lk_lookup SET option_value = '#97a6f2' WHERE type = 'ORDER_PRIORITY_COLOR' and description_key = 'SCHEDULED';
+            UPDATE lk_lookup SET option_value = '#0930f6' WHERE type = 'ORDER_PRIORITY_COLOR' and description_key = 'DATE-TIME';
+            """;
+    }
 }

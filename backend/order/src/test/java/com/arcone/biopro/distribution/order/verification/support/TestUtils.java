@@ -40,4 +40,12 @@ public class TestUtils {
         this.setFacilityCookie(this.defaultFacility, driver);
     }
 
+    public String convertHexToRGBA(String hex) {
+        String hexValue = hex.replace("#", "");
+        int r = Integer.parseInt(hexValue.substring(0, 2), 16);
+        int g = Integer.parseInt(hexValue.substring(2, 4), 16);
+        int b = Integer.parseInt(hexValue.substring(4, 6), 16);
+        return String.format("rgba(%d, %d, %d, 1)", r, g, b);
+    }
+
 }
