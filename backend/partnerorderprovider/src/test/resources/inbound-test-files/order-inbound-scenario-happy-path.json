@@ -1,7 +1,7 @@
 {
   "externalId": "114117922233598",
   "orderStatus": "OPEN",
-  "locationCode": "R08JACKSONVILLEMAINMOB",
+  "locationCode": "123456789",
   "createDate": "2023-04-25 20:09:01",
   "createEmployeeCode": "ee1bf88e-2137-4a17-835a-d43e7b738374",
   "shipmentType": "CUSTOMER",
@@ -18,7 +18,7 @@
   "comments": "string",
   "orderItems": [
     {
-      "productFamily": "APHERESIS_PLASMA",
+      "productFamily": "PLASMA_TRANSFUSABLE",
       "bloodType": "AB",
       "quantity": 1,
       "comments": "Comments"

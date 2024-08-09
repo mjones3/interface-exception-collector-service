@@ -117,7 +117,7 @@ class OrderMapperTest {
         assertEquals(order.getProductCategory().getProductCategory(), result.productCategory());
         assertEquals(order.getComments(), result.comments());
         assertEquals(order.getOrderStatus().getOrderStatus(), result.status());
-        assertEquals(order.getOrderPriority().getOrderPriority(), result.priority());
+        assertEquals(order.getOrderPriority().getDeliveryType(), result.priority());
         assertEquals(order.getCreateEmployeeId(), result.createEmployeeId());
         assertEquals(order.getCreateDate(), result.createDate());
         assertEquals(order.getModificationDate(), result.modificationDate());
@@ -210,7 +210,7 @@ class OrderMapperTest {
         assertEquals(orderDTO.productCategory(), result.getProductCategory().getProductCategory());
         assertEquals(orderDTO.comments(), result.getComments());
         assertEquals(orderDTO.status(), result.getOrderStatus().getOrderStatus());
-        assertEquals(orderDTO.priority(), result.getOrderPriority().getOrderPriority());
+        assertEquals(orderDTO.priority(), result.getOrderPriority().getDeliveryType());
         assertEquals(orderDTO.createEmployeeId(), result.getCreateEmployeeId());
         assertEquals(orderDTO.createDate(), result.getCreateDate());
         assertEquals(orderDTO.modificationDate(), result.getModificationDate());

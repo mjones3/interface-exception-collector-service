@@ -5,6 +5,7 @@ import com.arcone.biopro.distribution.order.domain.model.vo.LookupId;
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderPriority;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
 import graphql.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import reactor.core.publisher.Flux;
@@ -18,9 +19,14 @@ class OrderPriorityTest {
     public void shouldCreateOrderPriority() {
         LookupService lookupService = Mockito.mock(LookupService.class);
         Lookup lookup = Mockito.mock(Lookup.class);
+        Mockito.when(lookup.getOrderNumber()).thenReturn(1);
         Mockito.when(lookup.getId()).thenReturn(new LookupId("TEST","TEST"));
         Mockito.when(lookupService.findAllByType(Mockito.anyString())).thenReturn(Flux.just(lookup));
-        Assert.assertNotNull(new OrderPriority("TEST", lookupService));
+        var priority = new OrderPriority("TEST", lookupService);
+        Assert.assertNotNull(priority);
+        Assert.assertNotNull(priority.getDeliveryType());
+        Assert.assertNotNull(priority.getPriority());
+        Assertions.assertEquals(1,priority.getPriority());
 
     }
 

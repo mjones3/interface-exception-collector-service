@@ -9,7 +9,7 @@ public class GraphQLMutationMapper {
                 mutation {
                     packItem(packItemRequest:{
                         shipmentItemId:%s
-                        , locationCode:%s
+                        , locationCode:"%s"
                         , unitNumber:"%s"
                         , employeeId:"%s"
                         , productCode:"%s"

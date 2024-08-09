@@ -41,7 +41,8 @@ public class OrderEntityMapper {
             .productCategory(order.getProductCategory().getProductCategory())
             .comments(order.getComments())
             .status(order.getOrderStatus().getOrderStatus())
-            .priority(order.getOrderPriority().getOrderPriority())
+            .priority(order.getOrderPriority().getPriority())
+            .deliveryType(order.getOrderPriority().getDeliveryType())
             .createEmployeeId(order.getCreateEmployeeId())
             .createDate(order.getCreateDate())
             .modificationDate(order.getModificationDate())
@@ -72,7 +73,7 @@ public class OrderEntityMapper {
             orderEntity.getProductCategory(),
             orderEntity.getComments(),
             orderEntity.getStatus(),
-            orderEntity.getPriority(),
+            orderEntity.getDeliveryType(),
             orderEntity.getCreateEmployeeId(),
             orderEntity.getCreateDate(),
             orderEntity.getModificationDate(),

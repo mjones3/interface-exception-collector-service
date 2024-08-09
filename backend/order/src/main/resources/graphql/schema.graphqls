@@ -12,6 +12,7 @@ type Query {
 
     # Searches over all orders
     findAllOrders: [Order]!
+    searchOrders(orderQueryCommandDTO:OrderQueryCommandDTO!):[OrderReportDTO]
 }
 
 type Mutation {
@@ -134,4 +135,41 @@ type Order {
     modificationDate: DateTime!
     deleteDate: DateTime
     orderItems: [OrderItem]!
+}
+
+type OrderReportDTO {
+    orderId: Int!
+    orderNumber:Int!
+    externalId: String
+    orderStatus: String
+    orderCustomerReport:OrderCustomerReportDTO
+    orderPriorityReport:OrderPriorityReportDTO
+    createDate: DateTime
+    desireShipDate: Date
+}
+
+type OrderCustomerReportDTO {
+    code:String
+    name:String
+}
+
+type OrderPriorityReportDTO {
+
+    priority:String
+    priorityColor:String
+}
+
+input OrderQueryCommandDTO {
+    locationCode:String!
+    querySort:QuerySortDTO
+    limit:Int
+}
+
+input QuerySortDTO {
+    orderByList:[QueryOrderByDTO]
+}
+
+input QueryOrderByDTO {
+    property:String
+    direction:String
 }

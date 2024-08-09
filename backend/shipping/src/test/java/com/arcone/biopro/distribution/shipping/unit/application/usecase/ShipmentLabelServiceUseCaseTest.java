@@ -84,7 +84,7 @@ class ShipmentLabelServiceUseCaseTest {
 
         Shipment shipment = Mockito.mock(Shipment.class);
         Mockito.when(shipment.getId()).thenReturn(1L);
-        Mockito.when(shipment.getLocationCode()).thenReturn(3);
+        Mockito.when(shipment.getLocationCode()).thenReturn("MDL_HUB_1");
         Mockito.when(shipment.getOrderNumber()).thenReturn(56L);
         Mockito.when(shipment.getStatus()).thenReturn(ShipmentStatus.COMPLETED);
         Mockito.when(shipment.getPriority()).thenReturn(ShipmentPriority.ASAP);
@@ -120,7 +120,7 @@ class ShipmentLabelServiceUseCaseTest {
                 .productDescription("product_description")
             .build()));
 
-        Mockito.when(facilityServiceMock.getFacilityId(3)).thenReturn(Mono.just(FacilityDTO.builder()
+        Mockito.when(facilityServiceMock.getFacilityId("MDL_HUB_1")).thenReturn(Mono.just(FacilityDTO.builder()
                 .name("Facility Name")
                 .externalId("IC 39")
                 .addressLine1("Address Line 1")
@@ -172,7 +172,7 @@ class ShipmentLabelServiceUseCaseTest {
 
         Shipment shipment = Mockito.mock(Shipment.class);
         Mockito.when(shipment.getId()).thenReturn(1L);
-        Mockito.when(shipment.getLocationCode()).thenReturn(3);
+        Mockito.when(shipment.getLocationCode()).thenReturn("MDL_HUB_1");
         Mockito.when(shipment.getOrderNumber()).thenReturn(56L);
         Mockito.when(shipment.getStatus()).thenReturn(ShipmentStatus.COMPLETED);
         Mockito.when(shipment.getPriority()).thenReturn(ShipmentPriority.ASAP);
@@ -190,7 +190,7 @@ class ShipmentLabelServiceUseCaseTest {
 
         Mockito.when(shipmentRepository.findById(1L)).thenReturn(Mono.just(shipment));
 
-        Mockito.when(facilityServiceMock.getFacilityId(3)).thenReturn(Mono.just(FacilityDTO.builder()
+        Mockito.when(facilityServiceMock.getFacilityId("MDL_HUB_1")).thenReturn(Mono.just(FacilityDTO.builder()
             .name("Facility Name")
             .externalId("IC 39")
             .addressLine1("Address Line 1")

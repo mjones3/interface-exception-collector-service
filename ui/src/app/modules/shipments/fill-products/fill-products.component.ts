@@ -14,6 +14,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FuseCardComponent } from '@fuse/components/card/public-api';
 import { Store } from '@ngrx/store';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+
 import {
     Description,
     DescriptionCardComponent,
@@ -28,6 +29,7 @@ import { Cookie } from 'app/shared/types/cookie.enum';
 import { CookieService } from 'ngx-cookie-service';
 import { TableModule } from 'primeng/table';
 import { catchError, finalize, take } from 'rxjs';
+import { ProductFamilyMap } from '../../../shared/models/product-family.model';
 import {
     FilledProductInfoDto,
     ShipmentInfoDto,
@@ -128,7 +130,7 @@ export class FillProductsComponent implements OnInit {
         this.prodInfoDescriptions = [
             {
                 label: 'Product Family',
-                value: this.shipmentProduct?.productFamily,
+                value: ProductFamilyMap[this.shipmentProduct?.productFamily],
             },
             {
                 label: 'Blood Type',
@@ -233,7 +235,7 @@ export class FillProductsComponent implements OnInit {
             shipmentItemId: +this.productId,
             unitNumber: item.unitNumber,
             productCode: item.productCode,
-            locationCode: +this.cookieService.get(Cookie.XFacility),
+            locationCode: this.cookieService.get(Cookie.XFacility),
             employeeId: this.loggedUserId,
             visualInspection: item.visualInspection.toUpperCase(),
         };

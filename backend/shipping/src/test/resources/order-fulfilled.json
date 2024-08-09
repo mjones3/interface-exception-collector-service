@@ -3,7 +3,7 @@
   "priority": "ASAP",
   "status": "OPEN",
   "shippingCustomerCode": 1,
-  "locationCode": 3,
+  "locationCode": "MDL_HUB_1",
   "deliveryType": "TEST",
   "shippingMethod": "TEST",
   "productCategory": "Frozen",
@@ -22,7 +22,7 @@
   "departmentName": "Department",
   "items": [
     {
-      "productFamily": "Transfusable Plasma",
+      "productFamily": "PLASMA_TRANSFUSABLE",
       "bloodType": "A",
       "quantity": 10,
       "totalAvailable": 10,
@@ -61,7 +61,7 @@
       ]
     },
     {
-      "productFamily": "Transfusable Plasma",
+      "productFamily": "PLASMA_TRANSFUSABLE",
       "bloodType": "B",
       "quantity": 5,
       "totalAvailable": 10,
@@ -80,7 +80,7 @@
       ]
     },
     {
-      "productFamily": "Transfusable Plasma",
+      "productFamily": "PLASMA_TRANSFUSABLE",
       "bloodType": "O",
       "quantity": 8,
       "shortDateProducts": [
