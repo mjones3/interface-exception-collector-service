@@ -8,7 +8,8 @@
         "start": "ng serve --proxy-config proxy.conf.json --open",
         "build": "ng build",
         "watch": "ng build --watch --configuration development",
-        "test": "jest",
+        "test": "jest --no-cache",
+        "test:failures": "jest --only-failures",
         "test:watch": "jest —-watch",
         "test:cov": "jest --coverage",
         "prepare": "cd .. && husky ui/.husky"

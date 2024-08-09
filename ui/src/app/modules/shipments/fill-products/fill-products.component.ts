@@ -17,7 +17,6 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
     Description,
     DescriptionCardComponent,
-    FacilityService,
     ProcessHeaderComponent,
     ProcessHeaderService,
     ProcessProductModel,
@@ -25,6 +24,8 @@ import {
 } from '@shared';
 import { ERROR_MESSAGE } from 'app/core/data/common-labels';
 import { getAuthState } from 'app/core/state/auth/auth.selectors';
+import { Cookie } from 'app/shared/types/cookie.enum';
+import { CookieService } from 'ngx-cookie-service';
 import { TableModule } from 'primeng/table';
 import { catchError, finalize, take } from 'rxjs';
 import {
@@ -84,7 +85,7 @@ export class FillProductsComponent implements OnInit {
         private route: ActivatedRoute,
         private shipmentService: ShipmentService,
         private translateService: TranslateService,
-        private facilityService: FacilityService,
+        private cookieService: CookieService,
         private store: Store,
         private _router: Router,
         private cd: ChangeDetectorRef
@@ -232,7 +233,7 @@ export class FillProductsComponent implements OnInit {
             shipmentItemId: +this.productId,
             unitNumber: item.unitNumber,
             productCode: item.productCode,
-            locationCode: this.facilityService.getFacilityId(),
+            locationCode: +this.cookieService.get(Cookie.XFacility),
             employeeId: this.loggedUserId,
             visualInspection: item.visualInspection.toUpperCase(),
         };

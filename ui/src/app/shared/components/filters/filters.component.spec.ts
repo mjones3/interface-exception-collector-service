@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { ViewPickListComponent } from './view-pick-list.component';
+import { FiltersComponent } from './filters.component';
 
-describe('ViewPickListComponent', () => {
-    let component: ViewPickListComponent;
-    let fixture: ComponentFixture<ViewPickListComponent>;
+describe('FiltersComponent', () => {
+    let component: FiltersComponent;
+    let fixture: ComponentFixture<FiltersComponent>;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [ViewPickListComponent, MatIconTestingModule],
+            imports: [FiltersComponent, MatIconTestingModule],
         }).compileComponents();
 
-        fixture = TestBed.createComponent(ViewPickListComponent);
+        fixture = TestBed.createComponent(FiltersComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });
