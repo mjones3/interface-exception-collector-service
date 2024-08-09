@@ -1,12 +1,13 @@
 package com.arcone.biopro.distribution.order.verification.controllers;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import lombok.extern.slf4j.Slf4j;
 
+import java.util.*;
+
+@Slf4j
 public class OrderController {
-    Map<String, Integer> priorities = new HashMap<>();
-    Map<String, String> colors = new HashMap<>();
+    public Map<String, Integer> priorities = new LinkedHashMap<>();
+    public Map<String, String> colors = new HashMap<>();
 
     // Constructor
     public OrderController() {
@@ -39,5 +40,26 @@ public class OrderController {
 
     public String getColorHex(String colorName) {
         return colors.get(colorName.toUpperCase());
+    }
+
+    /**
+     * Checks if the given set of priorities is ordered according to the predefined priority values.
+     *
+     * @param priorityList a set of priority strings to be checked
+     * @return true if the priorities are in the correct order, false otherwise
+     */
+    public boolean isPriorityOrdered(Set<String> priorityList) {
+        var lastPriorityIndex = 1;
+        for (int i = 0; i < priorityList.size(); i++) {
+            var priority = priorityList.toArray()[i].toString();
+            log.info("Priority: {} found at position: {}", priority, i+1);
+
+
+            if (this.priorities.get(priority) < lastPriorityIndex) {
+                return false;
+            }
+            lastPriorityIndex = this.priorities.get(priority);
+        }
+        return true;
     }
 }

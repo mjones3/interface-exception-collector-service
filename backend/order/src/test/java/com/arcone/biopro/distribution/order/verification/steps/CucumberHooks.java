@@ -1,6 +1,8 @@
 package com.arcone.biopro.distribution.order.verification.steps;
 
+import io.cucumber.java.After;
 import lombok.extern.slf4j.Slf4j;
+import org.openqa.selenium.WebDriver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
@@ -14,9 +16,9 @@ public class CucumberHooks {
     @Autowired
     public ApplicationContext ctx;
 
-//    @After
-//    public void afterScenario() {
-//        this.ctx.getBean(WebDriver.class).quit();
-//    }
+    @After
+    public void afterScenario() {
+        this.ctx.getBean(WebDriver.class).quit();
+    }
 
 }
