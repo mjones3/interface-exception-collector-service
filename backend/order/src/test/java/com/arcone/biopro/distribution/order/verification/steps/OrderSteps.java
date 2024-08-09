@@ -23,7 +23,7 @@ import org.springframework.beans.factory.annotation.Value;
 @Slf4j
 public class OrderSteps {
 
-    //    Order details
+//    Order details
     private String externalId;
     private String locationCode;
     private String priority;

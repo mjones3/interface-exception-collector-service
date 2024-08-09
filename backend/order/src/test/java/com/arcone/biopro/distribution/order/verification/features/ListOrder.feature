@@ -4,8 +4,7 @@ Feature: List of all orders in Search Order
     so that I am able to see the list of orders based on priority.
 
     Background:
-        Given I cleaned up from the database the orders with external ID starting with "1141179222".
-        And I cleaned up from the database the orders with external ID starting with "EXT_".
+        Given I cleaned up from the database the orders with external ID starting with "EXT_".
         And I have restored the default configuration for the order priority colors.
 
     Rule: I should be able to see the list of orders by priority and status where the user logged in.
@@ -15,7 +14,8 @@ Feature: List of all orders in Search Order
         Rule: I should be able to see the priority column color coded.
 
         Scenario Outline: List Biopro Orders by priority, status and location
-            Given I have a Biopro Order with externalId "<External ID>", Location Code "<LocationCode>", Priority "<Priority>" and Status "<Status>".
+            Given I cleaned up from the database the orders with external ID "<External ID>".
+            And I have a Biopro Order with externalId "<External ID>", Location Code "<LocationCode>", Priority "<Priority>" and Status "<Status>".
             And I am logged in the location "<LocationCode>".
             When I choose search orders.
             Then I should see the order details.
@@ -33,7 +33,8 @@ Feature: List of all orders in Search Order
 
     Rule: I should be able to configure the color options for the priority column.
         Scenario Outline: List Biopro Orders, changing Status color setup.
-            Given I have a Biopro Order with externalId "<External ID>", Location Code "<LocationCode>", Priority "<Priority>" and Status "<Status>".
+            Given I cleaned up from the database the orders with external ID "<External ID>".
+            And I have a Biopro Order with externalId "<External ID>", Location Code "<LocationCode>", Priority "<Priority>" and Status "<Status>".
             And I have setup the order priority "<Priority>" color configuration as "<Priority Color>".
             When I choose search orders.
             And I should see the order details.
@@ -46,14 +47,15 @@ Feature: List of all orders in Search Order
 
 
         Scenario Outline: List Biopro Orders different location
-            Given I have a Biopro Order with externalId "<External ID>", Location Code "<Order LocationCode>", Priority "<Priority>" and Status "<Status>".
+            Given I cleaned up from the database the orders with external ID "<External ID>".
+            And I have a Biopro Order with externalId "<External ID>", Location Code "<Order LocationCode>", Priority "<Priority>" and Status "<Status>".
             And I am logged in the location "<User LocationCode>".
             When I choose search orders.
             Then I should not see the the biopro order in the list of orders.
 
             Examples:
-                | External ID     | Order LocationCode | User LocationCode | Priority | Status |
-                | 114117922233510 | 234567891          | MDL_HUB_1         | STAT     | OPEN   |
+                | External ID     | Order LocationCode        | User LocationCode | Priority | Status |
+                | 114117922233510 | DISTRIBUTION_AND_LABELING | MDL_HUB_1         | STAT     | OPEN   |
 
 
     Rule: I should be able to view a maximum of 20 rows in the Results table.

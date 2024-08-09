@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.order.verification.pages.order;
 
+import com.arcone.biopro.distribution.order.verification.controllers.OrderController;
 import com.arcone.biopro.distribution.order.verification.pages.CommonPageFactory;
 import com.arcone.biopro.distribution.order.verification.pages.SharedActions;
 import lombok.extern.slf4j.Slf4j;
@@ -14,12 +15,13 @@ import org.springframework.stereotype.Component;
 
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
 @Slf4j
 public class SearchOrderPage extends CommonPageFactory {
+
+    OrderController orderController = new OrderController();
 
     @Autowired
     private SharedActions sharedActions;
@@ -93,21 +95,17 @@ public class SearchOrderPage extends CommonPageFactory {
     }
 
     public void verifyPriorityOrderList() {
-        Set<String> expectedPriority = new LinkedHashSet<>();
-        expectedPriority.add("STAT");
-        expectedPriority.add("ASAP");
-        expectedPriority.add("ROUTINE");
-        expectedPriority.add("SCHEDULED");
-        expectedPriority.add("DATE-TIME");
 
         sharedActions.waitForVisible(orderPriorityList.getFirst());
 
         var priorityList = orderPriorityList.stream().toList().stream().map(WebElement::getText)
             .collect(Collectors.toCollection(LinkedHashSet::new));
-        log.info("Priority list: {}", priorityList);
+        log.info("Configured priority is: {}", orderController.priorities.keySet());
+        log.info("Priority shown in UI: {}", priorityList);
 
-        Assert.assertEquals(expectedPriority, priorityList);
+        Assert.assertTrue(orderController.isPriorityOrdered(priorityList));
     }
+
 
     public List<WebElement> getOrderPriorityList() {
         return orderPriorityList.stream().toList();
