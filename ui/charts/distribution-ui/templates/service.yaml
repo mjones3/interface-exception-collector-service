@@ -1,20 +1,15 @@
-{{- if .Values.istio.enabled -}}
-apiVersion: networking.istio.io/v1alpha3
-kind: VirtualService
+apiVersion: v1
+kind: Service
 metadata:
-    name: {{ include "distribution-ui.fullname" . }}-vs
-    namespace: istio-system
+  name: {{ include "distribution-ui.fullname" . }}
+  labels:
+    {{- include "distribution-ui.labels" . | nindent 4 }}
 spec:
-    hosts:
-        - {{ .Values.istio.host }}.{{ .Values.domain }}
-    gateways:
-        - {{ .Values.istio.gateway }}
-    http:
-        - match:
-            {{- toYaml .Values.istio.services | nindent 8 }}
-          route:
-              - destination:
-                    host: {{ include "distribution-ui.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
-                    port:
-                        number: {{ .Values.service.port }}
-  {{- end }}
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "distribution-ui.selectorLabels" . | nindent 4 }}
