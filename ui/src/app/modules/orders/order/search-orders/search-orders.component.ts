@@ -14,9 +14,8 @@ import {
 import { ToastrService } from 'ngx-toastr';
 import { Table, TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { BehaviorSubject, Subject, finalize } from 'rxjs';
-import { OrderSummaryDto } from '../../models/order.dto';
+import { OrderReportDTO } from '../../models/search-order.model';
 import { OrderService } from '../../services/order.service';
-import { OrderReportDTO } from '../models/search-order.model';
 
 @Component({
     selector: 'app-search-orders',
@@ -162,8 +161,8 @@ export class SearchOrdersComponent {
     }
 
     // TO BE FIXED WHEN WORKING ON SEARCH ORDER
-    details(shipment: OrderSummaryDto) {
-        this.router.navigateByUrl(`/shipment/${shipment.id}/shipment-details`);
+    details(id: number) {
+        this.router.navigateByUrl(`/orders/${id}/order-details`);
     }
 
     get selectedColumns(): Column[] {
