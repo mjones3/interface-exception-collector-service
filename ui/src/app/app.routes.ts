@@ -22,15 +22,29 @@ export const appRoutes: Route[] = [
             },
             {
                 path: 'orders',
-                loadChildren: () => import('app/modules/orders/order/search-orders/search-orders.routes'),
+                loadChildren: () =>
+                    import(
+                        'app/modules/orders/order/search-orders/search-orders.routes'
+                    ),
+            },
+            {
+                path: 'orders',
+                loadChildren: () =>
+                    import(
+                        'app/modules/orders/order/order-details/order-details.routes'
+                    ),
             },
             {
                 path: 'shipment',
-                loadChildren: () => import('app/modules/shipments/shipment.routes'),
+                loadChildren: () =>
+                    import('app/modules/shipments/shipment.routes'),
             },
             {
                 path: 'shipment',
-                loadChildren: () => import('app/modules/shipments/fill-products/fill-products.routes'),
+                loadChildren: () =>
+                    import(
+                        'app/modules/shipments/fill-products/fill-products.routes'
+                    ),
             },
 
             // 404 & Catch all

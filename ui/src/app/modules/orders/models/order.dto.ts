@@ -18,9 +18,9 @@ export interface OrderSummaryDto {
     billingCustomerId?: number;
     billingCustomerExternalId?: string;
     comments?: string;
-  }
+}
 
-  export interface OrderDto {
+export interface OrderDto {
     id?: number;
     orderNumber: number;
     externalId: string; //maxLength=50
@@ -55,9 +55,9 @@ export interface OrderSummaryDto {
     orderServiceFees: OrderServiceFeeDto[];
     employeeId?: string;
     shippingLocationId?: number;
-  }
+}
 
-  export interface OrderItemDto {
+export interface OrderItemDto {
     id?: number;
     orderId?: number;
     productFamily: string; //maxLength=255
@@ -70,29 +70,29 @@ export interface OrderSummaryDto {
     orderItemProductAttributes: OrderItemProductAttributeDto[];
     orderItemAttachments?: OrderItemAttachmentDto[];
     orderItemInventories?: OrderItemInventoryDto[];
-  }
+}
 
-  export interface OrderItemProductAttributeDto {
+export interface OrderItemProductAttributeDto {
     id?: number;
     orderItemId?: number;
     productAttributeId: number;
     productAttributeOptions?: ItemProductAttributeOptionDto[];
-  }
-  
-  export interface ItemProductAttributeOptionDto {
+}
+
+export interface ItemProductAttributeOptionDto {
     id?: number;
     orderItemProductAttributeId?: number;
     attributeOptionValue: string;
-  }
-  
-  export interface OrderServiceFeeDto {
+}
+
+export interface OrderServiceFeeDto {
     id?: number;
     orderId?: number;
     serviceFee: string; //maxLength=255
     quantity: number;
-  }
-  
-  export interface OrderBloodTypeDto {
+}
+
+export interface OrderBloodTypeDto {
     id?: number;
     productFamily: string; //maxLength=255
     bloodTypeValue: string; //maxLength=255
@@ -101,9 +101,9 @@ export interface OrderSummaryDto {
     active: boolean;
     createDate?: string;
     modificationDate?: string;
-  }
-  
-  export interface OrderProductAttributeDto {
+}
+
+export interface OrderProductAttributeDto {
     id?: number;
     descriptionKey: string; //maxLength=255
     attributeValue: string; //maxLength=255
@@ -114,9 +114,9 @@ export interface OrderSummaryDto {
     createDate?: string;
     modificationDate?: string;
     attributeOptions?: OrderProductAttributeOptionDto[];
-  }
+}
 
-  export interface OrderProductAttributeOptionDto {
+export interface OrderProductAttributeOptionDto {
     id?: number;
     descriptionKey: string; //maxLength=255
     optionValue: string; //maxLength=255
@@ -124,18 +124,18 @@ export interface OrderSummaryDto {
     active: boolean;
     createDate?: string;
     modificationDate?: string;
-  }
+}
 
-  export interface OrderItemAttachmentDto {
+export interface OrderItemAttachmentDto {
     id?: number;
     orderItemId: number;
     description: string; //maxLength: 255
     documentId: number;
     createDate?: string;
     modificationDate?: string;
-  }
+}
 
-  export interface OrderItemInventoryDto {
+export interface OrderItemInventoryDto {
     id?: number;
     order: number;
     orderItem: number;
@@ -147,7 +147,6 @@ export interface OrderSummaryDto {
     productCode?: string;
     unitNumber?: string;
     validated?: boolean;
-  }
-  
-  export type LabelStatus = 'LABELED' | 'UNLABELED';
-  
+}
+
+export type LabelStatus = 'LABELED' | 'UNLABELED';
