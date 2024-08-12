@@ -44,7 +44,7 @@ export class OrderService {
     public getOrderInfoDescriptions(orderInfo: OrderDetailsDto): Description[] {
         return [
             {
-                label: 'Order Number',
+                label: 'BioPro Order Number',
                 value: orderInfo?.orderNumber?.toString(),
             },
             {
@@ -55,10 +55,7 @@ export class OrderService {
                 label: 'Priority',
                 value: orderInfo?.priority.toString(),
             },
-            {
-                label: 'Labeling Product Category',
-                value: orderInfo?.productCategory.toString(),
-            },
+            { label: 'Status', value: orderInfo?.status.toString() },
         ];
     }
 
@@ -66,16 +63,14 @@ export class OrderService {
         orderInfo: OrderDetailsDto
     ): Description[] {
         return [
-            { label: 'Shipment Id', value: orderInfo?.id.toString() },
             {
-                label: 'Customer Id',
+                label: 'Customer Code',
                 value: orderInfo?.shippingCustomerCode.toString(),
             },
             {
                 label: 'Customer Name',
                 value: orderInfo?.shippingCustomerName.toString(),
             },
-            { label: 'Status', value: orderInfo?.status.toString() },
             {
                 label: 'Shipping Method',
                 value: orderInfo?.shippingMethod.toString(),

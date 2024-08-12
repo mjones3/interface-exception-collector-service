@@ -63,7 +63,7 @@
                 <div
                     class="flex w-full flex-row items-baseline justify-between px-5"
                 >
-                    <h3>Order Details</h3>
+                    <h3>Product Details</h3>
                 </div>
             </div>
             <mat-divider></mat-divider>
@@ -74,11 +74,11 @@
                     dataKey="id"
                     styleClass="p-datatable-customers p-datatable-sm"
                     currentPageReportTemplate="Items per page: 20&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Page {currentPage} - {totalPages} of {totalRecords}"
-                    [rows]="10"
+                    [rows]="20"
                     [value]="products"
                     [showCurrentPageReport]="true"
-                    [rowsPerPageOptions]="[10, 25, 50]"
                     [paginator]="true"
+                    [paginatorStyleClass]="'items-center justify-end'"
                     [loading]="loading"
                     [expandedRowKeys]="expandedRows"
                 >
@@ -107,18 +107,12 @@
                                     Quantity
                                 </div>
                             </th>
-                            <th id="quantityColumn">
-                                <div
-                                    class="p-d-flex p-jc-between p-ai-center flex items-center"
-                                >
-                                    Availble Inventory
-                                </div>
-                            </th>
                             <th>
                                 <div
+                                    id="filledProductsColumn"
                                     class="p-d-flex p-jc-between p-ai-center flex items-center"
                                 >
-                                    Filled
+                                    Filled Products
                                 </div>
                             </th>
                             <th></th>
@@ -157,16 +151,16 @@
                                 ></mat-icon>
                             </td>
                             <td>
-                                {{ product?.productFamily | uppercase }}
+                                {{
+                                    ProductFamilyMap[product?.productFamily]
+                                        | uppercase
+                                }}
                             </td>
                             <td>
                                 {{ product?.bloodType | uppercase }}
                             </td>
                             <td>
                                 {{ product?.quantity }}
-                            </td>
-                            <td>
-                                {{ availableInventory }}
                             </td>
                             <td>
                                 <div

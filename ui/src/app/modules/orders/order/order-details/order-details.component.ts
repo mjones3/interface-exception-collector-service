@@ -11,13 +11,12 @@ import {
     Description,
     ProcessHeaderComponent,
     ProcessHeaderService,
-    SortService,
     ToastrImplService,
 } from '@shared';
 import { ERROR_MESSAGE } from 'app/core/data/common-labels';
 import { OrderWidgetsSidebarComponent } from 'app/modules/shipments/shared/order-widgets-sidebar/order-widgets-sidebar.component';
+import { ProductFamilyMap } from 'app/shared/models/product-family.model';
 import { ToastrModule } from 'ngx-toastr';
-import { SortEvent } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
 import { TableModule } from 'primeng/table';
@@ -56,12 +55,11 @@ export class OrderDetailsComponent implements OnInit {
     orderDetailsInfo: OrderDetailsDto;
     products: OrderItemDetailsDto[] = [];
     loading = true;
-    availableInventory = 0;
+    protected readonly ProductFamilyMap = ProductFamilyMap;
 
     constructor(
         public header: ProcessHeaderService,
         private route: ActivatedRoute,
-        private sortService: SortService,
         private _router: Router,
         private orderService: OrderService,
         public toaster: ToastrImplService
@@ -130,9 +128,5 @@ export class OrderDetailsComponent implements OnInit {
 
     backToSearch(): void {
         this._router.navigateByUrl('/orders/search');
-    }
-
-    customSort(event: SortEvent) {
-        this.sortService.customSort(event);
     }
 }
