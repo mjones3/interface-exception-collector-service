@@ -1,20 +1,10 @@
-import {
-    HttpClient,
-    provideHttpClient,
-    withInterceptors,
-} from '@angular/common/http';
-import {
-    APP_INITIALIZER,
-    ENVIRONMENT_INITIALIZER,
-    EnvironmentProviders,
-    Provider,
-    inject,
-} from '@angular/core';
+import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
+import { APP_INITIALIZER, ENVIRONMENT_INITIALIZER, EnvironmentProviders, inject, Provider } from '@angular/core';
 import { ErrorStateMatcher } from '@angular/material/core';
 import { InMemoryCache } from '@apollo/client/cache';
 import { ApolloClientOptions } from '@apollo/client/core';
 import { onError } from '@apollo/client/link/error';
-import { APOLLO_OPTIONS, Apollo } from 'apollo-angular';
+import { Apollo, APOLLO_OPTIONS } from 'apollo-angular';
 import { HttpLink } from 'apollo-angular/http';
 import { DefaultErrorStateMatcher } from 'app/shared/forms/default.error-match';
 import { Environment } from 'app/shared/models';
@@ -26,6 +16,8 @@ import { switchMap } from 'rxjs';
 import { authInterceptor } from './interceptors/auth.interceptor';
 import { loaderInterceptor } from './interceptors/loader.interceptor';
 import { timezoneInterceptor } from './interceptors/time-zone.interceptor';
+import { ProcessMockApi } from '../mock-api/common/process/api';
+import { NavigationMockApi } from '../mock-api/common/navigation/api';
 
 const provideApollo = (): Provider[] => [
     {
@@ -74,13 +66,18 @@ export const provideCore = (): (Provider | EnvironmentProviders)[] => {
             provide: APP_INITIALIZER,
             useFactory: () => {
                 const authService = inject(AuthService);
+                const processMockApi = inject(ProcessMockApi);
+                const navigationMockApi = inject(NavigationMockApi);
                 const config = inject(EnvironmentConfigService);
                 const http = inject(HttpClient);
 
                 return () =>
                     http.get('/settings.json').pipe(
                         switchMap((settings) => {
-                            config.env = { ...(settings as Environment) };
+                            const environment = settings as Environment;
+                            config.env = { ...(environment) };
+                            processMockApi.registerHandlers(environment);
+                            navigationMockApi.registerHandlers(environment);
                             return authService.init({
                                 config: config.env as KeycloakConfig,
                                 initOptions: {

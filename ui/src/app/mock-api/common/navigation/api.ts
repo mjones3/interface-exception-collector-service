@@ -1,12 +1,9 @@
 import { Injectable } from '@angular/core';
 import { FuseNavigationItem } from '@fuse/components/navigation';
 import { FuseMockApiService } from '@fuse/lib/mock-api';
-import {
-    defaultNavigation,
-    location,
-    locations,
-} from 'app/mock-api/common/navigation/data';
+import { defaultNavigation, location, locations } from 'app/mock-api/common/navigation/data';
 import { cloneDeep } from 'lodash-es';
+import { Environment } from 'app/shared/models';
 
 @Injectable({ providedIn: 'root' })
 export class NavigationMockApi {
@@ -18,10 +15,7 @@ export class NavigationMockApi {
     /**
      * Constructor
      */
-    constructor(private _fuseMockApiService: FuseMockApiService) {
-        // Register Mock API handlers
-        this.registerHandlers();
-    }
+    constructor(private _fuseMockApiService: FuseMockApiService) {}
 
     // -----------------------------------------------------------------------------------------------------
     // @ Public methods
@@ -30,26 +24,26 @@ export class NavigationMockApi {
     /**
      * Register Mock API handlers
      */
-    registerHandlers(): void {
+    registerHandlers(environment: Environment): void {
         // -----------------------------------------------------------------------------------------------------
         // @ Navigation - GET
         // -----------------------------------------------------------------------------------------------------
         this._fuseMockApiService
-            .onGet('http://localhost:4200/v1/menus')
+            .onGet(`${environment.serverApiURL}/v1/menus`)
             .reply(() => {
                 // Return the response
                 return [200, cloneDeep(this._defaultNavigation)];
             });
 
         this._fuseMockApiService
-            .onGet('http://localhost:4200/v1/locations')
+            .onGet(`${environment.serverApiURL}/v1/locations`)
             .reply(() => {
                 // Return the response
                 return [200, cloneDeep(this._locations)];
             });
 
         this._fuseMockApiService
-            .onGet('http://localhost:4200/v1/facilities/:id')
+            .onGet(`${environment.serverApiURL}/v1/facilities/:id`)
             .reply(() => {
                 // Return the response
                 return [200, cloneDeep(this._location)];
