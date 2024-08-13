@@ -25,6 +25,7 @@ export class OrderWidgetsSidebarComponent {
     @Input() comments: string;
     @Input() orderInfoDescriptions: Description[] = [];
     @Input() shippingInfoDescriptions: Description[] = [];
+    @Input() billInfoDescriptions: Description[] = [];
 
     constructor(
         protected router: Router,

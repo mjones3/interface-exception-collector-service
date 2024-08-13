@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.order.application.usecase;
 
 import com.arcone.biopro.distribution.order.application.dto.OrderReceivedEventPayloadDTO;
+import com.arcone.biopro.distribution.order.application.exception.DomainNotFoundForKeyException;
 import com.arcone.biopro.distribution.order.application.mapper.OrderReceivedEventMapper;
 import com.arcone.biopro.distribution.order.domain.event.OrderCreatedEvent;
 import com.arcone.biopro.distribution.order.domain.event.OrderRejectedEvent;
@@ -13,7 +14,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -24,23 +24,13 @@ public class OrderUseCase implements OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderReceivedEventMapper orderReceivedEventMapper;
-
-    @Override
-    public Flux<Order> findAll() {
-        return this.orderRepository.findAll();
-    }
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     public Mono<Order> findOneById(Long id) {
-        return this.orderRepository.findOneById(id);
+        return this.orderRepository.findOneById(id)
+            .switchIfEmpty(Mono.error(new DomainNotFoundForKeyException(String.format("%s",id))));
     }
-
-    @Override
-    public Mono<Order> insert(Order order) {
-        return this.orderRepository.insert(order);
-    }
-
-    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     @Transactional
@@ -51,7 +41,7 @@ public class OrderUseCase implements OrderService {
                 .subscribeOn(Schedulers.boundedElastic())
                 .doOnNext(order -> {
                         log.info("Result orderReceivedEventMapper.mapToDomain {} , ID {}", order, order.getId());
-                        this.insert(order)
+                        this.orderRepository.insert(order)
                             .doOnSuccess(this::publishOrderCreatedEvent)
                             .doOnError(error -> {
                                 if(error instanceof DuplicateKeyException) {
@@ -78,11 +68,12 @@ public class OrderUseCase implements OrderService {
     }
 
     private void publishOrderCreatedEvent(Order order) {
-        log.info("Publishing OrderCreatedEvent {} , ID {}", order, order.getId());
+        log.debug("Publishing OrderCreatedEvent {} , ID {}", order, order.getId());
         applicationEventPublisher.publishEvent(new OrderCreatedEvent(order));
     }
 
     private void publishOrderRejectedEvent(String externalId,String errorMessage) {
+        log.debug("Publishing OrderRejected {} , ID {}", externalId, errorMessage);
         applicationEventPublisher.publishEvent(new OrderRejectedEvent(externalId,errorMessage));
     }
 

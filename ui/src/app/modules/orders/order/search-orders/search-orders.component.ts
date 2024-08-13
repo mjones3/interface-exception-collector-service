@@ -14,9 +14,9 @@ import {
 import { ToastrService } from 'ngx-toastr';
 import { Table, TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { BehaviorSubject, Subject, finalize } from 'rxjs';
-import { OrderSummaryDto } from '../../models/order.dto';
-import { OrderService } from '../../services/order.service';
-import { OrderReportDTO } from '../models/search-order.model';
+import { DynamicGraphqlPathService } from '../../../../core/services/dynamic-graphql-path.service';
+import { SEARCH_ORDERS } from '../../../shipments/graphql/order/query-definitions/search-orders.graphql';
+import { OrderReportDTO } from '../../models/search-order.model';
 
 @Component({
     selector: 'app-search-orders',
@@ -30,7 +30,6 @@ import { OrderReportDTO } from '../models/search-order.model';
         ProcessHeaderComponent,
         MatButtonModule,
     ],
-    providers: [OrderService],
     templateUrl: './search-orders.component.html',
     styleUrls: ['./search-orders.component.scss'],
 })
@@ -129,7 +128,7 @@ export class SearchOrdersComponent {
 
     constructor(
         public facilityService: FacilityService,
-        public orderService: OrderService,
+        public graphqlService: DynamicGraphqlPathService,
         public router: Router,
         public toaster: ToastrService,
         public header: ProcessHeaderService
@@ -137,8 +136,10 @@ export class SearchOrdersComponent {
 
     fetchOrders(event: TableLazyLoadEvent) {
         const facilityCode = this.facilityService.getFacilityCode();
-        this.orderService
-            .searchOrders({ locationCode: facilityCode })
+        this.graphqlService
+            .executeQuery('/order/graphql', SEARCH_ORDERS, {
+                orderQueryCommandDTO: { locationCode: facilityCode },
+            })
             .pipe(finalize(() => (this.loading = false)))
             .subscribe({
                 next: (response) => {
@@ -161,9 +162,8 @@ export class SearchOrdersComponent {
             });
     }
 
-    // TO BE FIXED WHEN WORKING ON SEARCH ORDER
-    details(shipment: OrderSummaryDto) {
-        this.router.navigateByUrl(`/shipment/${shipment.id}/shipment-details`);
+    details(id: number) {
+        this.router.navigateByUrl(`/orders/${id}/order-details`);
     }
 
     get selectedColumns(): Column[] {

@@ -1,8 +1,11 @@
 import { gql } from 'apollo-angular';
-import { OrderReportDTO, QueryOrderByDTO } from '../../../../orders/order/models/search-order.model';
+import {
+    OrderReportDTO,
+    QueryOrderByDTO,
+} from 'app/modules/orders/models/search-order.model';
 
 export const SEARCH_ORDERS = gql<OrderReportDTO[], QueryOrderByDTO>`
-    query($orderQueryCommandDTO: OrderQueryCommandDTO!) {
+    query ($orderQueryCommandDTO: OrderQueryCommandDTO!) {
         searchOrders(orderQueryCommandDTO: $orderQueryCommandDTO) {
             orderId
             orderNumber

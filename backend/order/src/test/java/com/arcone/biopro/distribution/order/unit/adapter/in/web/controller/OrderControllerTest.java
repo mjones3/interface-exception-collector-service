@@ -1,10 +1,9 @@
 package com.arcone.biopro.distribution.order.unit.adapter.in.web.controller;
 
 import com.arcone.biopro.distribution.order.adapter.in.web.controller.OrderController;
-import com.arcone.biopro.distribution.order.adapter.in.web.dto.OrderDTO;
+import com.arcone.biopro.distribution.order.application.exception.DomainNotFoundForKeyException;
 import com.arcone.biopro.distribution.order.application.mapper.OrderItemMapper;
 import com.arcone.biopro.distribution.order.application.mapper.OrderMapper;
-import com.arcone.biopro.distribution.order.domain.model.Lookup;
 import com.arcone.biopro.distribution.order.domain.model.Order;
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderCustomer;
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderExternalId;
@@ -18,26 +17,16 @@ import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
 import com.arcone.biopro.distribution.order.domain.service.OrderConfigService;
 import com.arcone.biopro.distribution.order.domain.service.OrderService;
-import com.arcone.biopro.distribution.order.infrastructure.service.dto.CustomerDTO;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
-import java.time.LocalDate;
-import java.time.Month;
-import java.time.ZonedDateTime;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.BDDMockito.given;
+import static org.mockito.ArgumentMatchers.anyLong;
 
 @SpringJUnitConfig(classes = { OrderController.class, OrderMapper.class, OrderItemMapper.class })
 class OrderControllerTest {
@@ -55,87 +44,12 @@ class OrderControllerTest {
     @MockBean
     LookupService lookupService;
 
-    @BeforeEach
-    void beforeEach() {
-        given(customerService.getCustomerByCode(anyString()))
-            .willReturn(Mono.just(
-                CustomerDTO.builder()
-                    .code("code")
-                    .name("name")
-                    .build()
-            ));
-    }
-
     @Test
-    void testFindAllOrders() {
+    public void shouldFindOrderById(){
 
-        var order = mockOrder();
-
-        given(this.orderService.findAll())
-            .willReturn(Flux.just(order));
-
-        // Act
-        var response = this.orderController.findAllOrders()
-            .toStream()
-            .toArray(OrderDTO[]::new);
-
-        // Assert
-        assertEquals(response.length, 1);
-    }
-
-    @Test
-    @Disabled("Disabled until Manual Order Creation is implemented")
-    void testInsertOrder() {
-        // Arrange
-        var order = mockOrder();
-
-        Lookup lookup = Mockito.mock(Lookup.class);
-        Mockito.when(lookupService.findAllByType(Mockito.anyString())).thenReturn(Flux.just(lookup));
-
-
-        given(this.orderService.insert(any()))
-            .willReturn(Mono.just(order));
-
-        // Act
-        var response = this.orderController
-            .insertOrder(orderMapper.mapToDTO(order))
-            .block();
-
-        // Assert
-        assertNotNull(response);
-    }
-
-    private List<Order> getOrders() {
-        return List.of(
-            new Order(
-                customerService,
-                lookupService,
-                1L,
-                1L,
-                "externalId",
-                "locationCode",
-                "shipmentType",
-                "shippingMethod",
-                "shippingCustomerCode",
-                "billingCustomerCode",
-                LocalDate.of(2023, Month.DECEMBER, 31),
-                Boolean.TRUE,
-                "phoneNumber",
-                "productCategory",
-                "comments",
-                "status",
-                "priority",
-                "createEmployeeId",
-                ZonedDateTime.now(),
-                ZonedDateTime.now(),
-                ZonedDateTime.now()
-            )
-        );
-    }
-
-    private Order mockOrder(){
         Order order = Mockito.mock(Order.class);
-        Mockito.when(order.getOrderNumber()).thenReturn(Mockito.mock(OrderNumber.class));
+        Mockito.when(order.getOrderNumber()).thenReturn(new OrderNumber(1L));
+
 
         OrderExternalId orderExternalId = Mockito.mock(OrderExternalId.class);
         Mockito.when(orderExternalId.getOrderExternalId()).thenReturn("orderExternalId");
@@ -156,6 +70,26 @@ class OrderControllerTest {
         Mockito.when(order.getBillingCustomer()).thenReturn(customer);
         Mockito.when(order.getShippingCustomer()).thenReturn(customer);
 
-        return order;
+        Mockito.when(orderService.findOneById(anyLong())).thenReturn(Mono.just(order));
+
+        StepVerifier.create(orderController.findOrderById(1L))
+            .consumeNextWith(orderReportDTO -> {
+                    Assertions.assertEquals(1L,  orderReportDTO.orderNumber());
+                    Assertions.assertEquals("orderExternalId",  orderReportDTO.externalId());
+                }
+            )
+            .verifyComplete();
     }
+
+    @Test
+    public void shouldNotFindById(){
+
+        Mockito.when(orderService.findOneById(anyLong())).thenReturn(Mono.error(new DomainNotFoundForKeyException("TEST")));
+
+        StepVerifier.create(orderController.findOrderById(2L))
+            .expectError(DomainNotFoundForKeyException.class)
+            .verify();
+
+    }
+
 }

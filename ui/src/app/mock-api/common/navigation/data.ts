@@ -89,35 +89,17 @@ export const defaultNavigation: FuseNavigationItem[] = [
     {
         id: 10,
         title: 'Orders',
-        type: 'collapsable',
+        type: 'basic',
         icon: 'shopping_cart',
-        children: [
-            {
-                id: 11,
-                title: 'Search Orders',
-                type: 'basic',
-                icon: 'search',
-                link: 'orders/search',
-                disabled: false,
-            },
-        ],
+        link: 'orders/search',
         disabled: false,
     },
     {
         id: 20,
         title: 'Shipping',
-        type: 'collapsable',
+        type: 'basic',
         icon: 'local_shipping',
-        children: [
-            {
-                id: 21,
-                title: 'Search Shipments',
-                type: 'basic',
-                icon: 'search',
-                link: 'shipment/search',
-                disabled: false,
-            },
-        ],
+        link: 'shipment/search',
         disabled: false,
     },
 ];

@@ -6,7 +6,6 @@ import com.arcone.biopro.distribution.order.infrastructure.mapper.OrderEntityMap
 import com.arcone.biopro.distribution.order.infrastructure.mapper.OrderItemEntityMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.relational.core.query.Query;
 import org.springframework.stereotype.Component;
@@ -41,11 +40,6 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
 
     @Override
-    public Mono<Boolean> existsById(final Long id) {
-        return this.existsById(id, TRUE);
-    }
-
-    @Override
     public Mono<Boolean> existsById(final Long id, final Boolean active) {
         return this.entityTemplate
             .select(OrderEntity.class)
@@ -69,17 +63,7 @@ public class OrderRepositoryImpl implements OrderRepository {
             .all();
     }
 
-    @Override
-    public Flux<Order> findAll() {
-        return this.entityTemplate
-            .select(OrderEntity.class)
-            .all()
-            .flatMap(orderEntity ->
-                findAllOrderItemEntitiesByOrderId(orderEntity.getId())
-                    .collect(Collectors.toList())
-                    .map(orderItems -> orderEntityMapper.mapToDomain(orderEntity, orderItems))
-            );
-    }
+
 
     @Override
     public Mono<Order> findOneById(final Long id) {
@@ -87,7 +71,9 @@ public class OrderRepositoryImpl implements OrderRepository {
             .flatMap(orderEntity ->
                 findAllOrderItemEntitiesByOrderId(orderEntity.getId())
                     .collect(Collectors.toList())
-                    .map(orderItems -> orderEntityMapper.mapToDomain(orderEntity, orderItems))
+                    .flatMap(orderItemEntities -> Mono.fromCallable(()-> orderEntityMapper
+                        .mapToDomain(orderEntity, orderItemEntities))
+                        .publishOn(Schedulers.boundedElastic()) )
             );
     }
 
@@ -103,22 +89,9 @@ public class OrderRepositoryImpl implements OrderRepository {
                     .map(orderItem -> orderItem.withOrderId(orderEntity.getId()))
                     .flatMap(this.entityTemplate::insert)
                     .collect(Collectors.toList())
-                    .flatMap(orderItemEntities -> Mono.fromCallable(()-> {
-                        return orderEntityMapper.mapToDomain(orderEntity, orderItemEntities);
-                    }).publishOn(Schedulers.boundedElastic()) )
+                    .flatMap(orderItemEntities -> Mono.fromCallable(()-> orderEntityMapper
+                        .mapToDomain(orderEntity, orderItemEntities))
+                        .publishOn(Schedulers.boundedElastic()) )
             );
     }
-
-    @Override
-    public Mono<Long> countByExternalId(String externalId) {
-        return this.entityTemplate
-            .select(OrderEntity.class)
-            .matching(
-                query(where("external_id").is(externalId)
-                    .and("delete_date").isNull())
-                    .sort(Sort.by(Sort.Direction.ASC, "delete_date"))
-            )
-            .count();
-    }
-
 }
