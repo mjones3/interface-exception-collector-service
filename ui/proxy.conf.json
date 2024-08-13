@@ -25,5 +25,24 @@
         "pathRewrite": {
             "^/graphql": ""
         }
+    },
+    {
+        "context": ["/order/graphql"],
+        "target": "http://api.local.gd/order/graphql",
+        "secure": true,
+        "changeOrigin": true,
+        "pathRewrite": {
+            "^/order/graphql": ""
+        }
+    },
+
+    {
+        "context": ["/shipping/graphql"],
+        "target": "http://api.local.gd/order/graphql",
+        "secure": true,
+        "changeOrigin": true,
+        "pathRewrite": {
+            "^/shipping/graphql": ""
+        }
     }
 ]
