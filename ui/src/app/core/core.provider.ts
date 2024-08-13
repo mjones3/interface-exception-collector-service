@@ -2,9 +2,8 @@ import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common
 import { APP_INITIALIZER, ENVIRONMENT_INITIALIZER, EnvironmentProviders, inject, Provider } from '@angular/core';
 import { ErrorStateMatcher } from '@angular/material/core';
 import { InMemoryCache } from '@apollo/client/cache';
-import { ApolloClientOptions } from '@apollo/client/core';
 import { onError } from '@apollo/client/link/error';
-import { Apollo, APOLLO_OPTIONS } from 'apollo-angular';
+import { Apollo, APOLLO_NAMED_OPTIONS, NamedOptions } from 'apollo-angular';
 import { HttpLink } from 'apollo-angular/http';
 import { DefaultErrorStateMatcher } from 'app/shared/forms/default.error-match';
 import { Environment } from 'app/shared/models';
@@ -19,30 +18,36 @@ import { timezoneInterceptor } from './interceptors/time-zone.interceptor';
 import { ProcessMockApi } from '../mock-api/common/process/api';
 import { NavigationMockApi } from '../mock-api/common/navigation/api';
 
+const apolloErrorHandler = onError(({ graphQLErrors, networkError }) => {
+    if (graphQLErrors)
+        graphQLErrors.map(
+            ({ message, locations, path, extensions }) =>
+                console.error(
+                    `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}, Extensions: ${extensions}`
+                )
+        );
+
+    if (networkError)
+        console.error(`[Network error]: ${networkError}`);
+});
+
 const provideApollo = (): Provider[] => [
     {
-        provide: APOLLO_OPTIONS,
-        useFactory: (httpLink: HttpLink): ApolloClientOptions<unknown> => {
-            const http = httpLink.create({ uri: '/graphql' });
-            const error = onError(({ graphQLErrors, networkError }) => {
-                if (graphQLErrors)
-                    graphQLErrors.map(
-                        ({ message, locations, path, extensions }) =>
-                            console.error(
-                                `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}, Extensions: ${extensions}`
-                            )
-                    );
-
-                if (networkError)
-                    console.error(`[Network error]: ${networkError}`);
-            });
-            const link = error.concat(http);
-
+        provide: APOLLO_NAMED_OPTIONS,
+        useFactory: (httpLink: HttpLink): NamedOptions => {
             return {
-                link,
-                cache: new InMemoryCache({
-                    addTypename: false,
-                }),
+                default: {
+                    link: httpLink.create({ uri: '/graphql' }).concat(apolloErrorHandler),
+                    cache: new InMemoryCache({ addTypename: false }),
+                },
+                order: {
+                    link: httpLink.create({ uri: '/order/graphql' }).concat(apolloErrorHandler),
+                    cache: new InMemoryCache({ addTypename: false }),
+                },
+                shipping: {
+                    link: httpLink.create({ uri: '/shipping/graphql' }).concat(apolloErrorHandler),
+                    cache: new InMemoryCache({ addTypename: false }),
+                }
             };
         },
         deps: [HttpLink],
