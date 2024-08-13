@@ -12,9 +12,8 @@ import {
 } from '@angular/core';
 import { ErrorStateMatcher } from '@angular/material/core';
 import { InMemoryCache } from '@apollo/client/cache';
-import { ApolloClientOptions } from '@apollo/client/core';
 import { onError } from '@apollo/client/link/error';
-import { APOLLO_OPTIONS, Apollo } from 'apollo-angular';
+import { APOLLO_NAMED_OPTIONS, Apollo, NamedOptions } from 'apollo-angular';
 import { HttpLink } from 'apollo-angular/http';
 import { DefaultErrorStateMatcher } from 'app/shared/forms/default.error-match';
 import { Environment } from 'app/shared/models';
@@ -23,34 +22,46 @@ import { ToastrImplService } from 'app/shared/services/toastr-impl.service';
 import { KeycloakConfig } from 'keycloak-js';
 import { ToastrService } from 'ngx-toastr';
 import { switchMap } from 'rxjs';
+import { NavigationMockApi } from '../mock-api/common/navigation/api';
+import { ProcessMockApi } from '../mock-api/common/process/api';
 import { authInterceptor } from './interceptors/auth.interceptor';
 import { loaderInterceptor } from './interceptors/loader.interceptor';
 import { timezoneInterceptor } from './interceptors/time-zone.interceptor';
 
+const apolloErrorHandler = onError(({ graphQLErrors, networkError }) => {
+    if (graphQLErrors)
+        graphQLErrors.map(({ message, locations, path, extensions }) =>
+            console.error(
+                `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}, Extensions: ${extensions}`
+            )
+        );
+
+    if (networkError) console.error(`[Network error]: ${networkError}`);
+});
+
 const provideApollo = (): Provider[] => [
     {
-        provide: APOLLO_OPTIONS,
-        useFactory: (httpLink: HttpLink): ApolloClientOptions<unknown> => {
-            const http = httpLink.create({ uri: '/graphql' });
-            const error = onError(({ graphQLErrors, networkError }) => {
-                if (graphQLErrors)
-                    graphQLErrors.map(
-                        ({ message, locations, path, extensions }) =>
-                            console.error(
-                                `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}, Extensions: ${extensions}`
-                            )
-                    );
-
-                if (networkError)
-                    console.error(`[Network error]: ${networkError}`);
-            });
-            const link = error.concat(http);
-
+        provide: APOLLO_NAMED_OPTIONS,
+        useFactory: (httpLink: HttpLink): NamedOptions => {
             return {
-                link,
-                cache: new InMemoryCache({
-                    addTypename: false,
-                }),
+                default: {
+                    link: httpLink
+                        .create({ uri: '/graphql' })
+                        .concat(apolloErrorHandler),
+                    cache: new InMemoryCache({ addTypename: false }),
+                },
+                order: {
+                    link: httpLink
+                        .create({ uri: '/order/graphql' })
+                        .concat(apolloErrorHandler),
+                    cache: new InMemoryCache({ addTypename: false }),
+                },
+                shipping: {
+                    link: httpLink
+                        .create({ uri: '/shipping/graphql' })
+                        .concat(apolloErrorHandler),
+                    cache: new InMemoryCache({ addTypename: false }),
+                },
             };
         },
         deps: [HttpLink],
@@ -74,13 +85,18 @@ export const provideCore = (): (Provider | EnvironmentProviders)[] => {
             provide: APP_INITIALIZER,
             useFactory: () => {
                 const authService = inject(AuthService);
+                const processMockApi = inject(ProcessMockApi);
+                const navigationMockApi = inject(NavigationMockApi);
                 const config = inject(EnvironmentConfigService);
                 const http = inject(HttpClient);
 
                 return () =>
                     http.get('/settings.json').pipe(
                         switchMap((settings) => {
-                            config.env = { ...(settings as Environment) };
+                            const environment = settings as Environment;
+                            config.env = { ...environment };
+                            processMockApi.registerHandlers(environment);
+                            navigationMockApi.registerHandlers(environment);
                             return authService.init({
                                 config: config.env as KeycloakConfig,
                                 initOptions: {
