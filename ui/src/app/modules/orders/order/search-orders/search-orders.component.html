@@ -24,10 +24,9 @@
                             [columns]="selectedColumns"
                             [rows]="defaultRowsPerPage"
                             [totalRecords]="totalRecords"
-                            [rowsPerPageOptions]="[10, 25, 50]"
                             [showCurrentPageReport]="true"
                             [paginator]="true"
-                            [paginatorStyleClass]="'items-center justify-end '"
+                            [paginatorStyleClass]="'items-center justify-end'"
                             currentPageReportTemplate="Items per page: 20&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Page {currentPage} - {totalPages} of {totalRecords}"
                             [loading]="loading"
                             [lazy]="true"
@@ -116,6 +115,7 @@
                                                 id="detailsBtn"
                                                 class="bg-custom-red justify-center"
                                                 mat-flat-button
+                                                (click)="details(order.orderId)"
                                             >
                                                 Details
                                             </button>

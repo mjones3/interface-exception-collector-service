@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.order.verification.steps;
 import com.arcone.biopro.distribution.order.application.dto.OrderReceivedEventDTO;
 import com.arcone.biopro.distribution.order.verification.controllers.OrderController;
 import com.arcone.biopro.distribution.order.verification.pages.order.HomePage;
+import com.arcone.biopro.distribution.order.verification.pages.order.OrderDetailsPage;
 import com.arcone.biopro.distribution.order.verification.pages.order.SearchOrderPage;
 import com.arcone.biopro.distribution.order.verification.support.DatabaseQueries;
 import com.arcone.biopro.distribution.order.verification.support.DatabaseService;
@@ -28,6 +29,17 @@ public class OrderSteps {
     private String locationCode;
     private String priority;
     private String status;
+    private Integer orderId;
+    private String orderComments;
+    private String shippingCustomerCode;
+    private String shippingCustomerName;
+    private String shippingMethod;
+    private String billCustomerCode;
+    private String billCustomerName;
+    private String productFamily;
+    private String bloodType;
+    private Integer quantity;
+    private String productComments;
 
     private OrderController orderController = new OrderController();
     private JSONObject partnerOrder;
@@ -50,6 +62,9 @@ public class OrderSteps {
 
     @Autowired
     private HomePage homePage;
+
+    @Autowired
+    private OrderDetailsPage orderDetailsPage;
 
     @Value("${kafka.waiting.time}")
     private long kafkaWaitingTime;
@@ -134,6 +149,32 @@ public class OrderSteps {
         databaseService.executeSql(query).block();
     }
 
+    @And("I have an order item with product family {string}, blood type {string}, quantity {int}, and order item comments {string}.")
+    public void createOrderItem(String productFamily, String bloodType, Integer quantity, String comments) {
+        this.productFamily = productFamily;
+        this.bloodType = bloodType;
+        this.quantity = quantity;
+        this.productComments = comments;
+        var query = DatabaseQueries.insertBioProOrderItem(this.externalId, productFamily, bloodType, quantity, comments);
+        databaseService.executeSql(query).block();
+    }
+
+    @Given("I have a Biopro Order with externalId {string}, Location Code {string}, Priority {string}, Status {string}, shipment type {string}, delivery type {string}, shipping method {string}, product category {string}, desired ship date {string}, shipping customer code and name as {string} and {string}, billing customer code and name as {string} and {string}, and comments {string}.")
+    public void createBioproOrderWithDetails(String externalId, String locationCode, String priority, String status, String shipmentType, String deliveryType, String shippingMethod, String productCategory, String desiredShipDate, String shippingCustomerCode, String shippingCustomerName, String billingCustomerCode, String billingCustomerName, String comments) {
+        this.externalId = externalId;
+        this.locationCode = locationCode;
+        this.priority = priority;
+        this.status = status;
+        this.orderComments = comments;
+        this.shippingCustomerCode = shippingCustomerCode;
+        this.shippingCustomerName = shippingCustomerName;
+        this.shippingMethod = shippingMethod;
+        this.billCustomerCode = billingCustomerCode;
+        this.billCustomerName = billingCustomerName;
+        var query = DatabaseQueries.insertBioProOrderWithDetails(externalId, locationCode, orderController.getPriorityValue(priority), priority, status, shipmentType, shippingMethod, productCategory, desiredShipDate, shippingCustomerCode, shippingCustomerName, billingCustomerCode, billingCustomerName, comments);
+        databaseService.executeSql(query).block();
+    }
+
     @Given("I have more than {int} Biopro Orders.")
     public void createMultipleBioproOrders(int quantity) {
         for (int i = 0; i <= quantity; i++) {
@@ -202,5 +243,32 @@ public class OrderSteps {
     public void checkOrderListSize(int expectedSize) {
         var actualSize = searchOrderPage.getOrderPriorityList().size();
         Assert.assertTrue(actualSize <= expectedSize);
+    }
+
+    @When("I navigate to the order details page.")
+    public void navigateToOrderDetails() {
+        this.orderId = Integer.valueOf(databaseService.fetchData(DatabaseQueries.getOrderId(this.externalId)).first().block().get("id").toString());
+        orderDetailsPage.goToOrderDetails(orderId);
+    }
+
+    @And("I can see the order details card filled with the order details.")
+    public void checkOrderDetailsCard() {
+        orderDetailsPage.verifyOrderDetailsCard(this.externalId, this.orderId, this.priority, this.status, this.orderComments);
+    }
+
+    @And("I can see the shipping information card filled with the shipping information.")
+    public void checkShippingInformationCard() {
+        orderDetailsPage.verifyShippingInformationCard(this.shippingCustomerCode, this.shippingCustomerName, this.shippingMethod);
+    }
+
+    @And("I can see the billing information card filled with the billing information.")
+    public void checkBillingInformationCard() {
+        orderDetailsPage.verifyBillingInformationCard(this.billCustomerCode, this.billCustomerName);
+    }
+
+    @And("I can see the Product Details section filled with the product details.")
+    public void checkProductDetailsSection() {
+        var productFamilyDescription = this.productFamily.replace("_", " ");
+        orderDetailsPage.verifyProductDetailsSection(productFamilyDescription, this.bloodType, this.quantity, this.productComments);
     }
 }

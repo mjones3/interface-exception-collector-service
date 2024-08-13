@@ -73,8 +73,8 @@
 <ng-template #addedProductTpl let-review="review">
     <div class="my-4 flex flex-row items-end justify-between">
         <div class="flex flex-row">
-            <span class="mb-1 mr-4 w-60 text-left font-bold"
-                >Labeling Product Category:</span
+            <span class="mb-1 mr-4 w-60 text-left font-bold">
+                Temperature Category:</span
             >
             <span class="flex-auto text-left">{{
                 labelingProductCategory | uppercase
@@ -173,6 +173,14 @@
                                     <p-sortIcon field="bloodType"></p-sortIcon>
                                 </div>
                             </th>
+                            <th id="quantityColumn" pSortableColumn="quantity">
+                                <div
+                                    class="p-d-flex p-jc-between p-ai-center flex items-center"
+                                >
+                                    Quantity
+                                    <p-sortIcon field="quantity"></p-sortIcon>
+                                </div>
+                            </th>
                             <th>
                                 <div
                                     pSortableColumn="quantityFilledProducts"
@@ -182,14 +190,6 @@
                                     <p-sortIcon
                                         field="quantityFilledProducts"
                                     ></p-sortIcon>
-                                </div>
-                            </th>
-                            <th id="quantityColumn" pSortableColumn="quantity">
-                                <div
-                                    class="p-d-flex p-jc-between p-ai-center flex items-center"
-                                >
-                                    Quantity
-                                    <p-sortIcon field="quantity"></p-sortIcon>
                                 </div>
                             </th>
                             <th></th>
@@ -237,6 +237,9 @@
                                 {{ product?.bloodType | uppercase }}
                             </td>
                             <td>
+                                {{ product?.quantity }}
+                            </td>
+                            <td>
                                 <div
                                     class="flex flex-row items-center justify-start space-x-2"
                                 >
@@ -262,9 +265,6 @@
                                         ></mat-icon>
                                     }
                                 </div>
-                            </td>
-                            <td>
-                                {{ product?.quantity }}
                             </td>
                             <td>
                                 @if (

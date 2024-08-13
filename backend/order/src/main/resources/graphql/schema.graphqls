@@ -11,7 +11,7 @@ type Query {
     findCustomerByCode(code: String!): Customer
 
     # Searches over all orders
-    findAllOrders: [Order]!
+    findOrderById(orderId:ID!):Order!
     searchOrders(orderQueryCommandDTO:OrderQueryCommandDTO!):[OrderReportDTO]
 }
 
@@ -19,8 +19,6 @@ type Mutation {
     insertLookup(lookup: LookupInput!): Lookup!
     updateLookup(lookup: LookupInput!): Lookup!
     deleteLookup(lookup: LookupInput!): Lookup!
-
-    insertOrder(order: OrderInput!): Order
 }
 
 input LookupIdInput {
