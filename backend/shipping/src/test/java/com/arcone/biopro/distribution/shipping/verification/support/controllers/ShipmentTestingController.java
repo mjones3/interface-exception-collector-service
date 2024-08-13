@@ -138,7 +138,7 @@ public class ShipmentTestingController {
                                                                                       String status,
                                                                                       Long shippingCustomerCode,
                                                                                       Long billingCustomerCode,
-                                                                                      Long locationCode,
+                                                                                      String locationCode,
                                                                                       String deliveryType,
                                                                                       String shippingMethod,
                                                                                       String productCategory,
@@ -224,7 +224,7 @@ public class ShipmentTestingController {
         return shipmentDetailType;
     }
 
-    public ShipmentRequestDetailsResponseType buildShipmentRequestDetailsResponseType(long orderNumber, long locationCode, long customerID, String customerName, String department, String addressLine1, String addressLine2, String unitNumber, String productCode, String productFamily, String bloodType, String expiration, long quantity) {
+    public ShipmentRequestDetailsResponseType buildShipmentRequestDetailsResponseType(long orderNumber, String locationCode, long customerID, String customerName, String department, String addressLine1, String addressLine2, String unitNumber, String productCode, String productFamily, String bloodType, String expiration, long quantity) {
         return this.buildShipmentRequestDetailsResponseType(orderNumber, "ASAP", "OPEN", customerID, 0L, locationCode, "TEST", "TEST", "Frozen", LocalDate.now(), customerName, department, "", "123456789", "FL", "33016", "US", "1", "Miami", "Miami", addressLine1, addressLine2, String.valueOf(quantity), bloodType, productFamily, unitNumber, productCode);
     }
 }

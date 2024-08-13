@@ -75,7 +75,7 @@ export class FacilityService {
                     data: {
                         options: options.body,
                         optionsLabel: 'name',
-                        dialogTitle: 'Distribution Location',
+                        dialogTitle: 'Distribution Locations',
                         closable,
                         iconName: 'search',
                     },
@@ -104,6 +104,11 @@ export class FacilityService {
         return currentFacility ? currentFacility.id : null;
     }
 
+    getFacilityCode(): string {
+        const currentFacility = this.facility.getValue();
+        return currentFacility ? currentFacility.code : null;
+    }
+
     getFacilityProperty(propertyName: string): string {
         const currentFacility = this.facility.getValue();
         return currentFacility && currentFacility.properties
@@ -116,7 +121,7 @@ export class FacilityService {
             // Store the facility id in cookies
             this.cookieService.set(
                 Cookie.XFacility,
-                String(facility.id),
+                String(facility.code),
                 365,
                 '/'
             );

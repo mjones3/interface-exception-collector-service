@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { EmptyLayoutComponent } from 'app/layout/layouts/empty/empty.component';
 import { SearchOrdersComponent } from './search-orders.component';
+import { initialDataResolver } from '../../../../app.resolvers';
 
 export default [
     {
@@ -9,12 +10,15 @@ export default [
         data: {
             title: 'Shipment',
         },
+        resolve: {
+            initialData: initialDataResolver,
+        },
         children: [
             {
                 path: 'search',
                 component: SearchOrdersComponent,
                 data: {
-                    subTitle: 'Order-Fulfillment',
+                    subTitle: 'Search Orders',
                 },
             },
         ],

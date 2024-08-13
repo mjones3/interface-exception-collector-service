@@ -202,7 +202,7 @@ class ShipmentServiceUseCaseTest {
                 .unitNumber("UN")
                 .shipmentItemId(1L)
                 .employeeId("test")
-                .locationCode(1)
+                .locationCode("MDL_HUB_1")
                 .productCode("123")
             .visualInspection(VisualInspection.SATISFACTORY)
             .build());
@@ -224,7 +224,7 @@ class ShipmentServiceUseCaseTest {
         InventoryValidationResponseDTO validationResponseDTO = Mockito.mock(InventoryValidationResponseDTO.class);
         Mockito.when(validationResponseDTO.inventoryResponseDTO()).thenReturn(InventoryResponseDTO
             .builder()
-            .locationCode(1)
+            .locationCode("MDL_HUB_1")
             .productCode("123")
             .unitNumber("UN")
             .productFamily("product_family")
@@ -246,7 +246,7 @@ class ShipmentServiceUseCaseTest {
             .unitNumber("UN")
             .shipmentItemId(1L)
             .employeeId("test")
-            .locationCode(1)
+            .locationCode("MDL_HUB_1")
             .productCode("123")
             .visualInspection(VisualInspection.SATISFACTORY)
             .build());
@@ -269,7 +269,7 @@ class ShipmentServiceUseCaseTest {
         InventoryValidationResponseDTO validationResponseDTO = Mockito.mock(InventoryValidationResponseDTO.class);
         Mockito.when(validationResponseDTO.inventoryResponseDTO()).thenReturn(InventoryResponseDTO
             .builder()
-            .locationCode(1)
+            .locationCode("MDL_HUB_1")
             .productCode("123")
             .unitNumber("UN")
             .productFamily("product_family")
@@ -293,7 +293,7 @@ class ShipmentServiceUseCaseTest {
             .unitNumber("UN")
             .shipmentItemId(1L)
             .employeeId("test")
-            .locationCode(1)
+            .locationCode("MDL_HUB_1")
             .productCode("123")
             .visualInspection(VisualInspection.SATISFACTORY)
             .build());
@@ -316,7 +316,7 @@ class ShipmentServiceUseCaseTest {
         InventoryValidationResponseDTO validationResponseDTO = Mockito.mock(InventoryValidationResponseDTO.class);
         Mockito.when(validationResponseDTO.inventoryResponseDTO()).thenReturn(InventoryResponseDTO
             .builder()
-            .locationCode(1)
+            .locationCode("MDL_HUB_1")
             .productCode("123")
             .unitNumber("UN")
             .productFamily("product_family")
@@ -340,7 +340,7 @@ class ShipmentServiceUseCaseTest {
             .unitNumber("UN")
             .shipmentItemId(1L)
             .employeeId("test")
-            .locationCode(1)
+            .locationCode("MDL_HUB_1")
             .productCode("123")
             .visualInspection(VisualInspection.SATISFACTORY)
             .build());
@@ -363,7 +363,7 @@ class ShipmentServiceUseCaseTest {
         InventoryValidationResponseDTO validationResponseDTO = Mockito.mock(InventoryValidationResponseDTO.class);
         Mockito.when(validationResponseDTO.inventoryResponseDTO()).thenReturn(InventoryResponseDTO
             .builder()
-                .locationCode(1)
+            .locationCode("MDL_HUB_1")
                 .productCode("123")
                 .unitNumber("UN")
                 .productFamily("product_family")
@@ -411,7 +411,7 @@ class ShipmentServiceUseCaseTest {
             .unitNumber("UN")
             .shipmentItemId(1L)
             .employeeId("test")
-            .locationCode(1)
+            .locationCode("MDL_HUB_1")
             .productCode("123")
                 .visualInspection(VisualInspection.SATISFACTORY)
             .build());

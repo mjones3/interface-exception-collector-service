@@ -6,6 +6,7 @@ import { MatIcon } from '@angular/material/icon';
 import { DEFAULT_PAGE_SIZE } from 'app/core/models/browser-printing.model';
 import { BrowserPrintingService } from 'app/core/services/browser-printing/browser-printing.service';
 import { Observable } from 'rxjs';
+import { ProductFamilyMap } from '../../../shared/models/product-family.model';
 import { ShipmentInfoDto } from '../models/shipment-info.dto';
 
 @Component({
@@ -28,4 +29,6 @@ export class ViewPickListComponent {
             pageSize: DEFAULT_PAGE_SIZE,
         });
     }
+
+    protected readonly ProductFamilyMap = ProductFamilyMap;
 }

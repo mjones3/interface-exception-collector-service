@@ -9,7 +9,7 @@ import java.io.Serializable;
 public record InventoryValidationRequest(
     @NotNull String unitNumber,
     @NotNull String productCode,
-    @NotNull Integer locationCode
+    @NotNull String locationCode
 
 ) implements Serializable {
 }

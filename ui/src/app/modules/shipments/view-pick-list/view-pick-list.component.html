@@ -1,102 +1,176 @@
 <div class="modal-body-width">
-  <div class="flex flex-row gap-2 justify-end items-center mb-2">
-    <button title="Print" (click)="print()" mat-icon-button>
-      <mat-icon svgIcon="print"></mat-icon>
-    </button>
-    <button
-      title="Close"
-      class="fuse-message-dismiss-button"
-      mat-icon-button
-      mat-dialog-close
-    >
-      <mat-icon svgIcon="close"></mat-icon>
-    </button>
-  </div>
-
-  <div id="viewPickListReport" class="py-0 px-6">
-    @if (model$ | async; as orderFulfilledMessage) {
-    <div class="text-gray-700 flex flex-col gap-4" style="font-family: serif;">
-      <table id="pageHeader" class="table-fixed border-separate w-full">
-        <tbody>
-        <tr>
-          <td class="text-4xl font-bold border-b border-black text-center">Pick List</td>
-        </tr>
-        </tbody>
-      </table>
-
-      <table id="pickListTable" class="table-fixed border-separate w-full">
-        <thead>
-          <tr class="bg-gray-200">
-            <th class="border-b-2 border-gray-400">Order Number</th>
-            <th class="border-b-2 border-gray-400">Customer ID</th>
-            <th class="border-b-2 border-gray-400">Customer Name</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          <tr>
-            <td class="text-center">{{ orderFulfilledMessage.orderNumber }}</td>
-            <td class="text-center">{{ orderFulfilledMessage.shippingCustomerCode }}</td>
-            <td class="text-center">{{ orderFulfilledMessage.shippingCustomerName }}</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div class="text-3xl mt-5 mb-2 p-0 border-b border-black">Product Details</div>
-      <table id="productDetailsTable" class="table-fixed border-separate w-full">
-        <thead>
-          <tr class="bg-gray-200">
-            <th class="border-b-2 border-gray-400">Quantity</th>
-            <th class="border-b-2 border-gray-400">Product</th>
-            <th class="border-b-2 border-gray-400">Blood Type</th>
-            <th class="border-b-2 border-gray-400">Comments</th>
-          </tr>
-        </thead>
-
-        @if (orderFulfilledMessage.items?.length) {
-        <tbody>
-          @for (orderItemFulfilledMessage of orderFulfilledMessage?.items; track $index) {
-          <tr>
-            <td class="text-center">{{ orderItemFulfilledMessage.quantity }}</td>
-            <td class="text-center">{{ orderItemFulfilledMessage.productFamily }}</td>
-            <td class="text-center">{{ orderItemFulfilledMessage.bloodType }}</td>
-            <td class="text-center">{{ orderItemFulfilledMessage.comments }}</td>
-          </tr>
-          }
-        </tbody>
-        }
-      </table>
-
-      <div class="text-3xl mt-5 mb-2 p-0 border-b border-black">Short Date Details</div>
-      @if (hasAnyShortDate(orderFulfilledMessage)) {
-      <table
-        id="shortDateDetailsTable"
-        class="table-fixed border-separate w-full"
-      >
-        <thead>
-          <tr class="bg-gray-200">
-            <th class="border-b-2 border-gray-400">Unit Number</th>
-            <th class="border-b-2 border-gray-400">Product Code</th>
-            <th class="border-b-2 border-gray-400">Blood Type</th>
-          </tr>
-        </thead>
-
-        @for (orderItemFulfilledMessage of orderFulfilledMessage.items; track $index) {
-        <tbody>
-          @for (shortDateProduct of orderItemFulfilledMessage.shortDateProducts; track $index) {
-          <tr>
-            <td class="text-center">{{ shortDateProduct.unitNumber }}</td>
-            <td class="text-center">{{ shortDateProduct.productCode }}</td>
-            <td class="text-center">{{ orderItemFulfilledMessage.bloodType }}</td>
-          </tr>
-          }
-        </tbody>
-        }
-      </table>
-      } @else {
-        <div id="shortDateDetailsEmpty">There are no suggested short-dated products.</div>
-      }
+    <div class="mb-2 flex flex-row items-center justify-end gap-2">
+        <button title="Print" (click)="print()" mat-icon-button>
+            <mat-icon svgIcon="print"></mat-icon>
+        </button>
+        <button
+            title="Close"
+            class="fuse-message-dismiss-button"
+            mat-icon-button
+            mat-dialog-close
+        >
+            <mat-icon svgIcon="close"></mat-icon>
+        </button>
     </div>
-    }
-  </div>
+
+    <div id="viewPickListReport" class="px-6 py-0">
+        @if (model$ | async; as orderFulfilledMessage) {
+            <div
+                class="flex flex-col gap-4 text-gray-700"
+                style="font-family: serif"
+            >
+                <table
+                    id="pageHeader"
+                    class="w-full table-fixed border-separate"
+                >
+                    <tbody>
+                        <tr>
+                            <td
+                                class="border-b border-black text-center text-4xl font-bold"
+                            >
+                                Pick List
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <table
+                    id="pickListTable"
+                    class="w-full table-fixed border-separate"
+                >
+                    <thead>
+                        <tr class="bg-gray-200">
+                            <th class="border-b-2 border-gray-400">
+                                Order Number
+                            </th>
+                            <th class="border-b-2 border-gray-400">
+                                Customer ID
+                            </th>
+                            <th class="border-b-2 border-gray-400">
+                                Customer Name
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr>
+                            <td class="text-center">
+                                {{ orderFulfilledMessage.orderNumber }}
+                            </td>
+                            <td class="text-center">
+                                {{ orderFulfilledMessage.shippingCustomerCode }}
+                            </td>
+                            <td class="text-center">
+                                {{ orderFulfilledMessage.shippingCustomerName }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="mb-2 mt-5 border-b border-black p-0 text-3xl">
+                    Product Details
+                </div>
+                <table
+                    id="productDetailsTable"
+                    class="w-full table-fixed border-separate"
+                >
+                    <thead>
+                        <tr class="bg-gray-200">
+                            <th class="border-b-2 border-gray-400">Quantity</th>
+                            <th class="border-b-2 border-gray-400">Product</th>
+                            <th class="border-b-2 border-gray-400">
+                                Blood Type
+                            </th>
+                            <th class="border-b-2 border-gray-400">Comments</th>
+                        </tr>
+                    </thead>
+
+                    @if (orderFulfilledMessage.items?.length) {
+                        <tbody>
+                            @for (
+                                orderItemFulfilledMessage of orderFulfilledMessage?.items;
+                                track $index
+                            ) {
+                                <tr>
+                                    <td class="text-center">
+                                        {{ orderItemFulfilledMessage.quantity }}
+                                    </td>
+                                    <td class="text-center">
+                                        {{
+                                            ProductFamilyMap[
+                                                orderItemFulfilledMessage
+                                                    .productFamily
+                                            ]
+                                        }}
+                                    </td>
+                                    <td class="text-center">
+                                        {{
+                                            orderItemFulfilledMessage.bloodType
+                                        }}
+                                    </td>
+                                    <td class="text-center">
+                                        {{ orderItemFulfilledMessage.comments }}
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    }
+                </table>
+
+                <div class="mb-2 mt-5 border-b border-black p-0 text-3xl">
+                    Short Date Details
+                </div>
+                @if (hasAnyShortDate(orderFulfilledMessage)) {
+                    <table
+                        id="shortDateDetailsTable"
+                        class="w-full table-fixed border-separate"
+                    >
+                        <thead>
+                            <tr class="bg-gray-200">
+                                <th class="border-b-2 border-gray-400">
+                                    Unit Number
+                                </th>
+                                <th class="border-b-2 border-gray-400">
+                                    Product Code
+                                </th>
+                                <th class="border-b-2 border-gray-400">
+                                    Blood Type
+                                </th>
+                            </tr>
+                        </thead>
+
+                        @for (
+                            orderItemFulfilledMessage of orderFulfilledMessage.items;
+                            track $index
+                        ) {
+                            <tbody>
+                                @for (
+                                    shortDateProduct of orderItemFulfilledMessage.shortDateProducts;
+                                    track $index
+                                ) {
+                                    <tr>
+                                        <td class="text-center">
+                                            {{ shortDateProduct.unitNumber }}
+                                        </td>
+                                        <td class="text-center">
+                                            {{ shortDateProduct.productCode }}
+                                        </td>
+                                        <td class="text-center">
+                                            {{
+                                                orderItemFulfilledMessage.bloodType
+                                            }}
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        }
+                    </table>
+                } @else {
+                    <div id="shortDateDetailsEmpty">
+                        There are no suggested short-dated products.
+                    </div>
+                }
+            </div>
+        }
+    </div>
 </div>

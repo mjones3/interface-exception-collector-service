@@ -13,12 +13,12 @@ Feature: View Pick List
             And I am on the Shipment Fulfillment Details page.
             When I choose to view the Pick List.
             Then I am able to view the correct Order Details.
-            And I am able to view the correct Shipment Details.
+            And I am able to view the correct Shipment Details for the "<Family Description>" product.
             And I should see a message "<shortDateMessage>" indicating There are no suggested short-dated products.
 
             Examples:
-                | orderNumber | Customer ID | Customer Name    | Quantity | BloodType | ProductFamily                                               | shortDateMessage                             |
-                | 13456       | 1           | Testing Customer | 10,5,8   | A,B,O     | Transfusable Plasma,Transfusable Plasma,Transfusable Plasma | There are no suggested short-dated products. |
+                | orderNumber | Customer ID | Customer Name    | Quantity | BloodType | ProductFamily                                               | shortDateMessage                             | Family Description  |
+                | 13456       | 1           | Testing Customer | 10,5,8   | A,B,O     | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE | There are no suggested short-dated products. | Plasma Transfusable |
 
 
     Rule: I should be able to view the line order in the pick list with short date products.
@@ -29,8 +29,8 @@ Feature: View Pick List
             And I am on the Shipment Fulfillment Details page.
             When I choose to view the Pick List.
             Then I am able to view the correct Order Details.
-            And I am able to view the correct Shipment Details with short date products.
+            And I am able to view the correct Shipment Details with short date products for the "<Family>" family.
 
             Examples:
-                | orderNumber | Customer ID | Customer Name    | Quantity | BloodType | ProductFamily                                               | UnitNumber                  | ProductCode     |
-                | 2345        | 1           | Testing Customer | 10,5,23  | A,B,O     | Transfusable Plasma,Transfusable Plasma,Transfusable Plasma | W036810946455,W036810946466 | E246300,E255500 |
+                | orderNumber | Customer ID | Customer Name    | Quantity | BloodType | ProductFamily                                               | UnitNumber                  | ProductCode     | Family              |  |
+                | 2345        | 1           | Testing Customer | 10,5,23  | A,B,O     | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE | W036810946455,W036810946466 | E246300,E255500 | Plasma Transfusable |  |

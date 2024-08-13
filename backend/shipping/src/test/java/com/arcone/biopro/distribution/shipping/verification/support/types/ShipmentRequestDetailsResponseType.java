@@ -19,7 +19,7 @@ public class ShipmentRequestDetailsResponseType {
     ZonedDateTime createDate;
     Long shippingCustomerCode;
     Long billingCustomerCode;
-    Long locationCode;
+    String locationCode;
     String deliveryType;
     String shippingMethod;
     String productCategory;

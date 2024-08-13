@@ -43,7 +43,7 @@ public class OrderCreatedListener {
             .willPickUpPhoneNumber(event.getPayload().getPhoneNumber())
             .locationCode(event.getPayload().getLocationCode())
             .externalId(event.getPayload().getOrderExternalId().getOrderExternalId())
-            .priority(event.getPayload().getOrderPriority().getOrderPriority())
+            .priority(event.getPayload().getOrderPriority().getDeliveryType())
             .shipmentType(event.getPayload().getShipmentType().getShipmentType())
             .productCategory(event.getPayload().getProductCategory().getProductCategory())
             .shippingMethod(event.getPayload().getShippingMethod().getShippingMethod())

@@ -12,8 +12,8 @@ Feature: Access Shipment Details Page
             Then I can see the Order Information, the Shipping Information, and Order Criteria.
 
           Examples:
-                |orderNumber | Customer ID | Customer Name | Quantity | BloodType | ProductFamily                                              |
-                |999996      | 999996      | Tampa         | 10,5,23   | AP,AN,OP  |Transfusable Plasma,Transfusable Plasma,Transfusable Plasma|
+              | orderNumber | Customer ID | Customer Name | Quantity | BloodType | ProductFamily                                              |
+              | 999996      | 999996      | Tampa         | 10,5,23  | AP,AN,OP  | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE|
 
 
     Rule: I should have the option to view the pick list
@@ -25,8 +25,8 @@ Feature: Access Shipment Details Page
             Then I should have an option to view the Pick List.
 
             Examples:
-                |orderNumber | Customer ID | Customer Name | Quantity | BloodType | ProductFamily                                              |
-                |999997      | 999997      | Tampa         | 10,5,23   | AP,AN,OP  |Transfusable Plasma,Transfusable Plasma,Transfusable Plasma|
+                | orderNumber | Customer ID | Customer Name | Quantity | BloodType | ProductFamily                                              |
+                | 999997      | 999997      | Tampa         | 10,5,23  | AP,AN,OP  | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE|
 
 
 
@@ -39,8 +39,8 @@ Feature: Access Shipment Details Page
             Then I should have an option to fill the products in the shipment.
 
             Examples:
-                |orderNumber | Customer ID | Customer Name | Quantity | BloodType | ProductFamily                                              |
-                |999998      | 999998      | Tampa         | 10,5,23   | AP,AN,OP  |Transfusable Plasma,Transfusable Plasma,Transfusable Plasma|
+                | orderNumber | Customer ID | Customer Name | Quantity | BloodType | ProductFamily                                              |
+                | 999998      | 999998      | Tampa         | 10,5,23  | AP,AN,OP  | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE|
 
 
 
@@ -54,8 +54,8 @@ Feature: Access Shipment Details Page
             Then I should see zero products are filled out of the total number of products to be filled.
 
             Examples:
-                |orderNumber | Customer ID | Customer Name | Quantity | BloodType | ProductFamily                                              |
-                |999999      | 999999      | Tampa         | 10,5,23   | AP,AN,OP  |Transfusable Plasma,Transfusable Plasma,Transfusable Plasma|
+                | orderNumber | Customer ID | Customer Name | Quantity | BloodType | ProductFamily                                              |
+                | 999999      | 999999      | Tampa         | 10,5,23  | AP,AN,OP  | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE|
 
 
 
@@ -67,6 +67,6 @@ Feature: Access Shipment Details Page
             When I am on the Shipment Fulfillment Details page.
             Then I should not be able to see any product shipped details.
             Examples:
-                |orderNumber | Customer ID | Customer Name | Quantity | BloodType | ProductFamily                                              |
-                |999990      | 999990      | Tampa         | 10,5,23   | AP,AN,OP  |Transfusable Plasma,Transfusable Plasma,Transfusable Plasma|
+                | orderNumber | Customer ID | Customer Name | Quantity | BloodType | ProductFamily                                               |
+                | 999990      | 999990      | Tampa         | 10,5,23  | AP,AN,OP  | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE |
 

@@ -17,7 +17,7 @@ public record ShipmentDetailResponseDTO(
     ShipmentStatus status,
     ZonedDateTime createDate,
     Long shippingCustomerCode,
-    Integer locationCode,
+    String locationCode,
     String deliveryType,
     String shippingMethod,
     String productCategory,
