@@ -1,6 +1,6 @@
 {
     "serverApiURL": "https://api.${DOMAIN}",
-    "clientId": "distribution-ui",
+    "clientId": "distribution",
     "environment": "${ENVIRONMENT}",
     "url": "https://id.${DOMAIN}/auth",
     "realm": "biopro",
