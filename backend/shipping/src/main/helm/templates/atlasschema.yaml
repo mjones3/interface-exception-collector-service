@@ -16,8 +16,8 @@ spec:
   policy:
     diff:
       skip:
-        drop_schema: true
+        drop_schema: {{ .Values.atlas.blockDropSchema }}
     lint:
       destructive:
-        error: true
+        error: {{ .Values.atlas.blockDestructiveChanges }}
 {{- end }}
