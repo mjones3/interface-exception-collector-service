@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
+import java.util.Optional;
 
 import static java.util.Optional.ofNullable;
 
@@ -67,7 +68,7 @@ public class OrderMapper {
             orderDTO.shippingMethod(),
             orderDTO.shippingCustomerCode(),
             orderDTO.billingCustomerCode(),
-            java.util.Optional.of(orderDTO.desiredShippingDate().toString()).orElse(""),
+            Optional.of(orderDTO.desiredShippingDate().toString()).orElse(""),
             orderDTO.willCallPickup(),
             orderDTO.phoneNumber(),
             orderDTO.productCategory(),
