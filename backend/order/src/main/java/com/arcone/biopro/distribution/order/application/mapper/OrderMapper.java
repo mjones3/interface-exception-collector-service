@@ -67,7 +67,7 @@ public class OrderMapper {
             orderDTO.shippingMethod(),
             orderDTO.shippingCustomerCode(),
             orderDTO.billingCustomerCode(),
-            orderDTO.desiredShippingDate(),
+            orderDTO.desiredShippingDate().toString(),
             orderDTO.willCallPickup(),
             orderDTO.phoneNumber(),
             orderDTO.productCategory(),

@@ -62,7 +62,7 @@ public class OrderEntityMapper {
             orderEntity.getShippingMethod(),
             orderEntity.getShippingCustomerCode(),
             orderEntity.getBillingCustomerCode(),
-            orderEntity.getDesiredShippingDate(),
+            orderEntity.getDesiredShippingDate().toString(),
             orderEntity.getWillCallPickup(),
             orderEntity.getPhoneNumber(),
             orderEntity.getProductCategory(),
