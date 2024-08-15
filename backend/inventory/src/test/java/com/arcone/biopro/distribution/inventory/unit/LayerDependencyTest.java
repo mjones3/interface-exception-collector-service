@@ -20,7 +20,7 @@ public class LayerDependencyTest {
         "org.slf4j..",
         "org.apache.logging..",
         "org.apache.commons..",
-        "reactor.core..",
+        "reactor..",
         "org.springframework.stereotype..",
         "org.springframework.util.."
     ));

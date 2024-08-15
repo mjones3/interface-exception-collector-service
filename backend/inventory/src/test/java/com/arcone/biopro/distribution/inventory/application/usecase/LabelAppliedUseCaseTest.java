@@ -24,6 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
@@ -53,7 +54,7 @@ class LabelAppliedUseCaseTest {
             new ProductCode("E1234V12"),
             "APH PLASMA 24H",
             InventoryStatus.AVAILABLE,
-            "2025-01-08T02:05:45.231Z",
+            LocalDateTime.parse("2025-01-08T02:05:45.231"),
             "2025-01-07T02:05:45.231Z",
             "MIAMI",
             ProductFamily.PLASMA_TRANSFUSABLE,
@@ -64,7 +65,7 @@ class LabelAppliedUseCaseTest {
             "W123456789012",
             "E1234V12",
             "APH PLASMA 24H",
-            "2025-01-08T02:05:45.231Z",
+            LocalDateTime.parse("2025-01-08T02:05:45.231"),
             "2025-01-07T02:05:45.231Z",
             "MIAMI",
             ProductFamily.PLASMA_TRANSFUSABLE,
@@ -72,11 +73,11 @@ class LabelAppliedUseCaseTest {
         InventoryAggregate inventoryAggregate = InventoryAggregate.builder()
             .inventory(inventory)
             .build();
-        InventoryOutput expectedOutput = new InventoryOutput(uuid, "W123456789012", "E1234V12", InventoryStatus.AVAILABLE, "2025-01-08T02:05:45.231Z", "MIAMI");
+        InventoryOutput expectedOutput = new InventoryOutput(uuid, "W123456789012", "E1234V12", InventoryStatus.AVAILABLE, "2025-01-08T02:05:45.231", "MIAMI");
 
         when(inventoryAggregateRepository.existsByLocationAndUnitNumberAndProductCode(input.location(), input.unitNumber(), input.productCode())).thenReturn(Mono.just(false));
         when(inventoryAggregateRepository.saveInventory(any())).thenReturn(Mono.just(inventoryAggregate));
-        when(mapper.toOutput(any())).thenReturn(expectedOutput);
+        when(mapper.toOutput(any(Inventory.class))).thenReturn(expectedOutput);
 
         StepVerifier.create(labelAppliedUseCase.execute(input))
             .expectNextMatches(output -> output.equals(expectedOutput))
@@ -88,7 +89,7 @@ class LabelAppliedUseCaseTest {
         InventoryAggregate savedAggregate = captor.getValue();
         assertEquals("W123456789012", savedAggregate.getInventory().getUnitNumber().value());
         assertEquals("E1234V12", savedAggregate.getInventory().getProductCode().value());
-        assertEquals("2025-01-08T02:05:45.231Z", savedAggregate.getInventory().getExpirationDate());
+        assertEquals("2025-01-08T02:05:45.231", savedAggregate.getInventory().getExpirationDate().toString());
         assertEquals("MIAMI", savedAggregate.getInventory().getLocation());
     }
 
@@ -99,7 +100,7 @@ class LabelAppliedUseCaseTest {
             "W123456789012",
             "E1234V12",
             "APH PLASMA 24H",
-            "2025-01-08T02:05:45.231Z",
+            LocalDateTime.parse("2025-01-08T02:05:45.231"),
             "2025-01-07T02:05:45.231Z",
             "MIAMI",
             ProductFamily.PLASMA_TRANSFUSABLE,

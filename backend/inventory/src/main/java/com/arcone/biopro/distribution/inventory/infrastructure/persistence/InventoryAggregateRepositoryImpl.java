@@ -1,12 +1,18 @@
 package com.arcone.biopro.distribution.inventory.infrastructure.persistence;
 
 import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhCriteria;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ProductFamily;
 import com.arcone.biopro.distribution.inventory.domain.repository.InventoryAggregateRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.graphql.data.GraphQlRepository;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.time.LocalDateTime;
 
 @RequiredArgsConstructor
 @GraphQlRepository
@@ -34,5 +40,23 @@ public class InventoryAggregateRepositoryImpl implements InventoryAggregateRepos
     @Override
     public Mono<Boolean> existsByLocationAndUnitNumberAndProductCode(String location, String unitNumber, String productCode) {
         return inventoryEntityRepository.existsByLocationAndUnitNumberAndProductCode(location, unitNumber, productCode);
+    }
+
+    @Override
+    public Flux<InventoryAggregate> findAllAvailable(String location, ProductFamily productFamily, AboRhCriteria aboRh) {
+        return inventoryEntityRepository.findAllByLocationAndProductFamilyAndAboRhInAndInventoryStatusOrderByExpirationDateAsc(location, productFamily, aboRh.getAboRhTypes(), InventoryStatus.AVAILABLE)
+            .map(inventoryEntityMapper::toAggregate);
+    }
+
+    @Override
+    public Flux<InventoryAggregate> findAllAvailableShortDate(String location, ProductFamily productFamily, AboRhCriteria aboRh) {
+        LocalDateTime timeFrame = LocalDateTime.now().plusDays(productFamily.getTimeFrame());
+        return  inventoryEntityRepository.findAllByLocationAndProductFamilyAndAboRhInAndInventoryStatusAndExpirationDateBeforeOrderByExpirationDateAsc(location, productFamily, aboRh.getAboRhTypes(), InventoryStatus.AVAILABLE, timeFrame)
+            .map(inventoryEntityMapper::toAggregate);
+    }
+
+    @Override
+    public Mono<Long> countAllAvailable(String location, ProductFamily productFamily, AboRhCriteria aboRh) {
+        return inventoryEntityRepository.countByLocationAndProductFamilyAndAboRhInAndInventoryStatus(location, productFamily, aboRh.getAboRhTypes(), InventoryStatus.AVAILABLE);
     }
 }

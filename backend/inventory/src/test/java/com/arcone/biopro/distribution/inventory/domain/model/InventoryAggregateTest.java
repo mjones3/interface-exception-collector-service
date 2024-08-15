@@ -8,6 +8,8 @@ import com.arcone.biopro.distribution.inventory.domain.model.vo.UnitNumber;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDateTime;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -19,7 +21,7 @@ class InventoryAggregateTest {
         String unitNumber = "W123456789012";
         String productCode = "E1234V12";
         String shortDescription = "APH PLASMA 24H";
-        String expirationDate = "2025-01-08T02:05:45.231Z";
+        LocalDateTime expirationDate = LocalDateTime.parse("2025-01-08T02:05:45.231");
         String collectionDate = "2025-01-07T02:05:45.231Z";
         String location = "MIAMI";
 

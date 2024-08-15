@@ -7,6 +7,8 @@ import com.arcone.biopro.distribution.inventory.domain.model.vo.UnitNumber;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Builder
 @Getter
 public class InventoryAggregate {
@@ -17,7 +19,7 @@ public class InventoryAggregate {
         String unitNumber,
         String productCode,
         String shortDescription,
-        String expirationDate,
+        LocalDateTime expirationDate,
         String collectionDate,
         String location,
         ProductFamily productFamily,
