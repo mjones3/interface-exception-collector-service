@@ -26,6 +26,9 @@ spring:
   config:
     activate:
       on-profile: '!telemetry'
+  rsocket:
+    server:
+      port: 7002
 otel:
     sdk:
         disabled: true

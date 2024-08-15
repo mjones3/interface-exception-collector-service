@@ -37,3 +37,8 @@ the [official website](https://kubernetes.io/docs/tasks/tools/).
 Helm is a package manager for Kubernetes that allows developers and operators to more easily package, configure, and
 deploy applications and services onto Kubernetes clusters. You can download it from
 the [official website](https://helm.sh/).
+
+
+### Rsocket
+Download the rsocket client (rsc) from https://github.com/making/rsc/releases
+run the command: java -jar rsc-0.9.1.jar --debug --request --data "{\"locationCode\":\"LOCATION_1\",\"availableInventoryCriteriaDTOS\": [{\"productFamily\":\"PLASMA_TRANSFUSABLE\", \"bloodType\":\"O\"}]}" --route getAvailableInventoryWithShortDatedProducts tcp://api.local.gd:7002

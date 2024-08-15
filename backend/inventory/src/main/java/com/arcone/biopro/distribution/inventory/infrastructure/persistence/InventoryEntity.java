@@ -20,6 +20,7 @@ import org.springframework.data.relational.core.mapping.InsertOnlyProperty;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
@@ -52,7 +53,7 @@ public class InventoryEntity implements Serializable, Persistable<UUID> {
 
     @NotNull
     @Column("expiration_date")
-    String expirationDate;
+    LocalDateTime expirationDate;
 
     @NotNull
     @Column("collection_date")
@@ -68,7 +69,7 @@ public class InventoryEntity implements Serializable, Persistable<UUID> {
 
     @NotNull
     @Column("abo_rh")
-    AboRhType abo_rh;
+    AboRhType aboRh;
 
     @NotNull
     @Column("create_date")

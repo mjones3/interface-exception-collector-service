@@ -21,6 +21,8 @@ spec:
           ports:
             - name: http
               containerPort: 8080
+            - name: rsocket
+              containerPort: 7002
           env:
             - name: JAVA_OPTS
               value: '-Xmx512m -Xms256m'
