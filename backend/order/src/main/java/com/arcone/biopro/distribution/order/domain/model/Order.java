@@ -1,6 +1,5 @@
 package com.arcone.biopro.distribution.order.domain.model;
 
-import com.arcone.biopro.distribution.order.domain.model.vo.*;
 import com.arcone.biopro.distribution.order.domain.repository.OrderRepository;
 import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
@@ -26,20 +25,20 @@ import static java.util.Optional.ofNullable;
 public class Order implements Validatable {
 
     private Long id;
-    private OrderNumber orderNumber;
-    private OrderExternalId orderExternalId;
+    private com.arcone.biopro.distribution.order.domain.model.vo.OrderNumber orderNumber;
+    private com.arcone.biopro.distribution.order.domain.model.vo.OrderExternalId orderExternalId;
     private String locationCode;
-    private ShipmentType shipmentType;
-    private ShippingMethod shippingMethod;
-    private OrderCustomer shippingCustomer;
-    private OrderCustomer billingCustomer;
+    private com.arcone.biopro.distribution.order.domain.model.vo.ShipmentType shipmentType;
+    private com.arcone.biopro.distribution.order.domain.model.vo.ShippingMethod shippingMethod;
+    private com.arcone.biopro.distribution.order.domain.model.vo.OrderCustomer shippingCustomer;
+    private com.arcone.biopro.distribution.order.domain.model.vo.OrderCustomer billingCustomer;
     private LocalDate desiredShippingDate;
     private Boolean willCallPickup;
     private String phoneNumber;
-    private ProductCategory productCategory;
+    private com.arcone.biopro.distribution.order.domain.model.vo.ProductCategory productCategory;
     private String comments;
-    private OrderStatus orderStatus;
-    private OrderPriority orderPriority;
+    private com.arcone.biopro.distribution.order.domain.model.vo.OrderStatus orderStatus;
+    private com.arcone.biopro.distribution.order.domain.model.vo.OrderPriority orderPriority;
     private String createEmployeeId;
     private ZonedDateTime createDate;
     private ZonedDateTime modificationDate;
@@ -70,13 +69,13 @@ public class Order implements Validatable {
         ZonedDateTime deleteDate
     ) {
         this.id = id;
-        this.orderNumber = new OrderNumber(orderNumber);
-        this.orderExternalId = new OrderExternalId(externalId);
+        this.orderNumber = new com.arcone.biopro.distribution.order.domain.model.vo.OrderNumber(orderNumber);
+        this.orderExternalId = new com.arcone.biopro.distribution.order.domain.model.vo.OrderExternalId(externalId);
         this.locationCode = locationCode;
-        this.shipmentType = new ShipmentType(shipmentType, lookupService);
-        this.shippingMethod = new ShippingMethod(shippingMethod, lookupService);
-        this.shippingCustomer = new OrderCustomer(shippingCustomerCode, customerService);
-        this.billingCustomer = new OrderCustomer(billingCustomerCode, customerService);
+        this.shipmentType = new com.arcone.biopro.distribution.order.domain.model.vo.ShipmentType(shipmentType, lookupService);
+        this.shippingMethod = new com.arcone.biopro.distribution.order.domain.model.vo.ShippingMethod(shippingMethod, lookupService);
+        this.shippingCustomer = new com.arcone.biopro.distribution.order.domain.model.vo.OrderCustomer(shippingCustomerCode, customerService);
+        this.billingCustomer = new com.arcone.biopro.distribution.order.domain.model.vo.OrderCustomer(billingCustomerCode, customerService);
         try {
             this.desiredShippingDate = LocalDate.parse(desiredShippingDate);
         } catch (DateTimeParseException e) {
@@ -84,10 +83,10 @@ public class Order implements Validatable {
         }
         this.willCallPickup = willCallPickup;
         this.phoneNumber = phoneNumber;
-        this.productCategory = new ProductCategory(productCategory, lookupService);
+        this.productCategory = new com.arcone.biopro.distribution.order.domain.model.vo.ProductCategory(productCategory, lookupService);
         this.comments = comments;
-        this.orderStatus = new OrderStatus(orderStatus, lookupService);
-        this.orderPriority = new OrderPriority(orderPriority, lookupService);
+        this.orderStatus = new com.arcone.biopro.distribution.order.domain.model.vo.OrderStatus(orderStatus, lookupService);
+        this.orderPriority = new com.arcone.biopro.distribution.order.domain.model.vo.OrderPriority(orderPriority, lookupService);
         this.createEmployeeId = createEmployeeId;
         this.createDate = createDate;
         this.modificationDate = modificationDate;
