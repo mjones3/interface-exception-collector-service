@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.order.domain.model;
 
+
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderCustomer;
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderExternalId;
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderNumber;
@@ -19,6 +20,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,7 +54,7 @@ public class Order implements Validatable {
     private ZonedDateTime deleteDate;
     private List<OrderItem> orderItems;
 
-    public Order (
+    public Order(
         CustomerService customerService,
         LookupService lookupService,
         Long id,
@@ -63,7 +65,7 @@ public class Order implements Validatable {
         String shippingMethod,
         String shippingCustomerCode,
         String billingCustomerCode,
-        LocalDate desiredShippingDate,
+        String desiredShippingDate,
         Boolean willCallPickup,
         String phoneNumber,
         String productCategory,
@@ -79,17 +81,21 @@ public class Order implements Validatable {
         this.orderNumber = new OrderNumber(orderNumber);
         this.orderExternalId = new OrderExternalId(externalId);
         this.locationCode = locationCode;
-        this.shipmentType = new ShipmentType(shipmentType,lookupService);
-        this.shippingMethod = new ShippingMethod(shippingMethod,lookupService);
-        this.shippingCustomer = new OrderCustomer(shippingCustomerCode,customerService);
-        this.billingCustomer = new OrderCustomer(billingCustomerCode,customerService);
-        this.desiredShippingDate = desiredShippingDate;
+        this.shipmentType = new ShipmentType(shipmentType, lookupService);
+        this.shippingMethod = new ShippingMethod(shippingMethod, lookupService);
+        this.shippingCustomer = new OrderCustomer(shippingCustomerCode, customerService);
+        this.billingCustomer = new OrderCustomer(billingCustomerCode, customerService);
+        try {
+            this.desiredShippingDate = LocalDate.parse(desiredShippingDate);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("desiredShippingDate is invalid");
+        }
         this.willCallPickup = willCallPickup;
         this.phoneNumber = phoneNumber;
-        this.productCategory = new ProductCategory(productCategory,lookupService);
+        this.productCategory = new ProductCategory(productCategory, lookupService);
         this.comments = comments;
-        this.orderStatus = new OrderStatus(orderStatus,lookupService);
-        this.orderPriority = new OrderPriority(orderPriority,lookupService);
+        this.orderStatus = new OrderStatus(orderStatus, lookupService);
+        this.orderPriority = new OrderPriority(orderPriority, lookupService);
         this.createEmployeeId = createEmployeeId;
         this.createDate = createDate;
         this.modificationDate = modificationDate;
@@ -121,6 +127,9 @@ public class Order implements Validatable {
         if (this.desiredShippingDate == null) {
             throw new IllegalArgumentException("desiredShippingDate cannot be null");
         }
+        if (this.desiredShippingDate.isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("desiredShippingDate cannot be in the past");
+        }
         if (this.productCategory == null) {
             throw new IllegalArgumentException("productCategory cannot be null");
         }
@@ -136,14 +145,14 @@ public class Order implements Validatable {
     }
 
     public void addItem(Long id, String productFamily, String bloodType, Integer quantity, String comments
-        , ZonedDateTime createDate, ZonedDateTime modificationDate,OrderConfigService orderConfigService) {
+        , ZonedDateTime createDate, ZonedDateTime modificationDate, OrderConfigService orderConfigService) {
 
-        if(this.orderItems == null){
+        if (this.orderItems == null) {
             this.orderItems = new ArrayList<>();
         }
 
-        this.orderItems.add(new OrderItem(id , this.id , productFamily, bloodType , quantity , comments , createDate
-            ,modificationDate , this.getProductCategory().getProductCategory() , orderConfigService));
+        this.orderItems.add(new OrderItem(id, this.id, productFamily, bloodType, quantity, comments, createDate
+            , modificationDate, this.getProductCategory().getProductCategory(), orderConfigService));
     }
 
     public Mono<Boolean> exists(final OrderRepository orderRepository) {

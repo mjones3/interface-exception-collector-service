@@ -21,10 +21,13 @@ import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.time.LocalDate;
+import java.util.Random;
+
 @Slf4j
 public class OrderSteps {
 
-//    Order details
+    //    Order details
     private String externalId;
     private String locationCode;
     private String priority;
@@ -105,6 +108,19 @@ public class OrderSteps {
     public void postOrderReceivedEvent(String externalId, String jsonFileName) throws Exception {
         this.externalId = externalId;
         var jsonContent = testUtils.getResource(jsonFileName);
+        var newDesiredShippingDate = LocalDate.now().plusDays(
+            new Random().nextInt(10) + 1
+        ).toString();
+        jsonContent = jsonContent.replace("DESIRED_DATE", newDesiredShippingDate);
+        var eventPayload = objectMapper.readValue(jsonContent, OrderReceivedEventDTO.class);
+        createOrderInboundRequest(jsonContent, eventPayload);
+    }
+
+    @Given("I have received an order inbound request with externalId {string}, content {string}, and desired shipping date {string}.")
+    public void postOrderReceivedEventPast(String externalId, String jsonFileName, String date) throws Exception {
+        this.externalId = externalId;
+        var jsonContent = testUtils.getResource(jsonFileName);
+        jsonContent = jsonContent.replace("DESIRED_DATE", date);
         var eventPayload = objectMapper.readValue(jsonContent, OrderReceivedEventDTO.class);
         createOrderInboundRequest(jsonContent, eventPayload);
     }

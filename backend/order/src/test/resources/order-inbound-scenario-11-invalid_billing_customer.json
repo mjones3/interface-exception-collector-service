@@ -14,7 +14,7 @@
     "willPickUpPhoneNumber": "12333333",
     "shippingMethod": "FEDEX",
     "productCategory": "FROZEN",
-    "desiredShippingDate": "2020-04-25",
+    "desiredShippingDate": "DESIRED_DATE",
     "shippingCustomerCode": "A1235",
     "billingCustomerCode": "INVALID_BILLING_CODE",
     "comments": "string",

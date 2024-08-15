@@ -39,7 +39,7 @@ public class OrderReceivedEventMapper {
                 orderReceivedEventPayloadDTO.shippingMethod(),
                 orderReceivedEventPayloadDTO.shippingCustomerCode(),
                 orderReceivedEventPayloadDTO.billingCustomerCode(),
-                LocalDate.parse(orderReceivedEventPayloadDTO.desiredShippingDate()),
+                orderReceivedEventPayloadDTO.desiredShippingDate(),
                 orderReceivedEventPayloadDTO.willPickUp(),
                 orderReceivedEventPayloadDTO.willPickUpPhoneNumber(),
                 orderReceivedEventPayloadDTO.productCategory(),
