@@ -283,6 +283,11 @@ async-call:
     tcp-port: 8585
     max-attempts: 2
     duration: 2
+  inventory:
+    tcp-address: localhost
+    tcp-port: 7000
+    max-attempts: 2
+    duration: 2
 
 topics:
   order:
@@ -298,3 +303,7 @@ topics:
       partitions: 1
       replicas: 1
       topic-name: OrderRejected
+    order-fulfilled:
+      partitions: 1
+      replicas: 1
+      topic-name: OrderFulfilled

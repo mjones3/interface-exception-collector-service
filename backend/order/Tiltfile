@@ -176,9 +176,30 @@ def biopro_service():
             'postgresql-deployment',
             'kafka-deployment',
             'keycloak-deployment',
-            'opentelemetry-collector'
+            'opentelemetry-collector',
+            'rsocket-deployment'
         ],
         trigger_mode=TRIGGER_MODE_MANUAL
+    )
+
+
+def rsocket_service():
+    configmap_create(
+        'mappings-config',
+        namespace='api',
+        from_file='./src/main/k8s/rsocket/mappings/'
+    )
+    configmap_create(
+        'files-config',
+        namespace='api',
+        from_file='./src/main/k8s/rsocket/__files/'
+    )
+    # Specify the Kubernetes manifest for the deployment
+    k8s_yaml('./src/main/k8s/rsocket-deployment.yaml')
+    k8s_yaml('./src/main/k8s/rsocket-service.yaml')
+    k8s_resource(
+        'rsocket-deployment',
+        port_forwards=7002
     )
 
 
@@ -201,4 +222,5 @@ kafka_service()
 redpanda_console_service()
 postgresql_service()
 atlas_operator()
-biopro_service()
+rsocket_service()
+#biopro_service()
