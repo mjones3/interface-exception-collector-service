@@ -36,10 +36,33 @@ CREATE TABLE lk_order_product_family (
 CREATE UNIQUE INDEX uq_idx_lk_order_product_family ON lk_order_product_family (family_category, family_type);
 
 CREATE TABLE bld_order (
-   id                         BIGSERIAL                          NOT NULL CONSTRAINT pk_bld_order PRIMARY KEY,
-   order_number               BIGSERIAL                          NOT NULL
-
+    id                         BIGSERIAL                          NOT NULL CONSTRAINT pk_bld_order PRIMARY KEY,
+    order_number               BIGSERIAL                          NOT NULL,
+    external_id                VARCHAR(50),
+    location_code              VARCHAR(255)                       NOT NULL,
+    shipment_type              VARCHAR(100) DEFAULT 'CUSTOMER'    NOT NULL,
+    shipping_method            VARCHAR(255)                       NOT NULL,
+    shipping_customer_name     VARCHAR(255)                       NOT NULL,
+    shipping_customer_code     VARCHAR(10)                        NOT NULL,
+    billing_customer_name      VARCHAR(255)                       NOT NULL,
+    billing_customer_code      VARCHAR(10)                        NOT NULL,
+    desired_shipping_date      DATE                               NOT NULL,
+    will_call_pickup           BOOLEAN,
+    phone_number               VARCHAR(50),
+    product_category           VARCHAR(255)                       NOT NULL,
+    comments                   VARCHAR(1000),
+    status                     VARCHAR(255)                       NOT NULL,
+    priority                   VARCHAR(255)                       NOT NULL,
+    delivery_type              VARCHAR(255)                       NOT NULL,
+    create_employee_id         VARCHAR(50)                        NOT NULL,
+    create_date                TIMESTAMP WITH TIME ZONE           NOT NULL,
+    modification_date          TIMESTAMP WITH TIME ZONE           NOT NULL,
+    delete_date                TIMESTAMP WITH TIME ZONE
 );
+
+ALTER TABLE bld_order ALTER COLUMN priority TYPE integer using (priority::integer);
+
+CREATE UNIQUE INDEX uq_idx_bld_order_external_id ON bld_order (external_id);
 
 CREATE TABLE bld_order_item (
     id                BIGSERIAL                   NOT NULL CONSTRAINT pk_bld_order_item PRIMARY KEY,
