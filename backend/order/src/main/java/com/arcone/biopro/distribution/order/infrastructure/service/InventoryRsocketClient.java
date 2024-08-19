@@ -37,7 +37,8 @@ public class InventoryRsocketClient implements InventoryService {
         return rSocketRequester
             .route("getAvailableInventoryWithShortDatedProducts")
             .data(commandDTO)
-            .retrieveMono(GetAvailableInventoryDTO.class);
+            .retrieveMono(GetAvailableInventoryDTO.class)
+            .log();
     }
 
     @MessageExceptionHandler(RuntimeException.class)
