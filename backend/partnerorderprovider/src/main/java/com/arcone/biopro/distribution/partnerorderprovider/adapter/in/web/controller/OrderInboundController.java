@@ -41,7 +41,7 @@ public class OrderInboundController {
      * or with status {@code 400 (Bad Request)} if there is any broken validation.
      */
     @Operation(summary = "Creates a Order Data")
-    @PostMapping("/v1/orders")
+    @PostMapping("/v1/partner-order-provider/orders")
     public ResponseEntity<OrderInboundResponseDTO> createOrderInboundData(
         @ValidJson(ORDER_INBOUND_DATA) OrderInboundDTO orderInboundDTO) {
 
@@ -56,7 +56,7 @@ public class OrderInboundController {
             .build();
 
         return resultDto.status().equals(ORDER_DATA_INBOUND_STATUS_CREATE)
-            ? ResponseEntity.created(URI.create("/v1/orders/" + resultDto.id()))
+            ? ResponseEntity.created(URI.create("/v1/partner-order-provider/orders/" + resultDto.id()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, "ENTITY_NAME", resultDto.id()))
             .body(resultDto)
             : ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(resultDto);
