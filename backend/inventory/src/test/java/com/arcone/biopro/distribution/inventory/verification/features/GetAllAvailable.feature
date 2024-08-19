@@ -8,7 +8,7 @@ Feature: Get all available inventories
         And I have "8" of the "PLASMA_TRANSFUSABLE" of the blood type "ON" in the "LOCATION_1" will expire in "2" days
         And I have "13" of the "PLASMA_TRANSFUSABLE" of the blood type "ABN" in the "LOCATION_1" will expire in "2" days
         And I have "21" of the "PLASMA_TRANSFUSABLE" of the blood type "ABP" in the "LOCATION_1" will expire in "31" days
-
+        And I have "44" of the "PLASMA_TRANSFUSABLE" of the blood type "OP" in the "LOCATION_1" will expire in "-1" days
         When I request "<Product Family>" of the blood type "<Abo Rh Type>" in the "<Location>"
 
         Then I receive "<Quantity>" of total products and "<Short Date Quantity>" of short date

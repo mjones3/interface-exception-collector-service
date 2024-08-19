@@ -139,4 +139,6 @@ public class RsocketSteps {
         assertThat(inventory.quantityAvailable()).isEqualTo(Integer.parseInt(quantityAvailable));
         assertThat(inventory.shortDateProducts().size()).isEqualTo(Integer.parseInt(quantityShortDate));
     }
+
+
 }

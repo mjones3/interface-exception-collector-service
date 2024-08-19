@@ -50,13 +50,13 @@ public class InventoryAggregateRepositoryImpl implements InventoryAggregateRepos
 
     @Override
     public Flux<InventoryAggregate> findAllAvailableShortDate(String location, ProductFamily productFamily, AboRhCriteria aboRh) {
-        LocalDateTime timeFrame = LocalDateTime.now().plusDays(productFamily.getTimeFrame());
-        return  inventoryEntityRepository.findAllByLocationAndProductFamilyAndAboRhInAndInventoryStatusAndExpirationDateBeforeOrderByExpirationDateAsc(location, productFamily, aboRh.getAboRhTypes(), InventoryStatus.AVAILABLE, timeFrame)
+        LocalDateTime finalDateTime = LocalDateTime.now().plusDays(productFamily.getTimeFrame());
+        return  inventoryEntityRepository.findAllByLocationAndProductFamilyAndAboRhInAndInventoryStatusAndExpirationDateBetweenOrderByExpirationDateAsc(location, productFamily, aboRh.getAboRhTypes(), InventoryStatus.AVAILABLE, LocalDateTime.now(), finalDateTime)
             .map(inventoryEntityMapper::toAggregate);
     }
 
     @Override
     public Mono<Long> countAllAvailable(String location, ProductFamily productFamily, AboRhCriteria aboRh) {
-        return inventoryEntityRepository.countByLocationAndProductFamilyAndAboRhInAndInventoryStatus(location, productFamily, aboRh.getAboRhTypes(), InventoryStatus.AVAILABLE);
+        return inventoryEntityRepository.countByLocationAndProductFamilyAndAboRhInAndInventoryStatusAndExpirationDateAfter(location, productFamily, aboRh.getAboRhTypes(), InventoryStatus.AVAILABLE, LocalDateTime.now());
     }
 }
