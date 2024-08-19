@@ -24,7 +24,7 @@ domain: "api.local.gd"
 atlas:
   enabled: false
   blockDropSchema: true
-  blockDestructiveChanges: false
+  blockDestructiveChanges: true
 
 # Enable Istio as default
 istio:
