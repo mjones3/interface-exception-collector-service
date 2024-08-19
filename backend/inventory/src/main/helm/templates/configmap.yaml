@@ -1,0 +1,9 @@
+{{- if .Values.atlas.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "api.fullname" . }}-schema
+  namespace: atlas
+data:
+{{ (.Files.Glob "db/*").AsConfig | indent 2 }}
+{{- end }}

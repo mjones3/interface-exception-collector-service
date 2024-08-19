@@ -1,0 +1,30 @@
+{
+  "eventType": "OrderReceived",
+  "eventVersion": "1.0",
+  "payload": {
+    "id": "9c491b96-a990-45f7-9d98-7b7642fc3244",
+    "externalId": "114117922233519",
+    "orderStatus": "OPEN",
+    "locationCode": "MDL_HUB_1",
+    "createDate": "2023-04-25 20:09:01",
+    "createEmployeeCode": "ee1bf88e-2137-4a17-835a-d43e7b738374",
+    "shipmentType": "CUSTOMER",
+    "deliveryType": "SCHEDULED",
+    "willPickUp": true,
+    "willPickUpPhoneNumber": "12333333",
+    "shippingMethod": "FEDEX",
+    "productCategory": "FROZEN",
+    "desiredShippingDate": "2020-04-25",
+    "shippingCustomerCode": "A1235",
+    "billingCustomerCode": "A1235",
+    "comments": "string",
+    "orderItems": [
+      {
+        "productFamily": "WHOLE_BLOOD",
+        "bloodType": "AB",
+        "quantity": 1,
+        "comments": "Comments"
+      }
+    ]
+  }
+}

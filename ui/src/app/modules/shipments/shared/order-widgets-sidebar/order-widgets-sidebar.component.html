@@ -1,0 +1,83 @@
+<div class="flex flex-auto flex-col space-y-3">
+    <rsa-common-widget
+        svgIcon="hi_outline:clipboard-list"
+        svgIconCls="text-orange-light"
+        [title]="'Order Information'"
+        [subtitle]="'General Information'"
+        [templateRef]="orderInfoTpl"
+    >
+        <ng-template #orderInfoTpl>
+            <div class="flex flex-col">
+                <rsa-description-card
+                    id="orderInfoDescriptions"
+                    [descriptions]="orderInfoDescriptions"
+                    [showColon]="true"
+                    [embedded]="true"
+                    [maxCols]="1"
+                    [valueClasses]="'align-card-info'"
+                    [labelClasses]="'align-card-info'"
+                ></rsa-description-card>
+                <mat-accordion id="orderInfoComment">
+                    <mat-expansion-panel
+                        [disabled]="!order?.comments && !comments"
+                    >
+                        <mat-expansion-panel-header>
+                            <mat-panel-title class="font-bold">
+                                Comments:</mat-panel-title
+                            >
+                        </mat-expansion-panel-header>
+                        <div>{{ order?.comments || comments | uppercase }}</div>
+                    </mat-expansion-panel>
+                </mat-accordion>
+            </div>
+        </ng-template>
+    </rsa-common-widget>
+
+    @if (shippingInfoDescriptions?.length) {
+        <rsa-common-widget
+            svgIcon="remove_shopping_cart"
+            svgIconCls="text-custom-red"
+            [title]="'Shipping Information'"
+            [subtitle]="'General Information'"
+            [templateRef]="shipInfoTpl"
+        >
+            <ng-template #shipInfoTpl>
+                <div class="flex flex-col">
+                    <rsa-description-card
+                        id="shippingInfoDescriptions"
+                        [descriptions]="shippingInfoDescriptions"
+                        [showColon]="true"
+                        [embedded]="true"
+                        [maxCols]="1"
+                        [valueClasses]="'align-card-info'"
+                        [labelClasses]="'align-card-info'"
+                    ></rsa-description-card>
+                </div>
+            </ng-template>
+        </rsa-common-widget>
+    }
+
+    @if (billInfoDescriptions?.length) {
+        <rsa-common-widget
+            svgIcon="credit_card"
+            svgIconCls="text-purple-light"
+            [title]="'Billing Information'"
+            [subtitle]="'General Information'"
+            [templateRef]="billInfoTpl"
+        >
+            <ng-template #billInfoTpl>
+                <div class="flex flex-col">
+                    <rsa-description-card
+                        id="billInfoDescriptions"
+                        [descriptions]="billInfoDescriptions"
+                        [showColon]="true"
+                        [embedded]="true"
+                        [maxCols]="1"
+                        [valueClasses]="'align-card-info'"
+                        [labelClasses]="'align-card-info'"
+                    ></rsa-description-card>
+                </div>
+            </ng-template>
+        </rsa-common-widget>
+    }
+</div>

@@ -31,13 +31,13 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.image.repository }}/{{ .Values.environment }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: DOMAIN
-              value: {{ .Values.api.domain }}
+              value: {{ .Values.domain }}
             - name: ENVIRONMENT
-              value: {{ .Values.api.environment }}
+              value: {{ .Values.environment }}
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
