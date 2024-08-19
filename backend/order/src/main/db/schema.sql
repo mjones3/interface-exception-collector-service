@@ -35,11 +35,6 @@ CREATE TABLE lk_order_product_family (
 
 CREATE UNIQUE INDEX uq_idx_lk_order_product_family ON lk_order_product_family (family_category, family_type);
 
-DROP TABLE bld_order CASCADE;
-
-DROP TABLE bld_order_item CASCADE;
-
-
 CREATE TABLE bld_order (
    id                         BIGSERIAL                          NOT NULL CONSTRAINT pk_bld_order PRIMARY KEY,
    order_number               BIGSERIAL                          NOT NULL,
@@ -57,7 +52,6 @@ CREATE TABLE bld_order (
    product_category           VARCHAR(255)                       NOT NULL,
    comments                   VARCHAR(1000),
    status                     VARCHAR(255)                       NOT NULL,
-   priority                   INTEGER                            NOT NULL,
    delivery_type              VARCHAR(255)                       NOT NULL,
    create_employee_id         VARCHAR(50)                        NOT NULL,
    create_date                TIMESTAMP WITH TIME ZONE           NOT NULL,
