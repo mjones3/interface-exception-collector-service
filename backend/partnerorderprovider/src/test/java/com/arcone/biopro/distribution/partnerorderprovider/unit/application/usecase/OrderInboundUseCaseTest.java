@@ -52,7 +52,7 @@ class OrderInboundUseCaseTest {
 
         assertEquals(1, applicationEvents
             .stream(PartnerOrderInboundReceived.class)
-            .filter(event -> event.partnerOrder().getExternalId().equals("123"))
+            .filter(event -> event.getPayload().getExternalId().equals("123"))
             .count());
     }
 }
