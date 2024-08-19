@@ -64,7 +64,7 @@ class OrderMapperTest {
             "shippingMethod",
             "code",
             "code",
-            LocalDate.now(),
+            LocalDate.now().toString(),
             Boolean.TRUE,
             "phoneNumber",
             "productCategory",

@@ -36,3 +36,13 @@ Feature: Validate order
         Examples:
             | External ID     | JsonPayloadName                                      |
             | 114117922233599 | order-inbound-scenario-2-duplicated_external_id.json |
+
+
+    Scenario Outline: Creating a BioPro order with an invalid shipping date
+        Given I have received an order inbound request with externalId "<External ID>", content "<JsonPayloadName>", and desired shipping date "<Date>".
+        When The system process the order request.
+        Then A biopro Order will not be available in the Distribution local data store.
+        Examples:
+            | External ID     | JsonPayloadName                          | Date       |
+            | 114117922233500 | order-inbound-scenario-1-happy-path.json | 2020-01-01 |
+            | 114117922233500 | order-inbound-scenario-1-happy-path.json | 2020-07-33 |

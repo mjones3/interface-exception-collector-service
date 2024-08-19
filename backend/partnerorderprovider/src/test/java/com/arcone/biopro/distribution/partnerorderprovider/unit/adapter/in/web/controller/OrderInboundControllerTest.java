@@ -35,7 +35,7 @@ class OrderInboundControllerTest {
 
         Mockito.when(orderInboundService.receiveOrderInbound(Mockito.any(OrderInboundDTO.class))).thenReturn(response);
 
-        webTestClient.post().uri("/v1/orders")
+        webTestClient.post().uri("/v1/partner-order-provider/orders")
             .exchange()
             .expectStatus().isCreated()
             .expectBody()
@@ -52,7 +52,7 @@ class OrderInboundControllerTest {
 
         Mockito.when(orderInboundService.receiveOrderInbound(Mockito.any(OrderInboundDTO.class))).thenThrow(new RuntimeException("Test"));
 
-        webTestClient.post().uri("/v1/orders")
+        webTestClient.post().uri("/v1/partner-order-provider/orders")
             .exchange()
             .expectStatus().is5xxServerError();
     }
