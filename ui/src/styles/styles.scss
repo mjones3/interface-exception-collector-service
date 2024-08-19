@@ -1,0 +1,296 @@
+/* ----------------------------------------------------------------------------------------------------- */
+
+/*  @ Import/write your custom styles here.
+/*  @ Styles from this file will override 'vendors.scss' and Fuse's base styles.
+/* ----------------------------------------------------------------------------------------------------- */
+
+@use 'ngx-toastr/toastr';
+@use 'sass:map';
+@use '@angular/material' as mat;
+@use 'user-themes' as userThemes;
+@use 'themes' as themes;
+
+/* BioPro */
+$theme: map.get(userThemes.$user-themes, default);
+$primary: map.get($theme, primary);
+$foreground: map.get(themes.$light-base, foreground);
+$background: map.get(themes.$light-base, background);
+$warn: map.get($theme, warn);
+$gray: map.get($theme, gray);
+
+$red-light-color: #cd7b66;
+$custom-red: #cd6666;
+$custom-red-required: #c81e1e;
+$gray-light-color: #e4e4e4;
+$orange-light-color: #e69c52;
+$purple-light-color: #7986cb;
+$purple-disable-light-color: #bfbfe5;
+$warning-color: #e8ba06;
+$success-color: #4caf50;
+$green-color: #089133;
+$blue-color: #387cb4;
+$custom-gray-color: #7f9ab3;
+$button-highlighted: #a4a900;
+$custom-red-100: #f4e2e2;
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: Roboto, 'Helvetica Neue', sans-serif;
+}
+
+.content-layout.fullwidth-standard-normal-scroll > .header {
+    padding: 15px 25px;
+    background: white;
+}
+
+.module-title {
+    color: map.get($primary, DEFAULT);
+    font-weight: 500;
+    font-size: large;
+}
+
+.custom-required {
+    @apply text-red-700;
+
+    font-weight: bold;
+    margin-left: 1px;
+    margin-right: 0;
+}
+
+.text-custom-red {
+    color: $custom-red;
+
+    mat-icon {
+        color: $custom-red;
+    }
+}
+
+.custom-red {
+    color: $custom-red;
+}
+
+.text-orange-light {
+    color: $orange-light-color;
+}
+
+button {
+    &.action-button {
+        background-color: #fff;
+        color: #64748b;
+        cursor: pointer;
+        height: 48px;
+        min-height: 48px;
+        max-height: 48px;
+
+        &.primary {
+            background-color: map.get($primary, DEFAULT) !important;
+            color: white;
+        }
+
+        &[disabled] {
+            box-shadow:
+                0 3px 1px -2px rgb(220 220 220 / 11%),
+                0 2px 2px 0 rgb(220 220 220 / 14%),
+                0 1px 5px 0 rgb(220 220 220 / 12%);
+            cursor: not-allowed !important;
+
+            mat-icon {
+                filter: grayscale(100%);
+            }
+        }
+    }
+
+    &.checkBtn {
+        background-color: #fff;
+        color: greenyellow;
+        border: 1px solid greenyellow;
+        padding: 2px;
+        border-radius: 2px;
+        margin-left: 2px;
+    }
+
+    &.errBtn {
+        background-color: #fff;
+        color: #cd7b66;
+        border: 1px solid #cd7b66;
+        padding: 2px;
+        border-radius: 2px;
+        margin-left: 2px;
+    }
+
+    &.primary {
+        color: #495057;
+    }
+
+    &.edit {
+        background-color: $warning-color;
+        color: white;
+    }
+
+    &.bg-green-highlighted {
+        background-color: $button-highlighted !important;
+        color: white;
+    }
+
+    &.bg-green {
+        background-color: $green-color;
+        color: white;
+    }
+
+    &.bg-orange-light {
+        background-color: $orange-light-color;
+        color: white;
+    }
+
+    &.bg-gray-light {
+        background-color: $gray-light-color;
+    }
+
+    &.bg-purple-light {
+        background-color: $purple-light-color !important;
+        color: white;
+
+        &[disabled] {
+            background-color: $purple-disable-light-color;
+        }
+    }
+
+    &.btn-red-light {
+        background-color: $red-light-color;
+        color: white;
+
+        mat-icon {
+            color: white !important;
+        }
+    }
+
+    &.bg-custom-red {
+        background-color: $custom-red !important;
+        color: white;
+
+        mat-icon {
+            color: white !important;
+        }
+    }
+
+    &.btn-info {
+        background-color: $blue-color;
+        color: white;
+    }
+}
+
+biopro-process-header {
+    .header .title-section {
+        flex-direction: column;
+        align-items: initial !important;
+
+        h1,
+        h3 {
+            margin: 0.25rem !important;
+            font-weight: 500 !important;
+            line-height: 1.25;
+        }
+
+        h1 {
+            color: map.get($primary, DEFAULT);
+            font-size: 24px;
+            letter-spacing: -0.019em;
+        }
+
+        h3 {
+            padding-left: 0 !important;
+            font-size: 32px;
+            letter-spacing: -0.022em;
+        }
+    }
+}
+
+.rsa-blocking-backdrop::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.5;
+    z-index: 1001;
+    transition: 0.3s;
+    background-color: #fff;
+}
+
+.p-datatable .p-datatable-thead {
+    height: 50px !important;
+
+    & > tr {
+        & > th {
+            text-align: left;
+            border-width: 0 0 1px;
+            color: #495057;
+            background: #e5e7eb;
+            transition: box-shadow 0.2s;
+
+            &.p-sortable-column.p-highlight {
+                color: #495057;
+                background: #e5e7eb;
+            }
+        }
+    }
+}
+
+.p-datatable {
+    .p-datatable-wrapper {
+        overflow-x: auto !important;
+
+        &::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: white;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background-color: #dbdada;
+            border-radius: 20px;
+            border: 3px solid white;
+        }
+    }
+
+    table {
+        table-layout: auto !important;
+
+        thead {
+            th {
+                white-space: nowrap !important;
+            }
+        }
+
+        tbody {
+            td {
+                white-space: nowrap !important;
+            }
+        }
+    }
+}
+
+.p-datatable .p-datatable-tfoot > tr {
+    & > td {
+        text-align: left;
+        color: #495057;
+        background: #e5e7eb;
+        transition: box-shadow 0.2s;
+    }
+}
+
+.p-datatable .p-datatable-tbody > tr {
+    height: 32px;
+}
+
+.custom-error-message{
+    @apply text-red-700 #{'!important'};
+
+    font-size: 12px;
+    font-weight: 500;
+}

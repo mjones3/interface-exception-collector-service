@@ -1,0 +1,8 @@
+{
+    "serverApiURL": "http://localhost:4200",
+    "clientId": "web_app",
+    "environment": "DEVELOPMENT",
+    "url": "http://id.local.gd",
+    "realm": "biopro",
+    "uuid": "215b898c-0f1e-43e8-abd1-f835bef767e3"
+}

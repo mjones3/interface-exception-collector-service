@@ -1,0 +1,48 @@
+<fuse-card class="flex-col" [style.border-color]="color" [ngClass]="{ 'border-l-4': hasBorder }">
+  <!-- Header Section -->
+  <div class="fuse-card-title px-4">
+    <div class="flex justify-between items-center">
+      <div class="flex flex-row justify-center items-end space-x-2">
+        @if(svgIcon){
+          <mat-icon  class="w-8 h-8" [ngClass]="svgIconCls" [svgIcon]="svgIcon"></mat-icon>
+        }
+        <div class="flex flex-col mt-1">
+          <div class="font-bold text-md">{{ title }}</div>
+          <div class="uppercase text-sm text-gray-400" [style.color]="color + '!important'">
+            {{ subtitle }}
+          </div>
+        </div>
+      </div>
+      @if(hasMenu){
+        <mat-icon
+        [matMenuTriggerFor]="matResultsMenu"
+        [svgIcon]="'hi_outline:dots-vertical'"
+        class="cursor-pointer"
+      ></mat-icon>
+      }
+
+      @if(!hasMenu && buttonMenu){
+        <button
+        class="h-10 min-h-10 px-3 bg-gray-100"
+        mat-button
+        [matMenuTriggerFor]="matResultsMenu"
+      >
+        <span class="font-medium text-sm text-gray-500">{{ buttonMenu }}</span>
+      </button> 
+      }
+    </div>
+    <mat-menu #matResultsMenu="matMenu">
+      <button mat-menu-item *ngFor="let menu of menus" (click)="onMenuClick(menu)">
+        @if(menu.icon){
+          <mat-icon [svgIcon]="menu.icon"></mat-icon>
+        }
+        <span>Menu</span>
+      </button>
+    </mat-menu>
+  </div>
+  <!-- Content Section -->
+  <div class="px-4 pb-4">
+    <!-- using ng-template with ngTemplateOutlet instead of ng-content -->
+    <ng-template [ngTemplateOutlet]="templateRef"></ng-template>
+  </div>
+</fuse-card>

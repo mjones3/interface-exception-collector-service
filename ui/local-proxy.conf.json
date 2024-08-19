@@ -1,0 +1,29 @@
+[
+    {
+        "context": ["/v1"],
+        "target": "http://localhost:8080/v1",
+        "secure": true,
+        "changeOrigin": true,
+        "pathRewrite": {
+            "^/v1": ""
+        }
+    },
+    {
+        "context": ["/request-token"],
+        "target": "http://localhost:8080/request-token",
+        "secure": true,
+        "changeOrigin": true,
+        "pathRewrite": {
+            "^/request-token": ""
+        }
+    },
+    {
+        "context": ["/graphql"],
+        "target": "http://localhost:8080/graphql",
+        "secure": true,
+        "changeOrigin": true,
+        "pathRewrite": {
+            "^/graphql": ""
+        }
+    }
+]
