@@ -11,11 +11,13 @@ import reactor.core.publisher.Mono;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class CustomerRsocketClient {
 
-    @Qualifier("customer")
     private final RSocketRequester rSocketRequester;
+
+    public CustomerRsocketClient( @Qualifier("customer") RSocketRequester rSocketRequester) {
+        this.rSocketRequester = rSocketRequester;
+    }
 
     public Mono<CustomerDTO> getCustomerByCode(CustomerByCodeRequestPayloadDTO request) {
         return rSocketRequester
