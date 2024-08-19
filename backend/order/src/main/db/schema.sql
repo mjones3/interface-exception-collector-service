@@ -38,9 +38,8 @@ CREATE UNIQUE INDEX uq_idx_lk_order_product_family ON lk_order_product_family (f
 CREATE TABLE bld_order (
    id                         BIGSERIAL                          NOT NULL CONSTRAINT pk_bld_order PRIMARY KEY,
    order_number               BIGSERIAL                          NOT NULL
-);
 
-CREATE UNIQUE INDEX uq_idx_bld_order_external_id ON bld_order (external_id);
+);
 
 CREATE TABLE bld_order_item (
     id                BIGSERIAL                   NOT NULL CONSTRAINT pk_bld_order_item PRIMARY KEY,
