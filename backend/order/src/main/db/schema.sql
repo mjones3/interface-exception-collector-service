@@ -35,7 +35,7 @@ CREATE TABLE lk_order_product_family (
 
 CREATE UNIQUE INDEX uq_idx_lk_order_product_family ON lk_order_product_family (family_category, family_type);
 
-DROP TABLE bld_order CASCADE
+DROP TABLE bld_order CASCADE;
 
 DROP TABLE bld_order_item CASCADE;
 
