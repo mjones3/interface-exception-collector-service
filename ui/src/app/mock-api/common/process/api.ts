@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { FuseMockApiService } from '@fuse/lib/mock-api';
-import { Environment } from '@shared';
+import { EnvironmentConfigService } from '@shared';
 import { cloneDeep } from 'lodash-es';
 import { process, productVersion } from './data';
 
@@ -12,7 +12,10 @@ export class ProcessMockApi {
     /**
      * Constructor
      */
-    constructor(private _fuseMockApiService: FuseMockApiService) {}
+    constructor(
+        private environmentConfigService: EnvironmentConfigService,
+        private _fuseMockApiService: FuseMockApiService
+    ) {}
 
     // -----------------------------------------------------------------------------------------------------
     // @ Public methods
@@ -21,12 +24,14 @@ export class ProcessMockApi {
     /**
      * Register Mock API handlers
      */
-    registerHandlers(environment: Environment): void {
+    registerHandlers(): void {
         // -----------------------------------------------------------------------------------------------------
         // @ Navigation - GET
         // -----------------------------------------------------------------------------------------------------
         this._fuseMockApiService
-            .onGet(`${environment.serverApiURL}/v1/processes/products/:uuid`)
+            .onGet(
+                `${this.environmentConfigService.env.serverApiURL}/v1/processes/products/:uuid`
+            )
             .reply(() => {
                 // Return the response
                 return [200, cloneDeep(this._process)];
@@ -34,7 +39,7 @@ export class ProcessMockApi {
 
         this._fuseMockApiService
             .onGet(
-                `${environment.serverApiURL}/v1/processes/products-version/:uuid`
+                `${this.environmentConfigService.env.serverApiURL}/v1/processes/products-version/:uuid`
             )
             .reply(() => {
                 // Return the response

@@ -28,6 +28,9 @@ public class OrderDetailsPage extends CommonPageFactory {
     @FindBy(id = "orderInfoComment")
     private WebElement orderInfoComment;
 
+    @FindBy(xpath = "//*[@class='p-datatable-loading-overlay']")
+    private WebElement tableLoadingOverlay;
+
     //Dynamic locators
     private String orderInformationDetail(String param) {
         return String.format("//*[@id='orderInfoDescriptions']/*//span[normalize-space()='%s']", param);
@@ -53,6 +56,7 @@ public class OrderDetailsPage extends CommonPageFactory {
     @Override
     public boolean isLoaded() {
         sharedActions.waitForVisible(orderDetailsTitle);
+        sharedActions.waitForNotVisible(tableLoadingOverlay);
         return sharedActions.isElementVisible(orderDetailsTitle);
     }
 

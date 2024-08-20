@@ -1,19 +1,25 @@
 import { gql } from 'apollo-angular';
+import { ShipmentDetailResponseDTO, ShipmentResponseDTO } from '../../../models/shipment-info.dto';
 
-const LIST_SHIPMENT = gql`
+const LIST_SHIPMENTS = gql<
+    { listShipments: ShipmentResponseDTO[] },
+    never
+>`
   query listShipments {
     listShipments {
       id
       orderNumber
       priority
       status
-      status
       createDate
     }
   }
 `;
 
-const GET_SHIPMENT_BY_ID = gql`
+const GET_SHIPMENT_BY_ID = gql<
+    { getShipmentDetailsById: ShipmentDetailResponseDTO },
+    { shipmentId: number }
+>`
   query getShipmentDetailsById($shipmentId: ID!) {
     getShipmentDetailsById(shipmentId: $shipmentId) {
       id
@@ -75,4 +81,4 @@ const GET_SHIPMENT_BY_ID = gql`
   }
 `;
 
-export { LIST_SHIPMENT, GET_SHIPMENT_BY_ID };
+export { LIST_SHIPMENTS, GET_SHIPMENT_BY_ID };

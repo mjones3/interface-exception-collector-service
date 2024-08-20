@@ -37,6 +37,9 @@ public class SearchOrderPage extends CommonPageFactory {
     @FindBy(xpath = "//h3/*[text()='Search Orders']")
     private WebElement searchOrdersTitle;
 
+    @FindBy(xpath = "//*[@class='p-datatable-loading-overlay']")
+    private WebElement tableLoadingOverlay;
+
     @FindAll({
         @FindBy(xpath = "//tr[contains(@id,'order-table-row')]//td[position()=3]")
     })
@@ -62,6 +65,7 @@ public class SearchOrderPage extends CommonPageFactory {
     @Override
     public boolean isLoaded() {
         sharedActions.waitForVisible(searchOrdersTitle);
+        sharedActions.waitForNotVisible(tableLoadingOverlay);
         return sharedActions.isElementVisible(searchOrdersTitle);
     }
 

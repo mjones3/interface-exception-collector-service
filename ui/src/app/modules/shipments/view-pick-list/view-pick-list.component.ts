@@ -7,7 +7,7 @@ import { DEFAULT_PAGE_SIZE } from 'app/core/models/browser-printing.model';
 import { BrowserPrintingService } from 'app/core/services/browser-printing/browser-printing.service';
 import { Observable } from 'rxjs';
 import { ProductFamilyMap } from '../../../shared/models/product-family.model';
-import { ShipmentInfoDto } from '../models/shipment-info.dto';
+import { ShipmentDetailResponseDTO } from '../models/shipment-info.dto';
 
 @Component({
     selector: 'app-view-pick-list',
@@ -16,11 +16,11 @@ import { ShipmentInfoDto } from '../models/shipment-info.dto';
     templateUrl: './view-pick-list.component.html',
 })
 export class ViewPickListComponent {
-    model$: Observable<ShipmentInfoDto>;
+    model$: Observable<ShipmentDetailResponseDTO>;
 
     constructor(private browserPrintingService: BrowserPrintingService) {}
 
-    hasAnyShortDate(model: ShipmentInfoDto): boolean {
+    hasAnyShortDate(model: ShipmentDetailResponseDTO): boolean {
         return !!model?.items?.some((i) => i.shortDateProducts?.length);
     }
 

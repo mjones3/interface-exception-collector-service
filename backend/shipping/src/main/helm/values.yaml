@@ -32,7 +32,7 @@ istio:
   gateway: rsa-gateway
   services:
     - uri:
-        prefix: /v1/shipping
+        prefix: /shipping/graphql
 
 serviceAccount:
   # Specifies whether a service account should be created
