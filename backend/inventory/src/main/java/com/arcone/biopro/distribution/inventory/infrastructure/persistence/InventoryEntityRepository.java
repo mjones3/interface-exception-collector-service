@@ -22,9 +22,9 @@ public interface InventoryEntityRepository extends ReactiveCrudRepository<Invent
 
     Flux<InventoryEntity> findAllByLocationAndProductFamilyAndAboRhInAndInventoryStatusOrderByExpirationDateAsc(String location, ProductFamily productFamily, List<AboRhType> aboRh, InventoryStatus inventoryStatus);
 
-    Mono<Long> countByLocationAndProductFamilyAndAboRhInAndInventoryStatus(String location, ProductFamily productFamily, List<AboRhType> aboRh, InventoryStatus inventoryStatus);
+    Mono<Long> countByLocationAndProductFamilyAndAboRhInAndInventoryStatusAndExpirationDateAfter(String location, ProductFamily productFamily, List<AboRhType> aboRh, InventoryStatus inventoryStatus, LocalDateTime dateTime);
 
-    Flux<InventoryEntity> findAllByLocationAndProductFamilyAndAboRhInAndInventoryStatusAndExpirationDateBeforeOrderByExpirationDateAsc(String location, ProductFamily productFamily, List<AboRhType> aboRh, InventoryStatus inventoryStatus, LocalDateTime timeFrame);
+    Flux<InventoryEntity> findAllByLocationAndProductFamilyAndAboRhInAndInventoryStatusAndExpirationDateBetweenOrderByExpirationDateAsc(String location, ProductFamily productFamily, List<AboRhType> aboRh, InventoryStatus inventoryStatus, LocalDateTime initialDate, LocalDateTime finalDate);
 
 
 }
