@@ -35,10 +35,10 @@ import { of, switchMap } from 'rxjs';
 import { catchError, take } from 'rxjs/operators';
 import { ProductFamilyMap } from '../../../shared/models/product-family.model';
 import {
-    FilledProductInfoDto,
+    ShipmentItemPackedDTO,
     ShipmentCompleteInfoDto,
-    ShipmentInfoDto,
-    ShipmentInfoItemDto,
+    ShipmentDetailResponseDTO,
+    ShipmentItemResponseDTO,
 } from '../models/shipment-info.dto';
 import { PackingListService } from '../services/packing-list.service';
 import { ShipmentService } from '../services/shipment.service';
@@ -96,12 +96,12 @@ export class ShipmentDetailsComponent implements OnInit {
     expandedRows = {};
     orderInfoDescriptions: Description[] = [];
     shippingInfoDescriptions: Description[] = [];
-    shipmentInfo: ShipmentInfoDto;
-    products: ShipmentInfoItemDto[] = [];
+    shipmentInfo: ShipmentDetailResponseDTO;
+    products: ShipmentItemResponseDTO[] = [];
     processProductConfig: ProcessProductModel;
     shippedInfoData: ShipmentCompleteInfoDto[] = [];
     loggedUserId: string;
-    packedItems: FilledProductInfoDto[] = [];
+    packedItems: ShipmentItemPackedDTO[] = [];
 
     get filledProductsCount() {
         return this.packedItems?.length;
@@ -121,7 +121,7 @@ export class ShipmentDetailsComponent implements OnInit {
 
     get totalProducts(): number {
         return this.products.reduce<number>(
-            (previousValue: number, currentValue: ShipmentInfoItemDto) =>
+            (previousValue: number, currentValue: ShipmentItemResponseDTO) =>
                 previousValue + +currentValue?.quantity,
             0
         );
@@ -133,7 +133,7 @@ export class ShipmentDetailsComponent implements OnInit {
 
     fetchShipmentDetails(): void {
         this.shipmentService
-            .getShipmentById(this.shipmentId, true)
+            .getShipmentById(this.shipmentId)
             .subscribe((result) => {
                 this.shipmentInfo = result.data?.getShipmentDetailsById;
                 this.products =
@@ -149,8 +149,8 @@ export class ShipmentDetailsComponent implements OnInit {
     }
 
     private convertItemToProduct(
-        item: ShipmentInfoItemDto
-    ): ShipmentInfoItemDto {
+        item: ShipmentItemResponseDTO
+    ): ShipmentItemResponseDTO {
         return {
             id: item.id,
             quantity: item.quantity,
@@ -191,7 +191,7 @@ export class ShipmentDetailsComponent implements OnInit {
             this.shipmentService.getShippingInfoDescriptions(this.shipmentInfo);
     }
 
-    fillProducts(item: ShipmentInfoItemDto): void {
+    fillProducts(item: ShipmentItemResponseDTO): void {
         const url = `shipment/${this.shipmentId}/fill-products/${item.id}`;
         this._router.navigateByUrl(url);
     }

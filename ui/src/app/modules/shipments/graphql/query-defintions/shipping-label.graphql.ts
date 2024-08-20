@@ -1,6 +1,10 @@
 import { gql } from 'apollo-angular';
+import { ShippingLabelDTO } from '../../models/shipping-label.model';
 
-export const GENERATE_SHIPPING_LABEL = gql`
+export const GENERATE_SHIPPING_LABEL = gql<
+    { generateShippingLabel: ShippingLabelDTO },
+    { shipmentId: number }
+>`
     query GenerateShippingLabel($shipmentId: ID!) {
         generateShippingLabel(shipmentId: $shipmentId) {
             shipmentId

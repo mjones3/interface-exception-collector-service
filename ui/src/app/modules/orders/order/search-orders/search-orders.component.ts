@@ -5,18 +5,12 @@ import { MatDividerModule } from '@angular/material/divider';
 import { Router } from '@angular/router';
 import { ApolloError } from '@apollo/client';
 import { FuseCardComponent } from '@fuse/components/card/public-api';
-import {
-    Column,
-    FacilityService,
-    ProcessHeaderComponent,
-    ProcessHeaderService,
-} from '@shared';
+import { Column, FacilityService, ProcessHeaderComponent, ProcessHeaderService } from '@shared';
 import { ToastrService } from 'ngx-toastr';
 import { Table, TableLazyLoadEvent, TableModule } from 'primeng/table';
-import { BehaviorSubject, Subject, finalize } from 'rxjs';
-import { DynamicGraphqlPathService } from '../../../../core/services/dynamic-graphql-path.service';
-import { SEARCH_ORDERS } from '../../../shipments/graphql/order/query-definitions/search-orders.graphql';
+import { BehaviorSubject, finalize, Subject } from 'rxjs';
 import { OrderReportDTO } from '../../models/search-order.model';
+import { OrderService } from '../../services/order.service';
 
 @Component({
     selector: 'app-search-orders',
@@ -127,19 +121,16 @@ export class SearchOrdersComponent {
     );
 
     constructor(
-        public facilityService: FacilityService,
-        public graphqlService: DynamicGraphqlPathService,
-        public router: Router,
-        public toaster: ToastrService,
-        public header: ProcessHeaderService
+        public header: ProcessHeaderService,
+        private facilityService: FacilityService,
+        private orderService: OrderService,
+        private router: Router,
+        private toaster: ToastrService,
     ) {}
 
     fetchOrders(event: TableLazyLoadEvent) {
         const facilityCode = this.facilityService.getFacilityCode();
-        this.graphqlService
-            .executeQuery('/order/graphql', SEARCH_ORDERS, {
-                orderQueryCommandDTO: { locationCode: facilityCode },
-            })
+        this.orderService.searchOrders({ locationCode: facilityCode })
             .pipe(finalize(() => (this.loading = false)))
             .subscribe({
                 next: (response) => {

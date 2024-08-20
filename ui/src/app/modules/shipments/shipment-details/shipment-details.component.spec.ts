@@ -8,7 +8,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ApolloModule } from 'apollo-angular';
 import { ApolloTestingModule } from 'apollo-angular/testing';
 import { ToastrModule } from 'ngx-toastr';
-import { ShipmentInfoItemDto } from '../models/shipment-info.dto';
+import { of } from 'rxjs';
 import { ShipmentService } from '../services/shipment.service';
 import { ShipmentDetailsComponent } from './shipment-details.component';
 
@@ -46,6 +46,7 @@ describe('ShipmentDetailsComponent', () => {
                         },
                     },
                 },
+                ShipmentService,
             ],
         }).compileComponents();
     });
@@ -55,6 +56,9 @@ describe('ShipmentDetailsComponent', () => {
         component = fixture.componentInstance;
         shipmentService = TestBed.inject(ShipmentService);
         router = TestBed.inject(Router);
+        jest.spyOn(shipmentService, 'getShipmentById').mockReturnValue(of());
+        jest.spyOn(router, 'navigateByUrl');
+        jest.spyOn(shipmentService, 'completeShipment').mockReturnValue(of());
         fixture.detectChanges();
     });
 
@@ -63,16 +67,13 @@ describe('ShipmentDetailsComponent', () => {
     });
 
     it('should fetch shipment details', () => {
-        jest.spyOn(shipmentService, 'getShipmentById');
         component.fetchShipmentDetails();
         expect(shipmentService.getShipmentById).toHaveBeenCalledWith(
-            SHIPMENT_ID,
-            true
+            SHIPMENT_ID
         );
     });
 
     it('should navigate back to search order', () => {
-        jest.spyOn(router, 'navigateByUrl');
         component.backToSearch();
         expect(router.navigateByUrl).toHaveBeenCalledWith('/orders/search');
     });
@@ -81,8 +82,7 @@ describe('ShipmentDetailsComponent', () => {
         const shipment = {
             id: '1',
         };
-        jest.spyOn(router, 'navigateByUrl');
-        component.fillProducts(shipment as ShipmentInfoItemDto);
+        component.fillProducts(shipment);
         expect(router.navigateByUrl).toHaveBeenCalledWith(
             'shipment/1/fill-products/1'
         );
@@ -90,7 +90,6 @@ describe('ShipmentDetailsComponent', () => {
 
     it('should complete on click complete shipment button', () => {
         component.loggedUserId = 'user-id-12';
-        jest.spyOn(shipmentService, 'completeShipment');
         component.completeShipment();
         expect(shipmentService.completeShipment).toHaveBeenCalledWith({
             shipmentId: 1,

@@ -1,84 +1,50 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ApolloQueryResult } from '@apollo/client';
-import { Apollo } from 'apollo-angular';
 import { Description } from 'app/shared/models/description.model';
-import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
-import {
-    COMPLETE_SHIPMENT,
-    PACK_ITEM,
-} from '../graphql/shipment/mutation-definitions/shipment.graphql';
-import {
-    GET_SHIPMENT_BY_ID,
-    LIST_SHIPMENT,
-} from '../graphql/shipment/query-definitions/shipment.graphql';
-import { ShipmentInfoDto, VerifyProductDto } from '../models/shipment-info.dto';
+import { Observable } from 'rxjs';
+import { COMPLETE_SHIPMENT, PACK_ITEM } from '../graphql/shipment/mutation-definitions/shipment.graphql';
+import { GET_SHIPMENT_BY_ID, LIST_SHIPMENTS } from '../graphql/shipment/query-definitions/shipment.graphql';
+import { ShipmentDetailResponseDTO, ShipmentResponseDTO, VerifyProductDTO } from '../models/shipment-info.dto';
+import { DynamicGraphqlPathService } from '../../../core/services/dynamic-graphql-path.service';
+import { RuleResponseDTO } from '../../../shared/models/rule.model';
+import { MutationResult } from 'apollo-angular';
 
 @Injectable({
     providedIn: 'root',
 })
 export class ShipmentService {
-    err = new Error('test');
 
-    constructor(private apollo: Apollo) {}
+    readonly servicePath = '/shipping/graphql';
 
-    //#region SHIPMENT
+    constructor(private dynamicGraphqlPathService: DynamicGraphqlPathService) {}
 
-    public listShipments(
-        criteria?: object,
-        refetch = false
-    ): Observable<ApolloQueryResult<{ listShipments: [] }>> {
-        return this.apollo.query<{ listShipments: [] }>({
-            query: LIST_SHIPMENT,
-            ...(refetch ? { fetchPolicy: 'network-only' } : {}),
-        });
+    public listShipments()
+        : Observable<ApolloQueryResult<{ listShipments: ShipmentResponseDTO[] }>> {
+        return this.dynamicGraphqlPathService
+            .executeQuery(this.servicePath, LIST_SHIPMENTS);
     }
 
-    public completeShipment(inputs: any, refetch = false) {
-        return this.apollo
-            .mutate({
-                mutation: COMPLETE_SHIPMENT,
-                variables: {
-                    shipmentId: inputs.shipmentId,
-                    employeeId: inputs.employeeId,
-                },
-            })
-            .pipe(catchError(this.errorHandler));
+    public completeShipment(inputs: { shipmentId: number, employeeId: string })
+        : Observable<MutationResult<{ completeShipment: RuleResponseDTO }>> {
+        return this.dynamicGraphqlPathService
+            .executeMutation(this.servicePath, COMPLETE_SHIPMENT, inputs);
     }
 
-    public verifyShipmentProduct(shipment: VerifyProductDto) {
-        return this.apollo
-            .mutate({
-                mutation: PACK_ITEM,
-                variables: {
-                    shipmentItemId: shipment.shipmentItemId,
-                    locationCode: shipment.locationCode,
-                    unitNumber: shipment.unitNumber,
-                    employeeId: shipment.employeeId,
-                    productCode: shipment.productCode,
-                    visualInspection: shipment.visualInspection,
-                },
-            })
-            .pipe(catchError(this.errorHandler));
+    public verifyShipmentProduct(verifyProductDTO: VerifyProductDTO)
+        : Observable<MutationResult<{ packItem: RuleResponseDTO }>> {
+        return this.dynamicGraphqlPathService
+            .executeMutation(this.servicePath, PACK_ITEM, verifyProductDTO);
     }
 
-    public getShipmentById(
-        shipmentId: number,
-        refetch = false
-    ): Observable<
-        ApolloQueryResult<{ getShipmentDetailsById: ShipmentInfoDto }>
-    > {
-        return this.apollo.query<{ getShipmentDetailsById: ShipmentInfoDto }>({
-            query: GET_SHIPMENT_BY_ID,
-            variables: { shipmentId },
-            ...(refetch ? { fetchPolicy: 'network-only' } : {}),
-        });
+    public getShipmentById(shipmentId: number)
+        : Observable<ApolloQueryResult<{ getShipmentDetailsById: ShipmentDetailResponseDTO }>> {
+        return this.dynamicGraphqlPathService
+            .executeQuery(this.servicePath, GET_SHIPMENT_BY_ID, { shipmentId });
     }
 
     //#region Descriptions
     public getOrderInfoDescriptions(
-        shipmentInfo: ShipmentInfoDto
+        shipmentInfo: ShipmentDetailResponseDTO
     ): Description[] {
         return [
             {
@@ -97,7 +63,7 @@ export class ShipmentService {
     }
 
     public getShippingInfoDescriptions(
-        shipmentInfo: ShipmentInfoDto
+        shipmentInfo: ShipmentDetailResponseDTO
     ): Description[] {
         return [
             { label: 'Shipment Id', value: shipmentInfo.id.toString() },
@@ -117,9 +83,4 @@ export class ShipmentService {
         ];
     }
 
-    //#endregion
-
-    public errorHandler(error: HttpErrorResponse): Observable<any> {
-        return throwError(() => error);
-    }
 }

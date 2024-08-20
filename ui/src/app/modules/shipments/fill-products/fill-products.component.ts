@@ -31,11 +31,11 @@ import { TableModule } from 'primeng/table';
 import { catchError, finalize, take } from 'rxjs';
 import { ProductFamilyMap } from '../../../shared/models/product-family.model';
 import {
-    FilledProductInfoDto,
-    ShipmentInfoDto,
-    ShipmentInfoItemDto,
+    ShipmentDetailResponseDTO,
+    ShipmentItemPackedDTO,
+    ShipmentItemResponseDTO,
     VerifyFilledProductDto,
-    VerifyProductDto,
+    VerifyProductDTO,
 } from '../models/shipment-info.dto';
 import { ShipmentService } from '../services/shipment.service';
 import { EnterUnitNumberProductCodeComponent } from '../shared/enter-unit-number-product-code/enter-unit-number-product-code.component';
@@ -60,16 +60,15 @@ import { OrderWidgetsSidebarComponent } from '../shared/order-widgets-sidebar/or
     ],
     templateUrl: './fill-products.component.html',
     styleUrl: './fill-products.component.scss',
-    providers: [ShipmentService],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FillProductsComponent implements OnInit {
-    filledProductsData: FilledProductInfoDto[] = [];
+    filledProductsData: ShipmentItemPackedDTO[] = [];
     orderInfoDescriptions: Description[] = [];
     shippingInfoDescriptions: Description[] = [];
     prodInfoDescriptions: Description[] = [];
-    shipmentInfo: ShipmentInfoDto;
-    shipmentProduct: ShipmentInfoItemDto;
+    shipmentInfo: ShipmentDetailResponseDTO;
+    shipmentProduct: ShipmentItemResponseDTO;
     prodIcon: string;
     loading = false;
     unitNumberFocus = true;
@@ -106,7 +105,7 @@ export class FillProductsComponent implements OnInit {
 
     fetchShipmentDetails(): void {
         this.shipmentService
-            .getShipmentById(this.shipmentId, true)
+            .getShipmentById(this.shipmentId)
             .subscribe((result) => {
                 this.shipmentInfo = result.data?.getShipmentDetailsById;
                 this.shipmentProduct = this.shipmentInfo?.items?.find(
@@ -230,7 +229,7 @@ export class FillProductsComponent implements OnInit {
 
     private getVerifyUnitNumberProductCodeDto(
         item: VerifyFilledProductDto
-    ): VerifyProductDto {
+    ): VerifyProductDTO {
         return {
             shipmentItemId: +this.productId,
             unitNumber: item.unitNumber,

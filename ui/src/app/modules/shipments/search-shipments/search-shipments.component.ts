@@ -10,7 +10,7 @@ import {
     ProcessHeaderComponent,
     ProcessHeaderService,
 } from '@shared';
-import { ShipmentInfoDto } from 'app/modules/shipments/models/shipment-info.dto';
+import { ShipmentDetailResponseDTO } from 'app/modules/shipments/models/shipment-info.dto';
 import { ToastrService } from 'ngx-toastr';
 import { LazyLoadEvent } from 'primeng/api';
 import { Table, TableModule } from 'primeng/table';
@@ -112,7 +112,7 @@ export class SearchShipmentsComponent {
     ];
 
     orders: any[] = [];
-    shipmentInfo: ShipmentInfoDto;
+    shipmentInfo: ShipmentDetailResponseDTO;
     totalRecords = 0;
     loading = true;
     defaultRowsPerPage = 10;
@@ -148,7 +148,7 @@ export class SearchShipmentsComponent {
         }
 
         this.shipmentService
-            .listShipments({}, true)
+            .listShipments()
             .pipe(finalize(() => (this.loading = false)))
             .subscribe({
                 next: (response) => {

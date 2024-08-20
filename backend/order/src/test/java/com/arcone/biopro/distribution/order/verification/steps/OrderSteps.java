@@ -2,6 +2,7 @@ package com.arcone.biopro.distribution.order.verification.steps;
 
 import com.arcone.biopro.distribution.order.application.dto.OrderReceivedEventDTO;
 import com.arcone.biopro.distribution.order.verification.controllers.OrderController;
+import com.arcone.biopro.distribution.order.verification.pages.SharedActions;
 import com.arcone.biopro.distribution.order.verification.pages.order.HomePage;
 import com.arcone.biopro.distribution.order.verification.pages.order.OrderDetailsPage;
 import com.arcone.biopro.distribution.order.verification.pages.order.SearchOrderPage;
@@ -47,6 +48,9 @@ public class OrderSteps {
     private OrderController orderController = new OrderController();
     private JSONObject partnerOrder;
     private boolean isLoggedIn = false;
+
+    @Autowired
+    private SharedActions sharedActions;
 
     @Autowired
     private TestUtils testUtils;
