@@ -29,17 +29,7 @@ class LabelAppliedUseCase implements UseCase<Mono<InventoryOutput>, InventoryInp
                 if (exists) {
                     return Mono.error(new InventoryAlreadyExistsException());
                 } else {
-                    return inventoryAggregateRepository.saveInventory(
-                        InventoryAggregate.builder().build().createInventory(
-                            input.unitNumber(),
-                            input.productCode(),
-                            input.shortDescription(),
-                            input.expirationDate(),
-                            input.collectionDate(),
-                            input.location(),
-                            input.productFamily(),
-                            input.aboRh())
-                    );
+                    return inventoryAggregateRepository.saveInventory(mapper.toAggregate(input));
                 }
             })
             .map(InventoryAggregate::getInventory)

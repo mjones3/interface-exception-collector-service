@@ -1,13 +1,10 @@
 package com.arcone.biopro.distribution.inventory.application.mapper;
 
-import com.arcone.biopro.distribution.inventory.application.dto.GetAllAvailableInventoriesOutput;
-import com.arcone.biopro.distribution.inventory.application.dto.InventoryFamily;
-import com.arcone.biopro.distribution.inventory.application.dto.InventoryOutput;
-import com.arcone.biopro.distribution.inventory.application.dto.Product;
+import com.arcone.biopro.distribution.inventory.application.dto.*;
 import com.arcone.biopro.distribution.inventory.domain.model.Inventory;
 import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhCriteria;
-import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ErrorMessage;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ProductFamily;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -36,4 +33,24 @@ public interface InventoryOutputMapper {
     @Mapping(target = "storageLocation", source = "inventory.location")
     @Mapping(target = "aboRh", source = "inventory.aboRh")
     Product toOutput(InventoryAggregate inventoryAggregate);
+
+    @Mapping(target = "inventoryOutput", source = "inventory")
+    ValidateInventoryOutput toValidateInventoryOutput(InventoryAggregate inventoryAggregate);
+
+    @Mapping(target = "inventoryOutput", ignore = true)
+    ValidateInventoryOutput toOutput(ErrorMessage errorMessage);
+
+    @Mapping(target = "inventory.unitNumber.value", source = "unitNumber")
+    @Mapping(target = "inventory.productCode.value", source = "productCode")
+    @Mapping(target = "inventory.shortDescription", source = "shortDescription")
+    @Mapping(target = "inventory.expirationDate", source = "expirationDate")
+    @Mapping(target = "inventory.collectionDate", source = "collectionDate")
+    @Mapping(target = "inventory.location", source = "location")
+    @Mapping(target = "inventory.productFamily", source = "productFamily")
+    @Mapping(target = "inventory.aboRh", source = "aboRh")
+    @Mapping(target = "inventory.id", expression = "java(java.util.UUID.randomUUID())")
+    @Mapping(target = "inventory.inventoryStatus", expression = "java(com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus.AVAILABLE)")
+    @Mapping(target = "errorMessage", ignore = true)
+    InventoryAggregate toAggregate(InventoryInput input);
+
 }

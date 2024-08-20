@@ -16,6 +16,8 @@ public interface InventoryEntityRepository extends ReactiveCrudRepository<Invent
 
     Mono<InventoryEntity> findByUnitNumberAndProductCode(String unitNumber, String productCode);
 
+    Mono<InventoryEntity> findByUnitNumberAndProductCodeAndLocationAndInventoryStatusIn(String unitNumber, String productCode, String location, List<InventoryStatus> statuses);
+
     Mono<Boolean> existsByLocationAndUnitNumberAndProductCode(String location, String unitNumber, String productCode);
 
     Flux<InventoryEntity> findAllByLocationAndProductFamilyAndAboRhInAndInventoryStatusOrderByExpirationDateAsc(String location, ProductFamily productFamily, List<AboRhType> aboRh, InventoryStatus inventoryStatus);
