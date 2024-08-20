@@ -9,3 +9,6 @@ spec:
   ports:
     - name: http
       port: 8080
+    - name: rsocket
+      port: 7002
+

@@ -26,6 +26,9 @@ spring:
   config:
     activate:
       on-profile: '!telemetry'
+  rsocket:
+    server:
+      port: 7002
 otel:
     sdk:
         disabled: true
@@ -268,3 +271,7 @@ application:
       audience:
         - account
         - api://default
+
+topic:
+  label-applied:
+    name: LabelApplied
