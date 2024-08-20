@@ -24,8 +24,8 @@ class ValidateInventoryUseCase implements UseCase<Mono<ValidateInventoryOutput>,
     @Override
     public Mono<ValidateInventoryOutput> execute(InventoryInput input) {
 
-        return inventoryAggregateRepository.findExistentByUnitNumberAndProductCodeAndLocation(input.unitNumber(), input.productCode(), input.location())
-            .map(inventoryAggregate -> mapper.toValidateInventoryOutput(inventoryAggregate.checkIfIsValidToShip()))
-            .switchIfEmpty(Mono.just(mapper.toOutput( ErrorMessage.INVENTORY_NOT_FOUND)));
+        return inventoryAggregateRepository.findByUnitNumberAndProductCode(input.unitNumber(), input.productCode())
+            .map(inventoryAggregate -> mapper.toValidateInventoryOutput(inventoryAggregate.checkIfIsValidToShip(input.location())))
+            .switchIfEmpty(Mono.just(mapper.toOutput(ErrorMessage.INVENTORY_NOT_EXIST)));
     }
 }

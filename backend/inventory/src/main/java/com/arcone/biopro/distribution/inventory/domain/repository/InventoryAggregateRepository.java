@@ -10,7 +10,7 @@ public interface InventoryAggregateRepository {
 
     Mono<InventoryAggregate> findByUnitNumberAndProductCode(String unitNumber, String productCode);
 
-    Mono<InventoryAggregate> findExistentByUnitNumberAndProductCodeAndLocation(String unitNumber, String productCode, String location);
+    Mono<InventoryAggregate> findByUnitNumberAndProductCodeAndLocation(String unitNumber, String productCode, String location);
 
     Mono<InventoryAggregate> saveInventory(InventoryAggregate inventoryAggregate);
 

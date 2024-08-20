@@ -164,10 +164,14 @@ public class RsocketSteps {
         StepVerifier
             .create(inventoryValidationResponseDTOMonoResult)
             .consumeNextWith(message -> {
-                if (!ErrorMessage.INVENTORY_NOT_FOUND.getCode().equals(errorCode)) {
+                if (!ErrorMessage.INVENTORY_NOT_EXIST.getCode().equals(errorCode)) {
                     assertThat(message.inventoryResponseDTO().unitNumber()).isEqualTo(unitNumber);
                     assertThat(message.inventoryResponseDTO().productCode()).isEqualTo(productCode);
-                    assertThat(message.inventoryResponseDTO().locationCode()).isEqualTo(location);
+
+                    if (!ErrorMessage.INVENTORY_NOT_FOUND_IN_LOCATION.getCode().equals(errorCode)) {
+                        assertThat(message.inventoryResponseDTO().locationCode()).isEqualTo(location);
+                    }
+
                 } else {
                     assertThat(message.inventoryResponseDTO()).isNull();
                 }

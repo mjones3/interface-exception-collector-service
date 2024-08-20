@@ -5,5 +5,6 @@ public enum InventoryStatus {
     AVAILABLE,
     QUARANTINED,
     DISCARDED,
+    UNSUITABLE,
     EXPIRED
 }

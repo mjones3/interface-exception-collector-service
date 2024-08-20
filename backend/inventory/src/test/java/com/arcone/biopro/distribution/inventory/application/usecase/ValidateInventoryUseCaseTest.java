@@ -52,9 +52,9 @@ class ValidateInventoryUseCaseTest {
 
     @Test
     void execute_shouldValidate_inventory_is_valid() {
-        InventoryInput input = new InventoryInput(UNIT_NUMBER, PRODUCT_CODE, LOCATION_1, null, null, null, null , null);
+        InventoryInput input = new InventoryInput(UNIT_NUMBER, PRODUCT_CODE, null, null, null, LOCATION_1, null , null);
 
-        when(inventoryAggregateRepository.findExistentByUnitNumberAndProductCodeAndLocation(any(), any(), any()))
+        when(inventoryAggregateRepository.findByUnitNumberAndProductCode(any(), any()))
             .thenReturn(Mono.just(createInventoryAggregate(InventoryStatus.AVAILABLE, LocalDateTime.now().plusDays(1))));
 
 
@@ -70,9 +70,9 @@ class ValidateInventoryUseCaseTest {
 
     @Test
     void execute_shouldValidate_inventory_is_expired() {
-        InventoryInput input = new InventoryInput(UNIT_NUMBER, PRODUCT_CODE, LOCATION_1, null, null, null, null , null);
+        InventoryInput input = new InventoryInput(UNIT_NUMBER, PRODUCT_CODE, null, null, null, LOCATION_1, null , null);
 
-        when(inventoryAggregateRepository.findExistentByUnitNumberAndProductCodeAndLocation(any(), any(), any()))
+        when(inventoryAggregateRepository.findByUnitNumberAndProductCode(any(), any()))
             .thenReturn(Mono.just(createInventoryAggregate(InventoryStatus.AVAILABLE, LocalDateTime.now().minusDays(1))));
 
 
@@ -81,16 +81,16 @@ class ValidateInventoryUseCaseTest {
         StepVerifier.create(result)
             .consumeNextWith(output -> {
                 assertThat(output).isNotNull();
-                assertThat(output.errorMessage()).isEqualTo(ErrorMessage.DATE_EXPIRED);
+                assertThat(output.errorMessage()).isEqualTo(ErrorMessage.INVENTORY_IS_EXPIRED);
             })
             .verifyComplete();
     }
 
     @Test
     void execute_shouldValidate_inventory_is_quarantined() {
-        InventoryInput input = new InventoryInput(UNIT_NUMBER, PRODUCT_CODE, LOCATION_1, null, null, null, null , null);
+        InventoryInput input = new InventoryInput(UNIT_NUMBER, PRODUCT_CODE, null, null, null, LOCATION_1, null , null);
 
-        when(inventoryAggregateRepository.findExistentByUnitNumberAndProductCodeAndLocation(any(), any(), any()))
+        when(inventoryAggregateRepository.findByUnitNumberAndProductCode(any(), any()))
             .thenReturn(Mono.just(createInventoryAggregate(InventoryStatus.QUARANTINED, LocalDateTime.now().plusDays(1))));
 
 
@@ -99,16 +99,16 @@ class ValidateInventoryUseCaseTest {
         StepVerifier.create(result)
             .consumeNextWith(output -> {
                 assertThat(output).isNotNull();
-                assertThat(output.errorMessage()).isEqualTo(ErrorMessage.STATUS_IN_QUARANTINE);
+                assertThat(output.errorMessage()).isEqualTo(ErrorMessage.INVENTORY_IS_QUARANTINED);
             })
             .verifyComplete();
     }
 
     @Test
     void execute_shouldValidate_inventory_is_not_found() {
-        InventoryInput input = new InventoryInput(UNIT_NUMBER, PRODUCT_CODE, LOCATION_1, null, null, null, null , null);
+        InventoryInput input = new InventoryInput(UNIT_NUMBER, PRODUCT_CODE, null, null, LOCATION_1, null, null , null);
 
-        when(inventoryAggregateRepository.findExistentByUnitNumberAndProductCodeAndLocation(any(), any(), any()))
+        when(inventoryAggregateRepository.findByUnitNumberAndProductCode(any(), any()))
             .thenReturn(Mono.empty());
 
 
@@ -117,7 +117,7 @@ class ValidateInventoryUseCaseTest {
         StepVerifier.create(result)
             .consumeNextWith(output -> {
                 assertThat(output).isNotNull();
-                assertThat(output.errorMessage()).isEqualTo(ErrorMessage.INVENTORY_NOT_FOUND);
+                assertThat(output.errorMessage()).isEqualTo(ErrorMessage.INVENTORY_NOT_EXIST);
             })
             .verifyComplete();
     }

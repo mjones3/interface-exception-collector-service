@@ -32,8 +32,8 @@ public class InventoryAggregateRepositoryImpl implements InventoryAggregateRepos
     }
 
     @Override
-    public Mono<InventoryAggregate> findExistentByUnitNumberAndProductCodeAndLocation(String unitNumber, String productCode, String location) {
-        return inventoryEntityRepository.findByUnitNumberAndProductCodeAndLocationAndInventoryStatusIn(unitNumber, productCode, location, List.of(InventoryStatus.AVAILABLE, InventoryStatus.EXPIRED, InventoryStatus.QUARANTINED))
+    public Mono<InventoryAggregate> findByUnitNumberAndProductCodeAndLocation(String unitNumber, String productCode, String location) {
+        return inventoryEntityRepository.findByUnitNumberAndProductCodeAndLocation(unitNumber, productCode, location)
             .map(inventoryEntityMapper::toAggregate);
     }
 
