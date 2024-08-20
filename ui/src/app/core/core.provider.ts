@@ -1,15 +1,27 @@
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { APP_INITIALIZER, ENVIRONMENT_INITIALIZER, EnvironmentProviders, inject, Provider } from '@angular/core';
+import {
+    HttpClient,
+    provideHttpClient,
+    withInterceptors,
+} from '@angular/common/http';
+import {
+    APP_INITIALIZER,
+    ENVIRONMENT_INITIALIZER,
+    EnvironmentProviders,
+    Provider,
+    inject,
+} from '@angular/core';
 import { ErrorStateMatcher } from '@angular/material/core';
 import { InMemoryCache } from '@apollo/client/cache';
 import { onError } from '@apollo/client/link/error';
-import { Apollo, APOLLO_NAMED_OPTIONS, NamedOptions } from 'apollo-angular';
+import { Environment } from '@shared';
+import { APOLLO_NAMED_OPTIONS, Apollo, NamedOptions } from 'apollo-angular';
 import { HttpLink } from 'apollo-angular/http';
 import { DefaultErrorStateMatcher } from 'app/shared/forms/default.error-match';
 import { AuthService, EnvironmentConfigService } from 'app/shared/services';
 import { ToastrImplService } from 'app/shared/services/toastr-impl.service';
 import { KeycloakConfig } from 'keycloak-js';
 import { ToastrService } from 'ngx-toastr';
+import { switchMap } from 'rxjs';
 import { NavigationMockApi } from '../mock-api/common/navigation/api';
 import { ProcessMockApi } from '../mock-api/common/process/api';
 import { authInterceptor } from './interceptors/auth.interceptor';
@@ -22,34 +34,47 @@ const provideApollo = (): Provider[] => [
         useFactory: (
             httpLink: HttpLink,
             environmentConfigService: EnvironmentConfigService
-        ): NamedOptions => (
+        ): NamedOptions =>
             [
                 '/graphql', // Default GraphQL path
                 '/order/graphql',
-                '/shipping/graphql'
-            ]
-            .reduce((instances: NamedOptions, path: string) => ({
-                ...instances,
-                [path]: {
-                    link: onError(
-                        ({ graphQLErrors, networkError }) => {
+                '/shipping/graphql',
+            ].reduce(
+                (instances: NamedOptions, path: string) => ({
+                    ...instances,
+                    [path]: {
+                        link: onError(({ graphQLErrors, networkError }) => {
                             if (graphQLErrors) {
-                                graphQLErrors.map(({ message, locations, path, extensions }) =>
-                                    console.error(`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}, Extensions: ${extensions}`)
+                                graphQLErrors.map(
+                                    ({
+                                        message,
+                                        locations,
+                                        path,
+                                        extensions,
+                                    }) =>
+                                        console.error(
+                                            `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}, Extensions: ${extensions}`
+                                        )
                                 );
                             }
                             if (networkError) {
-                                console.error(`[Network error]: ${networkError}`);
+                                console.error(
+                                    `[Network error]: ${networkError}`
+                                );
                             }
-                        })
-                        .concat(
-                            httpLink.create({ uri: environmentConfigService.env.serverApiURL + path })
+                        }).concat(
+                            httpLink.create({
+                                uri:
+                                    environmentConfigService.env.serverApiURL +
+                                    path,
+                            })
                         ),
-                    cache: new InMemoryCache({ addTypename: false }),
-                },
-            }), {})
-        ),
-        deps: [ HttpLink, EnvironmentConfigService ],
+                        cache: new InMemoryCache({ addTypename: false }),
+                    },
+                }),
+                {}
+            ),
+        deps: [HttpLink, EnvironmentConfigService],
     },
     Apollo,
 ];
@@ -69,6 +94,7 @@ export const provideCore = (): (Provider | EnvironmentProviders)[] => {
         {
             provide: APP_INITIALIZER,
             useFactory: (
+                http: HttpClient,
                 authService: AuthService,
                 processMockApi: ProcessMockApi,
                 navigationMockApi: NavigationMockApi,
@@ -76,18 +102,30 @@ export const provideCore = (): (Provider | EnvironmentProviders)[] => {
             ) => {
                 processMockApi.registerHandlers();
                 navigationMockApi.registerHandlers();
-                return () => authService.init({
-                    config: environmentConfigService.env as KeycloakConfig,
-                    initOptions: {
-                        onLoad: 'check-sso',
-                        silentCheckSsoRedirectUri:
-                            window.location.origin +
-                            '/assets/silent-check-sso.html',
-                    },
-                    bearerExcludedUrls: ['/assets', 'assets'],
-                });
+                return () =>
+                    http.get<Environment>('/settings.json').pipe(
+                        switchMap((settings: Environment) => {
+                            environmentConfigService.env = { ...settings };
+                            return authService.init({
+                                config: environmentConfigService.env as KeycloakConfig,
+                                initOptions: {
+                                    onLoad: 'check-sso',
+                                    silentCheckSsoRedirectUri:
+                                        window.location.origin +
+                                        '/assets/silent-check-sso.html',
+                                },
+                                bearerExcludedUrls: ['/assets', 'assets'],
+                            });
+                        })
+                    );
             },
-            deps: [ AuthService, ProcessMockApi, NavigationMockApi, EnvironmentConfigService ],
+            deps: [
+                HttpClient,
+                AuthService,
+                ProcessMockApi,
+                NavigationMockApi,
+                EnvironmentConfigService,
+            ],
             multi: true,
         },
         {

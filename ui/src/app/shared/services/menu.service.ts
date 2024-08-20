@@ -4,7 +4,6 @@ import { FuseNavigationItem } from '@fuse/components/navigation';
 import { Observable, ReplaySubject, tap, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { MenuModel } from '../models/index';
-import { EnvironmentConfigService } from './environment-config.service';
 
 declare const dT_: any;
 
@@ -13,19 +12,16 @@ declare const dT_: any;
     providedIn: 'root',
 })
 export class MenuService {
-    private _menus: ReplaySubject<MenuModel[]> = new ReplaySubject<MenuModel[]>(1);
+    readonly url = '/v1/menus';
 
-    constructor(
-        private httpClient: HttpClient,
-        private config: EnvironmentConfigService
-    ) {
+    private _menus: ReplaySubject<MenuModel[]> = new ReplaySubject<MenuModel[]>(
+        1
+    );
+
+    constructor(private httpClient: HttpClient) {
         if (typeof dT_ !== 'undefined' && dT_.initAngularNg) {
             dT_.initAngularNg(httpClient, Headers);
         }
-    }
-
-    get url(): string {
-        return `${this.config.env.serverApiURL}/v1/menus`;
     }
 
     get menus$(): Observable<FuseNavigationItem[]> {
