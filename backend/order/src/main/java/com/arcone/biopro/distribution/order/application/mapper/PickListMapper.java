@@ -4,8 +4,11 @@ import com.arcone.biopro.distribution.order.adapter.in.web.dto.PickListCustomerD
 import com.arcone.biopro.distribution.order.adapter.in.web.dto.PickListDTO;
 import com.arcone.biopro.distribution.order.adapter.in.web.dto.PickListItemDTO;
 import com.arcone.biopro.distribution.order.adapter.in.web.dto.PickListItemShortDateDTO;
+import com.arcone.biopro.distribution.order.domain.model.Order;
 import com.arcone.biopro.distribution.order.domain.model.PickList;
+import com.arcone.biopro.distribution.order.domain.model.PickListItem;
 import com.arcone.biopro.distribution.order.domain.model.ShortDateProduct;
+import com.arcone.biopro.distribution.order.domain.model.vo.PickListCustomer;
 import com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledItemDTO;
 import org.springframework.stereotype.Component;
 
@@ -52,5 +55,18 @@ public class PickListMapper {
                     .toList()
             )
             .build();
+    }
+
+    public PickList mapToDomain(Order order){
+
+        var pickList = new PickList(order.getOrderNumber().getOrderNumber() , order.getLocationCode() , order.getOrderStatus().getOrderStatus()
+            , new PickListCustomer(order.getShippingCustomer().getCode() , order.getShippingCustomer().getName()));
+
+        if(order.getOrderItems() != null){
+            order.getOrderItems().forEach(orderItem -> pickList.addPickListItem(new PickListItem(orderItem.getProductFamily().getProductFamily()
+                , orderItem.getBloodType().getBloodType() , orderItem.getQuantity() , orderItem.getComments() )));
+        }
+
+        return pickList;
     }
 }

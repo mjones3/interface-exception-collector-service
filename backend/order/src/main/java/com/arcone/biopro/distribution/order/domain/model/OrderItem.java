@@ -7,6 +7,7 @@ import com.arcone.biopro.distribution.order.domain.service.OrderConfigService;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import org.springframework.util.Assert;
 
 import java.time.ZonedDateTime;
 
@@ -23,6 +24,7 @@ public class OrderItem implements Validatable {
     private String comments;
     private ZonedDateTime createDate;
     private ZonedDateTime modificationDate;
+    private Integer quantityAvailable;
 
     public OrderItem(Long id, Long orderId, String productFamily, String bloodType, Integer quantity, String comments
         , ZonedDateTime createDate, ZonedDateTime modificationDate, String productCategory , OrderConfigService orderConfigService) {
@@ -34,6 +36,7 @@ public class OrderItem implements Validatable {
         this.comments = comments;
         this.createDate = createDate;
         this.modificationDate = modificationDate;
+        this.quantityAvailable = 0;
 
         this.checkValid();
     }
@@ -52,6 +55,12 @@ public class OrderItem implements Validatable {
         if(this.quantity < 1){
             throw new IllegalArgumentException("quantity cannot be less than 1");
         }
+    }
+
+    public void defineAvailableQuantity(Integer quantity){
+        Assert.notNull(quantity, "Quantity must not be null");
+        Assert.isTrue(quantity >=0 , "Quantity must not be negative");
+        this.quantityAvailable = quantity;
     }
 
 }

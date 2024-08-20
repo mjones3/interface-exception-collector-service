@@ -118,8 +118,8 @@ class OrderFulfilledMapperTest {
         Assertions.assertEquals("DELIVERY", dto.getDeliveryType());
         Assertions.assertEquals("NAME", dto.getBillingCustomerName());
         Assertions.assertEquals("NAME", dto.getShippingCustomerName());
-        Assertions.assertEquals(1L, dto.getBillingCustomerCode());
-        Assertions.assertEquals(1L, dto.getShippingCustomerCode());
+        Assertions.assertEquals("1", dto.getBillingCustomerCode());
+        Assertions.assertEquals("1", dto.getShippingCustomerCode());
         Assertions.assertEquals("DELIVERY", dto.getPriority());
         Assertions.assertEquals("STATUS", dto.getStatus());
         Assertions.assertEquals("LOCATION_CODE", dto.getLocationCode());
