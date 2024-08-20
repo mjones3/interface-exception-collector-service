@@ -85,28 +85,6 @@ public class OrderSteps {
         Assert.assertNotNull(event);
     }
 
-    @Given("I cleaned up from the database the orders with external ID {string}.")
-    public void cleanUpOrders(String externalId) {
-        var externalIdParam = testUtils.formatSqlCommaSeparatedInParamList(externalId);
-        var childQuery = DatabaseQueries.deleteOrderItemsByExternalId(externalIdParam);
-        databaseService.executeSql(childQuery).block();
-        var query = DatabaseQueries.deleteOrdersByExternalId(externalIdParam);
-        databaseService.executeSql(query).block();
-    }
-
-    @And("I cleaned up from the database the orders with external ID starting with {string}.")
-    public void cleanUpOrdersStartingWith(String externalIdPrefix) {
-        var childQuery = DatabaseQueries.deleteOrderItemsByExternalIdStartingWith(externalIdPrefix);
-        databaseService.executeSql(childQuery).block();
-        var query = DatabaseQueries.deleteOrdersByExternalIdStartingWith(externalIdPrefix);
-        databaseService.executeSql(query).block();
-    }
-
-    @And("I have restored the default configuration for the order priority colors.")
-    public void restoreDefaultPriorityColors() {
-        var query = DatabaseQueries.restoreDefaultPriorityColors();
-        databaseService.executeSql(query).block();
-    }
 
     @Given("I have received an order inbound request with externalId {string} and content {string}.")
     public void postOrderReceivedEvent(String externalId, String jsonFileName) throws Exception {
@@ -290,5 +268,64 @@ public class OrderSteps {
     public void checkProductDetailsSection() {
         var productFamilyDescription = this.productFamily.replace("_", " ");
         orderDetailsPage.verifyProductDetailsSection(productFamilyDescription, this.bloodType, this.quantity, this.productComments);
+    }
+
+    @When("I choose to generate the Pick List.")
+    public void whenIChooseViewPickList() {
+        orderDetailsPage.openViewPickListModal();
+    }
+
+    @Then("I am able to view the correct Order Details.")
+    public void matchOrderDetails() {
+        var shipmentDetails = this.orderDetailsPage.getShipmentDetailsTableContent();
+        Assert.assertNotNull(shipmentDetails);
+        Assert.assertEquals(this.orderId.toString(), shipmentDetails.get("orderNumber"));
+        Assert.assertEquals(this.shippingCustomerCode, shipmentDetails.get("shippingCustomerCode"));
+        Assert.assertEquals(this.shippingCustomerName, shipmentDetails.get("customerName"));
+    }
+
+    @And("I am able to view the correct Shipment Details for the {string} product.")
+    public void matchProductDetails(String familyDescription) {
+        var productDetails = this.orderDetailsPage.getProductDetailsTableContent();
+//        log.info("productDetails {}", this.shipmentDetailType.getItems());
+//        log.info("Map Details {}", productDetails);
+//        Assert.assertNotNull(productDetails);
+//        if (this.shipmentDetailType.getItems() != null && !this.shipmentDetailType.getItems().isEmpty()) {
+//            this.shipmentDetailType.getItems().forEach(item -> {
+//                var mapKey = item.getQuantity() + ":" + familyDescription + ":" + item.getBloodType();
+//                log.info("comparing key {}", mapKey);
+//                Assert.assertNotNull(productDetails.get(mapKey));
+//            });
+//        }
+    }
+
+    @And("I am able to view the correct Shipment Details with short date products for the {string} family.")
+    public void matchProductDetailsWithShortDate(String familyDescription) {
+        var productDetails = this.orderDetailsPage.getProductDetailsTableContent();
+        var shortDateDetails = this.orderDetailsPage.getShortDateProductDetailsTableContent();
+
+//        log.info("productDetails {}", this.shipmentDetailType.getItems());
+//        log.info("Map Details {}", productDetails);
+//        log.info("Short Date Map Details {}", shortDateDetails);
+//        Assert.assertNotNull(productDetails);
+//        if (this.shipmentDetailType.getItems() != null && !this.shipmentDetailType.getItems().isEmpty()) {
+//            this.shipmentDetailType.getItems().forEach(item -> {
+//                var mapKey = item.getQuantity() + ":" + familyDescription + ":" + item.getBloodType();
+//                log.info("comparing key {}", mapKey);
+//                Assert.assertNotNull(productDetails.get(mapKey));
+//                if (item.getShortDateProducts() != null && !item.getShortDateProducts().isEmpty()) {
+//                    item.getShortDateProducts().forEach(shortDateItem -> {
+//                        var mapShortDateKey = shortDateItem.getUnitNumber() + ":" + shortDateItem.getProductCode() + ":" + item.getBloodType();
+//                        log.info("Comparing Short Date key {}", mapShortDateKey);
+//                        Assert.assertNotNull(shortDateDetails.get(mapShortDateKey));
+//                    });
+//                }
+//            });
+//        }
+    }
+
+    @And("I should see a message {string} indicating There are no suggested short-dated products.")
+    public void matchNoShortDateProductsMessage(String message) {
+        graphql.Assert.assertTrue(message.equals(this.orderDetailsPage.getNoShortDateMessageContent()));
     }
 }

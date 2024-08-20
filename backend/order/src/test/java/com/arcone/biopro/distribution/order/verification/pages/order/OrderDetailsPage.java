@@ -6,17 +6,19 @@ import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.How;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class OrderDetailsPage extends CommonPageFactory {
     @Autowired
     private SharedActions sharedActions;
-
-    @Autowired
-    private HomePage homePage;
 
     @Value("${ui.base.url}")
     private String baseUrl;
@@ -30,6 +32,16 @@ public class OrderDetailsPage extends CommonPageFactory {
 
     @FindBy(xpath = "//*[@class='p-datatable-loading-overlay']")
     private WebElement tableLoadingOverlay;
+
+    @FindBy(how = How.ID, using = "ViewPickListDialog")
+    private WebElement ViewPickListDialog;
+
+    public boolean isPicklistDialogLoaded() {
+        return sharedActions.isElementVisible(ViewPickListDialog);
+    }
+
+    @FindBy(how = How.ID, using = "viewPickListBtn")
+    private WebElement viewPickListButton;
 
     //Dynamic locators
     private String orderInformationDetail(String param) {
@@ -89,5 +101,64 @@ public class OrderDetailsPage extends CommonPageFactory {
 
     public void verifyProductDetailsSection(String productFamily, String bloodType, Integer quantity, String comments) {
         sharedActions.waitForVisible(driver.findElement(By.xpath(productDetails(productFamily, bloodType, quantity))));
+    }
+
+    public Map<String, String> getShipmentDetailsTableContent() {
+        var pickListTable = this.ViewPickListDialog.findElement(By.id("pickListTable"));
+
+        List<WebElement> rowElements = pickListTable.findElements(By.xpath(".//tr"));
+
+        List<WebElement> cellElements = rowElements.get(1).findElements(By.xpath(".//td"));
+
+        var shipmentDetails = new HashMap<String, String>();
+        shipmentDetails.put("orderNumber", cellElements.get(0).getText());
+        shipmentDetails.put("shippingCustomerCode", cellElements.get(1).getText());
+        shipmentDetails.put("customerName", cellElements.get(2).getText());
+
+        return shipmentDetails;
+    }
+
+    public Map<String, String> getProductDetailsTableContent() {
+        var pickListTable = this.ViewPickListDialog.findElement(By.id("productDetailsTable"));
+
+        List<WebElement> rowElements = pickListTable.findElements(By.xpath(".//tr"));
+
+        var productDetails = new HashMap<String, String>();
+        for (int i = 1; i < rowElements.size(); i++) {
+            var cellElements = rowElements.get(i).findElements(By.xpath(".//td"));
+            var contentLine = cellElements.get(0).getText() + ":" + cellElements.get(1).getText() + ":" + cellElements.get(2).getText();
+            productDetails.put(contentLine, contentLine);
+        }
+
+        return productDetails;
+    }
+
+    public Map<String, String> getShortDateProductDetailsTableContent() {
+        var shortDateDetailsTable = this.ViewPickListDialog.findElement(By.id("shortDateDetailsTable"));
+
+        List<WebElement> rowElements = shortDateDetailsTable.findElements(By.xpath(".//tr"));
+
+        var shortDateProductDetails = new HashMap<String, String>();
+        for (int i = 1; i < rowElements.size(); i++) {
+            var cellElements = rowElements.get(i).findElements(By.xpath(".//td"));
+            var contentLine = cellElements.get(0).getText() + ":" + cellElements.get(1).getText() + ":" + cellElements.get(2).getText();
+            shortDateProductDetails.put(contentLine, contentLine);
+        }
+
+        return shortDateProductDetails;
+    }
+
+    public String getNoShortDateMessageContent() {
+        var noShortDateDateMessage = this.ViewPickListDialog.findElement(By.id("shortDateDetailsEmpty"));
+        return noShortDateDateMessage.getText();
+    }
+
+    public void openViewPickListModal() {
+        sharedActions.waitForVisible(viewPickListButton);
+        sharedActions.click(viewPickListButton);
+    }
+
+    public void viewPickListButton() {
+        sharedActions.waitForVisible(viewPickListButton);
     }
 }

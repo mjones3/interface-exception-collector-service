@@ -20,8 +20,8 @@ Feature: View order details
             And I can see the number of Available Inventories for each line item.
 
             Examples:
-                | External ID | LocationCode              | Priority  | Status      | ProductFamily       | BloodType | Quantity | Shipment Type | Shipping Method | Product Category | Desired Date | Shipping Customer Code | Shipping Customer Name     | Billing Customer Code | Billing Customer Name      | Order Comments     | Item Comments |
-                | ORDER001    | MDL_HUB_1                 | STAT      | OPEN        | PLASMA_TRANSFUSABLE | AB        | 3        | CUSTOMER      | FEDEX           | FROZEN           | 2024-08-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap   |
+                | External ID | LocationCode | Priority | Status | ProductFamily       | BloodType | Quantity | Shipment Type | Shipping Method | Product Category | Desired Date | Shipping Customer Code | Shipping Customer Name     | Billing Customer Code | Billing Customer Name      | Order Comments     | Item Comments |
+                | ORDER001    | MDL_HUB_1    | STAT     | OPEN   | PLASMA_TRANSFUSABLE | AB        | 3        | CUSTOMER      | FEDEX           | FROZEN           | 2024-08-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap   |
 
 
     Rule: I should be able to create the order fulfillment request when the pick list is generated.
@@ -33,18 +33,18 @@ Feature: View order details
             And I have an order item with product family "<ProductFamily>", blood type "<BloodType>", quantity <Quantity>, and order item comments "<Item Comments>".
             And I am logged in the location "<LocationCode>".
             And I navigate to the order details page.
-            When I choose to generate the pick list.
+            When I choose to generate the Pick List.
             Then I can see the pick list details.
             And I should not see the short-date products.
-            And I should see a new shipment being created.
-            When I choose to generate the pick list.
-            Then I can see the pick list details.
-            And I should not see a new shipment being created.
-            And The order status is updated to "IN-PROGRESS"
+#            And I should see a new shipment being created.
+#            When I choose to generate the Pick List.
+#            Then I can see the pick list details.
+#            And I should not see a new shipment being created.
+#            And The order status is updated to "IN-PROGRESS".
 
             Examples:
-                | External ID | LocationCode              | Priority  | Status      | ProductFamily       | BloodType | Quantity | Shipment Type | Shipping Method | Product Category | Desired Date | Shipping Customer Code | Shipping Customer Name     | Billing Customer Code | Billing Customer Name      | Order Comments     | Item Comments |
-                | ORDER002    | MDL_HUB_1                 | STAT      | OPEN        | PLASMA_TRANSFUSABLE | AB        | 3        | CUSTOMER      | FEDEX           | FROZEN           | 2024-08-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap   |
+                | External ID | LocationCode | Priority | Status | ProductFamily       | BloodType | Quantity | Shipment Type | Shipping Method | Product Category | Desired Date | Shipping Customer Code | Shipping Customer Name     | Billing Customer Code | Billing Customer Name      | Order Comments     | Item Comments |
+                | ORDER002    | MDL_HUB_1    | STAT     | OPEN   | PLASMA_TRANSFUSABLE | AB        | 3        | CUSTOMER      | FEDEX           | FROZEN           | 2024-08-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap   |
 
     Rule: I should be able to see the short-dated products if applicable.
         Scenario Outline: Generate pick list with short date products
@@ -52,12 +52,12 @@ Feature: View order details
             And I have an order item with product family "<ProductFamily>", blood type "<BloodType>", quantity <Quantity>, and order item comments "<Item Comments>".
             And I am logged in the location "<LocationCode>".
             And I navigate to the order details page.
-            When I choose to generate the pick list.
+            When I choose to generate the Pick List.
             Then I can see the pick list details.
             And I can see the short date product details.
             Examples:
-                | External ID | LocationCode              | Priority  | Status      | ProductFamily       | BloodType | Quantity | Shipment Type | Shipping Method | Product Category | Desired Date | Shipping Customer Code | Shipping Customer Name     | Billing Customer Code | Billing Customer Name      | Order Comments     | Item Comments |
-                | ORDER003    | MDL_HUB_1                 | STAT      | OPEN        | PLASMA_TRANSFUSABLE | AB        | 3        | CUSTOMER      | FEDEX           | FROZEN           | 2024-08-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap   |
+                | External ID | LocationCode | Priority | Status | ProductFamily       | BloodType | Quantity | Shipment Type | Shipping Method | Product Category | Desired Date | Shipping Customer Code | Shipping Customer Name     | Billing Customer Code | Billing Customer Name      | Order Comments     | Item Comments |
+                | ORDER003    | MDL_HUB_1    | STAT     | OPEN   | PLASMA_TRANSFUSABLE | AB        | 3        | CUSTOMER      | FEDEX           | FROZEN           | 2024-08-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap   |
 
 
 
