@@ -199,7 +199,7 @@ def rsocket_service():
     k8s_yaml('./src/main/k8s/rsocket-service.yaml')
     k8s_resource(
         'rsocket-deployment',
-        port_forwards=7002
+        port_forwards='7002:7000'
     )
 
 

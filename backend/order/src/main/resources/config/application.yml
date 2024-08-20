@@ -285,8 +285,8 @@ async-call:
     max-attempts: 2
     duration: 2
   inventory:
-    tcp-address: localhost
-    tcp-port: 7000
+    tcp-address: api.local.gd
+    tcp-port: 7002
     max-attempts: 2
     duration: 2
 

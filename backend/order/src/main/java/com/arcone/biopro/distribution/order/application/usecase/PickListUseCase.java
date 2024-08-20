@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.Collections;
 import java.util.List;
@@ -47,6 +48,7 @@ public class PickListUseCase implements PickListService {
                     return pickList;
                 }
                 )
+            .publishOn(Schedulers.boundedElastic())
             .doOnNext(pickList ->
                 Flux.from(inventoryService.getAvailableInventories(new GeneratePickListCommand(pickList.getLocationCode(),mapCriteriaList(pickList))))
                     .flatMap(availableInventory -> {
@@ -60,10 +62,13 @@ public class PickListUseCase implements PickListService {
 
                             return Mono.just(availableInventory);
                         }
-                    )
-                    .then(Mono.just(pickList))
+                    ).blockLast()
             ).doOnSuccess(this::publishPickListCreatedEvent)
-            .onErrorResume(error -> Mono.error(new RuntimeException("Not Able to Generate Picklist")));
+            .onErrorResume(error -> {
+                    log.error("Not able to generate pick list {}",error.getMessage());
+                    return Mono.error(new RuntimeException("Not Able to Generate Picklist"));
+               }
+            );
 
     }
 
