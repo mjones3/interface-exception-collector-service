@@ -25,10 +25,8 @@ class InventoryAggregateTest {
         String collectionDate = "2025-01-07T02:05:45.231Z";
         String location = "MIAMI";
 
-        InventoryAggregate inventoryAggregate = InventoryAggregate.builder().build();
-        inventoryAggregate.createInventory(unitNumber, productCode, shortDescription, expirationDate, collectionDate, location, ProductFamily.PLASMA_TRANSFUSABLE, AboRhType.ABN);
 
-        Inventory inventory = inventoryAggregate.getInventory();
+        Inventory inventory = createInventory(unitNumber, productCode, shortDescription, expirationDate, collectionDate, location, ProductFamily.PLASMA_TRANSFUSABLE, AboRhType.ABN);
 
         assertNotNull(inventory, "Inventory should not be null");
         assertNotNull(inventory.getId(), "Id should not be null");
@@ -37,5 +35,9 @@ class InventoryAggregateTest {
         assertEquals(expirationDate, inventory.getExpirationDate(), "Expiration date should match");
         assertEquals("MIAMI", inventory.getLocation(), "Location should match");
         assertEquals(InventoryStatus.AVAILABLE, inventory.getInventoryStatus(), "Status should match");
+    }
+
+    private Inventory createInventory(String unitNumber, String productCode, String shortDescription, LocalDateTime expirationDate, String collectionDate, String location, ProductFamily productFamily, AboRhType aboRhType) {
+        return new Inventory(new UnitNumber(unitNumber), new ProductCode(productCode), shortDescription, expirationDate, collectionDate, location, productFamily, aboRhType);
     }
 }

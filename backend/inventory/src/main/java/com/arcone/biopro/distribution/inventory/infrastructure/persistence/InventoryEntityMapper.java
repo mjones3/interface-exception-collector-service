@@ -19,6 +19,7 @@ public interface InventoryEntityMapper {
     Inventory toDomain(InventoryEntity inventoryEntity);
 
     @Mapping(target = "inventory", source = "inventoryEntity")
+    @Mapping(target = "errorMessage", ignore = true)
     InventoryAggregate toAggregate(InventoryEntity inventoryEntity);
 
     List<InventoryAggregate> toAggregate(List<InventoryEntity> inventoryEntity);

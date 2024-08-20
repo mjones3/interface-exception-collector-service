@@ -1,13 +1,7 @@
 package com.arcone.biopro.distribution.inventory.verification.steps;
 
-import com.arcone.biopro.distribution.inventory.adapter.in.socket.dto.AvailableInventoryCriteriaDTO;
-import com.arcone.biopro.distribution.inventory.adapter.in.socket.dto.GetAvailableInventoryCommandDTO;
-import com.arcone.biopro.distribution.inventory.adapter.in.socket.dto.GetAvailableInventoryResponseDTO;
-import com.arcone.biopro.distribution.inventory.adapter.in.socket.dto.Inventory;
-import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhCriteria;
-import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
-import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
-import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ProductFamily;
+import com.arcone.biopro.distribution.inventory.adapter.in.socket.dto.*;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.*;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntity;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntityRepository;
 import io.cucumber.java.Before;
@@ -44,9 +38,11 @@ public class RsocketSteps {
     @Value("${spring.rsocket.server.port}")
     Integer port;
 
-    Mono<GetAvailableInventoryResponseDTO> result;
+    Mono<GetAvailableInventoryResponseDTO> getAvailableInventoryResponseDTOMonoResult;
 
     GetAvailableInventoryResponseDTO getAvailableInventoryResponseDTOResult;
+
+    Mono<InventoryValidationResponseDTO> inventoryValidationResponseDTOMonoResult;
 
     private static RSocketRequester requester;
 
@@ -62,29 +58,42 @@ public class RsocketSteps {
 
     @Given("I have {string} of the {string} of the blood type {string} in the {string} will expire in {string} days")
     public void iHaveOfTheOfTheBloodTypeInThe(String quantity, String productFamily, String aboRh, String location, String days) {
-        Stream.iterate(0, i -> i + 1)
-            .limit(Integer.parseInt(quantity))
-            .forEach(i -> this.createInventory(ProductFamily.valueOf(productFamily), AboRhType.valueOf(aboRh), location, Integer.parseInt(days)));
+        createProducts(quantity, productFamily, aboRh, location, days, InventoryStatus.AVAILABLE);
     }
 
-    private void createInventory(ProductFamily productFamily, AboRhType aboRhType, String location, Integer daysToExpire) {
+    private void createProducts(String quantity, String productFamily, String aboRh, String location, String days, InventoryStatus status) {
+        Stream.iterate(0, i -> i + 1)
+            .limit(Integer.parseInt(quantity))
+            .forEach(i -> this.createInventory(randomString(13), "E0869V00", ProductFamily.valueOf(productFamily), AboRhType.valueOf(aboRh), location, Integer.parseInt(days), status));
+    }
+
+    @Given("I have one product with {string}, {string} and {string} in {string} status")
+    public void iHaveOneProductWithAndInStatus(String unitNumber, String productCode, String location, String status) {
+        Integer days = "EXPIRED".equals(status) ? -1 : 1;
+        InventoryStatus inventoryStatus = "EXPIRED".equals(status) ? InventoryStatus.AVAILABLE : InventoryStatus.valueOf(status);
+
+        createInventory(unitNumber, productCode, ProductFamily.PLASMA_TRANSFUSABLE, AboRhType.OP, location, days, inventoryStatus);
+    }
+
+
+    private void createInventory(String unitNumber, String productCode, ProductFamily productFamily, AboRhType aboRhType, String location, Integer daysToExpire, InventoryStatus status) {
         inventoryEntityRepository.save(InventoryEntity.builder()
-                .id(UUID.randomUUID())
-                .productFamily(productFamily)
-                .aboRh(aboRhType)
-                .location(location)
-                .collectionDate(ZonedDateTime.now().toString())
-                .inventoryStatus(InventoryStatus.AVAILABLE)
-                .expirationDate(LocalDateTime.now().plusDays(daysToExpire))
-                .unitNumber(randomString(13))
-                .productCode("E0869V00")
-                .shortDescription("Short description")
+            .id(UUID.randomUUID())
+            .productFamily(productFamily)
+            .aboRh(aboRhType)
+            .location(location)
+            .collectionDate(ZonedDateTime.now().toString())
+            .inventoryStatus(status)
+            .expirationDate(LocalDateTime.now().plusDays(daysToExpire))
+            .unitNumber(unitNumber)
+            .productCode(productCode)
+            .shortDescription("Short description")
             .build()).block();
 
     }
 
     public String randomString(int length) {
-        return "W" + RandomStringUtils.random(length-1, false, true);
+        return "W" + RandomStringUtils.random(length - 1, false, true);
     }
 
     @When("I select {string} of the blood type {string}")
@@ -94,7 +103,7 @@ public class RsocketSteps {
 
     @When("I request {string} of the blood type {string} in the {string}")
     public void iRequestOfTheOfTheBloodType(String productFamily, String aboRh, String location) {
-        result = requester
+        getAvailableInventoryResponseDTOMonoResult = requester
             .route("getAvailableInventoryWithShortDatedProducts")
             .data(new GetAvailableInventoryCommandDTO(location, List.of(new AvailableInventoryCriteriaDTO(ProductFamily.valueOf(productFamily), AboRhCriteria.valueOf(aboRh)))))
             .retrieveMono(GetAvailableInventoryResponseDTO.class);
@@ -102,18 +111,27 @@ public class RsocketSteps {
 
     @When("I request to location {string}")
     public void iRequestToLocation(String location) {
-        result = requester
+        getAvailableInventoryResponseDTOMonoResult = requester
             .route("getAvailableInventoryWithShortDatedProducts")
             .data(new GetAvailableInventoryCommandDTO(location, inventoryCriteriaList))
             .retrieveMono(GetAvailableInventoryResponseDTO.class);
 
-        getAvailableInventoryResponseDTOResult = result.block();
+        getAvailableInventoryResponseDTOResult = getAvailableInventoryResponseDTOMonoResult.block();
+    }
+
+
+    @When("I request {string} with {string} in the {string}")
+    public void iRequestWithInThe(String unitNumber, String productCode, String location) {
+        inventoryValidationResponseDTOMonoResult = requester
+            .route("validateInventory")
+            .data(new InventoryValidationRequest(unitNumber, productCode, location))
+            .retrieveMono(InventoryValidationResponseDTO.class);
     }
 
     @Then("I receive {string} of total products and {string} of short date")
     public void iReceive(String quantityTotal, String quantityShortDate) {
         StepVerifier
-            .create(result)
+            .create(getAvailableInventoryResponseDTOMonoResult)
             .consumeNextWith(message -> {
                 assertThat(message.inventories().getFirst().shortDateProducts().size()).isEqualTo(Integer.parseInt(quantityShortDate));
                 assertThat(message.inventories().getFirst().quantityAvailable()).isEqualTo(Integer.parseInt(quantityTotal));
@@ -140,5 +158,32 @@ public class RsocketSteps {
         assertThat(inventory.shortDateProducts().size()).isEqualTo(Integer.parseInt(quantityShortDate));
     }
 
+    @Then("I receive for {string} with {string} in the {string} a {string} message")
+    public void iReceiveForWithInTheAMessage(String unitNumber, String productCode, String location, String errorType) {
+        Integer errorCode = "".equals(errorType) ? null : ErrorMessage.valueOf(errorType).getCode();
+        StepVerifier
+            .create(inventoryValidationResponseDTOMonoResult)
+            .consumeNextWith(message -> {
+                if (!ErrorMessage.INVENTORY_NOT_EXIST.getCode().equals(errorCode)) {
+                    assertThat(message.inventoryResponseDTO().unitNumber()).isEqualTo(unitNumber);
+                    assertThat(message.inventoryResponseDTO().productCode()).isEqualTo(productCode);
 
+                    if (!ErrorMessage.INVENTORY_NOT_FOUND_IN_LOCATION.getCode().equals(errorCode)) {
+                        assertThat(message.inventoryResponseDTO().locationCode()).isEqualTo(location);
+                    }
+
+                } else {
+                    assertThat(message.inventoryResponseDTO()).isNull();
+                }
+
+                if (errorCode != null) {
+                    assertThat(message.inventoryNotificationDTO().errorCode()).isEqualTo(errorCode);
+                } else {
+                    assertThat(message.inventoryNotificationDTO()).isNull();
+                }
+
+                log.debug("Received message from validate inventory {}", message);
+            })
+            .verifyComplete();
+    }
 }
