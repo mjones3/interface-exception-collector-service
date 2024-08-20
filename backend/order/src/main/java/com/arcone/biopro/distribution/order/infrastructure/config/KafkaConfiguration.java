@@ -66,8 +66,8 @@ public class KafkaConfiguration {
 
     @Bean
     NewTopic orderFulfilledTopic(
-        @Value("${topics.order.order-rejected.partitions:1}") Integer partitions,
-        @Value("${topics.order.order-rejected.replicas:1}") Integer replicas,
+        @Value("${topics.order.order-fulfilled.partitions:1}") Integer partitions,
+        @Value("${topics.order.order-fulfilled.replicas:1}") Integer replicas,
         @Value("${topics.order.order-fulfilled.topic-name:OrderFulfilled}") String topicName
     ) {
         return TopicBuilder.name(topicName).partitions(partitions).replicas(replicas).build();
