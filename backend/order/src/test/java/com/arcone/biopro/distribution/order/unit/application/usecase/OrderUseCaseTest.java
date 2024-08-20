@@ -15,7 +15,6 @@ import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.domain.service.InventoryService;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
 import com.arcone.biopro.distribution.order.domain.service.OrderConfigService;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;

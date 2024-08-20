@@ -85,7 +85,10 @@ public class OrderUseCase implements OrderService {
     }
 
     private void setAvailableInventories(Order order){
-        Flux.from(inventoryService.getAvailableInventories(pickListCommandMapper.mapToDomain(order)))
+        Flux.from(inventoryService.getAvailableInventories(pickListCommandMapper.mapToDomain(order)).onErrorResume(error -> {
+                log.error("Not able to fetch inventory Data {}", error.getMessage());
+                return Mono.empty();
+            }))
             .flatMap(availableInventory -> {
                     var orderItem = order.getOrderItems().stream()
                         .filter(x -> x.getBloodType().getBloodType().equals(availableInventory.getAboRh())
