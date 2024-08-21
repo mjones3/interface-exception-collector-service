@@ -9,6 +9,7 @@ import java.util.List;
 public record PickListDTO(
     Long orderNumber,
     PickListCustomerDTO customer,
-    List<PickListItemDTO> pickListItems
+    List<PickListItemDTO> pickListItems,
+    String orderComments
 ) implements Serializable {
 }

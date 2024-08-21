@@ -24,6 +24,7 @@ public class PickListMapper {
         return PickListDTO
             .builder()
             .orderNumber(pickList.getOrderNumber())
+            .orderComments(pickList.getOrderComments())
             .customer(PickListCustomerDTO.builder()
                 .code(pickList.getCustomer().getCode())
                 .name(pickList.getCustomer().getName())
@@ -60,7 +61,7 @@ public class PickListMapper {
     public PickList mapToDomain(Order order){
 
         var pickList = new PickList(order.getOrderNumber().getOrderNumber() , order.getLocationCode() , order.getOrderStatus().getOrderStatus()
-            , new PickListCustomer(order.getShippingCustomer().getCode() , order.getShippingCustomer().getName()));
+            , new PickListCustomer(order.getShippingCustomer().getCode() , order.getShippingCustomer().getName()), order.getComments());
 
         if(order.getOrderItems() != null){
             order.getOrderItems().forEach(orderItem -> pickList.addPickListItem(new PickListItem(orderItem.getProductFamily().getProductFamily()

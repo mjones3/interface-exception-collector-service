@@ -47,7 +47,11 @@ public class PickListUseCase implements PickListService {
             .map(pickListMapper::mapToDomain)
             .publishOn(Schedulers.boundedElastic())
             .doOnNext(pickList ->
-                Flux.from(inventoryService.getAvailableInventories(pickListCommandMapper.mapToDomain(pickList)))
+                Flux.from(inventoryService.getAvailableInventories(pickListCommandMapper.mapToDomain(pickList)).onErrorResume(error -> {
+                            log.error("Not able to fetch inventory Data {}", error.getMessage());
+                            return Mono.empty();
+                        })
+                    )
                     .flatMap(availableInventory -> {
                              var item = pickList.getPickListItems().stream()
                                  .filter(x -> x.getBloodType().equals(availableInventory.getAboRh())
