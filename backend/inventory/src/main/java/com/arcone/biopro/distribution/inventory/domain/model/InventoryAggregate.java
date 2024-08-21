@@ -1,6 +1,11 @@
 package com.arcone.biopro.distribution.inventory.domain.model;
 
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ErrorMessage;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ProductFamily;
+import com.arcone.biopro.distribution.inventory.domain.model.vo.ProductCode;
+import com.arcone.biopro.distribution.inventory.domain.model.vo.UnitNumber;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -40,6 +45,11 @@ public class InventoryAggregate {
             errorMessage =  ErrorMessage.INVENTORY_NOT_FOUND_IN_LOCATION;
         }
 
+        return this;
+    }
+
+    public InventoryAggregate completeShipment() {
+        inventory.setInventoryStatus(InventoryStatus.SHIPPED);
         return this;
     }
 }

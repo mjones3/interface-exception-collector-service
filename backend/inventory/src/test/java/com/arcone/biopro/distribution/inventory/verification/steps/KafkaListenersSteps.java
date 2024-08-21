@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.inventory.verification.steps;
 
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntity;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntityRepository;
 import com.arcone.biopro.distribution.inventory.verification.utils.TestUtils;
@@ -8,6 +9,7 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.r2dbc.spi.ConnectionFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -18,13 +20,31 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
+@Slf4j
 public class KafkaListenersSteps {
 
     @Value("${topic.label-applied.name}")
     private String labelAppliedTopic;
+
+    @Value("${topic.shipment-completed.name}")
+    private String shipmentCompletedTopic;
+
+    private static final String SHIPMENT_COMPLETED_MESSAGE = """
+         {
+           "eventType":"ShipmentCompleted",
+           "eventVersion":"1.0",
+           "payload" : {
+                "shipmentId":2,
+                "orderNumber":1,
+                "unitNumber":"W036898786800",
+                "productCode":"E7644V00",
+                "performedBy":"test-emplyee-id",
+                "createDate":"2024-06-14T15:17:25.666122Z"
+            }
+         }
+        """;
 
     @Autowired
     private TestUtils testUtils;
@@ -56,6 +76,7 @@ public class KafkaListenersSteps {
             }
          }
         """;
+    private static final String SHIPMENT_COMPLETED = "Shipment Completed";
 
     private static final String EVENT_LABEL_APPLIED = "Label Applied";
 
@@ -71,10 +92,12 @@ public class KafkaListenersSteps {
     public void before() {
         populateTestData();
         topicsMap = Map.of(
-            EVENT_LABEL_APPLIED, labelAppliedTopic);
+            EVENT_LABEL_APPLIED, labelAppliedTopic,
+            SHIPMENT_COMPLETED, shipmentCompletedTopic);
 
         messagesMap = Map.of(
-            EVENT_LABEL_APPLIED, LABEL_APPLIED_MESSAGE);
+            EVENT_LABEL_APPLIED, LABEL_APPLIED_MESSAGE,
+            SHIPMENT_COMPLETED, SHIPMENT_COMPLETED_MESSAGE);
     }
 
     @Given("I am listening the {string} event")
@@ -96,17 +119,35 @@ public class KafkaListenersSteps {
         int tryCount = 0;
 
         InventoryEntity entity = null;
-        while (tryCount < maxTryCount && entity == null) {
-            entity = inventoryEntityRepository.findByUnitNumberAndProductCode("W123452622168", "E0869VA0").block();
+        switch (topicName) {
+            case EVENT_LABEL_APPLIED: {
+                while (tryCount < maxTryCount && entity == null) {
+                    entity = inventoryEntityRepository.findByUnitNumberAndProductCode("W123452622168", "E0869VA0").block();
 
-            tryCount++;
-            waiter.await(1, TimeUnit.SECONDS);
+                    tryCount++;
+                    waiter.await(1, TimeUnit.SECONDS);
+                }
+
+                assertNotNull(entity);
+                assertEquals("E0869VA0", entity.getProductCode());
+                assertEquals("W123452622168", entity.getUnitNumber());
+                assertEquals(status, entity.getInventoryStatus().name());
+            }
+            case SHIPMENT_COMPLETED: {
+                while (tryCount < maxTryCount && entity == null) {
+                    entity = inventoryEntityRepository.findByUnitNumberAndProductCode("W036898786800", "E0869VA0").block();
+                    assertNotNull(entity);
+                    assertNotEquals(entity.getInventoryStatus(), InventoryStatus.SHIPPED);
+                    tryCount++;
+                    waiter.await(1, TimeUnit.SECONDS);
+                }
+
+                assertEquals("E0869VA0", entity.getProductCode());
+                assertEquals("W123452622168", entity.getUnitNumber());
+                assertEquals(status, entity.getInventoryStatus().name());
+            }
         }
 
-        assertNotNull(entity);
-        assertEquals("E0869VA0", entity.getProductCode());
-        assertEquals("W123452622168", entity.getUnitNumber());
-        assertEquals(status, entity.getInventoryStatus().name());
     }
 
     public void populateTestData() {
@@ -114,7 +155,4 @@ public class KafkaListenersSteps {
         resourceDatabasePopulator.addScript(testDataSql);
         Mono.from(resourceDatabasePopulator.populate(connectionFactory)).block();
     }
-
-
-
 }

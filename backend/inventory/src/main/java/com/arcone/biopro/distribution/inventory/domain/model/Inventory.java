@@ -7,6 +7,7 @@ import com.arcone.biopro.distribution.inventory.domain.model.vo.ProductCode;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.UnitNumber;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -24,6 +25,7 @@ public class Inventory {
 
     private String shortDescription;
 
+    @Setter
     private InventoryStatus inventoryStatus;
 
     private LocalDateTime expirationDate;

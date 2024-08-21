@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.inventory.infrastructure.config;
 
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.label.LabelAppliedMessage;
+import com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput;
 import io.github.springwolf.core.asyncapi.annotations.AsyncListener;
 import io.github.springwolf.core.asyncapi.annotations.AsyncOperation;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -31,12 +32,21 @@ class KafkaConfiguration {
     @Value("${topic.label-applied.name}")
     private String labelAppliedTopic;
 
+    @Value("${topic.shipment-completed.name}")
+    private String shipmentCompletedTopic;
 
     @Bean
     @Qualifier("LABEL_APPLIED")
     ReceiverOptions<String, String> labelAppliedReceiverOptions(KafkaProperties kafkaProperties) {
         return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
             .subscription(List.of(labelAppliedTopic));
+    }
+
+    @Bean
+    @Qualifier("SHIPMENT_COMPLETED")
+    ReceiverOptions<String, String> shipmentCompletedReceiverOptions(KafkaProperties kafkaProperties) {
+        return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
+            .subscription(List.of(shipmentCompletedTopic));
     }
 
     @AsyncListener(operation = @AsyncOperation(
@@ -47,6 +57,18 @@ class KafkaConfiguration {
     @Bean(name = "LABEL_APPLIED_CONSUMER")
     ReactiveKafkaConsumerTemplate<String, String> labelAppliedConsumerTemplate(
         @Qualifier("LABEL_APPLIED") ReceiverOptions<String, String> receiverOptions
+    ) {
+        return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
+    }
+
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "ShipmentCompleted",
+        description = "Shipment Completed has been listened and an inventory status was updated to SHIPPED",
+        payloadType = ShipmentCompletedInput.class
+    ))
+    @Bean(name = "SHIPMENT_COMPLETED_CONSUMER")
+    ReactiveKafkaConsumerTemplate<String, String> shipmentCompletedConsumerTemplate(
+        @Qualifier("SHIPMENT_COMPLETED") ReceiverOptions<String, String> receiverOptions
     ) {
         return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
     }
