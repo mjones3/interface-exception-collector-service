@@ -32,4 +32,5 @@ export interface OrderItemDetailsDto {
     comments: string;
     createDate: Date;
     modificationDate: Date;
+    quantityAvailable: number;
 }

@@ -1,5 +1,5 @@
 import { gql } from 'apollo-angular';
-import { OrderDetailsDto } from '../models/order-details.dto';
+import { OrderDetailsDto } from '../../models/order-details.dto';
 
 const GET_ORDER_BY_ID = gql<
     { findOrderById: OrderDetailsDto },
@@ -37,6 +37,7 @@ const GET_ORDER_BY_ID = gql<
                 comments
                 createDate
                 modificationDate
+                quantityAvailable
             }
         }
     }
