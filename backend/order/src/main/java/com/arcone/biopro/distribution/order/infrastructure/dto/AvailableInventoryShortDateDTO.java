@@ -8,6 +8,7 @@ import java.io.Serializable;
 public record AvailableInventoryShortDateDTO(
     String unitNumber,
     String productCode,
+    String aboRh,
     String storageLocation
 
 ) implements Serializable {

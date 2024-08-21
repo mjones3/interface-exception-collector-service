@@ -197,6 +197,7 @@ type PickListItemDTO {
 type PickListItemShortDateDTO {
     unitNumber:String
     productCode:String
+    aboRh:String
     storageLocation:String
 }
 

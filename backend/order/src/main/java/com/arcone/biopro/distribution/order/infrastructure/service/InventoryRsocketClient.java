@@ -75,7 +75,8 @@ public class InventoryRsocketClient implements InventoryService {
             .filter(shortDateDTOList -> !shortDateDTOList.isEmpty())
             .orElseGet(Collections::emptyList)
             .stream()
-            .map(shortDateDTO -> new ShortDateProduct(shortDateDTO.unitNumber(), shortDateDTO.productCode() , shortDateDTO.storageLocation()))
+            .map(shortDateDTO -> new ShortDateProduct(shortDateDTO.unitNumber(), shortDateDTO.productCode() , shortDateDTO.aboRh()
+                , shortDateDTO.storageLocation()))
             .toList();
     }
 }

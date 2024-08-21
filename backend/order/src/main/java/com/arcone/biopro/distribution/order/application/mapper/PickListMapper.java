@@ -48,6 +48,7 @@ public class PickListMapper {
                                 .builder()
                                 .productCode(pickListItemShortDate.getProductCode())
                                 .storageLocation(pickListItemShortDate.getStorageLocation())
+                                .aboRh(pickListItemShortDate.getAboRh())
                                 .unitNumber(pickListItemShortDate.getUnitNumber())
                                 .build())
                             .toList()

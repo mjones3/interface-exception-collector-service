@@ -11,11 +11,13 @@ public class ShortDateProduct implements Validatable {
 
     private String unitNumber;
     private String productCode;
+    private String aboRh;
     private String storageLocation;
 
-    public ShortDateProduct(String unitNumber, String productCode, String storageLocation) {
+    public ShortDateProduct(String unitNumber, String productCode , String aboRh, String storageLocation) {
         this.unitNumber = unitNumber;
         this.productCode = productCode;
+        this.aboRh = aboRh;
         this.storageLocation = storageLocation;
 
         checkValid();
@@ -29,6 +31,9 @@ public class ShortDateProduct implements Validatable {
         }
         if (this.productCode == null) {
             throw new IllegalArgumentException("productCode cannot be null or blank");
+        }
+        if (this.aboRh == null) {
+            throw new IllegalArgumentException("aboRh cannot be null or blank");
         }
         if (this.storageLocation == null) {
             throw new IllegalArgumentException("storageLocation cannot be null");

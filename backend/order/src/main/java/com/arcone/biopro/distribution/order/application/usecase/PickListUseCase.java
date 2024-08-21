@@ -59,7 +59,7 @@ public class PickListUseCase implements PickListService {
 
                         item.ifPresent(pickListItem -> availableInventory.getShortDateProducts()
                             .forEach(shortDateProduct -> pickListItem.addShortDate(new PickListItemShortDate(shortDateProduct.getUnitNumber()
-                                , shortDateProduct.getProductCode(), shortDateProduct.getStorageLocation()))));
+                                , shortDateProduct.getProductCode() , shortDateProduct.getAboRh(), shortDateProduct.getStorageLocation()))));
 
                             return Mono.just(availableInventory);
                         }
