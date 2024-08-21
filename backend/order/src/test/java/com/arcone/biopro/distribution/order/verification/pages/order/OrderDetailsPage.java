@@ -40,7 +40,7 @@ public class OrderDetailsPage extends CommonPageFactory {
         return sharedActions.isElementVisible(ViewPickListDialog);
     }
 
-    @FindBy(how = How.ID, using = "viewPickListBtn")
+    @FindBy(how = How.ID, using = "generatePickListButton")
     private WebElement viewPickListButton;
 
     //Dynamic locators

@@ -326,6 +326,6 @@ public class OrderSteps {
 
     @And("I should see a message {string} indicating There are no suggested short-dated products.")
     public void matchNoShortDateProductsMessage(String message) {
-        graphql.Assert.assertTrue(message.equals(this.orderDetailsPage.getNoShortDateMessageContent()));
+        Assert.assertEquals(message, this.orderDetailsPage.getNoShortDateMessageContent());
     }
 }
