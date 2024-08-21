@@ -182,27 +182,6 @@ def biopro_service():
         trigger_mode=TRIGGER_MODE_MANUAL
     )
 
-
-def rsocket_service():
-    configmap_create(
-        'mappings-config',
-        namespace='api',
-        from_file='./src/main/k8s/rsocket/mappings/'
-    )
-    configmap_create(
-        'files-config',
-        namespace='api',
-        from_file='./src/main/k8s/rsocket/__files/'
-    )
-    # Specify the Kubernetes manifest for the deployment
-    k8s_yaml('./src/main/k8s/rsocket-deployment.yaml')
-    k8s_yaml('./src/main/k8s/rsocket-service.yaml')
-    k8s_resource(
-        'rsocket-deployment',
-        port_forwards='7002:7000'
-    )
-
-
 def ui_service():
     # Specify the Kubernetes manifest for the deployment
     k8s_yaml('./src/main/k8s/manufacturing-ui-deployment.yaml')
@@ -222,5 +201,4 @@ kafka_service()
 redpanda_console_service()
 postgresql_service()
 atlas_operator()
-rsocket_service()
 biopro_service()

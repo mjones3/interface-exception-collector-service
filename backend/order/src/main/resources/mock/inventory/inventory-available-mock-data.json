@@ -1,64 +1,77 @@
-[
-  {
-    "location": "MDL_HUB_1",
-    "inventories": [
+{
+  "location" : "MDL_HUB_1",
+  "inventories" : [ {
+    "productFamily" : "PLASMA_TRANSFUSABLE",
+    "aboRh" : "AB",
+    "quantityAvailable" : 10,
+    "shortDateProducts" : [ {
+      "unitNumber" : "W812530106082",
+      "productCode" : "E0869V00",
+      "storageLocation" : "FREEZER 1, RACK 1, SHELF 1",
+      "aboRh" : "ABP"
+    },
       {
-        "productFamily": "PLASMA_TRANSFUSABLE",
-        "aboRh": "OP",
-        "quantityAvailable": 10,
-        "shortDateProducts": [
-          {
-            "unitNumber": "W036810946300",
-            "productCode": "E0869V00",
-            "storageLocation": "FREEZER 1, RACK 1, SHELF 1"
-          }
-        ]
-      },
+      "unitNumber" : "W833864065093",
+      "productCode" : "E0869V00",
+      "storageLocation" : "FREEZER 1, RACK 1, SHELF 1",
+      "aboRh" : "OP"
+    }, {
+      "unitNumber" : "W351212451894",
+      "productCode" : "E0869V00",
+      "storageLocation" : "FREEZER 1, RACK 1, SHELF 1",
+      "aboRh" : "ON"
+    }, {
+      "unitNumber" : "W924663616944",
+      "productCode" : "E0869V00",
+      "storageLocation" : "FREEZER 1, RACK 1, SHELF 1",
+      "aboRh" : "ON"
+    }, {
+      "unitNumber" : "W970204088663",
+      "productCode" : "E0869V00",
+      "storageLocation" : "FREEZER 1, RACK 1, SHELF 1",
+      "aboRh" : "ON"
+    }, {
+      "unitNumber" : "W477606405172",
+      "productCode" : "E0869V00",
+      "storageLocation" : "FREEZER 1, RACK 1, SHELF 1",
+      "aboRh" : "ON"
+    }, {
+      "unitNumber" : "W787093484781",
+      "productCode" : "E0869V00",
+      "storageLocation" : "FREEZER 1, RACK 1, SHELF 1",
+      "aboRh" : "ON"
+    }, {
+      "unitNumber" : "W818730912623",
+      "productCode" : "E0869V00",
+      "storageLocation" : "FREEZER 1, RACK 1, SHELF 1",
+      "aboRh" : "ON"
+    }, {
+      "unitNumber" : "W950534633633",
+      "productCode" : "E0869V00",
+      "storageLocation" : "FREEZER 1, RACK 1, SHELF 1",
+      "aboRh" : "ON"
+    }, {
+      "unitNumber" : "W843902802909",
+      "productCode" : "E0869V00",
+      "storageLocation" : "FREEZER 1, RACK 1, SHELF 1",
+      "aboRh" : "ON"
+    } ]
+  }, {
+    "productFamily" : "PLASMA_TRANSFUSABLE",
+    "aboRh" : "O",
+    "quantityAvailable" : 100,
+    "shortDateProducts" : [ {
+      "unitNumber" : "W812530106082",
+      "productCode" : "E0869V00",
+      "storageLocation" : "FREEZER 1, RACK 1, SHELF 1",
+      "aboRh" : "OP"
+    },
       {
-        "productFamily": "PLASMA_TRANSFUSABLE",
-        "aboRh": "AB",
-        "quantityAvailable": 5,
-        "shortDateProducts": [
-          {
-            "unitNumber": "W036810946301",
-            "productCode": "E0870V00",
-            "storageLocation": "FREEZER 1, RACK 1, SHELF 2"
-          }
-        ]
+        "unitNumber" : "W833864065093",
+        "productCode" : "E0869V00",
+        "storageLocation" : "FREEZER 1, RACK 1, SHELF 1",
+        "aboRh" : "OP"
       }
-    ]
-  },
-  {
-    "location": "MDL_HUB_2",
-    "inventories": [
-      {
-        "productFamily": "PLASMA_TRANSFUSABLE",
-        "aboRh": "OP",
-        "quantityAvailable": 10,
-        "shortDateProducts": [
-          {
-            "unitNumber": "W036810946300",
-            "productCode": "E0869V00",
-            "storageLocation": "FREEZER 1, RACK 1, SHELF 1"
-          }
-        ]
-      },
-      {
-        "productFamily": "PLASMA_TRANSFUSABLE",
-        "aboRh": "AB",
-        "quantityAvailable": 5,
-        "shortDateProducts": [
-          {
-            "unitNumber": "W036810946301",
-            "productCode": "E0870V00",
-            "storageLocation": "FREEZER 1, RACK 1, SHELF 2"
-          }
-        ]
-      }
-    ]
-  }
-]
-
-
-
-
+    ]}
+  ]
+}

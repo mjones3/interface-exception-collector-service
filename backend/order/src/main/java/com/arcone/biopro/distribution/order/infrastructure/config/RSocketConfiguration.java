@@ -26,6 +26,8 @@ public class RSocketConfiguration {
         , @Value("${async-call.customer.tcp-port}") Integer rsocketServerPort , @Value("${async-call.customer.max-attempts}") Integer maxAttempts
         , @Value("${async-call.customer.duration}")Integer duration){
 
+        log.info("Configuring customer RSocket Client {} , {}", rsocketServerHost , rsocketServerPort );
+
         return buildRSocketRequester(rSocketStrategies, rsocketServerHost, rsocketServerPort, maxAttempts, duration);
     }
 
@@ -35,6 +37,7 @@ public class RSocketConfiguration {
         , @Value("${async-call.inventory.tcp-port}") Integer rsocketServerPort , @Value("${async-call.inventory.max-attempts}") Integer maxAttempts
         , @Value("${async-call.inventory.duration}")Integer duration){
 
+        log.info("Configuring Inventory RSocket Client {} , {}", rsocketServerHost , rsocketServerPort );
         return buildRSocketRequester(rSocketStrategies, rsocketServerHost, rsocketServerPort, maxAttempts, duration);
     }
 

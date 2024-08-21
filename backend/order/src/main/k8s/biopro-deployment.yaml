@@ -25,7 +25,7 @@ spec:
             - name: JAVA_OPTS
               value: '-Xmx512m -Xms256m'
             - name: SPRING_PROFILES_ACTIVE
-              value: 'prod,api-docs'
+              value: 'prod,api-docs,inventory-mock,customer-mock'
             - name: MANAGEMENT_PROMETHEUS_METRICS_EXPORT_ENABLED
               value: 'true'
             - name: SPRING_R2DBC_URL
