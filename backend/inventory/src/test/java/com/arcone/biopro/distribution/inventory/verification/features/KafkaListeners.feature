@@ -7,5 +7,6 @@ Feature: Kafka listeners
         Then The inventory status is "<Status>"
 
         Examples:
-            | Event              | Status      |
-            | Label Applied      | AVAILABLE   |
+            | Event              | Status    |
+            | Label Applied      | AVAILABLE |
+            | Shipment Completed | SHIPPED   |
