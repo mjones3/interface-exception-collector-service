@@ -24,7 +24,7 @@ export interface ShipmentDetailResponseDTO {
     priority?: string;
     status: string;
     createDate: string;
-    shippingCustomerCode?: number;
+    shippingCustomerCode?: string;
     locationCode?: number;
     deliveryType?: string;
     shippingMethod: string;
