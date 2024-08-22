@@ -1,6 +1,10 @@
 import { gql } from 'apollo-angular';
+import { OrderDetailsDto } from '../models/order-details.dto';
 
-const GET_ORDER_BY_ID = gql`
+const GET_ORDER_BY_ID = gql<
+    { findOrderById: OrderDetailsDto },
+    { orderId: number }
+>`
     query findOrderById($orderId: ID!) {
         findOrderById(orderId: $orderId) {
             id

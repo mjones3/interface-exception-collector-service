@@ -81,7 +81,7 @@ export class OrderDetailsComponent implements OnInit {
 
     fetchOrderDetails(): void {
         this.orderService
-            .getOrderById(this.orderId, true)
+            .getOrderById(this.orderId)
             .pipe(finalize(() => (this.loading = false)))
             .subscribe({
                 next: (result) => {

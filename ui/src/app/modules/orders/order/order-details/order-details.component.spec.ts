@@ -39,6 +39,7 @@ describe('OrderDetailsComponent', () => {
                         },
                     },
                 },
+                OrderService,
             ],
         }).compileComponents();
 
@@ -46,7 +47,7 @@ describe('OrderDetailsComponent', () => {
         component = fixture.componentInstance;
         router = TestBed.inject(Router);
         orderService = TestBed.inject(OrderService);
-
+        jest.spyOn(orderService, 'getOrderById').mockReturnValue(of());
         fixture.detectChanges();
     });
 
@@ -62,8 +63,7 @@ describe('OrderDetailsComponent', () => {
 
     it('should fetch order details', () => {
         const orderId = 1;
-        jest.spyOn(orderService, 'getOrderById');
         component.fetchOrderDetails();
-        expect(orderService.getOrderById).toHaveBeenCalledWith(orderId, true);
+        expect(orderService.getOrderById).toHaveBeenCalledWith(orderId);
     });
 });

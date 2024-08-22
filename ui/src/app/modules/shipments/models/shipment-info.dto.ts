@@ -1,4 +1,24 @@
-export interface ShipmentInfoDto {
+export enum ShipmentPriority {
+    ASAP,
+    ROUTINE,
+}
+
+export enum ShipmentStatus {
+    OPEN,
+    CANCELLED,
+    CLOSED,
+    COMPLETED,
+}
+
+export interface ShipmentResponseDTO {
+    id?: number;
+    orderNumber?: number;
+    priority?: keyof typeof ShipmentPriority;
+    status?: keyof typeof ShipmentStatus;
+    createDate?: string;
+}
+
+export interface ShipmentDetailResponseDTO {
     id: number;
     orderNumber: number;
     priority?: string;
@@ -22,21 +42,21 @@ export interface ShipmentInfoDto {
     customerAddressAddressLine2?: string;
     completeDate?: string;
     completedByEmployeeId?: string;
-    items?: ShipmentInfoItemDto[];
+    items?: ShipmentItemResponseDTO[];
 }
 
-export interface ShipmentInfoItemDto {
+export interface ShipmentItemResponseDTO {
     id?: string;
     shipmentId?: number;
     productFamily?: string;
     bloodType?: string;
     quantity?: number;
     comments?: string;
-    shortDateProducts?: ShortDateProductDto[];
-    packedItems?: FilledProductInfoDto[];
+    shortDateProducts?: ShipmentItemShortDateProductResponseDTO[];
+    packedItems?: ShipmentItemPackedDTO[];
 }
 
-export interface ShortDateProductDto {
+export interface ShipmentItemShortDateProductResponseDTO {
     id: number;
     shipmentItemId: number;
     unitNumber?: string;
@@ -47,7 +67,7 @@ export interface ShortDateProductDto {
     modificationDate?: string;
 }
 
-export interface FilledProductInfoDto {
+export interface ShipmentItemPackedDTO {
     shipmentId?: number;
     unitNumber?: string;
     inventoryId?: string;
@@ -65,7 +85,7 @@ export interface FilledProductInfoDto {
     modificationDate?: string;
 }
 
-export interface VerifyProductDto {
+export interface VerifyProductDTO {
     shipmentItemId: number;
     unitNumber: string;
     productCode: string;

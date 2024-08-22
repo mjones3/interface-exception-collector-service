@@ -1,12 +1,12 @@
-
-
-export type NotificationType = 'success' | 'warning' | 'error';
-
-export type NotificationEventOnDismissType = 'min-max-volume-eligibility';
+export enum NotificationType {
+    success,
+    warning,
+    error,
+}
 
 export interface NotificationDto {
-    statusCode: string;
-    notificationType: NotificationType;
+    statusCode: number;
+    notificationType: keyof typeof NotificationType;
     message: string;
-    notificationEventOnDismiss?: NotificationEventOnDismissType;
-  }
+    notificationEventOnDismiss?: string;
+}
