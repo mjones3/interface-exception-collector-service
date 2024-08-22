@@ -43,6 +43,15 @@ public class OrderDetailsPage extends CommonPageFactory {
     @FindBy(how = How.ID, using = "generatePickListButton")
     private WebElement viewPickListButton;
 
+    @FindBy(id = "shortDateDetailsEmpty")
+    private WebElement noShortDateDetailsMessage;
+
+    @FindBy(css = "#shortDateDetailsTable tbody tr")
+    private List<WebElement> shortDateDetailsTableRows;
+
+    @FindBy(css = "button[title='Close']")
+    private WebElement closeViewPickListDialogButton;
+
     //Dynamic locators
     private String orderInformationDetail(String param) {
         return String.format("//*[@id='orderInfoDescriptions']/*//span[normalize-space()='%s']", param);
@@ -64,6 +73,24 @@ public class OrderDetailsPage extends CommonPageFactory {
         return String.format("//*[@id='prodTableId']/*//tbody//tr//td[normalize-space()='%s']/following-sibling::td[normalize-space()='%s']/following-sibling::td[normalize-space()='%s']", productFamily.toUpperCase(), bloodType.toUpperCase(), quantity);
     }
 
+    private String availableInventory(String productFamily, String bloodType, Integer quantity) {
+        return String.format("//*[@id='prodTableId']/*//tbody//tr//td[normalize-space()='%s']/following-sibling::td[normalize-space()='%s']/following-sibling::td[normalize-space()='%s']/following-sibling::td[1]", productFamily.toUpperCase(), bloodType.toUpperCase(), quantity);
+    }
+
+    private String pickListHeaderDetails(String detail) {
+        return String.format("//*[@id='viewPickListReport']//table[@id='pickListTable']//td[contains(normalize-space(),'%s')]", detail);
+    }
+
+    private String pickListProductDetails(String detail) {
+        return String.format("//*[@id='viewPickListReport']//table[@id='productDetailsTable']//td[contains(normalize-space(),'%s')]", detail);
+    }
+
+    // Strings mappers
+
+    private Map<String, String> productFamilyDescription = Map.of(
+        "PLASMA_TRANSFUSABLE", "Plasma Transfusable"
+    );
+
 
     @Override
     public boolean isLoaded() {
@@ -79,6 +106,7 @@ public class OrderDetailsPage extends CommonPageFactory {
     }
 
     public void verifyOrderDetailsCard(String externalId, Integer orderId, String orderPriority, String orderStatus, String orderComments) {
+        sharedActions.waitForNotVisible(tableLoadingOverlay);
         sharedActions.waitForVisible(driver.findElement(By.xpath(orderInformationDetail(externalId))));
         sharedActions.waitForVisible(driver.findElement(By.xpath(orderInformationDetail(orderId.toString()))));
         sharedActions.waitForVisible(driver.findElement(By.xpath(orderInformationDetail(orderPriority))));
@@ -161,4 +189,45 @@ public class OrderDetailsPage extends CommonPageFactory {
     public void viewPickListButton() {
         sharedActions.waitForVisible(viewPickListButton);
     }
+
+    public void checkAvailableInventory(String[] productFamily, String[] bloodType, String[] quantity) {
+        for (int i = 0; i < productFamily.length; i++) {
+            String productFamilyDescription = productFamily[i].replace("_", " ");
+            sharedActions.waitForVisible(driver.findElement(By.xpath(availableInventory(productFamilyDescription, bloodType[i], Integer.valueOf(quantity[i])))));
+            Assert.assertFalse(sharedActions.isElementEmpty(driver.findElement(By.xpath(availableInventory(productFamilyDescription, bloodType[i], Integer.valueOf(quantity[i]))))));
+
+        }
+    }
+
+    public void verifyPickListHeaderDetails(String orderNumber, String shippingCustomerCode, String customerName, String comments) {
+        sharedActions.waitForNotVisible(tableLoadingOverlay);
+        sharedActions.waitForVisible(By.xpath(pickListHeaderDetails(orderNumber)));
+        sharedActions.waitForVisible(By.xpath(pickListHeaderDetails(shippingCustomerCode)));
+        sharedActions.waitForVisible(By.xpath(pickListHeaderDetails(customerName)));
+        sharedActions.waitForVisible(By.xpath(pickListHeaderDetails(comments)));
+    }
+
+    public void verifyPickListProductDetails(String[] productFamily, String[] bloodType, String[] quantity, String[] comments) {
+        for (int i = 0; i < productFamily.length; i++) {
+            sharedActions.waitForVisible(By.xpath(pickListProductDetails(productFamilyDescription.get(productFamily[i]))));
+            sharedActions.waitForVisible(By.xpath(pickListProductDetails(bloodType[i])));
+            sharedActions.waitForVisible(By.xpath(pickListProductDetails(quantity[i])));
+            sharedActions.waitForVisible(By.xpath(pickListProductDetails(comments[i])));
+        }
+    }
+
+    public void verifyShortDateProductDetails(boolean isThereShortDateProduct) {
+        if (isThereShortDateProduct) {
+            sharedActions.waitForVisible(shortDateDetailsTableRows.getFirst());
+            Assert.assertFalse(shortDateDetailsTableRows.isEmpty());
+        } else {
+            sharedActions.waitForVisible(noShortDateDetailsMessage);
+        }
+    }
+
+    public void closePickListModal() {
+        sharedActions.waitForVisible(closeViewPickListDialogButton);
+        sharedActions.click(closeViewPickListDialogButton);
+    }
+
 }

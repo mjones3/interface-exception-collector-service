@@ -95,7 +95,7 @@
                     </thead>
 
                     @if (pickList.pickListItems?.length) {
-                        <tbody>
+                        <tbody id="pickListItemsRows">
                             @for (
                                 pickListItem of pickList?.pickListItems;
                                 track $index

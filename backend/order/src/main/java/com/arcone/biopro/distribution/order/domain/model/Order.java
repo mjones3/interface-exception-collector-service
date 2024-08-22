@@ -127,7 +127,7 @@ public class Order implements Validatable {
         if (this.desiredShippingDate == null) {
             throw new IllegalArgumentException("desiredShippingDate cannot be null");
         }
-        if (this.desiredShippingDate.isBefore(LocalDate.now())) {
+        if (this.desiredShippingDate.isBefore(LocalDate.now()) && this.id == null) {
             throw new IllegalArgumentException("desiredShippingDate cannot be in the past");
         }
         if (this.productCategory == null) {

@@ -48,4 +48,8 @@ public class TestUtils {
         return String.format("rgba(%d, %d, %d, 1)", r, g, b);
     }
 
+    public String[] getCommaSeparatedList(String param) {
+        return Arrays.stream(param.split(",")).map(String::trim).toArray(String[]::new);
+    }
+
 }

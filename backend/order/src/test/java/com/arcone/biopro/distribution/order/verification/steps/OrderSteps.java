@@ -44,6 +44,10 @@ public class OrderSteps {
     private String bloodType;
     private Integer quantity;
     private String productComments;
+    private String[] productFamilies;
+    private String[] bloodTypes;
+    private String[] quantityList;
+    private String[] commentsList;
 
     private OrderController orderController = new OrderController();
     private JSONObject partnerOrder;
@@ -155,6 +159,18 @@ public class OrderSteps {
         this.productComments = comments;
         var query = DatabaseQueries.insertBioProOrderItem(this.externalId, productFamily, bloodType, quantity, comments);
         databaseService.executeSql(query).block();
+    }
+
+    @And("I have {int} order items with product families {string}, blood types {string}, quantities {string}, and order item comments {string}.")
+    public void createMultipleOrderItem(Integer itemQuantity, String productFamily, String bloodType, String quantities, String comments) {
+        this.productFamilies = testUtils.getCommaSeparatedList(productFamily);
+        this.bloodTypes = testUtils.getCommaSeparatedList(bloodType);
+        this.quantityList = testUtils.getCommaSeparatedList(quantities);
+        this.commentsList = testUtils.getCommaSeparatedList(comments);
+        for (int i = 0; i < itemQuantity; i++) {
+            var query = DatabaseQueries.insertBioProOrderItem(this.externalId, productFamilies[i], bloodTypes[i], Integer.parseInt(quantityList[i]), commentsList[i]);
+            databaseService.executeSql(query).block();
+        }
     }
 
     @Given("I have a Biopro Order with externalId {string}, Location Code {string}, Priority {string}, Status {string}, shipment type {string}, delivery type {string}, shipping method {string}, product category {string}, desired ship date {string}, shipping customer code and name as {string} and {string}, billing customer code and name as {string} and {string}, and comments {string}.")
@@ -270,6 +286,19 @@ public class OrderSteps {
         orderDetailsPage.verifyProductDetailsSection(productFamilyDescription, this.bloodType, this.quantity, this.productComments);
     }
 
+    @And("I can see the Product Details section filled with all the product details.")
+    public void checkAllProductDetailsSection() {
+        for (int i = 0; i < this.productFamilies.length; i++) {
+            var productFamilyDescription = this.productFamilies[i].replace("_", " ");
+            orderDetailsPage.verifyProductDetailsSection(productFamilyDescription, this.bloodTypes[i], Integer.parseInt(this.quantityList[i]), this.commentsList[i]);
+        }
+    }
+
+    @And("I can see the number of Available Inventories for each line item.")
+    public void checkAvailableInventory() {
+        orderDetailsPage.checkAvailableInventory(this.productFamilies, this.bloodTypes, this.quantityList);
+    }
+
     @When("I choose to generate the Pick List.")
     public void whenIChooseViewPickList() {
         orderDetailsPage.openViewPickListModal();
@@ -284,48 +313,35 @@ public class OrderSteps {
         Assert.assertEquals(this.shippingCustomerName, shipmentDetails.get("customerName"));
     }
 
-    @And("I am able to view the correct Shipment Details for the {string} product.")
-    public void matchProductDetails(String familyDescription) {
-        var productDetails = this.orderDetailsPage.getProductDetailsTableContent();
-//        log.info("productDetails {}", this.shipmentDetailType.getItems());
-//        log.info("Map Details {}", productDetails);
-//        Assert.assertNotNull(productDetails);
-//        if (this.shipmentDetailType.getItems() != null && !this.shipmentDetailType.getItems().isEmpty()) {
-//            this.shipmentDetailType.getItems().forEach(item -> {
-//                var mapKey = item.getQuantity() + ":" + familyDescription + ":" + item.getBloodType();
-//                log.info("comparing key {}", mapKey);
-//                Assert.assertNotNull(productDetails.get(mapKey));
-//            });
-//        }
-    }
-
-    @And("I am able to view the correct Shipment Details with short date products for the {string} family.")
-    public void matchProductDetailsWithShortDate(String familyDescription) {
-        var productDetails = this.orderDetailsPage.getProductDetailsTableContent();
-        var shortDateDetails = this.orderDetailsPage.getShortDateProductDetailsTableContent();
-
-//        log.info("productDetails {}", this.shipmentDetailType.getItems());
-//        log.info("Map Details {}", productDetails);
-//        log.info("Short Date Map Details {}", shortDateDetails);
-//        Assert.assertNotNull(productDetails);
-//        if (this.shipmentDetailType.getItems() != null && !this.shipmentDetailType.getItems().isEmpty()) {
-//            this.shipmentDetailType.getItems().forEach(item -> {
-//                var mapKey = item.getQuantity() + ":" + familyDescription + ":" + item.getBloodType();
-//                log.info("comparing key {}", mapKey);
-//                Assert.assertNotNull(productDetails.get(mapKey));
-//                if (item.getShortDateProducts() != null && !item.getShortDateProducts().isEmpty()) {
-//                    item.getShortDateProducts().forEach(shortDateItem -> {
-//                        var mapShortDateKey = shortDateItem.getUnitNumber() + ":" + shortDateItem.getProductCode() + ":" + item.getBloodType();
-//                        log.info("Comparing Short Date key {}", mapShortDateKey);
-//                        Assert.assertNotNull(shortDateDetails.get(mapShortDateKey));
-//                    });
-//                }
-//            });
-//        }
-    }
-
     @And("I should see a message {string} indicating There are no suggested short-dated products.")
     public void matchNoShortDateProductsMessage(String message) {
         Assert.assertEquals(message, this.orderDetailsPage.getNoShortDateMessageContent());
+    }
+
+    @Then("I can see the pick list details.")
+    public void checkPickListDetails() {
+        orderDetailsPage.verifyPickListHeaderDetails(this.orderId.toString(), this.shippingCustomerCode, this.shippingCustomerName, this.orderComments);
+        orderDetailsPage.verifyPickListProductDetails(
+            this.productFamilies != null ? this.productFamilies : new String[]{this.productFamily},
+            this.bloodTypes != null ? this.bloodTypes : new String[]{this.bloodType},
+            this.quantityList != null ? this.quantityList : new String[]{this.quantity.toString()},
+            this.commentsList != null ? this.commentsList : new String[]{this.productComments}
+        );
+    }
+
+    @And("I {string} see the short date product details.")
+    public void checkShortDateProductDetails(String should) {
+        if (should.equals("CAN")) {
+            orderDetailsPage.verifyShortDateProductDetails(true);
+        } else if (should.equals("CANNOT")) {
+            orderDetailsPage.verifyShortDateProductDetails(false);
+        } else {
+            Assert.fail("Invalid option for short date product details.");
+        }
+    }
+
+    @When("I close the pick list.")
+    public void closePickList() {
+        orderDetailsPage.closePickListModal();
     }
 }

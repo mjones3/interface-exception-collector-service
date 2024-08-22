@@ -35,6 +35,25 @@ public class SharedActions {
         }
     }
 
+    public void waitForVisible(By locator) {
+        try {
+            wait.until(e -> {
+                log.debug("Waiting for element {} to be visible.", locator);
+                try {
+                    return e.findElement(locator).isDisplayed();
+                } catch (NoSuchElementException ex) {
+                    // Element not found, consider it as not visible
+                    log.debug("Element {} not found, considering it as not visible.", locator);
+                    return false;
+                }
+            });
+            log.debug("Element {} is visible now.", locator);
+        } catch (Exception e) {
+            log.error("Element {} is not visible after the specified timeout.", locator);
+            throw e;
+        }
+    }
+
 
     public void waitForNotVisible(WebElement element) {
         try {
@@ -94,7 +113,7 @@ public class SharedActions {
         driver.switchTo().window(driver.getWindowHandles().toArray(new String[0])[1]);
     }
 
-    public void clickElementAndMoveToNewTab(WebDriver driver, WebElement element){
+    public void clickElementAndMoveToNewTab(WebDriver driver, WebElement element) {
         // When not specified, the expected quantity of windows will be 3
         // First tab (original), second tab (after click), and print dialog.
         this.clickElementAndMoveToNewTab(driver, element, 3);
@@ -131,5 +150,9 @@ public class SharedActions {
             log.debug("Waiting for loading animation to disappear.");
             return e.findElements(By.cssSelector(loadingAnimationLocator)).isEmpty();
         });
+    }
+
+    public boolean isElementEmpty(WebElement element) {
+        return element.getText().isEmpty();
     }
 }
