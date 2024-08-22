@@ -10,6 +10,23 @@ spec:
   gateways:
     - {{ .Values.istio.gateway }}
   http:
+    - corsPolicy:
+        allowCredentials: true
+        allowHeaders:
+          - Content-Type
+          - Authorization
+          - Accept
+          - x-rsa-time-zone
+        allowMethods:
+          - POST
+          - GET
+          - PUT
+          - DELETE
+        allowOrigins:
+          - exact: '*'
+        exposeHeaders:
+          - X-Total-Count
+        maxAge: 24h
     - match:
         {{- toYaml .Values.istio.services | nindent 8 }}
       route:
