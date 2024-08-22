@@ -60,7 +60,7 @@ class LabelAppliedUseCaseTest {
             ProductFamily.PLASMA_TRANSFUSABLE,
             AboRhType.ABN,
             ZonedDateTime.now(),
-            ZonedDateTime.now());
+            ZonedDateTime.now(), null,null);
         InventoryInput input = new InventoryInput(
             "W123456789012",
             "E1234V12",

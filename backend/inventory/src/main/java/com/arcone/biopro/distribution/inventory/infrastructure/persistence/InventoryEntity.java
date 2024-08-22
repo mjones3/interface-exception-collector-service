@@ -82,6 +82,13 @@ public class InventoryEntity implements Serializable, Persistable<UUID> {
     @LastModifiedDate
     ZonedDateTime modificationDate;
 
+    @Column("device_stored")
+    String deviceStored;
+
+    @Column("storage_location")
+    String storageLocation;
+
+
     @JsonIgnore
     @Override
     public boolean isNew() {

@@ -277,3 +277,5 @@ topic:
     name: LabelApplied
   shipment-completed:
     name: ShipmentCompleted
+  product-stored:
+    name: ProductStored
