@@ -33,7 +33,23 @@ istio:
   services:
     - uri:
         prefix: /shipping/graphql
-
+      corsPolicy:
+        allowOrigins:
+          - exact: "*"
+        allowMethods:
+          - POST
+          - GET
+          - PUT
+          - DELETE
+        allowCredentials: true
+        allowHeaders:
+          - Content-Type
+          - Authorization
+          - Accept
+          - x-rsa-time-zone
+        exposeHeaders:
+          - X-Total-Count
+        maxAge: 24h
 serviceAccount:
   # Specifies whether a service account should be created
   create: true
