@@ -44,6 +44,10 @@ public class OrderSteps {
     private String bloodType;
     private Integer quantity;
     private String productComments;
+    private String[] productFamilies;
+    private String[] bloodTypes;
+    private String[] quantityList;
+    private String[] commentsList;
 
     private OrderController orderController = new OrderController();
     private JSONObject partnerOrder;
@@ -85,28 +89,6 @@ public class OrderSteps {
         Assert.assertNotNull(event);
     }
 
-    @Given("I cleaned up from the database the orders with external ID {string}.")
-    public void cleanUpOrders(String externalId) {
-        var externalIdParam = testUtils.formatSqlCommaSeparatedInParamList(externalId);
-        var childQuery = DatabaseQueries.deleteOrderItemsByExternalId(externalIdParam);
-        databaseService.executeSql(childQuery).block();
-        var query = DatabaseQueries.deleteOrdersByExternalId(externalIdParam);
-        databaseService.executeSql(query).block();
-    }
-
-    @And("I cleaned up from the database the orders with external ID starting with {string}.")
-    public void cleanUpOrdersStartingWith(String externalIdPrefix) {
-        var childQuery = DatabaseQueries.deleteOrderItemsByExternalIdStartingWith(externalIdPrefix);
-        databaseService.executeSql(childQuery).block();
-        var query = DatabaseQueries.deleteOrdersByExternalIdStartingWith(externalIdPrefix);
-        databaseService.executeSql(query).block();
-    }
-
-    @And("I have restored the default configuration for the order priority colors.")
-    public void restoreDefaultPriorityColors() {
-        var query = DatabaseQueries.restoreDefaultPriorityColors();
-        databaseService.executeSql(query).block();
-    }
 
     @Given("I have received an order inbound request with externalId {string} and content {string}.")
     public void postOrderReceivedEvent(String externalId, String jsonFileName) throws Exception {
@@ -177,6 +159,18 @@ public class OrderSteps {
         this.productComments = comments;
         var query = DatabaseQueries.insertBioProOrderItem(this.externalId, productFamily, bloodType, quantity, comments);
         databaseService.executeSql(query).block();
+    }
+
+    @And("I have {int} order items with product families {string}, blood types {string}, quantities {string}, and order item comments {string}.")
+    public void createMultipleOrderItem(Integer itemQuantity, String productFamily, String bloodType, String quantities, String comments) {
+        this.productFamilies = testUtils.getCommaSeparatedList(productFamily);
+        this.bloodTypes = testUtils.getCommaSeparatedList(bloodType);
+        this.quantityList = testUtils.getCommaSeparatedList(quantities);
+        this.commentsList = testUtils.getCommaSeparatedList(comments);
+        for (int i = 0; i < itemQuantity; i++) {
+            var query = DatabaseQueries.insertBioProOrderItem(this.externalId, productFamilies[i], bloodTypes[i], Integer.parseInt(quantityList[i]), commentsList[i]);
+            databaseService.executeSql(query).block();
+        }
     }
 
     @Given("I have a Biopro Order with externalId {string}, Location Code {string}, Priority {string}, Status {string}, shipment type {string}, delivery type {string}, shipping method {string}, product category {string}, desired ship date {string}, shipping customer code and name as {string} and {string}, billing customer code and name as {string} and {string}, and comments {string}.")
@@ -290,5 +284,64 @@ public class OrderSteps {
     public void checkProductDetailsSection() {
         var productFamilyDescription = this.productFamily.replace("_", " ");
         orderDetailsPage.verifyProductDetailsSection(productFamilyDescription, this.bloodType, this.quantity, this.productComments);
+    }
+
+    @And("I can see the Product Details section filled with all the product details.")
+    public void checkAllProductDetailsSection() {
+        for (int i = 0; i < this.productFamilies.length; i++) {
+            var productFamilyDescription = this.productFamilies[i].replace("_", " ");
+            orderDetailsPage.verifyProductDetailsSection(productFamilyDescription, this.bloodTypes[i], Integer.parseInt(this.quantityList[i]), this.commentsList[i]);
+        }
+    }
+
+    @And("I can see the number of Available Inventories for each line item.")
+    public void checkAvailableInventory() {
+        orderDetailsPage.checkAvailableInventory(this.productFamilies, this.bloodTypes, this.quantityList);
+    }
+
+    @When("I choose to generate the Pick List.")
+    public void whenIChooseViewPickList() {
+        orderDetailsPage.openViewPickListModal();
+    }
+
+    @Then("I am able to view the correct Order Details.")
+    public void matchOrderDetails() {
+        var shipmentDetails = this.orderDetailsPage.getShipmentDetailsTableContent();
+        Assert.assertNotNull(shipmentDetails);
+        Assert.assertEquals(this.orderId.toString(), shipmentDetails.get("orderNumber"));
+        Assert.assertEquals(this.shippingCustomerCode, shipmentDetails.get("shippingCustomerCode"));
+        Assert.assertEquals(this.shippingCustomerName, shipmentDetails.get("customerName"));
+    }
+
+    @And("I should see a message {string} indicating There are no suggested short-dated products.")
+    public void matchNoShortDateProductsMessage(String message) {
+        Assert.assertEquals(message, this.orderDetailsPage.getNoShortDateMessageContent());
+    }
+
+    @Then("I can see the pick list details.")
+    public void checkPickListDetails() {
+        orderDetailsPage.verifyPickListHeaderDetails(this.orderId.toString(), this.shippingCustomerCode, this.shippingCustomerName, this.orderComments);
+        orderDetailsPage.verifyPickListProductDetails(
+            this.productFamilies != null ? this.productFamilies : new String[]{this.productFamily},
+            this.bloodTypes != null ? this.bloodTypes : new String[]{this.bloodType},
+            this.quantityList != null ? this.quantityList : new String[]{this.quantity.toString()},
+            this.commentsList != null ? this.commentsList : new String[]{this.productComments}
+        );
+    }
+
+    @And("I {string} see the short date product details.")
+    public void checkShortDateProductDetails(String should) {
+        if (should.equals("CAN")) {
+            orderDetailsPage.verifyShortDateProductDetails(true);
+        } else if (should.equals("CANNOT")) {
+            orderDetailsPage.verifyShortDateProductDetails(false);
+        } else {
+            Assert.fail("Invalid option for short date product details.");
+        }
+    }
+
+    @When("I close the pick list.")
+    public void closePickList() {
+        orderDetailsPage.closePickListModal();
     }
 }

@@ -5,6 +5,7 @@ import com.arcone.biopro.distribution.order.infrastructure.service.dto.CustomerB
 import com.arcone.biopro.distribution.order.infrastructure.service.dto.CustomerDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Controller;
@@ -13,6 +14,7 @@ import reactor.core.publisher.Mono;
 @Controller
 @RequiredArgsConstructor
 @Slf4j
+@Profile("customer-mock")
 public class CustomerMockController {
 
     private final CustomerService customerService;

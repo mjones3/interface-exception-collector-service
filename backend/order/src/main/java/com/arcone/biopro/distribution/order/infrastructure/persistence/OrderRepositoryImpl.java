@@ -94,4 +94,22 @@ public class OrderRepositoryImpl implements OrderRepository {
                         .publishOn(Schedulers.boundedElastic()) )
             );
     }
+
+    @Override
+    public Mono<Order> findOneByOrderNumber(Long number) {
+        return this.entityTemplate
+            .select(OrderEntity.class)
+            .matching(query(
+                where("orderNumber").is(number)
+                    .and("deleteDate").isNull()
+            ))
+            .one()
+            .flatMap(orderEntity ->
+                findAllOrderItemEntitiesByOrderId(orderEntity.getId())
+                    .collect(Collectors.toList())
+                    .flatMap(orderItemEntities -> Mono.fromCallable(()-> orderEntityMapper
+                            .mapToDomain(orderEntity, orderItemEntities))
+                        .publishOn(Schedulers.boundedElastic()) )
+            );
+    }
 }

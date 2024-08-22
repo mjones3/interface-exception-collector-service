@@ -164,3 +164,5 @@ testem.log
 /typings
 .nx
 ui/.nx-cache
+/**/report/allure-report
+/**/report/allure-results

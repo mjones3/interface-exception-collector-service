@@ -19,6 +19,7 @@ type Mutation {
     insertLookup(lookup: LookupInput!): Lookup!
     updateLookup(lookup: LookupInput!): Lookup!
     deleteLookup(lookup: LookupInput!): Lookup!
+    generatePickList(orderId: ID!):PickListDTO!
 }
 
 input LookupIdInput {
@@ -108,6 +109,7 @@ type OrderItem {
     comments: String
     createDate: DateTime!
     modificationDate: DateTime!
+    quantityAvailable:Int
 }
 
 type Order {
@@ -171,3 +173,31 @@ input QueryOrderByDTO {
     property:String
     direction:String
 }
+
+type PickListDTO {
+    orderNumber:Int
+    customer:PickListCustomerDTO
+    pickListItems:[PickListItemDTO]
+    orderComments:String
+}
+
+type PickListCustomerDTO {
+    code:String
+    name:String
+}
+
+type PickListItemDTO {
+    productFamily:String
+    bloodType:String
+    quantity:Int
+    comments:String
+    shortDateList:[PickListItemShortDateDTO]
+}
+
+type PickListItemShortDateDTO {
+    unitNumber:String
+    productCode:String
+    aboRh:String
+    storageLocation:String
+}
+
