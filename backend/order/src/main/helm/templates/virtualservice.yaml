@@ -10,7 +10,9 @@ spec:
   gateways:
     - {{ .Values.istio.gateway }}
   http:
-    - corsPolicy:
+    - match:
+        {{- toYaml .Values.istio.services | nindent 8 }}
+      corsPolicy:
         allowCredentials: true
         allowHeaders:
           - Content-Type
@@ -27,8 +29,6 @@ spec:
         exposeHeaders:
           - X-Total-Count
         maxAge: 24h
-    - match:
-        {{- toYaml .Values.istio.services | nindent 8 }}
       route:
         - destination:
             host: {{ include "api.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
