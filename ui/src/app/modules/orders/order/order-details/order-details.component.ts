@@ -55,6 +55,7 @@ import { ViewPickListComponent } from '../view-pick-list/view-pick-list.componen
     styleUrl: './order-details.component.scss',
 })
 export class OrderDetailsComponent implements OnInit {
+    protected readonly ProductFamilyMap = ProductFamilyMap;
     expandedRows = {};
     orderInfoDescriptions: Description[] = [];
     shippingInfoDescriptions: Description[] = [];
@@ -62,7 +63,7 @@ export class OrderDetailsComponent implements OnInit {
     orderDetailsInfo: OrderDetailsDto;
     products: OrderItemDetailsDto[] = [];
     loading = true;
-    protected readonly ProductFamilyMap = ProductFamilyMap;
+    loadingPickList = false;
 
     constructor(
         public header: ProcessHeaderService,
@@ -133,6 +134,7 @@ export class OrderDetailsComponent implements OnInit {
     }
 
     viewPickList(): void {
+        this.loadingPickList = true;
         this.orderService.generatePickList(this.orderId).subscribe({
             next: (result) => {
                 const pickListDTO = result.data.generatePickList;
@@ -144,6 +146,7 @@ export class OrderDetailsComponent implements OnInit {
                 dialogRef.componentInstance.model$ = of(pickListDTO);
             },
             error: this.handleError,
+            complete: () => (this.loadingPickList = false),
         });
     }
 
@@ -153,10 +156,10 @@ export class OrderDetailsComponent implements OnInit {
 
     handleError(error: ApolloError): void {
         if (error?.cause?.message) {
-            this.toaster.warning(error?.cause?.message);
+            this.toaster?.warning(error?.cause?.message);
             return;
         }
-        this.toaster.error(ERROR_MESSAGE);
+        this.toaster?.error(ERROR_MESSAGE);
         throw error;
     }
 }

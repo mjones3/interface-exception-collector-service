@@ -88,7 +88,7 @@ class ShipmentLabelServiceUseCaseTest {
         Mockito.when(shipment.getOrderNumber()).thenReturn(56L);
         Mockito.when(shipment.getStatus()).thenReturn(ShipmentStatus.COMPLETED);
         Mockito.when(shipment.getPriority()).thenReturn(ShipmentPriority.ASAP);
-        Mockito.when(shipment.getCustomerCode()).thenReturn(35L);
+        Mockito.when(shipment.getCustomerCode()).thenReturn("35");
         Mockito.when(shipment.getCustomerName()).thenReturn("customer_name");
         Mockito.when(shipment.getAddressLine1()).thenReturn("customer_address_line_1");
         Mockito.when(shipment.getAddressLine2()).thenReturn("customer_address_line_2");
@@ -158,7 +158,7 @@ class ShipmentLabelServiceUseCaseTest {
                 Assertions.assertEquals(Optional.of("Address Line 2"), Optional.of(detail.shipFrom().bloodCenterAddressLine2()));
                 Assertions.assertEquals(Optional.of("city, state, postal_code"), Optional.of(detail.shipFrom().bloodCenterAddressComplement()));
                 Assertions.assertNotNull(detail.shipTo());
-                Assertions.assertEquals(Optional.of(35L), Optional.of(detail.shipTo().customerCode()));
+                Assertions.assertEquals(Optional.of("35"), Optional.of(detail.shipTo().customerCode()));
                 Assertions.assertEquals(Optional.of("customer_name"), Optional.of(detail.shipTo().customerName()));
                 Assertions.assertEquals(Optional.of("customer_address_line_1"), Optional.of(detail.shipTo().addressLine1()));
                 Assertions.assertEquals(Optional.of("customer_address_line_2"), Optional.of(detail.shipTo().addressLine2()));
@@ -176,7 +176,7 @@ class ShipmentLabelServiceUseCaseTest {
         Mockito.when(shipment.getOrderNumber()).thenReturn(56L);
         Mockito.when(shipment.getStatus()).thenReturn(ShipmentStatus.COMPLETED);
         Mockito.when(shipment.getPriority()).thenReturn(ShipmentPriority.ASAP);
-        Mockito.when(shipment.getCustomerCode()).thenReturn(35L);
+        Mockito.when(shipment.getCustomerCode()).thenReturn("35");
         Mockito.when(shipment.getCustomerName()).thenReturn("customer_name");
         Mockito.when(shipment.getAddressLine1()).thenReturn("customer_address_line_1");
         Mockito.when(shipment.getAddressLine2()).thenReturn("customer_address_line_2");
@@ -222,7 +222,7 @@ class ShipmentLabelServiceUseCaseTest {
                 Assertions.assertEquals(Optional.of("city, state, postal_code"), Optional.of(detail.shipFrom().bloodCenterAddressComplement()));
                 Assertions.assertEquals(Optional.of("(704) 972-4742"), Optional.of(detail.shipFrom().phoneNumber()));
                 Assertions.assertNotNull(detail.shipTo());
-                Assertions.assertEquals(Optional.of(35L), Optional.of(detail.shipTo().customerCode()));
+                Assertions.assertEquals(Optional.of("35"), Optional.of(detail.shipTo().customerCode()));
                 Assertions.assertEquals(Optional.of("customer_name"), Optional.of(detail.shipTo().customerName()));
                 Assertions.assertEquals(Optional.of("customer_address_line_1"), Optional.of(detail.shipTo().addressLine1()));
                 Assertions.assertEquals(Optional.of("customer_address_line_2"), Optional.of(detail.shipTo().addressLine2()));

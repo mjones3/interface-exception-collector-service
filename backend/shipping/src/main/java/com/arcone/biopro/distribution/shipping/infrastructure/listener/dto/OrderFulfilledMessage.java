@@ -10,9 +10,9 @@ public record OrderFulfilledMessage(
     Long id,
     Long orderNumber,
 
-    Long shippingCustomerCode,
+    String shippingCustomerCode,
 
-    Long billingCustomerCode,
+    String billingCustomerCode,
     String locationCode,
 
     String deliveryType,

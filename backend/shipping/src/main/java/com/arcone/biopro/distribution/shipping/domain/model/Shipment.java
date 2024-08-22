@@ -34,7 +34,7 @@ public class Shipment implements Serializable, Persistable<Long> {
 
     @NotNull
     @Column("customer_code")
-    private Long customerCode;
+    private String customerCode;
 
     @NotNull
     @Column("customer_name")
