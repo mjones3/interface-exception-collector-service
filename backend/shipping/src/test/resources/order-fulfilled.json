@@ -2,7 +2,7 @@
   "orderNumber": {order.number},
   "priority": "ASAP",
   "status": "OPEN",
-  "shippingCustomerCode": 1,
+  "shippingCustomerCode": "1",
   "locationCode": "MDL_HUB_1",
   "deliveryType": "TEST",
   "shippingMethod": "TEST",
