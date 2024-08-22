@@ -34,12 +34,22 @@ class KafkaConfiguration {
 
     @Value("${topic.shipment-completed.name}")
     private String shipmentCompletedTopic;
+    @Value("${topic.product-stored.name}")
+    private String productStoredTopic;
+
 
     @Bean
     @Qualifier("LABEL_APPLIED")
     ReceiverOptions<String, String> labelAppliedReceiverOptions(KafkaProperties kafkaProperties) {
         return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
             .subscription(List.of(labelAppliedTopic));
+    }
+
+    @Bean
+    @Qualifier("PRODUCT_STORED")
+    ReceiverOptions<String, String> productStoredReceiverOptions(KafkaProperties kafkaProperties) {
+        return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
+            .subscription(List.of(productStoredTopic));
     }
 
     @Bean
@@ -69,6 +79,18 @@ class KafkaConfiguration {
     @Bean(name = "SHIPMENT_COMPLETED_CONSUMER")
     ReactiveKafkaConsumerTemplate<String, String> shipmentCompletedConsumerTemplate(
         @Qualifier("SHIPMENT_COMPLETED") ReceiverOptions<String, String> receiverOptions
+    ) {
+        return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
+    }
+
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "ProductStored",
+        description = "Product Stored has been listened and an storage is created",
+        payloadType = LabelAppliedMessage.class
+    ))
+    @Bean(name = "PRODUCT_STORED_CONSUMER")
+    ReactiveKafkaConsumerTemplate<String, String> productStoredConsumerTemplate(
+        @Qualifier("PRODUCT_STORED") ReceiverOptions<String, String> receiverOptions
     ) {
         return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
     }

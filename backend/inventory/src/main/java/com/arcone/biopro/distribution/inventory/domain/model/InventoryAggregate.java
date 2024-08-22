@@ -19,11 +19,6 @@ public class InventoryAggregate {
 
     ErrorMessage errorMessage;
 
-    public InventoryAggregate setStorage() {
-
-        return this;
-    }
-
 
     public Boolean isExpired() {
         return inventory.getExpirationDate().isBefore(LocalDateTime.now());
@@ -52,4 +47,11 @@ public class InventoryAggregate {
         inventory.setInventoryStatus(InventoryStatus.SHIPPED);
         return this;
     }
+
+    public InventoryAggregate updateStorage(String deviceStored, String storageLocation) {
+        inventory.setDeviceStored(deviceStored);
+        inventory.setStorageLocation(storageLocation);
+        return this;
+    }
+
 }

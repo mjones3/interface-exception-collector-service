@@ -1,10 +1,13 @@
 package com.arcone.biopro.distribution.inventory.verification.steps;
 
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ProductFamily;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntity;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntityRepository;
 import com.arcone.biopro.distribution.inventory.verification.utils.TestUtils;
 import io.cucumber.java.Before;
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -16,7 +19,11 @@ import org.springframework.core.io.Resource;
 import org.springframework.r2dbc.connection.init.ResourceDatabasePopulator;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -28,6 +35,9 @@ public class KafkaListenersSteps {
     @Value("${topic.label-applied.name}")
     private String labelAppliedTopic;
 
+    @Value("${topic.product-stored.name}")
+    private String productStoredTopic;
+
     @Value("${topic.shipment-completed.name}")
     private String shipmentCompletedTopic;
 
@@ -38,8 +48,8 @@ public class KafkaListenersSteps {
            "payload" : {
                 "shipmentId":2,
                 "orderNumber":1,
-                "unitNumber":"W036898786800",
-                "productCode":"E7644V00",
+                "unitNumber":"%s",
+                "productCode":"%s",
                 "performedBy":"test-emplyee-id",
                 "createDate":"2024-06-14T15:17:25.666122Z"
             }
@@ -52,6 +62,7 @@ public class KafkaListenersSteps {
     @Autowired
     private InventoryEntityRepository inventoryEntityRepository;
 
+
     @Value("classpath:/db/data.sql")
     private Resource testDataSql;
 
@@ -63,10 +74,10 @@ public class KafkaListenersSteps {
             "eventType":"LabelApplied",
             "eventVersion":"1.0",
             "payload":{
-               "unitNumber":"W123452622168",
-               "productCode":"E0869VA0",
+               "unitNumber":"%s",
+               "productCode":"%s",
                "shortDescription":"APH PLASMA 24H",
-               "location":"MIAMI",
+               "location":"%s",
                "aboRh":"OP",
                "productFamily": "PLASMA_TRANSFUSABLE",
                "collectionDate":"2025-01-08T06:00:00.000Z",
@@ -78,7 +89,26 @@ public class KafkaListenersSteps {
         """;
     private static final String SHIPMENT_COMPLETED = "Shipment Completed";
 
+    private static final String PRODUCT_STORED_MESSAGE = """
+        {
+          "eventType": "ProductStored",
+          "eventVersion": "1.0",
+          "payload": {
+            "unitNumber": "%s",
+            "productCode": "%s",
+            "deviceStored": "Freezer001",
+            "deviceUse": "Initial Freezer",
+            "storageLocation": "Bin001,Shelf002,Tray001",
+            "location": "%s",
+            "locationType": "Blood Center",
+            "storageTime": "2025-01-08T06:00:00.000Z",
+            "performedBy": "userId"
+          }
+        }
+        """;
+
     private static final String EVENT_LABEL_APPLIED = "Label Applied";
+    private static final String EVENT_PRODUCT_STORED = "Product Stored";
 
     private Map<String, String> topicsMap;
 
@@ -93,61 +123,58 @@ public class KafkaListenersSteps {
         populateTestData();
         topicsMap = Map.of(
             EVENT_LABEL_APPLIED, labelAppliedTopic,
-            SHIPMENT_COMPLETED, shipmentCompletedTopic);
+            SHIPMENT_COMPLETED, shipmentCompletedTopic,
+            EVENT_PRODUCT_STORED, productStoredTopic
+        );
 
         messagesMap = Map.of(
             EVENT_LABEL_APPLIED, LABEL_APPLIED_MESSAGE,
-            SHIPMENT_COMPLETED, SHIPMENT_COMPLETED_MESSAGE);
+            EVENT_PRODUCT_STORED, PRODUCT_STORED_MESSAGE,
+            SHIPMENT_COMPLETED, SHIPMENT_COMPLETED_MESSAGE
+            );
     }
 
     @Given("I am listening the {string} event")
     public void iAmListeningEvent(String event) {
         topicName = topicsMap.get(event);
+        if (!EVENT_LABEL_APPLIED.equals(event)) {
+            createInventory("W123452622168", "E0869VA0", ProductFamily.PLASMA_TRANSFUSABLE, AboRhType.OP, "Miami", 10, InventoryStatus.AVAILABLE);
+        }
+
+    }
+
+    private void createInventory(String unitNumber, String productCode, ProductFamily productFamily, AboRhType aboRhType, String location, Integer daysToExpire, InventoryStatus status) {
+        inventoryEntityRepository.save(InventoryEntity.builder()
+            .id(UUID.randomUUID())
+            .productFamily(productFamily)
+            .aboRh(aboRhType)
+            .location(location)
+            .collectionDate(ZonedDateTime.now().toString())
+            .inventoryStatus(status)
+            .expirationDate(LocalDateTime.now().plusDays(daysToExpire))
+            .unitNumber(unitNumber)
+            .productCode(productCode)
+            .shortDescription("Short description")
+            .build()).block();
+
     }
 
     @When("I receive an event {string} event")
     public void iReceiveAnEvent(String event) throws Exception {
         testUtils.kafkaSender(
             "W123452622168-E0869VA0",
-            messagesMap.get(event),
+            buildMessage(event),
             topicName);
     }
 
     @Then("The inventory status is {string}")
     public void theInventoryIsCreatedCorrectly(String status) throws InterruptedException {
-        int maxTryCount = 60;
-        int tryCount = 0;
+        InventoryEntity entity = getInventoryWithRetry("W123452622168", "E0869VA0", InventoryStatus.valueOf(status));
 
-        InventoryEntity entity = null;
-        switch (topicName) {
-            case EVENT_LABEL_APPLIED: {
-                while (tryCount < maxTryCount && entity == null) {
-                    entity = inventoryEntityRepository.findByUnitNumberAndProductCode("W123452622168", "E0869VA0").block();
-
-                    tryCount++;
-                    waiter.await(1, TimeUnit.SECONDS);
-                }
-
-                assertNotNull(entity);
-                assertEquals("E0869VA0", entity.getProductCode());
-                assertEquals("W123452622168", entity.getUnitNumber());
-                assertEquals(status, entity.getInventoryStatus().name());
-            }
-            case SHIPMENT_COMPLETED: {
-                while (tryCount < maxTryCount && entity == null) {
-                    entity = inventoryEntityRepository.findByUnitNumberAndProductCode("W036898786800", "E0869VA0").block();
-                    assertNotNull(entity);
-                    assertNotEquals(entity.getInventoryStatus(), InventoryStatus.SHIPPED);
-                    tryCount++;
-                    waiter.await(1, TimeUnit.SECONDS);
-                }
-
-                assertEquals("E0869VA0", entity.getProductCode());
-                assertEquals("W123452622168", entity.getUnitNumber());
-                assertEquals(status, entity.getInventoryStatus().name());
-            }
-        }
-
+        assertNotNull(entity);
+        assertEquals("E0869VA0", entity.getProductCode());
+        assertEquals("W123452622168", entity.getUnitNumber());
+        assertEquals(status, entity.getInventoryStatus().name());
     }
 
     public void populateTestData() {
@@ -155,4 +182,61 @@ public class KafkaListenersSteps {
         resourceDatabasePopulator.addScript(testDataSql);
         Mono.from(resourceDatabasePopulator.populate(connectionFactory)).block();
     }
+
+    public String buildMessage(String eventType, String unitNumber, String productCode, String location){
+        return String.format(messagesMap.get(eventType),unitNumber, productCode, location);
+    }
+
+    public String buildMessage(String eventType){
+        return String.format(messagesMap.get(eventType),"W123452622168", "E0869VA0", "MIAMI");
+    }
+
+    public InventoryEntity getInventoryWithRetry(String unitNumber, String productCode, InventoryStatus status) throws InterruptedException {
+        int maxTryCount = 60;
+        int tryCount = 0;
+
+        InventoryEntity entity = null;
+        while (tryCount < maxTryCount && entity == null) {
+            entity = inventoryEntityRepository.findByUnitNumberAndProductCodeAndInventoryStatus(unitNumber, productCode, status).block();
+
+            tryCount++;
+            waiter.await(100, TimeUnit.MILLISECONDS);
+        }
+        return entity;
+    }
+
+    public InventoryEntity getStoredInventory(String unitNumber, String productCode, InventoryStatus status) throws InterruptedException {
+        int maxTryCount = 60;
+        int tryCount = 0;
+
+        InventoryEntity entity = null;
+        while (tryCount < maxTryCount && entity == null) {
+            entity = inventoryEntityRepository.findByUnitNumberAndProductCodeAndInventoryStatus(unitNumber, productCode, status).block();
+
+            if (Objects.nonNull(entity) && Objects.isNull(entity.getDeviceStored())) {
+                entity = null;
+            }
+
+            tryCount++;
+            waiter.await(1, TimeUnit.SECONDS);
+        }
+        return entity;
+    }
+
+    @When("I receive a {string} message with unit number {string}, product code {string} and location {string}")
+    public void iReceiveAMessageWithUnitNumberProductCodeAndLocation(String event, String unitNumber, String productCode, String location) throws Exception {
+        testUtils.kafkaSender(
+            "W123452622168-E0869VA0",
+            buildMessage(event, unitNumber, productCode, location),
+            topicName);
+    }
+
+    @And("For unit number {string} and product code {string} the device stored is {string} and the storage location is {string}")
+    public void forUnitNumberAndProductCodeTheDeviceStoredIsAndTheStorageLocationIs(String unitNumber, String productCode, String deviceStorage, String storageLocation) throws InterruptedException {
+        InventoryEntity inventory = getStoredInventory(unitNumber, productCode, InventoryStatus.AVAILABLE);
+        assertNotNull(inventory);
+        assertEquals(deviceStorage, inventory.getDeviceStored());
+        assertEquals(storageLocation, inventory.getStorageLocation());
+    }
+
 }

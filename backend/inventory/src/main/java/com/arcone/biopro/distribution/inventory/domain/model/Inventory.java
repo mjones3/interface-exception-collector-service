@@ -15,6 +15,7 @@ import java.util.UUID;
 
 @AllArgsConstructor
 @Getter
+@Setter
 public class Inventory {
 
     private UUID id;
@@ -25,7 +26,6 @@ public class Inventory {
 
     private String shortDescription;
 
-    @Setter
     private InventoryStatus inventoryStatus;
 
     private LocalDateTime expirationDate;
@@ -41,6 +41,10 @@ public class Inventory {
     private ZonedDateTime createDate;
 
     private ZonedDateTime modificationDate;
+
+    private String deviceStored;
+
+    private String storageLocation;
 
     Inventory(
         UnitNumber unitNumber,
@@ -61,5 +65,6 @@ public class Inventory {
         this.aboRh = aboRh;
         this.inventoryStatus = InventoryStatus.AVAILABLE;
         this.id = UUID.randomUUID();
+
     }
 }

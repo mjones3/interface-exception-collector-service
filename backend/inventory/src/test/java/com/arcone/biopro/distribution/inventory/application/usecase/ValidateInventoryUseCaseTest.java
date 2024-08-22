@@ -123,7 +123,7 @@ class ValidateInventoryUseCaseTest {
     }
 
     private InventoryAggregate createInventoryAggregate(InventoryStatus status, LocalDateTime expirationDate) {
-        return InventoryAggregate.builder().inventory(new Inventory(UUID.randomUUID(), new UnitNumber(UNIT_NUMBER), new ProductCode(PRODUCT_CODE), "shortDescription", status, expirationDate, "", LOCATION_1, ProductFamily.PLASMA_TRANSFUSABLE, AboRhType.OP, null, null)).build();
+        return InventoryAggregate.builder().inventory(new Inventory(UUID.randomUUID(), new UnitNumber(UNIT_NUMBER), new ProductCode(PRODUCT_CODE), "shortDescription", status, expirationDate, "", LOCATION_1, ProductFamily.PLASMA_TRANSFUSABLE, AboRhType.OP, null, null, null, null)).build();
     }
 
 

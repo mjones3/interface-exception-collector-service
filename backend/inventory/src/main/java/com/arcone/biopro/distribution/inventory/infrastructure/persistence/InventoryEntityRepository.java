@@ -14,6 +14,8 @@ import java.util.List;
 @GraphQlRepository
 public interface InventoryEntityRepository extends ReactiveCrudRepository<InventoryEntity, Long> {
 
+    Mono<InventoryEntity> findByUnitNumberAndProductCodeAndInventoryStatus(String unitNumber, String productCode, InventoryStatus inventoryStatus);
+
     Mono<InventoryEntity> findByUnitNumberAndProductCode(String unitNumber, String productCode);
 
     Mono<InventoryEntity> findByUnitNumberAndProductCodeAndLocation(String unitNumber, String productCode, String location);

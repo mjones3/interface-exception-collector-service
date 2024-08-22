@@ -10,8 +10,6 @@ public interface InventoryAggregateRepository {
 
     Mono<InventoryAggregate> findByUnitNumberAndProductCode(String unitNumber, String productCode);
 
-    Mono<InventoryAggregate> findByUnitNumberAndProductCodeAndLocation(String unitNumber, String productCode, String location);
-
     Mono<InventoryAggregate> saveInventory(InventoryAggregate inventoryAggregate);
 
     Mono<Boolean> existsByLocationAndUnitNumberAndProductCode(String location, String unitNumber, String productCode);
@@ -22,4 +20,5 @@ public interface InventoryAggregateRepository {
 
     Mono<Long> countAllAvailable(String location, ProductFamily productFamily, AboRhCriteria abRh);
 
+    Mono<InventoryAggregate> findByLocationAndUnitNumberAndProductCode(String location, String unitNumber, String productCode);
 }

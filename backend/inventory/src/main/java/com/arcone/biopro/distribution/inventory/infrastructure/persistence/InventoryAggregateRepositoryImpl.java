@@ -13,7 +13,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @RequiredArgsConstructor
 @GraphQlRepository
@@ -29,12 +28,6 @@ public class InventoryAggregateRepositoryImpl implements InventoryAggregateRepos
         return inventoryEntityRepository.findByUnitNumberAndProductCode(unitNumber, productCode)
             .map(inventoryEntityMapper::toDomain)
             .flatMap(inventory -> Mono.just(InventoryAggregate.builder().inventory(inventory).build()));
-    }
-
-    @Override
-    public Mono<InventoryAggregate> findByUnitNumberAndProductCodeAndLocation(String unitNumber, String productCode, String location) {
-        return inventoryEntityRepository.findByUnitNumberAndProductCodeAndLocation(unitNumber, productCode, location)
-            .map(inventoryEntityMapper::toAggregate);
     }
 
     @Override
@@ -66,4 +59,12 @@ public class InventoryAggregateRepositoryImpl implements InventoryAggregateRepos
     public Mono<Long> countAllAvailable(String location, ProductFamily productFamily, AboRhCriteria aboRh) {
         return inventoryEntityRepository.countByLocationAndProductFamilyAndAboRhInAndInventoryStatusAndExpirationDateAfter(location, productFamily, aboRh.getAboRhTypes(), InventoryStatus.AVAILABLE, LocalDateTime.now());
     }
+
+    @Override
+    public Mono<InventoryAggregate> findByLocationAndUnitNumberAndProductCode(String location, String unitNumber, String productCode) {
+        return inventoryEntityRepository.findByUnitNumberAndProductCodeAndLocation(unitNumber, productCode, location)
+            .map(inventoryEntityMapper::toDomain)
+            .flatMap(inventory -> Mono.just(InventoryAggregate.builder().inventory(inventory).build()));
+    }
+
 }
