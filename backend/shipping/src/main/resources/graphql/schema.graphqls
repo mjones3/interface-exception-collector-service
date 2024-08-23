@@ -166,7 +166,9 @@ type NotificationDTO {
 
 enum ShipmentPriority {
     ASAP,
-    ROUTINE
+    ROUTINE ,
+    STAT ,
+    SCHEDULED
 }
 enum ShipmentStatus {
     OPEN,
