@@ -930,58 +930,42 @@
                     <version>3.0.0</version>
                     <executions>
                         <execution>
-                            <id>clean-allure-results</id>
-                            <phase>pre-integration-test</phase>
-                            <goals>
-                                <goal>run</goal>
-                            </goals>
-                            <configuration>
-                                <plugin>
-                                    <groupId>org.apache.maven.plugins</groupId>
-                                    <artifactId>maven-antrun-plugin</artifactId>
-                                    <version>3.0.0</version>
-                                    <executions>
-                                        <execution>
-                                            <phase>clean</phase>
-                                            <configuration>
-                                                <target>
-                                                    <available file="${project.basedir}/target/allure-results"
-                                                               property="results.dir.exists"/>
-                                                    <available file="${project.basedir}/target/allure-report"
-                                                               property="report.dir.exists"/>
-                                                    <condition property="dirs.exist">
-                                                        <or>
-                                                            <isset property="results.dir.exists"/>
-                                                            <isset property="report.dir.exists"/>
-                                                        </or>
-                                                    </condition>
-                                                    <delete failonerror="false">
-                                                        <fileset dir="${project.basedir}/target/allure-results"
-                                                                 includes="**/*">
-                                                            <present
-                                                                targetdir="${project.basedir}/target/allure-results"/>
-                                                        </fileset>
-                                                        <fileset dir="${project.basedir}/target/allure-report"
-                                                                 includes="**/*">
-                                                            <present
-                                                                targetdir="${project.basedir}/target/allure-report"/>
-                                                            <not>
-                                                                <filename name="history/**"/>
-                                                            </not>
-                                                        </fileset>
-                                                    </delete>
-                                                </target>
-                                            </configuration>
-                                            <goals>
-                                                <goal>run</goal>
-                                            </goals>
-                                        </execution>
-                                    </executions>
-                                </plugin>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
+                                <phase>clean</phase>
+                                <configuration>
+                                    <target>
+                                        <available file="${project.basedir}/target/allure-results"
+                                                   property="results.dir.exists"/>
+                                        <available file="${project.basedir}/target/allure-report"
+                                                   property="report.dir.exists"/>
+                                        <condition property="dirs.exist">
+                                            <or>
+                                                <isset property="results.dir.exists"/>
+                                                <isset property="report.dir.exists"/>
+                                            </or>
+                                        </condition>
+                                        <delete failonerror="false">
+                                            <fileset dir="${project.basedir}/target/allure-results"
+                                                     includes="**/*">
+                                                <present
+                                                    targetdir="${project.basedir}/target/allure-results"/>
+                                            </fileset>
+                                            <fileset dir="${project.basedir}/target/allure-report"
+                                                     includes="**/*">
+                                                <present
+                                                    targetdir="${project.basedir}/target/allure-report"/>
+                                                <not>
+                                                    <filename name="history/**"/>
+                                                </not>
+                                            </fileset>
+                                        </delete>
+                                    </target>
+                                </configuration>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-antrun-plugin</artifactId>
