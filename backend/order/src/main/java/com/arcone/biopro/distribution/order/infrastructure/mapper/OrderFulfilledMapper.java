@@ -4,6 +4,7 @@ import com.arcone.biopro.distribution.order.domain.model.Order;
 import com.arcone.biopro.distribution.order.domain.model.OrderItem;
 import com.arcone.biopro.distribution.order.domain.model.PickList;
 import com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledDTO;
+import com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledEventDTO;
 import com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledItemDTO;
 import com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledItemShortDateDTO;
 import com.arcone.biopro.distribution.order.infrastructure.service.dto.CustomerDTO;
@@ -26,7 +27,7 @@ public class OrderFulfilledMapper {
 
     private static final String ADDRESS_TYPE = "SHIPPING";
 
-    public OrderFulfilledDTO buildOrderDetails(Order order, PickList pickList) {
+    public OrderFulfilledEventDTO buildOrderDetails(Order order, PickList pickList) {
 
         var orderFulfilledDTO = new OrderFulfilledDTO();
         orderFulfilledDTO.setOrderNumber(order.getOrderNumber().getOrderNumber());
@@ -61,12 +62,12 @@ public class OrderFulfilledMapper {
                         .build());
                 });
 
-        return orderFulfilledDTO;
+        return new OrderFulfilledEventDTO(orderFulfilledDTO);
     }
 
 
-    public Mono<OrderFulfilledDTO> buildShippingCustomerDetails(Tuple2<OrderFulfilledDTO, CustomerDTO> tuple2) {
-        var orderFulfilledDTO = tuple2.getT1();
+    public Mono<OrderFulfilledEventDTO> buildShippingCustomerDetails(Tuple2<OrderFulfilledEventDTO, CustomerDTO> tuple2) {
+        var orderFulfilledEvent = tuple2.getT1();
         var customer = tuple2.getT2();
         var shippingAddress = customer.addresses().stream().filter(customerAddressDTO -> customerAddressDTO
             .addressType().equals(ADDRESS_TYPE)).findFirst().orElse(null);
@@ -75,19 +76,19 @@ public class OrderFulfilledMapper {
             return Mono.error(new IllegalArgumentException("Shipping address not found"));
         }
 
-        orderFulfilledDTO.setCustomerAddressAddressLine1(shippingAddress.addressLine1());
-        orderFulfilledDTO.setCustomerAddressAddressLine2(shippingAddress.addressLine2());
-        orderFulfilledDTO.setCustomerAddressCity(shippingAddress.city());
-        orderFulfilledDTO.setCustomerAddressState(shippingAddress.state());
-        orderFulfilledDTO.setCustomerAddressPostalCode(shippingAddress.postalCode());
-        orderFulfilledDTO.setCustomerAddressCountry(shippingAddress.countryCode());
-        orderFulfilledDTO.setCustomerAddressCountryCode(shippingAddress.countryCode());
-        orderFulfilledDTO.setCustomerAddressDistrict(shippingAddress.district());
-        orderFulfilledDTO.setDepartmentName(customer.departmentName());
-        orderFulfilledDTO.setCustomerPhoneNumber(customer.phoneNumber());
+        orderFulfilledEvent.getPayload().setCustomerAddressAddressLine1(shippingAddress.addressLine1());
+        orderFulfilledEvent.getPayload().setCustomerAddressAddressLine2(shippingAddress.addressLine2());
+        orderFulfilledEvent.getPayload().setCustomerAddressCity(shippingAddress.city());
+        orderFulfilledEvent.getPayload().setCustomerAddressState(shippingAddress.state());
+        orderFulfilledEvent.getPayload().setCustomerAddressPostalCode(shippingAddress.postalCode());
+        orderFulfilledEvent.getPayload().setCustomerAddressCountry(shippingAddress.countryCode());
+        orderFulfilledEvent.getPayload().setCustomerAddressCountryCode(shippingAddress.countryCode());
+        orderFulfilledEvent.getPayload().setCustomerAddressDistrict(shippingAddress.district());
+        orderFulfilledEvent.getPayload().setDepartmentName(customer.departmentName());
+        orderFulfilledEvent.getPayload().setCustomerPhoneNumber(customer.phoneNumber());
 
 
-        return Mono.just(orderFulfilledDTO);
+        return Mono.just(orderFulfilledEvent);
     }
 
     private List<OrderFulfilledItemShortDateDTO> getShortDateByOrderItem(OrderItem orderItem , PickList pickList){

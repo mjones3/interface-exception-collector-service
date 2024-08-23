@@ -13,5 +13,7 @@ public interface OrderRepository {
 
     Mono<Order> findOneByOrderNumber(final Long number);
 
+    Mono<Order> update(final Order order);
+
 
 }

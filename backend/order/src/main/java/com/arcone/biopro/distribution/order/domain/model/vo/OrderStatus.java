@@ -42,4 +42,7 @@ public class OrderStatus implements Validatable {
 
     }
 
+    public void setStatus(String orderStatus) {
+        this.orderStatus = orderStatus;
+    }
 }

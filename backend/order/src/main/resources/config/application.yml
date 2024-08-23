@@ -308,3 +308,8 @@ topics:
       partitions: 1
       replicas: 1
       topic-name: OrderFulfilled
+  shipment:
+    shipment-created:
+      partitions: 1
+      replicas: 1
+      topic-name: ShipmentCreated

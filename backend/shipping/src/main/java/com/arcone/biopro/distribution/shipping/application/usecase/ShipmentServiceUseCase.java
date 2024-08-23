@@ -11,6 +11,7 @@ import com.arcone.biopro.distribution.shipping.application.dto.RuleResponseDTO;
 import com.arcone.biopro.distribution.shipping.application.dto.ShipmentItemPackedDTO;
 import com.arcone.biopro.distribution.shipping.application.util.ShipmentServiceMessages;
 import com.arcone.biopro.distribution.shipping.domain.event.ShipmentCompletedEvent;
+import com.arcone.biopro.distribution.shipping.domain.event.ShipmentCreatedEvent;
 import com.arcone.biopro.distribution.shipping.domain.model.Shipment;
 import com.arcone.biopro.distribution.shipping.domain.model.ShipmentItem;
 import com.arcone.biopro.distribution.shipping.domain.model.ShipmentItemPacked;
@@ -34,6 +35,7 @@ import io.opentelemetry.instrumentation.annotations.WithSpan;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
 import org.springframework.stereotype.Service;
@@ -57,9 +59,7 @@ public class ShipmentServiceUseCase implements ShipmentService {
     private final ShipmentItemShortDateProductRepository shipmentItemShortDateProductRepository;
     private final InventoryRsocketClient inventoryRsocketClient;
     private final ShipmentItemPackedRepository shipmentItemPackedRepository;
-
-    private final ReactiveKafkaProducerTemplate<String, ShipmentCompletedEvent> producerTemplate;
-
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     @Transactional
@@ -101,7 +101,12 @@ public class ShipmentServiceUseCase implements ShipmentService {
                     }
                     return Mono.empty();
                 }).then(Mono.just(""))).collectList())
-            .then(Mono.just(shipment));
+            .then(publishShipmentCreatedEvent(shipment));
+    }
+
+    private Mono<Shipment> publishShipmentCreatedEvent(Shipment shipment) {
+        applicationEventPublisher.publishEvent(new ShipmentCreatedEvent(shipment));
+        return Mono.just(shipment);
     }
 
     private ShipmentItem toShipmentItem(OrderItemFulfilledMessage itemFulfilledMessage, Long shipmentId) {
@@ -190,11 +195,9 @@ public class ShipmentServiceUseCase implements ShipmentService {
 
         return Flux.from(shipmentItemPackedRepository.listAllByShipmentId(shipment.getId()).switchIfEmpty(Flux.empty()))
             .flatMap(itemPacked -> {
-                var message = new ShipmentCompletedEvent(shipment.getId(), shipment.getOrderNumber(), itemPacked.getUnitNumber(), itemPacked.getProductCode(), shipment.getCompletedByEmployeeId(), ZonedDateTime.now(ZoneId.of("UTC")));
-                var producerRecord = new ProducerRecord<>("ShipmentCompleted", String.format("%s", itemPacked.getId()), message);
-                return Mono.just(producerRecord);
+                applicationEventPublisher.publishEvent(new ShipmentCompletedEvent(shipment.getOrderNumber(),itemPacked));
+                return Mono.just(shipment);
             })
-            .flatMap(producerTemplate::send)
             .then(Mono.just(shipment));
     }
 

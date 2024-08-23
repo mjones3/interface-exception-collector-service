@@ -270,6 +270,25 @@ async-call:
     max-attempts: 2
     duration: 2
 
+topics:
+  order:
+    order-fulfilled:
+      partitions: 1
+      replicas: 1
+      topic-name: OrderFulfilled
+  shipment:
+    shipment-completed:
+      partitions: 1
+      replicas: 1
+      topic-name: ShipmentCompleted
+    shipment-created:
+      partitions: 1
+      replicas: 1
+      topic-name: ShipmentCreated
+
+
+
+
 
 
 
