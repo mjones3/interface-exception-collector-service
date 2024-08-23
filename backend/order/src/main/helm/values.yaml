@@ -111,7 +111,7 @@ defaultEnv:
   - name: SPRING_KAFKA_SECURITY_PROTOCOL
     value: "SSL"
   - name: ASYNC-CALL_INVENTORY_TCP-ADDRESS
-    value: "inventory"
+    value: "inventory.api.svc.cluster.local"
   - name: ASYNC-CALL_INVENTORY_TCP-PORT
     value: "7002"
 
