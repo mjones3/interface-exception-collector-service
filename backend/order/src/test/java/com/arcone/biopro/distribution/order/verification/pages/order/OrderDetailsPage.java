@@ -107,28 +107,28 @@ public class OrderDetailsPage extends CommonPageFactory {
 
     public void verifyOrderDetailsCard(String externalId, Integer orderId, String orderPriority, String orderStatus, String orderComments) {
         sharedActions.waitForNotVisible(tableLoadingOverlay);
-        sharedActions.waitForVisible(driver.findElement(By.xpath(orderInformationDetail(externalId))));
-        sharedActions.waitForVisible(driver.findElement(By.xpath(orderInformationDetail(orderId.toString()))));
-        sharedActions.waitForVisible(driver.findElement(By.xpath(orderInformationDetail(orderPriority))));
-        sharedActions.waitForVisible(driver.findElement(By.xpath(orderInformationDetail(orderStatus))));
+        sharedActions.waitForVisible(By.xpath(orderInformationDetail(externalId)));
+        sharedActions.waitForVisible(By.xpath(orderInformationDetail(orderId.toString())));
+        sharedActions.waitForVisible(By.xpath(orderInformationDetail(orderPriority)));
+        sharedActions.waitForVisible(By.xpath(orderInformationDetail(orderStatus)));
 
         sharedActions.click(orderInfoComment);
-        sharedActions.waitForVisible(driver.findElement(By.xpath(orderComments(orderComments))));
+        sharedActions.waitForVisible(By.xpath(orderComments(orderComments)));
     }
 
     public void verifyShippingInformationCard(String shippingCustomerCode, String customerName, String shippingMethod) {
-        sharedActions.waitForVisible(driver.findElement(By.xpath(shippingInformationDetail(shippingMethod))));
-        sharedActions.waitForVisible(driver.findElement(By.xpath(shippingInformationDetail(shippingCustomerCode))));
-        sharedActions.waitForVisible(driver.findElement(By.xpath(shippingInformationDetail(customerName.toUpperCase()))));
+        sharedActions.waitForVisible(By.xpath(shippingInformationDetail(shippingMethod)));
+        sharedActions.waitForVisible(By.xpath(shippingInformationDetail(shippingCustomerCode)));
+        sharedActions.waitForVisible(By.xpath(shippingInformationDetail(customerName.toUpperCase())));
     }
 
     public void verifyBillingInformationCard(String billingCustomerCode, String customerName) {
-        sharedActions.waitForVisible(driver.findElement(By.xpath(billInformationDetail(billingCustomerCode))));
-        sharedActions.waitForVisible(driver.findElement(By.xpath(billInformationDetail(customerName.toUpperCase()))));
+        sharedActions.waitForVisible(By.xpath(billInformationDetail(billingCustomerCode)));
+        sharedActions.waitForVisible(By.xpath(billInformationDetail(customerName.toUpperCase())));
     }
 
     public void verifyProductDetailsSection(String productFamily, String bloodType, Integer quantity, String comments) {
-        sharedActions.waitForVisible(driver.findElement(By.xpath(productDetails(productFamily, bloodType, quantity))));
+        sharedActions.waitForVisible(By.xpath(productDetails(productFamily, bloodType, quantity)));
     }
 
     public Map<String, String> getShipmentDetailsTableContent() {
@@ -193,7 +193,7 @@ public class OrderDetailsPage extends CommonPageFactory {
     public void checkAvailableInventory(String[] productFamily, String[] bloodType, String[] quantity) {
         for (int i = 0; i < productFamily.length; i++) {
             String productFamilyDescription = productFamily[i].replace("_", " ");
-            sharedActions.waitForVisible(driver.findElement(By.xpath(availableInventory(productFamilyDescription, bloodType[i], Integer.valueOf(quantity[i])))));
+            sharedActions.waitForVisible(By.xpath(availableInventory(productFamilyDescription, bloodType[i], Integer.valueOf(quantity[i]))));
             Assert.assertFalse(sharedActions.isElementEmpty(driver.findElement(By.xpath(availableInventory(productFamilyDescription, bloodType[i], Integer.valueOf(quantity[i]))))));
 
         }
