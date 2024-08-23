@@ -3,7 +3,7 @@ package com.arcone.biopro.distribution.inventory.application.usecase;
 import com.arcone.biopro.distribution.inventory.application.dto.InventoryInput;
 import com.arcone.biopro.distribution.inventory.application.dto.ValidateInventoryOutput;
 import com.arcone.biopro.distribution.inventory.application.mapper.InventoryOutputMapper;
-import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ErrorMessage;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.MessageType;
 import com.arcone.biopro.distribution.inventory.domain.repository.InventoryAggregateRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +19,7 @@ import reactor.core.publisher.Mono;
 class ValidateInventoryUseCase implements UseCase<Mono<ValidateInventoryOutput>, InventoryInput> {
 
     InventoryAggregateRepository inventoryAggregateRepository;
+
     InventoryOutputMapper mapper;
 
     @Override
@@ -26,6 +27,6 @@ class ValidateInventoryUseCase implements UseCase<Mono<ValidateInventoryOutput>,
 
         return inventoryAggregateRepository.findByUnitNumberAndProductCode(input.unitNumber(), input.productCode())
             .map(inventoryAggregate -> mapper.toValidateInventoryOutput(inventoryAggregate.checkIfIsValidToShip(input.location())))
-            .switchIfEmpty(Mono.just(mapper.toOutput(ErrorMessage.INVENTORY_NOT_EXIST)));
+            .switchIfEmpty(Mono.just(mapper.toOutput(MessageType.INVENTORY_NOT_EXIST)));
     }
 }

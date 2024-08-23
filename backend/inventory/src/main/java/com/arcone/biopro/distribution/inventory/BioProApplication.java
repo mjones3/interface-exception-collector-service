@@ -4,15 +4,21 @@ import com.arcone.biopro.distribution.inventory.infrastructure.config.Applicatio
 import com.arcone.biopro.distribution.inventory.infrastructure.config.ApplicationProperties;
 import com.arcone.biopro.distribution.inventory.infrastructure.config.CRLFLogConverter;
 import com.arcone.biopro.distribution.inventory.infrastructure.config.DefaultProfileUtil;
+import io.r2dbc.spi.ConnectionFactory;
 import jakarta.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.Resource;
+import org.springframework.r2dbc.connection.init.ResourceDatabasePopulator;
 import org.springframework.web.reactive.config.EnableWebFlux;
+import reactor.core.publisher.Mono;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -33,6 +39,13 @@ public class BioProApplication {
         this.env = env;
     }
 
+    @Autowired
+    private ConnectionFactory connectionFactory;
+
+    @Value("classpath:/db/data.sql")
+    private Resource dataSql;
+
+
     /**
      * Initializes the application.
      * <p>
@@ -50,6 +63,11 @@ public class BioProApplication {
                 "You have misconfigured your application! It should not run " + "with both the 'dev' and 'prod' profiles at the same time."
             );
         }
+
+        // TODO : Use profiles to load only when required
+        ResourceDatabasePopulator resourceDatabasePopulator = new ResourceDatabasePopulator();
+        resourceDatabasePopulator.addScript(dataSql);
+        Mono.from(resourceDatabasePopulator.populate(connectionFactory)).block();
     }
 
     /**

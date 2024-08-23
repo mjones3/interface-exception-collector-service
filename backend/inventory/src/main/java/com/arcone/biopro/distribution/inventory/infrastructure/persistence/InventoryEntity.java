@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.inventory.infrastructure.persistence;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ProductFamily;
+import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -22,6 +23,7 @@ import org.springframework.data.relational.core.mapping.Table;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -82,12 +84,17 @@ public class InventoryEntity implements Serializable, Persistable<UUID> {
     @LastModifiedDate
     ZonedDateTime modificationDate;
 
+    @Column("status_reason")
+    String statusReason;
+
+    @Column("quarantines")
+    List<Quarantine> quarantines;
+
     @Column("device_stored")
     String deviceStored;
 
     @Column("storage_location")
     String storageLocation;
-
 
     @JsonIgnore
     @Override

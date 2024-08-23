@@ -1,43 +1,103 @@
 package com.arcone.biopro.distribution.inventory.domain.model;
 
-import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
-import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ProductFamily;
-import com.arcone.biopro.distribution.inventory.domain.model.vo.ProductCode;
-import com.arcone.biopro.distribution.inventory.domain.model.vo.UnitNumber;
-import org.junit.jupiter.api.DisplayName;
+import com.arcone.biopro.distribution.inventory.domain.model.vo.NotificationMessage;
+import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate.OTHER_SEE_COMMENTS;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class InventoryAggregateTest {
 
-    @Test
-    @DisplayName("should create an inventory successfully")
-    void createInventorySuccess() {
-        String unitNumber = "W123456789012";
-        String productCode = "E1234V12";
-        String shortDescription = "APH PLASMA 24H";
-        LocalDateTime expirationDate = LocalDateTime.parse("2025-01-08T02:05:45.231");
-        String collectionDate = "2025-01-07T02:05:45.231Z";
-        String location = "MIAMI";
+    private Inventory inventoryMock;
+    private InventoryAggregate inventoryAggregate;
 
+    @BeforeEach
+    void setUp() {
+        inventoryMock = mock(Inventory.class);
+        when(inventoryMock.getLocation()).thenReturn("LOCATION_1");
+        when(inventoryMock.getExpirationDate()).thenReturn(LocalDateTime.now().plusDays(1));
 
-        Inventory inventory = createInventory(unitNumber, productCode, shortDescription, expirationDate, collectionDate, location, ProductFamily.PLASMA_TRANSFUSABLE, AboRhType.ABN);
-
-        assertNotNull(inventory, "Inventory should not be null");
-        assertNotNull(inventory.getId(), "Id should not be null");
-        assertEquals(new UnitNumber(unitNumber), inventory.getUnitNumber(), "Unit number should match");
-        assertEquals(new ProductCode(productCode), inventory.getProductCode(), "Product code should match");
-        assertEquals(expirationDate, inventory.getExpirationDate(), "Expiration date should match");
-        assertEquals("MIAMI", inventory.getLocation(), "Location should match");
-        assertEquals(InventoryStatus.AVAILABLE, inventory.getInventoryStatus(), "Status should match");
+        inventoryAggregate = InventoryAggregate.builder()
+            .inventory(inventoryMock)
+            .build();
     }
 
-    private Inventory createInventory(String unitNumber, String productCode, String shortDescription, LocalDateTime expirationDate, String collectionDate, String location, ProductFamily productFamily, AboRhType aboRhType) {
-        return new Inventory(new UnitNumber(unitNumber), new ProductCode(productCode), shortDescription, expirationDate, collectionDate, location, productFamily, aboRhType);
+    @Test
+    void testIsExpired_ShouldReturnTrue_WhenExpirationDateIsBeforeNow() {
+        // Arrange
+        when(inventoryMock.getExpirationDate()).thenReturn(LocalDateTime.now().minusDays(1));
+
+        // Act
+        boolean result = inventoryAggregate.isExpired();
+
+        // Assert
+        assertTrue(result, "Expected inventory to be expired");
+    }
+
+    @Test
+    void testIsExpired_ShouldReturnFalse_WhenExpirationDateIsAfterNow() {
+        // Arrange
+        when(inventoryMock.getExpirationDate()).thenReturn(LocalDateTime.now().plusDays(1));
+
+        // Act
+        boolean result = inventoryAggregate.isExpired();
+
+        // Assert
+        assertFalse(result, "Expected inventory to not be expired");
+    }
+
+    @Test
+    void testCheckIfIsValidToShip_ShouldAddNotification_WhenInventoryIsExpired() {
+        // Arrange
+        when(inventoryMock.getInventoryStatus()).thenReturn(InventoryStatus.AVAILABLE);
+        when(inventoryMock.getExpirationDate()).thenReturn(LocalDateTime.now().minusDays(1));
+
+        // Act
+        inventoryAggregate.checkIfIsValidToShip("LOCATION_1");
+
+        // Assert
+        assertFalse(inventoryAggregate.getNotificationMessages().isEmpty(), "Expected notification messages when inventory is expired");
+    }
+
+    @Test
+    void testCheckIfIsValidToShip_ShouldAddNotification_WhenLocationDoesNotMatch() {
+        // Arrange
+        when(inventoryMock.getInventoryStatus()).thenReturn(InventoryStatus.AVAILABLE);
+        when(inventoryMock.getExpirationDate()).thenReturn(LocalDateTime.now().plusDays(1));
+        when(inventoryMock.getLocation()).thenReturn("LOCATION_2");
+
+        // Act
+        inventoryAggregate.checkIfIsValidToShip("LOCATION_1");
+
+        // Assert
+        assertFalse(inventoryAggregate.getNotificationMessages().isEmpty(), "Expected notification messages when location does not match");
+    }
+
+
+
+    @Test
+    void testCreateQuarantinesNotificationMessage_ShouldReturnCorrectMessages() {
+        // Arrange
+        Quarantine quarantineMock = mock(Quarantine.class);
+        when(quarantineMock.reason()).thenReturn(OTHER_SEE_COMMENTS);
+        when(quarantineMock.comment()).thenReturn("Special case");
+        when(inventoryMock.getInventoryStatus()).thenReturn(InventoryStatus.QUARANTINED);
+        when(inventoryMock.getQuarantines()).thenReturn(List.of(quarantineMock));
+
+        // Act
+        inventoryAggregate.checkIfIsValidToShip("LOCATION_1");
+
+        // Assert
+        List<NotificationMessage> messages = inventoryAggregate.getNotificationMessages();
+        assertEquals(1, messages.size());
+        assertEquals(OTHER_SEE_COMMENTS + ": Special case", messages.getFirst().message());
     }
 }

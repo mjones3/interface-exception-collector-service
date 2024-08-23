@@ -14,5 +14,16 @@ CREATE TABLE bld_inventory
     modification_date           TIMESTAMP WITH TIME ZONE NOT NULL,
     device_stored               VARCHAR(255),
     storage_location            VARCHAR(255),
+    status_reason               VARCHAR(255),
+    quarantines                 JSONB,
     CONSTRAINT pk_bld_inventory PRIMARY KEY (id)
+);
+
+CREATE TABLE lk_text_config
+(
+    id                          UUID NOT NULL DEFAULT gen_random_uuid(),
+    context                     VARCHAR(255) NOT NULL,
+    key_code                         VARCHAR(255) NOT NULL,
+    text                        VARCHAR(255) NOT NULL,
+    CONSTRAINT pk_lk_text_config PRIMARY KEY (id)
 );
