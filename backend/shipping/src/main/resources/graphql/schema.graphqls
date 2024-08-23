@@ -45,7 +45,7 @@ type ShipFromDTO {
 
 type ShipToDTO {
 
-    customerCode: Int
+    customerCode: String
     customerName: String
     department: String
     addressLine1: String
@@ -79,7 +79,7 @@ type ShipmentDetailResponseDTO {
     priority:ShipmentPriority
     status:ShipmentStatus
     createDate:DateTime
-    shippingCustomerCode: Int
+    shippingCustomerCode: String
     locationCode: String
     deliveryType: String
     shippingMethod: String
@@ -166,7 +166,9 @@ type NotificationDTO {
 
 enum ShipmentPriority {
     ASAP,
-    ROUTINE
+    ROUTINE ,
+    STAT ,
+    SCHEDULED
 }
 enum ShipmentStatus {
     OPEN,

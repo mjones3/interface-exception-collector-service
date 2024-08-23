@@ -14,7 +14,7 @@
     </div>
 
     <div id="viewPickListReport" class="px-6 py-0">
-        @if (model$ | async; as orderFulfilledMessage) {
+        @if (model$ | async; as pickList) {
             <div
                 class="flex flex-col gap-4 text-gray-700"
                 style="font-family: serif"
@@ -55,13 +55,19 @@
                     <tbody>
                         <tr>
                             <td class="text-center">
-                                {{ orderFulfilledMessage.orderNumber }}
+                                {{ pickList.orderNumber }}
                             </td>
                             <td class="text-center">
-                                {{ orderFulfilledMessage.shippingCustomerCode }}
+                                {{ pickList.customer.code }}
                             </td>
                             <td class="text-center">
-                                {{ orderFulfilledMessage.shippingCustomerName }}
+                                {{ pickList.customer.name }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" class="border-t border-t-gray-400">
+                                <strong>Order comments:</strong>
+                                {{ pickList.orderComments }}
                             </td>
                         </tr>
                     </tbody>
@@ -70,46 +76,46 @@
                 <div class="mb-2 mt-5 border-b border-black p-0 text-3xl">
                     Product Details
                 </div>
-                <table
-                    id="productDetailsTable"
-                    class="w-full table-fixed border-separate"
-                >
+                <table id="productDetailsTable" class="w-full border-separate">
                     <thead>
                         <tr class="bg-gray-200">
-                            <th class="border-b-2 border-gray-400">Quantity</th>
-                            <th class="border-b-2 border-gray-400">Product</th>
-                            <th class="border-b-2 border-gray-400">
+                            <th class="w-1/5 border-b-2 border-gray-400">
+                                Product Family
+                            </th>
+                            <th class="w-1/5 border-b-2 border-gray-400">
                                 Blood Type
                             </th>
-                            <th class="border-b-2 border-gray-400">Comments</th>
+                            <th class="w-1/5 border-b-2 border-gray-400">
+                                Quantity
+                            </th>
+                            <th class="w-2/5 border-b-2 border-gray-400">
+                                Comments
+                            </th>
                         </tr>
                     </thead>
 
-                    @if (orderFulfilledMessage.items?.length) {
-                        <tbody>
+                    @if (pickList.pickListItems?.length) {
+                        <tbody id="pickListItemsRows">
                             @for (
-                                orderItemFulfilledMessage of orderFulfilledMessage?.items;
+                                pickListItem of pickList?.pickListItems;
                                 track $index
                             ) {
                                 <tr>
                                     <td class="text-center">
-                                        {{ orderItemFulfilledMessage.quantity }}
-                                    </td>
-                                    <td class="text-center">
                                         {{
                                             ProductFamilyMap[
-                                                orderItemFulfilledMessage
-                                                    .productFamily
+                                                pickListItem.productFamily
                                             ]
                                         }}
                                     </td>
                                     <td class="text-center">
-                                        {{
-                                            orderItemFulfilledMessage.bloodType
-                                        }}
+                                        {{ pickListItem.bloodType }}
                                     </td>
                                     <td class="text-center">
-                                        {{ orderItemFulfilledMessage.comments }}
+                                        {{ pickListItem.quantity }}
+                                    </td>
+                                    <td class="text-center">
+                                        {{ pickListItem.comments }}
                                     </td>
                                 </tr>
                             }
@@ -120,32 +126,35 @@
                 <div class="mb-2 mt-5 border-b border-black p-0 text-3xl">
                     Short Date Details
                 </div>
-                @if (hasAnyShortDate(orderFulfilledMessage)) {
+                @if (hasAnyShortDate(pickList)) {
                     <table
                         id="shortDateDetailsTable"
-                        class="w-full table-fixed border-separate"
+                        class="w-full border-separate"
                     >
                         <thead>
                             <tr class="bg-gray-200">
-                                <th class="border-b-2 border-gray-400">
+                                <th class="w-1/5 border-b-2 border-gray-400">
                                     Unit Number
                                 </th>
-                                <th class="border-b-2 border-gray-400">
+                                <th class="w-1/5 border-b-2 border-gray-400">
                                     Product Code
                                 </th>
-                                <th class="border-b-2 border-gray-400">
+                                <th class="w-1/5 border-b-2 border-gray-400">
                                     Blood Type
+                                </th>
+                                <th class="w-2/5 border-b-2 border-gray-400">
+                                    Storage Location
                                 </th>
                             </tr>
                         </thead>
 
                         @for (
-                            orderItemFulfilledMessage of orderFulfilledMessage.items;
+                            pickListItem of pickList.pickListItems;
                             track $index
                         ) {
                             <tbody>
                                 @for (
-                                    shortDateProduct of orderItemFulfilledMessage.shortDateProducts;
+                                    shortDateProduct of pickListItem.shortDateList;
                                     track $index
                                 ) {
                                     <tr>
@@ -156,8 +165,11 @@
                                             {{ shortDateProduct.productCode }}
                                         </td>
                                         <td class="text-center">
+                                            {{ shortDateProduct.aboRh }}
+                                        </td>
+                                        <td class="text-center">
                                             {{
-                                                orderItemFulfilledMessage.bloodType
+                                                shortDateProduct.storageLocation
                                             }}
                                         </td>
                                     </tr>

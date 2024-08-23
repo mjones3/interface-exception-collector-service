@@ -14,7 +14,6 @@ import {
     NotificationDto,
     ProcessHeaderComponent,
     ProcessHeaderService,
-    ProcessProductModel,
     SortService,
     ToastrImplService,
 } from '@shared';
@@ -35,9 +34,9 @@ import { of, switchMap } from 'rxjs';
 import { catchError, take } from 'rxjs/operators';
 import { ProductFamilyMap } from '../../../shared/models/product-family.model';
 import {
-    ShipmentItemPackedDTO,
     ShipmentCompleteInfoDto,
     ShipmentDetailResponseDTO,
+    ShipmentItemPackedDTO,
     ShipmentItemResponseDTO,
 } from '../models/shipment-info.dto';
 import { PackingListService } from '../services/packing-list.service';
@@ -45,7 +44,6 @@ import { ShipmentService } from '../services/shipment.service';
 import { ShippingLabelService } from '../services/shipping-label.service';
 import { OrderWidgetsSidebarComponent } from '../shared/order-widgets-sidebar/order-widgets-sidebar.component';
 import { ViewPackingListComponent } from '../view-packing-list/view-packing-list.component';
-import { ViewPickListComponent } from '../view-pick-list/view-pick-list.component';
 import { ViewShippingLabelComponent } from '../view-shipping-label/view-shipping-label.component';
 
 @Component({
@@ -98,7 +96,6 @@ export class ShipmentDetailsComponent implements OnInit {
     shippingInfoDescriptions: Description[] = [];
     shipmentInfo: ShipmentDetailResponseDTO;
     products: ShipmentItemResponseDTO[] = [];
-    processProductConfig: ProcessProductModel;
     shippedInfoData: ShipmentCompleteInfoDto[] = [];
     loggedUserId: string;
     packedItems: ShipmentItemPackedDTO[] = [];
@@ -202,15 +199,6 @@ export class ShipmentDetailsComponent implements OnInit {
 
     customSort(event: SortEvent) {
         this.sortService.customSort(event);
-    }
-
-    viewPickList(): void {
-        const dialogRef = this.matDialog.open(ViewPickListComponent, {
-            id: 'ViewPickListDialog',
-            width: DEFAULT_PAGE_SIZE_DIALOG_WIDTH,
-            height: DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
-        });
-        dialogRef.componentInstance.model$ = of(this.shipmentInfo);
     }
 
     viewPackingList(print?: boolean): void {

@@ -81,16 +81,6 @@
             }}</span>
         </div>
         <div class="flex flex-row space-x-2">
-            @if (shipmentInfo?.status === 'OPEN') {
-                <button
-                    id="viewPickListBtn"
-                    class="bg-purple-light px-4"
-                    mat-flat-button
-                    (click)="viewPickList()"
-                >
-                    View Pick List
-                </button>
-            }
             @if (shipmentInfo?.status === 'COMPLETED') {
                 <button
                     id="viewPackingListBtn"

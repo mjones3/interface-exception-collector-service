@@ -1,7 +1,9 @@
 package com.arcone.biopro.distribution.shipping.verification.steps.shipment;
 
 import com.arcone.biopro.distribution.shipping.verification.pages.distribution.FillProductsPage;
+import com.arcone.biopro.distribution.shipping.verification.pages.distribution.HomePage;
 import com.arcone.biopro.distribution.shipping.verification.pages.distribution.ShipmentDetailPage;
+import com.arcone.biopro.distribution.shipping.verification.support.ScreenshotService;
 import com.arcone.biopro.distribution.shipping.verification.support.StaticValuesMapper;
 import com.arcone.biopro.distribution.shipping.verification.support.controllers.ShipmentTestingController;
 import com.arcone.biopro.distribution.shipping.verification.support.types.ListShipmentsResponseType;
@@ -12,9 +14,12 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.reflect.FieldUtils;
+import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -41,7 +46,57 @@ public class ShipmentFulfillmentSteps {
     private ShipmentDetailPage shipmentDetailPage;
 
     @Autowired
+    private HomePage homePage;
+
+    @Autowired
+    private ScreenshotService screenshot;
+
+    @Value("${save.all.screenshots}")
+    private boolean saveAllScreenshots;
+
+
+
+    @Autowired
     private FillProductsPage fillProductsPage;
+
+    private ShipmentRequestDetailsResponseType shipmentDetailType;
+
+    private ShipmentRequestDetailsResponseType setupOrderFulfillmentRequest(String orderNumber, String customerId, String customerName, String quantities, String bloodTypes
+        , String productFamilies, String unitNumbers, String productCodes) {
+        return shipmentTestingController.buildShipmentRequestDetailsResponseType(Long.valueOf(orderNumber),
+            "ASAP",
+            "OPEN",
+            Long.valueOf(customerId),
+            0L,
+            "MDL_HUB_1",
+            "TEST",
+            "TEST",
+            "Frozen",
+            LocalDate.now(),
+            "Blood Bank",
+            customerName,
+            "",
+            "3056778756",
+            "FL",
+            "33016",
+            "US",
+            "1",
+            "Miami",
+            "Miami-Dade",
+            "36544 SW 27th St",
+            "North Miami",
+            quantities,
+            bloodTypes,
+            productFamilies, unitNumbers, productCodes);
+    }
+
+    private void goToDetailsPage(long orderNumber) throws Exception {
+        Long shipmentId = shipmentTestingController.getOrderShipmentId(orderNumber);
+        homePage.goTo();
+        this.shipmentDetailPage.goTo(shipmentId);
+        screenshot.attachConditionalScreenshot(saveAllScreenshots);
+    }
+
 
     @Given("I have no shipment fulfillment requests.")
     public void noOrderFulfillmentRequest() throws Exception {
@@ -228,5 +283,37 @@ public class ShipmentFulfillmentSteps {
         fillProductsPage.ensureProductIsNotAdded(unitNumber, productCode);
         log.info("stop");
     }
+
+    @Given("The shipment details are order Number {string}, customer ID {string}, Customer Name {string}, Product Details: Quantities {string}, Blood Types: {string}, Product Families {string}.")
+    public void buildOrderFulfilmentRequest(String orderNumber, String customerId, String customerName
+        , String quantities, String bloodTypes, String productFamilies) {
+
+        this.shipmentDetailType = setupOrderFulfillmentRequest(orderNumber, customerId, customerName, quantities, bloodTypes, productFamilies, null, null);
+
+        Assert.assertNotNull(this.shipmentDetailType);
+
+    }
+
+    @And("I have received a shipment fulfillment request with above details.")
+    public void triggerOrderFulfillmentEvent() throws Exception {
+        this.orderNumber = shipmentTestingController.createShippingRequest(this.shipmentDetailType);
+        Assert.assertNotNull(this.orderNumber);
+    }
+
+    @And("I am on the Shipment Fulfillment Details page.")
+    public void goToShipmentDetailsPage() throws Exception {
+        this.goToDetailsPage(this.orderNumber);
+    }
+
+    @And("I am on the Shipment Fulfillment Details page for order {int}.")
+    public void goToShipmentDetailsPageByOrderNumber(long customOrderNumber) throws Exception {
+        this.goToDetailsPage(customOrderNumber);
+    }
+
+    @And("I enter the Shipment Fulfillment Details page for order {int}.")
+    public void enterShipmentDetailsPageByOrderNumber(long customOrderNumber) throws Exception {
+        this.goToDetailsPage(customOrderNumber);
+    }
+
 }
 

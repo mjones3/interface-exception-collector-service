@@ -36,7 +36,7 @@ class KafkaConfiguration {
         @Value("${order.fulfilled.partitions:1}") Integer partitions,
         @Value("${order.fulfilled.replicas:1}") Integer replicas
     ) {
-        return TopicBuilder.name("order.fulfilled").partitions(partitions).replicas(replicas).build();
+        return TopicBuilder.name("OrderFulfilled").partitions(partitions).replicas(replicas).build();
     }
 
     @Bean
@@ -54,7 +54,7 @@ class KafkaConfiguration {
         return ReceiverOptions.<String, String>create(props)
             .commitInterval(Duration.ofSeconds(5))
             .commitBatchSize(1)
-            .subscription(List.of("order.fulfilled"));
+            .subscription(List.of("OrderFulfilled"));
     }
 
 

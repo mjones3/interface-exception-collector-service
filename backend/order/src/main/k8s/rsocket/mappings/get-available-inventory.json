@@ -1,0 +1,8 @@
+{
+  "request" : {
+    "routePath" : "getAvailableInventoryWithShortDatedProducts"
+  },
+  "response" : {
+    "bodyFileName" : "inventory-available-mock-data.json"
+  }
+}

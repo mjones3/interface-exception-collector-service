@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.order.infrastructure.config;
 
 import com.arcone.biopro.distribution.order.infrastructure.dto.OrderCreatedDTO;
+import com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledDTO;
 import com.arcone.biopro.distribution.order.infrastructure.dto.OrderRejectedDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -34,6 +35,7 @@ public class KafkaConfiguration {
 
     public static final String ORDER_CREATED_PRODUCER = "order-created";
     public static final String ORDER_REJECTED_PRODUCER = "order-rejected";
+    public static final String ORDER_FULFILLED_PRODUCER = "order-fulfilled";
 
     @Bean
     NewTopic orderReceivedTopic(
@@ -58,6 +60,15 @@ public class KafkaConfiguration {
         @Value("${topics.order.order-rejected.partitions:1}") Integer partitions,
         @Value("${topics.order.order-rejected.replicas:1}") Integer replicas,
         @Value("${topics.order.order-rejected.topic-name:OrderRejected}") String topicName
+    ) {
+        return TopicBuilder.name(topicName).partitions(partitions).replicas(replicas).build();
+    }
+
+    @Bean
+    NewTopic orderFulfilledTopic(
+        @Value("${topics.order.order-fulfilled.partitions:1}") Integer partitions,
+        @Value("${topics.order.order-fulfilled.replicas:1}") Integer replicas,
+        @Value("${topics.order.order-fulfilled.topic-name:OrderFulfilled}") String topicName
     ) {
         return TopicBuilder.name(topicName).partitions(partitions).replicas(replicas).build();
     }
@@ -106,6 +117,20 @@ public class KafkaConfiguration {
             .producerListener(new MicrometerProducerListener(meterRegistry)); // we want standard Kafka metrics
     }
 
+
+    @Bean
+    SenderOptions<String, OrderFulfilledDTO> orderFulfilledSenderOptions(
+        KafkaProperties kafkaProperties,
+        ObjectMapper objectMapper,
+        MeterRegistry meterRegistry) {
+        var props = kafkaProperties.buildProducerProperties(null);
+        props.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, TracingProducerInterceptor.class.getName());
+        return SenderOptions.<String, OrderFulfilledDTO>create(props)
+            .withValueSerializer(new JsonSerializer<>(objectMapper))
+            .maxInFlight(1) // to keep ordering, prevent duplicate messages (and avoid data loss)
+            .producerListener(new MicrometerProducerListener(meterRegistry)); // we want standard Kafka metrics
+    }
+
     @Bean(name = ORDER_CREATED_PRODUCER )
     ReactiveKafkaProducerTemplate<String, OrderCreatedDTO> orderCreatedProducerTemplate(
         SenderOptions<String, OrderCreatedDTO> createdSenderOptions) {
@@ -118,5 +143,10 @@ public class KafkaConfiguration {
         return new ReactiveKafkaProducerTemplate<>(rejectedSenderOptions);
     }
 
+    @Bean(name = ORDER_FULFILLED_PRODUCER )
+    ReactiveKafkaProducerTemplate<String, OrderFulfilledDTO> orderFulfilledProducerTemplate(
+        SenderOptions<String, OrderFulfilledDTO> orderFulfilledSenderOptions) {
+        return new ReactiveKafkaProducerTemplate<>(orderFulfilledSenderOptions);
+    }
 
 }

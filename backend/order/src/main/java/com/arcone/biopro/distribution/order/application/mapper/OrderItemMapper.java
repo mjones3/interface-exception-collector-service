@@ -19,6 +19,7 @@ public class OrderItemMapper {
             .comments(orderItem.getComments())
             .createDate(orderItem.getCreateDate())
             .modificationDate(orderItem.getModificationDate())
+            .quantityAvailable(orderItem.getQuantityAvailable())
             .build();
     }
 

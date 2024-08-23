@@ -1,6 +1,7 @@
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -13,19 +14,25 @@ import {
     ProcessHeaderService,
     ToastrImplService,
 } from '@shared';
-import { ERROR_MESSAGE } from 'app/core/data/common-labels';
 import { OrderWidgetsSidebarComponent } from 'app/modules/shipments/shared/order-widgets-sidebar/order-widgets-sidebar.component';
 import { ProductFamilyMap } from 'app/shared/models/product-family.model';
 import { ToastrModule } from 'ngx-toastr';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
 import { TableModule } from 'primeng/table';
-import { finalize } from 'rxjs';
+import { finalize, of } from 'rxjs';
+import { ERROR_MESSAGE } from '../../../../core/data/common-labels';
+import {
+    DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
+    DEFAULT_PAGE_SIZE_DIALOG_WIDTH,
+} from '../../../../core/models/browser-printing.model';
 import {
     OrderDetailsDto,
     OrderItemDetailsDto,
 } from '../../models/order-details.dto';
 import { OrderService } from '../../services/order.service';
+import { ViewPickListComponent } from '../view-pick-list/view-pick-list.component';
+
 @Component({
     selector: 'app-order-details',
     standalone: true,
@@ -48,6 +55,7 @@ import { OrderService } from '../../services/order.service';
     styleUrl: './order-details.component.scss',
 })
 export class OrderDetailsComponent implements OnInit {
+    protected readonly ProductFamilyMap = ProductFamilyMap;
     expandedRows = {};
     orderInfoDescriptions: Description[] = [];
     shippingInfoDescriptions: Description[] = [];
@@ -55,14 +63,15 @@ export class OrderDetailsComponent implements OnInit {
     orderDetailsInfo: OrderDetailsDto;
     products: OrderItemDetailsDto[] = [];
     loading = true;
-    protected readonly ProductFamilyMap = ProductFamilyMap;
+    loadingPickList = false;
 
     constructor(
         public header: ProcessHeaderService,
         private route: ActivatedRoute,
-        private _router: Router,
+        private router: Router,
+        private matDialog: MatDialog,
         private orderService: OrderService,
-        public toaster: ToastrImplService
+        private toaster: ToastrImplService
     ) {}
 
     get labelingProductCategory() {
@@ -92,10 +101,7 @@ export class OrderDetailsComponent implements OnInit {
                         ) ?? [];
                     this.updateWidgets();
                 },
-                error: (error: ApolloError) => {
-                    this.toaster.error(ERROR_MESSAGE);
-                    throw error;
-                },
+                error: this.handleError,
             });
     }
 
@@ -111,6 +117,7 @@ export class OrderDetailsComponent implements OnInit {
             comments: item.comments,
             createDate: item.createDate,
             modificationDate: item.modificationDate,
+            quantityAvailable: item.quantityAvailable,
         };
     }
 
@@ -126,7 +133,33 @@ export class OrderDetailsComponent implements OnInit {
             this.orderService.getBillingInfoDescriptions(this.orderDetailsInfo);
     }
 
+    viewPickList(): void {
+        this.loadingPickList = true;
+        this.orderService.generatePickList(this.orderId).subscribe({
+            next: (result) => {
+                const pickListDTO = result.data.generatePickList;
+                const dialogRef = this.matDialog.open(ViewPickListComponent, {
+                    id: 'ViewPickListDialog',
+                    width: DEFAULT_PAGE_SIZE_DIALOG_WIDTH,
+                    height: DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
+                });
+                dialogRef.componentInstance.model$ = of(pickListDTO);
+            },
+            error: this.handleError,
+            complete: () => (this.loadingPickList = false),
+        });
+    }
+
     backToSearch(): void {
-        this._router.navigateByUrl('/orders/search');
+        this.router.navigateByUrl('/orders/search');
+    }
+
+    handleError(error: ApolloError): void {
+        if (error?.cause?.message) {
+            this.toaster?.warning(error?.cause?.message);
+            return;
+        }
+        this.toaster?.error(ERROR_MESSAGE);
+        throw error;
     }
 }

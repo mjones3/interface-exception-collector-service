@@ -176,11 +176,11 @@ def biopro_service():
             'postgresql-deployment',
             'kafka-deployment',
             'keycloak-deployment',
-            'opentelemetry-collector'
+            'opentelemetry-collector',
+            'rsocket-deployment'
         ],
         trigger_mode=TRIGGER_MODE_MANUAL
     )
-
 
 def ui_service():
     # Specify the Kubernetes manifest for the deployment

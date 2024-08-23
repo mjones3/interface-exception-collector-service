@@ -77,3 +77,5 @@ CREATE TABLE bld_shipment_item_packed (
 );
 
 CREATE UNIQUE INDEX idx_bld_shipment_item_packed ON bld_shipment_item_packed (unit_number, product_code ,shipment_item_id);
+
+ALTER TABLE bld_shipment ALTER COLUMN customer_code TYPE VARCHAR(50) using (customer_code::varchar);
