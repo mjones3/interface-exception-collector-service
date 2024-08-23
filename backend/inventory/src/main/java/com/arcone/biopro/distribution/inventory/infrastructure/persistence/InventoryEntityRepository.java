@@ -14,7 +14,11 @@ import java.util.List;
 @GraphQlRepository
 public interface InventoryEntityRepository extends ReactiveCrudRepository<InventoryEntity, Long> {
 
+    Mono<InventoryEntity> findByUnitNumberAndProductCodeAndInventoryStatus(String unitNumber, String productCode, InventoryStatus inventoryStatus);
+
     Mono<InventoryEntity> findByUnitNumberAndProductCode(String unitNumber, String productCode);
+
+    Mono<InventoryEntity> findByUnitNumberAndProductCodeAndLocation(String unitNumber, String productCode, String location);
 
     Mono<Boolean> existsByLocationAndUnitNumberAndProductCode(String location, String unitNumber, String productCode);
 
@@ -24,5 +28,5 @@ public interface InventoryEntityRepository extends ReactiveCrudRepository<Invent
 
     Flux<InventoryEntity> findAllByLocationAndProductFamilyAndAboRhInAndInventoryStatusAndExpirationDateBetweenOrderByExpirationDateAsc(String location, ProductFamily productFamily, List<AboRhType> aboRh, InventoryStatus inventoryStatus, LocalDateTime initialDate, LocalDateTime finalDate);
 
-
+    Mono<InventoryEntity> findByUnitNumber(String unitNumber);
 }

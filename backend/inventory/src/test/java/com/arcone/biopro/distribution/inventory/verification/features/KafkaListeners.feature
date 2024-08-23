@@ -7,5 +7,17 @@ Feature: Kafka listeners
         Then The inventory status is "<Status>"
 
         Examples:
-            | Event              | Status      |
-            | Label Applied      | AVAILABLE   |
+            | Event                   | Status      |
+            | Label Applied           | AVAILABLE   |
+            | Shipment Completed      | SHIPPED     |
+
+    Scenario Outline: Application is listening storage events from kafka
+        Given I am listening the "<Event>" event
+        When I receive a "<Event>" message with unit number "<Unit Number>", product code "<Product Code>" and location "<Location>"
+        Then For unit number "<Unit Number>" and product code "<Product Code>" the device stored is "<Device Storage>" and the storage location is "<Storage Location>"
+
+        Examples:
+           | Event          | Unit Number   | Product Code | Location | Device Storage | Storage Location        |
+           | Product Stored | W123452622168 | E0869VA0     | Miami    | Freezer001     | Bin001,Shelf002,Tray001 |
+
+

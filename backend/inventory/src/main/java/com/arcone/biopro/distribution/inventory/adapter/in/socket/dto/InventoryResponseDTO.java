@@ -1,26 +1,28 @@
-package com.arcone.biopro.distribution.inventory.application.dto;
+package com.arcone.biopro.distribution.inventory.adapter.in.socket.dto;
 
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
-import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ProductFamily;
+import lombok.Builder;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
-public record InventoryOutput(
+@Builder
+public record InventoryResponseDTO(
     UUID id,
+    String locationCode,
     String unitNumber,
     String productCode,
-    InventoryStatus inventoryStatus,
-    LocalDateTime expirationDate,
-    String location,
     String productDescription,
+    LocalDateTime expirationDate,
     AboRhType aboRh,
-    String collectionDate,
     ProductFamily productFamily,
-    String shortDescription,
+    String collectionDate,
+    String storageLocation,
     ZonedDateTime createDate,
-    ZonedDateTime modificationDate) {
-}
+    ZonedDateTime modificationDate
 
+) implements Serializable {
+}

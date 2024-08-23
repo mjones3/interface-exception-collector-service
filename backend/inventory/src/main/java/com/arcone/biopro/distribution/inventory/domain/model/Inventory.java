@@ -7,6 +7,7 @@ import com.arcone.biopro.distribution.inventory.domain.model.vo.ProductCode;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.UnitNumber;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -14,6 +15,7 @@ import java.util.UUID;
 
 @AllArgsConstructor
 @Getter
+@Setter
 public class Inventory {
 
     private UUID id;
@@ -40,6 +42,10 @@ public class Inventory {
 
     private ZonedDateTime modificationDate;
 
+    private String deviceStored;
+
+    private String storageLocation;
+
     Inventory(
         UnitNumber unitNumber,
         ProductCode productCode,
@@ -59,5 +65,6 @@ public class Inventory {
         this.aboRh = aboRh;
         this.inventoryStatus = InventoryStatus.AVAILABLE;
         this.id = UUID.randomUUID();
+
     }
 }

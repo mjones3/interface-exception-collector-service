@@ -1,9 +1,9 @@
 package com.arcone.biopro.distribution.inventory.application.usecase;
 
-import com.arcone.biopro.distribution.inventory.application.dto.InventoryInput;
 import com.arcone.biopro.distribution.inventory.application.dto.InventoryOutput;
+import com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput;
 import com.arcone.biopro.distribution.inventory.application.mapper.InventoryOutputMapper;
-import com.arcone.biopro.distribution.inventory.domain.exception.InventoryAlreadyExistsException;
+import com.arcone.biopro.distribution.inventory.domain.exception.InventoryNotFoundException;
 import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
 import com.arcone.biopro.distribution.inventory.domain.repository.InventoryAggregateRepository;
 import lombok.AccessLevel;
@@ -17,21 +17,18 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-class LabelAppliedUseCase implements UseCase<Mono<InventoryOutput>, InventoryInput> {
+public class ShipmentCompletedUseCase implements UseCase<Mono<InventoryOutput>, ShipmentCompletedInput> {
 
     InventoryAggregateRepository inventoryAggregateRepository;
     InventoryOutputMapper mapper;
 
     @Override
-    public Mono<InventoryOutput> execute(InventoryInput input) {
-        return inventoryAggregateRepository.existsByLocationAndUnitNumberAndProductCode(input.location(), input.unitNumber(), input.productCode())
-            .flatMap(exists -> {
-                if (exists) {
-                    return Mono.error(new InventoryAlreadyExistsException());
-                } else {
-                    return inventoryAggregateRepository.saveInventory(mapper.toAggregate(input));
-                }
-            })
+    public Mono<InventoryOutput> execute(ShipmentCompletedInput input) {
+        return inventoryAggregateRepository.findByUnitNumberAndProductCode(input.unitNumber(), input.productCode())
+            .switchIfEmpty(Mono.error(InventoryNotFoundException::new))
+            .flatMap(inventoryAggregate -> inventoryAggregateRepository.saveInventory(
+                inventoryAggregate.completeShipment()
+            ))
             .map(InventoryAggregate::getInventory)
             .map(mapper::toOutput);
     }

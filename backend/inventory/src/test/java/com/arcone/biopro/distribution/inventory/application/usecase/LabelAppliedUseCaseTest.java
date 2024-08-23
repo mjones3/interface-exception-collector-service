@@ -60,7 +60,7 @@ class LabelAppliedUseCaseTest {
             ProductFamily.PLASMA_TRANSFUSABLE,
             AboRhType.ABN,
             ZonedDateTime.now(),
-            ZonedDateTime.now());
+            ZonedDateTime.now(), null,null);
         InventoryInput input = new InventoryInput(
             "W123456789012",
             "E1234V12",
@@ -73,7 +73,7 @@ class LabelAppliedUseCaseTest {
         InventoryAggregate inventoryAggregate = InventoryAggregate.builder()
             .inventory(inventory)
             .build();
-        InventoryOutput expectedOutput = new InventoryOutput(uuid, "W123456789012", "E1234V12", InventoryStatus.AVAILABLE, "2025-01-08T02:05:45.231", "MIAMI");
+        InventoryOutput expectedOutput = new InventoryOutput(uuid, "W123456789012", "E1234V12", InventoryStatus.AVAILABLE, LocalDateTime.parse("2025-01-08T02:05:45.231"), "MIAMI", null, null, null, null, null, null, null);
 
         when(inventoryAggregateRepository.existsByLocationAndUnitNumberAndProductCode(input.location(), input.unitNumber(), input.productCode())).thenReturn(Mono.just(false));
         when(inventoryAggregateRepository.saveInventory(any())).thenReturn(Mono.just(inventoryAggregate));

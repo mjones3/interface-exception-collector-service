@@ -59,4 +59,12 @@ public class InventoryAggregateRepositoryImpl implements InventoryAggregateRepos
     public Mono<Long> countAllAvailable(String location, ProductFamily productFamily, AboRhCriteria aboRh) {
         return inventoryEntityRepository.countByLocationAndProductFamilyAndAboRhInAndInventoryStatusAndExpirationDateAfter(location, productFamily, aboRh.getAboRhTypes(), InventoryStatus.AVAILABLE, LocalDateTime.now());
     }
+
+    @Override
+    public Mono<InventoryAggregate> findByLocationAndUnitNumberAndProductCode(String location, String unitNumber, String productCode) {
+        return inventoryEntityRepository.findByUnitNumberAndProductCodeAndLocation(unitNumber, productCode, location)
+            .map(inventoryEntityMapper::toDomain)
+            .flatMap(inventory -> Mono.just(InventoryAggregate.builder().inventory(inventory).build()));
+    }
+
 }

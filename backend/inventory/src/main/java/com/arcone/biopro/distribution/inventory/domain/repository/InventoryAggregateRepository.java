@@ -20,4 +20,5 @@ public interface InventoryAggregateRepository {
 
     Mono<Long> countAllAvailable(String location, ProductFamily productFamily, AboRhCriteria abRh);
 
+    Mono<InventoryAggregate> findByLocationAndUnitNumberAndProductCode(String location, String unitNumber, String productCode);
 }
