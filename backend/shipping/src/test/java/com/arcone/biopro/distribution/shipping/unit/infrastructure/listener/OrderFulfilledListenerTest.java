@@ -2,10 +2,12 @@ package com.arcone.biopro.distribution.shipping.unit.infrastructure.listener;
 
 import com.arcone.biopro.distribution.shipping.domain.service.ShipmentService;
 import com.arcone.biopro.distribution.shipping.infrastructure.listener.OrderFulfilledListener;
+import com.arcone.biopro.distribution.shipping.infrastructure.listener.dto.OrderFulfilledEventDTO;
 import com.arcone.biopro.distribution.shipping.infrastructure.listener.dto.OrderFulfilledMessage;
 import com.arcone.biopro.distribution.shipping.unit.util.TestUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -24,24 +26,22 @@ class OrderFulfilledListenerTest {
 
         ReactiveKafkaConsumerTemplate<String, String> consumer = Mockito.mock(ReactiveKafkaConsumerTemplate.class);
 
-        ObjectMapper objectMapper = Mockito.mock(ObjectMapper.class);
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
 
         ReceiverRecord<String, String> receiverRecord = Mockito.mock(ReceiverRecord.class);
 
         ShipmentService service = Mockito.mock(ShipmentService.class);
         Mockito.when(service.create(Mockito.any(OrderFulfilledMessage.class))).thenReturn(Mono.empty());
 
-        OrderFulfilledMessage message = Mockito.mock(OrderFulfilledMessage.class);
-        Mockito.when(message.id()).thenReturn(1L);
+
 
         Mockito.when(receiverRecord.key()).thenReturn("test");
-        Mockito.when(receiverRecord.value()).thenReturn(TestUtil.resource("order-fulfilled.json"));
+        Mockito.when(receiverRecord.value()).thenReturn(TestUtil.resource("order-fulfilled-unit.json"));
         Mockito.when(receiverRecord.topic()).thenReturn("order.fulfilled");
         Mockito.when(receiverRecord.offset()).thenReturn(1L);
 
         Mockito.when(consumer.receive()).thenReturn(Flux.just(receiverRecord));
-
-        Mockito.when(objectMapper.readValue(Mockito.anyString(), Mockito.eq(OrderFulfilledMessage.class))).thenReturn(message);
 
         OrderFulfilledListener listener = new OrderFulfilledListener(consumer,objectMapper,service);
 

@@ -5,7 +5,7 @@ import com.arcone.biopro.distribution.order.domain.model.Order;
 import com.arcone.biopro.distribution.order.domain.repository.OrderRepository;
 import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.infrastructure.config.KafkaConfiguration;
-import com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledDTO;
+import com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledEventDTO;
 import com.arcone.biopro.distribution.order.infrastructure.mapper.OrderFulfilledMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -22,13 +22,13 @@ import org.springframework.stereotype.Component;
 public class PickListCreatedListener {
 
 
-    private final ReactiveKafkaProducerTemplate<String, OrderFulfilledDTO> producerTemplate;
+    private final ReactiveKafkaProducerTemplate<String, OrderFulfilledEventDTO> producerTemplate;
     private final String topicName;
     private final OrderRepository orderRepository;
     private final CustomerService customerService;
     private final OrderFulfilledMapper orderFulfilledMapper;
 
-    public PickListCreatedListener(@Qualifier(KafkaConfiguration.ORDER_FULFILLED_PRODUCER) ReactiveKafkaProducerTemplate<String, OrderFulfilledDTO> producerTemplate,
+    public PickListCreatedListener(@Qualifier(KafkaConfiguration.ORDER_FULFILLED_PRODUCER) ReactiveKafkaProducerTemplate<String, OrderFulfilledEventDTO> producerTemplate,
                                 @Value("${topics.order.order-fulfilled.topic-name:OrderFulfilled}") String topicName
         , OrderRepository orderRepository
                                    , CustomerService customerService , OrderFulfilledMapper orderFulfilledMapper
@@ -51,7 +51,7 @@ public class PickListCreatedListener {
             .map((Order order) -> orderFulfilledMapper.buildOrderDetails(order,picklist))
             .zipWith(customerService.getCustomerByCode(picklist.getCustomer().getCode()))
             .flatMap(orderFulfilledMapper::buildShippingCustomerDetails)
-            .map(orderFulfilledDTO -> new ProducerRecord<>(topicName, String.format("%s", event.getEventId()), orderFulfilledDTO))
+            .map(orderFulfilleEventDTO -> new ProducerRecord<>(topicName, String.format("%s", event.getEventId()), orderFulfilleEventDTO))
             .flatMap(producerTemplate::send)
             .log()
             .subscribe();

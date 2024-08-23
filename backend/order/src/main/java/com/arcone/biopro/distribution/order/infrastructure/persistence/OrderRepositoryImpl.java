@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.order.infrastructure.persistence;
 
 import com.arcone.biopro.distribution.order.domain.model.Order;
+import com.arcone.biopro.distribution.order.domain.model.vo.OrderStatus;
 import com.arcone.biopro.distribution.order.domain.repository.OrderRepository;
 import com.arcone.biopro.distribution.order.infrastructure.mapper.OrderEntityMapper;
 import com.arcone.biopro.distribution.order.infrastructure.mapper.OrderItemEntityMapper;
@@ -112,4 +113,13 @@ public class OrderRepositoryImpl implements OrderRepository {
                         .publishOn(Schedulers.boundedElastic()) )
             );
     }
+
+    @Override
+    public Mono<Order> update(Order order) {
+        return this.entityTemplate
+            .update(orderEntityMapper.mapToEntity(order))
+            .map(orderEntity ->  orderEntityMapper.mapToDomain(orderEntity,null));
+    }
+
+
 }

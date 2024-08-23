@@ -1,12 +1,12 @@
 package com.arcone.biopro.distribution.order.infrastructure.listener;
 
-import com.arcone.biopro.distribution.order.application.dto.OrderReceivedEventDTO;
 import com.arcone.biopro.distribution.order.application.dto.OrderReceivedEventPayloadDTO;
-import com.arcone.biopro.distribution.order.domain.service.OrderService;
+import com.arcone.biopro.distribution.order.application.dto.ShipmentCreatedEvenPayloadDTO;
+import com.arcone.biopro.distribution.order.application.dto.ShipmentCreatedEventDTO;
+import com.arcone.biopro.distribution.order.domain.service.OrderShipmentService;
 import com.arcone.biopro.distribution.order.infrastructure.config.KafkaConfiguration;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
@@ -23,17 +23,18 @@ import reactor.util.retry.Retry;
 @Service
 @Slf4j
 @Profile("prod")
-public class OrderReceivedListener implements CommandLineRunner {
+public class ShipmentCreatedListener implements CommandLineRunner {
 
     private final ReactiveKafkaConsumerTemplate<String, String> consumer;
-    private final OrderService orderService;
     private final ObjectMapper objectMapper;
+    private final OrderShipmentService orderShipmentService;
 
-    public OrderReceivedListener(@Qualifier(KafkaConfiguration.ORDER_RECEIVED_CONSUMER) ReactiveKafkaConsumerTemplate<String, String> consumer
-        , OrderService orderService, ObjectMapper objectMapper) {
+    public ShipmentCreatedListener(@Qualifier(KafkaConfiguration.SHIPMENT_CREATED_CONSUMER) ReactiveKafkaConsumerTemplate<String, String> consumer
+        , ObjectMapper objectMapper
+        , OrderShipmentService orderShipmentService) {
         this.consumer = consumer;
-        this.orderService = orderService;
         this.objectMapper = objectMapper;
+        this.orderShipmentService = orderShipmentService;
     }
 
     private final Scheduler scheduler = Schedulers.newBoundedElastic(
@@ -79,8 +80,8 @@ public class OrderReceivedListener implements CommandLineRunner {
     private Mono<ReceiverRecord<String, String>> handleMessage(ReceiverRecord<String, String> event) {
         try {
 
-            var message = objectMapper.readValue(event.value(), OrderReceivedEventDTO.class);
-            return orderService.processOrder(message.payload()).then(Mono.just(event));
+            var message = objectMapper.readValue(event.value(), ShipmentCreatedEventDTO.class);
+            return orderShipmentService.processShipmentCreatedEvent(message.payload()).then(Mono.just(event));
 
         } catch (JsonProcessingException e) {
             log.error(String.format("Problem deserializing an instance of [%s] " +
