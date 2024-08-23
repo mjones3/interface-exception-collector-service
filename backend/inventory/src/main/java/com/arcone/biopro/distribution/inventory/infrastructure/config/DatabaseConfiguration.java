@@ -1,5 +1,10 @@
 package com.arcone.biopro.distribution.inventory.infrastructure.config;
 
+import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.r2dbc.postgresql.codec.Json;
 import io.r2dbc.spi.ConnectionFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -17,11 +22,7 @@ import org.springframework.data.relational.core.dialect.RenderContextFactory;
 import org.springframework.data.relational.core.sql.render.SqlRenderer;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
@@ -31,6 +32,8 @@ import java.util.List;
 @EnableTransactionManagement
 @Slf4j
 public class DatabaseConfiguration {
+
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     // LocalDateTime seems to be the only type that is supported across all drivers atm
     // See https://github.com/r2dbc/r2dbc-h2/pull/139 https://github.com/mirromutth/r2dbc-mysql/issues/105
@@ -44,6 +47,8 @@ public class DatabaseConfiguration {
         converters.add(DurationReadConverter.INSTANCE);
         converters.add(ZonedDateTimeReadConverter.INSTANCE);
         converters.add(ZonedDateTimeWriteConverter.INSTANCE);
+        converters.add(JsonToQuarantineListConverter.INSTANCE);
+        converters.add(QuarantineListToJsonConverter.INSTANCE);
         return R2dbcCustomConversions.of(dialect, converters);
     }
 
@@ -130,6 +135,35 @@ public class DatabaseConfiguration {
         @Override
         public Duration convert(Long source) {
             return source != null ? Duration.ofMillis(source) : null;
+        }
+    }
+
+    @ReadingConverter
+    public enum JsonToQuarantineListConverter implements Converter<Json, List<Quarantine>> {
+        INSTANCE;
+
+        @Override
+        public List<Quarantine> convert(Json source) {
+            try {
+                return OBJECT_MAPPER.readValue(source.asString(), new TypeReference<List<Quarantine>>() {
+                });
+            } catch (JsonProcessingException e) {
+                throw new IllegalStateException("Failed to convert Json to List<InputProduct>", e);
+            }
+        }
+    }
+
+    @WritingConverter
+    public enum QuarantineListToJsonConverter implements Converter<List<Quarantine>, Json> {
+        INSTANCE;
+
+        @Override
+        public Json convert(List<Quarantine> source) {
+            try {
+                return Json.of(OBJECT_MAPPER.writeValueAsString(source));
+            } catch (JsonProcessingException e) {
+                throw new IllegalStateException("Failed to convert List<InputProduct> to Json", e);
+            }
         }
     }
 }

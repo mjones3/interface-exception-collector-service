@@ -49,31 +49,41 @@ class LabelAppliedUseCaseTest {
     @DisplayName("should create an inventory")
     void createInventorySuccess() {
         var uuid = UUID.randomUUID();
-        Inventory inventory = new Inventory(uuid,
-            new UnitNumber("W123456789012"),
-            new ProductCode("E1234V12"),
-            "APH PLASMA 24H",
-            InventoryStatus.AVAILABLE,
-            LocalDateTime.parse("2025-01-08T02:05:45.231"),
-            "2025-01-07T02:05:45.231Z",
-            "MIAMI",
-            ProductFamily.PLASMA_TRANSFUSABLE,
-            AboRhType.ABN,
-            ZonedDateTime.now(),
-            ZonedDateTime.now(), null,null);
-        InventoryInput input = new InventoryInput(
-            "W123456789012",
-            "E1234V12",
-            "APH PLASMA 24H",
-            LocalDateTime.parse("2025-01-08T02:05:45.231"),
-            "2025-01-07T02:05:45.231Z",
-            "MIAMI",
-            ProductFamily.PLASMA_TRANSFUSABLE,
-            AboRhType.ABN);
+        Inventory inventory = Inventory.builder()
+            .id(uuid)
+            .unitNumber(new UnitNumber("W123456789012"))
+            .productCode(new ProductCode("E1234V12"))
+            .shortDescription("APH PLASMA 24H")
+            .inventoryStatus(InventoryStatus.AVAILABLE)
+            .expirationDate(LocalDateTime.parse("2025-01-08T02:05:45.231"))
+            .collectionDate("2025-01-07T02:05:45.231Z")
+            .location("LOCATION_1")
+            .productFamily(ProductFamily.PLASMA_TRANSFUSABLE)
+            .aboRh(AboRhType.ABN)
+            .build();
+
+        InventoryInput input = InventoryInput.builder()
+            .unitNumber("W123456789012")
+            .productCode("E1234V12")
+            .shortDescription("APH PLASMA 24H")
+            .expirationDate(LocalDateTime.parse("2025-01-08T02:05:45.231"))
+            .collectionDate("2025-01-07T02:05:45.231Z")
+            .location("LOCATION_1")
+            .productFamily(ProductFamily.PLASMA_TRANSFUSABLE)
+            .aboRh(AboRhType.ABN)
+            .build();
+
+
         InventoryAggregate inventoryAggregate = InventoryAggregate.builder()
             .inventory(inventory)
             .build();
-        InventoryOutput expectedOutput = new InventoryOutput(uuid, "W123456789012", "E1234V12", InventoryStatus.AVAILABLE, LocalDateTime.parse("2025-01-08T02:05:45.231"), "MIAMI", null, null, null, null, null, null, null);
+        InventoryOutput expectedOutput = InventoryOutput.builder()
+            .unitNumber("W123456789012")
+            .productCode("E1234V12")
+            .inventoryStatus(InventoryStatus.AVAILABLE)
+            .expirationDate(LocalDateTime.parse("2025-01-08T02:05:45.231"))
+            .location("LOCATION_1")
+            .build();
 
         when(inventoryAggregateRepository.existsByLocationAndUnitNumberAndProductCode(input.location(), input.unitNumber(), input.productCode())).thenReturn(Mono.just(false));
         when(inventoryAggregateRepository.saveInventory(any())).thenReturn(Mono.just(inventoryAggregate));
@@ -90,7 +100,7 @@ class LabelAppliedUseCaseTest {
         assertEquals("W123456789012", savedAggregate.getInventory().getUnitNumber().value());
         assertEquals("E1234V12", savedAggregate.getInventory().getProductCode().value());
         assertEquals("2025-01-08T02:05:45.231", savedAggregate.getInventory().getExpirationDate().toString());
-        assertEquals("MIAMI", savedAggregate.getInventory().getLocation());
+        assertEquals("LOCATION_1", savedAggregate.getInventory().getLocation());
     }
 
     @Test
