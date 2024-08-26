@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.inventory.verification.steps;
 
+import com.arcone.biopro.distribution.inventory.commm.TestUtil;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ProductFamily;
@@ -27,7 +28,8 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @Slf4j
 public class KafkaListenersSteps {
@@ -40,6 +42,9 @@ public class KafkaListenersSteps {
 
     @Value("${topic.shipment-completed.name}")
     private String shipmentCompletedTopic;
+
+    @Value("${topic.product-discarded.name}")
+    private String productDiscardedTopic;
 
     private static final String SHIPMENT_COMPLETED_MESSAGE = """
          {
@@ -87,7 +92,7 @@ public class KafkaListenersSteps {
             }
          }
         """;
-    private static final String SHIPMENT_COMPLETED = "Shipment Completed";
+    private static final String EVENT_SHIPMENT_COMPLETED = "Shipment Completed";
 
     private static final String PRODUCT_STORED_MESSAGE = """
         {
@@ -107,8 +112,25 @@ public class KafkaListenersSteps {
         }
         """;
 
+    private static final String PRODUCT_DISCARDED_MESSAGE = """
+        {
+          "eventType": "ProductDiscarded",
+          "eventVersion": "1.0",
+          "payload": {
+             "unitNumber": "%s",
+            "productCode": "%s",
+            "reasonDescriptionKey": "ADDITIVE_SOLUTION_ISSUES",
+             "comments": "The comments about discarded product",
+            "triggeredBy": "USER_ID",
+            "performedBy": "USER_ID",
+            "createDate": "2024-07-01T00:10:00Z"
+          }
+        }
+        """;
+
     private static final String EVENT_LABEL_APPLIED = "Label Applied";
     private static final String EVENT_PRODUCT_STORED = "Product Stored";
+    private static final String EVENT_PRODUCT_DISCARDED = "Product Discarded";
 
     private Map<String, String> topicsMap;
 
@@ -118,27 +140,43 @@ public class KafkaListenersSteps {
 
     private String topicName;
 
+    private String untNumber;
+
+
     @Before
     public void before() {
         populateTestData();
         topicsMap = Map.of(
             EVENT_LABEL_APPLIED, labelAppliedTopic,
-            SHIPMENT_COMPLETED, shipmentCompletedTopic,
-            EVENT_PRODUCT_STORED, productStoredTopic
+            EVENT_SHIPMENT_COMPLETED, shipmentCompletedTopic,
+            EVENT_PRODUCT_STORED, productStoredTopic,
+            EVENT_PRODUCT_DISCARDED, productDiscardedTopic
         );
 
         messagesMap = Map.of(
             EVENT_LABEL_APPLIED, LABEL_APPLIED_MESSAGE,
             EVENT_PRODUCT_STORED, PRODUCT_STORED_MESSAGE,
-            SHIPMENT_COMPLETED, SHIPMENT_COMPLETED_MESSAGE
+            EVENT_SHIPMENT_COMPLETED, SHIPMENT_COMPLETED_MESSAGE,
+            EVENT_PRODUCT_DISCARDED, PRODUCT_DISCARDED_MESSAGE
             );
     }
 
     @Given("I am listening the {string} event")
     public void iAmListeningEvent(String event) {
+        untNumber = TestUtil.randomString(13);
         topicName = topicsMap.get(event);
         if (!EVENT_LABEL_APPLIED.equals(event)) {
-            createInventory("W123452622168", "E0869VA0", ProductFamily.PLASMA_TRANSFUSABLE, AboRhType.OP, "Miami", 10, InventoryStatus.AVAILABLE);
+            createInventory(untNumber, "E0869VA0", ProductFamily.PLASMA_TRANSFUSABLE, AboRhType.OP, "Miami", 10, InventoryStatus.AVAILABLE);
+        }
+
+    }
+
+    @Given("I am listening the {string} event for {string}")
+    public void iAmListeningEventForUnitNumber(String event, String untNumber) {
+        untNumber = untNumber;
+        topicName = topicsMap.get(event);
+        if (!EVENT_LABEL_APPLIED.equals(event)) {
+            createInventory(untNumber, "E0869VA0", ProductFamily.PLASMA_TRANSFUSABLE, AboRhType.OP, "Miami", 10, InventoryStatus.AVAILABLE);
         }
 
     }
@@ -162,18 +200,18 @@ public class KafkaListenersSteps {
     @When("I receive an event {string} event")
     public void iReceiveAnEvent(String event) throws Exception {
         testUtils.kafkaSender(
-            "W123452622168-E0869VA0",
+            untNumber + "-E0869VA0",
             buildMessage(event),
             topicName);
     }
 
     @Then("The inventory status is {string}")
     public void theInventoryIsCreatedCorrectly(String status) throws InterruptedException {
-        InventoryEntity entity = getInventoryWithRetry("W123452622168", "E0869VA0", InventoryStatus.valueOf(status));
+        InventoryEntity entity = getInventoryWithRetry(untNumber, "E0869VA0", InventoryStatus.valueOf(status));
 
         assertNotNull(entity);
         assertEquals("E0869VA0", entity.getProductCode());
-        assertEquals("W123452622168", entity.getUnitNumber());
+        assertEquals(untNumber, entity.getUnitNumber());
         assertEquals(status, entity.getInventoryStatus().name());
     }
 
@@ -188,7 +226,7 @@ public class KafkaListenersSteps {
     }
 
     public String buildMessage(String eventType){
-        return String.format(messagesMap.get(eventType),"W123452622168", "E0869VA0", "MIAMI");
+        return String.format(messagesMap.get(eventType),untNumber, "E0869VA0", "MIAMI");
     }
 
     public InventoryEntity getInventoryWithRetry(String unitNumber, String productCode, InventoryStatus status) throws InterruptedException {
@@ -200,7 +238,7 @@ public class KafkaListenersSteps {
             entity = inventoryEntityRepository.findByUnitNumberAndProductCodeAndInventoryStatus(unitNumber, productCode, status).block();
 
             tryCount++;
-            waiter.await(100, TimeUnit.MILLISECONDS);
+            waiter.await(1, TimeUnit.SECONDS);
         }
         return entity;
     }
@@ -226,7 +264,7 @@ public class KafkaListenersSteps {
     @When("I receive a {string} message with unit number {string}, product code {string} and location {string}")
     public void iReceiveAMessageWithUnitNumberProductCodeAndLocation(String event, String unitNumber, String productCode, String location) throws Exception {
         testUtils.kafkaSender(
-            "W123452622168-E0869VA0",
+            unitNumber + "-E0869VA0",
             buildMessage(event, unitNumber, productCode, location),
             topicName);
     }

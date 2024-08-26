@@ -3,15 +3,16 @@ package com.arcone.biopro.distribution.inventory.application.usecase;
 import com.arcone.biopro.distribution.inventory.application.dto.InventoryInput;
 import com.arcone.biopro.distribution.inventory.application.dto.ValidateInventoryOutput;
 import com.arcone.biopro.distribution.inventory.application.mapper.InventoryOutputMapper;
+import com.arcone.biopro.distribution.inventory.commm.TestUtil;
 import com.arcone.biopro.distribution.inventory.domain.model.Inventory;
 import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
-import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
-import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ErrorMessage;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.MessageType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
-import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ProductFamily;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.ProductCode;
+import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.UnitNumber;
 import com.arcone.biopro.distribution.inventory.domain.repository.InventoryAggregateRepository;
+import com.arcone.biopro.distribution.inventory.domain.service.TextConfigService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
@@ -23,10 +24,12 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 class ValidateInventoryUseCaseTest {
@@ -39,6 +42,9 @@ class ValidateInventoryUseCaseTest {
     String LOCATION_1 = "LOCATION_1";
 
 
+    @Mock
+    TextConfigService textConfigService;
+
     @Spy
     private InventoryOutputMapper mapper = Mappers.getMapper(InventoryOutputMapper.class);
 
@@ -48,11 +54,17 @@ class ValidateInventoryUseCaseTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        when(textConfigService.getText(anyString())).thenReturn("");
+        mapper.setTextConfigService(textConfigService);
     }
 
     @Test
     void execute_shouldValidate_inventory_is_valid() {
-        InventoryInput input = new InventoryInput(UNIT_NUMBER, PRODUCT_CODE, null, null, null, LOCATION_1, null , null);
+        InventoryInput input = InventoryInput.builder()
+            .unitNumber(UNIT_NUMBER)
+            .productCode(PRODUCT_CODE)
+            .location(LOCATION_1)
+            .build();
 
         when(inventoryAggregateRepository.findByUnitNumberAndProductCode(any(), any()))
             .thenReturn(Mono.just(createInventoryAggregate(InventoryStatus.AVAILABLE, LocalDateTime.now().plusDays(1))));
@@ -63,14 +75,18 @@ class ValidateInventoryUseCaseTest {
         StepVerifier.create(result)
             .consumeNextWith(output -> {
                 assertThat(output).isNotNull();
-                assertThat(output.errorMessage()).isNull();
+                assertThat(output.notificationMessages().isEmpty()).isTrue();
             })
             .verifyComplete();
     }
 
     @Test
     void execute_shouldValidate_inventory_is_expired() {
-        InventoryInput input = new InventoryInput(UNIT_NUMBER, PRODUCT_CODE, null, null, null, LOCATION_1, null , null);
+        InventoryInput input = InventoryInput.builder()
+            .unitNumber(UNIT_NUMBER)
+            .productCode(PRODUCT_CODE)
+            .location(LOCATION_1)
+            .build();
 
         when(inventoryAggregateRepository.findByUnitNumberAndProductCode(any(), any()))
             .thenReturn(Mono.just(createInventoryAggregate(InventoryStatus.AVAILABLE, LocalDateTime.now().minusDays(1))));
@@ -81,25 +97,30 @@ class ValidateInventoryUseCaseTest {
         StepVerifier.create(result)
             .consumeNextWith(output -> {
                 assertThat(output).isNotNull();
-                assertThat(output.errorMessage()).isEqualTo(ErrorMessage.INVENTORY_IS_EXPIRED);
+                assertThat(output.notificationMessages().isEmpty()).isFalse();
+                assertThat(output.notificationMessages().getFirst().name()).isEqualTo(MessageType.INVENTORY_IS_EXPIRED.name());
             })
             .verifyComplete();
     }
 
     @Test
     void execute_shouldValidate_inventory_is_quarantined() {
-        InventoryInput input = new InventoryInput(UNIT_NUMBER, PRODUCT_CODE, null, null, null, LOCATION_1, null , null);
+        InventoryInput input = InventoryInput.builder()
+            .unitNumber(UNIT_NUMBER)
+            .productCode(PRODUCT_CODE)
+            .location(LOCATION_1)
+            .build();
 
         when(inventoryAggregateRepository.findByUnitNumberAndProductCode(any(), any()))
             .thenReturn(Mono.just(createInventoryAggregate(InventoryStatus.QUARANTINED, LocalDateTime.now().plusDays(1))));
-
 
         Mono<ValidateInventoryOutput> result = useCase.execute(input);
 
         StepVerifier.create(result)
             .consumeNextWith(output -> {
                 assertThat(output).isNotNull();
-                assertThat(output.errorMessage()).isEqualTo(ErrorMessage.INVENTORY_IS_QUARANTINED);
+                assertThat(output.notificationMessages().size()).isEqualTo(5);
+                assertThat(output.notificationMessages().getFirst().name()).isEqualTo(MessageType.INVENTORY_IS_QUARANTINED.name());
             })
             .verifyComplete();
     }
@@ -117,14 +138,26 @@ class ValidateInventoryUseCaseTest {
         StepVerifier.create(result)
             .consumeNextWith(output -> {
                 assertThat(output).isNotNull();
-                assertThat(output.errorMessage()).isEqualTo(ErrorMessage.INVENTORY_NOT_EXIST);
+                assertThat(output.notificationMessages().getFirst().name()).isEqualTo(MessageType.INVENTORY_NOT_EXIST.name());
             })
             .verifyComplete();
     }
 
     private InventoryAggregate createInventoryAggregate(InventoryStatus status, LocalDateTime expirationDate) {
-        return InventoryAggregate.builder().inventory(new Inventory(UUID.randomUUID(), new UnitNumber(UNIT_NUMBER), new ProductCode(PRODUCT_CODE), "shortDescription", status, expirationDate, "", LOCATION_1, ProductFamily.PLASMA_TRANSFUSABLE, AboRhType.OP, null, null, null, null)).build();
+        return InventoryAggregate.builder()
+                .inventory(Inventory.builder()
+                    .id(UUID.randomUUID())
+                    .unitNumber(new UnitNumber(UNIT_NUMBER))
+                    .productCode(new ProductCode(PRODUCT_CODE))
+                    .location(LOCATION_1)
+                    .inventoryStatus(status)
+                    .expirationDate(expirationDate)
+                    .quarantines(TestUtil.createQuarantines())
+                    .build())
+            .build();
     }
+
+
 
 
 }

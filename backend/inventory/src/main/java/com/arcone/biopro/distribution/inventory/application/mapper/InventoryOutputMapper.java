@@ -4,41 +4,57 @@ import com.arcone.biopro.distribution.inventory.application.dto.*;
 import com.arcone.biopro.distribution.inventory.domain.model.Inventory;
 import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhCriteria;
-import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ErrorMessage;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.MessageType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ProductFamily;
+import com.arcone.biopro.distribution.inventory.domain.model.vo.NotificationMessage;
+import com.arcone.biopro.distribution.inventory.domain.service.TextConfigService;
+import lombok.AccessLevel;
+import lombok.Setter;
+import lombok.experimental.FieldDefaults;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
-public interface InventoryOutputMapper {
+@Setter
+@Mapper
+@FieldDefaults(level = AccessLevel.PROTECTED)
+public abstract class InventoryOutputMapper {
+
+    TextConfigService textConfigService;
 
     @Mapping(target = "unitNumber", source = "unitNumber.value")
     @Mapping(target = "productCode", source = "productCode.value")
-    InventoryOutput toOutput(Inventory domain);
+    public abstract InventoryOutput toOutput(Inventory domain);
 
     @Mapping(target = "productFamily", source = "productFamily")
     @Mapping(target = "aboRh", source = "aboRh")
     @Mapping(target = "quantityAvailable", source = "quantity")
     @Mapping(target = "shortDateProducts", source = "aggregates")
-    InventoryFamily toOutput(ProductFamily productFamily, AboRhCriteria aboRh, Long quantity, List<InventoryAggregate> aggregates);
+    public abstract InventoryFamily toOutput(ProductFamily productFamily, AboRhCriteria aboRh, Long quantity, List<InventoryAggregate> aggregates);
 
-    GetAllAvailableInventoriesOutput toOutput(String location, List<InventoryFamily> inventories);
-
-
+    public abstract GetAllAvailableInventoriesOutput toOutput(String location, List<InventoryFamily> inventories);
 
     @Mapping(target = "unitNumber", source = "inventory.unitNumber.value")
     @Mapping(target = "productCode", source = "inventory.productCode.value")
-    @Mapping(target = "storageLocation", source = "inventory.location")
+    @Mapping(target = "storageLocation", source = "inventory.storageLocation")
     @Mapping(target = "aboRh", source = "inventory.aboRh")
-    Product toOutput(InventoryAggregate inventoryAggregate);
+    public abstract  Product toOutput(InventoryAggregate inventoryAggregate);
 
     @Mapping(target = "inventoryOutput", source = "inventory")
-    ValidateInventoryOutput toValidateInventoryOutput(InventoryAggregate inventoryAggregate);
+    @Mapping(target = "notificationMessages.message", expression = "java(toOutput(notificationMessage.message()))")
+    public abstract ValidateInventoryOutput toValidateInventoryOutput(InventoryAggregate inventoryAggregate);
+
+    @Mapping(target = "message", expression = "java(textConfigService.getText(notificationMessage.message()))")
+    public abstract NotificationMessage toOutput(NotificationMessage notificationMessage);
 
     @Mapping(target = "inventoryOutput", ignore = true)
-    ValidateInventoryOutput toOutput(ErrorMessage errorMessage);
+    @Mapping(target = "notificationMessages", expression = "java(java.util.List.of(toNotificationMessage(notificationType)))")
+    public abstract ValidateInventoryOutput toOutput(MessageType notificationType);
+
+    @Mapping(target = "name", expression = "java(notificationType.name())")
+    @Mapping(target = "message", expression = "java(textConfigService.getText(notificationType.name()))")
+    public abstract NotificationMessage toNotificationMessage(MessageType notificationType);
 
     @Mapping(target = "inventory.unitNumber.value", source = "unitNumber")
     @Mapping(target = "inventory.productCode.value", source = "productCode")
@@ -50,7 +66,7 @@ public interface InventoryOutputMapper {
     @Mapping(target = "inventory.aboRh", source = "aboRh")
     @Mapping(target = "inventory.id", expression = "java(java.util.UUID.randomUUID())")
     @Mapping(target = "inventory.inventoryStatus", expression = "java(com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus.AVAILABLE)")
-    @Mapping(target = "errorMessage", ignore = true)
-    InventoryAggregate toAggregate(InventoryInput input);
+    @Mapping(target = "notificationMessages", ignore = true)
+    public abstract InventoryAggregate toAggregate(InventoryInput input);
 
 }

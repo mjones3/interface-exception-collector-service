@@ -4,67 +4,53 @@ import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhTy
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ProductFamily;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.ProductCode;
+import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.UnitNumber;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.UUID;
 
-@AllArgsConstructor
 @Getter
 @Setter
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Inventory {
 
-    private UUID id;
+    UUID id;
 
-    private UnitNumber unitNumber;
+    UnitNumber unitNumber;
 
-    private ProductCode productCode;
+    ProductCode productCode;
 
-    private String shortDescription;
+    String shortDescription;
 
-    private InventoryStatus inventoryStatus;
+    InventoryStatus inventoryStatus;
 
-    private LocalDateTime expirationDate;
+    LocalDateTime expirationDate;
 
-    private String collectionDate;
+    String collectionDate;
 
-    private String location;
+    String location;
 
-    private ProductFamily productFamily;
+    ProductFamily productFamily;
 
-    private AboRhType aboRh;
+    String statusReason;
 
-    private ZonedDateTime createDate;
+    AboRhType aboRh;
 
-    private ZonedDateTime modificationDate;
+    ZonedDateTime createDate;
+
+    ZonedDateTime modificationDate;
+
+    List<Quarantine> quarantines;
+
+    String comments;
 
     private String deviceStored;
 
     private String storageLocation;
-
-    Inventory(
-        UnitNumber unitNumber,
-        ProductCode productCode,
-        String shortDescription,
-        LocalDateTime expirationDate,
-        String collectionDate,
-        String location,
-        ProductFamily productFamily,
-        AboRhType aboRh) {
-        this.unitNumber = unitNumber;
-        this.productCode = productCode;
-        this.shortDescription = shortDescription;
-        this.expirationDate = expirationDate;
-        this.collectionDate = collectionDate;
-        this.location = location;
-        this.productFamily = productFamily;
-        this.aboRh = aboRh;
-        this.inventoryStatus = InventoryStatus.AVAILABLE;
-        this.id = UUID.randomUUID();
-
-    }
 }

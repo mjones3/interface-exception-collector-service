@@ -1,7 +1,9 @@
 package com.arcone.biopro.distribution.inventory.verification.steps;
 
 import com.arcone.biopro.distribution.inventory.adapter.in.socket.dto.*;
+import com.arcone.biopro.distribution.inventory.commm.TestUtil;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.*;
+import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntity;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntityRepository;
 import io.cucumber.java.Before;
@@ -10,7 +12,6 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.rsocket.RSocketRequester;
@@ -64,12 +65,13 @@ public class RsocketSteps {
     private void createProducts(String quantity, String productFamily, String aboRh, String location, String days, InventoryStatus status) {
         Stream.iterate(0, i -> i + 1)
             .limit(Integer.parseInt(quantity))
-            .forEach(i -> this.createInventory(randomString(13), "E0869V00", ProductFamily.valueOf(productFamily), AboRhType.valueOf(aboRh), location, Integer.parseInt(days), status));
+            .forEach(i -> this.createInventory(TestUtil.randomString(13), "E0869V00", ProductFamily.valueOf(productFamily), AboRhType.valueOf(aboRh), location, Integer.parseInt(days), status));
     }
 
     @Given("I have one product with {string}, {string} and {string} in {string} status")
     public void iHaveOneProductWithAndInStatus(String unitNumber, String productCode, String location, String status) {
         Integer days = "EXPIRED".equals(status) ? -1 : 1;
+
         InventoryStatus inventoryStatus = "EXPIRED".equals(status) ? InventoryStatus.AVAILABLE : InventoryStatus.valueOf(status);
 
         createInventory(unitNumber, productCode, ProductFamily.PLASMA_TRANSFUSABLE, AboRhType.OP, location, days, inventoryStatus);
@@ -77,6 +79,8 @@ public class RsocketSteps {
 
 
     private void createInventory(String unitNumber, String productCode, ProductFamily productFamily, AboRhType aboRhType, String location, Integer daysToExpire, InventoryStatus status) {
+
+        List<Quarantine> quarantines = InventoryStatus.QUARANTINED.equals(status) ? TestUtil.createQuarantines() : List.of();
         inventoryEntityRepository.save(InventoryEntity.builder()
             .id(UUID.randomUUID())
             .productFamily(productFamily)
@@ -87,13 +91,12 @@ public class RsocketSteps {
             .expirationDate(LocalDateTime.now().plusDays(daysToExpire))
             .unitNumber(unitNumber)
             .productCode(productCode)
+            .statusReason("ACTIVE_DEFERRAL")
             .shortDescription("Short description")
+            .storageLocation("FREEZER 1, RACK 1, SHELF 1")
+            .quarantines(quarantines)
             .build()).block();
 
-    }
-
-    public String randomString(int length) {
-        return "W" + RandomStringUtils.random(length - 1, false, true);
     }
 
     @When("I select {string} of the blood type {string}")
@@ -160,15 +163,15 @@ public class RsocketSteps {
 
     @Then("I receive for {string} with {string} in the {string} a {string} message")
     public void iReceiveForWithInTheAMessage(String unitNumber, String productCode, String location, String errorType) {
-        Integer errorCode = "".equals(errorType) ? null : ErrorMessage.valueOf(errorType).getCode();
+        Integer errorCode = "".equals(errorType) ? null : MessageType.valueOf(errorType).getCode();
         StepVerifier
             .create(inventoryValidationResponseDTOMonoResult)
             .consumeNextWith(message -> {
-                if (!ErrorMessage.INVENTORY_NOT_EXIST.getCode().equals(errorCode)) {
+                if (!MessageType.INVENTORY_NOT_EXIST.getCode().equals(errorCode)) {
                     assertThat(message.inventoryResponseDTO().unitNumber()).isEqualTo(unitNumber);
                     assertThat(message.inventoryResponseDTO().productCode()).isEqualTo(productCode);
 
-                    if (!ErrorMessage.INVENTORY_NOT_FOUND_IN_LOCATION.getCode().equals(errorCode)) {
+                    if (!MessageType.INVENTORY_NOT_FOUND_IN_LOCATION.getCode().equals(errorCode)) {
                         assertThat(message.inventoryResponseDTO().locationCode()).isEqualTo(location);
                     }
 
@@ -177,9 +180,13 @@ public class RsocketSteps {
                 }
 
                 if (errorCode != null) {
-                    assertThat(message.inventoryNotificationDTO().errorCode()).isEqualTo(errorCode);
+                    assertThat(message.inventoryNotificationsDTO().getFirst().errorCode()).isEqualTo(errorCode);
+                    assertThat(message.inventoryNotificationsDTO().getFirst().errorName()).isEqualTo(errorType);
                 } else {
-                    assertThat(message.inventoryNotificationDTO()).isNull();
+                    assertThat(message.inventoryNotificationsDTO().isEmpty()).isTrue();
+                }
+                if (MessageType.INVENTORY_IS_QUARANTINED.getCode().equals(errorCode)) {
+                    assertThat(message.inventoryNotificationsDTO().size()).isEqualTo(5);
                 }
 
                 log.debug("Received message from validate inventory {}", message);

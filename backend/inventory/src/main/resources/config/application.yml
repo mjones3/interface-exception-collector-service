@@ -102,6 +102,8 @@ logging:
     org.apache.kafka.clients.admin.AdminClientConfig: WARN
     org.apache.kafka.clients.producer.ProducerConfig: WARN
     org.apache.kafka.clients.consumer.ConsumerConfig: WARN
+    io.rsocket: DEBUG
+    org.springframework.messaging: DEBUG
     org.apache.kafka: WARN
     com.arcone.biopro: DEBUG
 
@@ -279,3 +281,5 @@ topic:
     name: ShipmentCompleted
   product-stored:
     name: ProductStored
+  product-discarded:
+    name: ProductDiscarded
