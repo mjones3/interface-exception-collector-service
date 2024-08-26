@@ -48,7 +48,7 @@ serviceAccount:
 podAnnotations: {}
 podLabels:
   # Enable Keycloak secured service
-  app-secured: disable
+  app-secured: disabled
 
 podSecurityContext: {}
 # fsGroup: 2000
