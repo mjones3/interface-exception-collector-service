@@ -1,11 +1,11 @@
 import { gql } from 'apollo-angular';
-import { OrderDetailsDto } from '../../models/order-details.dto';
+import { OrderDetailsDTO } from '../../models/order-details.dto';
 
-const GET_ORDER_BY_ID = gql<
-    { findOrderById: OrderDetailsDto },
+export const GET_ORDER_BY_ID = gql<
+    { findOrderById: OrderDetailsDTO },
     { orderId: number }
 >`
-    query findOrderById($orderId: ID!) {
+    query FindOrderById($orderId: ID!) {
         findOrderById(orderId: $orderId) {
             id
             orderNumber
@@ -43,4 +43,24 @@ const GET_ORDER_BY_ID = gql<
     }
 `;
 
-export { GET_ORDER_BY_ID };
+export interface OrderShipmentDTO {
+    id: number;
+    orderId: number;
+    shipmentId: number;
+    shipmentStatus: string;
+    createDate: string;
+}
+export const FIND_ORDER_SHIPMENT_BY_ORDER_ID = gql<
+    { findOrderShipmentByOrderId: OrderShipmentDTO | null }, // NULL here means "order shipment not found"
+    { orderId: number }
+>`
+    query FindOrderShipmentByOrderId($orderId: ID!) {
+        findOrderShipmentByOrderId(orderId: $orderId) {
+            id
+            orderId
+            shipmentId
+            shipmentStatus
+            createDate
+        }
+    }
+`;
