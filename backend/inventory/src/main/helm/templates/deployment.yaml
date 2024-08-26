@@ -40,6 +40,9 @@ spec:
             - name: http
               containerPort: {{ .Values.service.port }}
               protocol: TCP
+            - name: rsocket
+              containerPort: {{ .Values.service.rsocket.port }}
+              protocol: TCP
           env:
             {{- toYaml .Values.defaultEnv | nindent 12 }}
             {{- toYaml .Values.additionalEnv | nindent 12 }}

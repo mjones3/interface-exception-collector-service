@@ -11,5 +11,8 @@ spec:
       targetPort: http
       protocol: TCP
       name: http
+    - port: {{ .Values.service.rsocket.port}}
+      targetPort: rsocket
+      protocol: TCP
   selector:
     {{- include "api.selectorLabels" . | nindent 4 }}
