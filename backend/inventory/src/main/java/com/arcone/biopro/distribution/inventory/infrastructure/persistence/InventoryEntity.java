@@ -96,6 +96,9 @@ public class InventoryEntity implements Serializable, Persistable<UUID> {
     @Column("storage_location")
     String storageLocation;
 
+    @Column("comments")
+    String comments;
+
     @JsonIgnore
     @Override
     public boolean isNew() {

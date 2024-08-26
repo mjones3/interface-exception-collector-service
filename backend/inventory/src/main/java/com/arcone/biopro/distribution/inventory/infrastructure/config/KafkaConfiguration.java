@@ -34,8 +34,12 @@ class KafkaConfiguration {
 
     @Value("${topic.shipment-completed.name}")
     private String shipmentCompletedTopic;
+
     @Value("${topic.product-stored.name}")
     private String productStoredTopic;
+
+    @Value("${topic.product-discarded.name}")
+    private String productDiscardedTopic;
 
 
     @Bean
@@ -50,6 +54,13 @@ class KafkaConfiguration {
     ReceiverOptions<String, String> productStoredReceiverOptions(KafkaProperties kafkaProperties) {
         return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
             .subscription(List.of(productStoredTopic));
+    }
+
+    @Bean
+    @Qualifier("PRODUCT_DISCARDED")
+    ReceiverOptions<String, String> productDiscardeddReceiverOptions(KafkaProperties kafkaProperties) {
+        return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
+            .subscription(List.of(productDiscardedTopic));
     }
 
     @Bean
@@ -91,6 +102,18 @@ class KafkaConfiguration {
     @Bean(name = "PRODUCT_STORED_CONSUMER")
     ReactiveKafkaConsumerTemplate<String, String> productStoredConsumerTemplate(
         @Qualifier("PRODUCT_STORED") ReceiverOptions<String, String> receiverOptions
+    ) {
+        return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
+    }
+
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "ProductDiscarded",
+        description = "Product Discarded has been listened and an inventory status was updated to discarded",
+        payloadType = LabelAppliedMessage.class
+    ))
+    @Bean(name = "PRODUCT_DISCARDED_CONSUMER")
+    ReactiveKafkaConsumerTemplate<String, String> productDiscardedConsumerTemplate(
+        @Qualifier("PRODUCT_DISCARDED") ReceiverOptions<String, String> receiverOptions
     ) {
         return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
     }

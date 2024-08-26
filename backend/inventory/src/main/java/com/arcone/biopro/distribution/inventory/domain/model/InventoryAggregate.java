@@ -80,4 +80,11 @@ public class InventoryAggregate {
         inventory.setStorageLocation(storageLocation);
         return this;
     }
+
+    public InventoryAggregate discardProduct(String reason, String comments) {
+        inventory.setStatusReason(reason);
+        inventory.setComments(comments);
+        inventory.setInventoryStatus(InventoryStatus.DISCARDED);
+        return this;
+    }
 }

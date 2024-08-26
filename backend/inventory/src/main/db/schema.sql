@@ -16,6 +16,7 @@ CREATE TABLE bld_inventory
     storage_location            VARCHAR(255),
     status_reason               VARCHAR(255),
     quarantines                 JSONB,
+    comments                     VARCHAR(255),
     CONSTRAINT pk_bld_inventory PRIMARY KEY (id)
 );
 
