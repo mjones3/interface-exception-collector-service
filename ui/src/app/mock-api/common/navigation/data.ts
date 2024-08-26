@@ -93,13 +93,5 @@ export const defaultNavigation: FuseNavigationItem[] = [
         icon: 'shopping_cart',
         link: 'orders/search',
         disabled: false,
-    },
-    {
-        id: 20,
-        title: 'Shipping',
-        type: 'basic',
-        icon: 'local_shipping',
-        link: 'shipment/search',
-        disabled: false,
-    },
+    }
 ];
