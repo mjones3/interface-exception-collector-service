@@ -85,6 +85,10 @@ public class OrderDetailsPage extends CommonPageFactory {
         return String.format("//*[@id='viewPickListReport']//table[@id='productDetailsTable']//td[contains(normalize-space(),'%s')]", detail);
     }
 
+    private String pickListShortDateTableHeader(String detail) {
+        return String.format("//*[@id='viewPickListReport']//table[@id='shortDateDetailsTable']//th[contains(normalize-space(),'%s')]", detail);
+    }
+
     // Strings mappers
 
     private Map<String, String> productFamilyDescription = Map.of(
@@ -219,6 +223,10 @@ public class OrderDetailsPage extends CommonPageFactory {
     public void verifyShortDateProductDetails(boolean isThereShortDateProduct) {
         if (isThereShortDateProduct) {
             sharedActions.waitForVisible(shortDateDetailsTableRows.getFirst());
+            sharedActions.waitForVisible(By.xpath(pickListShortDateTableHeader("Unit Number")));
+            sharedActions.waitForVisible(By.xpath(pickListShortDateTableHeader("Product Code")));
+            sharedActions.waitForVisible(By.xpath(pickListShortDateTableHeader("Blood Type")));
+            sharedActions.waitForVisible(By.xpath(pickListShortDateTableHeader("Storage Location")));
             Assert.assertFalse(shortDateDetailsTableRows.isEmpty());
         } else {
             sharedActions.waitForVisible(noShortDateDetailsMessage);
