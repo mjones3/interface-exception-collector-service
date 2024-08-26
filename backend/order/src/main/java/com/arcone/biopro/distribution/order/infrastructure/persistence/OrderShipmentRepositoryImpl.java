@@ -6,8 +6,11 @@ import com.arcone.biopro.distribution.order.infrastructure.mapper.OrderShipmentE
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
+import org.springframework.data.relational.core.query.Query;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+
+import static org.springframework.data.relational.core.query.Criteria.where;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +24,17 @@ public class OrderShipmentRepositoryImpl implements OrderShipmentRepository {
     public Mono<OrderShipment> insert(OrderShipment orderShipment) {
         return this.entityTemplate
             .insert(orderShipmentEntityMapper.mapToEntity(orderShipment))
+            .map(orderShipmentEntityMapper::mapToDomain);
+    }
+
+    @Override
+    public Mono<OrderShipment> findOneByOrderId(Long orderId) {
+        return this.entityTemplate.select(OrderShipmentEntity.class)
+            .matching(Query.query(
+                where("orderId").is(orderId)
+                )
+            )
+            .one()
             .map(orderShipmentEntityMapper::mapToDomain);
     }
 }

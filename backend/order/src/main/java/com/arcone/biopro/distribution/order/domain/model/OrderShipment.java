@@ -1,9 +1,9 @@
 package com.arcone.biopro.distribution.order.domain.model;
 
-import graphql.Assert;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import org.springframework.util.Assert;
 
 import java.time.ZonedDateTime;
 
@@ -30,10 +30,10 @@ public class OrderShipment implements Validatable {
 
     @Override
     public void checkValid() {
-        Assert.assertNotNull(orderId, "Order ID cannot be null");
-        Assert.assertNotNull(shipmentId, "Shipment id cannot be null");
-        Assert.assertNotNull(shipmentStatus, "Shipment Status cannot be null");
-        Assert.assertNotNull(createDate, "Create Date cannot be null");
+        Assert.notNull(orderId, "Order ID cannot be null");
+        Assert.notNull(shipmentId, "Shipment id cannot be null");
+        Assert.notNull(shipmentStatus, "Shipment Status cannot be null");
+        Assert.notNull(createDate, "Create Date cannot be null");
 
     }
 }

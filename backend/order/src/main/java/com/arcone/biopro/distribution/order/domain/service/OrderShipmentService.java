@@ -7,4 +7,6 @@ import reactor.core.publisher.Mono;
 public interface OrderShipmentService {
 
     Mono<OrderShipment> processShipmentCreatedEvent(ShipmentCreatedEvenPayloadDTO eventPayload);
+
+    Mono<OrderShipment> findOneByOrderId(Long orderId);
 }

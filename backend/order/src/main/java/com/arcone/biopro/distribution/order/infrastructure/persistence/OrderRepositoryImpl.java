@@ -118,7 +118,9 @@ public class OrderRepositoryImpl implements OrderRepository {
     public Mono<Order> update(Order order) {
         return this.entityTemplate
             .update(orderEntityMapper.mapToEntity(order))
-            .map(orderEntity ->  orderEntityMapper.mapToDomain(orderEntity,null));
+            .flatMap(orderEntity ->
+                Mono.fromCallable(() -> orderEntityMapper
+                    .mapToDomain(orderEntity,null) ).publishOn(Schedulers.boundedElastic()));
     }
 
 
