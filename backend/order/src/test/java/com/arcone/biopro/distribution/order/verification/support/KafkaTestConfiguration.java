@@ -8,6 +8,7 @@ import io.opentelemetry.instrumentation.kafkaclients.v2_6.TracingProducerInterce
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,40 +25,30 @@ import reactor.kafka.sender.SenderOptions;
 public class KafkaTestConfiguration {
 
     @Bean
-    SenderOptions<String, OrderReceivedEventDTO> senderOptions(
-        KafkaProperties kafkaProperties,
-        ObjectMapper objectMapper,
-        MeterRegistry meterRegistry) {
+    SenderOptions<String, OrderReceivedEventDTO> senderOptions(KafkaProperties kafkaProperties, ObjectMapper objectMapper, MeterRegistry meterRegistry) {
         var props = kafkaProperties.buildProducerProperties(null);
         props.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, TracingProducerInterceptor.class.getName());
-        return SenderOptions.<String, OrderReceivedEventDTO>create(props)
-            .withValueSerializer(new JsonSerializer<>(objectMapper))
-            .maxInFlight(1) // to keep ordering, prevent duplicate messages (and avoid data loss)
+        return SenderOptions.<String, OrderReceivedEventDTO>create(props).withValueSerializer(new JsonSerializer<>(objectMapper)).maxInFlight(1) // to keep ordering, prevent duplicate messages (and avoid data loss)
             .producerListener(new MicrometerProducerListener(meterRegistry)); // we want standard Kafka metrics
     }
 
     @Bean
-    SenderOptions<String, ShipmentCreatedEventDTO> senderShipmentCreatedOptions(
-        KafkaProperties kafkaProperties,
-        ObjectMapper objectMapper,
-        MeterRegistry meterRegistry) {
+    SenderOptions<String, ShipmentCreatedEventDTO> senderShipmentCreatedOptions(KafkaProperties kafkaProperties, ObjectMapper objectMapper, MeterRegistry meterRegistry) {
         var props = kafkaProperties.buildProducerProperties(null);
         props.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, TracingProducerInterceptor.class.getName());
-        return SenderOptions.<String, ShipmentCreatedEventDTO>create(props)
-            .withValueSerializer(new JsonSerializer<>(objectMapper))
-            .maxInFlight(1) // to keep ordering, prevent duplicate messages (and avoid data loss)
+        return SenderOptions.<String, ShipmentCreatedEventDTO>create(props).withValueSerializer(new JsonSerializer<>(objectMapper)).maxInFlight(1) // to keep ordering, prevent duplicate messages (and avoid data loss)
             .producerListener(new MicrometerProducerListener(meterRegistry)); // we want standard Kafka metrics
     }
 
-    @Bean("partner-order")
-    ReactiveKafkaProducerTemplate<String, OrderReceivedEventDTO> producerTemplate(
-        SenderOptions<String, OrderReceivedEventDTO> kafkaSenderOptions) {
+    @Bean
+    @Qualifier("partner-order")
+    ReactiveKafkaProducerTemplate<String, OrderReceivedEventDTO> producerTemplate(SenderOptions<String, OrderReceivedEventDTO> kafkaSenderOptions) {
         return new ReactiveKafkaProducerTemplate<>(kafkaSenderOptions);
     }
 
-    @Bean("shipment-created")
-    ReactiveKafkaProducerTemplate<String, ShipmentCreatedEventDTO> shipmentCreatedProducerTemplate(
-        SenderOptions<String, ShipmentCreatedEventDTO> senderShipmentCreatedOptions) {
+    @Bean
+    @Qualifier("shipment-created")
+    ReactiveKafkaProducerTemplate<String, ShipmentCreatedEventDTO> shipmentCreatedProducerTemplate(SenderOptions<String, ShipmentCreatedEventDTO> senderShipmentCreatedOptions) {
         return new ReactiveKafkaProducerTemplate<>(senderShipmentCreatedOptions);
     }
 

@@ -34,13 +34,13 @@ public class KafkaHelper {
     }
 
     public Mono<SenderResult<Void>> sendPartnerOrderReceivedEvent(String key, OrderReceivedEventDTO payload) {
-        log.info("Sending Kafka Message {} {}",orderReceivedTopic, payload);
+        log.info("Sending Kafka Message {} {}", orderReceivedTopic, payload);
         var producerRecord = new ProducerRecord<>(orderReceivedTopic, key, payload);
         return partnerOrderProducerTemplate.send(producerRecord);
     }
 
     public Mono<SenderResult<Void>> sendShipmentCreatedEvent(String key, ShipmentCreatedEventDTO payload) {
-        log.info("Sending Kafka Message {} {}",shipmentCreatedTopic, payload);
+        log.info("Sending Kafka Message {} {}", shipmentCreatedTopic, payload);
         var producerRecord = new ProducerRecord<>(shipmentCreatedTopic, key, payload);
         return shipmentCreatedProducerTemplate.send(producerRecord);
     }
