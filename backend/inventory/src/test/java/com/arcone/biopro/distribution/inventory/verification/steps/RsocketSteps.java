@@ -93,6 +93,7 @@ public class RsocketSteps {
             .productCode(productCode)
             .statusReason("ACTIVE_DEFERRAL")
             .shortDescription("Short description")
+            .storageLocation("FREEZER 1, RACK 1, SHELF 1")
             .quarantines(quarantines)
             .build()).block();
 
