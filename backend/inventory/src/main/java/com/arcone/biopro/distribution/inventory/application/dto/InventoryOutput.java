@@ -23,6 +23,7 @@ public record InventoryOutput(
     ProductFamily productFamily,
     String shortDescription,
     ZonedDateTime createDate,
-    ZonedDateTime modificationDate) {
+    ZonedDateTime modificationDate,
+    String storageLocation) {
 }
 
