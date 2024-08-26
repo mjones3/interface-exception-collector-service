@@ -53,5 +53,25 @@ class OrderShipmentUseCaseTest {
 
     }
 
+    @Test
+    public void shouldFindOneByOrderNumber(){
+
+        var orderShipmentRepository  = Mockito.mock(OrderShipmentRepository.class);
+
+        var orderShipmentMapper = new OrderShipmentMapper();
+
+        var orderShipmentMock = Mockito.mock(OrderShipment.class);
+
+        var orderRepository =  Mockito.mock(OrderRepository.class) ;
+
+        Mockito.when(orderShipmentRepository.findOneByOrderId(Mockito.any())).thenReturn(Mono.just(orderShipmentMock));
+
+        var target = new OrderShipmentUseCase(orderShipmentRepository, orderShipmentMapper, orderRepository);
+
+        StepVerifier.create(target.findOneByOrderId(1L))
+            .expectNext(orderShipmentMock)
+            .verifyComplete();
+    }
+
 
 }

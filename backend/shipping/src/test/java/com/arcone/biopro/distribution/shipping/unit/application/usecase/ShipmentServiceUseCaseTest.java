@@ -8,6 +8,7 @@ import com.arcone.biopro.distribution.shipping.application.dto.RuleResponseDTO;
 import com.arcone.biopro.distribution.shipping.application.usecase.ShipmentServiceUseCase;
 import com.arcone.biopro.distribution.shipping.application.util.ShipmentServiceMessages;
 import com.arcone.biopro.distribution.shipping.domain.event.ShipmentCompletedEvent;
+import com.arcone.biopro.distribution.shipping.domain.event.ShipmentCreatedEvent;
 import com.arcone.biopro.distribution.shipping.domain.model.Shipment;
 import com.arcone.biopro.distribution.shipping.domain.model.ShipmentItem;
 import com.arcone.biopro.distribution.shipping.domain.model.ShipmentItemPacked;
@@ -115,6 +116,8 @@ class ShipmentServiceUseCaseTest {
         StepVerifier.create(shipmentMono)
             .consumeNextWith(orderSaved -> orderSaved.getId())
             .verifyComplete();
+
+        Mockito.verify(applicationEventPublisher).publishEvent(Mockito.any(ShipmentCreatedEvent.class));
 
     }
 

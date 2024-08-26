@@ -92,6 +92,7 @@ public class ShipmentServiceUseCase implements ShipmentService {
             .createdByEmployeeId("mock-employee-id")
             .build();
 
+
         return shipmentRepository.save(shipment)
             .flatMap(savedShipment -> Flux.fromStream(message.items().stream())
                 .flatMap(orderItemFulfilledMessage -> shipmentItemRepository.save(toShipmentItem(orderItemFulfilledMessage, savedShipment.getId())).flatMap(shipmentItemSaved -> {
@@ -101,12 +102,13 @@ public class ShipmentServiceUseCase implements ShipmentService {
                     }
                     return Mono.empty();
                 }).then(Mono.just(""))).collectList())
-            .then(publishShipmentCreatedEvent(shipment));
+            .then(Mono.just(shipment))
+            .doOnSuccess(this::publishShipmentCreatedEvent);
     }
 
-    private Mono<Shipment> publishShipmentCreatedEvent(Shipment shipment) {
+    private void publishShipmentCreatedEvent(Shipment shipment) {
+        log.info("Publishing Shipment Created Event {}",shipment);
         applicationEventPublisher.publishEvent(new ShipmentCreatedEvent(shipment));
-        return Mono.just(shipment);
     }
 
     private ShipmentItem toShipmentItem(OrderItemFulfilledMessage itemFulfilledMessage, Long shipmentId) {
