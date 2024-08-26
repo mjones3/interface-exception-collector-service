@@ -281,4 +281,6 @@ topic:
     name: ShipmentCompleted
   product-stored:
     name: ProductStored
+  product-discarded:
+    name: ProductDiscardedap
 

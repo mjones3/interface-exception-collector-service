@@ -48,6 +48,8 @@ public class Inventory {
 
     List<Quarantine> quarantines;
 
+    String comments;
+
     private String deviceStored;
 
     private String storageLocation;

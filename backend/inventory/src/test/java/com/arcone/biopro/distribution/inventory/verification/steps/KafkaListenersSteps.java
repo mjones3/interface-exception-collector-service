@@ -43,6 +43,9 @@ public class KafkaListenersSteps {
     @Value("${topic.shipment-completed.name}")
     private String shipmentCompletedTopic;
 
+    @Value("${topic.product-discarded.name}")
+    private String productDiscardedTopic;
+
     private static final String SHIPMENT_COMPLETED_MESSAGE = """
          {
            "eventType":"ShipmentCompleted",
@@ -89,7 +92,7 @@ public class KafkaListenersSteps {
             }
          }
         """;
-    private static final String SHIPMENT_COMPLETED = "Shipment Completed";
+    private static final String EVENT_SHIPMENT_COMPLETED = "Shipment Completed";
 
     private static final String PRODUCT_STORED_MESSAGE = """
         {
@@ -109,8 +112,25 @@ public class KafkaListenersSteps {
         }
         """;
 
+    private static final String PRODUCT_DISCARDED_MESSAGE = """
+        {
+          "eventType": "ProductDiscarded",
+          "eventVersion": "1.0",
+          "payload": {
+             "unitNumber": "%s",
+            "productCode": "%s",
+            "reasonDescriptionKey": "ADDITIVE_SOLUTION_ISSUES",
+             "comments": "The comments about discarded product",
+            "triggeredBy": "USER_ID",
+            "performedBy": "USER_ID",
+            "createDate": "2024-07-01T00:10:00Z"
+          }
+        }
+        """;
+
     private static final String EVENT_LABEL_APPLIED = "Label Applied";
     private static final String EVENT_PRODUCT_STORED = "Product Stored";
+    private static final String EVENT_PRODUCT_DISCARDED = "Product Discarded";
 
     private Map<String, String> topicsMap;
 
@@ -128,14 +148,16 @@ public class KafkaListenersSteps {
         populateTestData();
         topicsMap = Map.of(
             EVENT_LABEL_APPLIED, labelAppliedTopic,
-            SHIPMENT_COMPLETED, shipmentCompletedTopic,
-            EVENT_PRODUCT_STORED, productStoredTopic
+            EVENT_SHIPMENT_COMPLETED, shipmentCompletedTopic,
+            EVENT_PRODUCT_STORED, productStoredTopic,
+            EVENT_PRODUCT_DISCARDED, productDiscardedTopic
         );
 
         messagesMap = Map.of(
             EVENT_LABEL_APPLIED, LABEL_APPLIED_MESSAGE,
             EVENT_PRODUCT_STORED, PRODUCT_STORED_MESSAGE,
-            SHIPMENT_COMPLETED, SHIPMENT_COMPLETED_MESSAGE
+            EVENT_SHIPMENT_COMPLETED, SHIPMENT_COMPLETED_MESSAGE,
+            EVENT_PRODUCT_DISCARDED, PRODUCT_DISCARDED_MESSAGE
             );
     }
 
