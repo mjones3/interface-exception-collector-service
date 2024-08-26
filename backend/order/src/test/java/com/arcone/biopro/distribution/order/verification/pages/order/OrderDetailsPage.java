@@ -52,6 +52,11 @@ public class OrderDetailsPage extends CommonPageFactory {
     @FindBy(css = "button[title='Close']")
     private WebElement closeViewPickListDialogButton;
 
+    @FindBy(id = "shipmentsTableId")
+    private WebElement shipmentDetailsTable;
+
+    private static final By shipmentTableLocator = By.id("shipmentsTableId");
+
     //Dynamic locators
     private String orderInformationDetail(String param) {
         return String.format("//*[@id='orderInfoDescriptions']/*//span[normalize-space()='%s']", param);
@@ -228,6 +233,10 @@ public class OrderDetailsPage extends CommonPageFactory {
     public void closePickListModal() {
         sharedActions.waitForVisible(closeViewPickListDialogButton);
         sharedActions.click(closeViewPickListDialogButton);
+    }
+
+    public void waitForShipmentDetailsLoad(){
+        sharedActions.waitForVisible(shipmentTableLocator);
     }
 
 }
