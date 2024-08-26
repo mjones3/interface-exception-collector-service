@@ -164,6 +164,7 @@ def biopro_service():
     ])
     k8s_resource(
         'inventory-deployment',
+        port_forwards=7002,
         links=['api.local.gd'],
         resource_deps=[
             'postgresql-deployment',

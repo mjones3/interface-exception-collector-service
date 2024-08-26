@@ -1,25 +1,26 @@
 package com.arcone.biopro.distribution.inventory.infrastructure.config;
 
-import com.arcone.biopro.distribution.inventory.domain.event.InventoryCreatedEvent;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.label.LabelAppliedMessage;
+import com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput;
+import io.github.springwolf.core.asyncapi.annotations.AsyncListener;
+import io.github.springwolf.core.asyncapi.annotations.AsyncOperation;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.opentelemetry.instrumentation.kafkaclients.v2_6.TracingProducerInterceptor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
-import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.core.reactive.ReactiveKafkaConsumerTemplate;
 import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
 import reactor.kafka.receiver.ReceiverOptions;
 import reactor.kafka.sender.MicrometerProducerListener;
 import reactor.kafka.sender.SenderOptions;
 
-import java.time.Duration;
 import java.util.List;
 
 @EnableKafka
@@ -28,43 +29,109 @@ import java.util.List;
 @Slf4j
 class KafkaConfiguration {
 
-    @Bean
-    NewTopic inventoryTopic(
-        @Value("${topic.inventory.partitions:1}") Integer partitions,
-        @Value("${topic.inventory.replicas:1}") Integer replicas
-    ) {
-        return TopicBuilder.name("inventory.produced")
-            .partitions(partitions)
-            .replicas(replicas)
-            .build();
-    }
+    @Value("${topic.label-applied.name}")
+    private String labelAppliedTopic;
+
+    @Value("${topic.shipment-completed.name}")
+    private String shipmentCompletedTopic;
+
+    @Value("${topic.product-stored.name}")
+    private String productStoredTopic;
+
+    @Value("${topic.product-discarded.name}")
+    private String productDiscardedTopic;
+
 
     @Bean
-    ReceiverOptions<String, String> inventoryReceiverOptions(KafkaProperties kafkaProperties) {
+    @Qualifier("LABEL_APPLIED")
+    ReceiverOptions<String, String> labelAppliedReceiverOptions(KafkaProperties kafkaProperties) {
         return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
-            .commitInterval(Duration.ZERO) // Disable periodic commits
-            .commitBatchSize(0) // Disable commits by batch size
-            .subscription(List.of("topic.received"));
+            .subscription(List.of(labelAppliedTopic));
     }
 
     @Bean
-    ReactiveKafkaConsumerTemplate<String, String> inventoryConsumerTemplate(
-        ReceiverOptions<String, String> receiverOptions
+    @Qualifier("PRODUCT_STORED")
+    ReceiverOptions<String, String> productStoredReceiverOptions(KafkaProperties kafkaProperties) {
+        return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
+            .subscription(List.of(productStoredTopic));
+    }
+
+    @Bean
+    @Qualifier("PRODUCT_DISCARDED")
+    ReceiverOptions<String, String> productDiscardeddReceiverOptions(KafkaProperties kafkaProperties) {
+        return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
+            .subscription(List.of(productDiscardedTopic));
+    }
+
+    @Bean
+    @Qualifier("SHIPMENT_COMPLETED")
+    ReceiverOptions<String, String> shipmentCompletedReceiverOptions(KafkaProperties kafkaProperties) {
+        return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
+            .subscription(List.of(shipmentCompletedTopic));
+    }
+
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "LabelApplied",
+        description = "Label Applied has been listened and an inventory was created",
+        payloadType = LabelAppliedMessage.class
+    ))
+    @Bean(name = "LABEL_APPLIED_CONSUMER")
+    ReactiveKafkaConsumerTemplate<String, String> labelAppliedConsumerTemplate(
+        @Qualifier("LABEL_APPLIED") ReceiverOptions<String, String> receiverOptions
+    ) {
+        return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
+    }
+
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "ShipmentCompleted",
+        description = "Shipment Completed has been listened and an inventory status was updated to SHIPPED",
+        payloadType = ShipmentCompletedInput.class
+    ))
+    @Bean(name = "SHIPMENT_COMPLETED_CONSUMER")
+    ReactiveKafkaConsumerTemplate<String, String> shipmentCompletedConsumerTemplate(
+        @Qualifier("SHIPMENT_COMPLETED") ReceiverOptions<String, String> receiverOptions
+    ) {
+        return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
+    }
+
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "ProductStored",
+        description = "Product Stored has been listened and an storage is created",
+        payloadType = LabelAppliedMessage.class
+    ))
+    @Bean(name = "PRODUCT_STORED_CONSUMER")
+    ReactiveKafkaConsumerTemplate<String, String> productStoredConsumerTemplate(
+        @Qualifier("PRODUCT_STORED") ReceiverOptions<String, String> receiverOptions
+    ) {
+        return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
+    }
+
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "ProductDiscarded",
+        description = "Product Discarded has been listened and an inventory status was updated to discarded",
+        payloadType = LabelAppliedMessage.class
+    ))
+    @Bean(name = "PRODUCT_DISCARDED_CONSUMER")
+    ReactiveKafkaConsumerTemplate<String, String> productDiscardedConsumerTemplate(
+        @Qualifier("PRODUCT_DISCARDED") ReceiverOptions<String, String> receiverOptions
     ) {
         return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
     }
 
     @Bean
-    SenderOptions<String, InventoryCreatedEvent> senderOptions(KafkaProperties kafkaProperties, MeterRegistry meterRegistry) {
+    SenderOptions<String, String> senderOptions(
+        KafkaProperties kafkaProperties,
+        MeterRegistry meterRegistry) {
         var props = kafkaProperties.buildProducerProperties(null);
         props.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, TracingProducerInterceptor.class.getName());
-        return SenderOptions.<String, InventoryCreatedEvent>create(props)
+        return SenderOptions.<String, String>create(props)
             .maxInFlight(1) // to keep ordering, prevent duplicate messages (and avoid data loss)
             .producerListener(new MicrometerProducerListener(meterRegistry)); // we want standard Kafka metrics
     }
 
     @Bean
-    ReactiveKafkaProducerTemplate<String, InventoryCreatedEvent> producerTemplate(SenderOptions<String, InventoryCreatedEvent> kafkaSenderOptions) {
+    ReactiveKafkaProducerTemplate<String, String> producerTemplate(SenderOptions<String, String> kafkaSenderOptions) {
         return new ReactiveKafkaProducerTemplate<>(kafkaSenderOptions);
     }
+
 }

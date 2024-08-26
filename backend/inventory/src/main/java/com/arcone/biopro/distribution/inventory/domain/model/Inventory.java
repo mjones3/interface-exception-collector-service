@@ -1,40 +1,56 @@
 package com.arcone.biopro.distribution.inventory.domain.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Builder;
-import lombok.Data;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.domain.Persistable;
-import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.InsertOnlyProperty;
-import org.springframework.data.relational.core.mapping.Table;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ProductFamily;
+import com.arcone.biopro.distribution.inventory.domain.model.vo.ProductCode;
+import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
+import com.arcone.biopro.distribution.inventory.domain.model.vo.UnitNumber;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
-import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.UUID;
 
-@Data
+@Getter
+@Setter
 @Builder
-@Table("bld_inventory")
-public class Inventory implements Serializable, Persistable<Long> {
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class Inventory {
 
-    @Id
-    @Column("id")
-    private Long id;
+    UUID id;
 
-    @Column("create_date")
-    @CreatedDate
-    @InsertOnlyProperty
-    private ZonedDateTime createDate;
+    UnitNumber unitNumber;
 
-    @Column("modification_date")
-    @LastModifiedDate
-    private ZonedDateTime modificationDate;
+    ProductCode productCode;
 
-    @JsonIgnore
-    @Override
-    public boolean isNew() {
-        return createDate == null;
-    }
+    String shortDescription;
+
+    InventoryStatus inventoryStatus;
+
+    LocalDateTime expirationDate;
+
+    String collectionDate;
+
+    String location;
+
+    ProductFamily productFamily;
+
+    String statusReason;
+
+    AboRhType aboRh;
+
+    ZonedDateTime createDate;
+
+    ZonedDateTime modificationDate;
+
+    List<Quarantine> quarantines;
+
+    String comments;
+
+    private String deviceStored;
+
+    private String storageLocation;
 }
