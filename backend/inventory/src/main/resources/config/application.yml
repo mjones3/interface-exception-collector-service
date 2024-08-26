@@ -282,5 +282,4 @@ topic:
   product-stored:
     name: ProductStored
   product-discarded:
-    name: ProductDiscardedap
-
+    name: ProductDiscarded
