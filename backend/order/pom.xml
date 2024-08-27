@@ -469,7 +469,6 @@
                 <configuration>
                     <source>21</source>
                     <target>21</target>
-                    <compilerArgs>--enable-preview</compilerArgs>
                 </configuration>
             </plugin>
             <plugin>
@@ -778,7 +777,6 @@
                             <include>**/*Test.java</include>
                         </includes>
                         <argLine>@{argLine} -XX:+AllowRedefinitionToAddDeleteMethods</argLine>
-                        <argLine>--enable-preview</argLine>
                         <systemPropertyVariables>
                             <java.util.logging.config.file>src/test/resources/logback.xml
                             </java.util.logging.config.file>
