@@ -6,6 +6,7 @@ import com.arcone.biopro.distribution.inventory.domain.model.enumeration.Message
 import com.arcone.biopro.distribution.inventory.domain.model.vo.NotificationMessage;
 import lombok.Builder;
 import lombok.Getter;
+import org.apache.logging.log4j.util.Strings;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -56,7 +57,7 @@ public class InventoryAggregate {
         MessageType messageType = MessageType.fromStatus(inventory.getInventoryStatus())
             .orElseThrow(UnavailableStatusNotMappedException::new);
 
-        return List.of(new NotificationMessage(messageType.name(), messageType.getCode(), inventory.getStatusReason(), messageType.getType().name()));
+        return List.of(new NotificationMessage(messageType.name(), messageType.getCode(), Strings.isNotBlank(inventory.getStatusReason()) ? inventory.getStatusReason() : messageType.name(), messageType.getType().name()));
     }
 
     private List<NotificationMessage> createQuarantinesNotificationMessage() {
