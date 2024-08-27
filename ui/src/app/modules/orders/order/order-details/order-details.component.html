@@ -55,17 +55,15 @@
         </div>
 
         <div class="flex flex-row space-x-2">
-            @if (orderDetails?.status === 'OPEN') {
-                <button
-                    id="generatePickListButton"
-                    class="bg-purple-light px-4"
-                    mat-flat-button
-                    (click)="viewPickList(orderDetails.id)"
-                    [disabled]="loadingPickList"
-                >
-                    View/Print Pick List
-                </button>
-            }
+            <button
+                id="generatePickListButton"
+                class="bg-purple-light px-4"
+                mat-flat-button
+                (click)="viewPickList(orderDetails.id)"
+                [disabled]="loadingPickList"
+            >
+                View/Print Pick List
+            </button>
         </div>
     </div>
 

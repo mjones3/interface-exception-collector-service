@@ -367,7 +367,22 @@ public class OrderSteps {
     }
 
     @And("I should see the shipment details.")
-    public void checkShipmentDetails(){
-       // sharedActions.waitForVisible(orderDetailsPage.);
+    public void checkShipmentDetails() throws JSONException {
+        orderDetailsPage.verifyShipmentTable(orderShipment);
+    }
+
+    @And("I should see an option to navigate to the shipment details page.")
+    public void checkShipmentDetailsOption() {
+        orderDetailsPage.verifyShipmentDetailsButton();
+    }
+
+    @And("The order status is {string}.")
+    public void verifyOrderStatus(String orderStatus) {
+        orderDetailsPage.verifyOrderStatus(orderStatus);
+    }
+
+    @And("I should not see multiple shipments generated.")
+    public void verifyMultipleShipments() {
+        Assert.assertFalse(orderDetailsPage.verifyHasMultipleShipments());
     }
 }

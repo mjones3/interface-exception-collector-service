@@ -37,13 +37,14 @@ Feature: View order details
             When I choose to generate the Pick List.
             Then I can see the pick list details.
             And I have received a shipment created event.
-            And I should see the shipment details.
-            And I should see an option to navigate to the shipment details page.
-            And The order status is IN_PROGRESS.
             And I "<Short Date>" see the short date product details.
             When I close the pick list.
+            And I should see the shipment details.
+            And I should see an option to navigate to the shipment details page.
+            And The order status is "IN_PROGRESS".
             And I choose to generate the Pick List.
             Then I can see the pick list details.
+            When I close the pick list.
             And I should not see multiple shipments generated.
 
             Examples:

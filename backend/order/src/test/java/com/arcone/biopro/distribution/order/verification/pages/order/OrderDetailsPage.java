@@ -2,6 +2,8 @@ package com.arcone.biopro.distribution.order.verification.pages.order;
 
 import com.arcone.biopro.distribution.order.verification.pages.CommonPageFactory;
 import com.arcone.biopro.distribution.order.verification.pages.SharedActions;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -56,6 +58,9 @@ public class OrderDetailsPage extends CommonPageFactory {
     private WebElement shipmentDetailsTable;
 
     private static final By shipmentTableLocator = By.id("shipmentsTableId");
+    private static final By shipmentDateLocator = By.xpath("//p-table[@id='shipmentsTableId']//td[5]");
+    private static final By shipmentDetailsBtn = By.id("goToShipmentBtn");
+    private static final By shipmentDetailsTableRows = By.xpath("//p-table[@id='shipmentsTableId']//tbody//tr");
 
     //Dynamic locators
     private String orderInformationDetail(String param) {
@@ -92,6 +97,10 @@ public class OrderDetailsPage extends CommonPageFactory {
 
     private String pickListShortDateTableHeader(String detail) {
         return String.format("//*[@id='viewPickListReport']//table[@id='shortDateDetailsTable']//th[contains(normalize-space(),'%s')]", detail);
+    }
+
+    private String shipmentTableDetails(String detail) {
+        return String.format("//p-table[@id='shipmentsTableId']//td[text()='%s']", detail);
     }
 
     // Strings mappers
@@ -243,8 +252,26 @@ public class OrderDetailsPage extends CommonPageFactory {
         sharedActions.click(closeViewPickListDialogButton);
     }
 
-    public void waitForShipmentDetailsLoad(){
+    public void verifyShipmentTable(JSONObject shipmentDetails) throws JSONException {
+        JSONObject payload = (JSONObject) shipmentDetails.get("payload");
+
         sharedActions.waitForVisible(shipmentTableLocator);
+        sharedActions.waitForVisible(By.xpath(shipmentTableDetails(payload.get("shipmentId").toString())));
+        sharedActions.waitForVisible(By.xpath(shipmentTableDetails(payload.get("shipmentStatus").toString())));
+        Assert.assertFalse(
+            sharedActions.isElementEmpty(driver.findElement(shipmentDateLocator))
+        );
     }
 
+    public void verifyShipmentDetailsButton() {
+        sharedActions.waitForVisible(shipmentDetailsBtn);
+    }
+
+    public void verifyOrderStatus(String orderStatus) {
+        sharedActions.waitForVisible(By.xpath(orderInformationDetail(orderStatus)));
+    }
+
+    public boolean verifyHasMultipleShipments() {
+        return driver.findElements(shipmentDetailsTableRows).size() > 1;
+    }
 }
