@@ -7,6 +7,7 @@ import com.arcone.biopro.distribution.order.domain.model.vo.PickListCustomer;
 import com.arcone.biopro.distribution.order.domain.repository.OrderRepository;
 import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledDTO;
+import com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledEventDTO;
 import com.arcone.biopro.distribution.order.infrastructure.listener.PickListCreatedListener;
 import com.arcone.biopro.distribution.order.infrastructure.mapper.OrderFulfilledMapper;
 import com.arcone.biopro.distribution.order.infrastructure.service.dto.CustomerDTO;
@@ -42,11 +43,11 @@ class PickListCreatedListenerTest {
 
         Mockito.when(customerService.getCustomerByCode(Mockito.any())).thenReturn(Mono.just(customerDto));
 
-        Mockito.when(orderFulfilledMapper.buildOrderDetails(Mockito.any(),Mockito.any())).thenReturn(Mockito.mock(OrderFulfilledDTO.class));
+        Mockito.when(orderFulfilledMapper.buildOrderDetails(Mockito.any(),Mockito.any())).thenReturn(Mockito.mock(OrderFulfilledEventDTO.class));
 
-        Mockito.when(orderFulfilledMapper.buildShippingCustomerDetails(Mockito.any())).thenReturn(Mono.just(Mockito.mock(OrderFulfilledDTO.class)));
+        Mockito.when(orderFulfilledMapper.buildShippingCustomerDetails(Mockito.any())).thenReturn(Mono.just(Mockito.mock(OrderFulfilledEventDTO.class)));
 
-        ReactiveKafkaProducerTemplate<String, OrderFulfilledDTO> producerTemplate = Mockito.mock(ReactiveKafkaProducerTemplate.class);
+        ReactiveKafkaProducerTemplate<String, OrderFulfilledEventDTO> producerTemplate = Mockito.mock(ReactiveKafkaProducerTemplate.class);
         PickListCreatedListener target = new PickListCreatedListener(producerTemplate, "TestTopic", orderRepository, customerService, orderFulfilledMapper);
 
 

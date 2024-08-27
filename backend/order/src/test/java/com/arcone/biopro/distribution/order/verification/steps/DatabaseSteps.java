@@ -49,6 +49,8 @@ public class DatabaseSteps {
 
     @And("I cleaned up from the database the orders with external ID starting with {string}.")
     public void cleanUpOrdersStartingWith(String externalIdPrefix) {
+        var shipmentQuery = DatabaseQueries.deleteShipmentsByOrderExternalIdStartingWith(externalIdPrefix);
+        databaseService.executeSql(shipmentQuery).block();
         var childQuery = DatabaseQueries.deleteOrderItemsByExternalIdStartingWith(externalIdPrefix);
         databaseService.executeSql(childQuery).block();
         var query = DatabaseQueries.deleteOrdersByExternalIdStartingWith(externalIdPrefix);

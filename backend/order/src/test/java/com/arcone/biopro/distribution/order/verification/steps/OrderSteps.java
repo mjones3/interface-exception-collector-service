@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.order.verification.steps;
 
 import com.arcone.biopro.distribution.order.application.dto.OrderReceivedEventDTO;
+import com.arcone.biopro.distribution.order.application.dto.ShipmentCreatedEventDTO;
 import com.arcone.biopro.distribution.order.verification.controllers.OrderController;
 import com.arcone.biopro.distribution.order.verification.pages.SharedActions;
 import com.arcone.biopro.distribution.order.verification.pages.order.HomePage;
@@ -52,6 +53,7 @@ public class OrderSteps {
     private OrderController orderController = new OrderController();
     private JSONObject partnerOrder;
     private boolean isLoggedIn = false;
+    private JSONObject orderShipment;
 
     @Autowired
     private SharedActions sharedActions;
@@ -343,5 +345,44 @@ public class OrderSteps {
     @When("I close the pick list.")
     public void closePickList() {
         orderDetailsPage.closePickListModal();
+    }
+
+
+    @Given("I have received a shipment created event.")
+    public void postShipmentCreatedEvent() throws Exception {
+        this.externalId = externalId;
+        var jsonContent = testUtils.getResource("shipment-created-event-automation.json");
+        jsonContent = jsonContent.replace("{order-number}", this.orderId.toString());
+        var eventPayload = objectMapper.readValue(jsonContent, ShipmentCreatedEventDTO.class);
+
+        createShipmentCreatedRequest(jsonContent, eventPayload);
+    }
+
+    private void createShipmentCreatedRequest(String jsonContent, ShipmentCreatedEventDTO eventPayload) throws JSONException {
+        orderShipment = new JSONObject(jsonContent);
+        log.info("JSON PAYLOAD :{}", orderShipment);
+        Assert.assertNotNull(orderShipment);
+        var event = kafkaHelper.sendShipmentCreatedEvent(eventPayload.eventId().toString(), eventPayload).block();
+        Assert.assertNotNull(event);
+    }
+
+    @And("I should see the shipment details.")
+    public void checkShipmentDetails() throws JSONException {
+        orderDetailsPage.verifyShipmentTable(orderShipment);
+    }
+
+    @And("I should see an option to navigate to the shipment details page.")
+    public void checkShipmentDetailsOption() {
+        orderDetailsPage.verifyShipmentDetailsButton();
+    }
+
+    @And("The order status is {string}.")
+    public void verifyOrderStatus(String orderStatus) {
+        orderDetailsPage.verifyOrderStatus(orderStatus);
+    }
+
+    @And("I should not see multiple shipments generated.")
+    public void verifyMultipleShipments() {
+        Assert.assertFalse(orderDetailsPage.verifyHasMultipleShipments());
     }
 }

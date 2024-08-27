@@ -1,7 +1,7 @@
 package com.arcone.biopro.distribution.order.infrastructure.config;
 
 import com.arcone.biopro.distribution.order.infrastructure.dto.OrderCreatedDTO;
-import com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledDTO;
+import com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledEventDTO;
 import com.arcone.biopro.distribution.order.infrastructure.dto.OrderRejectedDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -36,6 +36,8 @@ public class KafkaConfiguration {
     public static final String ORDER_CREATED_PRODUCER = "order-created";
     public static final String ORDER_REJECTED_PRODUCER = "order-rejected";
     public static final String ORDER_FULFILLED_PRODUCER = "order-fulfilled";
+    public static final String ORDER_RECEIVED_CONSUMER = "order-received";
+    public static final String SHIPMENT_CREATED_CONSUMER = "shipment-created";
 
     @Bean
     NewTopic orderReceivedTopic(
@@ -74,21 +76,48 @@ public class KafkaConfiguration {
     }
 
     @Bean
+    NewTopic shipmentCreatedTopic(
+        @Value("${topics.shipment.shipment-created.partitions:1}") Integer partitions,
+        @Value("${topics.shipment.shipment-created.replicas:1}") Integer replicas,
+        @Value("${topics.shipment.shipment-created.topic-name:ShipmentCreated}") String topicName
+    ) {
+        return TopicBuilder.name(topicName).partitions(partitions).replicas(replicas).build();
+    }
+
+
+    @Bean
     ReceiverOptions<String, String> orderServiceReceiverOptions(KafkaProperties kafkaProperties
         , @Value("${topics.order.order-received.topic-name:OrderReceived}") String orderReceivedTopicName) {
+        return buildReceiverOptions(kafkaProperties, orderReceivedTopicName);
+    }
+
+    @Bean
+    ReceiverOptions<String, String> shipmentCreatedReceiverOptions(KafkaProperties kafkaProperties
+        , @Value("${topics.shipment.shipment-created.topic-name:OrderReceived}") String shipmentCreatedTopicName) {
+       return buildReceiverOptions(kafkaProperties, shipmentCreatedTopicName);
+    }
+
+    private ReceiverOptions<String, String> buildReceiverOptions(KafkaProperties kafkaProperties , String topicName){
         var props = kafkaProperties.buildConsumerProperties(null);
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
         return ReceiverOptions.<String, String>create(props)
             .commitInterval(Duration.ofSeconds(5))
             .commitBatchSize(1)
-            .subscription(List.of(orderReceivedTopicName));
+            .subscription(List.of(topicName));
     }
 
-    @Bean
+    @Bean(ORDER_RECEIVED_CONSUMER)
     ReactiveKafkaConsumerTemplate<String, String> orderServiceConsumerTemplate(
-        ReceiverOptions<String, String> receiverOptions
+        ReceiverOptions<String, String> orderServiceReceiverOptions
     ) {
-        return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
+        return new ReactiveKafkaConsumerTemplate<>(orderServiceReceiverOptions);
+    }
+
+    @Bean(SHIPMENT_CREATED_CONSUMER)
+    ReactiveKafkaConsumerTemplate<String, String> shipmentCreatedConsumerTemplate(
+        ReceiverOptions<String, String> shipmentCreatedReceiverOptions
+    ) {
+        return new ReactiveKafkaConsumerTemplate<>(shipmentCreatedReceiverOptions);
     }
 
     @Bean
@@ -119,13 +148,13 @@ public class KafkaConfiguration {
 
 
     @Bean
-    SenderOptions<String, OrderFulfilledDTO> orderFulfilledSenderOptions(
+    SenderOptions<String, OrderFulfilledEventDTO> orderFulfilledSenderOptions(
         KafkaProperties kafkaProperties,
         ObjectMapper objectMapper,
         MeterRegistry meterRegistry) {
         var props = kafkaProperties.buildProducerProperties(null);
         props.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, TracingProducerInterceptor.class.getName());
-        return SenderOptions.<String, OrderFulfilledDTO>create(props)
+        return SenderOptions.<String, OrderFulfilledEventDTO>create(props)
             .withValueSerializer(new JsonSerializer<>(objectMapper))
             .maxInFlight(1) // to keep ordering, prevent duplicate messages (and avoid data loss)
             .producerListener(new MicrometerProducerListener(meterRegistry)); // we want standard Kafka metrics
@@ -144,8 +173,8 @@ public class KafkaConfiguration {
     }
 
     @Bean(name = ORDER_FULFILLED_PRODUCER )
-    ReactiveKafkaProducerTemplate<String, OrderFulfilledDTO> orderFulfilledProducerTemplate(
-        SenderOptions<String, OrderFulfilledDTO> orderFulfilledSenderOptions) {
+    ReactiveKafkaProducerTemplate<String, OrderFulfilledEventDTO> orderFulfilledProducerTemplate(
+        SenderOptions<String, OrderFulfilledEventDTO> orderFulfilledSenderOptions) {
         return new ReactiveKafkaProducerTemplate<>(orderFulfilledSenderOptions);
     }
 

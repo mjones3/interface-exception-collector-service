@@ -54,4 +54,8 @@ public class DatabaseQueries {
     public static String getOrderId(String externalId) {
         return String.format("SELECT id FROM bld_order WHERE external_id = '%s'", externalId);
     }
+
+    public static String deleteShipmentsByOrderExternalIdStartingWith(String externalIdPrefix) {
+        return String.format("DELETE FROM bld_order_shipment WHERE order_id in ( SELECT id from bld_order WHERE external_id like '%s%%')", externalIdPrefix);
+    }
 }

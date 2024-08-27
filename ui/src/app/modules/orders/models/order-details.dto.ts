@@ -1,4 +1,4 @@
-export interface OrderDetailsDto {
+export interface OrderDetailsDTO {
     id: number;
     orderNumber: number;
     externalId: string;

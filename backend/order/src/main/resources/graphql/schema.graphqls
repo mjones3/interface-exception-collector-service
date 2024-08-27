@@ -13,6 +13,7 @@ type Query {
     # Searches over all orders
     findOrderById(orderId:ID!):Order!
     searchOrders(orderQueryCommandDTO:OrderQueryCommandDTO!):[OrderReportDTO]
+    findOrderShipmentByOrderId(orderId:ID!):OrderShipmentDTO
 }
 
 type Mutation {
@@ -199,5 +200,13 @@ type PickListItemShortDateDTO {
     productCode:String
     aboRh:String
     storageLocation:String
+}
+
+type OrderShipmentDTO {
+    id: ID!
+    orderId:Int
+    shipmentId:Int
+    shipmentStatus:String
+    createDate:DateTime
 }
 

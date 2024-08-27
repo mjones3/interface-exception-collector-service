@@ -64,6 +64,8 @@ fuse-card {
     }
 
     p-paginator > .p-paginator {
+        background: unset;
+
         & > .p-paginator-current {
             font-size: 0.8rem;
         }
