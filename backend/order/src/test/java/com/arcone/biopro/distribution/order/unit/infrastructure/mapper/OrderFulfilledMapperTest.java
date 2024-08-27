@@ -15,6 +15,7 @@ import com.arcone.biopro.distribution.order.domain.model.vo.ProductCategory;
 import com.arcone.biopro.distribution.order.domain.model.vo.ProductFamily;
 import com.arcone.biopro.distribution.order.domain.model.vo.ShippingMethod;
 import com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledDTO;
+import com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledEventDTO;
 import com.arcone.biopro.distribution.order.infrastructure.mapper.OrderFulfilledMapper;
 import com.arcone.biopro.distribution.order.infrastructure.service.dto.CustomerAddressDTO;
 import com.arcone.biopro.distribution.order.infrastructure.service.dto.CustomerDTO;
@@ -111,7 +112,7 @@ class OrderFulfilledMapperTest {
 
         var mapper = new OrderFulfilledMapper();
 
-        var dto = mapper.buildOrderDetails(orderMock,pickListMock);
+        var dto = mapper.buildOrderDetails(orderMock,pickListMock).getPayload();
 
         Assertions.assertNotNull(dto);
         Assertions.assertEquals(1L, dto.getOrderNumber());
@@ -152,7 +153,7 @@ class OrderFulfilledMapperTest {
 
         var mapper = new OrderFulfilledMapper();
 
-        var dto = mapper.buildOrderDetails(orderMock,pickListMock);
+        var dto = mapper.buildOrderDetails(orderMock,pickListMock).getPayload();
         var shortDate = dto.getItems().getFirst().shortDateProducts();
         Assertions.assertNotNull(shortDate);
         Assertions.assertEquals(0,shortDate.size());
@@ -214,7 +215,7 @@ class OrderFulfilledMapperTest {
 
         var mapper = new OrderFulfilledMapper();
 
-        var dto = mapper.buildOrderDetails(orderMock,pickListMock);
+        var dto = mapper.buildOrderDetails(orderMock,pickListMock).getPayload();
 
 
         // assert items
@@ -241,7 +242,7 @@ class OrderFulfilledMapperTest {
 
         var tupleMock = Mockito.mock(Tuple2.class);
 
-        var orderFulfilledDTO = Mockito.mock(OrderFulfilledDTO.class);
+        var orderFulfilledDTO = Mockito.mock(OrderFulfilledEventDTO.class);
 
         var customerDTO = Mockito.mock(CustomerDTO.class);
 
@@ -275,25 +276,25 @@ class OrderFulfilledMapperTest {
         Mockito.when(customerDTO.addresses()).thenReturn(List.of(addressMock));
         Mockito.when(customerDTO.phoneNumber()).thenReturn("PHONE_NUMBER");
 
-        Mockito.when(tupleMock.getT1()).thenReturn(new OrderFulfilledDTO());
+        Mockito.when(tupleMock.getT1()).thenReturn(new OrderFulfilledEventDTO(new OrderFulfilledDTO()));
         Mockito.when(tupleMock.getT2()).thenReturn(customerDTO);
 
         var mapper = new OrderFulfilledMapper();
 
-        Mono<OrderFulfilledDTO> dto = mapper.buildShippingCustomerDetails(tupleMock);
+        Mono<OrderFulfilledEventDTO> dto = mapper.buildShippingCustomerDetails(tupleMock);
 
         StepVerifier.create(dto)
             .consumeNextWith( response  -> {
                 Assertions.assertNotNull(response);
-                Assertions.assertEquals("PHONE_NUMBER",response.getCustomerPhoneNumber());
-                Assertions.assertEquals("CustomerAddressState",response.getCustomerAddressState());
-                Assertions.assertEquals("CustomerAddressPostalCode",response.getCustomerAddressPostalCode());
-                Assertions.assertEquals("CustomerAddressCountryCode",response.getCustomerAddressCountry());
-                Assertions.assertEquals("CustomerAddressCountryCode",response.getCustomerAddressCountryCode());
-                Assertions.assertEquals("CustomerAddressCity",response.getCustomerAddressCity());
-                Assertions.assertEquals("CustomerAddressDistrict",response.getCustomerAddressDistrict());
-                Assertions.assertEquals("CustomerAddressAddressLine1",response.getCustomerAddressAddressLine1());
-                Assertions.assertEquals("CustomerAddressAddressLine2",response.getCustomerAddressAddressLine2());
+                Assertions.assertEquals("PHONE_NUMBER",response.getPayload().getCustomerPhoneNumber());
+                Assertions.assertEquals("CustomerAddressState",response.getPayload().getCustomerAddressState());
+                Assertions.assertEquals("CustomerAddressPostalCode",response.getPayload().getCustomerAddressPostalCode());
+                Assertions.assertEquals("CustomerAddressCountryCode",response.getPayload().getCustomerAddressCountry());
+                Assertions.assertEquals("CustomerAddressCountryCode",response.getPayload().getCustomerAddressCountryCode());
+                Assertions.assertEquals("CustomerAddressCity",response.getPayload().getCustomerAddressCity());
+                Assertions.assertEquals("CustomerAddressDistrict",response.getPayload().getCustomerAddressDistrict());
+                Assertions.assertEquals("CustomerAddressAddressLine1",response.getPayload().getCustomerAddressAddressLine1());
+                Assertions.assertEquals("CustomerAddressAddressLine2",response.getPayload().getCustomerAddressAddressLine2());
 
             })
             .verifyComplete();

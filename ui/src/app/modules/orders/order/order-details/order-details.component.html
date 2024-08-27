@@ -24,7 +24,7 @@
                 [orderInfoDescriptions]="orderInfoDescriptions"
                 [shippingInfoDescriptions]="shippingInfoDescriptions"
                 [billInfoDescriptions]="billInfoDescriptions"
-                [comments]="orderDetailsInfo?.comments"
+                [comments]="orderDetails?.comments"
             ></rsa-order-widget-sidebar>
         </div>
     </div>
@@ -50,190 +50,295 @@
                 Temperature Category:</span
             >
             <span class="flex-auto text-left">{{
-                labelingProductCategory | uppercase
+                orderDetails?.productCategory ?? '' | uppercase
             }}</span>
         </div>
 
         <div class="flex flex-row space-x-2">
-            @if (orderDetailsInfo?.status === 'OPEN') {
-                <button
-                    id="generatePickListButton"
-                    class="bg-purple-light px-4"
-                    mat-flat-button
-                    (click)="viewPickList()"
-                    [disabled]="loadingPickList"
-                >
-                    View/Print Pick List
-                </button>
-            }
+            <button
+                id="generatePickListButton"
+                class="bg-purple-light px-4"
+                mat-flat-button
+                (click)="viewPickList(orderDetails.id)"
+                [disabled]="loadingPickList"
+            >
+                View/Print Pick List
+            </button>
         </div>
     </div>
 
     <!--Order Details Table-->
-    <div class="flex flex-auto flex-col space-y-1">
-        <fuse-card class="flex-col pb-4">
-            <!-- Header Section -->
-            <div class="fuse-card-title">
-                <div
-                    class="flex w-full flex-row items-baseline justify-between px-5"
-                >
-                    <h3>Product Details</h3>
-                </div>
-            </div>
-            <mat-divider></mat-divider>
+    <div class="flex flex-auto flex-col gap-4">
+        @if (products$ | async; as products) {
+            @if (products.length > 0) {
+                <fuse-card class="flex-col">
+                    <!-- Header Section -->
+                    <div class="fuse-card-title">
+                        <div
+                            class="flex w-full flex-row items-baseline justify-between px-5"
+                        >
+                            <h3>Product Details</h3>
+                        </div>
+                    </div>
+                    <mat-divider></mat-divider>
 
-            <div class="table-wrapper">
-                <p-table
-                    id="prodTableId"
-                    dataKey="id"
-                    styleClass="p-datatable-customers p-datatable-sm"
-                    currentPageReportTemplate="Items per page: 20&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Page {currentPage} - {totalPages} of {totalRecords}"
-                    [rows]="20"
-                    [value]="products"
-                    [showCurrentPageReport]="true"
-                    [paginator]="true"
-                    [paginatorStyleClass]="'items-center justify-end'"
-                    [loading]="loading"
-                    [expandedRowKeys]="expandedRows"
-                >
-                    <ng-template pTemplate="header">
-                        <tr>
-                            <th class="w-12"></th>
-                            <th class="w-12"></th>
-                            <th id="productFamilyColumn">
-                                <div
-                                    class="p-d-flex p-jc-between p-ai-center flex items-center"
-                                >
-                                    Product Family
-                                </div>
-                            </th>
-                            <th id="bloodTypeColumn">
-                                <div
-                                    class="p-d-flex p-jc-between p-ai-center flex items-center"
-                                >
-                                    Blood Type
-                                </div>
-                            </th>
-                            <th id="quantityColumn">
-                                <div
-                                    class="p-d-flex p-jc-between p-ai-center flex items-center"
-                                >
-                                    Quantity
-                                </div>
-                            </th>
-                            <th id="quantityAvailableColumn">
-                                <div
-                                    class="p-d-flex p-jc-between p-ai-center flex items-center"
-                                >
-                                    Available Inventory
-                                </div>
-                            </th>
-                            <th>
-                                <div
-                                    id="filledProductsColumn"
-                                    class="p-d-flex p-jc-between p-ai-center flex items-center"
-                                >
-                                    Filled Products
-                                </div>
-                            </th>
-                            <th></th>
-                        </tr>
-                    </ng-template>
-                    <ng-template
-                        pTemplate="body"
-                        let-product
-                        let-expanded="expanded"
-                        let-i="rowIndex"
-                    >
-                        <tr>
-                            <td [ngStyle]="{ width: '30px' }">
-                                <div class="flex-row justify-center space-x-4">
-                                    @if (product?.comments) {
-                                        <button
-                                            id="expandRowBtn"
-                                            type="button"
-                                            class="p-button-text p-button-rounded p-button-plain"
-                                            pButton
-                                            pRipple
-                                            [pRowToggler]="product"
-                                            [icon]="
-                                                expanded
-                                                    ? 'pi pi-chevron-down'
-                                                    : 'pi pi-chevron-right'
-                                            "
-                                        ></button>
-                                    }
-                                </div>
-                            </td>
-                            <td>
-                                <mat-icon
-                                    [svgIcon]="'rsa:product-plasma'"
-                                    class="product-icon"
-                                ></mat-icon>
-                            </td>
-                            <td>
-                                {{
-                                    ProductFamilyMap[product?.productFamily]
-                                        | uppercase
-                                }}
-                            </td>
-                            <td>
-                                {{ product?.bloodType | uppercase }}
-                            </td>
-                            <td>
-                                {{ product?.quantity }}
-                            </td>
-                            <td>
-                                {{ product?.quantityAvailable }}
-                            </td>
-                            <td>
-                                <div
-                                    class="flex flex-row items-center justify-start space-x-2"
-                                >
-                                    <span> 0 </span>
-                                    <span class="w-10">
-                                        <mat-progress-bar
-                                            mode="determinate"
-                                            [id]="'filled' + i"
-                                        ></mat-progress-bar
-                                    ></span>
-                                    <mat-icon
-                                        class="text-custom-green"
-                                        [svgIcon]="'hi_outline:clock'"
-                                    ></mat-icon>
-                                </div>
-                            </td>
-                        </tr>
-                    </ng-template>
-                    <ng-template pTemplate="rowexpansion" let-product>
-                        <tr>
-                            <td [attr.colspan]="6">
-                                <div class="p-4">
-                                    <div class="flex flex-col space-y-2">
-                                        @if (product?.comments) {
+                    <div class="table-wrapper">
+                        <p-table
+                            id="prodTableId"
+                            dataKey="id"
+                            styleClass="p-datatable-customers p-datatable-sm"
+                            currentPageReportTemplate="Items per page: 20&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Page {currentPage} - {totalPages} of {totalRecords}"
+                            [rows]="20"
+                            [value]="products"
+                            [showCurrentPageReport]="true"
+                            [paginator]="true"
+                            [paginatorStyleClass]="'items-center justify-end'"
+                            [loading]="loading"
+                            [expandedRowKeys]="expandedRows"
+                        >
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th class="w-12"></th>
+                                    <th class="w-12"></th>
+                                    <th id="productFamilyColumn">
+                                        <div
+                                            class="p-d-flex p-jc-between p-ai-center flex items-center"
+                                        >
+                                            Product Family
+                                        </div>
+                                    </th>
+                                    <th id="bloodTypeColumn">
+                                        <div
+                                            class="p-d-flex p-jc-between p-ai-center flex items-center"
+                                        >
+                                            Blood Type
+                                        </div>
+                                    </th>
+                                    <th id="quantityColumn">
+                                        <div
+                                            class="p-d-flex p-jc-between p-ai-center flex items-center"
+                                        >
+                                            Quantity
+                                        </div>
+                                    </th>
+                                    <th id="quantityAvailableColumn">
+                                        <div
+                                            class="p-d-flex p-jc-between p-ai-center flex items-center"
+                                        >
+                                            Available Inventory
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div
+                                            id="filledProductsColumn"
+                                            class="p-d-flex p-jc-between p-ai-center flex items-center"
+                                        >
+                                            Filled Products
+                                        </div>
+                                    </th>
+                                    <th></th>
+                                </tr>
+                            </ng-template>
+                            <ng-template
+                                pTemplate="body"
+                                let-product
+                                let-expanded="expanded"
+                                let-i="rowIndex"
+                            >
+                                <tr>
+                                    <td [ngStyle]="{ width: '30px' }">
+                                        <div
+                                            class="flex-row justify-center space-x-4"
+                                        >
+                                            @if (product?.comments) {
+                                                <button
+                                                    id="expandRowBtn"
+                                                    type="button"
+                                                    class="p-button-text p-button-rounded p-button-plain"
+                                                    pButton
+                                                    pRipple
+                                                    [pRowToggler]="product"
+                                                    [icon]="
+                                                        expanded
+                                                            ? 'pi pi-chevron-down'
+                                                            : 'pi pi-chevron-right'
+                                                    "
+                                                >
+                                                    &nbsp;
+                                                </button>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <mat-icon
+                                            [svgIcon]="'rsa:product-plasma'"
+                                            class="product-icon"
+                                        ></mat-icon>
+                                    </td>
+                                    <td>
+                                        {{
+                                            ProductFamilyMap[
+                                                product?.productFamily
+                                            ] | uppercase
+                                        }}
+                                    </td>
+                                    <td>
+                                        {{ product?.bloodType | uppercase }}
+                                    </td>
+                                    <td>
+                                        {{ product?.quantity }}
+                                    </td>
+                                    <td>
+                                        {{ product?.quantityAvailable }}
+                                    </td>
+                                    <td>
+                                        <div
+                                            class="flex flex-row items-center justify-start space-x-2"
+                                        >
+                                            <span> 0 </span>
+                                            <span class="w-10">
+                                                <mat-progress-bar
+                                                    mode="determinate"
+                                                    [id]="'filled' + i"
+                                                ></mat-progress-bar
+                                            ></span>
+                                            <mat-icon
+                                                class="text-custom-green"
+                                                [svgIcon]="'hi_outline:clock'"
+                                            ></mat-icon>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="rowexpansion" let-product>
+                                <tr>
+                                    <td [attr.colspan]="6">
+                                        <div class="p-4">
                                             <div
-                                                class="flex w-full flex-row space-x-4 text-wrap"
+                                                class="flex flex-col space-y-2"
                                             >
-                                                <span
-                                                    class="mb-1 mr-4 w-60 text-left font-bold"
-                                                    >Comments</span
-                                                >
-                                                <span
-                                                    class="text-overflow text-left"
-                                                    >{{
-                                                        product?.comments
-                                                            | uppercase
-                                                    }}</span
-                                                >
+                                                @if (product?.comments) {
+                                                    <div
+                                                        class="flex w-full flex-row space-x-4 text-wrap"
+                                                    >
+                                                        <span
+                                                            class="mb-1 mr-4 w-60 text-left font-bold"
+                                                            >Comments</span
+                                                        >
+                                                        <span
+                                                            class="text-overflow text-left"
+                                                            >{{
+                                                                product?.comments
+                                                                    | uppercase
+                                                            }}</span
+                                                        >
+                                                    </div>
+                                                }
                                             </div>
-                                        }
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                    </ng-template>
-                </p-table>
-            </div>
-        </fuse-card>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </div>
+                </fuse-card>
+            }
+        }
+
+        <!-- Shipment Details Table -->
+        @if (shipments$ | async; as shipments) {
+            @if (shipments.length > 0) {
+                <fuse-card class="flex-col pb-4">
+                    <!-- Header Section -->
+                    <div class="fuse-card-title">
+                        <div
+                            class="flex w-full flex-row items-baseline justify-between px-5"
+                        >
+                            <h3>Shipment Details</h3>
+                        </div>
+                    </div>
+                    <mat-divider></mat-divider>
+
+                    <div class="table-wrapper">
+                        <p-table
+                            id="shipmentsTableId"
+                            dataKey="id"
+                            styleClass="p-datatable-customers p-datatable-sm"
+                            [rows]="20"
+                            [value]="shipments"
+                            [paginatorStyleClass]="'items-center justify-end'"
+                        >
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th class="w-12"></th>
+                                    <th class="w-12"></th>
+                                    <th id="shipmentIdCol">
+                                        <div
+                                            class="p-d-flex p-jc-between p-ai-center flex items-center"
+                                        >
+                                            Shipment ID
+                                        </div>
+                                    </th>
+                                    <th id="shipmentStatusCol">
+                                        <div
+                                            class="p-d-flex p-jc-between p-ai-center flex items-center"
+                                        >
+                                            Status
+                                        </div>
+                                    </th>
+                                    <th id="shipmentCreateDateCol">
+                                        <div
+                                            class="p-d-flex p-jc-between p-ai-center flex items-center"
+                                        >
+                                            Create Date
+                                        </div>
+                                    </th>
+                                    <th id="shipmentActionsCol">
+                                        <div
+                                            class="p-d-flex p-jc-between p-ai-center flex items-center"
+                                        >
+                                            Actions
+                                        </div>
+                                    </th>
+                                </tr>
+                            </ng-template>
+                            <ng-template
+                                pTemplate="body"
+                                let-shipment
+                                let-i="rowIndex"
+                            >
+                                <tr>
+                                    <td class="w-12"></td>
+                                    <td class="w-12"></td>
+                                    <td>{{ shipment.shipmentId }}</td>
+                                    <td>{{ shipment.shipmentStatus }}</td>
+                                    <td>
+                                        {{
+                                            shipment.createDate
+                                                | date
+                                                    : 'MM-dd-yyyy hh:mm:ss aaa'
+                                        }}
+                                    </td>
+                                    <td>
+                                        <button
+                                            id="goToShipmentBtn"
+                                            class="bg-custom-red justify-center"
+                                            [routerLink]="[
+                                                '/shipment',
+                                                shipment.shipmentId,
+                                                'shipment-details',
+                                            ]"
+                                            mat-flat-button
+                                        >
+                                            Shipment Details
+                                        </button>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </div>
+                </fuse-card>
+            }
+        }
     </div>
 </ng-template>

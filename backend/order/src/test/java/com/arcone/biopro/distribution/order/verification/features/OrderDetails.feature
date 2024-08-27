@@ -19,6 +19,7 @@ Feature: View order details
             And I can see the Product Details section filled with all the product details.
             And I can see the number of Available Inventories for each line item.
 
+
             Examples:
                 | External ID | LocationCode | Priority | Status | ProductFamily                            | BloodType | Quantity | Shipment Type | Shipping Method | Product Category | Desired Date | Shipping Customer Code | Shipping Customer Name     | Billing Customer Code | Billing Customer Name      | Order Comments     | Item Comments                |
                 | ORDER001    | MDL_HUB_1    | STAT     | OPEN   | PLASMA_TRANSFUSABLE, PLASMA_TRANSFUSABLE | AB, O     | 3, 2     | CUSTOMER      | FEDEX           | FROZEN           | 2024-08-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap, Another comment |
@@ -35,10 +36,16 @@ Feature: View order details
             And I navigate to the order details page.
             When I choose to generate the Pick List.
             Then I can see the pick list details.
+            And I have received a shipment created event.
             And I "<Short Date>" see the short date product details.
             When I close the pick list.
+            And I should see the shipment details.
+            And I should see an option to navigate to the shipment details page.
+            And The order status is "IN_PROGRESS".
             And I choose to generate the Pick List.
             Then I can see the pick list details.
+            When I close the pick list.
+            And I should not see multiple shipments generated.
 
             Examples:
                 | External ID | LocationCode | Priority | Status | ProductFamily       | BloodType | Quantity | Shipment Type | Shipping Method | Product Category | Desired Date | Shipping Customer Code | Shipping Customer Name     | Billing Customer Code | Billing Customer Name      | Order Comments     | Item Comments | Short Date |

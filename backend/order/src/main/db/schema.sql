@@ -74,3 +74,14 @@ CREATE TABLE bld_order_item (
     create_date       TIMESTAMP WITH TIME ZONE    NOT NULL,
     modification_date TIMESTAMP WITH TIME ZONE    NOT NULL
 );
+
+CREATE TABLE bld_order_shipment (
+    id                BIGSERIAL                   NOT NULL CONSTRAINT pk_bld_order_shipment PRIMARY KEY,
+    order_id          BIGINT                      NOT NULL CONSTRAINT fk_order_order_shipment references bld_order(id),
+    shipment_id       BIGINT                      NOT NULL ,
+    shipment_status   VARCHAR(255)                NOT NULL,
+    create_date       TIMESTAMP WITH TIME ZONE    NOT NULL,
+    modification_date TIMESTAMP WITH TIME ZONE    NOT NULL
+);
+
+CREATE UNIQUE INDEX uq_idx_bld_order_shipment_id ON bld_order_shipment (order_id,shipment_id);

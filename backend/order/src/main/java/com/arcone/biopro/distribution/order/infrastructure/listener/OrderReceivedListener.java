@@ -3,10 +3,12 @@ package com.arcone.biopro.distribution.order.infrastructure.listener;
 import com.arcone.biopro.distribution.order.application.dto.OrderReceivedEventDTO;
 import com.arcone.biopro.distribution.order.application.dto.OrderReceivedEventPayloadDTO;
 import com.arcone.biopro.distribution.order.domain.service.OrderService;
+import com.arcone.biopro.distribution.order.infrastructure.config.KafkaConfiguration;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.core.reactive.ReactiveKafkaConsumerTemplate;
@@ -20,14 +22,19 @@ import reactor.util.retry.Retry;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
 @Profile("prod")
 public class OrderReceivedListener implements CommandLineRunner {
-
 
     private final ReactiveKafkaConsumerTemplate<String, String> consumer;
     private final OrderService orderService;
     private final ObjectMapper objectMapper;
+
+    public OrderReceivedListener(@Qualifier(KafkaConfiguration.ORDER_RECEIVED_CONSUMER) ReactiveKafkaConsumerTemplate<String, String> consumer
+        , OrderService orderService, ObjectMapper objectMapper) {
+        this.consumer = consumer;
+        this.orderService = orderService;
+        this.objectMapper = objectMapper;
+    }
 
     private final Scheduler scheduler = Schedulers.newBoundedElastic(
         16,

@@ -8,6 +8,7 @@ import com.arcone.biopro.distribution.shipping.application.dto.RuleResponseDTO;
 import com.arcone.biopro.distribution.shipping.application.usecase.ShipmentServiceUseCase;
 import com.arcone.biopro.distribution.shipping.application.util.ShipmentServiceMessages;
 import com.arcone.biopro.distribution.shipping.domain.event.ShipmentCompletedEvent;
+import com.arcone.biopro.distribution.shipping.domain.event.ShipmentCreatedEvent;
 import com.arcone.biopro.distribution.shipping.domain.model.Shipment;
 import com.arcone.biopro.distribution.shipping.domain.model.ShipmentItem;
 import com.arcone.biopro.distribution.shipping.domain.model.ShipmentItemPacked;
@@ -36,6 +37,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
 import reactor.core.publisher.Flux;
@@ -62,6 +64,7 @@ class ShipmentServiceUseCaseTest {
     private InventoryRsocketClient inventoryRsocketClient;
     private ShipmentItemPackedRepository shipmentItemPackedRepository;
     private ReactiveKafkaProducerTemplate<String, ShipmentCompletedEvent> producerTemplate;
+    private ApplicationEventPublisher applicationEventPublisher;
 
     private ShipmentServiceUseCase useCase;
 
@@ -72,8 +75,9 @@ class ShipmentServiceUseCaseTest {
         shipmentItemShortDateProductRepository = Mockito.mock(ShipmentItemShortDateProductRepository.class);
         inventoryRsocketClient = Mockito.mock(InventoryRsocketClient.class);
         shipmentItemPackedRepository = Mockito.mock( ShipmentItemPackedRepository.class);
-        producerTemplate =  Mockito.mock(ReactiveKafkaProducerTemplate.class);
-        useCase = new ShipmentServiceUseCase(shipmentRepository,shipmentItemRepository,shipmentItemShortDateProductRepository,inventoryRsocketClient,shipmentItemPackedRepository,producerTemplate);
+        applicationEventPublisher = Mockito.mock(ApplicationEventPublisher.class);
+
+        useCase = new ShipmentServiceUseCase(shipmentRepository,shipmentItemRepository,shipmentItemShortDateProductRepository,inventoryRsocketClient,shipmentItemPackedRepository,applicationEventPublisher);
     }
     @Test
     public void shouldCreateShipment(){
@@ -112,6 +116,8 @@ class ShipmentServiceUseCaseTest {
         StepVerifier.create(shipmentMono)
             .consumeNextWith(orderSaved -> orderSaved.getId())
             .verifyComplete();
+
+        Mockito.verify(applicationEventPublisher).publishEvent(Mockito.any(ShipmentCreatedEvent.class));
 
     }
 
@@ -508,11 +514,6 @@ class ShipmentServiceUseCaseTest {
                 .productCode("product_code")
             .build()));
 
-        RecordMetadata meta = new RecordMetadata(new TopicPartition("ShipmentCompleted", 0), 0L, 0L, 0L, 0L, 0, 2);
-        SenderResult senderResult = Mockito.mock(SenderResult.class);
-        Mockito.when(senderResult.recordMetadata()).thenReturn(meta);
-        Mockito.when(producerTemplate.send(Mockito.any(ProducerRecord.class))).thenReturn(Mono.just(senderResult));
-
         Mono<RuleResponseDTO> result = useCase.completeShipment(CompleteShipmentRequest.builder()
             .shipmentId(1L)
             .employeeId("test")
@@ -529,6 +530,8 @@ class ShipmentServiceUseCaseTest {
                 assertEquals(Optional.of(ShipmentServiceMessages.SHIPMENT_COMPLETED_SUCCESS), Optional.of(detail.notifications().get(0).message()));
             })
             .verifyComplete();
+
+        Mockito.verify(applicationEventPublisher).publishEvent(Mockito.any(ShipmentCompletedEvent.class));
     }
 
 }

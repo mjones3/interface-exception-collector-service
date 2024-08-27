@@ -9,8 +9,12 @@ import {
     GENERATE_PICK_LIST,
     PickListDTO,
 } from '../graphql/mutation-definitions/generate-pick-list.graphql';
-import { GET_ORDER_BY_ID } from '../graphql/query-definitions/order-details.graphql';
-import { OrderDetailsDto } from '../models/order-details.dto';
+import {
+    FIND_ORDER_SHIPMENT_BY_ORDER_ID,
+    GET_ORDER_BY_ID,
+    OrderShipmentDTO,
+} from '../graphql/query-definitions/order-details.graphql';
+import { OrderDetailsDTO } from '../models/order-details.dto';
 import {
     OrderQueryCommandDTO,
     OrderReportDTO,
@@ -36,7 +40,7 @@ export class OrderService {
 
     public getOrderById(
         orderId: number
-    ): Observable<ApolloQueryResult<{ findOrderById: OrderDetailsDto }>> {
+    ): Observable<ApolloQueryResult<{ findOrderById: OrderDetailsDTO }>> {
         return this.dynamicGraphqlPathService.executeQuery(
             this.servicePath,
             GET_ORDER_BY_ID,
@@ -54,7 +58,21 @@ export class OrderService {
         );
     }
 
-    public getOrderInfoDescriptions(orderInfo: OrderDetailsDto): Description[] {
+    public findOrderShipmentByOrderId(
+        orderId: number
+    ): Observable<
+        ApolloQueryResult<{
+            findOrderShipmentByOrderId: OrderShipmentDTO | null;
+        }>
+    > {
+        return this.dynamicGraphqlPathService.executeQuery(
+            this.servicePath,
+            FIND_ORDER_SHIPMENT_BY_ORDER_ID,
+            { orderId }
+        );
+    }
+
+    public getOrderInfoDescriptions(orderInfo: OrderDetailsDTO): Description[] {
         return [
             {
                 label: 'BioPro Order Number',
@@ -73,7 +91,7 @@ export class OrderService {
     }
 
     public getShippingInfoDescriptions(
-        orderInfo: OrderDetailsDto
+        orderInfo: OrderDetailsDTO
     ): Description[] {
         return [
             {
@@ -92,7 +110,7 @@ export class OrderService {
     }
 
     public getBillingInfoDescriptions(
-        orderInfo: OrderDetailsDto
+        orderInfo: OrderDetailsDTO
     ): Description[] {
         return [
             {

@@ -22,5 +22,4 @@ public class OrderController {
         return orderService.findOneById(orderId)
             .map(orderMapper::mapToDTO);
     }
-
 }
