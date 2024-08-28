@@ -16,6 +16,8 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -224,7 +226,7 @@ public class OrderSteps {
 
     @Then("I should see the order details.")
     public void checkOrderDetails() throws InterruptedException {
-        searchOrderPage.validateOrderDetails(this.externalId, this.status, this.priority);
+        searchOrderPage.validateOrderDetails(this.externalId, OrderStatusMap.valueOf(this.status).getDescription(), this.priority);
     }
 
     @And("I should see the priority colored as {string}")
@@ -385,4 +387,18 @@ public class OrderSteps {
     public void verifyMultipleShipments() {
         Assert.assertFalse(orderDetailsPage.verifyHasMultipleShipments());
     }
+
+    @Getter
+    @RequiredArgsConstructor
+    enum OrderStatusMap {
+        ALL("All"),
+        OPEN("Open"),
+        CREATED("Created"),
+        SHIPPED("Shipped"),
+        IN_PROGRESS("In Progress"),
+        ;
+
+        private final String description;
+    };
+
 }

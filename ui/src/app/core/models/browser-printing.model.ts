@@ -1,4 +1,6 @@
 export enum PageSize {
+    'portrait',
+    'landscape',
     'A5', // 148mm x 210mm
     'A5 portrait',
     'A5 landscape',
@@ -32,7 +34,8 @@ export enum PageSize {
 }
 
 export const DEFAULT_PAGE_SIZE: keyof typeof PageSize = 'A4 portrait';
-export const DEFAULT_PAGE_SIZE_DIALOG_WIDTH = '210mm';
+export const DEFAULT_PAGE_SIZE_DIALOG_PORTRAIT_WIDTH = '210mm';
+export const DEFAULT_PAGE_SIZE_DIALOG_LANDSCAPE_WIDTH = '297mm';
 export const DEFAULT_PAGE_SIZE_DIALOG_HEIGHT = 'calc(100vh - 2rem)';
 
 export interface BrowserPrintingModel {

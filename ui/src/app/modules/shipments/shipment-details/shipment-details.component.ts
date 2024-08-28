@@ -21,7 +21,7 @@ import { ERROR_MESSAGE } from 'app/core/data/common-labels';
 import {
     DEFAULT_PAGE_SIZE,
     DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
-    DEFAULT_PAGE_SIZE_DIALOG_WIDTH,
+    DEFAULT_PAGE_SIZE_DIALOG_PORTRAIT_WIDTH,
 } from 'app/core/models/browser-printing.model';
 import { BrowserPrintingService } from 'app/core/services/browser-printing/browser-printing.service';
 import { getAuthState } from 'app/core/state/auth/auth.selectors';
@@ -163,7 +163,7 @@ export class ShipmentDetailsComponent implements OnInit {
         const details = {
             completeDate: formatDate(
                 this.shipmentInfo.completeDate,
-                'MM/dd/YYYY HH:mm',
+                'MM/dd/yyyy HH:mm',
                 this.locale
             ),
             completedByEmployee: this.shipmentInfo.completedByEmployeeId,
@@ -217,7 +217,7 @@ export class ShipmentDetailsComponent implements OnInit {
                                   panelClass: 'hidden',
                               }
                             : {
-                                  width: DEFAULT_PAGE_SIZE_DIALOG_WIDTH,
+                                  width: DEFAULT_PAGE_SIZE_DIALOG_PORTRAIT_WIDTH,
                                   height: DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
                               }),
                     });
@@ -255,7 +255,7 @@ export class ShipmentDetailsComponent implements OnInit {
                                       panelClass: 'hidden',
                                   }
                                 : {
-                                      width: DEFAULT_PAGE_SIZE_DIALOG_WIDTH,
+                                      width: DEFAULT_PAGE_SIZE_DIALOG_PORTRAIT_WIDTH,
                                       height: DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
                                   }),
                         }
