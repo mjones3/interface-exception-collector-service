@@ -5,10 +5,16 @@ import { MatDividerModule } from '@angular/material/divider';
 import { Router } from '@angular/router';
 import { ApolloError } from '@apollo/client';
 import { FuseCardComponent } from '@fuse/components/card/public-api';
-import { Column, FacilityService, ProcessHeaderComponent, ProcessHeaderService } from '@shared';
+import {
+    Column,
+    FacilityService,
+    ProcessHeaderComponent,
+    ProcessHeaderService,
+} from '@shared';
+import { OrderStatusMap } from 'app/shared/models/order-status.model';
 import { ToastrService } from 'ngx-toastr';
 import { Table, TableLazyLoadEvent, TableModule } from 'primeng/table';
-import { BehaviorSubject, finalize, Subject } from 'rxjs';
+import { BehaviorSubject, Subject, finalize } from 'rxjs';
 import { OrderReportDTO } from '../../models/search-order.model';
 import { OrderService } from '../../services/order.service';
 
@@ -28,6 +34,8 @@ import { OrderService } from '../../services/order.service';
     styleUrls: ['./search-orders.component.scss'],
 })
 export class SearchOrdersComponent {
+    protected readonly OrderStatusMap = OrderStatusMap;
+
     readonly hiddenColumns: Column[] = [
         {
             field: 'shippingCustomerCode',
@@ -72,6 +80,7 @@ export class SearchOrdersComponent {
         {
             field: 'orderStatus',
             header: 'Status',
+            templateRef: 'statusTpl',
             sortable: false,
             sortFieldName: 'status',
             default: true,
@@ -125,12 +134,13 @@ export class SearchOrdersComponent {
         private facilityService: FacilityService,
         private orderService: OrderService,
         private router: Router,
-        private toaster: ToastrService,
+        private toaster: ToastrService
     ) {}
 
     fetchOrders(event: TableLazyLoadEvent) {
         const facilityCode = this.facilityService.getFacilityCode();
-        this.orderService.searchOrders({ locationCode: facilityCode })
+        this.orderService
+            .searchOrders({ locationCode: facilityCode })
             .pipe(finalize(() => (this.loading = false)))
             .subscribe({
                 next: (response) => {

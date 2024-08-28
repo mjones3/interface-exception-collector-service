@@ -270,8 +270,8 @@
                         >
                             <ng-template pTemplate="header">
                                 <tr>
-                                    <th class="w-12"></th>
-                                    <th class="w-12"></th>
+                                    <th></th>
+                                    <th></th>
                                     <th id="shipmentIdCol">
                                         <div
                                             class="p-d-flex p-jc-between p-ai-center flex items-center"
@@ -290,16 +290,10 @@
                                         <div
                                             class="p-d-flex p-jc-between p-ai-center flex items-center"
                                         >
-                                            Create Date
+                                            Create Date and Time
                                         </div>
                                     </th>
-                                    <th id="shipmentActionsCol">
-                                        <div
-                                            class="p-d-flex p-jc-between p-ai-center flex items-center"
-                                        >
-                                            Actions
-                                        </div>
-                                    </th>
+                                    <th></th>
                                 </tr>
                             </ng-template>
                             <ng-template
@@ -308,15 +302,14 @@
                                 let-i="rowIndex"
                             >
                                 <tr>
-                                    <td class="w-12"></td>
-                                    <td class="w-12"></td>
+                                    <td></td>
+                                    <td></td>
                                     <td>{{ shipment.shipmentId }}</td>
                                     <td>{{ shipment.shipmentStatus }}</td>
                                     <td>
                                         {{
                                             shipment.createDate
-                                                | date
-                                                    : 'MM-dd-yyyy hh:mm:ss aaa'
+                                                | date: 'MM/dd/yyyy HH:mm'
                                         }}
                                     </td>
                                     <td>
