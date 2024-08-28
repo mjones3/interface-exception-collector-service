@@ -53,6 +53,9 @@ public class OrderMapper {
                     .map(orderItemMapper::mapToDTO)
                     .toList()
             )
+            .totalRemaining(order.getTotalRemaining())
+            .totalShipped(order.getTotalShipped())
+            .totalProducts(order.getTotalProducts())
             .build();
     }
 
@@ -85,7 +88,7 @@ public class OrderMapper {
             .orElseGet(Collections::emptyList)
             .forEach(orderItemDTO -> order.addItem(orderItemDTO.id()
                     , orderItemDTO.productFamily(), orderItemDTO.bloodType()
-                    , orderItemDTO.quantity(), orderItemDTO.comments(), orderItemDTO.createDate()
+                    , orderItemDTO.quantity(),0, orderItemDTO.comments(), orderItemDTO.createDate()
                     , orderItemDTO.modificationDate(), this.orderConfigService
                 )
             );

@@ -22,6 +22,7 @@ public class OrderItemEntityMapper {
             .comments(orderItem.getComments())
             .createDate(orderItem.getCreateDate())
             .modificationDate(orderItem.getModificationDate())
+            .quantityShipped(orderItem.getQuantityShipped())
             .build();
     }
 

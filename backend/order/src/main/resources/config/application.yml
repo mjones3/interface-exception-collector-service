@@ -313,3 +313,7 @@ topics:
       partitions: 1
       replicas: 1
       topic-name: ShipmentCreated
+    shipment-completed:
+      partitions: 1
+      replicas: 1
+      topic-name: ShipmentCompleted

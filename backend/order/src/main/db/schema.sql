@@ -85,3 +85,5 @@ CREATE TABLE bld_order_shipment (
 );
 
 CREATE UNIQUE INDEX uq_idx_bld_order_shipment_id ON bld_order_shipment (order_id,shipment_id);
+
+ALTER TABLE bld_order_item ADD COLUMN  quantity_shipped INTEGER DEFAULT 0        NOT NULL;

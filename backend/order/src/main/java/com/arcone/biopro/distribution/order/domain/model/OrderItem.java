@@ -4,6 +4,7 @@ import com.arcone.biopro.distribution.order.domain.model.vo.BloodType;
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderItemOrderId;
 import com.arcone.biopro.distribution.order.domain.model.vo.ProductFamily;
 import com.arcone.biopro.distribution.order.domain.service.OrderConfigService;
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -25,8 +26,12 @@ public class OrderItem implements Validatable {
     private ZonedDateTime createDate;
     private ZonedDateTime modificationDate;
     private Integer quantityAvailable;
+    private Integer quantityShipped;
 
-    public OrderItem(Long id, Long orderId, String productFamily, String bloodType, Integer quantity, String comments
+    @Getter(AccessLevel.NONE)
+    private Integer quantityRemaining;
+
+    public OrderItem(Long id, Long orderId, String productFamily, String bloodType, Integer quantity , Integer quantityShipped, String comments
         , ZonedDateTime createDate, ZonedDateTime modificationDate, String productCategory , OrderConfigService orderConfigService) {
         this.id = id;
         this.orderId = new OrderItemOrderId(orderId);
@@ -37,7 +42,7 @@ public class OrderItem implements Validatable {
         this.createDate = createDate;
         this.modificationDate = modificationDate;
         this.quantityAvailable = 0;
-
+        this.quantityShipped = quantityShipped;
         this.checkValid();
     }
 
@@ -55,6 +60,9 @@ public class OrderItem implements Validatable {
         if(this.quantity < 1){
             throw new IllegalArgumentException("quantity cannot be less than 1");
         }
+        if(this.quantityShipped == null || this.quantityShipped < 0){
+            throw new IllegalArgumentException("quantityShipped cannot be null or less than 0");
+        }
     }
 
     public void defineAvailableQuantity(Integer quantity){
@@ -63,4 +71,12 @@ public class OrderItem implements Validatable {
         this.quantityAvailable = quantity;
     }
 
+    public void defineShippedQuantity(Integer quantityShipped){
+        Assert.notNull(quantityShipped, "Quantity must not be null");
+        this.quantityShipped = quantityShipped;
+    }
+
+    public Integer getQuantityRemaining() {
+        return quantity - quantityShipped;
+    }
 }

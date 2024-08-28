@@ -14,5 +14,7 @@ public record OrderItemDTO(
     String comments,
     ZonedDateTime createDate,
     ZonedDateTime modificationDate,
-    Integer quantityAvailable
+    Integer quantityAvailable,
+    Integer quantityShipped,
+    Integer quantityRemaining
 ) {}
