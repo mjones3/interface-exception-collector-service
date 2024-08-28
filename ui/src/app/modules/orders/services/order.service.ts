@@ -4,6 +4,7 @@ import { Description } from '@shared';
 import { MutationResult } from 'apollo-angular';
 import { Observable } from 'rxjs';
 import { DynamicGraphqlPathService } from '../../../core/services/dynamic-graphql-path.service';
+import { OrderStatusMap } from '../../../shared/models/order-status.model';
 import { SEARCH_ORDERS } from '../../shipments/graphql/order/query-definitions/search-orders.graphql';
 import {
     GENERATE_PICK_LIST,
@@ -58,9 +59,7 @@ export class OrderService {
         );
     }
 
-    public findOrderShipmentByOrderId(
-        orderId: number
-    ): Observable<
+    public findOrderShipmentByOrderId(orderId: number): Observable<
         ApolloQueryResult<{
             findOrderShipmentByOrderId: OrderShipmentDTO | null;
         }>
@@ -80,13 +79,18 @@ export class OrderService {
             },
             {
                 label: 'External order ID',
-                value: orderInfo?.externalId?.toString(),
+                value: orderInfo?.externalId,
             },
             {
                 label: 'Priority',
-                value: orderInfo?.priority.toString(),
+                value: orderInfo?.priority,
             },
-            { label: 'Status', value: orderInfo?.status.toString() },
+            {
+                label: 'Status',
+                value: orderInfo?.status
+                    ? OrderStatusMap[orderInfo.status]
+                    : 'Unknown',
+            },
         ];
     }
 

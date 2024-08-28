@@ -37,7 +37,7 @@ import { catchError } from 'rxjs/operators';
 import { ERROR_MESSAGE } from '../../../../core/data/common-labels';
 import {
     DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
-    DEFAULT_PAGE_SIZE_DIALOG_WIDTH,
+    DEFAULT_PAGE_SIZE_DIALOG_LANDSCAPE_WIDTH,
 } from '../../../../core/models/browser-printing.model';
 import { PickListDTO } from '../../graphql/mutation-definitions/generate-pick-list.graphql';
 import { OrderShipmentDTO } from '../../graphql/query-definitions/order-details.graphql';
@@ -219,7 +219,7 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
     ): MatDialogRef<ViewPickListComponent> {
         const dialogRef = this.matDialog.open(ViewPickListComponent, {
             id: 'ViewPickListDialog',
-            width: DEFAULT_PAGE_SIZE_DIALOG_WIDTH,
+            width: DEFAULT_PAGE_SIZE_DIALOG_LANDSCAPE_WIDTH,
             height: DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
         });
         dialogRef.componentInstance.model$ = of(pickListDTO);

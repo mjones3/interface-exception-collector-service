@@ -4,7 +4,6 @@ import { MatIconButton } from '@angular/material/button';
 import { MatDialogClose } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { Observable } from 'rxjs';
-import { DEFAULT_PAGE_SIZE } from '../../../../core/models/browser-printing.model';
 import { BrowserPrintingService } from '../../../../core/services/browser-printing/browser-printing.service';
 import { ProductFamilyMap } from '../../../../shared/models/product-family.model';
 import { PickListDTO } from '../../graphql/mutation-definitions/generate-pick-list.graphql';
@@ -28,7 +27,7 @@ export class ViewPickListComponent {
 
     print(): void {
         this.browserPrintingService.print('viewPickListReport', {
-            pageSize: DEFAULT_PAGE_SIZE,
+            pageSize: 'A4 landscape',
         });
     }
 }

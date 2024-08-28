@@ -97,7 +97,7 @@
                                         >
                                             {{
                                                 order[field]
-                                                    | date: 'MM/dd/yyyy hh:mm a'
+                                                    | date: 'MM/dd/yyyy HH:mm'
                                             }}
                                         </ng-template>
                                         <ng-template
@@ -137,6 +137,13 @@
                                                 }}
                                             </span>
                                         </ng-template>
+                                        <ng-template #statusTpl let-order>
+                                            {{
+                                                OrderStatusMap[
+                                                    order.orderStatus
+                                                ]
+                                            }}
+                                        </ng-template>
 
                                         @if (
                                             {
@@ -145,6 +152,7 @@
                                                 dateTimeTpl: dateTimeTpl,
                                                 dateTpl: dateTpl,
                                                 priorityTpl: priorityTpl,
+                                                statusTpl: statusTpl,
                                                 actionTpl: actionTpl,
                                             };
                                             as templates
