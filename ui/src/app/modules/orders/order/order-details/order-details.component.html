@@ -76,30 +76,32 @@
 </ng-template>
 
 <ng-template #addedProductTpl let-review="review">
-    <div class="my-4 flex flex-row items-end justify-between">
-        <div class="flex flex-row">
-            <span class="mb-1 mr-4 w-60 text-left font-bold">
-                Temperature Category:</span
-            >
-            <span class="flex-auto text-left">{{
-                orderDetails?.productCategory ?? '' | uppercase
-            }}</span>
-        </div>
+    @if (products$ | async; as products) {
+        @if (products.length > 0) {
+            <div class="my-4 flex flex-row items-end justify-between">
+                <div class="flex flex-row">
+                    <span class="mb-1 mr-4 w-60 text-left font-bold">
+                        Temperature Category:</span
+                    >
+                    <span class="flex-auto text-left">{{
+                        orderDetails?.productCategory ?? '' | uppercase
+                    }}</span>
+                </div>
 
-        @if (orderDetails?.length > 0) {
-            <div class="flex flex-row space-x-2">
-                <button
-                    id="generatePickListButton"
-                    class="bg-purple-light px-4"
-                    mat-flat-button
-                    (click)="viewPickList(orderDetails.id)"
-                    [disabled]="loadingPickList"
-                >
-                    View/Print Pick List
-                </button>
+                <div class="flex flex-row space-x-2">
+                    <button
+                        id="generatePickListButton"
+                        class="bg-purple-light px-4"
+                        mat-flat-button
+                        (click)="viewPickList(orderDetails.id)"
+                        [disabled]="loadingPickList"
+                    >
+                        View/Print Pick List
+                    </button>
+                </div>
             </div>
         }
-    </div>
+    }
 
     <!--Order Details Table-->
     <div class="flex flex-auto flex-col gap-4">
