@@ -2,12 +2,8 @@ package com.arcone.biopro.distribution.order.unit.infrastructure.listener;
 
 import com.arcone.biopro.distribution.order.application.dto.ShipmentCompletedEventDTO;
 import com.arcone.biopro.distribution.order.application.dto.ShipmentCompletedEventPayloadDTO;
-import com.arcone.biopro.distribution.order.application.dto.ShipmentCreatedEvenPayloadDTO;
-import com.arcone.biopro.distribution.order.application.dto.ShipmentCreatedEventDTO;
-import com.arcone.biopro.distribution.order.domain.service.OrderShipmentService;
 import com.arcone.biopro.distribution.order.domain.service.ShipmentCompletedService;
 import com.arcone.biopro.distribution.order.infrastructure.listener.ShipmentCompletedListener;
-import com.arcone.biopro.distribution.order.infrastructure.listener.ShipmentCreatedListener;
 import com.arcone.biopro.distribution.order.unit.util.TestUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -44,7 +40,7 @@ class ShipmentCompletedListenerTest {
         Mockito.when(message.eventId()).thenReturn(UUID.randomUUID());
 
         Mockito.when(receiverRecord.key()).thenReturn("test");
-        Mockito.when(receiverRecord.value()).thenReturn(TestUtil.resource("shipment-completed-event.json"));
+        Mockito.when(receiverRecord.value()).thenReturn(TestUtil.resource("shipment-completed-event.json").replace("\"{order-number}\"", "1"));
         Mockito.when(receiverRecord.topic()).thenReturn("ShipmentCompleted");
         Mockito.when(receiverRecord.offset()).thenReturn(1L);
 
@@ -75,7 +71,7 @@ class ShipmentCompletedListenerTest {
         Mockito.when(message.eventId()).thenReturn(UUID.randomUUID());
 
         Mockito.when(receiverRecord.key()).thenReturn("test");
-        Mockito.when(receiverRecord.value()).thenReturn(TestUtil.resource("shipment-completed-event.json"));
+        Mockito.when(receiverRecord.value()).thenReturn(TestUtil.resource("shipment-completed-event.json").replace("\"{order-number}\"", "1"));
         Mockito.when(receiverRecord.topic()).thenReturn("ShipmentCompleted");
         Mockito.when(receiverRecord.offset()).thenReturn(1L);
 
@@ -90,9 +86,6 @@ class ShipmentCompletedListenerTest {
         }catch (Exception e){
             Mockito.verifyNoInteractions(service);
         }
-
-
-
     }
 
 }

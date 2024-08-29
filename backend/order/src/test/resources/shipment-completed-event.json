@@ -4,8 +4,8 @@
   "eventVersion": "1.0",
   "eventType": "ShipmentCompleted",
   "payload": {
-    "shipmentId": 2,
-    "orderNumber": 1,
+    "shipmentId": 1,
+    "orderNumber": "{order-number}",
     "unitNumber": "W036898786800",
     "bloodType": "AB",
     "productFamily": "PLASMA_TRANSFUSABLE",

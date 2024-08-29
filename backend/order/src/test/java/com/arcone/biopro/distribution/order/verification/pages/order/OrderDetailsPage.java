@@ -61,6 +61,9 @@ public class OrderDetailsPage extends CommonPageFactory {
     private static final By shipmentDateLocator = By.xpath("//p-table[@id='shipmentsTableId']//td[5]");
     private static final By shipmentDetailsBtn = By.id("goToShipmentBtn");
     private static final By shipmentDetailsTableRows = By.xpath("//p-table[@id='shipmentsTableId']//tbody//tr");
+    private static final By filledProductsCountLabel = By.id("filledOrdersCount");
+    private static final By totalProductsCountLabel = By.id("totalOrderProducts");
+
 
     //Dynamic locators
     private String orderInformationDetail(String param) {
@@ -273,5 +276,15 @@ public class OrderDetailsPage extends CommonPageFactory {
 
     public boolean verifyHasMultipleShipments() {
         return driver.findElements(shipmentDetailsTableRows).size() > 1;
+    }
+
+    public void assertFilledProductIs(Integer filledProducts) {
+        sharedActions.waitForVisible(filledProductsCountLabel);
+        Assert.assertEquals(filledProducts, Integer.valueOf(driver.findElement(filledProductsCountLabel).getText()));
+    }
+
+    public void assertTotalProductIs(Integer totalProducts) {
+        sharedActions.waitForVisible(totalProductsCountLabel);
+        Assert.assertEquals(totalProducts, Integer.valueOf(driver.findElement(totalProductsCountLabel).getText()));
     }
 }

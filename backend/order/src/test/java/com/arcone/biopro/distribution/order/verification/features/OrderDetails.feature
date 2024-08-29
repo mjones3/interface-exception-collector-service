@@ -26,9 +26,9 @@ Feature: View order details
 
 
     Rule: I should be able to create the order fulfillment request when the pick list is generated.Rule: The BioPro order status must be updated to InProgress when an order is being fulfilled.
-        Rule: I should not be able to generate multiple pick lists for the same order.
+    Rule: I should not be able to generate multiple pick lists for the same order.
     Rule: I should be able to view or reprint the pick list that was previously generated.
-        Rule: I should be able to see the short-dated products if applicable.
+    Rule: I should be able to see the short-dated products if applicable.
         Scenario Outline: Generate pick list no short date products
             Given I have a Biopro Order with externalId "<External ID>", Location Code "<LocationCode>", Priority "<Priority>", Status "<Status>", shipment type "<Shipment Type>", delivery type "<Delivery Type>", shipping method "<Shipping Method>", product category "<Product Category>", desired ship date "<Desired Date>", shipping customer code and name as "<Shipping Customer Code>" and "<Shipping Customer Name>", billing customer code and name as "<Billing Customer Code>" and "<Billing Customer Name>", and comments "<Order Comments>".
             And I have an order item with product family "<ProductFamily>", blood type "<BloodType>", quantity <Quantity>, and order item comments "<Item Comments>".
@@ -61,8 +61,9 @@ Feature: View order details
             Given I have a Biopro Order with externalId "<External ID>", Location Code "<LocationCode>", Priority "<Priority>", Status "<Status>", shipment type "<Shipment Type>", delivery type "<Delivery Type>", shipping method "<Shipping Method>", product category "<Product Category>", desired ship date "<Desired Date>", shipping customer code and name as "<Shipping Customer Code>" and "<Shipping Customer Name>", billing customer code and name as "<Billing Customer Code>" and "<Billing Customer Name>", and comments "<Order Comments>".
             And I have 2 order items with product families "<ProductFamily>", blood types "<BloodType>", quantities "<Quantity>", and order item comments "<Item Comments>".
             And I have received a shipment completed event.
+            And I am logged in the location "<LocationCode>".
             When I navigate to the order details page.
-            Then I can see the pending log of products is updated.
+            Then I can see the pending log of products is updated with 1 product(s) out of 5.
             #And I can see the Filled Products section filled with the amount of shipped products.
             #And I can see the shipment status as "COMPLETED".
 
