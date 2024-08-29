@@ -4,10 +4,12 @@ import com.arcone.biopro.distribution.order.application.dto.ShipmentCompletedEve
 import com.arcone.biopro.distribution.order.application.usecase.ShipmentCompletedUseCase;
 import com.arcone.biopro.distribution.order.domain.model.Order;
 import com.arcone.biopro.distribution.order.domain.model.OrderItem;
+import com.arcone.biopro.distribution.order.domain.model.OrderShipment;
 import com.arcone.biopro.distribution.order.domain.model.vo.BloodType;
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderStatus;
 import com.arcone.biopro.distribution.order.domain.model.vo.ProductFamily;
 import com.arcone.biopro.distribution.order.domain.repository.OrderRepository;
+import com.arcone.biopro.distribution.order.domain.repository.OrderShipmentRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import reactor.core.publisher.Mono;
@@ -22,8 +24,9 @@ class ShipmentCompletedUseCaseTest {
     public void shouldProcessShipmentCompletedEvent(){
 
         var orderRepository =  Mockito.mock(OrderRepository.class) ;
+        var orderShipmentRepository = Mockito.mock(OrderShipmentRepository.class);
 
-        var target = new ShipmentCompletedUseCase(orderRepository);
+        var target = new ShipmentCompletedUseCase(orderRepository,orderShipmentRepository);
 
         var order = Mockito.mock(Order.class);
 
@@ -49,6 +52,12 @@ class ShipmentCompletedUseCaseTest {
 
         Mockito.when(orderRepository.update(Mockito.any())).thenReturn(Mono.just(order));
 
+        var orderShipment = Mockito.mock(OrderShipment.class);
+
+        Mockito.when(orderShipmentRepository.findOneByOrderId(Mockito.anyLong())).thenReturn(Mono.just(orderShipment));
+
+        Mockito.when(orderShipmentRepository.update(Mockito.any())).thenReturn(Mono.just(orderShipment));
+
         var response = target.processCompletedShipmentEvent(ShipmentCompletedEventPayloadDTO
             .builder()
             .orderNumber(1L)
@@ -62,6 +71,7 @@ class ShipmentCompletedUseCaseTest {
             .verifyComplete();
 
         Mockito.verify(oderItem).defineShippedQuantity(2);
+        Mockito.verify(orderShipment).setShipmentStatus("COMPLETED");
 
     }
 

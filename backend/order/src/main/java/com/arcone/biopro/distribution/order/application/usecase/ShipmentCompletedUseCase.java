@@ -2,7 +2,9 @@ package com.arcone.biopro.distribution.order.application.usecase;
 
 import com.arcone.biopro.distribution.order.application.dto.ShipmentCompletedEventPayloadDTO;
 import com.arcone.biopro.distribution.order.domain.model.Order;
+import com.arcone.biopro.distribution.order.domain.model.OrderShipment;
 import com.arcone.biopro.distribution.order.domain.repository.OrderRepository;
+import com.arcone.biopro.distribution.order.domain.repository.OrderShipmentRepository;
 import com.arcone.biopro.distribution.order.domain.service.ShipmentCompletedService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +19,8 @@ import reactor.core.scheduler.Schedulers;
 public class ShipmentCompletedUseCase implements ShipmentCompletedService {
 
     private final OrderRepository orderRepository;
+    private final OrderShipmentRepository orderShipmentRepository;
+    private static final String ORDER_SHIPMENT_STATUS_COMPLETED = "COMPLETED";
 
     @Override
     @Transactional
@@ -26,6 +30,7 @@ public class ShipmentCompletedUseCase implements ShipmentCompletedService {
             .map(order -> setShippedQuantity(order,shipmentCompletedEventPayloadDTO))
             .publishOn(Schedulers.boundedElastic())
             .flatMap(orderRepository::update)
+            .flatMap(this::completeOrderShipment)
             .then(Mono.empty());
     }
 
@@ -42,5 +47,13 @@ public class ShipmentCompletedUseCase implements ShipmentCompletedService {
 
         return order;
 
+    }
+
+    private Mono<OrderShipment> completeOrderShipment(Order order){
+        return orderShipmentRepository.findOneByOrderId(order.getId())
+            .map(orderShipment -> {
+                orderShipment.setShipmentStatus(ORDER_SHIPMENT_STATUS_COMPLETED);
+                return orderShipment;
+            }).flatMap(orderShipmentRepository::update);
     }
 }
