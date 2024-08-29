@@ -20,6 +20,9 @@ export interface OrderDetailsDTO {
     createDate: Date;
     modificationDate: Date;
     deleteDate: Date;
+    totalShipped: number;
+    totalRemaining: number;
+    totalProducts: number;
     orderItems: OrderItemDetailsDto[];
 }
 
@@ -33,4 +36,6 @@ export interface OrderItemDetailsDto {
     createDate: Date;
     modificationDate: Date;
     quantityAvailable: number;
+    quantityShipped: number;
+    quantityRemaining: number;
 }
