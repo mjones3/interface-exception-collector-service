@@ -18,10 +18,10 @@ class OrderItemTest {
         Mockito.when(orderConfigService.findProductFamilyByCategory(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just("TEST"));
         Mockito.when(orderConfigService.findBloodTypeByFamilyAndType(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just("TEST"));
 
-        assertThrows(IllegalArgumentException.class, () -> new OrderItem(null, null, null, null, null, null, null, null,"",orderConfigService), "productFamily cannot be null");
-        assertThrows(IllegalArgumentException.class, () -> new OrderItem(null, null, "productFamily", null, null, null, null, null,"",orderConfigService), "bloodType cannot be null or blank");
-        assertThrows(IllegalArgumentException.class, () -> new OrderItem(null, null, "productFamily", "bloodType", null, null, null, null,"",orderConfigService), "quantity cannot be null");
-        assertDoesNotThrow(() -> new OrderItem(null, null, "productFamily", "bloodType", 3, null, null, null,"",orderConfigService));
+        assertThrows(IllegalArgumentException.class, () -> new OrderItem(null, null, null, null, null, 0, null, null, null,"",orderConfigService), "productFamily cannot be null");
+        assertThrows(IllegalArgumentException.class, () -> new OrderItem(null, null, "productFamily", null, null, 0,null, null, null,"",orderConfigService), "bloodType cannot be null or blank");
+        assertThrows(IllegalArgumentException.class, () -> new OrderItem(null, null, "productFamily", "bloodType", null, 0,null, null, null,"",orderConfigService), "quantity cannot be null");
+        assertDoesNotThrow(() -> new OrderItem(null, null, "productFamily", "bloodType", 3, 1,null, null, null,"",orderConfigService));
     }
 
     @Test
@@ -31,7 +31,7 @@ class OrderItemTest {
         Mockito.when(orderConfigService.findProductFamilyByCategory(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just("TEST"));
         Mockito.when(orderConfigService.findBloodTypeByFamilyAndType(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just("TEST"));
 
-        var item = new OrderItem(null, null, "productFamily", "bloodType", 3, null, null, null,"",orderConfigService);
+        var item = new OrderItem(null, null, "productFamily", "bloodType", 3, 0, null, null, null,"",orderConfigService);
 
         assertThrows(IllegalArgumentException.class, () ->  item.defineAvailableQuantity(-1), "Quantity must not be null");
         assertThrows(IllegalArgumentException.class, () ->  item.defineAvailableQuantity(null), "Quantity must not be negative");
@@ -46,12 +46,24 @@ class OrderItemTest {
         Mockito.when(orderConfigService.findProductFamilyByCategory(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just("TEST"));
         Mockito.when(orderConfigService.findBloodTypeByFamilyAndType(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just("TEST"));
 
-        var item = new OrderItem(null, null, "productFamily", "bloodType", 3, null, null, null,"",orderConfigService);
+        var item = new OrderItem(null, null, "productFamily", "bloodType", 3, 0,null, null, null,"",orderConfigService);
         item.defineAvailableQuantity(10);
 
         Assertions.assertEquals(10,item.getQuantityAvailable());
 
 
+    }
+
+    @Test
+    void shouldGetRemainingQuantity(){
+
+        OrderConfigService orderConfigService = Mockito.mock(OrderConfigService.class);
+        Mockito.when(orderConfigService.findProductFamilyByCategory(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just("TEST"));
+        Mockito.when(orderConfigService.findBloodTypeByFamilyAndType(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just("TEST"));
+
+        var item = new OrderItem(null, null, "productFamily", "bloodType", 3, 1,null, null, null,"",orderConfigService);
+
+        Assertions.assertEquals(2,item.getQuantityRemaining());
     }
 
 }

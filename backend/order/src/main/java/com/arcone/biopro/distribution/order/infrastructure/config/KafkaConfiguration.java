@@ -38,6 +38,7 @@ public class KafkaConfiguration {
     public static final String ORDER_FULFILLED_PRODUCER = "order-fulfilled";
     public static final String ORDER_RECEIVED_CONSUMER = "order-received";
     public static final String SHIPMENT_CREATED_CONSUMER = "shipment-created";
+    public static final String SHIPMENT_COMPLETED_CONSUMER = "shipment-completed";
 
     @Bean
     NewTopic orderReceivedTopic(
@@ -84,6 +85,15 @@ public class KafkaConfiguration {
         return TopicBuilder.name(topicName).partitions(partitions).replicas(replicas).build();
     }
 
+    @Bean
+    NewTopic shipmentCompletedTopic(
+        @Value("${topics.shipment.shipment-completed.partitions:1}") Integer partitions,
+        @Value("${topics.shipment.shipment-completed.replicas:1}") Integer replicas,
+        @Value("${topics.shipment.shipment-completed.topic-name:ShipmentCompleted}") String topicName
+    ) {
+        return TopicBuilder.name(topicName).partitions(partitions).replicas(replicas).build();
+    }
+
 
     @Bean
     ReceiverOptions<String, String> orderServiceReceiverOptions(KafkaProperties kafkaProperties
@@ -93,9 +103,16 @@ public class KafkaConfiguration {
 
     @Bean
     ReceiverOptions<String, String> shipmentCreatedReceiverOptions(KafkaProperties kafkaProperties
-        , @Value("${topics.shipment.shipment-created.topic-name:OrderReceived}") String shipmentCreatedTopicName) {
+        , @Value("${topics.shipment.shipment-created.topic-name:ShipmentCreated}") String shipmentCreatedTopicName) {
        return buildReceiverOptions(kafkaProperties, shipmentCreatedTopicName);
     }
+
+    @Bean
+    ReceiverOptions<String, String> shipmentCompletedReceiverOptions(KafkaProperties kafkaProperties
+        , @Value("${topics.shipment.shipment-completed.topic-name:ShipmentCompleted}") String shipmentCompletedTopicName) {
+        return buildReceiverOptions(kafkaProperties, shipmentCompletedTopicName);
+    }
+
 
     private ReceiverOptions<String, String> buildReceiverOptions(KafkaProperties kafkaProperties , String topicName){
         var props = kafkaProperties.buildConsumerProperties(null);
@@ -118,6 +135,13 @@ public class KafkaConfiguration {
         ReceiverOptions<String, String> shipmentCreatedReceiverOptions
     ) {
         return new ReactiveKafkaConsumerTemplate<>(shipmentCreatedReceiverOptions);
+    }
+
+    @Bean(SHIPMENT_COMPLETED_CONSUMER)
+    ReactiveKafkaConsumerTemplate<String, String> shipmentCompletedConsumerTemplate(
+        ReceiverOptions<String, String> shipmentCompletedReceiverOptions
+    ) {
+        return new ReactiveKafkaConsumerTemplate<>(shipmentCompletedReceiverOptions);
     }
 
     @Bean

@@ -87,6 +87,8 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
     products$: Subject<OrderItemDetailsDto[]> = new BehaviorSubject([]);
     shipments$: Subject<OrderShipmentDTO[]> = new BehaviorSubject([]);
     pollingSubscription: Subscription;
+    filledOrdersCount = 0;
+    totalOrderProducts: number;
 
     loading = true;
     loadingPickList = false;
@@ -99,6 +101,10 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
         private orderService: OrderService,
         private toaster: ToastrImplService
     ) {}
+
+    get isOrderComplete(): boolean {
+        return this.orderDetails?.status === 'COMPLETED';
+    }
 
     get orderDetails(): OrderDetailsDTO {
         return this._orderDetails;
@@ -133,6 +139,8 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
                 map((result) => result?.data?.findOrderById),
                 switchMap((orderDetails) => {
                     this.orderDetails = orderDetails;
+                    this.totalOrderProducts = this.orderDetails.totalProducts;
+                    this.filledOrdersCount = this.orderDetails.totalShipped;
                     return orderDetails.status !== 'OPEN'
                         ? this.orderService
                               .findOrderShipmentByOrderId(orderDetails.id)

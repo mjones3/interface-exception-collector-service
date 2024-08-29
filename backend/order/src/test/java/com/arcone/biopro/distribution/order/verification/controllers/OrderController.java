@@ -1,8 +1,14 @@
 package com.arcone.biopro.distribution.order.verification.controllers;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 
 @Slf4j
 public class OrderController {
@@ -61,5 +67,19 @@ public class OrderController {
             lastPriorityIndex = this.priorities.get(priority);
         }
         return true;
+    }
+
+    @Getter
+    @RequiredArgsConstructor
+    public
+    enum OrderStatusMap {
+        ALL("All"),
+        OPEN("Open"),
+        CREATED("Created"),
+        SHIPPED("Shipped"),
+        IN_PROGRESS("In Progress"),
+        ;
+
+        private final String description;
     }
 }

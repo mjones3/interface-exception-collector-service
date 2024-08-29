@@ -512,6 +512,8 @@ class ShipmentServiceUseCaseTest {
                 .shipmentItemId(1L)
                 .unitNumber("UN")
                 .productCode("product_code")
+                .productFamily("PRODUCT_FAMILY")
+                .bloodType(BloodType.AP)
             .build()));
 
         Mono<RuleResponseDTO> result = useCase.completeShipment(CompleteShipmentRequest.builder()

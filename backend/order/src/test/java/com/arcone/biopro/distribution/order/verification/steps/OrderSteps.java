@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.order.verification.steps;
 
 import com.arcone.biopro.distribution.order.application.dto.OrderReceivedEventDTO;
+import com.arcone.biopro.distribution.order.application.dto.ShipmentCompletedEventDTO;
 import com.arcone.biopro.distribution.order.application.dto.ShipmentCreatedEventDTO;
 import com.arcone.biopro.distribution.order.verification.controllers.OrderController;
 import com.arcone.biopro.distribution.order.verification.pages.SharedActions;
@@ -16,8 +17,6 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.Random;
 
 @Slf4j
@@ -191,6 +191,11 @@ public class OrderSteps {
         this.billCustomerName = billingCustomerName;
         var query = DatabaseQueries.insertBioProOrderWithDetails(externalId, locationCode, orderController.getPriorityValue(priority), priority, status, shipmentType, shippingMethod, productCategory, desiredShipDate, shippingCustomerCode, shippingCustomerName, billingCustomerCode, billingCustomerName, comments);
         databaseService.executeSql(query).block();
+
+        if(status.equals("IN_PROGRESS")){
+            var queryOrderShipment = DatabaseQueries.insertBioProOrderShipment(externalId);
+            databaseService.executeSql(queryOrderShipment).block();
+        }
     }
 
     @Given("I have more than {int} Biopro Orders.")
@@ -226,7 +231,7 @@ public class OrderSteps {
 
     @Then("I should see the order details.")
     public void checkOrderDetails() throws InterruptedException {
-        searchOrderPage.validateOrderDetails(this.externalId, OrderStatusMap.valueOf(this.status).getDescription(), this.priority);
+        searchOrderPage.validateOrderDetails(this.externalId, OrderController.OrderStatusMap.valueOf(this.status).getDescription(), this.priority);
     }
 
     @And("I should see the priority colored as {string}")
@@ -360,13 +365,6 @@ public class OrderSteps {
         createShipmentCreatedRequest(jsonContent, eventPayload);
     }
 
-    private void createShipmentCreatedRequest(String jsonContent, ShipmentCreatedEventDTO eventPayload) throws JSONException {
-        orderShipment = new JSONObject(jsonContent);
-        log.info("JSON PAYLOAD :{}", orderShipment);
-        Assert.assertNotNull(orderShipment);
-        var event = kafkaHelper.sendShipmentCreatedEvent(eventPayload.eventId().toString(), eventPayload).block();
-        Assert.assertNotNull(event);
-    }
 
     @And("I should see the shipment details.")
     public void checkShipmentDetails() throws JSONException {
@@ -388,17 +386,39 @@ public class OrderSteps {
         Assert.assertFalse(orderDetailsPage.verifyHasMultipleShipments());
     }
 
-    @Getter
-    @RequiredArgsConstructor
-    enum OrderStatusMap {
-        ALL("All"),
-        OPEN("Open"),
-        CREATED("Created"),
-        SHIPPED("Shipped"),
-        IN_PROGRESS("In Progress"),
-        ;
+    @Given("I have received a shipment completed event.")
+    public void postShipmentCompletedEvent() throws Exception {
+        this.orderId = Integer.valueOf(
+            Objects.requireNonNull(
+                databaseService.fetchData(DatabaseQueries.getOrderId(this.externalId)).first().block()).get("id").toString());
+        var jsonContent = testUtils.getResource("shipment-completed-event.json");
+        jsonContent = jsonContent.replace("{order-number}", this.orderId.toString());
+        var eventPayload = objectMapper.readValue(jsonContent, ShipmentCompletedEventDTO.class);
 
-        private final String description;
-    };
+        createShipmentCompletedRequest(jsonContent, eventPayload);
+    }
 
+    @Then("I can see the pending log of products is updated with {int} product\\(s) out of {int}.")
+    public void checkPendingLogNotZero(Integer filledProducts, Integer totalProducts) {
+        orderDetailsPage.assertFilledProductIs(filledProducts);
+        orderDetailsPage.assertTotalProductIs(totalProducts);
+    }
+
+    //    Common methods
+
+    private void createShipmentCreatedRequest(String jsonContent, ShipmentCreatedEventDTO eventPayload) throws JSONException {
+        orderShipment = new JSONObject(jsonContent);
+        log.info("JSON PAYLOAD :{}", orderShipment);
+        Assert.assertNotNull(orderShipment);
+        var event = kafkaHelper.sendShipmentCreatedEvent(eventPayload.eventId().toString(), eventPayload).block();
+        Assert.assertNotNull(event);
+    }
+
+    private void createShipmentCompletedRequest(String jsonContent, ShipmentCompletedEventDTO eventPayload) throws JSONException {
+        orderShipment = new JSONObject(jsonContent);
+        log.info("JSON PAYLOAD :{}", orderShipment);
+        Assert.assertNotNull(orderShipment);
+        var event = kafkaHelper.sendShipmentCompletedEvent(eventPayload.eventId().toString(), eventPayload).block();
+        Assert.assertNotNull(event);
+    }
 }
