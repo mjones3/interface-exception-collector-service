@@ -51,11 +51,12 @@ Feature: List of all orders in Search Order
             And I have a Biopro Order with externalId "<External ID>", Location Code "<Order LocationCode>", Priority "<Priority>" and Status "<Status>".
             And I am logged in the location "<User LocationCode>".
             When I choose search orders.
-            Then I should not see the the biopro order in the list of orders.
+            Then I should not see the biopro order in the list of orders.
+            And I should see a "Caution Message" message: "No Results Found".
 
             Examples:
                 | External ID     | Order LocationCode        | User LocationCode | Priority | Status |
-                | 114117922233510 | DISTRIBUTION_AND_LABELING | MDL_HUB_1         | STAT     | OPEN   |
+                | 114117922233510 | DISTRIBUTION_AND_LABELING | MDL_HUB_2         | STAT     | OPEN   |
 
 
     Rule: I should be able to view a maximum of 20 rows in the Results table.

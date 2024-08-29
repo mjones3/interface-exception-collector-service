@@ -252,7 +252,7 @@ public class OrderSteps {
         searchOrderPage.verifyOrderDetailsOption(this.externalId);
     }
 
-    @Then("I should not see the the biopro order in the list of orders.")
+    @Then("I should not see the biopro order in the list of orders.")
     public void checkOrderNotExists() {
         searchOrderPage.verifyOrderNotExists(this.externalId);
     }
