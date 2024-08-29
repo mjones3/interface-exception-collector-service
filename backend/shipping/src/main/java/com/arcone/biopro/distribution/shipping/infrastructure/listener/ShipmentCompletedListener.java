@@ -32,7 +32,7 @@ public class ShipmentCompletedListener {
     public void handleShipmentCompletedEvent(ShipmentCompletedEvent event) {
         log.info("Shipment Completed event trigger Event ID {}", event.getEventId());
 
-        var shipmentItemPacked = event.getPayload();
+        var payload = event.getPayload();
 
         var message = ShipmentCompletedDTO
             .builder()
@@ -42,12 +42,14 @@ public class ShipmentCompletedListener {
             .occurredOn(event.getOccurredOn())
             .payload(ShipmentCompletedPayload
                 .builder()
-                .orderNumber(event.getOrderNumber())
-                .shipmentId(shipmentItemPacked.getId())
-                .createDate(shipmentItemPacked.getCreateDate())
-                .performedBy(shipmentItemPacked.getPackedByEmployeeId())
-                .productCode(shipmentItemPacked.getProductCode())
-                .unitNumber(shipmentItemPacked.getUnitNumber())
+                .orderNumber(payload.orderNumber())
+                .shipmentId(payload.shipmentId())
+                .createDate(payload.createDate())
+                .performedBy(payload.performedBy())
+                .productCode(payload.productCode())
+                .unitNumber(payload.unitNumber())
+                .bloodType(payload.bloodType())
+                .productFamily(payload.productFamily())
                 .build())
             .build();
 

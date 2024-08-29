@@ -8,6 +8,7 @@ import com.arcone.biopro.distribution.shipping.application.dto.CompleteShipmentR
 import com.arcone.biopro.distribution.shipping.application.dto.NotificationDTO;
 import com.arcone.biopro.distribution.shipping.application.dto.PackItemRequest;
 import com.arcone.biopro.distribution.shipping.application.dto.RuleResponseDTO;
+import com.arcone.biopro.distribution.shipping.application.dto.ShipmentCompletedPayloadDTO;
 import com.arcone.biopro.distribution.shipping.application.dto.ShipmentItemPackedDTO;
 import com.arcone.biopro.distribution.shipping.application.util.ShipmentServiceMessages;
 import com.arcone.biopro.distribution.shipping.domain.event.ShipmentCompletedEvent;
@@ -197,7 +198,17 @@ public class ShipmentServiceUseCase implements ShipmentService {
 
         return Flux.from(shipmentItemPackedRepository.listAllByShipmentId(shipment.getId()).switchIfEmpty(Flux.empty()))
             .flatMap(itemPacked -> {
-                applicationEventPublisher.publishEvent(new ShipmentCompletedEvent(shipment.getOrderNumber(),itemPacked));
+                applicationEventPublisher.publishEvent(new ShipmentCompletedEvent(ShipmentCompletedPayloadDTO
+                    .builder()
+                    .performedBy(itemPacked.getPackedByEmployeeId())
+                    .shipmentId(shipment.getId())
+                    .orderNumber(shipment.getOrderNumber())
+                    .unitNumber(itemPacked.getUnitNumber())
+                    .productCode(itemPacked.getProductCode())
+                    .bloodType(itemPacked.getBloodType().name())
+                    .productFamily(itemPacked.getProductFamily())
+                    .createDate(itemPacked.getCreateDate())
+                    .build()));
                 return Mono.just(shipment);
             })
             .then(Mono.just(shipment));
@@ -285,6 +296,8 @@ public class ShipmentServiceUseCase implements ShipmentService {
                             .collectionDate(inventoryResponseDTO.collectionDate())
                             .packedByEmployeeId(request.employeeId())
                             .shipmentItemId(tuple2.getT1().getId())
+                            .productFamily(tuple2.getT1().getProductFamily())
+                            .bloodType(tuple2.getT1().getBloodType())
                             .visualInspection(VisualInspection.SATISFACTORY)
                             .build())
                         .flatMap(Mono::just);

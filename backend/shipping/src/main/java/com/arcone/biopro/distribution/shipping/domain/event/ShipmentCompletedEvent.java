@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.shipping.domain.event;
 
-import com.arcone.biopro.distribution.shipping.domain.model.ShipmentItemPacked;
+import com.arcone.biopro.distribution.shipping.application.dto.ShipmentCompletedPayloadDTO;
+
 import java.time.Instant;
 import java.util.UUID;
 
@@ -11,14 +12,13 @@ public class ShipmentCompletedEvent implements DomainEvent {
     private final Instant occurredOn;
     private final static String eventVersion = "1.0";
     private final static String eventType = "ShipmentCompleted";
-    private ShipmentItemPacked payload;
-    private Long orderNumber;
+    private ShipmentCompletedPayloadDTO payload;
 
-    public ShipmentCompletedEvent (Long orderNumber,ShipmentItemPacked itemPacked){
+    public ShipmentCompletedEvent (ShipmentCompletedPayloadDTO payload){
         this.eventId = UUID.randomUUID();
         this.occurredOn = Instant.now();
-        this.payload = itemPacked;
-        this.orderNumber = orderNumber;
+        this.payload = payload;
+
     }
 
     @Override
@@ -42,13 +42,7 @@ public class ShipmentCompletedEvent implements DomainEvent {
     }
 
     @Override
-    public ShipmentItemPacked getPayload() {
+    public ShipmentCompletedPayloadDTO getPayload() {
         return payload;
     }
-
-    public Long getOrderNumber() {
-        return orderNumber;
-    }
-
-
 }

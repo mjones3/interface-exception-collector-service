@@ -173,6 +173,7 @@ public class ShipmentDetailPage extends CommonPageFactory {
         var blood = bloodType.split(",")[0].trim();
         log.info("Filling product with family {} and blood type {}.", family, blood);
         String locator = String.format("//td[normalize-space()='%s']/following-sibling::td[normalize-space()='%s']/following-sibling::td//button", family.toUpperCase(), blood.toUpperCase());
+        sharedActions.waitForVisible(By.xpath(locator));
         sharedActions.click(driver.findElement(By.xpath(locator)));
     }
 

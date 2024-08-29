@@ -1,4 +1,4 @@
-package com.arcone.biopro.distribution.shipping.infrastructure.listener.dto;
+package com.arcone.biopro.distribution.shipping.application.dto;
 
 import lombok.Builder;
 
@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.time.ZonedDateTime;
 
 @Builder
-public record ShipmentCompletedPayload(
+public record ShipmentCompletedPayloadDTO(
     Long shipmentId,
     Long orderNumber,
     String unitNumber,
@@ -16,5 +16,4 @@ public record ShipmentCompletedPayload(
     String performedBy,
     ZonedDateTime createDate
 ) implements Serializable {
-
 }
