@@ -14,6 +14,7 @@ public class OrderShipmentEntityMapper {
             .orderId(orderShipment.getOrderId())
             .shipmentId(orderShipment.getShipmentId())
             .shipmentStatus(orderShipment.getShipmentStatus())
+            .createDate(orderShipment.getCreateDate())
             .build();
     }
 
