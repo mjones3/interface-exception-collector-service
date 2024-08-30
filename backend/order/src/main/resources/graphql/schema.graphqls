@@ -20,7 +20,7 @@ type Mutation {
     insertLookup(lookup: LookupInput!): Lookup!
     updateLookup(lookup: LookupInput!): Lookup!
     deleteLookup(lookup: LookupInput!): Lookup!
-    generatePickList(orderId: ID!):PickListDTO!
+    generatePickList(orderId: ID! , skipInventoryUnavailable:Boolean!):PickListResponseDTO!
 }
 
 input LookupIdInput {
@@ -181,11 +181,21 @@ input QueryOrderByDTO {
     direction:String
 }
 
+type PickListResponseDTO {
+    notifications:[NotificationDTO]
+    data:PickListDTO
+}
+
 type PickListDTO {
     orderNumber:Int
     customer:PickListCustomerDTO
     pickListItems:[PickListItemDTO]
     orderComments:String
+}
+
+type NotificationDTO {
+    notificationType:String
+    notificationMessage:String
 }
 
 type PickListCustomerDTO {

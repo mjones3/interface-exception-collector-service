@@ -1,15 +1,14 @@
 package com.arcone.biopro.distribution.order.application.usecase;
 
+import com.arcone.biopro.distribution.order.application.dto.UseCaseNotificationDTO;
+import com.arcone.biopro.distribution.order.application.dto.UseCaseNotificationType;
+import com.arcone.biopro.distribution.order.application.dto.UseCaseResponseDTO;
+import com.arcone.biopro.distribution.order.application.exception.ServiceNotAvailableException;
 import com.arcone.biopro.distribution.order.application.mapper.PickListCommandMapper;
 import com.arcone.biopro.distribution.order.application.mapper.PickListMapper;
 import com.arcone.biopro.distribution.order.domain.event.PickListCreatedEvent;
-import com.arcone.biopro.distribution.order.domain.model.GeneratePickListCommand;
-import com.arcone.biopro.distribution.order.domain.model.GeneratePickListProductCriteria;
-import com.arcone.biopro.distribution.order.domain.model.Order;
 import com.arcone.biopro.distribution.order.domain.model.PickList;
-import com.arcone.biopro.distribution.order.domain.model.PickListItem;
 import com.arcone.biopro.distribution.order.domain.model.PickListItemShortDate;
-import com.arcone.biopro.distribution.order.domain.model.vo.PickListCustomer;
 import com.arcone.biopro.distribution.order.domain.service.InventoryService;
 import com.arcone.biopro.distribution.order.domain.service.OrderService;
 import com.arcone.biopro.distribution.order.domain.service.PickListService;
@@ -22,11 +21,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-
-import static java.util.Optional.ofNullable;
 
 @Service
 @RequiredArgsConstructor
@@ -42,41 +37,60 @@ public class PickListUseCase implements PickListService {
 
     @Override
     @Transactional
-    public Mono<PickList> generatePickList(Long orderId) {
+    public Mono<UseCaseResponseDTO<PickList>> generatePickList(final Long orderId , final boolean skipInventoryUnavailable) {
         return orderService.findOneById(orderId)
-            .map(pickListMapper::mapToDomain)
+            .map(pickListMapper::mapToUseCaseResponse)
             .publishOn(Schedulers.boundedElastic())
-            .doOnNext(pickList ->
-                Flux.from(inventoryService.getAvailableInventories(pickListCommandMapper.mapToDomain(pickList)).onErrorResume(error -> {
-                            log.error("Not able to fetch inventory Data {}", error.getMessage());
-                            return Mono.empty();
+            .doOnNext(useCaseResponse ->
+               Flux.from(inventoryService.getAvailableInventories(pickListCommandMapper.mapToDomain(useCaseResponse.data())).onErrorResume(error -> {
+                            if(skipInventoryUnavailable) {
+                                log.debug("Skipping inventory unavailable.");
+                                return Mono.empty();
+                            }else{
+                                log.error("Not able to fetch inventory Data {}", error.getMessage());
+                                return Mono.error(new ServiceNotAvailableException("Inventory Service Not Available"));
+                            }
                         })
                     )
                     .flatMap(availableInventory -> {
-                             var item = pickList.getPickListItems().stream()
-                                 .filter(x -> x.getBloodType().equals(availableInventory.getAboRh())
-                                     && x.getProductFamily().equals(availableInventory.getProductFamily())).findFirst();
+                            var item = useCaseResponse.data().getPickListItems().stream()
+                                .filter(x -> x.getBloodType().equals(availableInventory.getAboRh())
+                                    && x.getProductFamily().equals(availableInventory.getProductFamily())).findFirst();
 
-                        item.ifPresent(pickListItem -> availableInventory.getShortDateProducts()
-                            .forEach(shortDateProduct -> pickListItem.addShortDate(new PickListItemShortDate(shortDateProduct.getUnitNumber()
-                                , shortDateProduct.getProductCode() , shortDateProduct.getAboRh(), shortDateProduct.getStorageLocation()))));
+                            item.ifPresent(pickListItem -> availableInventory.getShortDateProducts()
+                                .forEach(shortDateProduct -> pickListItem.addShortDate(new PickListItemShortDate(shortDateProduct.getUnitNumber()
+                                    , shortDateProduct.getProductCode() , shortDateProduct.getAboRh(), shortDateProduct.getStorageLocation()))));
 
                             return Mono.just(availableInventory);
                         }
                     ).blockLast()
-            ).doOnSuccess(this::publishPickListCreatedEvent)
+
+            )
+            .doOnSuccess(this::publishPickListCreatedEvent)
             .onErrorResume(error -> {
+                if(error instanceof ServiceNotAvailableException) {
+                    return Mono.just(buildErrorResponse());
+                }else{
                     log.error("Not able to generate pick list {}",error.getMessage());
                     return Mono.error(new RuntimeException("Not Able to Generate Picklist"));
+                }
                }
             );
 
     }
 
-    private void publishPickListCreatedEvent(PickList pickList) {
-        log.debug("Publishing PickListCreatedEvent {} , ID {}", pickList, pickList.getOrderNumber());
-        if(ORDER_STATUS_OPEN.equals(pickList.getOrderStatus())){
-            applicationEventPublisher.publishEvent(new PickListCreatedEvent(pickList));
+    private void publishPickListCreatedEvent(UseCaseResponseDTO<PickList> useCaseResponseDTO) {
+        log.debug("Publishing PickListCreatedEvent {} , ID {}", useCaseResponseDTO.data(), useCaseResponseDTO.data().getOrderNumber());
+        if(ORDER_STATUS_OPEN.equals(useCaseResponseDTO.data().getOrderStatus())){
+            applicationEventPublisher.publishEvent(new PickListCreatedEvent(useCaseResponseDTO.data()));
         }
+    }
+
+    private UseCaseResponseDTO<PickList> buildErrorResponse(){
+        return new UseCaseResponseDTO<>(List.of(UseCaseNotificationDTO
+            .builder()
+            .notificationType(UseCaseNotificationType.ERROR)
+            .notificationMessage("Inventory Service is down.")
+            .build()), null);
     }
 }
