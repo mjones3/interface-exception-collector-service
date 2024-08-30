@@ -10,6 +10,7 @@ public class OrderShipmentEntityMapper {
     public OrderShipmentEntity mapToEntity(OrderShipment orderShipment) {
         return OrderShipmentEntity
             .builder()
+            .id(orderShipment.getId())
             .orderId(orderShipment.getOrderId())
             .shipmentId(orderShipment.getShipmentId())
             .shipmentStatus(orderShipment.getShipmentStatus())
