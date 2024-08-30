@@ -6,7 +6,13 @@ import {
 import { Injectable, Type } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { CookieService } from 'ngx-cookie-service';
-import { BehaviorSubject, Observable, Observer, throwError } from 'rxjs';
+import {
+    BehaviorSubject,
+    Observable,
+    Observer,
+    lastValueFrom,
+    throwError,
+} from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { Facility } from '../models';
 import { Cookie } from '../types/cookie.enum';
@@ -52,8 +58,8 @@ export class FacilityService {
         });
     }
 
-    getFacilityById(id: number): Observable<EntityResponseType> {
-        return this.httpClient.get<Facility>(`/v1/facilities/${id}`, {
+    getFacilityByCode(code: string): Observable<EntityResponseType> {
+        return this.httpClient.get<Facility>(`/v1/facilities/${code}`, {
             observe: 'response',
         });
     }
@@ -125,11 +131,12 @@ export class FacilityService {
 
     async syncCookieAndService() {
         const all = this.cookieService.getAll();
-        if (all[Cookie.XFacility] && !this.facility.getValue()) {
+        const cookieFacility = all[Cookie.XFacility];
+        if (cookieFacility && !this.facility.getValue()) {
             try {
-                const facility = await this.getFacilityById(
-                    +all[Cookie.XFacility]
-                ).toPromise();
+                const facility = await lastValueFrom(
+                    this.getFacilityByCode(cookieFacility)
+                );
                 this.facility.next(facility.body);
             } catch {
                 this.cookieService.delete(Cookie.XFacility);

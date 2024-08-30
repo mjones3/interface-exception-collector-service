@@ -113,6 +113,11 @@ public class SharedActions {
         element.click();
     }
 
+    public void click(WebDriver driver, By byElement) {
+        waitForVisible(byElement);
+        driver.findElement(byElement).click();
+    }
+
     public void clickElementAndMoveToNewTab(WebDriver driver, WebElement element, int expectedWindowsNumber) {
         this.click(element);
         wait.until(numberOfWindowsToBe(expectedWindowsNumber));
