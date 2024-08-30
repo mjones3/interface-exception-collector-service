@@ -9,9 +9,7 @@ import com.arcone.biopro.distribution.inventory.infrastructure.persistence.Inven
 import com.arcone.biopro.distribution.inventory.verification.common.ScenarioContext;
 import com.arcone.biopro.distribution.inventory.verification.utils.TestUtils;
 import io.cucumber.java.Before;
-import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
-import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.r2dbc.spi.ConnectionFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -24,13 +22,8 @@ import reactor.core.publisher.Mono;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @Slf4j
 public class KafkaListenersSteps {
@@ -140,12 +133,7 @@ public class KafkaListenersSteps {
 
     private Map<String, String> messagesMap;
 
-//    private final CountDownLatch waiter = new CountDownLatch(1);
-
     private String topicName;
-
-    private String untNumber;
-
 
     @Before
     public void before() {
@@ -167,12 +155,10 @@ public class KafkaListenersSteps {
 
     @Given("I am listening the {string} event")
     public void iAmListeningEvent(String event) {
-//        untNumber = TestUtil.randomString(13);
         scenarioContext.setUnitNumber(TestUtil.randomString(13));
         scenarioContext.setProductCode("E0869VA0");
         topicName = topicsMap.get(event);
         if (!EVENT_LABEL_APPLIED.equals(event)) {
-//            createInventory(untNumber, "E0869VA0", ProductFamily.PLASMA_TRANSFUSABLE, AboRhType.OP, "Miami", 10, InventoryStatus.AVAILABLE);
             createInventory(scenarioContext.getUnitNumber(), scenarioContext.getProductCode(), ProductFamily.PLASMA_TRANSFUSABLE, AboRhType.OP, "Miami", 10, InventoryStatus.AVAILABLE);
         }
 
@@ -180,12 +166,10 @@ public class KafkaListenersSteps {
 
     @Given("I am listening the {string} event for {string}")
     public void iAmListeningEventForUnitNumber(String event, String untNumber) {
-//        untNumber = untNumber;
         scenarioContext.setUnitNumber(untNumber);
         scenarioContext.setProductCode("E0869VA0");
         topicName = topicsMap.get(event);
         if (!EVENT_LABEL_APPLIED.equals(event)) {
-//            createInventory(untNumber, "E0869VA0", ProductFamily.PLASMA_TRANSFUSABLE, AboRhType.OP, "Miami", 10, InventoryStatus.AVAILABLE);
             createInventory(scenarioContext.getUnitNumber(), scenarioContext.getProductCode(), ProductFamily.PLASMA_TRANSFUSABLE, AboRhType.OP, "Miami", 10, InventoryStatus.AVAILABLE);
         }
 
@@ -211,21 +195,10 @@ public class KafkaListenersSteps {
     public void iReceiveAnEvent(String event) throws Exception {
         scenarioContext.setProductCode("E0869VA0");
         testUtils.kafkaSender(
-//            untNumber + "-E0869VA0",
             scenarioContext.getUnitNumber() + "-" + scenarioContext.getProductCode(),
             buildMessage(event),
             topicName);
     }
-
-//    @Then("The inventory status is {string}")
-//    public void theInventoryIsCreatedCorrectly(String status) throws InterruptedException {
-//        InventoryEntity entity = getInventoryWithRetry(untNumber, "E0869VA0", InventoryStatus.valueOf(status));
-//
-//        assertNotNull(entity);
-//        assertEquals("E0869VA0", entity.getProductCode());
-//        assertEquals(untNumber, entity.getUnitNumber());
-//        assertEquals(status, entity.getInventoryStatus().name());
-//    }
 
     public void populateTestData() {
         ResourceDatabasePopulator resourceDatabasePopulator = new ResourceDatabasePopulator();
@@ -238,57 +211,15 @@ public class KafkaListenersSteps {
     }
 
     public String buildMessage(String eventType){
-//        return String.format(messagesMap.get(eventType),untNumber, "E0869VA0", "MIAMI");
         return String.format(messagesMap.get(eventType),scenarioContext.getUnitNumber(), scenarioContext.getProductCode(), "MIAMI");
     }
-
-//    public InventoryEntity getInventoryWithRetry(String unitNumber, String productCode, InventoryStatus status) throws InterruptedException {
-//        int maxTryCount = 60;
-//        int tryCount = 0;
-//
-//        InventoryEntity entity = null;
-//        while (tryCount < maxTryCount && entity == null) {
-//            entity = inventoryEntityRepository.findByUnitNumberAndProductCodeAndInventoryStatus(unitNumber, productCode, status).block();
-//
-//            tryCount++;
-//            waiter.await(1, TimeUnit.SECONDS);
-//        }
-//        return entity;
-//    }
-
-//    public InventoryEntity getStoredInventory(String unitNumber, String productCode, InventoryStatus status) throws InterruptedException {
-//        int maxTryCount = 60;
-//        int tryCount = 0;
-//
-//        InventoryEntity entity = null;
-//        while (tryCount < maxTryCount && entity == null) {
-//            entity = inventoryEntityRepository.findByUnitNumberAndProductCodeAndInventoryStatus(unitNumber, productCode, status).block();
-//
-//            if (Objects.nonNull(entity) && Objects.isNull(entity.getDeviceStored())) {
-//                entity = null;
-//            }
-//
-//            tryCount++;
-//            waiter.await(1, TimeUnit.SECONDS);
-//        }
-//        return entity;
-//    }
 
     @When("I receive a {string} message with unit number {string}, product code {string} and location {string}")
     public void iReceiveAMessageWithUnitNumberProductCodeAndLocation(String event, String unitNumber, String productCode, String location) throws Exception {
         testUtils.kafkaSender(
-//            untNumber + "-E0869VA0",
             scenarioContext.getUnitNumber() + "-" + scenarioContext.getProductCode(),
             buildMessage(event, unitNumber, productCode, location),
             topicName);
     }
-
-//    @And("For unit number {string} and product code {string} the device stored is {string} and the storage location is {string}")
-//    public void forUnitNumberAndProductCodeTheDeviceStoredIsAndTheStorageLocationIs(String unitNumber, String productCode, String deviceStorage, String storageLocation) throws InterruptedException {
-//        InventoryEntity inventory = getStoredInventory(unitNumber, productCode, InventoryStatus.AVAILABLE);
-//        assertNotNull(inventory);
-//        assertEquals(deviceStorage, inventory.getDeviceStored());
-//        assertEquals(storageLocation, inventory.getStorageLocation());
-//    }
 
 }
