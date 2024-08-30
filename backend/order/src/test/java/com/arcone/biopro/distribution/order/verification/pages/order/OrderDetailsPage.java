@@ -110,6 +110,10 @@ public class OrderDetailsPage extends CommonPageFactory {
         return String.format("//p-table[@id='shipmentsTableId']//td[text()='%s']", detail);
     }
 
+    private String expectedFilledOrderQuantity(String quantity){
+        return String.format("//*[@id='filledOrdersCount'][normalize-space()='%s']", quantity);
+    }
+
     // Strings mappers
 
     private Map<String, String> productFamilyDescription = Map.of(
@@ -284,6 +288,7 @@ public class OrderDetailsPage extends CommonPageFactory {
 
     public void assertFilledProductIs(Integer filledProducts) {
         sharedActions.waitForVisible(filledProductsCountLabel);
+        sharedActions.waitForVisible(By.xpath(expectedFilledOrderQuantity(filledProducts.toString())));
         Assert.assertEquals(filledProducts, Integer.valueOf(driver.findElement(filledProductsCountLabel).getText()));
     }
 
