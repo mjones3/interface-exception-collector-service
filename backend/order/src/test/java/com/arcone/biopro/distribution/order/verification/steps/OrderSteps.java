@@ -192,7 +192,7 @@ public class OrderSteps {
         var query = DatabaseQueries.insertBioProOrderWithDetails(externalId, locationCode, orderController.getPriorityValue(priority), priority, status, shipmentType, shippingMethod, productCategory, desiredShipDate, shippingCustomerCode, shippingCustomerName, billingCustomerCode, billingCustomerName, comments);
         databaseService.executeSql(query).block();
 
-        if(status.equals("IN_PROGRESS")){
+        if (status.equals("IN_PROGRESS")) {
             var queryOrderShipment = DatabaseQueries.insertBioProOrderShipment(externalId);
             databaseService.executeSql(queryOrderShipment).block();
         }
@@ -420,5 +420,18 @@ public class OrderSteps {
         Assert.assertNotNull(orderShipment);
         var event = kafkaHelper.sendShipmentCompletedEvent(eventPayload.eventId().toString(), eventPayload).block();
         Assert.assertNotNull(event);
+    }
+
+    @And("I can see the Filled Products section filled with {string} shipped products.")
+    public void checkFilledProducts(String shippedProducts) {
+        var shippedQuantityList = testUtils.getCommaSeparatedList(shippedProducts);
+        for (int i = 0; i < shippedQuantityList.length; i++) {
+            orderDetailsPage.verifyFilledProductsSection(this.productFamilies[i].replace("_", " "), this.bloodTypes[i], this.quantityList[i], shippedQuantityList[i]);
+        }
+    }
+
+    @And("I can see the shipment status as {string}.")
+    public void checkShipmentStatus(String status) {
+        orderDetailsPage.verifyShipmentStatus(status.toUpperCase());
     }
 }
