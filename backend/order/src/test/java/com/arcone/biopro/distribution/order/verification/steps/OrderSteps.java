@@ -434,4 +434,9 @@ public class OrderSteps {
     public void checkShipmentStatus(String status) {
         orderDetailsPage.verifyShipmentStatus(status.toUpperCase());
     }
+
+    @Then("I cannot see the progress status bar.")
+    public void checkProgressBarNotExists() {
+        orderDetailsPage.verifyProgressBarNotExists();
+    }
 }
