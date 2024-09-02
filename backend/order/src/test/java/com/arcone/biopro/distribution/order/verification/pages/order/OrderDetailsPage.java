@@ -63,6 +63,7 @@ public class OrderDetailsPage extends CommonPageFactory {
     private static final By shipmentDetailsTableRows = By.xpath("//p-table[@id='shipmentsTableId']//tbody//tr");
     private static final By filledProductsCountLabel = By.id("filledOrdersCount");
     private static final By totalProductsCountLabel = By.id("totalOrderProducts");
+    private static final By orderProgressBar = By.id("orderProgressBarId");
 
 
     //Dynamic locators
@@ -303,5 +304,9 @@ public class OrderDetailsPage extends CommonPageFactory {
 
     public void verifyShipmentStatus(String shipmentStatus) {
         sharedActions.waitForVisible(By.xpath(shipmentTableDetails(shipmentStatus)));
+    }
+
+    public void verifyProgressBarNotExists() {
+        sharedActions.waitForNotVisible(orderProgressBar);
     }
 }
