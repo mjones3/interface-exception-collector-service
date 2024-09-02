@@ -109,7 +109,7 @@ public class RepositorySteps {
         InventoryEntity inventory = getInventoryWithRetry(scenarioContext.getUnitNumber(), scenarioContext.getProductCode(), InventoryStatus.valueOf("QUARANTINED"));
 
         assert inventory != null;
-        fail("Not yet implemented");
+        fail("Step code commented because changes for LAB-79 are not done on application side");
 //        List<ProductQuarantinedEntity> productQuarantines = productQuarantinedEntityRepository.findAllByProductId(product.getId()).collectList().block();
 //
 //        List<ProductQuarantinedEntity> productsReason = productQuarantines.stream().filter(q -> q.getReason().equals(QuarantineReason.valueOf(quarantineReasonMap.get(quarantineReason))) && q.getId().equals(quarantineReasonId)).toList();
