@@ -54,6 +54,7 @@ public abstract class InventoryOutputMapper {
 
     @Mapping(target = "name", expression = "java(notificationType.name())")
     @Mapping(target = "message", expression = "java(textConfigService.getText(notificationType.name()))")
+    @Mapping(target = "action", expression = "java(notificationType.getAction().name())")
     public abstract NotificationMessage toNotificationMessage(MessageType notificationType);
 
     @Mapping(target = "inventory.unitNumber.value", source = "unitNumber")

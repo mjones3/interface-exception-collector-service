@@ -45,7 +45,7 @@ public class InventoryAggregate {
     }
 
     private NotificationMessage createNotificationMessage(MessageType notificationType) {
-        return new NotificationMessage(notificationType.name(), notificationType.getCode(), notificationType.name(), notificationType.getType().name());
+        return new NotificationMessage(notificationType.name(), notificationType.getCode(), notificationType.name(), notificationType.getType().name(), notificationType.getAction().name());
     }
 
     private List<NotificationMessage> createNotificationMessage() {
@@ -57,7 +57,7 @@ public class InventoryAggregate {
         MessageType messageType = MessageType.fromStatus(inventory.getInventoryStatus())
             .orElseThrow(UnavailableStatusNotMappedException::new);
 
-        return List.of(new NotificationMessage(messageType.name(), messageType.getCode(), Strings.isNotBlank(inventory.getStatusReason()) ? inventory.getStatusReason() : messageType.name(), messageType.getType().name()));
+        return List.of(new NotificationMessage(messageType.name(), messageType.getCode(), Strings.isNotBlank(inventory.getStatusReason()) ? inventory.getStatusReason() : messageType.name(), messageType.getType().name(), messageType.getAction().name()));
     }
 
     private List<NotificationMessage> createQuarantinesNotificationMessage() {
@@ -67,7 +67,8 @@ public class InventoryAggregate {
                 qt.name(),
                 qt.getCode(),
                 !q.reason().equals(OTHER_SEE_COMMENTS) ? q.reason() : String.format("%s: %s", OTHER_SEE_COMMENTS, q.comment()),
-                qt.getType().name()))
+                qt.getType().name(),
+                qt.getAction().name()))
             .toList();
     }
 
