@@ -36,7 +36,7 @@ public class UseCaseSteps {
 //            .productCode(new ProductCode(productCode, scenarioContext.getProduct().getShortDescription()))
 //            .build();
 //        applyQuarantineProductUseCase.execute(new QuarantineProductInput(product, QuarantineReason.valueOf(quarantineReasonMap.get(quarantineReason)),quarantineReasonId)).block();
-        fail("Not yet implemented");
+        fail("Step code commented because changes were not done on application side");
     }
 
     @When("I received a Remove Quarantine event for unit {string} and product {string} with reason {string} and id {string}")
@@ -46,6 +46,6 @@ public class UseCaseSteps {
 //            .productCode(new ProductCode(productCode, ""))
 //            .build();
 //        removeQuarantinedProductUseCase.execute(new QuarantineProductInput(product, QuarantineReason.valueOf(quarantineReasonMap.get(quarantineReason)),quarantineReasonId)).block();
-        fail("Not yet implemented");
+        fail("Step code commented because changes were not done on application side");
     }
 }
