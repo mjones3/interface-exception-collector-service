@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.shipping.verification.support.controllers
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.BloodType;
 import com.arcone.biopro.distribution.shipping.verification.support.*;
 import com.arcone.biopro.distribution.shipping.verification.support.types.ListShipmentsResponseType;
+import com.arcone.biopro.distribution.shipping.verification.support.types.OrderFulfilledEventType;
 import com.arcone.biopro.distribution.shipping.verification.support.types.ShipmentFulfillmentRequest;
 import com.arcone.biopro.distribution.shipping.verification.support.types.ShipmentItemShortDateResponseType;
 import com.arcone.biopro.distribution.shipping.verification.support.types.ShipmentRequestDetailsResponseType;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -37,7 +39,16 @@ public class ShipmentTestingController {
 
     public long createShippingRequest(ShipmentRequestDetailsResponseType shipmentDetail) throws Exception {
 
-        utils.kafkaSender(objectMapper.writeValueAsString(shipmentDetail), Topics.ORDER_FULFILLED);
+        var fulfilledMessage = OrderFulfilledEventType.
+            builder()
+            .eventId(UUID.randomUUID())
+            .occurredOn(Instant.now())
+            .eventVersion("1.0")
+            .eventType("OrderFulfilled")
+            .payload(shipmentDetail)
+            .build();
+
+        utils.kafkaSender(objectMapper.writeValueAsString(fulfilledMessage), Topics.ORDER_FULFILLED);
         // Add sleep to wait for the message to be consumed.
         Thread.sleep(kafkaWaitingTime);
 

@@ -40,6 +40,10 @@ public class OrderItemEntity {
     @Column("quantity")
     private Integer quantity;
 
+    @NotNull
+    @Column("quantity_shipped")
+    private Integer quantityShipped;
+
     @Column("comments")
     private String comments;
 

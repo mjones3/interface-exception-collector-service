@@ -28,6 +28,9 @@ export const GET_ORDER_BY_ID = gql<
             createDate
             modificationDate
             deleteDate
+            totalShipped
+            totalProducts
+            totalRemaining
             orderItems {
                 id
                 orderId
@@ -38,6 +41,8 @@ export const GET_ORDER_BY_ID = gql<
                 createDate
                 modificationDate
                 quantityAvailable
+                quantityRemaining
+                quantityShipped
             }
         }
     }

@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -35,6 +36,29 @@ public class SharedActions {
         }
     }
 
+    public void waitForVisible(By locator) {
+        try {
+            wait.until(e -> {
+                log.debug("Waiting for element {} to be visible.", locator);
+                try {
+                    return e.findElement(locator).isDisplayed();
+                } catch (NoSuchElementException | StaleElementReferenceException ex) {
+                    try {
+                        log.debug("Waiting for element {} to be visible for the second time.", locator);
+                        return e.findElement(locator).isDisplayed();
+                    } catch (NoSuchElementException | StaleElementReferenceException ex2) {
+                        // Element not found, consider it as not visible
+                        log.debug("Element {} not found after two tries, considering it as not visible.", locator);
+                        return false;
+                    }
+                }
+            });
+            log.debug("Element {} is visible now.", locator);
+        } catch (Exception e) {
+            log.error("Element {} is not visible after the specified timeout.", locator);
+            throw e;
+        }
+    }
 
     public void waitForNotVisible(WebElement element) {
         try {

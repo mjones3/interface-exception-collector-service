@@ -79,7 +79,7 @@ public class OrderEntityMapper {
             .orElseGet(Collections::emptyList)
             .forEach(orderItemEntity -> order.addItem(orderItemEntity.getId()
                     , orderItemEntity.getProductFamily(), orderItemEntity.getBloodType()
-                    , orderItemEntity.getQuantity(), orderItemEntity.getComments(), orderItemEntity.getCreateDate()
+                    , orderItemEntity.getQuantity(),orderItemEntity.getQuantityShipped(), orderItemEntity.getComments(), orderItemEntity.getCreateDate()
                     , orderItemEntity.getModificationDate(), this.orderConfigService
                 )
             );

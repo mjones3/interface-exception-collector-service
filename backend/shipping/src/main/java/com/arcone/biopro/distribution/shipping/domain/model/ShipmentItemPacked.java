@@ -1,7 +1,9 @@
 package com.arcone.biopro.distribution.shipping.domain.model;
 
+import com.arcone.biopro.distribution.shipping.domain.model.enumeration.BloodType;
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.VisualInspection;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
@@ -68,6 +70,13 @@ public class ShipmentItemPacked implements Serializable, Persistable<Long> {
     @NotNull
     @Column("visual_inspection")
     private VisualInspection visualInspection;
+
+    @Size(max = 255)
+    @Column("product_family")
+    private String productFamily;
+
+    @Column("blood_type")
+    private BloodType bloodType;
 
     @Override
     public boolean isNew() {

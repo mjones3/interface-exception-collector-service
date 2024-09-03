@@ -3,7 +3,6 @@ import { FuseNavigationItem } from '@fuse/components/navigation';
 import { FuseMockApiService } from '@fuse/lib/mock-api';
 import {
     defaultNavigation,
-    location,
     locations,
 } from 'app/mock-api/common/navigation/data';
 import { cloneDeep } from 'lodash-es';
@@ -13,7 +12,6 @@ export class NavigationMockApi {
     private readonly _defaultNavigation: FuseNavigationItem[] =
         defaultNavigation;
     private readonly _locations: any[] = locations;
-    private readonly _location: any = location;
 
     /**
      * Constructor
@@ -41,9 +39,18 @@ export class NavigationMockApi {
             return [200, cloneDeep(this._locations)];
         });
 
-        this._fuseMockApiService.onGet('/v1/facilities/:id').reply(() => {
-            // Return the response
-            return [200, cloneDeep(this._location)];
-        });
+        this._fuseMockApiService
+            .onGet('/v1/facilities/:code')
+            .reply((request) => {
+                // Return the response
+                return [
+                    200,
+                    cloneDeep(
+                        this._locations.filter(
+                            (l) => l.code === request.urlParams.code
+                        )[0]
+                    ),
+                ];
+            });
     }
 }

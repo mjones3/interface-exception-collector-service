@@ -13,15 +13,18 @@ import com.arcone.biopro.distribution.order.domain.repository.OrderRepository;
 import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
 import com.arcone.biopro.distribution.order.domain.service.OrderConfigService;
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static java.lang.Boolean.FALSE;
@@ -31,6 +34,7 @@ import static java.util.Optional.ofNullable;
 @Getter
 @EqualsAndHashCode
 @ToString
+@Slf4j
 public class Order implements Validatable {
 
     private Long id;
@@ -53,6 +57,15 @@ public class Order implements Validatable {
     private ZonedDateTime modificationDate;
     private ZonedDateTime deleteDate;
     private List<OrderItem> orderItems;
+
+    @Getter(AccessLevel.NONE)
+    private Integer totalShipped;
+
+    @Getter(AccessLevel.NONE)
+    private Integer totalRemaining;
+
+    @Getter(AccessLevel.NONE)
+    private Integer totalProducts;
 
     public Order(
         CustomerService customerService,
@@ -144,14 +157,14 @@ public class Order implements Validatable {
         }
     }
 
-    public void addItem(Long id, String productFamily, String bloodType, Integer quantity, String comments
+    public void addItem(Long id, String productFamily, String bloodType, Integer quantity ,Integer quantityShipped, String comments
         , ZonedDateTime createDate, ZonedDateTime modificationDate, OrderConfigService orderConfigService) {
 
         if (this.orderItems == null) {
             this.orderItems = new ArrayList<>();
         }
 
-        this.orderItems.add(new OrderItem(id, this.id, productFamily, bloodType, quantity, comments, createDate
+        this.orderItems.add(new OrderItem(id, this.id, productFamily, bloodType, quantity , quantityShipped, comments, createDate
             , modificationDate, this.getProductCategory().getProductCategory(), orderConfigService));
     }
 
@@ -161,4 +174,32 @@ public class Order implements Validatable {
             .orElseGet(() -> Mono.just(FALSE));
     }
 
+    public Integer getTotalShipped() {
+        return ofNullable(orderItems)
+            .filter(orderItems -> !orderItems.isEmpty())
+            .orElseGet(Collections::emptyList)
+            .stream()
+            .reduce(0, (partialAgeResult, orderItem) -> partialAgeResult + orderItem.getQuantityShipped(), Integer::sum);
+    }
+
+    public Integer getTotalRemaining() {
+        return ofNullable(orderItems)
+            .filter(orderItems -> !orderItems.isEmpty())
+            .orElseGet(Collections::emptyList)
+            .stream()
+            .reduce(0, (partialAgeResult, orderItem) -> partialAgeResult + orderItem.getQuantityRemaining(), Integer::sum);
+    }
+
+    public Integer getTotalProducts() {
+        return ofNullable(orderItems)
+            .filter(orderItems -> !orderItems.isEmpty())
+            .orElseGet(Collections::emptyList)
+            .stream()
+            .reduce(0, (partialAgeResult, orderItem) -> partialAgeResult + orderItem.getQuantity(), Integer::sum);
+    }
+
+    public boolean isCompleted() {
+        log.debug("Order {} totalShipped: {} totalRemaining: {} totalProducts: {}", this.orderNumber, this.totalShipped, this.totalRemaining, this.totalProducts);
+        return this.getTotalRemaining().equals(0);
+    }
 }

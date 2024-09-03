@@ -5,8 +5,40 @@
         [buttons]="actionButtonsTpl"
     ></biopro-process-header>
 
+    <!--Order Progress Bar-->
     <div class="flex w-full flex-row space-x-8 p-4">
         <div class="flex w-9/12 flex-auto flex-col">
+            @if (!isOrderComplete) {
+                <fuse-card class="flex flex-row items-center space-x-6 p-6">
+                    <div class="flex flex-row space-x-2">
+                        <span class="text-left font-bold">
+                            (<span id="filledOrdersCount">{{
+                                filledOrdersCount
+                            }}</span>
+                            of
+                            <span id="totalOrderProducts">{{
+                                totalOrderProducts
+                            }}</span
+                            >)
+                        </span>
+                        <span class="text-left font-bold"> Filled Product</span>
+                        <span class="text-left font-bold" id="percentageId">{{
+                            filledOrdersCount / totalOrderProducts | percent
+                        }}</span>
+                    </div>
+                    <div class="flex flex-auto flex-col">
+                        <mat-progress-bar
+                            id="orderProgressBarId"
+                            class="h-2"
+                            mode="determinate"
+                            [value]="
+                                (filledOrdersCount / totalOrderProducts) * 100
+                            "
+                        ></mat-progress-bar>
+                    </div>
+                </fuse-card>
+            }
+
             <div class="mb-6 flex flex-col space-y-3">
                 <div class="flex flex-col">
                     <ng-container
@@ -44,28 +76,32 @@
 </ng-template>
 
 <ng-template #addedProductTpl let-review="review">
-    <div class="my-4 flex flex-row items-end justify-between">
-        <div class="flex flex-row">
-            <span class="mb-1 mr-4 w-60 text-left font-bold">
-                Temperature Category:</span
-            >
-            <span class="flex-auto text-left">{{
-                orderDetails?.productCategory ?? '' | uppercase
-            }}</span>
-        </div>
+    @if (products$ | async; as products) {
+        @if (products.length > 0) {
+            <div class="my-4 flex flex-row items-end justify-between">
+                <div class="flex flex-row">
+                    <span class="mb-1 mr-4 w-60 text-left font-bold">
+                        Temperature Category:</span
+                    >
+                    <span class="flex-auto text-left">{{
+                        orderDetails?.productCategory ?? '' | uppercase
+                    }}</span>
+                </div>
 
-        <div class="flex flex-row space-x-2">
-            <button
-                id="generatePickListButton"
-                class="bg-purple-light px-4"
-                mat-flat-button
-                (click)="viewPickList(orderDetails.id)"
-                [disabled]="loadingPickList"
-            >
-                View/Print Pick List
-            </button>
-        </div>
-    </div>
+                <div class="flex flex-row space-x-2">
+                    <button
+                        id="generatePickListButton"
+                        class="bg-purple-light px-4"
+                        mat-flat-button
+                        (click)="viewPickList(orderDetails.id)"
+                        [disabled]="loadingPickList"
+                    >
+                        View/Print Pick List
+                    </button>
+                </div>
+            </div>
+        }
+    }
 
     <!--Order Details Table-->
     <div class="flex flex-auto flex-col gap-4">
@@ -195,17 +231,32 @@
                                         <div
                                             class="flex flex-row items-center justify-start space-x-2"
                                         >
-                                            <span> 0 </span>
+                                            <span>
+                                                {{
+                                                    product?.quantityShipped ||
+                                                        0
+                                                }}
+                                            </span>
                                             <span class="w-10">
                                                 <mat-progress-bar
                                                     mode="determinate"
                                                     [id]="'filled' + i"
+                                                    [value]="
+                                                        ((product?.quantityShipped ||
+                                                            0) /
+                                                            product?.quantity) *
+                                                        100
+                                                    "
                                                 ></mat-progress-bar
                                             ></span>
-                                            <mat-icon
-                                                class="text-custom-green"
-                                                [svgIcon]="'hi_outline:clock'"
-                                            ></mat-icon>
+                                            @if (product?.quantityShipped) {
+                                                <mat-icon
+                                                    class="text-custom-green"
+                                                    [svgIcon]="
+                                                        'hi_outline:clock'
+                                                    "
+                                                ></mat-icon>
+                                            }
                                         </div>
                                     </td>
                                 </tr>

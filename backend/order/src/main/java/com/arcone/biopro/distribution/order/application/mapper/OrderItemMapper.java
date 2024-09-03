@@ -20,6 +20,8 @@ public class OrderItemMapper {
             .createDate(orderItem.getCreateDate())
             .modificationDate(orderItem.getModificationDate())
             .quantityAvailable(orderItem.getQuantityAvailable())
+            .quantityShipped(orderItem.getQuantityShipped())
+            .quantityRemaining(orderItem.getQuantityRemaining())
             .build();
     }
 
