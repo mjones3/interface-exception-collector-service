@@ -6,10 +6,13 @@ import com.arcone.biopro.distribution.inventory.domain.model.enumeration.Message
 import com.arcone.biopro.distribution.inventory.domain.model.vo.NotificationMessage;
 import lombok.Builder;
 import lombok.Getter;
+import org.apache.logging.log4j.util.Strings;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.arcone.biopro.distribution.inventory.BioProConstants.EXPIRED;
 
 @Builder
 @Getter
@@ -33,7 +36,7 @@ public class InventoryAggregate {
         }
 
         if (isExpired()) {
-            notificationMessages.add(createNotificationMessage(MessageType.INVENTORY_IS_EXPIRED));
+            notificationMessages.add(createNotificationMessage(MessageType.INVENTORY_IS_EXPIRED, EXPIRED));
         }
 
         if (!inventory.getLocation().equals(location)) {
@@ -43,20 +46,29 @@ public class InventoryAggregate {
         return this;
     }
 
-    private NotificationMessage createNotificationMessage(MessageType notificationType) {
-        return new NotificationMessage(notificationType.name(), notificationType.getCode(), notificationType.name(), notificationType.getType().name());
+    private NotificationMessage createNotificationMessage(MessageType messageType) {
+        return createNotificationMessage(messageType, null);
+    }
+
+    private NotificationMessage createNotificationMessage(MessageType notificationType, String reason) {
+        return new NotificationMessage(notificationType.name(), notificationType.getCode(), notificationType.name(), notificationType.getType().name(), notificationType.getAction().name(), reason);
     }
 
     private List<NotificationMessage> createNotificationMessage() {
 
-        if(inventory.getInventoryStatus().equals(InventoryStatus.QUARANTINED)) {
+        if (inventory.getInventoryStatus().equals(InventoryStatus.QUARANTINED)) {
             return createQuarantinesNotificationMessage();
         }
 
         MessageType messageType = MessageType.fromStatus(inventory.getInventoryStatus())
             .orElseThrow(UnavailableStatusNotMappedException::new);
 
-        return List.of(new NotificationMessage(messageType.name(), messageType.getCode(), inventory.getStatusReason(), messageType.getType().name()));
+        return List.of(new NotificationMessage(
+            messageType.name(),
+            messageType.getCode(),
+            Strings.isNotBlank(inventory.getStatusReason()) ? inventory.getStatusReason() : messageType.name(),
+            messageType.getType().name(), messageType.getAction().name(),
+            null));
     }
 
     private List<NotificationMessage> createQuarantinesNotificationMessage() {
@@ -66,7 +78,9 @@ public class InventoryAggregate {
                 qt.name(),
                 qt.getCode(),
                 !q.reason().equals(OTHER_SEE_COMMENTS) ? q.reason() : String.format("%s: %s", OTHER_SEE_COMMENTS, q.comment()),
-                qt.getType().name()))
+                qt.getType().name(),
+                qt.getAction().name(),
+                null))
             .toList();
     }
 

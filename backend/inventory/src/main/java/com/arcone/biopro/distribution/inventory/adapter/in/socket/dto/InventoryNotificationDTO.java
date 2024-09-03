@@ -9,6 +9,8 @@ public record InventoryNotificationDTO(
     String errorName,
     Integer errorCode,
     String errorMessage,
-    String errorType
+    String errorType,
+    String action,
+    String reason
 ) implements Serializable {
 }
