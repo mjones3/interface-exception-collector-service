@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.order.unit.adapter.in.web.controller;
 
 import com.arcone.biopro.distribution.order.adapter.in.web.controller.OrderController;
+import com.arcone.biopro.distribution.order.application.dto.UseCaseResponseDTO;
 import com.arcone.biopro.distribution.order.application.exception.DomainNotFoundForKeyException;
 import com.arcone.biopro.distribution.order.application.mapper.OrderItemMapper;
 import com.arcone.biopro.distribution.order.application.mapper.OrderMapper;
@@ -70,12 +71,15 @@ class OrderControllerTest {
         Mockito.when(order.getBillingCustomer()).thenReturn(customer);
         Mockito.when(order.getShippingCustomer()).thenReturn(customer);
 
-        Mockito.when(orderService.findOneById(anyLong())).thenReturn(Mono.just(order));
+        var useCaseResponse = Mockito.mock(UseCaseResponseDTO.class);
+        Mockito.when(useCaseResponse.data()).thenReturn(order);
+
+        Mockito.when(orderService.findUseCaseResponseById(anyLong())).thenReturn(Mono.just(useCaseResponse));
 
         StepVerifier.create(orderController.findOrderById(1L))
             .consumeNextWith(orderReportDTO -> {
-                    Assertions.assertEquals(1L,  orderReportDTO.orderNumber());
-                    Assertions.assertEquals("orderExternalId",  orderReportDTO.externalId());
+                    Assertions.assertEquals(1L,  orderReportDTO.data().orderNumber());
+                    Assertions.assertEquals("orderExternalId",  orderReportDTO.data().externalId());
                 }
             )
             .verifyComplete();
@@ -84,7 +88,7 @@ class OrderControllerTest {
     @Test
     public void shouldNotFindById(){
 
-        Mockito.when(orderService.findOneById(anyLong())).thenReturn(Mono.error(new DomainNotFoundForKeyException("TEST")));
+        Mockito.when(orderService.findUseCaseResponseById(anyLong())).thenReturn(Mono.error(new DomainNotFoundForKeyException("TEST")));
 
         StepVerifier.create(orderController.findOrderById(2L))
             .expectError(DomainNotFoundForKeyException.class)

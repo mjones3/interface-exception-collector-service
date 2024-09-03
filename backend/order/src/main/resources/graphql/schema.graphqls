@@ -11,7 +11,7 @@ type Query {
     findCustomerByCode(code: String!): Customer
 
     # Searches over all orders
-    findOrderById(orderId:ID!):Order!
+    findOrderById(orderId:ID!):OrderResponseDTO!
     searchOrders(orderQueryCommandDTO:OrderQueryCommandDTO!):[OrderReportDTO]
     findOrderShipmentByOrderId(orderId:ID!):OrderShipmentDTO
 }
@@ -113,6 +113,11 @@ type OrderItem {
     quantityAvailable:Int
     quantityShipped:Int!
     quantityRemaining:Int!
+}
+
+type OrderResponseDTO {
+    notifications:[NotificationDTO]
+    data:Order
 }
 
 type Order {
