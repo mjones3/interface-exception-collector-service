@@ -1,13 +1,15 @@
 package com.arcone.biopro.distribution.order.application.usecase;
 
 import com.arcone.biopro.distribution.order.application.dto.OrderReceivedEventPayloadDTO;
+import com.arcone.biopro.distribution.order.application.dto.UseCaseNotificationDTO;
+import com.arcone.biopro.distribution.order.application.dto.UseCaseNotificationType;
+import com.arcone.biopro.distribution.order.application.dto.UseCaseResponseDTO;
 import com.arcone.biopro.distribution.order.application.exception.DomainNotFoundForKeyException;
 import com.arcone.biopro.distribution.order.application.mapper.OrderReceivedEventMapper;
 import com.arcone.biopro.distribution.order.application.mapper.PickListCommandMapper;
 import com.arcone.biopro.distribution.order.domain.event.OrderCreatedEvent;
 import com.arcone.biopro.distribution.order.domain.event.OrderRejectedEvent;
 import com.arcone.biopro.distribution.order.domain.model.Order;
-import com.arcone.biopro.distribution.order.domain.model.PickListItemShortDate;
 import com.arcone.biopro.distribution.order.domain.repository.OrderRepository;
 import com.arcone.biopro.distribution.order.domain.service.InventoryService;
 import com.arcone.biopro.distribution.order.domain.service.OrderService;
@@ -21,6 +23,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -33,10 +38,19 @@ public class OrderUseCase implements OrderService {
     private final PickListCommandMapper pickListCommandMapper;
 
     @Override
-    public Mono<Order> findOneById(Long id) {
+    public Mono<UseCaseResponseDTO<Order>> findUseCaseResponseById(Long id) {
         return this.orderRepository.findOneById(id)
             .switchIfEmpty(Mono.error(new DomainNotFoundForKeyException(String.format("%s",id))))
+            .map(order -> new UseCaseResponseDTO<>(new ArrayList<>(),order))
             .doOnSuccess(this::setAvailableInventories);
+
+    }
+
+    @Override
+    public Mono<Order> findOneById(Long id) {
+        return this.orderRepository.findOneById(id)
+            .switchIfEmpty(Mono.error(new DomainNotFoundForKeyException(String.format("%s",id))));
+
     }
 
     @Override
@@ -84,13 +98,18 @@ public class OrderUseCase implements OrderService {
         applicationEventPublisher.publishEvent(new OrderRejectedEvent(externalId,errorMessage));
     }
 
-    private void setAvailableInventories(Order order){
-        Flux.from(inventoryService.getAvailableInventories(pickListCommandMapper.mapToDomain(order)).onErrorResume(error -> {
+    private void setAvailableInventories(UseCaseResponseDTO<Order> useCaseResponseDTO){
+        Flux.from(inventoryService.getAvailableInventories(pickListCommandMapper.mapToDomain(useCaseResponseDTO.data())).onErrorResume(error -> {
                 log.error("Not able to fetch inventory Data {}", error.getMessage());
+                useCaseResponseDTO.notifications().add(UseCaseNotificationDTO
+                    .builder()
+                    .notificationType(UseCaseNotificationType.WARN)
+                    .notificationMessage("Inventory Data Not Available.")
+                    .build());
                 return Mono.empty();
             }))
             .flatMap(availableInventory -> {
-                    var orderItem = order.getOrderItems().stream()
+                    var orderItem = useCaseResponseDTO.data().getOrderItems().stream()
                         .filter(x -> x.getBloodType().getBloodType().equals(availableInventory.getAboRh())
                             && x.getProductFamily().getProductFamily().equals(availableInventory.getProductFamily())).findFirst();
                     orderItem.ifPresent(item -> item.defineAvailableQuantity(availableInventory.getQuantityAvailable()));
