@@ -17,6 +17,7 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
@@ -33,6 +34,7 @@ import static java.util.Optional.ofNullable;
 @Getter
 @EqualsAndHashCode
 @ToString
+@Slf4j
 public class Order implements Validatable {
 
     private Long id;
@@ -197,6 +199,7 @@ public class Order implements Validatable {
     }
 
     public boolean isCompleted() {
-        return this.totalRemaining.equals(0);
+        log.debug("Order {} totalShipped: {} totalRemaining: {} totalProducts: {}", this.orderNumber, this.totalShipped, this.totalRemaining, this.totalProducts);
+        return this.getTotalRemaining().equals(0);
     }
 }

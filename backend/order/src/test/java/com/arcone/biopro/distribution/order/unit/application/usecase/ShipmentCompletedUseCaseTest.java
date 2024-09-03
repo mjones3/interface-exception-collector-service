@@ -32,6 +32,7 @@ class ShipmentCompletedUseCaseTest {
 
         Mockito.when(order.getId()).thenReturn(1L);
         Mockito.when(order.getTotalRemaining()).thenReturn(0);
+        Mockito.when(order.isCompleted()).thenReturn(true);
 
         var oderItem = Mockito.mock(OrderItem.class);
         Mockito.when(oderItem.getQuantityShipped()).thenReturn(1);
