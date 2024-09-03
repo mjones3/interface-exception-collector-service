@@ -3,8 +3,11 @@ package com.arcone.biopro.distribution.inventory.verification.steps;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ProductFamily;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.QuarantineReason;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntity;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntityRepository;
+import com.arcone.biopro.distribution.inventory.infrastructure.persistence.ProductQuarantinedEntity;
+import com.arcone.biopro.distribution.inventory.infrastructure.persistence.ProductQuarantinedEntityRepository;
 import com.arcone.biopro.distribution.inventory.verification.common.ScenarioContext;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
@@ -20,12 +23,16 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static com.arcone.biopro.distribution.inventory.verification.steps.UseCaseSteps.quarantineReasonMap;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
 public class RepositorySteps {
     @Autowired
     private InventoryEntityRepository inventoryEntityRepository;
+
+    @Autowired
+    private ProductQuarantinedEntityRepository productQuarantinedEntityRepository;
 
     @Autowired
     private ScenarioContext scenarioContext;
@@ -110,10 +117,10 @@ public class RepositorySteps {
 
         assert inventory != null;
         fail("Step code commented because changes for LAB-79 are not done on application side");
-//        List<ProductQuarantinedEntity> productQuarantines = productQuarantinedEntityRepository.findAllByProductId(product.getId()).collectList().block();
-//
-//        List<ProductQuarantinedEntity> productsReason = productQuarantines.stream().filter(q -> q.getReason().equals(QuarantineReason.valueOf(quarantineReasonMap.get(quarantineReason))) && q.getId().equals(quarantineReasonId)).toList();
-//
-//        assertEquals(Boolean.valueOf(isFound), !productsReason.isEmpty());
+        List<ProductQuarantinedEntity> productQuarantines = productQuarantinedEntityRepository.findAllByProductId(UUID.fromString(productCode)).collectList().block();
+
+        List<ProductQuarantinedEntity> productsReason = productQuarantines.stream().filter(q -> q.getReason().equals(QuarantineReason.valueOf(quarantineReasonMap.get(quarantineReason))) && q.getId().equals(quarantineReasonId)).toList();
+
+        assertEquals(Boolean.valueOf(isFound), !productsReason.isEmpty());
     }
 }

@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.inventory.domain.model;
 import com.arcone.biopro.distribution.inventory.domain.exception.UnavailableStatusNotMappedException;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.MessageType;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.QuarantineReason;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.NotificationMessage;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,6 +12,7 @@ import org.apache.logging.log4j.util.Strings;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Builder
 @Getter
@@ -20,6 +22,11 @@ public class InventoryAggregate {
     Inventory inventory;
 
     List<NotificationMessage> notificationMessages;
+
+    @Builder.Default
+    List<ProductQuarantine> productQuarantines = new ArrayList<>();
+
+    ProductHistory previousProductHistory;
 
 
     public Boolean isExpired() {
@@ -87,6 +94,24 @@ public class InventoryAggregate {
         inventory.setStatusReason(reason);
         inventory.setComments(comments);
         inventory.setInventoryStatus(InventoryStatus.DISCARDED);
+        return this;
+    }
+
+    public InventoryAggregate removeQuarantine(QuarantineReason quarantineReason) {
+        productQuarantines = productQuarantines.stream().filter(q -> !q.getReason().equals(quarantineReason)).toList();
+
+        if (productQuarantines.isEmpty()) {
+            this.recoverProduct();
+        }
+
+        return this;
+    }
+
+    public InventoryAggregate recoverProduct() {
+        var oldPreviousProductHistory = previousProductHistory;
+        previousProductHistory = new ProductHistory(UUID.fromString(inventory.getProductCode().value()), inventory.getComments());
+//        inventory.restorePreviousHistory(oldPreviousProductHistory);
+
         return this;
     }
 }
