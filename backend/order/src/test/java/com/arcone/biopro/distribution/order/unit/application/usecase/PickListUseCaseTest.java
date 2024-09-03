@@ -1,6 +1,5 @@
 package com.arcone.biopro.distribution.order.unit.application.usecase;
 
-import com.arcone.biopro.distribution.order.application.dto.UseCaseNotificationType;
 import com.arcone.biopro.distribution.order.application.dto.UseCaseResponseDTO;
 import com.arcone.biopro.distribution.order.application.exception.DomainNotFoundForKeyException;
 import com.arcone.biopro.distribution.order.application.mapper.PickListCommandMapper;
@@ -169,8 +168,9 @@ class PickListUseCaseTest {
 
         StepVerifier.create(useCase.generatePickList(1L,Boolean.FALSE))
             .consumeNextWith(detail -> {
-                    Assertions.assertEquals(UseCaseNotificationType.ERROR,  detail.notifications().getFirst().notificationType());
-                Assertions.assertEquals("Inventory Service is down.",  detail.notifications().getFirst().notificationMessage());
+                    Assertions.assertEquals("INVENTORY_SERVICE_IS_DOWN",  detail.notifications().getFirst().useCaseMessageType().name());
+                Assertions.assertEquals("ERROR",  detail.notifications().getFirst().useCaseMessageType().getType().name());
+                Assertions.assertEquals("Inventory Service is down.",  detail.notifications().getFirst().useCaseMessageType().getMessage());
 
                 }
             )
