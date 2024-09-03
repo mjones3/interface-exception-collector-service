@@ -161,8 +161,8 @@ public class RsocketSteps {
         assertThat(inventory.shortDateProducts().size()).isEqualTo(Integer.parseInt(quantityShortDate));
     }
 
-    @Then("I receive for {string} with {string} in the {string} a {string} message")
-    public void iReceiveForWithInTheAMessage(String unitNumber, String productCode, String location, String errorType) {
+    @Then("I receive for {string} with {string} in the {string} a {string} message with {string} action and {string} reason")
+    public void iReceiveForWithInTheAMessage(String unitNumber, String productCode, String location, String errorType, String action, String reason) {
         Integer errorCode = "".equals(errorType) ? null : MessageType.valueOf(errorType).getCode();
         StepVerifier
             .create(inventoryValidationResponseDTOMonoResult)
@@ -182,11 +182,17 @@ public class RsocketSteps {
                 if (errorCode != null) {
                     assertThat(message.inventoryNotificationsDTO().getFirst().errorCode()).isEqualTo(errorCode);
                     assertThat(message.inventoryNotificationsDTO().getFirst().errorName()).isEqualTo(errorType);
+                    assertThat(message.inventoryNotificationsDTO().getFirst().action()).isEqualTo(action);
+
                 } else {
                     assertThat(message.inventoryNotificationsDTO().isEmpty()).isTrue();
                 }
                 if (MessageType.INVENTORY_IS_QUARANTINED.getCode().equals(errorCode)) {
                     assertThat(message.inventoryNotificationsDTO().size()).isEqualTo(5);
+                }
+
+                if (MessageType.INVENTORY_IS_EXPIRED.getCode().equals(errorCode)) {
+                    assertThat(message.inventoryNotificationsDTO().getFirst().reason()).isEqualTo(reason);
                 }
 
                 log.debug("Received message from validate inventory {}", message);
