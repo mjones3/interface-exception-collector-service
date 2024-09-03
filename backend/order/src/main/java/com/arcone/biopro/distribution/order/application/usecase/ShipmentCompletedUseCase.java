@@ -21,6 +21,7 @@ public class ShipmentCompletedUseCase implements ShipmentCompletedService {
     private final OrderRepository orderRepository;
     private final OrderShipmentRepository orderShipmentRepository;
     private static final String ORDER_SHIPMENT_STATUS_COMPLETED = "COMPLETED";
+    private static final String ORDER_STATUS_COMPLETED = "COMPLETED";
 
     @Override
     @Transactional
@@ -41,6 +42,10 @@ public class ShipmentCompletedUseCase implements ShipmentCompletedService {
                 if(orderItem.getBloodType().getBloodType().equals(payloadDTO.bloodType())
                     && orderItem.getProductFamily().getProductFamily().equals(payloadDTO.productFamily())){
                     orderItem.defineShippedQuantity(orderItem.getQuantityShipped() + 1);
+                    if (order.isCompleted()) {
+                        log.debug("Order {} already completed (ShipmentCompletedUseCase)", order.getOrderNumber());
+                        order.getOrderStatus().setStatus(ORDER_STATUS_COMPLETED);
+                    }
                 }
             });
         }
