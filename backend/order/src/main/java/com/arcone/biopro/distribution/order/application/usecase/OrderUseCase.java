@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.order.application.usecase;
 
 import com.arcone.biopro.distribution.order.application.dto.OrderReceivedEventPayloadDTO;
+import com.arcone.biopro.distribution.order.application.dto.UseCaseMessageType;
 import com.arcone.biopro.distribution.order.application.dto.UseCaseNotificationDTO;
 import com.arcone.biopro.distribution.order.application.dto.UseCaseNotificationType;
 import com.arcone.biopro.distribution.order.application.dto.UseCaseResponseDTO;
@@ -103,8 +104,7 @@ public class OrderUseCase implements OrderService {
                 log.error("Not able to fetch inventory Data {}", error.getMessage());
                 useCaseResponseDTO.notifications().add(UseCaseNotificationDTO
                     .builder()
-                    .notificationType(UseCaseNotificationType.WARN)
-                    .notificationMessage("Inventory Data Not Available.")
+                    .useCaseMessageType(UseCaseMessageType.INVENTORY_SERVICE_IS_DOWN)
                     .build());
                 return Mono.empty();
             }))

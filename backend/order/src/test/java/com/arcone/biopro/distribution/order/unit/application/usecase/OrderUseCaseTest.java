@@ -238,8 +238,8 @@ public class OrderUseCaseTest {
         StepVerifier.create(useCase.findUseCaseResponseById(1L))
             .consumeNextWith(detail -> {
                     Assertions.assertEquals(1L,  detail.data().getOrderNumber().getOrderNumber());
-                    Assertions.assertEquals(UseCaseNotificationType.WARN,  detail.notifications().getFirst().notificationType());
-                    Assertions.assertEquals("Inventory Data Not Available.",  detail.notifications().getFirst().notificationMessage());
+                    Assertions.assertEquals(UseCaseNotificationType.ERROR,  detail.notifications().getFirst().useCaseMessageType().getType());
+                    Assertions.assertEquals("Inventory Service is down.",  detail.notifications().getFirst().useCaseMessageType().getMessage());
                 }
             )
             .verifyComplete();

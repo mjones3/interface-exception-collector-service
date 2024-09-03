@@ -6,6 +6,7 @@ import java.io.Serializable;
 
 @Builder
 public record NotificationDTO(
+    String name,
     String notificationType,
     String notificationMessage
 ) implements Serializable {

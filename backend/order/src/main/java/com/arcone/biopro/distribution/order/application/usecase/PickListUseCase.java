@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.order.application.usecase;
 
+import com.arcone.biopro.distribution.order.application.dto.UseCaseMessageType;
 import com.arcone.biopro.distribution.order.application.dto.UseCaseNotificationDTO;
 import com.arcone.biopro.distribution.order.application.dto.UseCaseNotificationType;
 import com.arcone.biopro.distribution.order.application.dto.UseCaseResponseDTO;
@@ -89,8 +90,7 @@ public class PickListUseCase implements PickListService {
     private UseCaseResponseDTO<PickList> buildErrorResponse(){
         return new UseCaseResponseDTO<>(List.of(UseCaseNotificationDTO
             .builder()
-            .notificationType(UseCaseNotificationType.ERROR)
-            .notificationMessage("Inventory Service is down.")
+            .useCaseMessageType(UseCaseMessageType.INVENTORY_SERVICE_IS_DOWN)
             .build()), null);
     }
 }
