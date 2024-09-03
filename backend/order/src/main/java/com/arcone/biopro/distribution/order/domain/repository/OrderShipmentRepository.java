@@ -8,4 +8,6 @@ public interface OrderShipmentRepository {
     Mono<OrderShipment> insert(final OrderShipment orderShipment);
 
     Mono<OrderShipment> findOneByOrderId(final Long orderId);
+
+    Mono<OrderShipment> update(final OrderShipment orderShipment);
 }

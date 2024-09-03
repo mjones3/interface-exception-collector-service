@@ -37,4 +37,11 @@ public class OrderShipmentRepositoryImpl implements OrderShipmentRepository {
             .one()
             .map(orderShipmentEntityMapper::mapToDomain);
     }
+
+    @Override
+    public Mono<OrderShipment> update(OrderShipment orderShipment) {
+        return this.entityTemplate
+            .update(orderShipmentEntityMapper.mapToEntity(orderShipment))
+            .map(orderShipmentEntityMapper::mapToDomain);
+    }
 }

@@ -36,4 +36,8 @@ public class OrderShipment implements Validatable {
         Assert.notNull(createDate, "Create Date cannot be null");
 
     }
+
+    public void setShipmentStatus(String status){
+        this.shipmentStatus = status;
+    }
 }

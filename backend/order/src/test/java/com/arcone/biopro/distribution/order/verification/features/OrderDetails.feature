@@ -55,8 +55,8 @@ Feature: View order details
 
 
         Rule: I should be able to see the number of products that have been shipped for each order.
-        #Rule: I should be able to see the number of products that have been shipped for each line item in an order.
-        #Rule: The shipment status must be updated to Completed when the shipment completed event is generated on order details page.
+        Rule: I should be able to see the number of products that have been shipped for each line item in an order.
+        Rule: The shipment status must be updated to Completed when the shipment completed event is generated on order details page.
         Scenario Outline: Progress of the Order Fulfillment
             Given I have a Biopro Order with externalId "<External ID>", Location Code "<LocationCode>", Priority "<Priority>", Status "<Status>", shipment type "<Shipment Type>", delivery type "<Delivery Type>", shipping method "<Shipping Method>", product category "<Product Category>", desired ship date "<Desired Date>", shipping customer code and name as "<Shipping Customer Code>" and "<Shipping Customer Name>", billing customer code and name as "<Billing Customer Code>" and "<Billing Customer Name>", and comments "<Order Comments>".
             And I have 2 order items with product families "<ProductFamily>", blood types "<BloodType>", quantities "<Quantity>", and order item comments "<Item Comments>".
@@ -64,9 +64,9 @@ Feature: View order details
             And I am logged in the location "<LocationCode>".
             When I navigate to the order details page.
             Then I can see the pending log of products is updated with 1 product(s) out of 5.
-            #And I can see the Filled Products section filled with the amount of shipped products.
-            #And I can see the shipment status as "COMPLETED".
+            And I can see the Filled Products section filled with "<Filled Quantity>" shipped products.
+            And I can see the shipment status as "COMPLETED".
 
             Examples:
-                | External ID | LocationCode | Priority | Status      | ProductFamily                            | BloodType | Quantity | Shipment Type | Shipping Method | Product Category | Desired Date | Shipping Customer Code | Shipping Customer Name     | Billing Customer Code | Billing Customer Name      | Order Comments     | Item Comments                |
-                | ORDER004    | MDL_HUB_1    | STAT     | IN_PROGRESS | PLASMA_TRANSFUSABLE, PLASMA_TRANSFUSABLE | AB, O     | 3, 2     | CUSTOMER      | FEDEX           | FROZEN           | 2024-08-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap, Another comment |
+                | External ID | LocationCode | Priority | Status      | ProductFamily                            | BloodType | Quantity | Filled Quantity | Shipment Type | Shipping Method | Product Category | Desired Date | Shipping Customer Code | Shipping Customer Name     | Billing Customer Code | Billing Customer Name      | Order Comments     | Item Comments                |
+                | ORDER004    | MDL_HUB_1    | STAT     | IN_PROGRESS | PLASMA_TRANSFUSABLE, PLASMA_TRANSFUSABLE | AB, O     | 3, 2     | 1, 0            | CUSTOMER      | FEDEX           | FROZEN           | 2024-08-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap, Another comment |

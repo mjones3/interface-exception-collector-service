@@ -86,6 +86,10 @@ public class OrderDetailsPage extends CommonPageFactory {
         return String.format("//*[@id='prodTableId']/*//tbody//tr//td[normalize-space()='%s']/following-sibling::td[normalize-space()='%s']/following-sibling::td[normalize-space()='%s']", productFamily.toUpperCase(), bloodType.toUpperCase(), quantity);
     }
 
+    private String filledProductDetails(String productFamily, String bloodType, String quantity, String filledQuantity) {
+        return String.format("//*[@id='prodTableId']/*//tbody//tr//td[normalize-space()='%s']/following-sibling::td[normalize-space()='%s']/following-sibling::td[normalize-space()='%s']/following-sibling::td[normalize-space()='%s']", productFamily.toUpperCase(), bloodType.toUpperCase(), quantity, filledQuantity);
+    }
+
     private String availableInventory(String productFamily, String bloodType, Integer quantity) {
         return String.format("//*[@id='prodTableId']/*//tbody//tr//td[normalize-space()='%s']/following-sibling::td[normalize-space()='%s']/following-sibling::td[normalize-space()='%s']/following-sibling::td[1]", productFamily.toUpperCase(), bloodType.toUpperCase(), quantity);
     }
@@ -104,6 +108,10 @@ public class OrderDetailsPage extends CommonPageFactory {
 
     private String shipmentTableDetails(String detail) {
         return String.format("//p-table[@id='shipmentsTableId']//td[text()='%s']", detail);
+    }
+
+    private String expectedFilledOrderQuantity(String quantity){
+        return String.format("//*[@id='filledOrdersCount'][normalize-space()='%s']", quantity);
     }
 
     // Strings mappers
@@ -280,11 +288,20 @@ public class OrderDetailsPage extends CommonPageFactory {
 
     public void assertFilledProductIs(Integer filledProducts) {
         sharedActions.waitForVisible(filledProductsCountLabel);
+        sharedActions.waitForVisible(By.xpath(expectedFilledOrderQuantity(filledProducts.toString())));
         Assert.assertEquals(filledProducts, Integer.valueOf(driver.findElement(filledProductsCountLabel).getText()));
     }
 
     public void assertTotalProductIs(Integer totalProducts) {
         sharedActions.waitForVisible(totalProductsCountLabel);
         Assert.assertEquals(totalProducts, Integer.valueOf(driver.findElement(totalProductsCountLabel).getText()));
+    }
+
+    public void verifyFilledProductsSection(String productFamily, String bloodType, String quantity, String filledQuantity){
+        sharedActions.waitForVisible(By.xpath(filledProductDetails(productFamily, bloodType, quantity, filledQuantity)));
+    }
+
+    public void verifyShipmentStatus(String shipmentStatus) {
+        sharedActions.waitForVisible(By.xpath(shipmentTableDetails(shipmentStatus)));
     }
 }
