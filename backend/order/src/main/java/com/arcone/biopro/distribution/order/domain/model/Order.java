@@ -195,4 +195,8 @@ public class Order implements Validatable {
             .stream()
             .reduce(0, (partialAgeResult, orderItem) -> partialAgeResult + orderItem.getQuantity(), Integer::sum);
     }
+
+    public boolean isCompleted() {
+        return this.totalRemaining.equals(0);
+    }
 }
