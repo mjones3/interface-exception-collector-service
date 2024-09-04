@@ -199,8 +199,9 @@ type PickListDTO {
 }
 
 type NotificationDTO {
-    notificationType:String
-    notificationMessage:String
+    name: String
+    notificationType: String
+    notificationMessage: String
 }
 
 type PickListCustomerDTO {
