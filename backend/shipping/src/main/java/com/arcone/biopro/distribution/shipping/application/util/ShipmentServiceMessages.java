@@ -19,6 +19,7 @@ public class ShipmentServiceMessages {
     public static final String INVENTORY_QUARANTINED_ERROR = "This product is quarantined and cannot be shipped.";
     public static final String INVENTORY_NOT_FOUND_ERROR = "This product is not in the inventory and cannot be shipped.";
     public static final String FACILITY_NOT_FOUND_ERROR = "Facility not found.";
+    public static final String INVENTORY_VALIDATION_FAILED = "Inventory Validation failed.";
 
     //    Success messages
     public static final String SHIPMENT_COMPLETED_SUCCESS = "Shipment completed.";
