@@ -87,8 +87,8 @@ class InventoryAggregateTest {
     void testCreateQuarantinesNotificationMessage_ShouldReturnCorrectMessages() {
         // Arrange
         Quarantine quarantineMock = mock(Quarantine.class);
-        when(quarantineMock.reason()).thenReturn(OTHER_SEE_COMMENTS);
-        when(quarantineMock.comment()).thenReturn("Special case");
+        when(quarantineMock.getReason()).thenReturn(OTHER_SEE_COMMENTS);
+        when(quarantineMock.getComment()).thenReturn("Special case");
         when(inventoryMock.getInventoryStatus()).thenReturn(InventoryStatus.QUARANTINED);
         when(inventoryMock.getQuarantines()).thenReturn(List.of(quarantineMock));
 

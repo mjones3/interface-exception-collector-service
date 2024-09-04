@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.inventory.infrastructure.config;
 
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.label.LabelAppliedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.RemoveQuarantinedMessage;
 import com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput;
 import io.github.springwolf.core.asyncapi.annotations.AsyncListener;
 import io.github.springwolf.core.asyncapi.annotations.AsyncOperation;
@@ -41,6 +42,8 @@ class KafkaConfiguration {
     @Value("${topic.product-discarded.name}")
     private String productDiscardedTopic;
 
+    @Value("${topic.product-remove-quarantined.name}")
+    private String removeQuarantinedTopic;
 
     @Bean
     @Qualifier("LABEL_APPLIED")
@@ -114,6 +117,25 @@ class KafkaConfiguration {
     @Bean(name = "PRODUCT_DISCARDED_CONSUMER")
     ReactiveKafkaConsumerTemplate<String, String> productDiscardedConsumerTemplate(
         @Qualifier("PRODUCT_DISCARDED") ReceiverOptions<String, String> receiverOptions
+    ) {
+        return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
+    }
+
+    @Bean
+    @Qualifier("PRODUCT_REMOVE_QUARANTINED")
+    ReceiverOptions<String, String> productRemoveQuarantinedReceiverOptions(KafkaProperties kafkaProperties) {
+        return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
+            .subscription(List.of(removeQuarantinedTopic));
+    }
+
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "ProductRemoveQuarantined",
+        description = "Product Quarantine is removed.",
+        payloadType = RemoveQuarantinedMessage.class
+    ))
+    @Bean(name = "PRODUCT_REMOVE_QUARANTINED_CONSUMER")
+    ReactiveKafkaConsumerTemplate<String, String> productRemoveQuarantinedConsumerTemplate(
+        @Qualifier("PRODUCT_REMOVE_QUARANTINED") ReceiverOptions<String, String> receiverOptions
     ) {
         return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
     }

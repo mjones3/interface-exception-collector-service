@@ -3,6 +3,8 @@ package com.arcone.biopro.distribution.inventory.verification.steps;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ProductFamily;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.QuarantineReason;
+import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntity;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntityRepository;
 import com.arcone.biopro.distribution.inventory.verification.common.ScenarioContext;
@@ -20,6 +22,7 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static com.arcone.biopro.distribution.inventory.verification.steps.UseCaseSteps.quarantineReasonMap;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
@@ -110,10 +113,10 @@ public class RepositorySteps {
 
         assert inventory != null;
         fail("Step code commented because changes for LAB-79 are not done on application side");
-//        List<ProductQuarantinedEntity> productQuarantines = productQuarantinedEntityRepository.findAllByProductId(product.getId()).collectList().block();
-//
-//        List<ProductQuarantinedEntity> productsReason = productQuarantines.stream().filter(q -> q.getReason().equals(QuarantineReason.valueOf(quarantineReasonMap.get(quarantineReason))) && q.getId().equals(quarantineReasonId)).toList();
-//
-//        assertEquals(Boolean.valueOf(isFound), !productsReason.isEmpty());
+        List<Quarantine> inventoryQuarantines = inventory.getQuarantines();
+        List<Quarantine> productsReason = inventoryQuarantines.stream().filter(q -> quarantineReasonMap.get(quarantineReason)
+            .equals(q.getReason()) && q.getExternId().equals(Long.parseLong(quarantineReasonId))).toList();
+
+        assertEquals(Boolean.valueOf(isFound), !productsReason.isEmpty());
     }
 }

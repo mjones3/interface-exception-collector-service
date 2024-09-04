@@ -283,3 +283,5 @@ topic:
     name: ProductStored
   product-discarded:
     name: ProductDiscarded
+  product-quarantined:
+    name: ProductQuarantined

@@ -6,6 +6,8 @@ import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhCriteria;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ProductFamily;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ProductStatus;
+import com.arcone.biopro.distribution.inventory.domain.model.vo.Comment;
 import com.arcone.biopro.distribution.inventory.domain.repository.InventoryAggregateRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,7 +49,7 @@ class GetAllAvailableInventoriesUseCaseTest {
         InventoryCriteria criteria = new InventoryCriteria(ProductFamily.PLASMA_TRANSFUSABLE, AboRhCriteria.A);
         GetAllAvailableInventoriesInput input = new GetAllAvailableInventoriesInput(LOCATION_1, List.of(criteria));
         List<InventoryAggregate> aggregates = Collections.singletonList(InventoryAggregate.builder().build());
-        Product product = new Product("W123456789012", "E0980V99", LOCATION_1, AboRhType.ABN);
+        Product product = new Product("W123456789012", "E0980V99", LOCATION_1, AboRhType.ABN, new Comment(ProductStatus.READY_TO_BE_LABELED.getDescription()));
         InventoryFamily inventoryFamily = new InventoryFamily(ProductFamily.PLASMA_TRANSFUSABLE, AboRhCriteria.A, 1L, List.of(product));
         GetAllAvailableInventoriesOutput expectedOutput = new GetAllAvailableInventoriesOutput(LOCATION_1, List.of(inventoryFamily));
 
