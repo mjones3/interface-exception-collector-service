@@ -6,7 +6,11 @@ import java.io.Serializable;
 
 @Builder
 public record InventoryNotificationDTO(
+    String errorName,
     Integer errorCode,
-    String errorMessage
+    String errorMessage,
+    String errorType,
+    String action,
+    String reason
 ) implements Serializable {
 }

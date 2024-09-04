@@ -62,9 +62,9 @@ class InventoryMockControllerTest {
         StepVerifier.create(inventoryResponse)
             .consumeNextWith(detail -> {
                 assertNull(detail.inventoryResponseDTO());
-                assertNotNull(detail.inventoryNotificationDTO());
-                assertEquals(Optional.of(1), Optional.of(detail.inventoryNotificationDTO().errorCode()));
-                assertEquals(Optional.of(ShipmentServiceMessages.INVENTORY_NOT_FOUND_ERROR), Optional.of(detail.inventoryNotificationDTO().errorMessage()));
+                assertNotNull(detail.inventoryNotificationsDTO().getFirst());
+                assertEquals(Optional.of(1), Optional.of(detail.inventoryNotificationsDTO().getFirst().errorCode()));
+                assertEquals(Optional.of(ShipmentServiceMessages.INVENTORY_NOT_FOUND_ERROR), Optional.of(detail.inventoryNotificationsDTO().getFirst().errorMessage()));
             })
             .verifyComplete();
     }
@@ -84,9 +84,9 @@ class InventoryMockControllerTest {
         StepVerifier.create(inventoryResponse)
             .consumeNextWith(detail -> {
                 assertNull(detail.inventoryResponseDTO());
-                assertNotNull(detail.inventoryNotificationDTO());
-                assertEquals(Optional.of(4), Optional.of(detail.inventoryNotificationDTO().errorCode()));
-                assertEquals(Optional.of(ShipmentServiceMessages.INVENTORY_QUARANTINED_ERROR), Optional.of(detail.inventoryNotificationDTO().errorMessage()));
+                assertNotNull(detail.inventoryNotificationsDTO().getFirst());
+                assertEquals(Optional.of(4), Optional.of(detail.inventoryNotificationsDTO().getFirst().errorCode()));
+                assertEquals(Optional.of(ShipmentServiceMessages.INVENTORY_QUARANTINED_ERROR), Optional.of(detail.inventoryNotificationsDTO().getFirst().errorMessage()));
             })
             .verifyComplete();
     }
@@ -105,9 +105,9 @@ class InventoryMockControllerTest {
         StepVerifier.create(inventoryResponse)
             .consumeNextWith(detail -> {
                 assertNull(detail.inventoryResponseDTO());
-                assertNotNull(detail.inventoryNotificationDTO());
-                assertEquals(Optional.of(3), Optional.of(detail.inventoryNotificationDTO().errorCode()));
-                assertEquals(Optional.of(ShipmentServiceMessages.INVENTORY_DISCARDED_ERROR), Optional.of(detail.inventoryNotificationDTO().errorMessage()));
+                assertNotNull(detail.inventoryNotificationsDTO().getFirst());
+                assertEquals(Optional.of(3), Optional.of(detail.inventoryNotificationsDTO().getFirst().errorCode()));
+                assertEquals(Optional.of(ShipmentServiceMessages.INVENTORY_DISCARDED_ERROR), Optional.of(detail.inventoryNotificationsDTO().getFirst().errorMessage()));
             })
             .verifyComplete();
     }
@@ -127,9 +127,9 @@ class InventoryMockControllerTest {
         StepVerifier.create(inventoryResponse)
             .consumeNextWith(detail -> {
                 assertNull(detail.inventoryResponseDTO());
-                assertNotNull(detail.inventoryNotificationDTO());
-                assertEquals(Optional.of(2), Optional.of(detail.inventoryNotificationDTO().errorCode()));
-                assertEquals(Optional.of(ShipmentServiceMessages.INVENTORY_EXPIRED_ERROR), Optional.of(detail.inventoryNotificationDTO().errorMessage()));
+                assertNotNull(detail.inventoryNotificationsDTO().getFirst());
+                assertEquals(Optional.of(2), Optional.of(detail.inventoryNotificationsDTO().getFirst().errorCode()));
+                assertEquals(Optional.of(ShipmentServiceMessages.INVENTORY_EXPIRED_ERROR), Optional.of(detail.inventoryNotificationsDTO().getFirst().errorMessage()));
             })
             .verifyComplete();
     }

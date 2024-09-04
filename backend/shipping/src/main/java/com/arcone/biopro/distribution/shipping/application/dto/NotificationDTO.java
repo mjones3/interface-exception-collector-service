@@ -6,9 +6,12 @@ import java.io.Serializable;
 
 @Builder
 public record NotificationDTO(
+    String name,
     int statusCode,
     String notificationType,
-    String message
-
+    String message,
+    Integer code,
+    String action,
+    String reason
 ) implements Serializable {
 }
