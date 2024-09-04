@@ -114,6 +114,7 @@ public class SharedActions {
 
     public void clickElementAndMoveToNewTab(WebDriver driver, WebElement element, int expectedWindowsNumber) {
         this.click(element);
+        log.info("Waiting for {} windows to be open. Currently: {}", expectedWindowsNumber, driver.getWindowHandles().size());
         wait.until(numberOfWindowsToBe(expectedWindowsNumber));
         driver.switchTo().window(driver.getWindowHandles().toArray(new String[0])[1]);
     }

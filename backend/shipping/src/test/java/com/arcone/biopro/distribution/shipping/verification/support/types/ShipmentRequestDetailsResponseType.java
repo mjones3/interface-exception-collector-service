@@ -17,7 +17,7 @@ public class ShipmentRequestDetailsResponseType {
     String priority;
     String status;
     ZonedDateTime createDate;
-    Long shippingCustomerCode;
+    String shippingCustomerCode;
     Long billingCustomerCode;
     String locationCode;
     String deliveryType;
