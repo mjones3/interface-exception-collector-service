@@ -159,8 +159,12 @@ type RuleResponseDTO {
 }
 
 type NotificationDTO {
+    name:String
     statusCode:Int
     notificationType:String
+    code:Int
+    action:String
+    reason:String
     message:String
 }
 

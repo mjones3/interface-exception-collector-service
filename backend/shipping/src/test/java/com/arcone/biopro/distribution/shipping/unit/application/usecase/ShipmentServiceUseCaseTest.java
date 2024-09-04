@@ -197,10 +197,14 @@ class ShipmentServiceUseCaseTest {
     public void shouldNotPackItemWhenInventoryValidationFails(){
 
         InventoryValidationResponseDTO validationResponseDTO = Mockito.mock(InventoryValidationResponseDTO.class);
-        Mockito.when(validationResponseDTO.inventoryNotificationDTO()).thenReturn(InventoryNotificationDTO.builder()
+        Mockito.when(validationResponseDTO.inventoryNotificationsDTO()).thenReturn(List.of(InventoryNotificationDTO.builder()
                 .errorMessage(ShipmentServiceMessages.INVENTORY_TEST_ERROR)
+                .reason("REASON")
+                .errorType("TYPE")
+                .errorName("NAME")
+                .action("ACTION")
                 .errorCode(1)
-            .build());
+            .build()));
 
         Mockito.when(inventoryRsocketClient.validateInventory(Mockito.any(InventoryValidationRequest.class))).thenReturn(Mono.just(validationResponseDTO));
 
@@ -218,8 +222,11 @@ class ShipmentServiceUseCaseTest {
             .consumeNextWith(detail -> {
                 assertEquals(Optional.of(HttpStatus.BAD_REQUEST), Optional.of(detail.ruleCode()));
                 assertEquals(Optional.of(HttpStatus.BAD_REQUEST.value()), Optional.of(detail.notifications().get(0).statusCode()));
-                assertEquals(Optional.of("error"), Optional.of(detail.notifications().get(0).notificationType()));
                 assertEquals(Optional.of(ShipmentServiceMessages.INVENTORY_TEST_ERROR), Optional.of(detail.notifications().get(0).message()));
+                assertEquals(Optional.of("REASON"), Optional.of(detail.notifications().get(0).reason()));
+                assertEquals(Optional.of("TYPE"), Optional.of(detail.notifications().get(0).notificationType()));
+                assertEquals(Optional.of("NAME"), Optional.of(detail.notifications().get(0).name()));
+                assertEquals(Optional.of("ACTION"), Optional.of(detail.notifications().get(0).action()));
             })
             .verifyComplete();
     }
@@ -262,7 +269,7 @@ class ShipmentServiceUseCaseTest {
             .consumeNextWith(detail -> {
                 assertEquals(Optional.of(HttpStatus.BAD_REQUEST), Optional.of(detail.ruleCode()));
                 assertEquals(Optional.of(HttpStatus.BAD_REQUEST.value()), Optional.of(detail.notifications().get(0).statusCode()));
-                assertEquals(Optional.of("error"), Optional.of(detail.notifications().get(0).notificationType()));
+                assertEquals(Optional.of("ERROR"), Optional.of(detail.notifications().get(0).notificationType()));
                 assertEquals(Optional.of(ShipmentServiceMessages.PRODUCT_CRITERIA_BLOOD_TYPE_ERROR), Optional.of(detail.notifications().get(0).message()));
             })
             .verifyComplete();
@@ -309,7 +316,7 @@ class ShipmentServiceUseCaseTest {
             .consumeNextWith(detail -> {
                 assertEquals(Optional.of(HttpStatus.BAD_REQUEST), Optional.of(detail.ruleCode()));
                 assertEquals(Optional.of(HttpStatus.BAD_REQUEST.value()), Optional.of(detail.notifications().get(0).statusCode()));
-                assertEquals(Optional.of("error"), Optional.of(detail.notifications().get(0).notificationType()));
+                assertEquals(Optional.of("ERROR"), Optional.of(detail.notifications().get(0).notificationType()));
                 assertEquals(Optional.of(ShipmentServiceMessages.PRODUCT_CRITERIA_QUANTITY_ERROR), Optional.of(detail.notifications().get(0).message()));
             })
             .verifyComplete();
@@ -356,7 +363,7 @@ class ShipmentServiceUseCaseTest {
             .consumeNextWith(detail -> {
                 assertEquals(Optional.of(HttpStatus.BAD_REQUEST), Optional.of(detail.ruleCode()));
                 assertEquals(Optional.of(HttpStatus.BAD_REQUEST.value()), Optional.of(detail.notifications().get(0).statusCode()));
-                assertEquals(Optional.of("error"), Optional.of(detail.notifications().get(0).notificationType()));
+                assertEquals(Optional.of("ERROR"), Optional.of(detail.notifications().get(0).notificationType()));
                 assertEquals(Optional.of(ShipmentServiceMessages.PRODUCT_ALREADY_USED_ERROR), Optional.of(detail.notifications().get(0).message()));
             })
             .verifyComplete();
@@ -460,7 +467,7 @@ class ShipmentServiceUseCaseTest {
             .consumeNextWith(detail -> {
                 assertEquals(Optional.of(HttpStatus.BAD_REQUEST), Optional.of(detail.ruleCode()));
                 assertEquals(Optional.of(HttpStatus.BAD_REQUEST.value()), Optional.of(detail.notifications().get(0).statusCode()));
-                assertEquals(Optional.of("error"), Optional.of(detail.notifications().get(0).notificationType()));
+                assertEquals(Optional.of("ERROR"), Optional.of(detail.notifications().get(0).notificationType()));
                 assertEquals(Optional.of(ShipmentServiceMessages.SHIPMENT_NOT_FOUND_ERROR), Optional.of(detail.notifications().get(0).message()));
             })
             .verifyComplete();
@@ -487,7 +494,7 @@ class ShipmentServiceUseCaseTest {
             .consumeNextWith(detail -> {
                 assertEquals(Optional.of(HttpStatus.BAD_REQUEST), Optional.of(detail.ruleCode()));
                 assertEquals(Optional.of(HttpStatus.BAD_REQUEST.value()), Optional.of(detail.notifications().get(0).statusCode()));
-                assertEquals(Optional.of("error"), Optional.of(detail.notifications().get(0).notificationType()));
+                assertEquals(Optional.of("ERROR"), Optional.of(detail.notifications().get(0).notificationType()));
                 assertEquals(Optional.of(ShipmentServiceMessages.SHIPMENT_COMPLETED_ERROR), Optional.of(detail.notifications().get(0).message()));
             })
             .verifyComplete();

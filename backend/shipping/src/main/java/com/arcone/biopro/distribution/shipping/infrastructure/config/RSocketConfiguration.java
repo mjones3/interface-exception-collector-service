@@ -30,6 +30,7 @@ public class RSocketConfiguration {
 
     @Bean
     public RSocketRequester getRSocketRequester(RSocketStrategies rSocketStrategies){
+        log.debug("Creating RSocketRequester... Host:{} , Port:{}", rsocketServerHost, rsocketServerPort);
         RSocketRequester.Builder builder = RSocketRequester.builder();
         return builder
             .rsocketConnector(
