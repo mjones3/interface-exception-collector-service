@@ -1,48 +1,65 @@
 import { gql } from 'apollo-angular';
 import { OrderDetailsDTO } from '../../models/order-details.dto';
 
+export interface Notification {
+    name: string;
+    notificationType: string;
+    notificationMessage: string;
+}
 export const GET_ORDER_BY_ID = gql<
-    { findOrderById: OrderDetailsDTO },
+    {
+        findOrderById: {
+            notifications: Notification[];
+            data: OrderDetailsDTO;
+        };
+    },
     { orderId: number }
 >`
     query FindOrderById($orderId: ID!) {
         findOrderById(orderId: $orderId) {
-            id
-            orderNumber
-            externalId
-            locationCode
-            shipmentType
-            shippingMethod
-            shippingCustomerName
-            shippingCustomerCode
-            billingCustomerName
-            billingCustomerCode
-            desiredShippingDate
-            willCallPickup
-            phoneNumber
-            productCategory
-            comments
-            status
-            priority
-            createEmployeeId
-            createDate
-            modificationDate
-            deleteDate
-            totalShipped
-            totalProducts
-            totalRemaining
-            orderItems {
+            notifications {
+                name
+                notificationType
+                notificationMessage
+            }
+            data {
                 id
-                orderId
-                productFamily
-                bloodType
-                quantity
+                orderNumber
+                externalId
+                locationCode
+                shipmentType
+                shippingMethod
+                shippingCustomerName
+                shippingCustomerCode
+                billingCustomerName
+                billingCustomerCode
+                desiredShippingDate
+                willCallPickup
+                phoneNumber
+                productCategory
                 comments
+                status
+                priority
+                createEmployeeId
                 createDate
                 modificationDate
-                quantityAvailable
-                quantityRemaining
-                quantityShipped
+                deleteDate
+                totalShipped
+                totalRemaining
+                totalProducts
+                orderItems {
+                    id
+                    orderId
+                    productFamily
+                    bloodType
+                    quantity
+                    comments
+                    createDate
+                    modificationDate
+                    quantityAvailable
+                    quantityShipped
+                    quantityRemaining
+                }
             }
         }
     }

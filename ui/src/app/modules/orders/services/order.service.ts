@@ -1,10 +1,8 @@
 import { Injectable } from '@angular/core';
 import { ApolloQueryResult } from '@apollo/client';
-import { Description } from '@shared';
 import { MutationResult } from 'apollo-angular';
 import { Observable } from 'rxjs';
 import { DynamicGraphqlPathService } from '../../../core/services/dynamic-graphql-path.service';
-import { OrderStatusMap } from '../../../shared/models/order-status.model';
 import { SEARCH_ORDERS } from '../../shipments/graphql/order/query-definitions/search-orders.graphql';
 import {
     GENERATE_PICK_LIST,
@@ -13,6 +11,7 @@ import {
 import {
     FIND_ORDER_SHIPMENT_BY_ORDER_ID,
     GET_ORDER_BY_ID,
+    Notification,
     OrderShipmentDTO,
 } from '../graphql/query-definitions/order-details.graphql';
 import { OrderDetailsDTO } from '../models/order-details.dto';
@@ -39,9 +38,14 @@ export class OrderService {
         );
     }
 
-    public getOrderById(
-        orderId: number
-    ): Observable<ApolloQueryResult<{ findOrderById: OrderDetailsDTO }>> {
+    public getOrderById(orderId: number): Observable<
+        ApolloQueryResult<{
+            findOrderById: {
+                notifications: Notification[];
+                data: OrderDetailsDTO;
+            };
+        }>
+    > {
         return this.dynamicGraphqlPathService.executeQuery(
             this.servicePath,
             GET_ORDER_BY_ID,
@@ -69,62 +73,5 @@ export class OrderService {
             FIND_ORDER_SHIPMENT_BY_ORDER_ID,
             { orderId }
         );
-    }
-
-    public getOrderInfoDescriptions(orderInfo: OrderDetailsDTO): Description[] {
-        return [
-            {
-                label: 'BioPro Order Number',
-                value: orderInfo?.orderNumber?.toString(),
-            },
-            {
-                label: 'External order ID',
-                value: orderInfo?.externalId,
-            },
-            {
-                label: 'Priority',
-                value: orderInfo?.priority,
-            },
-            {
-                label: 'Status',
-                value: orderInfo?.status
-                    ? OrderStatusMap[orderInfo.status]
-                    : 'Unknown',
-            },
-        ];
-    }
-
-    public getShippingInfoDescriptions(
-        orderInfo: OrderDetailsDTO
-    ): Description[] {
-        return [
-            {
-                label: 'Customer Code',
-                value: orderInfo?.shippingCustomerCode.toString(),
-            },
-            {
-                label: 'Customer Name',
-                value: orderInfo?.shippingCustomerName.toString(),
-            },
-            {
-                label: 'Shipping Method',
-                value: orderInfo?.shippingMethod.toString(),
-            },
-        ];
-    }
-
-    public getBillingInfoDescriptions(
-        orderInfo: OrderDetailsDTO
-    ): Description[] {
-        return [
-            {
-                label: 'Billing Customer Code',
-                value: orderInfo?.billingCustomerCode.toString(),
-            },
-            {
-                label: 'Billing Customer Name',
-                value: orderInfo?.billingCustomerName.toString(),
-            },
-        ];
     }
 }
