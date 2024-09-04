@@ -10,5 +10,6 @@ public interface RemoveQuarantinedMessageMapper {
     @Mapping(target = "product.unitNumber", source = "unitNumber")
     @Mapping(target = "product.productCode", source = "productCode")
     @Mapping(target = "quarantineReason", source = "reason")
+    @Mapping(target = "quarantineId", source = "id")
     QuarantineProductInput toInput(RemoveQuarantinedMessage productMessage);
 }

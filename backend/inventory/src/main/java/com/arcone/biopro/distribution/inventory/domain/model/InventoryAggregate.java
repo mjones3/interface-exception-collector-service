@@ -5,6 +5,7 @@ import com.arcone.biopro.distribution.inventory.domain.model.enumeration.Invento
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.MessageType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.QuarantineReason;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.NotificationMessage;
+import com.arcone.biopro.distribution.inventory.domain.model.vo.History;
 import lombok.Builder;
 import lombok.Getter;
 import org.apache.logging.log4j.util.Strings;
@@ -22,12 +23,6 @@ public class InventoryAggregate {
     Inventory inventory;
 
     List<NotificationMessage> notificationMessages;
-
-    @Builder.Default
-    List<ProductQuarantine> productQuarantines = new ArrayList<>();
-
-    ProductHistory previousProductHistory;
-
 
     public Boolean isExpired() {
         return inventory.getExpirationDate().isBefore(LocalDateTime.now());
@@ -73,7 +68,7 @@ public class InventoryAggregate {
             .map(q -> new NotificationMessage(
                 qt.name(),
                 qt.getCode(),
-                !q.reason().equals(OTHER_SEE_COMMENTS) ? q.reason() : String.format("%s: %s", OTHER_SEE_COMMENTS, q.comment()),
+                !q.getReason().equals(OTHER_SEE_COMMENTS) ? q.getReason() : String.format("%s: %s", OTHER_SEE_COMMENTS, q.getComment()),
                 qt.getType().name(),
                 qt.getAction().name()))
             .toList();
@@ -97,21 +92,22 @@ public class InventoryAggregate {
         return this;
     }
 
-    public InventoryAggregate removeQuarantine(QuarantineReason quarantineReason) {
-        productQuarantines = productQuarantines.stream().filter(q -> !q.getReason().equals(quarantineReason)).toList();
-
-        if (productQuarantines.isEmpty()) {
-            this.recoverProduct();
+    public InventoryAggregate removeQuarantine(Long quarantineId) {
+        inventory.setQuarantines(inventory.getQuarantines().stream()
+            .filter(q -> !q.getExternId().equals(quarantineId)).toList());
+        if (inventory.getQuarantines().isEmpty()) {
+            return recoverProduct();
         }
-
         return this;
     }
 
     public InventoryAggregate recoverProduct() {
-        var oldPreviousProductHistory = previousProductHistory;
-        previousProductHistory = new ProductHistory(UUID.fromString(inventory.getProductCode().value()), inventory.getComments());
-//        inventory.restorePreviousHistory(oldPreviousProductHistory);
-
+        History historyNewObj = new History(inventory.getInventoryStatus(), inventory.getStatusReason());
+        inventory.getLastHistory().ifPresent(history -> {
+            inventory.setInventoryStatus(history.getInventoryStatus());
+            inventory.setStatusReason(history.getReason());
+        });
+        inventory.getHistories().add(historyNewObj);
         return this;
     }
 }

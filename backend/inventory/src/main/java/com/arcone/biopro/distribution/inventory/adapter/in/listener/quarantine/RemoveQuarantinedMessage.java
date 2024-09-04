@@ -2,7 +2,8 @@ package com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine;
 
 import java.time.ZonedDateTime;
 
-public record RemoveQuarantinedMessage(String unitNumber,
+public record RemoveQuarantinedMessage(
+    Long id, String unitNumber,
                                        String productCode,
                                        String reason,
                                        Boolean stopsManufacturing,
