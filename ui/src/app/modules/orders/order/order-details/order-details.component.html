@@ -76,7 +76,7 @@
 </ng-template>
 
 <ng-template #addedProductTpl let-review="review">
-    @if (products$ | async; as products) {
+    @if (products) {
         @if (products.length > 0) {
             <div class="my-4 flex flex-row items-end justify-between">
                 <div class="flex flex-row">
@@ -105,7 +105,7 @@
 
     <!--Order Details Table-->
     <div class="flex flex-auto flex-col gap-4">
-        @if (products$ | async; as products) {
+        @if (products) {
             @if (products.length > 0) {
                 <fuse-card class="flex-col">
                     <!-- Header Section -->
@@ -225,7 +225,21 @@
                                         {{ product?.quantity }}
                                     </td>
                                     <td>
-                                        {{ product?.quantityAvailable }}
+                                        @if (
+                                            inventoryServiceIsDownNotification;
+                                            as notification
+                                        ) {
+                                            <app-tag
+                                                leftIconRef="mat_outline:cloud_off"
+                                                type="info"
+                                                label="UNAVAILABLE"
+                                                [title]="
+                                                    notification.notificationMessage
+                                                "
+                                            />
+                                        } @else {
+                                            {{ product?.quantityAvailable }}
+                                        }
                                     </td>
                                     <td>
                                         <div
@@ -297,7 +311,7 @@
         }
 
         <!-- Shipment Details Table -->
-        @if (shipments$ | async; as shipments) {
+        @if (shipments) {
             @if (shipments.length > 0) {
                 <fuse-card class="flex-col pb-4">
                     <!-- Header Section -->
