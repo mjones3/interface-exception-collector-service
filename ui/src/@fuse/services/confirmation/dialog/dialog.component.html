@@ -75,7 +75,11 @@
         >
             <!-- Cancel -->
             @if (data.actions.cancel.show) {
-                <button mat-flat-button [matDialogClose]="'cancelled'">
+                <button
+                    mat-flat-button
+                    [matDialogClose]="'cancelled'"
+                    [class]="data.actions.cancel.class"
+                >
                     {{ data.actions.cancel.label }}
                 </button>
             }
@@ -84,7 +88,7 @@
             @if (data.actions.confirm.show) {
                 <button
                     mat-flat-button
-                    [color]="data.actions.confirm.color"
+                    [class]="data.actions.confirm.class"
                     [matDialogClose]="'confirmed'"
                 >
                     {{ data.actions.confirm.label }}

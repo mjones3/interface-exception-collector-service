@@ -21,6 +21,7 @@ import {
     DescriptionCardComponent,
     NotificationDto,
     NotificationType,
+    NotificationTypeMap,
     ProcessHeaderComponent,
     ProcessHeaderService,
     ProcessProductModel,
@@ -206,8 +207,13 @@ export class FillProductsComponent implements OnInit {
                     }
 
                     if (notifications) {
-                        if (NotificationType.info === 'INFO') {
-                            this.openConfirmationDialog(
+                        if (
+                            NotificationType.info ===
+                            NotificationTypeMap.get(
+                                notifications[0].notificationType
+                            )
+                        ) {
+                            return this.openConfirmationDialog(
                                 ruleResult.notifications
                             );
                         } else {
@@ -255,7 +261,7 @@ export class FillProductsComponent implements OnInit {
                 this.translateService.instant(notification.message),
                 null,
                 {},
-                notification.notificationType
+                NotificationTypeMap.get(notification.notificationType)
             );
         });
     }
@@ -274,6 +280,7 @@ export class FillProductsComponent implements OnInit {
                 confirm: {
                     label: 'Confirm',
                     show: true,
+                    class: 'bg-violet-300 text-violet-700 font-bold',
                 },
                 cancel: {
                     show: false,
