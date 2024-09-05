@@ -1,11 +1,7 @@
 import { gql } from 'apollo-angular';
+import { Notification } from '../../models/notification.dto';
 import { OrderDetailsDTO } from '../../models/order-details.dto';
 
-export interface Notification {
-    name: string;
-    notificationType: string;
-    notificationMessage: string;
-}
 export const GET_ORDER_BY_ID = gql<
     {
         findOrderById: {

@@ -11,9 +11,9 @@ import {
 import {
     FIND_ORDER_SHIPMENT_BY_ORDER_ID,
     GET_ORDER_BY_ID,
-    Notification,
     OrderShipmentDTO,
 } from '../graphql/query-definitions/order-details.graphql';
+import { Notification } from '../models/notification.dto';
 import { OrderDetailsDTO } from '../models/order-details.dto';
 import {
     OrderQueryCommandDTO,
@@ -54,12 +54,20 @@ export class OrderService {
     }
 
     public generatePickList(
-        orderId: number
-    ): Observable<MutationResult<{ generatePickList: PickListDTO }>> {
+        orderId: number,
+        skipInventoryUnavailable = false
+    ): Observable<
+        MutationResult<{
+            generatePickList: {
+                notifications: Notification[];
+                data: PickListDTO;
+            };
+        }>
+    > {
         return this.dynamicGraphqlPathService.executeMutation(
             this.servicePath,
             GENERATE_PICK_LIST,
-            { orderId }
+            { orderId, skipInventoryUnavailable }
         );
     }
 
