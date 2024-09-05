@@ -208,9 +208,12 @@ export class FillProductsComponent implements OnInit {
 
                     if (notifications) {
                         if (
-                            NotificationType.info ===
-                            NotificationTypeMap.get(
-                                notifications[0].notificationType
+                            notifications.find(
+                                (notification) =>
+                                    NotificationType.info ===
+                                    NotificationTypeMap[
+                                        notification.notificationType
+                                    ]
                             )
                         ) {
                             return this.openConfirmationDialog(
@@ -261,7 +264,7 @@ export class FillProductsComponent implements OnInit {
                 this.translateService.instant(notification.message),
                 null,
                 {},
-                NotificationTypeMap.get(notification.notificationType)
+                NotificationTypeMap[notification.notificationType]
             );
         });
     }

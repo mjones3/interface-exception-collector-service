@@ -5,12 +5,12 @@ export enum NotificationType {
     info = 'info',
 }
 
-export const NotificationTypeMap = new Map<string, NotificationType>([
-    ['success', NotificationType.success],
-    ['WARN', NotificationType.warning],
-    ['ERROR', NotificationType.error],
-    ['INFO', NotificationType.info],
-]);
+export const NotificationTypeMap: Record<string, NotificationType> = {
+    success: NotificationType.success,
+    WARN: NotificationType.warning,
+    ERROR: NotificationType.error,
+    INFO: NotificationType.info,
+};
 
 export interface NotificationDto {
     name?: string;
