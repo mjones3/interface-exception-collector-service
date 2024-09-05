@@ -7,10 +7,12 @@ Feature: Kafka listeners
         Then The inventory status is "<Status>"
 
         Examples:
-            | Event              | Status    |
-            | Label Applied      | AVAILABLE |
-            | Shipment Completed | SHIPPED   |
-            | Product Discarded  | DISCARDED |
+            | Event               | Status      |
+            | Label Applied       | AVAILABLE   |
+            | Shipment Completed  | SHIPPED     |
+            | Product Discarded   | DISCARDED   |
+            | Product Quarantined | QUARANTINED |
+            | Quarantine Removed  | AVAILABLE   |
 
     Scenario Outline: Application is listening storage events from kafka
         Given I am listening the "<Event>" event for "<Unit Number>"

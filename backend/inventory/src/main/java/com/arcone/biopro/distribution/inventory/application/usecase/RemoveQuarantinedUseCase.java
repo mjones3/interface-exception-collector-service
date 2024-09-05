@@ -1,8 +1,7 @@
 package com.arcone.biopro.distribution.inventory.application.usecase;
 
 import com.arcone.biopro.distribution.inventory.application.dto.InventoryOutput;
-import com.arcone.biopro.distribution.inventory.application.dto.Product;
-import com.arcone.biopro.distribution.inventory.application.dto.QuarantineProductInput;
+import com.arcone.biopro.distribution.inventory.application.dto.RemoveQuarantineInput;
 import com.arcone.biopro.distribution.inventory.application.mapper.InventoryOutputMapper;
 import com.arcone.biopro.distribution.inventory.domain.exception.InventoryNotFoundException;
 import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
@@ -18,17 +17,17 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-class RemoveQuarantinedProductUseCase implements UseCase<Mono<InventoryOutput>, QuarantineProductInput> {
+public class RemoveQuarantinedUseCase implements UseCase<Mono<InventoryOutput>, RemoveQuarantineInput> {
 
     InventoryAggregateRepository inventoryAggregateRepository;
 
     InventoryOutputMapper mapper;
 
     @Override
-    public Mono<InventoryOutput> execute(QuarantineProductInput quarantineProductInput) {
-        return inventoryAggregateRepository.findByUnitNumberAndProductCode(quarantineProductInput.product().unitNumber(), quarantineProductInput.product().productCode())
+    public Mono<InventoryOutput> execute(RemoveQuarantineInput removeQuarantineInput) {
+        return inventoryAggregateRepository.findByUnitNumberAndProductCode(removeQuarantineInput.product().unitNumber(), removeQuarantineInput.product().productCode())
             .switchIfEmpty(Mono.error(InventoryNotFoundException::new))
-            .flatMap(la -> inventoryAggregateRepository.saveInventory(la.removeQuarantine(quarantineProductInput.quarantineId())))
+            .flatMap(la -> inventoryAggregateRepository.saveInventory(la.removeQuarantine(removeQuarantineInput.quarantineId())))
             .map(InventoryAggregate::getInventory)
             .map(mapper::toOutput);    }
 }

@@ -1,19 +1,25 @@
 package com.arcone.biopro.distribution.inventory.verification.steps;
 
-import com.arcone.biopro.distribution.inventory.verification.common.ScenarioContext;
+import com.arcone.biopro.distribution.inventory.application.dto.AddQuarantineInput;
+import com.arcone.biopro.distribution.inventory.application.dto.Product;
+import com.arcone.biopro.distribution.inventory.application.dto.RemoveQuarantineInput;
+import com.arcone.biopro.distribution.inventory.application.usecase.AddQuarantinedUseCase;
+import com.arcone.biopro.distribution.inventory.application.usecase.RemoveQuarantinedUseCase;
 import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.fail;
-
 @Slf4j
 public class UseCaseSteps {
 
     @Autowired
-    private ScenarioContext scenarioContext;
+    private AddQuarantinedUseCase addQuarantinedUseCase;
+
+    @Autowired
+    private RemoveQuarantinedUseCase removeQuarantinedUseCase;
+
 
     public static final Map<String, String> quarantineReasonMap = Map.of(
         "ABS Positive","ABS_POSITIVE",
@@ -31,21 +37,21 @@ public class UseCaseSteps {
     @When("I received an Apply Quarantine event for unit {string} and product {string} with reason {string} and id {string}")
     public void iReceiveApplyQuarantineWithReasonToTheUnitAndTheProduct(String unitNumber, String productCode, String quarantineReason, String quarantineReasonId) {
 
-//        Product product = Product.builder()
-//            .unitNumber(new UnitNumber(unitNumber))
-//            .productCode(new ProductCode(productCode, scenarioContext.getProduct().getShortDescription()))
-//            .build();
-//        applyQuarantineProductUseCase.execute(new QuarantineProductInput(product, QuarantineReason.valueOf(quarantineReasonMap.get(quarantineReason)),quarantineReasonId)).block();
-        fail("Step code commented because changes for LAB-79 are not done on application side");
+       Product product = Product.builder()
+            .unitNumber(unitNumber)
+            .productCode(productCode)
+            .build();
+
+        addQuarantinedUseCase.execute(new AddQuarantineInput(product, Long.parseLong(quarantineReasonId), quarantineReasonMap.get(quarantineReason), null)).block();
     }
 
     @When("I received a Remove Quarantine event for unit {string} and product {string} with reason {string} and id {string}")
     public void iReceivedARemoveQuarantineEventForUnitAndProductWithReason(String unitNumber, String productCode, String quarantineReason, String quarantineReasonId) {
-//        Product product = Product.builder()
-//            .unitNumber(new UnitNumber(unitNumber))
-//            .productCode(new ProductCode(productCode, ""))
-//            .build();
-//        removeQuarantinedProductUseCase.execute(new QuarantineProductInput(product, QuarantineReason.valueOf(quarantineReasonMap.get(quarantineReason)),quarantineReasonId)).block();
-        fail("Step code commented because changes for LAB-79 are not done on application side");
+        Product product = Product.builder()
+            .unitNumber(unitNumber)
+            .productCode(productCode)
+            .build();
+
+        removeQuarantinedUseCase.execute(new RemoveQuarantineInput(product, Long.parseLong(quarantineReasonId))).block();
     }
 }
