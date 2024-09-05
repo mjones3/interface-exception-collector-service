@@ -1,12 +1,20 @@
 import { AsyncPipe } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatIconButton } from '@angular/material/button';
-import { MatDialogClose } from '@angular/material/dialog';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogClose,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
-import { Observable } from 'rxjs';
 import { BrowserPrintingService } from '../../../../core/services/browser-printing/browser-printing.service';
 import { ProductFamilyMap } from '../../../../shared/models/product-family.model';
 import { PickListDTO } from '../../graphql/mutation-definitions/generate-pick-list.graphql';
+
+export interface ViewPickListData {
+    pickListDTO: PickListDTO;
+    skipInventoryUnavailable: boolean;
+}
 
 @Component({
     selector: 'app-view-pick-list',
@@ -14,15 +22,27 @@ import { PickListDTO } from '../../graphql/mutation-definitions/generate-pick-li
     imports: [MatIcon, MatIconButton, MatDialogClose, AsyncPipe],
     templateUrl: './view-pick-list.component.html',
 })
-export class ViewPickListComponent {
+export class ViewPickListComponent implements OnInit {
     protected readonly ProductFamilyMap = ProductFamilyMap;
 
-    model$: Observable<PickListDTO>;
+    protected dialogRef = inject(MatDialogRef<ViewPickListComponent>);
+    protected dialogData = inject<ViewPickListData>(MAT_DIALOG_DATA);
+    protected browserPrintingService = inject(BrowserPrintingService);
 
-    constructor(private browserPrintingService: BrowserPrintingService) {}
+    protected pickListModel = signal<PickListDTO>(null);
+    protected skipInventoryUnavailable = signal<boolean>(false);
+    protected hasAnyShortDateItem = computed(
+        () =>
+            !!this.pickListModel()?.pickListItems?.some(
+                (i) => i.shortDateList?.length
+            )
+    );
 
-    hasAnyShortDate(model: PickListDTO): boolean {
-        return !!model?.pickListItems?.some((i) => i.shortDateList?.length);
+    ngOnInit(): void {
+        this.pickListModel.set(this.dialogData.pickListDTO);
+        this.skipInventoryUnavailable.set(
+            this.dialogData.skipInventoryUnavailable
+        );
     }
 
     print(): void {

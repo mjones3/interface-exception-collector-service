@@ -40,13 +40,15 @@ import {
 import { TagComponent } from '../../../../shared/components/tag/tag.component';
 import { OrderStatusMap } from '../../../../shared/models/order-status.model';
 import { PickListDTO } from '../../graphql/mutation-definitions/generate-pick-list.graphql';
-import {
-    Notification,
-    OrderShipmentDTO,
-} from '../../graphql/query-definitions/order-details.graphql';
+import { OrderShipmentDTO } from '../../graphql/query-definitions/order-details.graphql';
+import { Notification } from '../../models/notification.dto';
 import { OrderDetailsDTO } from '../../models/order-details.dto';
 import { OrderService } from '../../services/order.service';
-import { ViewPickListComponent } from '../view-pick-list/view-pick-list.component';
+import { SkipInventoryUnavailableDialogComponent } from '../../skip-inventory-unavailable-dialog/skip-inventory-unavailable-dialog.component';
+import {
+    ViewPickListComponent,
+    ViewPickListData,
+} from '../view-pick-list/view-pick-list.component';
 
 @Component({
     selector: 'app-order-details',
@@ -72,6 +74,7 @@ import { ViewPickListComponent } from '../view-pick-list/view-pick-list.componen
     styleUrl: './order-details.component.scss',
 })
 export class OrderDetailsComponent implements OnInit, OnDestroy {
+    static readonly INVENTORY_SERVICE_IS_DOWN = 'INVENTORY_SERVICE_IS_DOWN';
     static readonly POLLING_INTERVAL = 2 * 1000; // 2 seconds
     static readonly POLLING_MAX_TIMEOUT = 60 * 1000; // 60 seconds
 
@@ -154,17 +157,37 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
             });
     }
 
-    viewPickList(orderId: number): void {
+    viewPickList(orderId: number, skipInventoryUnavailable = false): void {
         this.pollingSubscription?.unsubscribe();
         this.loadingPickList = true;
         this.pollingSubscription = this.orderService
-            .generatePickList(orderId)
+            .generatePickList(orderId, skipInventoryUnavailable)
             .pipe(
                 finalize(() => (this.loadingPickList = false)),
                 catchError(this.handleError),
                 map((response) => response?.data?.generatePickList),
+                switchMap(({ notifications, data: pickList }) => {
+                    const inventoryServiceIsDown =
+                        this.getInventoryServiceIsDownNotification(
+                            notifications
+                        );
+                    if (inventoryServiceIsDown) {
+                        this.openSkipInventoryUnavailableDialog(
+                            inventoryServiceIsDown
+                        )
+                            .afterClosed()
+                            .pipe(filter(Boolean))
+                            .subscribe(() => this.viewPickList(orderId, true));
+                        return of(null); // do not continue
+                    }
+                    return of(pickList);
+                }),
+                filter(Boolean),
                 switchMap((pickList) =>
-                    this.openPickListDialog(pickList).afterOpened()
+                    this.openPickListDialog(
+                        pickList,
+                        skipInventoryUnavailable
+                    ).afterOpened()
                 ),
 
                 // Polling waiting for shipment to be completed
@@ -208,21 +231,42 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
     }
 
     private openPickListDialog(
-        pickListDTO: PickListDTO
+        pickListDTO: PickListDTO,
+        skipInventoryUnavailable: boolean
     ): MatDialogRef<ViewPickListComponent> {
-        const dialogRef = this.matDialog.open(ViewPickListComponent, {
-            id: 'ViewPickListDialog',
-            width: DEFAULT_PAGE_SIZE_DIALOG_LANDSCAPE_WIDTH,
-            height: DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
+        return this.matDialog.open<ViewPickListComponent, ViewPickListData>(
+            ViewPickListComponent,
+            {
+                id: 'ViewPickListDialog',
+                width: DEFAULT_PAGE_SIZE_DIALOG_LANDSCAPE_WIDTH,
+                height: DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
+                data: { pickListDTO, skipInventoryUnavailable },
+            }
+        );
+    }
+
+    private openSkipInventoryUnavailableDialog(
+        notification: Notification
+    ): MatDialogRef<SkipInventoryUnavailableDialogComponent, boolean> {
+        return this.matDialog.open<
+            SkipInventoryUnavailableDialogComponent,
+            Notification
+        >(SkipInventoryUnavailableDialogComponent, {
+            id: 'SkipInventoryUnavailableDialog',
+            data: notification,
         });
-        dialogRef.componentInstance.model$ = of(pickListDTO);
-        return dialogRef;
+    }
+
+    getInventoryServiceIsDownNotification(
+        notifications: Notification[]
+    ): Notification {
+        return notifications?.find(
+            (n) => n.name === OrderDetailsComponent.INVENTORY_SERVICE_IS_DOWN
+        );
     }
 
     get inventoryServiceIsDownNotification(): Notification {
-        return this.notifications?.find(
-            (n) => n.name === 'INVENTORY_SERVICE_IS_DOWN'
-        );
+        return this.getInventoryServiceIsDownNotification(this.notifications);
     }
 
     backToSearch(): void {
