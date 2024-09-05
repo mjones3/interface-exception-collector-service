@@ -11,7 +11,7 @@ type Query {
     findCustomerByCode(code: String!): Customer
 
     # Searches over all orders
-    findOrderById(orderId:ID!):Order!
+    findOrderById(orderId:ID!):OrderResponseDTO!
     searchOrders(orderQueryCommandDTO:OrderQueryCommandDTO!):[OrderReportDTO]
     findOrderShipmentByOrderId(orderId:ID!):OrderShipmentDTO
 }
@@ -20,7 +20,7 @@ type Mutation {
     insertLookup(lookup: LookupInput!): Lookup!
     updateLookup(lookup: LookupInput!): Lookup!
     deleteLookup(lookup: LookupInput!): Lookup!
-    generatePickList(orderId: ID!):PickListDTO!
+    generatePickList(orderId: ID! , skipInventoryUnavailable:Boolean!):PickListResponseDTO!
 }
 
 input LookupIdInput {
@@ -115,6 +115,11 @@ type OrderItem {
     quantityRemaining:Int!
 }
 
+type OrderResponseDTO {
+    notifications:[NotificationDTO]
+    data:Order
+}
+
 type Order {
     id: Int!
     orderNumber: Int!
@@ -181,11 +186,22 @@ input QueryOrderByDTO {
     direction:String
 }
 
+type PickListResponseDTO {
+    notifications:[NotificationDTO]
+    data:PickListDTO
+}
+
 type PickListDTO {
     orderNumber:Int
     customer:PickListCustomerDTO
     pickListItems:[PickListItemDTO]
     orderComments:String
+}
+
+type NotificationDTO {
+    name: String
+    notificationType: String
+    notificationMessage: String
 }
 
 type PickListCustomerDTO {

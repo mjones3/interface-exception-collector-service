@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.order.unit.application.usecase;
 
 import com.arcone.biopro.distribution.order.application.dto.OrderReceivedEventPayloadDTO;
+import com.arcone.biopro.distribution.order.application.dto.UseCaseNotificationType;
 import com.arcone.biopro.distribution.order.application.exception.DomainNotFoundForKeyException;
 import com.arcone.biopro.distribution.order.application.mapper.OrderReceivedEventMapper;
 import com.arcone.biopro.distribution.order.application.mapper.PickListCommandMapper;
@@ -9,12 +10,14 @@ import com.arcone.biopro.distribution.order.domain.model.AvailableInventory;
 import com.arcone.biopro.distribution.order.domain.model.Order;
 import com.arcone.biopro.distribution.order.domain.model.OrderItem;
 import com.arcone.biopro.distribution.order.domain.model.vo.BloodType;
+import com.arcone.biopro.distribution.order.domain.model.vo.OrderNumber;
 import com.arcone.biopro.distribution.order.domain.model.vo.ProductFamily;
 import com.arcone.biopro.distribution.order.domain.repository.OrderRepository;
 import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.domain.service.InventoryService;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
 import com.arcone.biopro.distribution.order.domain.service.OrderConfigService;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -128,12 +131,60 @@ public class OrderUseCaseTest {
             .verify();
     }
 
+
+
+    @Test
+    void testFindUseCaseResponseById() {
+
+        var useCase = new OrderUseCase(orderRepository, eventMapper,applicationEventPublisher,inventoryService, pickListCommandMapper);
+
+        var orderMock = Mockito.mock(Order.class);
+
+        var orderNumber = Mockito.mock(OrderNumber.class);
+        Mockito.when(orderNumber.getOrderNumber()).thenReturn(1L);
+
+        Mockito.when(orderMock.getOrderNumber()).thenReturn(orderNumber);
+
+        Mockito.when(orderRepository.findOneById(anyLong())).thenReturn(Mono.just(orderMock));
+
+        var availableInventory = Mockito.mock(AvailableInventory.class);
+
+        Mockito.when(inventoryService.getAvailableInventories(Mockito.any())).thenReturn(Flux.just(availableInventory));
+
+
+        StepVerifier.create(useCase.findUseCaseResponseById(1L))
+            .consumeNextWith(detail -> {
+                    Assertions.assertEquals(1L,  detail.data().getOrderNumber().getOrderNumber());
+
+                }
+            )
+            .verifyComplete();
+    }
+
+    @Test
+    void shouldNotFindUseCaseById() {
+
+        var useCase = new OrderUseCase(orderRepository, eventMapper,applicationEventPublisher,inventoryService, pickListCommandMapper);
+
+        Mockito.when(orderRepository.findOneById(anyLong())).thenReturn(Mono.empty());
+
+        StepVerifier.create(useCase.findOneById(1L))
+            .expectError(DomainNotFoundForKeyException.class)
+            .verify();
+    }
+
+
     @Test
     void shouldSetAvailableInventories(){
 
         var useCase = new OrderUseCase(orderRepository, eventMapper,applicationEventPublisher,inventoryService, pickListCommandMapper);
 
         var orderMock = Mockito.mock(Order.class);
+
+        var orderNumber = Mockito.mock(OrderNumber.class);
+        Mockito.when(orderNumber.getOrderNumber()).thenReturn(1L);
+
+        Mockito.when(orderMock.getOrderNumber()).thenReturn(orderNumber);
 
         var orderItem = Mockito.mock(OrderItem.class);
 
@@ -157,10 +208,40 @@ public class OrderUseCaseTest {
 
         Mockito.when(inventoryService.getAvailableInventories(Mockito.any())).thenReturn(Flux.just(availableInventory));
 
-        StepVerifier.create(useCase.findOneById(1L))
-            .expectNext(orderMock)
+        StepVerifier.create(useCase.findUseCaseResponseById(1L))
+            .consumeNextWith(detail -> {
+                    Assertions.assertEquals(1L,  detail.data().getOrderNumber().getOrderNumber());
+
+                }
+            )
             .verifyComplete();
 
         Mockito.verify(orderItem).defineAvailableQuantity(10);
+    }
+
+    @Test
+    void shouldNotSetAvailableInventoriesAndNotifyWarning(){
+
+        var useCase = new OrderUseCase(orderRepository, eventMapper,applicationEventPublisher,inventoryService, pickListCommandMapper);
+
+        var orderMock = Mockito.mock(Order.class);
+
+        var orderNumber = Mockito.mock(OrderNumber.class);
+        Mockito.when(orderNumber.getOrderNumber()).thenReturn(1L);
+
+        Mockito.when(orderMock.getOrderNumber()).thenReturn(orderNumber);
+
+        Mockito.when(orderRepository.findOneById(anyLong())).thenReturn(Mono.just(orderMock));
+
+        Mockito.when(inventoryService.getAvailableInventories(Mockito.any())).thenReturn(Flux.error(new Throwable("inventory-service-error")));
+
+        StepVerifier.create(useCase.findUseCaseResponseById(1L))
+            .consumeNextWith(detail -> {
+                    Assertions.assertEquals(1L,  detail.data().getOrderNumber().getOrderNumber());
+                    Assertions.assertEquals(UseCaseNotificationType.ERROR,  detail.notifications().getFirst().useCaseMessageType().getType());
+                    Assertions.assertEquals("Inventory Service is down.",  detail.notifications().getFirst().useCaseMessageType().getMessage());
+                }
+            )
+            .verifyComplete();
     }
 }

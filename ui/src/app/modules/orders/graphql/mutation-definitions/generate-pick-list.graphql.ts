@@ -1,4 +1,5 @@
 import { gql } from 'apollo-angular';
+import { Notification } from '../../models/notification.dto';
 
 export interface PickListDTO {
     orderNumber: number;
@@ -28,27 +29,45 @@ export interface PickListItemShortDateDTO {
 }
 
 export const GENERATE_PICK_LIST = gql<
-    { generatePickList: PickListDTO },
-    { orderId: number }
+    {
+        generatePickList: {
+            notifications: Notification[];
+            data: PickListDTO;
+        };
+    },
+    { orderId: number; skipInventoryUnavailable: boolean }
 >`
-    mutation generatePickList($orderId: ID!) {
-        generatePickList(orderId: $orderId) {
-            orderNumber
-            orderComments
-            customer {
-                code
+    mutation GeneratePickList(
+        $orderId: ID!
+        $skipInventoryUnavailable: Boolean!
+    ) {
+        generatePickList(
+            orderId: $orderId
+            skipInventoryUnavailable: $skipInventoryUnavailable
+        ) {
+            notifications {
                 name
+                notificationType
+                notificationMessage
             }
-            pickListItems {
-                productFamily
-                bloodType
-                quantity
-                comments
-                shortDateList {
-                    unitNumber
-                    productCode
-                    aboRh
-                    storageLocation
+            data {
+                orderNumber
+                orderComments
+                customer {
+                    code
+                    name
+                }
+                pickListItems {
+                    productFamily
+                    bloodType
+                    quantity
+                    comments
+                    shortDateList {
+                        unitNumber
+                        productCode
+                        aboRh
+                        storageLocation
+                    }
                 }
             }
         }

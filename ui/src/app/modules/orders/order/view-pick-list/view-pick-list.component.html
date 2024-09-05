@@ -14,7 +14,7 @@
     </div>
 
     <div id="viewPickListReport" class="px-6 py-0">
-        @if (model$ | async; as pickList) {
+        @if (pickListModel(); as pickList) {
             <div
                 class="flex flex-col gap-4 text-gray-700"
                 style="font-family: serif"
@@ -154,7 +154,7 @@
                             </tr>
                         </tbody>
                     </table>
-                    @if (hasAnyShortDate(pickList)) {
+                    @if (hasAnyShortDateItem()) {
                         <table
                             id="shortDateDetailsTable"
                             class="w-full border-separate"
@@ -217,6 +217,16 @@
                                 </tbody>
                             }
                         </table>
+                    } @else if (skipInventoryUnavailable()) {
+                        <div
+                            class="inline-flex flex-row items-center justify-start gap-2"
+                        >
+                            <mat-icon svgIcon="warning"></mat-icon>
+                            <span id="skipInventoryUnavailableMessage"
+                                >Unable to view short-dated products: Inventory
+                                Service is down.</span
+                            >
+                        </div>
                     } @else {
                         <div id="shortDateDetailsEmpty">
                             There are no suggested short-dated products.
