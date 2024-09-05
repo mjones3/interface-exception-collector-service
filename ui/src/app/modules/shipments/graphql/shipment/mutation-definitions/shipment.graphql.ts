@@ -1,11 +1,8 @@
 import { gql } from 'apollo-angular';
-import { VerifyProductDTO } from '../../../models/shipment-info.dto';
 import { RuleResponseDTO } from '../../../../../shared/models/rule.model';
+import { VerifyProductDTO } from '../../../models/shipment-info.dto';
 
-const PACK_ITEM = gql<
-    { packItem: RuleResponseDTO },
-    VerifyProductDTO
->`
+const PACK_ITEM = gql<{ packItem: RuleResponseDTO }, VerifyProductDTO>`
     mutation packItem(
         $shipmentItemId: Int!
         $locationCode: String!
@@ -28,6 +25,9 @@ const PACK_ITEM = gql<
             notifications {
                 statusCode
                 notificationType
+                name
+                action
+                reason
                 message
             }
             _links

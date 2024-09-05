@@ -214,6 +214,7 @@ biopro-process-header {
     }
 }
 
+/* Blocking Backdrop */
 .rsa-blocking-backdrop::before {
     content: '';
     position: absolute;
@@ -221,7 +222,14 @@ biopro-process-header {
     opacity: 0.5;
     z-index: 1001;
     transition: 0.3s;
-    background-color: #fff;
+    background-color: black;
+}
+
+.toast-top-right {
+    right: 18px !important;
+    top: 138px !important;
+
+    @apply flex flex-col space-y-4;
 }
 
 .p-datatable .p-datatable-thead {
