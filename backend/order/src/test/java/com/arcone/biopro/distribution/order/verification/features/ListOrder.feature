@@ -4,7 +4,7 @@ Feature: List of all orders in Search Order
     so that I am able to see the list of orders based on priority.
 
     Background:
-        Given I cleaned up from the database the orders with external ID starting with "EXT_".
+        Given I cleaned up from the database the orders with external ID starting with "EXT".
         And I have restored the default configuration for the order priority colors.
 
     Rule: I should be able to see the list of orders by priority and status where the user logged in.
