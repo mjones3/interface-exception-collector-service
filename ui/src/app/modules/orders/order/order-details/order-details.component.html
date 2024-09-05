@@ -66,7 +66,7 @@
     <div class="flex flex-row space-x-2">
         <button
             id="backBtnId"
-            class="bg-green-highlighted"
+            class="bg-green-highlighted text-white"
             mat-flat-button
             (click)="backToSearch()"
         >
@@ -91,7 +91,7 @@
                 <div class="flex flex-row space-x-2">
                     <button
                         id="generatePickListButton"
-                        class="bg-purple-light px-4"
+                        class="bg-purple-light px-4 text-white"
                         mat-flat-button
                         (click)="viewPickList(orderDetails.id)"
                         [disabled]="loadingPickList"
@@ -380,7 +380,7 @@
                                     <td>
                                         <button
                                             id="goToShipmentBtn"
-                                            class="bg-custom-red justify-center"
+                                            class="bg-custom-red justify-center text-white"
                                             [routerLink]="[
                                                 '/shipment',
                                                 shipment.shipmentId,

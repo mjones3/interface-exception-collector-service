@@ -12,6 +12,7 @@ import { TranslateService } from '@ngx-translate/core';
 import {
     Description,
     NotificationDto,
+    NotificationTypeMap,
     ProcessHeaderComponent,
     ProcessHeaderService,
     SortService,
@@ -316,7 +317,7 @@ export class ShipmentDetailsComponent implements OnInit {
             this.translate.instant(notification.message),
             null,
             {},
-            notification.notificationType
+            NotificationTypeMap.get(notification.notificationType)
         );
     }
 
