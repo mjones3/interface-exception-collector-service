@@ -27,7 +27,7 @@ class FacilityServiceMockTest {
 
         var target = new FacilityServiceMock(objectMapper);
 
-        var facility = target.getFacilityId("MDL_HUB_1");
+        var facility = target.getFacilityId("123456789");
 
         StepVerifier.create(facility)
             .consumeNextWith(detail -> {

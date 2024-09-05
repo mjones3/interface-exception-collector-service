@@ -34,7 +34,7 @@ class InventoryMockControllerTest {
         var inventoryResponse = target.validateInventory(InventoryValidationRequest.builder()
             .unitNumber("W036898786799")
                 .productCode("E1624V00")
-                .locationCode("MDL_HUB_1")
+                .locationCode("123456789")
             .build());
 
         StepVerifier.create(inventoryResponse)
@@ -43,7 +43,7 @@ class InventoryMockControllerTest {
                 assertEquals(Optional.of(UUID.fromString("dd8af54c-a40a-438c-a870-b9619447e91f")), Optional.of(detail.inventoryResponseDTO().id()));
                 assertEquals(Optional.of("W036898786799"), Optional.of(detail.inventoryResponseDTO().unitNumber()));
                 assertEquals(Optional.of("E1624V00"), Optional.of(detail.inventoryResponseDTO().productCode()));
-                assertEquals(Optional.of("MDL_HUB_1"), Optional.of(detail.inventoryResponseDTO().locationCode()));
+                assertEquals(Optional.of("123456789"), Optional.of(detail.inventoryResponseDTO().locationCode()));
             })
             .verifyComplete();
     }
@@ -56,7 +56,7 @@ class InventoryMockControllerTest {
         var inventoryResponse = target.validateInventory(InventoryValidationRequest.builder()
             .unitNumber("W036898786755")
             .productCode("E0701V00")
-            .locationCode("MDL_HUB_1")
+            .locationCode("123456789")
             .build());
 
 
@@ -78,7 +78,7 @@ class InventoryMockControllerTest {
         var inventoryResponse = target.validateInventory(InventoryValidationRequest.builder()
             .unitNumber("W036898786758")
             .productCode("E0701V00")
-            .locationCode("MDL_HUB_1")
+            .locationCode("123456789")
             .build());
 
 
@@ -99,7 +99,7 @@ class InventoryMockControllerTest {
         var inventoryResponse = target.validateInventory(InventoryValidationRequest.builder()
             .unitNumber("W036898786757")
             .productCode("E0701V00")
-            .locationCode("MDL_HUB_1")
+            .locationCode("123456789")
             .build());
 
 
@@ -121,7 +121,7 @@ class InventoryMockControllerTest {
         var inventoryResponse = target.validateInventory(InventoryValidationRequest.builder()
             .unitNumber("W036898786756")
             .productCode("E0701V00")
-            .locationCode("MDL_HUB_1")
+            .locationCode("123456789")
             .build());
 
 

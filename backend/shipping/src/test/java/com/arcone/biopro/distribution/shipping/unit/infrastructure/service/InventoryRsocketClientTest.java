@@ -34,7 +34,7 @@ class InventoryRsocketClientTest {
                     .id(id)
                     .unitNumber("W036898786799")
                     .productCode("E0701V00")
-                    .locationCode("MDL_HUB_1")
+                    .locationCode("123456789")
                     .build())
             .build()));
 
@@ -48,7 +48,7 @@ class InventoryRsocketClientTest {
                 assertEquals(Optional.of(id), Optional.of(detail.inventoryResponseDTO().id()));
                 assertEquals(Optional.of("W036898786799"), Optional.of(detail.inventoryResponseDTO().unitNumber()));
                 assertEquals(Optional.of("E0701V00"), Optional.of(detail.inventoryResponseDTO().productCode()));
-                assertEquals(Optional.of("MDL_HUB_1"), Optional.of(detail.inventoryResponseDTO().locationCode()));
+                assertEquals(Optional.of("123456789"), Optional.of(detail.inventoryResponseDTO().locationCode()));
             })
             .verifyComplete();
 

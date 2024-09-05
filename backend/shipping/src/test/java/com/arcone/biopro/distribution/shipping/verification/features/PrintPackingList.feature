@@ -20,7 +20,7 @@ Feature: Print Packing List
 
             Examples:
                 | Order Number | Location Code | Customer ID | Customer Name        | Department            | Address Line 1 | Address Line 2 | Unit Number   | Product Code | Product Family      | Blood Type | Expiration | Quantity |
-                | 499          | MDL_HUB_1     | 1           | Random Hospital Inc. | Testing Blood Banking | Street N1      | Suite N2       | W036898786811 | E4701V00     | PLASMA_TRANSFUSABLE | AP         | 04-09-2025 | 1        |
+                | 499          | 123456789     | 1           | Random Hospital Inc. | Testing Blood Banking | Street N1      | Suite N2       | W036898786811 | E4701V00     | PLASMA_TRANSFUSABLE | AP         | 04-09-2025 | 1        |
 
     Rule: I should not be able to print the packing slip in the PDF format for the shipment when it is open.
         @ui
@@ -32,4 +32,4 @@ Feature: Print Packing List
 
             Examples:
                 | Order Number | Location Code | Customer ID | Customer Name        | Department    | Address Line 1 | Address Line 2 | Unit Number   | Product Code | Product Family      | Blood Type | Expiration | Quantity |
-                | 421          | MDL_HUB_1     | 1           | Random Hospital Inc. | Blood Banking | Street 1       | Suite 2        | W036810946400 | E246300      | PLASMA_TRANSFUSABLE | AP         | 04-09-2025 | 1        |
+                | 421          | 123456789     | 1           | Random Hospital Inc. | Blood Banking | Street 1       | Suite 2        | W036810946400 | E246300      | PLASMA_TRANSFUSABLE | AP         | 04-09-2025 | 1        |
