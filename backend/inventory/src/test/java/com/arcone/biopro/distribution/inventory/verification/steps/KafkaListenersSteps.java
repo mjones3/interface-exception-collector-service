@@ -4,6 +4,8 @@ import com.arcone.biopro.distribution.inventory.commm.TestUtil;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ProductFamily;
+import com.arcone.biopro.distribution.inventory.domain.model.vo.History;
+import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntity;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntityRepository;
 import com.arcone.biopro.distribution.inventory.verification.common.ScenarioContext;
@@ -21,6 +23,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -39,6 +42,12 @@ public class KafkaListenersSteps {
 
     @Value("${topic.product-discarded.name}")
     private String productDiscardedTopic;
+
+    @Value("${topic.product-quarantined.name}")
+    private String productQuarantinedTopic;
+
+    @Value("${topic.product-remove-quarantined.name}")
+    private String quarantineRemovedTopic;
 
     @Autowired
     private ScenarioContext scenarioContext;
@@ -125,9 +134,49 @@ public class KafkaListenersSteps {
         }
         """;
 
+    private static final String PRODUCT_QUARANTINED_MESSAGE = """
+       {
+          "eventId": "7eaefe46-e6cf-4434-93c4-a4b1e7d44285",
+          "occurredOn": "2024-08-22T12:34:32.270657005Z",
+          "eventVersion": "1.0",
+          "eventType": "ProductQuarantined",
+          "payload": {
+            "id": 1,
+            "unitNumber": "%s",
+            "productCode": "%s",
+            "reason": "OTHER",
+            "comments": "a comment",
+            "stopsManufacturing": false,
+            "performedBy": "USER_ID",
+            "createDate": "2025-01-08T02:05:45.231Z"
+          }
+       }
+       """;
+
+    private static final String QUARANTINE_REMOVED_MESSAGE = """
+       {
+          "eventId": "7eaefe46-e6cf-4434-93c4-a4b1e7d44285",
+          "occurredOn": "2024-08-22T12:34:32.270657005Z",
+          "eventVersion": "1.0",
+          "eventType": "QuarantineRemoved",
+          "payload": {
+            "id": 1,
+            "unitNumber": "%s",
+            "productCode": "%s",
+            "reason": "OTHER",
+            "performedBy": "USER_ID",
+            "createDate": "2025-01-08T02:05:45.231Z"
+          }
+       }
+       """;
+
     private static final String EVENT_LABEL_APPLIED = "Label Applied";
     private static final String EVENT_PRODUCT_STORED = "Product Stored";
     private static final String EVENT_PRODUCT_DISCARDED = "Product Discarded";
+    private static final String EVENT_PRODUCT_QUARANTINED = "Product Quarantined";
+    private static final String EVENT_QUARANTINE_REMOVED = "Quarantine Removed";
+
+
 
     private Map<String, String> topicsMap;
 
@@ -142,15 +191,19 @@ public class KafkaListenersSteps {
             EVENT_LABEL_APPLIED, labelAppliedTopic,
             EVENT_SHIPMENT_COMPLETED, shipmentCompletedTopic,
             EVENT_PRODUCT_STORED, productStoredTopic,
-            EVENT_PRODUCT_DISCARDED, productDiscardedTopic
+            EVENT_PRODUCT_DISCARDED, productDiscardedTopic,
+            EVENT_PRODUCT_QUARANTINED, productQuarantinedTopic,
+            EVENT_QUARANTINE_REMOVED, quarantineRemovedTopic
         );
 
         messagesMap = Map.of(
             EVENT_LABEL_APPLIED, LABEL_APPLIED_MESSAGE,
             EVENT_PRODUCT_STORED, PRODUCT_STORED_MESSAGE,
             EVENT_SHIPMENT_COMPLETED, SHIPMENT_COMPLETED_MESSAGE,
-            EVENT_PRODUCT_DISCARDED, PRODUCT_DISCARDED_MESSAGE
-            );
+            EVENT_PRODUCT_DISCARDED, PRODUCT_DISCARDED_MESSAGE,
+            EVENT_PRODUCT_QUARANTINED, PRODUCT_QUARANTINED_MESSAGE,
+            EVENT_QUARANTINE_REMOVED, QUARANTINE_REMOVED_MESSAGE
+        );
     }
 
     @Given("I am listening the {string} event")
@@ -169,14 +222,26 @@ public class KafkaListenersSteps {
         scenarioContext.setUnitNumber(untNumber);
         scenarioContext.setProductCode("E0869VA0");
         topicName = topicsMap.get(event);
+        InventoryEntity inventoryEntity = null;
         if (!EVENT_LABEL_APPLIED.equals(event)) {
-            createInventory(scenarioContext.getUnitNumber(), scenarioContext.getProductCode(), ProductFamily.PLASMA_TRANSFUSABLE, AboRhType.OP, "Miami", 10, InventoryStatus.AVAILABLE);
+            inventoryEntity = createInventory(scenarioContext.getUnitNumber(), scenarioContext.getProductCode(), ProductFamily.PLASMA_TRANSFUSABLE, AboRhType.OP, "Miami", 10, InventoryStatus.AVAILABLE);
         }
-
     }
 
-    private void createInventory(String unitNumber, String productCode, ProductFamily productFamily, AboRhType aboRhType, String location, Integer daysToExpire, InventoryStatus status) {
-        inventoryEntityRepository.save(InventoryEntity.builder()
+    private InventoryEntity createInventory(String unitNumber, String productCode, ProductFamily productFamily, AboRhType aboRhType, String location, Integer daysToExpire, InventoryStatus statusParam) {
+
+        List<Quarantine> quarantines = null;
+        List<History> histories = null;
+
+        InventoryStatus status = statusParam;
+
+        if (topicName.equals(quarantineRemovedTopic)) {
+            quarantines = List.of(new Quarantine(1L, "OTHER", "a comment"));
+            histories = List.of(new History(InventoryStatus.AVAILABLE, null, null));
+            status = InventoryStatus.QUARANTINED;
+        }
+
+        return inventoryEntityRepository.save(InventoryEntity.builder()
             .id(UUID.randomUUID())
             .productFamily(productFamily)
             .aboRh(aboRhType)
@@ -186,6 +251,8 @@ public class KafkaListenersSteps {
             .expirationDate(LocalDateTime.now().plusDays(daysToExpire))
             .unitNumber(unitNumber)
             .productCode(productCode)
+            .quarantines(quarantines)
+            .histories(histories)
             .shortDescription("Short description")
             .build()).block();
 

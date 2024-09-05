@@ -39,7 +39,7 @@ public abstract class InventoryOutputMapper {
     @Mapping(target = "productCode", source = "inventory.productCode.value")
     @Mapping(target = "storageLocation", source = "inventory.storageLocation")
     @Mapping(target = "aboRh", source = "inventory.aboRh")
-    public abstract  Product toOutput(InventoryAggregate inventoryAggregate);
+    public abstract Product toOutput(InventoryAggregate inventoryAggregate);
 
     @Mapping(target = "inventoryOutput", source = "inventory")
     @Mapping(target = "notificationMessages.message", expression = "java(toOutput(notificationMessage.message()))")

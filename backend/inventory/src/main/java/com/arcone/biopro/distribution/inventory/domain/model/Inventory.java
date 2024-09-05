@@ -15,8 +15,9 @@ import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Getter
@@ -51,9 +52,11 @@ public class Inventory {
 
     ZonedDateTime modificationDate;
 
-    List<Quarantine> quarantines;
+    @Builder.Default
+    List<Quarantine> quarantines = new ArrayList<>();
 
-    List<History> histories;
+    @Builder.Default
+    List<History> histories = new ArrayList<>();
 
     String comments;
 
@@ -61,7 +64,40 @@ public class Inventory {
 
     private String storageLocation;
 
-    public Optional<History> getLastHistory() {
-        return this.histories.stream().sorted().findFirst();
+    public void createHistory() {
+        histories.add(new History(inventoryStatus, statusReason, comments));
+    }
+
+    public void restoreHistory(){
+        History history = new History(inventoryStatus, statusReason, comments);
+
+        histories.stream().max(Comparator.comparing(History::createDate)).ifPresent(h -> {
+                inventoryStatus = h.inventoryStatus();
+                statusReason = h.reason();
+                comments = h.comments();
+        });
+
+        histories.add(history);
+    }
+
+    public void addQuarantine(Long quarantineId, String reason, String comments) {
+        if (quarantines.isEmpty()) {
+            transitionStatus(InventoryStatus.QUARANTINED, null);
+        }
+
+        quarantines.add(new Quarantine(quarantineId, reason, comments));
+    }
+
+    public void removeQuarantine(Long quarantineId) {
+        quarantines = quarantines.stream().filter(q -> !q.externId().equals(quarantineId)).toList();
+        if(quarantines.isEmpty()) {
+            restoreHistory();
+        }
+    }
+
+    public void transitionStatus(InventoryStatus newStatus, String statusReason) {
+        createHistory();
+        setStatusReason(statusReason);
+        setInventoryStatus(newStatus);
     }
 }

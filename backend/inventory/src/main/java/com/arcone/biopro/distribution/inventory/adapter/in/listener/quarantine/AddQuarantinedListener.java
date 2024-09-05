@@ -2,8 +2,8 @@ package com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine;
 
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.AbstractListener;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.EventMessage;
+import com.arcone.biopro.distribution.inventory.application.dto.AddQuarantineInput;
 import com.arcone.biopro.distribution.inventory.application.dto.InventoryOutput;
-import com.arcone.biopro.distribution.inventory.application.dto.RemoveQuarantineInput;
 import com.arcone.biopro.distribution.inventory.application.usecase.UseCase;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,30 +20,31 @@ import reactor.core.publisher.Mono;
 @Service
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class RemoveQuarantinedListener extends AbstractListener<RemoveQuarantineInput, InventoryOutput, EventMessage<RemoveQuarantinedMessage>> {
+public class AddQuarantinedListener extends AbstractListener<AddQuarantineInput, InventoryOutput, EventMessage<AddQuarantinedMessage>> {
 
-    UseCase<Mono<InventoryOutput>, RemoveQuarantineInput> removeQuarantinedProductUseCase;
+    UseCase<Mono<InventoryOutput>, AddQuarantineInput> addQuarantineInputUseCase;
     QuarantinedMessageMapper quarantinedMessageMapper;
 
-    public RemoveQuarantinedListener(@Qualifier("PRODUCT_REMOVE_QUARANTINED_CONSUMER") ReactiveKafkaConsumerTemplate<String, String> consumer,
-                                     ObjectMapper objectMapper,
-                                     ReactiveKafkaProducerTemplate<String, String> producerDLQTemplate,
-                                     @Value("${topic.product-remove-quarantined.name}") String productQuarantinedTopic,
-                                     UseCase<Mono<InventoryOutput>, RemoveQuarantineInput> quarantinedProductUseCase,
-                                     QuarantinedMessageMapper quarantinedMessageMapper) {
+    public AddQuarantinedListener(@Qualifier("PRODUCT_ADD_QUARANTINED_CONSUMER") ReactiveKafkaConsumerTemplate<String, String> consumer,
+                                  ObjectMapper objectMapper,
+                                  ReactiveKafkaProducerTemplate<String, String> producerDLQTemplate,
+                                  @Value("${topic.product-quarantined.name}") String productQuarantinedTopic,
+                                  UseCase<Mono<InventoryOutput>, AddQuarantineInput> quarantinedProductUseCase,
+                                  QuarantinedMessageMapper quarantinedMessageMapper) {
         super(consumer, objectMapper, producerDLQTemplate, productQuarantinedTopic, new TypeReference<>() {
         });
         this.quarantinedMessageMapper = quarantinedMessageMapper;
-        this.removeQuarantinedProductUseCase = quarantinedProductUseCase;
+        this.addQuarantineInputUseCase = quarantinedProductUseCase;
     }
 
     @Override
-    protected Mono<InventoryOutput> processInput(RemoveQuarantineInput domainMessage) {
-        return removeQuarantinedProductUseCase.execute(domainMessage);
+    protected Mono<InventoryOutput> processInput(AddQuarantineInput domainMessage) {
+        return addQuarantineInputUseCase.execute(domainMessage);
     }
 
     @Override
-    protected RemoveQuarantineInput fromMessageToInput(EventMessage<RemoveQuarantinedMessage> message) {
+    protected AddQuarantineInput fromMessageToInput(EventMessage<AddQuarantinedMessage> message) {
         return quarantinedMessageMapper.toInput(message.payload());
     }
+
 }

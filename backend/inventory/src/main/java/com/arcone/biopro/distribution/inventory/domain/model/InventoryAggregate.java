@@ -3,9 +3,7 @@ package com.arcone.biopro.distribution.inventory.domain.model;
 import com.arcone.biopro.distribution.inventory.domain.exception.UnavailableStatusNotMappedException;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.MessageType;
-import com.arcone.biopro.distribution.inventory.domain.model.enumeration.QuarantineReason;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.NotificationMessage;
-import com.arcone.biopro.distribution.inventory.domain.model.vo.History;
 import lombok.Builder;
 import lombok.Getter;
 import org.apache.logging.log4j.util.Strings;
@@ -13,7 +11,6 @@ import org.apache.logging.log4j.util.Strings;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import static com.arcone.biopro.distribution.inventory.BioProConstants.EXPIRED;
 
@@ -42,14 +39,10 @@ public class InventoryAggregate {
         }
 
         if (!inventory.getLocation().equals(location)) {
-            notificationMessages.add(createNotificationMessage(MessageType.INVENTORY_NOT_FOUND_IN_LOCATION));
+            notificationMessages.add(createNotificationMessage(MessageType.INVENTORY_NOT_FOUND_IN_LOCATION, null));
         }
 
         return this;
-    }
-
-    private NotificationMessage createNotificationMessage(MessageType messageType) {
-        return createNotificationMessage(messageType, null);
     }
 
     private NotificationMessage createNotificationMessage(MessageType notificationType, String reason) {
@@ -79,7 +72,7 @@ public class InventoryAggregate {
             .map(q -> new NotificationMessage(
                 qt.name(),
                 qt.getCode(),
-                !q.getReason().equals(OTHER_SEE_COMMENTS) ? q.getReason() : String.format("%s: %s", OTHER_SEE_COMMENTS, q.getComment()),
+                !q.reason().equals(OTHER_SEE_COMMENTS) ? q.reason() : String.format("%s: %s", OTHER_SEE_COMMENTS, q.comments()),
                 qt.getType().name(),
                 qt.getAction().name(),
                 null))
@@ -87,7 +80,7 @@ public class InventoryAggregate {
     }
 
     public InventoryAggregate completeShipment() {
-        inventory.setInventoryStatus(InventoryStatus.SHIPPED);
+        transitionStatus(InventoryStatus.SHIPPED, null);
         return this;
     }
 
@@ -98,28 +91,25 @@ public class InventoryAggregate {
     }
 
     public InventoryAggregate discardProduct(String reason, String comments) {
-        inventory.setStatusReason(reason);
+        transitionStatus(InventoryStatus.DISCARDED, reason);
+
         inventory.setComments(comments);
-        inventory.setInventoryStatus(InventoryStatus.DISCARDED);
+
         return this;
     }
 
     public InventoryAggregate removeQuarantine(Long quarantineId) {
-        inventory.setQuarantines(inventory.getQuarantines().stream()
-            .filter(q -> !q.getExternId().equals(quarantineId)).toList());
-        if (inventory.getQuarantines().isEmpty()) {
-            return recoverProduct();
-        }
+        inventory.removeQuarantine(quarantineId);
         return this;
     }
 
-    public InventoryAggregate recoverProduct() {
-        History historyNewObj = new History(inventory.getInventoryStatus(), inventory.getStatusReason());
-        inventory.getLastHistory().ifPresent(history -> {
-            inventory.setInventoryStatus(history.getInventoryStatus());
-            inventory.setStatusReason(history.getReason());
-        });
-        inventory.getHistories().add(historyNewObj);
+    public InventoryAggregate addQuarantine(Long quarantineId, String reason, String comments) {
+        inventory.addQuarantine(quarantineId, reason, comments);
+
         return this;
+    }
+
+    private void transitionStatus(InventoryStatus newStatus, String statusReason) {
+        inventory.transitionStatus(newStatus, statusReason);
     }
 }
