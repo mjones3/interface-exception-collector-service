@@ -29,9 +29,6 @@ import com.arcone.biopro.distribution.shipping.infrastructure.listener.dto.Order
 import com.arcone.biopro.distribution.shipping.infrastructure.listener.dto.OrderItemFulfilledMessage;
 import com.arcone.biopro.distribution.shipping.infrastructure.listener.dto.ShortDateItem;
 import com.arcone.biopro.distribution.shipping.infrastructure.service.InventoryRsocketClient;
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.RecordMetadata;
-import org.apache.kafka.common.TopicPartition;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -42,7 +39,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.kafka.sender.SenderResult;
 import reactor.test.StepVerifier;
 
 import java.util.ArrayList;
@@ -197,6 +193,10 @@ class ShipmentServiceUseCaseTest {
     public void shouldNotPackItemWhenInventoryValidationFails(){
 
         InventoryValidationResponseDTO validationResponseDTO = Mockito.mock(InventoryValidationResponseDTO.class);
+        Mockito.when(validationResponseDTO.inventoryResponseDTO()).thenReturn(InventoryResponseDTO
+            .builder()
+                .productFamily("TEST")
+            .build());
         Mockito.when(validationResponseDTO.inventoryNotificationsDTO()).thenReturn(List.of(InventoryNotificationDTO.builder()
                 .errorMessage(ShipmentServiceMessages.INVENTORY_TEST_ERROR)
                 .reason("REASON")

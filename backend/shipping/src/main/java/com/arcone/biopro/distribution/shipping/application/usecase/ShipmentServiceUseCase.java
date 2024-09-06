@@ -249,7 +249,7 @@ public class ShipmentServiceUseCase implements ShipmentService {
             .productCode(packItemRequest.productCode())
             .locationCode(packItemRequest.locationCode())
             .unitNumber(packItemRequest.unitNumber()).build()).flatMap(inventoryValidationResponseDTO -> {
-            if (inventoryValidationResponseDTO.inventoryResponseDTO() != null) {
+            if (inventoryValidationResponseDTO.inventoryResponseDTO() != null && inventoryValidationResponseDTO.inventoryNotificationsDTO().isEmpty()) {
                 return Mono.just(inventoryValidationResponseDTO.inventoryResponseDTO());
             } else {
                 return Mono.error(new ProductValidationException(ShipmentServiceMessages.INVENTORY_VALIDATION_FAILED,inventoryValidationResponseDTO.inventoryNotificationsDTO().stream()
