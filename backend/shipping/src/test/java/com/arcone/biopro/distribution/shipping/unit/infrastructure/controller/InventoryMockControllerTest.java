@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -39,7 +40,7 @@ class InventoryMockControllerTest {
         StepVerifier.create(inventoryResponse)
             .consumeNextWith(detail -> {
                 assertNotNull(detail.inventoryResponseDTO());
-                assertEquals(Optional.of(1L), Optional.of(detail.inventoryResponseDTO().id()));
+                assertEquals(Optional.of(UUID.fromString("dd8af54c-a40a-438c-a870-b9619447e91f")), Optional.of(detail.inventoryResponseDTO().id()));
                 assertEquals(Optional.of("W036898786799"), Optional.of(detail.inventoryResponseDTO().unitNumber()));
                 assertEquals(Optional.of("E1624V00"), Optional.of(detail.inventoryResponseDTO().productCode()));
                 assertEquals(Optional.of("MDL_HUB_1"), Optional.of(detail.inventoryResponseDTO().locationCode()));
