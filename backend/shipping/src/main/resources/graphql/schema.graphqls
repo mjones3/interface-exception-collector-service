@@ -3,7 +3,6 @@ scalar DateTime
 scalar Date
 scalar JSON
 
-
 type Query {
     generatePackingListLabel(shipmentId: ID!):PackingListLabelDTO!
     generateShippingLabel(shipmentId: ID!):ShippingLabelDTO!
@@ -131,7 +130,7 @@ type ShipmentItemPackedDTO {
     aboRh: String
     productDescription: String
     productFamily: String
-    expirationDate: DateTime
+    expirationDate: String
     collectionDate: DateTime
     packedByEmployeeId: String
     visualInspection:VisualInspection
