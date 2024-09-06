@@ -113,7 +113,7 @@ class ShipmentLabelServiceUseCaseTest {
         Mockito.when(shipmentItemPackedRepository.findAllByShipmentItemId(1L)).thenReturn(Flux.just(ShipmentItemPacked.builder()
                 .aboRh("AP")
                 .collectionDate(ZonedDateTime.now())
-                .expirationDate(LocalDateTime.now().now())
+                .expirationDate(LocalDateTime.now())
                 .packedByEmployeeId("test")
                 .shipmentItemId(1L)
                 .unitNumber("UN")
