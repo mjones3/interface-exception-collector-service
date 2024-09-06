@@ -11,6 +11,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -19,6 +20,9 @@ class InventoryRsocketClientTest {
 
     @Test
     public void shouldGetInventoryDetails(){
+
+        var id = UUID.randomUUID();
+
         var rsocketRequesterMock = Mockito.mock(RSocketRequester.class);
 
         var requestSpec = Mockito.mock(RSocketRequester.RequestSpec.class);
@@ -27,7 +31,7 @@ class InventoryRsocketClientTest {
         Mockito.when(requestSpec.data(Mockito.any())).thenReturn(requestSpec) ;
         Mockito.when(requestSpec.retrieveMono(InventoryValidationResponseDTO.class)).thenReturn(Mono.just(InventoryValidationResponseDTO.builder()
                 .inventoryResponseDTO(InventoryResponseDTO.builder()
-                    .id(1L)
+                    .id(id)
                     .unitNumber("W036898786799")
                     .productCode("E0701V00")
                     .locationCode("MDL_HUB_1")
@@ -41,7 +45,7 @@ class InventoryRsocketClientTest {
         StepVerifier.create(response)
             .consumeNextWith(detail -> {
                 assertNotNull(detail.inventoryResponseDTO());
-                assertEquals(Optional.of(1L), Optional.of(detail.inventoryResponseDTO().id()));
+                assertEquals(Optional.of(id), Optional.of(detail.inventoryResponseDTO().id()));
                 assertEquals(Optional.of("W036898786799"), Optional.of(detail.inventoryResponseDTO().unitNumber()));
                 assertEquals(Optional.of("E0701V00"), Optional.of(detail.inventoryResponseDTO().productCode()));
                 assertEquals(Optional.of("MDL_HUB_1"), Optional.of(detail.inventoryResponseDTO().locationCode()));

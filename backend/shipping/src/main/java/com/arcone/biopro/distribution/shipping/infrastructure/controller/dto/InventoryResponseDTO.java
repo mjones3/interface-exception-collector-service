@@ -4,10 +4,11 @@ import lombok.Builder;
 
 import java.io.Serializable;
 import java.time.ZonedDateTime;
+import java.util.UUID;
 
 @Builder
 public record InventoryResponseDTO(
-    Long id,
+    UUID id,
     String locationCode,
     String unitNumber,
     String productCode,
