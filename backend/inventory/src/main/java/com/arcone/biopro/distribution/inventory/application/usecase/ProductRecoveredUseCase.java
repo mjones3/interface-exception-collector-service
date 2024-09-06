@@ -17,7 +17,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-class ProductRecoveredUseCase implements UseCase<Mono<InventoryOutput>, ProductRecoveredInput> {
+public class ProductRecoveredUseCase implements UseCase<Mono<InventoryOutput>, ProductRecoveredInput> {
 
     InventoryAggregateRepository inventoryAggregateRepository;
 
