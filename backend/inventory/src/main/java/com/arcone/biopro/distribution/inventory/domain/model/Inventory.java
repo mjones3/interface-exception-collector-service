@@ -88,8 +88,19 @@ public class Inventory {
         quarantines.add(new Quarantine(quarantineId, reason, comments));
     }
 
+    public void updateQuarantine(Long quarantineId, String reason, String comments) {
+        quarantines = new ArrayList<>(quarantines.stream()
+            .map(quarantine -> {
+                if (quarantine.externId().equals(quarantineId)) {
+                    return new Quarantine(quarantine.externId(), reason, comments);
+                }
+                return quarantine;
+            })
+            .toList());
+    }
+
     public void removeQuarantine(Long quarantineId) {
-        quarantines = quarantines.stream().filter(q -> !q.externId().equals(quarantineId)).toList();
+        quarantines = new ArrayList<>(quarantines.stream().filter(q -> !q.externId().equals(quarantineId)).toList());
         if(quarantines.isEmpty()) {
             restoreHistory();
         }

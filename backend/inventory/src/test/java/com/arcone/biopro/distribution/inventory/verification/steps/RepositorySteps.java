@@ -21,6 +21,7 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static com.arcone.biopro.distribution.inventory.verification.steps.KafkaListenersSteps.EVENT_QUARANTINE_UPDATED;
 import static com.arcone.biopro.distribution.inventory.verification.steps.UseCaseSteps.quarantineReasonMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -46,6 +47,10 @@ public class RepositorySteps {
         InventoryEntity entity = null;
         while (tryCount < maxTryCount && entity == null) {
             entity = inventoryEntityRepository.findByUnitNumberAndProductCodeAndInventoryStatus(unitNumber, productCode, status).block();
+
+            if (EVENT_QUARANTINE_UPDATED.equals(scenarioContext.getEvent()) && "OTHER".equals(entity.getQuarantines().getFirst().reason())) {
+                entity = null;
+            }
 
             tryCount++;
             waiter.await(1, TimeUnit.SECONDS);
@@ -94,6 +99,10 @@ public class RepositorySteps {
         assertEquals(scenarioContext.getProductCode(), inventory.getProductCode());
         assertEquals(scenarioContext.getUnitNumber(), inventory.getUnitNumber());
         assertEquals(status, inventory.getInventoryStatus().name());
+
+        if (EVENT_QUARANTINE_UPDATED.equals(scenarioContext.getEvent())) {
+            assertEquals("UNDER_INVESTIGATION", inventory.getQuarantines().getFirst().reason());
+        }
     }
 
     @And("For unit number {string} and product code {string} the device stored is {string} and the storage location is {string}")

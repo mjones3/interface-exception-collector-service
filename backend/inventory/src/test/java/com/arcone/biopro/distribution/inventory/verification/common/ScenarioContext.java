@@ -12,4 +12,5 @@ import org.springframework.stereotype.Component;
 public class ScenarioContext {
     private String unitNumber;
     private String productCode;
+    private String event;
 }

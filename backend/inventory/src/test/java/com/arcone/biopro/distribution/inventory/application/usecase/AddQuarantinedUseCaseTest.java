@@ -47,7 +47,6 @@ class AddQuarantinedUseCaseTest {
     void setUp() {
         openMocks(this);
 
-        // Setup input and mock objects
         addQuarantineInput = new AddQuarantineInput(
             Product.builder().unitNumber("W036824111111").productCode("E1624V00").build(),
             1L,
@@ -55,14 +54,12 @@ class AddQuarantinedUseCaseTest {
             "Suspected contamination"
         );
 
-        // Instância real de Inventory
         Inventory inventory = Inventory.builder()
             .unitNumber(new UnitNumber("W036824111111"))
             .productCode(new ProductCode("E1624V00"))
             .inventoryStatus(InventoryStatus.AVAILABLE)
             .build();
 
-        // Instância real de InventoryAggregate
         inventoryAggregate = InventoryAggregate.builder().inventory(inventory).build();
 
         mapper.setTextConfigService(textConfigService);
@@ -94,7 +91,6 @@ class AddQuarantinedUseCaseTest {
         assertThat(inventoryAggregate.getInventory().getQuarantines()).hasSize(1);
         assertThat(inventoryAggregate.getInventory().getQuarantines().get(0).reason()).isEqualTo("Contamination");
 
-        // Verificando interações do repositório
         verify(inventoryAggregateRepository).findByUnitNumberAndProductCode("W036824111111", "E1624V00");
         verify(inventoryAggregateRepository).saveInventory(inventoryAggregate);
     }
@@ -113,7 +109,6 @@ class AddQuarantinedUseCaseTest {
             .expectError(InventoryNotFoundException.class)
             .verify();
 
-        // Verificando interações do repositório
         verify(inventoryAggregateRepository).findByUnitNumberAndProductCode("W036824111111", "E1624V00");
         verify(inventoryAggregateRepository, never()).saveInventory(any());
         verify(mapper, never()).toOutput(any(Inventory.class));

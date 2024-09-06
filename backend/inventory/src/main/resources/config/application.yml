@@ -287,3 +287,5 @@ topic:
     name: ProductQuarantined
   product-remove-quarantined:
     name: QuarantineRemoved
+  product-update-quarantined:
+    name: QuarantineUpdated

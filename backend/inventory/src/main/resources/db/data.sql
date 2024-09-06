@@ -16,15 +16,15 @@ insert into lk_text_config (context, key_code, text)
 values ('INVENTORY_VALIDATION', 'INVENTORY_IS_SHIPPED', 'This product was previously shipped.');
 
 insert into lk_text_config (context, key_code, text)
-values ('UNSUITABLE_REASON', 'POSITIVE_REACTIVE_TEST_RESULTS', 'This product has a positive reactive test results and has been discarded. Place in biohazard container.');
-insert into lk_text_config (context, key_code, text)
-values ('UNSUITABLE_REASON', 'ACTIVE_DEFERRAL', 'This product has an active deferral and has been discarded. Place in biohazard container.');
+values ('UNSUITABLE_REASON', 'ACTIVE_DEFERRAL', 'This product has an active deferral with a discard consequence and has been discarded. Place in biohazard container.');
 insert into lk_text_config (context, key_code, text)
 values ('UNSUITABLE_REASON', 'MISSING_TEST_RESULTS', 'This product is missing test results and has been discarded. Place in biohazard container.');
 insert into lk_text_config (context, key_code, text)
-values ('UNSUITABLE_REASON', 'MEDICATION_INDICATORS', 'This product has a medication indicators and has been discarded. Place in biohazard container.');
+values ('UNSUITABLE_REASON', 'POSITIVE_REACTIVE_TEST_RESULTS', 'This product has been discarded for test results. Place in biohazard container.');
 insert into lk_text_config (context, key_code, text)
-values ('UNSUITABLE_REASON', 'TIMING_RULES', 'This product is timing rules and has been discarded. Place in biohazard container.');
+values ('UNSUITABLE_REASON', 'MEDICATION_INDICATORS', 'This product has been discarded for medication indicators. Place in biohazard container.');
+insert into lk_text_config (context, key_code, text)
+values ('UNSUITABLE_REASON', 'TIMING_RULES', 'This product has been discarded for timing rules. Place in biohazard container.');
 
 insert into lk_text_config (context, key_code, text)
 values ('DISCARD_REASON', 'ADDITIVE_SOLUTION_ISSUES', 'This product has already been discarded for Additive Solution Issues in the system. Place in biohazard container.');
