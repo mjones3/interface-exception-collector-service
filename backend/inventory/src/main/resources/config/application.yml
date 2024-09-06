@@ -289,3 +289,5 @@ topic:
     name: QuarantineRemoved
   product-update-quarantined:
     name: QuarantineUpdated
+  product-recovered:
+    name: ProductRecovered
