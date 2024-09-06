@@ -100,7 +100,7 @@ public class InventoryMockController {
                             .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
                                 .builder()
                                 .errorName("INVENTORY_NOT_FOUND_IN_LOCATION")
-                                .errorType("INFO")
+                                .errorType("WARN")
                                 .errorCode(1)
                                 .errorMessage(ShipmentServiceMessages.INVENTORY_NOT_FOUND_ERROR)
                                 .build()))
