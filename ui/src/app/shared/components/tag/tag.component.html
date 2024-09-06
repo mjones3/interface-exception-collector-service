@@ -1,5 +1,5 @@
 <div
-    class="inline-flex select-none flex-row items-center justify-center gap-2 rounded-full px-2.5 py-[0.2rem]"
+    class="inline-flex select-none flex-row items-center justify-center gap-2 rounded-full px-2 py-[0.2rem]"
     [ngClass]="TagTypeMap[type].backgroundColor"
 >
     @if (leftIconRef) {
@@ -11,7 +11,7 @@
     }
     @if (label) {
         <span
-            class="base font-bold uppercase"
+            class="text-base font-bold uppercase"
             [ngClass]="TagTypeMap[type].textColor"
             >{{ label }}</span
         >
