@@ -109,6 +109,12 @@ public class InventoryAggregate {
         return this;
     }
 
+    public InventoryAggregate updateQuarantine(Long quarantineId, String reason, String comments) {
+        inventory.updateQuarantine(quarantineId, reason, comments);
+
+        return this;
+    }
+
     private void transitionStatus(InventoryStatus newStatus, String statusReason) {
         inventory.transitionStatus(newStatus, statusReason);
     }

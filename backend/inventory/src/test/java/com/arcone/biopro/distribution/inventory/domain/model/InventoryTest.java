@@ -88,6 +88,27 @@ class InventoryTest {
     }
 
     @Test
+    void testUpdateQuarantine_ShouldUpdateFirstQuarantine() {
+        // Act
+        inventory.addQuarantine(1L, "Contamination", "Detected contamination");
+        inventory.addQuarantine(2L, "Under Investigation", "Product is in investigation");
+
+
+        inventory.updateQuarantine(1L, "OTHER", "Other Comment");
+
+        // Assert
+        assertEquals(2, inventory.getQuarantines().size(), "Quarantine should be added");
+        assertEquals(InventoryStatus.QUARANTINED, inventory.getInventoryStatus(), "Inventory status should change to QUARANTINED");
+        assertNull(inventory.getStatusReason(), "Status reason should be null after transition to QUARANTINED");
+
+        Quarantine quarantine = inventory.getQuarantines().stream().filter(q -> q.externId().equals(1L)).findFirst().get();
+
+        assertEquals("OTHER", quarantine.reason(), "Quarantine reason should change to OTHER");
+        assertEquals("Other Comment", quarantine.comments(), "Quarantine comments should change to 'Other Comment'");
+
+    }
+
+    @Test
     void testRemoveQuarantine_ShouldRemoveQuarantineAndRestoreStatus() {
         // Arrange
         inventory.addQuarantine(1L, "Contamination", "Detected contamination");

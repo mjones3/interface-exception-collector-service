@@ -49,6 +49,9 @@ public class KafkaListenersSteps {
     @Value("${topic.product-remove-quarantined.name}")
     private String quarantineRemovedTopic;
 
+    @Value("${topic.product-update-quarantined.name}")
+    private String quarantineUpdatedTopic;
+
     @Autowired
     private ScenarioContext scenarioContext;
 
@@ -153,6 +156,26 @@ public class KafkaListenersSteps {
        }
        """;
 
+    private static final String QUARANTINE_UPDATED_MESSAGE = """
+        {
+           "eventId": "7eaefe46-e6cf-4434-93c4-a4b1e7d44285",
+           "occurredOn": "2024-08-22T12:34:32.270657005Z",
+           "eventVersion": "1.0",
+           "eventType": "QuarantineUpdated",
+           "payload": {
+             "id": 1,
+             "unitNumber": "%s",
+             "productCode": "%s",
+             "oldReason": "OTHER",
+             "newReason": "UNDER_INVESTIGATION",
+             "comments": "a under investigation comment",
+             "stopsManufacturing": true,
+             "performedBy": "USER_ID",
+             "createDate": "2025-01-08T02:05:45.231Z"
+           }
+         }
+       """;
+
     private static final String QUARANTINE_REMOVED_MESSAGE = """
        {
           "eventId": "7eaefe46-e6cf-4434-93c4-a4b1e7d44285",
@@ -170,11 +193,12 @@ public class KafkaListenersSteps {
        }
        """;
 
-    private static final String EVENT_LABEL_APPLIED = "Label Applied";
-    private static final String EVENT_PRODUCT_STORED = "Product Stored";
-    private static final String EVENT_PRODUCT_DISCARDED = "Product Discarded";
-    private static final String EVENT_PRODUCT_QUARANTINED = "Product Quarantined";
-    private static final String EVENT_QUARANTINE_REMOVED = "Quarantine Removed";
+    public static final String EVENT_LABEL_APPLIED = "Label Applied";
+    public static final String EVENT_PRODUCT_STORED = "Product Stored";
+    public static final String EVENT_PRODUCT_DISCARDED = "Product Discarded";
+    public static final String EVENT_PRODUCT_QUARANTINED = "Product Quarantined";
+    public static final String EVENT_QUARANTINE_UPDATED = "Quarantine Updated";
+    public static final String EVENT_QUARANTINE_REMOVED = "Quarantine Removed";
 
 
 
@@ -193,7 +217,8 @@ public class KafkaListenersSteps {
             EVENT_PRODUCT_STORED, productStoredTopic,
             EVENT_PRODUCT_DISCARDED, productDiscardedTopic,
             EVENT_PRODUCT_QUARANTINED, productQuarantinedTopic,
-            EVENT_QUARANTINE_REMOVED, quarantineRemovedTopic
+            EVENT_QUARANTINE_REMOVED, quarantineRemovedTopic,
+            EVENT_QUARANTINE_UPDATED, quarantineUpdatedTopic
         );
 
         messagesMap = Map.of(
@@ -202,7 +227,8 @@ public class KafkaListenersSteps {
             EVENT_SHIPMENT_COMPLETED, SHIPMENT_COMPLETED_MESSAGE,
             EVENT_PRODUCT_DISCARDED, PRODUCT_DISCARDED_MESSAGE,
             EVENT_PRODUCT_QUARANTINED, PRODUCT_QUARANTINED_MESSAGE,
-            EVENT_QUARANTINE_REMOVED, QUARANTINE_REMOVED_MESSAGE
+            EVENT_QUARANTINE_REMOVED, QUARANTINE_REMOVED_MESSAGE,
+            EVENT_QUARANTINE_UPDATED, QUARANTINE_UPDATED_MESSAGE
         );
     }
 
@@ -210,6 +236,7 @@ public class KafkaListenersSteps {
     public void iAmListeningEvent(String event) {
         scenarioContext.setUnitNumber(TestUtil.randomString(13));
         scenarioContext.setProductCode("E0869VA0");
+        scenarioContext.setEvent(event);
         topicName = topicsMap.get(event);
         if (!EVENT_LABEL_APPLIED.equals(event)) {
             createInventory(scenarioContext.getUnitNumber(), scenarioContext.getProductCode(), ProductFamily.PLASMA_TRANSFUSABLE, AboRhType.OP, "Miami", 10, InventoryStatus.AVAILABLE);
@@ -222,9 +249,8 @@ public class KafkaListenersSteps {
         scenarioContext.setUnitNumber(untNumber);
         scenarioContext.setProductCode("E0869VA0");
         topicName = topicsMap.get(event);
-        InventoryEntity inventoryEntity = null;
         if (!EVENT_LABEL_APPLIED.equals(event)) {
-            inventoryEntity = createInventory(scenarioContext.getUnitNumber(), scenarioContext.getProductCode(), ProductFamily.PLASMA_TRANSFUSABLE, AboRhType.OP, "Miami", 10, InventoryStatus.AVAILABLE);
+            createInventory(scenarioContext.getUnitNumber(), scenarioContext.getProductCode(), ProductFamily.PLASMA_TRANSFUSABLE, AboRhType.OP, "Miami", 10, InventoryStatus.AVAILABLE);
         }
     }
 
@@ -235,7 +261,7 @@ public class KafkaListenersSteps {
 
         InventoryStatus status = statusParam;
 
-        if (topicName.equals(quarantineRemovedTopic)) {
+        if (topicName.equals(quarantineRemovedTopic) || topicName.equals(quarantineUpdatedTopic)) {
             quarantines = List.of(new Quarantine(1L, "OTHER", "a comment"));
             histories = List.of(new History(InventoryStatus.AVAILABLE, null, null));
             status = InventoryStatus.QUARANTINED;
