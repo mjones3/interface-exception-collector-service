@@ -32,6 +32,8 @@ import {
     timer,
 } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { FuseConfirmationService } from '../../../../../@fuse/services/confirmation';
+import { FuseConfirmationDialogComponent } from '../../../../../@fuse/services/confirmation/dialog/dialog.component';
 import { ERROR_MESSAGE } from '../../../../core/data/common-labels';
 import {
     DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
@@ -44,7 +46,6 @@ import { OrderShipmentDTO } from '../../graphql/query-definitions/order-details.
 import { Notification } from '../../models/notification.dto';
 import { OrderDetailsDTO } from '../../models/order-details.dto';
 import { OrderService } from '../../services/order.service';
-import { SkipInventoryUnavailableDialogComponent } from '../../skip-inventory-unavailable-dialog/skip-inventory-unavailable-dialog.component';
 import {
     ViewPickListComponent,
     ViewPickListData,
@@ -99,7 +100,8 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
         private router: Router,
         private matDialog: MatDialog,
         private orderService: OrderService,
-        private toaster: ToastrImplService
+        private toaster: ToastrImplService,
+        private fuseConfirmationService: FuseConfirmationService
     ) {}
 
     get isOrderComplete(): boolean {
@@ -176,7 +178,7 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
                             inventoryServiceIsDown
                         )
                             .afterClosed()
-                            .pipe(filter(Boolean))
+                            .pipe(filter((value) => 'confirmed' === value)) // FuseConfirmationDialogComponent dismiss result
                             .subscribe(() => this.viewPickList(orderId, true));
                         return of(null); // do not continue
                     }
@@ -247,13 +249,23 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
 
     private openSkipInventoryUnavailableDialog(
         notification: Notification
-    ): MatDialogRef<SkipInventoryUnavailableDialogComponent, boolean> {
-        return this.matDialog.open<
-            SkipInventoryUnavailableDialogComponent,
-            Notification
-        >(SkipInventoryUnavailableDialogComponent, {
-            id: 'SkipInventoryUnavailableDialog',
-            data: notification,
+    ): MatDialogRef<FuseConfirmationDialogComponent> {
+        return this.fuseConfirmationService.open({
+            title: 'Process Message',
+            message: `${notification.notificationMessage} Would you like to continue?`,
+            dismissible: false,
+            icon: {
+                show: false,
+            },
+            actions: {
+                confirm: {
+                    label: 'Continue',
+                    class: 'bg-green-highlighted text-white font-bold',
+                },
+                cancel: {
+                    class: 'font-bold',
+                },
+            },
         });
     }
 
