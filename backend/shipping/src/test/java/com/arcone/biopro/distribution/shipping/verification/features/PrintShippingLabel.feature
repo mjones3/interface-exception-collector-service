@@ -20,7 +20,7 @@ Feature: Print Shipping Label
 
             Examples:
                 | Order Number | Location Code | Customer ID | Customer Name        | Department    | Address Line 1 | Address Line 2 | Unit Number   | Product Code | Product Family      | Blood Type | Expiration | Quantity |
-                | 456          | MDL_HUB_1     | 1           | Random Hospital Inc. | Blood Banking | Street 1       | Suite 2        | W036898786810 | E4697V00     | PLASMA_TRANSFUSABLE | AP         | 04-09-2025 | 1        |
+                | 456          | 123456789     | 1           | Random Hospital Inc. | Blood Banking | Street 1       | Suite 2        | W036898786810 | E4697V00     | PLASMA_TRANSFUSABLE | AP         | 04-09-2025 | 1        |
 
     Rule: I should not be able to view and print the shipping label in pdf format when the shipment is not completed.
         @ui
@@ -32,5 +32,5 @@ Feature: Print Shipping Label
 
             Examples:
                 | Order Number | Location Code | Customer ID | Customer Name        | Department    | Address Line 1 | Address Line 2 | Unit Number   | Product Code | Product Family      | Blood Type | Expiration | Quantity |
-                | 432          | MDL_HUB_1     | 1           | Random Hospital Inc. | Blood Banking | Street 1       | Suite 2        | W036810946401 | E246300      | PLASMA_TRANSFUSABLE | AP         | 04-09-2025 | 1        |
+                | 432          | 123456789     | 1           | Random Hospital Inc. | Blood Banking | Street 1       | Suite 2        | W036810946401 | E246300      | PLASMA_TRANSFUSABLE | AP         | 04-09-2025 | 1        |
 

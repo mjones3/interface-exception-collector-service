@@ -3,7 +3,7 @@
   [
     {
       "id": 1,
-      "locationCode": "MDL_HUB_1",
+      "locationCode": "123456789",
       "unitNumber": "W036898786799",
       "productCode": "E1624V00",
       "productDescription": "APH PLASMA 24H A",
@@ -17,7 +17,7 @@
     },
     {
       "id": 2,
-      "locationCode": "MDL_HUB_1",
+      "locationCode": "123456789",
       "unitNumber": "W036898786800",
       "productCode": "E7644V00",
       "productDescription": "APH PLASMA 24H",
@@ -31,7 +31,7 @@
     },
     {
       "id": 3,
-      "locationCode": "MDL_HUB_1",
+      "locationCode": "123456789",
       "unitNumber": "W036898786801",
       "productCode": "E7646V00",
       "productDescription": "FRESH FROZEN PLASMA",
@@ -45,7 +45,7 @@
     },
     {
       "id": 4,
-      "locationCode": "MDL_HUB_1",
+      "locationCode": "123456789",
       "unitNumber": "W036898786802",
       "productCode": "E7648V00",
       "productDescription": "APH PLASMA 24H B",
@@ -59,7 +59,7 @@
     },
     {
       "id": 5,
-      "locationCode": "MDL_HUB_1",
+      "locationCode": "123456789",
       "unitNumber": "W036898786803",
       "productCode": "E7650V00",
       "productDescription": "APH PLASMA 24H C",
@@ -73,7 +73,7 @@
     },
     {
       "id": 6,
-      "locationCode": "MDL_HUB_1",
+      "locationCode": "123456789",
       "unitNumber": "W036898786806",
       "productCode": "E7607V00",
       "productDescription": "APH PLASMA 24H D",
@@ -87,7 +87,7 @@
     },
     {
       "id": 7,
-      "locationCode": "MDL_HUB_1",
+      "locationCode": "123456789",
       "unitNumber": "W036898786807",
       "productCode": "E0869V00",
       "productDescription": "APH FFP",
@@ -101,7 +101,7 @@
     },
     {
       "id": 8,
-      "locationCode": "MDL_HUB_1",
+      "locationCode": "123456789",
       "unitNumber": "W036898786808",
       "productCode": "E4689V00",
       "productDescription": "APH FFP A",
@@ -115,7 +115,7 @@
     },
     {
       "id": 9,
-      "locationCode": "MDL_HUB_1",
+      "locationCode": "123456789",
       "unitNumber": "W036898786809",
       "productCode": "E4693V00",
       "productDescription": "APH FFP B",
@@ -129,7 +129,7 @@
     },
     {
       "id": 10,
-      "locationCode": "MDL_HUB_1",
+      "locationCode": "123456789",
       "unitNumber": "W036898786810",
       "productCode": "E4697V00",
       "productDescription": "APH FFP C",
@@ -143,7 +143,7 @@
     },
     {
       "id": 11,
-      "locationCode": "MDL_HUB_1",
+      "locationCode": "123456789",
       "unitNumber": "W036898786811",
       "productCode": "E4701V00",
       "productDescription": "APH FFP D",

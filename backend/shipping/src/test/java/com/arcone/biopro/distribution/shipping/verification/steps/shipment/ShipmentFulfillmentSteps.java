@@ -68,7 +68,7 @@ public class ShipmentFulfillmentSteps {
             "OPEN",
             customerId,
             0L,
-            "MDL_HUB_1",
+            "123456789",
             "TEST",
             "TEST",
             "Frozen",
