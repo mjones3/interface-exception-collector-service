@@ -34,6 +34,7 @@ import com.arcone.biopro.distribution.shipping.infrastructure.listener.dto.Order
 import com.arcone.biopro.distribution.shipping.infrastructure.listener.dto.OrderItemFulfilledMessage;
 import com.arcone.biopro.distribution.shipping.infrastructure.listener.dto.ShortDateItem;
 import com.arcone.biopro.distribution.shipping.infrastructure.service.InventoryRsocketClient;
+import com.arcone.biopro.distribution.shipping.infrastructure.service.errors.InventoryServiceNotAvailableException;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -348,6 +349,19 @@ public class ShipmentServiceUseCase implements ShipmentService {
     }
 
     private Mono<RuleResponseDTO> buildPackErrorResponse(Throwable error) {
+        if(error instanceof InventoryServiceNotAvailableException){
+            return Mono.just(RuleResponseDTO.builder()
+                .ruleCode(HttpStatus.BAD_REQUEST)
+                .notifications(List.of(NotificationDTO
+                    .builder()
+                    .code(HttpStatus.BAD_REQUEST.value())
+                    .statusCode(HttpStatus.BAD_REQUEST.value())
+                    .name("INVENTORY_SERVICE_IS_DOWN")
+                    .message(error.getMessage())
+                    .notificationType(NotificationType.SYSTEM.name())
+                    .build()))
+                .build());
+        }
         if(error instanceof ProductValidationException exception){
             return Mono.just(RuleResponseDTO.builder()
                 .ruleCode(HttpStatus.BAD_REQUEST)
