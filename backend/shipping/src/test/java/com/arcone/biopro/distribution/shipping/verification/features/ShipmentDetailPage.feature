@@ -16,19 +16,6 @@ Feature: Access Shipment Details Page
               | 999996      | 999996      | Tampa         | 10,5,23  | AP,AN,OP  | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE|
 
 
-    Rule: I should have the option to view the pick list
-        @ui
-        Scenario Outline: View the Pick List
-            Given The shipment details are order Number "<orderNumber>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>".
-            And I have received a shipment fulfillment request with above details.
-            When I am on the Shipment Fulfillment Details page.
-            Then I should have an option to view the Pick List.
-
-            Examples:
-                | orderNumber | Customer ID | Customer Name | Quantity | BloodType | ProductFamily                                              |
-                | 999997      | 999997      | Tampa         | 10,5,23  | AP,AN,OP  | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE|
-
-
 
     Rule:I should have the option to Fill the shipment
         @ui

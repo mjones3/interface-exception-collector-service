@@ -18,11 +18,12 @@ export interface FuseConfirmationConfig {
         confirm?: {
             show?: boolean;
             label?: string;
-            color?: 'primary' | 'accent' | 'warn';
+            class?: string;
         };
         cancel?: {
             show?: boolean;
             label?: string;
+            class?: string;
         };
     };
     dismissible?: boolean;

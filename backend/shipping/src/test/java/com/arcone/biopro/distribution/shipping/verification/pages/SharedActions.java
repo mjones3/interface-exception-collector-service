@@ -114,6 +114,7 @@ public class SharedActions {
 
     public void clickElementAndMoveToNewTab(WebDriver driver, WebElement element, int expectedWindowsNumber) {
         this.click(element);
+        log.info("Waiting for {} windows to be open. Currently: {}", expectedWindowsNumber, driver.getWindowHandles().size());
         wait.until(numberOfWindowsToBe(expectedWindowsNumber));
         driver.switchTo().window(driver.getWindowHandles().toArray(new String[0])[1]);
     }
@@ -139,13 +140,24 @@ public class SharedActions {
 
     public void verifyMessage(String header, String message) {
         log.info("Verifying message: {}", message);
-        String bannerMessageLocator = "#toast-container";
-        String msg = wait.until(e -> e.findElement(By.cssSelector(bannerMessageLocator))).getText();
+        var bannerMessageLocator = "";
+        if(header.startsWith("Acknowledgment")){
+            bannerMessageLocator = "//*[@id='mat-mdc-dialog-0']//fuse-confirmation-dialog";
+        }else{
+            bannerMessageLocator = "//*[@id='toast-container']";
+        }
+
+        String finalBannerMessageLocator = bannerMessageLocator;
+        String msg = wait.until(e -> e.findElement(By.xpath(finalBannerMessageLocator))).getText();
 
         // Split the message at line break to get header and message
         String[] msgParts = msg.split("\n");
         Assert.assertEquals(header.toUpperCase(), msgParts[0].toUpperCase());
         Assert.assertEquals(message.toUpperCase(), msgParts[1].toUpperCase());
+
+        // dialog "//*[@id='mat-mdc-dialog-0']/div/div/fuse-confirmation-dialog"
+
+
     }
 
     public void waitLoadingAnimation() throws InterruptedException {

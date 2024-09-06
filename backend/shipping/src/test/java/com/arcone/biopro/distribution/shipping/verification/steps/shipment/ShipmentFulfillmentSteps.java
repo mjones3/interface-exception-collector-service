@@ -66,7 +66,7 @@ public class ShipmentFulfillmentSteps {
         return shipmentTestingController.buildShipmentRequestDetailsResponseType(Long.valueOf(orderNumber),
             "ASAP",
             "OPEN",
-            Long.valueOf(customerId),
+            customerId,
             0L,
             "MDL_HUB_1",
             "TEST",
