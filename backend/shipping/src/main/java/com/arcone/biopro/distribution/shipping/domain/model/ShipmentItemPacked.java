@@ -15,6 +15,7 @@ import org.springframework.data.relational.core.mapping.InsertOnlyProperty;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
 @Data
@@ -52,7 +53,7 @@ public class ShipmentItemPacked implements Serializable, Persistable<Long> {
 
     @NotNull
     @Column("expiration_date")
-    private ZonedDateTime expirationDate;
+    private LocalDateTime expirationDate;
 
     @Column("collection_date")
     private ZonedDateTime collectionDate;

@@ -4,6 +4,7 @@ import com.arcone.biopro.distribution.shipping.domain.model.enumeration.VisualIn
 import lombok.Builder;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
 @Builder
@@ -16,7 +17,7 @@ public record ShipmentItemPackedDTO(
     String aboRh,
     String productDescription,
     String productFamily,
-    ZonedDateTime expirationDate,
+    LocalDateTime expirationDate,
     ZonedDateTime collectionDate,
     String packedByEmployeeId,
     VisualInspection visualInspection
