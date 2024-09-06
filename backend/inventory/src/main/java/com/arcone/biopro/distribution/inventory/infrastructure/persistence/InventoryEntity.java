@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.inventory.infrastructure.persistence;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ProductFamily;
+import com.arcone.biopro.distribution.inventory.domain.model.vo.History;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotBlank;
@@ -89,6 +90,9 @@ public class InventoryEntity implements Serializable, Persistable<UUID> {
 
     @Column("quarantines")
     List<Quarantine> quarantines;
+
+    @Column("histories")
+    List<History> histories;
 
     @Column("device_stored")
     String deviceStored;

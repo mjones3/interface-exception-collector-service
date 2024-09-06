@@ -1,9 +1,11 @@
 package com.arcone.biopro.distribution.inventory.infrastructure.config;
 
+import com.arcone.biopro.distribution.inventory.domain.model.vo.History;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.r2dbc.postgresql.codec.Json;
 import io.r2dbc.spi.ConnectionFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +37,10 @@ public class DatabaseConfiguration {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
+    static {
+        OBJECT_MAPPER.registerModule(new JavaTimeModule());
+    }
+
     // LocalDateTime seems to be the only type that is supported across all drivers atm
     // See https://github.com/r2dbc/r2dbc-h2/pull/139 https://github.com/mirromutth/r2dbc-mysql/issues/105
     @Bean
@@ -49,6 +55,8 @@ public class DatabaseConfiguration {
         converters.add(ZonedDateTimeWriteConverter.INSTANCE);
         converters.add(JsonToQuarantineListConverter.INSTANCE);
         converters.add(QuarantineListToJsonConverter.INSTANCE);
+        converters.add(JsonToHistoryListConverter.INSTANCE);
+        converters.add(HistoryListToJsonConverter.INSTANCE);
         return R2dbcCustomConversions.of(dialect, converters);
     }
 
@@ -148,7 +156,7 @@ public class DatabaseConfiguration {
                 return OBJECT_MAPPER.readValue(source.asString(), new TypeReference<List<Quarantine>>() {
                 });
             } catch (JsonProcessingException e) {
-                throw new IllegalStateException("Failed to convert Json to List<InputProduct>", e);
+                throw new IllegalStateException("Failed to convert Json to List<Quarantine>", e);
             }
         }
     }
@@ -162,7 +170,36 @@ public class DatabaseConfiguration {
             try {
                 return Json.of(OBJECT_MAPPER.writeValueAsString(source));
             } catch (JsonProcessingException e) {
-                throw new IllegalStateException("Failed to convert List<InputProduct> to Json", e);
+                throw new IllegalStateException("Failed to convert List<Quarantine> to Json", e);
+            }
+        }
+    }
+
+    @ReadingConverter
+    public enum JsonToHistoryListConverter implements Converter<Json, List<History>> {
+        INSTANCE;
+
+        @Override
+        public List<History> convert(Json source) {
+            try {
+                return OBJECT_MAPPER.readValue(source.asString(), new TypeReference<List<History>>() {
+                });
+            } catch (JsonProcessingException e) {
+                throw new IllegalStateException("Failed to convert Json to List<History>", e);
+            }
+        }
+    }
+
+    @WritingConverter
+    public enum HistoryListToJsonConverter implements Converter<List<History>, Json> {
+        INSTANCE;
+
+        @Override
+        public Json convert(List<History> source) {
+            try {
+                return Json.of(OBJECT_MAPPER.writeValueAsString(source));
+            } catch (JsonProcessingException e) {
+                throw new IllegalStateException("Failed to convert List<History> to Json", e);
             }
         }
     }

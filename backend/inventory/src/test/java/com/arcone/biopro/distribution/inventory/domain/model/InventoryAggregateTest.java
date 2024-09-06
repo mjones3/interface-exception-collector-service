@@ -1,18 +1,16 @@
 package com.arcone.biopro.distribution.inventory.domain.model;
 
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.MessageType;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.NotificationMessage;
-import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.ArrayList;
 
-import static com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate.OTHER_SEE_COMMENTS;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class InventoryAggregateTest {
 
@@ -27,77 +25,77 @@ class InventoryAggregateTest {
 
         inventoryAggregate = InventoryAggregate.builder()
             .inventory(inventoryMock)
+            .notificationMessages(new ArrayList<>())
             .build();
     }
 
     @Test
     void testIsExpired_ShouldReturnTrue_WhenExpirationDateIsBeforeNow() {
-        // Arrange
         when(inventoryMock.getExpirationDate()).thenReturn(LocalDateTime.now().minusDays(1));
-
-        // Act
-        boolean result = inventoryAggregate.isExpired();
-
-        // Assert
-        assertTrue(result, "Expected inventory to be expired");
+        assertTrue(inventoryAggregate.isExpired(), "Expected inventory to be expired");
     }
 
     @Test
     void testIsExpired_ShouldReturnFalse_WhenExpirationDateIsAfterNow() {
-        // Arrange
         when(inventoryMock.getExpirationDate()).thenReturn(LocalDateTime.now().plusDays(1));
-
-        // Act
-        boolean result = inventoryAggregate.isExpired();
-
-        // Assert
-        assertFalse(result, "Expected inventory to not be expired");
+        assertFalse(inventoryAggregate.isExpired(), "Expected inventory to not be expired");
     }
 
     @Test
     void testCheckIfIsValidToShip_ShouldAddNotification_WhenInventoryIsExpired() {
-        // Arrange
         when(inventoryMock.getInventoryStatus()).thenReturn(InventoryStatus.AVAILABLE);
         when(inventoryMock.getExpirationDate()).thenReturn(LocalDateTime.now().minusDays(1));
 
-        // Act
         inventoryAggregate.checkIfIsValidToShip("LOCATION_1");
 
-        // Assert
         assertFalse(inventoryAggregate.getNotificationMessages().isEmpty(), "Expected notification messages when inventory is expired");
+        NotificationMessage message = inventoryAggregate.getNotificationMessages().get(0);
+        assertEquals(MessageType.INVENTORY_IS_EXPIRED.name(), message.name());
     }
 
     @Test
     void testCheckIfIsValidToShip_ShouldAddNotification_WhenLocationDoesNotMatch() {
-        // Arrange
         when(inventoryMock.getInventoryStatus()).thenReturn(InventoryStatus.AVAILABLE);
         when(inventoryMock.getExpirationDate()).thenReturn(LocalDateTime.now().plusDays(1));
         when(inventoryMock.getLocation()).thenReturn("LOCATION_2");
 
-        // Act
         inventoryAggregate.checkIfIsValidToShip("LOCATION_1");
 
-        // Assert
         assertFalse(inventoryAggregate.getNotificationMessages().isEmpty(), "Expected notification messages when location does not match");
+        NotificationMessage message = inventoryAggregate.getNotificationMessages().get(0);
+        assertEquals(MessageType.INVENTORY_NOT_FOUND_IN_LOCATION.name(), message.name());
     }
-
-
 
     @Test
-    void testCreateQuarantinesNotificationMessage_ShouldReturnCorrectMessages() {
-        // Arrange
-        Quarantine quarantineMock = mock(Quarantine.class);
-        when(quarantineMock.reason()).thenReturn(OTHER_SEE_COMMENTS);
-        when(quarantineMock.comment()).thenReturn("Special case");
-        when(inventoryMock.getInventoryStatus()).thenReturn(InventoryStatus.QUARANTINED);
-        when(inventoryMock.getQuarantines()).thenReturn(List.of(quarantineMock));
-
-        // Act
-        inventoryAggregate.checkIfIsValidToShip("LOCATION_1");
-
-        // Assert
-        List<NotificationMessage> messages = inventoryAggregate.getNotificationMessages();
-        assertEquals(1, messages.size());
-        assertEquals(OTHER_SEE_COMMENTS + ": Special case", messages.getFirst().message());
+    void testCompleteShipment_ShouldTransitionStatusToShipped() {
+        inventoryAggregate.completeShipment();
+        verify(inventoryMock).transitionStatus(InventoryStatus.SHIPPED, null);
     }
+
+    @Test
+    void testUpdateStorage_ShouldUpdateDeviceAndLocation() {
+        inventoryAggregate.updateStorage("DEVICE_1", "STORAGE_1");
+        verify(inventoryMock).setDeviceStored("DEVICE_1");
+        verify(inventoryMock).setStorageLocation("STORAGE_1");
+    }
+
+    @Test
+    void testDiscardProduct_ShouldUpdateStatusAndSetComments() {
+        inventoryAggregate.discardProduct("Expired", "Product is expired");
+        verify(inventoryMock).transitionStatus(InventoryStatus.DISCARDED, "Expired");
+        verify(inventoryMock).setComments("Product is expired");
+    }
+
+    @Test
+    void testRemoveQuarantine_ShouldRemoveQuarantine() {
+        inventoryAggregate.removeQuarantine(1L);
+        verify(inventoryMock).removeQuarantine(1L);
+    }
+
+    @Test
+    void testAddQuarantine_ShouldAddNewQuarantine() {
+        inventoryAggregate.addQuarantine(1L, "Contamination", "Detected contamination");
+        verify(inventoryMock).addQuarantine(1L, "Contamination", "Detected contamination");
+    }
+
 }

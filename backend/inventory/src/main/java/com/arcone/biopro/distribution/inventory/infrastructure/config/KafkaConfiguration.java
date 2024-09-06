@@ -1,6 +1,9 @@
 package com.arcone.biopro.distribution.inventory.infrastructure.config;
 
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.label.LabelAppliedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.AddQuarantinedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.RemoveQuarantinedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.UpdateQuarantinedMessage;
 import com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput;
 import io.github.springwolf.core.asyncapi.annotations.AsyncListener;
 import io.github.springwolf.core.asyncapi.annotations.AsyncOperation;
@@ -41,6 +44,14 @@ class KafkaConfiguration {
     @Value("${topic.product-discarded.name}")
     private String productDiscardedTopic;
 
+    @Value("${topic.product-remove-quarantined.name}")
+    private String removeQuarantinedTopic;
+
+    @Value("${topic.product-update-quarantined.name}")
+    private String updateQuarantinedTopic;
+
+    @Value("${topic.product-quarantined.name}")
+    private String addQuarantinedTopic;
 
     @Bean
     @Qualifier("LABEL_APPLIED")
@@ -114,6 +125,63 @@ class KafkaConfiguration {
     @Bean(name = "PRODUCT_DISCARDED_CONSUMER")
     ReactiveKafkaConsumerTemplate<String, String> productDiscardedConsumerTemplate(
         @Qualifier("PRODUCT_DISCARDED") ReceiverOptions<String, String> receiverOptions
+    ) {
+        return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
+    }
+
+    @Bean
+    @Qualifier("PRODUCT_REMOVE_QUARANTINED")
+    ReceiverOptions<String, String> productRemoveQuarantinedReceiverOptions(KafkaProperties kafkaProperties) {
+        return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
+            .subscription(List.of(removeQuarantinedTopic));
+    }
+
+    @Bean
+    @Qualifier("PRODUCT_UPDATE_QUARANTINED")
+    ReceiverOptions<String, String> productUpdateQuarantinedReceiverOptions(KafkaProperties kafkaProperties) {
+        return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
+            .subscription(List.of(updateQuarantinedTopic));
+    }
+
+    @Bean
+    @Qualifier("PRODUCT_ADD_QUARANTINED")
+    ReceiverOptions<String, String> productAddQuarantinedReceiverOptions(KafkaProperties kafkaProperties) {
+        return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
+            .subscription(List.of(addQuarantinedTopic));
+    }
+
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "QuarantineRemoved",
+        description = "Product Quarantine is removed.",
+        payloadType = RemoveQuarantinedMessage.class
+    ))
+    @Bean(name = "PRODUCT_REMOVE_QUARANTINED_CONSUMER")
+    ReactiveKafkaConsumerTemplate<String, String> productRemoveQuarantinedConsumerTemplate(
+        @Qualifier("PRODUCT_REMOVE_QUARANTINED") ReceiverOptions<String, String> receiverOptions
+    ) {
+        return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
+    }
+
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "QuarantineUpdated",
+        description = "Product Quarantine is Updated.",
+        payloadType = UpdateQuarantinedMessage.class
+    ))
+    @Bean(name = "PRODUCT_UPDATE_QUARANTINED_CONSUMER")
+    ReactiveKafkaConsumerTemplate<String, String> productUpdateQuarantinedConsumerTemplate(
+        @Qualifier("PRODUCT_UPDATE_QUARANTINED") ReceiverOptions<String, String> receiverOptions
+    ) {
+        return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
+    }
+
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "ProductQuarantined",
+        description = "Product Quarantine is added.",
+        payloadType = AddQuarantinedMessage.class
+    ))
+    @Bean(name = "PRODUCT_ADD_QUARANTINED_CONSUMER")
+    ReactiveKafkaConsumerTemplate<String, String> productAddQuarantinedConsumerTemplate(
+        @Qualifier("PRODUCT_ADD_QUARANTINED") ReceiverOptions<String, String> receiverOptions
     ) {
         return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
     }

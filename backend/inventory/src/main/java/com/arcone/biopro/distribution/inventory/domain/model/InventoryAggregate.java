@@ -23,7 +23,6 @@ public class InventoryAggregate {
 
     List<NotificationMessage> notificationMessages;
 
-
     public Boolean isExpired() {
         return inventory.getExpirationDate().isBefore(LocalDateTime.now());
     }
@@ -40,14 +39,10 @@ public class InventoryAggregate {
         }
 
         if (!inventory.getLocation().equals(location)) {
-            notificationMessages.add(createNotificationMessage(MessageType.INVENTORY_NOT_FOUND_IN_LOCATION));
+            notificationMessages.add(createNotificationMessage(MessageType.INVENTORY_NOT_FOUND_IN_LOCATION, null));
         }
 
         return this;
-    }
-
-    private NotificationMessage createNotificationMessage(MessageType messageType) {
-        return createNotificationMessage(messageType, null);
     }
 
     private NotificationMessage createNotificationMessage(MessageType notificationType, String reason) {
@@ -77,7 +72,7 @@ public class InventoryAggregate {
             .map(q -> new NotificationMessage(
                 qt.name(),
                 qt.getCode(),
-                !q.reason().equals(OTHER_SEE_COMMENTS) ? q.reason() : String.format("%s: %s", OTHER_SEE_COMMENTS, q.comment()),
+                !q.reason().equals(OTHER_SEE_COMMENTS) ? q.reason() : String.format("%s: %s", OTHER_SEE_COMMENTS, q.comments()),
                 qt.getType().name(),
                 qt.getAction().name(),
                 null))
@@ -85,7 +80,7 @@ public class InventoryAggregate {
     }
 
     public InventoryAggregate completeShipment() {
-        inventory.setInventoryStatus(InventoryStatus.SHIPPED);
+        transitionStatus(InventoryStatus.SHIPPED, null);
         return this;
     }
 
@@ -96,9 +91,31 @@ public class InventoryAggregate {
     }
 
     public InventoryAggregate discardProduct(String reason, String comments) {
-        inventory.setStatusReason(reason);
+        transitionStatus(InventoryStatus.DISCARDED, reason);
+
         inventory.setComments(comments);
-        inventory.setInventoryStatus(InventoryStatus.DISCARDED);
+
         return this;
+    }
+
+    public InventoryAggregate removeQuarantine(Long quarantineId) {
+        inventory.removeQuarantine(quarantineId);
+        return this;
+    }
+
+    public InventoryAggregate addQuarantine(Long quarantineId, String reason, String comments) {
+        inventory.addQuarantine(quarantineId, reason, comments);
+
+        return this;
+    }
+
+    public InventoryAggregate updateQuarantine(Long quarantineId, String reason, String comments) {
+        inventory.updateQuarantine(quarantineId, reason, comments);
+
+        return this;
+    }
+
+    private void transitionStatus(InventoryStatus newStatus, String statusReason) {
+        inventory.transitionStatus(newStatus, statusReason);
     }
 }

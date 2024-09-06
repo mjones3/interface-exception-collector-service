@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.inventory.verification.steps;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ProductFamily;
+import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntity;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntityRepository;
 import com.arcone.biopro.distribution.inventory.verification.common.ScenarioContext;
@@ -20,7 +21,10 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static com.arcone.biopro.distribution.inventory.verification.steps.KafkaListenersSteps.EVENT_QUARANTINE_UPDATED;
+import static com.arcone.biopro.distribution.inventory.verification.steps.UseCaseSteps.quarantineReasonMap;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @Slf4j
 public class RepositorySteps {
@@ -32,6 +36,10 @@ public class RepositorySteps {
 
     private final CountDownLatch waiter = new CountDownLatch(1);
 
+    public InventoryEntity getInventory(String unitNumber, String productCode, InventoryStatus status) {
+        return inventoryEntityRepository.findByUnitNumberAndProductCodeAndInventoryStatus(unitNumber, productCode, status).block();
+    }
+
     public InventoryEntity getInventoryWithRetry(String unitNumber, String productCode, InventoryStatus status) throws InterruptedException {
         int maxTryCount = 60;
         int tryCount = 0;
@@ -39,6 +47,10 @@ public class RepositorySteps {
         InventoryEntity entity = null;
         while (tryCount < maxTryCount && entity == null) {
             entity = inventoryEntityRepository.findByUnitNumberAndProductCodeAndInventoryStatus(unitNumber, productCode, status).block();
+
+            if (EVENT_QUARANTINE_UPDATED.equals(scenarioContext.getEvent()) && "OTHER".equals(entity.getQuarantines().getFirst().reason())) {
+                entity = null;
+            }
 
             tryCount++;
             waiter.await(1, TimeUnit.SECONDS);
@@ -87,6 +99,10 @@ public class RepositorySteps {
         assertEquals(scenarioContext.getProductCode(), inventory.getProductCode());
         assertEquals(scenarioContext.getUnitNumber(), inventory.getUnitNumber());
         assertEquals(status, inventory.getInventoryStatus().name());
+
+        if (EVENT_QUARANTINE_UPDATED.equals(scenarioContext.getEvent())) {
+            assertEquals("UNDER_INVESTIGATION", inventory.getQuarantines().getFirst().reason());
+        }
     }
 
     @And("For unit number {string} and product code {string} the device stored is {string} and the storage location is {string}")
@@ -106,14 +122,12 @@ public class RepositorySteps {
 
     @Then("I verify the quarantine reason {string} with id {string} is found {string} for unit number {string} and product {string}")
     public void iVerifyTheQuarantineReasonIsInactiveForUnitNumberAndProduct(String quarantineReason, String quarantineReasonId, String isFound, String unitNumber, String productCode) throws InterruptedException {
-        InventoryEntity inventory = getInventoryWithRetry(scenarioContext.getUnitNumber(), scenarioContext.getProductCode(), InventoryStatus.valueOf("QUARANTINED"));
+        InventoryEntity inventory = getInventory(scenarioContext.getUnitNumber(), scenarioContext.getProductCode(), InventoryStatus.valueOf("QUARANTINED"));
 
         assert inventory != null;
-        fail("Step code commented because changes for LAB-79 are not done on application side");
-//        List<ProductQuarantinedEntity> productQuarantines = productQuarantinedEntityRepository.findAllByProductId(product.getId()).collectList().block();
-//
-//        List<ProductQuarantinedEntity> productsReason = productQuarantines.stream().filter(q -> q.getReason().equals(QuarantineReason.valueOf(quarantineReasonMap.get(quarantineReason))) && q.getId().equals(quarantineReasonId)).toList();
-//
-//        assertEquals(Boolean.valueOf(isFound), !productsReason.isEmpty());
+        List<Quarantine> productsReason =  inventory.getQuarantines().stream().filter(q -> quarantineReasonMap.get(quarantineReason)
+            .equals(q.reason()) && q.externId().equals(Long.parseLong(quarantineReasonId))).toList();
+
+        assertEquals(Boolean.valueOf(isFound), !productsReason.isEmpty());
     }
 }
