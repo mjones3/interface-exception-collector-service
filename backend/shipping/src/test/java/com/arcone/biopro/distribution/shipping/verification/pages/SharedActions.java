@@ -154,10 +154,11 @@ public class SharedActions {
         if(header.startsWith("Acknowledgment")){
             bannerMessageLocator = "//*[@id='mat-mdc-dialog-0']//fuse-confirmation-dialog";
         }else{
-            bannerMessageLocator = "//*[@id='toast-container']";
+            bannerMessageLocator = "//*[@id='toast-container']//fuse-alert";
         }
 
         String finalBannerMessageLocator = bannerMessageLocator;
+        waitForVisible(By.xpath(finalBannerMessageLocator));
         String msg = wait.until(e -> e.findElement(By.xpath(finalBannerMessageLocator))).getText();
 
         // Split the message at line break to get header and message
