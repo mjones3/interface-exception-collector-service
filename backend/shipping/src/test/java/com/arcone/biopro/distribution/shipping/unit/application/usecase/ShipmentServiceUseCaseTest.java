@@ -143,6 +143,7 @@ class ShipmentServiceUseCaseTest {
         Mockito.when(shipment.getOrderNumber()).thenReturn(56L);
         Mockito.when(shipment.getStatus()).thenReturn(ShipmentStatus.OPEN);
         Mockito.when(shipment.getPriority()).thenReturn(ShipmentPriority.ASAP);
+        Mockito.when(shipment.getComments()).thenReturn("TEST_COMMENTS");
 
         Mockito.when(shipmentRepository.findById(1L)).thenReturn(Mono.just(shipment));
 
@@ -176,6 +177,7 @@ class ShipmentServiceUseCaseTest {
                 assertEquals(Optional.of(56L), Optional.of(detail.orderNumber()));
                 assertEquals(Optional.of(ShipmentStatus.OPEN), Optional.of(detail.status()));
                 assertEquals(Optional.of(ShipmentPriority.ASAP), Optional.of(detail.priority()));
+                assertEquals(Optional.of("TEST_COMMENTS"), Optional.of(detail.comments()));
                 assertEquals(detail.items().size(), 1);
                 assertEquals(Optional.of(BloodType.AP), Optional.of(detail.items().get(0).bloodType()));
                 assertEquals(detail.items().get(0).shortDateProducts().size(), 1);
