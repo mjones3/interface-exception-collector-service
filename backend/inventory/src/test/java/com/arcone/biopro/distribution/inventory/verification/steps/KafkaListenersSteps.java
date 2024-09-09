@@ -43,6 +43,9 @@ public class KafkaListenersSteps {
     @Value("${topic.product-discarded.name}")
     private String productDiscardedTopic;
 
+    @Value("${topic.product-recovered.name}")
+    private String productRecoveredTopic;
+
     @Value("${topic.product-quarantined.name}")
     private String productQuarantinedTopic;
 
@@ -127,7 +130,7 @@ public class KafkaListenersSteps {
           "eventVersion": "1.0",
           "payload": {
              "unitNumber": "%s",
-            "productCode": "%s",
+            "productCode": "E0869A0",
             "reasonDescriptionKey": "ADDITIVE_SOLUTION_ISSUES",
              "comments": "The comments about discarded product",
             "triggeredBy": "USER_ID",
@@ -135,6 +138,21 @@ public class KafkaListenersSteps {
             "createDate": "2024-07-01T00:10:00Z"
           }
         }
+        """;
+
+    private static final String PRODUCT_RECOVERED_MESSAGE = """
+        {
+           "eventId": "7eaefe46-e6cf-4434-93c4-a4b1e7d44285",
+           "occurredOn": "2024-08-22T12:34:32.270657005Z",
+           "eventVersion": "1.0",
+           "eventType": "ProductRecovered",
+           "payload": {
+             "unitNumber": "%s",
+            "productCode": "E0869A0",
+             "performedBy": "USER_ID",
+             "createDate": "2025-01-08T02:05:45.231Z"
+           }
+         }
         """;
 
     private static final String PRODUCT_QUARANTINED_MESSAGE = """
@@ -146,7 +164,7 @@ public class KafkaListenersSteps {
           "payload": {
             "id": 1,
             "unitNumber": "%s",
-            "productCode": "%s",
+            "productCode": "E0869A0",
             "reason": "OTHER",
             "comments": "a comment",
             "stopsManufacturing": false,
@@ -165,7 +183,7 @@ public class KafkaListenersSteps {
            "payload": {
              "id": 1,
              "unitNumber": "%s",
-             "productCode": "%s",
+             "productCode": "E0869A0",
              "oldReason": "OTHER",
              "newReason": "UNDER_INVESTIGATION",
              "comments": "a under investigation comment",
@@ -185,7 +203,7 @@ public class KafkaListenersSteps {
           "payload": {
             "id": 1,
             "unitNumber": "%s",
-            "productCode": "%s",
+            "productCode": "E0869A0",
             "reason": "OTHER",
             "performedBy": "USER_ID",
             "createDate": "2025-01-08T02:05:45.231Z"
@@ -199,6 +217,8 @@ public class KafkaListenersSteps {
     public static final String EVENT_PRODUCT_QUARANTINED = "Product Quarantined";
     public static final String EVENT_QUARANTINE_UPDATED = "Quarantine Updated";
     public static final String EVENT_QUARANTINE_REMOVED = "Quarantine Removed";
+    public static final String EVENT_PRODUCT_RECOVERED = "Product Recovered";
+
 
 
 
@@ -218,7 +238,8 @@ public class KafkaListenersSteps {
             EVENT_PRODUCT_DISCARDED, productDiscardedTopic,
             EVENT_PRODUCT_QUARANTINED, productQuarantinedTopic,
             EVENT_QUARANTINE_REMOVED, quarantineRemovedTopic,
-            EVENT_QUARANTINE_UPDATED, quarantineUpdatedTopic
+            EVENT_QUARANTINE_UPDATED, quarantineUpdatedTopic,
+            EVENT_PRODUCT_RECOVERED, productRecoveredTopic
         );
 
         messagesMap = Map.of(
@@ -228,7 +249,8 @@ public class KafkaListenersSteps {
             EVENT_PRODUCT_DISCARDED, PRODUCT_DISCARDED_MESSAGE,
             EVENT_PRODUCT_QUARANTINED, PRODUCT_QUARANTINED_MESSAGE,
             EVENT_QUARANTINE_REMOVED, QUARANTINE_REMOVED_MESSAGE,
-            EVENT_QUARANTINE_UPDATED, QUARANTINE_UPDATED_MESSAGE
+            EVENT_QUARANTINE_UPDATED, QUARANTINE_UPDATED_MESSAGE,
+            EVENT_PRODUCT_RECOVERED, PRODUCT_RECOVERED_MESSAGE
         );
     }
 
@@ -258,6 +280,8 @@ public class KafkaListenersSteps {
 
         List<Quarantine> quarantines = null;
         List<History> histories = null;
+        String reason = null;
+        String comment = null;
 
         InventoryStatus status = statusParam;
 
@@ -265,6 +289,13 @@ public class KafkaListenersSteps {
             quarantines = List.of(new Quarantine(1L, "OTHER", "a comment"));
             histories = List.of(new History(InventoryStatus.AVAILABLE, null, null));
             status = InventoryStatus.QUARANTINED;
+        }
+
+        if (topicName.equals(productRecoveredTopic)) {
+            histories = List.of(new History(InventoryStatus.AVAILABLE, null, null));
+            reason = "EXPIRED";
+            comment = "Some comments";
+            status = InventoryStatus.DISCARDED;
         }
 
         return inventoryEntityRepository.save(InventoryEntity.builder()
@@ -280,6 +311,8 @@ public class KafkaListenersSteps {
             .quarantines(quarantines)
             .histories(histories)
             .shortDescription("Short description")
+            .comments(comment)
+            .statusReason(reason)
             .build()).block();
 
     }
@@ -310,7 +343,7 @@ public class KafkaListenersSteps {
     @When("I receive a {string} message with unit number {string}, product code {string} and location {string}")
     public void iReceiveAMessageWithUnitNumberProductCodeAndLocation(String event, String unitNumber, String productCode, String location) throws Exception {
         testUtils.kafkaSender(
-            scenarioContext.getUnitNumber() + "-" + scenarioContext.getProductCode(),
+            scenarioContext.getUnitNumber() + "-" + scenarioContext.getProductCode().replaceAll("V", ""),
             buildMessage(event, unitNumber, productCode, location),
             topicName);
     }

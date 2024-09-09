@@ -2,9 +2,12 @@ package com.arcone.biopro.distribution.inventory.verification.steps;
 
 import com.arcone.biopro.distribution.inventory.application.dto.AddQuarantineInput;
 import com.arcone.biopro.distribution.inventory.application.dto.Product;
+import com.arcone.biopro.distribution.inventory.application.dto.ProductRecoveredInput;
 import com.arcone.biopro.distribution.inventory.application.dto.RemoveQuarantineInput;
 import com.arcone.biopro.distribution.inventory.application.usecase.AddQuarantinedUseCase;
+import com.arcone.biopro.distribution.inventory.application.usecase.ProductRecoveredUseCase;
 import com.arcone.biopro.distribution.inventory.application.usecase.RemoveQuarantinedUseCase;
+import com.arcone.biopro.distribution.inventory.verification.common.ScenarioContext;
 import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +22,12 @@ public class UseCaseSteps {
 
     @Autowired
     private RemoveQuarantinedUseCase removeQuarantinedUseCase;
+
+    @Autowired
+    private ProductRecoveredUseCase productRecoveredUseCase;
+
+    @Autowired
+    private ScenarioContext scenarioContext;
 
 
     public static final Map<String, String> quarantineReasonMap = Map.of(
@@ -53,5 +62,10 @@ public class UseCaseSteps {
             .build();
 
         removeQuarantinedUseCase.execute(new RemoveQuarantineInput(product, Long.parseLong(quarantineReasonId))).block();
+    }
+
+    @When("I received a Product Recovered event")
+    public void iReceivedAEvent() {
+        productRecoveredUseCase.execute(new ProductRecoveredInput(scenarioContext.getUnitNumber(), scenarioContext.getProductCode() )).block();
     }
 }

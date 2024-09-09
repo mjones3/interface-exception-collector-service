@@ -1,8 +1,10 @@
 package com.arcone.biopro.distribution.inventory.verification.steps;
 
+import com.arcone.biopro.distribution.inventory.commm.TestUtil;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ProductFamily;
+import com.arcone.biopro.distribution.inventory.domain.model.vo.History;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntity;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntityRepository;
@@ -129,5 +131,40 @@ public class RepositorySteps {
             .equals(q.reason()) && q.externId().equals(Long.parseLong(quarantineReasonId))).toList();
 
         assertEquals(Boolean.valueOf(isFound), !productsReason.isEmpty());
+    }
+
+    @Given("I have a Discarded Product in Inventory with previous status {string}")
+    public void iHaveADiscardedProductInInventoryWithPreviousStatus(String previousStatus) {
+        List<Quarantine> quarantines = null;
+        List<History> histories = null;
+
+        scenarioContext.setUnitNumber(TestUtil.randomString(13));
+        scenarioContext.setProductCode("E0869VA0");
+
+        if(InventoryStatus.AVAILABLE.toString().equals(previousStatus)) {
+            histories = List.of(new History(InventoryStatus.valueOf(previousStatus), null, null));
+        }
+        if (InventoryStatus.QUARANTINED.toString().equals(previousStatus)) {
+            quarantines = List.of(new Quarantine(1L, "OTHER", "a comment"));
+            histories = List.of(new History(InventoryStatus.valueOf(previousStatus), null, null));
+        }
+
+
+        inventoryEntityRepository.save(InventoryEntity.builder()
+            .id(UUID.randomUUID())
+            .productFamily(ProductFamily.PLASMA_TRANSFUSABLE)
+            .aboRh(AboRhType.OP)
+            .location("Miami")
+            .collectionDate(ZonedDateTime.now().toString())
+            .inventoryStatus(InventoryStatus.DISCARDED)
+            .expirationDate(LocalDateTime.now().plusDays(10))
+            .unitNumber(scenarioContext.getUnitNumber())
+            .productCode(scenarioContext.getProductCode())
+            .quarantines(quarantines)
+            .histories(histories)
+            .shortDescription("Short description")
+            .comments("Some comments")
+            .statusReason("EXPIRED")
+            .build()).block();
     }
 }

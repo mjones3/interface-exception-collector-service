@@ -109,6 +109,11 @@ public class InventoryAggregate {
         return this;
     }
 
+    public InventoryAggregate recoveryStatus() {
+        inventory.restoreHistory();
+        return this;
+    }
+
     public InventoryAggregate updateQuarantine(Long quarantineId, String reason, String comments) {
         inventory.updateQuarantine(quarantineId, reason, comments);
 

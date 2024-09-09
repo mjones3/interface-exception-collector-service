@@ -1,9 +1,11 @@
 package com.arcone.biopro.distribution.inventory.infrastructure.config;
 
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.discarded.ProductDiscardedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.label.LabelAppliedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.AddQuarantinedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.RemoveQuarantinedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.UpdateQuarantinedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.ProductRecoveredMessage;
 import com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput;
 import io.github.springwolf.core.asyncapi.annotations.AsyncListener;
 import io.github.springwolf.core.asyncapi.annotations.AsyncOperation;
@@ -44,6 +46,10 @@ class KafkaConfiguration {
     @Value("${topic.product-discarded.name}")
     private String productDiscardedTopic;
 
+
+    @Value("${topic.product-recovered.name}")
+    private String productRecoveredTopic;
+
     @Value("${topic.product-remove-quarantined.name}")
     private String removeQuarantinedTopic;
 
@@ -72,6 +78,13 @@ class KafkaConfiguration {
     ReceiverOptions<String, String> productDiscardeddReceiverOptions(KafkaProperties kafkaProperties) {
         return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
             .subscription(List.of(productDiscardedTopic));
+    }
+
+    @Bean
+    @Qualifier("PRODUCT_RECOVERED")
+    ReceiverOptions<String, String> productRecoveredReceiverOptions(KafkaProperties kafkaProperties) {
+        return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
+            .subscription(List.of(productRecoveredTopic));
     }
 
     @Bean
@@ -120,11 +133,23 @@ class KafkaConfiguration {
     @AsyncListener(operation = @AsyncOperation(
         channelName = "ProductDiscarded",
         description = "Product Discarded has been listened and an inventory status was updated to discarded",
-        payloadType = LabelAppliedMessage.class
+        payloadType = ProductDiscardedMessage.class
     ))
     @Bean(name = "PRODUCT_DISCARDED_CONSUMER")
     ReactiveKafkaConsumerTemplate<String, String> productDiscardedConsumerTemplate(
         @Qualifier("PRODUCT_DISCARDED") ReceiverOptions<String, String> receiverOptions
+    ) {
+        return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
+    }
+
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "ProductRecovered",
+        description = "Product Recovered has been listened and an inventory status was restored",
+        payloadType = ProductRecoveredMessage.class
+    ))
+    @Bean(name = "PRODUCT_RECOVERED_CONSUMER")
+    ReactiveKafkaConsumerTemplate<String, String> productRecoveredConsumerTemplate(
+        @Qualifier("PRODUCT_RECOVERED") ReceiverOptions<String, String> receiverOptions
     ) {
         return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
     }

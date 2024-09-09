@@ -14,6 +14,8 @@ Feature: Kafka listeners
             | Product Quarantined | QUARANTINED |
             | Quarantine Updated  | QUARANTINED |
             | Quarantine Removed  | AVAILABLE   |
+            | Product Recovered   | AVAILABLE   |
+
 
     Scenario Outline: Application is listening storage events from kafka
         Given I am listening the "<Event>" event for "<Unit Number>"
