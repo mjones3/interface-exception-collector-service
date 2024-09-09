@@ -321,7 +321,7 @@ export class ShipmentDetailsComponent implements OnInit {
             this.translate.instant(notification.message),
             null,
             {},
-            NotificationTypeMap[notification.notificationType]
+            NotificationTypeMap[notification.notificationType].type
         );
     }
 
