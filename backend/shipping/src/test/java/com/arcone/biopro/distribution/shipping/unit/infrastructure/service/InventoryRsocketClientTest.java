@@ -4,6 +4,7 @@ import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.Inv
 import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryValidationRequest;
 import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryValidationResponseDTO;
 import com.arcone.biopro.distribution.shipping.infrastructure.service.InventoryRsocketClient;
+import com.arcone.biopro.distribution.shipping.infrastructure.service.errors.InventoryServiceNotAvailableException;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.messaging.rsocket.RSocketRequester;
@@ -69,7 +70,8 @@ class InventoryRsocketClientTest {
         var response = target.validateInventory(InventoryValidationRequest.builder().build());
 
         StepVerifier.create(response)
-            .expectError();
+            .expectError(InventoryServiceNotAvailableException.class)
+            .verify();
     }
 
 }
