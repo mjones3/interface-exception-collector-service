@@ -31,7 +31,7 @@ Feature: Prevent filling a shipment with unsuitable products
         And I choose to fill product of family "<Family Description>" and blood type "<BloodType>".
         When I add the unit "<UN>" with product code "<Code>".
         And I define visual inspection as "<Inspection>".
-        Then I should see a "Warning" message: "<Message>".
+        Then I should see a "Caution" message: "<Message>".
         Examples:
             | UN            | Code     | Inspection   | Message               | orderNumber | Customer ID | Customer Name | Quantity | BloodType | ProductFamily                                               | Family Description |
             | W036898786810 | E4697V00 | Satisfactory | Product Already used. | 999764      | 999991      | Tampa         | 10,5,23  | AP,AN,OP  | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE |PLASMA TRANSFUSABLE |
