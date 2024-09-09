@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.order.adapter.in.web.controller;
 
 import com.arcone.biopro.distribution.order.adapter.in.web.dto.PickListDTO;
+import com.arcone.biopro.distribution.order.adapter.in.web.dto.PickListResponseDTO;
 import com.arcone.biopro.distribution.order.application.mapper.PickListMapper;
 import com.arcone.biopro.distribution.order.domain.service.PickListService;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +18,8 @@ public class PickListController {
     private final PickListService pickListService;
 
     @MutationMapping
-    public Mono<PickListDTO> generatePickList(@Argument Long orderId) {
-        return pickListService.generatePickList(orderId)
+    public Mono<PickListResponseDTO> generatePickList(@Argument Long orderId , @Argument boolean skipInventoryUnavailable) {
+        return pickListService.generatePickList(orderId , skipInventoryUnavailable)
             .map(pickListMapper::mapToDTO);
     }
 }

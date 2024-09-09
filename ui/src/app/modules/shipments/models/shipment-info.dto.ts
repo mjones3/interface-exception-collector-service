@@ -42,6 +42,7 @@ export interface ShipmentDetailResponseDTO {
     customerAddressAddressLine2?: string;
     completeDate?: string;
     completedByEmployeeId?: string;
+    comments?: string;
     items?: ShipmentItemResponseDTO[];
 }
 

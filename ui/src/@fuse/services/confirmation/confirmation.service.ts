@@ -19,7 +19,7 @@ export class FuseConfirmationService {
             confirm: {
                 show: true,
                 label: 'Confirm',
-                color: 'warn',
+                class: 'warn',
             },
             cancel: {
                 show: true,

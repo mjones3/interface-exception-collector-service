@@ -34,7 +34,7 @@ public record ShipmentDetailResponseDTO(
     String customerAddressAddressLine2,
     ZonedDateTime completeDate,
     String completedByEmployeeId,
-
+    String comments,
     List<ShipmentItemResponseDTO> items
 
 ) implements Serializable {

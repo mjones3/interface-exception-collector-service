@@ -21,8 +21,6 @@ import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
 import { TableModule } from 'primeng/table';
 import {
-    BehaviorSubject,
-    Subject,
     Subscription,
     filter,
     finalize,
@@ -34,19 +32,24 @@ import {
     timer,
 } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { FuseConfirmationService } from '../../../../../@fuse/services/confirmation';
+import { FuseConfirmationDialogComponent } from '../../../../../@fuse/services/confirmation/dialog/dialog.component';
 import { ERROR_MESSAGE } from '../../../../core/data/common-labels';
 import {
     DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
     DEFAULT_PAGE_SIZE_DIALOG_LANDSCAPE_WIDTH,
 } from '../../../../core/models/browser-printing.model';
+import { TagComponent } from '../../../../shared/components/tag/tag.component';
+import { OrderStatusMap } from '../../../../shared/models/order-status.model';
 import { PickListDTO } from '../../graphql/mutation-definitions/generate-pick-list.graphql';
 import { OrderShipmentDTO } from '../../graphql/query-definitions/order-details.graphql';
-import {
-    OrderDetailsDTO,
-    OrderItemDetailsDto,
-} from '../../models/order-details.dto';
+import { Notification } from '../../models/notification.dto';
+import { OrderDetailsDTO } from '../../models/order-details.dto';
 import { OrderService } from '../../services/order.service';
-import { ViewPickListComponent } from '../view-pick-list/view-pick-list.component';
+import {
+    ViewPickListComponent,
+    ViewPickListData,
+} from '../view-pick-list/view-pick-list.component';
 
 @Component({
     selector: 'app-order-details',
@@ -66,26 +69,24 @@ import { ViewPickListComponent } from '../view-pick-list/view-pick-list.componen
         ButtonModule,
         DropdownModule,
         RouterLink,
+        TagComponent,
     ],
     templateUrl: './order-details.component.html',
     styleUrl: './order-details.component.scss',
 })
 export class OrderDetailsComponent implements OnInit, OnDestroy {
-    static readonly INTERVAL = 2 * 1000; // 2 seconds
-    static readonly REPEATING_MAX_TIMEOUT = 60 * 1000; // 60 seconds
+    static readonly INVENTORY_SERVICE_IS_DOWN = 'INVENTORY_SERVICE_IS_DOWN';
+    static readonly POLLING_INTERVAL = 2 * 1000; // 2 seconds
+    static readonly POLLING_MAX_TIMEOUT = 60 * 1000; // 60 seconds
 
-    protected readonly ProductFamilyMap = ProductFamilyMap;
+    readonly ProductFamilyMap = ProductFamilyMap;
 
     expandedRows = {};
 
-    private _orderDetails: OrderDetailsDTO;
+    orderDetails: OrderDetailsDTO;
+    private notifications: Notification[] = [];
 
-    orderInfoDescriptions: Description[] = [];
-    shippingInfoDescriptions: Description[] = [];
-    billInfoDescriptions: Description[] = [];
-
-    products$: Subject<OrderItemDetailsDto[]> = new BehaviorSubject([]);
-    shipments$: Subject<OrderShipmentDTO[]> = new BehaviorSubject([]);
+    shipments: OrderShipmentDTO[] = [];
     pollingSubscription: Subscription;
     filledOrdersCount = 0;
     totalOrderProducts: number;
@@ -99,21 +100,16 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
         private router: Router,
         private matDialog: MatDialog,
         private orderService: OrderService,
-        private toaster: ToastrImplService
+        private toaster: ToastrImplService,
+        private fuseConfirmationService: FuseConfirmationService
     ) {}
 
     get isOrderComplete(): boolean {
         return this.orderDetails?.status === 'COMPLETED';
     }
 
-    get orderDetails(): OrderDetailsDTO {
-        return this._orderDetails;
-    }
-
-    set orderDetails(_value: OrderDetailsDTO) {
-        this._orderDetails = _value;
-        this.updateWidgets(this._orderDetails);
-        this.products$.next(_value?.orderItems ?? []);
+    get products() {
+        return this.orderDetails?.orderItems ?? [];
     }
 
     get orderId() {
@@ -137,8 +133,10 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
                 catchError(this.handleError),
                 finalize(() => (this.loading = false)),
                 map((result) => result?.data?.findOrderById),
-                switchMap((orderDetails) => {
+                switchMap(({ notifications, data: orderDetails }) => {
                     this.orderDetails = orderDetails;
+                    this.notifications = notifications;
+
                     this.totalOrderProducts = this.orderDetails.totalProducts;
                     this.filledOrdersCount = this.orderDetails.totalShipped;
                     return orderDetails.status !== 'OPEN'
@@ -157,38 +155,49 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
                 })
             )
             .subscribe((result: OrderShipmentDTO[]) => {
-                this.shipments$.next(result ?? []);
+                this.shipments = result ?? [];
             });
     }
 
-    private updateWidgets(orderDetails: OrderDetailsDTO) {
-        this.orderInfoDescriptions =
-            this.orderService.getOrderInfoDescriptions(orderDetails);
-        this.shippingInfoDescriptions =
-            this.orderService.getShippingInfoDescriptions(orderDetails);
-        this.billInfoDescriptions =
-            this.orderService.getBillingInfoDescriptions(orderDetails);
-    }
-
-    viewPickList(orderId: number): void {
+    viewPickList(orderId: number, skipInventoryUnavailable = false): void {
         this.pollingSubscription?.unsubscribe();
         this.loadingPickList = true;
         this.pollingSubscription = this.orderService
-            .generatePickList(orderId)
+            .generatePickList(orderId, skipInventoryUnavailable)
             .pipe(
                 finalize(() => (this.loadingPickList = false)),
                 catchError(this.handleError),
                 map((response) => response?.data?.generatePickList),
+                switchMap(({ notifications, data: pickList }) => {
+                    const inventoryServiceIsDown =
+                        this.getInventoryServiceIsDownNotification(
+                            notifications
+                        );
+                    if (inventoryServiceIsDown) {
+                        this.openSkipInventoryUnavailableDialog(
+                            inventoryServiceIsDown
+                        )
+                            .afterClosed()
+                            .pipe(filter((value) => 'confirmed' === value)) // FuseConfirmationDialogComponent dismiss result
+                            .subscribe(() => this.viewPickList(orderId, true));
+                        return of(null); // do not continue
+                    }
+                    return of(pickList);
+                }),
+                filter(Boolean),
                 switchMap((pickList) =>
-                    this.openPickListDialog(pickList).afterOpened()
+                    this.openPickListDialog(
+                        pickList,
+                        skipInventoryUnavailable
+                    ).afterOpened()
                 ),
 
                 // Polling waiting for shipment to be completed
                 switchMap(() =>
-                    timer(0, OrderDetailsComponent.INTERVAL).pipe(
+                    timer(0, OrderDetailsComponent.POLLING_INTERVAL).pipe(
                         take(
-                            OrderDetailsComponent.REPEATING_MAX_TIMEOUT /
-                                OrderDetailsComponent.INTERVAL
+                            OrderDetailsComponent.POLLING_MAX_TIMEOUT /
+                                OrderDetailsComponent.POLLING_INTERVAL
                         ),
                         switchMap(() =>
                             this.orderService
@@ -209,7 +218,7 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
 
                 // Shipment created, requesting Order Details
                 switchMap((orderShipment) => {
-                    this.shipments$.next([orderShipment]); // Backend is sending only one record
+                    this.shipments = [orderShipment]; // Backend is sending only one record
                     return this.orderService.getOrderById(orderId).pipe(
                         catchError(this.handleError),
                         map((response) => response?.data?.findOrderById)
@@ -217,21 +226,59 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
                 })
             )
             // Update Order Details
-            .subscribe((orderDetailsInfo) => {
-                this.orderDetails = orderDetailsInfo;
+            .subscribe(({ notifications, data: orderDetails }) => {
+                this.orderDetails = orderDetails;
+                this.notifications = notifications;
             });
     }
 
     private openPickListDialog(
-        pickListDTO: PickListDTO
+        pickListDTO: PickListDTO,
+        skipInventoryUnavailable: boolean
     ): MatDialogRef<ViewPickListComponent> {
-        const dialogRef = this.matDialog.open(ViewPickListComponent, {
-            id: 'ViewPickListDialog',
-            width: DEFAULT_PAGE_SIZE_DIALOG_LANDSCAPE_WIDTH,
-            height: DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
+        return this.matDialog.open<ViewPickListComponent, ViewPickListData>(
+            ViewPickListComponent,
+            {
+                id: 'ViewPickListDialog',
+                width: DEFAULT_PAGE_SIZE_DIALOG_LANDSCAPE_WIDTH,
+                height: DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
+                data: { pickListDTO, skipInventoryUnavailable },
+            }
+        );
+    }
+
+    private openSkipInventoryUnavailableDialog(
+        notification: Notification
+    ): MatDialogRef<FuseConfirmationDialogComponent> {
+        return this.fuseConfirmationService.open({
+            title: 'Process Message',
+            message: `${notification.notificationMessage} Would you like to continue?`,
+            dismissible: false,
+            icon: {
+                show: false,
+            },
+            actions: {
+                confirm: {
+                    label: 'Continue',
+                    class: 'bg-green-highlighted text-white font-bold',
+                },
+                cancel: {
+                    class: 'font-bold',
+                },
+            },
         });
-        dialogRef.componentInstance.model$ = of(pickListDTO);
-        return dialogRef;
+    }
+
+    getInventoryServiceIsDownNotification(
+        notifications: Notification[]
+    ): Notification {
+        return notifications?.find(
+            (n) => n.name === OrderDetailsComponent.INVENTORY_SERVICE_IS_DOWN
+        );
+    }
+
+    get inventoryServiceIsDownNotification(): Notification {
+        return this.getInventoryServiceIsDownNotification(this.notifications);
     }
 
     backToSearch(): void {
@@ -245,5 +292,58 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
         }
         this.toaster?.error(ERROR_MESSAGE);
         throw error;
+    }
+
+    get orderInfoDescriptions(): Description[] {
+        return [
+            {
+                label: 'BioPro Order Number',
+                value: this.orderDetails?.orderNumber?.toString(),
+            },
+            {
+                label: 'External order ID',
+                value: this.orderDetails?.externalId,
+            },
+            {
+                label: 'Priority',
+                value: this.orderDetails?.priority,
+            },
+            {
+                label: 'Status',
+                value: this.orderDetails?.status
+                    ? OrderStatusMap[this.orderDetails.status]
+                    : 'Unknown',
+            },
+        ];
+    }
+
+    get shippingInfoDescriptions(): Description[] {
+        return [
+            {
+                label: 'Customer Code',
+                value: this.orderDetails?.shippingCustomerCode.toString(),
+            },
+            {
+                label: 'Customer Name',
+                value: this.orderDetails?.shippingCustomerName.toString(),
+            },
+            {
+                label: 'Shipping Method',
+                value: this.orderDetails?.shippingMethod.toString(),
+            },
+        ];
+    }
+
+    get billInfoDescriptions(): Description[] {
+        return [
+            {
+                label: 'Billing Customer Code',
+                value: this.orderDetails?.billingCustomerCode.toString(),
+            },
+            {
+                label: 'Billing Customer Name',
+                value: this.orderDetails?.billingCustomerName.toString(),
+            },
+        ];
     }
 }

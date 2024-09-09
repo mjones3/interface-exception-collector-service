@@ -133,9 +133,9 @@ export class ToastrImplService extends ToastrService {
             case 'warn':
                 return 'Error';
             case 'error':
-                return 'Warning Message';
+                return 'Warning';
             case 'warning':
-                return 'Caution Message';
+                return 'Caution';
             default:
                 break;
         }

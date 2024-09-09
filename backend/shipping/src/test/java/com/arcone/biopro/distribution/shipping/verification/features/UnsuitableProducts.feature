@@ -2,7 +2,7 @@ Feature: Prevent filling a shipment with unsuitable products
     As a distribution technician, I want to prevent filling a shipment with unsuitable products, so that I can avoid shipping the wrong products to the customer.
 
     Background:
-        Given I cleaned up from the database, all shipments with order number "999771,999778,999764".
+        Given I cleaned up from the database, all shipments with order number "999771,999778,999764,999779".
 
     @ui
     Scenario Outline: Entering an unsuitable product
@@ -12,13 +12,15 @@ Feature: Prevent filling a shipment with unsuitable products
         And I choose to fill product of family "<Family Description>" and blood type "<BloodType>".
         And I add the unit "<UN>" with product code "<Code>".
         When I define visual inspection as "<Inspection>".
-        Then I should see a "Warning Message" message: "<Message>".
+        Then I should see a "<Message Type>" message: "<Message>".
         And I should not see the unit "<UN>" with product code "<Code>" added to the filled products table.
 
         Examples:
-            | UN               | Code       | Inspection   | Message                                                     | orderNumber | Customer ID | Customer Name | Quantity | BloodType | ProductFamily                                               | Family Description  |
-            | W036898786756    | E0701V00   | Satisfactory | This product is expired and cannot be shipped.              | 999771      | 999991      | Tampa         | 10,5,23  | AP,AN,OP  | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE | PLASMA TRANSFUSABLE |
-            | =W03689878676300 | =<E0703V00 | Satisfactory | This product is not in the inventory and cannot be shipped. | 999778      | 999998      | Tampa         | 10,5,23  | AP,AN,OP  | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE | PLASMA TRANSFUSABLE |
+            | UN               | Code       | Inspection   | Message                                                     | Message Type           | orderNumber | Customer ID | Customer Name | Quantity | BloodType | ProductFamily                                               | Family Description  |
+            | W036898786756    | E0701V00   | Satisfactory | This product is expired and cannot be shipped.              | Acknowledgment Message | 999771      | 999991      | Tampa         | 10,5,23  | AP,AN,OP  | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE | PLASMA TRANSFUSABLE |
+            | =W03689878675800 | =<E0703V00 | Satisfactory | This product is quarantined and cannot be shipped.          | Acknowledgment Message | 999778      | 999998      | Tampa         | 10,5,23  | AP,AN,OP  | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE | PLASMA TRANSFUSABLE |
+            | =W03689878676300 | =<E0703V00 | Satisfactory | This product is not in the inventory and cannot be shipped. | Caution                | 999779      | 999998      | Tampa         | 10,5,23  | AP,AN,OP  | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE | PLASMA TRANSFUSABLE |
+
 
     @ui
     Scenario Outline: Filling a product which is already filled in another shipment
@@ -29,7 +31,7 @@ Feature: Prevent filling a shipment with unsuitable products
         And I choose to fill product of family "<Family Description>" and blood type "<BloodType>".
         When I add the unit "<UN>" with product code "<Code>".
         And I define visual inspection as "<Inspection>".
-        Then I should see a "Warning Message" message: "<Message>".
+        Then I should see a "Warning" message: "<Message>".
         Examples:
             | UN            | Code     | Inspection   | Message               | orderNumber | Customer ID | Customer Name | Quantity | BloodType | ProductFamily                                               | Family Description |
             | W036898786810 | E4697V00 | Satisfactory | Product Already used. | 999764      | 999991      | Tampa         | 10,5,23  | AP,AN,OP  | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE |PLASMA TRANSFUSABLE |

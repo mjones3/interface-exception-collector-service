@@ -52,6 +52,7 @@
             <rsa-order-widget-sidebar
                 [orderInfoDescriptions]="orderInfoDescriptions"
                 [shippingInfoDescriptions]="shippingInfoDescriptions"
+                [comments]="shipmentInfo?.comments"
             ></rsa-order-widget-sidebar>
         </div>
     </div>
@@ -61,7 +62,7 @@
     <div class="flex flex-row space-x-2">
         <button
             id="backBtnId"
-            class="bg-green-highlighted"
+            class="bg-green-highlighted text-white"
             mat-flat-button
             (click)="backToSearch()"
         >
@@ -84,7 +85,7 @@
             @if (shipmentInfo?.status === 'COMPLETED') {
                 <button
                     id="viewPackingListBtn"
-                    class="action-button bg-purple-light px-4"
+                    class="action-button bg-purple-light px-4 text-white"
                     mat-flat-button
                     (click)="viewPackingList(true)"
                 >
@@ -95,7 +96,7 @@
             @if (shipmentInfo?.status === 'COMPLETED') {
                 <button
                     id="viewShippingLabelBtn"
-                    class="action-button bg-purple-light px-4"
+                    class="action-button bg-purple-light px-4 text-white"
                     mat-flat-button
                     (click)="viewShippingLabel(true)"
                 >
@@ -248,12 +249,6 @@
                                             "
                                         ></mat-progress-bar
                                     ></span>
-                                    @if (product?.packedItems?.length) {
-                                        <mat-icon
-                                            class="text-custom-green"
-                                            [svgIcon]="'hi_outline:clock'"
-                                        ></mat-icon>
-                                    }
                                 </div>
                             </td>
                             <td>
@@ -267,7 +262,7 @@
                                         <button
                                             [id]="'fillShipmentBtn' + i"
                                             mat-flat-button
-                                            class="bg-custom-red"
+                                            class="bg-custom-red text-white"
                                             (click)="fillProducts(product)"
                                         >
                                             Fill Product
@@ -336,7 +331,7 @@
                     <div class="mr-4 flex flex-row space-x-2 p-2">
                         <button
                             id="completeShipmentBtn"
-                            class="action-button bg-purple-light px-4"
+                            class="action-button bg-purple-light px-4 text-white"
                             mat-flat-button
                             (click)="completeShipment()"
                         >

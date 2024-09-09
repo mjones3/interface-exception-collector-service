@@ -15,9 +15,12 @@ import { FuseCardComponent } from '@fuse/components/card/public-api';
 import { Store } from '@ngrx/store';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
+import { FuseConfirmationService } from '@fuse/services/confirmation/public-api';
 import {
     Description,
     DescriptionCardComponent,
+    NotificationDto,
+    NotificationTypeMap,
     ProcessHeaderComponent,
     ProcessHeaderService,
     ProcessProductModel,
@@ -89,7 +92,8 @@ export class FillProductsComponent implements OnInit {
         private cookieService: CookieService,
         private store: Store,
         private _router: Router,
-        private cd: ChangeDetectorRef
+        private cd: ChangeDetectorRef,
+        private confirmationService: FuseConfirmationService
     ) {
         this.store
             .select(getAuthState)
@@ -184,8 +188,8 @@ export class FillProductsComponent implements OnInit {
                 const ruleResult = response?.data.packItem;
                 if (ruleResult) {
                     this.loading = false;
-                    const notification = ruleResult.notifications?.length
-                        ? ruleResult.notifications[0]
+                    const notifications = ruleResult.notifications
+                        ? ruleResult.notifications
                         : null;
                     if (ruleResult.ruleCode === '200 OK') {
                         const result =
@@ -200,24 +204,34 @@ export class FillProductsComponent implements OnInit {
                             this.productSelection.enableVisualInspection();
                         }
                     }
-                    if (notification) {
-                        this.toaster.show(
-                            this.translateService.instant(notification.message),
-                            null,
-                            {},
-                            notification.notificationType
-                        );
 
+                    if (notifications) {
                         if (
-                            notification.message ===
-                                'Product Criteria Quantity Exceeded' ||
-                            this.quantity === this.filledProductsData.length
+                            notifications.find(
+                                (notification) =>
+                                    'INFO' === notification.notificationType
+                            )
                         ) {
-                            this.disableFilUnitNumberAndProductCode();
-                        } else if (notification.statusCode !== 200) {
-                            this.productSelection.productGroup.reset();
-                            this.productSelection.enableVisualInspection();
+                            return this.openConfirmationDialog(
+                                ruleResult.notifications
+                            );
+                        } else {
+                            this.displayMessageFromNotificationDto(
+                                ruleResult.notifications
+                            );
                         }
+                        notifications.forEach((notification) => {
+                            if (
+                                notification.name ===
+                                    'PRODUCT_CRITERIA_QUANTITY_ERROR' ||
+                                this.quantity === this.filledProductsData.length
+                            ) {
+                                this.disableFilUnitNumberAndProductCode();
+                            } else if (notification.statusCode !== 200) {
+                                this.productSelection.productGroup.reset();
+                                this.productSelection.enableVisualInspection();
+                            }
+                        });
                     }
                 }
             });
@@ -238,5 +252,48 @@ export class FillProductsComponent implements OnInit {
             employeeId: this.loggedUserId,
             visualInspection: item.visualInspection.toUpperCase(),
         };
+    }
+
+    displayMessageFromNotificationDto(notifications: NotificationDto[]) {
+        notifications.forEach((notification) => {
+            const notificationType =
+                NotificationTypeMap[notification.notificationType];
+            this.toaster.show(
+                this.translateService.instant(notification.message),
+                notificationType.title,
+                {
+                    ...(notificationType.timeOut
+                        ? { timeOut: notificationType.timeOut }
+                        : {}),
+                    ...(notification.notificationType === 'SYSTEM'
+                        ? { timeOut: 0 }
+                        : {}), // Overrides timeout definition for SYSTEM notifications
+                },
+                notificationType.type
+            );
+        });
+    }
+
+    openConfirmationDialog(notifications: NotificationDto[]): void {
+        this.confirmationService.open({
+            title: 'Acknowledgment Message',
+            message: notifications
+                .map((notification) => notification.message)
+                .join('<br/>'),
+            dismissible: false,
+            icon: {
+                show: false,
+            },
+            actions: {
+                confirm: {
+                    label: 'Confirm',
+                    show: true,
+                    class: 'bg-violet-300 text-violet-700 font-bold',
+                },
+                cancel: {
+                    show: false,
+                },
+            },
+        });
     }
 }

@@ -9,6 +9,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
@@ -22,6 +23,9 @@ public class SharedActions {
     @Autowired
     @Lazy
     private WebDriverWait wait;
+
+    @Value("${ui.base.url}")
+    private String baseUrl;
 
     public void waitForVisible(WebElement element) {
         try {
@@ -112,8 +116,15 @@ public class SharedActions {
         element.click();
     }
 
+    public void click(WebDriver driver, By locator) throws InterruptedException {
+        waitForVisible(locator);
+        Thread.sleep(500);
+        driver.findElement(locator).click();
+    }
+
     public void clickElementAndMoveToNewTab(WebDriver driver, WebElement element, int expectedWindowsNumber) {
         this.click(element);
+        log.info("Waiting for {} windows to be open. Currently: {}", expectedWindowsNumber, driver.getWindowHandles().size());
         wait.until(numberOfWindowsToBe(expectedWindowsNumber));
         driver.switchTo().window(driver.getWindowHandles().toArray(new String[0])[1]);
     }
@@ -139,13 +150,25 @@ public class SharedActions {
 
     public void verifyMessage(String header, String message) {
         log.info("Verifying message: {}", message);
-        String bannerMessageLocator = "#toast-container";
-        String msg = wait.until(e -> e.findElement(By.cssSelector(bannerMessageLocator))).getText();
+        var bannerMessageLocator = "";
+        if(header.startsWith("Acknowledgment")){
+            bannerMessageLocator = "//*[@id='mat-mdc-dialog-0']//fuse-confirmation-dialog";
+        }else{
+            bannerMessageLocator = "//*[@id='toast-container']//fuse-alert";
+        }
+
+        String finalBannerMessageLocator = bannerMessageLocator;
+        waitForVisible(By.xpath(finalBannerMessageLocator));
+        String msg = wait.until(e -> e.findElement(By.xpath(finalBannerMessageLocator))).getText();
 
         // Split the message at line break to get header and message
         String[] msgParts = msg.split("\n");
         Assert.assertEquals(header.toUpperCase(), msgParts[0].toUpperCase());
         Assert.assertEquals(message.toUpperCase(), msgParts[1].toUpperCase());
+
+        // dialog "//*[@id='mat-mdc-dialog-0']/div/div/fuse-confirmation-dialog"
+
+
     }
 
     public void waitLoadingAnimation() throws InterruptedException {
@@ -154,6 +177,14 @@ public class SharedActions {
         wait.until(e -> {
             log.debug("Waiting for loading animation to disappear.");
             return e.findElements(By.cssSelector(loadingAnimationLocator)).isEmpty();
+        });
+    }
+
+    public void isAtPage(String url) {
+        wait.until(e -> {
+            String fullUrl = baseUrl + url;
+            log.debug("Waiting for the URL to be: {}", fullUrl);
+            return e.getCurrentUrl().equals(fullUrl);
         });
     }
 }

@@ -2,7 +2,7 @@
   "data": [
     {
       "id": 1,
-      "code": "MDL_HUB_1",
+      "code": "123456789",
       "partOfId": null,
       "externalId": "123456789",
       "name": "MDL Hub 1",
@@ -22,7 +22,7 @@
     },
     {
       "id": 2,
-      "code": "DISTRIBUTION_AND_LABELING",
+      "code": "DL1",
       "partOfId": null,
       "externalId": "DL1",
       "name": "Distribution and Labeling",
@@ -35,7 +35,7 @@
     },
     {
       "id": 3,
-      "code": "DISTRIBUTION_ONLY",
+      "code": "DO1",
       "partOfId": 1036,
       "externalId": "DO1",
       "name": "Distribution Only",
@@ -48,7 +48,7 @@
     },
     {
       "id": 4,
-      "code": "MDL_HUB_2",
+      "code": "234567891",
       "partOfId": 1036,
       "externalId": "234567891",
       "name": "MDL Hub 2",

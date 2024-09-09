@@ -176,8 +176,7 @@ def biopro_service():
             'postgresql-deployment',
             'kafka-deployment',
             'keycloak-deployment',
-            'opentelemetry-collector',
-            'rsocket-deployment'
+            'opentelemetry-collector'
         ],
         trigger_mode=TRIGGER_MODE_MANUAL
     )

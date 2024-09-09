@@ -12,6 +12,7 @@ import { TranslateService } from '@ngx-translate/core';
 import {
     Description,
     NotificationDto,
+    NotificationTypeMap,
     ProcessHeaderComponent,
     ProcessHeaderService,
     SortService,
@@ -193,8 +194,12 @@ export class ShipmentDetailsComponent implements OnInit {
         this._router.navigateByUrl(url);
     }
 
+    get orderId() {
+        return this.shipmentInfo.orderNumber;
+    }
+
     backToSearch(): void {
-        this._router.navigateByUrl('/orders/search');
+        this._router.navigateByUrl(`/orders/${this.orderId}/order-details`);
     }
 
     customSort(event: SortEvent) {
@@ -316,7 +321,7 @@ export class ShipmentDetailsComponent implements OnInit {
             this.translate.instant(notification.message),
             null,
             {},
-            notification.notificationType
+            NotificationTypeMap[notification.notificationType].type
         );
     }
 

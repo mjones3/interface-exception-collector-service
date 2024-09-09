@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.order.unit.application.usecase;
 
+import com.arcone.biopro.distribution.order.application.dto.UseCaseResponseDTO;
 import com.arcone.biopro.distribution.order.application.exception.DomainNotFoundForKeyException;
 import com.arcone.biopro.distribution.order.application.mapper.PickListCommandMapper;
 import com.arcone.biopro.distribution.order.application.mapper.PickListMapper;
@@ -53,13 +54,16 @@ class PickListUseCaseTest {
         Mockito.when(pickList.getOrderNumber()).thenReturn(1L);
         Mockito.when(pickList.getOrderStatus()).thenReturn("OPEN");
 
-        Mockito.when(pickListMapper.mapToDomain(Mockito.any())).thenReturn(pickList);
+        var useCaseResponse = Mockito.mock(UseCaseResponseDTO.class);
+        Mockito.when(useCaseResponse.data()).thenReturn(pickList);
+
+        Mockito.when(pickListMapper.mapToUseCaseResponse(Mockito.any())).thenReturn(useCaseResponse);
 
         var useCase = new PickListUseCase(applicationEventPublisher, orderService, inventoryService, pickListMapper, pickListCommandMapper);
 
-        StepVerifier.create(useCase.generatePickList(1L))
+        StepVerifier.create(useCase.generatePickList(1L,Boolean.FALSE))
             .consumeNextWith(detail -> {
-                    Assertions.assertEquals(1L,  detail.getOrderNumber());
+                    Assertions.assertEquals(1L,  detail.data().getOrderNumber());
 
                 }
             )
@@ -69,7 +73,7 @@ class PickListUseCaseTest {
     }
 
     @Test
-    public void shouldGeneratePickListWhenInventoryServiceIsDown() {
+    public void shouldGeneratePickListWhenInventoryServiceIsDownAndSkipServiceError() {
 
         var order = Mockito.mock(Order.class);
 
@@ -80,13 +84,16 @@ class PickListUseCaseTest {
         var pickList = Mockito.mock(PickList.class);
         Mockito.when(pickList.getOrderNumber()).thenReturn(1L);
 
-        Mockito.when(pickListMapper.mapToDomain(Mockito.any())).thenReturn(pickList);
+        var useCaseResponse = Mockito.mock(UseCaseResponseDTO.class);
+        Mockito.when(useCaseResponse.data()).thenReturn(pickList);
+
+        Mockito.when(pickListMapper.mapToUseCaseResponse(Mockito.any())).thenReturn(useCaseResponse);
 
         var useCase = new PickListUseCase(applicationEventPublisher, orderService, inventoryService, pickListMapper, pickListCommandMapper);
 
-        StepVerifier.create(useCase.generatePickList(1L))
+        StepVerifier.create(useCase.generatePickList(1L,Boolean.TRUE))
             .consumeNextWith(detail -> {
-                    Assertions.assertEquals(1L,  detail.getOrderNumber());
+                    Assertions.assertEquals(1L,  detail.data().getOrderNumber());
 
                 }
             )
@@ -99,7 +106,7 @@ class PickListUseCaseTest {
 
         var useCase = new PickListUseCase(applicationEventPublisher, orderService, inventoryService, pickListMapper, pickListCommandMapper);
 
-        StepVerifier.create(useCase.generatePickList(1L))
+        StepVerifier.create(useCase.generatePickList(1L,Boolean.FALSE))
             .verifyError();
 
         Mockito.verifyNoInteractions(applicationEventPublisher);
@@ -120,13 +127,50 @@ class PickListUseCaseTest {
         Mockito.when(pickList.getOrderNumber()).thenReturn(1L);
         Mockito.when(pickList.getOrderStatus()).thenReturn("IN_PROGRESS");
 
-        Mockito.when(pickListMapper.mapToDomain(Mockito.any())).thenReturn(pickList);
+        var useCaseResponse = Mockito.mock(UseCaseResponseDTO.class);
+        Mockito.when(useCaseResponse.data()).thenReturn(pickList);
+
+        Mockito.when(pickListMapper.mapToUseCaseResponse(Mockito.any())).thenReturn(useCaseResponse);
+
 
         var useCase = new PickListUseCase(applicationEventPublisher, orderService, inventoryService, pickListMapper, pickListCommandMapper);
 
-        StepVerifier.create(useCase.generatePickList(1L))
+        StepVerifier.create(useCase.generatePickList(1L,Boolean.FALSE))
             .consumeNextWith(detail -> {
-                    Assertions.assertEquals(1L,  detail.getOrderNumber());
+                    Assertions.assertEquals(1L,  detail.data().getOrderNumber());
+
+                }
+            )
+            .verifyComplete();
+
+        Mockito.verifyNoInteractions(applicationEventPublisher);
+    }
+
+    @Test
+    public void shouldNotGeneratePickListWhenInventoryServiceIsDownAndNotSkipServiceError() {
+
+        var order = Mockito.mock(Order.class);
+
+        Mockito.when(orderService.findOneById(Mockito.eq(1L))).thenReturn(Mono.just(order));
+
+        Mockito.when(inventoryService.getAvailableInventories(Mockito.any())).thenReturn(Flux.error(new Throwable("inventory-service-error")));
+
+        var pickList = Mockito.mock(PickList.class);
+        Mockito.when(pickList.getOrderNumber()).thenReturn(1L);
+
+        var useCaseResponse = Mockito.mock(UseCaseResponseDTO.class);
+        Mockito.when(useCaseResponse.data()).thenReturn(pickList);
+
+        Mockito.when(pickListMapper.mapToUseCaseResponse(Mockito.any())).thenReturn(useCaseResponse);
+
+
+        var useCase = new PickListUseCase(applicationEventPublisher, orderService, inventoryService, pickListMapper, pickListCommandMapper);
+
+        StepVerifier.create(useCase.generatePickList(1L,Boolean.FALSE))
+            .consumeNextWith(detail -> {
+                    Assertions.assertEquals("INVENTORY_SERVICE_IS_DOWN",  detail.notifications().getFirst().useCaseMessageType().name());
+                Assertions.assertEquals("ERROR",  detail.notifications().getFirst().useCaseMessageType().getType().name());
+                Assertions.assertEquals("Inventory Service is down.",  detail.notifications().getFirst().useCaseMessageType().getMessage());
 
                 }
             )

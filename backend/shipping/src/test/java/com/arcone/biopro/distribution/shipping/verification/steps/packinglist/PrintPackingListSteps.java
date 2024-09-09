@@ -52,6 +52,9 @@ public class PrintPackingListSteps {
     @Value("${kafka.waiting.time}")
     private long kafkaWaitingTime;
 
+    @Value("${selenium.headless.execution}")
+    private boolean headless;
+
     private long shipmentId;
 
     private long orderNumber;
@@ -70,8 +73,8 @@ public class PrintPackingListSteps {
         Thread.sleep(kafkaWaitingTime);
     }
 
-    @Given("The shipment details are Order Number {int}, Location Code {string}, Customer ID {int}, Customer Name {string}, Department {string}, Address Line 1 {string}, Address Line 2 {string}, Unit Number {string}, Product Code {string}, Product Family {string}, Blood Type {string}, Expiration {string}, Quantity {int}.")
-    public void setShipmentDetails(int orderNumber, String locationCode, int customerID, String customerName, String department, String addressLine1, String addressLine2, String unitNumber, String productCode, String productFamily, String bloodType, String expiration, int quantity) {
+    @Given("The shipment details are Order Number {int}, Location Code {string}, Customer ID {string}, Customer Name {string}, Department {string}, Address Line 1 {string}, Address Line 2 {string}, Unit Number {string}, Product Code {string}, Product Family {string}, Blood Type {string}, Expiration {string}, Quantity {int}.")
+    public void setShipmentDetails(int orderNumber, String locationCode, String customerID, String customerName, String department, String addressLine1, String addressLine2, String unitNumber, String productCode, String productFamily, String bloodType, String expiration, int quantity) {
         this.shipmentDetails = shipmentController.buildShipmentRequestDetailsResponseType(orderNumber, locationCode, customerID, customerName, department, addressLine1, addressLine2, unitNumber, productCode, productFamily, bloodType, expiration, quantity);
         this.orderNumber = orderNumber;
         Assert.assertNotNull(this.shipmentDetails);
@@ -106,10 +109,14 @@ public class PrintPackingListSteps {
 
     @When("I choose to print the Packing Slip.")
     public void iChooseToPrintThePackingSlip() throws InterruptedException {
-        shipmentDetailPage.clickViewPackingSlip();
-        // Wait for the print component to load
-        Thread.sleep(2000);
-        screenshotService.attachConditionalScreenshot(saveAllScreenshots);
+        if(!headless) {
+            shipmentDetailPage.clickViewPackingSlip();
+            // Wait for the print component to load
+            Thread.sleep(2000);
+            screenshotService.attachConditionalScreenshot(saveAllScreenshots);
+        } else {
+            log.info("Skipping print packing slip. Test in headless mode.");
+        }
     }
 
     @When("I choose to print the Shipping Label.")
@@ -179,7 +186,7 @@ public class PrintPackingListSteps {
 
         // Ship to
         Map<String, Object> shipTo = (Map<String, Object>) shippingLabel.get("shipTo");
-        Assert.assertEquals(Math.toIntExact(this.shipmentDetails.getShippingCustomerCode()), shipTo.get("customerCode"));
+        Assert.assertEquals(this.shipmentDetails.getShippingCustomerCode(), shipTo.get("customerCode"));
         Assert.assertEquals(this.shipmentDetails.getShippingCustomerName(), shipTo.get("customerName"));
         Assert.assertEquals(this.shipmentDetails.getCustomerAddressAddressLine1(), shipTo.get("addressLine1"));
         Assert.assertEquals(this.shipmentDetails.getCustomerAddressAddressLine2(), shipTo.get("addressLine2"));

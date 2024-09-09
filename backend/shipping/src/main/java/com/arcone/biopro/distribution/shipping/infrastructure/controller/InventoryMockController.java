@@ -9,6 +9,7 @@ import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.Inv
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -22,6 +23,7 @@ import java.util.List;
 @Controller
 @RequiredArgsConstructor
 @Slf4j
+@Profile("inventory-mock")
 public class InventoryMockController {
     private final ObjectMapper objectMapper;
     private List<InventoryResponseDTO> inventoryResponseDTOList;
@@ -45,29 +47,37 @@ public class InventoryMockController {
             case "W036898786756":
                 return Mono.just(InventoryValidationResponseDTO
                 .builder()
-                .inventoryNotificationDTO(InventoryNotificationDTO
-                    .builder()
-                    .errorCode(2)
-                    .errorMessage(ShipmentServiceMessages.INVENTORY_EXPIRED_ERROR)
-                    .build())
-                .build());
+                        .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
+                                .builder()
+                                .errorName("INVENTORY_IS_EXPIRED")
+                                .errorType("INFO")
+                                .errorCode(2)
+                                .errorMessage(ShipmentServiceMessages.INVENTORY_EXPIRED_ERROR)
+                                .action("TRIGGER_DISCARD")
+                                .reason("EXPIRED")
+                                .build())).build()
+               );
             case "W036898786757":
                 return Mono.just(InventoryValidationResponseDTO
                     .builder()
-                    .inventoryNotificationDTO(InventoryNotificationDTO
-                        .builder()
-                        .errorCode(3)
-                        .errorMessage(ShipmentServiceMessages.INVENTORY_DISCARDED_ERROR)
-                        .build())
+                        .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
+                            .builder()
+                            .errorName("INVENTORY_IS_DISCARDED")
+                            .errorCode(3)
+                            .errorType("INFO")
+                            .errorMessage(ShipmentServiceMessages.INVENTORY_DISCARDED_ERROR)
+                        .build()))
                     .build());
             case "W036898786758":
                 return Mono.just(InventoryValidationResponseDTO
                     .builder()
-                    .inventoryNotificationDTO(InventoryNotificationDTO
-                        .builder()
-                        .errorCode(4)
-                        .errorMessage(ShipmentServiceMessages.INVENTORY_QUARANTINED_ERROR)
-                        .build())
+                        .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
+                            .builder()
+                            .errorType("INFO")
+                            .errorName("INVENTORY_IS_QUARANTINED")
+                            .errorCode(4)
+                            .errorMessage(ShipmentServiceMessages.INVENTORY_QUARANTINED_ERROR)
+                            .build()))
                     .build());
             case "W036898786812":
                 return Mono.error(new RuntimeException("Testing Exception Handlers"));
@@ -87,11 +97,13 @@ public class InventoryMockController {
                 }else{
                     return Mono.just(InventoryValidationResponseDTO
                         .builder()
-                        .inventoryNotificationDTO(InventoryNotificationDTO
-                            .builder()
-                            .errorCode(1)
-                            .errorMessage(ShipmentServiceMessages.INVENTORY_NOT_FOUND_ERROR)
-                            .build())
+                            .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
+                                .builder()
+                                .errorName("INVENTORY_NOT_FOUND_IN_LOCATION")
+                                .errorType("WARN")
+                                .errorCode(1)
+                                .errorMessage(ShipmentServiceMessages.INVENTORY_NOT_FOUND_ERROR)
+                                .build()))
                         .build());
                 }
 

@@ -8,7 +8,7 @@
     "priority": "ASAP",
     "status": "OPEN",
   "shippingCustomerCode": "1",
-    "locationCode": "MDL_HUB_1",
+    "locationCode": "123456789",
     "deliveryType": "TEST",
     "shippingMethod": "TEST",
     "productCategory": "Frozen",

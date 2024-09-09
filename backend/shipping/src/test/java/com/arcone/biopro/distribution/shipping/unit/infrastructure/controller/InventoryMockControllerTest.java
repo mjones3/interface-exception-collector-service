@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -33,16 +34,16 @@ class InventoryMockControllerTest {
         var inventoryResponse = target.validateInventory(InventoryValidationRequest.builder()
             .unitNumber("W036898786799")
                 .productCode("E1624V00")
-                .locationCode("MDL_HUB_1")
+                .locationCode("123456789")
             .build());
 
         StepVerifier.create(inventoryResponse)
             .consumeNextWith(detail -> {
                 assertNotNull(detail.inventoryResponseDTO());
-                assertEquals(Optional.of(1L), Optional.of(detail.inventoryResponseDTO().id()));
+                assertEquals(Optional.of(UUID.fromString("dd8af54c-a40a-438c-a870-b9619447e91f")), Optional.of(detail.inventoryResponseDTO().id()));
                 assertEquals(Optional.of("W036898786799"), Optional.of(detail.inventoryResponseDTO().unitNumber()));
                 assertEquals(Optional.of("E1624V00"), Optional.of(detail.inventoryResponseDTO().productCode()));
-                assertEquals(Optional.of("MDL_HUB_1"), Optional.of(detail.inventoryResponseDTO().locationCode()));
+                assertEquals(Optional.of("123456789"), Optional.of(detail.inventoryResponseDTO().locationCode()));
             })
             .verifyComplete();
     }
@@ -55,16 +56,16 @@ class InventoryMockControllerTest {
         var inventoryResponse = target.validateInventory(InventoryValidationRequest.builder()
             .unitNumber("W036898786755")
             .productCode("E0701V00")
-            .locationCode("MDL_HUB_1")
+            .locationCode("123456789")
             .build());
 
 
         StepVerifier.create(inventoryResponse)
             .consumeNextWith(detail -> {
                 assertNull(detail.inventoryResponseDTO());
-                assertNotNull(detail.inventoryNotificationDTO());
-                assertEquals(Optional.of(1), Optional.of(detail.inventoryNotificationDTO().errorCode()));
-                assertEquals(Optional.of(ShipmentServiceMessages.INVENTORY_NOT_FOUND_ERROR), Optional.of(detail.inventoryNotificationDTO().errorMessage()));
+                assertNotNull(detail.inventoryNotificationsDTO().getFirst());
+                assertEquals(Optional.of(1), Optional.of(detail.inventoryNotificationsDTO().getFirst().errorCode()));
+                assertEquals(Optional.of(ShipmentServiceMessages.INVENTORY_NOT_FOUND_ERROR), Optional.of(detail.inventoryNotificationsDTO().getFirst().errorMessage()));
             })
             .verifyComplete();
     }
@@ -77,16 +78,16 @@ class InventoryMockControllerTest {
         var inventoryResponse = target.validateInventory(InventoryValidationRequest.builder()
             .unitNumber("W036898786758")
             .productCode("E0701V00")
-            .locationCode("MDL_HUB_1")
+            .locationCode("123456789")
             .build());
 
 
         StepVerifier.create(inventoryResponse)
             .consumeNextWith(detail -> {
                 assertNull(detail.inventoryResponseDTO());
-                assertNotNull(detail.inventoryNotificationDTO());
-                assertEquals(Optional.of(4), Optional.of(detail.inventoryNotificationDTO().errorCode()));
-                assertEquals(Optional.of(ShipmentServiceMessages.INVENTORY_QUARANTINED_ERROR), Optional.of(detail.inventoryNotificationDTO().errorMessage()));
+                assertNotNull(detail.inventoryNotificationsDTO().getFirst());
+                assertEquals(Optional.of(4), Optional.of(detail.inventoryNotificationsDTO().getFirst().errorCode()));
+                assertEquals(Optional.of(ShipmentServiceMessages.INVENTORY_QUARANTINED_ERROR), Optional.of(detail.inventoryNotificationsDTO().getFirst().errorMessage()));
             })
             .verifyComplete();
     }
@@ -98,16 +99,16 @@ class InventoryMockControllerTest {
         var inventoryResponse = target.validateInventory(InventoryValidationRequest.builder()
             .unitNumber("W036898786757")
             .productCode("E0701V00")
-            .locationCode("MDL_HUB_1")
+            .locationCode("123456789")
             .build());
 
 
         StepVerifier.create(inventoryResponse)
             .consumeNextWith(detail -> {
                 assertNull(detail.inventoryResponseDTO());
-                assertNotNull(detail.inventoryNotificationDTO());
-                assertEquals(Optional.of(3), Optional.of(detail.inventoryNotificationDTO().errorCode()));
-                assertEquals(Optional.of(ShipmentServiceMessages.INVENTORY_DISCARDED_ERROR), Optional.of(detail.inventoryNotificationDTO().errorMessage()));
+                assertNotNull(detail.inventoryNotificationsDTO().getFirst());
+                assertEquals(Optional.of(3), Optional.of(detail.inventoryNotificationsDTO().getFirst().errorCode()));
+                assertEquals(Optional.of(ShipmentServiceMessages.INVENTORY_DISCARDED_ERROR), Optional.of(detail.inventoryNotificationsDTO().getFirst().errorMessage()));
             })
             .verifyComplete();
     }
@@ -120,16 +121,16 @@ class InventoryMockControllerTest {
         var inventoryResponse = target.validateInventory(InventoryValidationRequest.builder()
             .unitNumber("W036898786756")
             .productCode("E0701V00")
-            .locationCode("MDL_HUB_1")
+            .locationCode("123456789")
             .build());
 
 
         StepVerifier.create(inventoryResponse)
             .consumeNextWith(detail -> {
                 assertNull(detail.inventoryResponseDTO());
-                assertNotNull(detail.inventoryNotificationDTO());
-                assertEquals(Optional.of(2), Optional.of(detail.inventoryNotificationDTO().errorCode()));
-                assertEquals(Optional.of(ShipmentServiceMessages.INVENTORY_EXPIRED_ERROR), Optional.of(detail.inventoryNotificationDTO().errorMessage()));
+                assertNotNull(detail.inventoryNotificationsDTO().getFirst());
+                assertEquals(Optional.of(2), Optional.of(detail.inventoryNotificationsDTO().getFirst().errorCode()));
+                assertEquals(Optional.of(ShipmentServiceMessages.INVENTORY_EXPIRED_ERROR), Optional.of(detail.inventoryNotificationsDTO().getFirst().errorMessage()));
             })
             .verifyComplete();
     }

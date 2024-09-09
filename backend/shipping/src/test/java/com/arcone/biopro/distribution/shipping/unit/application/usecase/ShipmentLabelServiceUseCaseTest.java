@@ -21,6 +21,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.Optional;
@@ -84,7 +85,7 @@ class ShipmentLabelServiceUseCaseTest {
 
         Shipment shipment = Mockito.mock(Shipment.class);
         Mockito.when(shipment.getId()).thenReturn(1L);
-        Mockito.when(shipment.getLocationCode()).thenReturn("MDL_HUB_1");
+        Mockito.when(shipment.getLocationCode()).thenReturn("123456789");
         Mockito.when(shipment.getOrderNumber()).thenReturn(56L);
         Mockito.when(shipment.getStatus()).thenReturn(ShipmentStatus.COMPLETED);
         Mockito.when(shipment.getPriority()).thenReturn(ShipmentPriority.ASAP);
@@ -112,7 +113,7 @@ class ShipmentLabelServiceUseCaseTest {
         Mockito.when(shipmentItemPackedRepository.findAllByShipmentItemId(1L)).thenReturn(Flux.just(ShipmentItemPacked.builder()
                 .aboRh("AP")
                 .collectionDate(ZonedDateTime.now())
-                .expirationDate(ZonedDateTime.now())
+                .expirationDate(LocalDateTime.now())
                 .packedByEmployeeId("test")
                 .shipmentItemId(1L)
                 .unitNumber("UN")
@@ -120,7 +121,7 @@ class ShipmentLabelServiceUseCaseTest {
                 .productDescription("product_description")
             .build()));
 
-        Mockito.when(facilityServiceMock.getFacilityId("MDL_HUB_1")).thenReturn(Mono.just(FacilityDTO.builder()
+        Mockito.when(facilityServiceMock.getFacilityId("123456789")).thenReturn(Mono.just(FacilityDTO.builder()
                 .name("Facility Name")
                 .externalId("IC 39")
                 .addressLine1("Address Line 1")
@@ -172,7 +173,7 @@ class ShipmentLabelServiceUseCaseTest {
 
         Shipment shipment = Mockito.mock(Shipment.class);
         Mockito.when(shipment.getId()).thenReturn(1L);
-        Mockito.when(shipment.getLocationCode()).thenReturn("MDL_HUB_1");
+        Mockito.when(shipment.getLocationCode()).thenReturn("123456789");
         Mockito.when(shipment.getOrderNumber()).thenReturn(56L);
         Mockito.when(shipment.getStatus()).thenReturn(ShipmentStatus.COMPLETED);
         Mockito.when(shipment.getPriority()).thenReturn(ShipmentPriority.ASAP);
@@ -190,7 +191,7 @@ class ShipmentLabelServiceUseCaseTest {
 
         Mockito.when(shipmentRepository.findById(1L)).thenReturn(Mono.just(shipment));
 
-        Mockito.when(facilityServiceMock.getFacilityId("MDL_HUB_1")).thenReturn(Mono.just(FacilityDTO.builder()
+        Mockito.when(facilityServiceMock.getFacilityId("123456789")).thenReturn(Mono.just(FacilityDTO.builder()
             .name("Facility Name")
             .externalId("IC 39")
             .addressLine1("Address Line 1")
