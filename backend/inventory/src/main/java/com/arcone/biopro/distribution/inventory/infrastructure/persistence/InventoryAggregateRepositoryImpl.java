@@ -25,7 +25,7 @@ public class InventoryAggregateRepositoryImpl implements InventoryAggregateRepos
 
     @Override
     public Mono<InventoryAggregate> findByUnitNumberAndProductCode(String unitNumber, String productCode) {
-        return inventoryEntityRepository.findByUnitNumberAndProductCode(unitNumber, productCode)
+        return inventoryEntityRepository.findByUnitNumberAndProductCodeLike(unitNumber, createProductCodePattern(productCode))
             .map(inventoryEntityMapper::toDomain)
             .flatMap(inventory -> Mono.just(InventoryAggregate.builder().inventory(inventory).build()));
     }
@@ -62,9 +62,17 @@ public class InventoryAggregateRepositoryImpl implements InventoryAggregateRepos
 
     @Override
     public Mono<InventoryAggregate> findByLocationAndUnitNumberAndProductCode(String location, String unitNumber, String productCode) {
-        return inventoryEntityRepository.findByUnitNumberAndProductCodeAndLocation(unitNumber, productCode, location)
+        return inventoryEntityRepository.findByUnitNumberAndProductCodeLikeAndLocation(unitNumber, createProductCodePattern(productCode), location)
             .map(inventoryEntityMapper::toDomain)
             .flatMap(inventory -> Mono.just(InventoryAggregate.builder().inventory(inventory).build()));
+    }
+
+    private String createProductCodePattern(String productCode) {
+        if (productCode != null && productCode.length() == 7) {
+            return productCode.replaceAll("^(E\\d{4})([A-Z0-9]{2})$", "$1%$2");
+        }
+
+        return productCode;
     }
 
 }

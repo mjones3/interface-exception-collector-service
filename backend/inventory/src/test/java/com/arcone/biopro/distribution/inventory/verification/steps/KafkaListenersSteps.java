@@ -130,7 +130,7 @@ public class KafkaListenersSteps {
           "eventVersion": "1.0",
           "payload": {
              "unitNumber": "%s",
-            "productCode": "%s",
+            "productCode": "E0869A0",
             "reasonDescriptionKey": "ADDITIVE_SOLUTION_ISSUES",
              "comments": "The comments about discarded product",
             "triggeredBy": "USER_ID",
@@ -148,7 +148,7 @@ public class KafkaListenersSteps {
            "eventType": "ProductRecovered",
            "payload": {
              "unitNumber": "%s",
-            "productCode": "%s",
+            "productCode": "E0869A0",
              "performedBy": "USER_ID",
              "createDate": "2025-01-08T02:05:45.231Z"
            }
@@ -164,7 +164,7 @@ public class KafkaListenersSteps {
           "payload": {
             "id": 1,
             "unitNumber": "%s",
-            "productCode": "%s",
+            "productCode": "E0869A0",
             "reason": "OTHER",
             "comments": "a comment",
             "stopsManufacturing": false,
@@ -183,7 +183,7 @@ public class KafkaListenersSteps {
            "payload": {
              "id": 1,
              "unitNumber": "%s",
-             "productCode": "%s",
+             "productCode": "E0869A0",
              "oldReason": "OTHER",
              "newReason": "UNDER_INVESTIGATION",
              "comments": "a under investigation comment",
@@ -203,7 +203,7 @@ public class KafkaListenersSteps {
           "payload": {
             "id": 1,
             "unitNumber": "%s",
-            "productCode": "%s",
+            "productCode": "E0869A0",
             "reason": "OTHER",
             "performedBy": "USER_ID",
             "createDate": "2025-01-08T02:05:45.231Z"
@@ -343,7 +343,7 @@ public class KafkaListenersSteps {
     @When("I receive a {string} message with unit number {string}, product code {string} and location {string}")
     public void iReceiveAMessageWithUnitNumberProductCodeAndLocation(String event, String unitNumber, String productCode, String location) throws Exception {
         testUtils.kafkaSender(
-            scenarioContext.getUnitNumber() + "-" + scenarioContext.getProductCode(),
+            scenarioContext.getUnitNumber() + "-" + scenarioContext.getProductCode().replaceAll("V", ""),
             buildMessage(event, unitNumber, productCode, location),
             topicName);
     }
