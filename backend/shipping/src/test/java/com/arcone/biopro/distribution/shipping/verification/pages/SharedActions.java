@@ -9,6 +9,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
@@ -22,6 +23,9 @@ public class SharedActions {
     @Autowired
     @Lazy
     private WebDriverWait wait;
+
+    @Value("${ui.base.url}")
+    private String baseUrl;
 
     public void waitForVisible(WebElement element) {
         try {
@@ -112,6 +116,12 @@ public class SharedActions {
         element.click();
     }
 
+    public void click(WebDriver driver, By locator) throws InterruptedException {
+        waitForVisible(locator);
+        Thread.sleep(500);
+        driver.findElement(locator).click();
+    }
+
     public void clickElementAndMoveToNewTab(WebDriver driver, WebElement element, int expectedWindowsNumber) {
         this.click(element);
         log.info("Waiting for {} windows to be open. Currently: {}", expectedWindowsNumber, driver.getWindowHandles().size());
@@ -166,6 +176,14 @@ public class SharedActions {
         wait.until(e -> {
             log.debug("Waiting for loading animation to disappear.");
             return e.findElements(By.cssSelector(loadingAnimationLocator)).isEmpty();
+        });
+    }
+
+    public void isAtPage(String url) {
+        wait.until(e -> {
+            String fullUrl = baseUrl + url;
+            log.debug("Waiting for the URL to be: {}", fullUrl);
+            return e.getCurrentUrl().equals(fullUrl);
         });
     }
 }

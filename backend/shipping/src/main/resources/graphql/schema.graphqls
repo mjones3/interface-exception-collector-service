@@ -96,6 +96,7 @@ type ShipmentDetailResponseDTO {
     customerAddressAddressLine2: String
     completeDate: DateTime
     completedByEmployeeId: String
+    comments:String
     items: [ShipmentItemResponseDTO]
 }
 

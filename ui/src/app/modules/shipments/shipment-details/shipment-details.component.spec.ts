@@ -73,9 +73,20 @@ describe('ShipmentDetailsComponent', () => {
         );
     });
 
-    it('should navigate back to search order', () => {
+    it('should navigate back to Order Details', () => {
+        component.shipmentInfo = {
+            id: 1,
+            orderNumber: 10,
+            status: 'open',
+            createDate: '2024-03-05',
+            shippingMethod: '',
+            customerAddressPostalCode: '',
+            customerAddressCountryCode: '',
+        };
         component.backToSearch();
-        expect(router.navigateByUrl).toHaveBeenCalledWith('/orders/search');
+        expect(router.navigateByUrl).toHaveBeenCalledWith(
+            `/orders/10/order-details`
+        );
     });
 
     it('should navigate to fill product when click on Fill Product button', () => {

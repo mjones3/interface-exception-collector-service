@@ -207,6 +207,7 @@ public class ShipmentTestingController {
             .createDate(ZonedDateTime.now())
             .shippingCustomerCode(shippingCustomerCode)
             .shippingCustomerName(shippingCustomerName)
+            .comments("DISTRIBUTION COMMENTS")
             .items(new ArrayList<>())
             .build();
         if (!quantityList.isEmpty()) {

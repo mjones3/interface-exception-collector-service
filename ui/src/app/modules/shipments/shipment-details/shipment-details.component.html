@@ -52,6 +52,7 @@
             <rsa-order-widget-sidebar
                 [orderInfoDescriptions]="orderInfoDescriptions"
                 [shippingInfoDescriptions]="shippingInfoDescriptions"
+                [comments]="shipmentInfo?.comments"
             ></rsa-order-widget-sidebar>
         </div>
     </div>
@@ -248,12 +249,6 @@
                                             "
                                         ></mat-progress-bar
                                     ></span>
-                                    @if (product?.packedItems?.length) {
-                                        <mat-icon
-                                            class="text-custom-green"
-                                            [svgIcon]="'hi_outline:clock'"
-                                        ></mat-icon>
-                                    }
                                 </div>
                             </td>
                             <td>

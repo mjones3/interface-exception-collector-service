@@ -433,6 +433,7 @@ public class ShipmentServiceUseCase implements ShipmentService {
                 .customerAddressDistrict(shipment.getDistrict())
                 .completeDate(shipment.getCompleteDate())
                 .completedByEmployeeId(shipment.getCompletedByEmployeeId())
+                .comments(shipment.getComments())
                 .items(shipmentItemList)
                 .build()));
     }

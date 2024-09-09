@@ -10,6 +10,10 @@ Feature: Access Shipment Details Page
             And I have received a shipment fulfillment request with above details.
             When I am on the Shipment Fulfillment Details page.
             Then I can see the Order Information, the Shipping Information, and Order Criteria.
+            And I can see the order comment "DISTRIBUTION COMMENTS".
+            When I choose to fill product of family "PLASMA TRANSFUSABLE" and blood type "AP".
+            Then I can see the order comment "DISTRIBUTION COMMENTS".
+            And I can navigate back to the Order "<orderNumber>" Details page.
 
           Examples:
               | orderNumber | Customer ID | Customer Name | Quantity | BloodType | ProductFamily                                              |

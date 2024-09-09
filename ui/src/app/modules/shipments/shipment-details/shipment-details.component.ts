@@ -194,8 +194,12 @@ export class ShipmentDetailsComponent implements OnInit {
         this._router.navigateByUrl(url);
     }
 
+    get orderId() {
+        return this.shipmentInfo.orderNumber;
+    }
+
     backToSearch(): void {
-        this._router.navigateByUrl('/orders/search');
+        this._router.navigateByUrl(`/orders/${this.orderId}/order-details`);
     }
 
     customSort(event: SortEvent) {
