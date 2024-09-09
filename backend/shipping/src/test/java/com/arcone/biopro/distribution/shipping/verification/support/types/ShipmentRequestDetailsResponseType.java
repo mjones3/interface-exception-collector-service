@@ -37,6 +37,7 @@ public class ShipmentRequestDetailsResponseType {
     String customerAddressAddressLine1;
     String customerAddressAddressLine2;
     String customerAddressAddressComplement;
+    String comments;
 
     List<ShipmentFulfillmentRequest> items;
 }
