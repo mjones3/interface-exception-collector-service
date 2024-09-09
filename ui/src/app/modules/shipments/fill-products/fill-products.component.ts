@@ -20,7 +20,6 @@ import {
     Description,
     DescriptionCardComponent,
     NotificationDto,
-    NotificationType,
     NotificationTypeMap,
     ProcessHeaderComponent,
     ProcessHeaderService,
@@ -210,10 +209,7 @@ export class FillProductsComponent implements OnInit {
                         if (
                             notifications.find(
                                 (notification) =>
-                                    NotificationType.info ===
-                                    NotificationTypeMap[
-                                        notification.notificationType
-                                    ]
+                                    'INFO' === notification.notificationType
                             )
                         ) {
                             return this.openConfirmationDialog(
@@ -260,11 +256,17 @@ export class FillProductsComponent implements OnInit {
 
     displayMessageFromNotificationDto(notifications: NotificationDto[]) {
         notifications.forEach((notification) => {
+            const type = NotificationTypeMap[notification.notificationType];
             this.toaster.show(
                 this.translateService.instant(notification.message),
                 null,
-                {},
-                NotificationTypeMap[notification.notificationType]
+                {
+                    ...(type.timeOut ? { timeOut: type.timeOut } : {}),
+                    ...(type.tapToDismiss
+                        ? { tapToDismiss: type.tapToDismiss }
+                        : {}),
+                },
+                type.type
             );
         });
     }
