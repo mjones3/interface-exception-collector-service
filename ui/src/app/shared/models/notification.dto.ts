@@ -7,13 +7,14 @@ export enum NotificationType {
 }
 
 export interface NotificationConfig {
+    title?: string;
     type: NotificationType;
     timeOut: number;
-    tapToDismiss?: boolean;
 }
 
 export const NotificationTypeMap: Record<string, NotificationConfig> = {
     SYSTEM: {
+        title: 'System',
         type: NotificationType.info,
         timeOut: 10000,
     },
@@ -28,7 +29,6 @@ export const NotificationTypeMap: Record<string, NotificationConfig> = {
     ERROR: {
         type: NotificationType.error,
         timeOut: 0,
-        tapToDismiss: false,
     },
 };
 

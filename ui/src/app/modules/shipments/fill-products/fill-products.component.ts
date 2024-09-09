@@ -256,17 +256,20 @@ export class FillProductsComponent implements OnInit {
 
     displayMessageFromNotificationDto(notifications: NotificationDto[]) {
         notifications.forEach((notification) => {
-            const type = NotificationTypeMap[notification.notificationType];
+            const notificationType =
+                NotificationTypeMap[notification.notificationType];
             this.toaster.show(
                 this.translateService.instant(notification.message),
-                null,
+                notificationType.title,
                 {
-                    ...(type.timeOut ? { timeOut: type.timeOut } : {}),
-                    ...(type.tapToDismiss
-                        ? { tapToDismiss: type.tapToDismiss }
+                    ...(notificationType.timeOut
+                        ? { timeOut: notificationType.timeOut }
                         : {}),
+                    ...(notification.notificationType === 'SYSTEM'
+                        ? { timeOut: 0 }
+                        : {}), // Overrides timeout definition for SYSTEM notifications
                 },
-                type.type
+                notificationType.type
             );
         });
     }
