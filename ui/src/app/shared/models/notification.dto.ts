@@ -23,7 +23,7 @@ export const NotificationTypeMap: Record<string, NotificationConfig> = {
         timeOut: 10000,
     },
     WARN: {
-        type: NotificationType.warning,
+        type: NotificationType.error,
         timeOut: 10000,
     },
     ERROR: {

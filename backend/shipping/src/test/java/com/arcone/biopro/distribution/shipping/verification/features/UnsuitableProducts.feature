@@ -19,7 +19,7 @@ Feature: Prevent filling a shipment with unsuitable products
             | UN               | Code       | Inspection   | Message                                                     | Message Type           | orderNumber | Customer ID | Customer Name | Quantity | BloodType | ProductFamily                                               | Family Description  |
             | W036898786756    | E0701V00   | Satisfactory | This product is expired and cannot be shipped.              | Acknowledgment Message | 999771      | 999991      | Tampa         | 10,5,23  | AP,AN,OP  | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE | PLASMA TRANSFUSABLE |
             | =W03689878675800 | =<E0703V00 | Satisfactory | This product is quarantined and cannot be shipped.          | Acknowledgment Message | 999778      | 999998      | Tampa         | 10,5,23  | AP,AN,OP  | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE | PLASMA TRANSFUSABLE |
-            | =W03689878676300 | =<E0703V00 | Satisfactory | This product is not in the inventory and cannot be shipped. | Caution                | 999779      | 999998      | Tampa         | 10,5,23  | AP,AN,OP  | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE | PLASMA TRANSFUSABLE |
+            | =W03689878676300 | =<E0703V00 | Satisfactory | This product is not in the inventory and cannot be shipped. | Warning                | 999779      | 999998      | Tampa         | 10,5,23  | AP,AN,OP  | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE | PLASMA TRANSFUSABLE |
 
 
     @ui

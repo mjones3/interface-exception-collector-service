@@ -278,7 +278,7 @@ public class ShipmentServiceUseCase implements ShipmentService {
                     log.error("Product Family does not match");
                     return Mono.error(new ProductValidationException(ShipmentServiceMessages.PRODUCT_CRITERIA_FAMILY_ERROR,List.of(NotificationDTO
                         .builder()
-                            .notificationType(NotificationType.ERROR.name())
+                            .notificationType(NotificationType.WARN.name())
                             .statusCode(HttpStatus.BAD_REQUEST.value())
                             .message(ShipmentServiceMessages.PRODUCT_CRITERIA_FAMILY_ERROR)
                             .name("PRODUCT_CRITERIA_FAMILY_ERROR")
@@ -291,7 +291,7 @@ public class ShipmentServiceUseCase implements ShipmentService {
                             .name("PRODUCT_CRITERIA_BLOOD_TYPE_ERROR")
                             .statusCode(HttpStatus.BAD_REQUEST.value())
                             .message(ShipmentServiceMessages.PRODUCT_CRITERIA_BLOOD_TYPE_ERROR)
-                            .notificationType(NotificationType.ERROR.name())
+                            .notificationType(NotificationType.WARN.name())
                         .build())));
                 } else if(!VisualInspection.SATISFACTORY.equals(request.visualInspection())){
                     return Mono.error(new ProductValidationException(ShipmentServiceMessages.PRODUCT_CRITERIA_VISUAL_INSPECTION_ERROR,List.of(NotificationDTO
@@ -299,7 +299,7 @@ public class ShipmentServiceUseCase implements ShipmentService {
                         .name("PRODUCT_CRITERIA_VISUAL_INSPECTION_ERROR")
                         .statusCode(HttpStatus.BAD_REQUEST.value())
                         .message(ShipmentServiceMessages.PRODUCT_CRITERIA_VISUAL_INSPECTION_ERROR)
-                        .notificationType(NotificationType.ERROR.name())
+                        .notificationType(NotificationType.WARN.name())
                         .build())));
                 }
 
@@ -312,7 +312,7 @@ public class ShipmentServiceUseCase implements ShipmentService {
                         .name("PRODUCT_ALREADY_USED_ERROR")
                         .statusCode(HttpStatus.BAD_REQUEST.value())
                         .message(ShipmentServiceMessages.PRODUCT_ALREADY_USED_ERROR)
-                        .notificationType(NotificationType.ERROR.name())
+                        .notificationType(NotificationType.WARN.name())
                         .build())));
                 }
                 return Mono.just(tuple2.getT1());
@@ -327,7 +327,7 @@ public class ShipmentServiceUseCase implements ShipmentService {
                         .name("PRODUCT_CRITERIA_QUANTITY_ERROR")
                         .statusCode(HttpStatus.BAD_REQUEST.value())
                         .message(ShipmentServiceMessages.PRODUCT_CRITERIA_QUANTITY_ERROR)
-                        .notificationType(NotificationType.ERROR.name())
+                        .notificationType(NotificationType.WARN.name())
                         .build())));
                 } else {
                     return shipmentItemPackedRepository.save(ShipmentItemPacked.builder()
@@ -376,7 +376,7 @@ public class ShipmentServiceUseCase implements ShipmentService {
                     .statusCode(HttpStatus.BAD_REQUEST.value())
                     .name(HttpStatus.BAD_REQUEST.name())
                     .message(error.getMessage())
-                    .notificationType(NotificationType.ERROR.name())
+                    .notificationType(NotificationType.WARN.name())
                     .build()))
                 .build());
         }
