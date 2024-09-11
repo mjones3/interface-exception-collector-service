@@ -42,9 +42,12 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -197,9 +200,17 @@ class ShipmentServiceUseCaseTest {
 
         InventoryValidationResponseDTO validationResponseDTO = Mockito.mock(InventoryValidationResponseDTO.class);
         Mockito.when(validationResponseDTO.inventoryResponseDTO()).thenReturn(InventoryResponseDTO
-            .builder()
-                .productFamily("TEST")
-            .build());
+                .builder()
+                .productFamily("PLASMA_TRANSFUSABLE")
+                .id(UUID.randomUUID())
+                .aboRh("AB")
+                .locationCode("123456789")
+                .productCode("E0701V00")
+                .collectionDate(ZonedDateTime.now())
+                .unitNumber("W036898786756")
+                .productDescription("PRODUCT_DESCRIPTION")
+                .expirationDate(LocalDateTime.now())
+                .build());
         Mockito.when(validationResponseDTO.inventoryNotificationsDTO()).thenReturn(List.of(InventoryNotificationDTO.builder()
                 .errorMessage(ShipmentServiceMessages.INVENTORY_TEST_ERROR)
                 .reason("REASON")
@@ -226,6 +237,14 @@ class ShipmentServiceUseCaseTest {
                 assertEquals(Optional.of(HttpStatus.BAD_REQUEST), Optional.of(detail.ruleCode()));
                 assertEquals(Optional.of(HttpStatus.BAD_REQUEST.value()), Optional.of(detail.notifications().get(0).statusCode()));
                 assertEquals(Optional.of(ShipmentServiceMessages.INVENTORY_TEST_ERROR), Optional.of(detail.notifications().get(0).message()));
+
+                var inventoryResponseDTO = (InventoryResponseDTO) detail.results().get("inventory").getFirst();
+
+                assertEquals(Optional.of("E0701V00"), Optional.of(inventoryResponseDTO.productCode()));
+                assertEquals(Optional.of("W036898786756"), Optional.of(inventoryResponseDTO.unitNumber()));
+                assertEquals(Optional.of("PLASMA_TRANSFUSABLE"), Optional.of(inventoryResponseDTO.productFamily()));
+                assertEquals(Optional.of("PRODUCT_DESCRIPTION"), Optional.of(inventoryResponseDTO.productDescription()));
+
                 assertEquals(Optional.of("REASON"), Optional.of(detail.notifications().get(0).reason()));
                 assertEquals(Optional.of("TYPE"), Optional.of(detail.notifications().get(0).notificationType()));
                 assertEquals(Optional.of("NAME"), Optional.of(detail.notifications().get(0).name()));

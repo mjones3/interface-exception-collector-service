@@ -2,7 +2,7 @@ export interface DiscardRequestDTO {
     unitNumber: string;
     productCode: string;
     reasonDescriptionKey: string;
-    locationId: string;
+    locationCode: string;
     comments: string;
     triggeredBy: string;
     employeeId: string;
@@ -10,14 +10,13 @@ export interface DiscardRequestDTO {
     productFamily: string;
 }
 
-
 export interface DiscardResponseDTO {
     id: number;
     unitNumber: string;
     productCode: string;
     productShortDescription: string;
     productFamily: string;
-    locationId: string;
+    locationCode: string;
     employeeId: string;
     createDate: string;
 }

@@ -17,8 +17,11 @@ import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Controller
 @RequiredArgsConstructor
@@ -47,6 +50,18 @@ public class InventoryMockController {
             case "W036898786756":
                 return Mono.just(InventoryValidationResponseDTO
                 .builder()
+                        .inventoryResponseDTO(InventoryResponseDTO
+                            .builder()
+                            .productFamily("PLASMA_TRANSFUSABLE")
+                            .id(UUID.randomUUID())
+                            .aboRh("AB")
+                            .locationCode("123456789")
+                            .productCode("E0701V00")
+                            .collectionDate(ZonedDateTime.now())
+                            .unitNumber("W036898786756")
+                            .expirationDate(LocalDateTime.now())
+                            .productDescription("PRODUCT_DESCRIPTION")
+                            .build())
                         .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
                                 .builder()
                                 .errorName("INVENTORY_IS_EXPIRED")
