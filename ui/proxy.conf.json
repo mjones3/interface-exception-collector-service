@@ -44,5 +44,14 @@
         "pathRewrite": {
             "^/shipping/graphql": ""
         }
+    },
+    {
+        "context": ["/discard/graphql"],
+        "target": "http://api.local.gd/discard/graphql",
+        "secure": true,
+        "changeOrigin": true,
+        "pathRewrite": {
+            "^/discard/graphql": ""
+        }
     }
 ]
