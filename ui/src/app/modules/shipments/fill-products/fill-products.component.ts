@@ -32,7 +32,11 @@ import { Cookie } from 'app/shared/types/cookie.enum';
 import { CookieService } from 'ngx-cookie-service';
 import { TableModule } from 'primeng/table';
 import { catchError, finalize, take } from 'rxjs';
+import { DiscardRequestDTO } from '../../../shared/models/discard.model';
+import { InventoryDTO } from '../../../shared/models/inventory.model';
 import { ProductFamilyMap } from '../../../shared/models/product-family.model';
+import { RuleResponseDTO } from '../../../shared/models/rule.model';
+import { DiscardService } from '../../../shared/services/discard.service';
 import {
     ShipmentDetailResponseDTO,
     ShipmentItemPackedDTO,
@@ -93,7 +97,8 @@ export class FillProductsComponent implements OnInit {
         private store: Store,
         private _router: Router,
         private cd: ChangeDetectorRef,
-        private confirmationService: FuseConfirmationService
+        private confirmationService: FuseConfirmationService,
+        private discardService: DiscardService
     ) {
         this.store
             .select(getAuthState)
@@ -212,9 +217,7 @@ export class FillProductsComponent implements OnInit {
                                     'INFO' === notification.notificationType
                             )
                         ) {
-                            return this.openConfirmationDialog(
-                                ruleResult.notifications
-                            );
+                            return this.triggerDiscard(ruleResult);
                         } else {
                             this.displayMessageFromNotificationDto(
                                 ruleResult.notifications
@@ -295,5 +298,72 @@ export class FillProductsComponent implements OnInit {
                 },
             },
         });
+    }
+
+    private triggerDiscard(ruleResponse: RuleResponseDTO) {
+        const inventoryData: InventoryDTO = ruleResponse?.results?.inventory[0];
+        const triggers = ruleResponse.notifications.filter(
+            (notification) => 'TRIGGER_DISCARD' === notification.action
+        );
+        if (triggers.length) {
+            triggers.forEach((notification) => {
+                return this.discardService
+                    .discardProduct(
+                        this.getDiscardRequestDto(inventoryData, notification)
+                    )
+                    .pipe(
+                        catchError((err) => {
+                            this.showDiscardSystemError();
+                            throw err;
+                        }),
+                        finalize(() => {
+                            this.loading = false;
+                            this.unitNumberFocus = true;
+                        })
+                    )
+                    .subscribe((response) => {
+                        const data = response?.data?.discardProduct;
+                        if (data) {
+                            return this.openConfirmationDialog(
+                                ruleResponse.notifications
+                            );
+                        } else {
+                            this.showDiscardSystemError();
+                        }
+                    });
+            });
+        } else {
+            return this.openConfirmationDialog(ruleResponse.notifications);
+        }
+    }
+
+    private getDiscardRequestDto(
+        inventory: InventoryDTO,
+        notification: NotificationDto
+    ): DiscardRequestDTO {
+        return {
+            unitNumber: inventory.unitNumber,
+            productCode: inventory.productCode,
+            locationCode: this.cookieService.get(Cookie.XFacility),
+            employeeId: this.loggedUserId,
+            triggeredBy: 'SHIPPING',
+            reasonDescriptionKey: notification.reason,
+            productFamily: inventory.productFamily,
+            productShortDescription: inventory.productDescription,
+            comments: '',
+        };
+    }
+
+    private showDiscardSystemError() {
+        this.loading = false;
+        this.displayMessageFromNotificationDto([
+            {
+                statusCode: 400,
+                notificationType: 'SYSTEM',
+                code: 400,
+                message:
+                    'Product has not be discarded in the system. Contact Support.',
+            },
+        ]);
     }
 }
