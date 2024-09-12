@@ -305,7 +305,7 @@ export class FillProductsComponent implements OnInit {
         const triggers = ruleResponse.notifications.filter(
             (notification) => 'TRIGGER_DISCARD' === notification.action
         );
-        if (triggers.length > 0) {
+        if (triggers.length) {
             triggers.forEach((notification) => {
                 return this.discardService
                     .discardProduct(
