@@ -59,7 +59,7 @@ export class SearchOrdersComponent {
     readonly columns: Column[] = [
         {
             field: 'orderNumber',
-            header: 'BioPro Order Number',
+            header: 'BioPro Order ID',
             sortable: false,
             default: true,
         },
