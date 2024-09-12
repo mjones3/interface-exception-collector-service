@@ -52,7 +52,7 @@ Feature: List of all orders in Search Order
             And I am logged in the location "<User LocationCode>".
             When I choose search orders.
             Then I should not see the biopro order in the list of orders.
-            And I should see a "Caution Message" message: "No Results Found".
+            And I should see a "Caution" message: "No Results Found".
 
             Examples:
                 | External ID     | Order LocationCode        | User LocationCode | Priority | Status |
