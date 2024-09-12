@@ -98,7 +98,7 @@ public class KafkaListenersSteps {
                "aboRh":"OP",
                "productFamily": "PLASMA_TRANSFUSABLE",
                "collectionDate":"2025-01-08T06:00:00.000Z",
-               "expirationDate":"2025-01-08T06:00:00.000",
+               "expirationDate":"2025-01-08T06:00:00.000Z",
                "performedBy":"userId",
                "createDate":"2025-01-08T06:00:00.000Z"
             }
