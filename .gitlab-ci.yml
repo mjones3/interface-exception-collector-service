@@ -7,7 +7,7 @@ include:
     file: spec.build_ui.pipeline.yml
     inputs:
       service: distribution
-      build_cmd: ng build --configuration production
+      build_cmd: npm test && ng build --configuration production
   - project: arc-one/infrastructure/gitlab-ci
     ref: main
     file: spec.backend.pipeline.yml
