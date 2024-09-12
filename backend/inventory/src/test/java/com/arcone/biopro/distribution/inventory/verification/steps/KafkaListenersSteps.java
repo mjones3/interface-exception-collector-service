@@ -93,7 +93,7 @@ public class KafkaListenersSteps {
             "payload":{
                "unitNumber":"%s",
                "productCode":"%s",
-               "shortDescription":"APH PLASMA 24H",
+               "productDescription":"APH PLASMA 24H",
                "location":"%s",
                "aboRh":"OP",
                "productFamily": "PLASMA_TRANSFUSABLE",
