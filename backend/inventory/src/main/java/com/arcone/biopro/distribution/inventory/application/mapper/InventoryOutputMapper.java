@@ -39,7 +39,7 @@ public abstract class InventoryOutputMapper {
     @Mapping(target = "productCode", source = "inventory.productCode.value")
     @Mapping(target = "storageLocation", source = "inventory.storageLocation")
     @Mapping(target = "aboRh", source = "inventory.aboRh")
-    public abstract  Product toOutput(InventoryAggregate inventoryAggregate);
+    public abstract Product toOutput(InventoryAggregate inventoryAggregate);
 
     @Mapping(target = "inventoryOutput", source = "inventory")
     @Mapping(target = "notificationMessages.message", expression = "java(toOutput(notificationMessage.message()))")
@@ -54,6 +54,8 @@ public abstract class InventoryOutputMapper {
 
     @Mapping(target = "name", expression = "java(notificationType.name())")
     @Mapping(target = "message", expression = "java(textConfigService.getText(notificationType.name()))")
+    @Mapping(target = "action", expression = "java(notificationType.getAction().name())")
+    @Mapping(target = "reason", ignore = true)
     public abstract NotificationMessage toNotificationMessage(MessageType notificationType);
 
     @Mapping(target = "inventory.unitNumber.value", source = "unitNumber")

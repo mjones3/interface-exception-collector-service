@@ -41,4 +41,7 @@ the [official website](https://helm.sh/).
 
 ### Rsocket
 Download the rsocket client (rsc) from https://github.com/making/rsc/releases
+- getAvailableInventoryWithShortDatedProducts
 run the command: java -jar rsc-0.9.1.jar --debug --request --data "{\"locationCode\":\"LOCATION_1\",\"availableInventoryCriteriaDTOS\": [{\"productFamily\":\"PLASMA_TRANSFUSABLE\", \"bloodType\":\"O\"}]}" --route getAvailableInventoryWithShortDatedProducts tcp://api.local.gd:7002
+- validateInventory
+  run the command: java -jar rsc-0.9.1.jar --debug --request --data "{\"unitNumber\":\"W214152205701\", \"productCode\":\"E0869VA0\", \"locationCode\":\"LOCATION_1\"}" --route validateInventory tcp://api.local.gd:7002

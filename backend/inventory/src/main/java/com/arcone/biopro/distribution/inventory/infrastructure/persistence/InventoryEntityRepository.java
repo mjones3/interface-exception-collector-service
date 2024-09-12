@@ -18,7 +18,13 @@ public interface InventoryEntityRepository extends ReactiveCrudRepository<Invent
 
     Mono<InventoryEntity> findByUnitNumberAndProductCode(String unitNumber, String productCode);
 
+    Mono<InventoryEntity> findByUnitNumberAndProductCodeLike(String unitNumber, String productCodePattern);
+
+
     Mono<InventoryEntity> findByUnitNumberAndProductCodeAndLocation(String unitNumber, String productCode, String location);
+
+    Mono<InventoryEntity> findByUnitNumberAndProductCodeLikeAndLocation(String unitNumber, String productCode, String location);
+
 
     Mono<Boolean> existsByLocationAndUnitNumberAndProductCode(String location, String unitNumber, String productCode);
 
