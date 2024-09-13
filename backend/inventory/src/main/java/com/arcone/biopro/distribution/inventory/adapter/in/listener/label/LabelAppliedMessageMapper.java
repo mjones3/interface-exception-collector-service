@@ -5,6 +5,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Mapper(componentModel = "spring")
@@ -14,12 +15,12 @@ public interface LabelAppliedMessageMapper {
     @Mapping(target = "shortDescription", source = "productDescription")
     InventoryInput toInput(LabelAppliedMessage message);
 
-    default  LocalDateTime toLocalDateTime(String dateString) {
-        if(dateString == null) {
+    default  LocalDateTime toLocalDateTime(String dateTimeString) {
+        if(dateTimeString == null) {
             return null;
         }
+        ZonedDateTime zonedDateTime = ZonedDateTime.parse(dateTimeString, DateTimeFormatter.ISO_ZONED_DATE_TIME);
 
-        String modifiedDateString = dateString.replace("Z", "");
-        return LocalDateTime.parse(modifiedDateString, formatter);
+        return zonedDateTime.toLocalDateTime();
     }
 }
