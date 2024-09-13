@@ -18,10 +18,12 @@ export const appRoutes: Route[] = [
         children: [
             {
                 path: 'home',
+                canActivate: [AuthGuard],
                 loadChildren: () => import('app/modules/home/home.routes'),
             },
             {
                 path: 'orders',
+                canActivate: [AuthGuard],
                 loadChildren: () =>
                     import(
                         'app/modules/orders/order/search-orders/search-orders.routes'
@@ -29,6 +31,7 @@ export const appRoutes: Route[] = [
             },
             {
                 path: 'orders',
+                canActivate: [AuthGuard],
                 loadChildren: () =>
                     import(
                         'app/modules/orders/order/order-details/order-details.routes'
@@ -36,11 +39,13 @@ export const appRoutes: Route[] = [
             },
             {
                 path: 'shipment',
+                canActivate: [AuthGuard],
                 loadChildren: () =>
                     import('app/modules/shipments/shipment.routes'),
             },
             {
                 path: 'shipment',
+                canActivate: [AuthGuard],
                 loadChildren: () =>
                     import(
                         'app/modules/shipments/fill-products/fill-products.routes'
