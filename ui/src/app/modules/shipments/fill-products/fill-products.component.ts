@@ -71,8 +71,6 @@ import { OrderWidgetsSidebarComponent } from '../shared/order-widgets-sidebar/or
 })
 export class FillProductsComponent implements OnInit {
     filledProductsData: ShipmentItemPackedDTO[] = [];
-    orderInfoDescriptions: Description[] = [];
-    shippingInfoDescriptions: Description[] = [];
     prodInfoDescriptions: Description[] = [];
     shipmentInfo: ShipmentDetailResponseDTO;
     shipmentProduct: ShipmentItemResponseDTO;
@@ -123,15 +121,8 @@ export class FillProductsComponent implements OnInit {
                 this.filledProductsData = this.shipmentProduct?.packedItems;
 
                 this.setProdInfo();
-                this.updateWidgets();
                 this.cd.detectChanges();
             });
-    }
-    private updateWidgets() {
-        this.orderInfoDescriptions =
-            this.shipmentService.getOrderInfoDescriptions(this.shipmentInfo);
-        this.shippingInfoDescriptions =
-            this.shipmentService.getShippingInfoDescriptions(this.shipmentInfo);
     }
 
     private setProdInfo() {

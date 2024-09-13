@@ -53,13 +53,13 @@ public class ShipmentDetailPage extends CommonPageFactory {
     @FindBy(xpath = "//*[@id='informationDetails-Shipping Method']")
     private WebElement shippingMethodElement;
 
-    @FindBy(xpath = "//*[@id='informationDetails-Order Number']")
+    @FindBy(xpath = "//*[@id='informationDetails-BioPro Order ID']")
     private WebElement orderNumber;
 
     @FindBy(id = "informationDetails-Priority")
     private WebElement orderPriority;
 
-    @FindBy(xpath = "//*[@id='informationDetails-Customer Id']")
+    @FindBy(xpath = "//*[@id='informationDetails-Customer Code']")
     private WebElement customerId;
 
     @FindBy(xpath = "//*[@id='informationDetails-Customer Name']")

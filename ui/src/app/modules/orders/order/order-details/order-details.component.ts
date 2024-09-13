@@ -9,7 +9,6 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ApolloError } from '@apollo/client';
 import { FuseCardComponent } from '@fuse/components/card/public-api';
 import {
-    Description,
     ProcessHeaderComponent,
     ProcessHeaderService,
     ToastrImplService,
@@ -40,7 +39,6 @@ import {
     DEFAULT_PAGE_SIZE_DIALOG_LANDSCAPE_WIDTH,
 } from '../../../../core/models/browser-printing.model';
 import { TagComponent } from '../../../../shared/components/tag/tag.component';
-import { OrderStatusMap } from '../../../../shared/models/order-status.model';
 import { PickListDTO } from '../../graphql/mutation-definitions/generate-pick-list.graphql';
 import { OrderShipmentDTO } from '../../graphql/query-definitions/order-details.graphql';
 import { Notification } from '../../models/notification.dto';
@@ -130,7 +128,7 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
         this.orderService
             .getOrderById(this.orderId)
             .pipe(
-                catchError(this.handleError),
+                catchError((e) => this.handleError(e)),
                 finalize(() => (this.loading = false)),
                 map((result) => result?.data?.findOrderById),
                 switchMap(({ notifications, data: orderDetails }) => {
@@ -143,7 +141,7 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
                         ? this.orderService
                               .findOrderShipmentByOrderId(orderDetails.id)
                               .pipe(
-                                  catchError(this.handleError),
+                                  catchError((e) => this.handleError(e)),
                                   map((result) =>
                                       [
                                           result?.data
@@ -166,7 +164,7 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
             .generatePickList(orderId, skipInventoryUnavailable)
             .pipe(
                 finalize(() => (this.loadingPickList = false)),
-                catchError(this.handleError),
+                catchError((e) => this.handleError(e)),
                 map((response) => response?.data?.generatePickList),
                 switchMap(({ notifications, data: pickList }) => {
                     const inventoryServiceIsDown =
@@ -203,7 +201,7 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
                             this.orderService
                                 .findOrderShipmentByOrderId(orderId)
                                 .pipe(
-                                    catchError(this.handleError),
+                                    catchError((e) => this.handleError(e)),
                                     map(
                                         (response) =>
                                             response?.data
@@ -220,7 +218,7 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
                 switchMap((orderShipment) => {
                     this.shipments = [orderShipment]; // Backend is sending only one record
                     return this.orderService.getOrderById(orderId).pipe(
-                        catchError(this.handleError),
+                        catchError((e) => this.handleError(e)),
                         map((response) => response?.data?.findOrderById)
                     );
                 })
@@ -292,58 +290,5 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
         }
         this.toaster?.error(ERROR_MESSAGE);
         throw error;
-    }
-
-    get orderInfoDescriptions(): Description[] {
-        return [
-            {
-                label: 'BioPro Order Number',
-                value: this.orderDetails?.orderNumber?.toString(),
-            },
-            {
-                label: 'External order ID',
-                value: this.orderDetails?.externalId,
-            },
-            {
-                label: 'Priority',
-                value: this.orderDetails?.priority,
-            },
-            {
-                label: 'Status',
-                value: this.orderDetails?.status
-                    ? OrderStatusMap[this.orderDetails.status]
-                    : 'Unknown',
-            },
-        ];
-    }
-
-    get shippingInfoDescriptions(): Description[] {
-        return [
-            {
-                label: 'Customer Code',
-                value: this.orderDetails?.shippingCustomerCode.toString(),
-            },
-            {
-                label: 'Customer Name',
-                value: this.orderDetails?.shippingCustomerName.toString(),
-            },
-            {
-                label: 'Shipping Method',
-                value: this.orderDetails?.shippingMethod.toString(),
-            },
-        ];
-    }
-
-    get billInfoDescriptions(): Description[] {
-        return [
-            {
-                label: 'Billing Customer Code',
-                value: this.orderDetails?.billingCustomerCode.toString(),
-            },
-            {
-                label: 'Billing Customer Name',
-                value: this.orderDetails?.billingCustomerName.toString(),
-            },
-        ];
     }
 }

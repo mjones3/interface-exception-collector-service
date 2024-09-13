@@ -139,7 +139,6 @@ export class ShipmentDetailsComponent implements OnInit {
                         this.convertItemToProduct(item)
                     ) ?? [];
                 this.getPackedItems();
-                this.updateWidgets();
                 if (this.isProductComplete) {
                     this.getShippedProductsInfo();
                 }
@@ -180,13 +179,6 @@ export class ShipmentDetailsComponent implements OnInit {
                 this.packedItems.push(...item.packedItems);
             }
         });
-    }
-
-    private updateWidgets() {
-        this.orderInfoDescriptions =
-            this.shipmentService.getOrderInfoDescriptions(this.shipmentInfo);
-        this.shippingInfoDescriptions =
-            this.shipmentService.getShippingInfoDescriptions(this.shipmentInfo);
     }
 
     fillProducts(item: ShipmentItemResponseDTO): void {
