@@ -10,7 +10,7 @@ import { OrderStatusMap } from '../../../../shared/models/order-status.model';
 
 @Component({
     standalone: true,
-    selector: 'rsa-order-widget-sidebar',
+    selector: 'app-order-widget-sidebar',
     templateUrl: './order-widgets-sidebar.component.html',
     styleUrls: ['./order-widgets-sidebar.component.scss'],
     imports: [
