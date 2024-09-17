@@ -353,7 +353,7 @@ export class FillProductsComponent implements OnInit {
                 notificationType: 'SYSTEM',
                 code: 400,
                 message:
-                    'Product has not be discarded in the system. Contact Support.',
+                    'Product has not been discarded in the system. Contact Support.',
             },
         ]);
     }
