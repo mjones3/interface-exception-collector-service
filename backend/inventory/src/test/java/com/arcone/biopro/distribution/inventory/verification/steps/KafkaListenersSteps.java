@@ -9,6 +9,7 @@ import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntity;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntityRepository;
 import com.arcone.biopro.distribution.inventory.verification.common.ScenarioContext;
+import com.arcone.biopro.distribution.inventory.verification.utils.LogMonitor;
 import com.arcone.biopro.distribution.inventory.verification.utils.TestUtils;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
@@ -57,6 +58,9 @@ public class KafkaListenersSteps {
 
     @Autowired
     private ScenarioContext scenarioContext;
+
+    @Autowired
+    private LogMonitor logMonitor;
 
     private static final String SHIPMENT_COMPLETED_MESSAGE = """
          {
@@ -324,6 +328,8 @@ public class KafkaListenersSteps {
             scenarioContext.getUnitNumber() + "-" + scenarioContext.getProductCode(),
             buildMessage(event),
             topicName);
+
+        logMonitor.await("successfully consumed.*"+scenarioContext.getUnitNumber());
     }
 
     public void populateTestData() {
@@ -346,6 +352,7 @@ public class KafkaListenersSteps {
             scenarioContext.getUnitNumber() + "-" + scenarioContext.getProductCode().replaceAll("V", ""),
             buildMessage(event, unitNumber, productCode, location),
             topicName);
+        logMonitor.await("successfully consumed.*"+scenarioContext.getUnitNumber());
     }
 
 }
