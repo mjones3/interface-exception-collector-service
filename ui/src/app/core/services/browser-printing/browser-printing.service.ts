@@ -169,7 +169,7 @@ export class BrowserPrintingService {
             return;
         }
 
-        const popupWin = window.open('', '_blank', popOut);
+        const popupWin = window.open(' ', '_blank', popOut);
         if (!popupWin) {
             // the popup window could not be opened.
             console.error('Could not open print window.');

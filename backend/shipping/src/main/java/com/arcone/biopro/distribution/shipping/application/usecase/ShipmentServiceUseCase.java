@@ -48,8 +48,12 @@ import reactor.core.publisher.Mono;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
+import static java.util.Optional.ofNullable;
 
 @Service
 @RequiredArgsConstructor
@@ -253,18 +257,20 @@ public class ShipmentServiceUseCase implements ShipmentService {
             if (inventoryValidationResponseDTO.inventoryResponseDTO() != null && (inventoryValidationResponseDTO.inventoryNotificationsDTO() == null || inventoryValidationResponseDTO.inventoryNotificationsDTO().isEmpty())) {
                 return Mono.just(inventoryValidationResponseDTO.inventoryResponseDTO());
             } else {
-                return Mono.error(new ProductValidationException(ShipmentServiceMessages.INVENTORY_VALIDATION_FAILED,inventoryValidationResponseDTO.inventoryNotificationsDTO().stream()
-                    .map(inventoryNotificationDTO -> NotificationDTO
-                        .builder()
-                        .statusCode(HttpStatus.BAD_REQUEST.value())
-                        .name(inventoryNotificationDTO.errorName())
-                        .message(inventoryNotificationDTO.errorMessage())
-                        .code(inventoryNotificationDTO.errorCode())
-                        .action(inventoryNotificationDTO.action())
-                        .notificationType(inventoryNotificationDTO.errorType())
-                        .reason(inventoryNotificationDTO.reason())
-                        .build() )
-                    .toList()));
+                return Mono.error(new ProductValidationException(ShipmentServiceMessages.INVENTORY_VALIDATION_FAILED
+                    ,inventoryValidationResponseDTO.inventoryResponseDTO()
+                    , inventoryValidationResponseDTO.inventoryNotificationsDTO().stream()
+                        .map(inventoryNotificationDTO -> NotificationDTO
+                            .builder()
+                            .statusCode(HttpStatus.BAD_REQUEST.value())
+                            .name(inventoryNotificationDTO.errorName())
+                            .message(inventoryNotificationDTO.errorMessage())
+                            .code(inventoryNotificationDTO.errorCode())
+                            .action(inventoryNotificationDTO.action())
+                            .notificationType(inventoryNotificationDTO.errorType())
+                            .reason(inventoryNotificationDTO.reason())
+                            .build() )
+                        .toList()));
             }
         });
     }
@@ -363,8 +369,12 @@ public class ShipmentServiceUseCase implements ShipmentService {
                 .build());
         }
         if(error instanceof ProductValidationException exception){
+
+            Map<String, List<?>> results  = ((ProductValidationException) error).getInventoryResponseDTO() != null ? Map.of("inventory", List.of(((ProductValidationException) error).getInventoryResponseDTO())) : Map.of("inventory", List.of(Collections.emptyList()));
+
             return Mono.just(RuleResponseDTO.builder()
                 .ruleCode(HttpStatus.BAD_REQUEST)
+                .results(results)
                 .notifications(exception.getNotifications())
                 .build());
         }else{

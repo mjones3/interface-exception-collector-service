@@ -22,8 +22,6 @@ import { ToastrImplService } from 'app/shared/services/toastr-impl.service';
 import { KeycloakConfig } from 'keycloak-js';
 import { ToastrService } from 'ngx-toastr';
 import { switchMap } from 'rxjs';
-import { NavigationMockApi } from '../mock-api/common/navigation/api';
-import { ProcessMockApi } from '../mock-api/common/process/api';
 import { authInterceptor } from './interceptors/auth.interceptor';
 import { loaderInterceptor } from './interceptors/loader.interceptor';
 import { timezoneInterceptor } from './interceptors/time-zone.interceptor';
@@ -39,6 +37,7 @@ const provideApollo = (): Provider[] => [
                 '/graphql', // Default GraphQL path
                 '/order/graphql',
                 '/shipping/graphql',
+                '/discard/graphql',
             ].reduce(
                 (instances: NamedOptions, path: string) => ({
                     ...instances,
@@ -96,12 +95,8 @@ export const provideCore = (): (Provider | EnvironmentProviders)[] => {
             useFactory: (
                 http: HttpClient,
                 authService: AuthService,
-                processMockApi: ProcessMockApi,
-                navigationMockApi: NavigationMockApi,
                 environmentConfigService: EnvironmentConfigService
             ) => {
-                processMockApi.registerHandlers();
-                navigationMockApi.registerHandlers();
                 return () =>
                     http.get<Environment>('/settings.json').pipe(
                         switchMap((settings: Environment) => {
@@ -119,13 +114,7 @@ export const provideCore = (): (Provider | EnvironmentProviders)[] => {
                         })
                     );
             },
-            deps: [
-                HttpClient,
-                AuthService,
-                ProcessMockApi,
-                NavigationMockApi,
-                EnvironmentConfigService,
-            ],
+            deps: [HttpClient, AuthService, EnvironmentConfigService],
             multi: true,
         },
         {

@@ -127,7 +127,7 @@ class InventoryMockControllerTest {
 
         StepVerifier.create(inventoryResponse)
             .consumeNextWith(detail -> {
-                assertNull(detail.inventoryResponseDTO());
+                assertNotNull(detail.inventoryResponseDTO());
                 assertNotNull(detail.inventoryNotificationsDTO().getFirst());
                 assertEquals(Optional.of(2), Optional.of(detail.inventoryNotificationsDTO().getFirst().errorCode()));
                 assertEquals(Optional.of(ShipmentServiceMessages.INVENTORY_EXPIRED_ERROR), Optional.of(detail.inventoryNotificationsDTO().getFirst().errorMessage()));

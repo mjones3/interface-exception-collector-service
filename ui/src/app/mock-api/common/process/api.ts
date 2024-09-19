@@ -11,7 +11,9 @@ export class ProcessMockApi {
     /**
      * Constructor
      */
-    constructor(private _fuseMockApiService: FuseMockApiService) {}
+    constructor(private _fuseMockApiService: FuseMockApiService) {
+        this.registerHandlers();
+    }
 
     // -----------------------------------------------------------------------------------------------------
     // @ Public methods
