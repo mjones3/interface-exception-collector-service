@@ -60,7 +60,7 @@ public class InventoryEntity implements Serializable, Persistable<UUID> {
 
     @NotNull
     @Column("collection_date")
-    String collectionDate;
+    ZonedDateTime collectionDate;
 
     @NotNull
     @Column("location")

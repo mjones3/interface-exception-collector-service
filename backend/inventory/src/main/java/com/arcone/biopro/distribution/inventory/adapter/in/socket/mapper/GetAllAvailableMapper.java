@@ -10,7 +10,7 @@ import org.mapstruct.Mapping;
 public interface GetAllAvailableMapper {
 
     @Mapping(target = "location", source = "locationCode")
-    @Mapping(target ="inventoryCriteria", source = "availableInventoryCriteriaDTOS")
+    @Mapping(target = "inventoryCriteria", source = "availableInventoryCriteriaDTOS")
     GetAllAvailableInventoriesInput toInput(GetAvailableInventoryCommandDTO dto);
 
     @Mapping(target = "aboRh", source = "bloodType")

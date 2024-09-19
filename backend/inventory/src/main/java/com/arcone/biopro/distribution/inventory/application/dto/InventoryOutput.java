@@ -19,7 +19,7 @@ public record InventoryOutput(
     String location,
     String productDescription,
     AboRhType aboRh,
-    String collectionDate,
+    ZonedDateTime collectionDate,
     ProductFamily productFamily,
     String shortDescription,
     ZonedDateTime createDate,

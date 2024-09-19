@@ -6,7 +6,7 @@ CREATE TABLE bld_inventory
     short_description           VARCHAR(255) NOT NULL,
     status                      VARCHAR(255) NOT NULL,
     expiration_date             TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    collection_date             VARCHAR(255) NOT NULL,
+    collection_date             TIMESTAMP WITH TIME ZONE NOT NULL,
     location                    VARCHAR(255) NOT NULL,
     product_family              VARCHAR(255) NOT NULL,
     abo_rh                      VARCHAR(3) NOT NULL,

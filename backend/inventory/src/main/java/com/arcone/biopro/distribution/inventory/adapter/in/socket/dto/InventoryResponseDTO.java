@@ -19,7 +19,7 @@ public record InventoryResponseDTO(
     LocalDateTime expirationDate,
     AboRhType aboRh,
     ProductFamily productFamily,
-    String collectionDate,
+    ZonedDateTime collectionDate,
     String storageLocation,
     ZonedDateTime createDate,
     ZonedDateTime modificationDate

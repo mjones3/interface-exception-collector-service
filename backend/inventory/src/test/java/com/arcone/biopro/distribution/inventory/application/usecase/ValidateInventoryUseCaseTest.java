@@ -127,7 +127,7 @@ class ValidateInventoryUseCaseTest {
 
     @Test
     void execute_shouldValidate_inventory_is_not_found() {
-        InventoryInput input = new InventoryInput(UNIT_NUMBER, PRODUCT_CODE, null, null, LOCATION_1, null, null , null);
+        InventoryInput input = new InventoryInput(UNIT_NUMBER, PRODUCT_CODE, null, null,null, LOCATION_1, null, null);
 
         when(inventoryAggregateRepository.findByUnitNumberAndProductCode(any(), any()))
             .thenReturn(Mono.empty());
