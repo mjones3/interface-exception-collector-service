@@ -42,40 +42,9 @@ public class RepositorySteps {
         return inventoryEntityRepository.findByUnitNumberAndProductCodeAndInventoryStatus(unitNumber, productCode, status).block();
     }
 
-    public InventoryEntity getInventoryWithRetry(String unitNumber, String productCode, InventoryStatus status) throws InterruptedException {
-        int maxTryCount = 60;
-        int tryCount = 0;
+    public InventoryEntity getStoredInventory(String unitNumber, String productCode, InventoryStatus status) {
 
-        InventoryEntity entity = null;
-        while (tryCount < maxTryCount && entity == null) {
-            entity = inventoryEntityRepository.findByUnitNumberAndProductCodeAndInventoryStatus(unitNumber, productCode, status).block();
-
-            if (EVENT_QUARANTINE_UPDATED.equals(scenarioContext.getEvent()) && "OTHER".equals(entity.getQuarantines().getFirst().reason())) {
-                entity = null;
-            }
-
-            tryCount++;
-            waiter.await(1, TimeUnit.SECONDS);
-        }
-        return entity;
-    }
-
-    public InventoryEntity getStoredInventory(String unitNumber, String productCode, InventoryStatus status) throws InterruptedException {
-        int maxTryCount = 60;
-        int tryCount = 0;
-
-        InventoryEntity entity = null;
-        while (tryCount < maxTryCount && entity == null) {
-            entity = inventoryEntityRepository.findByUnitNumberAndProductCodeAndInventoryStatus(unitNumber, productCode, status).block();
-
-            if (Objects.nonNull(entity) && Objects.isNull(entity.getDeviceStored())) {
-                entity = null;
-            }
-
-            tryCount++;
-            waiter.await(1, TimeUnit.SECONDS);
-        }
-        return entity;
+        return inventoryEntityRepository.findByUnitNumberAndProductCodeAndInventoryStatus(unitNumber, productCode, status).block();
     }
 
     private void createInventory(String unitNumber, String productCode, ProductFamily productFamily, AboRhType aboRhType, String location, Integer daysToExpire, InventoryStatus status) {
@@ -95,8 +64,8 @@ public class RepositorySteps {
     }
 
     @Then("The inventory status is {string}")
-    public void theInventoryIsCreatedCorrectly(String status) throws InterruptedException {
-        InventoryEntity inventory = getInventoryWithRetry(scenarioContext.getUnitNumber(), scenarioContext.getProductCode(), InventoryStatus.valueOf(status));
+    public void theInventoryIsCreatedCorrectly(String status) {
+        InventoryEntity inventory = getInventory(scenarioContext.getUnitNumber(), scenarioContext.getProductCode(), InventoryStatus.valueOf(status));
         assertNotNull(inventory);
         assertEquals(scenarioContext.getProductCode(), inventory.getProductCode());
         assertEquals(scenarioContext.getUnitNumber(), inventory.getUnitNumber());
