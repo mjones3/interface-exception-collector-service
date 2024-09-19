@@ -29,7 +29,7 @@ class InventoryTest {
             .shortDescription("Short Description")
             .inventoryStatus(InventoryStatus.AVAILABLE)
             .expirationDate(LocalDateTime.now().plusDays(5))
-            .collectionDate("2023-09-05")
+            .collectionDate(ZonedDateTime.now())
             .location("Storage A")
             .productFamily(ProductFamily.PLASMA_TRANSFUSABLE)
             .statusReason("In Use")

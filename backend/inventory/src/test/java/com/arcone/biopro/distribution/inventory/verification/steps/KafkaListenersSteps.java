@@ -303,7 +303,7 @@ public class KafkaListenersSteps {
             .productFamily(productFamily)
             .aboRh(aboRhType)
             .location(location)
-            .collectionDate(ZonedDateTime.now().toString())
+            .collectionDate(ZonedDateTime.now())
             .inventoryStatus(status)
             .expirationDate(LocalDateTime.now().plusDays(daysToExpire))
             .unitNumber(unitNumber)

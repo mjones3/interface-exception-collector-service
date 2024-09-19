@@ -38,7 +38,7 @@ public class Inventory {
 
     LocalDateTime expirationDate;
 
-    String collectionDate;
+    ZonedDateTime collectionDate;
 
     String location;
 

@@ -56,7 +56,7 @@ class LabelAppliedUseCaseTest {
             .shortDescription("APH PLASMA 24H")
             .inventoryStatus(InventoryStatus.AVAILABLE)
             .expirationDate(LocalDateTime.parse("2025-01-08T02:05:45.231"))
-            .collectionDate("2025-01-07T02:05:45.231Z")
+            .collectionDate(ZonedDateTime.now())
             .location("LOCATION_1")
             .productFamily(ProductFamily.PLASMA_TRANSFUSABLE)
             .aboRh(AboRhType.ABN)
@@ -67,7 +67,7 @@ class LabelAppliedUseCaseTest {
             .productCode("E1234V12")
             .shortDescription("APH PLASMA 24H")
             .expirationDate(LocalDateTime.parse("2025-01-08T02:05:45.231"))
-            .collectionDate("2025-01-07T02:05:45.231Z")
+            .collectionDate(ZonedDateTime.now())
             .location("LOCATION_1")
             .productFamily(ProductFamily.PLASMA_TRANSFUSABLE)
             .aboRh(AboRhType.ABN)
@@ -111,7 +111,7 @@ class LabelAppliedUseCaseTest {
             "E1234V12",
             "APH PLASMA 24H",
             LocalDateTime.parse("2025-01-08T02:05:45.231"),
-            "2025-01-07T02:05:45.231Z",
+            ZonedDateTime.now(),
             "MIAMI",
             ProductFamily.PLASMA_TRANSFUSABLE,
             AboRhType.ABN);

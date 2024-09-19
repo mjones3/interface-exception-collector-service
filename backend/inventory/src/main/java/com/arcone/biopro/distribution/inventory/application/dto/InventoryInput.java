@@ -5,6 +5,7 @@ import com.arcone.biopro.distribution.inventory.domain.model.enumeration.Product
 import lombok.Builder;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Builder
 public record InventoryInput(
@@ -12,7 +13,7 @@ public record InventoryInput(
     String productCode,
     String shortDescription,
     LocalDateTime expirationDate,
-    String collectionDate,
+    ZonedDateTime collectionDate,
     String location,
     ProductFamily productFamily,
     AboRhType aboRh) {
