@@ -6,7 +6,6 @@ export const discardResponse: DiscardResponseDTO = {
     productCode: '',
     productShortDescription: 'string',
     productFamily: 'string',
-    locationCode: 'string',
     employeeId: 'string',
     createDate: 'string',
 };
