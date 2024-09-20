@@ -6,7 +6,7 @@ import {
 
 const ADD_DISCARD = gql<
     { discardProduct: DiscardResponseDTO },
-    { discardRequest: DiscardRequestDTO }
+    DiscardRequestDTO
 >`
     mutation discardProduct(
         $unitNumber: String!
@@ -22,7 +22,7 @@ const ADD_DISCARD = gql<
         discardProduct(
             discardRequest: {
                 productCode: $productCode
-                locationCode: $locationId
+                locationCode: $locationCode
                 unitNumber: $unitNumber
                 reasonDescriptionKey: $reasonDescriptionKey
                 employeeId: $employeeId
@@ -37,7 +37,6 @@ const ADD_DISCARD = gql<
             productCode
             productShortDescription
             productFamily
-            locationCode
             employeeId
             createDate
         }

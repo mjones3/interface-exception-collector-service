@@ -16,7 +16,6 @@ export interface DiscardResponseDTO {
     productCode: string;
     productShortDescription: string;
     productFamily: string;
-    locationCode: string;
     employeeId: string;
     createDate: string;
 }
