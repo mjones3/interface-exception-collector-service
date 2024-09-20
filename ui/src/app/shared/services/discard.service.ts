@@ -19,7 +19,7 @@ export class DiscardService {
         return this.dynamicGraphqlPathService.executeMutation(
             this.servicePath,
             ADD_DISCARD,
-            { discardRequest }
+            discardRequest
         );
     }
 }
