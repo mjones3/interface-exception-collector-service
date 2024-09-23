@@ -40,6 +40,10 @@ public class Inventory {
 
     ZonedDateTime collectionDate;
 
+    Boolean isLicensed;
+
+    Integer weight;
+
     String location;
 
     ProductFamily productFamily;

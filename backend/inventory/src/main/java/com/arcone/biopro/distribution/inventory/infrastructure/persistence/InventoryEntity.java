@@ -63,6 +63,14 @@ public class InventoryEntity implements Serializable, Persistable<UUID> {
     ZonedDateTime collectionDate;
 
     @NotNull
+    @Column("is_licensed")
+    Boolean isLicensed;
+
+    @NotNull
+    @Column("weight")
+    Integer weight;
+
+    @NotNull
     @Column("location")
     String location;
 

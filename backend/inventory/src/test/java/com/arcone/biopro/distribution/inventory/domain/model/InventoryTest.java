@@ -34,6 +34,8 @@ class InventoryTest {
             .productFamily(ProductFamily.PLASMA_TRANSFUSABLE)
             .statusReason("In Use")
             .aboRh(AboRhType.OP)
+            .weight(300)
+            .isLicensed(true)
             .createDate(ZonedDateTime.now())
             .modificationDate(ZonedDateTime.now())
             .quarantines(new ArrayList<>())
@@ -58,12 +60,13 @@ class InventoryTest {
     }
 
     @Test
-    void testRestoreHistory_ShouldRestoreMostRecentHistory() {
+    void testRestoreHistory_ShouldRestoreMostRecentHistory() throws InterruptedException {
         // Arrange
         inventory.createHistory();
         inventory.setInventoryStatus(InventoryStatus.QUARANTINED);
         inventory.setStatusReason("Quarantined for testing");
         inventory.setComments("Quarantine applied");
+        Thread.sleep(1);
         inventory.createHistory();
 
         // Act

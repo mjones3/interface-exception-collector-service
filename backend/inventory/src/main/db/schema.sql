@@ -10,6 +10,8 @@ CREATE TABLE bld_inventory
     location                    VARCHAR(255) NOT NULL,
     product_family              VARCHAR(255) NOT NULL,
     abo_rh                      VARCHAR(3) NOT NULL,
+    weight                      INTEGER,
+    is_licensed                 BOOLEAN,
     create_date                 TIMESTAMP WITH TIME ZONE NOT NULL,
     modification_date           TIMESTAMP WITH TIME ZONE NOT NULL,
     device_stored               VARCHAR(255),

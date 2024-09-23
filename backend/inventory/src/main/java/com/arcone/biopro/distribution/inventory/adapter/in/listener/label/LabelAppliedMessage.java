@@ -7,6 +7,8 @@ public record LabelAppliedMessage(
     String productCode,
     String productDescription,
     String expirationDate,
+    Boolean isLicensed,
+    Integer weight,
     ZonedDateTime collectionDate,
     String location,
     String productFamily,
