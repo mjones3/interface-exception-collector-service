@@ -63,6 +63,8 @@ public abstract class InventoryOutputMapper {
     @Mapping(target = "inventory.shortDescription", source = "shortDescription")
     @Mapping(target = "inventory.expirationDate", source = "expirationDate")
     @Mapping(target = "inventory.collectionDate", source = "collectionDate")
+    @Mapping(target = "inventory.isLicensed", source = "isLicensed")
+    @Mapping(target = "inventory.weight", source = "weight")
     @Mapping(target = "inventory.location", source = "location")
     @Mapping(target = "inventory.productFamily", source = "productFamily")
     @Mapping(target = "inventory.aboRh", source = "aboRh")

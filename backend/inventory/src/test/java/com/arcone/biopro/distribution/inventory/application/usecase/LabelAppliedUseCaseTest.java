@@ -111,6 +111,8 @@ class LabelAppliedUseCaseTest {
             "E1234V12",
             "APH PLASMA 24H",
             LocalDateTime.parse("2025-01-08T02:05:45.231"),
+            true,
+            300,
             ZonedDateTime.now(),
             "MIAMI",
             ProductFamily.PLASMA_TRANSFUSABLE,

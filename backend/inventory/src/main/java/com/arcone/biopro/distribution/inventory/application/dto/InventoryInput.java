@@ -13,6 +13,8 @@ public record InventoryInput(
     String productCode,
     String shortDescription,
     LocalDateTime expirationDate,
+    Boolean isLicensed,
+    Integer weight,
     ZonedDateTime collectionDate,
     String location,
     ProductFamily productFamily,
