@@ -1,5 +1,14 @@
 package com.arcone.biopro.distribution.inventory.verification.steps;
 
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.EventMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.discarded.ProductDiscardedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.label.LabelAppliedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.AddQuarantinedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.RemoveQuarantinedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.UpdateQuarantinedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.ProductRecoveredMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.shipment.ShipmentCompletedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.storage.ProductStoredMessage;
 import com.arcone.biopro.distribution.inventory.commm.TestUtil;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
@@ -11,25 +20,34 @@ import com.arcone.biopro.distribution.inventory.infrastructure.persistence.Inven
 import com.arcone.biopro.distribution.inventory.verification.common.ScenarioContext;
 import com.arcone.biopro.distribution.inventory.verification.utils.LogMonitor;
 import com.arcone.biopro.distribution.inventory.verification.utils.TestUtils;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.java.Before;
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import io.r2dbc.spi.ConnectionFactory;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.r2dbc.connection.init.ResourceDatabasePopulator;
 import reactor.core.publisher.Mono;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+
 
 @Slf4j
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class KafkaListenersSteps {
 
     @Value("${topic.label-applied.name}")
@@ -56,11 +74,11 @@ public class KafkaListenersSteps {
     @Value("${topic.product-update-quarantined.name}")
     private String quarantineUpdatedTopic;
 
-    @Autowired
-    private ScenarioContext scenarioContext;
+    private final ScenarioContext scenarioContext;
 
-    @Autowired
-    private LogMonitor logMonitor;
+    private final LogMonitor logMonitor;
+
+    private final ObjectMapper objectMapper;
 
     private static final String SHIPMENT_COMPLETED_MESSAGE = """
          {
@@ -77,18 +95,15 @@ public class KafkaListenersSteps {
          }
         """;
 
-    @Autowired
-    private TestUtils testUtils;
+    private final TestUtils testUtils;
 
-    @Autowired
-    private InventoryEntityRepository inventoryEntityRepository;
+    private final InventoryEntityRepository inventoryEntityRepository;
 
 
     @Value("classpath:/db/data.sql")
     private Resource testDataSql;
 
-    @Autowired
-    private ConnectionFactory connectionFactory;
+    private final ConnectionFactory connectionFactory;
 
     private static final String LABEL_APPLIED_MESSAGE = """
          {
@@ -100,6 +115,8 @@ public class KafkaListenersSteps {
                "productDescription":"APH PLASMA 24H",
                "location":"%s",
                "aboRh":"OP",
+               "weight": 123,
+               "isLicensed": true,
                "productFamily": "PLASMA_TRANSFUSABLE",
                "collectionDate":"2025-01-08T06:00:00.000Z",
                "expirationDate":"2025-01-08T06:00:00.000Z",
@@ -209,6 +226,7 @@ public class KafkaListenersSteps {
             "unitNumber": "%s",
             "productCode": "E0869A0",
             "reason": "OTHER",
+            "stopsManufacturing": false,
             "performedBy": "USER_ID",
             "createDate": "2025-01-08T02:05:45.231Z"
           }
@@ -229,6 +247,8 @@ public class KafkaListenersSteps {
     private Map<String, String> topicsMap;
 
     private Map<String, String> messagesMap;
+
+    private Map<String, Class<?>> fieldsMap;
 
     private String topicName;
 
@@ -255,6 +275,17 @@ public class KafkaListenersSteps {
             EVENT_QUARANTINE_REMOVED, QUARANTINE_REMOVED_MESSAGE,
             EVENT_QUARANTINE_UPDATED, QUARANTINE_UPDATED_MESSAGE,
             EVENT_PRODUCT_RECOVERED, PRODUCT_RECOVERED_MESSAGE
+        );
+
+        fieldsMap = Map.of(
+            EVENT_LABEL_APPLIED, LabelAppliedMessage.class,
+            EVENT_SHIPMENT_COMPLETED, ShipmentCompletedMessage.class,
+            EVENT_PRODUCT_DISCARDED, ProductDiscardedMessage.class,
+            EVENT_PRODUCT_QUARANTINED, AddQuarantinedMessage.class,
+            EVENT_QUARANTINE_REMOVED, RemoveQuarantinedMessage.class,
+            EVENT_QUARANTINE_UPDATED, UpdateQuarantinedMessage.class,
+            EVENT_PRODUCT_RECOVERED, ProductRecoveredMessage.class,
+            EVENT_PRODUCT_STORED, ProductStoredMessage.class
         );
     }
 
@@ -324,9 +355,11 @@ public class KafkaListenersSteps {
     @When("I receive an event {string} event")
     public void iReceiveAnEvent(String event) throws Exception {
         scenarioContext.setProductCode("E0869VA0");
+        var message = buildMessage(event);
+        scenarioContext.setLastSentMessage(message);
         testUtils.kafkaSender(
             scenarioContext.getUnitNumber() + "-" + scenarioContext.getProductCode(),
-            buildMessage(event),
+            message,
             topicName);
 
         logMonitor.await("successfully consumed.*"+scenarioContext.getUnitNumber());
@@ -355,4 +388,26 @@ public class KafkaListenersSteps {
         logMonitor.await("successfully consumed.*"+scenarioContext.getUnitNumber());
     }
 
+    @And("the expected fields for {string} are present")
+    public void theExpectedFieldsForArePresent(String event) throws IllegalAccessException {
+        String message = scenarioContext.getLastSentMessage();
+        Assert.assertNotNull("No message found in the scenario context", message);
+
+        Class<?> dtoClass = fieldsMap.get(event);
+        Assert.assertNotNull("No DTO class found for event: " + event, dtoClass);
+
+        JavaType eventMessageType = objectMapper.getTypeFactory()
+            .constructParametricType(EventMessage.class, dtoClass);
+
+        EventMessage<?> eventMessage;
+        try {
+            eventMessage = objectMapper.readValue(message, eventMessageType);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to parse message into EventMessage<" + dtoClass.getSimpleName() + ">", e);
+        }
+
+        Object payload = eventMessage.payload();
+        Assert.assertNotNull("Payload is null in the event message", payload);
+        assertThat(payload).hasNoNullFieldsOrProperties();
+    }
 }

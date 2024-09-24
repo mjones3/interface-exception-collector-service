@@ -5,6 +5,7 @@ Feature: Kafka listeners
         Given I am listening the "<Event>" event
         When I receive an event "<Event>" event
         Then The inventory status is "<Status>"
+        And the expected fields for "<Event>" are present
 
         Examples:
             | Event               | Status      |
