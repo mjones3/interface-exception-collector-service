@@ -19,6 +19,8 @@ public record InventoryOutput(
     String location,
     String productDescription,
     AboRhType aboRh,
+    Integer weight,
+    Boolean isLicensed,
     ZonedDateTime collectionDate,
     ProductFamily productFamily,
     String shortDescription,

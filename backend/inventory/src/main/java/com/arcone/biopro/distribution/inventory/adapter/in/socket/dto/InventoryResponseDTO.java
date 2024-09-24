@@ -18,6 +18,8 @@ public record InventoryResponseDTO(
     String productDescription,
     LocalDateTime expirationDate,
     AboRhType aboRh,
+    Integer weight,
+    Boolean isLicensed,
     ProductFamily productFamily,
     ZonedDateTime collectionDate,
     String storageLocation,
