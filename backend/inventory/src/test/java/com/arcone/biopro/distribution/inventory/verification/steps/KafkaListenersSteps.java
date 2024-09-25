@@ -1,6 +1,5 @@
 package com.arcone.biopro.distribution.inventory.verification.steps;
 
-import com.arcone.biopro.distribution.inventory.adapter.in.listener.EventMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.discarded.ProductDiscardedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.label.LabelAppliedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.AddQuarantinedMessage;
@@ -20,30 +19,23 @@ import com.arcone.biopro.distribution.inventory.infrastructure.persistence.Inven
 import com.arcone.biopro.distribution.inventory.verification.common.ScenarioContext;
 import com.arcone.biopro.distribution.inventory.verification.utils.LogMonitor;
 import com.arcone.biopro.distribution.inventory.verification.utils.TestUtils;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.java.Before;
-import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import io.r2dbc.spi.ConnectionFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.r2dbc.connection.init.ResourceDatabasePopulator;
 import reactor.core.publisher.Mono;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 
 @Slf4j
@@ -77,8 +69,6 @@ public class KafkaListenersSteps {
     private final ScenarioContext scenarioContext;
 
     private final LogMonitor logMonitor;
-
-    private final ObjectMapper objectMapper;
 
     private static final String SHIPMENT_COMPLETED_MESSAGE = """
          {
@@ -125,7 +115,6 @@ public class KafkaListenersSteps {
             }
          }
         """;
-    private static final String EVENT_SHIPMENT_COMPLETED = "Shipment Completed";
 
     private static final String PRODUCT_STORED_MESSAGE = """
         {
@@ -240,15 +229,11 @@ public class KafkaListenersSteps {
     public static final String EVENT_QUARANTINE_UPDATED = "Quarantine Updated";
     public static final String EVENT_QUARANTINE_REMOVED = "Quarantine Removed";
     public static final String EVENT_PRODUCT_RECOVERED = "Product Recovered";
-
-
-
+    public static final String EVENT_SHIPMENT_COMPLETED = "Shipment Completed";
 
     private Map<String, String> topicsMap;
 
     private Map<String, String> messagesMap;
-
-    private Map<String, Class<?>> fieldsMap;
 
     private String topicName;
 
@@ -275,17 +260,6 @@ public class KafkaListenersSteps {
             EVENT_QUARANTINE_REMOVED, QUARANTINE_REMOVED_MESSAGE,
             EVENT_QUARANTINE_UPDATED, QUARANTINE_UPDATED_MESSAGE,
             EVENT_PRODUCT_RECOVERED, PRODUCT_RECOVERED_MESSAGE
-        );
-
-        fieldsMap = Map.of(
-            EVENT_LABEL_APPLIED, LabelAppliedMessage.class,
-            EVENT_SHIPMENT_COMPLETED, ShipmentCompletedMessage.class,
-            EVENT_PRODUCT_DISCARDED, ProductDiscardedMessage.class,
-            EVENT_PRODUCT_QUARANTINED, AddQuarantinedMessage.class,
-            EVENT_QUARANTINE_REMOVED, RemoveQuarantinedMessage.class,
-            EVENT_QUARANTINE_UPDATED, UpdateQuarantinedMessage.class,
-            EVENT_PRODUCT_RECOVERED, ProductRecoveredMessage.class,
-            EVENT_PRODUCT_STORED, ProductStoredMessage.class
         );
     }
 
@@ -386,28 +360,5 @@ public class KafkaListenersSteps {
             buildMessage(event, unitNumber, productCode, location),
             topicName);
         logMonitor.await("successfully consumed.*"+scenarioContext.getUnitNumber());
-    }
-
-    @And("the expected fields for {string} are present")
-    public void theExpectedFieldsForArePresent(String event) throws IllegalAccessException {
-        String message = scenarioContext.getLastSentMessage();
-        Assert.assertNotNull("No message found in the scenario context", message);
-
-        Class<?> dtoClass = fieldsMap.get(event);
-        Assert.assertNotNull("No DTO class found for event: " + event, dtoClass);
-
-        JavaType eventMessageType = objectMapper.getTypeFactory()
-            .constructParametricType(EventMessage.class, dtoClass);
-
-        EventMessage<?> eventMessage;
-        try {
-            eventMessage = objectMapper.readValue(message, eventMessageType);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to parse message into EventMessage<" + dtoClass.getSimpleName() + ">", e);
-        }
-
-        Object payload = eventMessage.payload();
-        Assert.assertNotNull("Payload is null in the event message", payload);
-        assertThat(payload).hasNoNullFieldsOrProperties();
     }
 }
