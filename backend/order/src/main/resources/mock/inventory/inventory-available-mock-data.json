@@ -92,6 +92,25 @@
       "aboRh": "B",
       "quantityAvailable": 15,
       "shortDateProducts": null
+    },
+    {
+      "productFamily": "RED_BLOOD_CELLS_LEUKOREDUCED",
+      "aboRh": "ABP",
+      "quantityAvailable": 100,
+      "shortDateProducts": [
+        {
+          "unitNumber": "W812530106085",
+          "productCode": "E0685V00",
+          "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
+          "aboRh": "ABP"
+        },
+        {
+          "unitNumber": "W833864065094",
+          "productCode": "E0686V00",
+          "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
+          "aboRh": "OP"
+        }
+      ]
     }
   ]
 }

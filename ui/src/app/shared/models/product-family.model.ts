@@ -5,6 +5,7 @@ export enum ProductFamily {
     PLASMA_MFG_NONINJECTABLE,
     RED_BLOOD_CELLS,
     LEUKOREDUCED,
+    RED_BLOOD_CELLS_LEUKOREDUCED,
 }
 
 export const ProductFamilyMap: Record<keyof typeof ProductFamily, string> = {
@@ -14,4 +15,5 @@ export const ProductFamilyMap: Record<keyof typeof ProductFamily, string> = {
     PLASMA_MFG_NONINJECTABLE: 'Plasma Manufacturing Non-Injectable',
     RED_BLOOD_CELLS: 'Red Blood Cells',
     LEUKOREDUCED: 'Leukoreduced',
+    RED_BLOOD_CELLS_LEUKOREDUCED: 'Red Blood Cells Leukoreduced',
 };

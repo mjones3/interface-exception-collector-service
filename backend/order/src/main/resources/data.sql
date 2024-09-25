@@ -53,15 +53,26 @@ INSERT INTO lk_order_blood_type (product_family, blood_type, description_key, or
                                  modification_date)
 VALUES ('PLASMA_TRANSFUSABLE', 'A', 'blood-type.a.label', 1, true, now(), now()),
        ('PLASMA_TRANSFUSABLE', 'B', 'blood-type.b.label', 2, true, now(), now()),
-       ('PLASMA_TRANSFUSABLE', 'AB', 'blood-type.ab.label', 2, true, now(), now()),
-       ('PLASMA_TRANSFUSABLE', 'O', 'blood-type.o.label', 2, true, now(), now()),
-       ('PLASMA_TRANSFUSABLE', 'ANY', 'blood-type.any.label', 2, true, now(), now())
+       ('PLASMA_TRANSFUSABLE', 'AB', 'blood-type.ab.label', 3, true, now(), now()),
+       ('PLASMA_TRANSFUSABLE', 'O', 'blood-type.o.label', 4, true, now(), now()),
+       ('PLASMA_TRANSFUSABLE', 'ANY', 'blood-type.any.label', 5, true, now(), now()),
+       ('RED_BLOOD_CELLS_LEUKOREDUCED', 'AP', 'blood-type.ap.label', 1, true, now(), now()),
+       ('RED_BLOOD_CELLS_LEUKOREDUCED', 'AN', 'blood-type.an.label', 2, true, now(), now()),
+       ('RED_BLOOD_CELLS_LEUKOREDUCED', 'BP', 'blood-type.bp.label', 3, true, now(), now()),
+       ('RED_BLOOD_CELLS_LEUKOREDUCED', 'BN', 'blood-type.bn.label', 4, true, now(), now()),
+       ('RED_BLOOD_CELLS_LEUKOREDUCED', 'OP', 'blood-type.op.label', 5, true, now(), now()),
+       ('RED_BLOOD_CELLS_LEUKOREDUCED', 'ON', 'blood-type.on.label', 6, true, now(), now()),
+       ('RED_BLOOD_CELLS_LEUKOREDUCED', 'ABP', 'blood-type.abp.label', 7, true, now(), now()),
+       ('RED_BLOOD_CELLS_LEUKOREDUCED', 'ABN', 'blood-type.abn.label', 8, true, now(), now()),
+       ('RED_BLOOD_CELLS_LEUKOREDUCED', 'ANY', 'blood-type.any.label', 9, true, now(), now())
 ON CONFLICT DO NOTHING;
 
 
 INSERT INTO lk_order_product_family (family_category, family_type, description_key, product_family, order_number,
                                      active, create_date, modification_date)
 VALUES ('FROZEN', 'TRANSFUSABLE_PRODUCT', 'plasma-transfusable.label', 'PLASMA_TRANSFUSABLE', 1, true, now(),
+        now()),
+       ('REFRIGERATED', 'TRANSFUSABLE_PRODUCT', 'red-blood-cells-leukoreduced.label', 'RED_BLOOD_CELLS_LEUKOREDUCED', 2, true, now(),
         now())
 ON CONFLICT DO NOTHING;
 
