@@ -1,7 +1,6 @@
 package com.arcone.biopro.distribution.inventory.application.dto;
 
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
-import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ProductFamily;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
@@ -17,6 +16,6 @@ public record InventoryInput(
     Integer weight,
     ZonedDateTime collectionDate,
     String location,
-    ProductFamily productFamily,
+    String productFamily,
     AboRhType aboRh) {
 }

@@ -3,7 +3,6 @@ package com.arcone.biopro.distribution.inventory.verification.steps;
 import com.arcone.biopro.distribution.inventory.commm.TestUtil;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
-import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ProductFamily;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.History;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntity;
@@ -48,7 +47,7 @@ public class RepositorySteps {
         return inventoryEntityRepository.findByUnitNumberAndProductCodeAndInventoryStatus(unitNumber, productCode, status).block();
     }
 
-    private void createInventory(String unitNumber, String productCode, ProductFamily productFamily, AboRhType aboRhType, String location, Integer daysToExpire, InventoryStatus status) {
+    private void createInventory(String unitNumber, String productCode, String productFamily, AboRhType aboRhType, String location, Integer daysToExpire, InventoryStatus status) {
         inventoryEntityRepository.save(InventoryEntity.builder()
             .id(UUID.randomUUID())
             .productFamily(productFamily)
@@ -89,7 +88,7 @@ public class RepositorySteps {
     public void iAmListeningEventForUnitNumber(String untNumber, String productCode, String status) {
         scenarioContext.setUnitNumber(untNumber);
         scenarioContext.setProductCode(productCode);
-        createInventory(scenarioContext.getUnitNumber(), scenarioContext.getProductCode(), ProductFamily.PLASMA_TRANSFUSABLE, AboRhType.OP, "Miami", 10, InventoryStatus.valueOf(status));
+        createInventory(scenarioContext.getUnitNumber(), scenarioContext.getProductCode(), "PLASMA_TRANSFUSABLE", AboRhType.OP, "Miami", 10, InventoryStatus.valueOf(status));
     }
 
     @Then("I verify the quarantine reason {string} with id {string} is found {string} for unit number {string} and product {string}")
@@ -122,7 +121,7 @@ public class RepositorySteps {
 
         inventoryEntityRepository.save(InventoryEntity.builder()
             .id(UUID.randomUUID())
-            .productFamily(ProductFamily.PLASMA_TRANSFUSABLE)
+            .productFamily("PLASMA_TRANSFUSABLE")
             .aboRh(AboRhType.OP)
             .location("Miami")
             .collectionDate(ZonedDateTime.now())
