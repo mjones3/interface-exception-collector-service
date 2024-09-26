@@ -31,3 +31,12 @@ CREATE TABLE lk_text_config
     text                        VARCHAR(255) NOT NULL,
     CONSTRAINT pk_lk_text_config PRIMARY KEY (id)
 );
+
+
+CREATE TABLE lk_product_family
+(
+    id                          UUID NOT NULL DEFAULT gen_random_uuid(),
+    product_family                     VARCHAR(255) NOT NULL,
+    time_frame                         INTEGER NOT NULL,
+    CONSTRAINT pk_lk_product_family PRIMARY KEY (id)
+);

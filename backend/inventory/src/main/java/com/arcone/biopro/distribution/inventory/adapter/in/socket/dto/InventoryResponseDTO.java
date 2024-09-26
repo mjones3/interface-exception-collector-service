@@ -1,7 +1,6 @@
 package com.arcone.biopro.distribution.inventory.adapter.in.socket.dto;
 
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
-import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ProductFamily;
 import lombok.Builder;
 
 import java.io.Serializable;
@@ -20,7 +19,7 @@ public record InventoryResponseDTO(
     AboRhType aboRh,
     Integer weight,
     Boolean isLicensed,
-    ProductFamily productFamily,
+    String productFamily,
     ZonedDateTime collectionDate,
     String storageLocation,
     ZonedDateTime createDate,

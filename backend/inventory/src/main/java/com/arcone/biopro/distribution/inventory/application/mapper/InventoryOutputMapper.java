@@ -5,7 +5,6 @@ import com.arcone.biopro.distribution.inventory.domain.model.Inventory;
 import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhCriteria;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.MessageType;
-import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ProductFamily;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.NotificationMessage;
 import com.arcone.biopro.distribution.inventory.domain.service.TextConfigService;
 import lombok.AccessLevel;
@@ -31,7 +30,7 @@ public abstract class InventoryOutputMapper {
     @Mapping(target = "aboRh", source = "aboRh")
     @Mapping(target = "quantityAvailable", source = "quantity")
     @Mapping(target = "shortDateProducts", source = "aggregates")
-    public abstract InventoryFamily toOutput(ProductFamily productFamily, AboRhCriteria aboRh, Long quantity, List<InventoryAggregate> aggregates);
+    public abstract InventoryFamily toOutput(String productFamily, AboRhCriteria aboRh, Long quantity, List<InventoryAggregate> aggregates);
 
     public abstract GetAllAvailableInventoriesOutput toOutput(String location, List<InventoryFamily> inventories);
 

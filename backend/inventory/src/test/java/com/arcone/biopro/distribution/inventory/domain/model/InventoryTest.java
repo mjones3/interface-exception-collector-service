@@ -2,7 +2,6 @@ package com.arcone.biopro.distribution.inventory.domain.model;
 
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
-import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ProductFamily;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.History;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,7 +30,7 @@ class InventoryTest {
             .expirationDate(LocalDateTime.now().plusDays(5))
             .collectionDate(ZonedDateTime.now())
             .location("Storage A")
-            .productFamily(ProductFamily.PLASMA_TRANSFUSABLE)
+            .productFamily("PLASMA_TRANSFUSABLE")
             .statusReason("In Use")
             .aboRh(AboRhType.OP)
             .weight(300)

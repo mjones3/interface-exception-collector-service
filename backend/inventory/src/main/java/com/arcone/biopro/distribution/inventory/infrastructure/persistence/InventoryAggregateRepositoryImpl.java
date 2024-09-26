@@ -3,7 +3,6 @@ package com.arcone.biopro.distribution.inventory.infrastructure.persistence;
 import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhCriteria;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
-import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ProductFamily;
 import com.arcone.biopro.distribution.inventory.domain.repository.InventoryAggregateRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +21,8 @@ public class InventoryAggregateRepositoryImpl implements InventoryAggregateRepos
     InventoryEntityRepository inventoryEntityRepository;
 
     InventoryEntityMapper inventoryEntityMapper;
+
+    ProductFamilyEntityRepository productFamilyEntityRepository;
 
     @Override
     public Mono<InventoryAggregate> findByUnitNumberAndProductCode(String unitNumber, String productCode) {
@@ -43,20 +44,20 @@ public class InventoryAggregateRepositoryImpl implements InventoryAggregateRepos
     }
 
     @Override
-    public Flux<InventoryAggregate> findAllAvailable(String location, ProductFamily productFamily, AboRhCriteria aboRh) {
+    public Flux<InventoryAggregate> findAllAvailable(String location, String productFamily, AboRhCriteria aboRh) {
         return inventoryEntityRepository.findAllByLocationAndProductFamilyAndAboRhInAndInventoryStatusOrderByExpirationDateAsc(location, productFamily, aboRh.getAboRhTypes(), InventoryStatus.AVAILABLE)
             .map(inventoryEntityMapper::toAggregate);
     }
 
     @Override
-    public Flux<InventoryAggregate> findAllAvailableShortDate(String location, ProductFamily productFamily, AboRhCriteria aboRh) {
-        LocalDateTime finalDateTime = LocalDateTime.now().plusDays(productFamily.getTimeFrame());
-        return  inventoryEntityRepository.findAllByLocationAndProductFamilyAndAboRhInAndInventoryStatusAndExpirationDateBetweenOrderByExpirationDateAsc(location, productFamily, aboRh.getAboRhTypes(), InventoryStatus.AVAILABLE, LocalDateTime.now(), finalDateTime)
+    public Flux<InventoryAggregate> findAllAvailableShortDate(String location, String productFamily, AboRhCriteria aboRh) {
+        return productFamilyEntityRepository.findByProductFamily(productFamily)
+            .flatMapMany(pf -> inventoryEntityRepository.findAllByLocationAndProductFamilyAndAboRhInAndInventoryStatusAndExpirationDateBetweenOrderByExpirationDateAsc(location, productFamily, aboRh.getAboRhTypes(), InventoryStatus.AVAILABLE, LocalDateTime.now(), getFinalDateTime(pf)))
             .map(inventoryEntityMapper::toAggregate);
     }
 
     @Override
-    public Mono<Long> countAllAvailable(String location, ProductFamily productFamily, AboRhCriteria aboRh) {
+    public Mono<Long> countAllAvailable(String location, String productFamily, AboRhCriteria aboRh) {
         return inventoryEntityRepository.countByLocationAndProductFamilyAndAboRhInAndInventoryStatusAndExpirationDateAfter(location, productFamily, aboRh.getAboRhTypes(), InventoryStatus.AVAILABLE, LocalDateTime.now());
     }
 
@@ -73,6 +74,10 @@ public class InventoryAggregateRepositoryImpl implements InventoryAggregateRepos
         }
 
         return productCode;
+    }
+
+    private LocalDateTime getFinalDateTime(ProductFamilyEntity productFamily) {
+        return LocalDateTime.now().plusDays(productFamily.getTimeFrame());
     }
 
 }

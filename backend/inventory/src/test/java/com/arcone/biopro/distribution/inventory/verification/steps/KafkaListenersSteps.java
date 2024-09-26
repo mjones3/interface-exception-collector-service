@@ -3,7 +3,6 @@ package com.arcone.biopro.distribution.inventory.verification.steps;
 import com.arcone.biopro.distribution.inventory.commm.TestUtil;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
-import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ProductFamily;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.History;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntity;
@@ -265,7 +264,7 @@ public class KafkaListenersSteps {
         scenarioContext.setEvent(event);
         topicName = topicsMap.get(event);
         if (!EVENT_LABEL_APPLIED.equals(event)) {
-            createInventory(scenarioContext.getUnitNumber(), scenarioContext.getProductCode(), ProductFamily.PLASMA_TRANSFUSABLE, AboRhType.OP, "Miami", 10, InventoryStatus.AVAILABLE);
+            createInventory(scenarioContext.getUnitNumber(), scenarioContext.getProductCode(), "PLASMA_TRANSFUSABLE", AboRhType.OP, "Miami", 10, InventoryStatus.AVAILABLE);
         }
 
     }
@@ -276,11 +275,11 @@ public class KafkaListenersSteps {
         scenarioContext.setProductCode("E0869VA0");
         topicName = topicsMap.get(event);
         if (!EVENT_LABEL_APPLIED.equals(event)) {
-            createInventory(scenarioContext.getUnitNumber(), scenarioContext.getProductCode(), ProductFamily.PLASMA_TRANSFUSABLE, AboRhType.OP, "Miami", 10, InventoryStatus.AVAILABLE);
+            createInventory(scenarioContext.getUnitNumber(), scenarioContext.getProductCode(), "PLASMA_TRANSFUSABLE", AboRhType.OP, "Miami", 10, InventoryStatus.AVAILABLE);
         }
     }
 
-    private InventoryEntity createInventory(String unitNumber, String productCode, ProductFamily productFamily, AboRhType aboRhType, String location, Integer daysToExpire, InventoryStatus statusParam) {
+    private InventoryEntity createInventory(String unitNumber, String productCode, String productFamily, AboRhType aboRhType, String location, Integer daysToExpire, InventoryStatus statusParam) {
 
         List<Quarantine> quarantines = null;
         List<History> histories = null;

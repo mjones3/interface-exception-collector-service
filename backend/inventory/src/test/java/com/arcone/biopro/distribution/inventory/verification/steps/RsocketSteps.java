@@ -2,7 +2,10 @@ package com.arcone.biopro.distribution.inventory.verification.steps;
 
 import com.arcone.biopro.distribution.inventory.adapter.in.socket.dto.*;
 import com.arcone.biopro.distribution.inventory.commm.TestUtil;
-import com.arcone.biopro.distribution.inventory.domain.model.enumeration.*;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhCriteria;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.MessageType;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntity;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntityRepository;
@@ -65,7 +68,7 @@ public class RsocketSteps {
     private void createProducts(String quantity, String productFamily, String aboRh, String location, String days, InventoryStatus status) {
         Stream.iterate(0, i -> i + 1)
             .limit(Integer.parseInt(quantity))
-            .forEach(i -> this.createInventory(TestUtil.randomString(13), "E0869V00", ProductFamily.valueOf(productFamily), AboRhType.valueOf(aboRh), location, Integer.parseInt(days), status));
+            .forEach(i -> this.createInventory(TestUtil.randomString(13), "E0869V00", productFamily, AboRhType.valueOf(aboRh), location, Integer.parseInt(days), status));
     }
 
     @Given("I have one product with {string}, {string} and {string} in {string} status")
@@ -74,11 +77,11 @@ public class RsocketSteps {
 
         InventoryStatus inventoryStatus = "EXPIRED".equals(status) ? InventoryStatus.AVAILABLE : InventoryStatus.valueOf(status);
 
-        createInventory(unitNumber, productCode, ProductFamily.PLASMA_TRANSFUSABLE, AboRhType.OP, location, days, inventoryStatus);
+        createInventory(unitNumber, productCode, "PLASMA_TRANSFUSABLE", AboRhType.OP, location, days, inventoryStatus);
     }
 
 
-    private void createInventory(String unitNumber, String productCode, ProductFamily productFamily, AboRhType aboRhType, String location, Integer daysToExpire, InventoryStatus status) {
+    private void createInventory(String unitNumber, String productCode, String productFamily, AboRhType aboRhType, String location, Integer daysToExpire, InventoryStatus status) {
 
         List<Quarantine> quarantines = InventoryStatus.QUARANTINED.equals(status) ? TestUtil.createQuarantines() : List.of();
         inventoryEntityRepository.save(InventoryEntity.builder()
@@ -101,14 +104,14 @@ public class RsocketSteps {
 
     @When("I select {string} of the blood type {string}")
     public void iSelectOfTheOfTheBloodType(String productFamily, String aboRh) {
-        inventoryCriteriaList.add(new AvailableInventoryCriteriaDTO(ProductFamily.valueOf(productFamily), AboRhCriteria.valueOf(aboRh)));
+        inventoryCriteriaList.add(new AvailableInventoryCriteriaDTO(productFamily, AboRhCriteria.valueOf(aboRh)));
     }
 
     @When("I request {string} of the blood type {string} in the {string}")
     public void iRequestOfTheOfTheBloodType(String productFamily, String aboRh, String location) {
         getAvailableInventoryResponseDTOMonoResult = requester
             .route("getAvailableInventoryWithShortDatedProducts")
-            .data(new GetAvailableInventoryCommandDTO(location, List.of(new AvailableInventoryCriteriaDTO(ProductFamily.valueOf(productFamily), AboRhCriteria.valueOf(aboRh)))))
+            .data(new GetAvailableInventoryCommandDTO(location, List.of(new AvailableInventoryCriteriaDTO(productFamily, AboRhCriteria.valueOf(aboRh)))))
             .retrieveMono(GetAvailableInventoryResponseDTO.class);
     }
 
@@ -152,7 +155,7 @@ public class RsocketSteps {
     @And("I receive a group of product family {string} and abo rh criteria {string} with {string} inventories and {string} product short date listed")
     public void iReceiveAGroupOfProductFamilyAndAboRhCriteriaWithIventoriesAndProductShortDateListed(String productFamily, String aboRhCriteria, String quantityAvailable, String quantityShortDate) {
         Inventory inventory = getAvailableInventoryResponseDTOResult.inventories().stream().filter(inv ->
-                inv.productFamily().equals(ProductFamily.valueOf(productFamily)) && inv.aboRh().equals(AboRhCriteria.valueOf(aboRhCriteria)))
+                inv.productFamily().equals(productFamily) && inv.aboRh().equals(AboRhCriteria.valueOf(aboRhCriteria)))
             .findFirst()
             .orElse(null);
 
