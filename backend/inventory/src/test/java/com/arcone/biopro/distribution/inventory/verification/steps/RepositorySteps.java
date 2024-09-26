@@ -12,31 +12,32 @@ import com.arcone.biopro.distribution.inventory.verification.common.ScenarioCont
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
-import static com.arcone.biopro.distribution.inventory.verification.steps.KafkaListenersSteps.EVENT_QUARANTINE_UPDATED;
+import static com.arcone.biopro.distribution.inventory.verification.steps.KafkaListenersSteps.*;
 import static com.arcone.biopro.distribution.inventory.verification.steps.UseCaseSteps.quarantineReasonMap;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @Slf4j
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class RepositorySteps {
-    @Autowired
-    private InventoryEntityRepository inventoryEntityRepository;
+    private final InventoryEntityRepository inventoryEntityRepository;
 
-    @Autowired
-    private ScenarioContext scenarioContext;
+    private final ScenarioContext scenarioContext;
 
-    private final CountDownLatch waiter = new CountDownLatch(1);
+    public InventoryEntity getInventory(String unitNumber, String productCode) {
+        return inventoryEntityRepository.findByUnitNumberAndProductCode(unitNumber, productCode).block();
+    }
 
     public InventoryEntity getInventory(String unitNumber, String productCode, InventoryStatus status) {
         return inventoryEntityRepository.findByUnitNumberAndProductCodeAndInventoryStatus(unitNumber, productCode, status).block();
@@ -135,5 +136,41 @@ public class RepositorySteps {
             .comments("Some comments")
             .statusReason("EXPIRED")
             .build()).block();
+    }
+
+    @And("the expected fields for {string} are stored")
+    public void theExpectedFieldsForArePresent(String event) {
+        InventoryEntity inventory = getInventory(scenarioContext.getUnitNumber(), scenarioContext.getProductCode());
+        assertNotNull(inventory, "Inventory not found in the database");
+
+        switch (event) {
+            case EVENT_LABEL_APPLIED:
+                assertThat(inventory)
+                    .hasNoNullFieldsOrPropertiesExcept(
+                        "histories",
+                        "deviceStored",
+                        "comments",
+                        "storageLocation",
+                        "quarantines",
+                        "statusReason"
+                    );
+                break;
+            case EVENT_SHIPMENT_COMPLETED:
+                break;
+            case EVENT_PRODUCT_STORED:
+                break;
+            case EVENT_PRODUCT_DISCARDED:
+                break;
+            case EVENT_PRODUCT_QUARANTINED:
+                break;
+            case EVENT_QUARANTINE_UPDATED:
+                break;
+            case EVENT_QUARANTINE_REMOVED:
+                break;
+            case EVENT_PRODUCT_RECOVERED:
+                break;
+            default:
+                fail("Unknown event: " + event);
+        }
     }
 }

@@ -1,5 +1,13 @@
 package com.arcone.biopro.distribution.inventory.verification.steps;
 
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.discarded.ProductDiscardedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.label.LabelAppliedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.AddQuarantinedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.RemoveQuarantinedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.UpdateQuarantinedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.ProductRecoveredMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.shipment.ShipmentCompletedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.storage.ProductStoredMessage;
 import com.arcone.biopro.distribution.inventory.commm.TestUtil;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
@@ -15,6 +23,7 @@ import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import io.r2dbc.spi.ConnectionFactory;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,6 +39,7 @@ import java.util.UUID;
 
 
 @Slf4j
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class KafkaListenersSteps {
 
     @Value("${topic.label-applied.name}")
@@ -56,11 +66,9 @@ public class KafkaListenersSteps {
     @Value("${topic.product-update-quarantined.name}")
     private String quarantineUpdatedTopic;
 
-    @Autowired
-    private ScenarioContext scenarioContext;
+    private final ScenarioContext scenarioContext;
 
-    @Autowired
-    private LogMonitor logMonitor;
+    private final LogMonitor logMonitor;
 
     private static final String SHIPMENT_COMPLETED_MESSAGE = """
          {
@@ -77,18 +85,15 @@ public class KafkaListenersSteps {
          }
         """;
 
-    @Autowired
-    private TestUtils testUtils;
+    private final TestUtils testUtils;
 
-    @Autowired
-    private InventoryEntityRepository inventoryEntityRepository;
+    private final InventoryEntityRepository inventoryEntityRepository;
 
 
     @Value("classpath:/db/data.sql")
     private Resource testDataSql;
 
-    @Autowired
-    private ConnectionFactory connectionFactory;
+    private final ConnectionFactory connectionFactory;
 
     private static final String LABEL_APPLIED_MESSAGE = """
          {
@@ -100,6 +105,8 @@ public class KafkaListenersSteps {
                "productDescription":"APH PLASMA 24H",
                "location":"%s",
                "aboRh":"OP",
+               "weight": 123,
+               "isLicensed": true,
                "productFamily": "PLASMA_TRANSFUSABLE",
                "collectionDate":"2025-01-08T06:00:00.000Z",
                "expirationDate":"2025-01-08T06:00:00.000Z",
@@ -108,7 +115,6 @@ public class KafkaListenersSteps {
             }
          }
         """;
-    private static final String EVENT_SHIPMENT_COMPLETED = "Shipment Completed";
 
     private static final String PRODUCT_STORED_MESSAGE = """
         {
@@ -209,6 +215,7 @@ public class KafkaListenersSteps {
             "unitNumber": "%s",
             "productCode": "E0869A0",
             "reason": "OTHER",
+            "stopsManufacturing": false,
             "performedBy": "USER_ID",
             "createDate": "2025-01-08T02:05:45.231Z"
           }
@@ -222,9 +229,7 @@ public class KafkaListenersSteps {
     public static final String EVENT_QUARANTINE_UPDATED = "Quarantine Updated";
     public static final String EVENT_QUARANTINE_REMOVED = "Quarantine Removed";
     public static final String EVENT_PRODUCT_RECOVERED = "Product Recovered";
-
-
-
+    public static final String EVENT_SHIPMENT_COMPLETED = "Shipment Completed";
 
     private Map<String, String> topicsMap;
 
@@ -324,9 +329,11 @@ public class KafkaListenersSteps {
     @When("I receive an event {string} event")
     public void iReceiveAnEvent(String event) throws Exception {
         scenarioContext.setProductCode("E0869VA0");
+        var message = buildMessage(event);
+        scenarioContext.setLastSentMessage(message);
         testUtils.kafkaSender(
             scenarioContext.getUnitNumber() + "-" + scenarioContext.getProductCode(),
-            buildMessage(event),
+            message,
             topicName);
 
         logMonitor.await("successfully consumed.*"+scenarioContext.getUnitNumber());
@@ -354,5 +361,4 @@ public class KafkaListenersSteps {
             topicName);
         logMonitor.await("successfully consumed.*"+scenarioContext.getUnitNumber());
     }
-
 }

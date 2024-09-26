@@ -12,6 +12,7 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
+import org.assertj.core.api.AssertionsForClassTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.rsocket.RSocketRequester;
@@ -90,6 +91,8 @@ public class RsocketSteps {
             .inventoryStatus(status)
             .expirationDate(LocalDateTime.now().plusDays(daysToExpire))
             .unitNumber(unitNumber)
+            .weight(123)
+            .isLicensed(true)
             .productCode(productCode)
             .statusReason("ACTIVE_DEFERRAL")
             .shortDescription("Short description")
@@ -183,6 +186,8 @@ public class RsocketSteps {
                     assertThat(message.inventoryNotificationsDTO().getFirst().errorCode()).isEqualTo(errorCode);
                     assertThat(message.inventoryNotificationsDTO().getFirst().errorName()).isEqualTo(errorType);
                     assertThat(message.inventoryNotificationsDTO().getFirst().action()).isEqualTo(action);
+                    assertThat(message.inventoryNotificationsDTO().getFirst().action()).isEqualTo(action);
+                    assertThat(message.inventoryResponseDTO()).hasNoNullFieldsOrProperties();
 
                 } else {
                     assertThat(message.inventoryNotificationsDTO().isEmpty()).isTrue();
