@@ -1,7 +1,7 @@
 Feature: Access Shipment Details Page
 
     Background:
-        Given I cleaned up from the database, all shipments with order number "999996,999997,999998,999999,999990".
+        Given I cleaned up from the database, all shipments with order number "999996,999997,999998,999999,999990,999991,999992".
 
     Rule: I should be able to view order information, shipping information, and order criteria( Pick List)
         @ui
@@ -11,13 +11,14 @@ Feature: Access Shipment Details Page
             When I am on the Shipment Fulfillment Details page.
             Then I can see the Order Information, the Shipping Information, and Order Criteria.
             And I can see the order comment "DISTRIBUTION COMMENTS".
-            When I choose to fill product of family "PLASMA TRANSFUSABLE" and blood type "AP".
+            When I choose to fill product of family "<expectedFamily>" and blood type "<expectedBloodType>".
             Then I can see the order comment "DISTRIBUTION COMMENTS".
             And I can navigate back to the Order "<orderNumber>" Details page.
 
           Examples:
-              | orderNumber | Customer ID | Customer Name | Quantity | BloodType | ProductFamily                                              |
-              | 999996      | 999996      | Tampa         | 10,5,23  | AP,AN,OP  | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE|
+              | orderNumber | Customer ID | Customer Name | Quantity | BloodType | ProductFamily                                                                          | expectedFamily               | expectedBloodType |
+              | 999996      | 999996      | Tampa         | 10,5,23  | AP,AN,OP  | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE                            | PLASMA TRANSFUSABLE          | AP                |
+              | 999991      | 999996      | Tampa         | 2,2,10   | ABP,AN,OP | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED | RED BLOOD CELLS LEUKOREDUCED | ABP               |
 
 
 
@@ -30,8 +31,9 @@ Feature: Access Shipment Details Page
             Then I should have an option to fill the products in the shipment.
 
             Examples:
-                | orderNumber | Customer ID | Customer Name | Quantity | BloodType | ProductFamily                                              |
-                | 999998      | 999998      | Tampa         | 10,5,23  | AP,AN,OP  | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE|
+                | orderNumber | Customer ID | Customer Name | Quantity | BloodType | ProductFamily                                                                          |
+                | 999998      | 999998      | Tampa         | 10,5,23  | AP,AN,OP  | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE                            |
+                | 999992      | 999998      | Tampa         | 10,5,23  | ABP,AN,OP | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED |
 
 
 
