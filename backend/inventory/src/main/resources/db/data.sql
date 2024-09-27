@@ -1,4 +1,6 @@
 truncate lk_text_config;
+truncate lk_product_family;
+
 
 insert into lk_text_config (context, key_code, text)
 values ('INVENTORY_VALIDATION', 'INVENTORY_NOT_FOUND_IN_LOCATION', 'This product is not in this location and cannot be shipped.');
@@ -85,3 +87,12 @@ insert into lk_text_config (context, key_code, text)
 values ('QUARANTINE_REASON', 'OTHER_SEE_COMMENTS', 'This product is currently in quarantine for OTHER SEE COMMENTS and needs to be returned to storage.');
 insert into lk_text_config (context, key_code, text)
 values ('QUARANTINE_REASON', 'UNDER_INVESTIGATION', 'This product is currently in quarantine for UNDER INVESTIGATION and needs to be returned to storage.');
+
+insert into lk_product_family (product_family, time_frame)
+values ('PLASMA_TRANSFUSABLE', 30);
+insert into lk_product_family (product_family, time_frame)
+values ('RED_BLOOD_CELLS', 5);
+insert into lk_product_family (product_family, time_frame)
+values ('RED_BLOOD_CELLS_LEUKOREDUCED', 5);
+
+

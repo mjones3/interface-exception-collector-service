@@ -6,10 +6,11 @@ CREATE TABLE bld_inventory
     short_description           VARCHAR(255) NOT NULL,
     status                      VARCHAR(255) NOT NULL,
     expiration_date             TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    collection_date             VARCHAR(255) NOT NULL,
     location                    VARCHAR(255) NOT NULL,
     product_family              VARCHAR(255) NOT NULL,
     abo_rh                      VARCHAR(3) NOT NULL,
+    weight                      INTEGER,
+    is_licensed                 BOOLEAN,
     create_date                 TIMESTAMP WITH TIME ZONE NOT NULL,
     modification_date           TIMESTAMP WITH TIME ZONE NOT NULL,
     device_stored               VARCHAR(255),
@@ -28,4 +29,13 @@ CREATE TABLE lk_text_config
     key_code                         VARCHAR(255) NOT NULL,
     text                        VARCHAR(255) NOT NULL,
     CONSTRAINT pk_lk_text_config PRIMARY KEY (id)
+);
+
+
+CREATE TABLE lk_product_family
+(
+    id                          UUID NOT NULL DEFAULT gen_random_uuid(),
+    product_family                     VARCHAR(255) NOT NULL,
+    time_frame                         INTEGER NOT NULL,
+    CONSTRAINT pk_lk_product_family PRIMARY KEY (id)
 );

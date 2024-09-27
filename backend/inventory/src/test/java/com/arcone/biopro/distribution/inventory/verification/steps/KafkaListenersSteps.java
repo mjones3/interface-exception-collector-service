@@ -1,19 +1,28 @@
 package com.arcone.biopro.distribution.inventory.verification.steps;
 
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.discarded.ProductDiscardedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.label.LabelAppliedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.AddQuarantinedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.RemoveQuarantinedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.UpdateQuarantinedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.ProductRecoveredMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.shipment.ShipmentCompletedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.storage.ProductStoredMessage;
 import com.arcone.biopro.distribution.inventory.commm.TestUtil;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
-import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ProductFamily;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.History;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntity;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntityRepository;
 import com.arcone.biopro.distribution.inventory.verification.common.ScenarioContext;
+import com.arcone.biopro.distribution.inventory.verification.utils.LogMonitor;
 import com.arcone.biopro.distribution.inventory.verification.utils.TestUtils;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import io.r2dbc.spi.ConnectionFactory;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,6 +38,7 @@ import java.util.UUID;
 
 
 @Slf4j
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class KafkaListenersSteps {
 
     @Value("${topic.label-applied.name}")
@@ -55,8 +65,9 @@ public class KafkaListenersSteps {
     @Value("${topic.product-update-quarantined.name}")
     private String quarantineUpdatedTopic;
 
-    @Autowired
-    private ScenarioContext scenarioContext;
+    private final ScenarioContext scenarioContext;
+
+    private final LogMonitor logMonitor;
 
     private static final String SHIPMENT_COMPLETED_MESSAGE = """
          {
@@ -73,18 +84,15 @@ public class KafkaListenersSteps {
          }
         """;
 
-    @Autowired
-    private TestUtils testUtils;
+    private final TestUtils testUtils;
 
-    @Autowired
-    private InventoryEntityRepository inventoryEntityRepository;
+    private final InventoryEntityRepository inventoryEntityRepository;
 
 
     @Value("classpath:/db/data.sql")
     private Resource testDataSql;
 
-    @Autowired
-    private ConnectionFactory connectionFactory;
+    private final ConnectionFactory connectionFactory;
 
     private static final String LABEL_APPLIED_MESSAGE = """
          {
@@ -93,18 +101,19 @@ public class KafkaListenersSteps {
             "payload":{
                "unitNumber":"%s",
                "productCode":"%s",
-               "shortDescription":"APH PLASMA 24H",
+               "productDescription":"APH PLASMA 24H",
                "location":"%s",
                "aboRh":"OP",
+               "weight": 123,
+               "isLicensed": true,
                "productFamily": "PLASMA_TRANSFUSABLE",
                "collectionDate":"2025-01-08T06:00:00.000Z",
-               "expirationDate":"2025-01-08T06:00:00.000",
+               "expirationDate":"2025-01-08T06:00:00.000Z",
                "performedBy":"userId",
                "createDate":"2025-01-08T06:00:00.000Z"
             }
          }
         """;
-    private static final String EVENT_SHIPMENT_COMPLETED = "Shipment Completed";
 
     private static final String PRODUCT_STORED_MESSAGE = """
         {
@@ -205,6 +214,7 @@ public class KafkaListenersSteps {
             "unitNumber": "%s",
             "productCode": "E0869A0",
             "reason": "OTHER",
+            "stopsManufacturing": false,
             "performedBy": "USER_ID",
             "createDate": "2025-01-08T02:05:45.231Z"
           }
@@ -218,9 +228,7 @@ public class KafkaListenersSteps {
     public static final String EVENT_QUARANTINE_UPDATED = "Quarantine Updated";
     public static final String EVENT_QUARANTINE_REMOVED = "Quarantine Removed";
     public static final String EVENT_PRODUCT_RECOVERED = "Product Recovered";
-
-
-
+    public static final String EVENT_SHIPMENT_COMPLETED = "Shipment Completed";
 
     private Map<String, String> topicsMap;
 
@@ -261,7 +269,7 @@ public class KafkaListenersSteps {
         scenarioContext.setEvent(event);
         topicName = topicsMap.get(event);
         if (!EVENT_LABEL_APPLIED.equals(event)) {
-            createInventory(scenarioContext.getUnitNumber(), scenarioContext.getProductCode(), ProductFamily.PLASMA_TRANSFUSABLE, AboRhType.OP, "Miami", 10, InventoryStatus.AVAILABLE);
+            createInventory(scenarioContext.getUnitNumber(), scenarioContext.getProductCode(), "PLASMA_TRANSFUSABLE", AboRhType.OP, "Miami", 10, InventoryStatus.AVAILABLE);
         }
 
     }
@@ -272,11 +280,11 @@ public class KafkaListenersSteps {
         scenarioContext.setProductCode("E0869VA0");
         topicName = topicsMap.get(event);
         if (!EVENT_LABEL_APPLIED.equals(event)) {
-            createInventory(scenarioContext.getUnitNumber(), scenarioContext.getProductCode(), ProductFamily.PLASMA_TRANSFUSABLE, AboRhType.OP, "Miami", 10, InventoryStatus.AVAILABLE);
+            createInventory(scenarioContext.getUnitNumber(), scenarioContext.getProductCode(), "PLASMA_TRANSFUSABLE", AboRhType.OP, "Miami", 10, InventoryStatus.AVAILABLE);
         }
     }
 
-    private InventoryEntity createInventory(String unitNumber, String productCode, ProductFamily productFamily, AboRhType aboRhType, String location, Integer daysToExpire, InventoryStatus statusParam) {
+    private InventoryEntity createInventory(String unitNumber, String productCode, String productFamily, AboRhType aboRhType, String location, Integer daysToExpire, InventoryStatus statusParam) {
 
         List<Quarantine> quarantines = null;
         List<History> histories = null;
@@ -303,7 +311,7 @@ public class KafkaListenersSteps {
             .productFamily(productFamily)
             .aboRh(aboRhType)
             .location(location)
-            .collectionDate(ZonedDateTime.now().toString())
+            .collectionDate(ZonedDateTime.now())
             .inventoryStatus(status)
             .expirationDate(LocalDateTime.now().plusDays(daysToExpire))
             .unitNumber(unitNumber)
@@ -320,10 +328,14 @@ public class KafkaListenersSteps {
     @When("I receive an event {string} event")
     public void iReceiveAnEvent(String event) throws Exception {
         scenarioContext.setProductCode("E0869VA0");
+        var message = buildMessage(event);
+        scenarioContext.setLastSentMessage(message);
         testUtils.kafkaSender(
             scenarioContext.getUnitNumber() + "-" + scenarioContext.getProductCode(),
-            buildMessage(event),
+            message,
             topicName);
+
+        logMonitor.await("successfully consumed.*"+scenarioContext.getUnitNumber());
     }
 
     public void populateTestData() {
@@ -346,6 +358,6 @@ public class KafkaListenersSteps {
             scenarioContext.getUnitNumber() + "-" + scenarioContext.getProductCode().replaceAll("V", ""),
             buildMessage(event, unitNumber, productCode, location),
             topicName);
+        logMonitor.await("successfully consumed.*"+scenarioContext.getUnitNumber());
     }
-
 }

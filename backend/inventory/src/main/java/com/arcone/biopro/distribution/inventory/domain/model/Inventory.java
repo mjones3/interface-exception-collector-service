@@ -2,7 +2,6 @@ package com.arcone.biopro.distribution.inventory.domain.model;
 
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
-import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ProductFamily;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.History;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.ProductCode;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
@@ -38,11 +37,15 @@ public class Inventory {
 
     LocalDateTime expirationDate;
 
-    String collectionDate;
+    ZonedDateTime collectionDate;
+
+    Boolean isLicensed;
+
+    Integer weight;
 
     String location;
 
-    ProductFamily productFamily;
+    String productFamily;
 
     String statusReason;
 

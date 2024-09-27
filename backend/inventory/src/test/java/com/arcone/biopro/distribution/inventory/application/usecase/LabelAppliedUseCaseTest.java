@@ -8,7 +8,6 @@ import com.arcone.biopro.distribution.inventory.domain.model.Inventory;
 import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
-import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ProductFamily;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.ProductCode;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.UnitNumber;
 import com.arcone.biopro.distribution.inventory.domain.repository.InventoryAggregateRepository;
@@ -56,9 +55,9 @@ class LabelAppliedUseCaseTest {
             .shortDescription("APH PLASMA 24H")
             .inventoryStatus(InventoryStatus.AVAILABLE)
             .expirationDate(LocalDateTime.parse("2025-01-08T02:05:45.231"))
-            .collectionDate("2025-01-07T02:05:45.231Z")
+            .collectionDate(ZonedDateTime.now())
             .location("LOCATION_1")
-            .productFamily(ProductFamily.PLASMA_TRANSFUSABLE)
+            .productFamily("PLASMA_TRANSFUSABLE")
             .aboRh(AboRhType.ABN)
             .build();
 
@@ -67,9 +66,9 @@ class LabelAppliedUseCaseTest {
             .productCode("E1234V12")
             .shortDescription("APH PLASMA 24H")
             .expirationDate(LocalDateTime.parse("2025-01-08T02:05:45.231"))
-            .collectionDate("2025-01-07T02:05:45.231Z")
+            .collectionDate(ZonedDateTime.now())
             .location("LOCATION_1")
-            .productFamily(ProductFamily.PLASMA_TRANSFUSABLE)
+            .productFamily("PLASMA_TRANSFUSABLE")
             .aboRh(AboRhType.ABN)
             .build();
 
@@ -111,9 +110,11 @@ class LabelAppliedUseCaseTest {
             "E1234V12",
             "APH PLASMA 24H",
             LocalDateTime.parse("2025-01-08T02:05:45.231"),
-            "2025-01-07T02:05:45.231Z",
+            true,
+            300,
+            ZonedDateTime.now(),
             "MIAMI",
-            ProductFamily.PLASMA_TRANSFUSABLE,
+            "PLASMA_TRANSFUSABLE",
             AboRhType.ABN);
 
         when(inventoryAggregateRepository.existsByLocationAndUnitNumberAndProductCode(input.location(), input.unitNumber(), input.productCode())).thenReturn(Mono.just(true));
