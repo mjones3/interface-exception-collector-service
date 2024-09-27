@@ -1,6 +1,6 @@
 package com.arcone.biopro.distribution.order.adapter.in.web.controller;
 
-import com.arcone.biopro.distribution.order.adapter.in.web.dto.OrderDTO;
+import com.arcone.biopro.distribution.order.adapter.in.web.dto.OrderResponseDTO;
 import com.arcone.biopro.distribution.order.application.mapper.OrderMapper;
 import com.arcone.biopro.distribution.order.domain.service.OrderService;
 import lombok.RequiredArgsConstructor;
@@ -17,9 +17,8 @@ public class OrderController {
     private final OrderMapper orderMapper;
 
     @QueryMapping
-    public Mono<OrderDTO> findOrderById(@Argument Long orderId) {
-        return orderService.findOneById(orderId)
+    public Mono<OrderResponseDTO> findOrderById(@Argument Long orderId) {
+        return orderService.findUseCaseResponseById(orderId)
             .map(orderMapper::mapToDTO);
     }
-
 }

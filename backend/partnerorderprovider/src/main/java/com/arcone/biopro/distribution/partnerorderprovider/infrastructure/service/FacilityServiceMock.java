@@ -27,7 +27,7 @@ public class FacilityServiceMock {
         return facilityDTOList.stream()
             .filter(facility -> Objects.equals(facility.externalId(), externalCode))
             .findAny()
-            .orElseThrow(() -> new RuntimeException("Facility not found."));
+            .orElseThrow(() -> new RuntimeException("Facility not found"));
     }
 
     private void initFacilityMockList() {

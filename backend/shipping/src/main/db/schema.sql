@@ -77,3 +77,11 @@ CREATE TABLE bld_shipment_item_packed (
 );
 
 CREATE UNIQUE INDEX idx_bld_shipment_item_packed ON bld_shipment_item_packed (unit_number, product_code ,shipment_item_id);
+
+ALTER TABLE bld_shipment ALTER COLUMN customer_code TYPE VARCHAR(50) using (customer_code::varchar);
+
+ALTER TABLE bld_shipment_item_packed ADD COLUMN blood_type VARCHAR(10) NOT NULL;
+
+ALTER TABLE bld_shipment_item_packed ADD COLUMN product_family varchar(255) NULL;
+
+ALTER TABLE bld_shipment_item_packed ALTER COLUMN expiration_date TYPE TIMESTAMP WITHOUT TIME ZONE ;

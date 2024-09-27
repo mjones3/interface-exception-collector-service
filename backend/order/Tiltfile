@@ -181,7 +181,6 @@ def biopro_service():
         trigger_mode=TRIGGER_MODE_MANUAL
     )
 
-
 def ui_service():
     # Specify the Kubernetes manifest for the deployment
     k8s_yaml('./src/main/k8s/manufacturing-ui-deployment.yaml')

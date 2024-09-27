@@ -4,7 +4,7 @@ Feature: List of all orders in Search Order
     so that I am able to see the list of orders based on priority.
 
     Background:
-        Given I cleaned up from the database the orders with external ID starting with "EXT_".
+        Given I cleaned up from the database the orders with external ID starting with "EXT".
         And I have restored the default configuration for the order priority colors.
 
     Rule: I should be able to see the list of orders by priority and status where the user logged in.
@@ -24,11 +24,11 @@ Feature: List of all orders in Search Order
 
             Examples:
                 | External ID     | LocationCode | Priority  | Status | Priority Color |
-                | 114117922233594 | MDL_HUB_1    | STAT      | OPEN   | Red            |
-                | 114117922233595 | MDL_HUB_1    | ROUTINE   | OPEN   | Grey           |
-                | 114117922233596 | MDL_HUB_1    | ASAP      | OPEN   | Orange         |
-                | 114117922233597 | MDL_HUB_1    | SCHEDULED | OPEN   | Violet         |
-                | 114117922233598 | MDL_HUB_1    | DATE-TIME | OPEN   | Blue           |
+                | 114117922233594 | 123456789    | STAT      | OPEN   | Red            |
+                | 114117922233595 | 123456789    | ROUTINE   | OPEN   | Grey           |
+                | 114117922233596 | 123456789    | ASAP      | OPEN   | Orange         |
+                | 114117922233597 | 123456789    | SCHEDULED | OPEN   | Violet         |
+                | 114117922233598 | 123456789    | DATE-TIME | OPEN   | Blue           |
 
 
     Rule: I should be able to configure the color options for the priority column.
@@ -42,8 +42,8 @@ Feature: List of all orders in Search Order
 
             Examples:
                 | External ID     | LocationCode | Priority | Status | Priority Color |
-                | 114117922233578 | MDL_HUB_1    | STAT     | OPEN   | Green          |
-                | 114117922233579 | MDL_HUB_1    | ROUTINE  | OPEN   | Yellow         |
+                | 114117922233578 | 123456789    | STAT     | OPEN   | Green          |
+                | 114117922233579 | 123456789    | ROUTINE  | OPEN   | Yellow         |
 
 
         Scenario Outline: List Biopro Orders different location
@@ -51,11 +51,12 @@ Feature: List of all orders in Search Order
             And I have a Biopro Order with externalId "<External ID>", Location Code "<Order LocationCode>", Priority "<Priority>" and Status "<Status>".
             And I am logged in the location "<User LocationCode>".
             When I choose search orders.
-            Then I should not see the the biopro order in the list of orders.
+            Then I should not see the biopro order in the list of orders.
+            And I should see a "Caution" message: "No Results Found".
 
             Examples:
                 | External ID     | Order LocationCode        | User LocationCode | Priority | Status |
-                | 114117922233510 | DISTRIBUTION_AND_LABELING | MDL_HUB_1         | STAT     | OPEN   |
+                | 114117922233510 | DL1 | 234567891         | STAT     | OPEN   |
 
 
     Rule: I should be able to view a maximum of 20 rows in the Results table.

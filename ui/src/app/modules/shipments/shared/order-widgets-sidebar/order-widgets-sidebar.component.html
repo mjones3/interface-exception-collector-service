@@ -10,7 +10,7 @@
             <div class="flex flex-col">
                 <rsa-description-card
                     id="orderInfoDescriptions"
-                    [descriptions]="orderInfoDescriptions"
+                    [descriptions]="order()"
                     [showColon]="true"
                     [embedded]="true"
                     [maxCols]="1"
@@ -18,22 +18,20 @@
                     [labelClasses]="'align-card-info'"
                 ></rsa-description-card>
                 <mat-accordion id="orderInfoComment">
-                    <mat-expansion-panel
-                        [disabled]="!order?.comments && !comments"
-                    >
+                    <mat-expansion-panel [disabled]="!comments()">
                         <mat-expansion-panel-header>
                             <mat-panel-title class="font-bold">
                                 Comments:</mat-panel-title
                             >
                         </mat-expansion-panel-header>
-                        <div>{{ order?.comments || comments | uppercase }}</div>
+                        <div>{{ comments() | uppercase }}</div>
                     </mat-expansion-panel>
                 </mat-accordion>
             </div>
         </ng-template>
     </rsa-common-widget>
 
-    @if (shippingInfoDescriptions?.length) {
+    @if (shipping()?.length) {
         <rsa-common-widget
             svgIcon="remove_shopping_cart"
             svgIconCls="text-custom-red"
@@ -45,7 +43,7 @@
                 <div class="flex flex-col">
                     <rsa-description-card
                         id="shippingInfoDescriptions"
-                        [descriptions]="shippingInfoDescriptions"
+                        [descriptions]="shipping()"
                         [showColon]="true"
                         [embedded]="true"
                         [maxCols]="1"
@@ -57,7 +55,7 @@
         </rsa-common-widget>
     }
 
-    @if (billInfoDescriptions?.length) {
+    @if (billing()?.length) {
         <rsa-common-widget
             svgIcon="credit_card"
             svgIconCls="text-purple-light"
@@ -69,7 +67,7 @@
                 <div class="flex flex-col">
                     <rsa-description-card
                         id="billInfoDescriptions"
-                        [descriptions]="billInfoDescriptions"
+                        [descriptions]="billing()"
                         [showColon]="true"
                         [embedded]="true"
                         [maxCols]="1"

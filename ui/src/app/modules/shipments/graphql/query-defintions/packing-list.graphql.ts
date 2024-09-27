@@ -1,6 +1,10 @@
 import { gql } from 'apollo-angular';
+import { PackingListLabelDTO } from '../../models/packing-list.model';
 
-export const GENERATE_PACKING_LIST_LABEL = gql`
+export const GENERATE_PACKING_LIST_LABEL = gql<
+    { generatePackingListLabel: PackingListLabelDTO },
+    { shipmentId: number }
+>`
     query GeneratePackingListLabel($shipmentId: ID!) {
         generatePackingListLabel(shipmentId: $shipmentId) {
             shipmentId

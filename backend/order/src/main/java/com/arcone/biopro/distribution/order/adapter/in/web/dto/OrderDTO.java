@@ -29,5 +29,9 @@ public record OrderDTO(
     ZonedDateTime createDate,
     ZonedDateTime modificationDate,
     ZonedDateTime deleteDate,
-    List<OrderItemDTO> orderItems
+    List<OrderItemDTO> orderItems,
+    Integer totalShipped,
+    Integer totalRemaining,
+    Integer totalProducts
+
 ) {}

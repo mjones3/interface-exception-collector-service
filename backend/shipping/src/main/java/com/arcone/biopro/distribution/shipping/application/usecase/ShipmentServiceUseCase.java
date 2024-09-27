@@ -6,11 +6,15 @@ import com.arcone.biopro.distribution.shipping.adapter.in.web.dto.ShipmentItemSh
 import com.arcone.biopro.distribution.shipping.adapter.in.web.dto.ShipmentResponseDTO;
 import com.arcone.biopro.distribution.shipping.application.dto.CompleteShipmentRequest;
 import com.arcone.biopro.distribution.shipping.application.dto.NotificationDTO;
+import com.arcone.biopro.distribution.shipping.application.dto.NotificationType;
 import com.arcone.biopro.distribution.shipping.application.dto.PackItemRequest;
 import com.arcone.biopro.distribution.shipping.application.dto.RuleResponseDTO;
+import com.arcone.biopro.distribution.shipping.application.dto.ShipmentCompletedPayloadDTO;
 import com.arcone.biopro.distribution.shipping.application.dto.ShipmentItemPackedDTO;
+import com.arcone.biopro.distribution.shipping.application.exception.ProductValidationException;
 import com.arcone.biopro.distribution.shipping.application.util.ShipmentServiceMessages;
 import com.arcone.biopro.distribution.shipping.domain.event.ShipmentCompletedEvent;
+import com.arcone.biopro.distribution.shipping.domain.event.ShipmentCreatedEvent;
 import com.arcone.biopro.distribution.shipping.domain.model.Shipment;
 import com.arcone.biopro.distribution.shipping.domain.model.ShipmentItem;
 import com.arcone.biopro.distribution.shipping.domain.model.ShipmentItemPacked;
@@ -30,12 +34,12 @@ import com.arcone.biopro.distribution.shipping.infrastructure.listener.dto.Order
 import com.arcone.biopro.distribution.shipping.infrastructure.listener.dto.OrderItemFulfilledMessage;
 import com.arcone.biopro.distribution.shipping.infrastructure.listener.dto.ShortDateItem;
 import com.arcone.biopro.distribution.shipping.infrastructure.service.InventoryRsocketClient;
+import com.arcone.biopro.distribution.shipping.infrastructure.service.errors.InventoryServiceNotAvailableException;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.producer.ProducerRecord;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
-import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
@@ -44,8 +48,12 @@ import reactor.core.publisher.Mono;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
+import static java.util.Optional.ofNullable;
 
 @Service
 @RequiredArgsConstructor
@@ -57,9 +65,7 @@ public class ShipmentServiceUseCase implements ShipmentService {
     private final ShipmentItemShortDateProductRepository shipmentItemShortDateProductRepository;
     private final InventoryRsocketClient inventoryRsocketClient;
     private final ShipmentItemPackedRepository shipmentItemPackedRepository;
-
-    private final ReactiveKafkaProducerTemplate<String, ShipmentCompletedEvent> producerTemplate;
-
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     @Transactional
@@ -92,6 +98,7 @@ public class ShipmentServiceUseCase implements ShipmentService {
             .createdByEmployeeId("mock-employee-id")
             .build();
 
+
         return shipmentRepository.save(shipment)
             .flatMap(savedShipment -> Flux.fromStream(message.items().stream())
                 .flatMap(orderItemFulfilledMessage -> shipmentItemRepository.save(toShipmentItem(orderItemFulfilledMessage, savedShipment.getId())).flatMap(shipmentItemSaved -> {
@@ -101,7 +108,13 @@ public class ShipmentServiceUseCase implements ShipmentService {
                     }
                     return Mono.empty();
                 }).then(Mono.just(""))).collectList())
-            .then(Mono.just(shipment));
+            .then(Mono.just(shipment))
+            .doOnSuccess(this::publishShipmentCreatedEvent);
+    }
+
+    private void publishShipmentCreatedEvent(Shipment shipment) {
+        log.info("Publishing Shipment Created Event {}",shipment);
+        applicationEventPublisher.publishEvent(new ShipmentCreatedEvent(shipment));
     }
 
     private ShipmentItem toShipmentItem(OrderItemFulfilledMessage itemFulfilledMessage, Long shipmentId) {
@@ -146,7 +159,7 @@ public class ShipmentServiceUseCase implements ShipmentService {
             )
             .onErrorResume(error -> {
                 log.error("Failed on pack item {} , {} ", packItemRequest, error.getMessage());
-                return buildPackErrorResponse(error.getMessage());
+                return buildPackErrorResponse(error);
             });
     }
 
@@ -171,7 +184,7 @@ public class ShipmentServiceUseCase implements ShipmentService {
                 .build()))
             .onErrorResume(error -> {
                 log.error("Failed on complete shipment {} , {} ", request, error.getMessage());
-                return buildPackErrorResponse(error.getMessage());
+                return buildPackErrorResponse(error);
             });
     }
 
@@ -190,11 +203,19 @@ public class ShipmentServiceUseCase implements ShipmentService {
 
         return Flux.from(shipmentItemPackedRepository.listAllByShipmentId(shipment.getId()).switchIfEmpty(Flux.empty()))
             .flatMap(itemPacked -> {
-                var message = new ShipmentCompletedEvent(shipment.getId(), shipment.getOrderNumber(), itemPacked.getUnitNumber(), itemPacked.getProductCode(), shipment.getCompletedByEmployeeId(), ZonedDateTime.now(ZoneId.of("UTC")));
-                var producerRecord = new ProducerRecord<>("ShipmentCompleted", String.format("%s", itemPacked.getId()), message);
-                return Mono.just(producerRecord);
+                applicationEventPublisher.publishEvent(new ShipmentCompletedEvent(ShipmentCompletedPayloadDTO
+                    .builder()
+                    .performedBy(itemPacked.getPackedByEmployeeId())
+                    .shipmentId(shipment.getId())
+                    .orderNumber(shipment.getOrderNumber())
+                    .unitNumber(itemPacked.getUnitNumber())
+                    .productCode(itemPacked.getProductCode())
+                    .bloodType(itemPacked.getBloodType().name())
+                    .productFamily(itemPacked.getProductFamily())
+                    .createDate(itemPacked.getCreateDate())
+                    .build()));
+                return Mono.just(shipment);
             })
-            .flatMap(producerTemplate::send)
             .then(Mono.just(shipment));
     }
 
@@ -233,10 +254,23 @@ public class ShipmentServiceUseCase implements ShipmentService {
             .productCode(packItemRequest.productCode())
             .locationCode(packItemRequest.locationCode())
             .unitNumber(packItemRequest.unitNumber()).build()).flatMap(inventoryValidationResponseDTO -> {
-            if (inventoryValidationResponseDTO.inventoryResponseDTO() != null) {
+            if (inventoryValidationResponseDTO.inventoryResponseDTO() != null && (inventoryValidationResponseDTO.inventoryNotificationsDTO() == null || inventoryValidationResponseDTO.inventoryNotificationsDTO().isEmpty())) {
                 return Mono.just(inventoryValidationResponseDTO.inventoryResponseDTO());
             } else {
-                return Mono.error(new RuntimeException(inventoryValidationResponseDTO.inventoryNotificationDTO().errorMessage()));
+                return Mono.error(new ProductValidationException(ShipmentServiceMessages.INVENTORY_VALIDATION_FAILED
+                    ,inventoryValidationResponseDTO.inventoryResponseDTO()
+                    , inventoryValidationResponseDTO.inventoryNotificationsDTO().stream()
+                        .map(inventoryNotificationDTO -> NotificationDTO
+                            .builder()
+                            .statusCode(HttpStatus.BAD_REQUEST.value())
+                            .name(inventoryNotificationDTO.errorName())
+                            .message(inventoryNotificationDTO.errorMessage())
+                            .code(inventoryNotificationDTO.errorCode())
+                            .action(inventoryNotificationDTO.action())
+                            .notificationType(inventoryNotificationDTO.errorType())
+                            .reason(inventoryNotificationDTO.reason())
+                            .build() )
+                        .toList()));
             }
         });
     }
@@ -248,19 +282,44 @@ public class ShipmentServiceUseCase implements ShipmentService {
             .flatMap(shipmentItem -> {
                 if (!shipmentItem.getProductFamily().equals(inventoryResponseDTO.productFamily())) {
                     log.error("Product Family does not match");
-                    return Mono.error(new RuntimeException(ShipmentServiceMessages.PRODUCT_CRITERIA_FAMILY_ERROR));
+                    return Mono.error(new ProductValidationException(ShipmentServiceMessages.PRODUCT_CRITERIA_FAMILY_ERROR,List.of(NotificationDTO
+                        .builder()
+                            .notificationType(NotificationType.WARN.name())
+                            .statusCode(HttpStatus.BAD_REQUEST.value())
+                            .message(ShipmentServiceMessages.PRODUCT_CRITERIA_FAMILY_ERROR)
+                            .name("PRODUCT_CRITERIA_FAMILY_ERROR")
+                        .build())));
+
                 } else if (!inventoryResponseDTO.aboRh().contains(shipmentItem.getBloodType().name())) {
                     log.error("Blood Type does not match");
-                    return Mono.error(new RuntimeException(ShipmentServiceMessages.PRODUCT_CRITERIA_BLOOD_TYPE_ERROR));
+                    return Mono.error(new ProductValidationException(ShipmentServiceMessages.PRODUCT_CRITERIA_BLOOD_TYPE_ERROR , List.of(NotificationDTO
+                        .builder()
+                            .name("PRODUCT_CRITERIA_BLOOD_TYPE_ERROR")
+                            .statusCode(HttpStatus.BAD_REQUEST.value())
+                            .message(ShipmentServiceMessages.PRODUCT_CRITERIA_BLOOD_TYPE_ERROR)
+                            .notificationType(NotificationType.WARN.name())
+                        .build())));
                 } else if(!VisualInspection.SATISFACTORY.equals(request.visualInspection())){
-                    return Mono.error(new RuntimeException(ShipmentServiceMessages.PRODUCT_CRITERIA_VISUAL_INSPECTION_ERROR));
+                    return Mono.error(new ProductValidationException(ShipmentServiceMessages.PRODUCT_CRITERIA_VISUAL_INSPECTION_ERROR,List.of(NotificationDTO
+                        .builder()
+                        .name("PRODUCT_CRITERIA_VISUAL_INSPECTION_ERROR")
+                        .statusCode(HttpStatus.BAD_REQUEST.value())
+                        .message(ShipmentServiceMessages.PRODUCT_CRITERIA_VISUAL_INSPECTION_ERROR)
+                        .notificationType(NotificationType.WARN.name())
+                        .build())));
                 }
 
                 return Mono.just(shipmentItem);
             }).zipWith(shipmentItemPackedRepository.countAllByUnitNumberAndProductCode(request.unitNumber(), request.productCode()))
             .flatMap(tuple2 -> {
                 if(tuple2.getT2() > 0){
-                    return Mono.error(new RuntimeException(ShipmentServiceMessages.PRODUCT_ALREADY_USED_ERROR));
+                    return Mono.error(new ProductValidationException(ShipmentServiceMessages.PRODUCT_ALREADY_USED_ERROR,List.of(NotificationDTO
+                        .builder()
+                        .name("PRODUCT_ALREADY_USED_ERROR")
+                        .statusCode(HttpStatus.BAD_REQUEST.value())
+                        .message(ShipmentServiceMessages.PRODUCT_ALREADY_USED_ERROR)
+                        .notificationType(NotificationType.WARN.name())
+                        .build())));
                 }
                 return Mono.just(tuple2.getT1());
             }).zipWith(shipmentItemPackedRepository.countAllByShipmentItemId(request.shipmentItemId()))
@@ -269,7 +328,13 @@ public class ShipmentServiceUseCase implements ShipmentService {
                 var total = tuple2.getT2() + 1;
                 if (total > tuple2.getT1().getQuantity()) {
                     log.error("Quantity exceeded");
-                    return Mono.error(new RuntimeException(ShipmentServiceMessages.PRODUCT_CRITERIA_QUANTITY_ERROR));
+                    return Mono.error(new ProductValidationException(ShipmentServiceMessages.PRODUCT_CRITERIA_QUANTITY_ERROR,List.of(NotificationDTO
+                        .builder()
+                        .name("PRODUCT_CRITERIA_QUANTITY_ERROR")
+                        .statusCode(HttpStatus.BAD_REQUEST.value())
+                        .message(ShipmentServiceMessages.PRODUCT_CRITERIA_QUANTITY_ERROR)
+                        .notificationType(NotificationType.WARN.name())
+                        .build())));
                 } else {
                     return shipmentItemPackedRepository.save(ShipmentItemPacked.builder()
                             .unitNumber(inventoryResponseDTO.unitNumber())
@@ -280,6 +345,8 @@ public class ShipmentServiceUseCase implements ShipmentService {
                             .collectionDate(inventoryResponseDTO.collectionDate())
                             .packedByEmployeeId(request.employeeId())
                             .shipmentItemId(tuple2.getT1().getId())
+                            .productFamily(tuple2.getT1().getProductFamily())
+                            .bloodType(tuple2.getT1().getBloodType())
                             .visualInspection(VisualInspection.SATISFACTORY)
                             .build())
                         .flatMap(Mono::just);
@@ -287,16 +354,42 @@ public class ShipmentServiceUseCase implements ShipmentService {
             });
     }
 
-    private Mono<RuleResponseDTO> buildPackErrorResponse(String errorMessage) {
-        var notification = new NotificationDTO(
-            HttpStatus.BAD_REQUEST.value(),
-            "error",
-            errorMessage
-        );
-        return Mono.just(RuleResponseDTO.builder()
-            .ruleCode(HttpStatus.BAD_REQUEST)
-            .notifications(List.of(notification))
-            .build());
+    private Mono<RuleResponseDTO> buildPackErrorResponse(Throwable error) {
+        if(error instanceof InventoryServiceNotAvailableException){
+            return Mono.just(RuleResponseDTO.builder()
+                .ruleCode(HttpStatus.BAD_REQUEST)
+                .notifications(List.of(NotificationDTO
+                    .builder()
+                    .code(HttpStatus.BAD_REQUEST.value())
+                    .statusCode(HttpStatus.BAD_REQUEST.value())
+                    .name("INVENTORY_SERVICE_IS_DOWN")
+                    .message(error.getMessage())
+                    .notificationType(NotificationType.SYSTEM.name())
+                    .build()))
+                .build());
+        }
+        if(error instanceof ProductValidationException exception){
+
+            Map<String, List<?>> results  = ((ProductValidationException) error).getInventoryResponseDTO() != null ? Map.of("inventory", List.of(((ProductValidationException) error).getInventoryResponseDTO())) : Map.of("inventory", List.of(Collections.emptyList()));
+
+            return Mono.just(RuleResponseDTO.builder()
+                .ruleCode(HttpStatus.BAD_REQUEST)
+                .results(results)
+                .notifications(exception.getNotifications())
+                .build());
+        }else{
+            return Mono.just(RuleResponseDTO.builder()
+                .ruleCode(HttpStatus.BAD_REQUEST)
+                .notifications(List.of(NotificationDTO
+                    .builder()
+                    .code(HttpStatus.BAD_REQUEST.value())
+                    .statusCode(HttpStatus.BAD_REQUEST.value())
+                    .name(HttpStatus.BAD_REQUEST.name())
+                    .message(error.getMessage())
+                    .notificationType(NotificationType.WARN.name())
+                    .build()))
+                .build());
+        }
     }
 
     private Mono<ShipmentResponseDTO> convertShipmentResponse(Shipment shipment) {
@@ -364,6 +457,7 @@ public class ShipmentServiceUseCase implements ShipmentService {
                 .customerAddressDistrict(shipment.getDistrict())
                 .completeDate(shipment.getCompleteDate())
                 .completedByEmployeeId(shipment.getCompletedByEmployeeId())
+                .comments(shipment.getComments())
                 .items(shipmentItemList)
                 .build()));
     }

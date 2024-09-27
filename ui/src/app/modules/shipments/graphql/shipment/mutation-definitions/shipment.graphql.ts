@@ -1,5 +1,8 @@
 import { gql } from 'apollo-angular';
-const PACK_ITEM = gql`
+import { RuleResponseDTO } from '../../../../../shared/models/rule.model';
+import { VerifyProductDTO } from '../../../models/shipment-info.dto';
+
+const PACK_ITEM = gql<{ packItem: RuleResponseDTO }, VerifyProductDTO>`
     mutation packItem(
         $shipmentItemId: Int!
         $locationCode: String!
@@ -19,18 +22,24 @@ const PACK_ITEM = gql`
             }
         ) {
             ruleCode
-            results
             notifications {
                 statusCode
                 notificationType
+                name
+                action
+                reason
                 message
             }
             _links
+            results
         }
     }
 `;
 
-const COMPLETE_SHIPMENT = gql`
+const COMPLETE_SHIPMENT = gql<
+    { completeShipment: RuleResponseDTO },
+    { shipmentId: number; employeeId: string }
+>`
     mutation completeShipment($shipmentId: Int!, $employeeId: String!) {
         completeShipment(
             completeShipmentRequest: {
@@ -39,13 +48,13 @@ const COMPLETE_SHIPMENT = gql`
             }
         ) {
             ruleCode
-            results
             notifications {
                 statusCode
                 notificationType
                 message
             }
             _links
+            results
         }
     }
 `;

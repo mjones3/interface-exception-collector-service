@@ -62,7 +62,7 @@ public class OrderEntityMapper {
             orderEntity.getShippingMethod(),
             orderEntity.getShippingCustomerCode(),
             orderEntity.getBillingCustomerCode(),
-            orderEntity.getDesiredShippingDate(),
+            java.util.Optional.of(orderEntity.getDesiredShippingDate().toString()).orElse(""),
             orderEntity.getWillCallPickup(),
             orderEntity.getPhoneNumber(),
             orderEntity.getProductCategory(),
@@ -78,9 +78,9 @@ public class OrderEntityMapper {
             .filter(orderItems -> !orderItems.isEmpty())
             .orElseGet(Collections::emptyList)
             .forEach(orderItemEntity -> order.addItem(orderItemEntity.getId()
-                    ,orderItemEntity.getProductFamily(),orderItemEntity.getBloodType()
-                    ,orderItemEntity.getQuantity(),orderItemEntity.getComments(),orderItemEntity.getCreateDate()
-                    ,orderItemEntity.getModificationDate(),this.orderConfigService
+                    , orderItemEntity.getProductFamily(), orderItemEntity.getBloodType()
+                    , orderItemEntity.getQuantity(),orderItemEntity.getQuantityShipped(), orderItemEntity.getComments(), orderItemEntity.getCreateDate()
+                    , orderItemEntity.getModificationDate(), this.orderConfigService
                 )
             );
 

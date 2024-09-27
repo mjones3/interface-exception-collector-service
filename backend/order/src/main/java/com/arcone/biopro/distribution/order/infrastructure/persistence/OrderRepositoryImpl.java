@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.order.infrastructure.persistence;
 
 import com.arcone.biopro.distribution.order.domain.model.Order;
+import com.arcone.biopro.distribution.order.domain.model.vo.OrderStatus;
 import com.arcone.biopro.distribution.order.domain.repository.OrderRepository;
 import com.arcone.biopro.distribution.order.infrastructure.mapper.OrderEntityMapper;
 import com.arcone.biopro.distribution.order.infrastructure.mapper.OrderItemEntityMapper;
@@ -94,4 +95,40 @@ public class OrderRepositoryImpl implements OrderRepository {
                         .publishOn(Schedulers.boundedElastic()) )
             );
     }
+
+    @Override
+    public Mono<Order> findOneByOrderNumber(Long number) {
+        return this.entityTemplate
+            .select(OrderEntity.class)
+            .matching(query(
+                where("orderNumber").is(number)
+                    .and("deleteDate").isNull()
+            ))
+            .one()
+            .flatMap(orderEntity ->
+                findAllOrderItemEntitiesByOrderId(orderEntity.getId())
+                    .collect(Collectors.toList())
+                    .flatMap(orderItemEntities -> Mono.fromCallable(()-> orderEntityMapper
+                            .mapToDomain(orderEntity, orderItemEntities))
+                        .publishOn(Schedulers.boundedElastic()) )
+            );
+    }
+
+    @Override
+    public Mono<Order> update(Order order) {
+        return this.entityTemplate
+            .update(orderEntityMapper.mapToEntity(order))
+            .flatMap(orderEntity ->
+                Flux.fromIterable(order.getOrderItems())
+                    .map(orderItemEntityMapper::mapToEntity)
+                    .map(orderItem -> orderItem.withOrderId(orderEntity.getId()))
+                    .flatMap(this.entityTemplate::update)
+                    .collect(Collectors.toList())
+                    .flatMap(orderItemEntities -> Mono.fromCallable(()-> orderEntityMapper
+                            .mapToDomain(orderEntity, orderItemEntities))
+                        .publishOn(Schedulers.boundedElastic()) )
+            );
+    }
+
+
 }

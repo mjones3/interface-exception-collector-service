@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.order.domain.model;
 
+
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderCustomer;
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderExternalId;
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderNumber;
@@ -12,14 +13,18 @@ import com.arcone.biopro.distribution.order.domain.repository.OrderRepository;
 import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
 import com.arcone.biopro.distribution.order.domain.service.OrderConfigService;
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static java.lang.Boolean.FALSE;
@@ -29,6 +34,7 @@ import static java.util.Optional.ofNullable;
 @Getter
 @EqualsAndHashCode
 @ToString
+@Slf4j
 public class Order implements Validatable {
 
     private Long id;
@@ -52,7 +58,16 @@ public class Order implements Validatable {
     private ZonedDateTime deleteDate;
     private List<OrderItem> orderItems;
 
-    public Order (
+    @Getter(AccessLevel.NONE)
+    private Integer totalShipped;
+
+    @Getter(AccessLevel.NONE)
+    private Integer totalRemaining;
+
+    @Getter(AccessLevel.NONE)
+    private Integer totalProducts;
+
+    public Order(
         CustomerService customerService,
         LookupService lookupService,
         Long id,
@@ -63,7 +78,7 @@ public class Order implements Validatable {
         String shippingMethod,
         String shippingCustomerCode,
         String billingCustomerCode,
-        LocalDate desiredShippingDate,
+        String desiredShippingDate,
         Boolean willCallPickup,
         String phoneNumber,
         String productCategory,
@@ -79,17 +94,21 @@ public class Order implements Validatable {
         this.orderNumber = new OrderNumber(orderNumber);
         this.orderExternalId = new OrderExternalId(externalId);
         this.locationCode = locationCode;
-        this.shipmentType = new ShipmentType(shipmentType,lookupService);
-        this.shippingMethod = new ShippingMethod(shippingMethod,lookupService);
-        this.shippingCustomer = new OrderCustomer(shippingCustomerCode,customerService);
-        this.billingCustomer = new OrderCustomer(billingCustomerCode,customerService);
-        this.desiredShippingDate = desiredShippingDate;
+        this.shipmentType = new ShipmentType(shipmentType, lookupService);
+        this.shippingMethod = new ShippingMethod(shippingMethod, lookupService);
+        this.shippingCustomer = new OrderCustomer(shippingCustomerCode, customerService);
+        this.billingCustomer = new OrderCustomer(billingCustomerCode, customerService);
+        try {
+            this.desiredShippingDate = LocalDate.parse(desiredShippingDate);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("desiredShippingDate is invalid");
+        }
         this.willCallPickup = willCallPickup;
         this.phoneNumber = phoneNumber;
-        this.productCategory = new ProductCategory(productCategory,lookupService);
+        this.productCategory = new ProductCategory(productCategory, lookupService);
         this.comments = comments;
-        this.orderStatus = new OrderStatus(orderStatus,lookupService);
-        this.orderPriority = new OrderPriority(orderPriority,lookupService);
+        this.orderStatus = new OrderStatus(orderStatus, lookupService);
+        this.orderPriority = new OrderPriority(orderPriority, lookupService);
         this.createEmployeeId = createEmployeeId;
         this.createDate = createDate;
         this.modificationDate = modificationDate;
@@ -121,6 +140,9 @@ public class Order implements Validatable {
         if (this.desiredShippingDate == null) {
             throw new IllegalArgumentException("desiredShippingDate cannot be null");
         }
+        if (this.desiredShippingDate.isBefore(LocalDate.now()) && this.id == null) {
+            throw new IllegalArgumentException("desiredShippingDate cannot be in the past");
+        }
         if (this.productCategory == null) {
             throw new IllegalArgumentException("productCategory cannot be null");
         }
@@ -135,15 +157,15 @@ public class Order implements Validatable {
         }
     }
 
-    public void addItem(Long id, String productFamily, String bloodType, Integer quantity, String comments
-        , ZonedDateTime createDate, ZonedDateTime modificationDate,OrderConfigService orderConfigService) {
+    public void addItem(Long id, String productFamily, String bloodType, Integer quantity ,Integer quantityShipped, String comments
+        , ZonedDateTime createDate, ZonedDateTime modificationDate, OrderConfigService orderConfigService) {
 
-        if(this.orderItems == null){
+        if (this.orderItems == null) {
             this.orderItems = new ArrayList<>();
         }
 
-        this.orderItems.add(new OrderItem(id , this.id , productFamily, bloodType , quantity , comments , createDate
-            ,modificationDate , this.getProductCategory().getProductCategory() , orderConfigService));
+        this.orderItems.add(new OrderItem(id, this.id, productFamily, bloodType, quantity , quantityShipped, comments, createDate
+            , modificationDate, this.getProductCategory().getProductCategory(), orderConfigService));
     }
 
     public Mono<Boolean> exists(final OrderRepository orderRepository) {
@@ -152,4 +174,32 @@ public class Order implements Validatable {
             .orElseGet(() -> Mono.just(FALSE));
     }
 
+    public Integer getTotalShipped() {
+        return ofNullable(orderItems)
+            .filter(orderItems -> !orderItems.isEmpty())
+            .orElseGet(Collections::emptyList)
+            .stream()
+            .reduce(0, (partialAgeResult, orderItem) -> partialAgeResult + orderItem.getQuantityShipped(), Integer::sum);
+    }
+
+    public Integer getTotalRemaining() {
+        return ofNullable(orderItems)
+            .filter(orderItems -> !orderItems.isEmpty())
+            .orElseGet(Collections::emptyList)
+            .stream()
+            .reduce(0, (partialAgeResult, orderItem) -> partialAgeResult + orderItem.getQuantityRemaining(), Integer::sum);
+    }
+
+    public Integer getTotalProducts() {
+        return ofNullable(orderItems)
+            .filter(orderItems -> !orderItems.isEmpty())
+            .orElseGet(Collections::emptyList)
+            .stream()
+            .reduce(0, (partialAgeResult, orderItem) -> partialAgeResult + orderItem.getQuantity(), Integer::sum);
+    }
+
+    public boolean isCompleted() {
+        log.debug("Order {} totalShipped: {} totalRemaining: {} totalProducts: {}", this.orderNumber, this.totalShipped, this.totalRemaining, this.totalProducts);
+        return this.getTotalRemaining().equals(0);
+    }
 }

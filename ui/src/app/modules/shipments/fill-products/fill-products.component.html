@@ -141,10 +141,21 @@
             </fuse-card>
         </div>
         <div class="flex w-3/12 flex-auto flex-col">
-            <rsa-order-widget-sidebar
-                [orderInfoDescriptions]="orderInfoDescriptions"
-                [shippingInfoDescriptions]="shippingInfoDescriptions"
-            ></rsa-order-widget-sidebar>
+            <app-order-widget-sidebar
+                [orderInput]="{
+                    id: shipmentInfo?.orderNumber,
+                    priority: shipmentInfo?.priority,
+                    labelingProductCategory: shipmentInfo?.productCategory,
+                }"
+                [comments]="shipmentInfo?.comments"
+                [shippingInput]="{
+                    id: shipmentInfo?.id,
+                    customerCode: shipmentInfo?.shippingCustomerCode,
+                    customerName: shipmentInfo?.shippingCustomerName,
+                    status: shipmentInfo?.status,
+                    method: shipmentInfo?.shippingMethod,
+                }"
+            />
         </div>
     </div>
 </div>
@@ -153,7 +164,7 @@
     <div class="flex flex-row space-x-2">
         <button
             id="backBtn"
-            class="bg-green-highlighted"
+            class="bg-green-highlighted text-white"
             mat-flat-button
             (click)="backToShipmentDetails()"
         >

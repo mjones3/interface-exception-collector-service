@@ -1,4 +1,4 @@
-export interface OrderDetailsDto {
+export interface OrderDetailsDTO {
     id: number;
     orderNumber: number;
     externalId: string;
@@ -20,6 +20,9 @@ export interface OrderDetailsDto {
     createDate: Date;
     modificationDate: Date;
     deleteDate: Date;
+    totalShipped: number;
+    totalRemaining: number;
+    totalProducts: number;
     orderItems: OrderItemDetailsDto[];
 }
 
@@ -32,4 +35,7 @@ export interface OrderItemDetailsDto {
     comments: string;
     createDate: Date;
     modificationDate: Date;
+    quantityAvailable: number;
+    quantityShipped: number;
+    quantityRemaining: number;
 }

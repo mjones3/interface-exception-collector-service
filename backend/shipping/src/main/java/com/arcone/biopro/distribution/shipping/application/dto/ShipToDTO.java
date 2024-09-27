@@ -6,7 +6,7 @@ import java.io.Serializable;
 
 @Builder
 public record ShipToDTO(
-    Long customerCode,
+    String customerCode,
     String customerName,
     String department,
     String addressLine1,

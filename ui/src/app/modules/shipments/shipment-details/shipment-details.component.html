@@ -49,10 +49,21 @@
         </div>
 
         <div class="flex w-1/4 flex-auto flex-col">
-            <rsa-order-widget-sidebar
-                [orderInfoDescriptions]="orderInfoDescriptions"
-                [shippingInfoDescriptions]="shippingInfoDescriptions"
-            ></rsa-order-widget-sidebar>
+            <app-order-widget-sidebar
+                [orderInput]="{
+                    id: shipmentInfo?.orderNumber,
+                    priority: shipmentInfo?.priority,
+                    labelingProductCategory: shipmentInfo?.productCategory,
+                }"
+                [comments]="shipmentInfo?.comments"
+                [shippingInput]="{
+                    id: shipmentInfo?.id,
+                    customerCode: shipmentInfo?.shippingCustomerCode,
+                    customerName: shipmentInfo?.shippingCustomerName,
+                    status: shipmentInfo?.status,
+                    method: shipmentInfo?.shippingMethod,
+                }"
+            />
         </div>
     </div>
 </div>
@@ -61,7 +72,7 @@
     <div class="flex flex-row space-x-2">
         <button
             id="backBtnId"
-            class="bg-green-highlighted"
+            class="bg-green-highlighted text-white"
             mat-flat-button
             (click)="backToSearch()"
         >
@@ -81,20 +92,10 @@
             }}</span>
         </div>
         <div class="flex flex-row space-x-2">
-            @if (shipmentInfo?.status === 'OPEN') {
-                <button
-                    id="viewPickListBtn"
-                    class="bg-purple-light px-4"
-                    mat-flat-button
-                    (click)="viewPickList()"
-                >
-                    View Pick List
-                </button>
-            }
             @if (shipmentInfo?.status === 'COMPLETED') {
                 <button
                     id="viewPackingListBtn"
-                    class="action-button bg-purple-light px-4"
+                    class="action-button bg-purple-light px-4 text-white"
                     mat-flat-button
                     (click)="viewPackingList(true)"
                 >
@@ -105,7 +106,7 @@
             @if (shipmentInfo?.status === 'COMPLETED') {
                 <button
                     id="viewShippingLabelBtn"
-                    class="action-button bg-purple-light px-4"
+                    class="action-button bg-purple-light px-4 text-white"
                     mat-flat-button
                     (click)="viewShippingLabel(true)"
                 >
@@ -258,12 +259,6 @@
                                             "
                                         ></mat-progress-bar
                                     ></span>
-                                    @if (product?.packedItems?.length) {
-                                        <mat-icon
-                                            class="text-custom-green"
-                                            [svgIcon]="'hi_outline:clock'"
-                                        ></mat-icon>
-                                    }
                                 </div>
                             </td>
                             <td>
@@ -277,7 +272,7 @@
                                         <button
                                             [id]="'fillShipmentBtn' + i"
                                             mat-flat-button
-                                            class="bg-custom-red"
+                                            class="bg-custom-red text-white"
                                             (click)="fillProducts(product)"
                                         >
                                             Fill Product
@@ -346,7 +341,7 @@
                     <div class="mr-4 flex flex-row space-x-2 p-2">
                         <button
                             id="completeShipmentBtn"
-                            class="action-button bg-purple-light px-4"
+                            class="action-button bg-purple-light px-4 text-white"
                             mat-flat-button
                             (click)="completeShipment()"
                         >

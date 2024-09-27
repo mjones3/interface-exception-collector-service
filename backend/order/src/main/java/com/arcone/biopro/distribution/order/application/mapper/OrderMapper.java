@@ -1,6 +1,9 @@
 package com.arcone.biopro.distribution.order.application.mapper;
 
+import com.arcone.biopro.distribution.order.adapter.in.web.dto.NotificationDTO;
 import com.arcone.biopro.distribution.order.adapter.in.web.dto.OrderDTO;
+import com.arcone.biopro.distribution.order.adapter.in.web.dto.OrderResponseDTO;
+import com.arcone.biopro.distribution.order.application.dto.UseCaseResponseDTO;
 import com.arcone.biopro.distribution.order.domain.model.Order;
 import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
@@ -9,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
+import java.util.Optional;
 
 import static java.util.Optional.ofNullable;
 
@@ -20,6 +24,24 @@ public class OrderMapper {
     private final OrderItemMapper orderItemMapper;
     private final LookupService lookupService;
     private final OrderConfigService orderConfigService;
+
+    public OrderResponseDTO  mapToDTO(final UseCaseResponseDTO<Order> useCaseResponse) {
+
+        return OrderResponseDTO.builder()
+            .notifications(ofNullable(useCaseResponse.notifications())
+                .filter(notificationDTOList -> !notificationDTOList.isEmpty())
+                .orElseGet(Collections::emptyList)
+                .stream()
+                .map(notification -> NotificationDTO.builder()
+                    .name(notification.useCaseMessageType().name())
+                    .notificationType(notification.useCaseMessageType().getType().name())
+                    .notificationMessage(notification.useCaseMessageType().getMessage())
+                    .build())
+                .toList()
+            )
+            .data(mapToDTO(useCaseResponse.data()))
+            .build();
+    }
 
     public OrderDTO mapToDTO(final Order order) {
         return OrderDTO.builder()
@@ -52,6 +74,9 @@ public class OrderMapper {
                     .map(orderItemMapper::mapToDTO)
                     .toList()
             )
+            .totalRemaining(order.getTotalRemaining())
+            .totalShipped(order.getTotalShipped())
+            .totalProducts(order.getTotalProducts())
             .build();
     }
 
@@ -67,7 +92,7 @@ public class OrderMapper {
             orderDTO.shippingMethod(),
             orderDTO.shippingCustomerCode(),
             orderDTO.billingCustomerCode(),
-            orderDTO.desiredShippingDate(),
+            Optional.of(orderDTO.desiredShippingDate().toString()).orElse(""),
             orderDTO.willCallPickup(),
             orderDTO.phoneNumber(),
             orderDTO.productCategory(),
@@ -83,9 +108,9 @@ public class OrderMapper {
             .filter(orderItems -> !orderItems.isEmpty())
             .orElseGet(Collections::emptyList)
             .forEach(orderItemDTO -> order.addItem(orderItemDTO.id()
-                ,orderItemDTO.productFamily(),orderItemDTO.bloodType()
-                ,orderItemDTO.quantity(),orderItemDTO.comments(),orderItemDTO.createDate()
-                ,orderItemDTO.modificationDate(),this.orderConfigService
+                    , orderItemDTO.productFamily(), orderItemDTO.bloodType()
+                    , orderItemDTO.quantity(),0, orderItemDTO.comments(), orderItemDTO.createDate()
+                    , orderItemDTO.modificationDate(), this.orderConfigService
                 )
             );
 

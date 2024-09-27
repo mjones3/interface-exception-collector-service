@@ -3,7 +3,7 @@ import { FuseNavigationItem } from '@fuse/components/navigation';
 
 export const location: any = {
     id: 1,
-    code: 'MDL_HUB_1',
+    code: '123456789',
     orderNumber: 1,
     active: true,
     locationTypeId: 3,
@@ -22,7 +22,7 @@ export const location: any = {
 export const locations: any[] = [
     {
         id: 1,
-        code: 'MDL_HUB_1',
+        code: '123456789',
         orderNumber: 1,
         active: true,
         locationTypeId: 1,
@@ -39,7 +39,7 @@ export const locations: any[] = [
     },
     {
         id: 2,
-        code: 'DISTRIBUTION_AND_LABELING',
+        code: 'DL1',
         partOfId: null,
         externalId: 'DL1',
         name: 'Distribution and Labeling',
@@ -54,7 +54,7 @@ export const locations: any[] = [
     },
     {
         id: 3,
-        code: 'DISTRIBUTION_ONLY',
+        code: 'DO1',
         partOfId: 1036,
         externalId: 'DO1',
         name: 'Distribution Only',
@@ -69,7 +69,7 @@ export const locations: any[] = [
     },
     {
         id: 4,
-        code: 'MDL_HUB_2',
+        code: '234567891',
         partOfId: 1036,
         externalId: '234567891',
         name: 'MDL Hub 2',
@@ -93,13 +93,5 @@ export const defaultNavigation: FuseNavigationItem[] = [
         icon: 'shopping_cart',
         link: 'orders/search',
         disabled: false,
-    },
-    {
-        id: 20,
-        title: 'Shipping',
-        type: 'basic',
-        icon: 'local_shipping',
-        link: 'shipment/search',
-        disabled: false,
-    },
+    }
 ];

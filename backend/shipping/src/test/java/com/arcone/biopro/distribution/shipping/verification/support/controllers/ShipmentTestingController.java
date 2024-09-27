@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.shipping.verification.support.controllers
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.BloodType;
 import com.arcone.biopro.distribution.shipping.verification.support.*;
 import com.arcone.biopro.distribution.shipping.verification.support.types.ListShipmentsResponseType;
+import com.arcone.biopro.distribution.shipping.verification.support.types.OrderFulfilledEventType;
 import com.arcone.biopro.distribution.shipping.verification.support.types.ShipmentFulfillmentRequest;
 import com.arcone.biopro.distribution.shipping.verification.support.types.ShipmentItemShortDateResponseType;
 import com.arcone.biopro.distribution.shipping.verification.support.types.ShipmentRequestDetailsResponseType;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -37,7 +39,16 @@ public class ShipmentTestingController {
 
     public long createShippingRequest(ShipmentRequestDetailsResponseType shipmentDetail) throws Exception {
 
-        utils.kafkaSender(objectMapper.writeValueAsString(shipmentDetail), Topics.ORDER_FULFILLED);
+        var fulfilledMessage = OrderFulfilledEventType.
+            builder()
+            .eventId(UUID.randomUUID())
+            .occurredOn(Instant.now())
+            .eventVersion("1.0")
+            .eventType("OrderFulfilled")
+            .payload(shipmentDetail)
+            .build();
+
+        utils.kafkaSender(objectMapper.writeValueAsString(fulfilledMessage), Topics.ORDER_FULFILLED);
         // Add sleep to wait for the message to be consumed.
         Thread.sleep(kafkaWaitingTime);
 
@@ -136,7 +147,7 @@ public class ShipmentTestingController {
     public ShipmentRequestDetailsResponseType buildShipmentRequestDetailsResponseType(Long orderNumber,
                                                                                       String priority,
                                                                                       String status,
-                                                                                      Long shippingCustomerCode,
+                                                                                      String shippingCustomerCode,
                                                                                       Long billingCustomerCode,
                                                                                       String locationCode,
                                                                                       String deliveryType,
@@ -196,6 +207,7 @@ public class ShipmentTestingController {
             .createDate(ZonedDateTime.now())
             .shippingCustomerCode(shippingCustomerCode)
             .shippingCustomerName(shippingCustomerName)
+            .comments("DISTRIBUTION COMMENTS")
             .items(new ArrayList<>())
             .build();
         if (!quantityList.isEmpty()) {
@@ -224,7 +236,7 @@ public class ShipmentTestingController {
         return shipmentDetailType;
     }
 
-    public ShipmentRequestDetailsResponseType buildShipmentRequestDetailsResponseType(long orderNumber, String locationCode, long customerID, String customerName, String department, String addressLine1, String addressLine2, String unitNumber, String productCode, String productFamily, String bloodType, String expiration, long quantity) {
+    public ShipmentRequestDetailsResponseType buildShipmentRequestDetailsResponseType(long orderNumber, String locationCode, String customerID, String customerName, String department, String addressLine1, String addressLine2, String unitNumber, String productCode, String productFamily, String bloodType, String expiration, long quantity) {
         return this.buildShipmentRequestDetailsResponseType(orderNumber, "ASAP", "OPEN", customerID, 0L, locationCode, "TEST", "TEST", "Frozen", LocalDate.now(), customerName, department, "", "123456789", "FL", "33016", "US", "1", "Miami", "Miami", addressLine1, addressLine2, String.valueOf(quantity), bloodType, productFamily, unitNumber, productCode);
     }
 }

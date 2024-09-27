@@ -1,12 +1,44 @@
+export enum NotificationType {
+    success = 'success',
+    warning = 'warning',
+    error = 'error',
+    info = 'info',
+    basic = 'basic',
+}
 
+export interface NotificationConfig {
+    title?: string;
+    type: NotificationType;
+    timeOut: number;
+}
 
-export type NotificationType = 'success' | 'warning' | 'error';
-
-export type NotificationEventOnDismissType = 'min-max-volume-eligibility';
+export const NotificationTypeMap: Record<string, NotificationConfig> = {
+    SYSTEM: {
+        title: 'System',
+        type: NotificationType.info,
+        timeOut: 10000,
+    },
+    success: {
+        type: NotificationType.success,
+        timeOut: 10000,
+    },
+    WARN: {
+        type: NotificationType.error,
+        timeOut: 10000,
+    },
+    ERROR: {
+        type: NotificationType.error,
+        timeOut: 0,
+    },
+};
 
 export interface NotificationDto {
-    statusCode: string;
-    notificationType: NotificationType;
+    name?: string;
+    statusCode: number;
+    notificationType: string;
     message: string;
-    notificationEventOnDismiss?: NotificationEventOnDismissType;
-  }
+    notificationEventOnDismiss?: string;
+    action?: string;
+    reason?: string;
+    code: number;
+}

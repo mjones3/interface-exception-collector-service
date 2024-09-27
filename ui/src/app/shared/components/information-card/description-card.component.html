@@ -1,72 +1,107 @@
-<fuse-card class="flex-col w-full" [ngClass]="{ 'shadow-none': embedded }">
-  @if(!embedded && title){
-    <ng-container>
-      <div class="fuse-card-title">
-        <h3>{{ title }}</h3>
-      </div>
-      <mat-divider></mat-divider>
-    </ng-container>
-  }
-  <div class="p-4 flex flex-row space-x-6 items-center">
-
-    @if(image){
-      <div class="flex">
-        @if(imageType === 'img'){
-          <img [src]="image" [ngClass]="imageCls"/>
-        }
-
-        @if(imageType === 'svgIcon'){
-          <mat-icon [svgIcon]="image" [ngClass]="imageCls"></mat-icon>
-        }
-      </div>
-    }
-    <div class="flex-1">
-      <div class="grid" [ngClass]="['grid-cols-' + columns, gapCls]">
-        @for(descriptionGroup of descriptionsGroup; track $index){
-          <ng-container>
-            @for(description of descriptionGroup; track $index){
-              <div
-              [ngClass]="'col-span-' + (i + 1 < descriptionGroup.length ? '1' : columns - i)"
-            >
-  
-            @if(description?.valueType !== 'expansion-panel'){
-              <div class="flex flex-row items-center">
-                <span
-                  id="informationDetails-{{description.label}}"
-                  class="font-bold mb-1 text-left mr-4 mb-0"
-                  [ngClass]="labelClasses"
-                  > {{description.label}} 
-                  @if(showColon){
-                    <span>: </span>
-                  }
-                </span>
-                @if(description?.valueType !== 'badge'){
-                  <span
-                  class="fuse-mat-no-subscript flex-auto mr-4 text-left"
-                  [ngClass]="valueClasses"
-                  [ngStyle]="description?.valueStyle"
-                  >{{ description.value?.toString() | uppercase }}
-                </span>
-                }
-  
-                @if(description?.valueType === 'badge'){
-                  <div class="flex flex-row flex-wrap">
-                    <span
-                      class="fuse-mat-no-subscript mr-4 text-left break-all"
-                      *ngFor="let item of description?.value; let i = index"
-                      [ngClass]="description?.valueCls"
-                      [ngStyle]="description?.valueStyle?.length ? description?.valueStyle[i] : ''"
-                      >{{ item?.toString() | uppercase }}
-                    </span>
-                  </div>     
-                }     
-              </div>
-            }    
+<fuse-card class="w-full flex-col" [ngClass]="{ 'shadow-none': embedded }">
+    @if (!embedded && title) {
+        <ng-container>
+            <div class="fuse-card-title">
+                <h3>{{ title }}</h3>
             </div>
-            }
-          </ng-container>
+            <mat-divider></mat-divider>
+        </ng-container>
+    }
+    <div class="flex flex-row items-center space-x-6 p-4">
+        @if (image) {
+            <div class="flex">
+                @if (imageType === 'img') {
+                    <img [src]="image" [ngClass]="imageCls" />
+                }
+
+                @if (imageType === 'svgIcon') {
+                    <mat-icon [svgIcon]="image" [ngClass]="imageCls"></mat-icon>
+                }
+            </div>
         }
-      </div>
+        <div class="flex-1">
+            <div class="grid" [ngClass]="['grid-cols-' + columns, gapCls]">
+                @for (descriptionGroup of descriptionsGroup; track $index) {
+                    <ng-container>
+                        @for (description of descriptionGroup; track $index) {
+                            <div
+                                [ngClass]="
+                                    'col-span-' +
+                                    (i + 1 < descriptionGroup.length
+                                        ? '1'
+                                        : columns - i)
+                                "
+                            >
+                                @if (
+                                    description?.valueType !== 'expansion-panel'
+                                ) {
+                                    <div class="flex flex-row items-center">
+                                        <span
+                                            id="informationDetails-{{
+                                                description.label
+                                            }}"
+                                            class="mb-0 mb-1 mr-4 text-left font-bold"
+                                            [ngClass]="labelClasses"
+                                        >
+                                            {{ description.label }}
+                                            @if (showColon) {
+                                                <span>:&nbsp;</span>
+                                            }
+                                        </span>
+                                        @if (
+                                            description?.valueType !== 'badge'
+                                        ) {
+                                            <span
+                                                class="fuse-mat-no-subscript mr-4 flex-auto text-left"
+                                                [ngClass]="valueClasses"
+                                                [ngStyle]="
+                                                    description?.valueStyle
+                                                "
+                                                >{{
+                                                    description.value?.toString()
+                                                        | uppercase
+                                                }}
+                                            </span>
+                                        }
+
+                                        @if (
+                                            description?.valueType === 'badge'
+                                        ) {
+                                            <div
+                                                class="flex flex-row flex-wrap"
+                                            >
+                                                <span
+                                                    class="fuse-mat-no-subscript mr-4 break-all text-left"
+                                                    *ngFor="
+                                                        let item of description?.value;
+                                                        let i = index
+                                                    "
+                                                    [ngClass]="
+                                                        description?.valueCls
+                                                    "
+                                                    [ngStyle]="
+                                                        description?.valueStyle
+                                                            ?.length
+                                                            ? description
+                                                                  ?.valueStyle[
+                                                                  i
+                                                              ]
+                                                            : ''
+                                                    "
+                                                    >{{
+                                                        item?.toString()
+                                                            | uppercase
+                                                    }}
+                                                </span>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </ng-container>
+                }
+            </div>
+        </div>
     </div>
-  </div>
 </fuse-card>

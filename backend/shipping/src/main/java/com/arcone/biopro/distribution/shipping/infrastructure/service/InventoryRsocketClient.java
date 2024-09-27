@@ -22,7 +22,12 @@ public class InventoryRsocketClient {
         return rSocketRequester
             .route("validateInventory")
             .data(request)
-            .retrieveMono(InventoryValidationResponseDTO.class);
+            .retrieveMono(InventoryValidationResponseDTO.class)
+            .onErrorResume(error -> {
+                log.error("Error On Validate inventory {}",error.getMessage());
+                   return  Mono.error(new InventoryServiceNotAvailableException(ShipmentServiceMessages.INVENTORY_SERVICE_NOT_AVAILABLE_ERROR));
+                }
+          );
     }
 
     @MessageExceptionHandler(RuntimeException.class)

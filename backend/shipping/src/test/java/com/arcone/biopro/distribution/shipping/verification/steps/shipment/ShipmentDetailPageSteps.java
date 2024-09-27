@@ -1,5 +1,7 @@
 package com.arcone.biopro.distribution.shipping.verification.steps.shipment;
 
+import com.arcone.biopro.distribution.shipping.verification.pages.SharedActions;
+import com.arcone.biopro.distribution.shipping.verification.pages.distribution.FillProductsPage;
 import com.arcone.biopro.distribution.shipping.verification.pages.distribution.ShipmentDetailPage;
 import com.arcone.biopro.distribution.shipping.verification.support.ScreenshotService;
 import io.cucumber.java.en.And;
@@ -18,10 +20,19 @@ public class ShipmentDetailPageSteps {
     private ShipmentDetailPage shipmentDetailPage;
 
     @Autowired
+    private FillProductsPage fillProductsPage;
+
+    @Autowired
     private ScreenshotService screenshot;
+
+    @Autowired
+    private SharedActions sharedActions;
 
     @Value("${save.all.screenshots}")
     private boolean saveAllScreenshots;
+
+    @Value("${ui.order-details.url}")
+    private String orderDetailsUrl;
 
     @Then("I should have an option to view the Pick List.")
     public void viewPickList() {
@@ -54,16 +65,6 @@ public class ShipmentDetailPageSteps {
         screenshot.attachConditionalScreenshot(saveAllScreenshots);
     }
 
-    @And("no products have been filled.")
-    public void checkNoProductsAreFilled() {
-        // TODO there is no option to validate this now, update with fill order implementation
-    }
-
-    @And("no products have been shipped.")
-    public void checkNoProductAreShipped() {
-        // TODO there is no option to validate this now, update with fill order implementation
-    }
-
     @And("I choose to complete the Shipment.")
     public void completeShipment() {
         shipmentDetailPage.completeShipment();
@@ -79,5 +80,17 @@ public class ShipmentDetailPageSteps {
     public void checkPendingLogNotVisible() {
         shipmentDetailPage.checkPendingLogNotVisible();
         screenshot.attachConditionalScreenshot(saveAllScreenshots);
+    }
+
+    @And("I can see the order comment {string}.")
+    public void checkOrderComment(String comment) throws InterruptedException {
+        shipmentDetailPage.checkOrderComment(comment);
+    }
+
+    @And("I can navigate back to the Order {string} Details page.")
+    public void navigateBackToOrderDetails(String orderNumber) throws InterruptedException {
+        fillProductsPage.clickBackButton();
+        shipmentDetailPage.clickBackBtn();
+        sharedActions.isAtPage(orderDetailsUrl.replace("{orderId}", orderNumber));
     }
 }

@@ -39,7 +39,7 @@ public class OrderReceivedEventMapper {
                 orderReceivedEventPayloadDTO.shippingMethod(),
                 orderReceivedEventPayloadDTO.shippingCustomerCode(),
                 orderReceivedEventPayloadDTO.billingCustomerCode(),
-                LocalDate.parse(orderReceivedEventPayloadDTO.desiredShippingDate()),
+                orderReceivedEventPayloadDTO.desiredShippingDate(),
                 orderReceivedEventPayloadDTO.willPickUp(),
                 orderReceivedEventPayloadDTO.willPickUpPhoneNumber(),
                 orderReceivedEventPayloadDTO.productCategory(),
@@ -56,7 +56,7 @@ public class OrderReceivedEventMapper {
                 .orElseGet(Collections::emptyList)
                 .forEach(orderItemDTO -> order.addItem(null
                         ,orderItemDTO.productFamily(),orderItemDTO.bloodType()
-                        ,orderItemDTO.quantity(),orderItemDTO.comments(),null
+                        ,orderItemDTO.quantity(),0,orderItemDTO.comments(),null
                         ,null,this.orderConfigService
                     )
                 );

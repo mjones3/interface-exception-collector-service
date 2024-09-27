@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.shipping.infrastructure.listener;
 
 import com.arcone.biopro.distribution.shipping.domain.service.ShipmentService;
+import com.arcone.biopro.distribution.shipping.infrastructure.listener.dto.OrderFulfilledEventDTO;
 import com.arcone.biopro.distribution.shipping.infrastructure.listener.dto.OrderFulfilledMessage;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -71,9 +72,9 @@ public class OrderFulfilledListener implements CommandLineRunner {
 
     private Mono<ReceiverRecord<String, String>> handleMessage(ReceiverRecord<String, String> event) {
         try {
-            var message = objectMapper.readValue(event.value(), OrderFulfilledMessage.class);
+            var message = objectMapper.readValue(event.value(), OrderFulfilledEventDTO.class);
             log.info("Message Handled....{}", message);
-            return shipmentService.create(message).then(Mono.just(event));
+            return shipmentService.create(message.payload()).then(Mono.just(event));
         } catch (JsonProcessingException e) {
             log.error(String.format("Problem deserializing an instance of [%s] " +
                 "with the following json: %s ", OrderFulfilledMessage.class.getSimpleName(), event.value()), e);

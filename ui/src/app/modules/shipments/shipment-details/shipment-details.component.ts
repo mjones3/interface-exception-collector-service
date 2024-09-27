@@ -12,9 +12,9 @@ import { TranslateService } from '@ngx-translate/core';
 import {
     Description,
     NotificationDto,
+    NotificationTypeMap,
     ProcessHeaderComponent,
     ProcessHeaderService,
-    ProcessProductModel,
     SortService,
     ToastrImplService,
 } from '@shared';
@@ -22,7 +22,7 @@ import { ERROR_MESSAGE } from 'app/core/data/common-labels';
 import {
     DEFAULT_PAGE_SIZE,
     DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
-    DEFAULT_PAGE_SIZE_DIALOG_WIDTH,
+    DEFAULT_PAGE_SIZE_DIALOG_PORTRAIT_WIDTH,
 } from 'app/core/models/browser-printing.model';
 import { BrowserPrintingService } from 'app/core/services/browser-printing/browser-printing.service';
 import { getAuthState } from 'app/core/state/auth/auth.selectors';
@@ -35,17 +35,16 @@ import { of, switchMap } from 'rxjs';
 import { catchError, take } from 'rxjs/operators';
 import { ProductFamilyMap } from '../../../shared/models/product-family.model';
 import {
-    FilledProductInfoDto,
     ShipmentCompleteInfoDto,
-    ShipmentInfoDto,
-    ShipmentInfoItemDto,
+    ShipmentDetailResponseDTO,
+    ShipmentItemPackedDTO,
+    ShipmentItemResponseDTO,
 } from '../models/shipment-info.dto';
 import { PackingListService } from '../services/packing-list.service';
 import { ShipmentService } from '../services/shipment.service';
 import { ShippingLabelService } from '../services/shipping-label.service';
 import { OrderWidgetsSidebarComponent } from '../shared/order-widgets-sidebar/order-widgets-sidebar.component';
 import { ViewPackingListComponent } from '../view-packing-list/view-packing-list.component';
-import { ViewPickListComponent } from '../view-pick-list/view-pick-list.component';
 import { ViewShippingLabelComponent } from '../view-shipping-label/view-shipping-label.component';
 
 @Component({
@@ -96,12 +95,11 @@ export class ShipmentDetailsComponent implements OnInit {
     expandedRows = {};
     orderInfoDescriptions: Description[] = [];
     shippingInfoDescriptions: Description[] = [];
-    shipmentInfo: ShipmentInfoDto;
-    products: ShipmentInfoItemDto[] = [];
-    processProductConfig: ProcessProductModel;
+    shipmentInfo: ShipmentDetailResponseDTO;
+    products: ShipmentItemResponseDTO[] = [];
     shippedInfoData: ShipmentCompleteInfoDto[] = [];
     loggedUserId: string;
-    packedItems: FilledProductInfoDto[] = [];
+    packedItems: ShipmentItemPackedDTO[] = [];
 
     get filledProductsCount() {
         return this.packedItems?.length;
@@ -121,7 +119,7 @@ export class ShipmentDetailsComponent implements OnInit {
 
     get totalProducts(): number {
         return this.products.reduce<number>(
-            (previousValue: number, currentValue: ShipmentInfoItemDto) =>
+            (previousValue: number, currentValue: ShipmentItemResponseDTO) =>
                 previousValue + +currentValue?.quantity,
             0
         );
@@ -133,7 +131,7 @@ export class ShipmentDetailsComponent implements OnInit {
 
     fetchShipmentDetails(): void {
         this.shipmentService
-            .getShipmentById(this.shipmentId, true)
+            .getShipmentById(this.shipmentId)
             .subscribe((result) => {
                 this.shipmentInfo = result.data?.getShipmentDetailsById;
                 this.products =
@@ -141,7 +139,6 @@ export class ShipmentDetailsComponent implements OnInit {
                         this.convertItemToProduct(item)
                     ) ?? [];
                 this.getPackedItems();
-                this.updateWidgets();
                 if (this.isProductComplete) {
                     this.getShippedProductsInfo();
                 }
@@ -149,8 +146,8 @@ export class ShipmentDetailsComponent implements OnInit {
     }
 
     private convertItemToProduct(
-        item: ShipmentInfoItemDto
-    ): ShipmentInfoItemDto {
+        item: ShipmentItemResponseDTO
+    ): ShipmentItemResponseDTO {
         return {
             id: item.id,
             quantity: item.quantity,
@@ -166,7 +163,7 @@ export class ShipmentDetailsComponent implements OnInit {
         const details = {
             completeDate: formatDate(
                 this.shipmentInfo.completeDate,
-                'MM/dd/YYYY HH:mm',
+                'MM/dd/yyyy HH:mm',
                 this.locale
             ),
             completedByEmployee: this.shipmentInfo.completedByEmployeeId,
@@ -184,33 +181,21 @@ export class ShipmentDetailsComponent implements OnInit {
         });
     }
 
-    private updateWidgets() {
-        this.orderInfoDescriptions =
-            this.shipmentService.getOrderInfoDescriptions(this.shipmentInfo);
-        this.shippingInfoDescriptions =
-            this.shipmentService.getShippingInfoDescriptions(this.shipmentInfo);
-    }
-
-    fillProducts(item: ShipmentInfoItemDto): void {
+    fillProducts(item: ShipmentItemResponseDTO): void {
         const url = `shipment/${this.shipmentId}/fill-products/${item.id}`;
         this._router.navigateByUrl(url);
     }
 
+    get orderId() {
+        return this.shipmentInfo.orderNumber;
+    }
+
     backToSearch(): void {
-        this._router.navigateByUrl('/orders/search');
+        this._router.navigateByUrl(`/orders/${this.orderId}/order-details`);
     }
 
     customSort(event: SortEvent) {
         this.sortService.customSort(event);
-    }
-
-    viewPickList(): void {
-        const dialogRef = this.matDialog.open(ViewPickListComponent, {
-            id: 'ViewPickListDialog',
-            width: DEFAULT_PAGE_SIZE_DIALOG_WIDTH,
-            height: DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
-        });
-        dialogRef.componentInstance.model$ = of(this.shipmentInfo);
     }
 
     viewPackingList(print?: boolean): void {
@@ -229,7 +214,7 @@ export class ShipmentDetailsComponent implements OnInit {
                                   panelClass: 'hidden',
                               }
                             : {
-                                  width: DEFAULT_PAGE_SIZE_DIALOG_WIDTH,
+                                  width: DEFAULT_PAGE_SIZE_DIALOG_PORTRAIT_WIDTH,
                                   height: DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
                               }),
                     });
@@ -267,7 +252,7 @@ export class ShipmentDetailsComponent implements OnInit {
                                       panelClass: 'hidden',
                                   }
                                 : {
-                                      width: DEFAULT_PAGE_SIZE_DIALOG_WIDTH,
+                                      width: DEFAULT_PAGE_SIZE_DIALOG_PORTRAIT_WIDTH,
                                       height: DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
                                   }),
                         }
@@ -328,7 +313,7 @@ export class ShipmentDetailsComponent implements OnInit {
             this.translate.instant(notification.message),
             null,
             {},
-            notification.notificationType
+            NotificationTypeMap[notification.notificationType].type
         );
     }
 

@@ -6,11 +6,16 @@ import {
 import { Injectable, Type } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { CookieService } from 'ngx-cookie-service';
-import { BehaviorSubject, Observable, Observer, throwError } from 'rxjs';
+import {
+    BehaviorSubject,
+    Observable,
+    Observer,
+    lastValueFrom,
+    throwError,
+} from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { Facility } from '../models';
 import { Cookie } from '../types/cookie.enum';
-import { EnvironmentConfigService } from './environment-config.service';
 
 type EntityResponseType = HttpResponse<Facility>;
 type EntityArrayResponseType = HttpResponse<Facility[]>;
@@ -28,7 +33,6 @@ export class FacilityService {
 
     constructor(
         private httpClient: HttpClient,
-        private config: EnvironmentConfigService,
         private cookieService: CookieService,
         private matDialog: MatDialog
     ) {
@@ -48,22 +52,16 @@ export class FacilityService {
     getAllFacilities(params?: object): Observable<EntityArrayResponseType> {
         // create new params adding the parameters size=1000&sort=name,asc
         params = { ...params, size: 1000, sort: 'name,asc' };
-        return this.httpClient.get<Facility[]>(
-            `${this.config.env.serverApiURL}/v1/locations`,
-            {
-                ...params,
-                observe: 'response',
-            }
-        );
+        return this.httpClient.get<Facility[]>('/v1/locations', {
+            ...params,
+            observe: 'response',
+        });
     }
 
-    getFacilityById(id: number): Observable<EntityResponseType> {
-        return this.httpClient.get<Facility>(
-            `${this.config.env.serverApiURL}/v1/facilities/${id}`,
-            {
-                observe: 'response',
-            }
-        );
+    getFacilityByCode(code: string): Observable<EntityResponseType> {
+        return this.httpClient.get<Facility>(`/v1/facilities/${code}`, {
+            observe: 'response',
+        });
     }
 
     getFacilityDialog(component: Type<any>, closable = false): Observable<any> {
@@ -133,11 +131,12 @@ export class FacilityService {
 
     async syncCookieAndService() {
         const all = this.cookieService.getAll();
-        if (all[Cookie.XFacility] && !this.facility.getValue()) {
+        const cookieFacility = all[Cookie.XFacility];
+        if (cookieFacility && !this.facility.getValue()) {
             try {
-                const facility = await this.getFacilityById(
-                    +all[Cookie.XFacility]
-                ).toPromise();
+                const facility = await lastValueFrom(
+                    this.getFacilityByCode(cookieFacility)
+                );
                 this.facility.next(facility.body);
             } catch {
                 this.cookieService.delete(Cookie.XFacility);

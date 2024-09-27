@@ -1,6 +1,8 @@
 package com.arcone.biopro.distribution.shipping.verification.config;
 
+import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -21,6 +23,9 @@ public class RemoteWebDriverConfig {
     @Value("${selenium.grid.url}")
     private String seleniumGridUrl;
 
+    @Value("${selenium.headless.execution}")
+    private boolean headless;
+
 
     @Bean
     @Lazy
@@ -35,8 +40,18 @@ public class RemoteWebDriverConfig {
     @Lazy
     @ConditionalOnMissingBean
     @Scope("browserscope")
-    public WebDriver chromeDriver() throws URISyntaxException, MalformedURLException {
+    public WebDriver chromeDriver() {
+        WebDriverManager.chromedriver().setup();
         ChromeOptions options = new ChromeOptions();
-        return new RemoteWebDriver(new URI(seleniumGridUrl).toURL(), options);
+        options.addArguments("--disable-infobars"); // Disabling infobars.
+        options.addArguments("--disable-extensions"); // Disabling extensions.
+        options.addArguments("--disable-gpu"); // Applicable to Windows OS only.
+        options.addArguments("--disable-dev-shm-usage"); // Overcome limited resource problems.
+        options.addArguments("--no-sandbox"); // Bypass OS security model.
+        options.addArguments("--disable-client-side-phishing-detection"); // Disables the client-side phishing detection feature.
+        options.addArguments("--disable-default-apps"); // Disables installation of default apps on first run. This is used during automated testing.
+        options.addArguments("--enable-automation"); // Enables indication that browser is controlled by automation.
+        if (headless){options.addArguments("--headless");} // Execution without GUI.
+        return new ChromeDriver(options);
     }
 }

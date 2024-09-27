@@ -11,12 +11,14 @@ import {
     ProcessHeaderComponent,
     ProcessHeaderService,
 } from '@shared';
+import { OrderStatusMap } from 'app/shared/models/order-status.model';
+import { CookieService } from 'ngx-cookie-service';
 import { ToastrService } from 'ngx-toastr';
 import { Table, TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { BehaviorSubject, Subject, finalize } from 'rxjs';
-import { DynamicGraphqlPathService } from '../../../../core/services/dynamic-graphql-path.service';
-import { SEARCH_ORDERS } from '../../../shipments/graphql/order/query-definitions/search-orders.graphql';
+import { Cookie } from '../../../../shared/types/cookie.enum';
 import { OrderReportDTO } from '../../models/search-order.model';
+import { OrderService } from '../../services/order.service';
 
 @Component({
     selector: 'app-search-orders',
@@ -34,6 +36,8 @@ import { OrderReportDTO } from '../../models/search-order.model';
     styleUrls: ['./search-orders.component.scss'],
 })
 export class SearchOrdersComponent {
+    protected readonly OrderStatusMap = OrderStatusMap;
+
     readonly hiddenColumns: Column[] = [
         {
             field: 'shippingCustomerCode',
@@ -57,7 +61,7 @@ export class SearchOrdersComponent {
     readonly columns: Column[] = [
         {
             field: 'orderNumber',
-            header: 'BioPro Order Number',
+            header: 'BioPro Order ID',
             sortable: false,
             default: true,
         },
@@ -78,6 +82,7 @@ export class SearchOrdersComponent {
         {
             field: 'orderStatus',
             header: 'Status',
+            templateRef: 'statusTpl',
             sortable: false,
             sortFieldName: 'status',
             default: true,
@@ -127,19 +132,18 @@ export class SearchOrdersComponent {
     );
 
     constructor(
-        public facilityService: FacilityService,
-        public graphqlService: DynamicGraphqlPathService,
-        public router: Router,
-        public toaster: ToastrService,
-        public header: ProcessHeaderService
+        public header: ProcessHeaderService,
+        private facilityService: FacilityService,
+        private orderService: OrderService,
+        private router: Router,
+        private toaster: ToastrService,
+        private cookieService: CookieService
     ) {}
 
     fetchOrders(event: TableLazyLoadEvent) {
-        const facilityCode = this.facilityService.getFacilityCode();
-        this.graphqlService
-            .executeQuery('/order/graphql', SEARCH_ORDERS, {
-                orderQueryCommandDTO: { locationCode: facilityCode },
-            })
+        const facilityCode = this.cookieService.get(Cookie.XFacility);
+        this.orderService
+            .searchOrders({ locationCode: facilityCode })
             .pipe(finalize(() => (this.loading = false)))
             .subscribe({
                 next: (response) => {

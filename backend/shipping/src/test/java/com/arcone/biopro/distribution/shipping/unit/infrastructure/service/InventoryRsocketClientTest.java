@@ -4,6 +4,7 @@ import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.Inv
 import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryValidationRequest;
 import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryValidationResponseDTO;
 import com.arcone.biopro.distribution.shipping.infrastructure.service.InventoryRsocketClient;
+import com.arcone.biopro.distribution.shipping.infrastructure.service.errors.InventoryServiceNotAvailableException;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.messaging.rsocket.RSocketRequester;
@@ -11,6 +12,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -19,6 +21,9 @@ class InventoryRsocketClientTest {
 
     @Test
     public void shouldGetInventoryDetails(){
+
+        var id = UUID.randomUUID();
+
         var rsocketRequesterMock = Mockito.mock(RSocketRequester.class);
 
         var requestSpec = Mockito.mock(RSocketRequester.RequestSpec.class);
@@ -27,10 +32,10 @@ class InventoryRsocketClientTest {
         Mockito.when(requestSpec.data(Mockito.any())).thenReturn(requestSpec) ;
         Mockito.when(requestSpec.retrieveMono(InventoryValidationResponseDTO.class)).thenReturn(Mono.just(InventoryValidationResponseDTO.builder()
                 .inventoryResponseDTO(InventoryResponseDTO.builder()
-                    .id(1L)
+                    .id(id)
                     .unitNumber("W036898786799")
                     .productCode("E0701V00")
-                    .locationCode("MDL_HUB_1")
+                    .locationCode("123456789")
                     .build())
             .build()));
 
@@ -41,10 +46,10 @@ class InventoryRsocketClientTest {
         StepVerifier.create(response)
             .consumeNextWith(detail -> {
                 assertNotNull(detail.inventoryResponseDTO());
-                assertEquals(Optional.of(1L), Optional.of(detail.inventoryResponseDTO().id()));
+                assertEquals(Optional.of(id), Optional.of(detail.inventoryResponseDTO().id()));
                 assertEquals(Optional.of("W036898786799"), Optional.of(detail.inventoryResponseDTO().unitNumber()));
                 assertEquals(Optional.of("E0701V00"), Optional.of(detail.inventoryResponseDTO().productCode()));
-                assertEquals(Optional.of("MDL_HUB_1"), Optional.of(detail.inventoryResponseDTO().locationCode()));
+                assertEquals(Optional.of("123456789"), Optional.of(detail.inventoryResponseDTO().locationCode()));
             })
             .verifyComplete();
 
@@ -65,7 +70,8 @@ class InventoryRsocketClientTest {
         var response = target.validateInventory(InventoryValidationRequest.builder().build());
 
         StepVerifier.create(response)
-            .expectError();
+            .expectError(InventoryServiceNotAvailableException.class)
+            .verify();
     }
 
 }

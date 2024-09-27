@@ -1,11 +1,20 @@
 import { Injectable } from '@angular/core';
 import { ApolloQueryResult } from '@apollo/client';
-import { Description } from '@shared';
-import { Apollo } from 'apollo-angular';
+import { MutationResult } from 'apollo-angular';
 import { Observable } from 'rxjs';
+import { DynamicGraphqlPathService } from '../../../core/services/dynamic-graphql-path.service';
 import { SEARCH_ORDERS } from '../../shipments/graphql/order/query-definitions/search-orders.graphql';
-import { GET_ORDER_BY_ID } from '../graphql/order-details.graphql';
-import { OrderDetailsDto } from '../models/order-details.dto';
+import {
+    GENERATE_PICK_LIST,
+    PickListDTO,
+} from '../graphql/mutation-definitions/generate-pick-list.graphql';
+import {
+    FIND_ORDER_SHIPMENT_BY_ORDER_ID,
+    GET_ORDER_BY_ID,
+    OrderShipmentDTO,
+} from '../graphql/query-definitions/order-details.graphql';
+import { Notification } from '../models/notification.dto';
+import { OrderDetailsDTO } from '../models/order-details.dto';
 import {
     OrderQueryCommandDTO,
     OrderReportDTO,
@@ -15,81 +24,62 @@ import {
     providedIn: 'root',
 })
 export class OrderService {
-    constructor(private apollo: Apollo) {}
+    readonly servicePath = '/order/graphql';
+
+    constructor(private dynamicGraphqlPathService: DynamicGraphqlPathService) {}
 
     public searchOrders(
-        commandQuery: OrderQueryCommandDTO,
-        refetch = false
+        orderQueryCommandDTO: OrderQueryCommandDTO
     ): Observable<ApolloQueryResult<{ searchOrders: OrderReportDTO[] }>> {
-        return this.apollo.query<{ searchOrders: OrderReportDTO[] }>({
-            query: SEARCH_ORDERS,
-            variables: {
-                orderQueryCommandDTO: commandQuery,
-            },
-            ...(refetch ? { fetchPolicy: 'network-only' } : {}),
-        });
+        return this.dynamicGraphqlPathService.executeQuery(
+            this.servicePath,
+            SEARCH_ORDERS,
+            { orderQueryCommandDTO }
+        );
     }
 
-    public getOrderById(
+    public getOrderById(orderId: number): Observable<
+        ApolloQueryResult<{
+            findOrderById: {
+                notifications: Notification[];
+                data: OrderDetailsDTO;
+            };
+        }>
+    > {
+        return this.dynamicGraphqlPathService.executeQuery(
+            this.servicePath,
+            GET_ORDER_BY_ID,
+            { orderId }
+        );
+    }
+
+    public generatePickList(
         orderId: number,
-        refetch = false
-    ): Observable<ApolloQueryResult<{ findOrderById: OrderDetailsDto }>> {
-        return this.apollo.query<{ findOrderById: OrderDetailsDto }>({
-            query: GET_ORDER_BY_ID,
-            variables: { orderId },
-            ...(refetch ? { fetchPolicy: 'network-only' } : {}),
-        });
+        skipInventoryUnavailable = false
+    ): Observable<
+        MutationResult<{
+            generatePickList: {
+                notifications: Notification[];
+                data: PickListDTO;
+            };
+        }>
+    > {
+        return this.dynamicGraphqlPathService.executeMutation(
+            this.servicePath,
+            GENERATE_PICK_LIST,
+            { orderId, skipInventoryUnavailable }
+        );
     }
 
-    public getOrderInfoDescriptions(orderInfo: OrderDetailsDto): Description[] {
-        return [
-            {
-                label: 'BioPro Order Number',
-                value: orderInfo?.orderNumber?.toString(),
-            },
-            {
-                label: 'External order ID',
-                value: orderInfo?.externalId?.toString(),
-            },
-            {
-                label: 'Priority',
-                value: orderInfo?.priority.toString(),
-            },
-            { label: 'Status', value: orderInfo?.status.toString() },
-        ];
-    }
-
-    public getShippingInfoDescriptions(
-        orderInfo: OrderDetailsDto
-    ): Description[] {
-        return [
-            {
-                label: 'Customer Code',
-                value: orderInfo?.shippingCustomerCode.toString(),
-            },
-            {
-                label: 'Customer Name',
-                value: orderInfo?.shippingCustomerName.toString(),
-            },
-            {
-                label: 'Shipping Method',
-                value: orderInfo?.shippingMethod.toString(),
-            },
-        ];
-    }
-
-    public getBillingInfoDescriptions(
-        orderInfo: OrderDetailsDto
-    ): Description[] {
-        return [
-            {
-                label: 'Billing Customer Code',
-                value: orderInfo?.billingCustomerCode.toString(),
-            },
-            {
-                label: 'Billing Customer Name',
-                value: orderInfo?.billingCustomerName.toString(),
-            },
-        ];
+    public findOrderShipmentByOrderId(orderId: number): Observable<
+        ApolloQueryResult<{
+            findOrderShipmentByOrderId: OrderShipmentDTO | null;
+        }>
+    > {
+        return this.dynamicGraphqlPathService.executeQuery(
+            this.servicePath,
+            FIND_ORDER_SHIPMENT_BY_ORDER_ID,
+            { orderId }
+        );
     }
 }

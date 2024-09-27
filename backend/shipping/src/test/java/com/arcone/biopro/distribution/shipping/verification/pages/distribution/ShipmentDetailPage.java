@@ -47,22 +47,22 @@ public class ShipmentDetailPage extends CommonPageFactory {
     @FindBy(id = "prodTableId")
     private WebElement orderCriteriaTable;
 
-    @FindBy(id = "informationDetails-Labeling Product Category")
+    @FindBy(xpath = "//*[@id='informationDetails-Labeling Product Category']")
     private WebElement productCategory;
 
-    @FindBy(id = "informationDetails-Shipping Method")
+    @FindBy(xpath = "//*[@id='informationDetails-Shipping Method']")
     private WebElement shippingMethodElement;
 
-    @FindBy(id = "informationDetails-Order Number")
+    @FindBy(xpath = "//*[@id='informationDetails-BioPro Order ID']")
     private WebElement orderNumber;
 
     @FindBy(id = "informationDetails-Priority")
     private WebElement orderPriority;
 
-    @FindBy(id = "informationDetails-Customer Id")
+    @FindBy(xpath = "//*[@id='informationDetails-Customer Code']")
     private WebElement customerId;
 
-    @FindBy(id = "informationDetails-Customer Name")
+    @FindBy(xpath = "//*[@id='informationDetails-Customer Name']")
     private WebElement customerName;
 
     @FindBy(id = "informationDetails-Status")
@@ -96,6 +96,17 @@ public class ShipmentDetailPage extends CommonPageFactory {
 
     @Value("${testing.browser}")
     private String browser;
+
+    //Static By Locators
+
+    private By orderCommentAccordion = By.id("orderInfoComment");
+    private By backButnLocator = By.id("backBtnId");
+
+    // Dynamic By Locators
+
+    private By orderComment(String comment) {
+        return By.xpath(String.format("//*[@id='orderInfoComment']//div[contains(text(),'%s')]", comment));
+    }
 
     private int getExpectedWindowsNumber() {
         return "chrome".equals(browser) ? 3 : 2;
@@ -173,6 +184,7 @@ public class ShipmentDetailPage extends CommonPageFactory {
         var blood = bloodType.split(",")[0].trim();
         log.info("Filling product with family {} and blood type {}.", family, blood);
         String locator = String.format("//td[normalize-space()='%s']/following-sibling::td[normalize-space()='%s']/following-sibling::td//button", family.toUpperCase(), blood.toUpperCase());
+        sharedActions.waitForVisible(By.xpath(locator));
         sharedActions.click(driver.findElement(By.xpath(locator)));
     }
 
@@ -192,4 +204,13 @@ public class ShipmentDetailPage extends CommonPageFactory {
         sharedActions.waitForNotVisible(pendingPercentage);
     }
 
+    public void checkOrderComment(String comment) throws InterruptedException {
+        log.info("Checking if the order comment is {}.", comment);
+        sharedActions.click(driver, orderCommentAccordion);
+        sharedActions.waitForVisible(orderComment(comment));
+    }
+
+    public void clickBackBtn() throws InterruptedException {
+        sharedActions.click(driver, backButnLocator);
+    }
 }

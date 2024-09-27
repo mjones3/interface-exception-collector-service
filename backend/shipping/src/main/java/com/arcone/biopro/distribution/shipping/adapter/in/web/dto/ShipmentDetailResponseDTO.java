@@ -16,7 +16,7 @@ public record ShipmentDetailResponseDTO(
     ShipmentPriority priority,
     ShipmentStatus status,
     ZonedDateTime createDate,
-    Long shippingCustomerCode,
+    String shippingCustomerCode,
     String locationCode,
     String deliveryType,
     String shippingMethod,
@@ -34,7 +34,7 @@ public record ShipmentDetailResponseDTO(
     String customerAddressAddressLine2,
     ZonedDateTime completeDate,
     String completedByEmployeeId,
-
+    String comments,
     List<ShipmentItemResponseDTO> items
 
 ) implements Serializable {

@@ -18,7 +18,8 @@
         "paths": {
             "@shared": ["app/shared/index.ts"],
             "@testing": ["test/index.ts"]
-        }
+        },
+        "resolveJsonModule": true
     },
     "angularCompilerOptions": {
         "enableI18nLegacyMessageIdFormat": false

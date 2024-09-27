@@ -2,5 +2,5 @@ package com.arcone.biopro.distribution.shipping.verification.support;
 
 
 public interface Topics {
-    String ORDER_FULFILLED = "order.fulfilled";
+    String ORDER_FULFILLED = "OrderFulfilled";
 }

@@ -12,3 +12,10 @@ spec:
     configMapKeyRef:
       key: schema.sql
       name: biopro-migration
+  policy:
+    diff:
+      skip:
+        drop_schema: true
+    lint:
+      destructive:
+        error: false

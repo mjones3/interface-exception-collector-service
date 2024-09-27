@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.order.infrastructure.config;
 
 import io.rsocket.frame.decoder.PayloadDecoder;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,20 +18,31 @@ import java.time.Duration;
 @Slf4j
 public class RSocketConfiguration {
 
-    @Value("${async-call.customer.tcp-address}")
-    private String rsocketServerHost;
 
-    @Value("${async-call.customer.tcp-port}")
-    private Integer rsocketServerPort;
-
-    @Value("${async-call.customer.max-attempts}")
-    private Integer maxAttempts;
-
-    @Value("${async-call.customer.duration}")
-    private Integer duration;
 
     @Bean
-    public RSocketRequester getRSocketRequester(RSocketStrategies rSocketStrategies){
+    @Qualifier("customer")
+    public RSocketRequester getCustomerRSocketRequester(RSocketStrategies rSocketStrategies , @Value("${async-call.customer.tcp-address}") String rsocketServerHost
+        , @Value("${async-call.customer.tcp-port}") Integer rsocketServerPort , @Value("${async-call.customer.max-attempts}") Integer maxAttempts
+        , @Value("${async-call.customer.duration}")Integer duration){
+
+        log.info("Configuring customer RSocket Client {} , {}", rsocketServerHost , rsocketServerPort );
+
+        return buildRSocketRequester(rSocketStrategies, rsocketServerHost, rsocketServerPort, maxAttempts, duration);
+    }
+
+    @Bean
+    @Qualifier("inventory")
+    public RSocketRequester getInventoryRSocketRequester(RSocketStrategies rSocketStrategies , @Value("${async-call.inventory.tcp-address}") String rsocketServerHost
+        , @Value("${async-call.inventory.tcp-port}") Integer rsocketServerPort , @Value("${async-call.inventory.max-attempts}") Integer maxAttempts
+        , @Value("${async-call.inventory.duration}")Integer duration){
+
+        log.info("Configuring Inventory RSocket Client {} , {}", rsocketServerHost , rsocketServerPort );
+        return buildRSocketRequester(rSocketStrategies, rsocketServerHost, rsocketServerPort, maxAttempts, duration);
+    }
+
+    private RSocketRequester buildRSocketRequester( RSocketStrategies rSocketStrategies , String rsocketServerHost
+        ,  Integer rsocketServerPort ,  Integer maxAttempts , Integer duration){
         return RSocketRequester.builder()
             .rsocketConnector(
                 connector -> connector

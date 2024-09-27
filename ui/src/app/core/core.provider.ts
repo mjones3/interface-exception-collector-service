@@ -13,58 +13,67 @@ import {
 import { ErrorStateMatcher } from '@angular/material/core';
 import { InMemoryCache } from '@apollo/client/cache';
 import { onError } from '@apollo/client/link/error';
+import { Environment } from '@shared';
 import { APOLLO_NAMED_OPTIONS, Apollo, NamedOptions } from 'apollo-angular';
 import { HttpLink } from 'apollo-angular/http';
 import { DefaultErrorStateMatcher } from 'app/shared/forms/default.error-match';
-import { Environment } from 'app/shared/models';
 import { AuthService, EnvironmentConfigService } from 'app/shared/services';
 import { ToastrImplService } from 'app/shared/services/toastr-impl.service';
 import { KeycloakConfig } from 'keycloak-js';
 import { ToastrService } from 'ngx-toastr';
 import { switchMap } from 'rxjs';
-import { NavigationMockApi } from '../mock-api/common/navigation/api';
-import { ProcessMockApi } from '../mock-api/common/process/api';
 import { authInterceptor } from './interceptors/auth.interceptor';
 import { loaderInterceptor } from './interceptors/loader.interceptor';
 import { timezoneInterceptor } from './interceptors/time-zone.interceptor';
 
-const apolloErrorHandler = onError(({ graphQLErrors, networkError }) => {
-    if (graphQLErrors)
-        graphQLErrors.map(({ message, locations, path, extensions }) =>
-            console.error(
-                `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}, Extensions: ${extensions}`
-            )
-        );
-
-    if (networkError) console.error(`[Network error]: ${networkError}`);
-});
-
 const provideApollo = (): Provider[] => [
     {
         provide: APOLLO_NAMED_OPTIONS,
-        useFactory: (httpLink: HttpLink): NamedOptions => {
-            return {
-                default: {
-                    link: httpLink
-                        .create({ uri: '/graphql' })
-                        .concat(apolloErrorHandler),
-                    cache: new InMemoryCache({ addTypename: false }),
-                },
-                order: {
-                    link: httpLink
-                        .create({ uri: '/order/graphql' })
-                        .concat(apolloErrorHandler),
-                    cache: new InMemoryCache({ addTypename: false }),
-                },
-                shipping: {
-                    link: httpLink
-                        .create({ uri: '/shipping/graphql' })
-                        .concat(apolloErrorHandler),
-                    cache: new InMemoryCache({ addTypename: false }),
-                },
-            };
-        },
-        deps: [HttpLink],
+        useFactory: (
+            httpLink: HttpLink,
+            environmentConfigService: EnvironmentConfigService
+        ): NamedOptions =>
+            [
+                '/graphql', // Default GraphQL path
+                '/order/graphql',
+                '/shipping/graphql',
+                '/discard/graphql',
+            ].reduce(
+                (instances: NamedOptions, path: string) => ({
+                    ...instances,
+                    [path]: {
+                        link: onError(({ graphQLErrors, networkError }) => {
+                            if (graphQLErrors) {
+                                graphQLErrors.map(
+                                    ({
+                                        message,
+                                        locations,
+                                        path,
+                                        extensions,
+                                    }) =>
+                                        console.error(
+                                            `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}, Extensions: ${extensions}`
+                                        )
+                                );
+                            }
+                            if (networkError) {
+                                console.error(
+                                    `[Network error]: ${networkError}`
+                                );
+                            }
+                        }).concat(
+                            httpLink.create({
+                                uri:
+                                    environmentConfigService.env.serverApiURL +
+                                    path,
+                            })
+                        ),
+                        cache: new InMemoryCache({ addTypename: false }),
+                    },
+                }),
+                {}
+            ),
+        deps: [HttpLink, EnvironmentConfigService],
     },
     Apollo,
 ];
@@ -83,22 +92,17 @@ export const provideCore = (): (Provider | EnvironmentProviders)[] => {
     return [
         {
             provide: APP_INITIALIZER,
-            useFactory: () => {
-                const authService = inject(AuthService);
-                const processMockApi = inject(ProcessMockApi);
-                const navigationMockApi = inject(NavigationMockApi);
-                const config = inject(EnvironmentConfigService);
-                const http = inject(HttpClient);
-
+            useFactory: (
+                http: HttpClient,
+                authService: AuthService,
+                environmentConfigService: EnvironmentConfigService
+            ) => {
                 return () =>
-                    http.get('/settings.json').pipe(
-                        switchMap((settings) => {
-                            const environment = settings as Environment;
-                            config.env = { ...environment };
-                            processMockApi.registerHandlers(environment);
-                            navigationMockApi.registerHandlers(environment);
+                    http.get<Environment>('/settings.json').pipe(
+                        switchMap((settings: Environment) => {
+                            environmentConfigService.env = { ...settings };
                             return authService.init({
-                                config: config.env as KeycloakConfig,
+                                config: environmentConfigService.env as KeycloakConfig,
                                 initOptions: {
                                     onLoad: 'check-sso',
                                     silentCheckSsoRedirectUri:
@@ -110,7 +114,7 @@ export const provideCore = (): (Provider | EnvironmentProviders)[] => {
                         })
                     );
             },
-            deps: [AuthService, EnvironmentConfigService, HttpClient],
+            deps: [HttpClient, AuthService, EnvironmentConfigService],
             multi: true,
         },
         {
