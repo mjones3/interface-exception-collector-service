@@ -16,7 +16,7 @@ public class KafkaHelper {
 
     private final ReactiveKafkaProducerTemplate<String, OrderFulfilledEventType> template;
 
-    public KafkaHelper(@Qualifier("producer-template") ReactiveKafkaProducerTemplate<String, OrderFulfilledEventType> template) {
+    public KafkaHelper(ReactiveKafkaProducerTemplate<String, OrderFulfilledEventType> template) {
         this.template = template;
     }
 
