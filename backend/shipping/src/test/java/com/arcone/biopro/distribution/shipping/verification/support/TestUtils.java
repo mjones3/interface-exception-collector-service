@@ -44,36 +44,6 @@ public class TestUtils {
     }
 
     /**
-     * This method is used to send a Kafka message.
-     * It first creates a JSON string that represents the Kafka message using the getStringBuilder method.
-     * The message includes the topic, partitionId, compression type, key encoding, value encoding, and the data.
-     * The data is Base64 encoded before being included in the JSON.
-     * It then logs the body of the message, the topic, and the data.
-     * Finally, it sends the message using a WebClient.
-     *
-     * @param resource The data to be sent in the message. This data will be Base64 encoded.
-     * @param topic    The topic to which the message will be sent.
-     */
-    public void kafkaSender(String resource, String topic) {
-        StringBuilder dataBuilder = getStringBuilder(topic, resource);
-
-        log.info("BODY: {}", dataBuilder);
-        log.info("TOPIC: {}", topic);
-        log.info("DATA: {}", resource);
-
-        WebClient
-            .builder()
-            .baseUrl(redpandaUrl)
-            .build()
-            .post()
-            .contentType(MediaType.APPLICATION_JSON)
-            .bodyValue(dataBuilder.toString())
-            .retrieve()
-            .bodyToMono(String.class)
-            .block();
-    }
-
-    /**
      * This method is used to create a JSON string that represents a Kafka message.
      * The message includes the topic, partitionId, compression type, key encoding, value encoding, and the data.
      * The data is Base64 encoded before being included in the JSON.

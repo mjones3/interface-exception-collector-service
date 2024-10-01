@@ -1,7 +1,10 @@
-package com.arcone.biopro.distribution.order.verification.support;
+package com.arcone.biopro.distribution.shipping.verification.support;
 
+import com.arcone.biopro.distribution.shipping.verification.support.types.OrderFulfilledEventType;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;

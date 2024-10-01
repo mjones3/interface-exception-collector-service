@@ -1,5 +1,6 @@
-package com.arcone.biopro.distribution.order.verification.support;
+package com.arcone.biopro.distribution.shipping.verification.support;
 
+import com.arcone.biopro.distribution.shipping.verification.support.types.OrderFulfilledEventType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.opentelemetry.instrumentation.kafkaclients.v2_6.TracingProducerInterceptor;
