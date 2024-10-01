@@ -22,11 +22,11 @@ import reactor.kafka.sender.SenderOptions;
 @Slf4j
 public class KafkaTestConfiguration {
     @Bean
-    ReactiveKafkaProducerTemplate<String, OrderFulfilledEventType> producerTemplateOrder(KafkaProperties kafkaProperties, ObjectMapper objectMapper , MeterRegistry meterRegistry) {
+    ReactiveKafkaProducerTemplate<String, Object> producerTemplateOrder(KafkaProperties kafkaProperties, ObjectMapper objectMapper , MeterRegistry meterRegistry) {
         var props = kafkaProperties.buildProducerProperties(null);
         props.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, TracingProducerInterceptor.class.getName());
 
-        return new ReactiveKafkaProducerTemplate<>(SenderOptions.<String, OrderFulfilledEventType>create(props).withValueSerializer(new JsonSerializer<>(objectMapper)).maxInFlight(1)
+        return new ReactiveKafkaProducerTemplate<>(SenderOptions.<String, Object>create(props).withValueSerializer(new JsonSerializer<>(objectMapper)).maxInFlight(1)
             .producerListener(new MicrometerProducerListener(meterRegistry))
         );
     }

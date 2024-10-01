@@ -14,13 +14,13 @@ import reactor.kafka.sender.SenderResult;
 @Slf4j
 public class KafkaHelper {
 
-    private final ReactiveKafkaProducerTemplate<String, OrderFulfilledEventType> template;
+    private final ReactiveKafkaProducerTemplate<String, Object> template;
 
-    public KafkaHelper(ReactiveKafkaProducerTemplate<String, OrderFulfilledEventType> template) {
+    public KafkaHelper(ReactiveKafkaProducerTemplate<String, Object> template) {
         this.template = template;
     }
 
-    public Mono<SenderResult<Void>> sendEvent(String key, OrderFulfilledEventType message, String topic) {
+    public Mono<SenderResult<Void>> sendEvent(String key, Object message, String topic) {
         log.info("Sending Kafka Message {} {}", topic, message);
         var producerRecord = new ProducerRecord<>(topic, key, message);
         return template.send(producerRecord);
