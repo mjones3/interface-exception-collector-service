@@ -2,8 +2,8 @@ Feature: Print Packing List
     As a DT, I want to be able to print the packing list, so that I can know the products that are placed in the box.
 
     Background:
-        Given I cleaned up from the database the packed item that used the unit number "W036898786811,W036810946400".
-        And I cleaned up from the database, all shipments with order number "499, 421".
+        Given I cleaned up from the database the packed item that used the unit number "W036898786811,W036810946400,W812530106085".
+        And I cleaned up from the database, all shipments with order number "499,421,500".
 
     Rule: I should be able to print the packing slip in the PDF format for the shipment when it is completed.
     Rule: I should be able to see the product details that are placed in the box when the shipment is completed.
@@ -19,8 +19,9 @@ Feature: Print Packing List
             Then I am able to see the Packing Slip content.
 
             Examples:
-                | Order Number | Location Code | Customer ID | Customer Name        | Department            | Address Line 1 | Address Line 2 | Unit Number   | Product Code | Product Family      | Blood Type | Expiration | Quantity |
-                | 499          | 123456789     | 1           | Random Hospital Inc. | Testing Blood Banking | Street N1      | Suite N2       | W036898786811 | E4701V00     | PLASMA_TRANSFUSABLE | AP         | 04-09-2025 | 1        |
+                | Order Number | Location Code | Customer ID | Customer Name        | Department            | Address Line 1 | Address Line 2 | Unit Number   | Product Code | Product Family               | Blood Type | Expiration | Quantity |
+                | 499          | 123456789     | 1           | Random Hospital Inc. | Testing Blood Banking | Street N1      | Suite N2       | W036898786811 | E4701V00     | PLASMA_TRANSFUSABLE          | AP         | 04-09-2025 | 1        |
+                | 500          | 123456789     | 1           | Random Hospital Inc. | Testing Blood Banking | Street N1      | Suite N2       | W812530106085 | E0685V00     | RED_BLOOD_CELLS_LEUKOREDUCED | ABP        | 04-09-2025 | 1        |
 
     Rule: I should not be able to print the packing slip in the PDF format for the shipment when it is open.
         @ui
