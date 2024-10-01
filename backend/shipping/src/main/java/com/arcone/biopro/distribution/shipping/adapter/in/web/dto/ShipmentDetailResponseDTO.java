@@ -36,7 +36,7 @@ public record ShipmentDetailResponseDTO(
     ZonedDateTime completeDate,
     String completedByEmployeeId,
     String comments,
-    List<ShipmentItemResponseDTO> items
-
+    List<ShipmentItemResponseDTO> items,
+    boolean checkDigitActive
 ) implements Serializable {
 }

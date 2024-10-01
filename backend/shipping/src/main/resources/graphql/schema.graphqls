@@ -1,9 +1,11 @@
 scalar DateTime
-@specifiedBy(url: "https://scalars.graphql.org/andimarek/date-time.html")
 scalar Date
 scalar JSON
 
 type Query {
+    # Searches over all Lookup records by a grouping type criteria
+    findAllLookupsByType(type: String!): [Lookup]!
+
     generatePackingListLabel(shipmentId: ID!):PackingListLabelDTO!
     generateShippingLabel(shipmentId: ID!):ShippingLabelDTO!
     listShipments:[ShipmentResponseDTO]
@@ -11,9 +13,32 @@ type Query {
 }
 
 type Mutation {
-
+    insertLookup(lookup: LookupInput!): Lookup!
+    updateLookup(lookup: LookupInput!): Lookup!
+    deleteLookup(lookup: LookupInput!): Lookup!
     packItem(packItemRequest:PackItemRequest!):RuleResponseDTO!
     completeShipment(completeShipmentRequest:CompleteShipmentRequest!):RuleResponseDTO!
+}
+
+input LookupIdInput {
+    type: String!
+    optionValue: String!
+}
+
+input LookupInput {
+    type: String!
+    optionValue: String!
+    descriptionKey: String!
+    orderNumber: Int!
+    active: Boolean!
+}
+
+type Lookup {
+    type: String!
+    optionValue: String!
+    descriptionKey: String!
+    orderNumber: Int!
+    active: Boolean!
 }
 
 type PackingListLabelDTO {
@@ -75,9 +100,9 @@ type ShipmentResponseDTO {
 type ShipmentDetailResponseDTO {
     id: ID!
     orderNumber: Int
-    priority:ShipmentPriority
-    status:ShipmentStatus
-    createDate:DateTime
+    priority: ShipmentPriority
+    status: ShipmentStatus
+    createDate: DateTime
     shippingCustomerCode: String
     locationCode: String
     deliveryType: String
@@ -96,8 +121,9 @@ type ShipmentDetailResponseDTO {
     customerAddressAddressLine2: String
     completeDate: DateTime
     completedByEmployeeId: String
-    comments:String
+    comments: String
     items: [ShipmentItemResponseDTO]
+    checkDigitActive: Boolean!
 }
 
 type ShipmentItemResponseDTO {
