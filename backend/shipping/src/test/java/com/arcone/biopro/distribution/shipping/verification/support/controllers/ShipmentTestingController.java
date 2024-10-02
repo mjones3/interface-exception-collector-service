@@ -31,6 +31,9 @@ public class ShipmentTestingController {
     protected ApiHelper apiHelper;
 
     @Autowired
+    protected KafkaHelper kafkaHelper;
+
+    @Autowired
     ObjectMapper objectMapper;
 
     @Value("${kafka.waiting.time}")
@@ -47,8 +50,7 @@ public class ShipmentTestingController {
             .eventType("OrderFulfilled")
             .payload(shipmentDetail)
             .build();
-
-        utils.kafkaSender(objectMapper.writeValueAsString(fulfilledMessage), Topics.ORDER_FULFILLED);
+        kafkaHelper.sendEvent(fulfilledMessage.eventId().toString(), fulfilledMessage, Topics.ORDER_FULFILLED).block();
         // Add sleep to wait for the message to be consumed.
         Thread.sleep(kafkaWaitingTime);
 
@@ -61,7 +63,7 @@ public class ShipmentTestingController {
         var resource = utils.getResource("order-fulfilled.json")
             .replace("{order.number}", String.valueOf(orderId));
 
-        utils.kafkaSender(resource, Topics.ORDER_FULFILLED);
+        kafkaHelper.sendEvent(UUID.randomUUID().toString(), objectMapper.readValue(resource, OrderFulfilledEventType.class), Topics.ORDER_FULFILLED).block();
         // Add sleep to wait for the message to be consumed.
         Thread.sleep(3000);
 

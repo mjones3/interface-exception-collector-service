@@ -12,6 +12,7 @@ import com.arcone.biopro.distribution.order.verification.support.DatabaseQueries
 import com.arcone.biopro.distribution.order.verification.support.DatabaseService;
 import com.arcone.biopro.distribution.order.verification.support.KafkaHelper;
 import com.arcone.biopro.distribution.order.verification.support.TestUtils;
+import com.arcone.biopro.distribution.order.verification.support.Topics;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
@@ -89,7 +90,7 @@ public class OrderSteps {
         log.info("JSON PAYLOAD :{}", partnerOrder);
         Assert.assertNotNull(this.externalId);
         Assert.assertNotNull(partnerOrder);
-        var event = kafkaHelper.sendPartnerOrderReceivedEvent(eventPayload.payload().id().toString(), eventPayload).block();
+        var event = kafkaHelper.sendEvent(eventPayload.payload().id().toString(), eventPayload, Topics.ORDER_RECEIVED).block();
         Assert.assertNotNull(event);
     }
 
@@ -410,7 +411,7 @@ public class OrderSteps {
         orderShipment = new JSONObject(jsonContent);
         log.info("JSON PAYLOAD :{}", orderShipment);
         Assert.assertNotNull(orderShipment);
-        var event = kafkaHelper.sendShipmentCreatedEvent(eventPayload.eventId().toString(), eventPayload).block();
+        var event = kafkaHelper.sendEvent(eventPayload.eventId().toString(), eventPayload, Topics.SHIPMENT_CREATED).block();
         Assert.assertNotNull(event);
     }
 
@@ -418,7 +419,7 @@ public class OrderSteps {
         orderShipment = new JSONObject(jsonContent);
         log.info("JSON PAYLOAD :{}", orderShipment);
         Assert.assertNotNull(orderShipment);
-        var event = kafkaHelper.sendShipmentCompletedEvent(eventPayload.eventId().toString(), eventPayload).block();
+        var event = kafkaHelper.sendEvent(eventPayload.eventId().toString(), eventPayload, Topics.SHIPMENT_COMPLETED).block();
         Assert.assertNotNull(event);
     }
 
