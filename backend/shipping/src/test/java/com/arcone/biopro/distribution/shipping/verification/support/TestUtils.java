@@ -1,15 +1,12 @@
 package com.arcone.biopro.distribution.shipping.verification.support;
 
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.Cookie;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
-
 import org.apache.commons.io.FileUtils;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.jetbrains.annotations.NotNull;
+import org.openqa.selenium.Cookie;
+import org.openqa.selenium.WebDriver;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.net.URL;

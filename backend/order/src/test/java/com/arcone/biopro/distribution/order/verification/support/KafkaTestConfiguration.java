@@ -29,5 +29,4 @@ public class KafkaTestConfiguration {
             .producerListener(new MicrometerProducerListener(meterRegistry))
         );
     }
-
 }
