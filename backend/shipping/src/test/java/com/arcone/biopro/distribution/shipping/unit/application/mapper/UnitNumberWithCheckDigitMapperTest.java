@@ -3,12 +3,11 @@ package com.arcone.biopro.distribution.shipping.unit.application.mapper;
 import com.arcone.biopro.distribution.shipping.adapter.in.web.dto.UnitNumberWithCheckDigitDTO;
 import com.arcone.biopro.distribution.shipping.application.mapper.UnitNumberWithCheckDigitMapper;
 import com.arcone.biopro.distribution.shipping.domain.model.UnitNumberWithCheckDigit;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringJUnitConfig(classes = { UnitNumberWithCheckDigitMapper.class })
 class UnitNumberWithCheckDigitMapperTest {
@@ -19,33 +18,25 @@ class UnitNumberWithCheckDigitMapperTest {
     @Autowired
     UnitNumberWithCheckDigitMapper unitNumberWithCheckDigitMapper;
 
-    @ParameterizedTest
-    @ValueSource(strings = { SAMPLE_UNIT_NUMBER_CHECK_DIGIT, "A", "Z" })
-    void testMapToDTO(String inputCheckDigit) {
+    @Test
+    void shouldMapToDTO() {
         // Setup
-        var unitNumberWithCheckDigit = new UnitNumberWithCheckDigit(SAMPLE_UNIT_NUMBER, inputCheckDigit);
+        var unitNumberWithCheckDigit = new UnitNumberWithCheckDigit(SAMPLE_UNIT_NUMBER, SAMPLE_UNIT_NUMBER_CHECK_DIGIT);
 
         // Execute
         var result = unitNumberWithCheckDigitMapper.mapToDTO(unitNumberWithCheckDigit);
 
         // Verify
         assertEquals(unitNumberWithCheckDigit.getUnitNumber(), result.unitNumber());
-        assertEquals(unitNumberWithCheckDigit.getCheckDigit(), result.checkDigit());
         assertEquals(unitNumberWithCheckDigit.getVerifiedCheckDigit(), result.verifiedCheckDigit());
-        if (result.isValid()) {
-            assertNull(result.message());
-        } else {
-            assertNotNull(result.message());
-        }
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = { SAMPLE_UNIT_NUMBER_CHECK_DIGIT, "A", "Z" })
-    void testMapToDomain(String inputCheckDigit) {
+    @Test
+    void shouldMapToDomain() {
         // Setup
         var unitNumberWithCheckDigitDTO = UnitNumberWithCheckDigitDTO.builder()
             .unitNumber(SAMPLE_UNIT_NUMBER)
-            .checkDigit(inputCheckDigit)
+            .verifiedCheckDigit(SAMPLE_UNIT_NUMBER_CHECK_DIGIT)
             .build();
 
         // Execute
@@ -53,14 +44,7 @@ class UnitNumberWithCheckDigitMapperTest {
 
         // Verify
         assertEquals(unitNumberWithCheckDigitDTO.unitNumber(), result.getUnitNumber());
-        assertEquals(unitNumberWithCheckDigitDTO.checkDigit(), result.getCheckDigit());
-        if (SAMPLE_UNIT_NUMBER_CHECK_DIGIT.equals(inputCheckDigit)) {
-            assertTrue(result.isValid());
-            assertEquals(unitNumberWithCheckDigitDTO.checkDigit(), result.getVerifiedCheckDigit());
-        } else {
-            assertFalse(result.isValid());
-            assertNotEquals(unitNumberWithCheckDigitDTO.checkDigit(), result.getVerifiedCheckDigit());
-        }
+        assertEquals(unitNumberWithCheckDigitDTO.verifiedCheckDigit(), result.getVerifiedCheckDigit());
     }
 
 }

@@ -9,7 +9,7 @@ type Query {
     getShipmentDetailsById(shipmentId: ID!):ShipmentDetailResponseDTO!
 
     # Unit Number with Check Digit Verification
-    verifyCheckDigit(unitNumber: String!, checkDigit: String!): UnitNumberWithCheckDigitDTO!
+    verifyCheckDigit(unitNumber: String!, checkDigit: String!): RuleResponseDTO!
 }
 
 type Mutation {
@@ -168,14 +168,6 @@ type NotificationDTO {
     action:String
     reason:String
     message:String
-}
-
-type UnitNumberWithCheckDigitDTO {
-    unitNumber: String!
-    checkDigit: String!
-    verifiedCheckDigit: String!
-    valid: Boolean!
-    message: String
 }
 
 enum ShipmentPriority {

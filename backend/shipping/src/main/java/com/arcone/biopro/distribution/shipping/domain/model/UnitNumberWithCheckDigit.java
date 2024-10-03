@@ -16,54 +16,41 @@ public class UnitNumberWithCheckDigit implements Validatable {
     private static final String ALLOWED_CHARACTERS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ*";
 
     private final String unitNumber;
-    private final String checkDigit;
     private final String verifiedCheckDigit;
 
     public UnitNumberWithCheckDigit(String unitNumber, String checkDigit) {
         this.unitNumber = unitNumber;
-        this.checkDigit = checkDigit;
-        this.verifiedCheckDigit = this.generateVerifiedCheckDigit(unitNumber);
         this.checkValid();
+
+        this.verifiedCheckDigit = this.generateVerifiedCheckDigit(unitNumber, checkDigit);
     }
 
-    private String generateVerifiedCheckDigit(String unitNumber) {
-        if (unitNumber == null) {
-            return null;
+    private String generateVerifiedCheckDigit(String unitNumber, String checkDigit) {
+        var sum = 0;
+        for (int i = 0; i < unitNumber.length(); i++) {
+            var val = ALLOWED_CHARACTERS.indexOf(unitNumber.charAt(i));
+            sum = ((sum + val) * 2) % 37;
         }
 
-        try {
-            var sum = 0;
-            for (int i = 0; i < unitNumber.length(); i++) {
-                var val = ALLOWED_CHARACTERS.indexOf(unitNumber.charAt(i));
-                sum = ((sum + val) * 2) % 37;
-            }
+        var calculatedChecksum = (38 - (sum % 37)) % 37; // Modulo 37 calculation
+        var verifiedCheckDigit = String.valueOf(ALLOWED_CHARACTERS.charAt(calculatedChecksum));
 
-            var calculatedChecksum = (38 - (sum % 37)) % 37; // Modulo 37 calculation
-            return String.valueOf(ALLOWED_CHARACTERS.charAt(calculatedChecksum));
-        } catch (Exception e) {
-            log.warn("Failed to generate verified check digit", e);
-            return null;
+        if (!this.isValid(checkDigit, verifiedCheckDigit)) {
+            throw new IllegalArgumentException("Check Digit is invalid");
         }
+        return verifiedCheckDigit;
     }
 
-    public boolean isValid() {
-        return Objects.nonNull(this.checkDigit)
-            && Objects.nonNull(this.verifiedCheckDigit)
+    public boolean isValid(String checkDigit, String verifiedCheckDigit) {
+        return Objects.nonNull(checkDigit)
+            && Objects.nonNull(verifiedCheckDigit)
             && Objects.equals(checkDigit, verifiedCheckDigit);
     }
 
     @Override
     public void checkValid() {
-        if (unitNumber == null) {
-            throw new IllegalArgumentException("unitNumber cannot be null");
-        }
-
-        if (this.checkDigit == null
-            || this.checkDigit.isBlank()
-            || this.verifiedCheckDigit == null
-            || this.verifiedCheckDigit.isBlank()
-        ) {
-            throw new IllegalArgumentException("checkDigit and verifiedCheckDigit cannot be null or blank");
+        if (this.unitNumber == null || this.unitNumber.isBlank()) {
+            throw new IllegalArgumentException("unitNumber cannot be null or blank");
         }
     }
 
