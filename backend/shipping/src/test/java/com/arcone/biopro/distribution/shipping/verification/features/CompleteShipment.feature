@@ -13,7 +13,7 @@ Feature: Complete Shipment Feature
         @ui
         Scenario Outline: Complete Shipment with suitable products.
             Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>".
-            And The check digit configuration is set to "false".
+            And The check digit configuration is "disabled".
             And I have received a shipment fulfillment request with above details.
             And I am on the Shipment Fulfillment Details page for order <Order Number>.
             And I choose to fill product of family "<Family>" and blood type "<Type>".
@@ -34,18 +34,18 @@ Feature: Complete Shipment Feature
         @ui
         Scenario Outline: Fill product with check digit "<Check Digit Config>"
             Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>".
-            And The check digit configuration is set to "<Check Digit Config>".
+            And The check digit configuration is "<Check Digit Config>".
             And I have received a shipment fulfillment request with above details.
             And I am on the Shipment Fulfillment Details page for order <Order Number>.
             And I choose to fill product of family "<Family>" and blood type "<Type>".
             When I type the unit "<UN>", digit "<Digit>", and product code "<Code>".
-            Then I can see an error message "<Message>".
+            Then I can "<Message Type>" message "<Message Content>".
             And The visual inspection field is "<Inspection>".
 
             Examples:
-                | Order Number | Customer ID | Customer Name    | Quantity | BloodType | ProductFamily                                                                          | Message              | Family                       | Type | UN               | Code       | Check Digit Config | Digit | Inspection |
-                | 110          | 1           | Testing Customer | 10,5,8   | A,B,O     | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE                            |                      | PLASMA TRANSFUSABLE          | A    | W036898786802    | E7648V00   | true               | R     | Enabled    |
-                | 111          | 1           | Testing Customer | 10,5,8   | ABP,BP,OP | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED | Invalid check digit  | RED BLOOD CELLS LEUKOREDUCED | ABP  | W812530106085    | E0685V00   | true               | F     | Disable    |
-                | 112          | 1           | Testing Customer | 10,5,8   | ABP,BP,OP | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED | Check digit required | RED BLOOD CELLS LEUKOREDUCED | ABP  | W812530106085    | E0685V00   | true               |       | Disabled   |
-                | 113          | 1           | Testing Customer | 10,5,8   | ABP,BP,OP | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED |                      | RED BLOOD CELLS LEUKOREDUCED | ABP  | =W81253010608500 | =<E0685V00 | true               |       | Disabled   |
-                | 113          | 1           | Testing Customer | 10,5,8   | ABP,BP,OP | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED |                      | RED BLOOD CELLS LEUKOREDUCED | ABP  | W812530106085    | E0685V00   | false              |       | Enabled   |
+                | Order Number | Customer ID | Customer Name    | Quantity | BloodType | ProductFamily                                                                          | Message Content         | Message Type         | Family                       | Type | UN               | Code       | Check Digit Config | Digit | Inspection |
+                | 110          | 1           | Testing Customer | 10,5,8   | A,B,O     | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE                            |                         | not see any error    | PLASMA TRANSFUSABLE          | A    | W036898786802    | E7648V00   | enabled            | R     | enabled    |
+                | 111          | 1           | Testing Customer | 10,5,8   | ABP,BP,OP | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED | Check Digit is invalid  | see an error message | RED BLOOD CELLS LEUKOREDUCED | ABP  | W812530106085    | E0685V00   | enabled            | F     | disabled   |
+                | 112          | 1           | Testing Customer | 10,5,8   | ABP,BP,OP | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED | Check Digit is Required | see an error message | RED BLOOD CELLS LEUKOREDUCED | ABP  | W812530106085    | E0685V00   | enabled            |       | disabled   |
+                | 113          | 1           | Testing Customer | 10,5,8   | ABP,BP,OP | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED |                         | not see any error    | RED BLOOD CELLS LEUKOREDUCED | ABP  | =W81253010608500 | =<E0685V00 | enabled            |       | disabled   |
+                | 113          | 1           | Testing Customer | 10,5,8   | ABP,BP,OP | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED |                         | not see any error    | RED BLOOD CELLS LEUKOREDUCED | ABP  | W812530106085    | E0685V00   | disabled           |       | enabled    |

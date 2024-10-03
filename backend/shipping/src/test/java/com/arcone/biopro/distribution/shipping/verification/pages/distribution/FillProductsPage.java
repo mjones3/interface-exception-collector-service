@@ -2,7 +2,9 @@ package com.arcone.biopro.distribution.shipping.verification.pages.distribution;
 
 import com.arcone.biopro.distribution.shipping.verification.pages.CommonPageFactory;
 import com.arcone.biopro.distribution.shipping.verification.pages.SharedActions;
+import com.arcone.biopro.distribution.shipping.verification.support.DatabaseService;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -22,6 +24,12 @@ public class FillProductsPage extends CommonPageFactory {
     @FindBy(id = "inUnitNumber")
     private WebElement unitNumberInput;
 
+    @FindBy(id = "inCheckDigit")
+    private WebElement checkDigitInput;
+
+    @FindBy(xpath = "//*[@id=\"inCheckDigit\"]/../../../..//mat-error")
+    private WebElement checkDigitError;
+
     @FindBy(id = "productCodeId")
     private WebElement productCodeInput;
 
@@ -33,6 +41,9 @@ public class FillProductsPage extends CommonPageFactory {
 
     @FindBy(id = "backBtn")
     private WebElement backButton;
+
+    @Autowired
+    private DatabaseService databaseService;
 
     @Override
     public boolean isLoaded() {
@@ -54,10 +65,31 @@ public class FillProductsPage extends CommonPageFactory {
         sharedActions.waitLoadingAnimation();
     }
 
+    public void addUnitWithDigitAndProductCode(String unit, String checkDigit, String productCode) throws InterruptedException {
+        log.info("Adding unit {} with digit {} and product code {}.", unit, checkDigit, productCode);
+        sharedActions.sendKeys(unitNumberInput, unit);
+        sharedActions.sendKeys(checkDigitInput, checkDigit);
+        sharedActions.sendKeys(productCodeInput, productCode);
+        sharedActions.waitLoadingAnimation();
+    }
+
     public void defineVisualInspection(String visualInspection) {
         log.info("Defining visual inspection as {}.", visualInspection);
         WebElement element = "satisfactory".equalsIgnoreCase(visualInspection) ? visualInspectionSatisfactory : visualInspectionUnsatisfactory;
         sharedActions.click(element);
+    }
+
+    public void assertVisualInspectionIs(String enabledDisabled) {
+        log.info("Asserting visual inspection is {}.", enabledDisabled);
+        enabledDisabled = enabledDisabled.toLowerCase();
+        Assert.assertTrue("enabled".equalsIgnoreCase(enabledDisabled) || "disabled".equalsIgnoreCase(enabledDisabled));
+        if ("enabled".equalsIgnoreCase(enabledDisabled)) {
+            Assert.assertTrue(visualInspectionSatisfactory.isEnabled());
+            Assert.assertTrue(visualInspectionUnsatisfactory.isEnabled());
+        } else {
+            Assert.assertFalse(visualInspectionSatisfactory.isEnabled());
+            Assert.assertFalse(visualInspectionUnsatisfactory.isEnabled());
+        }
     }
 
     public void ensureProductIsAdded(String unit, String productCode) {
@@ -83,6 +115,16 @@ public class FillProductsPage extends CommonPageFactory {
     public void clickBackButton() {
         log.info("Clicking back button.");
         sharedActions.click(backButton);
+    }
+
+    public void assertCheckDigitErrorIs(String expectedError) {
+        log.info("Asserting check digit error is {}.", expectedError);
+        if (expectedError.isEmpty()) {
+            sharedActions.waitForNotVisible(checkDigitError);
+        } else {
+            sharedActions.waitForVisible(checkDigitError);
+            Assert.assertEquals(expectedError.toLowerCase(), checkDigitError.getText().toLowerCase());
+        }
     }
 
 }

@@ -315,5 +315,29 @@ public class ShipmentFulfillmentSteps {
         this.goToDetailsPage(customOrderNumber);
     }
 
+    @When("I type the unit {string}, digit {string}, and product code {string}.")
+    public void iTypeTheUnitDigitAndProductCode(String unitNumber, String checkDigit, String productCode) throws InterruptedException {
+        boolean checkDigitEnabled = shipmentTestingController.getCheckDigitConfiguration();
+
+        if(checkDigitEnabled) {
+            fillProductsPage.addUnitWithDigitAndProductCode(unitNumber, checkDigit, productCode);
+        } else {
+            fillProductsPage.addUnitWithProductCode(unitNumber, productCode);
+        }
+    }
+
+    @And("The visual inspection field is {string}.")
+    public void theVisualInspectionFieldIs(String status) {
+        fillProductsPage.assertVisualInspectionIs(status);
+    }
+
+    @Then("I can {string} message {string}.")
+    public void iCanMessage(String conditional, String message) {
+        if (conditional.contains("not")){ // not
+            fillProductsPage.assertCheckDigitErrorIs("");
+        } else {
+            fillProductsPage.assertCheckDigitErrorIs(message);
+        }
+    }
 }
 

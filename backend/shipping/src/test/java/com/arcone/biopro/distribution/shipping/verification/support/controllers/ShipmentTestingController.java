@@ -38,6 +38,8 @@ public class ShipmentTestingController {
 
     @Value("${kafka.waiting.time}")
     private long kafkaWaitingTime;
+    @Autowired
+    private DatabaseService databaseService;
 
 
     public long createShippingRequest(ShipmentRequestDetailsResponseType shipmentDetail) throws Exception {
@@ -241,5 +243,12 @@ public class ShipmentTestingController {
 
     public ShipmentRequestDetailsResponseType buildShipmentRequestDetailsResponseType(long orderNumber, String locationCode, String customerID, String customerName, String department, String addressLine1, String addressLine2, String unitNumber, String productCode, String productFamily, String bloodType, String expiration, long quantity) {
         return this.buildShipmentRequestDetailsResponseType(orderNumber, "ASAP", "OPEN", customerID, 0L, locationCode, "TEST", "TEST", "Frozen", LocalDate.now(), customerName, department, "", "123456789", "FL", "33016", "US", "1", "Miami", "Miami", addressLine1, addressLine2, String.valueOf(quantity), bloodType, productFamily, unitNumber, productCode);
+    }
+
+    public boolean getCheckDigitConfiguration() {
+        var query = "SELECT option_value from lk_lookup WHERE type = 'SHIPPING_CHECK_DIGIT_ACTIVE'";
+        var checkDigitConfig = databaseService.executeSql(query).block();
+        assert checkDigitConfig != null;
+        return checkDigitConfig.toString().equals("true");
     }
 }
