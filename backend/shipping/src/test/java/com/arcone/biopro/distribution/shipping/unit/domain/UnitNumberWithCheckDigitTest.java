@@ -1,6 +1,6 @@
 package com.arcone.biopro.distribution.shipping.unit.domain;
 
-import com.arcone.biopro.distribution.shipping.domain.model.vo.UnitNumberWithCheckDigit;
+import com.arcone.biopro.distribution.shipping.domain.model.UnitNumberWithCheckDigit;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 

@@ -1,7 +1,7 @@
 package com.arcone.biopro.distribution.shipping.application.mapper;
 
 import com.arcone.biopro.distribution.shipping.adapter.in.web.dto.UnitNumberWithCheckDigitDTO;
-import com.arcone.biopro.distribution.shipping.domain.model.vo.UnitNumberWithCheckDigit;
+import com.arcone.biopro.distribution.shipping.domain.model.UnitNumberWithCheckDigit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

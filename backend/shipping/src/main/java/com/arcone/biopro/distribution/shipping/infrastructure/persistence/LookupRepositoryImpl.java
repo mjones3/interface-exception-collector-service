@@ -1,15 +1,15 @@
 package com.arcone.biopro.distribution.shipping.infrastructure.persistence;
 
-import com.arcone.biopro.distribution.shipping.domain.model.Lookup;
-import com.arcone.biopro.distribution.shipping.domain.model.vo.LookupId;
 import com.arcone.biopro.distribution.shipping.domain.repository.LookupRepository;
-import com.arcone.biopro.distribution.shipping.infrastructure.mapper.LookupEntityMapper;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.relational.core.query.Query;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.math.BigDecimal;
 
 import static java.lang.Boolean.TRUE;
 import static org.springframework.data.domain.Sort.Direction.ASC;
@@ -22,11 +22,10 @@ import static org.springframework.data.relational.core.query.Query.query;
 public class LookupRepositoryImpl implements LookupRepository {
 
     private final R2dbcEntityTemplate entityTemplate;
-    private final LookupEntityMapper lookupEntityMapper;
 
-    private Query queryByUniqueKey(final LookupId id, final Boolean active) {
-        var criteria = where("type").is(id.getType())
-            .and("option_value").is(id.getOptionValue());
+    private Query queryByUniqueKey(String type, String optionValue, Boolean active) {
+        var criteria = where("type").is(type)
+            .and("option_value").is(optionValue);
 
         if (active != null) {
             criteria.and("active").is(active);
@@ -35,34 +34,25 @@ public class LookupRepositoryImpl implements LookupRepository {
         return query(criteria);
     }
 
-    @Override
-    public Mono<Boolean> existsById(final LookupId id) {
-        return this.existsById(id, TRUE);
-    }
-
-    @Override
-    public Mono<Boolean> existsById(final LookupId id, final Boolean active) {
+    private Mono<Boolean> existsById(String type, String optionValue, final Boolean active) {
         return this.entityTemplate
             .select(LookupEntity.class)
-            .matching(queryByUniqueKey(id, active))
+            .matching(queryByUniqueKey(type, optionValue, active))
             .exists();
     }
 
-    private Mono<LookupEntity> findOneEntityById(final LookupId id) {
+    private Mono<LookupEntity> findOneEntityById(String type, String optionValue) {
         return this.entityTemplate
             .select(LookupEntity.class)
-            .matching(queryByUniqueKey(id, TRUE))
+            .matching(queryByUniqueKey(type, optionValue, TRUE))
             .one();
     }
 
-    @Override
-    public Mono<Lookup> findOneById(final LookupId id) {
-        return findOneEntityById(id)
-            .map(lookupEntityMapper::mapToDomain);
+    private Mono<LookupEntity> findOneById(String type, String optionValue) {
+        return findOneEntityById(type, optionValue);
     }
 
-    @Override
-    public Flux<Lookup> findAllByType(final String type) {
+    private Flux<LookupEntity> findAllByType(final String type) {
         return this.entityTemplate
             .select(LookupEntity.class)
             .matching(
@@ -72,40 +62,62 @@ public class LookupRepositoryImpl implements LookupRepository {
                 )
                 .sort(by(ASC, "order_number"))
             )
-            .all()
-            .flatMap(lookupEntityMapper::flatMapToDomain);
+            .all();
     }
 
     @Override
-    public Mono<Lookup> insert(final Lookup lookup) {
-        return this.entityTemplate
-            .insert(
-                LookupEntity.builder()
-                    .type(lookup.getId().getType())
-                    .optionValue(lookup.getId().getOptionValue())
-                    .descriptionKey(lookup.getDescriptionKey())
-                    .orderNumber(lookup.getOrderNumber())
-                    .active(true)
-                    .build()
-            )
-            .map(lookupEntityMapper::mapToDomain);
+    public Mono<String> findFirstConfigAsString(String type) {
+        return this.findAllByType(type)
+            .next()
+            .map(LookupEntity::getOptionValue);
     }
 
     @Override
-    public Mono<Lookup> update(final Lookup lookup) {
-        return this.findOneEntityById(lookup.getId())
-            .flatMap(lookupEntity -> this.entityTemplate
-                .update(
-                    lookupEntity.toBuilder()
-                        .type(lookup.getId().getType())
-                        .optionValue(lookup.getId().getOptionValue())
-                        .descriptionKey(lookup.getDescriptionKey())
-                        .orderNumber(lookup.getOrderNumber())
-                        .active(lookup.isActive())
-                        .build()
-                )
-            )
-            .map(lookupEntityMapper::mapToDomain);
+    public Mono<Boolean> findFirstConfigAsBoolean(String type) {
+        return this.findFirstConfigAsString(type)
+            .map(BooleanUtils::toBooleanObject);
+    }
+
+    @Override
+    public Mono<Integer> findFirstConfigAsInteger(String type) {
+        return this.findFirstConfigAsString(type)
+            .map(Integer::valueOf);
+    }
+
+    @Override
+    public Mono<Long> findFirstConfigAsLong(String type) {
+        return this.findFirstConfigAsString(type)
+            .map(Long::valueOf);
+    }
+
+    @Override
+    public Mono<BigDecimal> findFirstConfigAsBigDecimal(String type) {
+        return this.findFirstConfigAsString(type)
+            .map(BigDecimal::new);
+    }
+
+    @Override
+    public Flux<String> findAllConfigsAsStrings(String type) {
+        return this.findAllByType(type)
+            .map(LookupEntity::getOptionValue);
+    }
+
+    @Override
+    public Flux<Integer> findAllConfigsAsIntegers(String type) {
+        return this.findAllConfigsAsStrings(type)
+            .map(Integer::valueOf);
+    }
+
+    @Override
+    public Flux<Long> findAllConfigsAsLongs(String type) {
+        return this.findAllConfigsAsStrings(type)
+            .map(Long::valueOf);
+    }
+
+    @Override
+    public Flux<BigDecimal> findAllConfigsAsBigDecimals(String type) {
+        return this.findAllConfigsAsStrings(type)
+            .map(BigDecimal::new);
     }
 
 }

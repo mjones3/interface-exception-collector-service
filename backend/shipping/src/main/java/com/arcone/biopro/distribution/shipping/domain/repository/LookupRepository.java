@@ -1,22 +1,28 @@
 package com.arcone.biopro.distribution.shipping.domain.repository;
 
-import com.arcone.biopro.distribution.shipping.domain.model.Lookup;
-import com.arcone.biopro.distribution.shipping.domain.model.vo.LookupId;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
+
 public interface LookupRepository {
 
-    Mono<Boolean> existsById(LookupId key);
+    Mono<String> findFirstConfigAsString(String type);
 
-    Mono<Boolean> existsById(LookupId key, Boolean active);
+    Mono<Boolean> findFirstConfigAsBoolean(String type);
 
-    Mono<Lookup> findOneById(LookupId id);
+    Mono<Integer> findFirstConfigAsInteger(String type);
 
-    Flux<Lookup> findAllByType(String type);
+    Mono<Long> findFirstConfigAsLong(String type);
 
-    Mono<Lookup> insert(Lookup lookup);
+    Mono<BigDecimal> findFirstConfigAsBigDecimal(String type);
 
-    Mono<Lookup> update(Lookup lookup);
+    Flux<String> findAllConfigsAsStrings(String type);
+
+    Flux<Integer> findAllConfigsAsIntegers(String type);
+
+    Flux<Long> findAllConfigsAsLongs(String type);
+
+    Flux<BigDecimal> findAllConfigsAsBigDecimals(String type);
 
 }

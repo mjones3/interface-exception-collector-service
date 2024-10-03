@@ -10,13 +10,20 @@ import com.arcone.biopro.distribution.shipping.application.usecase.ShipmentServi
 import com.arcone.biopro.distribution.shipping.application.util.ShipmentServiceMessages;
 import com.arcone.biopro.distribution.shipping.domain.event.ShipmentCompletedEvent;
 import com.arcone.biopro.distribution.shipping.domain.event.ShipmentCreatedEvent;
-import com.arcone.biopro.distribution.shipping.domain.model.*;
+import com.arcone.biopro.distribution.shipping.domain.model.Shipment;
+import com.arcone.biopro.distribution.shipping.domain.model.ShipmentItem;
+import com.arcone.biopro.distribution.shipping.domain.model.ShipmentItemPacked;
+import com.arcone.biopro.distribution.shipping.domain.model.ShipmentItemShortDateProduct;
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.BloodType;
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.ShipmentPriority;
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.ShipmentStatus;
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.VisualInspection;
-import com.arcone.biopro.distribution.shipping.domain.model.vo.LookupId;
-import com.arcone.biopro.distribution.shipping.domain.repository.*;
+import com.arcone.biopro.distribution.shipping.domain.repository.LookupRepository;
+import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemPackedRepository;
+import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemRepository;
+import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemShortDateProductRepository;
+import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentRepository;
+import com.arcone.biopro.distribution.shipping.domain.service.ConfigService;
 import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryNotificationDTO;
 import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryResponseDTO;
 import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryValidationRequest;
@@ -46,7 +53,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.arcone.biopro.distribution.shipping.application.usecase.ShipmentServiceUseCase.LOOKUP_KEY_SHIPPING_CHECK_DIGIT_ACTIVE;
 import static org.junit.Assert.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -61,6 +67,7 @@ class ShipmentServiceUseCaseTest {
     private LookupRepository lookupRepository;
     private ShipmentEventMapper shipmentEventMapper;
     private FacilityServiceMock facilityServiceMock;
+    private ConfigService configService;
 
     private ShipmentServiceUseCase useCase;
 
@@ -75,8 +82,9 @@ class ShipmentServiceUseCaseTest {
         lookupRepository = Mockito.mock(LookupRepository.class);
         shipmentEventMapper = new ShipmentEventMapper();
         facilityServiceMock = Mockito.mock(FacilityServiceMock.class);
+        configService = Mockito.mock(ConfigService.class);
 
-        useCase = new ShipmentServiceUseCase(shipmentRepository,shipmentItemRepository,shipmentItemShortDateProductRepository,inventoryRsocketClient,shipmentItemPackedRepository,applicationEventPublisher,lookupRepository,shipmentEventMapper,facilityServiceMock);
+        useCase = new ShipmentServiceUseCase(shipmentRepository,shipmentItemRepository,shipmentItemShortDateProductRepository,inventoryRsocketClient,shipmentItemPackedRepository,applicationEventPublisher,lookupRepository,shipmentEventMapper,facilityServiceMock,configService);
     }
 
     @Test
@@ -148,8 +156,7 @@ class ShipmentServiceUseCaseTest {
         Mockito.when(shipment.getComments()).thenReturn("TEST_COMMENTS");
 
         Mockito.when(shipmentRepository.findById(1L)).thenReturn(Mono.just(shipment));
-        Mockito.when(lookupRepository.findAllByType(LOOKUP_KEY_SHIPPING_CHECK_DIGIT_ACTIVE))
-            .thenReturn(Flux.just(new Lookup(new LookupId(LOOKUP_KEY_SHIPPING_CHECK_DIGIT_ACTIVE, "true"), "1", 1, true)));
+        Mockito.when(configService.findShippingCheckDigitActive()).thenReturn(Mono.just(Boolean.TRUE));
 
         ShipmentItem item = Mockito.mock(ShipmentItem.class);
         Mockito.when(item.getId()).thenReturn(1L);

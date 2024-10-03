@@ -2,7 +2,7 @@ package com.arcone.biopro.distribution.shipping.unit.adapter.in.web.controller;
 
 import com.arcone.biopro.distribution.shipping.adapter.in.web.controller.UnitNumberWithCheckDigitController;
 import com.arcone.biopro.distribution.shipping.application.mapper.UnitNumberWithCheckDigitMapper;
-import com.arcone.biopro.distribution.shipping.domain.model.vo.UnitNumberWithCheckDigit;
+import com.arcone.biopro.distribution.shipping.domain.model.UnitNumberWithCheckDigit;
 import com.arcone.biopro.distribution.shipping.domain.service.UnitNumberWithCheckDigitService;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;

@@ -2,7 +2,7 @@ package com.arcone.biopro.distribution.shipping.unit.application.mapper;
 
 import com.arcone.biopro.distribution.shipping.adapter.in.web.dto.UnitNumberWithCheckDigitDTO;
 import com.arcone.biopro.distribution.shipping.application.mapper.UnitNumberWithCheckDigitMapper;
-import com.arcone.biopro.distribution.shipping.domain.model.vo.UnitNumberWithCheckDigit;
+import com.arcone.biopro.distribution.shipping.domain.model.UnitNumberWithCheckDigit;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;

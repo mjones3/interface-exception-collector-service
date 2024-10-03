@@ -1,6 +1,5 @@
-package com.arcone.biopro.distribution.shipping.domain.model.vo;
+package com.arcone.biopro.distribution.shipping.domain.model;
 
-import com.arcone.biopro.distribution.shipping.domain.model.Validatable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
