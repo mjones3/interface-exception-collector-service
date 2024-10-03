@@ -1,6 +1,6 @@
 package com.arcone.biopro.distribution.order.application.usecase;
 
-import com.arcone.biopro.distribution.order.application.dto.ShipmentCompletedEventPayloadDTO;
+import com.arcone.biopro.distribution.order.application.dto.ShipmentCompletedPayload;
 import com.arcone.biopro.distribution.order.domain.model.Order;
 import com.arcone.biopro.distribution.order.domain.model.OrderShipment;
 import com.arcone.biopro.distribution.order.domain.repository.OrderRepository;
@@ -25,10 +25,10 @@ public class ShipmentCompletedUseCase implements ShipmentCompletedService {
 
     @Override
     @Transactional
-    public Mono<Void> processCompletedShipmentEvent(ShipmentCompletedEventPayloadDTO shipmentCompletedEventPayloadDTO) {
-        return orderRepository.findOneByOrderNumber(shipmentCompletedEventPayloadDTO.orderNumber())
+    public Mono<Void> processCompletedShipmentEvent(ShipmentCompletedPayload shipmentCompletedPayload) {
+        return orderRepository.findOneByOrderNumber(shipmentCompletedPayload.orderNumber())
             .switchIfEmpty(Mono.error(new RuntimeException("Not able to find order by order number")))
-            .map(order -> setShippedQuantity(order,shipmentCompletedEventPayloadDTO))
+            .map(order -> setShippedQuantity(order,shipmentCompletedPayload))
             .publishOn(Schedulers.boundedElastic())
             .flatMap(orderRepository::update)
             .flatMap(this::completeOrderShipment)
@@ -36,22 +36,24 @@ public class ShipmentCompletedUseCase implements ShipmentCompletedService {
     }
 
 
-    private Order setShippedQuantity(Order order , ShipmentCompletedEventPayloadDTO payloadDTO){
-        if(order.getOrderItems() != null && !order.getOrderItems().isEmpty()){
+    private Order setShippedQuantity(Order order, ShipmentCompletedPayload shipmentCompletedPayload) {
+
+        if (order.getOrderItems() != null && !order.getOrderItems().isEmpty()){
             order.getOrderItems().forEach(orderItem -> {
-                if(orderItem.getBloodType().getBloodType().equals(payloadDTO.bloodType())
-                    && orderItem.getProductFamily().getProductFamily().equals(payloadDTO.productFamily())){
-                    orderItem.defineShippedQuantity(orderItem.getQuantityShipped() + 1);
-                    if (order.isCompleted()) {
-                        log.debug("Order {} already completed (ShipmentCompletedUseCase)", order.getOrderNumber());
-                        order.getOrderStatus().setStatus(ORDER_STATUS_COMPLETED);
-                    }
-                }
+                shipmentCompletedPayload.lineItems().stream()
+                    .filter(item -> orderItem.getBloodType().getBloodType().equals(item.bloodType())
+                        && orderItem.getProductFamily().getProductFamily().equals(item.productFamily()))
+                    .findFirst()
+                    .ifPresent(item -> orderItem.defineShippedQuantity(item.products().size()));
             });
+
+            if (order.isCompleted()) {
+                log.debug("Order {} already completed (ShipmentCompletedUseCase)", order.getOrderNumber());
+                order.getOrderStatus().setStatus(ORDER_STATUS_COMPLETED);
+            }
         }
 
         return order;
-
     }
 
     private Mono<OrderShipment> completeOrderShipment(Order order){

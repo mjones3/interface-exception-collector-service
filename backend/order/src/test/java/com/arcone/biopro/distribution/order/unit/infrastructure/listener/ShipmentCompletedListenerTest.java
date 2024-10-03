@@ -1,7 +1,7 @@
 package com.arcone.biopro.distribution.order.unit.infrastructure.listener;
 
 import com.arcone.biopro.distribution.order.application.dto.ShipmentCompletedEventDTO;
-import com.arcone.biopro.distribution.order.application.dto.ShipmentCompletedEventPayloadDTO;
+import com.arcone.biopro.distribution.order.application.dto.ShipmentCompletedPayload;
 import com.arcone.biopro.distribution.order.domain.service.ShipmentCompletedService;
 import com.arcone.biopro.distribution.order.infrastructure.listener.ShipmentCompletedListener;
 import com.arcone.biopro.distribution.order.unit.util.TestUtil;
@@ -33,7 +33,7 @@ class ShipmentCompletedListenerTest {
         ReceiverRecord<String, String> receiverRecord = Mockito.mock(ReceiverRecord.class);
 
         var service = Mockito.mock(ShipmentCompletedService.class);
-        Mockito.when(service.processCompletedShipmentEvent(Mockito.any(ShipmentCompletedEventPayloadDTO.class))).thenReturn(Mono.empty());
+        Mockito.when(service.processCompletedShipmentEvent(Mockito.any(ShipmentCompletedPayload.class))).thenReturn(Mono.empty());
 
         var message = Mockito.mock(ShipmentCompletedEventDTO.class);
 
@@ -51,7 +51,7 @@ class ShipmentCompletedListenerTest {
 
         listener.run(new String[]{""});
 
-        Mockito.verify(service).processCompletedShipmentEvent(Mockito.any(ShipmentCompletedEventPayloadDTO.class));
+        Mockito.verify(service).processCompletedShipmentEvent(Mockito.any(ShipmentCompletedPayload.class));
     }
 
     @Test
@@ -64,7 +64,7 @@ class ShipmentCompletedListenerTest {
         ReceiverRecord<String, String> receiverRecord = Mockito.mock(ReceiverRecord.class);
 
         var service = Mockito.mock(ShipmentCompletedService.class);
-        Mockito.when(service.processCompletedShipmentEvent(Mockito.any(ShipmentCompletedEventPayloadDTO.class))).thenReturn(Mono.empty());
+        Mockito.when(service.processCompletedShipmentEvent(Mockito.any(ShipmentCompletedPayload.class))).thenReturn(Mono.empty());
 
         var message = Mockito.mock(ShipmentCompletedEventDTO.class);
 
