@@ -16,8 +16,8 @@ import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntity;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntityRepository;
 import com.arcone.biopro.distribution.inventory.verification.common.ScenarioContext;
+import com.arcone.biopro.distribution.inventory.verification.utils.KafkaHelper;
 import com.arcone.biopro.distribution.inventory.verification.utils.LogMonitor;
-import com.arcone.biopro.distribution.inventory.verification.utils.TestUtils;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
@@ -28,8 +28,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.r2dbc.connection.init.ResourceDatabasePopulator;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -69,6 +71,9 @@ public class KafkaListenersSteps {
 
     private final LogMonitor logMonitor;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     private static final String SHIPMENT_COMPLETED_MESSAGE = """
          {
            "eventType":"ShipmentCompleted",
@@ -84,7 +89,7 @@ public class KafkaListenersSteps {
          }
         """;
 
-    private final TestUtils testUtils;
+    private final KafkaHelper kafkaHelper;
 
     private final InventoryEntityRepository inventoryEntityRepository;
 
@@ -165,61 +170,61 @@ public class KafkaListenersSteps {
         """;
 
     private static final String PRODUCT_QUARANTINED_MESSAGE = """
-       {
-          "eventId": "7eaefe46-e6cf-4434-93c4-a4b1e7d44285",
-          "occurredOn": "2024-08-22T12:34:32.270657005Z",
-          "eventVersion": "1.0",
-          "eventType": "ProductQuarantined",
-          "payload": {
-            "id": 1,
-            "unitNumber": "%s",
-            "productCode": "E0869A0",
-            "reason": "OTHER",
-            "comments": "a comment",
-            "stopsManufacturing": false,
-            "performedBy": "USER_ID",
-            "createDate": "2025-01-08T02:05:45.231Z"
-          }
-       }
-       """;
-
-    private static final String QUARANTINE_UPDATED_MESSAGE = """
         {
            "eventId": "7eaefe46-e6cf-4434-93c4-a4b1e7d44285",
            "occurredOn": "2024-08-22T12:34:32.270657005Z",
            "eventVersion": "1.0",
-           "eventType": "QuarantineUpdated",
+           "eventType": "ProductQuarantined",
            "payload": {
              "id": 1,
              "unitNumber": "%s",
              "productCode": "E0869A0",
-             "oldReason": "OTHER",
-             "newReason": "UNDER_INVESTIGATION",
-             "comments": "a under investigation comment",
-             "stopsManufacturing": true,
+             "reason": "OTHER",
+             "comments": "a comment",
+             "stopsManufacturing": false,
              "performedBy": "USER_ID",
              "createDate": "2025-01-08T02:05:45.231Z"
            }
-         }
-       """;
+        }
+        """;
+
+    private static final String QUARANTINE_UPDATED_MESSAGE = """
+         {
+            "eventId": "7eaefe46-e6cf-4434-93c4-a4b1e7d44285",
+            "occurredOn": "2024-08-22T12:34:32.270657005Z",
+            "eventVersion": "1.0",
+            "eventType": "QuarantineUpdated",
+            "payload": {
+              "id": 1,
+              "unitNumber": "%s",
+              "productCode": "E0869A0",
+              "oldReason": "OTHER",
+              "newReason": "UNDER_INVESTIGATION",
+              "comments": "a under investigation comment",
+              "stopsManufacturing": true,
+              "performedBy": "USER_ID",
+              "createDate": "2025-01-08T02:05:45.231Z"
+            }
+          }
+        """;
 
     private static final String QUARANTINE_REMOVED_MESSAGE = """
-       {
-          "eventId": "7eaefe46-e6cf-4434-93c4-a4b1e7d44285",
-          "occurredOn": "2024-08-22T12:34:32.270657005Z",
-          "eventVersion": "1.0",
-          "eventType": "QuarantineRemoved",
-          "payload": {
-            "id": 1,
-            "unitNumber": "%s",
-            "productCode": "E0869A0",
-            "reason": "OTHER",
-            "stopsManufacturing": false,
-            "performedBy": "USER_ID",
-            "createDate": "2025-01-08T02:05:45.231Z"
-          }
-       }
-       """;
+        {
+           "eventId": "7eaefe46-e6cf-4434-93c4-a4b1e7d44285",
+           "occurredOn": "2024-08-22T12:34:32.270657005Z",
+           "eventVersion": "1.0",
+           "eventType": "QuarantineRemoved",
+           "payload": {
+             "id": 1,
+             "unitNumber": "%s",
+             "productCode": "E0869A0",
+             "reason": "OTHER",
+             "stopsManufacturing": false,
+             "performedBy": "USER_ID",
+             "createDate": "2025-01-08T02:05:45.231Z"
+           }
+        }
+        """;
 
     public static final String EVENT_LABEL_APPLIED = "Label Applied";
     public static final String EVENT_PRODUCT_STORED = "Product Stored";
@@ -330,12 +335,10 @@ public class KafkaListenersSteps {
         scenarioContext.setProductCode("E0869VA0");
         var message = buildMessage(event);
         scenarioContext.setLastSentMessage(message);
-        testUtils.kafkaSender(
-            scenarioContext.getUnitNumber() + "-" + scenarioContext.getProductCode(),
-            message,
-            topicName);
-
-        logMonitor.await("successfully consumed.*"+scenarioContext.getUnitNumber());
+        // Convert message to object
+        var payloadObject = objectMapper.readValue(message, Object.class);
+        kafkaHelper.sendEvent(topicName, scenarioContext.getUnitNumber() + "-" + scenarioContext.getProductCode(), payloadObject).block();
+        logMonitor.await("successfully consumed.*" + scenarioContext.getUnitNumber());
     }
 
     public void populateTestData() {
@@ -344,20 +347,20 @@ public class KafkaListenersSteps {
         Mono.from(resourceDatabasePopulator.populate(connectionFactory)).block();
     }
 
-    public String buildMessage(String eventType, String unitNumber, String productCode, String location){
-        return String.format(messagesMap.get(eventType),unitNumber, productCode, location);
+    public String buildMessage(String eventType, String unitNumber, String productCode, String location) {
+        return String.format(messagesMap.get(eventType), unitNumber, productCode, location);
     }
 
-    public String buildMessage(String eventType){
-        return String.format(messagesMap.get(eventType),scenarioContext.getUnitNumber(), scenarioContext.getProductCode(), "MIAMI");
+    public String buildMessage(String eventType) {
+        return String.format(messagesMap.get(eventType), scenarioContext.getUnitNumber(), scenarioContext.getProductCode(), "MIAMI");
     }
 
     @When("I receive a {string} message with unit number {string}, product code {string} and location {string}")
     public void iReceiveAMessageWithUnitNumberProductCodeAndLocation(String event, String unitNumber, String productCode, String location) throws Exception {
-        testUtils.kafkaSender(
-            scenarioContext.getUnitNumber() + "-" + scenarioContext.getProductCode().replaceAll("V", ""),
-            buildMessage(event, unitNumber, productCode, location),
-            topicName);
-        logMonitor.await("successfully consumed.*"+scenarioContext.getUnitNumber());
+        var message = buildMessage(event, unitNumber, productCode, location);
+        // Convert message to object
+        var payloadObject = objectMapper.readValue(message, Object.class);
+        kafkaHelper.sendEvent(topicName, scenarioContext.getUnitNumber() + "-" + scenarioContext.getProductCode().replaceAll("V", ""), payloadObject).block();
+        logMonitor.await("successfully consumed.*" + scenarioContext.getUnitNumber());
     }
 }
