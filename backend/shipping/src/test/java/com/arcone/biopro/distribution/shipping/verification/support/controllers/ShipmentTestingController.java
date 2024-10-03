@@ -186,6 +186,7 @@ public class ShipmentTestingController {
 
         var shipmentDetailType = ShipmentRequestDetailsResponseType.builder()
             .orderNumber(orderNumber)
+            .externalId("EXTERNAL_ID")
             .priority(priority)
             .status(status)
             .locationCode(locationCode)

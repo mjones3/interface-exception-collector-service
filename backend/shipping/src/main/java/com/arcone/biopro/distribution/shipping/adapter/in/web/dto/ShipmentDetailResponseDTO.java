@@ -13,6 +13,7 @@ import java.util.List;
 public record ShipmentDetailResponseDTO(
     Long id,
     Long orderNumber,
+    String externalId,
     ShipmentPriority priority,
     ShipmentStatus status,
     ZonedDateTime createDate,

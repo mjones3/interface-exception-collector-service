@@ -32,6 +32,9 @@ public class Shipment implements Serializable, Persistable<Long> {
     @Column("order_number")
     private Long orderNumber;
 
+    @Column("external_id")
+    private String externalId;
+
     @NotNull
     @Column("customer_code")
     private String customerCode;
