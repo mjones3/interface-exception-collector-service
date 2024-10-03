@@ -3,10 +3,7 @@ import { RuleResponseDTO } from '../../../../../shared/models/rule.model';
 
 export interface UnitNumberWithCheckDigitDTO {
     unitNumber: string;
-    checkDigit: string;
     verifiedCheckDigit: string;
-    valid: boolean;
-    message: string;
 }
 
 export const VERIFY_CHECK_DIGIT = gql<
