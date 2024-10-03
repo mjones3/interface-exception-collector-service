@@ -1,4 +1,5 @@
 import { gql } from 'apollo-angular';
+import { RuleResponseDTO } from '../../../../../shared/models/rule.model';
 
 export interface UnitNumberWithCheckDigitDTO {
     unitNumber: string;
@@ -9,16 +10,23 @@ export interface UnitNumberWithCheckDigitDTO {
 }
 
 export const VERIFY_CHECK_DIGIT = gql<
-    { verifyCheckDigit: UnitNumberWithCheckDigitDTO },
+    { verifyCheckDigit: RuleResponseDTO<{ data: UnitNumberWithCheckDigitDTO[] }> },
     { unitNumber: string, checkDigit: string }
 >`
     query VerifyCheckDigit($unitNumber: String!, $checkDigit: String!) {
         verifyCheckDigit(unitNumber: $unitNumber, checkDigit: $checkDigit) {
-            unitNumber
-            checkDigit
-            verifiedCheckDigit
-            valid
-            message
+            ruleCode
+            _links
+            results
+            notifications {
+                name
+                statusCode
+                notificationType
+                code
+                action
+                reason
+                message
+            }
         }
     }
 `;
