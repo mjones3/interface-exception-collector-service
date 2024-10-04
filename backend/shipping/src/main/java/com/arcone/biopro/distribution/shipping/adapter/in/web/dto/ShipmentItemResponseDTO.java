@@ -10,15 +10,11 @@ import java.util.List;
 @Builder
 public record ShipmentItemResponseDTO(
     Long id,
-
     Long shipmentId,
     String productFamily,
-
     BloodType bloodType,
     Integer quantity,
-
     String comments,
-
     List<ShipmentItemShortDateProductResponseDTO> shortDateProducts,
     List<ShipmentItemPackedDTO> packedItems
 ) implements Serializable {}

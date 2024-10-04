@@ -85,3 +85,5 @@ ALTER TABLE bld_shipment_item_packed ADD COLUMN blood_type VARCHAR(10) NOT NULL;
 ALTER TABLE bld_shipment_item_packed ADD COLUMN product_family varchar(255) NULL;
 
 ALTER TABLE bld_shipment_item_packed ALTER COLUMN expiration_date TYPE TIMESTAMP WITHOUT TIME ZONE ;
+
+ALTER TABLE bld_shipment ADD COLUMN external_id VARCHAR(50) DEFAULT NULL;

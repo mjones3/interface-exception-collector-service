@@ -9,12 +9,10 @@ public record OrderFulfilledMessage(
 
     Long id,
     Long orderNumber,
-
+    String externalId,
     String shippingCustomerCode,
-
     String billingCustomerCode,
     String locationCode,
-
     String deliveryType,
 
     String shippingMethod,
@@ -51,4 +49,5 @@ public record OrderFulfilledMessage(
 
     List<OrderItemFulfilledMessage> items
 
-) implements Serializable {}
+) implements Serializable {
+}
