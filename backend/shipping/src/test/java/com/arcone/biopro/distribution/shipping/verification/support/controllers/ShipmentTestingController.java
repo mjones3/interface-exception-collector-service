@@ -247,8 +247,9 @@ public class ShipmentTestingController {
 
     public boolean getCheckDigitConfiguration() {
         var query = "SELECT option_value from lk_lookup WHERE type = 'SHIPPING_CHECK_DIGIT_ACTIVE'";
-        var checkDigitConfig = databaseService.executeSql(query).block();
-        assert checkDigitConfig != null;
-        return checkDigitConfig.toString().equals("true");
+        var checkDigitConfig = databaseService.fetchData(query);
+        var records = checkDigitConfig.first().block();
+        assert records != null;
+        return records.get("option_value").equals("true");
     }
 }

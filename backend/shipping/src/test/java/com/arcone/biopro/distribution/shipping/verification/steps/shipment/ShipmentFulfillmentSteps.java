@@ -23,7 +23,11 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @Slf4j
 @SpringBootTest
@@ -53,7 +57,6 @@ public class ShipmentFulfillmentSteps {
 
     @Value("${save.all.screenshots}")
     private boolean saveAllScreenshots;
-
 
 
     @Autowired
@@ -318,12 +321,7 @@ public class ShipmentFulfillmentSteps {
     @When("I type the unit {string}, digit {string}, and product code {string}.")
     public void iTypeTheUnitDigitAndProductCode(String unitNumber, String checkDigit, String productCode) throws InterruptedException {
         boolean checkDigitEnabled = shipmentTestingController.getCheckDigitConfiguration();
-
-        if(checkDigitEnabled) {
-            fillProductsPage.addUnitWithDigitAndProductCode(unitNumber, checkDigit, productCode);
-        } else {
-            fillProductsPage.addUnitWithProductCode(unitNumber, productCode);
-        }
+        fillProductsPage.addUnitWithDigitAndProductCode(unitNumber, checkDigit, productCode, checkDigitEnabled);
     }
 
     @And("The visual inspection field is {string}.")
@@ -333,7 +331,7 @@ public class ShipmentFulfillmentSteps {
 
     @Then("I can {string} message {string}.")
     public void iCanMessage(String conditional, String message) {
-        if (conditional.contains("not")){ // not
+        if (conditional.contains("not")) { // not
             fillProductsPage.assertCheckDigitErrorIs("");
         } else {
             fillProductsPage.assertCheckDigitErrorIs(message);

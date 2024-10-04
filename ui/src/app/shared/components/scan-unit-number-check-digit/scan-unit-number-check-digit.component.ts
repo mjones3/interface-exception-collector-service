@@ -4,9 +4,10 @@ import {
     ElementRef,
     EventEmitter,
     Input,
+    OnChanges,
     Output,
     SimpleChanges,
-    ViewChild, OnChanges,
+    ViewChild,
 } from '@angular/core';
 import {
     AbstractControl,
@@ -114,8 +115,8 @@ export class ScanUnitNumberCheckDigitComponent implements OnChanges {
     }
 
     checkValues(checkDigitChange: boolean) {
-        const unitNumber: string = this.controlUnitNumber.value ?? '';
-        const checkDigit: string = this.controlCheckDigit.value ?? '';
+        const unitNumber: string = this.controlUnitNumber?.value ?? '';
+        const checkDigit: string = this.controlCheckDigit?.value ?? '';
         if (!this.isScanner) {
             this.focusOnCheckDigit();
         }

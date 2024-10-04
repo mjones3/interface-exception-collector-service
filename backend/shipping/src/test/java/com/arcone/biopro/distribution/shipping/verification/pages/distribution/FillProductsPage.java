@@ -33,10 +33,10 @@ public class FillProductsPage extends CommonPageFactory {
     @FindBy(id = "productCodeId")
     private WebElement productCodeInput;
 
-    @FindBy(id = "inspection-satisfactory")
+    @FindBy(id = "inspection-satisfactory-input")
     private WebElement visualInspectionSatisfactory;
 
-    @FindBy(id = "inspection-unsatisfactory")
+    @FindBy(id = "inspection-unsatisfactory-input")
     private WebElement visualInspectionUnsatisfactory;
 
     @FindBy(id = "backBtn")
@@ -65,10 +65,13 @@ public class FillProductsPage extends CommonPageFactory {
         sharedActions.waitLoadingAnimation();
     }
 
-    public void addUnitWithDigitAndProductCode(String unit, String checkDigit, String productCode) throws InterruptedException {
+    public void addUnitWithDigitAndProductCode(String unit, String checkDigit, String productCode, boolean checkDigitEnabled) throws InterruptedException {
         log.info("Adding unit {} with digit {} and product code {}.", unit, checkDigit, productCode);
+
         sharedActions.sendKeys(unitNumberInput, unit);
+        if (checkDigitEnabled && !unit.startsWith("=")) {
         sharedActions.sendKeys(checkDigitInput, checkDigit);
+        }
         sharedActions.sendKeys(productCodeInput, productCode);
         sharedActions.waitLoadingAnimation();
     }
