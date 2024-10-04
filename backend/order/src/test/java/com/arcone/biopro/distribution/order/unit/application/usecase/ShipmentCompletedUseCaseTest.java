@@ -1,6 +1,8 @@
 package com.arcone.biopro.distribution.order.unit.application.usecase;
 
-import com.arcone.biopro.distribution.order.application.dto.ShipmentCompletedEventPayloadDTO;
+import com.arcone.biopro.distribution.order.application.dto.ShipmentCompletedItemPayload;
+import com.arcone.biopro.distribution.order.application.dto.ShipmentCompletedItemProductPayload;
+import com.arcone.biopro.distribution.order.application.dto.ShipmentCompletedPayload;
 import com.arcone.biopro.distribution.order.application.usecase.ShipmentCompletedUseCase;
 import com.arcone.biopro.distribution.order.domain.model.Order;
 import com.arcone.biopro.distribution.order.domain.model.OrderItem;
@@ -15,6 +17,8 @@ import org.mockito.Mockito;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 
@@ -62,22 +66,35 @@ class ShipmentCompletedUseCaseTest {
 
         Mockito.when(orderShipmentRepository.update(Mockito.any())).thenReturn(Mono.just(orderShipment));
 
-        var response = target.processCompletedShipmentEvent(ShipmentCompletedEventPayloadDTO
+        var response = target.processCompletedShipmentEvent(ShipmentCompletedPayload
             .builder()
             .orderNumber(1L)
             .shipmentId(1L)
-                .bloodType("AB")
-                .productCode("PRODUCT_CODE")
-                .productFamily("PRODUCT_FAMILY")
-            .build());
+            .lineItems(List.of(
+                ShipmentCompletedItemPayload.builder()
+                    .productFamily("PRODUCT_FAMILY")
+                    .bloodType("AB")
+                    .products(List.of(
+                        ShipmentCompletedItemProductPayload.builder()
+                            .aboRh("AB")
+                            .unitNumber("UNIT_NUMBER")
+                            .productCode("PRODUCT_CODE")
+                            .productFamily("PRODUCT_FAMILY")
+                            .expirationDate(LocalDateTime.now())
+                            .collectionDate(ZonedDateTime.now())
+                            .build()
+                    ))
+                    .build()
+            ))
+            .build()
+        );
 
         StepVerifier.create(response)
             .verifyComplete();
 
-        Mockito.verify(oderItem).defineShippedQuantity(2);
+        Mockito.verify(oderItem).defineShippedQuantity(1);
         Mockito.verify(orderShipment).setShipmentStatus("COMPLETED");
         Mockito.verify(orderStatus).setStatus("COMPLETED");
-
     }
 
 }
