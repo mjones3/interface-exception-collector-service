@@ -11,15 +11,15 @@
     "phoneNumber": "12333333"
   },
   "shippingMethod": "FEDEX",
-  "productCategory": "FROZEN",
+  "productCategory": "REFRIGERATED",
   "desiredShippingDate": "2020-04-25",
   "shippingCustomerCode": "99741",
   "billingCustomerCode": "99741",
   "comments": "string",
   "orderItems": [
     {
-      "productFamily": "PLASMA_TRANSFUSABLE",
-      "bloodType": "AB",
+      "productFamily": "RED_BLOOD_CELLS_LEUKOREDUCED",
+      "bloodType": "ABN",
       "quantity": 1,
       "comments": "Comments"
     }

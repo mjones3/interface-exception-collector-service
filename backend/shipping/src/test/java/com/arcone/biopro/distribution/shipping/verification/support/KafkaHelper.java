@@ -1,4 +1,4 @@
-package com.arcone.biopro.distribution.order.verification.support;
+package com.arcone.biopro.distribution.shipping.verification.support;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;

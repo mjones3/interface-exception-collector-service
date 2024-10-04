@@ -65,11 +65,11 @@ public class PrintPackingListSteps {
         Long shipmentItem;
         shipmentItem = shipmentDetails.getItems().getFirst().getId();
 
-        var response = apiHelper.graphQlRequest(GraphQLMutationMapper.packItemMutation(shipmentItem , facility
-            ,unitNumber , "test-emplyee-id", productCode , "SATISFACTORY" ),"packItem");
+        var response = apiHelper.graphQlRequest(GraphQLMutationMapper.packItemMutation(shipmentItem, facility
+            , unitNumber, "test-emplyee-id", productCode, "SATISFACTORY"), "packItem");
         log.info("Shipment item successfully packed: {}", response);
 
-        Assert.assertEquals("200 OK",response.get("ruleCode"));
+        Assert.assertEquals("200 OK", response.get("ruleCode"));
         Thread.sleep(kafkaWaitingTime);
     }
 
@@ -102,14 +102,14 @@ public class PrintPackingListSteps {
     @And("I have completed a shipment with above details.")
     public void completeShipment() {
 
-        var response = apiHelper.graphQlRequest(GraphQLMutationMapper.completeShipmentMutation(this.shipmentId , "test-emplyee-id"),"completeShipment") ;
+        var response = apiHelper.graphQlRequest(GraphQLMutationMapper.completeShipmentMutation(this.shipmentId, "test-emplyee-id"), "completeShipment");
         log.info("Shipment successfully completed: {}", response);
         Assert.assertEquals("200 OK", response.get("ruleCode"));
     }
 
     @When("I choose to print the Packing Slip.")
     public void iChooseToPrintThePackingSlip() throws InterruptedException {
-        if(!headless) {
+        if (!headless) {
             shipmentDetailPage.clickViewPackingSlip();
             // Wait for the print component to load
             Thread.sleep(2000);
@@ -121,10 +121,14 @@ public class PrintPackingListSteps {
 
     @When("I choose to print the Shipping Label.")
     public void iChooseToPrintTheShippingLabel() throws InterruptedException {
-        shipmentDetailPage.clickPrintShippingLabel();
-        // Wait for the print component to load
-        Thread.sleep(2000);
-        screenshotService.attachConditionalScreenshot(saveAllScreenshots);
+        if (!headless) {
+            shipmentDetailPage.clickPrintShippingLabel();
+            // Wait for the print component to load
+            Thread.sleep(2000);
+            screenshotService.attachConditionalScreenshot(saveAllScreenshots);
+        } else {
+            log.info("Skipping print packing slip. Test in headless mode.");
+        }
     }
 
     @Then("I am able to see the Packing Slip content.")

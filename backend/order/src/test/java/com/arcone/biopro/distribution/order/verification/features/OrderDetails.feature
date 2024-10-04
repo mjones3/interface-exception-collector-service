@@ -21,8 +21,9 @@ Feature: View order details
 
 
             Examples:
-                | External ID | LocationCode | Priority | Status | ProductFamily                            | BloodType | Quantity | Shipment Type | Shipping Method | Product Category | Desired Date | Shipping Customer Code | Shipping Customer Name     | Billing Customer Code | Billing Customer Name      | Order Comments     | Item Comments                |
-                | ORDER001    | 123456789    | STAT     | OPEN   | PLASMA_TRANSFUSABLE, PLASMA_TRANSFUSABLE | AB, O     | 3, 2     | CUSTOMER      | FEDEX           | FROZEN           | 2024-08-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap, Another comment |
+                | External ID | LocationCode | Priority | Status | ProductFamily                                              | BloodType | Quantity | Shipment Type | Shipping Method | Product Category | Desired Date | Shipping Customer Code | Shipping Customer Name     | Billing Customer Code | Billing Customer Name      | Order Comments     | Item Comments                |
+                | ORDER001    | 123456789    | STAT     | OPEN   | PLASMA_TRANSFUSABLE, PLASMA_TRANSFUSABLE                   | AB, O     | 3, 2     | CUSTOMER      | FEDEX           | FROZEN           | 2024-08-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap, Another comment |
+                | ORDER006    | 123456789    | STAT     | OPEN   | RED_BLOOD_CELLS_LEUKOREDUCED, RED_BLOOD_CELLS_LEUKOREDUCED | AP, ON    | 5, 5     | CUSTOMER      | FEDEX           | REFRIGERATED     | 2024-08-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap, Another comment |
 
 
     Rule: I should be able to create the order fulfillment request when the pick list is generated.Rule: The BioPro order status must be updated to InProgress when an order is being fulfilled.
@@ -48,9 +49,10 @@ Feature: View order details
             And I should not see multiple shipments generated.
 
             Examples:
-                | External ID | LocationCode | Priority | Status | ProductFamily       | BloodType | Quantity | Shipment Type | Shipping Method | Product Category | Desired Date | Shipping Customer Code | Shipping Customer Name     | Billing Customer Code | Billing Customer Name      | Order Comments     | Item Comments | Short Date |
-                | ORDER002    | 123456789    | STAT     | OPEN   | PLASMA_TRANSFUSABLE | AB        | 3        | CUSTOMER      | FEDEX           | FROZEN           | 2024-08-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap   | CAN        |
-                | ORDER003    | 123456789    | STAT     | OPEN   | PLASMA_TRANSFUSABLE | B         | 8        | CUSTOMER      | FEDEX           | FROZEN           | 2024-09-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Send asap          | Needed asap   | CANNOT     |
+                | External ID | LocationCode | Priority | Status | ProductFamily                | BloodType | Quantity | Shipment Type | Shipping Method | Product Category | Desired Date | Shipping Customer Code | Shipping Customer Name     | Billing Customer Code | Billing Customer Name      | Order Comments     | Item Comments | Short Date |
+                | ORDER002    | 123456789    | STAT     | OPEN   | PLASMA_TRANSFUSABLE          | AB        | 3        | CUSTOMER      | FEDEX           | FROZEN           | 2024-08-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap   | CAN        |
+                | ORDER003    | 123456789    | STAT     | OPEN   | PLASMA_TRANSFUSABLE          | B         | 8        | CUSTOMER      | FEDEX           | FROZEN           | 2024-09-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Send asap          | Needed asap   | CANNOT     |
+                | ORDER007    | 123456789    | STAT     | OPEN   | RED_BLOOD_CELLS_LEUKOREDUCED | ABP       | 3        | CUSTOMER      | FEDEX           | REFRIGERATED     | 2024-08-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap   | CAN        |
 
 
 
@@ -88,5 +90,5 @@ Feature: View order details
             And The order status is "COMPLETED".
 
             Examples:
-                | External ID | LocationCode | Priority | Status      | Items Quantity | ProductFamily       | BloodType | Quantity | Shipment Type | Shipping Method | Product Category | Desired Date | Shipping Customer Code | Shipping Customer Name     | Billing Customer Code | Billing Customer Name      | Order Comments     | Item Comments                |
-                | ORDER005    | 123456789    | STAT     | IN_PROGRESS | 1              | PLASMA_TRANSFUSABLE | AB        | 1        | CUSTOMER      | FEDEX           | FROZEN           | 2024-08-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap                  |
+                | External ID | LocationCode | Priority | Status      | Items Quantity | ProductFamily                | BloodType | Quantity | Shipment Type | Shipping Method | Product Category | Desired Date | Shipping Customer Code | Shipping Customer Name     | Billing Customer Code | Billing Customer Name      | Order Comments     | Item Comments                |
+                | ORDER005    | 123456789    | STAT     | IN_PROGRESS | 1              | PLASMA_TRANSFUSABLE          | AB        | 1        | CUSTOMER      | FEDEX           | FROZEN           | 2024-08-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap                  |

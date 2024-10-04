@@ -2,8 +2,8 @@ Feature: Complete Shipment Feature
     As a distribution technician, I want to complete a shipment, so I can ship products to the customer.
 
     Background:
-        Given I cleaned up from the database the packed item that used the unit number "W036898786802".
-        And I cleaned up from the database, all shipments with order number "108".
+        Given I cleaned up from the database the packed item that used the unit number "W036898786802,W812530106085".
+        And I cleaned up from the database, all shipments with order number "108,109".
 
     Rule: I should be able to complete a shipment whenever at least one product is filledRule: I should be able to view the list of packed products added once it is filled on the Shipment Fulfillment Details page.
     Rule: I should see a success message when the shipment is completed.
@@ -26,5 +26,6 @@ Feature: Complete Shipment Feature
             And I am not able to view the pending log of products.
 
             Examples:
-                | Order Number | Customer ID | Customer Name    | Quantity | BloodType | ProductFamily                                               | Message            | Family              | Type | UN            | Code     | Visual Inspection | Quantity Shipped |
-                | 108          | 1           | Testing Customer | 10,5,8   | A,B,O     | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE | Shipment Completed | PLASMA TRANSFUSABLE | A    | W036898786802 | E7648V00 | Satisfactory      | 1                |
+                | Order Number | Customer ID | Customer Name    | Quantity | BloodType | ProductFamily                                                                          | Message            | Family                       | Type | UN            | Code     | Visual Inspection | Quantity Shipped |
+                | 108          | 1           | Testing Customer | 10,5,8   | A,B,O     | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE                            | Shipment Completed | PLASMA TRANSFUSABLE          | A    | W036898786802 | E7648V00 | Satisfactory      | 1                |
+                | 109          | 1           | Testing Customer | 10,5,8   | ABP,BP,OP | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED | Shipment Completed | RED BLOOD CELLS LEUKOREDUCED | ABP  | W812530106085 | E0685V00 | Satisfactory      | 1                |

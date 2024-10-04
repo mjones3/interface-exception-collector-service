@@ -118,7 +118,8 @@ public class OrderDetailsPage extends CommonPageFactory {
     // Strings mappers
 
     private Map<String, String> productFamilyDescription = Map.of(
-        "PLASMA_TRANSFUSABLE", "Plasma Transfusable"
+        "PLASMA_TRANSFUSABLE", "Plasma Transfusable",
+        "RED_BLOOD_CELLS_LEUKOREDUCED","Red Blood Cells Leukoreduced"
     );
 
 
