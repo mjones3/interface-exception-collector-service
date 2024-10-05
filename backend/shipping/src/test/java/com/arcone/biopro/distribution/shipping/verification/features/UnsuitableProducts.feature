@@ -3,6 +3,7 @@ Feature: Prevent filling a shipment with unsuitable products
 
     Background:
         Given I cleaned up from the database, all shipments with order number "999771,999778,999764,999779,999765".
+        And The check digit configuration is "disabled".
 
     @ui
     Scenario Outline: Entering an unsuitable product

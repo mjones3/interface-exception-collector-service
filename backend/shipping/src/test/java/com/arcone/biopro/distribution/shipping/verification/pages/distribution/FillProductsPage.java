@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.shipping.verification.pages.distribution;
 import com.arcone.biopro.distribution.shipping.verification.pages.CommonPageFactory;
 import com.arcone.biopro.distribution.shipping.verification.pages.SharedActions;
 import com.arcone.biopro.distribution.shipping.verification.support.DatabaseService;
+import com.arcone.biopro.distribution.shipping.verification.support.TestUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.openqa.selenium.By;
@@ -39,6 +40,12 @@ public class FillProductsPage extends CommonPageFactory {
     @FindBy(id = "inspection-unsatisfactory-input")
     private WebElement visualInspectionUnsatisfactory;
 
+    @FindBy(id = "inspection-satisfactory")
+    private WebElement visualInspectionSatisfactoryOption;
+
+    @FindBy(id = "inspection-unsatisfactory")
+    private WebElement visualInspectionUnsatisfactoryOption;
+
     @FindBy(id = "backBtn")
     private WebElement backButton;
 
@@ -51,10 +58,12 @@ public class FillProductsPage extends CommonPageFactory {
     }
 
     private String formatUnitLocator(String unit) {
+        unit = TestUtils.removeUnitNumberScanDigits(unit);
         return String.format("//p-table[@id='prodTableId']//td[normalize-space()='%s']", unit);
     }
 
     private String formatProductCodeLocator(String productCode) {
+        productCode = TestUtils.removeProductCodeScanDigits(productCode);
         return String.format("//p-table[@id='prodTableId']//td[normalize-space()='%s']", productCode);
     }
 
@@ -70,7 +79,7 @@ public class FillProductsPage extends CommonPageFactory {
 
         sharedActions.sendKeys(unitNumberInput, unit);
         if (checkDigitEnabled && !unit.startsWith("=")) {
-        sharedActions.sendKeys(checkDigitInput, checkDigit);
+            sharedActions.sendKeys(checkDigitInput, checkDigit);
         }
         sharedActions.sendKeys(productCodeInput, productCode);
         sharedActions.waitLoadingAnimation();
@@ -78,7 +87,7 @@ public class FillProductsPage extends CommonPageFactory {
 
     public void defineVisualInspection(String visualInspection) {
         log.info("Defining visual inspection as {}.", visualInspection);
-        WebElement element = "satisfactory".equalsIgnoreCase(visualInspection) ? visualInspectionSatisfactory : visualInspectionUnsatisfactory;
+        WebElement element = "satisfactory".equalsIgnoreCase(visualInspection) ? visualInspectionSatisfactoryOption : visualInspectionUnsatisfactoryOption;
         sharedActions.click(element);
     }
 

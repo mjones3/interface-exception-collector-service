@@ -134,25 +134,25 @@ export class ScanUnitNumberCheckDigitComponent implements OnChanges {
     enableDisableCheckDigit() {
         if (this.showCheckDigit) {
             if (this.isScanner) {
-                this.controlCheckDigit.setValue(null);
-                this.controlCheckDigit.disable();
+                this.controlCheckDigit?.setValue(null);
+                this.controlCheckDigit?.disable();
             } else {
                 if (
                     this.controlUnitNumber.value &&
                     this.controlUnitNumber.valid
                 ) {
-                    this.controlCheckDigit.markAsUntouched();
-                    this.controlCheckDigit.enable();
+                    this.controlCheckDigit?.markAsUntouched();
+                    this.controlCheckDigit?.enable();
                 } else {
-                    this.controlCheckDigit.setValue(null);
-                    this.controlCheckDigit.disable();
+                    this.controlCheckDigit?.setValue(null);
+                    this.controlCheckDigit?.disable();
                 }
             }
         }
     }
 
     reset(): void {
-        this.controlCheckDigit.disable({ emitEvent: false, onlySelf: true });
+        this.controlCheckDigit?.disable({ emitEvent: false, onlySelf: true });
         this.form.reset();
         this.focusOnUnitNumber();
     }
@@ -166,13 +166,12 @@ export class ScanUnitNumberCheckDigitComponent implements OnChanges {
     }
 
     setValidatorsForCheckDigit(valid: boolean): void {
-        this.form
-            .get('checkDigit')
-            .setValidators([
-                Validators.required,
-                Validators.maxLength(1),
-                checkDigitValidator(valid),
-            ]);
+        const digit = this.form.get('checkDigit');
+        digit?.setValidators([
+            Validators.required,
+            Validators.maxLength(1),
+            checkDigitValidator(valid),
+        ]);
         this.form.get('checkDigit').updateValueAndValidity();
     }
 }

@@ -82,4 +82,18 @@ public class TestUtils {
         this.setFacilityCookie(this.defaultFacility, driver);
     }
 
+    public static @NotNull String removeUnitNumberScanDigits(String unit) {
+        if (unit.startsWith("=")) {
+            unit = unit.substring(1, unit.length() - 2);
+        }
+        return unit;
+    }
+
+    public static @NotNull String removeProductCodeScanDigits(String productCode) {
+        if (productCode.startsWith("=<")) {
+            productCode = productCode.substring(2);
+        }
+        return productCode;
+    }
+
 }
