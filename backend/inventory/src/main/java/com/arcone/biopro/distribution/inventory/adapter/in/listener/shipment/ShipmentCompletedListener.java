@@ -2,8 +2,8 @@ package com.arcone.biopro.distribution.inventory.adapter.in.listener.shipment;
 
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.AbstractListener;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.EventMessage;
-import com.arcone.biopro.distribution.inventory.application.dto.InventoryOutput;
 import com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput;
+import com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedOutput;
 import com.arcone.biopro.distribution.inventory.application.usecase.UseCase;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,9 +20,9 @@ import reactor.core.publisher.Mono;
 @Service
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class ShipmentCompletedListener extends AbstractListener<ShipmentCompletedInput, InventoryOutput, EventMessage<ShipmentCompletedMessage>> {
+public class ShipmentCompletedListener extends AbstractListener<ShipmentCompletedInput, ShipmentCompletedOutput, EventMessage<ShipmentCompletedMessage>> {
 
-    UseCase<Mono<InventoryOutput>, ShipmentCompletedInput> handler;
+    UseCase<Mono<ShipmentCompletedOutput>, ShipmentCompletedInput> handler;
     ShipmentCompletedMessageMapper mapper;
 
     public ShipmentCompletedListener(@Qualifier("SHIPMENT_COMPLETED_CONSUMER") ReactiveKafkaConsumerTemplate<String, String> consumer,
@@ -30,7 +30,7 @@ public class ShipmentCompletedListener extends AbstractListener<ShipmentComplete
                                      ReactiveKafkaProducerTemplate<String, String> producerDLQTemplate,
                                      @Value("${topic.shipment-completed.name}") String topic,
                                      ShipmentCompletedMessageMapper mapper,
-                                     UseCase<Mono<InventoryOutput>, ShipmentCompletedInput> handler) {
+                                     UseCase<Mono<ShipmentCompletedOutput>, ShipmentCompletedInput> handler) {
         super(consumer, objectMapper, producerDLQTemplate, topic, new TypeReference<>() {
         });
         this.mapper = mapper;
@@ -38,7 +38,7 @@ public class ShipmentCompletedListener extends AbstractListener<ShipmentComplete
     }
 
     @Override
-    protected Mono<InventoryOutput> processInput(ShipmentCompletedInput input) {
+    protected Mono<ShipmentCompletedOutput> processInput(ShipmentCompletedInput input) {
         return handler.execute(input);
     }
 

@@ -8,6 +8,7 @@ import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntity;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntityRepository;
 import com.arcone.biopro.distribution.inventory.verification.common.ScenarioContext;
+import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static com.arcone.biopro.distribution.inventory.verification.steps.KafkaListenersSteps.*;
@@ -45,6 +47,10 @@ public class RepositorySteps {
     public InventoryEntity getStoredInventory(String unitNumber, String productCode, InventoryStatus status) {
 
         return inventoryEntityRepository.findByUnitNumberAndProductCodeAndInventoryStatus(unitNumber, productCode, status).block();
+    }
+
+    private void createInventory(String unitNumber, String productCode, InventoryStatus status) {
+        this.createInventory(unitNumber, productCode, "PLASMA_TRANSFUSABLE", AboRhType.OP, "123456789", 2, status);
     }
 
     private void createInventory(String unitNumber, String productCode, String productFamily, AboRhType aboRhType, String location, Integer daysToExpire, InventoryStatus status) {
@@ -170,6 +176,29 @@ public class RepositorySteps {
                 break;
             default:
                 fail("Unknown event: " + event);
+        }
+    }
+
+    @Given("I have the following inventories:")
+    public void iHaveTheFollowingInventories(DataTable dataTable) {
+        List<Map<String, String>> inventories = dataTable.asMaps(String.class, String.class);
+        for (Map<String, String> inventory : inventories) {
+            String unitNumber = inventory.get("Unit Number");
+            String productCode = inventory.get("Product Code");
+            String status = inventory.get("Status");
+            this.createInventory(unitNumber, productCode, InventoryStatus.valueOf(status));
+        }
+    }
+
+    @Then("the inventory statuses should be updated as follows:")
+    public void theInventoryStatusesShouldBeUpdatedAsFollows(DataTable dataTable) {
+        List<Map<String, String>> inventories = dataTable.asMaps(String.class, String.class);
+        for (Map<String, String> inventory : inventories) {
+            String unitNumber = inventory.get("Unit Number");
+            String productCode = inventory.get("Product Code");
+            String expectedStatus = inventory.get("Status");
+            var inventoryEntity = this.getInventory(unitNumber, productCode);
+            assertEquals(expectedStatus, inventoryEntity.getInventoryStatus().name());
         }
     }
 }
