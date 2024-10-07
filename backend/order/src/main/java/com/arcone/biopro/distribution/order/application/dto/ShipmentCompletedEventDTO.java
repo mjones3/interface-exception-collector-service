@@ -12,6 +12,6 @@ public record ShipmentCompletedEventDTO(
     Instant occurredOn,
     String eventVersion,
     String eventType,
-    ShipmentCompletedEventPayloadDTO payload
+    ShipmentCompletedPayload payload
 ) implements Serializable {
 }

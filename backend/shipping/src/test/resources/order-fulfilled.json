@@ -5,6 +5,7 @@
   "eventType": "OrderFulfilled",
   "payload": {
     "orderNumber": {order.number},
+    "externalId": "EXTERNAL_ID",
     "priority": "ASAP",
     "status": "OPEN",
   "shippingCustomerCode": "1",

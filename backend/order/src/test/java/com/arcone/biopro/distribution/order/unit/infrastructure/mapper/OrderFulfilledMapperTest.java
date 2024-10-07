@@ -7,6 +7,7 @@ import com.arcone.biopro.distribution.order.domain.model.PickListItem;
 import com.arcone.biopro.distribution.order.domain.model.PickListItemShortDate;
 import com.arcone.biopro.distribution.order.domain.model.vo.BloodType;
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderCustomer;
+import com.arcone.biopro.distribution.order.domain.model.vo.OrderExternalId;
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderItemOrderId;
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderNumber;
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderPriority;
@@ -44,6 +45,10 @@ class OrderFulfilledMapperTest {
         var orderNumber = Mockito.mock(OrderNumber.class);
         Mockito.when(orderNumber.getOrderNumber()).thenReturn(1L);
         Mockito.when(orderMock.getOrderNumber()).thenReturn(orderNumber);
+
+        var externalId = Mockito.mock(OrderExternalId.class);
+        Mockito.when(externalId.getOrderExternalId()).thenReturn("EXTERNAL_ID");
+        Mockito.when(orderMock.getOrderExternalId()).thenReturn(externalId);
 
         var customer = Mockito.mock(OrderCustomer.class);
         Mockito.when(customer.getCode()).thenReturn("1");
@@ -116,6 +121,7 @@ class OrderFulfilledMapperTest {
 
         Assertions.assertNotNull(dto);
         Assertions.assertEquals(1L, dto.getOrderNumber());
+        Assertions.assertEquals("EXTERNAL_ID", dto.getExternalId());
         Assertions.assertEquals("DELIVERY", dto.getDeliveryType());
         Assertions.assertEquals("NAME", dto.getBillingCustomerName());
         Assertions.assertEquals("NAME", dto.getShippingCustomerName());

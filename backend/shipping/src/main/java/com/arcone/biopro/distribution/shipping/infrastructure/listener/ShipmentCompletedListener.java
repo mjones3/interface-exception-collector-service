@@ -3,6 +3,8 @@ package com.arcone.biopro.distribution.shipping.infrastructure.listener;
 import com.arcone.biopro.distribution.shipping.domain.event.ShipmentCompletedEvent;
 import com.arcone.biopro.distribution.shipping.infrastructure.config.KafkaConfiguration;
 import com.arcone.biopro.distribution.shipping.infrastructure.listener.dto.ShipmentCompletedDTO;
+import com.arcone.biopro.distribution.shipping.infrastructure.listener.dto.ShipmentCompletedItemPayload;
+import com.arcone.biopro.distribution.shipping.infrastructure.listener.dto.ShipmentCompletedItemProductPayload;
 import com.arcone.biopro.distribution.shipping.infrastructure.listener.dto.ShipmentCompletedPayload;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -12,6 +14,11 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.EventListener;
 import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
 import org.springframework.stereotype.Service;
+
+import java.time.ZonedDateTime;
+import java.util.Collections;
+
+import static java.util.Optional.ofNullable;
 
 @Service
 @Slf4j
@@ -42,14 +49,38 @@ public class ShipmentCompletedListener {
             .occurredOn(event.getOccurredOn())
             .payload(ShipmentCompletedPayload
                 .builder()
-                .orderNumber(payload.orderNumber())
                 .shipmentId(payload.shipmentId())
-                .createDate(payload.createDate())
+                .orderNumber(payload.orderNumber())
+                .externalOrderId(payload.externalOrderId())
                 .performedBy(payload.performedBy())
-                .productCode(payload.productCode())
-                .unitNumber(payload.unitNumber())
-                .bloodType(payload.bloodType())
-                .productFamily(payload.productFamily())
+                .locationCode(payload.locationCode())
+                .locationName(payload.locationName())
+                .customerCode(payload.customerCode())
+                .createDate(payload.createDate())
+                .lineItems( ofNullable(payload.lineItems())
+                    .filter(items -> !items.isEmpty())
+                    .orElseGet(Collections::emptyList)
+                    .stream()
+                    .map(lineItem -> ShipmentCompletedItemPayload
+                        .builder()
+                        .productFamily(lineItem.productFamily())
+                        .quantity(lineItem.quantity())
+                        .bloodType(lineItem.bloodType())
+                        .products(ofNullable(lineItem.products())
+                            .filter(items -> !items.isEmpty())
+                            .orElseGet(Collections::emptyList)
+                            .stream()
+                            .map(product -> ShipmentCompletedItemProductPayload
+                                .builder()
+                                .unitNumber(product.unitNumber())
+                                .productCode(product.productCode())
+                                .productFamily(product.productFamily())
+                                .aboRh(product.aboRh())
+                                .collectionDate(product.collectionDate())
+                                .expirationDate(product.expirationDate())
+                                .createDate(ZonedDateTime.now())
+                                .build()).toList())
+                        .build()).toList())
                 .build())
             .build();
 
