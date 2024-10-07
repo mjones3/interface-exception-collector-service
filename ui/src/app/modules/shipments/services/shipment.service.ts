@@ -12,6 +12,7 @@ import {
     GET_SHIPMENT_BY_ID,
     LIST_SHIPMENTS,
 } from '../graphql/shipment/query-definitions/shipment.graphql';
+import { VERIFY_CHECK_DIGIT } from '../graphql/unit-number-with-check-digit/query-definitions/unit-number-with-check-digit.graphql';
 import {
     ShipmentDetailResponseDTO,
     ShipmentResponseDTO,
@@ -53,6 +54,17 @@ export class ShipmentService {
             this.servicePath,
             PACK_ITEM,
             verifyProductDTO
+        );
+    }
+
+    validateCheckDigit(
+        unitNumber: string,
+        checkDigit: string
+    ): Observable<MutationResult<{ verifyCheckDigit: RuleResponseDTO }>> {
+        return this.dynamicGraphqlPathService.executeMutation(
+            this.servicePath,
+            VERIFY_CHECK_DIGIT,
+            { unitNumber, checkDigit }
         );
     }
 

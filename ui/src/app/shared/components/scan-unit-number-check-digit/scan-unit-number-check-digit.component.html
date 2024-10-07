@@ -12,10 +12,9 @@
                     #inputUnitNumber
                     class="w-full"
                     validateOn="touchedState"
-                    (tabOrEnterPressed)="checkValues()"
-                    (keyup)="checkValues()"
+                    (keydown.Tab)="enableDisableCheckDigit()"
+                    (keyup)="enableDisableCheckDigit()"
                     autofocus
-                    #inputField
                 />
                 @if (form.get('unitNumber').hasError('required')) {
                     <mat-error>Unit Number is Required</mat-error>
@@ -27,23 +26,27 @@
         </div>
 
         <div class="mb-4 flex flex-col items-baseline">
-            @if (!disableCheckDigit) {
+            @if (checkDigitVisible) {
                 <mat-form-field class="block">
                     <mat-label class="font-bold">Check Digit</mat-label>
                     <input
                         matInput
                         formControlName="checkDigit"
-                        id="'inCheckDigit'"
+                        id="inCheckDigit"
                         required
                         class="w-20"
                         #inputCheckDigit
                         autocomplete="off"
-                        validateOn="blur"
-                        (keyup)="checkValues($event)"
-                        (tabOrEnterPressed)="checkValues($event)"
+                        validateOn="touchedState"
+                        (input)="toUpperCase()"
+                        (keydown.Tab)="checkValues(false)"
+                        (keyup)="checkValues(true)"
                     />
                     @if (form.get('checkDigit').hasError('required')) {
                         <mat-error>Check Digit is Required</mat-error>
+                    }
+                    @if (form.get('checkDigit').hasError('invalid')) {
+                        <mat-error>{{ checkDigitInvalidMessage }}</mat-error>
                     }
                 </mat-form-field>
             }

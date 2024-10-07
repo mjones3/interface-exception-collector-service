@@ -26,6 +26,7 @@ import {
 } from 'app/core/models/browser-printing.model';
 import { BrowserPrintingService } from 'app/core/services/browser-printing/browser-printing.service';
 import { getAuthState } from 'app/core/state/auth/auth.selectors';
+import { ProductIconsService } from 'app/shared/services/product-icon.service';
 import { ToastrModule } from 'ngx-toastr';
 import { SortEvent } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -82,6 +83,7 @@ export class ShipmentDetailsComponent implements OnInit {
         private shippingLabelService: ShippingLabelService,
         private browserPrintingService: BrowserPrintingService,
         private translate: TranslateService,
+        private productIconService: ProductIconsService,
         @Inject(LOCALE_ID) public locale: string
     ) {
         this.store
@@ -143,6 +145,10 @@ export class ShipmentDetailsComponent implements OnInit {
                     this.getShippedProductsInfo();
                 }
             });
+    }
+
+    getIcon(productFamily: string) {
+        return this.productIconService.getIconByProductFamily(productFamily);
     }
 
     private convertItemToProduct(

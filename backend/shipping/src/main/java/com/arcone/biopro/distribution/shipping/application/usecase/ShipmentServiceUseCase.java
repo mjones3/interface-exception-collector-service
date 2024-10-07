@@ -9,12 +9,10 @@ import com.arcone.biopro.distribution.shipping.application.dto.NotificationDTO;
 import com.arcone.biopro.distribution.shipping.application.dto.NotificationType;
 import com.arcone.biopro.distribution.shipping.application.dto.PackItemRequest;
 import com.arcone.biopro.distribution.shipping.application.dto.RuleResponseDTO;
-import com.arcone.biopro.distribution.shipping.application.dto.ShipmentCompletedPayloadDTO;
 import com.arcone.biopro.distribution.shipping.application.dto.ShipmentItemPackedDTO;
 import com.arcone.biopro.distribution.shipping.application.exception.ProductValidationException;
 import com.arcone.biopro.distribution.shipping.application.mapper.ShipmentEventMapper;
 import com.arcone.biopro.distribution.shipping.application.util.ShipmentServiceMessages;
-import com.arcone.biopro.distribution.shipping.domain.event.ShipmentCompletedEvent;
 import com.arcone.biopro.distribution.shipping.domain.event.ShipmentCreatedEvent;
 import com.arcone.biopro.distribution.shipping.domain.model.Shipment;
 import com.arcone.biopro.distribution.shipping.domain.model.ShipmentItem;
@@ -28,6 +26,7 @@ import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemPac
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemRepository;
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemShortDateProductRepository;
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentRepository;
+import com.arcone.biopro.distribution.shipping.domain.service.ConfigService;
 import com.arcone.biopro.distribution.shipping.domain.service.ShipmentService;
 import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryResponseDTO;
 import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryValidationRequest;
@@ -54,8 +53,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
+import static java.lang.Boolean.TRUE;
 import static java.util.Optional.ofNullable;
 
 @Service
@@ -71,6 +70,7 @@ public class ShipmentServiceUseCase implements ShipmentService {
     private final ApplicationEventPublisher applicationEventPublisher;
     private final ShipmentEventMapper shipmentEventMapper;
     private final FacilityServiceMock facilityServiceMock;
+    private final ConfigService configService;
 
     @Override
     @Transactional
@@ -401,12 +401,10 @@ public class ShipmentServiceUseCase implements ShipmentService {
             .build());
     }
 
-    private Mono<ShipmentDetailResponseDTO> convertShipmentResponseDetail(Shipment shipment) {
-
-        List<ShipmentItemResponseDTO> shipmentItemList = new ArrayList<>();
-
+    private Mono<ShipmentDetailResponseDTO> convertShipmentResponseDetail(Shipment shipment, Boolean checkDigitFlag) {
         log.debug("Fetching Shipment Items for Shipment ID {}", shipment.getId());
-
+        var checkDigitActive = ofNullable(checkDigitFlag).orElse(TRUE);
+        var shipmentItemList = new ArrayList<ShipmentItemResponseDTO>();
         return shipmentItemRepository.findAllByShipmentId(shipment.getId())
             .flatMap(shipmentItem -> {
                 var shipmentItemResponse = ShipmentItemResponseDTO.builder()
@@ -458,6 +456,7 @@ public class ShipmentServiceUseCase implements ShipmentService {
                 .completedByEmployeeId(shipment.getCompletedByEmployeeId())
                 .comments(shipment.getComments())
                 .items(shipmentItemList)
+                .checkDigitActive(checkDigitActive)
                 .build()));
     }
 
@@ -495,6 +494,10 @@ public class ShipmentServiceUseCase implements ShipmentService {
     @WithSpan("getShipmentById")
     public Mono<ShipmentDetailResponseDTO> getShipmentById(Long shipmentId) {
         log.info("getting shipment detail by ID {}.....", shipmentId);
-        return shipmentRepository.findById(shipmentId).switchIfEmpty(Mono.empty()).flatMap(this::convertShipmentResponseDetail);
+        var shipmentMono = shipmentRepository.findById(shipmentId).switchIfEmpty(Mono.empty());
+        var checkDigitLookupMono = configService.findShippingCheckDigitActive();
+        return Mono.zip(shipmentMono, checkDigitLookupMono)
+            .flatMap(tuple -> this.convertShipmentResponseDetail(tuple.getT1(), tuple.getT2()));
     }
+
 }
