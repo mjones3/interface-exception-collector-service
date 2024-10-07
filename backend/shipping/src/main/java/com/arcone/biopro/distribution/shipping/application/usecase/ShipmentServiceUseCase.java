@@ -12,6 +12,7 @@ import com.arcone.biopro.distribution.shipping.application.dto.RuleResponseDTO;
 import com.arcone.biopro.distribution.shipping.application.dto.ShipmentCompletedPayloadDTO;
 import com.arcone.biopro.distribution.shipping.application.dto.ShipmentItemPackedDTO;
 import com.arcone.biopro.distribution.shipping.application.exception.ProductValidationException;
+import com.arcone.biopro.distribution.shipping.application.mapper.ShipmentEventMapper;
 import com.arcone.biopro.distribution.shipping.application.util.ShipmentServiceMessages;
 import com.arcone.biopro.distribution.shipping.domain.event.ShipmentCompletedEvent;
 import com.arcone.biopro.distribution.shipping.domain.event.ShipmentCreatedEvent;
@@ -33,7 +34,9 @@ import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.Inv
 import com.arcone.biopro.distribution.shipping.infrastructure.listener.dto.OrderFulfilledMessage;
 import com.arcone.biopro.distribution.shipping.infrastructure.listener.dto.OrderItemFulfilledMessage;
 import com.arcone.biopro.distribution.shipping.infrastructure.listener.dto.ShortDateItem;
+import com.arcone.biopro.distribution.shipping.infrastructure.service.FacilityServiceMock;
 import com.arcone.biopro.distribution.shipping.infrastructure.service.InventoryRsocketClient;
+import com.arcone.biopro.distribution.shipping.infrastructure.service.dto.FacilityDTO;
 import com.arcone.biopro.distribution.shipping.infrastructure.service.errors.InventoryServiceNotAvailableException;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import lombok.RequiredArgsConstructor;
@@ -66,6 +69,8 @@ public class ShipmentServiceUseCase implements ShipmentService {
     private final InventoryRsocketClient inventoryRsocketClient;
     private final ShipmentItemPackedRepository shipmentItemPackedRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final ShipmentEventMapper shipmentEventMapper;
+    private final FacilityServiceMock facilityServiceMock;
 
     @Override
     @Transactional
@@ -74,6 +79,7 @@ public class ShipmentServiceUseCase implements ShipmentService {
         log.info("Creating Shipment For Order number {}", message.orderNumber());
         var shipment = Shipment.builder()
             .orderNumber(message.orderNumber())
+            .externalId(message.externalId())
             .status(ShipmentStatus.valueOf(message.status()))
             .priority(ShipmentPriority.valueOf(message.priority()))
             .deliveryType(message.deliveryType())
@@ -201,22 +207,14 @@ public class ShipmentServiceUseCase implements ShipmentService {
 
     private Mono<Shipment> raiseShipmentCompleteEvent(Shipment shipment){
 
-        return Flux.from(shipmentItemPackedRepository.listAllByShipmentId(shipment.getId()).switchIfEmpty(Flux.empty()))
-            .flatMap(itemPacked -> {
-                applicationEventPublisher.publishEvent(new ShipmentCompletedEvent(ShipmentCompletedPayloadDTO
-                    .builder()
-                    .performedBy(itemPacked.getPackedByEmployeeId())
-                    .shipmentId(shipment.getId())
-                    .orderNumber(shipment.getOrderNumber())
-                    .unitNumber(itemPacked.getUnitNumber())
-                    .productCode(itemPacked.getProductCode())
-                    .bloodType(itemPacked.getBloodType().name())
-                    .productFamily(itemPacked.getProductFamily())
-                    .createDate(itemPacked.getCreateDate())
-                    .build()));
+        return facilityServiceMock.getFacilityId(shipment.getLocationCode())
+            .map(FacilityDTO::name)
+             .zipWith(getShipmentById(shipment.getId()))
+            .flatMap(tuple -> {
+                applicationEventPublisher.publishEvent(shipmentEventMapper.toShipmentCompletedEvent(tuple.getT2(),tuple.getT1()));
                 return Mono.just(shipment);
-            })
-            .then(Mono.just(shipment));
+            }).then(Mono.just(shipment));
+
     }
 
     private Mono<ShipmentItemResponseDTO> getShipmentItemById(Long shipmentItemId) {
@@ -436,6 +434,7 @@ public class ShipmentServiceUseCase implements ShipmentService {
             .then(Mono.just(ShipmentDetailResponseDTO.builder()
                 .id(shipment.getId())
                 .orderNumber(shipment.getOrderNumber())
+                .externalId(shipment.getExternalId())
                 .status(shipment.getStatus())
                 .priority(shipment.getPriority())
                 .createDate(shipment.getCreateDate())

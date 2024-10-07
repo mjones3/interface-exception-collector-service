@@ -1,7 +1,7 @@
 package com.arcone.biopro.distribution.order.infrastructure.listener;
 
 import com.arcone.biopro.distribution.order.application.dto.ShipmentCompletedEventDTO;
-import com.arcone.biopro.distribution.order.application.dto.ShipmentCompletedEventPayloadDTO;
+import com.arcone.biopro.distribution.order.application.dto.ShipmentCompletedPayload;
 import com.arcone.biopro.distribution.order.domain.service.ShipmentCompletedService;
 import com.arcone.biopro.distribution.order.infrastructure.config.KafkaConfiguration;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -84,7 +84,7 @@ public class ShipmentCompletedListener implements CommandLineRunner {
 
         } catch (JsonProcessingException e) {
             log.error(String.format("Problem deserializing an instance of [%s] " +
-                "with the following json: %s ", ShipmentCompletedEventPayloadDTO.class.getSimpleName(), event), e);
+                "with the following json: %s ", ShipmentCompletedPayload.class.getSimpleName(), event), e);
             return Mono.error(new RuntimeException(e));
         }
     }

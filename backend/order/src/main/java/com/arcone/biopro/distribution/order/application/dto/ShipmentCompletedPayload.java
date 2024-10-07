@@ -1,4 +1,4 @@
-package com.arcone.biopro.distribution.shipping.infrastructure.listener.dto;
+package com.arcone.biopro.distribution.order.application.dto;
 
 import lombok.Builder;
 

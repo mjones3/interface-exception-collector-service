@@ -14,6 +14,7 @@ import java.util.List;
 public class OrderFulfilledDTO implements Serializable {
     private Long id;
     private Long orderNumber;
+    private String externalId;
     private String shippingCustomerCode;
     private String billingCustomerCode;
     private String deliveryType;

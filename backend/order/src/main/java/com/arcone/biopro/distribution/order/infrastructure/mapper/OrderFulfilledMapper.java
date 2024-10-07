@@ -31,6 +31,7 @@ public class OrderFulfilledMapper {
 
         var orderFulfilledDTO = new OrderFulfilledDTO();
         orderFulfilledDTO.setOrderNumber(order.getOrderNumber().getOrderNumber());
+        orderFulfilledDTO.setExternalId(order.getOrderExternalId().getOrderExternalId());
         orderFulfilledDTO.setLocationCode(order.getLocationCode());
         orderFulfilledDTO.setBillingCustomerCode(order.getBillingCustomer().getCode());
         orderFulfilledDTO.setBillingCustomerName(order.getBillingCustomer().getName());

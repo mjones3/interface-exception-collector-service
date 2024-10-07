@@ -5,6 +5,7 @@ import com.arcone.biopro.distribution.shipping.adapter.in.web.dto.ShipmentItemRe
 import com.arcone.biopro.distribution.shipping.application.dto.CompleteShipmentRequest;
 import com.arcone.biopro.distribution.shipping.application.dto.PackItemRequest;
 import com.arcone.biopro.distribution.shipping.application.dto.RuleResponseDTO;
+import com.arcone.biopro.distribution.shipping.application.mapper.ShipmentEventMapper;
 import com.arcone.biopro.distribution.shipping.application.usecase.ShipmentServiceUseCase;
 import com.arcone.biopro.distribution.shipping.application.util.ShipmentServiceMessages;
 import com.arcone.biopro.distribution.shipping.domain.event.ShipmentCompletedEvent;
@@ -28,7 +29,9 @@ import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.Inv
 import com.arcone.biopro.distribution.shipping.infrastructure.listener.dto.OrderFulfilledMessage;
 import com.arcone.biopro.distribution.shipping.infrastructure.listener.dto.OrderItemFulfilledMessage;
 import com.arcone.biopro.distribution.shipping.infrastructure.listener.dto.ShortDateItem;
+import com.arcone.biopro.distribution.shipping.infrastructure.service.FacilityServiceMock;
 import com.arcone.biopro.distribution.shipping.infrastructure.service.InventoryRsocketClient;
+import com.arcone.biopro.distribution.shipping.infrastructure.service.dto.FacilityDTO;
 import com.arcone.biopro.distribution.shipping.infrastructure.service.errors.InventoryServiceNotAvailableException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -65,6 +68,8 @@ class ShipmentServiceUseCaseTest {
     private ShipmentItemPackedRepository shipmentItemPackedRepository;
     private ReactiveKafkaProducerTemplate<String, ShipmentCompletedEvent> producerTemplate;
     private ApplicationEventPublisher applicationEventPublisher;
+    private ShipmentEventMapper shipmentEventMapper;
+    private FacilityServiceMock facilityServiceMock;
 
     private ShipmentServiceUseCase useCase;
 
@@ -76,8 +81,11 @@ class ShipmentServiceUseCaseTest {
         inventoryRsocketClient = Mockito.mock(InventoryRsocketClient.class);
         shipmentItemPackedRepository = Mockito.mock( ShipmentItemPackedRepository.class);
         applicationEventPublisher = Mockito.mock(ApplicationEventPublisher.class);
+        shipmentEventMapper = new ShipmentEventMapper();
+        facilityServiceMock = Mockito.mock(FacilityServiceMock.class);
 
-        useCase = new ShipmentServiceUseCase(shipmentRepository,shipmentItemRepository,shipmentItemShortDateProductRepository,inventoryRsocketClient,shipmentItemPackedRepository,applicationEventPublisher);
+
+        useCase = new ShipmentServiceUseCase(shipmentRepository,shipmentItemRepository,shipmentItemShortDateProductRepository,inventoryRsocketClient,shipmentItemPackedRepository,applicationEventPublisher,shipmentEventMapper,facilityServiceMock);
     }
     @Test
     public void shouldCreateShipment(){
@@ -145,6 +153,7 @@ class ShipmentServiceUseCaseTest {
         Shipment shipment = Mockito.mock(Shipment.class);
         Mockito.when(shipment.getId()).thenReturn(1L);
         Mockito.when(shipment.getOrderNumber()).thenReturn(56L);
+        Mockito.when(shipment.getExternalId()).thenReturn("EXTERNAL_ID");
         Mockito.when(shipment.getStatus()).thenReturn(ShipmentStatus.OPEN);
         Mockito.when(shipment.getPriority()).thenReturn(ShipmentPriority.ASAP);
         Mockito.when(shipment.getComments()).thenReturn("TEST_COMMENTS");
@@ -179,6 +188,7 @@ class ShipmentServiceUseCaseTest {
             .create(orderDetail)
             .consumeNextWith(detail -> {
                 assertEquals(Optional.of(56L), Optional.of(detail.orderNumber()));
+                assertEquals(Optional.of("EXTERNAL_ID"), Optional.of(detail.externalId()));
                 assertEquals(Optional.of(ShipmentStatus.OPEN), Optional.of(detail.status()));
                 assertEquals(Optional.of(ShipmentPriority.ASAP), Optional.of(detail.priority()));
                 assertEquals(Optional.of("TEST_COMMENTS"), Optional.of(detail.comments()));
@@ -526,29 +536,51 @@ class ShipmentServiceUseCaseTest {
     @Test
     public void shouldCompleteShipment(){
 
+        Shipment shipment = Mockito.mock(Shipment.class);
+        Mockito.when(shipment.getId()).thenReturn(1L);
+        Mockito.when(shipment.getOrderNumber()).thenReturn(56L);
+        Mockito.when(shipment.getExternalId()).thenReturn("EXTERNAL_ID");
+        Mockito.when(shipment.getStatus()).thenReturn(ShipmentStatus.OPEN);
+        Mockito.when(shipment.getPriority()).thenReturn(ShipmentPriority.ASAP);
+        Mockito.when(shipment.getComments()).thenReturn("TEST_COMMENTS");
+        Mockito.when(shipment.getLocationCode()).thenReturn("LOCATION_CODE");
 
-        Mockito.when(shipmentRepository.findById(1L)).thenReturn(Mono.just(Shipment.builder()
-            .status(ShipmentStatus.OPEN)
+        Mockito.when(shipmentRepository.findById(1L)).thenReturn(Mono.just(shipment));
+
+
+        ShipmentItem item = Mockito.mock(ShipmentItem.class);
+        Mockito.when(item.getId()).thenReturn(1L);
+        Mockito.when(item.getProductFamily()).thenReturn("product_family");
+        Mockito.when(item.getBloodType()).thenReturn(BloodType.AP);
+
+        Mockito.when(shipmentItemRepository.findAllByShipmentId(1L)).thenReturn(Flux.just(item));
+
+        Mockito.when(shipmentItemShortDateProductRepository.findAllByShipmentItemId(1L)).thenReturn(Flux.empty());
+
+        Mockito.when(shipmentItemPackedRepository.findAllByShipmentItemId(Mockito.any())).thenReturn(Flux.just(ShipmentItemPacked.builder()
+            .id(1L)
+            .shipmentItemId(1L)
+            .unitNumber("UN")
+            .productCode("product_code")
             .build()));
+
 
         Mockito.when(shipmentRepository.save(Mockito.any(Shipment.class))).thenReturn(Mono.just(Shipment.builder()
                 .id(1L)
                 .status(ShipmentStatus.COMPLETED)
+                .locationCode("LOCATION_CODE")
             .build()));
 
-        Mockito.when(shipmentItemPackedRepository.listAllByShipmentId(1L)).thenReturn(Flux.just(ShipmentItemPacked.builder()
-                .id(1L)
-                .shipmentItemId(1L)
-                .unitNumber("UN")
-                .productCode("product_code")
-                .productFamily("PRODUCT_FAMILY")
-                .bloodType(BloodType.AP)
-            .build()));
+
 
         Mono<RuleResponseDTO> result = useCase.completeShipment(CompleteShipmentRequest.builder()
             .shipmentId(1L)
             .employeeId("test")
             .build());
+
+        Mockito.when(facilityServiceMock.getFacilityId(Mockito.anyString())).thenReturn(Mono.just(FacilityDTO.builder()
+            .name("Facility Name")
+            .build()));
 
 
         StepVerifier

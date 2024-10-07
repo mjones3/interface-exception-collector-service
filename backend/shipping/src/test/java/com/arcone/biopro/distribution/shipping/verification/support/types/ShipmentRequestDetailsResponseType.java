@@ -14,6 +14,7 @@ import java.util.List;
 public class ShipmentRequestDetailsResponseType {
     Long id;
     Long orderNumber;
+    String externalId;
     String priority;
     String status;
     ZonedDateTime createDate;
