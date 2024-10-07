@@ -158,10 +158,6 @@ export class FillProductsComponent implements OnInit {
         return this.shipmentProduct?.quantity;
     }
 
-    get productFamily() {
-        return this.shipmentProduct?.productFamily;
-    }
-
     get shipmentId() {
         return this.route.snapshot.params?.id;
     }
