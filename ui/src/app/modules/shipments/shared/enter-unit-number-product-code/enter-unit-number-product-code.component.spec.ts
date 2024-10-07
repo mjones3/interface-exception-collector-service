@@ -114,7 +114,7 @@ describe('EnterUnitNumberProductCodeComponent', () => {
                                 code: 400,
                                 action: null,
                                 reason: null,
-                                message: 'Check Digit is invalid',
+                                message: 'Check Digit is Invalid',
                             },
                         ],
                     },

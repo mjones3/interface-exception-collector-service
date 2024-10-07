@@ -36,7 +36,7 @@ public class UnitNumberWithCheckDigit implements Validatable {
         var verifiedCheckDigit = String.valueOf(ALLOWED_CHARACTERS.charAt(calculatedChecksum));
 
         if (!this.isValid(checkDigit, verifiedCheckDigit)) {
-            throw new IllegalArgumentException("Check Digit is invalid");
+            throw new IllegalArgumentException("Check Digit is Invalid");
         }
         return verifiedCheckDigit;
     }
