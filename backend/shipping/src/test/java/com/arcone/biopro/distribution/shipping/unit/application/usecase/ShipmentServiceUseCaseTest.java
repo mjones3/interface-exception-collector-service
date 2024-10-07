@@ -18,7 +18,6 @@ import com.arcone.biopro.distribution.shipping.domain.model.enumeration.BloodTyp
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.ShipmentPriority;
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.ShipmentStatus;
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.VisualInspection;
-import com.arcone.biopro.distribution.shipping.domain.repository.LookupRepository;
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemPackedRepository;
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemRepository;
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemShortDateProductRepository;
@@ -50,7 +49,6 @@ import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.Assert.*;
@@ -64,7 +62,6 @@ class ShipmentServiceUseCaseTest {
     private InventoryRsocketClient inventoryRsocketClient;
     private ShipmentItemPackedRepository shipmentItemPackedRepository;
     private ApplicationEventPublisher applicationEventPublisher;
-    private LookupRepository lookupRepository;
     private ShipmentEventMapper shipmentEventMapper;
     private FacilityServiceMock facilityServiceMock;
     private ConfigService configService;
@@ -79,12 +76,11 @@ class ShipmentServiceUseCaseTest {
         inventoryRsocketClient = Mockito.mock(InventoryRsocketClient.class);
         shipmentItemPackedRepository = Mockito.mock( ShipmentItemPackedRepository.class);
         applicationEventPublisher = Mockito.mock(ApplicationEventPublisher.class);
-        lookupRepository = Mockito.mock(LookupRepository.class);
         shipmentEventMapper = new ShipmentEventMapper();
         facilityServiceMock = Mockito.mock(FacilityServiceMock.class);
         configService = Mockito.mock(ConfigService.class);
 
-        useCase = new ShipmentServiceUseCase(shipmentRepository,shipmentItemRepository,shipmentItemShortDateProductRepository,inventoryRsocketClient,shipmentItemPackedRepository,applicationEventPublisher,lookupRepository,shipmentEventMapper,facilityServiceMock,configService);
+        useCase = new ShipmentServiceUseCase(shipmentRepository,shipmentItemRepository,shipmentItemShortDateProductRepository,inventoryRsocketClient,shipmentItemPackedRepository,applicationEventPublisher,shipmentEventMapper,facilityServiceMock,configService);
     }
 
     @Test
@@ -557,6 +553,7 @@ class ShipmentServiceUseCaseTest {
         Mockito.when(shipment.getLocationCode()).thenReturn("LOCATION_CODE");
 
         Mockito.when(shipmentRepository.findById(1L)).thenReturn(Mono.just(shipment));
+        Mockito.when(configService.findShippingCheckDigitActive()).thenReturn(Mono.just(Boolean.FALSE));
 
         ShipmentItem item = Mockito.mock(ShipmentItem.class);
         Mockito.when(item.getId()).thenReturn(1L);
