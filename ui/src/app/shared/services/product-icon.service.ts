@@ -14,7 +14,15 @@ export class ProductIconsService {
             productFamily: 'PLASMA_MFG_NONINJECTABLE',
             value: 'rsa:product-plasma',
         },
+        {
+            productFamily: 'PLASMA_MFG_INJECTABLE',
+            value: 'rsa:product-plasma',
+        },
         { productFamily: 'RED_BLOOD_CELLS', value: 'rsa:product-rbc' },
+        {
+            productFamily: 'RED_BLOOD_CELLS_LEUKOREDUCED',
+            value: 'rsa:product-rbc',
+        },
         { productFamily: 'PLATELETS', value: 'rsa:product-platelets' },
     ];
 
