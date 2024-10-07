@@ -40,9 +40,6 @@ public class KafkaListenersSteps {
     @Value("${topic.product-stored.name}")
     private String productStoredTopic;
 
-    @Value("${topic.shipment-completed.name}")
-    private String shipmentCompletedTopic;
-
     @Value("${topic.product-discarded.name}")
     private String productDiscardedTopic;
 
@@ -62,23 +59,7 @@ public class KafkaListenersSteps {
 
     private final LogMonitor logMonitor;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    private static final String SHIPMENT_COMPLETED_MESSAGE = """
-         {
-           "eventType":"ShipmentCompleted",
-           "eventVersion":"1.0",
-           "payload" : {
-                "shipmentId":2,
-                "orderNumber":1,
-                "unitNumber":"%s",
-                "productCode":"%s",
-                "performedBy":"test-emplyee-id",
-                "createDate":"2024-06-14T15:17:25.666122Z"
-            }
-         }
-        """;
+    private final ObjectMapper objectMapper;
 
     private final KafkaHelper kafkaHelper;
 
@@ -237,7 +218,6 @@ public class KafkaListenersSteps {
         populateTestData();
         topicsMap = Map.of(
             EVENT_LABEL_APPLIED, labelAppliedTopic,
-            EVENT_SHIPMENT_COMPLETED, shipmentCompletedTopic,
             EVENT_PRODUCT_STORED, productStoredTopic,
             EVENT_PRODUCT_DISCARDED, productDiscardedTopic,
             EVENT_PRODUCT_QUARANTINED, productQuarantinedTopic,
@@ -249,7 +229,6 @@ public class KafkaListenersSteps {
         messagesMap = Map.of(
             EVENT_LABEL_APPLIED, LABEL_APPLIED_MESSAGE,
             EVENT_PRODUCT_STORED, PRODUCT_STORED_MESSAGE,
-            EVENT_SHIPMENT_COMPLETED, SHIPMENT_COMPLETED_MESSAGE,
             EVENT_PRODUCT_DISCARDED, PRODUCT_DISCARDED_MESSAGE,
             EVENT_PRODUCT_QUARANTINED, PRODUCT_QUARANTINED_MESSAGE,
             EVENT_QUARANTINE_REMOVED, QUARANTINE_REMOVED_MESSAGE,
