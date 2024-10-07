@@ -47,7 +47,7 @@ class UnitNumberWithCheckDigitUseCaseTest {
                 assertEquals(HttpStatus.BAD_REQUEST, detail.ruleCode());
                 assertNull(detail.results());
                 assertEquals("INVALID_CHECK_DIGIT", firstNotification.name());
-                assertEquals("Check Digit is invalid", firstNotification.message());
+                assertEquals("Check Digit is Invalid", firstNotification.message());
                 assertEquals(NotificationType.WARN.name(), firstNotification.notificationType());
             })
             .verifyComplete();
