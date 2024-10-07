@@ -28,6 +28,7 @@ import {
 } from '@shared';
 import { ERROR_MESSAGE } from 'app/core/data/common-labels';
 import { getAuthState } from 'app/core/state/auth/auth.selectors';
+import { ProductIconsService } from 'app/shared/services/product-icon.service';
 import { Cookie } from 'app/shared/types/cookie.enum';
 import { CookieService } from 'ngx-cookie-service';
 import { TableModule } from 'primeng/table';
@@ -97,7 +98,8 @@ export class FillProductsComponent implements OnInit {
         private _router: Router,
         private cd: ChangeDetectorRef,
         private confirmationService: FuseConfirmationService,
-        private discardService: DiscardService
+        private discardService: DiscardService,
+        private productIconService: ProductIconsService
     ) {
         this.store
             .select(getAuthState)
@@ -125,6 +127,10 @@ export class FillProductsComponent implements OnInit {
                 this.setProdInfo();
                 this.cd.detectChanges();
             });
+    }
+
+    getIcon(productFamily: string) {
+        return this.productIconService.getIconByProductFamily(productFamily);
     }
 
     private setProdInfo() {

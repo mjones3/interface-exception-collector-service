@@ -7,6 +7,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ApolloTestingModule } from 'apollo-angular/testing';
 import { ToastrModule } from 'ngx-toastr';
 import { of } from 'rxjs';
+import { VerifyFilledProductDto } from '../models/shipment-info.dto';
 import { ShipmentService } from '../services/shipment.service';
 import { FillProductsComponent } from './fill-products.component';
 
@@ -48,12 +49,29 @@ describe('FillProductsComponent', () => {
         component = fixture.componentInstance;
         service = TestBed.inject(ShipmentService);
         jest.spyOn(service, 'getShipmentById').mockReturnValue(of());
+        jest.spyOn(service, 'verifyShipmentProduct').mockReturnValue(of());
         jest.spyOn(router, 'navigateByUrl');
         fixture.detectChanges();
     });
 
     it('should create', () => {
         expect(component).toBeTruthy();
+    });
+
+    it('should fetch shipment details', () => {
+        component.fetchShipmentDetails();
+        expect(service.getShipmentById).toHaveBeenCalledWith(1);
+    });
+
+    it('should add filled products', () => {
+        const filledProduct: VerifyFilledProductDto = {
+            unitNumber: 'W036898786769',
+            productCode: 'E9747D0E',
+            visualInspection: 'SATISFACTORY',
+        };
+        component.filledProductsData = [];
+        component.unitNumberProductCodeSelected(filledProduct);
+        expect(service.verifyShipmentProduct).toHaveBeenCalled();
     });
 
     it('should navigate back to shipment details page', () => {

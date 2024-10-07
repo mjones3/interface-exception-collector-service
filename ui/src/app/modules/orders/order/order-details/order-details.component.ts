@@ -15,6 +15,7 @@ import {
 } from '@shared';
 import { OrderWidgetsSidebarComponent } from 'app/modules/shipments/shared/order-widgets-sidebar/order-widgets-sidebar.component';
 import { ProductFamilyMap } from 'app/shared/models/product-family.model';
+import { ProductIconsService } from 'app/shared/services/product-icon.service';
 import { ToastrModule } from 'ngx-toastr';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
@@ -99,7 +100,8 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
         private matDialog: MatDialog,
         private orderService: OrderService,
         private toaster: ToastrImplService,
-        private fuseConfirmationService: FuseConfirmationService
+        private fuseConfirmationService: FuseConfirmationService,
+        private productIconService: ProductIconsService
     ) {}
 
     get isOrderComplete(): boolean {
@@ -290,5 +292,9 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
         }
         this.toaster?.error(ERROR_MESSAGE);
         throw error;
+    }
+
+    getIcon(productFamily: string) {
+        return this.productIconService.getIconByProductFamily(productFamily);
     }
 }
