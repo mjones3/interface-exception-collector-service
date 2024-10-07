@@ -20,7 +20,7 @@ const GET_SHIPMENT_BY_ID = gql<
     { getShipmentDetailsById: ShipmentDetailResponseDTO },
     { shipmentId: number }
 >`
-    query getShipmentDetailsById($shipmentId: ID!) {
+    query GetShipmentDetailsById($shipmentId: ID!) {
         getShipmentDetailsById(shipmentId: $shipmentId) {
             id
             orderNumber
@@ -44,8 +44,9 @@ const GET_SHIPMENT_BY_ID = gql<
             customerAddressAddressLine1
             customerAddressAddressLine2
             completeDate
-            comments
             completedByEmployeeId
+            comments
+            checkDigitActive
             items {
                 id
                 shipmentId

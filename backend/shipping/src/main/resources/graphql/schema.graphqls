@@ -1,5 +1,4 @@
 scalar DateTime
-@specifiedBy(url: "https://scalars.graphql.org/andimarek/date-time.html")
 scalar Date
 scalar JSON
 
@@ -8,10 +7,12 @@ type Query {
     generateShippingLabel(shipmentId: ID!):ShippingLabelDTO!
     listShipments:[ShipmentResponseDTO]
     getShipmentDetailsById(shipmentId: ID!):ShipmentDetailResponseDTO!
+
+    # Unit Number with Check Digit Verification
+    verifyCheckDigit(unitNumber: String!, checkDigit: String!): RuleResponseDTO!
 }
 
 type Mutation {
-
     packItem(packItemRequest:PackItemRequest!):RuleResponseDTO!
     completeShipment(completeShipmentRequest:CompleteShipmentRequest!):RuleResponseDTO!
 }
@@ -75,9 +76,9 @@ type ShipmentResponseDTO {
 type ShipmentDetailResponseDTO {
     id: ID!
     orderNumber: Int
-    priority:ShipmentPriority
-    status:ShipmentStatus
-    createDate:DateTime
+    priority: ShipmentPriority
+    status: ShipmentStatus
+    createDate: DateTime
     shippingCustomerCode: String
     locationCode: String
     deliveryType: String
@@ -96,8 +97,9 @@ type ShipmentDetailResponseDTO {
     customerAddressAddressLine2: String
     completeDate: DateTime
     completedByEmployeeId: String
-    comments:String
+    comments: String
     items: [ShipmentItemResponseDTO]
+    checkDigitActive: Boolean!
 }
 
 type ShipmentItemResponseDTO {
