@@ -1,4 +1,4 @@
-package com.arcone.biopro.distribution.inventory.unit;
+package com.arcone.biopro.distribution.inventory.integration;
 
 import com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput;
 import com.arcone.biopro.distribution.inventory.application.usecase.ShipmentCompletedUseCase;
@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 @DirtiesContext
 @EmbeddedKafka(partitions = 1, topics = {"ShipmentCompleted"}, brokerProperties = {"listeners=PLAINTEXT://localhost:9092", "port=9092"})
-public class KafkaListenerShipmentCompletedIntegrationTest {
+public class KafkaListenerShipmentCompletedIntegrationIT {
 
     private static final String TOPIC = "ShipmentCompleted";
 
