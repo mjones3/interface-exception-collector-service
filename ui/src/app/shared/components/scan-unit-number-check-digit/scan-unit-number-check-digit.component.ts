@@ -82,7 +82,6 @@ export class ScanUnitNumberCheckDigitComponent implements OnChanges {
                     checkDigitValidator(false),
                 ])
             );
-            this.controlCheckDigit?.setValidators(null);
             this.controlCheckDigit?.updateValueAndValidity();
         } else {
             this.form.removeControl('checkDigit');
@@ -98,7 +97,6 @@ export class ScanUnitNumberCheckDigitComponent implements OnChanges {
     }
 
     get checkDigitVisible(): boolean {
-        this.enableDisableCheckDigit();
         return (
             this.showCheckDigit &&
             !this.isScanner &&
@@ -149,6 +147,7 @@ export class ScanUnitNumberCheckDigitComponent implements OnChanges {
                 }
             }
         }
+        this.checkValues(false);
     }
 
     reset(): void {
@@ -173,5 +172,14 @@ export class ScanUnitNumberCheckDigitComponent implements OnChanges {
             checkDigitValidator(valid),
         ]);
         this.form.get('checkDigit').updateValueAndValidity();
+    }
+
+    toUpperCase() {
+        const checkDigitControl = this.form.get('checkDigit');
+        const checkDigitValue =
+            typeof checkDigitControl.value === 'string'
+                ? checkDigitControl.value.toUpperCase()
+                : checkDigitControl.value;
+        checkDigitControl.setValue(checkDigitValue);
     }
 }

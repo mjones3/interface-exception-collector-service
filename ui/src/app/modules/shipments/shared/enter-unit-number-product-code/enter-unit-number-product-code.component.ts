@@ -167,18 +167,19 @@ export class EnterUnitNumberProductCodeComponent {
         return this.productGroup.controls.productCode.value;
     }
 
-    enableVisualInspection(): void {
-        console.log(
+    get checkDigitValid() {
+        return (
             !this.unitNumberComponent.form.contains('checkDigit') ||
-                (this.unitNumberComponent.form.contains('checkDigit') &&
-                    this.unitNumberComponent.form.controls.checkDigit.valid)
+            (this.unitNumberComponent.form.contains('checkDigit') &&
+                this.unitNumberComponent.form.controls.checkDigit.valid)
         );
+    }
+
+    enableVisualInspection(): void {
         if (
             this.productGroup.controls.unitNumber.valid &&
             this.productGroup.controls.productCode.valid &&
-            (!this.unitNumberComponent.form.contains('checkDigit') ||
-                (this.unitNumberComponent.form.contains('checkDigit') &&
-                    this.unitNumberComponent.form.controls.checkDigit.valid))
+            this.checkDigitValid
         ) {
             this.productGroup.controls.visualInspection.enable();
         } else {

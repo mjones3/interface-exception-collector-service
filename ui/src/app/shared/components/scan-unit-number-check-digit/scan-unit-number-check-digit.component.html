@@ -12,8 +12,8 @@
                     #inputUnitNumber
                     class="w-full"
                     validateOn="touchedState"
-                    (keydown.Tab)="checkValues(false)"
-                    (keyup)="checkValues(false)"
+                    (keydown.Tab)="enableDisableCheckDigit()"
+                    (keyup)="enableDisableCheckDigit()"
                     autofocus
                 />
                 @if (form.get('unitNumber').hasError('required')) {
@@ -37,7 +37,8 @@
                         class="w-20"
                         #inputCheckDigit
                         autocomplete="off"
-                        validateOn="blur"
+                        validateOn="touchedState"
+                        (input)="toUpperCase()"
                         (keydown.Tab)="checkValues(false)"
                         (keyup)="checkValues(true)"
                     />

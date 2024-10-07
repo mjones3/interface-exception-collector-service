@@ -51,6 +51,8 @@ describe('EnterUnitNumberProductCodeComponent', () => {
     it('should enable visual inspection when the inputs for unit number and product code are valid', () => {
         component.productGroup.controls.unitNumber.setValue('W036898786800');
         component.productGroup.controls.productCode.setValue('E7644V00');
+        jest.spyOn(component, 'checkDigitValid', 'get').mockReturnValue(true);
+        component.unitNumberComponent.controlCheckDigit.setValue('E');
         component.enableVisualInspection();
         expect(
             component.productGroup.controls.visualInspection.enabled
