@@ -1,9 +1,20 @@
 package com.arcone.biopro.distribution.inventory.application.dto;
 
+import java.util.List;
+
 public record ShipmentCompletedInput(
     String shipmentId,
-    String productCode,
     String orderNumber,
-    String unitNumber,
-    String performedBy) {
+    String performedBy,
+    List<LineItem> lineItems) {
+
+    public record LineItem(
+        List<Product> products) {
+
+        public record Product(
+            String unitNumber,
+            String productCode) {
+        }
+    }
 }
+

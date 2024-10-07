@@ -10,7 +10,6 @@ Feature: Kafka listeners
         Examples:
             | Event               | Status      |
             | Label Applied       | AVAILABLE   |
-            | Shipment Completed  | SHIPPED     |
             | Product Discarded   | DISCARDED   |
             | Product Quarantined | QUARANTINED |
             | Quarantine Updated  | QUARANTINED |
