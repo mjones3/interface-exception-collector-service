@@ -41,8 +41,7 @@ export const commonRegex = {
     codabarUnitNumber: '^d[0-9]{7}d$',
     codabarProductCode: '^a0[0-9]{5}3b$',
     aboRh: '^([A-Z]|=%[a-zA-Z]{1}[0-9]{3}|=%[a-zA-Z]{2}[0-9]{2}|=%[0-9]{4})',
-  };
-
+};
 
 export const getLocalTimeZone = (dateInput: Date | string): string => {
     const dateObject = dateInput || new Date(),
@@ -82,20 +81,37 @@ export const getTextWidth = (text, font) => {
     return metrics.width;
 };
 
-export const isInputElement = el => /^(?:input|select|textarea)$/i.test(el.nodeName);
+export const isInputElement = (el) =>
+    /^(?:input|select|textarea)$/i.test(el.nodeName);
+
+export const extractUnitNumber = (barcode: string): string => {
+    if (new RegExp(commonRegex.unitNumber, 'g').test(barcode)) {
+        return barcode;
+    }
+    const unitNumberWithZerosTailTest = new RegExp(
+        commonRegex.unitNumberWithZerosTail
+    ).test(barcode);
+    if (!unitNumberWithZerosTailTest) {
+        return;
+    }
+    return barcode.replace(
+        new RegExp(commonRegex.extractUnitNumber),
+        (match, g1, g2) => g2
+    );
+};
 
 /**
  * Interpolation Messages Utils
  */
 const interpolationRegex = /<%=[^<]+%>/g;
 export const interpolate = (template, variables, fallback = '') => {
-  return template.replace(interpolationRegex, (match: string) => {
-    const path = match.slice(3, -2).trim();
-    return getObjPath(path, variables, fallback);
-  });
+    return template.replace(interpolationRegex, (match: string) => {
+        const path = match.slice(3, -2).trim();
+        return getObjPath(path, variables, fallback);
+    });
 };
 
 //Get the specified property or nested property of an object
 function getObjPath(path, obj, fallback = '') {
     return path.split('.').reduce((res, key) => res[key] || fallback, obj);
-  }
+}

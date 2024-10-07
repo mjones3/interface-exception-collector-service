@@ -189,10 +189,14 @@ spring:
             client-secret: web_app
             scope: openid, profile, email, offline_access # last one for refresh tokens
 
+  sql:
+    init:
+      mode: always
   rsocket:
     server:
       port: 8585
       transport: tcp
+
 otel:
   service:
     name: ${spring.application.name}

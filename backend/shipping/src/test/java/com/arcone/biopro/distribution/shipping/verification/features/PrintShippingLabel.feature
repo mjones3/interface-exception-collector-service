@@ -2,7 +2,7 @@ Feature: Print Shipping Label
     As a DT, I want to be able to view and print the shipping label, so I can ensure that the box is going to the correct location and place it in the box.
 
     Background:
-        Given I cleaned up from the database the packed item that used the unit number "W036898786810,W036810946401,W812530106085".
+        Given I cleaned up from the database the packed item that used the unit number "W036898786810,W036810946401,W812530106087".
         And I cleaned up from the database, all shipments with order number "456,432,457".
 
     Rule: I should be able to view and print the shipping label in pdf format when the shipment is completed.
@@ -21,7 +21,7 @@ Feature: Print Shipping Label
             Examples:
                 | Order Number | Location Code | Customer ID | Customer Name        | Department    | Address Line 1 | Address Line 2 | Unit Number   | Product Code | Product Family               | Blood Type | Expiration | Quantity |
                 | 456          | 123456789     | 1           | Random Hospital Inc. | Blood Banking | Street 1       | Suite 2        | W036898786810 | E4697V00     | PLASMA_TRANSFUSABLE          | AP         | 04-09-2025 | 1        |
-                | 457          | 123456789     | 1           | Random Hospital Inc. | Blood Banking | Street 1       | Suite 2        | W812530106085 | E0685V00     | RED_BLOOD_CELLS_LEUKOREDUCED | ABP        | 04-09-2025 | 1        |
+                | 457          | 123456789     | 1           | Random Hospital Inc. | Blood Banking | Street 1       | Suite 2        | W812530106087 | E0685V00     | RED_BLOOD_CELLS_LEUKOREDUCED | AP         | 04-09-2025 | 1        |
 
     Rule: I should not be able to view and print the shipping label in pdf format when the shipment is not completed.
         @ui

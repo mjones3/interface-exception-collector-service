@@ -3,9 +3,8 @@
         <div class="flex w-3/4 flex-col space-y-1">
             <rsa-scan-unit-number-check-digit
                 id="scanOrEnterUnitNumberId"
-                [disableCheckDigit]="disableCheckDigit"
+                [showCheckDigit]="showCheckDigit"
                 (validate)="verifyUnit($event)"
-                [inputFocus]="unitNumberFocus"
                 #unitnumber
             >
             </rsa-scan-unit-number-check-digit>
@@ -26,7 +25,8 @@
                             validateOn="touchedState"
                             rsaBarcode
                             (keyup)="enableVisualInspection()"
-                            (tabOrEnterPressed)="enableVisualInspection()"
+                            (keydown.Enter)="enableVisualInspection()"
+                            (keydown.Tab)="enableVisualInspection()"
                             [placeholder]="'Scan or Enter Product Code'"
                         />
                         @if (

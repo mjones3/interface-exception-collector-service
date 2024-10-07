@@ -1,7 +1,9 @@
+import { CommonModule } from '@angular/common';
 import {
     ChangeDetectorRef,
     Component,
     EventEmitter,
+    Input,
     Output,
     ViewChild,
 } from '@angular/core';
@@ -14,12 +16,21 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
-import { RsaValidators, ScanUnitNumberCheckDigitComponent } from '@shared';
+import {
+    RsaValidators,
+    ScanUnitNumberCheckDigitComponent,
+    ToastrImplService,
+} from '@shared';
+import { ERROR_MESSAGE } from 'app/core/data/common-labels';
+import { RuleResponseDTO } from 'app/shared/models/rule.model';
+import { catchError, of } from 'rxjs';
 import { VerifyFilledProductDto } from '../../models/shipment-info.dto';
+import { ShipmentService } from '../../services/shipment.service';
 
 @Component({
     standalone: true,
     imports: [
+        CommonModule,
         ReactiveFormsModule,
         MatRadioModule,
         MatFormFieldModule,
@@ -30,10 +41,10 @@ import { VerifyFilledProductDto } from '../../models/shipment-info.dto';
     templateUrl: './enter-unit-number-product-code.component.html',
 })
 export class EnterUnitNumberProductCodeComponent {
-    disableCheckDigit = true;
     productGroup: FormGroup;
     unitNumberFocus = true;
 
+    @Input() showCheckDigit = true;
     @Output()
     unitNumberProductCodeSelected: EventEmitter<VerifyFilledProductDto> =
         new EventEmitter<VerifyFilledProductDto>();
@@ -43,7 +54,9 @@ export class EnterUnitNumberProductCodeComponent {
 
     constructor(
         protected fb: FormBuilder,
-        private changeDetector: ChangeDetectorRef
+        private changeDetector: ChangeDetectorRef,
+        private shipmentService: ShipmentService,
+        private toaster: ToastrImplService
     ) {
         this.productGroup = fb.group({
             unitNumber: ['', [Validators.required, RsaValidators.unitNumber]],
@@ -62,9 +75,45 @@ export class EnterUnitNumberProductCodeComponent {
         unitNumber: string;
         checkDigit: string;
         scanner: boolean;
+        checkDigitChange: boolean;
     }) {
         this.productGroup.controls.unitNumber.setValue(event.unitNumber);
         this.enableVisualInspection();
+        if (event.checkDigitChange && event.checkDigit !== '') {
+            const $checkDigitVerification =
+                this.showCheckDigit && !event.scanner
+                    ? this.shipmentService.validateCheckDigit(
+                          event.unitNumber,
+                          event.checkDigit
+                      )
+                    : of(null);
+
+            $checkDigitVerification
+                .pipe(
+                    catchError((err) => {
+                        this.toaster.error(ERROR_MESSAGE);
+                        throw err;
+                    })
+                )
+                .subscribe((response) => {
+                    this.checkDigitFieldError(response.data.verifyCheckDigit);
+                    this.enableVisualInspection();
+                });
+        }
+    }
+
+    private checkDigitFieldError(response: RuleResponseDTO) {
+        const valid =
+            null !== response?.results && null === response?.notifications;
+        this.unitNumberComponent.setValidatorsForCheckDigit(valid);
+        if (!valid) {
+            const invalidMessage = response.notifications.map(
+                (mes) => mes.message
+            );
+            this.unitNumberComponent.checkDigitInvalidMessage =
+                invalidMessage[0];
+            this.unitNumberComponent.focusOnCheckDigit();
+        }
     }
 
     onSelectVisualInspection(): void {
@@ -118,10 +167,19 @@ export class EnterUnitNumberProductCodeComponent {
         return this.productGroup.controls.productCode.value;
     }
 
+    get checkDigitValid() {
+        return (
+            !this.unitNumberComponent.form.contains('checkDigit') ||
+            (this.unitNumberComponent.form.contains('checkDigit') &&
+                this.unitNumberComponent.form.controls.checkDigit.valid)
+        );
+    }
+
     enableVisualInspection(): void {
         if (
             this.productGroup.controls.unitNumber.valid &&
-            this.productGroup.controls.productCode.valid
+            this.productGroup.controls.productCode.valid &&
+            this.checkDigitValid
         ) {
             this.productGroup.controls.visualInspection.enable();
         } else {
