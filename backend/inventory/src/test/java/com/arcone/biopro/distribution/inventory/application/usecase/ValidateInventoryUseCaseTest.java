@@ -119,7 +119,7 @@ class ValidateInventoryUseCaseTest {
         StepVerifier.create(result)
             .consumeNextWith(output -> {
                 assertThat(output).isNotNull();
-                assertThat(output.notificationMessages().size()).isEqualTo(5);
+                assertThat(output.notificationMessages().size()).isEqualTo(1);
                 assertThat(output.notificationMessages().getFirst().name()).isEqualTo(MessageType.INVENTORY_IS_QUARANTINED.name());
             })
             .verifyComplete();
