@@ -107,6 +107,9 @@ public class FillProductsPage extends CommonPageFactory {
     public void ensureProductIsAdded(String unit, String productCode) {
         log.info("Ensuring product with unit {} and product code {} is added.", unit, productCode);
 
+        unit = TestUtils.removeUnitNumberScanDigits(unit);
+        productCode = TestUtils.removeProductCodeScanDigits(productCode);
+
         String unitLocator = this.formatUnitLocator(unit);
         String productCodeLocator = this.formatProductCodeLocator(productCode);
 
@@ -116,6 +119,9 @@ public class FillProductsPage extends CommonPageFactory {
 
     public void ensureProductIsNotAdded(String unit, String productCode) throws InterruptedException {
         log.info("Ensuring product with unit {} and product code {} wasn't added.", unit, productCode);
+
+        unit = TestUtils.removeUnitNumberScanDigits(unit);
+        productCode = TestUtils.removeProductCodeScanDigits(productCode);
 
         String unitLocator = this.formatUnitLocator(unit);
         String productCodeLocator = this.formatProductCodeLocator(productCode);

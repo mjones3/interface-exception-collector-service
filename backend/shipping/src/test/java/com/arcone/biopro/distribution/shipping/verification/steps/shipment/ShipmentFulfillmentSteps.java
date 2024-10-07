@@ -284,7 +284,6 @@ public class ShipmentFulfillmentSteps {
     @And("I should not see the unit {string} with product code {string} added to the filled products table.")
     public void verifyProductNotAdded(String unitNumber, String productCode) throws InterruptedException {
         fillProductsPage.ensureProductIsNotAdded(unitNumber, productCode);
-        log.info("stop");
     }
 
     @Given("The shipment details are order Number {string}, customer ID {string}, Customer Name {string}, Product Details: Quantities {string}, Blood Types: {string}, Product Families {string}.")
