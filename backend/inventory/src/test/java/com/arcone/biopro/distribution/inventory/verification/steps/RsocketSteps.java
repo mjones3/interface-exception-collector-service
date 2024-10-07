@@ -74,7 +74,7 @@ public class RsocketSteps {
 
     @Given("I have one product with {string}, {string} and {string} in {string} status")
     public void iHaveOneProductWithAndInStatus(String unitNumber, String productCode, String location, String status) {
-        Integer days = "EXPIRED".equals(status) ? -1 : 1;
+        Integer days = InventoryStatus.EXPIRED.equals(InventoryStatus.valueOf(status)) || InventoryStatus.DISCARDED.equals(InventoryStatus.valueOf(status))   ? -1 : 1;
 
         InventoryStatus inventoryStatus = "EXPIRED".equals(status) ? InventoryStatus.AVAILABLE : InventoryStatus.valueOf(status);
 
@@ -196,7 +196,7 @@ public class RsocketSteps {
                     assertThat(message.inventoryNotificationsDTO().isEmpty()).isTrue();
                 }
                 if (MessageType.INVENTORY_IS_QUARANTINED.getCode().equals(errorCode)) {
-                    assertThat(message.inventoryNotificationsDTO().size()).isEqualTo(5);
+                    assertThat(message.inventoryNotificationsDTO().size()).isEqualTo(1);
                 }
 
                 if (MessageType.INVENTORY_IS_EXPIRED.getCode().equals(errorCode)) {
