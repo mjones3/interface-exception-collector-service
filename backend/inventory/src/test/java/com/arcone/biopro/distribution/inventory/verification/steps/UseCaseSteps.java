@@ -1,33 +1,34 @@
 package com.arcone.biopro.distribution.inventory.verification.steps;
 
-import com.arcone.biopro.distribution.inventory.application.dto.AddQuarantineInput;
-import com.arcone.biopro.distribution.inventory.application.dto.Product;
-import com.arcone.biopro.distribution.inventory.application.dto.ProductRecoveredInput;
-import com.arcone.biopro.distribution.inventory.application.dto.RemoveQuarantineInput;
+import com.arcone.biopro.distribution.inventory.application.dto.*;
 import com.arcone.biopro.distribution.inventory.application.usecase.AddQuarantinedUseCase;
 import com.arcone.biopro.distribution.inventory.application.usecase.ProductRecoveredUseCase;
 import com.arcone.biopro.distribution.inventory.application.usecase.RemoveQuarantinedUseCase;
+import com.arcone.biopro.distribution.inventory.application.usecase.ShipmentCompletedUseCase;
 import com.arcone.biopro.distribution.inventory.verification.common.ScenarioContext;
+import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.When;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class UseCaseSteps {
 
-    @Autowired
-    private AddQuarantinedUseCase addQuarantinedUseCase;
+    private final AddQuarantinedUseCase addQuarantinedUseCase;
 
-    @Autowired
-    private RemoveQuarantinedUseCase removeQuarantinedUseCase;
+    private final RemoveQuarantinedUseCase removeQuarantinedUseCase;
 
-    @Autowired
-    private ProductRecoveredUseCase productRecoveredUseCase;
+    private final ProductRecoveredUseCase productRecoveredUseCase;
 
-    @Autowired
-    private ScenarioContext scenarioContext;
+    private final ShipmentCompletedUseCase shipmentCompletedUseCase;
+
+    private final ScenarioContext scenarioContext;
 
 
     public static final Map<String, String> quarantineReasonMap = Map.of(
@@ -67,5 +68,26 @@ public class UseCaseSteps {
     @When("I received a Product Recovered event")
     public void iReceivedAEvent() {
         productRecoveredUseCase.execute(new ProductRecoveredInput(scenarioContext.getUnitNumber(), scenarioContext.getProductCode() )).block();
+    }
+
+
+    @When("I received a Shipment Completed event for the following units:")
+    public void iReceivedAShipmentCompletedEventForTheFollowingUnits(DataTable dataTable) {
+        List<ShipmentCompletedInput.LineItem> lines = new ArrayList<>();
+        List<ShipmentCompletedInput.LineItem.Product> products = new ArrayList<>();
+        List<Map<String, String>> inventories = dataTable.asMaps(String.class, String.class);
+        for (Map<String, String> inventory : inventories) {
+            String unitNumber = inventory.get("Unit Number");
+            String productCode = inventory.get("Product Code");
+            products.add(new ShipmentCompletedInput.LineItem.Product(unitNumber, productCode));
+        }
+        lines.add(new ShipmentCompletedInput.LineItem(products));
+        var input = new ShipmentCompletedInput(
+            "a-shipment-id",
+            "an-order-number",
+            "a-performed-by",
+            lines);
+        shipmentCompletedUseCase.execute(input).block();
+
     }
 }

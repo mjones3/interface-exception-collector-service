@@ -119,7 +119,7 @@ class ValidateInventoryUseCaseTest {
         StepVerifier.create(result)
             .consumeNextWith(output -> {
                 assertThat(output).isNotNull();
-                assertThat(output.notificationMessages().size()).isEqualTo(5);
+                assertThat(output.notificationMessages().size()).isEqualTo(1);
                 assertThat(output.notificationMessages().getFirst().name()).isEqualTo(MessageType.INVENTORY_IS_QUARANTINED.name());
             })
             .verifyComplete();
@@ -127,7 +127,7 @@ class ValidateInventoryUseCaseTest {
 
     @Test
     void execute_shouldValidate_inventory_is_not_found() {
-        InventoryInput input = new InventoryInput(UNIT_NUMBER, PRODUCT_CODE, null, null, LOCATION_1, null, null , null);
+        InventoryInput input = new InventoryInput(UNIT_NUMBER, PRODUCT_CODE, null, null, true, 300, null, LOCATION_1, null, null);
 
         when(inventoryAggregateRepository.findByUnitNumberAndProductCode(any(), any()))
             .thenReturn(Mono.empty());

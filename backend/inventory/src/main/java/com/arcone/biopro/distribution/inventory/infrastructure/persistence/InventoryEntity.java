@@ -2,7 +2,6 @@ package com.arcone.biopro.distribution.inventory.infrastructure.persistence;
 
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
-import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ProductFamily;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.History;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -60,7 +59,15 @@ public class InventoryEntity implements Serializable, Persistable<UUID> {
 
     @NotNull
     @Column("collection_date")
-    String collectionDate;
+    ZonedDateTime collectionDate;
+
+    @NotNull
+    @Column("is_licensed")
+    Boolean isLicensed;
+
+    @NotNull
+    @Column("weight")
+    Integer weight;
 
     @NotNull
     @Column("location")
@@ -68,7 +75,7 @@ public class InventoryEntity implements Serializable, Persistable<UUID> {
 
     @NotNull
     @Column("product_family")
-    ProductFamily productFamily;
+    String productFamily;
 
     @NotNull
     @Column("abo_rh")

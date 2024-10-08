@@ -13,4 +13,5 @@ public class ScenarioContext {
     private String unitNumber;
     private String productCode;
     private String event;
+    private String lastSentMessage;
 }

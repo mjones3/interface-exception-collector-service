@@ -754,6 +754,7 @@
                         <runOrder>alphabetical</runOrder>
                         <includes>
                             <include>**/*Suite.java</include>
+                            <include>**/*IT.java</include>
                         </includes>
                         <argLine>@{argLine} -XX:+AllowRedefinitionToAddDeleteMethods
                             -Dspring.profiles.active=${profile.test}
@@ -837,6 +838,9 @@
                         <includes>
                             <include>**/*Test.java</include>
                         </includes>
+                        <excludes>
+                            <exclude>**/*IT.java</exclude>
+                        </excludes>
                         <argLine>
                             -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"
                             -Dfile.encoding=${project.build.sourceEncoding}

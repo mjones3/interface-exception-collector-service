@@ -2,7 +2,6 @@ package com.arcone.biopro.distribution.inventory.application.dto;
 
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
-import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ProductFamily;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
@@ -19,8 +18,10 @@ public record InventoryOutput(
     String location,
     String productDescription,
     AboRhType aboRh,
-    String collectionDate,
-    ProductFamily productFamily,
+    Integer weight,
+    Boolean isLicensed,
+    ZonedDateTime collectionDate,
+    String productFamily,
     String shortDescription,
     ZonedDateTime createDate,
     ZonedDateTime modificationDate,
