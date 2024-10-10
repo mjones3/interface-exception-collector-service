@@ -64,6 +64,10 @@ public class ShipmentFulfillmentSteps {
 
     private ShipmentRequestDetailsResponseType shipmentDetailType;
 
+    private String unitNumber;
+    private String checkDigit;
+    private String productCode;
+
     private ShipmentRequestDetailsResponseType setupOrderFulfillmentRequest(String orderNumber, String customerId, String customerName, String quantities, String bloodTypes
         , String productFamilies, String unitNumbers, String productCodes) {
         return shipmentTestingController.buildShipmentRequestDetailsResponseType(Long.valueOf(orderNumber),
@@ -264,6 +268,8 @@ public class ShipmentFulfillmentSteps {
     @When("I add the unit {string} with product code {string}.")
     public void addUnitWithProductCode(String unit, String productCode) throws InterruptedException {
         fillProductsPage.addUnitWithProductCode(unit, productCode);
+        this.unitNumber = unit;
+        this.productCode = productCode;
     }
 
     @And("I define visual inspection as {string}.")
@@ -334,6 +340,31 @@ public class ShipmentFulfillmentSteps {
             fillProductsPage.assertCheckDigitErrorIs("");
         } else {
             fillProductsPage.assertCheckDigitErrorIs(message);
+        }
+    }
+
+    @And("The visual inspection configuration is {string}.")
+    public void setVisualInspectionConfig(String status) {
+        shipmentTestingController.setVisualInspectionConfiguration(status);
+    }
+
+    @And("I define visual inspection as {string}, if needed.")
+    public void iDefineVisualInspectionAsIfNeeded(String inspection) {
+        boolean visualInspectionEnabled = shipmentTestingController.getCheckVisualInspectionConfig();
+        if (visualInspectionEnabled) {
+            fillProductsPage.defineVisualInspection(inspection);
+        } else {
+            log.info("Visual inspection is not enabled.");
+        }
+    }
+
+    @And("I am able to proceed with the product filling process.")
+    public void iAmAbleToProceedWithTheProductFillingProcess() {
+        boolean visualInspectionEnabled = shipmentTestingController.getCheckVisualInspectionConfig();
+        if (visualInspectionEnabled) {
+            fillProductsPage.assertVisualInspectionIs("enabled");
+        } else {
+            fillProductsPage.ensureProductIsAdded(this.unitNumber, this.productCode);
         }
     }
 }

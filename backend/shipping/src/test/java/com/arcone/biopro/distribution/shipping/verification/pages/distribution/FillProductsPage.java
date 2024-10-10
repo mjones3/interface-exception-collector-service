@@ -81,7 +81,7 @@ public class FillProductsPage extends CommonPageFactory {
         if (checkDigitEnabled && !unit.startsWith("=")) {
             sharedActions.sendKeys(checkDigitInput, checkDigit);
         }
-        sharedActions.sendKeys(productCodeInput, productCode);
+        sharedActions.sendKeysAndSubmit(productCodeInput, productCode);
         sharedActions.waitLoadingAnimation();
     }
 

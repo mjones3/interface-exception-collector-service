@@ -187,4 +187,10 @@ public class SharedActions {
             return e.getCurrentUrl().equals(fullUrl);
         });
     }
+
+    public void sendKeysAndSubmit(WebElement productCodeInput, String text) {
+        waitForVisible(productCodeInput);
+        sendKeys(productCodeInput, text);
+        productCodeInput.submit();
+    }
 }
