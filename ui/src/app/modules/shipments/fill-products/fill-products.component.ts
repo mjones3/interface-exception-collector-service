@@ -82,6 +82,7 @@ export class FillProductsComponent implements OnInit {
     loggedUserId: string;
     processProductConfig: ProcessProductModel;
     showCheckDigit = true;
+    showVisualInspection = false;
 
     @ViewChild('productSelection')
     productSelection: EnterUnitNumberProductCodeComponent;
@@ -119,6 +120,8 @@ export class FillProductsComponent implements OnInit {
             .subscribe((result) => {
                 this.shipmentInfo = result.data?.getShipmentDetailsById;
                 this.showCheckDigit = this.shipmentInfo.checkDigitActive;
+                this.showVisualInspection =
+                    this.shipmentInfo.visualInspectionActive;
                 this.shipmentProduct = this.shipmentInfo?.items?.find(
                     (item) => item.id === this.productId
                 );
@@ -126,6 +129,7 @@ export class FillProductsComponent implements OnInit {
 
                 this.setProdInfo();
                 this.cd.detectChanges();
+                this.productSelection.buildFormGroup();
             });
     }
 
@@ -257,7 +261,9 @@ export class FillProductsComponent implements OnInit {
             productCode: item.productCode,
             locationCode: this.cookieService.get(Cookie.XFacility),
             employeeId: this.loggedUserId,
-            visualInspection: item.visualInspection.toUpperCase(),
+            visualInspection: this.showVisualInspection
+                ? item.visualInspection.toUpperCase()
+                : null,
         };
     }
 

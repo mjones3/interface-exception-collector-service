@@ -47,6 +47,7 @@ const GET_SHIPMENT_BY_ID = gql<
             completedByEmployeeId
             comments
             checkDigitActive
+            visualInspectionActive
             items {
                 id
                 shipmentId

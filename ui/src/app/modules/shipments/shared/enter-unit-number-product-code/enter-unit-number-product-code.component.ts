@@ -52,23 +52,32 @@ export class EnterUnitNumberProductCodeComponent {
     @ViewChild('unitnumber')
     unitNumberComponent: ScanUnitNumberCheckDigitComponent;
 
+    @Input() showVisualInspection = false;
+
     constructor(
         protected fb: FormBuilder,
         private changeDetector: ChangeDetectorRef,
         private shipmentService: ShipmentService,
         private toaster: ToastrImplService
     ) {
-        this.productGroup = fb.group({
+        this.buildFormGroup();
+    }
+
+    buildFormGroup() {
+        const formGroup = {
             unitNumber: ['', [Validators.required, RsaValidators.unitNumber]],
             productCode: [
                 '',
                 [RsaValidators.fullProductCode, Validators.required],
             ],
             visualInspection: [
+                '',
                 { value: '', disabled: true },
-                [Validators.required],
+                [this.showVisualInspection ? Validators.required : null],
             ],
-        });
+        };
+
+        this.productGroup = this.fb.group(formGroup);
     }
 
     verifyUnit(event: {
@@ -143,7 +152,10 @@ export class EnterUnitNumberProductCodeComponent {
     }
 
     resetProductFormGroup(): void {
-        this.productGroup.controls.visualInspection.setValue(null);
+        if (this.showVisualInspection) {
+            this.productGroup.controls.visualInspection.setValue(null);
+        }
+
         this.productGroup.reset();
         this.unitNumberComponent.reset();
         this.productGroup.updateValueAndValidity();
@@ -176,14 +188,26 @@ export class EnterUnitNumberProductCodeComponent {
     }
 
     enableVisualInspection(): void {
-        if (
-            this.productGroup.controls.unitNumber.valid &&
-            this.productGroup.controls.productCode.valid &&
-            this.checkDigitValid
-        ) {
-            this.productGroup.controls.visualInspection.enable();
-        } else {
-            this.productGroup.controls.visualInspection.disable();
+        if (this.showVisualInspection) {
+            if (
+                this.productGroup.controls.unitNumber.valid &&
+                this.productGroup.controls.productCode.valid &&
+                this.checkDigitValid
+            ) {
+                this.productGroup.controls.visualInspection.enable();
+            } else {
+                this.productGroup.controls.visualInspection.disable();
+            }
+        }
+    }
+
+    onEnterProductCode(): void {
+        if (this.showVisualInspection) {
+            this.enableVisualInspection();
+        } else if (!this.showVisualInspection && this.productGroup.valid) {
+            setTimeout(() => {
+                this.verifyProduct();
+            }, 300);
         }
     }
 }
