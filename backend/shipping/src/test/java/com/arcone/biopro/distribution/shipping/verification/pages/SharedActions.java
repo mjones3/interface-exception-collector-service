@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.shipping.verification.pages;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
@@ -12,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+
+import java.sql.Driver;
 
 import static org.openqa.selenium.support.ui.ExpectedConditions.numberOfWindowsToBe;
 
@@ -111,6 +114,18 @@ public class SharedActions {
         element.sendKeys(text);
     }
 
+    public void sendKeys(WebDriver driver, By locator, String text) {
+        waitForVisible(locator);
+        driver.findElement(locator).sendKeys(text);
+    }
+
+    public void sendKeysAndEnter(WebDriver driver, By locator, String text) throws InterruptedException {
+        waitForVisible(locator);
+        driver.findElement(locator).sendKeys(text);
+        Thread.sleep(1000);
+        driver.findElement(locator).sendKeys(Keys.ENTER);
+    }
+
     public void click(WebElement element) {
         waitForVisible(element);
         element.click();
@@ -188,9 +203,9 @@ public class SharedActions {
         });
     }
 
-    public void sendKeysAndSubmit(WebElement productCodeInput, String text) {
-        waitForVisible(productCodeInput);
-        sendKeys(productCodeInput, text);
-        productCodeInput.submit();
+    public void sendKeysAndEnter(WebElement element, String text) {
+        waitForVisible(element);
+        sendKeys(element, text);
+        element.sendKeys(Keys.ENTER);
     }
 }

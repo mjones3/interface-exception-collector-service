@@ -273,7 +273,7 @@ public class ShipmentFulfillmentSteps {
     }
 
     @And("I define visual inspection as {string}.")
-    public void defineVisualInspection(String visualInspection) {
+    public void defineVisualInspection(String visualInspection) throws InterruptedException {
         fillProductsPage.defineVisualInspection(visualInspection);
     }
 
@@ -327,6 +327,9 @@ public class ShipmentFulfillmentSteps {
     public void iTypeTheUnitDigitAndProductCode(String unitNumber, String checkDigit, String productCode) throws InterruptedException {
         boolean checkDigitEnabled = shipmentTestingController.getCheckDigitConfiguration();
         fillProductsPage.addUnitWithDigitAndProductCode(unitNumber, checkDigit, productCode, checkDigitEnabled);
+        this.unitNumber = unitNumber;
+        this.checkDigit = checkDigit;
+        this.productCode = productCode;
     }
 
     @And("The visual inspection field is {string}.")
@@ -349,7 +352,7 @@ public class ShipmentFulfillmentSteps {
     }
 
     @And("I define visual inspection as {string}, if needed.")
-    public void iDefineVisualInspectionAsIfNeeded(String inspection) {
+    public void iDefineVisualInspectionAsIfNeeded(String inspection) throws InterruptedException {
         boolean visualInspectionEnabled = shipmentTestingController.getCheckVisualInspectionConfig();
         if (visualInspectionEnabled) {
             fillProductsPage.defineVisualInspection(inspection);

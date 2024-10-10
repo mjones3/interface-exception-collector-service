@@ -204,7 +204,11 @@ export class EnterUnitNumberProductCodeComponent {
     onEnterProductCode(): void {
         if (this.showVisualInspection) {
             this.enableVisualInspection();
-        } else if (!this.showVisualInspection && this.productGroup.valid) {
+        } else if (
+            !this.showVisualInspection &&
+            this.productGroup.valid &&
+            this.checkDigitValid
+        ) {
             setTimeout(() => {
                 this.verifyProduct();
             }, 300);
