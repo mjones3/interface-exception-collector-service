@@ -34,7 +34,7 @@ Feature: Complete Shipment Feature
                 | 109          | 1           | Testing Customer | 10,5,8   | ABP,BP,OP | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED | RED BLOOD CELLS LEUKOREDUCED | ABP  | W812530106086    | E0685V00   | 1                | disabled          |
 
         @ui
-        Scenario Outline: Fill product with check digit <Check Digit Config>
+        Scenario Outline: Fill product with check digit <Check Digit Config> and visual inspection <Inspection Config>
             Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>".
             And The check digit configuration is "<Check Digit Config>".
             And The visual inspection configuration is "<Inspection Config>".
@@ -48,7 +48,24 @@ Feature: Complete Shipment Feature
             Examples:
                 | Order Number | Customer ID | Customer Name    | Quantity | BloodType | ProductFamily                                                                          | Message Content         | Message Type         | Family                       | Type | Code       | UN               | Check Digit Config | Digit | Inspection Config |
                 | 110          | 1           | Testing Customer | 10,5,8   | A,B,O     | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE                            |                         | not see any error    | PLASMA TRANSFUSABLE          | A    | E7648V00   | W036824705327    | enabled            | 2     | enabled           |
+                | 113          | 1           | Testing Customer | 10,5,8   | AP,BP,OP  | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED |                         | not see any error    | RED BLOOD CELLS LEUKOREDUCED | AP   | =<E0685V00 | =W81253010608900 | enabled            |       | enabled           |
+                | 114          | 1           | Testing Customer | 10,5,8   | AP,BP,OP  | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED |                         | not see any error    | RED BLOOD CELLS LEUKOREDUCED | AP   | E0685V00   | W812530106090    | disabled           |       | enabled           |
+                | 115          | 1           | Testing Customer | 10,5,8   | AP,BP,OP  | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED |                         | not see any error    | RED BLOOD CELLS LEUKOREDUCED | AP   | E0685V00   | W812530106090    | disabled           |       | disabled           |
+
+        @ui
+        Scenario Outline: Fill product with check digit invalid or empty
+            Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>".
+            And The check digit configuration is "<Check Digit Config>".
+            And The visual inspection configuration is "<Inspection Config>".
+            And I have received a shipment fulfillment request with above details.
+            And I am on the Shipment Fulfillment Details page for order <Order Number>.
+            And I choose to fill product of family "<Family>" and blood type "<Type>".
+            When I type the unit "<UN>", digit "<Digit>", and product code "<Code>".
+            Then I can "<Message Type>" message "<Message Content>".
+
+            Examples:
+                | Order Number | Customer ID | Customer Name    | Quantity | BloodType | ProductFamily                                                                          | Message Content         | Message Type         | Family                       | Type | Code       | UN               | Check Digit Config | Digit | Inspection Config |
                 | 111          | 1           | Testing Customer | 10,5,8   | AP,BP,OP  | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED | Check Digit is Invalid  | see an error message | RED BLOOD CELLS LEUKOREDUCED | AP   | E0685V00   | W812530106087    | enabled            | F     | disabled          |
                 | 112          | 1           | Testing Customer | 10,5,8   | AP,BP,OP  | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED | Check Digit is Required | see an error message | RED BLOOD CELLS LEUKOREDUCED | AP   | E0685V00   | W812530106088    | enabled            |       | disabled          |
-                | 113          | 1           | Testing Customer | 10,5,8   | AP,BP,OP  | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED |                         | not see any error    | RED BLOOD CELLS LEUKOREDUCED | AP   | =<E0685V00 | =W81253010608900 | enabled            |       | enabled           |
-                | 113          | 1           | Testing Customer | 10,5,8   | AP,BP,OP  | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED |                         | not see any error    | RED BLOOD CELLS LEUKOREDUCED | AP   | E0685V00   | W812530106090    | disabled           |       | enabled           |
+
+

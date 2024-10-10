@@ -11,7 +11,7 @@ Feature: Prevent filling a shipment with unsuitable products
         When I am on the Shipment Fulfillment Details page.
         And I choose to fill product of family "<Family Description>" and blood type "<BloodType>".
         And I add the unit "<UN>" with product code "<Code>".
-        When I define visual inspection as "<Inspection>", if applicable.
+        When I define visual inspection as "<Inspection>", if needed.
         Then I should see a "<Message Type>" message: "<Message>".
         And I should not see the unit "<UN>" with product code "<Code>" added to the filled products table.
 
@@ -30,7 +30,7 @@ Feature: Prevent filling a shipment with unsuitable products
         And I am on the Shipment Fulfillment Details page.
         And I choose to fill product of family "<Family Description>" and blood type "<BloodType>".
         When I add the unit "<UN>" with product code "<Code>".
-        And I define visual inspection as "<Inspection>", if applicable.
+        And I define visual inspection as "<Inspection>", if needed.
         Then I should see a "Warning" message: "<Message>".
         Examples:
             | UN               | Code       | Inspection   | Message              | orderNumber | Customer ID | Customer Name | Quantity | BloodType | ProductFamily                                                                          | Family Description           |
