@@ -283,7 +283,7 @@ public class ShipmentFulfillmentSteps {
     }
 
     @When("I choose to return to the shipment details page.")
-    public void returnToShipmentDetails() {
+    public void returnToShipmentDetails() throws InterruptedException {
         fillProductsPage.clickBackButton();
     }
 
