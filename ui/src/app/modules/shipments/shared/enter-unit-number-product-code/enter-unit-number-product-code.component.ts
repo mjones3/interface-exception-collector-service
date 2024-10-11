@@ -64,20 +64,21 @@ export class EnterUnitNumberProductCodeComponent {
     }
 
     buildFormGroup() {
-        const formGroup = {
+        this.productGroup = this.fb.group({
             unitNumber: ['', [Validators.required, RsaValidators.unitNumber]],
             productCode: [
                 { value: '', disabled: true },
                 [RsaValidators.fullProductCode, Validators.required],
             ],
             visualInspection: [
-                '',
                 { value: '', disabled: true },
-                [this.showVisualInspection ? Validators.required : null],
+                [
+                    this.showVisualInspection
+                        ? Validators.required
+                        : Validators.nullValidator,
+                ],
             ],
-        };
-
-        this.productGroup = this.fb.group(formGroup);
+        });
     }
 
     verifyUnit(event: {
