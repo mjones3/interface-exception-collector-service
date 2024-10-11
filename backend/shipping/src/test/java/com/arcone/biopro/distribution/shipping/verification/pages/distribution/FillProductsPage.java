@@ -22,17 +22,9 @@ public class FillProductsPage extends CommonPageFactory {
     @FindBy(xpath = "//h3[normalize-space()='Fill Products']")
     private WebElement fillProductsHeader;
 
-    @FindBy(id = "inUnitNumber")
-    private WebElement unitNumberInput;
-
-    @FindBy(id = "inCheckDigit")
-    private WebElement checkDigitInput;
-
     @FindBy(xpath = "//*[@id=\"inCheckDigit\"]/../../../..//mat-error")
     private WebElement checkDigitError;
 
-    @FindBy(id = "productCodeId")
-    private WebElement productCodeInput;
 
     @FindBy(id = "inspection-satisfactory-input")
     private WebElement visualInspectionSatisfactory;
@@ -40,11 +32,13 @@ public class FillProductsPage extends CommonPageFactory {
     @FindBy(id = "inspection-unsatisfactory-input")
     private WebElement visualInspectionUnsatisfactory;
 
-    @FindBy(id = "inspection-satisfactory")
-    private WebElement visualInspectionSatisfactoryOption;
+    // Static locators
 
-    @FindBy(id = "inspection-unsatisfactory")
-    private WebElement visualInspectionUnsatisfactoryOption;
+    private static final String checkDigitInput = "inCheckDigit";
+    private static final String productCodeInput = "productCodeId";
+    private static final String unitNumberInput = "inUnitNumber";
+    private static final String visualInspectionSatisfactoryOption = "//*[@id='inspection-satisfactory']";
+    private static final String visualInspectionUnsatisfactoryOption = "//*[@id='inspection-unsatisfactory']";
 
     @FindBy(id = "backBtn")
     private WebElement backButton;
@@ -69,26 +63,29 @@ public class FillProductsPage extends CommonPageFactory {
 
     public void addUnitWithProductCode(String unit, String productCode) throws InterruptedException {
         log.info("Adding unit {} with product code {}.", unit, productCode);
-        sharedActions.sendKeys(unitNumberInput, unit);
-        sharedActions.sendKeys(productCodeInput, productCode);
+        sharedActions.sendKeys(this.driver, By.id(unitNumberInput), unit);
+        sharedActions.sendKeysAndEnter(this.driver, By.id(productCodeInput), productCode);
         sharedActions.waitLoadingAnimation();
     }
 
     public void addUnitWithDigitAndProductCode(String unit, String checkDigit, String productCode, boolean checkDigitEnabled) throws InterruptedException {
         log.info("Adding unit {} with digit {} and product code {}.", unit, checkDigit, productCode);
 
-        sharedActions.sendKeys(unitNumberInput, unit);
+        sharedActions.sendKeys(this.driver, By.id(unitNumberInput), unit);
         if (checkDigitEnabled && !unit.startsWith("=")) {
-            sharedActions.sendKeys(checkDigitInput, checkDigit);
+            sharedActions.sendKeysAndTab(this.driver, By.id(checkDigitInput), checkDigit);
         }
-        sharedActions.sendKeys(productCodeInput, productCode);
+        sharedActions.sendKeysAndEnter(this.driver, By.id(productCodeInput), productCode);
         sharedActions.waitLoadingAnimation();
     }
 
-    public void defineVisualInspection(String visualInspection) {
+    public void defineVisualInspection(String visualInspection) throws InterruptedException {
         log.info("Defining visual inspection as {}.", visualInspection);
-        WebElement element = "satisfactory".equalsIgnoreCase(visualInspection) ? visualInspectionSatisfactoryOption : visualInspectionUnsatisfactoryOption;
-        sharedActions.click(element);
+        if ("satisfactory".equalsIgnoreCase(visualInspection)) {
+            sharedActions.click(this.driver, By.xpath(visualInspectionSatisfactoryOption));
+        } else {
+            sharedActions.click(this.driver, By.xpath(visualInspectionUnsatisfactoryOption));
+        }
     }
 
     public void assertVisualInspectionIs(String enabledDisabled) {
@@ -113,8 +110,8 @@ public class FillProductsPage extends CommonPageFactory {
         String unitLocator = this.formatUnitLocator(unit);
         String productCodeLocator = this.formatProductCodeLocator(productCode);
 
-        sharedActions.locateXpathAndWaitForVisible(unitLocator, this.driver);
-        sharedActions.locateXpathAndWaitForVisible(productCodeLocator, this.driver);
+        sharedActions.waitForVisible(By.xpath(unitLocator));
+        sharedActions.waitForVisible(By.xpath(productCodeLocator));
     }
 
     public void ensureProductIsNotAdded(String unit, String productCode) throws InterruptedException {
@@ -145,4 +142,9 @@ public class FillProductsPage extends CommonPageFactory {
         }
     }
 
+    public void addUnitWithDigit(String unitNumber, String checkDigit) throws InterruptedException {
+        log.info("Adding unit {} with digit {}.", unitNumber, checkDigit);
+        sharedActions.sendKeys(this.driver, By.id(unitNumberInput), unitNumber);
+        sharedActions.sendKeysAndTab(this.driver, By.id(checkDigitInput), checkDigit);
+    }
 }

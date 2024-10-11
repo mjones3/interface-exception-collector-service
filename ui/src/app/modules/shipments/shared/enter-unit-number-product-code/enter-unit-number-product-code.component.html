@@ -25,7 +25,7 @@
                             validateOn="touchedState"
                             rsaBarcode
                             (keyup)="enableVisualInspection()"
-                            (keydown.Enter)="enableVisualInspection()"
+                            (keydown.Enter)="onEnterProductCode()"
                             (keydown.Tab)="enableVisualInspection()"
                             [placeholder]="'Scan or Enter Product Code'"
                         />
@@ -45,45 +45,49 @@
                     </mat-form-field>
                 </div>
             </div>
-            <div class="flex w-2/3 flex-col space-y-1">
-                <span class="flex pl-2">
-                    <label for="visualInspectionId" class="block font-bold"
-                        >Visual Inspection</label
-                    >
-                    <span class="custom-required">*</span>
-                </span>
-                <div class="mb-4 flex w-full flex-col">
-                    <mat-radio-group
-                        id="visualInspectionId"
-                        required
-                        class="flex"
-                        formControlName="visualInspection"
-                        ngDefaultControl
-                        (change)="onSelectVisualInspection()"
-                    >
-                        <mat-radio-button
-                            id="inspection-satisfactory"
-                            class="mr-4 font-bold"
-                            [value]="'satisfactory'"
-                            >Satisfactory</mat-radio-button
+            @if (showVisualInspection) {
+                <div class="flex w-2/3 flex-col space-y-1">
+                    <span class="flex pl-2">
+                        <label for="visualInspectionId" class="block font-bold"
+                            >Visual Inspection</label
                         >
-                        <mat-radio-button
-                            id="inspection-unsatisfactory"
-                            class="font-bold"
-                            [value]="'unsatisfactory'"
+                        <span class="custom-required">*</span>
+                    </span>
+                    <div class="mb-4 flex w-full flex-col">
+                        <mat-radio-group
+                            id="visualInspectionId"
+                            required
+                            class="flex"
+                            formControlName="visualInspection"
+                            ngDefaultControl
+                            (change)="onSelectVisualInspection()"
                         >
-                            Unsatisfactory
-                        </mat-radio-button>
-                    </mat-radio-group>
+                            <mat-radio-button
+                                id="inspection-satisfactory"
+                                class="mr-4 font-bold"
+                                [value]="'satisfactory'"
+                                >Satisfactory</mat-radio-button
+                            >
+                            <mat-radio-button
+                                id="inspection-unsatisfactory"
+                                class="font-bold"
+                                [value]="'unsatisfactory'"
+                            >
+                                Unsatisfactory
+                            </mat-radio-button>
+                        </mat-radio-group>
+                    </div>
+                    @if (
+                        productGroup
+                            .get('visualInspection')
+                            .hasError('required')
+                    ) {
+                        <span class="custom-error-message"
+                            >Visual Inspection is Required</span
+                        >
+                    }
                 </div>
-                @if (
-                    productGroup.get('visualInspection').hasError('required')
-                ) {
-                    <span class="custom-error-message"
-                        >Visual Inspection is Required</span
-                    >
-                }
-            </div>
+            }
         </div>
     </div>
 </div>

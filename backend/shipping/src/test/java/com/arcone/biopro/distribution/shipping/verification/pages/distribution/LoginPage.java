@@ -37,7 +37,7 @@ public class LoginPage extends CommonPageFactory {
         return sharedActions.isElementVisible(usernameField) && sharedActions.isElementVisible(passwordField);
     }
 
-    public void login() {
+    public void login() throws InterruptedException {
         this.driver.manage().window().maximize();
         sharedActions.sendKeys(usernameField, username);
         sharedActions.sendKeys(passwordField, password);

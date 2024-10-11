@@ -17,4 +17,9 @@ public class ConfigServiceImpl implements ConfigService {
         return this.lookupRepository.findFirstConfigAsBoolean(LOOKUP_KEY_SHIPPING_CHECK_DIGIT_ACTIVE);
     }
 
+    @Override
+    public Mono<Boolean> findShippingVisualInspectionActive() {
+        return this.lookupRepository.findFirstConfigAsBoolean(LOOKUP_KEY_SHIPPING_VISUAL_INSPECTION_ACTIVE);
+    }
+
 }

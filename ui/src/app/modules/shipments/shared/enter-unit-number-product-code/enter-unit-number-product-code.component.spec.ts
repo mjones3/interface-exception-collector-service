@@ -49,10 +49,14 @@ describe('EnterUnitNumberProductCodeComponent', () => {
     });
 
     it('should enable visual inspection when the inputs for unit number and product code are valid', () => {
-        component.productGroup.controls.unitNumber.setValue('W036898786800');
-        component.productGroup.controls.productCode.setValue('E7644V00');
+        component.showVisualInspection = true;
         jest.spyOn(component, 'checkDigitValid', 'get').mockReturnValue(true);
+
         component.unitNumberComponent.controlCheckDigit.setValue('E');
+        component.productGroup.controls.unitNumber.setValue('W036898786800');
+        component.enableProductCode();
+        component.productGroup.controls.productCode.setValue('E7644V00');
+
         component.enableVisualInspection();
         expect(
             component.productGroup.controls.visualInspection.enabled
@@ -60,6 +64,7 @@ describe('EnterUnitNumberProductCodeComponent', () => {
     });
 
     it('should disable visual inspection when the inputs for unit number and product code are Invalid', () => {
+        component.showVisualInspection = true;
         component.productGroup.controls.unitNumber.setValue('W036898786800');
         component.productGroup.controls.productCode.setValue('E7644');
         component.enableVisualInspection();
