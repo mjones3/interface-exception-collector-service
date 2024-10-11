@@ -40,8 +40,7 @@ public class FillProductsPage extends CommonPageFactory {
     private static final String visualInspectionSatisfactoryOption = "//*[@id='inspection-satisfactory']";
     private static final String visualInspectionUnsatisfactoryOption = "//*[@id='inspection-unsatisfactory']";
 
-    @FindBy(id = "backBtn")
-    private WebElement backButton;
+    private String backButton = "backBtn";
 
     @Autowired
     private DatabaseService databaseService;
@@ -127,9 +126,9 @@ public class FillProductsPage extends CommonPageFactory {
         sharedActions.waitForNotVisible(By.xpath(productCodeLocator));
     }
 
-    public void clickBackButton() {
+    public void clickBackButton() throws InterruptedException {
         log.info("Clicking back button.");
-        sharedActions.click(backButton);
+        sharedActions.click(this.driver, By.id(backButton));
     }
 
     public void assertCheckDigitErrorIs(String expectedError) {
