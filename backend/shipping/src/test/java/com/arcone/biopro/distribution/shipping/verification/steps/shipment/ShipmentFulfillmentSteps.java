@@ -370,5 +370,12 @@ public class ShipmentFulfillmentSteps {
             fillProductsPage.ensureProductIsAdded(this.unitNumber, this.productCode);
         }
     }
+
+    @When("I type the unit {string}, digit {string}.")
+    public void iTypeTheUnitDigit(String unitNumber, String checkDigit) throws InterruptedException {
+        fillProductsPage.addUnitWithDigit(unitNumber, checkDigit);
+        this.unitNumber = unitNumber;
+        this.checkDigit = checkDigit;
+    }
 }
 

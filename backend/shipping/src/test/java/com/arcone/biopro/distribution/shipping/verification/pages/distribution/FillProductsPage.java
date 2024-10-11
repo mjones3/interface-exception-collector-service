@@ -22,10 +22,6 @@ public class FillProductsPage extends CommonPageFactory {
     @FindBy(xpath = "//h3[normalize-space()='Fill Products']")
     private WebElement fillProductsHeader;
 
-
-    @FindBy(id = "inCheckDigit")
-    private WebElement checkDigitInput;
-
     @FindBy(xpath = "//*[@id=\"inCheckDigit\"]/../../../..//mat-error")
     private WebElement checkDigitError;
 
@@ -38,6 +34,7 @@ public class FillProductsPage extends CommonPageFactory {
 
     // Static locators
 
+    private static final String checkDigitInput = "inCheckDigit";
     private static final String productCodeInput = "productCodeId";
     private static final String unitNumberInput = "inUnitNumber";
     private static final String visualInspectionSatisfactoryOption = "//*[@id='inspection-satisfactory']";
@@ -76,7 +73,7 @@ public class FillProductsPage extends CommonPageFactory {
 
         sharedActions.sendKeys(this.driver, By.id(unitNumberInput), unit);
         if (checkDigitEnabled && !unit.startsWith("=")) {
-            sharedActions.sendKeys(checkDigitInput, checkDigit);
+            sharedActions.sendKeysAndTab(this.driver, By.id(checkDigitInput), checkDigit);
         }
         sharedActions.sendKeysAndEnter(this.driver, By.id(productCodeInput), productCode);
         sharedActions.waitLoadingAnimation();
@@ -145,4 +142,9 @@ public class FillProductsPage extends CommonPageFactory {
         }
     }
 
+    public void addUnitWithDigit(String unitNumber, String checkDigit) throws InterruptedException {
+        log.info("Adding unit {} with digit {}.", unitNumber, checkDigit);
+        sharedActions.sendKeys(this.driver, By.id(unitNumberInput), unitNumber);
+        sharedActions.sendKeysAndTab(this.driver, By.id(checkDigitInput), checkDigit);
+    }
 }

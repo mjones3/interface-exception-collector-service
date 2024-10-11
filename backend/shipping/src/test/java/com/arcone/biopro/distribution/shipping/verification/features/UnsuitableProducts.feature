@@ -35,4 +35,4 @@ Feature: Prevent filling a shipment with unsuitable products
         Examples:
             | UN               | Code       | Inspection   | Message              | orderNumber | Customer ID | Customer Name | Quantity | BloodType | ProductFamily                                                                          | Family Description           |
             | =W03689878681000 | =<E4697V00 | Satisfactory | Product Already used | 999764      | 999991      | Tampa         | 10,5,23  | AP,AN,OP  | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE                            | PLASMA TRANSFUSABLE          |
-            | =W81253010609000 | =<E0685V00 | Satisfactory | Product Already used | 999765      | 999991      | Tampa         | 10,5,23  | AP,AN,OP  | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED | RED BLOOD CELLS LEUKOREDUCED |
+            | =W81253010608800 | =<E0685V00 | Satisfactory | Product Already used | 999765      | 999991      | Tampa         | 10,5,23  | AP,AN,OP  | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED | RED BLOOD CELLS LEUKOREDUCED |

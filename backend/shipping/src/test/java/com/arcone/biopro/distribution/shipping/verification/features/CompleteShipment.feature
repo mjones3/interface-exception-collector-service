@@ -2,7 +2,7 @@ Feature: Complete Shipment Feature
     As a distribution technician, I want to complete a shipment, so I can ship products to the customer.
 
     Background:
-        Given I cleaned up from the database the packed item that used the unit number "W036898786802,W812530106086,W812530106089,W036824705327".
+        Given I cleaned up from the database the packed item that used the unit number "W036898786802,W812530106086,W812530106089,W036824705327,W812530106090".
         And I cleaned up from the database, all shipments with order number "108,109,110,111,112,113,114,115,116".
 
     Rule: I should be able to complete a shipment whenever at least one product is filledRule: I should be able to view the list of packed products added once it is filled on the Shipment Fulfillment Details page.
@@ -60,7 +60,7 @@ Feature: Complete Shipment Feature
             And I have received a shipment fulfillment request with above details.
             And I am on the Shipment Fulfillment Details page for order <Order Number>.
             And I choose to fill product of family "<Family>" and blood type "<Type>".
-            When I type the unit "<UN>", digit "<Digit>", and product code "<Code>".
+            When I type the unit "<UN>", digit "<Digit>".
             Then I can "<Message Type>" message "<Message Content>".
 
             Examples:

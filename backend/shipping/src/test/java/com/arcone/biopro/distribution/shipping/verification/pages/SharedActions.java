@@ -14,8 +14,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import java.sql.Driver;
-
 import static org.openqa.selenium.support.ui.ExpectedConditions.numberOfWindowsToBe;
 
 
@@ -109,42 +107,58 @@ public class SharedActions {
         return element.isDisplayed();
     }
 
-    public void sendKeys(WebElement element, String text) {
+    public void sendKeys(WebElement element, String text) throws InterruptedException {
+        Thread.sleep(500);
         waitForVisible(element);
+        waitForEnabled(element);
         element.sendKeys(text);
     }
 
-    public void sendKeys(WebDriver driver, By locator, String text) {
+    public void sendKeys(WebDriver driver, By locator, String text) throws InterruptedException {
+        Thread.sleep(500);
         waitForVisible(locator);
+        waitForEnabled(locator);
         driver.findElement(locator).sendKeys(text);
     }
 
     public void sendKeysAndEnter(WebDriver driver, By locator, String text) throws InterruptedException {
+        Thread.sleep(500);
         waitForVisible(locator);
+        waitForEnabled(locator);
         driver.findElement(locator).sendKeys(text);
-        Thread.sleep(1000);
         driver.findElement(locator).sendKeys(Keys.ENTER);
+    }
+
+    public void sendKeysAndTab(WebDriver driver, By locator, String text) throws InterruptedException {
+        Thread.sleep(500);
+        waitForVisible(locator);
+        waitForEnabled(locator);
+        driver.findElement(locator).sendKeys(text);
+        driver.findElement(locator).sendKeys(Keys.TAB);
     }
 
     public void click(WebElement element) {
         waitForVisible(element);
+        waitForEnabled(element);
         element.click();
     }
 
     public void click(WebDriver driver, By locator) throws InterruptedException {
         waitForVisible(locator);
-        Thread.sleep(500);
+        waitForEnabled(locator);
         driver.findElement(locator).click();
     }
 
     public void clickElementAndMoveToNewTab(WebDriver driver, WebElement element, int expectedWindowsNumber) {
+        waitForVisible(element);
+        waitForEnabled(element);
         this.click(element);
         log.info("Waiting for {} windows to be open. Currently: {}", expectedWindowsNumber, driver.getWindowHandles().size());
         wait.until(numberOfWindowsToBe(expectedWindowsNumber));
         driver.switchTo().window(driver.getWindowHandles().toArray(new String[0])[1]);
     }
 
-    public void clickElementAndMoveToNewTab(WebDriver driver, WebElement element){
+    public void clickElementAndMoveToNewTab(WebDriver driver, WebElement element) {
         // When not specified, the expected quantity of windows will be 3
         // First tab (original), second tab (after click), and print dialog.
         this.clickElementAndMoveToNewTab(driver, element, 3);
@@ -166,9 +180,9 @@ public class SharedActions {
     public void verifyMessage(String header, String message) {
         log.info("Verifying message: {}", message);
         var bannerMessageLocator = "";
-        if(header.startsWith("Acknowledgment")){
+        if (header.startsWith("Acknowledgment")) {
             bannerMessageLocator = "//*[@id='mat-mdc-dialog-0']//fuse-confirmation-dialog";
-        }else{
+        } else {
             bannerMessageLocator = "//*[@id='toast-container']//fuse-alert";
         }
 
@@ -203,9 +217,59 @@ public class SharedActions {
         });
     }
 
-    public void sendKeysAndEnter(WebElement element, String text) {
+    public void sendKeysAndEnter(WebElement element, String text) throws InterruptedException {
+        Thread.sleep(500);
         waitForVisible(element);
+        waitForEnabled(element);
         sendKeys(element, text);
         element.sendKeys(Keys.ENTER);
+    }
+
+    public void waitForEnabled(By locator) {
+        try {
+            wait.until(e -> {
+                log.debug("Waiting for element {} to be enabled.", locator);
+                try {
+                    return e.findElement(locator).isEnabled();
+                } catch (NoSuchElementException | StaleElementReferenceException ex) {
+                    try {
+                        log.debug("Waiting for element {} to be enabled for the second time.", locator);
+                        return e.findElement(locator).isEnabled();
+                    } catch (NoSuchElementException | StaleElementReferenceException ex2) {
+                        // Element not found, consider it as not enabled
+                        log.debug("Element {} not found after two tries, considering it as not enabled.", locator);
+                        return false;
+                    }
+                }
+            });
+            log.debug("Element {} is enabled now.", locator);
+        } catch (Exception e) {
+            log.error("Element {} is not visible after the specified timeout.", locator);
+            throw e;
+        }
+    }
+
+    public void waitForEnabled(WebElement element) {
+        try {
+            wait.until(e -> {
+                log.debug("Waiting for element {} to be enabled.", element);
+                try {
+                    return element.isEnabled();
+                } catch (NoSuchElementException | StaleElementReferenceException ex) {
+                    try {
+                        log.debug("Waiting for element {} to be enabled for the second time.", element);
+                        return element.isEnabled();
+                    } catch (NoSuchElementException | StaleElementReferenceException ex2) {
+                        // Element not found, consider it as not enabled
+                        log.debug("Element {} not found after two tries, considering it as not enabled.", element);
+                        return false;
+                    }
+                }
+            });
+            log.debug("Element {} is enabled now.", element);
+        } catch (Exception e) {
+            log.error("Element {} is not visible after the specified timeout.", element);
+            throw e;
+        }
     }
 }
