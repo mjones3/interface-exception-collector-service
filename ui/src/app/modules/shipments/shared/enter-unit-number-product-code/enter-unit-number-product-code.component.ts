@@ -67,7 +67,7 @@ export class EnterUnitNumberProductCodeComponent {
         const formGroup = {
             unitNumber: ['', [Validators.required, RsaValidators.unitNumber]],
             productCode: [
-                '',
+                { value: '', disabled: true },
                 [RsaValidators.fullProductCode, Validators.required],
             ],
             visualInspection: [
@@ -87,6 +87,7 @@ export class EnterUnitNumberProductCodeComponent {
         checkDigitChange: boolean;
     }) {
         this.productGroup.controls.unitNumber.setValue(event.unitNumber);
+        this.enableProductCode();
         this.enableVisualInspection();
         if (event.checkDigitChange && event.checkDigit !== '') {
             const $checkDigitVerification =
@@ -198,6 +199,17 @@ export class EnterUnitNumberProductCodeComponent {
             } else {
                 this.productGroup.controls.visualInspection.disable();
             }
+        }
+    }
+
+    enableProductCode(): void {
+        if (
+            this.productGroup.controls.unitNumber.valid &&
+            this.checkDigitValid
+        ) {
+            this.productGroup.controls.productCode.enable();
+        } else {
+            this.productGroup.controls.productCode.disable();
         }
     }
 
