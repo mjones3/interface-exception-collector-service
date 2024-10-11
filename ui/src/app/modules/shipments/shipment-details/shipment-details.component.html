@@ -70,14 +70,14 @@
 
 <ng-template #actionButtonsTpl>
     <div class="flex flex-row space-x-2">
-        <button
+        <biopro-action-button
             id="backBtnId"
-            class="bg-green-highlighted text-white"
-            mat-flat-button
-            (click)="backToSearch()"
-        >
-            Back
-        </button>
+            btnId="backActionBtnId"
+            label="Back"
+            color="secondary"
+            icon="heroicons_outline:arrow-uturn-left"
+            (clickEvent)="backToSearch()"
+        ></biopro-action-button>
     </div>
 </ng-template>
 

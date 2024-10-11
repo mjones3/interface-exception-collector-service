@@ -28,6 +28,7 @@ import {
 } from '@shared';
 import { ERROR_MESSAGE } from 'app/core/data/common-labels';
 import { getAuthState } from 'app/core/state/auth/auth.selectors';
+import { ActionButtonComponent } from 'app/shared/components/action-button/action-button.component';
 import { ProductIconsService } from 'app/shared/services/product-icon.service';
 import { Cookie } from 'app/shared/types/cookie.enum';
 import { CookieService } from 'ngx-cookie-service';
@@ -65,6 +66,7 @@ import { OrderWidgetsSidebarComponent } from '../shared/order-widgets-sidebar/or
         MatButtonModule,
         FormsModule,
         TranslateModule,
+        ActionButtonComponent,
     ],
     templateUrl: './fill-products.component.html',
     styleUrl: './fill-products.component.scss',

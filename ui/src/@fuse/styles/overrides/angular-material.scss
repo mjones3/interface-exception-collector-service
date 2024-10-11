@@ -287,12 +287,14 @@
         &.mat-button-toggle-checked {
             .mat-button-toggle-label-content {
                 @apply text-default #{'!important'};
+
+                @apply bg-default border-gray-300 #{'!important'};
             }
         }
 
         .mat-button-toggle-label-content {
             padding: 0 20px;
-            line-height: 40px !important;
+            line-height: 46px !important;
 
             @apply text-secondary;
         }

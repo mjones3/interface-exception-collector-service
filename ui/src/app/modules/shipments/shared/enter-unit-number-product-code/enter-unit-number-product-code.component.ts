@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import {
+    ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
     EventEmitter,
@@ -13,6 +14,13 @@ import {
     ReactiveFormsModule,
     Validators,
 } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import {
+    MatButtonToggle,
+    MatButtonToggleChange,
+    MatButtonToggleGroup,
+    MatButtonToggleModule,
+} from '@angular/material/button-toggle';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
@@ -35,10 +43,15 @@ import { ShipmentService } from '../../services/shipment.service';
         MatRadioModule,
         MatFormFieldModule,
         MatInputModule,
+        MatButtonToggleGroup,
+        MatButtonToggleModule,
+        MatButtonToggle,
         ScanUnitNumberCheckDigitComponent,
+        MatButtonModule,
     ],
     selector: 'rsa-enter-unit-number-product-code',
     templateUrl: './enter-unit-number-product-code.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EnterUnitNumberProductCodeComponent {
     productGroup: FormGroup;
@@ -127,7 +140,7 @@ export class EnterUnitNumberProductCodeComponent {
         }
     }
 
-    onSelectVisualInspection(): void {
+    onSelectVisualInspection(event: MatButtonToggleChange): void {
         if (this.productGroup.valid) {
             const visualInspection =
                 this.productGroup.controls.visualInspection.value;

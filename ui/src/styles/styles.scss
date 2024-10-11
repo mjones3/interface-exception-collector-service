@@ -306,3 +306,64 @@ biopro-process-header {
     font-size: 12px;
     font-weight: 500;
 }
+
+
+/* -------------------------------------------------------------------------- */
+
+/*  @ Toggle Button
+/* -------------------------------------------------------------------------- */
+
+.mat-button-toggle-group {
+    .mat-button-toggle {
+        border: 1px solid theme('colors.gray[300]') !important;
+        border-radius: 2px !important;
+    }
+
+    .mat-button-toggle-disabled .mat-button-toggle-button {
+        cursor: default;
+        background:rgb(26 27 31 / 38%) !important;
+    }
+}
+
+.mat-button-toggle-group > :not([hidden]) ~ :not([hidden]) {
+    margin-left: 0;
+}
+
+
+
+/* -------------------------------------------------------------------------- */
+
+/*  @ Button
+/* -------------------------------------------------------------------------- */
+.mat-mdc-fab {
+    border-radius: 6px !important;
+    border: 1px solid theme('colors.gray[300]') !important;
+    box-shadow: none !important;
+    height: 56px !important;
+    background-color: theme('colors.gray[200]') !important;
+    color: theme('colors.primary') !important;
+
+    &.mdc-fab--extended {
+        background-color: transparent !important;
+        color: theme('colors.accent') !important;
+
+        &:hover {
+            background-color: rgb(var(--fuse-accent-rgb) 0.15) !important;
+        }
+
+        &:not([disabled='true']) {
+            &.mat-primary {
+                background-color: theme('colors.primary') !important;
+                color: white !important;
+            }
+        }
+
+        &[disabled='true'] {
+            color: rgb(var(--fuse-accent-rgb) 0.6) !important;
+
+            &.mat-primary {
+                background-color: rgb(var(--fuse-accent-rgb) 0.15) !important;
+            }
+        }
+    }
+}

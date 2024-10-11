@@ -136,7 +136,7 @@
                                 <tr>
                                     <td class="p-text-right" [attr.colspan]="6">
                                         <span class="ml-6"
-                                            >({{ filledProductsData.length }})
+                                            >({{ filledProductsData?.length }})
                                             Total Products</span
                                         >
                                     </td>
@@ -169,13 +169,13 @@
 
 <ng-template #actionButtonsTpl>
     <div class="flex flex-row space-x-2">
-        <button
+        <biopro-action-button
             id="backBtn"
-            class="bg-green-highlighted text-white"
-            mat-flat-button
-            (click)="backToShipmentDetails()"
-        >
-            Back to Shipment Details
-        </button>
+            btnId="backActionBtn"
+            label="Submit"
+            color="primary"
+            icon="heroicons_outline:paper-airplane"
+            (clickEvent)="backToShipmentDetails()"
+        ></biopro-action-button>
     </div>
 </ng-template>
