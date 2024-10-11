@@ -9,7 +9,7 @@ values ('INVENTORY_VALIDATION', 'INVENTORY_IS_EXPIRED', 'This product is expired
 insert into lk_text_config (context, key_code, text)
 values ('INVENTORY_VALIDATION', 'INVENTORY_IS_UNSUITABLE', '');
 insert into lk_text_config (context, key_code, text)
-values ('INVENTORY_VALIDATION', 'INVENTORY_IS_QUARANTINED', '');
+values ('INVENTORY_VALIDATION', 'INVENTORY_IS_QUARANTINED', 'This product is currently in quarantine and needs to be returned to storage.');
 insert into lk_text_config (context, key_code, text)
 values ('INVENTORY_VALIDATION', 'INVENTORY_IS_DISCARDED', '');
 insert into lk_text_config (context, key_code, text)

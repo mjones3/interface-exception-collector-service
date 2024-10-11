@@ -16,8 +16,6 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import static com.arcone.biopro.distribution.inventory.BioProConstants.TEXT_CONFIG_DELIMITER;
-
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -47,20 +45,7 @@ public class TextConfigServiceImpl implements TextConfigService {
 
     @Override
     public String getText(String keyCode) {
-
-        if (keyCode != null && keyCode.split(TEXT_CONFIG_DELIMITER).length > 1) {
-            return replaceTextForManyKeys(keyCode);
-        }
         return textConfigCache.computeIfAbsent(keyCode, this::getDefault);
-    }
-
-    private String replaceTextForManyKeys(String keyCode) {
-        String[] keys = keyCode.split(TEXT_CONFIG_DELIMITER);
-
-        for (String key : keys) {
-            keyCode = keyCode.replaceAll(key, getText(key));
-        }
-        return keyCode;
     }
 
     private String getDefault(String keyCode) {
