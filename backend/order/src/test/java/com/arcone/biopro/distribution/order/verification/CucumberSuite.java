@@ -25,8 +25,8 @@ import static io.cucumber.junit.platform.engine.Constants.JUNIT_PLATFORM_NAMING_
     @ConfigurationParameter(key = "cucumber.execution.parallel.enabled", value = "true"),
     @ConfigurationParameter(key = "cucumber.execution.execution-mode.feature", value = "same_thread"),
     @ConfigurationParameter(key = "cucumber.execution.parallel.config.strategy", value = "fixed"),
-    @ConfigurationParameter(key = "cucumber.execution.parallel.config.fixed.parallelism", value = "3"),
-    @ConfigurationParameter(key = "cucumber.execution.parallel.config.fixed.max-pool-size", value = "3")
+    @ConfigurationParameter(key = "cucumber.execution.parallel.config.fixed.parallelism", value = "5"),
+    @ConfigurationParameter(key = "cucumber.execution.parallel.config.fixed.max-pool-size", value = "15")
 })
 @ActiveProfiles("AUTOMATION")
 public class CucumberSuite {
