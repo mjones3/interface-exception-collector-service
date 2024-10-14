@@ -1,7 +1,7 @@
 Feature: Record Unsatisfactory Visual Inspection
 
 
-    Rule: I should be able to see the list of the discard reasons configured for distribution.
+        Rule: I should be able to see the list of the discard reasons configured for distribution.
         Rule: I should be able to select the configured reasons for failed visual inspection.
         Scenario Outline: Verify Failed Visual Inspection Discard Form
             Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>".
@@ -16,9 +16,6 @@ Feature: Record Unsatisfactory Visual Inspection
             When I choose to cancel the discard form.
             Then I should see the discard form is closed.
             And I should not see the unit "<UN>" with product code "<Code>" added to the filled products table.
-
-#        [  ] Dialog's title for unsatisfactory visual inspection;
-#        [  ] Dialog's description for unsatisfactory visual inspection;
 
             Examples:
                 | Order Number | Customer ID | Customer Name    | Quantity | BloodType | ProductFamily                                                                          | Family                       | Type | UN               | Code       |
