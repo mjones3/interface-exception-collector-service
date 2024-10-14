@@ -4,12 +4,15 @@ import com.arcone.biopro.distribution.shipping.adapter.in.web.dto.ShipmentDetail
 import com.arcone.biopro.distribution.shipping.adapter.in.web.dto.ShipmentItemResponseDTO;
 import com.arcone.biopro.distribution.shipping.application.dto.CompleteShipmentRequest;
 import com.arcone.biopro.distribution.shipping.application.dto.PackItemRequest;
+import com.arcone.biopro.distribution.shipping.application.dto.ReasonDTO;
 import com.arcone.biopro.distribution.shipping.application.dto.RuleResponseDTO;
+import com.arcone.biopro.distribution.shipping.application.mapper.ReasonDomainMapper;
 import com.arcone.biopro.distribution.shipping.application.mapper.ShipmentEventMapper;
 import com.arcone.biopro.distribution.shipping.application.usecase.ShipmentServiceUseCase;
 import com.arcone.biopro.distribution.shipping.application.util.ShipmentServiceMessages;
 import com.arcone.biopro.distribution.shipping.domain.event.ShipmentCompletedEvent;
 import com.arcone.biopro.distribution.shipping.domain.event.ShipmentCreatedEvent;
+import com.arcone.biopro.distribution.shipping.domain.model.Reason;
 import com.arcone.biopro.distribution.shipping.domain.model.Shipment;
 import com.arcone.biopro.distribution.shipping.domain.model.ShipmentItem;
 import com.arcone.biopro.distribution.shipping.domain.model.ShipmentItemPacked;
@@ -65,8 +68,8 @@ class ShipmentServiceUseCaseTest {
     private ShipmentEventMapper shipmentEventMapper;
     private FacilityServiceMock facilityServiceMock;
     private ConfigService configService;
-
     private ShipmentServiceUseCase useCase;
+    private ReasonDomainMapper reasonDomainMapper;
 
     @BeforeEach
     public void setUp(){
@@ -79,8 +82,9 @@ class ShipmentServiceUseCaseTest {
         shipmentEventMapper = new ShipmentEventMapper();
         facilityServiceMock = Mockito.mock(FacilityServiceMock.class);
         configService = Mockito.mock(ConfigService.class);
+        reasonDomainMapper = new ReasonDomainMapper();
 
-        useCase = new ShipmentServiceUseCase(shipmentRepository,shipmentItemRepository,shipmentItemShortDateProductRepository,inventoryRsocketClient,shipmentItemPackedRepository,applicationEventPublisher,shipmentEventMapper,facilityServiceMock,configService);
+        useCase = new ShipmentServiceUseCase(shipmentRepository,shipmentItemRepository,shipmentItemShortDateProductRepository,inventoryRsocketClient,shipmentItemPackedRepository,applicationEventPublisher,shipmentEventMapper,facilityServiceMock,configService, reasonDomainMapper);
     }
 
     @Test
@@ -232,6 +236,9 @@ class ShipmentServiceUseCaseTest {
 
         Mockito.when(configService.findShippingVisualInspectionActive()).thenReturn(Mono.just(Boolean.TRUE));
 
+        var reason = Mockito.mock(Reason.class);
+        Mockito.when(configService.findVisualInspectionFailedDiscardReasons()).thenReturn(Flux.just(reason));
+
         Mono<RuleResponseDTO>  packDetail = useCase.packItem(PackItemRequest.builder()
                 .unitNumber("UN")
                 .shipmentItemId(1L)
@@ -288,6 +295,9 @@ class ShipmentServiceUseCaseTest {
 
         Mockito.when(configService.findShippingVisualInspectionActive()).thenReturn(Mono.just(Boolean.TRUE));
 
+        var reason = Mockito.mock(Reason.class);
+        Mockito.when(configService.findVisualInspectionFailedDiscardReasons()).thenReturn(Flux.just(reason));
+
         Mono<RuleResponseDTO>  packDetail = useCase.packItem(PackItemRequest.builder()
             .unitNumber("UN")
             .shipmentItemId(1L)
@@ -335,6 +345,13 @@ class ShipmentServiceUseCaseTest {
 
         Mockito.when(configService.findShippingVisualInspectionActive()).thenReturn(Mono.just(Boolean.TRUE));
 
+
+        var reason = Mockito.mock(Reason.class);
+        Mockito.when(reason.getId()).thenReturn(1L);
+        Mockito.when(reason.getReasonKey()).thenReturn("reason_key");
+
+        Mockito.when(configService.findVisualInspectionFailedDiscardReasons()).thenReturn(Flux.just(reason));
+
         Mono<RuleResponseDTO>  packDetail = useCase.packItem(PackItemRequest.builder()
             .unitNumber("UN")
             .shipmentItemId(1L)
@@ -348,10 +365,13 @@ class ShipmentServiceUseCaseTest {
             .create(packDetail)
             .consumeNextWith(detail -> {
                 var firstNotification = detail.notifications().getFirst();
+                ReasonDTO firstReason = (ReasonDTO) detail.results().get("reasons").getFirst();
                 assertEquals(HttpStatus.BAD_REQUEST, detail.ruleCode());
                 assertEquals(HttpStatus.BAD_REQUEST.value(), firstNotification.statusCode());
                 assertEquals("WARN", firstNotification.notificationType());
                 assertEquals(ShipmentServiceMessages.PRODUCT_CRITERIA_VISUAL_INSPECTION_ERROR, firstNotification.message());
+                assertEquals("reason_key", firstReason.reasonKey());
+
             })
             .verifyComplete();
     }
@@ -383,6 +403,9 @@ class ShipmentServiceUseCaseTest {
         Mockito.when(shipmentItemPackedRepository.countAllByUnitNumberAndProductCode(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just(0));
 
         Mockito.when(configService.findShippingVisualInspectionActive()).thenReturn(Mono.just(Boolean.TRUE));
+
+        var reason = Mockito.mock(Reason.class);
+        Mockito.when(configService.findVisualInspectionFailedDiscardReasons()).thenReturn(Flux.just(reason));
 
         Mono<RuleResponseDTO>  packDetail = useCase.packItem(PackItemRequest.builder()
             .unitNumber("UN")
@@ -432,6 +455,9 @@ class ShipmentServiceUseCaseTest {
         Mockito.when(shipmentItemPackedRepository.countAllByUnitNumberAndProductCode(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just(1));
 
         Mockito.when(configService.findShippingVisualInspectionActive()).thenReturn(Mono.just(Boolean.TRUE));
+
+        var reason = Mockito.mock(Reason.class);
+        Mockito.when(configService.findVisualInspectionFailedDiscardReasons()).thenReturn(Flux.just(reason));
 
         Mono<RuleResponseDTO>  packDetail = useCase.packItem(PackItemRequest.builder()
             .unitNumber("UN")
