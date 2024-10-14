@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import {
     ChangeDetectorRef,
     Component,
+    ElementRef,
     EventEmitter,
     Input,
     Output,
@@ -52,21 +53,33 @@ export class EnterUnitNumberProductCodeComponent {
     @ViewChild('unitnumber')
     unitNumberComponent: ScanUnitNumberCheckDigitComponent;
 
+    @ViewChild('inputProductCode') inputProductCode: ElementRef;
+
+    @Input() showVisualInspection = false;
+
     constructor(
         protected fb: FormBuilder,
         private changeDetector: ChangeDetectorRef,
         private shipmentService: ShipmentService,
         private toaster: ToastrImplService
     ) {
-        this.productGroup = fb.group({
+        this.buildFormGroup();
+    }
+
+    buildFormGroup() {
+        this.productGroup = this.fb.group({
             unitNumber: ['', [Validators.required, RsaValidators.unitNumber]],
             productCode: [
-                '',
+                { value: '', disabled: true },
                 [RsaValidators.fullProductCode, Validators.required],
             ],
             visualInspection: [
                 { value: '', disabled: true },
-                [Validators.required],
+                [
+                    this.showVisualInspection
+                        ? Validators.required
+                        : Validators.nullValidator,
+                ],
             ],
         });
     }
@@ -78,6 +91,7 @@ export class EnterUnitNumberProductCodeComponent {
         checkDigitChange: boolean;
     }) {
         this.productGroup.controls.unitNumber.setValue(event.unitNumber);
+        this.enableProductCode();
         this.enableVisualInspection();
         if (event.checkDigitChange && event.checkDigit !== '') {
             const $checkDigitVerification =
@@ -143,7 +157,10 @@ export class EnterUnitNumberProductCodeComponent {
     }
 
     resetProductFormGroup(): void {
-        this.productGroup.controls.visualInspection.setValue(null);
+        if (this.showVisualInspection) {
+            this.productGroup.controls.visualInspection.setValue(null);
+        }
+
         this.productGroup.reset();
         this.unitNumberComponent.reset();
         this.productGroup.updateValueAndValidity();
@@ -176,14 +193,46 @@ export class EnterUnitNumberProductCodeComponent {
     }
 
     enableVisualInspection(): void {
+        if (this.showVisualInspection) {
+            if (
+                this.productGroup.controls.unitNumber.valid &&
+                this.productGroup.controls.productCode.valid &&
+                this.checkDigitValid
+            ) {
+                this.productGroup.controls.visualInspection.enable();
+            } else {
+                this.productGroup.controls.visualInspection.disable();
+            }
+        }
+    }
+
+    enableProductCode(): void {
         if (
             this.productGroup.controls.unitNumber.valid &&
-            this.productGroup.controls.productCode.valid &&
             this.checkDigitValid
         ) {
-            this.productGroup.controls.visualInspection.enable();
+            this.productGroup.controls.productCode.enable();
+            this.focusProductCode();
         } else {
-            this.productGroup.controls.visualInspection.disable();
+            this.productGroup.controls.productCode.disable();
         }
+    }
+
+    onEnterProductCode(): void {
+        if (this.showVisualInspection) {
+            this.enableVisualInspection();
+        } else if (
+            !this.showVisualInspection &&
+            this.productGroup.valid &&
+            this.checkDigitValid
+        ) {
+            setTimeout(() => {
+                this.verifyProduct();
+            }, 300);
+        }
+    }
+
+    focusProductCode() {
+        this.inputProductCode?.nativeElement.focus();
     }
 }

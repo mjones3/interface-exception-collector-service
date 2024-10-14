@@ -96,4 +96,5 @@ CREATE TABLE lk_lookup (
     order_number      INTEGER DEFAULT 1        NOT NULL,
     active            BOOLEAN                  NOT NULL
 );
+
 CREATE UNIQUE INDEX uq_idx_lk_lookup_type_option_value ON lk_lookup (type, option_value);

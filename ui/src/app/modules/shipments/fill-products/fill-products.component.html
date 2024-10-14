@@ -47,6 +47,7 @@
                 <rsa-enter-unit-number-product-code
                     #productSelection
                     [showCheckDigit]="showCheckDigit"
+                    [showVisualInspection]="showVisualInspection"
                     (unitNumberProductCodeSelected)="
                         unitNumberProductCodeSelected($event)
                     "
@@ -95,13 +96,16 @@
                                             Description
                                         </div>
                                     </th>
-                                    <th>
-                                        <div
-                                            class="p-d-flex p-jc-between p-ai-center"
-                                        >
-                                            Visual Inspection
-                                        </div>
-                                    </th>
+                                    @if (showVisualInspection) {
+                                        <th>
+                                            <div
+                                                class="p-d-flex p-jc-between p-ai-center"
+                                            >
+                                                Visual Inspection
+                                            </div>
+                                        </th>
+                                    }
+
                                     <th></th>
                                 </tr>
                             </ng-template>
@@ -121,9 +125,11 @@
                                     <td>
                                         {{ product?.productDescription }}
                                     </td>
-                                    <td>
-                                        {{ product?.visualInspection }}
-                                    </td>
+                                    @if (showVisualInspection) {
+                                        <td>
+                                            {{ product?.visualInspection }}
+                                        </td>
+                                    }
                                 </tr>
                             </ng-template>
                             <ng-template pTemplate="footer">

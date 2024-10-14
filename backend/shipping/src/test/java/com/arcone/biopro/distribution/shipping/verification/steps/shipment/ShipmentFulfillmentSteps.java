@@ -64,6 +64,10 @@ public class ShipmentFulfillmentSteps {
 
     private ShipmentRequestDetailsResponseType shipmentDetailType;
 
+    private String unitNumber;
+    private String checkDigit;
+    private String productCode;
+
     private ShipmentRequestDetailsResponseType setupOrderFulfillmentRequest(String orderNumber, String customerId, String customerName, String quantities, String bloodTypes
         , String productFamilies, String unitNumbers, String productCodes) {
         return shipmentTestingController.buildShipmentRequestDetailsResponseType(Long.valueOf(orderNumber),
@@ -264,10 +268,12 @@ public class ShipmentFulfillmentSteps {
     @When("I add the unit {string} with product code {string}.")
     public void addUnitWithProductCode(String unit, String productCode) throws InterruptedException {
         fillProductsPage.addUnitWithProductCode(unit, productCode);
+        this.unitNumber = unit;
+        this.productCode = productCode;
     }
 
     @And("I define visual inspection as {string}.")
-    public void defineVisualInspection(String visualInspection) {
+    public void defineVisualInspection(String visualInspection) throws InterruptedException {
         fillProductsPage.defineVisualInspection(visualInspection);
     }
 
@@ -277,7 +283,7 @@ public class ShipmentFulfillmentSteps {
     }
 
     @When("I choose to return to the shipment details page.")
-    public void returnToShipmentDetails() {
+    public void returnToShipmentDetails() throws InterruptedException {
         fillProductsPage.clickBackButton();
     }
 
@@ -321,6 +327,9 @@ public class ShipmentFulfillmentSteps {
     public void iTypeTheUnitDigitAndProductCode(String unitNumber, String checkDigit, String productCode) throws InterruptedException {
         boolean checkDigitEnabled = shipmentTestingController.getCheckDigitConfiguration();
         fillProductsPage.addUnitWithDigitAndProductCode(unitNumber, checkDigit, productCode, checkDigitEnabled);
+        this.unitNumber = unitNumber;
+        this.checkDigit = checkDigit;
+        this.productCode = productCode;
     }
 
     @And("The visual inspection field is {string}.")
@@ -335,6 +344,38 @@ public class ShipmentFulfillmentSteps {
         } else {
             fillProductsPage.assertCheckDigitErrorIs(message);
         }
+    }
+
+    @And("The visual inspection configuration is {string}.")
+    public void setVisualInspectionConfig(String status) {
+        shipmentTestingController.setVisualInspectionConfiguration(status);
+    }
+
+    @And("I define visual inspection as {string}, if needed.")
+    public void iDefineVisualInspectionAsIfNeeded(String inspection) throws InterruptedException {
+        boolean visualInspectionEnabled = shipmentTestingController.getCheckVisualInspectionConfig();
+        if (visualInspectionEnabled) {
+            fillProductsPage.defineVisualInspection(inspection);
+        } else {
+            log.info("Visual inspection is not enabled.");
+        }
+    }
+
+    @And("I am able to proceed with the product filling process.")
+    public void iAmAbleToProceedWithTheProductFillingProcess() {
+        boolean visualInspectionEnabled = shipmentTestingController.getCheckVisualInspectionConfig();
+        if (visualInspectionEnabled) {
+            fillProductsPage.assertVisualInspectionIs("enabled");
+        } else {
+            fillProductsPage.ensureProductIsAdded(this.unitNumber, this.productCode);
+        }
+    }
+
+    @When("I type the unit {string}, digit {string}.")
+    public void iTypeTheUnitDigit(String unitNumber, String checkDigit) throws InterruptedException {
+        fillProductsPage.addUnitWithDigit(unitNumber, checkDigit);
+        this.unitNumber = unitNumber;
+        this.checkDigit = checkDigit;
     }
 }
 
