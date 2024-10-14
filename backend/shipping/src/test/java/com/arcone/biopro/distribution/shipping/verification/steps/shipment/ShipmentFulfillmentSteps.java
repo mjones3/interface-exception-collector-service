@@ -261,7 +261,7 @@ public class ShipmentFulfillmentSteps {
     }
 
     @And("I choose to fill product of family {string} and blood type {string}.")
-    public void iHaveFilledTheShipment(String family, String bloodType) {
+    public void iHaveFilledTheShipment(String family, String bloodType) throws InterruptedException {
         shipmentDetailPage.clickFillProduct(family, bloodType);
     }
 
@@ -376,6 +376,23 @@ public class ShipmentFulfillmentSteps {
         fillProductsPage.addUnitWithDigit(unitNumber, checkDigit);
         this.unitNumber = unitNumber;
         this.checkDigit = checkDigit;
+    }
+
+    @Then("I should see the discard form.")
+    public void iShouldSeeTheDiscardForm() {
+    }
+
+    @And("I should see all the configured discard reasons.")
+    public void iShouldSeeAllTheConfiguredDiscardReasons() {
+    }
+
+    @When("I choose to cancel the discard form.")
+    public void iChooseToCancelTheDiscardForm() {
+        
+    }
+
+    @Then("I should see the discard form is closed.")
+    public void iShouldSeeTheDiscardFormIsClosed() {
     }
 }
 
