@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import {
     ChangeDetectorRef,
     Component,
+    ElementRef,
     EventEmitter,
     Input,
     Output,
@@ -51,6 +52,8 @@ export class EnterUnitNumberProductCodeComponent {
 
     @ViewChild('unitnumber')
     unitNumberComponent: ScanUnitNumberCheckDigitComponent;
+
+    @ViewChild('inputProductCode') inputProductCode: ElementRef;
 
     @Input() showVisualInspection = false;
 
@@ -209,6 +212,7 @@ export class EnterUnitNumberProductCodeComponent {
             this.checkDigitValid
         ) {
             this.productGroup.controls.productCode.enable();
+            this.focusProductCode();
         } else {
             this.productGroup.controls.productCode.disable();
         }
@@ -226,5 +230,9 @@ export class EnterUnitNumberProductCodeComponent {
                 this.verifyProduct();
             }, 300);
         }
+    }
+
+    focusProductCode() {
+        this.inputProductCode?.nativeElement.focus();
     }
 }
