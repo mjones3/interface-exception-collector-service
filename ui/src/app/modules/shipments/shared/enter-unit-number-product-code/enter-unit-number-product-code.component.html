@@ -54,29 +54,26 @@
                         >
                         <span class="custom-required">*</span>
                     </span>
-                    <div class="mb-4 flex w-full flex-col">
-                        <mat-radio-group
+                    <div
+                        class="align-start mb-5 flex flex-col items-start justify-start"
+                    >
+                        <mat-button-toggle-group
                             id="visualInspectionId"
-                            required
-                            class="flex"
                             formControlName="visualInspection"
-                            ngDefaultControl
-                            (change)="onSelectVisualInspection()"
+                            [disabled]="!enableVisualInspection"
+                            (change)="onSelectVisualInspection($event)"
                         >
-                            <mat-radio-button
+                            <mat-button-toggle
                                 id="inspection-satisfactory"
-                                class="mr-4 font-bold"
                                 [value]="'satisfactory'"
-                                >Satisfactory</mat-radio-button
-                            >
-                            <mat-radio-button
+                                >Satisfactory
+                            </mat-button-toggle>
+                            <mat-button-toggle
                                 id="inspection-unsatisfactory"
-                                class="font-bold"
                                 [value]="'unsatisfactory'"
-                            >
-                                Unsatisfactory
-                            </mat-radio-button>
-                        </mat-radio-group>
+                                >Unsatisfactory
+                            </mat-button-toggle>
+                        </mat-button-toggle-group>
                     </div>
                     @if (
                         productGroup
