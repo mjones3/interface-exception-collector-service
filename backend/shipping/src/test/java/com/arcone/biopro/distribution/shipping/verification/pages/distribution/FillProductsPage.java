@@ -2,7 +2,6 @@ package com.arcone.biopro.distribution.shipping.verification.pages.distribution;
 
 import com.arcone.biopro.distribution.shipping.verification.pages.CommonPageFactory;
 import com.arcone.biopro.distribution.shipping.verification.pages.SharedActions;
-import com.arcone.biopro.distribution.shipping.verification.support.DatabaseService;
 import com.arcone.biopro.distribution.shipping.verification.support.TestUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
@@ -26,10 +25,10 @@ public class FillProductsPage extends CommonPageFactory {
     private WebElement checkDigitError;
 
 
-    @FindBy(id = "inspection-satisfactory-input")
+    @FindBy(id = "inspection-satisfactory")
     private WebElement visualInspectionSatisfactory;
 
-    @FindBy(id = "inspection-unsatisfactory-input")
+    @FindBy(id = "inspection-unsatisfactory")
     private WebElement visualInspectionUnsatisfactory;
 
     // Static locators
@@ -39,11 +38,7 @@ public class FillProductsPage extends CommonPageFactory {
     private static final String unitNumberInput = "inUnitNumber";
     private static final String visualInspectionSatisfactoryOption = "//*[@id='inspection-satisfactory']";
     private static final String visualInspectionUnsatisfactoryOption = "//*[@id='inspection-unsatisfactory']";
-
-    private String backButton = "backBtn";
-
-    @Autowired
-    private DatabaseService databaseService;
+    private static final String backButton = "backBtn";
 
     @Override
     public boolean isLoaded() {
