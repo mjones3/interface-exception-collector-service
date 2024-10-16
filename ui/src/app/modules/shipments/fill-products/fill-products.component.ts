@@ -196,7 +196,6 @@ export class FillProductsComponent implements OnInit {
                         this.productSelection.resetProductFormGroup();
                     }
                     this.productSelection.enableVisualInspection();
-                    this.productSelection.enableProductCode();
                     throw err;
                 }),
                 finalize(() => {
@@ -222,7 +221,6 @@ export class FillProductsComponent implements OnInit {
                             ];
                             this.productSelection.productGroup.reset();
                             this.productSelection.enableVisualInspection();
-                            this.productSelection.enableProductCode();
                         }
                     }
 
@@ -275,7 +273,6 @@ export class FillProductsComponent implements OnInit {
                             } else if (notification.statusCode !== 200) {
                                 this.productSelection.productGroup.reset();
                                 this.productSelection.enableVisualInspection();
-                                this.productSelection.enableProductCode();
                             }
                         });
                     }
@@ -340,6 +337,7 @@ export class FillProductsComponent implements OnInit {
             .afterClosed()
             .subscribe((result) => {
                 // FIXME add code to handle modal close
+                this.toaster.success(JSON.stringify(result));
                 console.log(result);
             });
     }
