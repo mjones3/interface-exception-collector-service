@@ -301,7 +301,7 @@ public class ShipmentServiceUseCase implements ShipmentService {
                             .notificationType(NotificationType.WARN.name())
                         .build())));
                 } else if(TRUE.equals(visualInspectionActive) && !VisualInspection.SATISFACTORY.equals(request.visualInspection())){
-                    return Mono.error(new ProductValidationException(ShipmentServiceMessages.PRODUCT_CRITERIA_VISUAL_INSPECTION_ERROR,List.of(NotificationDTO
+                    return Mono.error(new ProductValidationException(ShipmentServiceMessages.PRODUCT_CRITERIA_VISUAL_INSPECTION_ERROR, inventoryResponseDTO, List.of(NotificationDTO
                         .builder()
                         .name("PRODUCT_CRITERIA_VISUAL_INSPECTION_ERROR")
                         .statusCode(HttpStatus.BAD_REQUEST.value())
