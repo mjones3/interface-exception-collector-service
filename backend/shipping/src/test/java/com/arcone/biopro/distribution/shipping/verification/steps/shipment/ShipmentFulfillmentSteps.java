@@ -380,19 +380,23 @@ public class ShipmentFulfillmentSteps {
 
     @Then("I should see the discard form.")
     public void iShouldSeeTheDiscardForm() {
+        fillProductsPage.verifyVisualInspectionDialog("Record Unsatisfactory Visual Inspection","Please select the reason for the unsatisfactory visual inspection:");
     }
 
     @And("I should see all the configured discard reasons.")
     public void iShouldSeeAllTheConfiguredDiscardReasons() {
+        var  configuredReasons = shipmentTestingController.getConfiguredDiscardReasons();
+        fillProductsPage.verifyDiscardReasons(configuredReasons);
     }
 
     @When("I choose to cancel the discard form.")
-    public void iChooseToCancelTheDiscardForm() {
-        
+    public void iChooseToCancelTheDiscardForm() throws InterruptedException {
+        fillProductsPage.clickDiscardDialogCancelButton();
     }
 
     @Then("I should see the discard form is closed.")
     public void iShouldSeeTheDiscardFormIsClosed() {
+        fillProductsPage.verifyDiscardDialogIsClosed();
     }
 }
 

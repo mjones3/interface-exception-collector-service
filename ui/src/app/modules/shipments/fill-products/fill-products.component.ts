@@ -340,7 +340,6 @@ export class FillProductsComponent implements OnInit {
             .afterClosed()
             .subscribe((result) => {
                 // FIXME add code to handle modal close
-                this.toaster.success(JSON.stringify(result));
                 console.log(result);
             });
     }

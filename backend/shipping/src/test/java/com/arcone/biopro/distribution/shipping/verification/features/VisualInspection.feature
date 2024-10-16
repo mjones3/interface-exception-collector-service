@@ -1,5 +1,8 @@
 Feature: Record Unsatisfactory Visual Inspection
 
+        Background:
+            Given I cleaned up from the database the packed item that used the unit number "W036898786803,W812530106091".
+            And I cleaned up from the database, all shipments with order number "200,201".
 
         Rule: I should be able to see the list of the discard reasons configured for distribution.
         Rule: I should be able to select the configured reasons for failed visual inspection.
