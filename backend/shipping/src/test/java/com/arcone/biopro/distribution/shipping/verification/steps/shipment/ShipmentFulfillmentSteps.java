@@ -398,5 +398,30 @@ public class ShipmentFulfillmentSteps {
     public void iShouldSeeTheDiscardFormIsClosed() {
         fillProductsPage.verifyDiscardDialogIsClosed();
     }
+
+    @And("I select the {string} reason for discard the product.")
+    public void iSelectTheReasonForDiscardTheProduct(String reason) throws InterruptedException {
+        fillProductsPage.selectDiscardReason(reason);
+    }
+
+    @Then("The comments field should be required.")
+    public void theCommentsFieldShouldBeRequired() {
+        fillProductsPage.verifyDiscardCommentIsRequired();
+    }
+
+    @And("The submit option should be {string}.")
+    public void theSubmitOptionShouldBe(String option) {
+        fillProductsPage.verifyDiscardSubmitIs(option);
+    }
+
+    @When("I fill the comments field with {string}.")
+    public void iFillTheCommentsFieldWith(String comments) throws InterruptedException {
+        fillProductsPage.fillDiscardComments(comments);
+    }
+
+    @And("I choose to submit the discard form.")
+    public void iChooseToSubmitTheDiscardForm() throws InterruptedException {
+        fillProductsPage.clickDiscardDialogSubmitButton();
+    }
 }
 
