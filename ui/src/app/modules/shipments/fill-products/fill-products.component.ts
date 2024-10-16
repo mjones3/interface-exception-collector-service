@@ -336,9 +336,46 @@ export class FillProductsComponent implements OnInit {
             })
             .afterClosed()
             .subscribe((result) => {
-                // FIXME add code to handle modal close
-                this.toaster.success(JSON.stringify(result));
                 console.log(result);
+                if (result.result === 'SUBMIT') {
+                    this.discardService
+                        .discardProduct(
+                            this.getDiscardRequestDto(
+                                result.inventory,
+                                result.reason.reasonKey
+                            )
+                        )
+                        .pipe(
+                            catchError((err) => {
+                                this.showDiscardSystemError();
+                                throw err;
+                            }),
+                            finalize(() => {
+                                this.loading = false;
+                                this.unitNumberFocus = true;
+                            })
+                        )
+                        .subscribe((response) => {
+                            const data = response?.data?.discardProduct;
+                            if (data) {
+                                this.productSelection.productGroup.reset();
+                                this.productSelection.enableVisualInspection();
+                                return this.openAcknowledgmentMessageDialog([
+                                    {
+                                        statusCode: 400,
+                                        notificationType: 'INFO',
+                                        code: 400,
+                                        message: result.message,
+                                    },
+                                ]);
+                            } else {
+                                this.showDiscardSystemError();
+                            }
+                        });
+                } else if (result.result === 'CANCEL') {
+                    this.productSelection.productGroup.reset();
+                    this.productSelection.enableVisualInspection();
+                }
             });
     }
 
@@ -413,7 +450,7 @@ export class FillProductsComponent implements OnInit {
                 .discardProduct(
                     this.getDiscardRequestDto(
                         inventory,
-                        triggerDiscardNotification
+                        triggerDiscardNotification.reason
                     )
                 )
                 .pipe(
@@ -441,7 +478,7 @@ export class FillProductsComponent implements OnInit {
 
     private getDiscardRequestDto(
         inventory: InventoryDTO,
-        notification: NotificationDto
+        reason: string
     ): DiscardRequestDTO {
         return {
             unitNumber: inventory.unitNumber,
@@ -449,7 +486,7 @@ export class FillProductsComponent implements OnInit {
             locationCode: this.cookieService.get(Cookie.XFacility),
             employeeId: this.loggedUserId,
             triggeredBy: 'SHIPPING',
-            reasonDescriptionKey: notification.reason,
+            reasonDescriptionKey: reason,
             productFamily: inventory.productFamily,
             productShortDescription: inventory.productDescription,
             comments: '',
