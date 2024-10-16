@@ -1,0 +1,73 @@
+@if (dataSignal(); as data) {
+    <h1 mat-dialog-title class="text-3xl">
+        Record Unsatisfactory Visual Inspection
+    </h1>
+    <mat-dialog-content class="mat-typography">
+        <form [formGroup]="form">
+            <div class="flex flex-col gap-8">
+                <h2>
+                    Please select the reason for the unsatisfactory visual
+                    inspection:
+                </h2>
+
+                <div class="flex flex-col gap-2">
+                    <p class="font-bold">
+                        Select the reason
+                        <span class="required-field-asterisk">*</span>
+                    </p>
+                    <mat-grid-list cols="4" rowHeight="5:3" gutterSize="10">
+                        @for (reason of data.reasons; track reason.reasonKey) {
+                            <mat-grid-tile>
+                                <biopro-action-button
+                                    [id]="reason.reasonKey"
+                                    [btnId]="reason.reasonKey + 'actionBtn'"
+                                    [label]="
+                                        ReasonMap[reason.reasonKey] | uppercase
+                                    "
+                                    [color]="
+                                        form.controls.reason?.value === reason
+                                            ? 'primary'
+                                            : 'secondary'
+                                    "
+                                    (clickEvent)="
+                                        form.patchValue({ reason: reason })
+                                    "
+                                    class="w-32"
+                                />
+                            </mat-grid-tile>
+                        }
+                    </mat-grid-list>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <mat-form-field>
+                        <mat-label>Comments</mat-label>
+                        <textarea
+                            id="commentsTextArea"
+                            formControlName="comments"
+                            matInput
+                            rows="6"
+                        ></textarea>
+                    </mat-form-field>
+                </div>
+            </div>
+        </form>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end" class="space-x-6">
+        <biopro-action-button
+            id="cancelBtn"
+            btnId="cancelActionBtn"
+            label="Cancel"
+            color="secondary"
+            mat-dialog-close
+            (clickEvent)="close('CANCEL')"
+        />
+        <biopro-action-button
+            id="submitBtn"
+            btnId="submitActionBtn"
+            label="Submit"
+            [disabled]="form.invalid"
+            (clickEvent)="close('SUBMIT')"
+        />
+    </mat-dialog-actions>
+}
