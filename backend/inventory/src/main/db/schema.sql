@@ -1,4 +1,6 @@
-CREATE TABLE bld_inventory
+CREATE SCHEMA IF NOT EXISTS inventory;
+
+CREATE TABLE inventory.bld_inventory
 (
     id                          uuid NOT NULL,
     unit_number                 VARCHAR(13) NOT NULL,
@@ -23,7 +25,7 @@ CREATE TABLE bld_inventory
     CONSTRAINT pk_bld_inventory PRIMARY KEY (id)
 );
 
-CREATE TABLE lk_text_config
+CREATE TABLE inventory.lk_text_config
 (
     id                          UUID NOT NULL DEFAULT gen_random_uuid(),
     context                     VARCHAR(255) NOT NULL,
@@ -33,7 +35,7 @@ CREATE TABLE lk_text_config
 );
 
 
-CREATE TABLE lk_product_family
+CREATE TABLE inventory.lk_product_family
 (
     id                          UUID NOT NULL DEFAULT gen_random_uuid(),
     product_family                     VARCHAR(255) NOT NULL,
