@@ -205,6 +205,10 @@ export class EnterUnitNumberProductCodeComponent {
         );
     }
 
+    get visualInspectionDisabled() {
+        return this.productGroup.controls.visualInspection.disabled;
+    }
+
     enableVisualInspection(): void {
         if (this.showVisualInspection) {
             if (
