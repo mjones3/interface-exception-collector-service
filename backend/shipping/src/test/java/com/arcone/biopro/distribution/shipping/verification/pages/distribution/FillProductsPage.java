@@ -41,12 +41,12 @@ public class FillProductsPage extends CommonPageFactory {
     private static final String visualInspectionSatisfactoryOption = "//*[@id='inspection-satisfactory']";
     private static final String visualInspectionUnsatisfactoryOption = "//*[@id='inspection-unsatisfactory']";
     private static final String backButton = "backBtn";
-    private static final String discardDialogCancelButton = "//*[@id='mat-mdc-dialog-0']//*[@id='cancelActionBtn']";
-    private static final String discardDialogSubmitButton = "submitActionBtn";
+    private static final String discardDialogCancelButton = "//*[@id='mat-mdc-dialog-0']//*[@id='recordUnsatisfactoryVisualInspectionCancelActionBtn']";
+    private static final String discardDialogSubmitButton = "recordUnsatisfactoryVisualInspectionSubmitActionBtn";
     private static final String dialogLocator = "//*[@id='mat-mdc-dialog-0']";
     private static final String dialogHeaderLocator = "//*[@id='mat-mdc-dialog-0']//h1";
-    private static final String reasonsLocator = "//*[@id='mat-mdc-dialog-0']//mat-grid-tile//biopro-action-button";
-    private static final String discardComments = "commentsTextArea";
+    private static final String reasonsLocator = "//*[@id='mat-mdc-dialog-0']//*[@id='recordUnsatisfactoryVisualInspectionReasons']//biopro-action-button";
+    private static final String discardComments = "recordUnsatisfactoryVisualInspectionCommentsTextArea";
 
     // Dynamic locators
 
