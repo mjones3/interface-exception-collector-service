@@ -300,16 +300,7 @@ public class ShipmentServiceUseCase implements ShipmentService {
                             .message(ShipmentServiceMessages.PRODUCT_CRITERIA_BLOOD_TYPE_ERROR)
                             .notificationType(NotificationType.WARN.name())
                         .build())));
-                } else if(TRUE.equals(visualInspectionActive) && !VisualInspection.SATISFACTORY.equals(request.visualInspection())){
-                    return Mono.error(new ProductValidationException(ShipmentServiceMessages.PRODUCT_CRITERIA_VISUAL_INSPECTION_ERROR, inventoryResponseDTO, List.of(NotificationDTO
-                        .builder()
-                        .name("PRODUCT_CRITERIA_VISUAL_INSPECTION_ERROR")
-                        .statusCode(HttpStatus.BAD_REQUEST.value())
-                        .message(ShipmentServiceMessages.PRODUCT_CRITERIA_VISUAL_INSPECTION_ERROR)
-                        .notificationType(NotificationType.WARN.name())
-                        .build())));
                 }
-
                 return Mono.just(shipmentItem);
             }).zipWith(shipmentItemPackedRepository.countAllByUnitNumberAndProductCode(request.unitNumber(), request.productCode()))
             .flatMap(tuple2 -> {
@@ -319,6 +310,14 @@ public class ShipmentServiceUseCase implements ShipmentService {
                         .name("PRODUCT_ALREADY_USED_ERROR")
                         .statusCode(HttpStatus.BAD_REQUEST.value())
                         .message(ShipmentServiceMessages.PRODUCT_ALREADY_USED_ERROR)
+                        .notificationType(NotificationType.WARN.name())
+                        .build())));
+                } else if(TRUE.equals(visualInspectionActive) && !VisualInspection.SATISFACTORY.equals(request.visualInspection())){
+                    return Mono.error(new ProductValidationException(ShipmentServiceMessages.PRODUCT_CRITERIA_VISUAL_INSPECTION_ERROR, inventoryResponseDTO, List.of(NotificationDTO
+                        .builder()
+                        .name("PRODUCT_CRITERIA_VISUAL_INSPECTION_ERROR")
+                        .statusCode(HttpStatus.BAD_REQUEST.value())
+                        .message(ShipmentServiceMessages.PRODUCT_CRITERIA_VISUAL_INSPECTION_ERROR)
                         .notificationType(NotificationType.WARN.name())
                         .build())));
                 }
