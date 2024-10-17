@@ -104,9 +104,11 @@ export class EnterUnitNumberProductCodeComponent {
         checkDigitChange: boolean;
     }) {
         this.productGroup.controls.unitNumber.setValue(event.unitNumber);
-        this.enableProductCode();
-        this.enableVisualInspection();
-        if (event.checkDigitChange && event.checkDigit !== '') {
+        if (
+            this.containCheckDigit &&
+            event.checkDigitChange &&
+            event.checkDigit.trim() !== ''
+        ) {
             const $checkDigitVerification =
                 this.showCheckDigit && !event.scanner
                     ? this.shipmentService.validateCheckDigit(
@@ -124,8 +126,12 @@ export class EnterUnitNumberProductCodeComponent {
                 )
                 .subscribe((response) => {
                     this.checkDigitFieldError(response.data.verifyCheckDigit);
+                    this.enableProductCode();
                     this.enableVisualInspection();
                 });
+        } else {
+            this.enableProductCode();
+            this.enableVisualInspection();
         }
     }
 
@@ -197,10 +203,14 @@ export class EnterUnitNumberProductCodeComponent {
         return this.productGroup.controls.productCode.value;
     }
 
+    get containCheckDigit() {
+        return this.unitNumberComponent.form.contains('checkDigit');
+    }
+
     get checkDigitValid() {
         return (
-            !this.unitNumberComponent.form.contains('checkDigit') ||
-            (this.unitNumberComponent.form.contains('checkDigit') &&
+            !this.containCheckDigit ||
+            (this.containCheckDigit &&
                 this.unitNumberComponent.form.controls.checkDigit.valid)
         );
     }
