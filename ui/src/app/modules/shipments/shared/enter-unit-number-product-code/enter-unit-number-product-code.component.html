@@ -14,9 +14,7 @@
             <div class="w-2/3 space-y-1">
                 <div class="mt-0 flex flex-auto flex-col">
                     <mat-form-field class="block w-full">
-                        <mat-label class="block font-bold"
-                            >Product Code</mat-label
-                        >
+                        <mat-label class="font-bold">Product Code</mat-label>
                         <input
                             id="productCodeId"
                             #inputProductCode
@@ -24,7 +22,6 @@
                             formControlName="productCode"
                             autocomplete="off"
                             validateOn="touchedState"
-                            rsaBarcode
                             (keyup)="enableVisualInspection()"
                             (keydown.Enter)="onEnterProductCode()"
                             (keydown.Tab)="enableVisualInspection()"

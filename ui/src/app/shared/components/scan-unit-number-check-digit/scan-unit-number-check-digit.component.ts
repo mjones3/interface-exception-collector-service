@@ -60,10 +60,7 @@ export class ScanUnitNumberCheckDigitComponent implements OnChanges {
     form: FormGroup;
     checkDigitInvalidMessage: string;
 
-    constructor(
-        protected fb: FormBuilder,
-        private el: ElementRef
-    ) {
+    constructor(protected fb: FormBuilder) {
         this.form = this.fb.group({
             unitNumber: [null, [RsaValidators.unitNumber, Validators.required]],
         });
@@ -76,7 +73,7 @@ export class ScanUnitNumberCheckDigitComponent implements OnChanges {
         if (changes.showCheckDigit?.currentValue) {
             this.form.addControl(
                 'checkDigit',
-                new FormControl({ value: null, disabled: false }, [
+                new FormControl({ value: '', disabled: false }, [
                     Validators.required,
                     Validators.maxLength(1),
                     checkDigitValidator(false),
