@@ -43,6 +43,7 @@ public class FillProductsPage extends CommonPageFactory {
     private static final String backButton = "backBtn";
     private static final String discardDialogCancelButton = "//*[@id='mat-mdc-dialog-0']//*[@id='cancelActionBtn']";
     private static final String dialogLocator = "//*[@id='mat-mdc-dialog-0']";
+    private static final String dialogHeaderLocator = "//*[@id='mat-mdc-dialog-0']//h1";
     private static final String reasonsLocator = "//*[@id='mat-mdc-dialog-0']//mat-grid-tile//biopro-action-button";
 
     @Override
@@ -151,6 +152,7 @@ public class FillProductsPage extends CommonPageFactory {
         log.info("Verifying visual Inspection Dialog: {} , {}", header , title);
 
         sharedActions.waitForVisible(By.xpath(dialogLocator));
+        sharedActions.waitForVisible(By.xpath(dialogHeaderLocator));
         String msg = wait.until(e -> e.findElement(By.xpath(dialogLocator))).getText();
 
         // Split the message at line break to get header and message
