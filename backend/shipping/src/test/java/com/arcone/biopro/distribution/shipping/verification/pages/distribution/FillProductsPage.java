@@ -41,10 +41,18 @@ public class FillProductsPage extends CommonPageFactory {
     private static final String visualInspectionSatisfactoryOption = "//*[@id='inspection-satisfactory']";
     private static final String visualInspectionUnsatisfactoryOption = "//*[@id='inspection-unsatisfactory']";
     private static final String backButton = "backBtn";
-    private static final String discardDialogCancelButton = "//*[@id='mat-mdc-dialog-0']//*[@id='cancelActionBtn']";
+    private static final String discardDialogCancelButton = "//*[@id='mat-mdc-dialog-0']//*[@id='recordUnsatisfactoryVisualInspectionCancelActionBtn']";
+    private static final String discardDialogSubmitButton = "recordUnsatisfactoryVisualInspectionSubmitActionBtn";
     private static final String dialogLocator = "//*[@id='mat-mdc-dialog-0']";
     private static final String dialogHeaderLocator = "//*[@id='mat-mdc-dialog-0']//h1";
-    private static final String reasonsLocator = "//*[@id='mat-mdc-dialog-0']//mat-grid-tile//biopro-action-button";
+    private static final String reasonsLocator = "//*[@id='mat-mdc-dialog-0']//*[@id='recordUnsatisfactoryVisualInspectionReasons']//biopro-action-button";
+    private static final String discardComments = "recordUnsatisfactoryVisualInspectionCommentsTextArea";
+
+    // Dynamic locators
+
+    private String discardReasonButton(String reason) {
+        return String.format("%sactionBtn", reason.replace(" ", "_").toUpperCase());
+    }
 
     @Override
     public boolean isLoaded() {
@@ -178,5 +186,36 @@ public class FillProductsPage extends CommonPageFactory {
     public void verifyDiscardDialogIsClosed(){
         log.debug("Verifying visual Inspection Dialog close");
         sharedActions.waitForNotVisible(By.xpath(dialogLocator));
+    }
+
+    public void selectDiscardReason(String reason) throws InterruptedException {
+        log.debug("Selecting discard reason: {}" , reason);
+        sharedActions.click(this.driver, By.id(discardReasonButton(reason)));
+    }
+
+    public void verifyDiscardCommentIsRequired() {
+        log.debug("Verifying discard comment is required");
+        sharedActions.waitForVisible(By.id(discardComments));
+        Assert.assertTrue(sharedActions.isRequired(By.id(discardComments)));
+    }
+
+    public void verifyDiscardSubmitIs(String option) {
+        log.debug("Verifying discard submit is: {}" , option);
+        sharedActions.waitForVisible(By.id(discardDialogSubmitButton));
+        if(option.equalsIgnoreCase("enabled")){
+            sharedActions.waitForEnabled(By.id(discardDialogSubmitButton));
+        }else{
+            sharedActions.waitForDisabled(By.id(discardDialogSubmitButton));
+        }
+    }
+
+    public void fillDiscardComments(String comments) throws InterruptedException {
+        log.debug("Filling discard comments: {}" , comments);
+        sharedActions.sendKeys(this.driver, By.id(discardComments), comments);
+    }
+
+    public void clickDiscardDialogSubmitButton() throws InterruptedException {
+        log.debug("Clicking discard submit button.");
+        sharedActions.click(this.driver, By.id(discardDialogSubmitButton));
     }
 }

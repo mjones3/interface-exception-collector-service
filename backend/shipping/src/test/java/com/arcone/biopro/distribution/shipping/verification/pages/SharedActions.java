@@ -154,6 +154,7 @@ public class SharedActions {
     public void clickElementAndMoveToNewTab(WebDriver driver, WebElement element, int expectedWindowsNumber) throws InterruptedException {
         waitForVisible(element);
         waitForEnabled(element);
+        Thread.sleep(500);
         this.click(element);
         log.info("Waiting for {} windows to be open. Currently: {}", expectedWindowsNumber, driver.getWindowHandles().size());
         wait.until(numberOfWindowsToBe(expectedWindowsNumber));
@@ -183,7 +184,7 @@ public class SharedActions {
         log.info("Verifying message: {}", message);
         var bannerMessageLocator = "";
         if (header.startsWith("Acknowledgment")) {
-            bannerMessageLocator = "//*[@id='mat-mdc-dialog-0']//fuse-confirmation-dialog";
+            bannerMessageLocator = "//mat-dialog-container[starts-with(@id,'mat-mdc-dialog')]//fuse-confirmation-dialog";
         } else {
             bannerMessageLocator = "//*[@id='toast-container']//fuse-alert";
         }
@@ -251,6 +252,30 @@ public class SharedActions {
         }
     }
 
+    public void waitForDisabled(By locator) {
+        try {
+            wait.until(e -> {
+                log.debug("Waiting for element {} to be disabled.", locator);
+                try {
+                    return !e.findElement(locator).isEnabled();
+                } catch (NoSuchElementException | StaleElementReferenceException ex) {
+                    try {
+                        log.debug("Waiting for element {} to be disabled for the second time.", locator);
+                        return !e.findElement(locator).isEnabled();
+                    } catch (NoSuchElementException | StaleElementReferenceException ex2) {
+                        // Element not found, consider it as not disabled
+                        log.debug("Element {} not found after two tries, considering it as not disabled.", locator);
+                        return false;
+                    }
+                }
+            });
+            log.debug("Element {} is disabled now.", locator);
+        } catch (Exception e) {
+            log.error("Element {} is not visible after the specified timeout.", locator);
+            throw e;
+        }
+    }
+
     public void waitForEnabled(WebElement element) {
         try {
             wait.until(e -> {
@@ -273,5 +298,12 @@ public class SharedActions {
             log.error("Element {} is not visible after the specified timeout.", element);
             throw e;
         }
+    }
+
+    public boolean isRequired(By xpath) {
+        return Boolean.parseBoolean(wait.until(e -> {
+            log.debug("Checking if element {} is required.", xpath);
+            return e.findElement(xpath).getAttribute("required");
+        }));
     }
 }

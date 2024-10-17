@@ -1,10 +1,10 @@
 @if (dataSignal(); as data) {
-    <h1 mat-dialog-title class="text-3xl">
+    <h1 mat-dialog-title class="flex p-6 pb-0 text-3xl">
         Record Unsatisfactory Visual Inspection
     </h1>
     <mat-dialog-content class="mat-typography">
         <form [formGroup]="form">
-            <div class="flex flex-col gap-8">
+            <div class="flex flex-col gap-6">
                 <h2>
                     Please select the reason for the unsatisfactory visual
                     inspection:
@@ -15,35 +15,36 @@
                         Select the reason
                         <span class="required-field-asterisk">*</span>
                     </p>
-                    <mat-grid-list cols="4" rowHeight="5:3" gutterSize="10">
+                    <div
+                        id="recordUnsatisfactoryVisualInspectionReasons"
+                        class="grid grid-cols-4 gap-2"
+                    >
                         @for (reason of data.reasons; track reason.reasonKey) {
-                            <mat-grid-tile>
-                                <biopro-action-button
-                                    [id]="reason.reasonKey"
-                                    [btnId]="reason.reasonKey + 'actionBtn'"
-                                    [label]="
-                                        ReasonMap[reason.reasonKey] | uppercase
-                                    "
-                                    [color]="
-                                        form.controls.reason?.value === reason
-                                            ? 'primary'
-                                            : 'secondary'
-                                    "
-                                    (clickEvent)="
-                                        form.patchValue({ reason: reason })
-                                    "
-                                    class="w-32"
-                                />
-                            </mat-grid-tile>
+                            <biopro-action-button
+                                [id]="reason.reasonKey"
+                                [btnId]="reason.reasonKey + 'actionBtn'"
+                                [label]="
+                                    ReasonMap[reason.reasonKey] | uppercase
+                                "
+                                [color]="
+                                    form.controls.reason?.value === reason
+                                        ? 'primary'
+                                        : 'secondary'
+                                "
+                                (clickEvent)="
+                                    form.patchValue({ reason: reason })
+                                "
+                                class="w-full"
+                            />
                         }
-                    </mat-grid-list>
+                    </div>
                 </div>
 
                 <div class="flex flex-col gap-2">
                     <mat-form-field>
                         <mat-label>Comments</mat-label>
                         <textarea
-                            id="commentsTextArea"
+                            id="recordUnsatisfactoryVisualInspectionCommentsTextArea"
                             formControlName="comments"
                             matInput
                             rows="6"
@@ -53,18 +54,18 @@
             </div>
         </form>
     </mat-dialog-content>
-    <mat-dialog-actions align="end" class="space-x-6">
+    <mat-dialog-actions align="end" class="space-x-6 p-6 pt-0">
         <biopro-action-button
-            id="cancelBtn"
-            btnId="cancelActionBtn"
+            id="recordUnsatisfactoryVisualInspectionCancelBtn"
+            btnId="recordUnsatisfactoryVisualInspectionCancelActionBtn"
             label="Cancel"
             color="secondary"
             mat-dialog-close
             (clickEvent)="close('CANCEL')"
         />
         <biopro-action-button
-            id="submitBtn"
-            btnId="submitActionBtn"
+            id="recordUnsatisfactoryVisualInspectionSubmitBtn"
+            btnId="recordUnsatisfactoryVisualInspectionSubmitActionBtn"
             label="Submit"
             [disabled]="form.invalid"
             (clickEvent)="close('SUBMIT')"
