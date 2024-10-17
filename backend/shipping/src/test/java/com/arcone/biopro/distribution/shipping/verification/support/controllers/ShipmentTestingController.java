@@ -1,7 +1,12 @@
 package com.arcone.biopro.distribution.shipping.verification.support.controllers;
 
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.BloodType;
-import com.arcone.biopro.distribution.shipping.verification.support.*;
+import com.arcone.biopro.distribution.shipping.verification.support.ApiHelper;
+import com.arcone.biopro.distribution.shipping.verification.support.DatabaseService;
+import com.arcone.biopro.distribution.shipping.verification.support.GraphQLQueryMapper;
+import com.arcone.biopro.distribution.shipping.verification.support.KafkaHelper;
+import com.arcone.biopro.distribution.shipping.verification.support.TestUtils;
+import com.arcone.biopro.distribution.shipping.verification.support.Topics;
 import com.arcone.biopro.distribution.shipping.verification.support.types.ListShipmentsResponseType;
 import com.arcone.biopro.distribution.shipping.verification.support.types.OrderFulfilledEventType;
 import com.arcone.biopro.distribution.shipping.verification.support.types.ShipmentFulfillmentRequest;
@@ -17,7 +22,14 @@ import org.springframework.stereotype.Component;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
 
 
 @Component
@@ -38,6 +50,8 @@ public class ShipmentTestingController {
 
     @Value("${kafka.waiting.time}")
     private long kafkaWaitingTime;
+    @Autowired
+    private DatabaseService databaseService;
 
 
     public long createShippingRequest(ShipmentRequestDetailsResponseType shipmentDetail) throws Exception {
@@ -79,23 +93,23 @@ public class ShipmentTestingController {
             var shipmentId = orderFilter.getId();
             log.info("Found Shipment by Order Number");
             return shipmentId;
-        } else{
+        } else {
             throw new RuntimeException("Shipments not found.");
         }
     }
 
     public List<ListShipmentsResponseType> listShipments() {
         log.info("Listing orders.");
-        var response = apiHelper.graphQlRequestObjectList(GraphQLQueryMapper.listShipmentsQuery(),"listShipments");
+        var response = apiHelper.graphQlRequestObjectList(GraphQLQueryMapper.listShipmentsQuery(), "listShipments");
         List<ListShipmentsResponseType> responseTypeList = new ArrayList<>();
         Arrays.stream(response).toList().forEach(o -> {
             LinkedHashMap linkedHashMap = (LinkedHashMap) o;
             responseTypeList.add(ListShipmentsResponseType.
                 builder()
-                    .id(Long.valueOf((String) linkedHashMap.get("id")))
-                    .status((String) linkedHashMap.get("status"))
-                    .orderNumber(Long.valueOf((Integer) linkedHashMap.get("orderNumber")))
-                    .priority((String) linkedHashMap.get("priority"))
+                .id(Long.valueOf((String) linkedHashMap.get("id")))
+                .status((String) linkedHashMap.get("status"))
+                .orderNumber(Long.valueOf((Integer) linkedHashMap.get("orderNumber")))
+                .priority((String) linkedHashMap.get("priority"))
                 .build());
 
         });
@@ -105,7 +119,7 @@ public class ShipmentTestingController {
 
     public Map getShipmentRequestDetails(long shipmentId) {
         log.info("Getting order details for order: {}", shipmentId);
-        return apiHelper.graphQlRequest(GraphQLQueryMapper.shipmentDetailsQuery(shipmentId),"getShipmentDetailsById");
+        return apiHelper.graphQlRequest(GraphQLQueryMapper.shipmentDetailsQuery(shipmentId), "getShipmentDetailsById");
     }
 
     public ShipmentRequestDetailsResponseType parseShipmentRequestDetail(Map result) {
@@ -241,5 +255,33 @@ public class ShipmentTestingController {
 
     public ShipmentRequestDetailsResponseType buildShipmentRequestDetailsResponseType(long orderNumber, String locationCode, String customerID, String customerName, String department, String addressLine1, String addressLine2, String unitNumber, String productCode, String productFamily, String bloodType, String expiration, long quantity) {
         return this.buildShipmentRequestDetailsResponseType(orderNumber, "ASAP", "OPEN", customerID, 0L, locationCode, "TEST", "TEST", "Frozen", LocalDate.now(), customerName, department, "", "123456789", "FL", "33016", "US", "1", "Miami", "Miami", addressLine1, addressLine2, String.valueOf(quantity), bloodType, productFamily, unitNumber, productCode);
+    }
+
+    public boolean getCheckDigitConfiguration() {
+        var query = "SELECT option_value from lk_lookup WHERE type = 'SHIPPING_CHECK_DIGIT_ACTIVE'";
+        var checkDigitConfig = databaseService.fetchData(query);
+        var records = checkDigitConfig.first().block();
+        assert records != null;
+        return records.get("option_value").equals("true");
+    }
+
+    public void setVisualInspectionConfiguration(String status) {
+        if (status.equalsIgnoreCase("enabled")) {
+            status = "true";
+        } else if (status.equalsIgnoreCase("disabled")) {
+            status = "false";
+        } else {
+            throw new RuntimeException("Invalid status.");
+        }
+        var query = String.format("UPDATE lk_lookup SET option_value = '%s' WHERE type = 'SHIPPING_VISUAL_INSPECTION_ACTIVE'", status);
+        databaseService.executeSql(query).block();
+    }
+
+    public boolean getCheckVisualInspectionConfig() {
+        var query = "SELECT option_value from lk_lookup WHERE type = 'SHIPPING_VISUAL_INSPECTION_ACTIVE'";
+        var checkDigitConfig = databaseService.fetchData(query);
+        var records = checkDigitConfig.first().block();
+        assert records != null;
+        return records.get("option_value").equals("true");
     }
 }

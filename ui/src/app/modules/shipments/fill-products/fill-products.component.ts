@@ -28,6 +28,7 @@ import {
 } from '@shared';
 import { ERROR_MESSAGE } from 'app/core/data/common-labels';
 import { getAuthState } from 'app/core/state/auth/auth.selectors';
+import { ProductIconsService } from 'app/shared/services/product-icon.service';
 import { Cookie } from 'app/shared/types/cookie.enum';
 import { CookieService } from 'ngx-cookie-service';
 import { TableModule } from 'primeng/table';
@@ -80,6 +81,8 @@ export class FillProductsComponent implements OnInit {
     productCodeFocus = false;
     loggedUserId: string;
     processProductConfig: ProcessProductModel;
+    showCheckDigit = true;
+    showVisualInspection = false;
 
     @ViewChild('productSelection')
     productSelection: EnterUnitNumberProductCodeComponent;
@@ -96,7 +99,8 @@ export class FillProductsComponent implements OnInit {
         private _router: Router,
         private cd: ChangeDetectorRef,
         private confirmationService: FuseConfirmationService,
-        private discardService: DiscardService
+        private discardService: DiscardService,
+        private productIconService: ProductIconsService
     ) {
         this.store
             .select(getAuthState)
@@ -115,6 +119,9 @@ export class FillProductsComponent implements OnInit {
             .getShipmentById(this.shipmentId)
             .subscribe((result) => {
                 this.shipmentInfo = result.data?.getShipmentDetailsById;
+                this.showCheckDigit = this.shipmentInfo.checkDigitActive;
+                this.showVisualInspection =
+                    this.shipmentInfo.visualInspectionActive;
                 this.shipmentProduct = this.shipmentInfo?.items?.find(
                     (item) => item.id === this.productId
                 );
@@ -122,7 +129,12 @@ export class FillProductsComponent implements OnInit {
 
                 this.setProdInfo();
                 this.cd.detectChanges();
+                this.productSelection.buildFormGroup();
             });
+    }
+
+    getIcon(productFamily: string) {
+        return this.productIconService.getIconByProductFamily(productFamily);
     }
 
     private setProdInfo() {
@@ -140,6 +152,10 @@ export class FillProductsComponent implements OnInit {
                 value: this.shipmentProduct?.comments,
             },
         ];
+    }
+
+    get productFamily() {
+        return this.shipmentProduct?.productFamily;
     }
 
     get quantity() {
@@ -170,6 +186,7 @@ export class FillProductsComponent implements OnInit {
                     if (this.productSelection) {
                         this.productSelection.resetProductFormGroup();
                     }
+                    this.productSelection.enableVisualInspection();
                     throw err;
                 }),
                 finalize(() => {
@@ -244,7 +261,9 @@ export class FillProductsComponent implements OnInit {
             productCode: item.productCode,
             locationCode: this.cookieService.get(Cookie.XFacility),
             employeeId: this.loggedUserId,
-            visualInspection: item.visualInspection.toUpperCase(),
+            visualInspection: this.showVisualInspection
+                ? item.visualInspection.toUpperCase()
+                : null,
         };
     }
 

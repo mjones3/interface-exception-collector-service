@@ -19,9 +19,12 @@
                 [routerLink]="'/home'"
                 src="images/logo/logo.png"
                 alt="Arc-One Logo"
+                id="defaultLogo"
             />
         </div>
-        <h5 class="module-title text-center uppercase mt-8 mb-4">Distribution</h5>
+        <h5 class="module-title mb-4 mt-8 text-center uppercase">
+            Distribution
+        </h5>
     </ng-container>
 </fuse-vertical-navigation>
 
@@ -40,19 +43,18 @@
         </button>
 
         <!-- Top Bar Menu -->
-        <img
+        <!-- TODO: Temporarily removed the client logo until it comes from the configuration -->
+        <!-- <img
             id="defaultLogo"
             alt=""
             style="width: 150px !important; margin-left: 10px"
             [src]="defaultLogo"
-        />
-
-        <!-- Spacer -->
+        /> -->
         <div class="spacer"></div>
 
         <!-- Location -->
         <h4
-            class="text-3xl font-bold px-8 text-gray-600"
+            class="px-8 text-3xl font-bold text-gray-600"
             [class.cursor-pointer]="isHomePage()"
             [matTooltip]="getChangeFacilityTooltip()"
         >
@@ -87,14 +89,14 @@
         <div id="copyright">
             ARC-One Solutions &copy; {{ releaseNumber }}
 
-            @if(processProductVersion){
+            @if (processProductVersion) {
                 <div
-                matTooltip="Open Version Details"
-                (click)="goToBuildDetails()"
-                style="cursor: pointer"
-            >
-                Build Version: {{ processProductVersion.buildVersion }}
-            </div>
+                    matTooltip="Open Version Details"
+                    (click)="goToBuildDetails()"
+                    style="cursor: pointer"
+                >
+                    Build Version: {{ processProductVersion.buildVersion }}
+                </div>
             }
         </div>
 

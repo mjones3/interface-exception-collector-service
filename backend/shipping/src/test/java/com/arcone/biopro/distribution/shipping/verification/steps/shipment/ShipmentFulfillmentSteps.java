@@ -23,7 +23,11 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @Slf4j
 @SpringBootTest
@@ -55,11 +59,14 @@ public class ShipmentFulfillmentSteps {
     private boolean saveAllScreenshots;
 
 
-
     @Autowired
     private FillProductsPage fillProductsPage;
 
     private ShipmentRequestDetailsResponseType shipmentDetailType;
+
+    private String unitNumber;
+    private String checkDigit;
+    private String productCode;
 
     private ShipmentRequestDetailsResponseType setupOrderFulfillmentRequest(String orderNumber, String customerId, String customerName, String quantities, String bloodTypes
         , String productFamilies, String unitNumbers, String productCodes) {
@@ -261,10 +268,12 @@ public class ShipmentFulfillmentSteps {
     @When("I add the unit {string} with product code {string}.")
     public void addUnitWithProductCode(String unit, String productCode) throws InterruptedException {
         fillProductsPage.addUnitWithProductCode(unit, productCode);
+        this.unitNumber = unit;
+        this.productCode = productCode;
     }
 
     @And("I define visual inspection as {string}.")
-    public void defineVisualInspection(String visualInspection) {
+    public void defineVisualInspection(String visualInspection) throws InterruptedException {
         fillProductsPage.defineVisualInspection(visualInspection);
     }
 
@@ -274,14 +283,13 @@ public class ShipmentFulfillmentSteps {
     }
 
     @When("I choose to return to the shipment details page.")
-    public void returnToShipmentDetails() {
+    public void returnToShipmentDetails() throws InterruptedException {
         fillProductsPage.clickBackButton();
     }
 
     @And("I should not see the unit {string} with product code {string} added to the filled products table.")
     public void verifyProductNotAdded(String unitNumber, String productCode) throws InterruptedException {
         fillProductsPage.ensureProductIsNotAdded(unitNumber, productCode);
-        log.info("stop");
     }
 
     @Given("The shipment details are order Number {string}, customer ID {string}, Customer Name {string}, Product Details: Quantities {string}, Blood Types: {string}, Product Families {string}.")
@@ -315,5 +323,59 @@ public class ShipmentFulfillmentSteps {
         this.goToDetailsPage(customOrderNumber);
     }
 
+    @When("I type the unit {string}, digit {string}, and product code {string}.")
+    public void iTypeTheUnitDigitAndProductCode(String unitNumber, String checkDigit, String productCode) throws InterruptedException {
+        boolean checkDigitEnabled = shipmentTestingController.getCheckDigitConfiguration();
+        fillProductsPage.addUnitWithDigitAndProductCode(unitNumber, checkDigit, productCode, checkDigitEnabled);
+        this.unitNumber = unitNumber;
+        this.checkDigit = checkDigit;
+        this.productCode = productCode;
+    }
+
+    @And("The visual inspection field is {string}.")
+    public void theVisualInspectionFieldIs(String status) {
+        fillProductsPage.assertVisualInspectionIs(status);
+    }
+
+    @Then("I can {string} message {string}.")
+    public void iCanMessage(String conditional, String message) {
+        if (conditional.contains("not")) { // not
+            fillProductsPage.assertCheckDigitErrorIs("");
+        } else {
+            fillProductsPage.assertCheckDigitErrorIs(message);
+        }
+    }
+
+    @And("The visual inspection configuration is {string}.")
+    public void setVisualInspectionConfig(String status) {
+        shipmentTestingController.setVisualInspectionConfiguration(status);
+    }
+
+    @And("I define visual inspection as {string}, if needed.")
+    public void iDefineVisualInspectionAsIfNeeded(String inspection) throws InterruptedException {
+        boolean visualInspectionEnabled = shipmentTestingController.getCheckVisualInspectionConfig();
+        if (visualInspectionEnabled) {
+            fillProductsPage.defineVisualInspection(inspection);
+        } else {
+            log.info("Visual inspection is not enabled.");
+        }
+    }
+
+    @And("I am able to proceed with the product filling process.")
+    public void iAmAbleToProceedWithTheProductFillingProcess() {
+        boolean visualInspectionEnabled = shipmentTestingController.getCheckVisualInspectionConfig();
+        if (visualInspectionEnabled) {
+            fillProductsPage.assertVisualInspectionIs("enabled");
+        } else {
+            fillProductsPage.ensureProductIsAdded(this.unitNumber, this.productCode);
+        }
+    }
+
+    @When("I type the unit {string}, digit {string}.")
+    public void iTypeTheUnitDigit(String unitNumber, String checkDigit) throws InterruptedException {
+        fillProductsPage.addUnitWithDigit(unitNumber, checkDigit);
+        this.unitNumber = unitNumber;
+        this.checkDigit = checkDigit;
+    }
 }
 

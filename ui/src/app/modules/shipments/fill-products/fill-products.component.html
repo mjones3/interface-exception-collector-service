@@ -39,13 +39,15 @@
                     [showColon]="true"
                     [embedded]="true"
                     [maxRows]="2"
-                    [image]="'rsa:product-plasma'"
+                    [image]="getIcon(productFamily)"
                 ></rsa-description-card>
             </div>
 
             <fuse-card class="flex w-full flex-auto flex-col space-y-2">
                 <rsa-enter-unit-number-product-code
                     #productSelection
+                    [showCheckDigit]="showCheckDigit"
+                    [showVisualInspection]="showVisualInspection"
                     (unitNumberProductCodeSelected)="
                         unitNumberProductCodeSelected($event)
                     "
@@ -94,13 +96,16 @@
                                             Description
                                         </div>
                                     </th>
-                                    <th>
-                                        <div
-                                            class="p-d-flex p-jc-between p-ai-center"
-                                        >
-                                            Visual Inspection
-                                        </div>
-                                    </th>
+                                    @if (showVisualInspection) {
+                                        <th>
+                                            <div
+                                                class="p-d-flex p-jc-between p-ai-center"
+                                            >
+                                                Visual Inspection
+                                            </div>
+                                        </th>
+                                    }
+
                                     <th></th>
                                 </tr>
                             </ng-template>
@@ -120,9 +125,11 @@
                                     <td>
                                         {{ product?.productDescription }}
                                     </td>
-                                    <td>
-                                        {{ product?.visualInspection }}
-                                    </td>
+                                    @if (showVisualInspection) {
+                                        <td>
+                                            {{ product?.visualInspection }}
+                                        </td>
+                                    }
                                 </tr>
                             </ng-template>
                             <ng-template pTemplate="footer">

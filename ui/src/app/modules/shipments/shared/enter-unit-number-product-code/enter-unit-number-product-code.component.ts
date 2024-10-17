@@ -1,7 +1,10 @@
+import { CommonModule } from '@angular/common';
 import {
     ChangeDetectorRef,
     Component,
+    ElementRef,
     EventEmitter,
+    Input,
     Output,
     ViewChild,
 } from '@angular/core';
@@ -14,12 +17,21 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
-import { RsaValidators, ScanUnitNumberCheckDigitComponent } from '@shared';
+import {
+    RsaValidators,
+    ScanUnitNumberCheckDigitComponent,
+    ToastrImplService,
+} from '@shared';
+import { ERROR_MESSAGE } from 'app/core/data/common-labels';
+import { RuleResponseDTO } from 'app/shared/models/rule.model';
+import { catchError, of } from 'rxjs';
 import { VerifyFilledProductDto } from '../../models/shipment-info.dto';
+import { ShipmentService } from '../../services/shipment.service';
 
 @Component({
     standalone: true,
     imports: [
+        CommonModule,
         ReactiveFormsModule,
         MatRadioModule,
         MatFormFieldModule,
@@ -30,10 +42,10 @@ import { VerifyFilledProductDto } from '../../models/shipment-info.dto';
     templateUrl: './enter-unit-number-product-code.component.html',
 })
 export class EnterUnitNumberProductCodeComponent {
-    disableCheckDigit = true;
     productGroup: FormGroup;
     unitNumberFocus = true;
 
+    @Input() showCheckDigit = true;
     @Output()
     unitNumberProductCodeSelected: EventEmitter<VerifyFilledProductDto> =
         new EventEmitter<VerifyFilledProductDto>();
@@ -41,19 +53,33 @@ export class EnterUnitNumberProductCodeComponent {
     @ViewChild('unitnumber')
     unitNumberComponent: ScanUnitNumberCheckDigitComponent;
 
+    @ViewChild('inputProductCode') inputProductCode: ElementRef;
+
+    @Input() showVisualInspection = false;
+
     constructor(
         protected fb: FormBuilder,
-        private changeDetector: ChangeDetectorRef
+        private changeDetector: ChangeDetectorRef,
+        private shipmentService: ShipmentService,
+        private toaster: ToastrImplService
     ) {
-        this.productGroup = fb.group({
+        this.buildFormGroup();
+    }
+
+    buildFormGroup() {
+        this.productGroup = this.fb.group({
             unitNumber: ['', [Validators.required, RsaValidators.unitNumber]],
             productCode: [
-                '',
+                { value: '', disabled: true },
                 [RsaValidators.fullProductCode, Validators.required],
             ],
             visualInspection: [
                 { value: '', disabled: true },
-                [Validators.required],
+                [
+                    this.showVisualInspection
+                        ? Validators.required
+                        : Validators.nullValidator,
+                ],
             ],
         });
     }
@@ -62,9 +88,46 @@ export class EnterUnitNumberProductCodeComponent {
         unitNumber: string;
         checkDigit: string;
         scanner: boolean;
+        checkDigitChange: boolean;
     }) {
         this.productGroup.controls.unitNumber.setValue(event.unitNumber);
+        this.enableProductCode();
         this.enableVisualInspection();
+        if (event.checkDigitChange && event.checkDigit !== '') {
+            const $checkDigitVerification =
+                this.showCheckDigit && !event.scanner
+                    ? this.shipmentService.validateCheckDigit(
+                          event.unitNumber,
+                          event.checkDigit
+                      )
+                    : of(null);
+
+            $checkDigitVerification
+                .pipe(
+                    catchError((err) => {
+                        this.toaster.error(ERROR_MESSAGE);
+                        throw err;
+                    })
+                )
+                .subscribe((response) => {
+                    this.checkDigitFieldError(response.data.verifyCheckDigit);
+                    this.enableVisualInspection();
+                });
+        }
+    }
+
+    private checkDigitFieldError(response: RuleResponseDTO) {
+        const valid =
+            null !== response?.results && null === response?.notifications;
+        this.unitNumberComponent.setValidatorsForCheckDigit(valid);
+        if (!valid) {
+            const invalidMessage = response.notifications.map(
+                (mes) => mes.message
+            );
+            this.unitNumberComponent.checkDigitInvalidMessage =
+                invalidMessage[0];
+            this.unitNumberComponent.focusOnCheckDigit();
+        }
     }
 
     onSelectVisualInspection(): void {
@@ -94,7 +157,10 @@ export class EnterUnitNumberProductCodeComponent {
     }
 
     resetProductFormGroup(): void {
-        this.productGroup.controls.visualInspection.setValue(null);
+        if (this.showVisualInspection) {
+            this.productGroup.controls.visualInspection.setValue(null);
+        }
+
         this.productGroup.reset();
         this.unitNumberComponent.reset();
         this.productGroup.updateValueAndValidity();
@@ -118,14 +184,55 @@ export class EnterUnitNumberProductCodeComponent {
         return this.productGroup.controls.productCode.value;
     }
 
+    get checkDigitValid() {
+        return (
+            !this.unitNumberComponent.form.contains('checkDigit') ||
+            (this.unitNumberComponent.form.contains('checkDigit') &&
+                this.unitNumberComponent.form.controls.checkDigit.valid)
+        );
+    }
+
     enableVisualInspection(): void {
+        if (this.showVisualInspection) {
+            if (
+                this.productGroup.controls.unitNumber.valid &&
+                this.productGroup.controls.productCode.valid &&
+                this.checkDigitValid
+            ) {
+                this.productGroup.controls.visualInspection.enable();
+            } else {
+                this.productGroup.controls.visualInspection.disable();
+            }
+        }
+    }
+
+    enableProductCode(): void {
         if (
             this.productGroup.controls.unitNumber.valid &&
-            this.productGroup.controls.productCode.valid
+            this.checkDigitValid
         ) {
-            this.productGroup.controls.visualInspection.enable();
+            this.productGroup.controls.productCode.enable();
+            this.focusProductCode();
         } else {
-            this.productGroup.controls.visualInspection.disable();
+            this.productGroup.controls.productCode.disable();
         }
+    }
+
+    onEnterProductCode(): void {
+        if (this.showVisualInspection) {
+            this.enableVisualInspection();
+        } else if (
+            !this.showVisualInspection &&
+            this.productGroup.valid &&
+            this.checkDigitValid
+        ) {
+            setTimeout(() => {
+                this.verifyProduct();
+            }, 300);
+        }
+    }
+
+    focusProductCode() {
+        this.inputProductCode?.nativeElement.focus();
     }
 }

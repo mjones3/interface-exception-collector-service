@@ -44,6 +44,8 @@ export interface ShipmentDetailResponseDTO {
     completedByEmployeeId?: string;
     comments?: string;
     items?: ShipmentItemResponseDTO[];
+    checkDigitActive?: boolean;
+    visualInspectionActive?: boolean;
 }
 
 export interface ShipmentItemResponseDTO {

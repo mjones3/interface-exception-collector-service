@@ -219,7 +219,9 @@
                                     </td>
                                     <td>
                                         <mat-icon
-                                            [svgIcon]="'rsa:product-plasma'"
+                                            [svgIcon]="
+                                                getIcon(product?.productFamily)
+                                            "
                                             class="product-icon"
                                         ></mat-icon>
                                     </td>

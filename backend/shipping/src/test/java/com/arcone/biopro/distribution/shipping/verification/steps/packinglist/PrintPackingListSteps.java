@@ -4,6 +4,7 @@ import com.arcone.biopro.distribution.shipping.verification.pages.distribution.S
 import com.arcone.biopro.distribution.shipping.verification.support.ApiHelper;
 import com.arcone.biopro.distribution.shipping.verification.support.GraphQLMutationMapper;
 import com.arcone.biopro.distribution.shipping.verification.support.ScreenshotService;
+import com.arcone.biopro.distribution.shipping.verification.support.TestUtils;
 import com.arcone.biopro.distribution.shipping.verification.support.controllers.ShipmentTestingController;
 import com.arcone.biopro.distribution.shipping.verification.support.types.ShipmentRequestDetailsResponseType;
 import io.cucumber.java.en.And;
@@ -66,7 +67,7 @@ public class PrintPackingListSteps {
         shipmentItem = shipmentDetails.getItems().getFirst().getId();
 
         var response = apiHelper.graphQlRequest(GraphQLMutationMapper.packItemMutation(shipmentItem, facility
-            , unitNumber, "test-emplyee-id", productCode, "SATISFACTORY"), "packItem");
+            , TestUtils.removeUnitNumberScanDigits(unitNumber), "test-emplyee-id", TestUtils.removeProductCodeScanDigits(productCode), "SATISFACTORY"), "packItem");
         log.info("Shipment item successfully packed: {}", response);
 
         Assert.assertEquals("200 OK", response.get("ruleCode"));
@@ -75,7 +76,7 @@ public class PrintPackingListSteps {
 
     @Given("The shipment details are Order Number {int}, Location Code {string}, Customer ID {string}, Customer Name {string}, Department {string}, Address Line 1 {string}, Address Line 2 {string}, Unit Number {string}, Product Code {string}, Product Family {string}, Blood Type {string}, Expiration {string}, Quantity {int}.")
     public void setShipmentDetails(int orderNumber, String locationCode, String customerID, String customerName, String department, String addressLine1, String addressLine2, String unitNumber, String productCode, String productFamily, String bloodType, String expiration, int quantity) {
-        this.shipmentDetails = shipmentController.buildShipmentRequestDetailsResponseType(orderNumber, locationCode, customerID, customerName, department, addressLine1, addressLine2, unitNumber, productCode, productFamily, bloodType, expiration, quantity);
+        this.shipmentDetails = shipmentController.buildShipmentRequestDetailsResponseType(orderNumber, locationCode, customerID, customerName, department, addressLine1, addressLine2, TestUtils.removeUnitNumberScanDigits(unitNumber), TestUtils.removeProductCodeScanDigits(productCode), productFamily, bloodType, expiration, quantity);
         this.orderNumber = orderNumber;
         Assert.assertNotNull(this.shipmentDetails);
     }
@@ -89,14 +90,14 @@ public class PrintPackingListSteps {
     @And("I have filled the shipment with the unit number {string} and product code {string}.")
     public void fillShipmentStep(String unitNumber, String productCode) throws Exception {
         this.shipmentId = shipmentTestingController.getOrderShipmentId(this.orderNumber);
-        this.fillShipment(this.shipmentId, unitNumber, productCode);
+        this.fillShipment(this.shipmentId, TestUtils.removeUnitNumberScanDigits(unitNumber), TestUtils.removeProductCodeScanDigits(productCode));
     }
 
     @And("I have filled the shipment with the unit number {string} and product code {string} for order {string}.")
     public void fillShipmentForOrder(String unitNumber, String productCode, String orderNumber) throws Exception {
         this.orderNumber = Long.parseLong(orderNumber);
         this.shipmentId = shipmentTestingController.getOrderShipmentId(this.orderNumber);
-        this.fillShipment(this.shipmentId, unitNumber, productCode);
+        this.fillShipment(this.shipmentId, TestUtils.removeUnitNumberScanDigits(unitNumber), TestUtils.removeProductCodeScanDigits(productCode));
     }
 
     @And("I have completed a shipment with above details.")
