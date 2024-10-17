@@ -11,6 +11,8 @@ import org.openqa.selenium.support.FindBy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @Slf4j
 public class FillProductsPage extends CommonPageFactory {
@@ -39,6 +41,10 @@ public class FillProductsPage extends CommonPageFactory {
     private static final String visualInspectionSatisfactoryOption = "//*[@id='inspection-satisfactory']";
     private static final String visualInspectionUnsatisfactoryOption = "//*[@id='inspection-unsatisfactory']";
     private static final String backButton = "backBtn";
+    private static final String discardDialogCancelButton = "//*[@id='mat-mdc-dialog-0']//*[@id='cancelActionBtn']";
+    private static final String dialogLocator = "//*[@id='mat-mdc-dialog-0']";
+    private static final String dialogHeaderLocator = "//*[@id='mat-mdc-dialog-0']//h1";
+    private static final String reasonsLocator = "//*[@id='mat-mdc-dialog-0']//mat-grid-tile//biopro-action-button";
 
     @Override
     public boolean isLoaded() {
@@ -140,5 +146,37 @@ public class FillProductsPage extends CommonPageFactory {
         log.info("Adding unit {} with digit {}.", unitNumber, checkDigit);
         sharedActions.sendKeys(this.driver, By.id(unitNumberInput), unitNumber);
         sharedActions.sendKeysAndTab(this.driver, By.id(checkDigitInput), checkDigit);
+    }
+
+    public void verifyVisualInspectionDialog(String header , String title){
+        log.info("Verifying visual Inspection Dialog: {} , {}", header , title);
+
+        sharedActions.waitForVisible(By.xpath(dialogLocator));
+        sharedActions.waitForVisible(By.xpath(dialogHeaderLocator));
+        String msg = wait.until(e -> e.findElement(By.xpath(dialogLocator))).getText();
+
+        // Split the message at line break to get header and message
+        String[] msgParts = msg.split("\n");
+        Assert.assertEquals(header.toUpperCase(), msgParts[0].toUpperCase());
+        Assert.assertEquals(title.toUpperCase(), msgParts[1].toUpperCase());
+    }
+
+    public void verifyDiscardReasons(String reasons){
+        log.debug("Verifying discardReasons: {}" , reasons);
+        sharedActions.waitForVisible(By.xpath(reasonsLocator));
+        List<WebElement> reasonList = wait.until(e -> e.findElements(By.xpath(reasonsLocator)));
+        var reasonStr = reasonList.stream().map(WebElement::getText).toList();
+        Assert.assertEquals(String.join(",", reasonStr),reasons);
+
+    }
+
+    public void clickDiscardDialogCancelButton() throws InterruptedException {
+        log.debug("Clicking discard cancel button.");
+        sharedActions.click(this.driver, By.xpath(discardDialogCancelButton));
+    }
+
+    public void verifyDiscardDialogIsClosed(){
+        log.debug("Verifying visual Inspection Dialog close");
+        sharedActions.waitForNotVisible(By.xpath(dialogLocator));
     }
 }

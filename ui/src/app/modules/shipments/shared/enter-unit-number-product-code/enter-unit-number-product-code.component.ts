@@ -6,6 +6,7 @@ import {
     ElementRef,
     EventEmitter,
     Input,
+    OnDestroy,
     Output,
     ViewChild,
 } from '@angular/core';
@@ -18,7 +19,6 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import {
     MatButtonToggle,
-    MatButtonToggleChange,
     MatButtonToggleGroup,
     MatButtonToggleModule,
 } from '@angular/material/button-toggle';
@@ -32,7 +32,7 @@ import {
 } from '@shared';
 import { ERROR_MESSAGE } from 'app/core/data/common-labels';
 import { RuleResponseDTO } from 'app/shared/models/rule.model';
-import { catchError, of } from 'rxjs';
+import { Subscription, catchError, filter, of } from 'rxjs';
 import { VerifyFilledProductDto } from '../../models/shipment-info.dto';
 import { ShipmentService } from '../../services/shipment.service';
 
@@ -54,7 +54,7 @@ import { ShipmentService } from '../../services/shipment.service';
     templateUrl: './enter-unit-number-product-code.component.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EnterUnitNumberProductCodeComponent {
+export class EnterUnitNumberProductCodeComponent implements OnDestroy {
     productGroup: FormGroup;
     unitNumberFocus = true;
 
@@ -70,6 +70,8 @@ export class EnterUnitNumberProductCodeComponent {
 
     @Input() showVisualInspection = false;
 
+    formValueChange: Subscription;
+
     constructor(
         protected fb: FormBuilder,
         private changeDetector: ChangeDetectorRef,
@@ -80,7 +82,7 @@ export class EnterUnitNumberProductCodeComponent {
     }
 
     buildFormGroup() {
-        this.productGroup = this.fb.group({
+        const formGroup = this.fb.group({
             unitNumber: ['', [Validators.required, RsaValidators.unitNumber]],
             productCode: [
                 { value: '', disabled: true },
@@ -95,6 +97,23 @@ export class EnterUnitNumberProductCodeComponent {
                 ],
             ],
         });
+
+        this.formValueChange = formGroup.valueChanges
+            .pipe(
+                filter(
+                    (value) =>
+                        !!value.unitNumber?.trim() &&
+                        !!value.productCode?.trim() &&
+                        !!value.visualInspection?.trim()
+                )
+            )
+            .subscribe(() => this.verifyProduct());
+
+        this.productGroup = formGroup;
+    }
+
+    ngOnDestroy() {
+        this.formValueChange?.unsubscribe();
     }
 
     verifyUnit(event: {
@@ -146,18 +165,6 @@ export class EnterUnitNumberProductCodeComponent {
             this.unitNumberComponent.checkDigitInvalidMessage =
                 invalidMessage[0];
             this.unitNumberComponent.focusOnCheckDigit();
-        }
-    }
-
-    onSelectVisualInspection(event: MatButtonToggleChange): void {
-        if (this.productGroup.valid) {
-            const visualInspection =
-                this.productGroup.controls.visualInspection.value;
-            if (visualInspection === 'satisfactory') {
-                setTimeout(() => {
-                    this.verifyProduct();
-                }, 300);
-            }
         }
     }
 

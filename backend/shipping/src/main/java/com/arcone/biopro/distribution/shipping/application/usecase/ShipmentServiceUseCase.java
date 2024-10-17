@@ -11,6 +11,7 @@ import com.arcone.biopro.distribution.shipping.application.dto.PackItemRequest;
 import com.arcone.biopro.distribution.shipping.application.dto.RuleResponseDTO;
 import com.arcone.biopro.distribution.shipping.application.dto.ShipmentItemPackedDTO;
 import com.arcone.biopro.distribution.shipping.application.exception.ProductValidationException;
+import com.arcone.biopro.distribution.shipping.application.mapper.ReasonDomainMapper;
 import com.arcone.biopro.distribution.shipping.application.mapper.ShipmentEventMapper;
 import com.arcone.biopro.distribution.shipping.application.util.ShipmentServiceMessages;
 import com.arcone.biopro.distribution.shipping.domain.event.ShipmentCreatedEvent;
@@ -51,6 +52,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -71,6 +73,7 @@ public class ShipmentServiceUseCase implements ShipmentService {
     private final ShipmentEventMapper shipmentEventMapper;
     private final FacilityServiceMock facilityServiceMock;
     private final ConfigService configService;
+    private final ReasonDomainMapper reasonDomainMapper;
 
     @Override
     @Transactional
@@ -297,16 +300,7 @@ public class ShipmentServiceUseCase implements ShipmentService {
                             .message(ShipmentServiceMessages.PRODUCT_CRITERIA_BLOOD_TYPE_ERROR)
                             .notificationType(NotificationType.WARN.name())
                         .build())));
-                } else if(TRUE.equals(visualInspectionActive) && !VisualInspection.SATISFACTORY.equals(request.visualInspection())){
-                    return Mono.error(new ProductValidationException(ShipmentServiceMessages.PRODUCT_CRITERIA_VISUAL_INSPECTION_ERROR,List.of(NotificationDTO
-                        .builder()
-                        .name("PRODUCT_CRITERIA_VISUAL_INSPECTION_ERROR")
-                        .statusCode(HttpStatus.BAD_REQUEST.value())
-                        .message(ShipmentServiceMessages.PRODUCT_CRITERIA_VISUAL_INSPECTION_ERROR)
-                        .notificationType(NotificationType.WARN.name())
-                        .build())));
                 }
-
                 return Mono.just(shipmentItem);
             }).zipWith(shipmentItemPackedRepository.countAllByUnitNumberAndProductCode(request.unitNumber(), request.productCode()))
             .flatMap(tuple2 -> {
@@ -316,6 +310,14 @@ public class ShipmentServiceUseCase implements ShipmentService {
                         .name("PRODUCT_ALREADY_USED_ERROR")
                         .statusCode(HttpStatus.BAD_REQUEST.value())
                         .message(ShipmentServiceMessages.PRODUCT_ALREADY_USED_ERROR)
+                        .notificationType(NotificationType.WARN.name())
+                        .build())));
+                } else if(TRUE.equals(visualInspectionActive) && !VisualInspection.SATISFACTORY.equals(request.visualInspection())){
+                    return Mono.error(new ProductValidationException(ShipmentServiceMessages.PRODUCT_CRITERIA_VISUAL_INSPECTION_ERROR, inventoryResponseDTO, List.of(NotificationDTO
+                        .builder()
+                        .name("PRODUCT_CRITERIA_VISUAL_INSPECTION_ERROR")
+                        .statusCode(HttpStatus.BAD_REQUEST.value())
+                        .message(ShipmentServiceMessages.PRODUCT_CRITERIA_VISUAL_INSPECTION_ERROR)
                         .notificationType(NotificationType.WARN.name())
                         .build())));
                 }
@@ -368,13 +370,23 @@ public class ShipmentServiceUseCase implements ShipmentService {
         }
         if(error instanceof ProductValidationException exception){
 
-            Map<String, List<?>> results  = ((ProductValidationException) error).getInventoryResponseDTO() != null ? Map.of("inventory", List.of(((ProductValidationException) error).getInventoryResponseDTO())) : Map.of("inventory", List.of(Collections.emptyList()));
-
-            return Mono.just(RuleResponseDTO.builder()
-                .ruleCode(HttpStatus.BAD_REQUEST)
-                .results(results)
-                .notifications(exception.getNotifications())
-                .build());
+            return configService.findVisualInspectionFailedDiscardReasons()
+                .flatMap(reasonDomainMapper::flatMapToDto)
+                .collectList()
+                .map(reasons -> {
+                    Map<String, List<?>> results  = new HashMap<>();
+                    if(((ProductValidationException) error).getInventoryResponseDTO() != null ) {
+                        results.put("inventory", List.of(((ProductValidationException) error).getInventoryResponseDTO()));
+                    }else{
+                        results.put("inventory", List.of(Collections.emptyList()));
+                    }
+                    results.put("reasons",reasons);
+                    return RuleResponseDTO.builder()
+                        .ruleCode(HttpStatus.BAD_REQUEST)
+                        .results(results)
+                        .notifications(exception.getNotifications())
+                        .build();
+                } );
         }else{
             return Mono.just(RuleResponseDTO.builder()
                 .ruleCode(HttpStatus.BAD_REQUEST)
