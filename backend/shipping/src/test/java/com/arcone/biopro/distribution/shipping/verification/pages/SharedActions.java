@@ -137,19 +137,21 @@ public class SharedActions {
         driver.findElement(locator).sendKeys(Keys.TAB);
     }
 
-    public void click(WebElement element) {
+    public void click(WebElement element) throws InterruptedException {
         waitForVisible(element);
         waitForEnabled(element);
+        Thread.sleep(500);
         element.click();
     }
 
     public void click(WebDriver driver, By locator) throws InterruptedException {
         waitForVisible(locator);
         waitForEnabled(locator);
+        Thread.sleep(500);
         driver.findElement(locator).click();
     }
 
-    public void clickElementAndMoveToNewTab(WebDriver driver, WebElement element, int expectedWindowsNumber) {
+    public void clickElementAndMoveToNewTab(WebDriver driver, WebElement element, int expectedWindowsNumber) throws InterruptedException {
         waitForVisible(element);
         waitForEnabled(element);
         this.click(element);
@@ -158,7 +160,7 @@ public class SharedActions {
         driver.switchTo().window(driver.getWindowHandles().toArray(new String[0])[1]);
     }
 
-    public void clickElementAndMoveToNewTab(WebDriver driver, WebElement element) {
+    public void clickElementAndMoveToNewTab(WebDriver driver, WebElement element) throws InterruptedException {
         // When not specified, the expected quantity of windows will be 3
         // First tab (original), second tab (after click), and print dialog.
         this.clickElementAndMoveToNewTab(driver, element, 3);

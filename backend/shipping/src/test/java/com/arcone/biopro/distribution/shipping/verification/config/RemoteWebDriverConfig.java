@@ -2,14 +2,17 @@ package com.arcone.biopro.distribution.shipping.verification.config;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.Scope;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -40,7 +43,7 @@ public class RemoteWebDriverConfig {
     @Lazy
     @ConditionalOnMissingBean
     @Scope("browserscope")
-    public WebDriver chromeDriver() {
+    public WebDriver chromeDriver() throws URISyntaxException, MalformedURLException {
         WebDriverManager.chromedriver().setup();
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--disable-infobars"); // Disabling infobars.
@@ -51,7 +54,10 @@ public class RemoteWebDriverConfig {
         options.addArguments("--disable-client-side-phishing-detection"); // Disables the client-side phishing detection feature.
         options.addArguments("--disable-default-apps"); // Disables installation of default apps on first run. This is used during automated testing.
         options.addArguments("--enable-automation"); // Enables indication that browser is controlled by automation.
-        if (headless){options.addArguments("--headless");} // Execution without GUI.
-        return new ChromeDriver(options);
+        if (headless) {
+            options.addArguments("--headless");
+        } // Execution without GUI.
+        return new RemoteWebDriver(new URI(seleniumGridUrl).toURL(), options);
     }
+
 }

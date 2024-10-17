@@ -66,7 +66,7 @@ public class ShipmentDetailPageSteps {
     }
 
     @And("I choose to complete the Shipment.")
-    public void completeShipment() {
+    public void completeShipment() throws InterruptedException {
         shipmentDetailPage.completeShipment();
     }
 
