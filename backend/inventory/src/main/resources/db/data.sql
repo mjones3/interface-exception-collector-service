@@ -66,6 +66,12 @@ insert into lk_text_config (context, key_code, text)
 values ('DISCARD_REASON', 'STERILE_CONNECTION_FAILURE', 'This product has already been discarded for Sterile Connection Failure in the system. Place in biohazard container.');
 insert into lk_text_config (context, key_code, text)
 values ('DISCARD_REASON', 'UNSUCCESSFUL_COLLECTION', 'This product has already been discarded for Unsuccessful Collection in the system. Place in biohazard container.');
+insert into lk_text_config (context, key_code, text)
+values ('DISCARD_REASON', 'OTHER', 'This product has already been discarded for Other in the system. Place in biohazard container.');
+insert into lk_text_config (context, key_code, text)
+values ('DISCARD_REASON', 'CLOTTED', 'This product has already been discarded for Clotted in the system. Place in biohazard container.');
+
+
 
 insert into lk_text_config (context, key_code, text)
 values ('QUARANTINE_REASON', 'ABS_POSITIVE', 'This product is currently in quarantine for ABS POSITIVE and needs to be returned to storage.');
