@@ -345,7 +345,8 @@ export class FillProductsComponent implements OnInit {
                         .discardProduct(
                             this.getDiscardRequestDto(
                                 result.inventory,
-                                result.reason.reasonKey
+                                result.reason.reasonKey,
+                                result.comments
                             )
                         )
                         .pipe(
@@ -482,7 +483,8 @@ export class FillProductsComponent implements OnInit {
 
     private getDiscardRequestDto(
         inventory: InventoryDTO,
-        reason: string
+        reason: string,
+        comments?: string
     ): DiscardRequestDTO {
         return {
             unitNumber: inventory.unitNumber,
@@ -493,7 +495,7 @@ export class FillProductsComponent implements OnInit {
             reasonDescriptionKey: reason,
             productFamily: inventory.productFamily,
             productShortDescription: inventory.productDescription,
-            comments: '',
+            comments: comments,
         };
     }
 
