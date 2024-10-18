@@ -117,8 +117,8 @@ export class ShipmentDetailsComponent implements OnInit {
         return this.shipmentInfo ? this.shipmentInfo?.productCategory : '';
     }
 
-    get shipmentId() {
-        return this.route.snapshot.params?.id;
+    get shipmentId(): number {
+        return Number(this.route.snapshot.params?.id);
     }
 
     get totalProducts(): number {
