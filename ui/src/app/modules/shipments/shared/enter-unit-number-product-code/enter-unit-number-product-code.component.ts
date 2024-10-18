@@ -249,6 +249,7 @@ export class EnterUnitNumberProductCodeComponent implements OnDestroy {
             this.focusProductCode();
         } else {
             this.productGroup.controls.productCode.disable();
+            this.productGroup.controls.productCode.reset();
         }
     }
 
