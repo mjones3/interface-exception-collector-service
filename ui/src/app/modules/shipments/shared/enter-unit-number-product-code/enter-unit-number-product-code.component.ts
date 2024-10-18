@@ -56,21 +56,16 @@ import { ShipmentService } from '../../services/shipment.service';
 })
 export class EnterUnitNumberProductCodeComponent implements OnDestroy {
     productGroup: FormGroup;
+    formValueChange: Subscription;
     unitNumberFocus = true;
-
+    @Input() showVisualInspection = false;
     @Input() showCheckDigit = true;
     @Output()
     unitNumberProductCodeSelected: EventEmitter<VerifyFilledProductDto> =
         new EventEmitter<VerifyFilledProductDto>();
-
     @ViewChild('unitnumber')
     unitNumberComponent: ScanUnitNumberCheckDigitComponent;
-
     @ViewChild('inputProductCode') inputProductCode: ElementRef;
-
-    @Input() showVisualInspection = false;
-
-    formValueChange: Subscription;
 
     constructor(
         protected fb: FormBuilder,
