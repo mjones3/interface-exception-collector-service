@@ -61,12 +61,16 @@ public class FillProductsPage extends CommonPageFactory {
 
     private String formatUnitLocator(String unit) {
         unit = TestUtils.removeUnitNumberScanDigits(unit);
-        return String.format("//p-table[@id='prodTableId']//td[normalize-space()='%s']", unit);
+        return String.format("//biopro-unit-number-card[@ng-reflect-unit-number='%s']", unit);
     }
 
     private String formatProductCodeLocator(String productCode) {
         productCode = TestUtils.removeProductCodeScanDigits(productCode);
-        return String.format("//p-table[@id='prodTableId']//td[normalize-space()='%s']", productCode);
+        return String.format("//biopro-unit-number-card[@ng-reflect-product-name='%s']", productCode);
+    }
+
+    private String formatProductInspectionLocator(String inspection) {
+        return String.format("//biopro-unit-number-card[@ng-reflect-visual-inspection='%s']", inspection.toUpperCase());
     }
 
     public void addUnitWithProductCode(String unit, String productCode) throws InterruptedException {
@@ -217,5 +221,10 @@ public class FillProductsPage extends CommonPageFactory {
     public void clickDiscardDialogSubmitButton() throws InterruptedException {
         log.debug("Clicking discard submit button.");
         sharedActions.click(this.driver, By.id(discardDialogSubmitButton));
+    }
+
+    public void assertProductInspectionIs(String inspection) {
+        log.debug("Asserting product inspection is {}.", inspection);
+        sharedActions.waitForVisible(By.xpath(formatProductInspectionLocator(inspection)));
     }
 }

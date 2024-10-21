@@ -21,6 +21,7 @@ Feature: Complete Shipment Feature
             When I add the unit "<UN>" with product code "<Code>".
             And I define visual inspection as "Satisfactory", if needed.
             Then I should see the list of packed products added including "<UN>" and "<Code>".
+            And I should see the inspection status as "Satisfactory", if applicable.
             When I choose to return to the shipment details page.
             And I choose to complete the Shipment.
             Then I should see a "Success" message: "Shipment Completed".

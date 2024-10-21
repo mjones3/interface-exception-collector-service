@@ -1,3 +1,4 @@
+@ui
 Feature: Record Unsatisfactory Visual Inspection
     As a distribution technician,
     I want to record the unacceptable visual inspection of the products,
