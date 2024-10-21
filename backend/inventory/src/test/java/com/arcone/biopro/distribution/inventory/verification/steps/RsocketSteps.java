@@ -197,6 +197,8 @@ public class RsocketSteps {
                 }
                 if (MessageType.INVENTORY_IS_QUARANTINED.getCode().equals(errorCode)) {
                     assertThat(message.inventoryNotificationsDTO().size()).isEqualTo(1);
+                    assertThat(message.inventoryNotificationsDTO().getFirst().details().size()).isEqualTo(5);
+
                 }
 
                 if (MessageType.INVENTORY_IS_EXPIRED.getCode().equals(errorCode)) {

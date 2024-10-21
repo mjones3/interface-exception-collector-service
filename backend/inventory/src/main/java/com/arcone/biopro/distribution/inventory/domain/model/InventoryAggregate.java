@@ -11,10 +11,8 @@ import org.apache.logging.log4j.util.Strings;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.arcone.biopro.distribution.inventory.BioProConstants.EXPIRED;
-import static com.arcone.biopro.distribution.inventory.BioProConstants.TEXT_CONFIG_DELIMITER;
 
 @Builder
 @Getter
@@ -43,7 +41,7 @@ public class InventoryAggregate {
     }
 
     private NotificationMessage createNotificationMessage(MessageType notificationType, String reason) {
-        return new NotificationMessage(notificationType.name(), notificationType.getCode(), notificationType.name(), notificationType.getType().name(), notificationType.getAction().name(), reason);
+        return new NotificationMessage(notificationType.name(), notificationType.getCode(), notificationType.name(), notificationType.getType().name(), notificationType.getAction().name(), reason, List.of());
     }
 
     private List<NotificationMessage> createNotificationMessage() {
@@ -60,20 +58,25 @@ public class InventoryAggregate {
             messageType.getCode(),
             Strings.isNotBlank(inventory.getStatusReason()) ? inventory.getStatusReason() : messageType.name(),
             messageType.getType().name(), messageType.getAction().name(),
-            null));
+            null,
+            List.of()));
     }
 
     private List<NotificationMessage> createQuarantinesNotificationMessage() {
         MessageType qt = MessageType.INVENTORY_IS_QUARANTINED;
 
-        String message = inventory.getQuarantines().stream().map(q -> !q.reason().equals(OTHER_SEE_COMMENTS) ? q.reason() : String.format("%s: %s", OTHER_SEE_COMMENTS, q.comments())).collect(Collectors.joining(TEXT_CONFIG_DELIMITER));
+
+
+        List<String> details = inventory.getQuarantines().stream().map(q -> !q.reason().equals(OTHER_SEE_COMMENTS) ? q.reason() : String.format("%s: %s", OTHER_SEE_COMMENTS, q.comments())).toList();
+
         return List.of(new NotificationMessage(
             qt.name(),
             qt.getCode(),
-            message,
+            qt.name(),
             qt.getType().name(),
             qt.getAction().name(),
-            null));
+            null,
+            details));
     }
 
     public InventoryAggregate completeShipment() {

@@ -9,7 +9,7 @@ values ('INVENTORY_VALIDATION', 'INVENTORY_IS_EXPIRED', 'This product is expired
 insert into lk_text_config (context, key_code, text)
 values ('INVENTORY_VALIDATION', 'INVENTORY_IS_UNSUITABLE', '');
 insert into lk_text_config (context, key_code, text)
-values ('INVENTORY_VALIDATION', 'INVENTORY_IS_QUARANTINED', '');
+values ('INVENTORY_VALIDATION', 'INVENTORY_IS_QUARANTINED', 'This product is currently in quarantine and needs to be returned to storage.');
 insert into lk_text_config (context, key_code, text)
 values ('INVENTORY_VALIDATION', 'INVENTORY_IS_DISCARDED', '');
 insert into lk_text_config (context, key_code, text)
@@ -74,25 +74,37 @@ values ('DISCARD_REASON', 'CLOTTED', 'This product has already been discarded fo
 
 
 insert into lk_text_config (context, key_code, text)
-values ('QUARANTINE_REASON', 'ABS_POSITIVE', 'This product is currently in quarantine for ABS POSITIVE and needs to be returned to storage.');
+values ('QUARANTINE_REASON', 'ABS_POSITIVE', 'ABS POSITIVE');
 insert into lk_text_config (context, key_code, text)
-values ('QUARANTINE_REASON', 'BCA_UNIT_NEEDED', 'This product is currently in quarantine for BCA UNIT NEEDED and needs to be returned to storage.');
+values ('QUARANTINE_REASON', 'CCP_ELIGIBLE', 'CCP ELIGIBLE');
 insert into lk_text_config (context, key_code, text)
-values ('QUARANTINE_REASON', 'CCP_ELIGIBLE', 'This product is currently in quarantine for CCP ELIGIBLE and needs to be returned to storage.');
+values ('QUARANTINE_REASON', 'COLLECTION_DATA_PENDING', 'COLLECTION DATA PENDING');
 insert into lk_text_config (context, key_code, text)
-values ('QUARANTINE_REASON', 'FAILED_VISUAL_INSPECTION', 'This product is currently in quarantine for FAILED VISUAL INSPECTION and needs to be returned to storage.');
+values ('QUARANTINE_REASON', 'FAILED_VISUAL_INSPECTION', 'FAILED VISUAL INSPECTION');
 insert into lk_text_config (context, key_code, text)
-values ('QUARANTINE_REASON', 'HOLD_UNTIL_EXPIRATION', 'This product is currently in quarantine for HOLD UNTIL EXPIRATION and needs to be returned to storage.');
+values ('QUARANTINE_REASON', 'FILTER_FAILURE', 'FILTER FAILURE');
 insert into lk_text_config (context, key_code, text)
-values ('QUARANTINE_REASON', 'IN_PROCESS_HOLD', 'This product is currently in quarantine for IN PROCESS HOLD and needs to be returned to storage.');
+values ('QUARANTINE_REASON', 'HEMOLYSIS', 'HEMOLYSIS');
 insert into lk_text_config (context, key_code, text)
-values ('QUARANTINE_REASON', 'PENDING_FURTHER_REVIEW_INSPECTION', 'This product is currently in quarantine for PENDING FURTHER REVIEW INSPECTION and needs to be returned to storage.');
+values ('QUARANTINE_REASON', 'HOLD_UNTIL_EXPIRATION', 'HOLD UNTIL EXPIRATION');
 insert into lk_text_config (context, key_code, text)
-values ('QUARANTINE_REASON', 'SAVE_PLASMA_FOR_CTS', 'This product is currently in quarantine for SAVE PLASMA FOR CTS and needs to be returned to storage.');
+values ('QUARANTINE_REASON', 'IN_PROCESS_HOLD', 'IN PROCESS HOLD');
 insert into lk_text_config (context, key_code, text)
-values ('QUARANTINE_REASON', 'OTHER_SEE_COMMENTS', 'This product is currently in quarantine for OTHER SEE COMMENTS and needs to be returned to storage.');
+values ('QUARANTINE_REASON', 'INCOMPLETE_COLLECTION', 'INCOMPLETE COLLECTION');
 insert into lk_text_config (context, key_code, text)
-values ('QUARANTINE_REASON', 'UNDER_INVESTIGATION', 'This product is currently in quarantine for UNDER INVESTIGATION and needs to be returned to storage.');
+values ('QUARANTINE_REASON', 'LIPEMIC', 'LIPEMIC');
+insert into lk_text_config (context, key_code, text)
+values ('QUARANTINE_REASON', 'OTHER', 'OTHER (SEE COMMENTS)');
+insert into lk_text_config (context, key_code, text)
+values ('QUARANTINE_REASON', 'OUT_OF_TEMPERATURE', 'OUT OF TEMPERATURE');
+insert into lk_text_config (context, key_code, text)
+values ('QUARANTINE_REASON', 'PACKING_CONDITION_FAILURE', 'PACKING CONDITION FAILURE');
+insert into lk_text_config (context, key_code, text)
+values ('QUARANTINE_REASON', 'PENDING_FURTHER_REVIEW_INSPECTION', 'PENDING FURTHER REVIEW / INSPECTION');
+insert into lk_text_config (context, key_code, text)
+values ('QUARANTINE_REASON', 'SAVE_PLASMA_FOR_CTS', 'SAVE PLASMA FOR CTS');
+insert into lk_text_config (context, key_code, text)
+values ('QUARANTINE_REASON', 'UNDER_INVESTIGATION', 'UNDER INVESTIGATION');
 
 insert into lk_product_family (product_family, time_frame)
 values ('PLASMA_TRANSFUSABLE', 30);
