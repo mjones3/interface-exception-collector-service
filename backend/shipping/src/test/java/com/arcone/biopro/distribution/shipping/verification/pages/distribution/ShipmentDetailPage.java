@@ -112,7 +112,7 @@ public class ShipmentDetailPage extends CommonPageFactory {
         return "chrome".equals(browser) ? 3 : 2;
     }
 
-    public void openViewPickListModal() {
+    public void openViewPickListModal() throws InterruptedException {
         sharedActions.waitForVisible(viewPickListButton);
         sharedActions.click(viewPickListButton);
     }
@@ -161,12 +161,12 @@ public class ShipmentDetailPage extends CommonPageFactory {
         sharedActions.waitForVisible(productTable);
     }
 
-    public void clickViewPackingSlip() {
+    public void clickViewPackingSlip() throws InterruptedException {
         log.info("Clicking on the View Packing Slip button.");
         sharedActions.clickElementAndMoveToNewTab(driver, viewPackingListButton, getExpectedWindowsNumber());
     }
 
-    public void clickPrintShippingLabel() {
+    public void clickPrintShippingLabel() throws InterruptedException {
         log.info("Clicking on the Print Shipping Label button.");
         sharedActions.clickElementAndMoveToNewTab(driver, printShippingLabelButton, getExpectedWindowsNumber());
     }
@@ -179,7 +179,7 @@ public class ShipmentDetailPage extends CommonPageFactory {
         sharedActions.waitForNotVisible(printShippingLabelButton);
     }
 
-    public void clickFillProduct(String familyName, String bloodType) {
+    public void clickFillProduct(String familyName, String bloodType) throws InterruptedException {
         var family = familyName.split(",")[0].trim();
         var blood = bloodType.split(",")[0].trim();
         log.info("Filling product with family {} and blood type {}.", family, blood);
@@ -188,7 +188,7 @@ public class ShipmentDetailPage extends CommonPageFactory {
         sharedActions.click(driver.findElement(By.xpath(locator)));
     }
 
-    public void completeShipment() {
+    public void completeShipment() throws InterruptedException {
         log.info("Completing shipment.");
         sharedActions.click(completeShipmentButton);
     }

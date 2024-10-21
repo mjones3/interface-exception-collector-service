@@ -238,6 +238,20 @@
       "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00"
+    },
+    {
+      "id": "5675C972-186C-4ACB-A08F-7960E7E7404D",
+      "locationCode": "123456789",
+      "unitNumber": "W812530106091",
+      "productCode": "E0685V00",
+      "productDescription": "APH AS-3 RBC SR",
+      "expirationDate": "2024-09-03T10:15:30",
+      "aboRh": "AP",
+      "productFamily": "RED_BLOOD_CELLS_LEUKOREDUCED",
+      "collectionDate": "2011-12-03T10:15:30+01:00",
+      "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
+      "createDate": "2011-12-03T10:15:30+01:00",
+      "modificationDate": "2011-12-03T10:15:30+01:00"
     }
   ]
 }

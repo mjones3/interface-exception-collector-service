@@ -26,6 +26,7 @@ import {
 } from 'app/core/models/browser-printing.model';
 import { BrowserPrintingService } from 'app/core/services/browser-printing/browser-printing.service';
 import { getAuthState } from 'app/core/state/auth/auth.selectors';
+import { ActionButtonComponent } from 'app/shared/components/action-button/action-button.component';
 import { ProductIconsService } from 'app/shared/services/product-icon.service';
 import { ToastrModule } from 'ngx-toastr';
 import { SortEvent } from 'primeng/api';
@@ -65,6 +66,7 @@ import { ViewShippingLabelComponent } from '../view-shipping-label/view-shipping
         OrderWidgetsSidebarComponent,
         ButtonModule,
         DropdownModule,
+        ActionButtonComponent,
     ],
     templateUrl: './shipment-details.component.html',
     styleUrl: './shipment-details.component.scss',
@@ -115,8 +117,8 @@ export class ShipmentDetailsComponent implements OnInit {
         return this.shipmentInfo ? this.shipmentInfo?.productCategory : '';
     }
 
-    get shipmentId() {
-        return this.route.snapshot.params?.id;
+    get shipmentId(): number {
+        return Number(this.route.snapshot.params?.id);
     }
 
     get totalProducts(): number {
