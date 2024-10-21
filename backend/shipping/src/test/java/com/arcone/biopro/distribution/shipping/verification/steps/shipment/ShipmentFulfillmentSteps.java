@@ -357,7 +357,7 @@ public class ShipmentFulfillmentSteps {
         if (visualInspectionEnabled) {
             fillProductsPage.defineVisualInspection(inspection);
         } else {
-            log.info("Visual inspection is not enabled.");
+            log.debug("Visual inspection is not enabled.");
         }
     }
 
@@ -380,12 +380,12 @@ public class ShipmentFulfillmentSteps {
 
     @Then("I should see the discard form.")
     public void iShouldSeeTheDiscardForm() {
-        fillProductsPage.verifyVisualInspectionDialog("Record Unsatisfactory Visual Inspection","Please select the reason for the unsatisfactory visual inspection:");
+        fillProductsPage.verifyVisualInspectionDialog("Record Unsatisfactory Visual Inspection", "Please select the reason for the unsatisfactory visual inspection:");
     }
 
     @And("I should see all the configured discard reasons.")
     public void iShouldSeeAllTheConfiguredDiscardReasons() {
-        var  configuredReasons = shipmentTestingController.getConfiguredDiscardReasons();
+        var configuredReasons = shipmentTestingController.getConfiguredDiscardReasons();
         fillProductsPage.verifyDiscardReasons(configuredReasons);
     }
 
@@ -422,6 +422,16 @@ public class ShipmentFulfillmentSteps {
     @And("I choose to submit the discard form.")
     public void iChooseToSubmitTheDiscardForm() throws InterruptedException {
         fillProductsPage.clickDiscardDialogSubmitButton();
+    }
+
+    @And("I should see the inspection status as {string}, if applicable.")
+    public void iShouldSeeTheInspectionStatusAsIfApplicable(String inspection) {
+        boolean visualInspectionEnabled = shipmentTestingController.getCheckVisualInspectionConfig();
+        if (visualInspectionEnabled) {
+            fillProductsPage.assertProductInspectionIs(inspection);
+        } else {
+            log.debug("Visual inspection is not enabled.");
+        }
     }
 }
 
