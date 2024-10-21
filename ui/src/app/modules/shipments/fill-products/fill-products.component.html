@@ -55,7 +55,7 @@
                 <div class="mb-2 mt-2 flex flex-row justify-between">
                     <div class="flex items-center text-lg font-bold">
                         <span>
-                            Filled products (
+                            Filled Products (
                             <span id="numberOfUnitAdded">{{
                                 filledProductsData.length
                             }}</span>
@@ -77,7 +77,7 @@
                     class="grid max-h-[520px] grid-cols-4 gap-4 overflow-auto pb-4 pt-4"
                 >
                     @if (filledProductsData.length === 0) {
-                        <p>Scan or enter Unit Number</p>
+                        <p>Scan or Enter Unit Number</p>
                     } @else {
                         @for (option of filledProductsData; track $index) {
                             <biopro-unit-number-card
@@ -89,7 +89,7 @@
                                 [visualInspection]="option.visualInspection"
                                 [iconName]="getIcon()"
                                 [active]="selectedProducts.includes(option)"
-                                (OnClick)="toggleProduct(option)"
+                                (clickEvent)="toggleProduct(option)"
                                 [showVisualInspection]="showVisualInspection"
                             ></biopro-unit-number-card>
                         }

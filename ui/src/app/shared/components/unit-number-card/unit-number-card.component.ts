@@ -26,10 +26,10 @@ export class UnitNumberCardComponent {
     @Input() visualInspection = '';
     @Input() showVisualInspection = false;
 
-    @Output() OnClick = new EventEmitter<string | number>();
+    @Output() clickEvent = new EventEmitter<string | number>();
 
     handleClick(id: number | string) {
         this.active = !this.active;
-        this.OnClick.emit(id);
+        this.clickEvent.emit(id);
     }
 }
