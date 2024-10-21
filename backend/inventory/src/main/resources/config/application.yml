@@ -135,7 +135,7 @@ spring:
     graphiql:
       enabled: true
   r2dbc:
-    url: r2dbc:postgresql://localhost:5432/biopro?initialSize=20&maxSize=50&poolName=pool&registerJmx=true
+    url: r2dbc:postgresql://localhost:5432/biopro?initialSize=20&maxSize=50&poolName=pool&registerJmx=true&schema=inventory
     username: biopro
     password:
     properties:

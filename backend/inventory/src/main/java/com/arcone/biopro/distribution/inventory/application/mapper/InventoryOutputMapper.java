@@ -45,6 +45,7 @@ public abstract class InventoryOutputMapper {
     public abstract ValidateInventoryOutput toValidateInventoryOutput(InventoryAggregate inventoryAggregate);
 
     @Mapping(target = "message", expression = "java(textConfigService.getText(notificationMessage.message()))")
+    @Mapping(target = "details", expression = "java(toDetails(notificationMessage.details()))")
     public abstract NotificationMessage toOutput(NotificationMessage notificationMessage);
 
     @Mapping(target = "inventoryOutput", ignore = true)
@@ -55,6 +56,7 @@ public abstract class InventoryOutputMapper {
     @Mapping(target = "message", expression = "java(textConfigService.getText(notificationType.name()))")
     @Mapping(target = "action", expression = "java(notificationType.getAction().name())")
     @Mapping(target = "reason", ignore = true)
+    @Mapping(target = "details", ignore = true)
     public abstract NotificationMessage toNotificationMessage(MessageType notificationType);
 
     @Mapping(target = "inventory.unitNumber.value", source = "unitNumber")
@@ -71,5 +73,11 @@ public abstract class InventoryOutputMapper {
     @Mapping(target = "inventory.inventoryStatus", expression = "java(com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus.AVAILABLE)")
     @Mapping(target = "notificationMessages", ignore = true)
     public abstract InventoryAggregate toAggregate(InventoryInput input);
+
+
+
+    List<String> toDetails(List<String> details) {
+        return details.stream().map(d -> textConfigService.getText(d)).toList();
+    }
 
 }
