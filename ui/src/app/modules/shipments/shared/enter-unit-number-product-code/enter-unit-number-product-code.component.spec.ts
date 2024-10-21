@@ -202,4 +202,15 @@ describe('EnterUnitNumberProductCodeComponent', () => {
             component.productGroup.controls.productCode.enabled
         ).toBeTruthy();
     });
+
+    it('should hide visual inspection when showVisualInspection false', () => {
+        component.showVisualInspection = false;
+        fixture.detectChanges();
+        expect(component).toBeTruthy();
+        expect(
+            fixture.debugElement.nativeElement.querySelector(
+                '#visualInspectionId'
+            )
+        ).toBeFalsy();
+    });
 });

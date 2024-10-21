@@ -21,6 +21,15 @@ import { OrderStatusMap } from '../../../../shared/models/order-status.model';
     ],
 })
 export class OrderWidgetsSidebarComponent {
+    protected productInput = input<
+        Partial<{
+            id: number;
+            productFamily: string;
+            bloodType: string;
+            temperatureCategory: string;
+        }>
+    >();
+
     protected orderInput = input<
         Partial<{
             id: number;
@@ -152,6 +161,35 @@ export class OrderWidgetsSidebarComponent {
                   {
                       label: 'Billing Customer Name',
                       value: this.billingInput()?.customerName,
+                  },
+              ]
+            : []),
+    ]);
+
+    protected productComments = input<string>();
+
+    protected productDetails = computed<Description[]>(() => [
+        ...(this.productInput()?.temperatureCategory
+            ? [
+                  {
+                      label: 'Temperature Category',
+                      value: this.productInput()?.temperatureCategory,
+                  },
+              ]
+            : []),
+        ...(this.productInput()?.productFamily
+            ? [
+                  {
+                      label: 'Product Family',
+                      value: this.productInput()?.productFamily,
+                  },
+              ]
+            : []),
+        ...(this.productInput()?.bloodType
+            ? [
+                  {
+                      label: 'Blood Type',
+                      value: this.productInput()?.bloodType,
                   },
               ]
             : []),

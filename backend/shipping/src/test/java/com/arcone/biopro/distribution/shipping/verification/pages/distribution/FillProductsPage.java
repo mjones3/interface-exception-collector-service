@@ -61,12 +61,12 @@ public class FillProductsPage extends CommonPageFactory {
 
     private String formatUnitLocator(String unit) {
         unit = TestUtils.removeUnitNumberScanDigits(unit);
-        return String.format("//p-table[@id='prodTableId']//td[normalize-space()='%s']", unit);
+        return String.format("//biopro-unit-number-card[@ng-reflect-unit-number='%s']", unit);
     }
 
     private String formatProductCodeLocator(String productCode) {
         productCode = TestUtils.removeProductCodeScanDigits(productCode);
-        return String.format("//p-table[@id='prodTableId']//td[normalize-space()='%s']", productCode);
+        return String.format("//biopro-unit-number-card[@ng-reflect-product-name='%s']", productCode);
     }
 
     public void addUnitWithProductCode(String unit, String productCode) throws InterruptedException {

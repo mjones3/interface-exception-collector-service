@@ -30,6 +30,7 @@ import {
 import { ERROR_MESSAGE } from 'app/core/data/common-labels';
 import { getAuthState } from 'app/core/state/auth/auth.selectors';
 import { ActionButtonComponent } from 'app/shared/components/action-button/action-button.component';
+import { UnitNumberCardComponent } from 'app/shared/components/unit-number-card/unit-number-card.component';
 import { ProductIconsService } from 'app/shared/services/product-icon.service';
 import { Cookie } from 'app/shared/types/cookie.enum';
 import { CookieService } from 'ngx-cookie-service';
@@ -72,7 +73,9 @@ import { OrderWidgetsSidebarComponent } from '../shared/order-widgets-sidebar/or
         MatButtonModule,
         FormsModule,
         TranslateModule,
+        UnitNumberCardComponent,
         ActionButtonComponent,
+        OrderWidgetsSidebarComponent,
     ],
     templateUrl: './fill-products.component.html',
     styleUrl: './fill-products.component.scss',
@@ -81,6 +84,7 @@ import { OrderWidgetsSidebarComponent } from '../shared/order-widgets-sidebar/or
 export class FillProductsComponent implements OnInit {
     filledProductsData: ShipmentItemPackedDTO[] = [];
     prodInfoDescriptions: Description[] = [];
+    selectedProducts: VerifyFilledProductDto[] = [];
     shipmentInfo: ShipmentDetailResponseDTO;
     shipmentProduct: ShipmentItemResponseDTO;
     prodIcon: string;
@@ -136,35 +140,13 @@ export class FillProductsComponent implements OnInit {
                 );
                 this.filledProductsData = this.shipmentProduct?.packedItems;
 
-                this.setProdInfo();
                 this.cd.detectChanges();
                 this.productSelection.buildFormGroup();
             });
     }
 
-    getIcon(productFamily: string) {
-        return this.productIconService.getIconByProductFamily(productFamily);
-    }
-
-    private setProdInfo() {
-        this.prodInfoDescriptions = [
-            {
-                label: 'Product Family',
-                value: ProductFamilyMap[this.shipmentProduct?.productFamily],
-            },
-            {
-                label: 'Blood Type',
-                value: this.shipmentProduct?.bloodType,
-            },
-            {
-                label: 'Product Comments',
-                value: this.shipmentProduct?.comments,
-            },
-        ];
-    }
-
     get productFamily() {
-        return this.shipmentProduct?.productFamily;
+        return ProductFamilyMap[this.shipmentProduct?.productFamily];
     }
 
     get quantity() {
@@ -216,10 +198,7 @@ export class FillProductsComponent implements OnInit {
                             ruleResult?.results?.results[0] ||
                             ruleResult?.results[0];
                         if (result) {
-                            this.filledProductsData = result.packedItems;
-                            this.filledProductsData = [
-                                ...this.filledProductsData,
-                            ];
+                            this.filledProductsData = [...result.packedItems];
                             this.productSelection.productGroup.reset();
                             this.productSelection.enableVisualInspection();
                             this.productSelection.enableProductCode();
@@ -339,7 +318,6 @@ export class FillProductsComponent implements OnInit {
             })
             .afterClosed()
             .subscribe((result) => {
-                console.log(result);
                 if (result.result === 'SUBMIT') {
                     this.discardService
                         .discardProduct(
@@ -510,5 +488,24 @@ export class FillProductsComponent implements OnInit {
                     'Product has not been discarded in the system. Contact Support.',
             },
         ]);
+    }
+
+    getIcon() {
+        return this.productIconService.getIconByProductFamily(
+            this.shipmentProduct?.productFamily
+        );
+    }
+
+    toggleProduct(product: VerifyFilledProductDto) {
+        if (this.selectedProducts.includes(product)) {
+            const index = this.selectedProducts.findIndex(
+                (filterProduct) =>
+                    filterProduct.unitNumber === product.unitNumber &&
+                    filterProduct.productCode === product.productCode
+            );
+            this.selectedProducts.splice(index, 1);
+        } else {
+            this.selectedProducts.push(product);
+        }
     }
 }
