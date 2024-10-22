@@ -5,11 +5,11 @@ Feature: Complete Shipment Feature
         Given I cleaned up from the database the packed item that used the unit number "W036898786802,W812530106086,W812530106089,W036824705327,W812530106090".
         And I cleaned up from the database, all shipments with order number "108,109,110,111,112,113,114,115,116".
 
-    Rule: I should be able to complete a shipment whenever at least one product is filledRule: I should be able to view the list of packed products added once it is filled on the Shipment Fulfillment Details page.
+        Rule: I should be able to complete a shipment whenever at least one product is filledRule: I should be able to view the list of packed products added once it is filled on the Shipment Fulfillment Details page.
         Rule: I should see a success message when the shipment is completed.
-    Rule: I should be able to view the shipping details of the products once it is shipped on the Shipment Fulfillment Details page.
+        Rule: I should be able to view the shipping details of the products once it is shipped on the Shipment Fulfillment Details page.
         Rule: I should not be able to see the pending log once the order is completely filled, shipped, or closed. (This is going to be tested on Shipment Fulfillment Details page and Fill Shipment page)
-    Rule: I should be able to view the pending log of products to be filled for each line item on the Shipment Fulfillment Details page.
+        Rule: I should be able to view the pending log of products to be filled for each line item on the Shipment Fulfillment Details page.
         @ui
         Scenario Outline: Complete Shipment with suitable products.
             Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>".
@@ -21,6 +21,7 @@ Feature: Complete Shipment Feature
             When I add the unit "<UN>" with product code "<Code>".
             And I define visual inspection as "Satisfactory", if needed.
             Then I should see the list of packed products added including "<UN>" and "<Code>".
+            And I should see the inspection status as "Satisfactory", if applicable.
             When I choose to return to the shipment details page.
             And I choose to complete the Shipment.
             Then I should see a "Success" message: "Shipment Completed".

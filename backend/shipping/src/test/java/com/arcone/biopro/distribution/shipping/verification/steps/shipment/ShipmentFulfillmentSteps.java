@@ -261,7 +261,7 @@ public class ShipmentFulfillmentSteps {
     }
 
     @And("I choose to fill product of family {string} and blood type {string}.")
-    public void iHaveFilledTheShipment(String family, String bloodType) {
+    public void iHaveFilledTheShipment(String family, String bloodType) throws InterruptedException {
         shipmentDetailPage.clickFillProduct(family, bloodType);
     }
 
@@ -357,7 +357,7 @@ public class ShipmentFulfillmentSteps {
         if (visualInspectionEnabled) {
             fillProductsPage.defineVisualInspection(inspection);
         } else {
-            log.info("Visual inspection is not enabled.");
+            log.debug("Visual inspection is not enabled.");
         }
     }
 
@@ -376,6 +376,62 @@ public class ShipmentFulfillmentSteps {
         fillProductsPage.addUnitWithDigit(unitNumber, checkDigit);
         this.unitNumber = unitNumber;
         this.checkDigit = checkDigit;
+    }
+
+    @Then("I should see the discard form.")
+    public void iShouldSeeTheDiscardForm() {
+        fillProductsPage.verifyVisualInspectionDialog("Record Unsatisfactory Visual Inspection", "Please select the reason for the unsatisfactory visual inspection:");
+    }
+
+    @And("I should see all the configured discard reasons.")
+    public void iShouldSeeAllTheConfiguredDiscardReasons() {
+        var configuredReasons = shipmentTestingController.getConfiguredDiscardReasons();
+        fillProductsPage.verifyDiscardReasons(configuredReasons);
+    }
+
+    @When("I choose to cancel the discard form.")
+    public void iChooseToCancelTheDiscardForm() throws InterruptedException {
+        fillProductsPage.clickDiscardDialogCancelButton();
+    }
+
+    @Then("I should see the discard form is closed.")
+    public void iShouldSeeTheDiscardFormIsClosed() {
+        fillProductsPage.verifyDiscardDialogIsClosed();
+    }
+
+    @And("I select the {string} reason for discard the product.")
+    public void iSelectTheReasonForDiscardTheProduct(String reason) throws InterruptedException {
+        fillProductsPage.selectDiscardReason(reason);
+    }
+
+    @Then("The comments field should be required.")
+    public void theCommentsFieldShouldBeRequired() {
+        fillProductsPage.verifyDiscardCommentIsRequired();
+    }
+
+    @And("The submit option should be {string}.")
+    public void theSubmitOptionShouldBe(String option) {
+        fillProductsPage.verifyDiscardSubmitIs(option);
+    }
+
+    @When("I fill the comments field with {string}.")
+    public void iFillTheCommentsFieldWith(String comments) throws InterruptedException {
+        fillProductsPage.fillDiscardComments(comments);
+    }
+
+    @And("I choose to submit the discard form.")
+    public void iChooseToSubmitTheDiscardForm() throws InterruptedException {
+        fillProductsPage.clickDiscardDialogSubmitButton();
+    }
+
+    @And("I should see the inspection status as {string}, if applicable.")
+    public void iShouldSeeTheInspectionStatusAsIfApplicable(String inspection) {
+        boolean visualInspectionEnabled = shipmentTestingController.getCheckVisualInspectionConfig();
+        if (visualInspectionEnabled) {
+            fillProductsPage.assertProductInspectionIs(inspection);
+        } else {
+            log.debug("Visual inspection is not enabled.");
+        }
     }
 }
 

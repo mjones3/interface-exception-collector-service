@@ -1,0 +1,37 @@
+<fuse-card
+    [id]="id"
+    class="unit-number-card-container w-full cursor-pointer p-1"
+    (click)="handleClick(id)"
+    (keyup)="handleClick(id)"
+    [ngClass]="{ 'active-unit-card': active }"
+    type="button"
+>
+    <div class="flex flex-col p-2">
+        <div class="flex flex-row gap-2">
+            <mat-icon [svgIcon]="iconName" class="h-12 min-h-12 w-12 min-w-12">
+            </mat-icon>
+            <div class="text-left">
+                <div class="m-0 text-lg font-medium">
+                    {{ unitNumber }}
+                </div>
+                <div>
+                    <span class="description-text m-0 text-md font-medium">
+                        {{ productName }}
+                    </span>
+                </div>
+            </div>
+        </div>
+        @if (showVisualInspection) {
+            <div class="mt-1">
+                <span
+                    class="badge rounded-pill"
+                    [ngClass]="{
+                        satisfactoryBadge: visualInspection === 'SATISFACTORY',
+                    }"
+                >
+                    {{ visualInspection }}
+                </span>
+            </div>
+        }
+    </div>
+</fuse-card>

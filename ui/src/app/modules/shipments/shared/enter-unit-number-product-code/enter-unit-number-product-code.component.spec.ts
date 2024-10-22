@@ -137,4 +137,80 @@ describe('EnterUnitNumberProductCodeComponent', () => {
             component.unitNumberComponent.checkDigitInvalidMessage
         ).toBeTruthy();
     });
+    it('Should not validate  event when Check Digit value is blank', () => {
+        const validateScannedFieldSpy = jest.spyOn(
+            shipmentService,
+            'validateCheckDigit'
+        );
+
+        component.unitNumberComponent.controlCheckDigit.setValue('');
+        fixture.detectChanges();
+        component.verifyUnit({
+            unitNumber: '',
+            checkDigit: '',
+            scanner: false,
+            checkDigitChange: true,
+        });
+
+        expect(validateScannedFieldSpy).not.toHaveBeenCalled();
+    });
+
+    it('Should disable Product Code field  when Check Digit value is blank', () => {
+        component.unitNumberComponent.controlCheckDigit.setValue('');
+        fixture.detectChanges();
+        component.verifyUnit({
+            unitNumber: '',
+            checkDigit: '',
+            scanner: false,
+            checkDigitChange: true,
+        });
+
+        expect(
+            component.productGroup.controls.productCode.disabled
+        ).toBeTruthy();
+    });
+
+    it('Should enable Product Code field  when check Digit is valid', () => {
+        jest.spyOn(shipmentService, 'validateCheckDigit').mockReturnValue(
+            of({
+                data: {
+                    verifyCheckDigit: {
+                        ruleCode: '200 OK',
+                        _links: null,
+                        results: {
+                            data: [
+                                {
+                                    unitNumber: 'W036824620959',
+                                    verifiedCheckDigit: 'I',
+                                },
+                            ],
+                        },
+                        notifications: null,
+                    },
+                },
+            })
+        );
+        jest.spyOn(component, 'checkDigitValid', 'get').mockReturnValue(true);
+        component.verifyUnit({
+            unitNumber: 'W036824620959',
+            checkDigit: 'I',
+            scanner: false,
+            checkDigitChange: true,
+        });
+        component.enableProductCode();
+        expect(
+            component.productGroup.controls.productCode.enabled
+        ).toBeTruthy();
+    });
+
+    it('should hide visual inspection when showVisualInspection false', () => {
+        component.showVisualInspection = false;
+        fixture.detectChanges();
+        expect(component).toBeTruthy();
+        expect(
+            fixture.debugElement.nativeElement.querySelector(
+                '#visualInspectionId'
+            )
+        ).toBeFalsy();
+    });
 });

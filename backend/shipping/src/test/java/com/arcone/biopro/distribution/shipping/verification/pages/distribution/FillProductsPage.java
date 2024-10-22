@@ -2,7 +2,6 @@ package com.arcone.biopro.distribution.shipping.verification.pages.distribution;
 
 import com.arcone.biopro.distribution.shipping.verification.pages.CommonPageFactory;
 import com.arcone.biopro.distribution.shipping.verification.pages.SharedActions;
-import com.arcone.biopro.distribution.shipping.verification.support.DatabaseService;
 import com.arcone.biopro.distribution.shipping.verification.support.TestUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
@@ -11,6 +10,8 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 @Slf4j
@@ -26,10 +27,10 @@ public class FillProductsPage extends CommonPageFactory {
     private WebElement checkDigitError;
 
 
-    @FindBy(id = "inspection-satisfactory-input")
+    @FindBy(id = "inspection-satisfactory")
     private WebElement visualInspectionSatisfactory;
 
-    @FindBy(id = "inspection-unsatisfactory-input")
+    @FindBy(id = "inspection-unsatisfactory")
     private WebElement visualInspectionUnsatisfactory;
 
     // Static locators
@@ -39,11 +40,19 @@ public class FillProductsPage extends CommonPageFactory {
     private static final String unitNumberInput = "inUnitNumber";
     private static final String visualInspectionSatisfactoryOption = "//*[@id='inspection-satisfactory']";
     private static final String visualInspectionUnsatisfactoryOption = "//*[@id='inspection-unsatisfactory']";
+    private static final String backButton = "backBtn";
+    private static final String discardDialogCancelButton = "//*[@id='mat-mdc-dialog-0']//*[@id='recordUnsatisfactoryVisualInspectionCancelActionBtn']";
+    private static final String discardDialogSubmitButton = "recordUnsatisfactoryVisualInspectionSubmitActionBtn";
+    private static final String dialogLocator = "//*[@id='mat-mdc-dialog-0']";
+    private static final String dialogHeaderLocator = "//*[@id='mat-mdc-dialog-0']//h1";
+    private static final String reasonsLocator = "//*[@id='mat-mdc-dialog-0']//*[@id='recordUnsatisfactoryVisualInspectionReasons']//biopro-action-button";
+    private static final String discardComments = "recordUnsatisfactoryVisualInspectionCommentsTextArea";
 
-    private String backButton = "backBtn";
+    // Dynamic locators
 
-    @Autowired
-    private DatabaseService databaseService;
+    private String discardReasonButton(String reason) {
+        return String.format("%sactionBtn", reason.replace(" ", "_").toUpperCase());
+    }
 
     @Override
     public boolean isLoaded() {
@@ -52,12 +61,16 @@ public class FillProductsPage extends CommonPageFactory {
 
     private String formatUnitLocator(String unit) {
         unit = TestUtils.removeUnitNumberScanDigits(unit);
-        return String.format("//p-table[@id='prodTableId']//td[normalize-space()='%s']", unit);
+        return String.format("//biopro-unit-number-card[@ng-reflect-unit-number='%s']", unit);
     }
 
     private String formatProductCodeLocator(String productCode) {
         productCode = TestUtils.removeProductCodeScanDigits(productCode);
-        return String.format("//p-table[@id='prodTableId']//td[normalize-space()='%s']", productCode);
+        return String.format("//biopro-unit-number-card[@ng-reflect-product-name='%s']", productCode);
+    }
+
+    private String formatProductInspectionLocator(String inspection) {
+        return String.format("//biopro-unit-number-card[@ng-reflect-visual-inspection='%s']", inspection.toUpperCase());
     }
 
     public void addUnitWithProductCode(String unit, String productCode) throws InterruptedException {
@@ -145,5 +158,73 @@ public class FillProductsPage extends CommonPageFactory {
         log.info("Adding unit {} with digit {}.", unitNumber, checkDigit);
         sharedActions.sendKeys(this.driver, By.id(unitNumberInput), unitNumber);
         sharedActions.sendKeysAndTab(this.driver, By.id(checkDigitInput), checkDigit);
+    }
+
+    public void verifyVisualInspectionDialog(String header , String title){
+        log.info("Verifying visual Inspection Dialog: {} , {}", header , title);
+
+        sharedActions.waitForVisible(By.xpath(dialogLocator));
+        sharedActions.waitForVisible(By.xpath(dialogHeaderLocator));
+        String msg = wait.until(e -> e.findElement(By.xpath(dialogLocator))).getText();
+
+        // Split the message at line break to get header and message
+        String[] msgParts = msg.split("\n");
+        Assert.assertEquals(header.toUpperCase(), msgParts[0].toUpperCase());
+        Assert.assertEquals(title.toUpperCase(), msgParts[1].toUpperCase());
+    }
+
+    public void verifyDiscardReasons(String reasons){
+        log.debug("Verifying discardReasons: {}" , reasons);
+        sharedActions.waitForVisible(By.xpath(reasonsLocator));
+        List<WebElement> reasonList = wait.until(e -> e.findElements(By.xpath(reasonsLocator)));
+        var reasonStr = reasonList.stream().map(WebElement::getText).toList();
+        Assert.assertEquals(String.join(",", reasonStr),reasons);
+
+    }
+
+    public void clickDiscardDialogCancelButton() throws InterruptedException {
+        log.debug("Clicking discard cancel button.");
+        sharedActions.click(this.driver, By.xpath(discardDialogCancelButton));
+    }
+
+    public void verifyDiscardDialogIsClosed(){
+        log.debug("Verifying visual Inspection Dialog close");
+        sharedActions.waitForNotVisible(By.xpath(dialogLocator));
+    }
+
+    public void selectDiscardReason(String reason) throws InterruptedException {
+        log.debug("Selecting discard reason: {}" , reason);
+        sharedActions.click(this.driver, By.id(discardReasonButton(reason)));
+    }
+
+    public void verifyDiscardCommentIsRequired() {
+        log.debug("Verifying discard comment is required");
+        sharedActions.waitForVisible(By.id(discardComments));
+        Assert.assertTrue(sharedActions.isRequired(By.id(discardComments)));
+    }
+
+    public void verifyDiscardSubmitIs(String option) {
+        log.debug("Verifying discard submit is: {}" , option);
+        sharedActions.waitForVisible(By.id(discardDialogSubmitButton));
+        if(option.equalsIgnoreCase("enabled")){
+            sharedActions.waitForEnabled(By.id(discardDialogSubmitButton));
+        }else{
+            sharedActions.waitForDisabled(By.id(discardDialogSubmitButton));
+        }
+    }
+
+    public void fillDiscardComments(String comments) throws InterruptedException {
+        log.debug("Filling discard comments: {}" , comments);
+        sharedActions.sendKeys(this.driver, By.id(discardComments), comments);
+    }
+
+    public void clickDiscardDialogSubmitButton() throws InterruptedException {
+        log.debug("Clicking discard submit button.");
+        sharedActions.click(this.driver, By.id(discardDialogSubmitButton));
+    }
+
+    public void assertProductInspectionIs(String inspection) {
+        log.debug("Asserting product inspection is {}.", inspection);
+        sharedActions.waitForVisible(By.xpath(formatProductInspectionLocator(inspection)));
     }
 }

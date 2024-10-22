@@ -1,4 +1,37 @@
 <div class="flex flex-auto flex-col space-y-3">
+    @if (productDetails().length) {
+        <rsa-common-widget
+            [title]="'Product Details'"
+            [subtitle]="'General Information'"
+            [templateRef]="productDetailsTpl"
+        >
+            <ng-template #productDetailsTpl>
+                <div class="flex flex-col">
+                    <rsa-description-card
+                        id="productDetails"
+                        [descriptions]="productDetails()"
+                        [showColon]="true"
+                        [embedded]="true"
+                        [maxCols]="1"
+                        [valueClasses]="'align-card-info'"
+                        [labelClasses]="'align-card-info'"
+                    ></rsa-description-card>
+                    <mat-divider></mat-divider>
+                    <mat-accordion id="productComments">
+                        <mat-expansion-panel [disabled]="!productComments()">
+                            <mat-expansion-panel-header>
+                                <mat-panel-title class="font-bold">
+                                    Product Comments:</mat-panel-title
+                                >
+                            </mat-expansion-panel-header>
+                            <div>{{ productComments() | uppercase }}</div>
+                        </mat-expansion-panel>
+                    </mat-accordion>
+                </div>
+            </ng-template>
+        </rsa-common-widget>
+    }
+
     <rsa-common-widget
         svgIcon="hi_outline:clipboard-list"
         svgIconCls="text-orange-light"
