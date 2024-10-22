@@ -205,7 +205,10 @@ export class FillProductsComponent implements OnInit {
                         }
                     }
 
-                    const notifications = [...ruleResult.notifications];
+                    const notifications: NotificationDto[] =
+                        ruleResult && ruleResult.notifications
+                            ? [...ruleResult.notifications]
+                            : [];
                     if (notifications?.length) {
                         const infoNotifications = this.pullOutNotifications(
                             notifications,
@@ -318,7 +321,7 @@ export class FillProductsComponent implements OnInit {
             })
             .afterClosed()
             .subscribe((result) => {
-                if (result.result === 'SUBMIT') {
+                if (result) {
                     this.discardService
                         .discardProduct(
                             this.getDiscardRequestDto(
@@ -354,7 +357,7 @@ export class FillProductsComponent implements OnInit {
                                 this.showDiscardSystemError();
                             }
                         });
-                } else if (result.result === 'CANCEL') {
+                } else {
                     this.productSelection.productGroup.reset();
                     this.productSelection.enableVisualInspection();
                     this.productSelection.enableProductCode();
