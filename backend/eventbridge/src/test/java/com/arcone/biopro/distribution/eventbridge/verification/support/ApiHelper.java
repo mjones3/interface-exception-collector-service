@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.Duration;
 
@@ -20,11 +19,6 @@ public class ApiHelper {
 
     @Value("${api.base.url}")
     private String baseUrl;
-
-    @Value("${api.graphql.url}")
-    private String graphQlUrl;
-
-    private WebClient webTestClientGraphQl;
 
     /**
      * This method is used to send a GET request to a specified endpoint and return the response.
@@ -110,8 +104,5 @@ public class ApiHelper {
         webTestClient = webTestClient.mutate()
             .responseTimeout(Duration.ofMillis(30000))
             .build();
-
-        this.webTestClientGraphQl = WebClient.builder().baseUrl(graphQlUrl).build();
     }
-
 }
