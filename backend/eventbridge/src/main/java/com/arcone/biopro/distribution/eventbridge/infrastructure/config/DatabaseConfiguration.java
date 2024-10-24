@@ -27,7 +27,7 @@ import java.util.BitSet;
 import java.util.List;
 
 @Configuration
-@EnableR2dbcRepositories({"com.arcone.biopro.distribution.order.domain.repository"})
+@EnableR2dbcRepositories({"com.arcone.biopro.distribution.eventbridge.domain.repository"})
 @EnableTransactionManagement
 @Slf4j
 public class DatabaseConfiguration {

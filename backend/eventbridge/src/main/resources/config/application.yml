@@ -162,13 +162,13 @@ spring:
       enabled: true
   task:
     execution:
-      thread-name-prefix: order-service-task-
+      thread-name-prefix: eventbridge-service-task-
       pool:
         core-size: 2
         max-size: 50
         queue-capacity: 10000
     scheduling:
-      thread-name-prefix: order-service-scheduling-
+      thread-name-prefix: eventbridge-service-scheduling-
       pool:
         size: 2
   output:
