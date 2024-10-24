@@ -114,4 +114,8 @@ public class SearchOrderPage extends CommonPageFactory {
     public List<WebElement> getOrderPriorityList() {
         return orderPriorityList.stream().toList();
     }
+
+    public void searchOrder(String value) {
+        // Implement type and search actions
+    }
 }
