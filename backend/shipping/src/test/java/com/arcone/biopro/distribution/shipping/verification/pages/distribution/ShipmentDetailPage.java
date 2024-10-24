@@ -213,4 +213,9 @@ public class ShipmentDetailPage extends CommonPageFactory {
     public void clickBackBtn() throws InterruptedException {
         sharedActions.click(driver, backButnLocator);
     }
+
+    public void checkCompleteButtonIsNotVisible() {
+        log.debug("checking Complete shipment button is visible.");
+        sharedActions.waitForNotVisible(completeShipmentButton);
+    }
 }

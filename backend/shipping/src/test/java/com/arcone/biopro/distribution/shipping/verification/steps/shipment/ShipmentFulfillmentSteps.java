@@ -433,5 +433,22 @@ public class ShipmentFulfillmentSteps {
             log.debug("Visual inspection is not enabled.");
         }
     }
+
+    @And("I should not see the verify products option available.")
+    public void iShouldNotSeeTheVerifyProductsOptionAvailable() {
+        // TODO fix it once the UI is implemented
+        Assert.fail();
+    }
+
+    @And("I should not see the complete shipment option available.")
+    public void iShouldNotSeeTheCompleteShipmentOptionAvailable() {
+        shipmentDetailPage.checkCompleteButtonIsNotVisible();
+    }
+
+    @Then("I should see the verify products option available.")
+    public void iShouldSeeTheVerifyProductsOptionAvailable() {
+        // TODO fix it once the UI is implemented
+        Assert.fail();
+    }
 }
 
