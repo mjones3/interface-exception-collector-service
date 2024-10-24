@@ -155,7 +155,7 @@ public class OrderSteps {
         var query = DatabaseQueries.insertBioProOrder(externalId, locationCode, orderController.getPriorityValue(priority), priority, status);
         databaseService.executeSql(query).block();
     }
-    @Given("I have a Biopro Order with externalId {string}, Location Code {string}, Priority {string} and Status {string}.")
+    @Given("I have a Biopro Order with id {string}, externalId {string}, Location Code {string}, Priority {string} and Status {string}.")
     public void createBioproOrder(String id, String externalId, String locationCode, String priority, String status) {
         this.orderId = Integer.valueOf(id);
         this.externalId = externalId;
@@ -460,5 +460,15 @@ public class OrderSteps {
         } else {
             searchOrderPage.searchOrder(value);
         }
+    }
+
+    @Then("I should see {int} orders in the search results.")
+    public void iShouldSeeOrdersInTheSearchResults(int quantity) {
+        // TODO: Implement this step
+    }
+
+    @Then("I should be redirected to the order details page.")
+    public void iShouldBeRedirectedToTheOrderDetailsPage() {
+        // TODO: Implement this step
     }
 }
