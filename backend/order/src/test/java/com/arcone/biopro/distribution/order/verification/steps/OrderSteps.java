@@ -162,7 +162,7 @@ public class OrderSteps {
         this.locationCode = locationCode;
         this.priority = priority;
         this.status = status;
-        var query = DatabaseQueries.insertBioProOrder(externalId, locationCode, orderController.getPriorityValue(priority), priority, status);
+        var query = DatabaseQueries.insertBioProOrder(orderId, externalId, locationCode, orderController.getPriorityValue(priority), priority, status);
         databaseService.executeSql(query).block();
     }
 
