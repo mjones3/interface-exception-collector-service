@@ -32,6 +32,7 @@ Feature: List of all orders in Search Order
 
 
     Rule: I should be able to configure the color options for the priority column.
+        @ui
         Scenario Outline: List Biopro Orders, changing Status color setup.
             Given I cleaned up from the database the orders with external ID "<External ID>".
             And I have a Biopro Order with externalId "<External ID>", Location Code "<LocationCode>", Priority "<Priority>" and Status "<Status>".
@@ -45,7 +46,7 @@ Feature: List of all orders in Search Order
                 | 114117922233578 | 123456789    | STAT     | OPEN   | Green          |
                 | 114117922233579 | 123456789    | ROUTINE  | OPEN   | Yellow         |
 
-
+        @ui
         Scenario Outline: List Biopro Orders different location
             Given I cleaned up from the database the orders with external ID "<External ID>".
             And I have a Biopro Order with externalId "<External ID>", Location Code "<Order LocationCode>", Priority "<Priority>" and Status "<Status>".
@@ -55,11 +56,12 @@ Feature: List of all orders in Search Order
             And I should see a "Caution" message: "No Results Found".
 
             Examples:
-                | External ID     | Order LocationCode        | User LocationCode | Priority | Status |
-                | 114117922233510 | DL1 | 234567891         | STAT     | OPEN   |
+                | External ID     | Order LocationCode | User LocationCode | Priority | Status |
+                | 114117922233510 | DL1                | 234567891         | STAT     | OPEN   |
 
 
     Rule: I should be able to view a maximum of 20 rows in the Results table.
+        @ui
         Scenario: List Biopro Orders by priority, status and location maximum records
             Given I have more than 20 Biopro Orders.
             When I choose search orders.
