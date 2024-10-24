@@ -10,11 +10,13 @@ Feature: Complete Shipment Feature
         Rule: I should be able to view the shipping details of the products once it is shipped on the Shipment Fulfillment Details page.
         Rule: I should not be able to see the pending log once the order is completely filled, shipped, or closed. (This is going to be tested on Shipment Fulfillment Details page and Fill Shipment page)
         Rule: I should be able to view the pending log of products to be filled for each line item on the Shipment Fulfillment Details page.
-        @ui
+        Rule: I should be able to complete the shipment process without second verification if configured by the blood center.
+        @ui @DST-202
         Scenario Outline: Complete Shipment with suitable products.
             Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>".
             And The check digit configuration is "disabled".
             And The visual inspection configuration is "<Inspection Config>".
+            And The second verification configuration is "disabled".
             And I have received a shipment fulfillment request with above details.
             And I am on the Shipment Fulfillment Details page for order <Order Number>.
             And I choose to fill product of family "<Family>" and blood type "<Type>".
@@ -23,6 +25,7 @@ Feature: Complete Shipment Feature
             Then I should see the list of packed products added including "<UN>" and "<Code>".
             And I should see the inspection status as "Satisfactory", if applicable.
             When I choose to return to the shipment details page.
+            And I should not see the verify products option available.
             And I choose to complete the Shipment.
             Then I should see a "Success" message: "Shipment Completed".
             And I am able to view the total of <Quantity Shipped> products shipped.
@@ -68,5 +71,30 @@ Feature: Complete Shipment Feature
                 | Order Number | Customer ID | Customer Name    | Quantity | BloodType | ProductFamily                                                                          | Message Content         | Message Type         | Family                       | Type | Code     | UN            | Check Digit Config | Digit | Inspection Config |
                 | 111          | 1           | Testing Customer | 10,5,8   | AP,BP,OP  | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED | Check Digit is Invalid  | see an error message | RED BLOOD CELLS LEUKOREDUCED | AP   | E0685V00 | W812530106087 | enabled            | F     | disabled          |
                 | 112          | 1           | Testing Customer | 10,5,8   | AP,BP,OP  | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED | Check Digit is Required | see an error message | RED BLOOD CELLS LEUKOREDUCED | AP   | E0685V00 | W812530106088 | enabled            |       | disabled          |
+
+
+        @ui @DST-202
+        Rule: I should be able to start the second verification process if configured by the blood center.
+        Scenario Outline: Second Verification of Shipment with suitable products.
+            Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>".
+            And The check digit configuration is "disabled".
+            And The visual inspection configuration is "<Inspection Config>".
+            And The second verification configuration is "enabled".
+            And I have received a shipment fulfillment request with above details.
+            And I am on the Shipment Fulfillment Details page for order <Order Number>.
+            And I choose to fill product of family "<Family>" and blood type "<Type>".
+            When I add the unit "<UN>" with product code "<Code>".
+            And I define visual inspection as "Satisfactory", if needed.
+            Then I should see the list of packed products added including "<UN>" and "<Code>".
+            And I should see the inspection status as "Satisfactory", if applicable.
+            When I choose to return to the shipment details page.
+            Then I should see the verify products option available.
+            And I should not see the complete shipment option available.
+
+            Examples:
+                | Order Number | Customer ID | Customer Name    | Quantity | BloodType | ProductFamily                                                                          | Family                       | Type | UN               | Code       | Inspection Config |
+                | 108          | 1           | Testing Customer | 10,5,8   | A,B,O     | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE                            | PLASMA TRANSFUSABLE          | A    | =W03689878680200 | =<E7648V00 | enabled           |
+
+
 
 
