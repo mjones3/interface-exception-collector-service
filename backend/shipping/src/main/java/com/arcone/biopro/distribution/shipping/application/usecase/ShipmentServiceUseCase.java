@@ -56,6 +56,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static java.util.Optional.ofNullable;
 
@@ -175,21 +176,26 @@ public class ShipmentServiceUseCase implements ShipmentService {
     @WithSpan("completeShipment")
     @Transactional
     public Mono<RuleResponseDTO> completeShipment(CompleteShipmentRequest request) {
-
-        return shipmentRepository.findById(request.shipmentId())
+        var secondVerificationActive = configService.findShippingSecondVerificationActive();
+        return Mono.zip(secondVerificationActive,shipmentRepository.findById(request.shipmentId()))
             .switchIfEmpty(Mono.error(new RuntimeException(ShipmentServiceMessages.SHIPMENT_NOT_FOUND_ERROR)))
-            .flatMap(shipment -> updateShipment(shipment,request))
+            .flatMap(tuple -> {
+                if(TRUE.equals(tuple.getT1())){
+                    return Mono.error(new RuntimeException(ShipmentServiceMessages.SECOND_VERIFICATION_NOT_COMPLETED_ERROR));
+                }
+                return updateShipment(tuple.getT2(),request);
+            })
             .flatMap(this::raiseShipmentCompleteEvent)
             .flatMap(shipment -> Mono.just(RuleResponseDTO.builder()
-                .ruleCode(HttpStatus.OK)
-                .notifications(List.of(NotificationDTO.builder()
-                    .message(ShipmentServiceMessages.SHIPMENT_COMPLETED_SUCCESS)
-                    .statusCode(HttpStatus.OK.value())
-                    .notificationType("success")
-                    .build()))
-                .results(Map.of("results", List.of(shipment)))
-                ._links(Map.of("next", String.format("/shipment/%s/shipment-details",shipment.getId())))
+            .ruleCode(HttpStatus.OK)
+            .notifications(List.of(NotificationDTO.builder()
+                .message(ShipmentServiceMessages.SHIPMENT_COMPLETED_SUCCESS)
+                .statusCode(HttpStatus.OK.value())
+                .notificationType("success")
                 .build()))
+            .results(Map.of("results", List.of(shipment)))
+            ._links(Map.of("next", String.format("/shipment/%s/shipment-details",shipment.getId())))
+            .build()))
             .onErrorResume(error -> {
                 log.error("Failed on complete shipment {} , {} ", request, error.getMessage());
                 return buildPackErrorResponse(error);
@@ -413,10 +419,11 @@ public class ShipmentServiceUseCase implements ShipmentService {
             .build());
     }
 
-    private Mono<ShipmentDetailResponseDTO> convertShipmentResponseDetail(Shipment shipment, Boolean checkDigitFlag , Boolean visualInspectionFlag) {
+    private Mono<ShipmentDetailResponseDTO> convertShipmentResponseDetail(Shipment shipment, Boolean checkDigitFlag , Boolean visualInspectionFlag , Boolean secondVerificationFlag) {
         log.debug("Fetching Shipment Items for Shipment ID {}", shipment.getId());
         var checkDigitActive = ofNullable(checkDigitFlag).orElse(TRUE);
         var visualInspectionActive = ofNullable(visualInspectionFlag).orElse(TRUE);
+        var secondVerificationActive = ofNullable(secondVerificationFlag).orElse(FALSE);
         var shipmentItemList = new ArrayList<ShipmentItemResponseDTO>();
         return shipmentItemRepository.findAllByShipmentId(shipment.getId())
             .flatMap(shipmentItem -> {
@@ -471,6 +478,7 @@ public class ShipmentServiceUseCase implements ShipmentService {
                 .items(shipmentItemList)
                 .checkDigitActive(checkDigitActive)
                 .visualInspectionActive(visualInspectionActive)
+                .secondVerificationActive(secondVerificationActive)
                 .build()));
     }
 
@@ -511,8 +519,9 @@ public class ShipmentServiceUseCase implements ShipmentService {
         var shipmentMono = shipmentRepository.findById(shipmentId).switchIfEmpty(Mono.empty());
         var checkDigitLookupMono = configService.findShippingCheckDigitActive();
         var visualInspection = configService.findShippingVisualInspectionActive();
-        return Mono.zip(shipmentMono, checkDigitLookupMono , visualInspection)
-            .flatMap(tuple -> this.convertShipmentResponseDetail(tuple.getT1(), tuple.getT2() , tuple.getT3()));
+        var secondVerification = configService.findShippingSecondVerificationActive();
+        return Mono.zip(shipmentMono, checkDigitLookupMono , visualInspection , secondVerification)
+            .flatMap(tuple -> this.convertShipmentResponseDetail(tuple.getT1(), tuple.getT2() , tuple.getT3() , tuple.getT4()));
     }
 
 }

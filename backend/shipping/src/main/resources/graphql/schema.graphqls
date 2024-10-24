@@ -101,6 +101,7 @@ type ShipmentDetailResponseDTO {
     items: [ShipmentItemResponseDTO]
     checkDigitActive: Boolean!
     visualInspectionActive: Boolean!
+    secondVerificationActive: Boolean!
 }
 
 type ShipmentItemResponseDTO {

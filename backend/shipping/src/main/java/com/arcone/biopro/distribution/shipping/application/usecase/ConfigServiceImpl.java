@@ -31,4 +31,9 @@ public class ConfigServiceImpl implements ConfigService {
         return reasonRepository.findAllByType(REASON_KEY_VISUAL_INSPECTION_FAILED);
     }
 
+    @Override
+    public Mono<Boolean> findShippingSecondVerificationActive() {
+        return this.lookupRepository.findFirstConfigAsBoolean(LOOKUP_KEY_SHIPPING_SECOND_VERIFICATION_ACTIVE);
+    }
+
 }
