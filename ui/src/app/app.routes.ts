@@ -24,32 +24,13 @@ export const appRoutes: Route[] = [
             {
                 path: 'orders',
                 canActivate: [AuthGuard],
-                loadChildren: () =>
-                    import(
-                        'app/modules/orders/order/search-orders/search-orders.routes'
-                    ),
-            },
-            {
-                path: 'orders',
-                canActivate: [AuthGuard],
-                loadChildren: () =>
-                    import(
-                        'app/modules/orders/order/order-details/order-details.routes'
-                    ),
+                loadChildren: () => import('app/modules/orders/order.routes'),
             },
             {
                 path: 'shipment',
                 canActivate: [AuthGuard],
                 loadChildren: () =>
                     import('app/modules/shipments/shipment.routes'),
-            },
-            {
-                path: 'shipment',
-                canActivate: [AuthGuard],
-                loadChildren: () =>
-                    import(
-                        'app/modules/shipments/fill-products/fill-products.routes'
-                    ),
             },
 
             // 404 & Catch all

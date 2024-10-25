@@ -1,7 +1,8 @@
 import { Routes } from '@angular/router';
+import { initialDataResolver } from 'app/app.resolvers';
 import { EmptyLayoutComponent } from 'app/layout/layouts/empty/empty.component';
-import { initialDataResolver } from '../../../../app.resolvers';
-import { SearchOrdersComponent } from './search-orders.component';
+import { OrderDetailsComponent } from './order/order-details/order-details.component';
+import { SearchOrdersComponent } from './order/search-orders/search-orders.component';
 
 export default [
     {
@@ -19,6 +20,13 @@ export default [
                 component: SearchOrdersComponent,
                 data: {
                     subTitle: 'Search Orders',
+                },
+            },
+            {
+                path: ':id/order-details',
+                component: OrderDetailsComponent,
+                data: {
+                    subTitle: 'Order Details',
                 },
             },
         ],
