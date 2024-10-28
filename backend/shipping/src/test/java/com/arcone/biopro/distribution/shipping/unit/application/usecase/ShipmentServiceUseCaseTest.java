@@ -158,6 +158,7 @@ class ShipmentServiceUseCaseTest {
         Mockito.when(shipmentRepository.findById(1L)).thenReturn(Mono.just(shipment));
         Mockito.when(configService.findShippingCheckDigitActive()).thenReturn(Mono.just(Boolean.TRUE));
         Mockito.when(configService.findShippingVisualInspectionActive()).thenReturn(Mono.just(Boolean.TRUE));
+        Mockito.when(configService.findShippingSecondVerificationActive()).thenReturn(Mono.just(Boolean.FALSE));
 
         ShipmentItem item = Mockito.mock(ShipmentItem.class);
         Mockito.when(item.getId()).thenReturn(1L);
@@ -203,6 +204,7 @@ class ShipmentServiceUseCaseTest {
                 assertEquals("UN", firstPackedItem.unitNumber());
                 assertTrue(detail.checkDigitActive());
                 assertTrue(detail.visualInspectionActive());
+                assertFalse(detail.secondVerificationActive());
             })
             .verifyComplete();
     }
@@ -660,6 +662,8 @@ class ShipmentServiceUseCaseTest {
 
         Mockito.when(shipmentRepository.findById(1L)).thenReturn(Mono.empty());
 
+        Mockito.when(configService.findShippingSecondVerificationActive()).thenReturn(Mono.just(Boolean.FALSE));
+
         Mono<RuleResponseDTO> result = useCase.completeShipment(CompleteShipmentRequest.builder()
                 .shipmentId(1L)
                 .employeeId("test")
@@ -688,6 +692,7 @@ class ShipmentServiceUseCaseTest {
             .build()));
 
         Mockito.when(shipmentItemPackedRepository.findAllByShipmentItemId(1L)).thenReturn(Flux.empty());
+        Mockito.when(configService.findShippingSecondVerificationActive()).thenReturn(Mono.just(Boolean.FALSE));
 
         Mono<RuleResponseDTO> result = useCase.completeShipment(CompleteShipmentRequest.builder()
             .shipmentId(1L)
@@ -749,6 +754,7 @@ class ShipmentServiceUseCaseTest {
             .build()));
 
 
+        Mockito.when(configService.findShippingSecondVerificationActive()).thenReturn(Mono.just(Boolean.FALSE));
 
         Mono<RuleResponseDTO> result = useCase.completeShipment(CompleteShipmentRequest.builder()
             .shipmentId(1L)
@@ -804,6 +810,36 @@ class ShipmentServiceUseCaseTest {
                 assertEquals("INVENTORY_SERVICE_IS_DOWN", firstNotification.name());
             })
             .verifyComplete();
+    }
+
+
+    @Test
+    public void shouldNotCompleteShipmentWhenSecondVerificationIsEnableAndVerificationIsNotCompleted(){
+
+        var shipmentMock = Mockito.mock(Shipment.class);
+
+        Mockito.when(shipmentRepository.findById(1L)).thenReturn(Mono.just(shipmentMock));
+
+        Mockito.when(configService.findShippingSecondVerificationActive()).thenReturn(Mono.just(Boolean.TRUE));
+
+        Mono<RuleResponseDTO> result = useCase.completeShipment(CompleteShipmentRequest.builder()
+            .shipmentId(1L)
+            .employeeId("test")
+            .build());
+
+
+        StepVerifier
+            .create(result)
+            .consumeNextWith(detail -> {
+                var firstNotification = detail.notifications().getFirst();
+
+                assertEquals(HttpStatus.BAD_REQUEST, detail.ruleCode());
+                assertEquals(HttpStatus.BAD_REQUEST.value(), firstNotification.statusCode());
+                assertEquals("WARN", firstNotification.notificationType());
+                assertEquals(ShipmentServiceMessages.SECOND_VERIFICATION_NOT_COMPLETED_ERROR, firstNotification.message());
+            })
+            .verifyComplete();
+
     }
 
 }

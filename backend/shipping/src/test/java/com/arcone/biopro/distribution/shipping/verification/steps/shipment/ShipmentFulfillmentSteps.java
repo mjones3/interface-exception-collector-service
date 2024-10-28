@@ -338,7 +338,7 @@ public class ShipmentFulfillmentSteps {
     }
 
     @Then("I can {string} message {string}.")
-    public void iCanMessage(String conditional, String message) {
+    public void iCanMessage(String conditional, String message) throws InterruptedException {
         if (conditional.contains("not")) { // not
             fillProductsPage.assertCheckDigitErrorIs("");
         } else {
@@ -432,6 +432,21 @@ public class ShipmentFulfillmentSteps {
         } else {
             log.debug("Visual inspection is not enabled.");
         }
+    }
+
+    @And("I should not see the verify products option available.")
+    public void iShouldNotSeeTheVerifyProductsOptionAvailable() {
+        shipmentDetailPage.checkVerifyProductsButtonIsNotVisible();
+    }
+
+    @And("I should not see the complete shipment option available.")
+    public void iShouldNotSeeTheCompleteShipmentOptionAvailable() {
+        shipmentDetailPage.checkCompleteButtonIsNotVisible();
+    }
+
+    @Then("I should see the verify products option available.")
+    public void iShouldSeeTheVerifyProductsOptionAvailable() {
+        shipmentDetailPage.checkVerifyProductsButtonIsVisible();
     }
 }
 

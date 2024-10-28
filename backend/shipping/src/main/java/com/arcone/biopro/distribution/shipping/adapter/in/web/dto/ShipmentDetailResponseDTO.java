@@ -38,6 +38,7 @@ public record ShipmentDetailResponseDTO(
     String comments,
     List<ShipmentItemResponseDTO> items,
     boolean checkDigitActive,
-    boolean visualInspectionActive
+    boolean visualInspectionActive,
+    boolean secondVerificationActive
 ) implements Serializable {
 }

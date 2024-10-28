@@ -86,6 +86,9 @@ public class ShipmentDetailPage extends CommonPageFactory {
     @FindBy(id = "completeShipmentBtn")
     private WebElement completeShipmentButton;
 
+    @FindBy(id = "verifyProductsBtn")
+    private WebElement verifyProductsBtn;
+
     @FindBy(id = "percentageId")
     private WebElement pendingPercentage;
 
@@ -212,5 +215,20 @@ public class ShipmentDetailPage extends CommonPageFactory {
 
     public void clickBackBtn() throws InterruptedException {
         sharedActions.click(driver, backButnLocator);
+    }
+
+    public void checkCompleteButtonIsNotVisible() {
+        log.debug("checking Complete shipment button is visible.");
+        sharedActions.waitForNotVisible(completeShipmentButton);
+    }
+
+    public void checkVerifyProductsButtonIsNotVisible(){
+        log.debug("checking Verify products button is not visible.");
+        sharedActions.waitForNotVisible(verifyProductsBtn);
+    }
+
+    public void checkVerifyProductsButtonIsVisible(){
+        log.debug("checking Verify products button is visible.");
+        sharedActions.waitForVisible(verifyProductsBtn);
     }
 }

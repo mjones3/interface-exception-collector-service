@@ -83,7 +83,7 @@ describe('ShipmentDetailsComponent', () => {
             customerAddressPostalCode: '',
             customerAddressCountryCode: '',
         };
-        component.backToSearch();
+        component.backToOrderDetails();
         expect(router.navigateByUrl).toHaveBeenCalledWith(
             `/orders/10/order-details`
         );
@@ -106,5 +106,37 @@ describe('ShipmentDetailsComponent', () => {
             shipmentId: 1,
             employeeId: 'user-id-12',
         });
+    });
+
+    it('should hide verify products button if showVerifyProductOption is false', () => {
+        component.packedItems = [
+            { unitNumber: 'W121212121212', productCode: 'W121F22' },
+        ];
+        jest.spyOn(component, 'isProductComplete', 'get').mockReturnValue(
+            false
+        );
+        component.showVerifyProductOption = false;
+        fixture.detectChanges();
+        expect(
+            fixture.debugElement.nativeElement.querySelector(
+                '#verifyProductsBtn'
+            )
+        ).toBeFalsy();
+    });
+
+    it('should display complete shipment button', () => {
+        component.packedItems = [
+            { unitNumber: 'W121212121212', productCode: 'W121F22' },
+        ];
+        jest.spyOn(component, 'isProductComplete', 'get').mockReturnValue(
+            false
+        );
+        component.showVerifyProductOption = false;
+        fixture.detectChanges();
+        expect(
+            fixture.debugElement.nativeElement.querySelector(
+                '#completeShipmentBtn'
+            )
+        ).toBeTruthy();
     });
 });

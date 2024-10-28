@@ -23,8 +23,7 @@ public class FillProductsPage extends CommonPageFactory {
     @FindBy(xpath = "//h3[normalize-space()='Fill Products']")
     private WebElement fillProductsHeader;
 
-    @FindBy(xpath = "//*[@id=\"inCheckDigit\"]/../../../..//mat-error")
-    private WebElement checkDigitError;
+    private String checkDigitError = "//*[@id='inCheckDigit']/../../../..//mat-error";
 
 
     @FindBy(id = "inspection-satisfactory")
@@ -144,13 +143,18 @@ public class FillProductsPage extends CommonPageFactory {
         sharedActions.click(this.driver, By.id(backButton));
     }
 
-    public void assertCheckDigitErrorIs(String expectedError) {
+    public void assertCheckDigitErrorIs(String expectedError) throws InterruptedException {
         log.info("Asserting check digit error is {}.", expectedError);
         if (expectedError.isEmpty()) {
-            sharedActions.waitForNotVisible(checkDigitError);
+            sharedActions.waitForNotVisible(By.xpath(checkDigitError));
         } else {
-            sharedActions.waitForVisible(checkDigitError);
-            Assert.assertEquals(expectedError.toLowerCase(), checkDigitError.getText().toLowerCase());
+            // TODO Added due to the browser taking time to show the message even the waitForVisible returns true
+            Thread.sleep(500);
+            sharedActions.waitForVisible(By.xpath(checkDigitError));
+            String msg = wait.until(e -> e.findElement(By.xpath(checkDigitError))).getText();
+            log.info("Message found {}",msg);
+
+            Assert.assertEquals(expectedError.toLowerCase(), msg.toLowerCase());
         }
     }
 

@@ -48,6 +48,7 @@ const GET_SHIPMENT_BY_ID = gql<
             comments
             checkDigitActive
             visualInspectionActive
+            secondVerificationActive
             items {
                 id
                 shipmentId

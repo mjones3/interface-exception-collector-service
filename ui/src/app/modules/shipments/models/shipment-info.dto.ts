@@ -46,6 +46,7 @@ export interface ShipmentDetailResponseDTO {
     items?: ShipmentItemResponseDTO[];
     checkDigitActive?: boolean;
     visualInspectionActive?: boolean;
+    secondVerificationActive?: boolean;
 }
 
 export interface ShipmentItemResponseDTO {

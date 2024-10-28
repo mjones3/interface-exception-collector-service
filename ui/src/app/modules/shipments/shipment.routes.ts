@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { EmptyLayoutComponent } from 'app/layout/layouts/empty/empty.component';
+import { FillProductsComponent } from './fill-products/fill-products.component';
 import { SearchShipmentsComponent } from './search-shipments/search-shipments.component';
 import { ShipmentDetailsComponent } from './shipment-details/shipment-details.component';
 
@@ -23,6 +24,13 @@ export default [
                 component: ShipmentDetailsComponent,
                 data: {
                     subTitle: 'Shipment Details',
+                },
+            },
+            {
+                path: ':id/fill-products/:productId',
+                component: FillProductsComponent,
+                data: {
+                    subTitle: 'Fill Products',
                 },
             },
         ],
