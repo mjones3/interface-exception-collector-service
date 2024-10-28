@@ -306,4 +306,13 @@ public class SharedActions {
             return e.findElement(xpath).getAttribute("required");
         }));
     }
+
+    public String getText(By locator) {
+        waitForVisible(locator);
+        waitForEnabled(locator);
+        return wait.until(e -> {
+            log.debug("Getting text from element {}.", locator);
+            return e.findElement(locator).getText();
+        });
+    }
 }
