@@ -148,12 +148,8 @@ public class FillProductsPage extends CommonPageFactory {
         if (expectedError.isEmpty()) {
             sharedActions.waitForNotVisible(By.xpath(checkDigitError));
         } else {
-            // TODO Added due to the browser taking time to show the message even the waitForVisible returns true
-            Thread.sleep(500);
             sharedActions.waitForVisible(By.xpath(checkDigitError));
-            String msg = wait.until(e -> e.findElement(By.xpath(checkDigitError))).getText();
-            log.info("Message found {}",msg);
-
+            String msg = sharedActions.getText(By.xpath(checkDigitError));
             Assert.assertEquals(expectedError.toLowerCase(), msg.toLowerCase());
         }
     }
@@ -169,7 +165,7 @@ public class FillProductsPage extends CommonPageFactory {
 
         sharedActions.waitForVisible(By.xpath(dialogLocator));
         sharedActions.waitForVisible(By.xpath(dialogHeaderLocator));
-        String msg = wait.until(e -> e.findElement(By.xpath(dialogLocator))).getText();
+        String msg = sharedActions.getText(By.xpath(dialogHeaderLocator));
 
         // Split the message at line break to get header and message
         String[] msgParts = msg.split("\n");
