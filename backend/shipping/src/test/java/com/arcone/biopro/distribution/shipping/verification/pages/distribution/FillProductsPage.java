@@ -44,6 +44,7 @@ public class FillProductsPage extends CommonPageFactory {
     private static final String discardDialogSubmitButton = "recordUnsatisfactoryVisualInspectionSubmitActionBtn";
     private static final String dialogLocator = "//*[@id='mat-mdc-dialog-0']";
     private static final String dialogHeaderLocator = "//*[@id='mat-mdc-dialog-0']//h1";
+    private static final String dialogSubtitleLocator = "//*[@id='mat-mdc-dialog-0']//h2";
     private static final String reasonsLocator = "//*[@id='mat-mdc-dialog-0']//*[@id='recordUnsatisfactoryVisualInspectionReasons']//biopro-action-button";
     private static final String discardComments = "recordUnsatisfactoryVisualInspectionCommentsTextArea";
 
@@ -163,14 +164,10 @@ public class FillProductsPage extends CommonPageFactory {
     public void verifyVisualInspectionDialog(String header , String title){
         log.info("Verifying visual Inspection Dialog: {} , {}", header , title);
 
-        sharedActions.waitForVisible(By.xpath(dialogLocator));
-        sharedActions.waitForVisible(By.xpath(dialogHeaderLocator));
-        String msg = sharedActions.getText(By.xpath(dialogHeaderLocator));
-
-        // Split the message at line break to get header and message
-        String[] msgParts = msg.split("\n");
-        Assert.assertEquals(header.toUpperCase(), msgParts[0].toUpperCase());
-        Assert.assertEquals(title.toUpperCase(), msgParts[1].toUpperCase());
+        String headerText = sharedActions.getText(By.xpath(dialogHeaderLocator));
+        String subtitleText = sharedActions.getText(By.xpath(dialogSubtitleLocator));
+        Assert.assertEquals(header.toUpperCase(),headerText.toUpperCase());
+        Assert.assertEquals(title.toUpperCase(), subtitleText.toUpperCase());
     }
 
     public void verifyDiscardReasons(String reasons){
