@@ -61,14 +61,13 @@
             label="Cancel"
             color="secondary"
             mat-dialog-close
-            (clickEvent)="close('CANCEL')"
         />
         <biopro-action-button
             id="recordUnsatisfactoryVisualInspectionSubmitBtn"
             btnId="recordUnsatisfactoryVisualInspectionSubmitActionBtn"
             label="Submit"
             [disabled]="form.invalid"
-            (clickEvent)="close('SUBMIT')"
+            (clickEvent)="submit()"
         />
     </mat-dialog-actions>
 }

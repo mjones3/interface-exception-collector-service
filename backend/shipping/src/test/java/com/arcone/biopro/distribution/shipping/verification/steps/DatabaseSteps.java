@@ -52,4 +52,11 @@ public class DatabaseSteps {
         var query = String.format("UPDATE lk_lookup SET option_value = '%s' WHERE type = 'SHIPPING_CHECK_DIGIT_ACTIVE'", value);
         databaseService.executeSql(query).block();
     }
+
+    @And("The second verification configuration is {string}.")
+    public void theSecondVerificationConfigurationIs(String value) {
+        value = value.equalsIgnoreCase("enabled") ? "true" : "false";
+        var query = String.format("UPDATE lk_lookup SET option_value = '%s' WHERE type = 'SHIPPING_SECOND_VERIFICATION_ACTIVE'", value);
+        databaseService.executeSql(query).block();
+    }
 }
