@@ -465,10 +465,12 @@ public class OrderSteps {
     @Then("I should see {int} orders in the search results.")
     public void iShouldSeeOrdersInTheSearchResults(int quantity) {
         // TODO: Implement this step
+        Assert.fail("Implement iShouldSeeOrdersInTheSearchResults");
     }
 
     @Then("I should be redirected to the order details page.")
     public void iShouldBeRedirectedToTheOrderDetailsPage() {
         // TODO: Implement this step
+        Assert.fail("Implement iShouldBeRedirectedToTheOrderDetailsPage");
     }
 }

@@ -33,7 +33,7 @@ public class OrderQueryRepositoryImpl implements OrderQueryRepository {
     public Flux<OrderReport> searchOrders(OrderQueryCommand orderQueryCommand) {
         var criteria = where("locationCode").is(orderQueryCommand.getLocationCode());
         if (orderQueryCommand.getOrderNumber() != null && !orderQueryCommand.getOrderNumber().isEmpty()) {
-            criteria = criteria.and(where("orderNumber").is(orderQueryCommand.getOrderNumber()).or(where("externalId").is(orderQueryCommand.getOrderNumber())));
+            criteria = criteria.and(where("orderNumber").is(orderQueryCommand.getOrderNumber()).or("externalId").is(orderQueryCommand.getOrderNumber()));
         }
 
         var sorts = orderQueryCommand.getQuerySort()
