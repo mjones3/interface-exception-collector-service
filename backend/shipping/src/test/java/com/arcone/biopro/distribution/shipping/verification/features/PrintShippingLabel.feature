@@ -11,6 +11,7 @@ Feature: Print Shipping Label
         @ui
         Scenario Outline: Print the Shipping Label
             Given The shipment details are Order Number <Order Number>, Location Code "<Location Code>", Customer ID "<Customer ID>", Customer Name "<Customer Name>", Department "<Department>", Address Line 1 "<Address Line 1>", Address Line 2 "<Address Line 2>", Unit Number "<Unit Number>", Product Code "<Product Code>", Product Family "<Product Family>", Blood Type "<Blood Type>", Expiration "<Expiration>", Quantity <Quantity>.
+            And The second verification configuration is "disabled".
             And I received a shipment fulfillment request with above details.
             And I have filled the shipment with the unit number "<Unit Number>" and product code "<Product Code>".
             And I have completed a shipment with above details.

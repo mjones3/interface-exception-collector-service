@@ -14,18 +14,16 @@
             <div class="w-2/3 space-y-1">
                 <div class="mt-0 flex flex-auto flex-col">
                     <mat-form-field class="block w-full">
-                        <mat-label class="block font-bold"
-                            >Product Code</mat-label
-                        >
+                        <mat-label class="font-bold">Product Code</mat-label>
                         <input
                             id="productCodeId"
+                            #inputProductCode
                             matInput
                             formControlName="productCode"
                             autocomplete="off"
                             validateOn="touchedState"
-                            rsaBarcode
                             (keyup)="enableVisualInspection()"
-                            (keydown.Enter)="enableVisualInspection()"
+                            (keydown.Enter)="onEnterProductCode()"
                             (keydown.Tab)="enableVisualInspection()"
                             [placeholder]="'Scan or Enter Product Code'"
                         />
@@ -45,45 +43,55 @@
                     </mat-form-field>
                 </div>
             </div>
-            <div class="flex w-2/3 flex-col space-y-1">
-                <span class="flex pl-2">
-                    <label for="visualInspectionId" class="block font-bold"
-                        >Visual Inspection</label
-                    >
-                    <span class="custom-required">*</span>
-                </span>
-                <div class="mb-4 flex w-full flex-col">
-                    <mat-radio-group
-                        id="visualInspectionId"
-                        required
-                        class="flex"
-                        formControlName="visualInspection"
-                        ngDefaultControl
-                        (change)="onSelectVisualInspection()"
-                    >
-                        <mat-radio-button
-                            id="inspection-satisfactory"
-                            class="mr-4 font-bold"
-                            [value]="'satisfactory'"
-                            >Satisfactory</mat-radio-button
+            @if (showVisualInspection) {
+                <div class="flex w-2/3 flex-col space-y-1">
+                    <span class="flex pl-2">
+                        <label
+                            [ngClass]="{
+                                'opacity-70': visualInspectionDisabled,
+                            }"
+                            for="visualInspectionId"
+                            class="block font-bold"
+                            >Visual Inspection
+                        </label>
+                        <span
+                            class="custom-required"
+                            [ngClass]="{
+                                'opacity-70': visualInspectionDisabled,
+                            }"
+                            >*</span
                         >
-                        <mat-radio-button
-                            id="inspection-unsatisfactory"
-                            class="font-bold"
-                            [value]="'unsatisfactory'"
+                    </span>
+                    <div
+                        class="align-start mb-5 flex flex-col items-start justify-start"
+                    >
+                        <mat-button-toggle-group
+                            id="visualInspectionId"
+                            formControlName="visualInspection"
                         >
-                            Unsatisfactory
-                        </mat-radio-button>
-                    </mat-radio-group>
+                            <mat-button-toggle
+                                id="inspection-satisfactory"
+                                [value]="'satisfactory'"
+                                >Satisfactory
+                            </mat-button-toggle>
+                            <mat-button-toggle
+                                id="inspection-unsatisfactory"
+                                [value]="'unsatisfactory'"
+                                >Unsatisfactory
+                            </mat-button-toggle>
+                        </mat-button-toggle-group>
+                    </div>
+                    @if (
+                        productGroup
+                            .get('visualInspection')
+                            .hasError('required')
+                    ) {
+                        <span class="custom-error-message"
+                            >Visual Inspection is Required</span
+                        >
+                    }
                 </div>
-                @if (
-                    productGroup.get('visualInspection').hasError('required')
-                ) {
-                    <span class="custom-error-message"
-                        >Visual Inspection is Required</span
-                    >
-                }
-            </div>
+            }
         </div>
     </div>
 </div>

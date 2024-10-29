@@ -9,7 +9,7 @@ const PACK_ITEM = gql<{ packItem: RuleResponseDTO }, VerifyProductDTO>`
         $unitNumber: String!
         $employeeId: String!
         $productCode: String!
-        $visualInspection: VisualInspection!
+        $visualInspection: VisualInspection
     ) {
         packItem(
             packItemRequest: {

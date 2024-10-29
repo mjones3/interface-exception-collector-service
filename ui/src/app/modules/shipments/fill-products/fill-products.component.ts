@@ -15,6 +15,7 @@ import { FuseCardComponent } from '@fuse/components/card/public-api';
 import { Store } from '@ngrx/store';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
+import { MatDialog } from '@angular/material/dialog';
 import { FuseConfirmationService } from '@fuse/services/confirmation/public-api';
 import {
     Description,
@@ -28,15 +29,22 @@ import {
 } from '@shared';
 import { ERROR_MESSAGE } from 'app/core/data/common-labels';
 import { getAuthState } from 'app/core/state/auth/auth.selectors';
+import { ActionButtonComponent } from 'app/shared/components/action-button/action-button.component';
+import { UnitNumberCardComponent } from 'app/shared/components/unit-number-card/unit-number-card.component';
 import { ProductIconsService } from 'app/shared/services/product-icon.service';
 import { Cookie } from 'app/shared/types/cookie.enum';
 import { CookieService } from 'ngx-cookie-service';
 import { TableModule } from 'primeng/table';
 import { catchError, finalize, take } from 'rxjs';
+import {
+    RecordUnsatisfactoryVisualInspectionComponent,
+    RecordUnsatisfactoryVisualInspectionData,
+    RecordUnsatisfactoryVisualInspectionResult,
+} from '../../../shared/components/record-unsatisfactory-visual-inspection/record-unsatisfactory-visual-inspection.component';
 import { DiscardRequestDTO } from '../../../shared/models/discard.model';
 import { InventoryDTO } from '../../../shared/models/inventory.model';
 import { ProductFamilyMap } from '../../../shared/models/product-family.model';
-import { RuleResponseDTO } from '../../../shared/models/rule.model';
+import { ReasonDTO } from '../../../shared/models/reason.dto';
 import { DiscardService } from '../../../shared/services/discard.service';
 import {
     ShipmentDetailResponseDTO,
@@ -65,6 +73,9 @@ import { OrderWidgetsSidebarComponent } from '../shared/order-widgets-sidebar/or
         MatButtonModule,
         FormsModule,
         TranslateModule,
+        UnitNumberCardComponent,
+        ActionButtonComponent,
+        OrderWidgetsSidebarComponent,
     ],
     templateUrl: './fill-products.component.html',
     styleUrl: './fill-products.component.scss',
@@ -73,6 +84,7 @@ import { OrderWidgetsSidebarComponent } from '../shared/order-widgets-sidebar/or
 export class FillProductsComponent implements OnInit {
     filledProductsData: ShipmentItemPackedDTO[] = [];
     prodInfoDescriptions: Description[] = [];
+    selectedProducts: VerifyFilledProductDto[] = [];
     shipmentInfo: ShipmentDetailResponseDTO;
     shipmentProduct: ShipmentItemResponseDTO;
     prodIcon: string;
@@ -82,6 +94,7 @@ export class FillProductsComponent implements OnInit {
     loggedUserId: string;
     processProductConfig: ProcessProductModel;
     showCheckDigit = true;
+    showVisualInspection = false;
 
     @ViewChild('productSelection')
     productSelection: EnterUnitNumberProductCodeComponent;
@@ -99,7 +112,8 @@ export class FillProductsComponent implements OnInit {
         private cd: ChangeDetectorRef,
         private confirmationService: FuseConfirmationService,
         private discardService: DiscardService,
-        private productIconService: ProductIconsService
+        private productIconService: ProductIconsService,
+        private recordUnsatisfactoryVisualInspectionDialog: MatDialog
     ) {
         this.store
             .select(getAuthState)
@@ -119,39 +133,20 @@ export class FillProductsComponent implements OnInit {
             .subscribe((result) => {
                 this.shipmentInfo = result.data?.getShipmentDetailsById;
                 this.showCheckDigit = this.shipmentInfo.checkDigitActive;
+                this.showVisualInspection =
+                    this.shipmentInfo.visualInspectionActive;
                 this.shipmentProduct = this.shipmentInfo?.items?.find(
                     (item) => item.id === this.productId
                 );
                 this.filledProductsData = this.shipmentProduct?.packedItems;
 
-                this.setProdInfo();
                 this.cd.detectChanges();
+                this.productSelection.buildFormGroup();
             });
     }
 
-    getIcon(productFamily: string) {
-        return this.productIconService.getIconByProductFamily(productFamily);
-    }
-
-    private setProdInfo() {
-        this.prodInfoDescriptions = [
-            {
-                label: 'Product Family',
-                value: ProductFamilyMap[this.shipmentProduct?.productFamily],
-            },
-            {
-                label: 'Blood Type',
-                value: this.shipmentProduct?.bloodType,
-            },
-            {
-                label: 'Product Comments',
-                value: this.shipmentProduct?.comments,
-            },
-        ];
-    }
-
     get productFamily() {
-        return this.shipmentProduct?.productFamily;
+        return ProductFamilyMap[this.shipmentProduct?.productFamily];
     }
 
     get quantity() {
@@ -183,6 +178,7 @@ export class FillProductsComponent implements OnInit {
                         this.productSelection.resetProductFormGroup();
                     }
                     this.productSelection.enableVisualInspection();
+                    this.productSelection.enableProductCode();
                     throw err;
                 }),
                 finalize(() => {
@@ -197,46 +193,71 @@ export class FillProductsComponent implements OnInit {
                 const ruleResult = response?.data.packItem;
                 if (ruleResult) {
                     this.loading = false;
-                    const notifications = ruleResult.notifications
-                        ? ruleResult.notifications
-                        : null;
                     if (ruleResult.ruleCode === '200 OK') {
                         const result =
                             ruleResult?.results?.results[0] ||
                             ruleResult?.results[0];
                         if (result) {
-                            this.filledProductsData = result.packedItems;
-                            this.filledProductsData = [
-                                ...this.filledProductsData,
-                            ];
+                            this.filledProductsData = [...result.packedItems];
                             this.productSelection.productGroup.reset();
                             this.productSelection.enableVisualInspection();
+                            this.productSelection.enableProductCode();
                         }
                     }
 
-                    if (notifications) {
-                        if (
-                            notifications.find(
-                                (notification) =>
-                                    'INFO' === notification.notificationType
-                            )
-                        ) {
-                            return this.triggerDiscard(ruleResult);
-                        } else {
-                            this.displayMessageFromNotificationDto(
-                                ruleResult.notifications
+                    const notifications: NotificationDto[] =
+                        ruleResult && ruleResult.notifications
+                            ? [...ruleResult.notifications]
+                            : [];
+                    if (notifications?.length) {
+                        const infoNotifications = this.pullOutNotifications(
+                            notifications,
+                            { notificationType: 'INFO' }
+                        );
+                        const inventory = ruleResult?.results?.inventory?.[0];
+                        if (infoNotifications?.length) {
+                            if (
+                                infoNotifications.find(
+                                    (n) => n.action === 'TRIGGER_DISCARD'
+                                )
+                            ) {
+                                return this.triggerDiscard(
+                                    infoNotifications,
+                                    inventory
+                                );
+                            } else {
+                                return this.openAcknowledgmentMessageDialog(
+                                    infoNotifications
+                                );
+                            }
+                        }
+
+                        const unsatisfactoryVisualInspection =
+                            this.pullOutNotifications(notifications, {
+                                notificationType: 'WARN',
+                                name: 'PRODUCT_CRITERIA_VISUAL_INSPECTION_ERROR',
+                            })?.[0];
+                        if (unsatisfactoryVisualInspection) {
+                            const reasons = ruleResult?.results?.reasons;
+                            return this.showUnsatisfactoryVisualInspectionDialog(
+                                reasons,
+                                unsatisfactoryVisualInspection.message,
+                                inventory
                             );
                         }
+
+                        this.displayMessageFromNotificationDto(notifications);
                         notifications.forEach((notification) => {
                             if (
                                 notification.name ===
                                     'PRODUCT_CRITERIA_QUANTITY_ERROR' ||
                                 this.quantity === this.filledProductsData.length
                             ) {
-                                this.disableFilUnitNumberAndProductCode();
+                                this.disableFillUnitNumberAndProductCode();
                             } else if (notification.statusCode !== 200) {
                                 this.productSelection.productGroup.reset();
                                 this.productSelection.enableVisualInspection();
+                                this.productSelection.enableProductCode();
                             }
                         });
                     }
@@ -244,7 +265,107 @@ export class FillProductsComponent implements OnInit {
             });
     }
 
-    disableFilUnitNumberAndProductCode(): void {
+    private pullOutNotifications(
+        notifications: NotificationDto[],
+        sample: Partial<
+            Pick<NotificationDto, 'notificationType' | 'name' | 'action'>
+        >
+    ): NotificationDto[] {
+        // Filtering notifications according to sample
+        const filteredNotifications = notifications.filter(
+            (n) =>
+                (sample?.notificationType
+                    ? n.notificationType === sample?.notificationType
+                    : true) &&
+                (sample?.name ? n.name === sample?.name : true) &&
+                (sample?.action ? n.action === sample?.action : true)
+        );
+
+        // Removing filtered notifications from original array
+        for (const notification of filteredNotifications) {
+            const i = notifications.findIndex(
+                (n) =>
+                    n.notificationType === notification.notificationType &&
+                    n.name === notification.name &&
+                    n.action === notification.action
+            );
+            notifications.splice(i, 1);
+        }
+        return filteredNotifications;
+    }
+
+    private showUnsatisfactoryVisualInspectionDialog(
+        reasons: ReasonDTO[],
+        message: string,
+        inventory: InventoryDTO
+    ): void {
+        if (!reasons?.length) {
+            this.toaster.error(
+                'Unable to record unsatisfactory visual inspection. No reasons provided by the system. Contact support.'
+            );
+            return;
+        }
+        this.recordUnsatisfactoryVisualInspectionDialog
+            .open<
+                RecordUnsatisfactoryVisualInspectionComponent,
+                RecordUnsatisfactoryVisualInspectionData,
+                RecordUnsatisfactoryVisualInspectionResult
+            >(RecordUnsatisfactoryVisualInspectionComponent, {
+                disableClose: true,
+                width: '42rem',
+                data: {
+                    reasons,
+                    message,
+                    inventory,
+                },
+            })
+            .afterClosed()
+            .subscribe((result) => {
+                if (result) {
+                    this.discardService
+                        .discardProduct(
+                            this.getDiscardRequestDto(
+                                result.inventory,
+                                result.reason.reasonKey,
+                                result.comments
+                            )
+                        )
+                        .pipe(
+                            catchError((err) => {
+                                this.showDiscardSystemError();
+                                throw err;
+                            }),
+                            finalize(() => {
+                                this.loading = false;
+                                this.unitNumberFocus = true;
+                            })
+                        )
+                        .subscribe((response) => {
+                            const data = response?.data?.discardProduct;
+                            if (data) {
+                                this.productSelection.productGroup.reset();
+                                this.productSelection.enableVisualInspection();
+                                return this.openAcknowledgmentMessageDialog([
+                                    {
+                                        statusCode: 400,
+                                        notificationType: 'INFO',
+                                        code: 400,
+                                        message: result.message,
+                                    },
+                                ]);
+                            } else {
+                                this.showDiscardSystemError();
+                            }
+                        });
+                } else {
+                    this.productSelection.productGroup.reset();
+                    this.productSelection.enableVisualInspection();
+                    this.productSelection.enableProductCode();
+                }
+            });
+    }
+
+    disableFillUnitNumberAndProductCode(): void {
         this.productSelection.disableProductGroup();
     }
 
@@ -257,7 +378,9 @@ export class FillProductsComponent implements OnInit {
             productCode: item.productCode,
             locationCode: this.cookieService.get(Cookie.XFacility),
             employeeId: this.loggedUserId,
-            visualInspection: item.visualInspection.toUpperCase(),
+            visualInspection: this.showVisualInspection
+                ? item.visualInspection.toUpperCase()
+                : null,
         };
     }
 
@@ -281,7 +404,7 @@ export class FillProductsComponent implements OnInit {
         });
     }
 
-    openConfirmationDialog(notifications: NotificationDto[]): void {
+    openAcknowledgmentMessageDialog(notifications: NotificationDto[]): void {
         this.confirmationService.open({
             title: 'Acknowledgment Message',
             message: notifications
@@ -304,46 +427,45 @@ export class FillProductsComponent implements OnInit {
         });
     }
 
-    private triggerDiscard(ruleResponse: RuleResponseDTO) {
-        const inventoryData: InventoryDTO = ruleResponse?.results?.inventory[0];
-        const triggers = ruleResponse.notifications.filter(
-            (notification) => 'TRIGGER_DISCARD' === notification.action
-        );
-        if (triggers.length) {
-            triggers.forEach((notification) => {
-                return this.discardService
-                    .discardProduct(
-                        this.getDiscardRequestDto(inventoryData, notification)
+    private triggerDiscard(
+        triggerDiscardNotifications: NotificationDto[],
+        inventory: InventoryDTO
+    ): void {
+        for (const triggerDiscardNotification of triggerDiscardNotifications) {
+            this.discardService
+                .discardProduct(
+                    this.getDiscardRequestDto(
+                        inventory,
+                        triggerDiscardNotification.reason
                     )
-                    .pipe(
-                        catchError((err) => {
-                            this.showDiscardSystemError();
-                            throw err;
-                        }),
-                        finalize(() => {
-                            this.loading = false;
-                            this.unitNumberFocus = true;
-                        })
-                    )
-                    .subscribe((response) => {
-                        const data = response?.data?.discardProduct;
-                        if (data) {
-                            return this.openConfirmationDialog(
-                                ruleResponse.notifications
-                            );
-                        } else {
-                            this.showDiscardSystemError();
-                        }
-                    });
-            });
-        } else {
-            return this.openConfirmationDialog(ruleResponse.notifications);
+                )
+                .pipe(
+                    catchError((err) => {
+                        this.showDiscardSystemError();
+                        throw err;
+                    }),
+                    finalize(() => {
+                        this.loading = false;
+                        this.unitNumberFocus = true;
+                    })
+                )
+                .subscribe((response) => {
+                    const data = response?.data?.discardProduct;
+                    if (data) {
+                        return this.openAcknowledgmentMessageDialog(
+                            triggerDiscardNotifications
+                        );
+                    } else {
+                        this.showDiscardSystemError();
+                    }
+                });
         }
     }
 
     private getDiscardRequestDto(
         inventory: InventoryDTO,
-        notification: NotificationDto
+        reason: string,
+        comments?: string
     ): DiscardRequestDTO {
         return {
             unitNumber: inventory.unitNumber,
@@ -351,10 +473,10 @@ export class FillProductsComponent implements OnInit {
             locationCode: this.cookieService.get(Cookie.XFacility),
             employeeId: this.loggedUserId,
             triggeredBy: 'SHIPPING',
-            reasonDescriptionKey: notification.reason,
+            reasonDescriptionKey: reason,
             productFamily: inventory.productFamily,
             productShortDescription: inventory.productDescription,
-            comments: '',
+            comments: comments,
         };
     }
 
@@ -369,5 +491,24 @@ export class FillProductsComponent implements OnInit {
                     'Product has not been discarded in the system. Contact Support.',
             },
         ]);
+    }
+
+    getIcon() {
+        return this.productIconService.getIconByProductFamily(
+            this.shipmentProduct?.productFamily
+        );
+    }
+
+    toggleProduct(product: VerifyFilledProductDto) {
+        if (this.selectedProducts.includes(product)) {
+            const index = this.selectedProducts.findIndex(
+                (filterProduct) =>
+                    filterProduct.unitNumber === product.unitNumber &&
+                    filterProduct.productCode === product.productCode
+            );
+            this.selectedProducts.splice(index, 1);
+        } else {
+            this.selectedProducts.push(product);
+        }
     }
 }

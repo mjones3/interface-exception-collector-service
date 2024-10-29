@@ -26,6 +26,7 @@ import {
 } from 'app/core/models/browser-printing.model';
 import { BrowserPrintingService } from 'app/core/services/browser-printing/browser-printing.service';
 import { getAuthState } from 'app/core/state/auth/auth.selectors';
+import { ActionButtonComponent } from 'app/shared/components/action-button/action-button.component';
 import { ProductIconsService } from 'app/shared/services/product-icon.service';
 import { ToastrModule } from 'ngx-toastr';
 import { SortEvent } from 'primeng/api';
@@ -65,6 +66,7 @@ import { ViewShippingLabelComponent } from '../view-shipping-label/view-shipping
         OrderWidgetsSidebarComponent,
         ButtonModule,
         DropdownModule,
+        ActionButtonComponent,
     ],
     templateUrl: './shipment-details.component.html',
     styleUrl: './shipment-details.component.scss',
@@ -102,6 +104,7 @@ export class ShipmentDetailsComponent implements OnInit {
     shippedInfoData: ShipmentCompleteInfoDto[] = [];
     loggedUserId: string;
     packedItems: ShipmentItemPackedDTO[] = [];
+    showVerifyProductOption = false;
 
     get filledProductsCount() {
         return this.packedItems?.length;
@@ -115,8 +118,8 @@ export class ShipmentDetailsComponent implements OnInit {
         return this.shipmentInfo ? this.shipmentInfo?.productCategory : '';
     }
 
-    get shipmentId() {
-        return this.route.snapshot.params?.id;
+    get shipmentId(): number {
+        return Number(this.route.snapshot.params?.id);
     }
 
     get totalProducts(): number {
@@ -136,6 +139,8 @@ export class ShipmentDetailsComponent implements OnInit {
             .getShipmentById(this.shipmentId)
             .subscribe((result) => {
                 this.shipmentInfo = result.data?.getShipmentDetailsById;
+                this.showVerifyProductOption =
+                    this.shipmentInfo.secondVerificationActive;
                 this.products =
                     this.shipmentInfo?.items?.map((item) =>
                         this.convertItemToProduct(item)
@@ -196,7 +201,7 @@ export class ShipmentDetailsComponent implements OnInit {
         return this.shipmentInfo.orderNumber;
     }
 
-    backToSearch(): void {
+    backToOrderDetails(): void {
         this._router.navigateByUrl(`/orders/${this.orderId}/order-details`);
     }
 

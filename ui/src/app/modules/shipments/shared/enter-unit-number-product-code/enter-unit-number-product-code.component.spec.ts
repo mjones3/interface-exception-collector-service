@@ -49,10 +49,14 @@ describe('EnterUnitNumberProductCodeComponent', () => {
     });
 
     it('should enable visual inspection when the inputs for unit number and product code are valid', () => {
-        component.productGroup.controls.unitNumber.setValue('W036898786800');
-        component.productGroup.controls.productCode.setValue('E7644V00');
+        component.showVisualInspection = true;
         jest.spyOn(component, 'checkDigitValid', 'get').mockReturnValue(true);
+
         component.unitNumberComponent.controlCheckDigit.setValue('E');
+        component.productGroup.controls.unitNumber.setValue('W036898786800');
+        component.enableProductCode();
+        component.productGroup.controls.productCode.setValue('E7644V00');
+
         component.enableVisualInspection();
         expect(
             component.productGroup.controls.visualInspection.enabled
@@ -60,6 +64,7 @@ describe('EnterUnitNumberProductCodeComponent', () => {
     });
 
     it('should disable visual inspection when the inputs for unit number and product code are Invalid', () => {
+        component.showVisualInspection = true;
         component.productGroup.controls.unitNumber.setValue('W036898786800');
         component.productGroup.controls.productCode.setValue('E7644');
         component.enableVisualInspection();
@@ -131,5 +136,81 @@ describe('EnterUnitNumberProductCodeComponent', () => {
         expect(
             component.unitNumberComponent.checkDigitInvalidMessage
         ).toBeTruthy();
+    });
+    it('Should not validate  event when Check Digit value is blank', () => {
+        const validateScannedFieldSpy = jest.spyOn(
+            shipmentService,
+            'validateCheckDigit'
+        );
+
+        component.unitNumberComponent.controlCheckDigit.setValue('');
+        fixture.detectChanges();
+        component.verifyUnit({
+            unitNumber: '',
+            checkDigit: '',
+            scanner: false,
+            checkDigitChange: true,
+        });
+
+        expect(validateScannedFieldSpy).not.toHaveBeenCalled();
+    });
+
+    it('Should disable Product Code field  when Check Digit value is blank', () => {
+        component.unitNumberComponent.controlCheckDigit.setValue('');
+        fixture.detectChanges();
+        component.verifyUnit({
+            unitNumber: '',
+            checkDigit: '',
+            scanner: false,
+            checkDigitChange: true,
+        });
+
+        expect(
+            component.productGroup.controls.productCode.disabled
+        ).toBeTruthy();
+    });
+
+    it('Should enable Product Code field  when check Digit is valid', () => {
+        jest.spyOn(shipmentService, 'validateCheckDigit').mockReturnValue(
+            of({
+                data: {
+                    verifyCheckDigit: {
+                        ruleCode: '200 OK',
+                        _links: null,
+                        results: {
+                            data: [
+                                {
+                                    unitNumber: 'W036824620959',
+                                    verifiedCheckDigit: 'I',
+                                },
+                            ],
+                        },
+                        notifications: null,
+                    },
+                },
+            })
+        );
+        jest.spyOn(component, 'checkDigitValid', 'get').mockReturnValue(true);
+        component.verifyUnit({
+            unitNumber: 'W036824620959',
+            checkDigit: 'I',
+            scanner: false,
+            checkDigitChange: true,
+        });
+        component.enableProductCode();
+        expect(
+            component.productGroup.controls.productCode.enabled
+        ).toBeTruthy();
+    });
+
+    it('should hide visual inspection when showVisualInspection false', () => {
+        component.showVisualInspection = false;
+        fixture.detectChanges();
+        expect(component).toBeTruthy();
+        expect(
+            fixture.debugElement.nativeElement.querySelector(
+                '#visualInspectionId'
+            )
+        ).toBeFalsy();
     });
 });

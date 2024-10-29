@@ -4,12 +4,15 @@ import com.arcone.biopro.distribution.shipping.adapter.in.web.dto.ShipmentDetail
 import com.arcone.biopro.distribution.shipping.adapter.in.web.dto.ShipmentItemResponseDTO;
 import com.arcone.biopro.distribution.shipping.application.dto.CompleteShipmentRequest;
 import com.arcone.biopro.distribution.shipping.application.dto.PackItemRequest;
+import com.arcone.biopro.distribution.shipping.application.dto.ReasonDTO;
 import com.arcone.biopro.distribution.shipping.application.dto.RuleResponseDTO;
+import com.arcone.biopro.distribution.shipping.application.mapper.ReasonDomainMapper;
 import com.arcone.biopro.distribution.shipping.application.mapper.ShipmentEventMapper;
 import com.arcone.biopro.distribution.shipping.application.usecase.ShipmentServiceUseCase;
 import com.arcone.biopro.distribution.shipping.application.util.ShipmentServiceMessages;
 import com.arcone.biopro.distribution.shipping.domain.event.ShipmentCompletedEvent;
 import com.arcone.biopro.distribution.shipping.domain.event.ShipmentCreatedEvent;
+import com.arcone.biopro.distribution.shipping.domain.model.Reason;
 import com.arcone.biopro.distribution.shipping.domain.model.Shipment;
 import com.arcone.biopro.distribution.shipping.domain.model.ShipmentItem;
 import com.arcone.biopro.distribution.shipping.domain.model.ShipmentItemPacked;
@@ -65,8 +68,8 @@ class ShipmentServiceUseCaseTest {
     private ShipmentEventMapper shipmentEventMapper;
     private FacilityServiceMock facilityServiceMock;
     private ConfigService configService;
-
     private ShipmentServiceUseCase useCase;
+    private ReasonDomainMapper reasonDomainMapper;
 
     @BeforeEach
     public void setUp(){
@@ -79,8 +82,9 @@ class ShipmentServiceUseCaseTest {
         shipmentEventMapper = new ShipmentEventMapper();
         facilityServiceMock = Mockito.mock(FacilityServiceMock.class);
         configService = Mockito.mock(ConfigService.class);
+        reasonDomainMapper = new ReasonDomainMapper();
 
-        useCase = new ShipmentServiceUseCase(shipmentRepository,shipmentItemRepository,shipmentItemShortDateProductRepository,inventoryRsocketClient,shipmentItemPackedRepository,applicationEventPublisher,shipmentEventMapper,facilityServiceMock,configService);
+        useCase = new ShipmentServiceUseCase(shipmentRepository,shipmentItemRepository,shipmentItemShortDateProductRepository,inventoryRsocketClient,shipmentItemPackedRepository,applicationEventPublisher,shipmentEventMapper,facilityServiceMock,configService, reasonDomainMapper);
     }
 
     @Test
@@ -153,6 +157,8 @@ class ShipmentServiceUseCaseTest {
 
         Mockito.when(shipmentRepository.findById(1L)).thenReturn(Mono.just(shipment));
         Mockito.when(configService.findShippingCheckDigitActive()).thenReturn(Mono.just(Boolean.TRUE));
+        Mockito.when(configService.findShippingVisualInspectionActive()).thenReturn(Mono.just(Boolean.TRUE));
+        Mockito.when(configService.findShippingSecondVerificationActive()).thenReturn(Mono.just(Boolean.FALSE));
 
         ShipmentItem item = Mockito.mock(ShipmentItem.class);
         Mockito.when(item.getId()).thenReturn(1L);
@@ -197,6 +203,8 @@ class ShipmentServiceUseCaseTest {
                 assertEquals("product_code", firstPackedItem.productCode());
                 assertEquals("UN", firstPackedItem.unitNumber());
                 assertTrue(detail.checkDigitActive());
+                assertTrue(detail.visualInspectionActive());
+                assertFalse(detail.secondVerificationActive());
             })
             .verifyComplete();
     }
@@ -227,6 +235,11 @@ class ShipmentServiceUseCaseTest {
             .build()));
 
         Mockito.when(inventoryRsocketClient.validateInventory(Mockito.any(InventoryValidationRequest.class))).thenReturn(Mono.just(validationResponseDTO));
+
+        Mockito.when(configService.findShippingVisualInspectionActive()).thenReturn(Mono.just(Boolean.TRUE));
+
+        var reason = Mockito.mock(Reason.class);
+        Mockito.when(configService.findVisualInspectionFailedDiscardReasons()).thenReturn(Flux.just(reason));
 
         Mono<RuleResponseDTO>  packDetail = useCase.packItem(PackItemRequest.builder()
                 .unitNumber("UN")
@@ -282,6 +295,11 @@ class ShipmentServiceUseCaseTest {
 
         Mockito.when(shipmentItemPackedRepository.countAllByUnitNumberAndProductCode(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just(0));
 
+        Mockito.when(configService.findShippingVisualInspectionActive()).thenReturn(Mono.just(Boolean.TRUE));
+
+        var reason = Mockito.mock(Reason.class);
+        Mockito.when(configService.findVisualInspectionFailedDiscardReasons()).thenReturn(Flux.just(reason));
+
         Mono<RuleResponseDTO>  packDetail = useCase.packItem(PackItemRequest.builder()
             .unitNumber("UN")
             .shipmentItemId(1L)
@@ -299,6 +317,63 @@ class ShipmentServiceUseCaseTest {
                 assertEquals(HttpStatus.BAD_REQUEST.value(), firstNotification.statusCode());
                 assertEquals("WARN", firstNotification.notificationType());
                 assertEquals(ShipmentServiceMessages.PRODUCT_CRITERIA_BLOOD_TYPE_ERROR, firstNotification.message());
+            })
+            .verifyComplete();
+    }
+
+    @Test
+    public void shouldNotPackItemWhenProductVisualInspectionFails(){
+
+        InventoryValidationResponseDTO validationResponseDTO = Mockito.mock(InventoryValidationResponseDTO.class);
+        Mockito.when(validationResponseDTO.inventoryResponseDTO()).thenReturn(InventoryResponseDTO
+            .builder()
+            .locationCode("123456789")
+            .productCode("123")
+            .unitNumber("UN")
+            .productFamily("product_family")
+            .aboRh("AP")
+            .build());
+
+        Mockito.when(inventoryRsocketClient.validateInventory(Mockito.any(InventoryValidationRequest.class))).thenReturn(Mono.just(validationResponseDTO));
+
+        Mockito.when(shipmentItemRepository.findById(Mockito.anyLong())).thenReturn(Mono.just(ShipmentItem.builder()
+            .productFamily("product_family")
+            .bloodType(BloodType.AP)
+            .build()));
+
+        Mockito.when(shipmentItemPackedRepository.countAllByShipmentItemId(Mockito.anyLong())).thenReturn(Mono.just(10));
+
+        Mockito.when(shipmentItemPackedRepository.countAllByUnitNumberAndProductCode(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just(0));
+
+        Mockito.when(configService.findShippingVisualInspectionActive()).thenReturn(Mono.just(Boolean.TRUE));
+
+
+        var reason = Mockito.mock(Reason.class);
+        Mockito.when(reason.getId()).thenReturn(1L);
+        Mockito.when(reason.getReasonKey()).thenReturn("reason_key");
+
+        Mockito.when(configService.findVisualInspectionFailedDiscardReasons()).thenReturn(Flux.just(reason));
+
+        Mono<RuleResponseDTO>  packDetail = useCase.packItem(PackItemRequest.builder()
+            .unitNumber("UN")
+            .shipmentItemId(1L)
+            .employeeId("test")
+            .locationCode("123456789")
+            .productCode("123")
+            .visualInspection(VisualInspection.UNSATISFACTORY)
+            .build());
+
+        StepVerifier
+            .create(packDetail)
+            .consumeNextWith(detail -> {
+                var firstNotification = detail.notifications().getFirst();
+                ReasonDTO firstReason = (ReasonDTO) detail.results().get("reasons").getFirst();
+                assertEquals(HttpStatus.BAD_REQUEST, detail.ruleCode());
+                assertEquals(HttpStatus.BAD_REQUEST.value(), firstNotification.statusCode());
+                assertEquals("WARN", firstNotification.notificationType());
+                assertEquals(ShipmentServiceMessages.PRODUCT_CRITERIA_VISUAL_INSPECTION_ERROR, firstNotification.message());
+                assertEquals("reason_key", firstReason.reasonKey());
+
             })
             .verifyComplete();
     }
@@ -329,6 +404,10 @@ class ShipmentServiceUseCaseTest {
 
         Mockito.when(shipmentItemPackedRepository.countAllByUnitNumberAndProductCode(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just(0));
 
+        Mockito.when(configService.findShippingVisualInspectionActive()).thenReturn(Mono.just(Boolean.TRUE));
+
+        var reason = Mockito.mock(Reason.class);
+        Mockito.when(configService.findVisualInspectionFailedDiscardReasons()).thenReturn(Flux.just(reason));
 
         Mono<RuleResponseDTO>  packDetail = useCase.packItem(PackItemRequest.builder()
             .unitNumber("UN")
@@ -377,6 +456,10 @@ class ShipmentServiceUseCaseTest {
 
         Mockito.when(shipmentItemPackedRepository.countAllByUnitNumberAndProductCode(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just(1));
 
+        Mockito.when(configService.findShippingVisualInspectionActive()).thenReturn(Mono.just(Boolean.TRUE));
+
+        var reason = Mockito.mock(Reason.class);
+        Mockito.when(configService.findVisualInspectionFailedDiscardReasons()).thenReturn(Flux.just(reason));
 
         Mono<RuleResponseDTO>  packDetail = useCase.packItem(PackItemRequest.builder()
             .unitNumber("UN")
@@ -451,6 +534,8 @@ class ShipmentServiceUseCaseTest {
 
         Mockito.when(shipmentItemPackedRepository.countAllByUnitNumberAndProductCode(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just(0));
 
+        Mockito.when(configService.findShippingVisualInspectionActive()).thenReturn(Mono.just(Boolean.TRUE));
+
         Mono<RuleResponseDTO>  packDetail = useCase.packItem(PackItemRequest.builder()
             .unitNumber("UN")
             .shipmentItemId(1L)
@@ -486,10 +571,98 @@ class ShipmentServiceUseCaseTest {
     }
 
     @Test
+    public void shouldPackItemWhenItIsSuitableAndVisualInspectionDisable(){
+
+
+        InventoryValidationResponseDTO validationResponseDTO = Mockito.mock(InventoryValidationResponseDTO.class);
+        Mockito.when(validationResponseDTO.inventoryResponseDTO()).thenReturn(InventoryResponseDTO
+            .builder()
+            .locationCode("123456789")
+            .productCode("123")
+            .unitNumber("UN")
+            .productFamily("product_family")
+            .aboRh("AP")
+            .build());
+
+        Mockito.when(shipmentItemRepository.findById(Mockito.anyLong())).thenReturn(Mono.just(ShipmentItem.builder()
+            .productFamily("product_family")
+            .id(1L)
+            .bloodType(BloodType.AP)
+            .quantity(10)
+            .build()));
+
+
+        Mockito.when(shipmentItemPackedRepository.save(Mockito.any(ShipmentItemPacked.class))).thenReturn(Mono.just(ShipmentItemPacked.builder()
+            .id(1L)
+            .unitNumber("UN")
+            .shipmentItemId(1L)
+            .productCode("product_code")
+            .packedByEmployeeId("test")
+            .shipmentItemId(1L)
+            .build()));
+
+        Mockito.when(shipmentItemPackedRepository.findAllByShipmentItemId(Mockito.anyLong())).thenReturn(Flux.just(ShipmentItemPacked.builder()
+            .id(1L)
+            .unitNumber("UN")
+            .productCode("product_code")
+            .packedByEmployeeId("test")
+            .shipmentItemId(1L)
+            .build()));
+
+        Mockito.when(inventoryRsocketClient.validateInventory(Mockito.any(InventoryValidationRequest.class))).thenReturn(Mono.just(validationResponseDTO));
+
+        Mockito.when(shipmentItemPackedRepository.countAllByShipmentItemId(Mockito.anyLong())).thenReturn(Mono.just(0));
+
+        ShipmentItemShortDateProduct shortDateItem = Mockito.mock(ShipmentItemShortDateProduct.class);
+        Mockito.when(shortDateItem.getProductCode()).thenReturn("ABCD");
+        Mockito.when(shortDateItem.getUnitNumber()).thenReturn("UNIT_NUMBER");
+
+        Mockito.when(shipmentItemShortDateProductRepository.findAllByShipmentItemId(Mockito.anyLong())).thenReturn(Flux.just(shortDateItem));
+
+        Mockito.when(shipmentItemPackedRepository.countAllByUnitNumberAndProductCode(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just(0));
+
+        Mockito.when(configService.findShippingVisualInspectionActive()).thenReturn(Mono.just(Boolean.FALSE));
+
+        Mono<RuleResponseDTO>  packDetail = useCase.packItem(PackItemRequest.builder()
+            .unitNumber("UN")
+            .shipmentItemId(1L)
+            .employeeId("test")
+            .locationCode("123456789")
+            .productCode("123")
+            .build());
+
+        StepVerifier
+            .create(packDetail)
+            .consumeNextWith(detail -> {
+                assertEquals(HttpStatus.OK, detail.ruleCode());
+                assertNull(detail.notifications());
+                assertNotNull(detail.results());
+
+                var ruleResults = detail.results().get("results");
+                var firstRuleResult = ruleResults.getFirst();
+                assertNotNull(ruleResults);
+                assertNotNull(firstRuleResult);
+
+                var shipmentItem = (ShipmentItemResponseDTO) firstRuleResult;
+                var firstPackedItem = shipmentItem.packedItems().getFirst();
+                assertEquals("UN", firstPackedItem.unitNumber());
+                assertEquals("product_code", firstPackedItem.productCode());
+                assertEquals("test", firstPackedItem.packedByEmployeeId());
+
+                var firstShortDateProduct = shipmentItem.shortDateProducts().getFirst();
+                assertEquals("UNIT_NUMBER", firstShortDateProduct.unitNumber());
+                assertEquals("ABCD", firstShortDateProduct.productCode());
+            })
+            .verifyComplete();
+    }
+
+    @Test
     public void shouldNotCompleteShipmentWhenDoesNotExist(){
 
 
         Mockito.when(shipmentRepository.findById(1L)).thenReturn(Mono.empty());
+
+        Mockito.when(configService.findShippingSecondVerificationActive()).thenReturn(Mono.just(Boolean.FALSE));
 
         Mono<RuleResponseDTO> result = useCase.completeShipment(CompleteShipmentRequest.builder()
                 .shipmentId(1L)
@@ -519,6 +692,7 @@ class ShipmentServiceUseCaseTest {
             .build()));
 
         Mockito.when(shipmentItemPackedRepository.findAllByShipmentItemId(1L)).thenReturn(Flux.empty());
+        Mockito.when(configService.findShippingSecondVerificationActive()).thenReturn(Mono.just(Boolean.FALSE));
 
         Mono<RuleResponseDTO> result = useCase.completeShipment(CompleteShipmentRequest.builder()
             .shipmentId(1L)
@@ -554,6 +728,7 @@ class ShipmentServiceUseCaseTest {
 
         Mockito.when(shipmentRepository.findById(1L)).thenReturn(Mono.just(shipment));
         Mockito.when(configService.findShippingCheckDigitActive()).thenReturn(Mono.just(Boolean.FALSE));
+        Mockito.when(configService.findShippingVisualInspectionActive()).thenReturn(Mono.just(Boolean.TRUE));
 
         ShipmentItem item = Mockito.mock(ShipmentItem.class);
         Mockito.when(item.getId()).thenReturn(1L);
@@ -579,6 +754,7 @@ class ShipmentServiceUseCaseTest {
             .build()));
 
 
+        Mockito.when(configService.findShippingSecondVerificationActive()).thenReturn(Mono.just(Boolean.FALSE));
 
         Mono<RuleResponseDTO> result = useCase.completeShipment(CompleteShipmentRequest.builder()
             .shipmentId(1L)
@@ -609,6 +785,7 @@ class ShipmentServiceUseCaseTest {
 
     @Test
     public void shouldNotPackItemWhenInventoryServiceIsDown(){
+        Mockito.when(configService.findShippingVisualInspectionActive()).thenReturn(Mono.just(Boolean.TRUE));
 
         Mockito.when(inventoryRsocketClient.validateInventory(Mockito.any(InventoryValidationRequest.class))).thenReturn(Mono.error(new InventoryServiceNotAvailableException("INVENTORY_SERVICE_DOW")));
 
@@ -633,6 +810,36 @@ class ShipmentServiceUseCaseTest {
                 assertEquals("INVENTORY_SERVICE_IS_DOWN", firstNotification.name());
             })
             .verifyComplete();
+    }
+
+
+    @Test
+    public void shouldNotCompleteShipmentWhenSecondVerificationIsEnableAndVerificationIsNotCompleted(){
+
+        var shipmentMock = Mockito.mock(Shipment.class);
+
+        Mockito.when(shipmentRepository.findById(1L)).thenReturn(Mono.just(shipmentMock));
+
+        Mockito.when(configService.findShippingSecondVerificationActive()).thenReturn(Mono.just(Boolean.TRUE));
+
+        Mono<RuleResponseDTO> result = useCase.completeShipment(CompleteShipmentRequest.builder()
+            .shipmentId(1L)
+            .employeeId("test")
+            .build());
+
+
+        StepVerifier
+            .create(result)
+            .consumeNextWith(detail -> {
+                var firstNotification = detail.notifications().getFirst();
+
+                assertEquals(HttpStatus.BAD_REQUEST, detail.ruleCode());
+                assertEquals(HttpStatus.BAD_REQUEST.value(), firstNotification.statusCode());
+                assertEquals("WARN", firstNotification.notificationType());
+                assertEquals(ShipmentServiceMessages.SECOND_VERIFICATION_NOT_COMPLETED_ERROR, firstNotification.message());
+            })
+            .verifyComplete();
+
     }
 
 }

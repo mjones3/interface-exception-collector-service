@@ -2,7 +2,6 @@ package com.arcone.biopro.distribution.shipping.verification.pages.distribution;
 
 import com.arcone.biopro.distribution.shipping.verification.pages.CommonPageFactory;
 import com.arcone.biopro.distribution.shipping.verification.pages.SharedActions;
-import com.arcone.biopro.distribution.shipping.verification.support.DatabaseService;
 import com.arcone.biopro.distribution.shipping.verification.support.TestUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
@@ -11,6 +10,8 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 @Slf4j
@@ -22,35 +23,36 @@ public class FillProductsPage extends CommonPageFactory {
     @FindBy(xpath = "//h3[normalize-space()='Fill Products']")
     private WebElement fillProductsHeader;
 
-    @FindBy(id = "inUnitNumber")
-    private WebElement unitNumberInput;
+    private String checkDigitError = "//*[@id='inCheckDigit']/../../../..//mat-error";
 
-    @FindBy(id = "inCheckDigit")
-    private WebElement checkDigitInput;
-
-    @FindBy(xpath = "//*[@id=\"inCheckDigit\"]/../../../..//mat-error")
-    private WebElement checkDigitError;
-
-    @FindBy(id = "productCodeId")
-    private WebElement productCodeInput;
-
-    @FindBy(id = "inspection-satisfactory-input")
-    private WebElement visualInspectionSatisfactory;
-
-    @FindBy(id = "inspection-unsatisfactory-input")
-    private WebElement visualInspectionUnsatisfactory;
 
     @FindBy(id = "inspection-satisfactory")
-    private WebElement visualInspectionSatisfactoryOption;
+    private WebElement visualInspectionSatisfactory;
 
     @FindBy(id = "inspection-unsatisfactory")
-    private WebElement visualInspectionUnsatisfactoryOption;
+    private WebElement visualInspectionUnsatisfactory;
 
-    @FindBy(id = "backBtn")
-    private WebElement backButton;
+    // Static locators
 
-    @Autowired
-    private DatabaseService databaseService;
+    private static final String checkDigitInput = "inCheckDigit";
+    private static final String productCodeInput = "productCodeId";
+    private static final String unitNumberInput = "inUnitNumber";
+    private static final String visualInspectionSatisfactoryOption = "//*[@id='inspection-satisfactory']";
+    private static final String visualInspectionUnsatisfactoryOption = "//*[@id='inspection-unsatisfactory']";
+    private static final String backButton = "backBtn";
+    private static final String discardDialogCancelButton = "//*[@id='mat-mdc-dialog-0']//*[@id='recordUnsatisfactoryVisualInspectionCancelActionBtn']";
+    private static final String discardDialogSubmitButton = "recordUnsatisfactoryVisualInspectionSubmitActionBtn";
+    private static final String dialogLocator = "//*[@id='mat-mdc-dialog-0']";
+    private static final String dialogHeaderLocator = "//*[@id='mat-mdc-dialog-0']//h1";
+    private static final String dialogSubtitleLocator = "//*[@id='mat-mdc-dialog-0']//h2";
+    private static final String reasonsLocator = "//*[@id='mat-mdc-dialog-0']//*[@id='recordUnsatisfactoryVisualInspectionReasons']//biopro-action-button";
+    private static final String discardComments = "recordUnsatisfactoryVisualInspectionCommentsTextArea";
+
+    // Dynamic locators
+
+    private String discardReasonButton(String reason) {
+        return String.format("%sactionBtn", reason.replace(" ", "_").toUpperCase());
+    }
 
     @Override
     public boolean isLoaded() {
@@ -59,36 +61,43 @@ public class FillProductsPage extends CommonPageFactory {
 
     private String formatUnitLocator(String unit) {
         unit = TestUtils.removeUnitNumberScanDigits(unit);
-        return String.format("//p-table[@id='prodTableId']//td[normalize-space()='%s']", unit);
+        return String.format("//biopro-unit-number-card[@ng-reflect-unit-number='%s']", unit);
     }
 
     private String formatProductCodeLocator(String productCode) {
         productCode = TestUtils.removeProductCodeScanDigits(productCode);
-        return String.format("//p-table[@id='prodTableId']//td[normalize-space()='%s']", productCode);
+        return String.format("//biopro-unit-number-card[@ng-reflect-product-name='%s']", productCode);
+    }
+
+    private String formatProductInspectionLocator(String inspection) {
+        return String.format("//biopro-unit-number-card[@ng-reflect-visual-inspection='%s']", inspection.toUpperCase());
     }
 
     public void addUnitWithProductCode(String unit, String productCode) throws InterruptedException {
         log.info("Adding unit {} with product code {}.", unit, productCode);
-        sharedActions.sendKeys(unitNumberInput, unit);
-        sharedActions.sendKeys(productCodeInput, productCode);
+        sharedActions.sendKeys(this.driver, By.id(unitNumberInput), unit);
+        sharedActions.sendKeysAndEnter(this.driver, By.id(productCodeInput), productCode);
         sharedActions.waitLoadingAnimation();
     }
 
     public void addUnitWithDigitAndProductCode(String unit, String checkDigit, String productCode, boolean checkDigitEnabled) throws InterruptedException {
         log.info("Adding unit {} with digit {} and product code {}.", unit, checkDigit, productCode);
 
-        sharedActions.sendKeys(unitNumberInput, unit);
+        sharedActions.sendKeys(this.driver, By.id(unitNumberInput), unit);
         if (checkDigitEnabled && !unit.startsWith("=")) {
-            sharedActions.sendKeys(checkDigitInput, checkDigit);
+            sharedActions.sendKeysAndTab(this.driver, By.id(checkDigitInput), checkDigit);
         }
-        sharedActions.sendKeys(productCodeInput, productCode);
+        sharedActions.sendKeysAndEnter(this.driver, By.id(productCodeInput), productCode);
         sharedActions.waitLoadingAnimation();
     }
 
-    public void defineVisualInspection(String visualInspection) {
+    public void defineVisualInspection(String visualInspection) throws InterruptedException {
         log.info("Defining visual inspection as {}.", visualInspection);
-        WebElement element = "satisfactory".equalsIgnoreCase(visualInspection) ? visualInspectionSatisfactoryOption : visualInspectionUnsatisfactoryOption;
-        sharedActions.click(element);
+        if ("satisfactory".equalsIgnoreCase(visualInspection)) {
+            sharedActions.click(this.driver, By.xpath(visualInspectionSatisfactoryOption));
+        } else {
+            sharedActions.click(this.driver, By.xpath(visualInspectionUnsatisfactoryOption));
+        }
     }
 
     public void assertVisualInspectionIs(String enabledDisabled) {
@@ -113,8 +122,8 @@ public class FillProductsPage extends CommonPageFactory {
         String unitLocator = this.formatUnitLocator(unit);
         String productCodeLocator = this.formatProductCodeLocator(productCode);
 
-        sharedActions.locateXpathAndWaitForVisible(unitLocator, this.driver);
-        sharedActions.locateXpathAndWaitForVisible(productCodeLocator, this.driver);
+        sharedActions.waitForVisible(By.xpath(unitLocator));
+        sharedActions.waitForVisible(By.xpath(productCodeLocator));
     }
 
     public void ensureProductIsNotAdded(String unit, String productCode) throws InterruptedException {
@@ -130,19 +139,89 @@ public class FillProductsPage extends CommonPageFactory {
         sharedActions.waitForNotVisible(By.xpath(productCodeLocator));
     }
 
-    public void clickBackButton() {
+    public void clickBackButton() throws InterruptedException {
         log.info("Clicking back button.");
-        sharedActions.click(backButton);
+        sharedActions.click(this.driver, By.id(backButton));
     }
 
-    public void assertCheckDigitErrorIs(String expectedError) {
+    public void assertCheckDigitErrorIs(String expectedError) throws InterruptedException {
         log.info("Asserting check digit error is {}.", expectedError);
         if (expectedError.isEmpty()) {
-            sharedActions.waitForNotVisible(checkDigitError);
+            sharedActions.waitForNotVisible(By.xpath(checkDigitError));
         } else {
-            sharedActions.waitForVisible(checkDigitError);
-            Assert.assertEquals(expectedError.toLowerCase(), checkDigitError.getText().toLowerCase());
+            sharedActions.waitForVisible(By.xpath(checkDigitError));
+            String msg = sharedActions.getText(By.xpath(checkDigitError));
+            Assert.assertEquals(expectedError.toLowerCase(), msg.toLowerCase());
         }
     }
 
+    public void addUnitWithDigit(String unitNumber, String checkDigit) throws InterruptedException {
+        log.info("Adding unit {} with digit {}.", unitNumber, checkDigit);
+        sharedActions.sendKeys(this.driver, By.id(unitNumberInput), unitNumber);
+        sharedActions.sendKeysAndTab(this.driver, By.id(checkDigitInput), checkDigit);
+    }
+
+    public void verifyVisualInspectionDialog(String header , String title){
+        log.info("Verifying visual Inspection Dialog: {} , {}", header , title);
+
+        String headerText = sharedActions.getText(By.xpath(dialogHeaderLocator));
+        String subtitleText = sharedActions.getText(By.xpath(dialogSubtitleLocator));
+        Assert.assertEquals(header.toUpperCase(),headerText.toUpperCase());
+        Assert.assertEquals(title.toUpperCase(), subtitleText.toUpperCase());
+    }
+
+    public void verifyDiscardReasons(String reasons){
+        log.debug("Verifying discardReasons: {}" , reasons);
+        sharedActions.waitForVisible(By.xpath(reasonsLocator));
+        List<WebElement> reasonList = wait.until(e -> e.findElements(By.xpath(reasonsLocator)));
+        var reasonStr = reasonList.stream().map(WebElement::getText).toList();
+        Assert.assertEquals(String.join(",", reasonStr),reasons);
+
+    }
+
+    public void clickDiscardDialogCancelButton() throws InterruptedException {
+        log.debug("Clicking discard cancel button.");
+        sharedActions.click(this.driver, By.xpath(discardDialogCancelButton));
+    }
+
+    public void verifyDiscardDialogIsClosed(){
+        log.debug("Verifying visual Inspection Dialog close");
+        sharedActions.waitForNotVisible(By.xpath(dialogLocator));
+    }
+
+    public void selectDiscardReason(String reason) throws InterruptedException {
+        log.debug("Selecting discard reason: {}" , reason);
+        sharedActions.click(this.driver, By.id(discardReasonButton(reason)));
+    }
+
+    public void verifyDiscardCommentIsRequired() {
+        log.debug("Verifying discard comment is required");
+        sharedActions.waitForVisible(By.id(discardComments));
+        Assert.assertTrue(sharedActions.isRequired(By.id(discardComments)));
+    }
+
+    public void verifyDiscardSubmitIs(String option) {
+        log.debug("Verifying discard submit is: {}" , option);
+        sharedActions.waitForVisible(By.id(discardDialogSubmitButton));
+        if(option.equalsIgnoreCase("enabled")){
+            sharedActions.waitForEnabled(By.id(discardDialogSubmitButton));
+        }else{
+            sharedActions.waitForDisabled(By.id(discardDialogSubmitButton));
+        }
+    }
+
+    public void fillDiscardComments(String comments) throws InterruptedException {
+        log.debug("Filling discard comments: {}" , comments);
+        sharedActions.sendKeys(this.driver, By.id(discardComments), comments);
+    }
+
+    public void clickDiscardDialogSubmitButton() throws InterruptedException {
+        log.debug("Clicking discard submit button.");
+        sharedActions.click(this.driver, By.id(discardDialogSubmitButton));
+    }
+
+    public void assertProductInspectionIs(String inspection) {
+        log.debug("Asserting product inspection is {}.", inspection);
+        sharedActions.waitForVisible(By.xpath(formatProductInspectionLocator(inspection)));
+    }
 }

@@ -101,6 +101,8 @@ type ShipmentDetailResponseDTO {
     comments: String
     items: [ShipmentItemResponseDTO]
     checkDigitActive: Boolean!
+    visualInspectionActive: Boolean!
+    secondVerificationActive: Boolean!
 }
 
 type ShipmentItemResponseDTO {
@@ -146,7 +148,7 @@ input PackItemRequest {
       productCode: String!
       locationCode: String!
       employeeId: String!
-      visualInspection:VisualInspection!
+      visualInspection:VisualInspection
 }
 
 input CompleteShipmentRequest {
@@ -202,5 +204,6 @@ enum BloodType {
 
 enum VisualInspection {
     SATISFACTORY,
-    UNSATISFACTORY
+    UNSATISFACTORY,
+    DISABLED
 }
