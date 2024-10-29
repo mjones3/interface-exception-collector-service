@@ -32,6 +32,10 @@ public class OrderQueryRepositoryImpl implements OrderQueryRepository {
     @Override
     public Flux<OrderReport> searchOrders(OrderQueryCommand orderQueryCommand) {
         var criteria = where("locationCode").is(orderQueryCommand.getLocationCode());
+        if (orderQueryCommand.getOrderNumber() != null && !orderQueryCommand.getOrderNumber().isEmpty()) {
+            criteria = criteria.and(where("orderNumber").is(orderQueryCommand.getOrderNumber()).or(where("externalId").is(orderQueryCommand.getOrderNumber())));
+        }
+
         var sorts = orderQueryCommand.getQuerySort()
             .getQueryOrderByList().stream()
             .map(orderBy -> new Sort.Order(Sort.Direction.fromString(orderBy.getDirection()), orderBy.getProperty()))

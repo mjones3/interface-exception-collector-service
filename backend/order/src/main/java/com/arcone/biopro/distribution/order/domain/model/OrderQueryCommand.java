@@ -13,6 +13,7 @@ import java.util.List;
 public class OrderQueryCommand implements Validatable {
 
     private String locationCode;
+    private String orderNumber;
     private QuerySort querySort;
     private Integer limit;
 
@@ -21,7 +22,8 @@ public class OrderQueryCommand implements Validatable {
     private static final String DEFAULT_SECOND_SORT_BY = "status";
     private static final Integer DEFAULT_LIMIT = 20;
 
-    public OrderQueryCommand(String locationCode , QuerySort querySort ,   Integer limit) {
+    public OrderQueryCommand(String locationCode , String orderNumber, QuerySort querySort ,   Integer limit) {
+        this.orderNumber = orderNumber;
         this.locationCode = locationCode;
         this.querySort = querySort;
         this.limit = limit;
