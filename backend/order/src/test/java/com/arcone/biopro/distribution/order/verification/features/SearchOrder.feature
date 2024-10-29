@@ -1,7 +1,7 @@
 @ui @R20-227
 Feature: Search Orders
 
-    Rule: I should be able to search the order by BioPro order number or External Oder ID.
+    Rule: I should be able to search the order by BioPro order number or External Order ID.
         Scenario Outline: Search orders by Order Number
             Given I cleaned up from the database the orders with external ID "<External ID>".
             And I have a Biopro Order with id "<Order Number>", externalId "<External ID >", Location Code "<Order LocationCode>", Priority "<Priority>" and Status "<Status>".
