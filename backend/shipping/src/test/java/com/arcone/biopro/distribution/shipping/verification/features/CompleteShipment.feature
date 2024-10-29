@@ -1,3 +1,4 @@
+@ui
 Feature: Complete Shipment Feature
     As a distribution technician, I want to complete a shipment, so I can ship products to the customer.
 
@@ -11,7 +12,8 @@ Feature: Complete Shipment Feature
         Rule: I should not be able to see the pending log once the order is completely filled, shipped, or closed. (This is going to be tested on Shipment Fulfillment Details page and Fill Shipment page)
         Rule: I should be able to view the pending log of products to be filled for each line item on the Shipment Fulfillment Details page.
         Rule: I should be able to complete the shipment process without second verification if configured by the blood center.
-        @ui @DST-202
+
+        @DST-202 @DIS-162 @DIS-156 @DIS-56 @DIS-25 @DIS-21
         Scenario Outline: Complete Shipment with suitable products.
             Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>".
             And The check digit configuration is "disabled".
@@ -37,7 +39,8 @@ Feature: Complete Shipment Feature
                 | 109          | 1           | Testing Customer | 10,5,8   | ABP,BP,OP | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED | RED BLOOD CELLS LEUKOREDUCED | ABP  | W812530106086    | E0685V00   | 1                | enabled           |
                 | 116          | 1           | Testing Customer | 10,5,8   | ABP,BP,OP | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED | RED BLOOD CELLS LEUKOREDUCED | ABP  | W812530106086    | E0685V00   | 1                | disabled          |
 
-        @ui
+
+        @DIS-69
         Scenario Outline: Fill product with check digit <Check Digit Config> and visual inspection <Inspection Config>
             Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>".
             And The check digit configuration is "<Check Digit Config>".
@@ -56,7 +59,7 @@ Feature: Complete Shipment Feature
                 | 114          | 1           | Testing Customer | 10,5,8   | AP,BP,OP  | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED |                 | not see any error | RED BLOOD CELLS LEUKOREDUCED | AP   | E0685V00   | W812530106090    | disabled           |       | enabled           |
                 | 115          | 1           | Testing Customer | 10,5,8   | AP,BP,OP  | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED |                 | not see any error | RED BLOOD CELLS LEUKOREDUCED | AP   | E0685V00   | W812530106090    | disabled           |       | disabled          |
 
-        @ui
+        @DIS-69
         Scenario Outline: Fill product with check digit invalid or empty
             Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>".
             And The check digit configuration is "<Check Digit Config>".
@@ -73,7 +76,7 @@ Feature: Complete Shipment Feature
                 | 112          | 1           | Testing Customer | 10,5,8   | AP,BP,OP  | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED | Check Digit is Required | see an error message | RED BLOOD CELLS LEUKOREDUCED | AP   | E0685V00 | W812530106088 | enabled            |       | disabled          |
 
 
-        @ui @DST-202
+        @DST-202
         Rule: I should be able to start the second verification process if configured by the blood center.
         Scenario Outline: Second Verification of Shipment with suitable products.
             Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>".
@@ -92,8 +95,8 @@ Feature: Complete Shipment Feature
             And I should not see the complete shipment option available.
 
             Examples:
-                | Order Number | Customer ID | Customer Name    | Quantity | BloodType | ProductFamily                                                                          | Family                       | Type | UN               | Code       | Inspection Config |
-                | 117          | 1           | Testing Customer | 10,5,8   | A,B,O     | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE                            | PLASMA TRANSFUSABLE          | A    | =W03689878680200 | =<E7648V00 | enabled           |
+                | Order Number | Customer ID | Customer Name    | Quantity | BloodType | ProductFamily                                               | Family              | Type | UN               | Code       | Inspection Config |
+                | 117          | 1           | Testing Customer | 10,5,8   | A,B,O     | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE | PLASMA TRANSFUSABLE | A    | =W03689878680200 | =<E7648V00 | enabled           |
 
 
 

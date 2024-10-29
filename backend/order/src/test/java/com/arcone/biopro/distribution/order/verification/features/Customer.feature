@@ -1,3 +1,4 @@
+@api @DIS-88
 Feature: Customer validation
     As a developer,
     I want to create a mock provider for the Customer,
