@@ -4,7 +4,8 @@ Feature: Search Orders
     Rule: I should be able to search the order by BioPro order number or External Order ID.
         Scenario Outline: Search orders by Order Number
             Given I cleaned up from the database the orders with external ID "<External ID>".
-            And I have a Biopro Order with id "<Order Number>", externalId "<External ID >", Location Code "<Order LocationCode>", Priority "<Priority>" and Status "<Status>".
+            And I cleaned up from the database the orders with external ID "<Order Number>".
+            And I have a Biopro Order with id "<Order Number>", externalId "<External ID>", Location Code "<Order LocationCode>", Priority "<Priority>" and Status "<Status>".
             And I have a Biopro Order with id "<External ID>", externalId "<Order Number>", Location Code "<Order LocationCode>", Priority "<Priority>" and Status "<Status>".
             And I am logged in the location "<User LocationCode>".
             And I choose search orders.
@@ -12,9 +13,9 @@ Feature: Search Orders
             Then I should see 2 orders in the search results.
 
             Examples:
-                | External ID     | Order LocationCode | User LocationCode | Priority | Status | Order Key  |Order Number|
-                | 114117922233510 | DL1                | DL1               | STAT     | OPEN   | orderId    |            |
-                | 114117922233510 | DL1                | DL1               | STAT     | OPEN   | externalId |            |
+                | External ID | Order LocationCode | User LocationCode | Priority | Status | Order Key  | Order Number |
+                | 1979        | DL1                | DL1               | STAT     | OPEN   | orderId    | 1            |
+                | 1984        | DL1                | DL1               | STAT     | OPEN   | externalId | 2            |
 
 
 #        Discuss to remove this acceptance criteria. This is covered by list orders.

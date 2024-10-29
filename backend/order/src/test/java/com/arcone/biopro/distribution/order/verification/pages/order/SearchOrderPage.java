@@ -40,9 +40,15 @@ public class SearchOrderPage extends CommonPageFactory {
     @FindBy(xpath = "//*[@class='p-datatable-loading-overlay']")
     private WebElement tableLoadingOverlay;
 
-    private WebElement filterToggle;
+    @FindBy(id = "filtersButtonId")
+    private WebElement filterToggleButton;
 
-    private WebElement searchButton;
+    @FindBy(id = "orderNumberInput")
+    private WebElement orderNumberField;
+
+    @FindBy(id = "applyBtn")
+    private WebElement filterApplyButton;
+
 
     @FindAll({
         @FindBy(xpath = "//tr[contains(@id,'order-table-row')]//td[position()=3]")
@@ -120,7 +126,8 @@ public class SearchOrderPage extends CommonPageFactory {
     }
 
     public void searchOrder(String value) {
-        sharedActions.click(filterToggle);
-        //TODO: Implement input text change and search button click
+        sharedActions.click(filterToggleButton);
+        sharedActions.sendKeys(orderNumberField, value);
+        sharedActions.click(filterApplyButton);
     }
 }
