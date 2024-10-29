@@ -1,3 +1,5 @@
+import { SelectOptionDto } from '@shared';
+
 export interface OrderSummaryDto {
     id?: number;
     orderNumber?: string;
@@ -148,5 +150,19 @@ export interface OrderItemInventoryDto {
     unitNumber?: string;
     validated?: boolean;
 }
+
+export interface SearchOrderResolverData {
+    orders: SelectOptionDto[];
+}
+
+export interface SearchOrderFilterDTO {
+    orderNumber?: string;
+    page?: number;
+    limit?: number;
+    sortBy?: string;
+    order?: string;
+}
+
+
 
 export type LabelStatus = 'LABELED' | 'UNLABELED';

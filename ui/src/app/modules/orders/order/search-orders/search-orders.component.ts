@@ -17,8 +17,10 @@ import { ToastrService } from 'ngx-toastr';
 import { Table, TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { BehaviorSubject, Subject, finalize } from 'rxjs';
 import { Cookie } from '../../../../shared/types/cookie.enum';
-import { OrderReportDTO } from '../../models/search-order.model';
+import { OrderQueryCommandDTO, OrderReportDTO, OrderResponsePageDTO } from '../../models/search-order.model';
 import { OrderService } from '../../services/order.service';
+import { SearchOrderFilterDTO } from '../../models/order.dto';
+import { SearchOrderFilterComponent } from './search-filter/search-order-filter.component';
 
 @Component({
     selector: 'app-search-orders',
@@ -31,6 +33,7 @@ import { OrderService } from '../../services/order.service';
         AsyncPipe,
         ProcessHeaderComponent,
         MatButtonModule,
+        SearchOrderFilterComponent,
     ],
     templateUrl: './search-orders.component.html',
     styleUrls: ['./search-orders.component.scss'],
@@ -118,10 +121,13 @@ export class SearchOrdersComponent {
             default: true,
         },
     ];
-
+    isFilterToggled = false;
     defaultRowsPerPage = 20;
     defaultSortField = 'createDate';
     totalRecords = 0;
+    orders: OrderResponsePageDTO;
+    noResultsMessage = '';
+    currentFilter: SearchOrderFilterDTO;
     items$: Subject<OrderReportDTO[]> = new BehaviorSubject([]);
     loading = true;
 
@@ -140,10 +146,67 @@ export class SearchOrdersComponent {
         private cookieService: CookieService
     ) {}
 
-    fetchOrders(event: TableLazyLoadEvent) {
+    toggleFilter(toggleFlag: boolean): void {
+        this.isFilterToggled = toggleFlag;
+    }
+
+    initOrders(): void {
+        this.orders = { content: [], pageable: {pageSize: 20, pageNumber: 0}, total: 0 };
+    }
+
+    private getCriteria(): OrderQueryCommandDTO {
         const facilityCode = this.cookieService.get(Cookie.XFacility);
+        const criteria: OrderQueryCommandDTO = {
+            locationCode: facilityCode
+        }
+        if (this.currentFilter) {
+            criteria.orderNumber = this.currentFilter.orderNumber;
+        }
+        return criteria;
+    }
+
+    applyFilterSearch(searchCriteria: SearchOrderFilterDTO = {}): void {
+        this.initOrders()
+        this.noResultsMessage = '';
+        this.isFilterToggled = false;
+
+        if (!searchCriteria.sortBy) {
+            searchCriteria.sortBy = 'orderNumber';
+            searchCriteria.order = 'asc';
+        }
+        if (!searchCriteria.page && !searchCriteria.limit) {
+            searchCriteria.page = 0;
+            searchCriteria.limit = 20;
+        }
+
+        this.currentFilter = searchCriteria;
+
         this.orderService
-            .searchOrders({ locationCode: facilityCode })
+            .searchOrders(this.getCriteria())
+            .pipe(finalize(() => (this.loading = false)))
+            .subscribe({
+                next: (response) => {
+                    this.items$.next(response.data.searchOrders ?? []);
+                },
+                error: (e: ApolloError) => {
+                    this.orderTable.sortField = this.defaultSortField;
+                    this.items$.next([]);
+                    if (e?.cause?.message) {
+                        this.noResultsMessage = e?.graphQLErrors[0].message;
+                        this.toaster.warning(e?.cause?.message);
+                        return;
+                    }
+                    this.toaster.error('Something went wrong.');
+                    throw e;
+                },
+            });
+    }
+
+
+
+    fetchOrders(event: TableLazyLoadEvent) {
+        this.orderService
+            .searchOrders(this.getCriteria())
             .pipe(finalize(() => (this.loading = false)))
             .subscribe({
                 next: (response) => {
