@@ -153,7 +153,6 @@ export class SearchOrdersComponent {
         router.events
             .pipe(filter((event) => event instanceof NavigationEnd))
             .subscribe((event: NavigationEnd) => {
-                console.log('prev:', event.url);
                 this.previousUrl = event.url;
             });
     }
@@ -162,20 +161,11 @@ export class SearchOrdersComponent {
         this.isFilterToggled = toggleFlag;
     }
 
-    initOrders(): void {
-        this.orders = {
-            content: [],
-            pageable: { pageSize: 20, pageNumber: 0 },
-            total: 0,
-        };
-    }
-
     private getCriteria(): OrderQueryCommandDTO {
-        const facilityCode = this.cookieService.get(Cookie.XFacility);
         const criteria: OrderQueryCommandDTO = {
-            locationCode: facilityCode,
+            locationCode: this.cookieService.get(Cookie.XFacility),
         };
-        if (this.currentFilter) {
+        if (this.currentFilter && this.currentFilter.orderNumber !== '') {
             criteria.orderNumber = this.currentFilter.orderNumber;
         }
         return criteria;
@@ -186,11 +176,12 @@ export class SearchOrdersComponent {
             .searchOrders(this.getCriteria())
             .pipe(finalize(() => (this.loading = false)))
             .subscribe({
-                next: (response) => {
-                    this.doOnSuccess(response.data.searchOrders, event);
-                },
+                next: (response) =>
+                    this.doOnSuccess(response.data.searchOrders, event),
                 error: (e: ApolloError) => {
-                    this.orderTable.sortField = this.defaultSortField;
+                    if (this.orderTable != null) {
+                        this.orderTable.sortField = this.defaultSortField;
+                    }
                     this.items$.next([]);
                     if (e?.cause?.message) {
                         this.noResultsMessage = e?.graphQLErrors[0].message;
@@ -224,7 +215,6 @@ export class SearchOrdersComponent {
     }
 
     applyFilterSearch(searchCriteria: SearchOrderFilterDTO = {}): void {
-        this.initOrders();
         this.noResultsMessage = '';
         this.isFilterToggled = false;
 
