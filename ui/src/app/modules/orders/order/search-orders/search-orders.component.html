@@ -213,6 +213,18 @@
                                     </td>
                                 </tr>
                             </ng-template>
+                            <ng-template pTemplate="footer">
+                                <tr>
+                                    <td
+                                        class="p-text-right"
+                                        [colSpan]="columns.length"
+                                    >
+                                        <span class="ml-6">{{
+                                            tableNoResultsMessage
+                                        }}</span>
+                                    </td>
+                                </tr>
+                            </ng-template>
                         </p-table>
                     </div>
                 </fuse-card>
