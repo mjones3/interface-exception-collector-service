@@ -19,6 +19,8 @@ import static com.arcone.biopro.distribution.inventory.BioProConstants.EXPIRED;
 public class InventoryAggregate {
 
     public static final String OTHER_SEE_COMMENTS = "OTHER_SEE_COMMENTS";
+
+    public static final String OTHER_REASON = "OTHER";
     Inventory inventory;
 
     List<NotificationMessage> notificationMessages;
@@ -56,10 +58,20 @@ public class InventoryAggregate {
         return List.of(new NotificationMessage(
             messageType.name(),
             messageType.getCode(),
-            Strings.isNotBlank(inventory.getStatusReason()) ? inventory.getStatusReason() : messageType.name(),
+            buildMessage(messageType),
             messageType.getType().name(), messageType.getAction().name(),
             null,
             List.of()));
+    }
+
+    private String buildMessage(MessageType messageType) {
+        return Strings.isNotBlank(inventory.getStatusReason())
+            ? (
+                inventory.getStatusReason().equals(OTHER_REASON)
+                ? String.format("%s: %s", OTHER_REASON, inventory.getComments())
+                : inventory.getStatusReason()
+            )
+            : messageType.name();
     }
 
     private List<NotificationMessage> createQuarantinesNotificationMessage() {

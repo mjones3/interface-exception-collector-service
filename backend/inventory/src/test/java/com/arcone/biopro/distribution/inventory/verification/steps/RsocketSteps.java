@@ -15,7 +15,6 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
-import org.assertj.core.api.AssertionsForClassTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.rsocket.RSocketRequester;
@@ -69,7 +68,7 @@ public class RsocketSteps {
     private void createProducts(String quantity, String productFamily, String aboRh, String location, String days, InventoryStatus status) {
         Stream.iterate(0, i -> i + 1)
             .limit(Integer.parseInt(quantity))
-            .forEach(i -> this.createInventory(TestUtil.randomString(13), "E0869V00", productFamily, AboRhType.valueOf(aboRh), location, Integer.parseInt(days), status));
+            .forEach(i -> this.createInventory(TestUtil.randomString(13), "E0869V00", productFamily, AboRhType.valueOf(aboRh), location, Integer.parseInt(days), status,"ACTIVE_DEFERRAL", null));
     }
 
     @Given("I have one product with {string}, {string} and {string} in {string} status")
@@ -78,11 +77,20 @@ public class RsocketSteps {
 
         InventoryStatus inventoryStatus = "EXPIRED".equals(status) ? InventoryStatus.AVAILABLE : InventoryStatus.valueOf(status);
 
-        createInventory(unitNumber, productCode, "PLASMA_TRANSFUSABLE", AboRhType.OP, location, days, inventoryStatus);
+        createInventory(unitNumber, productCode, "PLASMA_TRANSFUSABLE", AboRhType.OP, location, days, inventoryStatus, "ACTIVE_DEFERRAL", null);
+    }
+
+    @Given("I have one product with {string}, {string} and {string} in {string} status with reason {string} and comments {string}")
+    public void iHaveOneProductWithAndInStatus(String unitNumber, String productCode, String location, String status, String statusReason, String comments) {
+        Integer days = InventoryStatus.EXPIRED.equals(InventoryStatus.valueOf(status)) || InventoryStatus.DISCARDED.equals(InventoryStatus.valueOf(status))   ? -1 : 1;
+
+        InventoryStatus inventoryStatus = "EXPIRED".equals(status) ? InventoryStatus.AVAILABLE : InventoryStatus.valueOf(status);
+
+        createInventory(unitNumber, productCode, "PLASMA_TRANSFUSABLE", AboRhType.OP, location, days, inventoryStatus, statusReason, comments);
     }
 
 
-    private void createInventory(String unitNumber, String productCode, String productFamily, AboRhType aboRhType, String location, Integer daysToExpire, InventoryStatus status) {
+    private void createInventory(String unitNumber, String productCode, String productFamily, AboRhType aboRhType, String location, Integer daysToExpire, InventoryStatus status, String statusReason, String comments) {
 
         List<Quarantine> quarantines = InventoryStatus.QUARANTINED.equals(status) ? TestUtil.createQuarantines() : List.of();
         inventoryEntityRepository.save(InventoryEntity.builder()
@@ -97,7 +105,8 @@ public class RsocketSteps {
             .weight(123)
             .isLicensed(true)
             .productCode(productCode)
-            .statusReason("ACTIVE_DEFERRAL")
+            .statusReason(statusReason)
+            .comments(comments)
             .shortDescription("Short description")
             .storageLocation("FREEZER 1, RACK 1, SHELF 1")
             .quarantines(quarantines)
@@ -167,8 +176,8 @@ public class RsocketSteps {
         assertThat(inventory.shortDateProducts().size()).isEqualTo(Integer.parseInt(quantityShortDate));
     }
 
-    @Then("I receive for {string} with {string} in the {string} a {string} message with {string} action and {string} reason")
-    public void iReceiveForWithInTheAMessage(String unitNumber, String productCode, String location, String errorType, String action, String reason) {
+    @Then("I receive for {string} with {string} in the {string} a {string} message with {string} action and {string} reason and {string} message")
+    public void iReceiveForWithInTheAMessage(String unitNumber, String productCode, String location, String errorType, String action, String reason, String messageError) {
         Integer errorCode = "".equals(errorType) ? null : MessageType.valueOf(errorType).getCode();
         StepVerifier
             .create(inventoryValidationResponseDTOMonoResult)
@@ -191,6 +200,7 @@ public class RsocketSteps {
                     assertThat(message.inventoryNotificationsDTO().getFirst().action()).isEqualTo(action);
                     assertThat(message.inventoryNotificationsDTO().getFirst().action()).isEqualTo(action);
                     assertThat(message.inventoryResponseDTO()).hasNoNullFieldsOrProperties();
+                    assertThat(message.inventoryNotificationsDTO().getFirst().errorMessage()).isEqualTo(messageError);
 
                 } else {
                     assertThat(message.inventoryNotificationsDTO().isEmpty()).isTrue();
