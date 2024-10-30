@@ -463,9 +463,8 @@ public class OrderSteps {
     }
 
     @Then("I should see {int} orders in the search results.")
-    public void iShouldSeeOrdersInTheSearchResults(int quantity) {
-        // TODO: Implement this step
-        Assert.fail("Implement iShouldSeeOrdersInTheSearchResults");
+    public void iShouldSeeOrdersInTheSearchResults(int quantity)  {
+        Assert.assertEquals(quantity, searchOrderPage.tableRowsCount());
     }
 
     @Then("I should be redirected to the order details page.")

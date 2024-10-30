@@ -49,6 +49,8 @@ public class SearchOrderPage extends CommonPageFactory {
     @FindBy(id = "applyBtn")
     private WebElement filterApplyButton;
 
+    @FindBy(xpath = "//*[@id='pn_id_4-table']//tbody/tr")
+    private List<WebElement> tableRows;
 
     @FindAll({
         @FindBy(xpath = "//tr[contains(@id,'order-table-row')]//td[position()=3]")
@@ -125,9 +127,14 @@ public class SearchOrderPage extends CommonPageFactory {
         return orderPriorityList.stream().toList();
     }
 
+    public int tableRowsCount() {
+        return tableRows.size();
+    }
+
     public void searchOrder(String value) {
         sharedActions.click(filterToggleButton);
         sharedActions.sendKeys(orderNumberField, value);
+
         sharedActions.click(filterApplyButton);
     }
 }
