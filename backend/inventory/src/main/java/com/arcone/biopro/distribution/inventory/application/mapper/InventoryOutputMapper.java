@@ -38,7 +38,7 @@ public abstract class InventoryOutputMapper {
     @Mapping(target = "productCode", source = "inventory.productCode.value")
     @Mapping(target = "storageLocation", source = "inventory.storageLocation")
     @Mapping(target = "aboRh", source = "inventory.aboRh")
-    public abstract Product toOutput(InventoryAggregate inventoryAggregate);
+    protected abstract Product toOutput(InventoryAggregate inventoryAggregate);
 
     @Mapping(target = "inventoryOutput", source = "inventory")
     @Mapping(target = "notificationMessages.message", expression = "java(toOutput(notificationMessage.message()))")
@@ -46,7 +46,7 @@ public abstract class InventoryOutputMapper {
 
     @Mapping(target = "message", expression = "java(textConfigService.getText(notificationMessage.message()))")
     @Mapping(target = "details", expression = "java(toDetails(notificationMessage.details()))")
-    public abstract NotificationMessage toOutput(NotificationMessage notificationMessage);
+    protected abstract NotificationMessage toOutput(NotificationMessage notificationMessage);
 
     @Mapping(target = "inventoryOutput", ignore = true)
     @Mapping(target = "notificationMessages", expression = "java(java.util.List.of(toNotificationMessage(notificationType)))")
@@ -57,7 +57,7 @@ public abstract class InventoryOutputMapper {
     @Mapping(target = "action", expression = "java(notificationType.getAction().name())")
     @Mapping(target = "reason", ignore = true)
     @Mapping(target = "details", ignore = true)
-    public abstract NotificationMessage toNotificationMessage(MessageType notificationType);
+    protected abstract NotificationMessage toNotificationMessage(MessageType notificationType);
 
     @Mapping(target = "inventory.unitNumber.value", source = "unitNumber")
     @Mapping(target = "inventory.productCode.value", source = "productCode")
