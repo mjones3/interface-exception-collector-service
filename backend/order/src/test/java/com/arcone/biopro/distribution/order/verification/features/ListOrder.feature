@@ -1,3 +1,4 @@
+@ui
 Feature: List of all orders in Search Order
     As a Distribution Technician,
     I want to see the list of orders
@@ -8,11 +9,11 @@ Feature: List of all orders in Search Order
         And I have restored the default configuration for the order priority colors.
 
     Rule: I should be able to see the list of orders by priority and status where the user logged in.
-        Rule: I should be able to view the following information if an order exists
+    Rule: I should be able to view the following information if an order exists
         BioPro Order Number, External Order ID, Priority, Status, Ship to Customer Name, Create Date and Time (MM/DD/YYYY HR:MINS), Desired Ship Date.
     Rule: I should be able to see an option to view the details of an order.
-        Rule: I should be able to see the priority column color coded.
-
+    Rule: I should be able to see the priority column color coded.
+        @DIS-95
         Scenario Outline: List Biopro Orders by priority, status and location
             Given I cleaned up from the database the orders with external ID "<External ID>".
             And I have a Biopro Order with externalId "<External ID>", Location Code "<LocationCode>", Priority "<Priority>" and Status "<Status>".
@@ -32,6 +33,7 @@ Feature: List of all orders in Search Order
 
 
     Rule: I should be able to configure the color options for the priority column.
+        @DIS-95
         Scenario Outline: List Biopro Orders, changing Status color setup.
             Given I cleaned up from the database the orders with external ID "<External ID>".
             And I have a Biopro Order with externalId "<External ID>", Location Code "<LocationCode>", Priority "<Priority>" and Status "<Status>".
@@ -46,6 +48,7 @@ Feature: List of all orders in Search Order
                 | 114117922233579 | 123456789    | ROUTINE  | OPEN   | Yellow         |
 
 
+        @DIS-146 @DIS-95
         Scenario Outline: List Biopro Orders different location
             Given I cleaned up from the database the orders with external ID "<External ID>".
             And I have a Biopro Order with externalId "<External ID>", Location Code "<Order LocationCode>", Priority "<Priority>" and Status "<Status>".
@@ -55,11 +58,12 @@ Feature: List of all orders in Search Order
             And I should see a "Caution" message: "No Results Found".
 
             Examples:
-                | External ID     | Order LocationCode        | User LocationCode | Priority | Status |
-                | 114117922233510 | DL1 | 234567891         | STAT     | OPEN   |
+                | External ID     | Order LocationCode | User LocationCode | Priority | Status |
+                | 114117922233510 | DL1                | 234567891         | STAT     | OPEN   |
 
 
     Rule: I should be able to view a maximum of 20 rows in the Results table.
+        @DIS-95
         Scenario: List Biopro Orders by priority, status and location maximum records
             Given I have more than 20 Biopro Orders.
             When I choose search orders.
