@@ -2,7 +2,7 @@ import { AsyncPipe, CommonModule } from '@angular/common';
 import { Component, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { ApolloError } from '@apollo/client';
 import { FuseCardComponent } from '@fuse/components/card/public-api';
 import {
@@ -15,11 +15,15 @@ import { OrderStatusMap } from 'app/shared/models/order-status.model';
 import { CookieService } from 'ngx-cookie-service';
 import { ToastrService } from 'ngx-toastr';
 import { Table, TableLazyLoadEvent, TableModule } from 'primeng/table';
-import { BehaviorSubject, Subject, finalize } from 'rxjs';
+import { BehaviorSubject, Subject, filter, finalize } from 'rxjs';
 import { Cookie } from '../../../../shared/types/cookie.enum';
-import { OrderQueryCommandDTO, OrderReportDTO, OrderResponsePageDTO } from '../../models/search-order.model';
-import { OrderService } from '../../services/order.service';
 import { SearchOrderFilterDTO } from '../../models/order.dto';
+import {
+    OrderQueryCommandDTO,
+    OrderReportDTO,
+    OrderResponsePageDTO,
+} from '../../models/search-order.model';
+import { OrderService } from '../../services/order.service';
 import { SearchOrderFilterComponent } from './search-filter/search-order-filter.component';
 
 @Component({
@@ -130,6 +134,7 @@ export class SearchOrdersComponent {
     currentFilter: SearchOrderFilterDTO;
     items$: Subject<OrderReportDTO[]> = new BehaviorSubject([]);
     loading = true;
+    previousUrl: string;
 
     @ViewChild('orderTable', { static: true }) orderTable: Table;
 
@@ -144,49 +149,45 @@ export class SearchOrdersComponent {
         private router: Router,
         private toaster: ToastrService,
         private cookieService: CookieService
-    ) {}
+    ) {
+        router.events
+            .pipe(filter((event) => event instanceof NavigationEnd))
+            .subscribe((event: NavigationEnd) => {
+                console.log('prev:', event.url);
+                this.previousUrl = event.url;
+            });
+    }
 
     toggleFilter(toggleFlag: boolean): void {
         this.isFilterToggled = toggleFlag;
     }
 
     initOrders(): void {
-        this.orders = { content: [], pageable: {pageSize: 20, pageNumber: 0}, total: 0 };
+        this.orders = {
+            content: [],
+            pageable: { pageSize: 20, pageNumber: 0 },
+            total: 0,
+        };
     }
 
     private getCriteria(): OrderQueryCommandDTO {
         const facilityCode = this.cookieService.get(Cookie.XFacility);
         const criteria: OrderQueryCommandDTO = {
-            locationCode: facilityCode
-        }
+            locationCode: facilityCode,
+        };
         if (this.currentFilter) {
             criteria.orderNumber = this.currentFilter.orderNumber;
         }
         return criteria;
     }
 
-    applyFilterSearch(searchCriteria: SearchOrderFilterDTO = {}): void {
-        this.initOrders()
-        this.noResultsMessage = '';
-        this.isFilterToggled = false;
-
-        if (!searchCriteria.sortBy) {
-            searchCriteria.sortBy = 'orderNumber';
-            searchCriteria.order = 'asc';
-        }
-        if (!searchCriteria.page && !searchCriteria.limit) {
-            searchCriteria.page = 0;
-            searchCriteria.limit = 20;
-        }
-
-        this.currentFilter = searchCriteria;
-
+    private searchOrder(event?: TableLazyLoadEvent): void {
         this.orderService
             .searchOrders(this.getCriteria())
             .pipe(finalize(() => (this.loading = false)))
             .subscribe({
                 next: (response) => {
-                    this.items$.next(response.data.searchOrders ?? []);
+                    this.doOnSuccess(response.data.searchOrders, event);
                 },
                 error: (e: ApolloError) => {
                     this.orderTable.sortField = this.defaultSortField;
@@ -202,31 +203,50 @@ export class SearchOrdersComponent {
             });
     }
 
+    private doOnSuccess(
+        searchOrders: OrderReportDTO[],
+        event?: TableLazyLoadEvent
+    ): void {
+        if (event) {
+            this.orderTable.sortField =
+                typeof event.sortField === 'string'
+                    ? event.sortField
+                    : event.sortField?.[0] ?? this.defaultSortField;
+        }
+        this.items$.next(searchOrders ?? []);
+        if (
+            searchOrders.length === 1 &&
+            !this.isDetailThePreviousNavigation()
+        ) {
+            this.previousUrl = null;
+            this.details(searchOrders[0].orderId);
+        }
+    }
 
+    applyFilterSearch(searchCriteria: SearchOrderFilterDTO = {}): void {
+        this.initOrders();
+        this.noResultsMessage = '';
+        this.isFilterToggled = false;
+
+        if (!searchCriteria.sortBy) {
+            searchCriteria.sortBy = 'orderNumber';
+            searchCriteria.order = 'asc';
+        }
+        if (!searchCriteria.page && !searchCriteria.limit) {
+            searchCriteria.page = 0;
+            searchCriteria.limit = 20;
+        }
+
+        this.currentFilter = searchCriteria;
+        this.searchOrder();
+    }
+
+    isDetailThePreviousNavigation(): boolean {
+        return this.previousUrl && this.previousUrl.includes('order-details');
+    }
 
     fetchOrders(event: TableLazyLoadEvent) {
-        this.orderService
-            .searchOrders(this.getCriteria())
-            .pipe(finalize(() => (this.loading = false)))
-            .subscribe({
-                next: (response) => {
-                    this.orderTable.sortField =
-                        typeof event.sortField === 'string'
-                            ? event.sortField
-                            : event.sortField?.[0] ?? this.defaultSortField;
-                    this.items$.next(response.data.searchOrders ?? []);
-                },
-                error: (e: ApolloError) => {
-                    this.orderTable.sortField = this.defaultSortField;
-                    this.items$.next([]);
-                    if (e?.cause?.message) {
-                        this.toaster.warning(e?.cause?.message);
-                        return;
-                    }
-                    this.toaster.error('Something went wrong.');
-                    throw e;
-                },
-            });
+        this.searchOrder(event);
     }
 
     details(id: number) {
