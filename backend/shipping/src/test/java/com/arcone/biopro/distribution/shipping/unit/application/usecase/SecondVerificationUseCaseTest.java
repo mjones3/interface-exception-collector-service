@@ -102,6 +102,22 @@ class SecondVerificationUseCaseTest {
 
         Mockito.when(shipmentItemPackedRepository.findByShipmentIUnitNumberAndProductCode(Mockito.anyLong() , Mockito.anyString() , Mockito.anyString())).thenReturn(Mono.empty());
 
+        var packedItem = Mockito.mock(ShipmentItemPacked.class);
+
+        Mockito.when(packedItem.getUnitNumber()).thenReturn("UNIT_NUMBER");
+        Mockito.when(packedItem.getProductCode()).thenReturn("ABCD");
+        Mockito.when(packedItem.getPackedByEmployeeId()).thenReturn("PACK_EMPLOYEE_ID");
+
+
+        Mockito.when(shipmentItemPackedRepository.listAllByShipmentId(Mockito.anyLong())).thenReturn(Flux.just(packedItem));
+
+        Mockito.when(shipmentItemPackedRepository.save(Mockito.any())).thenReturn(Mono.just(packedItem));
+
+        Mockito.when(shipmentItemPackedRepository.listAllByShipmentId(Mockito.anyLong())).thenReturn(Flux.just(packedItem));
+
+        Mockito.when(shipmentItemPackedRepository.listAllVerifiedByShipmentId(Mockito.anyLong())).thenReturn(Flux.just(packedItem));
+
+
         Mono<RuleResponseDTO> response = useCase.verifyItem(VerifyItemRequest.builder()
             .shipmentId(1L)
             .unitNumber("UN")
@@ -113,6 +129,21 @@ class SecondVerificationUseCaseTest {
         StepVerifier
             .create(response)
             .consumeNextWith(detail -> {
+
+                assertNotNull(detail.results());
+
+                var ruleResults = detail.results().get("results");
+                var firstRuleResult = ruleResults.getFirst();
+                assertNotNull(ruleResults);
+                assertNotNull(firstRuleResult);
+
+                var verificationDetails = (VerifyProductResponseDTO) firstRuleResult;
+
+                var firstPackedItem = verificationDetails.packedItems().getFirst();
+                assertEquals("UNIT_NUMBER", firstPackedItem.unitNumber());
+                assertEquals("ABCD", firstPackedItem.productCode());
+                assertEquals("PACK_EMPLOYEE_ID", firstPackedItem.packedByEmployeeId());
+
                 var firstNotification = detail.notifications().getFirst();
 
                 assertEquals(HttpStatus.BAD_REQUEST, detail.ruleCode());

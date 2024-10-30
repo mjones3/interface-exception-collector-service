@@ -209,7 +209,7 @@ class CompleteShipmentUseCaseTest {
                 assertEquals(HttpStatus.BAD_REQUEST.value(), firstNotification.statusCode());
                 assertEquals("WARN", firstNotification.notificationType());
                 assertEquals(ShipmentServiceMessages.SECOND_VERIFICATION_NOT_COMPLETED_ERROR, firstNotification.message());
-                assertEquals("/shipment/1/shipment-verification", detail._links().get("next"));
+                assertEquals("/shipment/1/verify-products", detail._links().get("next"));
             })
             .verifyComplete();
 

@@ -45,7 +45,7 @@ public class CompleteShipmentUseCase implements CompleteShipmentService {
     private final ShipmentService shipmentService;
     private final ShipmentItemPackedRepository shipmentItemPackedRepository;
     private static final String SHIPMENT_DETAILS_URL = "/shipment/%s/shipment-details";
-    private static final String SHIPMENT_VERIFICATION_URL = "/shipment/%s/shipment-verification";
+    private static final String SHIPMENT_VERIFICATION_URL = "/shipment/%s/verify-products";
 
 
     @Override

@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.ZonedDateTime;
@@ -34,7 +35,16 @@ public class SecondVerificationUseCase implements SecondVerificationService {
     public Mono<RuleResponseDTO> verifyItem(VerifyItemRequest verifyItemRequest) {
         return shipmentItemPackedRepository.findByShipmentIUnitNumberAndProductCode(verifyItemRequest.shipmentId()
                 ,verifyItemRequest.unitNumber(), verifyItemRequest.productCode())
-            .switchIfEmpty(Mono.error(new RuntimeException(ShipmentServiceMessages.SECOND_VERIFICATION_UNIT_NOT_PACKED_ERROR)))
+            .switchIfEmpty(Mono.defer(() -> {
+                return Flux.from(shipmentItemPackedRepository.listAllByShipmentId(verifyItemRequest.shipmentId()))
+                    .flatMap(itemPacked -> {
+                        itemPacked.setSecondVerification(SecondVerification.PENDING);
+                        itemPacked.setVerificationDate(null);
+                        itemPacked.setVerifiedByEmployeeId(null);
+                        return shipmentItemPackedRepository.save(itemPacked);
+                    })
+                    .then(Mono.error(new RuntimeException(ShipmentServiceMessages.SECOND_VERIFICATION_UNIT_NOT_PACKED_ERROR)));
+                }))
             .flatMap(shipmentItemPacked -> {
                     shipmentItemPacked.setSecondVerification(SecondVerification.COMPLETED);
                     shipmentItemPacked.setVerificationDate(ZonedDateTime.now());
@@ -50,7 +60,7 @@ public class SecondVerificationUseCase implements SecondVerificationService {
                 })
             .onErrorResume(error -> {
                 log.error("Failed on verify item {} , {} ", verifyItemRequest, error.getMessage());
-                return buildVerifyErrorResponse(error);
+                return buildVerifyErrorResponse(error, verifyItemRequest.shipmentId());
             });
     }
 
@@ -68,24 +78,26 @@ public class SecondVerificationUseCase implements SecondVerificationService {
 
         return Mono.zip(packedList,verifiedList).flatMap(tuple -> Mono.just(VerifyProductResponseDTO
             .builder()
+                .shipmentId(shipmentId)
                 .packedItems(tuple.getT1().stream().map(shipmentMapper::toShipmentItemPackedDTO).toList())
             .verifiedItems(tuple.getT2().stream().map(shipmentMapper::toShipmentItemPackedDTO).toList())
             .build()));
     }
 
-    private Mono<RuleResponseDTO> buildVerifyErrorResponse(Throwable error) {
-
-        return Mono.just(RuleResponseDTO.builder()
-            .ruleCode(HttpStatus.BAD_REQUEST)
-            .notifications(List.of(NotificationDTO
-                .builder()
-                .code(HttpStatus.BAD_REQUEST.value())
-                .statusCode(HttpStatus.BAD_REQUEST.value())
-                .name(HttpStatus.BAD_REQUEST.name())
-                .message(error.getMessage())
-                .notificationType(NotificationType.WARN.name())
-                .build()))
-            .build());
-
+    private Mono<RuleResponseDTO> buildVerifyErrorResponse(Throwable error , Long shipmentId) {
+        return getShipmentVerificationDetailsById(shipmentId).flatMap(details -> {
+            return Mono.just(RuleResponseDTO.builder()
+                .ruleCode(HttpStatus.BAD_REQUEST)
+                .results(Map.of("results", List.of(details)))
+                .notifications(List.of(NotificationDTO
+                    .builder()
+                    .code(HttpStatus.BAD_REQUEST.value())
+                    .statusCode(HttpStatus.BAD_REQUEST.value())
+                    .name(HttpStatus.BAD_REQUEST.name())
+                    .message(error.getMessage())
+                    .notificationType(NotificationType.WARN.name())
+                    .build()))
+                .build());
+        });
     }
 }

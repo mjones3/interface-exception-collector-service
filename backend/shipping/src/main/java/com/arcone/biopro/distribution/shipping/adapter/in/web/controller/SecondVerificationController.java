@@ -19,7 +19,7 @@ public class SecondVerificationController {
 
     private final SecondVerificationService secondVerificationService;
 
-    @QueryMapping("getVerificationDetailsById")
+    @QueryMapping("getShipmentVerificationDetailsById")
     public Mono<VerifyProductResponseDTO> getShipmentVerificationDetailsById(@Argument("shipmentId") long shipmentId) {
         log.info("Requesting Verification Details for shipment {}.....",shipmentId);
         return secondVerificationService.getVerificationDetailsByShipmentId(shipmentId);

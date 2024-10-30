@@ -142,6 +142,9 @@ type ShipmentItemPackedDTO {
     collectionDate: DateTime
     packedByEmployeeId: String
     visualInspection:VisualInspection
+    secondVerification:SecondVerification
+    verifiedByEmployeeId:String
+    verifiedDate:DateTime
 }
 
 input PackItemRequest {
@@ -221,4 +224,8 @@ type VerifyProductResponseDTO {
     shipmentId: Int!
     packedItems:[ShipmentItemPackedDTO]
     verifiedItems:[ShipmentItemPackedDTO]
+}
+
+enum SecondVerification {
+    PENDING,COMPLETED,DISABLED
 }
