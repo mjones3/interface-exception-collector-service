@@ -47,22 +47,22 @@ public class ShipmentDetailPage extends CommonPageFactory {
     @FindBy(id = "prodTableId")
     private WebElement orderCriteriaTable;
 
-    @FindBy(xpath = "//*[@id='informationDetails-Labeling Product Category']")
+    @FindBy(xpath = "//*[@id='informationDetails-Labeling-Product-Category']")
     private WebElement productCategory;
 
-    @FindBy(xpath = "//*[@id='informationDetails-Shipping Method']")
+    @FindBy(xpath = "//*[@id='informationDetails-Shipping-Method']")
     private WebElement shippingMethodElement;
 
-    @FindBy(xpath = "//*[@id='informationDetails-BioPro Order ID']")
+    @FindBy(xpath = "//*[@id='informationDetails-BioPro-Order-ID']")
     private WebElement orderNumber;
 
     @FindBy(id = "informationDetails-Priority")
     private WebElement orderPriority;
 
-    @FindBy(xpath = "//*[@id='informationDetails-Customer Code']")
+    @FindBy(xpath = "//*[@id='informationDetails-Customer-Code']")
     private WebElement customerId;
 
-    @FindBy(xpath = "//*[@id='informationDetails-Customer Name']")
+    @FindBy(xpath = "//*[@id='informationDetails-Customer-Name']")
     private WebElement customerName;
 
     @FindBy(id = "informationDetails-Status")
@@ -91,6 +91,9 @@ public class ShipmentDetailPage extends CommonPageFactory {
 
     @FindBy(id = "percentageId")
     private WebElement pendingPercentage;
+
+    @FindBy(id = "informationDetails-External-Order-ID")
+    private WebElement externalId;
 
     @Override
     public boolean isLoaded() {
@@ -143,7 +146,7 @@ public class ShipmentDetailPage extends CommonPageFactory {
     }
 
     public void viewPageContent() {
-        waitForElementsVisible(quantityColumn, productFamilyColumn, bloodTypeColumn, shippingMethodElement, orderCriteriaTable, productCategory, orderNumber, orderPriority, customerId, customerName, orderStatus);
+        waitForElementsVisible(quantityColumn, productFamilyColumn, bloodTypeColumn, shippingMethodElement, orderCriteriaTable, productCategory, orderNumber, orderPriority, customerId, customerName, orderStatus, externalId);
     }
 
     private void waitForElementsVisible(WebElement... elements) {

@@ -39,6 +39,8 @@
                                         <span
                                             id="informationDetails-{{
                                                 description.label
+                                                    .split(' ')
+                                                    .join('-')
                                             }}"
                                             class="mb-0 mb-1 mr-4 text-left font-bold"
                                             [ngClass]="labelClasses"
