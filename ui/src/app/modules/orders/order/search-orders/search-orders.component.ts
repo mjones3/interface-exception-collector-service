@@ -3,7 +3,7 @@ import { Component, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { Router } from '@angular/router';
-import { ApolloError } from '@apollo/client';
+import { ApolloError, ApolloQueryResult } from '@apollo/client';
 import { FuseCardComponent } from '@fuse/components/card/public-api';
 import {
     Column,
@@ -21,7 +21,6 @@ import { SearchOrderFilterDTO } from '../../models/order.dto';
 import {
     OrderQueryCommandDTO,
     OrderReportDTO,
-    OrderResponsePageDTO,
 } from '../../models/search-order.model';
 import { OrderService } from '../../services/order.service';
 import { SearchOrderFilterComponent } from './search-filter/search-order-filter.component';
@@ -129,13 +128,11 @@ export class SearchOrdersComponent {
     defaultRowsPerPage = 20;
     defaultSortField = 'createDate';
     totalRecords = 0;
-    orders: OrderResponsePageDTO;
-    noResultsMessage = '';
     currentFilter: SearchOrderFilterDTO;
     items$: Subject<OrderReportDTO[]> = new BehaviorSubject([]);
     loading = true;
 
-    @ViewChild('orderTable', { static: true }) orderTable: Table;
+    @ViewChild('orderTable', { static: false }) orderTable: Table;
 
     private _selectedColumns: Column[] = this.columns.filter(
         (col) => !col.hidden
@@ -164,27 +161,18 @@ export class SearchOrdersComponent {
         return criteria;
     }
 
-    private searchOrder(
-        shouldRedirectIfOneRecordFound: boolean,
-        event?: TableLazyLoadEvent
-    ) {
+    private searchOrder(event?: TableLazyLoadEvent) {
         this.orderService
             .searchOrders(this.getCriteria())
             .pipe(finalize(() => (this.loading = false)))
             .subscribe({
-                next: (response) =>
-                    this.doOnSuccess(
-                        response.data.searchOrders,
-                        shouldRedirectIfOneRecordFound,
-                        event
-                    ),
+                next: (response) => this.doOnSuccess(response, event),
                 error: (e: ApolloError) => {
                     if (this.orderTable != null) {
                         this.orderTable.sortField = this.defaultSortField;
                     }
                     this.items$.next([]);
                     if (e?.cause?.message) {
-                        this.noResultsMessage = e?.graphQLErrors[0].message;
                         this.toaster.warning(e?.cause?.message);
                         return;
                     }
@@ -195,15 +183,13 @@ export class SearchOrdersComponent {
     }
 
     private doOnSuccess(
-        searchOrders: OrderReportDTO[],
-        shouldRedirectIfOneRecordFound: boolean,
+        response: ApolloQueryResult<{ searchOrders: OrderReportDTO[] }>,
         event?: TableLazyLoadEvent
     ): void {
-        console.log(searchOrders);
-        this.items$.next(searchOrders ?? []);
-        if (searchOrders.length === 1 && shouldRedirectIfOneRecordFound) {
-            this.details(searchOrders[0].orderId);
+        if (response.data.searchOrders.length === 1 && this.isFilterApplied()) {
+            this.details(response.data.searchOrders[0].orderId);
         }
+        this.items$.next(response.data.searchOrders ?? []);
         if (event) {
             this.orderTable.sortField =
                 typeof event.sortField === 'string'
@@ -213,7 +199,6 @@ export class SearchOrdersComponent {
     }
 
     applyFilterSearch(searchCriteria: SearchOrderFilterDTO = {}): void {
-        this.noResultsMessage = '';
         this.isFilterToggled = false;
 
         if (!searchCriteria.sortBy) {
@@ -226,11 +211,14 @@ export class SearchOrdersComponent {
         }
 
         this.currentFilter = searchCriteria;
-        this.searchOrder(true);
+    }
+
+    isFilterApplied() {
+        return this.getCriteria()?.orderNumber != null;
     }
 
     fetchOrders(event: TableLazyLoadEvent) {
-        this.searchOrder(false, event);
+        this.searchOrder(event);
     }
 
     details(id: number) {
