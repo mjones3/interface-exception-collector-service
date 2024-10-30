@@ -4,8 +4,10 @@ import com.arcone.biopro.distribution.inventory.domain.exception.UnavailableStat
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.MessageType;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.NotificationMessage;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.apache.logging.log4j.util.Strings;
 
 import java.time.LocalDateTime;
@@ -16,6 +18,8 @@ import static com.arcone.biopro.distribution.inventory.BioProConstants.EXPIRED;
 
 @Builder
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class InventoryAggregate {
 
     public static final String OTHER_SEE_COMMENTS = "OTHER_SEE_COMMENTS";
