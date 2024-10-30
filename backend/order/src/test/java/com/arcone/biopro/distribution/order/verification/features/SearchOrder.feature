@@ -14,8 +14,8 @@ Feature: Search Orders
 
             Examples:
                 | External ID | Order LocationCode | User LocationCode | Priority | Status | Order Key  | Order Number |
-                | 1979        | DL1                | DL1               | STAT     | OPEN   | orderId    | 1            |
-                | 1984        | DL1                | DL1               | STAT     | OPEN   | externalId | 2            |
+                | 1979        | DL1                | DL1               | STAT     | OPEN   | orderId    | 1984         |
+                | 1984        | DL1                | DL1               | STAT     | OPEN   | externalId | 1979         |
 
 
 #        Discuss to remove this acceptance criteria. This is covered by list orders.

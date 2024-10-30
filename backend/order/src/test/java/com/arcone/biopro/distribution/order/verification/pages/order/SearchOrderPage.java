@@ -134,7 +134,6 @@ public class SearchOrderPage extends CommonPageFactory {
     public void searchOrder(String value) {
         sharedActions.click(filterToggleButton);
         sharedActions.sendKeys(orderNumberField, value);
-
         sharedActions.click(filterApplyButton);
     }
 }
