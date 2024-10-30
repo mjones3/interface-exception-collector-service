@@ -99,6 +99,19 @@ public class SharedActions {
         }
     }
 
+    public void waitForRedirectTo(String url) {
+        try {
+            wait.until(e -> {
+                log.debug("Waiting for redirect to {}", url);
+                return e.getCurrentUrl().contains(url);
+            });
+            log.debug("Client redirected to URL containing {}.", url);
+        } catch (Exception e) {
+            log.error("URL containing {} was not opened after the specified timeout.", url);
+            throw e;
+        }
+    }
+
     public boolean isElementVisible(WebElement element) {
         return element.isDisplayed();
     }

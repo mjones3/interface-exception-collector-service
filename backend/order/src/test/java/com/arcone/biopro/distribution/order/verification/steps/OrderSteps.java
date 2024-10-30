@@ -469,7 +469,6 @@ public class OrderSteps {
 
     @Then("I should be redirected to the order details page.")
     public void iShouldBeRedirectedToTheOrderDetailsPage() {
-        // TODO: Implement this step
-        Assert.fail("Implement iShouldBeRedirectedToTheOrderDetailsPage");
+        searchOrderPage.checkIfDetailsPageIsOpened();
     }
 }
