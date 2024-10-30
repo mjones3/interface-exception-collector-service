@@ -76,6 +76,7 @@ type ShipmentResponseDTO {
 type ShipmentDetailResponseDTO {
     id: ID!
     orderNumber: Int
+    externalId: String
     priority: ShipmentPriority
     status: ShipmentStatus
     createDate: DateTime

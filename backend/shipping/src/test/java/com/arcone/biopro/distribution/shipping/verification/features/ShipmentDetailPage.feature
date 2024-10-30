@@ -1,10 +1,11 @@
+@ui
 Feature: Access Shipment Details Page
 
     Background:
         Given I cleaned up from the database, all shipments with order number "999996,999997,999998,999999,999990,999991,999992".
 
     Rule: I should be able to view order information, shipping information, and order criteria( Pick List)
-        @ui
+        @DIS-148 @DIS-195
         Scenario Outline: Selecting and accessing a shipment details
             Given The shipment details are order Number "<orderNumber>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>".
             And I have received a shipment fulfillment request with above details.
@@ -23,7 +24,7 @@ Feature: Access Shipment Details Page
 
 
     Rule:I should have the option to Fill the shipment
-        @ui
+        @DIS-48
         Scenario Outline: Filling the shipment
             Given The shipment details are order Number "<orderNumber>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>".
             And I have received a shipment fulfillment request with above details.
@@ -39,7 +40,7 @@ Feature: Access Shipment Details Page
 
 
     Rule: I should be able to view the pending log of products to be filled in the shipment
-        @ui
+        @DIS-48
         Scenario Outline: Pending log of products
             Given The shipment details are order Number "<orderNumber>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>".
             And I have received a shipment fulfillment request with above details.
@@ -53,7 +54,7 @@ Feature: Access Shipment Details Page
 
 
     Rule: I should not be able to see the product shipping details when no products are shipped
-        @ui
+        @DIS-48
         Scenario Outline: No products shipped details displayed
             Given The shipment details are order Number "<orderNumber>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>".
             And I have received a shipment fulfillment request with above details.

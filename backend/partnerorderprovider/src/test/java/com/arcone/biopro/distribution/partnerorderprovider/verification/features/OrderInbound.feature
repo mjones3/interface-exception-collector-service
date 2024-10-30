@@ -1,3 +1,4 @@
+@api @DIS-91
 Feature: Partner Order Inbound Interface
     As a partner blood center system,
     I want to send the order request,
