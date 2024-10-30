@@ -4,8 +4,8 @@ Feature: Second Verification of Units Feature
     So that I can ensure that the products recorded in the system match the physical products inside the shipping box.
 
     Background:
-        Given I cleaned up from the database the packed item that used the unit number "W822530106087,W822530106087,W822530106089".
-        And I cleaned up from the database, all shipments with order number "118,119".
+        Given I cleaned up from the database the packed item that used the unit number "W822530106087,W822530106087,W822530106089,W822530106088".
+        And I cleaned up from the database, all shipments with order number "118,119,120".
 
 
         Rule: I should be able to verify each unit that I have packed in the shipment.
@@ -34,18 +34,16 @@ Feature: Second Verification of Units Feature
         Rule: I should not be able to complete the shipment if all the units are not verified.
         @ui @DST-203
         Scenario Outline: Second verification units not packed.
-            Given I have a shipment for order <Order Number> with the unit "<Not Packed Unit>" and product code "<Not Packed Code>" packed.
+            Given I have a shipment for order <Order Number> with the unit "<UN>" and product code "<Code>" packed.
             And The second verification configuration is "enabled".
             And I am on the Shipment Fulfillment Details page for order <Order Number>.
             When I choose verify products.
             Then I should be redirected to the verify products page.
             And I can see the Order Information Details and the Shipping Information Details.
-            When I scan the unit "<UN>" with product code "<Code>".
-            # TODO Check message content with Archana
-            Then I can "Warning" message "The unit is not part of the shipment".
-            And  I should see the unit "<UN>" with product code "<Code>" added to the verified products table.
+            When I scan the unit "<Not Packed Unit>" with product code "<Not Packed Code>".
+            Then I should see a "Warning" message: "The verification does not match all products in this order. Please re-scan all the products".
+            And  I should not see the unit "<Not Packed Unit>" with product code "<Not Packed Code>" added to the verified products table.
             And The complete shipment option should not be enabled.
             Examples:
                 | Order Number | Code     | UN            | Not Packed Unit | Not Packed Code |
                 | 119          | E0685V00 | W822530106087 | E0685V00        | W822530106089   |
-
