@@ -5,6 +5,8 @@ import com.arcone.biopro.distribution.shipping.adapter.in.web.dto.ShipmentRespon
 import com.arcone.biopro.distribution.shipping.application.dto.CompleteShipmentRequest;
 import com.arcone.biopro.distribution.shipping.application.dto.PackItemRequest;
 import com.arcone.biopro.distribution.shipping.application.dto.RuleResponseDTO;
+import com.arcone.biopro.distribution.shipping.domain.service.CompleteShipmentService;
+import com.arcone.biopro.distribution.shipping.domain.service.PackItemService;
 import com.arcone.biopro.distribution.shipping.domain.service.ShipmentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +23,8 @@ import reactor.core.publisher.Mono;
 public class ShipmentController {
 
     private final ShipmentService shipmentService;
+    private final CompleteShipmentService completeShipmentService;
+    private final PackItemService packItemService;
 
     @QueryMapping("listShipments")
     public Flux<ShipmentResponseDTO> listShipments() {
@@ -37,11 +41,11 @@ public class ShipmentController {
     @MutationMapping("packItem")
     public Mono<RuleResponseDTO> packItem(@Argument("packItemRequest") PackItemRequest packItemRequest) {
         log.info("Request to pack a product {}", packItemRequest);
-        return shipmentService.packItem(packItemRequest);
+        return packItemService.packItem(packItemRequest);
     }
     @MutationMapping("completeShipment")
     public Mono<RuleResponseDTO> completeShipment(@Argument("completeShipmentRequest") CompleteShipmentRequest completeShipmentRequest) {
         log.info("Request to complete a shipment {}", completeShipmentRequest);
-        return shipmentService.completeShipment(completeShipmentRequest);
+        return completeShipmentService.completeShipment(completeShipmentRequest);
     }
 }
