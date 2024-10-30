@@ -136,4 +136,8 @@ public class SearchOrderPage extends CommonPageFactory {
         sharedActions.sendKeys(orderNumberField, value);
         sharedActions.click(filterApplyButton);
     }
+
+    public void checkIfDetailsPageIsOpened() {
+        sharedActions.waitForRedirectTo("order-details");
+    }
 }
