@@ -2,7 +2,7 @@ import { AsyncPipe, CommonModule } from '@angular/common';
 import { Component, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
-import { NavigationEnd, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { ApolloError } from '@apollo/client';
 import { FuseCardComponent } from '@fuse/components/card/public-api';
 import {
@@ -15,7 +15,7 @@ import { OrderStatusMap } from 'app/shared/models/order-status.model';
 import { CookieService } from 'ngx-cookie-service';
 import { ToastrService } from 'ngx-toastr';
 import { Table, TableLazyLoadEvent, TableModule } from 'primeng/table';
-import { BehaviorSubject, Subject, filter, finalize } from 'rxjs';
+import { BehaviorSubject, Subject, finalize } from 'rxjs';
 import { Cookie } from '../../../../shared/types/cookie.enum';
 import { SearchOrderFilterDTO } from '../../models/order.dto';
 import {
@@ -134,7 +134,6 @@ export class SearchOrdersComponent {
     currentFilter: SearchOrderFilterDTO;
     items$: Subject<OrderReportDTO[]> = new BehaviorSubject([]);
     loading = true;
-    previousUrl: string;
 
     @ViewChild('orderTable', { static: true }) orderTable: Table;
 
@@ -149,13 +148,7 @@ export class SearchOrdersComponent {
         private router: Router,
         private toaster: ToastrService,
         private cookieService: CookieService
-    ) {
-        router.events
-            .pipe(filter((event) => event instanceof NavigationEnd))
-            .subscribe((event: NavigationEnd) => {
-                this.previousUrl = event.url;
-            });
-    }
+    ) {}
 
     toggleFilter(toggleFlag: boolean): void {
         this.isFilterToggled = toggleFlag;
@@ -171,13 +164,20 @@ export class SearchOrdersComponent {
         return criteria;
     }
 
-    private searchOrder(event?: TableLazyLoadEvent): void {
+    private searchOrder(
+        shouldRedirectIfOneRecordFound: boolean,
+        event?: TableLazyLoadEvent
+    ) {
         this.orderService
             .searchOrders(this.getCriteria())
             .pipe(finalize(() => (this.loading = false)))
             .subscribe({
                 next: (response) =>
-                    this.doOnSuccess(response.data.searchOrders, event),
+                    this.doOnSuccess(
+                        response.data.searchOrders,
+                        shouldRedirectIfOneRecordFound,
+                        event
+                    ),
                 error: (e: ApolloError) => {
                     if (this.orderTable != null) {
                         this.orderTable.sortField = this.defaultSortField;
@@ -196,21 +196,19 @@ export class SearchOrdersComponent {
 
     private doOnSuccess(
         searchOrders: OrderReportDTO[],
+        shouldRedirectIfOneRecordFound: boolean,
         event?: TableLazyLoadEvent
     ): void {
+        console.log(searchOrders);
+        this.items$.next(searchOrders ?? []);
+        if (searchOrders.length === 1 && shouldRedirectIfOneRecordFound) {
+            this.details(searchOrders[0].orderId);
+        }
         if (event) {
             this.orderTable.sortField =
                 typeof event.sortField === 'string'
                     ? event.sortField
                     : event.sortField?.[0] ?? this.defaultSortField;
-        }
-        this.items$.next(searchOrders ?? []);
-        if (
-            searchOrders.length === 1 &&
-            !this.isDetailThePreviousNavigation()
-        ) {
-            this.previousUrl = null;
-            this.details(searchOrders[0].orderId);
         }
     }
 
@@ -228,15 +226,11 @@ export class SearchOrdersComponent {
         }
 
         this.currentFilter = searchCriteria;
-        this.searchOrder();
-    }
-
-    isDetailThePreviousNavigation(): boolean {
-        return this.previousUrl && this.previousUrl.includes('order-details');
+        this.searchOrder(true);
     }
 
     fetchOrders(event: TableLazyLoadEvent) {
-        this.searchOrder(event);
+        this.searchOrder(false, event);
     }
 
     details(id: number) {
