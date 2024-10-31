@@ -14,12 +14,12 @@ Feature: Search Orders
 
             Examples:
                 | External ID | Order LocationCode | User LocationCode | Priority | Status | Order Key  | Order Number |
-                | 1979        | DL1                | DL1               | STAT     | OPEN   | orderId    | 1984         |
-                | 1984        | DL1                | DL1               | STAT     | OPEN   | externalId | 1979         |
+                | 1979        | 123456789          | 123456789         | STAT     | OPEN   | orderId    | 1984         |
+                | 1984        | 123456789          | 123456789         | STAT     | OPEN   | externalId | 1979         |
 
 
 #        Discuss to remove this acceptance criteria. This is covered by list orders.
-        Rule: I should not be able to see the orders from a different location.
+    Rule: I should not be able to see the orders from a different location.
         Rule: I should be able to view an error message when I search for a non-existent order number.
         Scenario Outline: Search for an order number from a different location
             Given I cleaned up from the database the orders with external ID "<External ID>".
@@ -31,11 +31,11 @@ Feature: Search Orders
 
             Examples:
                 | External ID     | Order LocationCode | User LocationCode | Priority | Status | Search Key |
-                | 114117922233510 | DL1                | 234567891         | STAT     | OPEN   | externalId |
-                | 114117922233510 | DL1                | DL1               | STAT     | OPEN   | 000111     |
+                | 114117922233510 | 123456789          | 234567891         | STAT     | OPEN   | externalId |
+                | 114117922233510 | 123456789          | 123456789         | STAT     | OPEN   | 000111     |
 
 
-        Rule: I should be redirected to the Order Details page if there is only one order in the system that matches the search criteria.
+    Rule: I should be redirected to the Order Details page if there is only one order in the system that matches the search criteria.
         Scenario Outline: Search for an order and view the details
             Given I cleaned up from the database the orders with external ID "<External ID>".
             And I have a Biopro Order with id "<Order Number>", externalId "<External ID>", Location Code "<Order LocationCode>", Priority "<Priority>" and Status "<Status>".
@@ -46,4 +46,4 @@ Feature: Search Orders
 
             Examples:
                 | Order Number | External ID     | Order LocationCode | User LocationCode | Priority | Status |
-                | 2018         | 114117922233510 | DL1                | DL1               | STAT     | OPEN   |
+                | 2018         | 114117922233510 | 123456789          | 123456789         | STAT     | OPEN   |
