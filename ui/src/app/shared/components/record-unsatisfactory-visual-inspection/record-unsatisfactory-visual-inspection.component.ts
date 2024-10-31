@@ -30,7 +30,6 @@ export interface RecordUnsatisfactoryVisualInspectionData {
 }
 
 export interface RecordUnsatisfactoryVisualInspectionResult {
-    result: 'SUBMIT' | 'CANCEL';
     reason: ReasonDTO;
     comments: string;
     message?: string;
@@ -61,6 +60,8 @@ export interface RecordUnsatisfactoryVisualInspectionResult {
 export class RecordUnsatisfactoryVisualInspectionComponent
     implements OnDestroy
 {
+    protected readonly ReasonMap = ReasonMap;
+
     dataSignal = signal<RecordUnsatisfactoryVisualInspectionData>(null);
 
     form: FormGroup;
@@ -104,14 +105,11 @@ export class RecordUnsatisfactoryVisualInspectionComponent
         this.formValueChange?.unsubscribe();
     }
 
-    close(result: RecordUnsatisfactoryVisualInspectionResult['result']): void {
+    submit(): void {
         this.dialogRef.close({
-            result,
             inventory: this.dataSignal().inventory,
             message: this.dataSignal().message,
             ...this.form.value,
         });
     }
-
-    protected readonly ReasonMap = ReasonMap;
 }

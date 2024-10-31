@@ -24,6 +24,7 @@ const GET_SHIPMENT_BY_ID = gql<
         getShipmentDetailsById(shipmentId: $shipmentId) {
             id
             orderNumber
+            externalId
             priority
             status
             createDate
@@ -48,6 +49,7 @@ const GET_SHIPMENT_BY_ID = gql<
             comments
             checkDigitActive
             visualInspectionActive
+            secondVerificationActive
             items {
                 id
                 shipmentId
