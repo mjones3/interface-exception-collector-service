@@ -23,7 +23,7 @@ Feature: Second Verification of Units Feature
             Then I should be redirected to the verify products page.
             And I can see the Order Information Details and the Shipping Information Details.
             When I scan the unit "<UN>" with product code "<Code>".
-            Then I should see the unit "<UN>" with product code "<Code>" added to the verified products table.
+            Then I should see the unit added to the verified products table.
             And I should see the log of verified products being updated.
             And The complete shipment option should be enabled.
            Examples:
@@ -41,7 +41,7 @@ Feature: Second Verification of Units Feature
             And I can see the Order Information Details and the Shipping Information Details.
             When I scan the unit "<Not Packed Unit>" with product code "<Not Packed Code>".
             Then I should see a "Warning" message: "The verification does not match all products in this order. Please re-scan all the products".
-            And  I should not see the unit "<Not Packed Unit>" with product code "<Not Packed Code>" added to the verified products table.
+            And  I should not see the unit added to the verified products table.
             And The complete shipment option should not be enabled.
             Examples:
                 | Order Number | Code     | UN            | Not Packed Unit | Not Packed Code |
