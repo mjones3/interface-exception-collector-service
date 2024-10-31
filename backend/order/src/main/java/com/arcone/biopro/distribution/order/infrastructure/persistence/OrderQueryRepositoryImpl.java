@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 import static java.lang.Boolean.TRUE;
 import static org.springframework.data.relational.core.query.Criteria.where;
 import static org.springframework.data.relational.core.query.Query.query;
+import org.apache.commons.lang3.StringUtils;
 
 @Repository
 @RequiredArgsConstructor
@@ -32,8 +33,16 @@ public class OrderQueryRepositoryImpl implements OrderQueryRepository {
     @Override
     public Flux<OrderReport> searchOrders(OrderQueryCommand orderQueryCommand) {
         var criteria = where("locationCode").is(orderQueryCommand.getLocationCode());
+
+
         if (orderQueryCommand.getOrderNumber() != null && !orderQueryCommand.getOrderNumber().isEmpty()) {
-            criteria = criteria.and(where("orderNumber").is(orderQueryCommand.getOrderNumber()).or("externalId").is(orderQueryCommand.getOrderNumber()));
+            if (StringUtils.isNumeric(orderQueryCommand.getOrderNumber())) {
+                // If the order number is numeric, filter by either orderNumber or externalId
+                criteria = criteria.and(where("orderNumber").is(orderQueryCommand.getOrderNumber()).or("externalId").is(orderQueryCommand.getOrderNumber()));
+            } else {
+                // If the order number is not numeric, filter only by externalId
+                criteria = criteria.and(where("externalId").is(orderQueryCommand.getOrderNumber()));
+            }
         }
 
         var sorts = orderQueryCommand.getQuerySort()
