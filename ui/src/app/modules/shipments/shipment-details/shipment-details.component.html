@@ -53,6 +53,7 @@
                 [orderInput]="{
                     id: shipmentInfo?.orderNumber,
                     priority: shipmentInfo?.priority,
+                    externalId: shipmentInfo?.externalId,
                     labelingProductCategory: shipmentInfo?.productCategory,
                 }"
                 [comments]="shipmentInfo?.comments"
@@ -70,14 +71,41 @@
 
 <ng-template #actionButtonsTpl>
     <div class="flex flex-row space-x-2">
-        <button
+        <biopro-action-button
             id="backBtnId"
-            class="bg-green-highlighted text-white"
-            mat-flat-button
-            (click)="backToSearch()"
-        >
-            Back
-        </button>
+            btnId="backActionBtn"
+            label="Back to Order Details "
+            color="secondary"
+            icon="heroicons_outline:arrow-uturn-left"
+            (clickEvent)="backToOrderDetails()"
+        ></biopro-action-button>
+
+        @if (packedItems?.length && !isProductComplete) {
+            @if (showVerifyProductOption) {
+                <div class="flex flex-row space-x-2">
+                    <biopro-action-button
+                        id="verifyProductsBtn"
+                        btnId="verifyActionBtn"
+                        label="Verify Products"
+                        color="primary"
+                        icon="heroicons_outline:shield-check"
+                        (clickEvent)="completeShipment()"
+                    ></biopro-action-button>
+                </div>
+            }
+            @if (!showVerifyProductOption) {
+                <div class="mr-4 flex flex-row space-x-2">
+                    <biopro-action-button
+                        id="completeShipmentBtn"
+                        btnId="completeActionBtn"
+                        label="Complete Shipment"
+                        color="primary"
+                        icon="heroicons_outline:paper-airplane"
+                        (clickEvent)="completeShipment()"
+                    ></biopro-action-button>
+                </div>
+            }
+        }
     </div>
 </ng-template>
 
@@ -292,7 +320,7 @@
                                                 class="flex w-full flex-row space-x-4 text-wrap"
                                             >
                                                 <span
-                                                    class="mb-1 mr-4 w-60 text-left font-bold"
+                                                    class="mb-1 ml-4 mr-4 w-20 text-left font-bold"
                                                     >Comments</span
                                                 >
                                                 <span
@@ -336,17 +364,6 @@
                         >
                             <h3>{{ 'Packed Products' }}</h3>
                         </div>
-                    </div>
-
-                    <div class="mr-4 flex flex-row space-x-2 p-2">
-                        <button
-                            id="completeShipmentBtn"
-                            class="action-button bg-purple-light px-4 text-white"
-                            mat-flat-button
-                            (click)="completeShipment()"
-                        >
-                            {{ 'Complete Shipment' }}
-                        </button>
                     </div>
                 </div>
                 <mat-divider></mat-divider>

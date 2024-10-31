@@ -104,6 +104,7 @@ export class ShipmentDetailsComponent implements OnInit {
     shippedInfoData: ShipmentCompleteInfoDto[] = [];
     loggedUserId: string;
     packedItems: ShipmentItemPackedDTO[] = [];
+    showVerifyProductOption = false;
 
     get filledProductsCount() {
         return this.packedItems?.length;
@@ -138,6 +139,8 @@ export class ShipmentDetailsComponent implements OnInit {
             .getShipmentById(this.shipmentId)
             .subscribe((result) => {
                 this.shipmentInfo = result.data?.getShipmentDetailsById;
+                this.showVerifyProductOption =
+                    this.shipmentInfo.secondVerificationActive;
                 this.products =
                     this.shipmentInfo?.items?.map((item) =>
                         this.convertItemToProduct(item)
@@ -198,7 +201,7 @@ export class ShipmentDetailsComponent implements OnInit {
         return this.shipmentInfo.orderNumber;
     }
 
-    backToSearch(): void {
+    backToOrderDetails(): void {
         this._router.navigateByUrl(`/orders/${this.orderId}/order-details`);
     }
 

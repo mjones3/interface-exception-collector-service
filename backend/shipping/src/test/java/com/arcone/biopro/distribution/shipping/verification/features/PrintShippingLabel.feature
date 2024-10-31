@@ -1,3 +1,4 @@
+@ui
 Feature: Print Shipping Label
     As a DT, I want to be able to view and print the shipping label, so I can ensure that the box is going to the correct location and place it in the box.
 
@@ -8,9 +9,10 @@ Feature: Print Shipping Label
     Rule: I should be able to view and print the shipping label in pdf format when the shipment is completed.
         Rule: I should be able to reprint the shipping label if needed.
     Rule: I should be able to view the shipping details on the label.
-        @ui
+        @DIS-51
         Scenario Outline: Print the Shipping Label
             Given The shipment details are Order Number <Order Number>, Location Code "<Location Code>", Customer ID "<Customer ID>", Customer Name "<Customer Name>", Department "<Department>", Address Line 1 "<Address Line 1>", Address Line 2 "<Address Line 2>", Unit Number "<Unit Number>", Product Code "<Product Code>", Product Family "<Product Family>", Blood Type "<Blood Type>", Expiration "<Expiration>", Quantity <Quantity>.
+            And The second verification configuration is "disabled".
             And I received a shipment fulfillment request with above details.
             And I have filled the shipment with the unit number "<Unit Number>" and product code "<Product Code>".
             And I have completed a shipment with above details.
@@ -24,7 +26,7 @@ Feature: Print Shipping Label
                 | 457          | 123456789     | 1           | Random Hospital Inc. | Blood Banking | Street 1       | Suite 2        | W812530106087 | E0685V00     | RED_BLOOD_CELLS_LEUKOREDUCED | AP         | 04-09-2025 | 1        |
 
     Rule: I should not be able to view and print the shipping label in pdf format when the shipment is not completed.
-        @ui
+        @DIS-51
         Scenario Outline: Print the Shipping Label with incomplete Shipment
             Given The shipment details are Order Number <Order Number>, Location Code "<Location Code>", Customer ID "<Customer ID>", Customer Name "<Customer Name>", Department "<Department>", Address Line 1 "<Address Line 1>", Address Line 2 "<Address Line 2>", Unit Number "<Unit Number>", Product Code "<Product Code>", Product Family "<Product Family>", Blood Type "<Blood Type>", Expiration "<Expiration>", Quantity <Quantity>.
             And I have an open shipment with above details.

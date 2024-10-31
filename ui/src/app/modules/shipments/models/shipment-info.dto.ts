@@ -21,6 +21,7 @@ export interface ShipmentResponseDTO {
 export interface ShipmentDetailResponseDTO {
     id: number;
     orderNumber: number;
+    externalId?: string;
     priority?: string;
     status: string;
     createDate: string;
@@ -46,6 +47,7 @@ export interface ShipmentDetailResponseDTO {
     items?: ShipmentItemResponseDTO[];
     checkDigitActive?: boolean;
     visualInspectionActive?: boolean;
+    secondVerificationActive?: boolean;
 }
 
 export interface ShipmentItemResponseDTO {

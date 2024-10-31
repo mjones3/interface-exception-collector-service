@@ -1,3 +1,4 @@
+@api
 Feature: Validate order
     As a system, I want to validate the customer order
     so that I can save the order or decline the order based on the validation result.
@@ -5,6 +6,7 @@ Feature: Validate order
     Background:
         Given I cleaned up from the database the orders with external ID "114117922233599,114117922233500,114117922233511,114117922233512,114117922233513,114117922233514,114117922233515,114117922233516,114117922233517,114117922233518,114117922233519,114117922233520,114117922233521".
 
+    @DIS-161 @DIS-92
     Scenario Outline: Creating a BioPro order from a valid order inbound request
         Given I have received an order inbound request with externalId "<External ID>" and content "<JsonPayloadName>".
         When The system process the order request.
@@ -14,7 +16,7 @@ Feature: Validate order
             | 114117922233500 | order-inbound-scenario-1-happy-path.json    |
             | 114117922233521 | order-inbound-scenario-aph-rbc-product.json |
 
-
+    @DIS-92
     Scenario Outline: Creating a BioPro order from an invalid order inbound request
         Given I have received an order inbound request with externalId "<External ID>" and content "<JsonPayloadName>".
         When The system process the order request.
@@ -31,6 +33,7 @@ Feature: Validate order
             | 114117922233519 | order-inbound-scenario-12-invalid_family.json            |
             | 114117922233520 | order-inbound-scenario-13_invalid_quantity.json          |
 
+    @DIS-92
     Scenario Outline: Creating a BioPro order with duplicated external ID
         Given I have received an order inbound request with externalId "114117922233599" and content "order-inbound-scenario-2-duplicated_external_id.json".
         And   I have received an order inbound request with externalId "<External ID>" and content "<JsonPayloadName>".
@@ -41,7 +44,7 @@ Feature: Validate order
             | External ID     | JsonPayloadName                                      |
             | 114117922233599 | order-inbound-scenario-2-duplicated_external_id.json |
 
-
+    @DIS-136
     Scenario Outline: Creating a BioPro order with an invalid shipping date
         Given I have received an order inbound request with externalId "<External ID>", content "<JsonPayloadName>", and desired shipping date "<Date>".
         When The system process the order request.

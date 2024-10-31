@@ -1,3 +1,4 @@
+@ui
 Feature: Print Packing List
     As a DT, I want to be able to print the packing list, so that I can know the products that are placed in the box.
 
@@ -8,9 +9,10 @@ Feature: Print Packing List
     Rule: I should be able to print the packing slip in the PDF format for the shipment when it is completed.
     Rule: I should be able to see the product details that are placed in the box when the shipment is completed.
     Rule: I should be able to reprint the packing slip, if needed.
-        @ui
+        @DIS-157 @DIS-50 @DIS-41 @DIS-27 @DIS-19
         Scenario Outline: Print the Packing List
             Given The shipment details are Order Number <Order Number>, Location Code "<Location Code>", Customer ID "<Customer ID>", Customer Name "<Customer Name>", Department "<Department>", Address Line 1 "<Address Line 1>", Address Line 2 "<Address Line 2>", Unit Number "<Unit Number>", Product Code "<Product Code>", Product Family "<Product Family>", Blood Type "<Blood Type>", Expiration "<Expiration>", Quantity <Quantity>.
+            And The second verification configuration is "disabled".
             And I received a shipment fulfillment request with above details.
             And I have filled the shipment with the unit number "<Unit Number>" and product code "<Product Code>".
             And I have completed a shipment with above details.
@@ -24,7 +26,7 @@ Feature: Print Packing List
                 | 500          | 123456789     | 1           | Random Hospital Inc. | Testing Blood Banking | Street N1      | Suite N2       | W812530106085 | E0685V00     | RED_BLOOD_CELLS_LEUKOREDUCED | ABP        | 04-09-2025 | 1        |
 
     Rule: I should not be able to print the packing slip in the PDF format for the shipment when it is open.
-        @ui
+        @DIS-50 @DIS-41 @DIS-27
         Scenario Outline: Print the Packing List with an open Shipment
             Given The shipment details are Order Number <Order Number>, Location Code "<Location Code>", Customer ID "<Customer ID>", Customer Name "<Customer Name>", Department "<Department>", Address Line 1 "<Address Line 1>", Address Line 2 "<Address Line 2>", Unit Number "<Unit Number>", Product Code "<Product Code>", Product Family "<Product Family>", Blood Type "<Blood Type>", Expiration "<Expiration>", Quantity <Quantity>.
             And I have an open shipment with above details.
