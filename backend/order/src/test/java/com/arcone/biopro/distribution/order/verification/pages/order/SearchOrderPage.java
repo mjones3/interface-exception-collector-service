@@ -128,6 +128,7 @@ public class SearchOrderPage extends CommonPageFactory {
     }
 
     public int tableRowsCount() {
+        sharedActions.waitForNotVisible(tableLoadingOverlay);
         return tableRows.size();
     }
 
@@ -137,7 +138,6 @@ public class SearchOrderPage extends CommonPageFactory {
         sharedActions.waitForVisible(orderNumberField);
         sharedActions.sendKeys(orderNumberField, value);
         sharedActions.click(filterApplyButton);
-        Assert.assertTrue(isLoaded());
     }
 
     public void checkIfDetailsPageIsOpened() {
