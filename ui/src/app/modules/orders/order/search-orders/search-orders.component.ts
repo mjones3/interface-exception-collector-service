@@ -165,6 +165,7 @@ export class SearchOrdersComponent {
 
     private searchOrder(event?: TableLazyLoadEvent) {
         this.footerMessage = '';
+        this.loading = true;
         this.orderService
             .searchOrders(this.getCriteria())
             .pipe(finalize(() => (this.loading = false)))
@@ -182,6 +183,7 @@ export class SearchOrdersComponent {
                         return;
                     }
                     this.toaster.error('Something went wrong.');
+                    this.loading = false;
                     throw e;
                 },
             });

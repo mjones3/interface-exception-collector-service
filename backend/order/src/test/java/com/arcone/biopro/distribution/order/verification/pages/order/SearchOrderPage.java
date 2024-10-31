@@ -137,7 +137,7 @@ public class SearchOrderPage extends CommonPageFactory {
         sharedActions.waitForVisible(orderNumberField);
         sharedActions.sendKeys(orderNumberField, value);
         sharedActions.click(filterApplyButton);
-        sharedActions.waitLoadingAnimation();
+        Assert.assertTrue(isLoaded());
     }
 
     public void checkIfDetailsPageIsOpened() {
