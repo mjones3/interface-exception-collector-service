@@ -54,7 +54,7 @@ class ValidateInventoryUseCaseTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        when(textConfigService.getText(anyString())).thenReturn("");
+        when(textConfigService.getText(anyString(), anyString())).thenReturn("");
         mapper.setTextConfigService(textConfigService);
     }
 
