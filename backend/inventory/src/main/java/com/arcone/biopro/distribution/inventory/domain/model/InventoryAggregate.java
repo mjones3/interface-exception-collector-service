@@ -4,8 +4,10 @@ import com.arcone.biopro.distribution.inventory.domain.exception.UnavailableStat
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.MessageType;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.NotificationMessage;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.apache.logging.log4j.util.Strings;
 
 import java.time.LocalDateTime;
@@ -16,9 +18,11 @@ import static com.arcone.biopro.distribution.inventory.BioProConstants.EXPIRED;
 
 @Builder
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class InventoryAggregate {
 
-    public static final String OTHER_SEE_COMMENTS = "OTHER_SEE_COMMENTS";
+    public static final String OTHER_REASON = "OTHER";
     Inventory inventory;
 
     List<NotificationMessage> notificationMessages;
@@ -56,10 +60,20 @@ public class InventoryAggregate {
         return List.of(new NotificationMessage(
             messageType.name(),
             messageType.getCode(),
-            Strings.isNotBlank(inventory.getStatusReason()) ? inventory.getStatusReason() : messageType.name(),
+            buildMessage(messageType),
             messageType.getType().name(), messageType.getAction().name(),
             null,
             List.of()));
+    }
+
+    private String buildMessage(MessageType messageType) {
+        return Strings.isNotBlank(inventory.getStatusReason())
+            ? (
+                inventory.getStatusReason().equals(OTHER_REASON)
+                ? String.format("%s: %s", OTHER_REASON, inventory.getComments())
+                : inventory.getStatusReason()
+            )
+            : messageType.name();
     }
 
     private List<NotificationMessage> createQuarantinesNotificationMessage() {
@@ -67,7 +81,7 @@ public class InventoryAggregate {
 
 
 
-        List<String> details = inventory.getQuarantines().stream().map(q -> !q.reason().equals(OTHER_SEE_COMMENTS) ? q.reason() : String.format("%s: %s", OTHER_SEE_COMMENTS, q.comments())).toList();
+        List<String> details = inventory.getQuarantines().stream().map(q -> !q.reason().equals(OTHER_REASON) ? q.reason() : String.format("%s: %s", OTHER_REASON, q.comments())).toList();
 
         return List.of(new NotificationMessage(
             qt.name(),
