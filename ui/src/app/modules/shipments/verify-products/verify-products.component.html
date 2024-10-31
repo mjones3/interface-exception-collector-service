@@ -22,4 +22,28 @@
             />
         </div>
     </ng-template>
+
+    <div class="flex w-full flex-row space-x-8 p-4">
+        <div class="flex w-9/12 flex-auto flex-col"></div>
+
+        <div class="flex w-1/4 flex-auto flex-col">
+            @if (shipmentSignal(); as shipment) {
+                <app-order-widget-sidebar
+                    [orderInput]="{
+                        id: shipment?.orderNumber,
+                        priority: shipment?.priority,
+                        labelingProductCategory: shipment?.productCategory,
+                    }"
+                    [comments]="shipment?.comments"
+                    [shippingInput]="{
+                        id: shipment?.id,
+                        customerCode: shipment?.shippingCustomerCode,
+                        customerName: shipment?.shippingCustomerName,
+                        status: shipment?.status,
+                        method: shipment?.shippingMethod,
+                    }"
+                />
+            }
+        </div>
+    </div>
 </div>
