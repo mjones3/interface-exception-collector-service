@@ -46,4 +46,24 @@ class OrderQueryCommandTest {
         exception =  assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand("TEST",null, null,-1));
         Assertions.assertEquals("limit must be greater than 0", exception.getMessage());
     }
+
+    @Test
+    public void shouldCreateOrderQueryCommandWithNumericUniqueIdentifier() {
+        var orderBy = new QueryOrderBy("TEST","DESC");
+        var sort = new QuerySort(List.of(orderBy));
+        var uniqueIdentifier = "123";
+        var orderQueryCommand = new OrderQueryCommand("1","123",sort,10);
+        Assertions.assertEquals(uniqueIdentifier, orderQueryCommand.getOrderNumber());
+        Assertions.assertEquals(uniqueIdentifier, orderQueryCommand.getExternalOrderId());
+    }
+
+    @Test
+    public void shouldCreateOrderQueryCommandWithNonNumericUniqueIdentifier() {
+        var orderBy = new QueryOrderBy("TEST","DESC");
+        var sort = new QuerySort(List.of(orderBy));
+        var uniqueIdentifier = "F123";
+        var orderQueryCommand = new OrderQueryCommand("1",uniqueIdentifier,sort,10);
+        Assertions.assertEquals(uniqueIdentifier, orderQueryCommand.getExternalOrderId());
+        Assertions.assertNull(orderQueryCommand.getOrderNumber());
+    }
 }
