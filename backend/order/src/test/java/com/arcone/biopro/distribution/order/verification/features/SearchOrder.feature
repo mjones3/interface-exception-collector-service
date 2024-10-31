@@ -38,12 +38,12 @@ Feature: Search Orders
         Rule: I should be redirected to the Order Details page if there is only one order in the system that matches the search criteria.
         Scenario Outline: Search for an order and view the details
             Given I cleaned up from the database the orders with external ID "<External ID>".
-            And I have a Biopro Order with externalId "<External ID>", Location Code "<Order LocationCode>", Priority "<Priority>" and Status "<Status>".
+            And I have a Biopro Order with id "<Order Number>", externalId "<External ID>", Location Code "<Order LocationCode>", Priority "<Priority>" and Status "<Status>".
             And I am logged in the location "<User LocationCode>".
             And I choose search orders.
             When I search the order by "externalId".
             Then I should be redirected to the order details page.
 
             Examples:
-                | External ID     | Order LocationCode | User LocationCode | Priority | Status |
-                | 114117922233510 | DL1                | 234567891         | STAT     | OPEN   |
+                | Order Number | External ID     | Order LocationCode | User LocationCode | Priority | Status |
+                | 2018         | 114117922233510 | DL1                | DL1               | STAT     | OPEN   |

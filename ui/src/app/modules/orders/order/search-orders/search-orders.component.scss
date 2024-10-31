@@ -8,9 +8,13 @@
     font-size: 0.75em;
     font-weight: 700;
     line-height: 1;
-    color: #ffffff;
+    color: #fff;
     text-align: center;
     white-space: nowrap;
     vertical-align: baseline;
     border-radius: 0.375rem;
+}
+
+app-search-order-filter {
+    z-index: 10;
 }

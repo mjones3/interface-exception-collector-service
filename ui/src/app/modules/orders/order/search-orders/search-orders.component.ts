@@ -25,8 +25,6 @@ import {
 import { OrderService } from '../../services/order.service';
 import { SearchOrderFilterComponent } from './search-filter/search-order-filter.component';
 
-const noResultsFoundConstant = 'No Results Found';
-
 @Component({
     selector: 'app-search-orders',
     standalone: true,
@@ -134,6 +132,7 @@ export class SearchOrdersComponent {
     items$: Subject<OrderReportDTO[]> = new BehaviorSubject([]);
     loading = true;
     noResultsMessage: string;
+    footerMessage = '';
 
     @ViewChild('orderTable', { static: false }) orderTable: Table;
 
@@ -165,6 +164,7 @@ export class SearchOrdersComponent {
     }
 
     private searchOrder(event?: TableLazyLoadEvent) {
+        this.footerMessage = '';
         this.orderService
             .searchOrders(this.getCriteria())
             .pipe(finalize(() => (this.loading = false)))
@@ -178,6 +178,7 @@ export class SearchOrdersComponent {
                     if (e?.cause?.message) {
                         this.noResultsMessage = e?.cause?.message;
                         this.toaster.warning(e?.cause?.message);
+                        this.footerMessage = e?.cause?.message;
                         return;
                     }
                     this.toaster.error('Something went wrong.');
@@ -215,6 +216,7 @@ export class SearchOrdersComponent {
         }
 
         this.currentFilter = searchCriteria;
+        this.searchOrder();
     }
 
     isFilterApplied() {
@@ -235,12 +237,5 @@ export class SearchOrdersComponent {
 
     set selectedColumns(val: Column[]) {
         this._selectedColumns = this.columns.filter((col) => val.includes(col));
-    }
-
-    get tableNoResultsMessage(): string {
-        if (this.noResultsMessage && this.noResultsMessage !== '') {
-            return this.noResultsMessage;
-        }
-        return this.totalRecords === 0 ? noResultsFoundConstant : '';
     }
 }

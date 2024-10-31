@@ -49,7 +49,7 @@ public class SearchOrderPage extends CommonPageFactory {
     @FindBy(id = "applyBtn")
     private WebElement filterApplyButton;
 
-    @FindBy(xpath = "//*[@id='pn_id_4-table']//tbody/tr")
+    @FindBy(xpath = "//*[@id='ordersTableId']//tbody/tr")
     private List<WebElement> tableRows;
 
     @FindAll({

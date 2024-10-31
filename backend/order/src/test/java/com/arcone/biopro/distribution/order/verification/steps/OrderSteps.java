@@ -453,9 +453,9 @@ public class OrderSteps {
 
     @When("I search the order by {string}.")
     public void iSearchTheOrderBy(String value) {
-        if (value.equalsIgnoreCase("orderID")) {
+        if (value.equalsIgnoreCase("orderId")) {
             searchOrderPage.searchOrder(this.orderId.toString());
-        } if (value.equalsIgnoreCase("externalId")) {
+        } else if (value.equalsIgnoreCase("externalId")) {
             searchOrderPage.searchOrder(this.externalId);
         } else {
             searchOrderPage.searchOrder(value);
