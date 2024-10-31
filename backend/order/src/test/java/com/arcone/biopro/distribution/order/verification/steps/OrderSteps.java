@@ -452,7 +452,7 @@ public class OrderSteps {
     }
 
     @When("I search the order by {string}.")
-    public void iSearchTheOrderBy(String value) {
+    public void iSearchTheOrderBy(String value) throws InterruptedException {
         if (value.equalsIgnoreCase("orderId")) {
             searchOrderPage.searchOrder(this.orderId.toString());
         } else if (value.equalsIgnoreCase("externalId")) {

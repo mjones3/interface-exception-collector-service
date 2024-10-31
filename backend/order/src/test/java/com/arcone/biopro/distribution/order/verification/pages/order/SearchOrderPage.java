@@ -131,10 +131,13 @@ public class SearchOrderPage extends CommonPageFactory {
         return tableRows.size();
     }
 
-    public void searchOrder(String value) {
+    public void searchOrder(String value) throws InterruptedException {
+        sharedActions.waitForVisible(filterToggleButton);
         sharedActions.click(filterToggleButton);
+        sharedActions.waitForVisible(orderNumberField);
         sharedActions.sendKeys(orderNumberField, value);
         sharedActions.click(filterApplyButton);
+        sharedActions.waitLoadingAnimation();
     }
 
     public void checkIfDetailsPageIsOpened() {
