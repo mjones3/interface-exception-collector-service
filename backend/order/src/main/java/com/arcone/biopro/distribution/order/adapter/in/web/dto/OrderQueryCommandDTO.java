@@ -7,7 +7,7 @@ import java.io.Serializable;
 @Builder
 public record OrderQueryCommandDTO (
     String locationCode,
-    String orderNumber,
+    String orderUniqueIdentifier,
     QuerySortDTO querySort,
     Integer limit
 

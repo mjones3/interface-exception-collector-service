@@ -27,7 +27,7 @@ export interface OrderResponsePageDTO {
 
 export interface PageableDTO {
     pageNumber: number;
-    pageSize: number
+    pageSize: number;
 }
 
 // Generic
@@ -42,7 +42,7 @@ export interface QuerySortDTO {
 
 export interface OrderQueryCommandDTO {
     locationCode: string;
-    orderNumber?: string;
+    orderUniqueIdentifier?: string;
     querySort?: QuerySortDTO;
     limit?: number;
 }

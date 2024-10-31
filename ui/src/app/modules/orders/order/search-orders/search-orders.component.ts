@@ -158,7 +158,7 @@ export class SearchOrdersComponent {
             locationCode: this.cookieService.get(Cookie.XFacility),
         };
         if (this.currentFilter && this.currentFilter.orderNumber !== '') {
-            criteria.orderNumber = this.currentFilter.orderNumber;
+            criteria.orderUniqueIdentifier = this.currentFilter.orderNumber;
         }
         return criteria;
     }
@@ -220,7 +220,7 @@ export class SearchOrdersComponent {
     }
 
     isFilterApplied() {
-        return this.getCriteria()?.orderNumber != null;
+        return this.getCriteria()?.orderUniqueIdentifier != null;
     }
 
     fetchOrders(event: TableLazyLoadEvent) {
