@@ -105,10 +105,10 @@ public class InventoryOutputMapperTest {
     @DisplayName("should return output NotificationMessage")
     public void testOutputNotificationMessage(){
         NotificationMessage message = inventoryAggregate.getNotificationMessages().getFirst();
-        when(service.getText(message.message())).thenReturn("INVENTORY_IS_QUARANTINED");
-        message.details().forEach(detail -> when(service.getText(detail)).thenReturn(detail));
+        when(service.getText(message.name(), message.message())).thenReturn("This product is currently in quarantine and needs to be returned to storage.");
+        message.details().forEach(detail -> when(service.getText(message.name() + "_DETAIL", detail)).thenReturn(detail));
         NotificationMessage output = mapper.toOutput(message);
-        assertEquals("INVENTORY_IS_QUARANTINED", output.message());
+        assertEquals("This product is currently in quarantine and needs to be returned to storage.", output.message());
         assertEquals("INVENTORY_IS_QUARANTINED", output.name());
         assertEquals("INFO", output.type());
         assertEquals(4, output.code());
@@ -128,8 +128,8 @@ public class InventoryOutputMapperTest {
     @DisplayName("should return output ValidateInventoryOutput for each MessageType")
     public void testOutputValidateInventoryOutput(MessageType messageType) {
         NotificationMessage message = inventoryAggregate.getNotificationMessages().getFirst();
-        when(service.getText(message.message())).thenReturn(messageType.name());
-        message.details().forEach(detail -> when(service.getText(detail)).thenReturn(detail));
+        when(service.getText(message.message(), message.name())).thenReturn(messageType.name());
+        message.details().forEach(detail -> when(service.getText(detail, message.name())).thenReturn(detail));
         ValidateInventoryOutput output = mapper.toOutput(messageType);
         assertNull(output.inventoryOutput());
         assertEquals(List.of(

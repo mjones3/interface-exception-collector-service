@@ -71,7 +71,7 @@ class UpdateQuarantinedUseCaseTest {
 
         mapper.setTextConfigService(textConfigService);
 
-        when(textConfigService.getText(anyString())).thenReturn("");
+        when(textConfigService.getText(anyString(), anyString())).thenReturn("");
     }
 
     @Test

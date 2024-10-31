@@ -24,8 +24,10 @@ import reactor.test.StepVerifier;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -73,11 +75,7 @@ public class RsocketSteps {
 
     @Given("I have one product with {string}, {string} and {string} in {string} status")
     public void iHaveOneProductWithAndInStatus(String unitNumber, String productCode, String location, String status) {
-        Integer days = InventoryStatus.EXPIRED.equals(InventoryStatus.valueOf(status)) || InventoryStatus.DISCARDED.equals(InventoryStatus.valueOf(status))   ? -1 : 1;
-
-        InventoryStatus inventoryStatus = "EXPIRED".equals(status) ? InventoryStatus.AVAILABLE : InventoryStatus.valueOf(status);
-
-        createInventory(unitNumber, productCode, "PLASMA_TRANSFUSABLE", AboRhType.OP, location, days, inventoryStatus, "ACTIVE_DEFERRAL", null);
+        this.iHaveOneProductWithAndInStatusWithReason(unitNumber, productCode, location, status, "ACTIVE_DEFERRAL");
     }
 
     @Given("I have one product with {string}, {string} and {string} in {string} status with reason {string} and comments {string}")
@@ -89,10 +87,15 @@ public class RsocketSteps {
         createInventory(unitNumber, productCode, "PLASMA_TRANSFUSABLE", AboRhType.OP, location, days, inventoryStatus, statusReason, comments);
     }
 
-
     private void createInventory(String unitNumber, String productCode, String productFamily, AboRhType aboRhType, String location, Integer daysToExpire, InventoryStatus status, String statusReason, String comments) {
+        this.createInventory(unitNumber, productCode, productFamily, aboRhType, location, daysToExpire, status, statusReason, comments, List.of());
+    }
 
-        List<Quarantine> quarantines = InventoryStatus.QUARANTINED.equals(status) ? TestUtil.createQuarantines() : List.of();
+    private void createInventory(String unitNumber, String productCode, String productFamily, AboRhType aboRhType, String location, Integer daysToExpire, InventoryStatus status, String statusReason, String comments, List<Quarantine> specificQuarantines) {
+        List<Quarantine> quarantines = InventoryStatus.QUARANTINED.equals(status) && specificQuarantines.isEmpty() ? TestUtil.createQuarantines() : List.of();
+        if(!specificQuarantines.isEmpty()) {
+            quarantines = specificQuarantines;
+        }
         inventoryEntityRepository.save(InventoryEntity.builder()
             .id(UUID.randomUUID())
             .productFamily(productFamily)
@@ -176,8 +179,8 @@ public class RsocketSteps {
         assertThat(inventory.shortDateProducts().size()).isEqualTo(Integer.parseInt(quantityShortDate));
     }
 
-    @Then("I receive for {string} with {string} in the {string} a {string} message with {string} action and {string} reason and {string} message")
-    public void iReceiveForWithInTheAMessage(String unitNumber, String productCode, String location, String errorType, String action, String reason, String messageError) {
+    @Then("I receive for {string} with {string} in the {string} a {string} message with {string} action and {string} reason and {string} message and details {string}")
+    public void iReceiveForWithInTheAMessage(String unitNumber, String productCode, String location, String errorType, String action, String reason, String messageError, String details) {
         Integer errorCode = "".equals(errorType) ? null : MessageType.valueOf(errorType).getCode();
         StepVerifier
             .create(inventoryValidationResponseDTOMonoResult)
@@ -206,9 +209,10 @@ public class RsocketSteps {
                     assertThat(message.inventoryNotificationsDTO().isEmpty()).isTrue();
                 }
                 if (MessageType.INVENTORY_IS_QUARANTINED.getCode().equals(errorCode)) {
+                    var detailsList = Arrays.stream(details.split(",")).map(String::toString).map(String::trim).toList();
+                    detailsList.forEach(
+                        detail ->  assertThat(message.inventoryNotificationsDTO().getFirst().details().contains(detail)).isTrue());
                     assertThat(message.inventoryNotificationsDTO().size()).isEqualTo(1);
-                    assertThat(message.inventoryNotificationsDTO().getFirst().details().size()).isEqualTo(5);
-
                 }
 
                 if (MessageType.INVENTORY_IS_EXPIRED.getCode().equals(errorCode)) {
@@ -218,5 +222,19 @@ public class RsocketSteps {
                 log.debug("Received message from validate inventory {}", message);
             })
             .verifyComplete();
+    }
+
+    @And("I have one product with {string}, {string} and {string} in {string} status with quarantine reasons {string} and comments {string}")
+    public void iHaveOneProductWithAndInStatusWithQuarantineReasonsAndComments(String unitNumber, String productCode, String location, String status, String quarantineReasons, String quarantineComments) {
+        Integer days = InventoryStatus.EXPIRED.equals(InventoryStatus.valueOf(status)) || InventoryStatus.DISCARDED.equals(InventoryStatus.valueOf(status))   ? -1 : 1;
+        List<Quarantine> quarantines = Arrays.stream(quarantineReasons.split(",")).map(String::trim).map(reason -> new Quarantine(1L, reason, quarantineComments)).collect(Collectors.toList());
+        createInventory(unitNumber, productCode, "PLASMA_TRANSFUSABLE", AboRhType.OP, location, days, InventoryStatus.valueOf(status), "ACTIVE_DEFERRAL", null, quarantines);
+    }
+
+    @And("I have one product with {string}, {string} and {string} in {string} status with reason {string}")
+    public void iHaveOneProductWithAndInStatusWithReason(String unitNumber, String productCode, String location, String status, String reason) {
+        Integer days = InventoryStatus.EXPIRED.equals(InventoryStatus.valueOf(status)) || InventoryStatus.DISCARDED.equals(InventoryStatus.valueOf(status))   ? -1 : 1;
+        InventoryStatus inventoryStatus = "EXPIRED".equals(status) ? InventoryStatus.AVAILABLE : InventoryStatus.valueOf(status);
+        createInventory(unitNumber, productCode, "PLASMA_TRANSFUSABLE", AboRhType.OP, location, days, inventoryStatus, reason, null);
     }
 }

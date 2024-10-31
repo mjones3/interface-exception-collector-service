@@ -22,8 +22,6 @@ import static com.arcone.biopro.distribution.inventory.BioProConstants.EXPIRED;
 @AllArgsConstructor
 public class InventoryAggregate {
 
-    public static final String OTHER_SEE_COMMENTS = "OTHER_SEE_COMMENTS";
-
     public static final String OTHER_REASON = "OTHER";
     Inventory inventory;
 
@@ -83,7 +81,7 @@ public class InventoryAggregate {
 
 
 
-        List<String> details = inventory.getQuarantines().stream().map(q -> !q.reason().equals(OTHER_SEE_COMMENTS) ? q.reason() : String.format("%s: %s", OTHER_SEE_COMMENTS, q.comments())).toList();
+        List<String> details = inventory.getQuarantines().stream().map(q -> !q.reason().equals(OTHER_REASON) ? q.reason() : String.format("%s: %s", OTHER_REASON, q.comments())).toList();
 
         return List.of(new NotificationMessage(
             qt.name(),

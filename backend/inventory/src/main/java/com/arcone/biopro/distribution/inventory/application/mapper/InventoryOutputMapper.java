@@ -44,8 +44,8 @@ public abstract class InventoryOutputMapper {
     @Mapping(target = "notificationMessages.message", expression = "java(toOutput(notificationMessage.message()))")
     public abstract ValidateInventoryOutput toValidateInventoryOutput(InventoryAggregate inventoryAggregate);
 
-    @Mapping(target = "message", expression = "java(textConfigService.getText(notificationMessage.message()))")
-    @Mapping(target = "details", expression = "java(toDetails(notificationMessage.details()))")
+    @Mapping(target = "message", expression = "java(textConfigService.getText(notificationMessage.name(), notificationMessage.message()))")
+    @Mapping(target = "details", expression = "java(toDetails(notificationMessage.details(), notificationMessage.name()))")
     protected abstract NotificationMessage toOutput(NotificationMessage notificationMessage);
 
     @Mapping(target = "inventoryOutput", ignore = true)
@@ -53,7 +53,7 @@ public abstract class InventoryOutputMapper {
     public abstract ValidateInventoryOutput toOutput(MessageType notificationType);
 
     @Mapping(target = "name", expression = "java(notificationType.name())")
-    @Mapping(target = "message", expression = "java(textConfigService.getText(notificationType.name()))")
+    @Mapping(target = "message", expression = "java(textConfigService.getText(notificationType.name(), notificationType.name()))")
     @Mapping(target = "action", expression = "java(notificationType.getAction().name())")
     @Mapping(target = "reason", ignore = true)
     @Mapping(target = "details", ignore = true)
@@ -76,8 +76,8 @@ public abstract class InventoryOutputMapper {
 
 
 
-    List<String> toDetails(List<String> details) {
-        return details.stream().map(d -> textConfigService.getText(d)).toList();
+    List<String> toDetails(List<String> details, String context) {
+        return details.stream().map(d -> textConfigService.getText(context + "_DETAIL", d)).toList();
     }
 
 }

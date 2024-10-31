@@ -12,9 +12,11 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -38,14 +40,21 @@ public class TextConfigServiceImpl implements TextConfigService {
         List<TextConfigEntity> allTexts = repository.findAll().collectList().block();
         if (allTexts != null) {
             allTexts.forEach(textConfig ->
-                textConfigCache.put(textConfig.getKeyCode(), textConfig.getText())
+                textConfigCache.put(getContextAndKey(textConfig.getContext(), textConfig.getKeyCode()), textConfig.getText())
             );
         }
     }
 
     @Override
-    public String getText(String keyCode) {
-        return textConfigCache.computeIfAbsent(keyCode, this::getDefault);
+    public String getText(String context, String keyCode) {
+        if (textConfigCache.containsKey(getContextAndKey(context, keyCode))) {
+            return textConfigCache.get(getContextAndKey(context, keyCode));
+        }
+        if (textConfigCache.containsKey(getContextAndKey(context, "DEFAULT"))) {
+            var messageTemplate = textConfigCache.get(getContextAndKey(context, "DEFAULT"));
+            return String.format(messageTemplate, convertToTitleCase(keyCode));
+        }
+        return getDefault(keyCode);
     }
 
     private String getDefault(String keyCode) {
@@ -54,5 +63,21 @@ public class TextConfigServiceImpl implements TextConfigService {
         }
 
         return StringUtils.capitalize(keyCode.replaceAll("_", " "));
+    }
+
+    private String convertToTitleCase(String input) {
+        if (input == null || input.isEmpty()) {
+            return "";
+        }
+        if (input.contains("_")) {
+            return Arrays.stream(input.split("_"))
+                .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1).toLowerCase())
+                .collect(Collectors.joining(" "));
+        }
+        return input;
+    }
+
+    private String getContextAndKey(String context, String keyCode) {
+        return String.format("%s-%s", context, keyCode);
     }
 }
