@@ -234,4 +234,8 @@ public class ShipmentDetailPage extends CommonPageFactory {
         log.debug("checking Verify products button is visible.");
         sharedActions.waitForVisible(verifyProductsBtn);
     }
+
+    public void clickVerifyProductsBtn() throws InterruptedException {
+        sharedActions.click(verifyProductsBtn);
+    }
 }

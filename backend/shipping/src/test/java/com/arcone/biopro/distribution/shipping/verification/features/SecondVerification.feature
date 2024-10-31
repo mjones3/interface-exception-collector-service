@@ -4,8 +4,8 @@ Feature: Second Verification of Units Feature
     So that I can ensure that the products recorded in the system match the physical products inside the shipping box.
 
     Background:
-        Given I cleaned up from the database the packed item that used the unit number "W822530106087,W822530106087,W822530106089,W822530106088".
-        And I cleaned up from the database, all shipments with order number "118,119,120".
+        Given I cleaned up from the database the packed item that used the unit number "W822530106087,W822530106089,W822530106088".
+        And I cleaned up from the database, all shipments with order number "118,119".
 
 
         Rule: I should be able to verify each unit that I have packed in the shipment.
@@ -16,7 +16,7 @@ Feature: Second Verification of Units Feature
         Rule: I should be able to see the order information.
         @ui @DST-203
         Scenario Outline: Second verification packed units.
-            Given I have a shipment for order <Order Number> with the unit "<UN>" and product code "<Code>" packed.
+            Given I have a shipment for order "<Order Number>" with the unit "<UN>" and product code "<Code>" packed.
             And The second verification configuration is "enabled".
             And I am on the Shipment Fulfillment Details page for order <Order Number>.
             When I choose verify products.
@@ -26,15 +26,14 @@ Feature: Second Verification of Units Feature
             Then I should see the unit "<UN>" with product code "<Code>" added to the verified products table.
             And I should see the log of verified products being updated.
             And The complete shipment option should be enabled.
-            Examples:
-                | Order Number | Code     | UN            |
-                | 118          | E0685V00 | W822530106087 |
-
+           Examples:
+               | Order Number | Code     | UN            |
+               | 118          | E0685V00 | W822530106087 |
         Rule: I should be notified when I scan a unit that is not part of the shipment.
         Rule: I should not be able to complete the shipment if all the units are not verified.
         @ui @DST-203
         Scenario Outline: Second verification units not packed.
-            Given I have a shipment for order <Order Number> with the unit "<UN>" and product code "<Code>" packed.
+            Given I have a shipment for order "<Order Number>" with the unit "<UN>" and product code "<Code>" packed.
             And The second verification configuration is "enabled".
             And I am on the Shipment Fulfillment Details page for order <Order Number>.
             When I choose verify products.
@@ -46,4 +45,5 @@ Feature: Second Verification of Units Feature
             And The complete shipment option should not be enabled.
             Examples:
                 | Order Number | Code     | UN            | Not Packed Unit | Not Packed Code |
-                | 119          | E0685V00 | W822530106087 | E0685V00        | W822530106089   |
+                | 119          | E0685V00 | W822530106088 | E0685V00        | W822530106089   |
+
