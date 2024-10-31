@@ -24,14 +24,13 @@
                         }}</span>
                     </div>
                     <div class="flex flex-auto flex-col">
-                        <mat-progress-bar
-                            id="shipmentProgressBarId"
-                            class="h-2"
-                            mode="determinate"
+                        <biopro-progress-bar
+                            [progressBarId]="'shipmentProgressBarId'"
                             [value]="
                                 (filledProductsCount / totalProducts) * 100
                             "
-                        ></mat-progress-bar>
+                        >
+                        </biopro-progress-bar>
                     </div>
                 </fuse-card>
             }
@@ -276,17 +275,17 @@
                                         product?.packedItems?.length || 0
                                     }}</span>
                                     <span class="w-10">
-                                        <mat-progress-bar
-                                            mode="determinate"
-                                            [id]="'filled' + i"
+                                        <biopro-progress-bar
+                                            [progressBarId]="'filled' + i"
                                             [value]="
                                                 ((product?.packedItems
                                                     ?.length || 0) /
                                                     product?.quantity) *
                                                 100
                                             "
-                                        ></mat-progress-bar
-                                    ></span>
+                                        >
+                                        </biopro-progress-bar>
+                                    </span>
                                 </div>
                             </td>
                             <td>

@@ -26,6 +26,7 @@ import {
 } from 'app/core/models/browser-printing.model';
 import { BrowserPrintingService } from 'app/core/services/browser-printing/browser-printing.service';
 import { getAuthState } from 'app/core/state/auth/auth.selectors';
+import { ProgressBarComponent } from 'app/progress-bar/progress-bar.component';
 import { ActionButtonComponent } from 'app/shared/components/action-button/action-button.component';
 import { ProductIconsService } from 'app/shared/services/product-icon.service';
 import { ToastrModule } from 'ngx-toastr';
@@ -67,9 +68,9 @@ import { ViewShippingLabelComponent } from '../view-shipping-label/view-shipping
         ButtonModule,
         DropdownModule,
         ActionButtonComponent,
+        ProgressBarComponent,
     ],
     templateUrl: './shipment-details.component.html',
-    styleUrl: './shipment-details.component.scss',
 })
 export class ShipmentDetailsComponent implements OnInit {
     constructor(

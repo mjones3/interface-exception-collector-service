@@ -27,14 +27,13 @@
                         }}</span>
                     </div>
                     <div class="flex flex-auto flex-col">
-                        <mat-progress-bar
-                            id="orderProgressBarId"
-                            class="h-2"
-                            mode="determinate"
+                        <biopro-progress-bar
+                            [progressBarId]="'orderProgressBarId'"
                             [value]="
                                 (filledOrdersCount / totalOrderProducts) * 100
                             "
-                        ></mat-progress-bar>
+                        >
+                        </biopro-progress-bar>
                     </div>
                 </fuse-card>
             }
@@ -266,17 +265,20 @@
                                                 }}
                                             </span>
                                             <span class="w-10">
-                                                <mat-progress-bar
-                                                    mode="determinate"
-                                                    [id]="'filled' + i"
+                                                <biopro-progress-bar
+                                                    [progressBarId]="
+                                                        'filled' + i
+                                                    "
                                                     [value]="
                                                         ((product?.quantityShipped ||
                                                             0) /
                                                             product?.quantity) *
                                                         100
                                                     "
-                                                ></mat-progress-bar
-                                            ></span>
+                                                >
+                                                </biopro-progress-bar>
+                                                ></span
+                                            >
                                         </div>
                                     </td>
                                 </tr>
