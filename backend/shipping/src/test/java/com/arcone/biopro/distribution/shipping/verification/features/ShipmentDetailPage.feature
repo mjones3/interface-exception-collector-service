@@ -40,7 +40,7 @@ Feature: Access Shipment Details Page
 
 
     Rule: I should be able to view the pending log of products to be filled in the shipment
-        @DIS-48
+        @DIS-48 @DIS-201
         Scenario Outline: Pending log of products
             Given The shipment details are order Number "<orderNumber>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>".
             And I have received a shipment fulfillment request with above details.
