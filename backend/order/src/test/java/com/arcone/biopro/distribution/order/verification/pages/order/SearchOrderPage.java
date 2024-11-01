@@ -49,8 +49,10 @@ public class SearchOrderPage extends CommonPageFactory {
     @FindBy(id = "applyBtn")
     private WebElement filterApplyButton;
 
-    @FindBy(xpath = "//*[@id='ordersTableId']//tbody/tr")
-    private List<WebElement> tableRows;
+    private static final String tableRows = "//*[@id='ordersTableId']//tbody/tr";
+
+    @FindBy(xpath = tableRows)
+    private List<WebElement> tableRowsList;
 
     @FindAll({
         @FindBy(xpath = "//tr[contains(@id,'order-table-row')]//td[position()=3]")
@@ -129,7 +131,8 @@ public class SearchOrderPage extends CommonPageFactory {
 
     public int tableRowsCount() {
         sharedActions.waitForNotVisible(tableLoadingOverlay);
-        return tableRows.size();
+        sharedActions.waitForVisible(By.xpath(tableRows));
+        return tableRowsList.size();
     }
 
     public void searchOrder(String value) throws InterruptedException {
