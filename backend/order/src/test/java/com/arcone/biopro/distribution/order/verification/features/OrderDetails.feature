@@ -63,7 +63,7 @@ Feature: View order details
         Rule: I should be able to see the number of products that have been shipped for each line item in an order.
         Rule: The shipment status must be updated to Completed when the shipment completed event is generated on order details page.
         Rule: The order status must remain In Progress status if the order is partially fulfilled.
-        @DIS-141 @DIS-99 @DIS-98
+        @DIS-141 @DIS-99 @DIS-98 @DIS-201
             Scenario Outline: Progress of the Order Fulfillment
             Given I have a Biopro Order with externalId "<External ID>", Location Code "<LocationCode>", Priority "<Priority>", Status "<Status>", shipment type "<Shipment Type>", delivery type "<Delivery Type>", shipping method "<Shipping Method>", product category "<Product Category>", desired ship date "<Desired Date>", shipping customer code and name as "<Shipping Customer Code>" and "<Shipping Customer Name>", billing customer code and name as "<Billing Customer Code>" and "<Billing Customer Name>", and comments "<Order Comments>".
             And I have <Items Quantity> order items with product families "<ProductFamily>", blood types "<BloodType>", quantities "<Quantity>", and order item comments "<Item Comments>".
