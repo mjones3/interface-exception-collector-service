@@ -39,11 +39,12 @@ Feature: Search Orders
         Scenario Outline: Search for an order and view the details
             Given I cleaned up from the database the orders with external ID "<External ID>".
             And I have a Biopro Order with id "<Order Number>", externalId "<External ID>", Location Code "<Order LocationCode>", Priority "<Priority>" and Status "<Status>".
+            And I have an order item with product family "<ProductFamily>", blood type "<BloodType>", quantity <Quantity>, and order item comments "<Item Comments>".
             And I am logged in the location "<User LocationCode>".
             And I choose search orders.
             When I search the order by "externalId".
             Then I should be redirected to the order details page.
 
             Examples:
-                | Order Number | External ID     | Order LocationCode | User LocationCode | Priority | Status |
-                | 2018         | 114117922233510 | 123456789          | 123456789         | STAT     | OPEN   |
+                | Order Number | External ID     | Order LocationCode | User LocationCode | Priority | Status | ProductFamily       | BloodType | Quantity | Item Comments |
+                | 2018         | 114117922233510 | 123456789          | 123456789         | STAT     | OPEN   | PLASMA_TRANSFUSABLE | AB        | 3        | Needed asap   |
