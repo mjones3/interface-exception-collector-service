@@ -1,20 +1,34 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { animate, state, style, transition, trigger } from '@angular/animations';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatInputModule } from '@angular/material/input';
+import {
+    animate,
+    state,
+    style,
+    transition,
+    trigger,
+} from '@angular/animations';
 import { CommonModule, NgTemplateOutlet } from '@angular/common';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {
+    FormBuilder,
+    FormGroup,
+    FormsModule,
+    ReactiveFormsModule,
+    Validators,
+} from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
-import { FiltersComponent } from '../../../../../shared/components/filters/filters.component';
+import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { AutoUnsubscribe } from '@shared';
 import { ActivatedRoute } from '@angular/router';
-import { debounceTime, Subject, Subscription } from 'rxjs';
-import { SelectOptionDto } from '@shared';
-import { SearchOrderResolverData, SearchOrderFilterDTO } from '../../../models/order.dto';
-import { BioproValidators } from '../../../../../shared/forms/biopro-validators';
+import { AutoUnsubscribe, SelectOptionDto } from '@shared';
+import { Subject, Subscription, debounceTime } from 'rxjs';
+import { FiltersComponent } from '../../../../../shared/components/filters/filters.component';
 import { SelectAllDirective } from '../../../../../shared/directive/select-all/select-all.directive';
+import { BioproValidators } from '../../../../../shared/forms/biopro-validators';
+import {
+    SearchOrderFilterDTO,
+    SearchOrderResolverData,
+} from '../../../models/order.dto';
 
 const SINGLE_SEARCH_FILTER_KEYS: string[] = ['orderNumber'];
 const DEBOUNCE_TIME = 100;
@@ -23,9 +37,12 @@ const DEBOUNCE_TIME = 100;
     selector: 'app-search-order-filter',
     animations: [
         trigger('detailExpand', [
-            state('collapsed,void', style({height: '0px', minHeight: '0'})),
-            state('expanded', style({height: '*'})),
-            transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+            state('collapsed,void', style({ height: '0px', minHeight: '0' })),
+            state('expanded', style({ height: '*' })),
+            transition(
+                'expanded <=> collapsed',
+                animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')
+            ),
         ]),
     ],
     standalone: true,
@@ -43,13 +60,15 @@ const DEBOUNCE_TIME = 100;
         SelectAllDirective,
     ],
     templateUrl: './search-order-filter.component.html',
-    styleUrl: './search-order-filter.component.scss'
+    styleUrl: './search-order-filter.component.scss',
 })
 @AutoUnsubscribe()
 export class SearchOrderFilterComponent implements OnInit {
     @Input() showFilters = false;
-    @Output() applySearchFilters: EventEmitter<SearchOrderFilterDTO> = new EventEmitter<SearchOrderFilterDTO>();
-    @Output() toggleFilters: EventEmitter<boolean> = new EventEmitter<boolean>();
+    @Output() applySearchFilters: EventEmitter<SearchOrderFilterDTO> =
+        new EventEmitter<SearchOrderFilterDTO>();
+    @Output() toggleFilters: EventEmitter<boolean> =
+        new EventEmitter<boolean>();
 
     resolverData: SearchOrderResolverData;
     searchForm: FormGroup;
@@ -60,9 +79,10 @@ export class SearchOrderFilterComponent implements OnInit {
     private appliedTotalFilterCount = 0;
     private locationTypesOrdered = false;
 
-    constructor(private formBuilder: FormBuilder,
-                private activatedRoute: ActivatedRoute) {
-    }
+    constructor(
+        private formBuilder: FormBuilder,
+        private activatedRoute: ActivatedRoute
+    ) {}
 
     ngOnInit(): void {
         this.appliedTotalFilterCount = 0;
@@ -88,9 +108,10 @@ export class SearchOrderFilterComponent implements OnInit {
     }
 
     private initForm(): void {
-        this.searchForm = this.formBuilder.group({
-            orderNumber: ['', [Validators.maxLength(25)]],
-        },
+        this.searchForm = this.formBuilder.group(
+            {
+                orderNumber: ['', [Validators.maxLength(25)]],
+            },
             { validators: BioproValidators.hasAtLeastOne }
         );
     }
@@ -111,23 +132,15 @@ export class SearchOrderFilterComponent implements OnInit {
 
     // Apply Filters
     applyFilterSearch(): void {
-        this.appliedTotalFilterCount = Object.values(this.searchForm.value)
-            .filter((ele) => null != ele && '' != ele).length;
+        this.appliedTotalFilterCount = Object.values(
+            this.searchForm.value
+        ).filter((ele) => null != ele && '' != ele).length;
 
         this.applySearchFilters.emit(this.removeSelectAllIndicator());
     }
 
     private removeSelectAllIndicator(): SearchOrderFilterDTO {
-        const filterCriteria: SearchOrderFilterDTO = this.searchForm.value;
-
-        ['locations', 'deviceTypes', 'deviceUses', 'locationTypes', 'deviceStatuses', 'deviceCategories', 'names']
-            .forEach(key => {
-                if (filterCriteria[key]?.length > 0) {
-                    filterCriteria[key] = filterCriteria[key].filter(item => item !== 'select-all');
-                }
-            });
-
-        return filterCriteria;
+        return this.searchForm.value;
     }
 
     toggleFilter(toggleFlag: boolean): void {
@@ -170,26 +183,43 @@ export class SearchOrderFilterComponent implements OnInit {
         this.searchForm.updateValueAndValidity();
     }
 
-
     get appliedFiltersCounter(): number {
         return this.appliedTotalFilterCount;
     }
 
     selectOptionKeys(selectOptions: SelectOptionDto[]): string[] {
-        return selectOptions?.length > 0 ? selectOptions.map(option => option.optionKey) : [];
+        return selectOptions?.length > 0
+            ? selectOptions.map((option) => option.optionKey)
+            : [];
     }
 
     search(source: SelectOptionDto[], filterValue: string): SelectOptionDto[] {
         if (!filterValue || filterValue === '') {
             return source;
         }
-        return source.filter(optionValue => optionValue.optionDescription.toLowerCase().includes(filterValue.toLowerCase()));
+        return source.filter((optionValue) =>
+            optionValue.optionDescription
+                .toLowerCase()
+                .includes(filterValue.toLowerCase())
+        );
     }
 
     firstSelectedValue(key: string, source: SelectOptionDto[]): string {
-        if (!this.searchForm.controls[key].value || this.searchForm.controls[key].value?.length === 0) {
+        if (
+            !this.searchForm.controls[key].value ||
+            this.searchForm.controls[key].value?.length === 0
+        ) {
             return '';
         }
-        return this.searchForm.controls[key].value[0] === 'select-all' ? 'All' : source.filter(item => this.searchForm.controls[key].value.includes(item.optionKey)).map(item => item.optionDescription).toString();
+        return this.searchForm.controls[key].value[0] === 'select-all'
+            ? 'All'
+            : source
+                  .filter((item) =>
+                      this.searchForm.controls[key].value.includes(
+                          item.optionKey
+                      )
+                  )
+                  .map((item) => item.optionDescription)
+                  .toString();
     }
 }

@@ -207,16 +207,6 @@ export class SearchOrdersComponent {
 
     applyFilterSearch(searchCriteria: SearchOrderFilterDTO = {}): void {
         this.isFilterToggled = false;
-
-        if (!searchCriteria.sortBy) {
-            searchCriteria.sortBy = 'orderNumber';
-            searchCriteria.order = 'asc';
-        }
-        if (!searchCriteria.page && !searchCriteria.limit) {
-            searchCriteria.page = 0;
-            searchCriteria.limit = 20;
-        }
-
         this.currentFilter = searchCriteria;
         this.searchOrder();
     }
