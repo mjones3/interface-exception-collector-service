@@ -288,7 +288,7 @@ public class ShipmentTestingController {
     }
 
     public String getConfiguredDiscardReasons(){
-        var query = "SELECT reason_key from lk_reason WHERE type = 'VISUAL_INSPECTION_FAILED' AND active = true ORDER BY reason_key ASC";
+        var query = "SELECT reason_key from lk_reason WHERE type = 'VISUAL_INSPECTION_FAILED' AND active = true ORDER BY order_number";
         var reasonsList = databaseService.fetchData(query);
         var records = reasonsList.all().switchIfEmpty(Flux.empty()).collectList().block();
         return String.join(",", records.stream().map(x-> x.get("reason_key").toString().replace("_"," ")).toList());
