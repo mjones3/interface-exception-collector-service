@@ -3,6 +3,12 @@
         [subTitle]="header.subTitle | async"
         [title]="header.title | async"
     ></biopro-process-header>
+    <app-search-order-filter
+        (applySearchFilters)="applyFilterSearch($event)"
+        (toggleFilters)="toggleFilter($event)"
+        [showFilters]="isFilterToggled"
+    >
+    </app-search-order-filter>
     <div class="flex flex-col">
         <div class="flex w-full flex-row space-x-4 p-4">
             <div class="w-full">
@@ -204,6 +210,21 @@
                                                 order?.comments | uppercase
                                             }}</span>
                                         </div>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                            <ng-template
+                                *ngIf="footerMessage !== ''"
+                                pTemplate="footer"
+                            >
+                                <tr>
+                                    <td
+                                        class="p-text-right"
+                                        [colSpan]="columns.length"
+                                    >
+                                        <span class="ml-6">{{
+                                            footerMessage
+                                        }}</span>
                                     </td>
                                 </tr>
                             </ng-template>

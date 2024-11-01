@@ -3,7 +3,9 @@ package com.arcone.biopro.distribution.order.domain.model;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
+
 
 import java.util.List;
 
@@ -13,6 +15,8 @@ import java.util.List;
 public class OrderQueryCommand implements Validatable {
 
     private String locationCode;
+    private String orderNumber;
+    private String externalOrderId;
     private QuerySort querySort;
     private Integer limit;
 
@@ -21,7 +25,8 @@ public class OrderQueryCommand implements Validatable {
     private static final String DEFAULT_SECOND_SORT_BY = "status";
     private static final Integer DEFAULT_LIMIT = 20;
 
-    public OrderQueryCommand(String locationCode , QuerySort querySort ,   Integer limit) {
+    public OrderQueryCommand(String locationCode , String orderUniqueIdentifier, QuerySort querySort ,   Integer limit) {
+
         this.locationCode = locationCode;
         this.querySort = querySort;
         this.limit = limit;
@@ -30,6 +35,12 @@ public class OrderQueryCommand implements Validatable {
         }
         if(this.querySort == null){
             this.querySort = new QuerySort(List.of(new QueryOrderBy(DEFAULT_FIRST_SORT_BY,DEFAULT_SORT_DIRECTION),new QueryOrderBy(DEFAULT_SECOND_SORT_BY,DEFAULT_SORT_DIRECTION)));
+        }
+        if (StringUtils.isNumeric(orderUniqueIdentifier)) {
+            this.orderNumber = orderUniqueIdentifier;
+            this.externalOrderId = orderUniqueIdentifier;
+        } else if (orderUniqueIdentifier != null && !orderUniqueIdentifier.isEmpty()) {
+            this.externalOrderId = orderUniqueIdentifier;
         }
 
         checkValid();

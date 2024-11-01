@@ -40,6 +40,20 @@ public class SearchOrderPage extends CommonPageFactory {
     @FindBy(xpath = "//*[@class='p-datatable-loading-overlay']")
     private WebElement tableLoadingOverlay;
 
+    @FindBy(id = "filtersButtonId")
+    private WebElement filterToggleButton;
+
+    @FindBy(id = "orderNumberInput")
+    private WebElement orderNumberField;
+
+    @FindBy(id = "applyBtn")
+    private WebElement filterApplyButton;
+
+    private static final String tableRows = "//*[@id='ordersTableId']//tbody/tr";
+
+    @FindBy(xpath = tableRows)
+    private List<WebElement> tableRowsList;
+
     @FindAll({
         @FindBy(xpath = "//tr[contains(@id,'order-table-row')]//td[position()=3]")
     })
@@ -113,5 +127,23 @@ public class SearchOrderPage extends CommonPageFactory {
 
     public List<WebElement> getOrderPriorityList() {
         return orderPriorityList.stream().toList();
+    }
+
+    public int tableRowsCount() {
+        sharedActions.waitForNotVisible(tableLoadingOverlay);
+        sharedActions.waitForVisible(By.xpath(tableRows));
+        return tableRowsList.size();
+    }
+
+    public void searchOrder(String value) throws InterruptedException {
+        sharedActions.waitForVisible(filterToggleButton);
+        sharedActions.click(filterToggleButton);
+        sharedActions.waitForVisible(orderNumberField);
+        sharedActions.sendKeys(orderNumberField, value);
+        sharedActions.click(filterApplyButton);
+    }
+
+    public void checkIfDetailsPageIsOpened() {
+        sharedActions.waitForRedirectTo("order-details");
     }
 }

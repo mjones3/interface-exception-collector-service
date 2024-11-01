@@ -155,6 +155,16 @@ public class OrderSteps {
         var query = DatabaseQueries.insertBioProOrder(externalId, locationCode, orderController.getPriorityValue(priority), priority, status);
         databaseService.executeSql(query).block();
     }
+    @Given("I have a Biopro Order with id {string}, externalId {string}, Location Code {string}, Priority {string} and Status {string}.")
+    public void createBioproOrder(String id, String externalId, String locationCode, String priority, String status) {
+        this.orderId = Integer.valueOf(id);
+        this.externalId = externalId;
+        this.locationCode = locationCode;
+        this.priority = priority;
+        this.status = status;
+        var query = DatabaseQueries.insertBioProOrder(orderId, externalId, locationCode, orderController.getPriorityValue(priority), priority, status);
+        databaseService.executeSql(query).block();
+    }
 
     @And("I have an order item with product family {string}, blood type {string}, quantity {int}, and order item comments {string}.")
     public void createOrderItem(String productFamily, String bloodType, Integer quantity, String comments) {
@@ -439,5 +449,26 @@ public class OrderSteps {
     @Then("I cannot see the progress status bar.")
     public void checkProgressBarNotExists() {
         orderDetailsPage.verifyProgressBarNotExists();
+    }
+
+    @When("I search the order by {string}.")
+    public void iSearchTheOrderBy(String value) throws InterruptedException {
+        if (value.equalsIgnoreCase("orderId")) {
+            searchOrderPage.searchOrder(this.orderId.toString());
+        } else if (value.equalsIgnoreCase("externalId")) {
+            searchOrderPage.searchOrder(this.externalId);
+        } else {
+            searchOrderPage.searchOrder(value);
+        }
+    }
+
+    @Then("I should see {int} orders in the search results.")
+    public void iShouldSeeOrdersInTheSearchResults(int quantity)  {
+        Assert.assertEquals(quantity, searchOrderPage.tableRowsCount());
+    }
+
+    @Then("I should be redirected to the order details page.")
+    public void iShouldBeRedirectedToTheOrderDetailsPage() {
+        searchOrderPage.checkIfDetailsPageIsOpened();
     }
 }
