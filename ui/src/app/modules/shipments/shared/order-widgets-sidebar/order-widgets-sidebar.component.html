@@ -10,7 +10,7 @@
                     <rsa-description-card
                         id="productDetails"
                         [descriptions]="productDetails()"
-                        [showColon]="true"
+                        [showColon]="false"
                         [embedded]="true"
                         [maxCols]="1"
                         [valueClasses]="'align-card-info'"
@@ -21,7 +21,7 @@
                         <mat-expansion-panel [disabled]="!productComments()">
                             <mat-expansion-panel-header>
                                 <mat-panel-title class="font-bold">
-                                    Product Comments:</mat-panel-title
+                                    Product Comments</mat-panel-title
                                 >
                             </mat-expansion-panel-header>
                             <div>{{ productComments() | uppercase }}</div>
@@ -44,7 +44,7 @@
                 <rsa-description-card
                     id="orderInfoDescriptions"
                     [descriptions]="order()"
-                    [showColon]="true"
+                    [showColon]="false"
                     [embedded]="true"
                     [maxCols]="1"
                     [valueClasses]="'align-card-info'"
@@ -54,7 +54,7 @@
                     <mat-expansion-panel [disabled]="!comments()">
                         <mat-expansion-panel-header>
                             <mat-panel-title class="font-bold">
-                                Comments:</mat-panel-title
+                                Comments</mat-panel-title
                             >
                         </mat-expansion-panel-header>
                         <div>{{ comments() | uppercase }}</div>
@@ -77,7 +77,7 @@
                     <rsa-description-card
                         id="shippingInfoDescriptions"
                         [descriptions]="shipping()"
-                        [showColon]="true"
+                        [showColon]="false"
                         [embedded]="true"
                         [maxCols]="1"
                         [valueClasses]="'align-card-info'"
@@ -101,7 +101,7 @@
                     <rsa-description-card
                         id="billInfoDescriptions"
                         [descriptions]="billing()"
-                        [showColon]="true"
+                        [showColon]="false"
                         [embedded]="true"
                         [maxCols]="1"
                         [valueClasses]="'align-card-info'"

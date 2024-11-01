@@ -36,7 +36,7 @@ public class OrderQueryRepositoryImpl implements OrderQueryRepository {
         if (orderQueryCommand.getExternalOrderId() != null && orderQueryCommand.getOrderNumber() != null) {
             criteria = criteria.and(where("orderNumber").is(orderQueryCommand.getOrderNumber()).or("externalId").is(orderQueryCommand.getOrderNumber()));
         } else if (orderQueryCommand.getExternalOrderId() != null) {
-            criteria = criteria.and(where("externalId").is(orderQueryCommand.getOrderNumber()));
+            criteria = criteria.and(where("externalId").is(orderQueryCommand.getExternalOrderId()));
         }
 
         var sorts = orderQueryCommand.getQuerySort()
