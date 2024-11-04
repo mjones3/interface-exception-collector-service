@@ -328,5 +328,11 @@ export class ShipmentDetailsComponent implements OnInit {
         );
     }
 
+    verifyProducts() {
+        this._router.navigateByUrl(
+            `/shipment/${this.shipmentId}/verify-products`
+        );
+    }
+
     protected readonly ProductFamilyMap = ProductFamilyMap;
 }

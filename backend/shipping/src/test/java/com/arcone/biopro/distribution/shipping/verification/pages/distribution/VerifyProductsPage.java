@@ -36,7 +36,6 @@ public class VerifyProductsPage extends CommonPageFactory {
     private static final String inputUnitNumber = "inUnitNumber";
     private static final String inputProductCode = "productCodeId";
     private static final String progressLog = "numberOfUnitAdded";
-    private static final String closeWarningButton = "//*[@id='toast-container']//fuse-alert//button";
 
     private String formatUnitLocator(String unit) {
         unit = TestUtils.removeUnitNumberScanDigits(unit);
@@ -120,9 +119,5 @@ public class VerifyProductsPage extends CommonPageFactory {
             log.debug("Complete Shipment button is not disabled");
             return false;
         }
-    }
-
-    public void closeWarningMessage() throws InterruptedException {
-        sharedActions.click(driver,By.xpath(closeWarningButton));
     }
 }
