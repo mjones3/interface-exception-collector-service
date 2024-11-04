@@ -9,8 +9,22 @@ Feature: Search Orders
             Given I am logged in the location "123456789".
             And I choose to search orders.
             When I open the search filter panel.
-            Then Apply and Reset options has to be disabled
+            Then I should see Apply and Reset filter options disabled.
+
     Rule: I should be able to see the following filter options
+        Scenario Outline: Check if the filter option is visible and required if specified
+            Given I am logged in the location "123456789".
+            And I choose to search orders.
+            When I open the search filter panel.
+            Then I should see "<Option Field>" which "<isRequired>" required
+
+            Examples:
+                | Option Field     | isRequired |
+                | Order Number     | is not     |
+                | Status           | is not     |
+                | Priority         | is not     |
+                | Ship to Customer | is not     |
+
     Rule: I should be prevented from selecting other filters when BioPro Order number or External ID is selected.
     Rule: I should be able to multi-select options for Priority, Status, and Ship to Customer fields.
     Rule: I should see the number of fields used to select the filter criteria.
