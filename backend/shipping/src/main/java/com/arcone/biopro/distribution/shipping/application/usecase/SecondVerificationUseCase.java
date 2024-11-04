@@ -7,6 +7,7 @@ import com.arcone.biopro.distribution.shipping.application.dto.RuleResponseDTO;
 import com.arcone.biopro.distribution.shipping.application.dto.VerifyItemRequest;
 import com.arcone.biopro.distribution.shipping.application.mapper.ShipmentMapper;
 import com.arcone.biopro.distribution.shipping.application.util.ShipmentServiceMessages;
+import com.arcone.biopro.distribution.shipping.domain.model.ShipmentItemPacked;
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.SecondVerification;
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemPackedRepository;
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentRepository;
@@ -36,21 +37,9 @@ public class SecondVerificationUseCase implements SecondVerificationService {
         return shipmentItemPackedRepository.findByShipmentIUnitNumberAndProductCode(verifyItemRequest.shipmentId()
                 ,verifyItemRequest.unitNumber(), verifyItemRequest.productCode())
             .switchIfEmpty(Mono.defer(() -> {
-                return Flux.from(shipmentItemPackedRepository.listAllByShipmentId(verifyItemRequest.shipmentId()))
-                    .flatMap(itemPacked -> {
-                        itemPacked.setSecondVerification(SecondVerification.PENDING);
-                        itemPacked.setVerificationDate(null);
-                        itemPacked.setVerifiedByEmployeeId(null);
-                        return shipmentItemPackedRepository.save(itemPacked);
-                    })
-                    .then(Mono.error(new RuntimeException(ShipmentServiceMessages.SECOND_VERIFICATION_UNIT_NOT_PACKED_ERROR)));
+                    return resetVerification(verifyItemRequest,ShipmentServiceMessages.SECOND_VERIFICATION_UNIT_NOT_PACKED_ERROR);
                 }))
-            .flatMap(shipmentItemPacked -> {
-                    shipmentItemPacked.setSecondVerification(SecondVerification.COMPLETED);
-                    shipmentItemPacked.setVerificationDate(ZonedDateTime.now());
-                    shipmentItemPacked.setVerifiedByEmployeeId(verifyItemRequest.employeeId());
-                    return shipmentItemPackedRepository.save(shipmentItemPacked);
-                })
+            .flatMap(shipmentItemPacked -> markAsVerified(shipmentItemPacked,verifyItemRequest))
                 .flatMap(savedPackedItem -> {
                     return Mono.from(getShipmentVerificationDetailsById(verifyItemRequest.shipmentId()))
                         .flatMap(verificationResponse -> Mono.just(RuleResponseDTO.builder()
@@ -99,5 +88,29 @@ public class SecondVerificationUseCase implements SecondVerificationService {
                     .build()))
                 .build());
         });
+    }
+
+    private Mono<ShipmentItemPacked> markAsVerified(ShipmentItemPacked itemPacked,VerifyItemRequest verifyItemRequest) {
+        if(SecondVerification.COMPLETED.equals(itemPacked.getSecondVerification())){
+            return resetVerification(verifyItemRequest,ShipmentServiceMessages.SECOND_VERIFICATION_ALREADY_COMPLETED_ERROR);
+        }
+
+        itemPacked.setSecondVerification(SecondVerification.COMPLETED);
+        itemPacked.setVerificationDate(ZonedDateTime.now());
+        itemPacked.setVerifiedByEmployeeId(verifyItemRequest.employeeId());
+        return shipmentItemPackedRepository.save(itemPacked);
+    }
+
+    private Mono<ShipmentItemPacked> markAsVerificationPending(ShipmentItemPacked itemPacked) {
+        itemPacked.setSecondVerification(SecondVerification.PENDING);
+        itemPacked.setVerificationDate(null);
+        itemPacked.setVerifiedByEmployeeId(null);
+        return shipmentItemPackedRepository.save(itemPacked);
+    }
+
+    private Mono<ShipmentItemPacked> resetVerification(VerifyItemRequest verifyItemRequest , String rootCause){
+        return Flux.from(shipmentItemPackedRepository.listAllByShipmentId(verifyItemRequest.shipmentId()))
+            .flatMap(this::markAsVerificationPending)
+            .then(Mono.error(new RuntimeException(rootCause)));
     }
 }

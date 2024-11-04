@@ -33,11 +33,10 @@ public class VerifyProductsPage extends CommonPageFactory {
     private static final String orderStatus = "//*[@id='informationDetails-Status']";
     private static final String externalId = "//*[@id='informationDetails-External-Order-ID']";
     private static final String completeShipmentButton = "completeActionBtn";
-
-    // TODO: Add selectors for the following elements
-    private static final String unitNumberInput = "";
-    private static final String productCodeInput = "";
-    private static final String progressLog = "";
+    private static final String inputUnitNumber = "inUnitNumber";
+    private static final String inputProductCode = "productCodeId";
+    private static final String progressLog = "numberOfUnitAdded";
+    private static final String closeWarningButton = "//*[@id='toast-container']//fuse-alert//button";
 
     private String formatUnitLocator(String unit) {
         unit = TestUtils.removeUnitNumberScanDigits(unit);
@@ -71,9 +70,9 @@ public class VerifyProductsPage extends CommonPageFactory {
 
     public void scanUnitAndProduct(String unitNumber, String productCode) throws InterruptedException {
         unitNumber = String.format("=%s00", unitNumber);
-        productCode = String.format("=>%s", productCode);
-        sharedActions.sendKeysAndEnter(this.driver, By.id(unitNumber), unitNumber);
-        sharedActions.sendKeysAndEnter(this.driver, By.id(productCode), productCode);
+        productCode = String.format("=<%s", productCode);
+        sharedActions.sendKeysAndEnter(this.driver, By.id(inputUnitNumber), unitNumber);
+        sharedActions.sendKeysAndEnter(this.driver, By.id(inputProductCode), productCode);
     }
 
     public boolean isProductVerified(String unitNumber, String productCode) {
@@ -100,7 +99,7 @@ public class VerifyProductsPage extends CommonPageFactory {
     }
 
     public String getProgressLog() {
-        return sharedActions.getText(By.xpath(progressLog));
+        return sharedActions.getText(By.id(progressLog));
     }
 
     public boolean isCompleteShipmentButtonEnabled() {
@@ -121,5 +120,9 @@ public class VerifyProductsPage extends CommonPageFactory {
             log.debug("Complete Shipment button is not disabled");
             return false;
         }
+    }
+
+    public void closeWarningMessage() throws InterruptedException {
+        sharedActions.click(driver,By.xpath(closeWarningButton));
     }
 }

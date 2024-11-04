@@ -294,7 +294,7 @@ public class ShipmentTestingController {
         return String.join(",", records.stream().map(x-> x.get("reason_key").toString().replace("_"," ")).toList());
     }
 
-    public Long createPackedShipment(String orderNumber, String unitNumber, String productCode){
+    public Long createPackedShipment(String orderNumber, List<String> unitNumbers, List<String> productCodes){
 
         var insertShipment = "INSERT INTO bld_shipment " +
             "(order_number, customer_code, customer_name, customer_phone_number, location_code, delivery_type, priority, shipment_method, product_category, status, state, postal_code, country" +
@@ -320,11 +320,9 @@ public class ShipmentTestingController {
 
             if(createdShipmentItem != null){
 
-                var insertPackedItem = "INSERT INTO bld_shipment_item_packed " +
-                    "(shipment_item_id, unit_number, product_code, product_description, abo_rh, packed_by_employee_id, expiration_date, collection_date, create_date, modification_date, visual_inspection, blood_type, product_family,second_verification,verification_date , verified_by_employee_id) " +
-                    " VALUES(%s, '%s', '%s', 'APH FFP C', 'BP', '5db1da0b-6392-45ff-86d0-17265ea33226', '2025-11-02 13:15:47.152', '2024-10-04 06:15:47.152', now(), now(), 'SATISFACTORY', 'B', 'PLASMA_TRANSFUSABLE','PENDING',null , null);";
-
-                databaseService.executeSql(String.format(insertPackedItem, createdShipmentItem.get("id"), unitNumber,productCode)).block();
+                for (int i = 0; i < unitNumbers.size(); i++) {
+                    createPackedItem(createdShipmentItem.get("id").toString(),unitNumbers.get(i),productCodes.get(i));
+                }
             }
 
             return Long.valueOf(shipmentId.toString());
@@ -333,4 +331,16 @@ public class ShipmentTestingController {
         return null;
 
     }
+
+    private void createPackedItem(String shipmentItemId,String unitNumber, String productCode){
+
+            var insertPackedItem = "INSERT INTO bld_shipment_item_packed " +
+                "(shipment_item_id, unit_number, product_code, product_description, abo_rh, packed_by_employee_id, expiration_date, collection_date, create_date, modification_date, visual_inspection, blood_type, product_family,second_verification,verification_date , verified_by_employee_id) " +
+                " VALUES(%s, '%s', '%s', 'APH FFP C', 'BP', '5db1da0b-6392-45ff-86d0-17265ea33226', '2025-11-02 13:15:47.152', '2024-10-04 06:15:47.152', now(), now(), 'SATISFACTORY', 'B', 'PLASMA_TRANSFUSABLE','PENDING',null , null);";
+
+            databaseService.executeSql(String.format(insertPackedItem, shipmentItemId, unitNumber,productCode)).block();
+
+
+    }
+
 }

@@ -13,6 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.Arrays;
+import java.util.List;
+
 @Slf4j
 @SpringBootTest
 public class SecondVerificationSteps {
@@ -20,6 +23,8 @@ public class SecondVerificationSteps {
     private Long shipmentId;
     private String unitNumber;
     private String productCode;
+    private Integer totalPacked = 0;
+    private Integer totalVerified = 0;
 
     @Autowired
     ShipmentTestingController shipmentTestingController;
@@ -37,15 +42,31 @@ public class SecondVerificationSteps {
     public void createPackedShipment(String orderNumber, String unitNumber, String productCode){
         this.unitNumber = unitNumber;
         this.productCode = productCode;
-        this.shipmentId = shipmentTestingController.createPackedShipment(orderNumber,unitNumber,productCode);
+        this.shipmentId = shipmentTestingController.createPackedShipment(orderNumber, List.of(unitNumber),List.of(productCode));
 
         Assert.assertNotNull(this.shipmentId);
+        this.totalPacked = 1;
+
+    }
+
+    @Given("I have a shipment for order {string} with the units {string}  and product codes {string} packed.")
+    public void createPackedShipmentMultipleUnits(String orderNumber, String unitNumbers, String productCodes){
+        var units = Arrays.stream(unitNumbers.split(",")).toList();
+        var productCodeList = Arrays.stream(productCodes.split(",")).toList();
+
+        this.unitNumber = units.getFirst();
+        this.productCode = productCodeList.getFirst();
+        this.shipmentId = shipmentTestingController.createPackedShipment(orderNumber,units,productCodeList);
+
+        Assert.assertNotNull(this.shipmentId);
+        this.totalPacked = units.size();
 
     }
 
     @Then("I should be redirected to the verify products page.")
-    public void shouldBeRedirectedToVerifyProductsPage(){
+    public void shouldBeRedirectedToVerifyProductsPage() throws InterruptedException {
         verifyProductsPage.isPageOpen(this.shipmentId.toString());
+        verifyProductsPage.closeWarningMessage();
     }
 
     @Then("I can see the Order Information Details and the Shipping Information Details.")
@@ -62,13 +83,14 @@ public class SecondVerificationSteps {
     @Then("I should see the unit added to the verified products table.")
     public void checkVerifiedProductIsPresent() {
         Assert.assertTrue(verifyProductsPage.isProductVerified(unitNumber, productCode));
+        this.totalVerified++;
     }
 
     @And("I should see the log of verified products being updated.")
     public void verifyLogInProgress() {
         String progress = verifyProductsPage.getProgressLog();
-        var progressValue = progress.split("/")[0];
-        Assert.assertNotEquals("0", progressValue);
+        var progressText = String.format("%s/%s",totalVerified,totalPacked);
+        Assert.assertEquals(progress, progressText);
     }
 
     @And("The complete shipment option should be enabled.")

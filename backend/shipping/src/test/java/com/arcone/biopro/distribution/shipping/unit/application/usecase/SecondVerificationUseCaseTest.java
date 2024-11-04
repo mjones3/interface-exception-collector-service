@@ -45,22 +45,29 @@ class SecondVerificationUseCaseTest {
     @Test
     public void shouldVerifyItem(){
 
-        var packedItem = Mockito.mock(ShipmentItemPacked.class);
 
-        Mockito.when(packedItem.getUnitNumber()).thenReturn("UNIT_NUMBER");
-        Mockito.when(packedItem.getProductCode()).thenReturn("ABCD");
-        Mockito.when(packedItem.getSecondVerification()).thenReturn(SecondVerification.COMPLETED);
-        Mockito.when(packedItem.getVerifiedByEmployeeId()).thenReturn("VERIFY_EMPLOYEE_ID");
-        Mockito.when(packedItem.getPackedByEmployeeId()).thenReturn("PACK_EMPLOYEE_ID");
+        var verifiedItem = Mockito.mock(ShipmentItemPacked.class);
+
+        Mockito.when(verifiedItem.getUnitNumber()).thenReturn("UNIT_NUMBER");
+        Mockito.when(verifiedItem.getProductCode()).thenReturn("ABCD");
+        Mockito.when(verifiedItem.getSecondVerification()).thenReturn(SecondVerification.PENDING);
+        Mockito.when(verifiedItem.getPackedByEmployeeId()).thenReturn("PACK_EMPLOYEE_ID");
+
+        var completePackedItem = Mockito.mock(ShipmentItemPacked.class);
+        Mockito.when(completePackedItem.getUnitNumber()).thenReturn("UNIT_NUMBER");
+        Mockito.when(completePackedItem.getProductCode()).thenReturn("ABCD");
+        Mockito.when(completePackedItem.getSecondVerification()).thenReturn(SecondVerification.COMPLETED);
+        Mockito.when(completePackedItem.getVerifiedByEmployeeId()).thenReturn("VERIFY_EMPLOYEE_ID");
+        Mockito.when(completePackedItem.getPackedByEmployeeId()).thenReturn("PACK_EMPLOYEE_ID");
 
 
-        Mockito.when(shipmentItemPackedRepository.findByShipmentIUnitNumberAndProductCode(Mockito.anyLong() , Mockito.anyString() , Mockito.anyString())).thenReturn(Mono.just(packedItem));
+        Mockito.when(shipmentItemPackedRepository.findByShipmentIUnitNumberAndProductCode(Mockito.anyLong() , Mockito.anyString() , Mockito.anyString())).thenReturn(Mono.just(verifiedItem));
 
-        Mockito.when(shipmentItemPackedRepository.save(Mockito.any())).thenReturn(Mono.just(packedItem));
+        Mockito.when(shipmentItemPackedRepository.save(Mockito.any())).thenReturn(Mono.just(completePackedItem));
 
-        Mockito.when(shipmentItemPackedRepository.listAllByShipmentId(Mockito.anyLong())).thenReturn(Flux.just(packedItem));
+        Mockito.when(shipmentItemPackedRepository.listAllByShipmentId(Mockito.anyLong())).thenReturn(Flux.just(completePackedItem));
 
-        Mockito.when(shipmentItemPackedRepository.listAllVerifiedByShipmentId(Mockito.anyLong())).thenReturn(Flux.just(packedItem));
+        Mockito.when(shipmentItemPackedRepository.listAllVerifiedByShipmentId(Mockito.anyLong())).thenReturn(Flux.just(completePackedItem));
 
         Mono<RuleResponseDTO> response = useCase.verifyItem(VerifyItemRequest.builder()
                 .shipmentId(1L)
@@ -150,6 +157,66 @@ class SecondVerificationUseCaseTest {
                 assertEquals(HttpStatus.BAD_REQUEST.value(), firstNotification.statusCode());
                 assertEquals("WARN", firstNotification.notificationType());
                 assertEquals(ShipmentServiceMessages.SECOND_VERIFICATION_UNIT_NOT_PACKED_ERROR, firstNotification.message());
+            })
+            .verifyComplete();
+
+
+    }
+
+    @Test
+    public void shouldNotVerifyItemWhenIsAlreadyVerified(){
+
+        var packedItem = Mockito.mock(ShipmentItemPacked.class);
+
+        Mockito.when(packedItem.getUnitNumber()).thenReturn("UNIT_NUMBER");
+        Mockito.when(packedItem.getProductCode()).thenReturn("ABCD");
+        Mockito.when(packedItem.getSecondVerification()).thenReturn(SecondVerification.COMPLETED);
+        Mockito.when(packedItem.getPackedByEmployeeId()).thenReturn("PACK_EMPLOYEE_ID");
+
+
+        Mockito.when(shipmentItemPackedRepository.findByShipmentIUnitNumberAndProductCode(Mockito.anyLong() , Mockito.anyString() , Mockito.anyString())).thenReturn(Mono.just(packedItem));
+
+        Mockito.when(shipmentItemPackedRepository.listAllByShipmentId(Mockito.anyLong())).thenReturn(Flux.just(packedItem));
+
+        Mockito.when(shipmentItemPackedRepository.save(Mockito.any())).thenReturn(Mono.just(packedItem));
+
+        Mockito.when(shipmentItemPackedRepository.listAllByShipmentId(Mockito.anyLong())).thenReturn(Flux.just(packedItem));
+
+        Mockito.when(shipmentItemPackedRepository.listAllVerifiedByShipmentId(Mockito.anyLong())).thenReturn(Flux.just(packedItem));
+
+
+        Mono<RuleResponseDTO> response = useCase.verifyItem(VerifyItemRequest.builder()
+            .shipmentId(1L)
+            .unitNumber("UN")
+            .employeeId("test")
+            .productCode("123")
+            .build());
+
+
+        StepVerifier
+            .create(response)
+            .consumeNextWith(detail -> {
+
+                assertNotNull(detail.results());
+
+                var ruleResults = detail.results().get("results");
+                var firstRuleResult = ruleResults.getFirst();
+                assertNotNull(ruleResults);
+                assertNotNull(firstRuleResult);
+
+                var verificationDetails = (VerifyProductResponseDTO) firstRuleResult;
+
+                var firstPackedItem = verificationDetails.packedItems().getFirst();
+                assertEquals("UNIT_NUMBER", firstPackedItem.unitNumber());
+                assertEquals("ABCD", firstPackedItem.productCode());
+                assertEquals("PACK_EMPLOYEE_ID", firstPackedItem.packedByEmployeeId());
+
+                var firstNotification = detail.notifications().getFirst();
+
+                assertEquals(HttpStatus.BAD_REQUEST, detail.ruleCode());
+                assertEquals(HttpStatus.BAD_REQUEST.value(), firstNotification.statusCode());
+                assertEquals("WARN", firstNotification.notificationType());
+                assertEquals(ShipmentServiceMessages.SECOND_VERIFICATION_ALREADY_COMPLETED_ERROR, firstNotification.message());
             })
             .verifyComplete();
 
