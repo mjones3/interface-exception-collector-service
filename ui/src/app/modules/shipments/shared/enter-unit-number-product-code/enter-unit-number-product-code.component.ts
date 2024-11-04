@@ -99,7 +99,9 @@ export class EnterUnitNumberProductCodeComponent implements OnDestroy {
                     (value) =>
                         !!value.unitNumber?.trim() &&
                         !!value.productCode?.trim() &&
-                        !!value.visualInspection?.trim()
+                        (this.showVisualInspection
+                            ? !!value.visualInspection?.trim()
+                            : true)
                 )
             )
             .subscribe(() => this.verifyProduct());

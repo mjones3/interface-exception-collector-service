@@ -53,6 +53,10 @@ describe('VerifyProductsComponent', () => {
         shipmentService = TestBed.inject(ShipmentService);
         router = TestBed.inject(Router);
         jest.spyOn(shipmentService, 'getShipmentById').mockReturnValue(of());
+        jest.spyOn(
+            shipmentService,
+            'getShipmentVerificationDetailsById'
+        ).mockReturnValue(of());
         fixture.detectChanges();
     });
 
