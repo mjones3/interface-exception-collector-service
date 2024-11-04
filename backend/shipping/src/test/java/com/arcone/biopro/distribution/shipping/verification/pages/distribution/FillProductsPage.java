@@ -76,7 +76,7 @@ public class FillProductsPage extends CommonPageFactory {
     public void addUnitWithProductCode(String unit, String productCode) throws InterruptedException {
         log.info("Adding unit {} with product code {}.", unit, productCode);
         sharedActions.sendKeys(this.driver, By.id(unitNumberInput), unit);
-        sharedActions.sendKeysAndEnter(this.driver, By.id(productCodeInput), productCode);
+        sharedActions.sendKeys(this.driver, By.id(productCodeInput), productCode);
         sharedActions.waitLoadingAnimation();
     }
 
