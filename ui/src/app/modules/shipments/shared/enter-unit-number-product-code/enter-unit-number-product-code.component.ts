@@ -32,7 +32,7 @@ import {
 } from '@shared';
 import { ERROR_MESSAGE } from 'app/core/data/common-labels';
 import { RuleResponseDTO } from 'app/shared/models/rule.model';
-import { Subscription, catchError, filter, of } from 'rxjs';
+import { Subscription, catchError, combineLatestWith, filter, of } from 'rxjs';
 import { VerifyFilledProductDto } from '../../models/shipment-info.dto';
 import { ShipmentService } from '../../services/shipment.service';
 
@@ -93,15 +93,17 @@ export class EnterUnitNumberProductCodeComponent implements OnDestroy {
             ],
         });
 
-        this.formValueChange = formGroup.valueChanges
+        this.formValueChange = formGroup.statusChanges
             .pipe(
+                combineLatestWith(formGroup.valueChanges),
                 filter(
-                    (value) =>
+                    ([status, value]) =>
                         !!value.unitNumber?.trim() &&
                         !!value.productCode?.trim() &&
                         (this.showVisualInspection
                             ? !!value.visualInspection?.trim()
-                            : true)
+                            : true) &&
+                        status === 'VALID'
                 )
             )
             .subscribe(() => this.verifyProduct());
