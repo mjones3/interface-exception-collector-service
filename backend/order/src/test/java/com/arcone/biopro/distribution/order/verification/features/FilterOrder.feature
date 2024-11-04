@@ -5,6 +5,11 @@ Feature: Search Orders
     Rule: I should be able to apply filter criteria.
     Rule: I should be able to reset the applied filter criteria.
     Rule: The system should not enable the Apply and Reset options until at least one filter criteria is chosen.
+        Scenario: Disable Apply and Reset options when no filter criteria is chosen
+            Given I am logged in the location "123456789".
+            And I choose to search orders.
+            When I open the search filter panel.
+            Then Apply and Reset options has to be disabled
     Rule: I should be able to see the following filter options
     Rule: I should be prevented from selecting other filters when BioPro Order number or External ID is selected.
     Rule: I should be able to multi-select options for Priority, Status, and Ship to Customer fields.
