@@ -298,10 +298,9 @@ export class ShipmentDetailsComponent implements OnInit {
                         this.displayMessageFromNotificationDto(
                             notifications[0]
                         );
-                        if (
-                            url &&
-                            notifications[0].notificationType === 'success'
-                        ) {
+                        if (url !== this._router.url) {
+                            this._router.navigateByUrl(url);
+                        } else {
                             this.fetchShipmentDetails();
                         }
                     }

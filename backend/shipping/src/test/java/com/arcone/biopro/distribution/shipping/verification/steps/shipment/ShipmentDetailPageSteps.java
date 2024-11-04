@@ -6,6 +6,7 @@ import com.arcone.biopro.distribution.shipping.verification.pages.distribution.S
 import com.arcone.biopro.distribution.shipping.verification.support.ScreenshotService;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -92,5 +93,10 @@ public class ShipmentDetailPageSteps {
         fillProductsPage.clickBackButton();
         shipmentDetailPage.clickBackBtn();
         sharedActions.isAtPage(orderDetailsUrl.replace("{orderId}", orderNumber));
+    }
+
+    @When("I choose verify products.")
+    public void chooseVerifyProducts() throws InterruptedException {
+        shipmentDetailPage.clickVerifyProductsBtn();
     }
 }

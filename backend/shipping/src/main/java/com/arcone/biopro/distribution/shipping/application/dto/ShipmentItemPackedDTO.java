@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.shipping.application.dto;
 
+import com.arcone.biopro.distribution.shipping.domain.model.enumeration.SecondVerification;
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.VisualInspection;
 import lombok.Builder;
 
@@ -20,7 +21,11 @@ public record ShipmentItemPackedDTO(
     LocalDateTime expirationDate,
     ZonedDateTime collectionDate,
     String packedByEmployeeId,
-    VisualInspection visualInspection
+    VisualInspection visualInspection,
+    SecondVerification secondVerification,
+    String verifiedByEmployeeId,
+    ZonedDateTime verifiedDate
+
 
 ) implements Serializable {
 

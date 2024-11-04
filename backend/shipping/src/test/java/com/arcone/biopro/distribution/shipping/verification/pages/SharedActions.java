@@ -107,6 +107,19 @@ public class SharedActions {
         return element.isDisplayed();
     }
 
+    public boolean isElementVisible(By locator) {
+        return wait.until(e -> {
+            log.debug("Checking if element {} is visible.", locator);
+            try {
+                return e.findElement(locator).isDisplayed();
+            } catch (NoSuchElementException | StaleElementReferenceException ex) {
+                // Element not found, consider it as not visible
+                log.debug("Element {} not found after two tries, considering it as not visible.", locator);
+                return false;
+            }
+        });
+    }
+
     public void sendKeys(WebElement element, String text) throws InterruptedException {
         Thread.sleep(500);
         waitForVisible(element);
@@ -314,5 +327,11 @@ public class SharedActions {
             log.debug("Getting text from element {}.", locator);
             return e.findElement(locator).getText();
         });
+    }
+
+    public void waitForElementsVisible(By... locators) {
+        for (By locator : locators) {
+            waitForVisible(locator);
+        }
     }
 }

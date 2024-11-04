@@ -18,9 +18,4 @@ public interface ShipmentService {
 
     Flux<ShipmentResponseDTO> listShipments();
 
-    Mono<RuleResponseDTO> packItem(PackItemRequest packItemRequest);
-
-    Mono<RuleResponseDTO> completeShipment(CompleteShipmentRequest request);
-
-
 }

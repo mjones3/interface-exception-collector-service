@@ -110,3 +110,10 @@ CREATE TABLE lk_reason
 );
 
 CREATE UNIQUE INDEX uq_idx_lk_reason_type_key ON lk_reason (type, reason_key);
+
+
+ALTER TABLE bld_shipment_item_packed ADD COLUMN second_verification VARCHAR(50) DEFAULT NULL;
+
+ALTER TABLE bld_shipment_item_packed ADD COLUMN verification_date TIMESTAMP WITH TIME ZONE DEFAULT NULL;
+
+ALTER TABLE bld_shipment_item_packed ADD COLUMN verified_by_employee_id varchar(50) DEFAULT NULL;
