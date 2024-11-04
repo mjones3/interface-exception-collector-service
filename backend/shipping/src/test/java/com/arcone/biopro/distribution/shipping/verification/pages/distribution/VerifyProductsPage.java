@@ -71,8 +71,8 @@ public class VerifyProductsPage extends CommonPageFactory {
     public void scanUnitAndProduct(String unitNumber, String productCode) throws InterruptedException {
         unitNumber = String.format("=%s00", unitNumber);
         productCode = String.format("=<%s", productCode);
-        sharedActions.sendKeysAndEnter(this.driver, By.id(inputUnitNumber), unitNumber);
-        sharedActions.sendKeysAndEnter(this.driver, By.id(inputProductCode), productCode);
+        sharedActions.sendKeys(this.driver, By.id(inputUnitNumber), unitNumber);
+        sharedActions.sendKeys(this.driver, By.id(inputProductCode), productCode);
     }
 
     public boolean isProductVerified(String unitNumber, String productCode) {
