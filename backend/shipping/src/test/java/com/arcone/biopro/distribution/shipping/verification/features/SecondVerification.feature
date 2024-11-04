@@ -64,7 +64,7 @@ Feature: Second Verification of Units Feature
             Then I should see the unit added to the verified products table.
             And I should see the log of verified products being updated.
             When I scan the unit "<UN1>" with product code "<Code1>".
-            Then I should see a "Warning" message: "This product has already been verified to the order. Please re-scan all the products in the order.".
+            Then I should see a "Warning" message: "This product has already been verified. Please re-scan all the products in the order.".
             And  I should not see the unit added to the verified products table.
             And The complete shipment option should not be enabled.
             Examples:
