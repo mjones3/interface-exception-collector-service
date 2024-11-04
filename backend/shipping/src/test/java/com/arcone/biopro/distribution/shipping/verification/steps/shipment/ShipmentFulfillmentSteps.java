@@ -383,7 +383,7 @@ public class ShipmentFulfillmentSteps {
         fillProductsPage.verifyVisualInspectionDialog("Record Unsatisfactory Visual Inspection", "Please select the reason for the unsatisfactory visual inspection:");
     }
 
-    @And("I should see all the configured discard reasons.")
+    @And("I should see all the configured discard reasons correctly ordered.")
     public void iShouldSeeAllTheConfiguredDiscardReasons() {
         var configuredReasons = shipmentTestingController.getConfiguredDiscardReasons();
         fillProductsPage.verifyDiscardReasons(configuredReasons);

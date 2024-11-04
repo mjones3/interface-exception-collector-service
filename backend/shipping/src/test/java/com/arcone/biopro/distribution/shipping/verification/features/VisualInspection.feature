@@ -16,8 +16,6 @@ Feature: Record Unsatisfactory Visual Inspection
         Rule: I should be able to record a single reason for failed visual inspection.
         Rule: I should be able to see an acknowledgement message indicating that the product must be discarded if the visual Inspection is unacceptable. (Trigger discard in shipping).
         Rule: I should be able to submit when all the required information is completed.
-
-        @DIS-183 @DIS-169 @DIS-62
         Scenario Outline: Verify Failed Visual Inspection Discard Form
             Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>".
             And The visual inspection configuration is "enabled".
@@ -27,7 +25,7 @@ Feature: Record Unsatisfactory Visual Inspection
             When I add the unit "<UN>" with product code "<Code>".
             And I define visual inspection as "Unsatisfactory".
             Then I should see the discard form.
-            And I should see all the configured discard reasons.
+            And I should see all the configured discard reasons correctly ordered.
             When I choose to cancel the discard form.
             Then I should see the discard form is closed.
             And I should not see the unit "<UN>" with product code "<Code>" added to the filled products table.

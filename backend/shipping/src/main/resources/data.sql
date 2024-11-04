@@ -10,9 +10,9 @@ ON CONFLICT DO NOTHING;
 -- Discard Reasons
 TRUNCATE TABLE lk_reason;
 INSERT INTO lk_reason (type, reason_key, require_comments, order_number, active)
-VALUES ('VISUAL_INSPECTION_FAILED', 'BROKEN', false, 1, true),
-       ('VISUAL_INSPECTION_FAILED', 'AGGREGATES', false, 2, true),
-       ('VISUAL_INSPECTION_FAILED', 'DEFECTIVE_BAG', false, 3, true),
-       ('VISUAL_INSPECTION_FAILED', 'CLOTTED', false, 4, true),
+VALUES ('VISUAL_INSPECTION_FAILED', 'BROKEN', false, 2, true),
+       ('VISUAL_INSPECTION_FAILED', 'AGGREGATES', false, 1, true),
+       ('VISUAL_INSPECTION_FAILED', 'DEFECTIVE_BAG', false, 4, true),
+       ('VISUAL_INSPECTION_FAILED', 'CLOTTED', false, 3, true),
        ('VISUAL_INSPECTION_FAILED', 'OTHER', true, 5, true)
 ON CONFLICT DO NOTHING;
