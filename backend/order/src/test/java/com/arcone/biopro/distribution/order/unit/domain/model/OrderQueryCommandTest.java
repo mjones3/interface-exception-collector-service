@@ -14,7 +14,7 @@ class OrderQueryCommandTest {
 
     @Test
     public void shouldCreateOrderQueryCommandWhenSortIsNull() {
-        var orderQueryCommand = new OrderQueryCommand("1",null,10);
+        var orderQueryCommand = new OrderQueryCommand("1","",null,10);
         Assertions.assertNotNull(orderQueryCommand);
         Assertions.assertNotNull(orderQueryCommand.getQuerySort());
         Assertions.assertNotNull(orderQueryCommand.getQuerySort().getQueryOrderByList());
@@ -28,7 +28,7 @@ class OrderQueryCommandTest {
     public void shouldCreateOrderQueryCommand() {
         var orderBy = new QueryOrderBy("TEST","DESC");
         var sort = new QuerySort(List.of(orderBy));
-        var orderQueryCommand = new OrderQueryCommand("1",sort,10);
+        var orderQueryCommand = new OrderQueryCommand("1","",sort,10);
         Assertions.assertNotNull(orderQueryCommand);
         Assertions.assertNotNull(orderQueryCommand.getQuerySort());
         Assertions.assertNotNull(orderQueryCommand.getQuerySort().getQueryOrderByList());
@@ -38,12 +38,32 @@ class OrderQueryCommandTest {
 
     @Test
     public void shouldNotCreateOrderQueryCommand() {
-        assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand(null,null,null));
+        assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand(null,null, null,null));
 
-        Exception exception =  assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand(null,null,10));
+        Exception exception =  assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand(null,null, null,10));
         Assertions.assertEquals("locationCode cannot be null or empty", exception.getMessage());
 
-        exception =  assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand("TEST",null,-1));
+        exception =  assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand("TEST",null, null,-1));
         Assertions.assertEquals("limit must be greater than 0", exception.getMessage());
+    }
+
+    @Test
+    public void shouldCreateOrderQueryCommandWithNumericUniqueIdentifier() {
+        var orderBy = new QueryOrderBy("TEST","DESC");
+        var sort = new QuerySort(List.of(orderBy));
+        var uniqueIdentifier = "123";
+        var orderQueryCommand = new OrderQueryCommand("1","123",sort,10);
+        Assertions.assertEquals(uniqueIdentifier, orderQueryCommand.getOrderNumber());
+        Assertions.assertEquals(uniqueIdentifier, orderQueryCommand.getExternalOrderId());
+    }
+
+    @Test
+    public void shouldCreateOrderQueryCommandWithNonNumericUniqueIdentifier() {
+        var orderBy = new QueryOrderBy("TEST","DESC");
+        var sort = new QuerySort(List.of(orderBy));
+        var uniqueIdentifier = "F123";
+        var orderQueryCommand = new OrderQueryCommand("1",uniqueIdentifier,sort,10);
+        Assertions.assertEquals(uniqueIdentifier, orderQueryCommand.getExternalOrderId());
+        Assertions.assertNull(orderQueryCommand.getOrderNumber());
     }
 }

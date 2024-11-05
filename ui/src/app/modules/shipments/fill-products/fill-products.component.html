@@ -24,14 +24,13 @@
                 </div>
 
                 <div class="flex flex-auto flex-col">
-                    <mat-progress-bar
-                        id="productsFilledProgressBar"
-                        class="h-2"
-                        mode="determinate"
+                    <biopro-progress-bar
+                        [progressBarId]="'productsFilledProgressBar'"
                         [value]="
                             ((filledProductsData?.length || 0) / quantity) * 100
                         "
-                    ></mat-progress-bar>
+                    >
+                    </biopro-progress-bar>
                 </div>
             </fuse-card>
 

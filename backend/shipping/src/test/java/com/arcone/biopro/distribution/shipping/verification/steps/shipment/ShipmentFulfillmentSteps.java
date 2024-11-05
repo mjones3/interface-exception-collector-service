@@ -278,8 +278,8 @@ public class ShipmentFulfillmentSteps {
     }
 
     @Then("I should see the list of packed products added including {string} and {string}.")
-    public void verifyPackedProducts(String family, String bloodType) {
-        fillProductsPage.ensureProductIsAdded(family, bloodType);
+    public void verifyPackedProducts(String unit, String productCode) {
+        fillProductsPage.ensureProductIsAdded(unit, productCode);
     }
 
     @When("I choose to return to the shipment details page.")
@@ -383,7 +383,7 @@ public class ShipmentFulfillmentSteps {
         fillProductsPage.verifyVisualInspectionDialog("Record Unsatisfactory Visual Inspection", "Please select the reason for the unsatisfactory visual inspection:");
     }
 
-    @And("I should see all the configured discard reasons.")
+    @And("I should see all the configured discard reasons correctly ordered.")
     public void iShouldSeeAllTheConfiguredDiscardReasons() {
         var configuredReasons = shipmentTestingController.getConfiguredDiscardReasons();
         fillProductsPage.verifyDiscardReasons(configuredReasons);

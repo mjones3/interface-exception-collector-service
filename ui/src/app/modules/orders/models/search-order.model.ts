@@ -19,6 +19,17 @@ export interface OrderReportDTO {
     desireShipDate: string; // yyyy-mm-dd"
 }
 
+export interface OrderResponsePageDTO {
+    content?: OrderReportDTO[];
+    pageable?: PageableDTO;
+    total?: number;
+}
+
+export interface PageableDTO {
+    pageNumber: number;
+    pageSize: number;
+}
+
 // Generic
 export interface QueryOrderByDTO {
     property: string;
@@ -31,6 +42,7 @@ export interface QuerySortDTO {
 
 export interface OrderQueryCommandDTO {
     locationCode: string;
+    orderUniqueIdentifier?: string;
     querySort?: QuerySortDTO;
     limit?: number;
 }

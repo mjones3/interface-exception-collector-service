@@ -7,6 +7,7 @@ type Query {
     generateShippingLabel(shipmentId: ID!):ShippingLabelDTO!
     listShipments:[ShipmentResponseDTO]
     getShipmentDetailsById(shipmentId: ID!):ShipmentDetailResponseDTO!
+    getShipmentVerificationDetailsById(shipmentId: ID!):VerifyProductResponseDTO!
 
     # Unit Number with Check Digit Verification
     verifyCheckDigit(unitNumber: String!, checkDigit: String!): RuleResponseDTO!
@@ -15,6 +16,7 @@ type Query {
 type Mutation {
     packItem(packItemRequest:PackItemRequest!):RuleResponseDTO!
     completeShipment(completeShipmentRequest:CompleteShipmentRequest!):RuleResponseDTO!
+    verifyItem(verifyItemRequest:VerifyItemRequest!):RuleResponseDTO!
 }
 
 type PackingListLabelDTO {
@@ -140,6 +142,9 @@ type ShipmentItemPackedDTO {
     collectionDate: DateTime
     packedByEmployeeId: String
     visualInspection:VisualInspection
+    secondVerification:SecondVerification
+    verifiedByEmployeeId:String
+    verifiedDate:DateTime
 }
 
 input PackItemRequest {
@@ -206,4 +211,21 @@ enum VisualInspection {
     SATISFACTORY,
     UNSATISFACTORY,
     DISABLED
+}
+
+input VerifyItemRequest {
+    shipmentId : Int!
+    unitNumber: String!
+    productCode: String!
+    employeeId: String!
+}
+
+type VerifyProductResponseDTO {
+    shipmentId: Int!
+    packedItems:[ShipmentItemPackedDTO]
+    verifiedItems:[ShipmentItemPackedDTO]
+}
+
+enum SecondVerification {
+    PENDING,COMPLETED,DISABLED
 }

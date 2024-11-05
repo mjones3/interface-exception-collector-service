@@ -293,4 +293,54 @@ public class ShipmentTestingController {
         var records = reasonsList.all().switchIfEmpty(Flux.empty()).collectList().block();
         return String.join(",", records.stream().map(x-> x.get("reason_key").toString().replace("_"," ")).toList());
     }
+
+    public Long createPackedShipment(String orderNumber, List<String> unitNumbers, List<String> productCodes){
+
+        var insertShipment = "INSERT INTO bld_shipment " +
+            "(order_number, customer_code, customer_name, customer_phone_number, location_code, delivery_type, priority, shipment_method, product_category, status, state, postal_code, country" +
+            " , country_code, city, district, address_line1, address_line2, address_contact_name, shipping_date, create_date, modification_date, delete_date, \"comments\", department_name, created_by_employee_id" +
+            " , completed_by_employee_id, complete_date, external_id) " +
+            " VALUES(%s,'B2346', 'Advanced Medical Center', '234-567-8901', '123456789', 'STAT', 'STAT', 'FEDEX', 'REFRIGERATED', 'OPEN', 'CA', '90210', 'US', 'US', 'Beverly Hills', 'LA', '456 Elm Street', 'Suite 200', NULL, '2024-10-07', '2024-10-07 12:45:34.084', '2024-10-07 12:45:34.084', NULL, '', 'Cardiology', 'mock-employee-id', NULL, NULL, 'DST108');";
+
+        databaseService.executeSql(String.format(insertShipment, orderNumber)).block();
+
+        var createdShipment = databaseService.fetchData(String.format("select id from bld_shipment where order_number = %s ", orderNumber)).first().block();
+        if(createdShipment != null){
+
+            var shipmentId = createdShipment.get("id");
+
+            var insertShipItem = "INSERT INTO bld_shipment_item " +
+                "(shipment_id, product_family, blood_type, quantity, \"comments\", create_date, modification_date) " +
+                "VALUES(%s, 'PLASMA_TRANSFUSABLE', 'B', 1, 'For neonatal use', now(), now());";
+
+            databaseService.executeSql(String.format(insertShipItem, shipmentId)).block();
+
+
+            var createdShipmentItem = databaseService.fetchData(String.format("select id from bld_shipment_item where shipment_id = %s limit 1", createdShipment.get("id"))).first().block();
+
+            if(createdShipmentItem != null){
+
+                for (int i = 0; i < unitNumbers.size(); i++) {
+                    createPackedItem(createdShipmentItem.get("id").toString(),unitNumbers.get(i),productCodes.get(i));
+                }
+            }
+
+            return Long.valueOf(shipmentId.toString());
+
+        }
+        return null;
+
+    }
+
+    private void createPackedItem(String shipmentItemId,String unitNumber, String productCode){
+
+            var insertPackedItem = "INSERT INTO bld_shipment_item_packed " +
+                "(shipment_item_id, unit_number, product_code, product_description, abo_rh, packed_by_employee_id, expiration_date, collection_date, create_date, modification_date, visual_inspection, blood_type, product_family,second_verification,verification_date , verified_by_employee_id) " +
+                " VALUES(%s, '%s', '%s', 'APH FFP C', 'BP', '5db1da0b-6392-45ff-86d0-17265ea33226', '2025-11-02 13:15:47.152', '2024-10-04 06:15:47.152', now(), now(), 'SATISFACTORY', 'B', 'PLASMA_TRANSFUSABLE','PENDING',null , null);";
+
+            databaseService.executeSql(String.format(insertPackedItem, shipmentItemId, unitNumber,productCode)).block();
+
+
+    }
+
 }

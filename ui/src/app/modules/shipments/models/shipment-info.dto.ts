@@ -73,21 +73,21 @@ export interface ShipmentItemShortDateProductResponseDTO {
 }
 
 export interface ShipmentItemPackedDTO {
-    shipmentId?: number;
+    id?: number;
+    shipmentItemId?: number;
+    inventoryId?: number;
     unitNumber?: string;
-    inventoryId?: string;
     productCode?: string;
+    aboRh?: string;
     productDescription?: string;
-    visualInspection?: string;
-    collectionDate?: string;
     productFamily?: string;
     expirationDate?: string;
-    aboRh?: string;
-    storageLocation?: string;
-    locationCode?: number;
-    createDate?: string;
-    completeDate?: string;
-    modificationDate?: string;
+    collectionDate?: string;
+    packedByEmployeeId?: string;
+    visualInspection?: string;
+    secondVerification?: string;
+    verifiedByEmployeeId?: string;
+    verifiedDate?: string;
 }
 
 export interface VerifyProductDTO {
