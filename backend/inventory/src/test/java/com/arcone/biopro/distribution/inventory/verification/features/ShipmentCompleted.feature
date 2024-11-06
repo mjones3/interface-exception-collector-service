@@ -1,4 +1,4 @@
-@api
+@api @LAB-160 @AOA-130
 Feature: Shipment Completed Event - API
     As a lab specialist I want the system is able to update inventory status of multiple inventories after receiving a Shipment Completed event.
 
