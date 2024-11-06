@@ -11,6 +11,8 @@ Feature: Search Orders
             And I have a Biopro Order with id "<Order Number>", externalId "<External ID>", Location Code "<Order LocationCode>", Priority "<Priority>" and Status "<Status>".
             And I have a Biopro Order with id "<External ID>", externalId "<Order Number>", Location Code "<Order LocationCode>", Priority "<Priority>" and Status "<Status>".
             And I am logged in the location "<User LocationCode>".
+            And Remaining criteria fields are disabled.
+            And Reset and Apply options are enabled.
             And I choose search orders.
             When I search the order by "<Order Key>".
             Then I should see 2 orders in the search results.
@@ -28,6 +30,8 @@ Feature: Search Orders
             Given I cleaned up from the database the orders with external ID "<External ID>".
             And I have a Biopro Order with externalId "<External ID>", Location Code "<Order LocationCode>", Priority "<Priority>" and Status "<Status>".
             And I am logged in the location "<User LocationCode>".
+            And Remaining criteria fields are disabled.
+            And Reset and Apply options are enabled.
             And I choose search orders.
             When I search the order by "<Search Key>".
             Then I should see a "Caution" message: "No Results Found".
@@ -44,6 +48,8 @@ Feature: Search Orders
             And I have a Biopro Order with id "<Order Number>", externalId "<External ID>", Location Code "<Order LocationCode>", Priority "<Priority>" and Status "<Status>".
             And I have an order item with product family "<ProductFamily>", blood type "<BloodType>", quantity <Quantity>, and order item comments "<Item Comments>".
             And I am logged in the location "<User LocationCode>".
+            And Remaining criteria fields are disabled.
+            And Reset and Apply options are enabled.
             And I choose search orders.
             When I search the order by "externalId".
             Then I should be redirected to the order details page.
@@ -57,31 +63,46 @@ Feature: Search Orders
 
 
     Rule: I should be able to reset the applied filter criteria.
+    # TODO: Add the steps for only one field to ensure that reset is working
+
+    # TODO: Create a new rule to Validate greater initial dates when compared to final dates
+
+
+    # TODO: Create a new rule to restrict the user from selecting future dates on endCreateDate
+
+
+
+
+
+
+
+
         Rule: The system should not enable the Apply and Reset options until at least one filter criteria is chosen.
         Scenario: Disable Apply and Reset options when no filter criteria is chosen
             Given I am logged in the location "123456789".
-            And I choose to search orders.
-            When I open the search filter panel.
+            When I choose to search orders.
+            And I open the search filter panel.
             Then I should see Apply and Reset filter options disabled.
 
 
     Rule: I should be able to see the following filter options
         Scenario Outline: Check if the filter option is visible and required if specified
             Given I am logged in the location "123456789".
-            And I choose to search orders.
-            When I open the search filter panel.
+            When I choose to search orders.
+            And I open the search filter panel.
             Then I should see "<Filter Parameter>" which "<isRequired>" required.
 
+            # TODO: Discuss with Ben about alternatives
             Examples:
-                | Filter Parameter    | isRequired |
-                | orderNumber         | is not     |
-                | createDateFrom      | is         |
-                | createDateTo        | is         |
-                | desiredShipDateFrom | is not     |
-                | desiredShipDateTo   | is not     |
-                | orderStatus         | is not     |
-                | priority            | is not     |
-                | shipToCustomer      | is not     |
+                | Fields              | RequiredFields |
+                | orderNumber         | is not         |
+                | createDateFrom      | is             |
+                | createDateTo        | is             |
+                | desiredShipDateFrom | is not         |
+                | desiredShipDateTo   | is not         |
+                | orderStatus         | is not         |
+                | priority            | is not         |
+                | shipToCustomer      | is not         |
 
 
     Rule: I should be prevented from selecting other filters when BioPro Order number or External ID is selected.
@@ -126,8 +147,10 @@ Feature: Search Orders
                 | desiredShipDateTo   |
 
     Rule: I should be able to filter the results for date fields from 2 years back.
+    # TODO: Just the create date
 
-        Rule: I should not be able to search more than 2 years range.
+    Rule: I should not be able to search more than 2 years range.
+    # TODO: Just the create date
 
     Rule: I should be able to see the other filter options disabled when filtering by either the BioPro Order number or External Order ID.
 
@@ -138,4 +161,7 @@ Feature: Search Orders
         | Filter Parameter | Value     |
         | createDateFrom   | 99/1/2024 |
 
+
     Rule: I should be able to implement the field-level validation and display an error message if the validations fail.
+    # TODO: Add a AND condition when testing validation messages
+
