@@ -29,7 +29,6 @@ import reactor.core.publisher.Mono;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -131,6 +130,7 @@ public class CompleteShipmentUseCase implements CompleteShipmentService {
     }
 
     private Mono<Shipment> validateShipment(Shipment shipment){
+        log.debug("Validating Shipment {}",shipment.getId());
 
         var secondVerificationActive = configService.findShippingSecondVerificationActive();
         var countVerification = shipmentItemPackedRepository.countVerificationPendingByShipmentId(shipment.getId());
@@ -154,7 +154,7 @@ public class CompleteShipmentUseCase implements CompleteShipmentService {
                                 .locationCode(shipment.getLocationCode())
                                 .unitNumber(itemPacked.getUnitNumber()).build())
                             .flatMap(inventoryValidationResponseDTO -> {
-                                if(!Collections.EMPTY_LIST.equals(inventoryValidationResponseDTO.inventoryNotificationsDTO())){
+                                if(inventoryValidationResponseDTO.inventoryNotificationsDTO() != null && !inventoryValidationResponseDTO.inventoryNotificationsDTO().isEmpty() ){
                                     return Mono.just(inventoryValidationResponseDTO);
                                 }else{
                                     return  Mono.empty();
