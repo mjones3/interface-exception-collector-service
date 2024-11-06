@@ -70,12 +70,13 @@ Feature: Search Orders
             Given I am logged in the location "123456789".
             And I choose to search orders.
             When I open the search filter panel.
-            Then I should see "<Option Field>" which "<isRequired>" required.
+            Then I should see "<Filter Parameter>" which "<isRequired>" required.
 
             Examples:
                 | Filter Parameter    | isRequired |
-                | createDateFrom      | is not     |
-                | createDateTo        | is not     |
+                | orderNumber         | is not     |
+                | createDateFrom      | is         |
+                | createDateTo        | is         |
                 | desiredShipDateFrom | is not     |
                 | desiredShipDateTo   | is not     |
                 | orderStatus         | is not     |
