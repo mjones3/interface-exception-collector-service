@@ -1,3 +1,4 @@
+@api @LAB-78 @AOA-75
 Feature: Health Check
     As an administrator
     I want to verify that the application is running
