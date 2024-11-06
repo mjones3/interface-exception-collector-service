@@ -4,12 +4,14 @@ import com.arcone.biopro.distribution.shipping.application.dto.NotificationDTO;
 import lombok.Getter;
 
 import java.util.List;
+import java.util.Map;
 
 @Getter
 public class ShipmentValidationException extends RuntimeException {
 
     private List<NotificationDTO> notifications;
     private String nextUrl;
+    private Map<String, List<?>> results;
 
     public ShipmentValidationException(String message) {
         super(message);
@@ -19,6 +21,13 @@ public class ShipmentValidationException extends RuntimeException {
         super(message);
         this.notifications = notifications;
         this.nextUrl = nextUrl;
+    }
+
+    public ShipmentValidationException(String message ,List<NotificationDTO> notifications , String nextUrl , Map<String, List<?>> results) {
+        super(message);
+        this.notifications = notifications;
+        this.nextUrl = nextUrl;
+        this.results = results;
     }
 
     public ShipmentValidationException(String message, Throwable cause) {
