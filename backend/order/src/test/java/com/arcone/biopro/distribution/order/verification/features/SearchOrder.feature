@@ -48,3 +48,44 @@ Feature: Search Orders
             Examples:
                 | Order Number | External ID | Order LocationCode | User LocationCode | Priority | Status | ProductFamily       | BloodType | Quantity | Item Comments |
                 | 2018         | DIS1141179  | 123456789          | 123456789         | STAT     | OPEN   | PLASMA_TRANSFUSABLE | AB        | 3        | Needed asap   |
+
+
+
+    Rule: I should be able to filter the order lists by specific criteria.
+
+    Rule: I should be able to apply filter criteria.
+
+    Rule: I should be able to reset the applied filter criteria.
+
+        Rule: The system should not enable the Apply and Reset options until at least one filter criteria is chosen.
+        Scenario: Disable Apply and Reset options when no filter criteria is chosen
+            Given I am logged in the location "123456789".
+            And I choose to search orders.
+            When I open the search filter panel.
+            Then I should see Apply and Reset filter options disabled.
+
+
+    Rule: I should be able to see the following filter options
+        Scenario Outline: Check if the filter option is visible and required if specified
+            Given I am logged in the location "123456789".
+            And I choose to search orders.
+            When I open the search filter panel.
+            Then I should see "<Option Field>" which "<isRequired>" required
+
+            Examples:
+                | Option Field     | isRequired |
+                | Order Number     | is not     |
+                | Status           | is not     |
+                | Priority         | is not     |
+                | Ship to Customer | is not     |
+
+
+    Rule: I should be prevented from selecting other filters when BioPro Order number or External ID is selected.
+        Rule: I should be able to multi-select options for Priority, Status, and Ship to Customer fields.
+    Rule: I should see the number of fields used to select the filter criteria.
+        Rule: I should be able to enter the create date manually or select from the integrated component.
+    Rule: I should be able to filter the results for date fields from 2 years back.
+        Rule: I should not be able to search more than 2 years range.
+    Rule: I should be able to see the other filter options disabled when filtering by either the BioPro Order number or External Order ID.
+        Rule: I should not be able to apply filters if any field validations fail.
+    Rule: I should be able to implement the field-level validation and display an error message if the validations fail.
