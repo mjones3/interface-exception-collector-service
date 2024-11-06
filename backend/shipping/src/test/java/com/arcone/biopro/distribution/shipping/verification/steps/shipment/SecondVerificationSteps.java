@@ -64,9 +64,8 @@ public class SecondVerificationSteps {
     }
 
     @Then("I should be redirected to the verify products page.")
-    public void shouldBeRedirectedToVerifyProductsPage() throws InterruptedException {
+    public void shouldBeRedirectedToVerifyProductsPage() {
         verifyProductsPage.isPageOpen(this.shipmentId.toString());
-        verifyProductsPage.closeWarningMessage();
     }
 
     @Then("I can see the Order Information Details and the Shipping Information Details.")

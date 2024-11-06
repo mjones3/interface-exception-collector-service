@@ -22,7 +22,7 @@ public class ShipmentServiceMessages {
     public static final String INVENTORY_VALIDATION_FAILED = "Inventory Validation failed";
     public static final String SECOND_VERIFICATION_NOT_COMPLETED_ERROR = "Shipment cannot be completed because second verification is not completed";
     public static final String SECOND_VERIFICATION_UNIT_NOT_PACKED_ERROR = "The verification does not match all products in this order. Please re-scan all the products.";
-    public static final String SECOND_VERIFICATION_ALREADY_COMPLETED_ERROR = "This product has already been verified to the order. Please re-scan all the products in the order.";
+    public static final String SECOND_VERIFICATION_ALREADY_COMPLETED_ERROR = "This product has already been verified. Please re-scan all the products in the order.";
 
 
     //    Success messages

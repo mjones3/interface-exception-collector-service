@@ -20,6 +20,7 @@
                             <h3>Results</h3>
                         </div>
                     </div>
+
                     <div class="table-wrapper">
                         <p-table
                             #orderTable
@@ -213,13 +214,10 @@
                                     </td>
                                 </tr>
                             </ng-template>
-                            <ng-template
-                                *ngIf="footerMessage !== ''"
-                                pTemplate="footer"
-                            >
+                            <ng-template pTemplate="emptymessage">
                                 <tr>
                                     <td
-                                        class="p-text-right"
+                                        class="py-4 text-center"
                                         [colSpan]="columns.length"
                                     >
                                         <span class="ml-6">{{
