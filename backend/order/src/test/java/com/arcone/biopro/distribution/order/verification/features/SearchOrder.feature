@@ -1,4 +1,4 @@
-@ui @R20-227
+@ui @R20-227 @R20-228
 Feature: Search Orders
 
 
@@ -103,7 +103,6 @@ Feature: Search Orders
                 | shipToCustomer      |
 
 
-
     Rule: I should be able to multi-select options for Priority, Status, and Ship to Customer fields.
         Given I am logged in the location "123456789".
             And I choose to search orders.
@@ -117,10 +116,10 @@ Feature: Search Orders
             Given I am logged in the location "123456789".
             And I choose to search orders.
             When I open the search filter panel.
-            Then I should be able to open the "<Date Field>" datepicker and also type the date manually.
+            Then I should be able to open the "<Date Parameter>" datepicker and also type the date manually.
 
             Examples:
-                | Date Field          |
+                | Date Parameter      |
                 | createDateFrom      |
                 | createDateTo        |
                 | desiredShipDateFrom |
@@ -133,5 +132,10 @@ Feature: Search Orders
     Rule: I should be able to see the other filter options disabled when filtering by either the BioPro Order number or External Order ID.
 
         Rule: I should not be able to apply filters if any field validations fail.
+    Scenario Outline: Disable apply filters button when incorrect parameters are passed
+        Give
+    Examples:
+        | Filter Parameter | Value     |
+        | createDateFrom   | 99/1/2024 |
 
     Rule: I should be able to implement the field-level validation and display an error message if the validations fail.
