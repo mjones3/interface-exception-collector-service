@@ -154,7 +154,7 @@ public class CompleteShipmentUseCase implements CompleteShipmentService {
                                 .locationCode(shipment.getLocationCode())
                                 .unitNumber(itemPacked.getUnitNumber()).build())
                             .flatMap(inventoryValidationResponseDTO -> {
-                                if(inventoryValidationResponseDTO.inventoryNotificationsDTO() != null && !inventoryValidationResponseDTO.inventoryNotificationsDTO().isEmpty() ){
+                                if(inventoryValidationResponseDTO!= null && inventoryValidationResponseDTO.inventoryNotificationsDTO() != null && !inventoryValidationResponseDTO.inventoryNotificationsDTO().isEmpty() ){
                                     return Mono.just(inventoryValidationResponseDTO);
                                 }else{
                                     return  Mono.empty();
