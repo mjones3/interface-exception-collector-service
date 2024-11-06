@@ -3,7 +3,7 @@ Feature: Search Orders
 
 
     Rule: I should be able to filter the order lists by specific criteria.
-    Rule: I should be able to apply filter criteria.
+        Rule: I should be able to apply filter criteria.
     Rule: I should be able to search the order by BioPro order number or External Order ID.
         Scenario Outline: Search orders by Order Number
             Given I cleaned up from the database the orders with external ID "<External ID>".
@@ -57,7 +57,6 @@ Feature: Search Orders
 
 
     Rule: I should be able to reset the applied filter criteria.
-
         Rule: The system should not enable the Apply and Reset options until at least one filter criteria is chosen.
         Scenario: Disable Apply and Reset options when no filter criteria is chosen
             Given I am logged in the location "123456789".
@@ -74,16 +73,40 @@ Feature: Search Orders
             Then I should see "<Option Field>" which "<isRequired>" required.
 
             Examples:
-                | Option Field     | isRequired |
-                | Order Number     | is not     |
-                | Status           | is not     |
-                | Priority         | is not     |
-                | Ship to Customer | is not     |
+                | Filter Parameter    | isRequired |
+                | createDateFrom      | is not     |
+                | createDateTo        | is not     |
+                | desiredShipDateFrom | is not     |
+                | desiredShipDateTo   | is not     |
+                | orderStatus         | is not     |
+                | priority            | is not     |
+                | shipToCustomer      | is not     |
 
 
     Rule: I should be prevented from selecting other filters when BioPro Order number or External ID is selected.
+        Scenario Outline: Check if other fields are disable when an order number is specified
+            Given I am logged in the location "123456789".
+            And I choose to search orders.
+            And I open the search filter panel.
+            When I type some information on Order Number Field.
+            Then "<Filter Parameter>" should be disabled.
 
-        Rule: I should be able to multi-select options for Priority, Status, and Ship to Customer fields.
+            Examples:
+                | Filter Parameter    |
+                | createDateFrom      |
+                | createDateTo        |
+                | desiredShipDateFrom |
+                | desiredShipDateTo   |
+                | orderStatus         |
+                | priority            |
+                | shipToCustomer      |
+
+
+
+    Rule: I should be able to multi-select options for Priority, Status, and Ship to Customer fields.
+        Given I am logged in the location "123456789".
+            And I choose to search orders.
+            When I open the search filter panel.
 
 
     Rule: I should see the number of fields used to select the filter criteria.
