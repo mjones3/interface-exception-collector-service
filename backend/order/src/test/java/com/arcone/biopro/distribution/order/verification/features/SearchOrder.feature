@@ -1,6 +1,9 @@
 @ui @R20-227
 Feature: Search Orders
 
+
+    Rule: I should be able to filter the order lists by specific criteria.
+    Rule: I should be able to apply filter criteria.
     Rule: I should be able to search the order by BioPro order number or External Order ID.
         Scenario Outline: Search orders by Order Number
             Given I cleaned up from the database the orders with external ID "<External ID>".
@@ -51,9 +54,7 @@ Feature: Search Orders
 
 
 
-    Rule: I should be able to filter the order lists by specific criteria.
 
-    Rule: I should be able to apply filter criteria.
 
     Rule: I should be able to reset the applied filter criteria.
 
@@ -70,7 +71,7 @@ Feature: Search Orders
             Given I am logged in the location "123456789".
             And I choose to search orders.
             When I open the search filter panel.
-            Then I should see "<Option Field>" which "<isRequired>" required
+            Then I should see "<Option Field>" which "<isRequired>" required.
 
             Examples:
                 | Option Field     | isRequired |
@@ -81,11 +82,32 @@ Feature: Search Orders
 
 
     Rule: I should be prevented from selecting other filters when BioPro Order number or External ID is selected.
+
         Rule: I should be able to multi-select options for Priority, Status, and Ship to Customer fields.
+
+
     Rule: I should see the number of fields used to select the filter criteria.
+
         Rule: I should be able to enter the create date manually or select from the integrated component.
+        Scenario Outline: Check if the user can enter dates manually and pick the date from a date picker component for all date fields
+            Given I am logged in the location "123456789".
+            And I choose to search orders.
+            When I open the search filter panel.
+            Then I should be able to open the "<Date Field>" datepicker and also type the date manually.
+
+            Examples:
+                | Date Field          |
+                | createDateFrom      |
+                | createDateTo        |
+                | desiredShipDateFrom |
+                | desiredShipDateTo   |
+
     Rule: I should be able to filter the results for date fields from 2 years back.
+
         Rule: I should not be able to search more than 2 years range.
+
     Rule: I should be able to see the other filter options disabled when filtering by either the BioPro Order number or External Order ID.
+
         Rule: I should not be able to apply filters if any field validations fail.
+
     Rule: I should be able to implement the field-level validation and display an error message if the validations fail.
