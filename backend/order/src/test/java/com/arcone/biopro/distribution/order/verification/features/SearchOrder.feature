@@ -110,13 +110,28 @@ Feature: Search Orders
             Then I should see "order number, create date from, create date to, desired shipment date from, desired shipment date to, order status, priority, ship to customer" fields.
 
 
+    Rule: I should be able to see the required filter options
+        Scenario: Check if the filter option is visible and required if specified
+            Given I am logged in the location "123456789".
+            And I choose to search orders.
+            When I open the search orders filter panel
+            Then I should see "create date from, create date to" fields as required.
+
+    Rule: I should be able to see order number disabled when filtering by remaining filter fields.
+        Scenario: Check if other fields are disabled when an order number is specified
+            Given I am logged in the location "123456789".
+            And I choose to search orders.
+            And I open the search orders filter panel
+            When I enter "00000" for the "OrderNumber"
+            Then "order number" fields is disabled.
+
     Rule: I should be able to see the other filter options disabled when filtering by either the BioPro Order number or External Order ID.
         Scenario: Check if other fields are disabled when an order number is specified
             Given I am logged in the location "123456789".
             And I choose to search orders.
             And I open the search orders filter panel
-
-            Then "createDateFrom,createDateTo,desiredShipDateFrom,desiredShipDateTo,orderStatus,priority,shipToCustomer" fields should be disabled.
+            When I enter "00000" for the "OrderNumber"
+            Then "create date from, create date to, desired shipment date from, desired shipment date to, order status, priority, ship to customer" fields are disabled.
 
 
     Rule: I should be able to multi-select options for Priority, Status, and Ship to Customer fields.
