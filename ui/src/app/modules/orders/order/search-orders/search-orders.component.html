@@ -214,10 +214,10 @@
                                     </td>
                                 </tr>
                             </ng-template>
-                            <ng-template pTemplate="footer">
-                                <tr *ngIf="footerMessage !== ''">
+                            <ng-template pTemplate="emptymessage">
+                                <tr>
                                     <td
-                                        class="p-text-right"
+                                        class="py-4 text-center"
                                         [colSpan]="columns.length"
                                     >
                                         <span class="ml-6">{{
