@@ -4,8 +4,8 @@ Feature: Second Verification of Units Feature
     So that I can ensure that the products recorded in the system match the physical products inside the shipping box.
 
     Background:
-        Given I cleaned up from the database the packed item that used the unit number "W822530106087,W822530106089,W822530106088,W822530106090,W822530106091".
-        And I cleaned up from the database, all shipments with order number "118,119,120".
+        Given I cleaned up from the database the packed item that used the unit number "W822530106087,W822530106089,W822530106088,W822530106090,W822530106091,W822530106093,W822530106094".
+        And I cleaned up from the database, all shipments with order number "118,119,120,122,123".
 
 
         Rule: I should be able to verify each unit that I have packed in the shipment.
@@ -70,4 +70,41 @@ Feature: Second Verification of Units Feature
             Examples:
                 | Order Number | Code1     | UN1          | Code2     | UN2           |
                 | 120          | E0685V00 | W822530106090 | E0685V00  | W822530106091 |
+
+
+        Rule: I should be able to scan unit number and product code.
+        Rule: I should not be able to enter unit number and product code manually.
+        @ui @DST-216
+            Scenario Outline: Restrict Manual Entry Unit Number.
+            Given I have a shipment for order "<Order Number>" with the unit "<UN>" and product code "<Code>" packed.
+            And The second verification configuration is "enabled".
+            And I am on the verify products page.
+            When I "<Action>" the "<Field Name>" "<Field Value>".
+            Then I should see field validation error message "<Field Error Message>".
+            And The "Product Code" field should be "disabled".
+           Examples:
+               | Order Number | Code     | UN            | Action | Field Name  | Field Value   | Field Error Message|
+               | 122          | E0685V00 | W822530106093 | Type   | Unit Number | W822530106093 | Scan Unit Number   |
+               | 122          | E0685V00 | W822530106093 | Type   | Unit Number | =W82253010608 | Invalid Unit Number|
+               | 122          | E0685V00 | W822530106093 | Scan   | Unit Number | w232323232    | Invalid Unit Number|
+               
+        Rule: I should not be able to enter unit number and product code manually.
+        Rule: I should be able to scan unit number and product code.
+         @ui @DST-216
+            Scenario Outline: Restrict Manual Entry Product Code.
+            Given I have a shipment for order "<Order Number>" with the unit "<UN>" and product code "<Code>" packed.
+            And The second verification configuration is "enabled".
+            And I am on the verify products page.
+            When I "<Action>" the "<Field Name>" "<Field Value>".
+            Then The "Product Code" field should be "enabled".
+            When I "<Second Action>" the "<Second Field Name>" "<Second Field Value>".
+            Then I should see field validation error message "<Field Error Message>".           
+           Examples:
+               | Order Number | Code     | UN            | Action | Field Name  | Field Value   | Field Error Message| Second Action | Second Field Name | Second Field Value |
+               | 123          | E0685V00 | W822530106094 | Scan   | Unit Number | W822530106094 | Scan Product Code      | Type             | Product Code   |  E0685V00 |
+               | 123          | E0685V00 | W822530106094 | Scan   | Unit Number | W822530106094 | Invalid Product Code   | Scan             | Product Code   |  121abc |
+               | 123          | E0685V00 | W822530106087 | Scan   | Unit Number | W822530106094 | Invalid Product Code   | Type             | Product Code   |  =<1212 |
+
+
+
 
