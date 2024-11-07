@@ -73,7 +73,6 @@ Feature: Second Verification of Units Feature
 
 
         Rule: I should be able to complete the shipment once all filled products have been verified.
-        Rule: I should see the progress bar reflecting that the total of products were verified.
         Rule: I should see the status of the shipment updated to “Completed”.
         Rule: I should see a success message indicating the shipment has been successfully completed.
         Rule: I should be able to verify the products' eligibility before completing the shipment.
