@@ -79,10 +79,12 @@ Feature: Second Verification of Units Feature
             Given I have a shipment for order "<Order Number>" with the unit "<UN>" and product code "<Code>" packed.
             And The second verification configuration is "enabled".
             And I am on the verify products page.
+            When I focus on "<Field Name>".
+            Then I should see field validation error message "Unit Nuber is Required".
             When I "<Action>" the "<Field Name>" "<Field Value>".
             Then I should see field validation error message "<Field Error Message>".
             And The "Product Code" field should be "disabled".
-           Examples:
+            Examples:
                | Order Number | Code     | UN            | Action | Field Name  | Field Value   | Field Error Message|
                | 122          | E0685V00 | W822530106093 | Type   | Unit Number | W822530106093 | Scan Unit Number   |
                | 122          | E0685V00 | W822530106093 | Type   | Unit Number | =W82253010608 | Invalid Unit Number|
@@ -97,9 +99,11 @@ Feature: Second Verification of Units Feature
             And I am on the verify products page.
             When I "<Action>" the "<Field Name>" "<Field Value>".
             Then The "Product Code" field should be "enabled".
+            When I focus on "<Field Name>".
+            Then I should see field validation error message "Product Code is Required".
             When I "<Second Action>" the "<Second Field Name>" "<Second Field Value>".
             Then I should see field validation error message "<Field Error Message>".           
-           Examples:
+            Examples:
                | Order Number | Code     | UN            | Action | Field Name  | Field Value   | Field Error Message| Second Action | Second Field Name | Second Field Value |
                | 123          | E0685V00 | W822530106094 | Scan   | Unit Number | W822530106094 | Scan Product Code      | Type             | Product Code   |  E0685V00 |
                | 123          | E0685V00 | W822530106094 | Scan   | Unit Number | W822530106094 | Invalid Product Code   | Scan             | Product Code   |  121abc |
