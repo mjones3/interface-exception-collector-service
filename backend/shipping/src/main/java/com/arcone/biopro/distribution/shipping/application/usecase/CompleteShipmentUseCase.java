@@ -109,7 +109,7 @@ public class CompleteShipmentUseCase implements CompleteShipmentService {
                 .notifications(List.of(NotificationDTO.builder()
                     .message(exception.getMessage())
                     .statusCode(HttpStatus.BAD_REQUEST.value())
-                    .notificationType(NotificationType.WARN.name())
+                    .notificationType(((ShipmentValidationException) error).getErrorType())
                     .build()))
                 ._links(Map.of("next",exception.getNextUrl()))
                 .build());
@@ -144,9 +144,10 @@ public class CompleteShipmentUseCase implements CompleteShipmentService {
                         .statusCode(HttpStatus.BAD_REQUEST.value())
                         .message(ShipmentServiceMessages.SECOND_VERIFICATION_NOT_COMPLETED_ERROR)
                         .notificationType(NotificationType.WARN.name())
-                        .build()),String.format(SHIPMENT_VERIFICATION_URL,shipment.getId()) )
+                        .build()),String.format(SHIPMENT_VERIFICATION_URL,shipment.getId()), NotificationType.WARN.name())
                     );
                 }
+
 
                 return shipmentItemPackedRepository.listAllVerifiedByShipmentId(shipment.getId()).flatMap(itemPacked -> {
                         return inventoryRsocketClient.validateInventory(InventoryValidationRequest.builder()
@@ -159,19 +160,21 @@ public class CompleteShipmentUseCase implements CompleteShipmentService {
                                 }else{
                                     return  Mono.empty();
                                 }
-                            })
-                            .onErrorResume(error -> {
-                                return Mono.error(new ShipmentValidationException(ShipmentServiceMessages.INVENTORY_SERVICE_NOT_AVAILABLE_ERROR
-                                    ,List.of(NotificationDTO.builder()
-                                    .name("INVENTORY_SERVICE_IS_DOWN")
-                                    .statusCode(HttpStatus.BAD_REQUEST.value())
-                                    .message(ShipmentServiceMessages.INVENTORY_SERVICE_NOT_AVAILABLE_ERROR)
-                                    .notificationType(NotificationType.SYSTEM.name())
-                                    .build()),String.format(SHIPMENT_VERIFICATION_URL,shipment.getId()) )
-                                );
                             });
 
-                    }).collectList()
+                    })
+                    .onErrorResume(error -> {
+                        log.error("Not able to validate packed products {}",error.getMessage());
+                        return Mono.error(new ShipmentValidationException(ShipmentServiceMessages.INVENTORY_SERVICE_NOT_AVAILABLE_ERROR
+                            , List.of(NotificationDTO.builder()
+                            .name("INVENTORY_SERVICE_IS_DOWN")
+                            .statusCode(HttpStatus.BAD_REQUEST.value())
+                            .message(ShipmentServiceMessages.INVENTORY_SERVICE_NOT_AVAILABLE_ERROR)
+                            .notificationType(NotificationType.SYSTEM.name())
+                            .build()), String.format(SHIPMENT_VERIFICATION_URL, shipment.getId()),NotificationType.SYSTEM.name())
+                        );
+                    })
+                    .collectList()
                     .flatMap(validationList -> {
                         if(!validationList.isEmpty()){
                             Map<String, List<?>> results  = new HashMap<>();
@@ -182,13 +185,12 @@ public class CompleteShipmentUseCase implements CompleteShipmentService {
                                 .statusCode(HttpStatus.BAD_REQUEST.value())
                                 .message(ShipmentServiceMessages.SHIPMENT_VALIDATION_COMPLETED_ERROR)
                                 .notificationType(NotificationType.WARN.name())
-                                .build()),String.format(SHIPMENT_VERIFICATION_URL,shipment.getId()) , results )
+                                .build()),String.format(SHIPMENT_VERIFICATION_URL,shipment.getId()) , results , NotificationType.WARN.name() )
                             );
                         }else{
                             return Mono.just(shipment);
                         }
                     });
-
 
            }else {
                 return Mono.just(shipment);
