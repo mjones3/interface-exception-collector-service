@@ -21,6 +21,7 @@
                 color="primary"
                 icon="heroicons_outline:check-circle"
                 [disabled]="!isAllPackItemsVerified()"
+                (clickEvent)="completeShipment()"
             />
         </div>
     </ng-template>
