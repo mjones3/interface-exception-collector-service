@@ -12,7 +12,7 @@ export const process: ProcessProductModel = {
             'INVESTIGATIONAL_DEVICE',
             'CAUTION – Investigational device. Limited by Federal (or United States) law to investigational use.',
         ],
-        ['release_number', 'PI3.3-#69838bc2'],
+        ['release_number', 'PI3.3-#b581c524'],
     ]),
 };
 
