@@ -164,7 +164,7 @@ export class VerifyProductsComponent implements OnInit {
 
     async cancelButtonHandler(): Promise<boolean> {
         return await this.handleNavigation(
-            `/shipment/${this.shipmentIdComputed}/shipment-details`
+            `/shipment/${this.shipmentIdComputed()}/shipment-details`
         );
     }
 
