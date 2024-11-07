@@ -60,7 +60,7 @@ Feature: Search Orders
 
     Rule: I should be able to reset the applied filter criteria.
         Scenario: Ensure the reset button clears the specified filter criteria
-            Given I am logged in at location "<User LocationCode>"
+            Given I am logged in at location "123456789"
             And I choose search orders.
             And I open the search orders filter panel
             And I enter "00000" for the "OrderNumber"
@@ -70,7 +70,7 @@ Feature: Search Orders
 
     Rule: I should not be able to use a greater initial date when compared to final date field
         Scenario Outline: Ensure that the date range validation checks for greater initial dates when compared to final dates for range fields
-            Given I am logged in at location "<User LocationCode>"
+            Given I am logged in at location "123456789"
             And I choose search orders.
             And I open the search orders filter panel
             And I enter "11/31/2024" for the "<Initial Date Field>"
@@ -78,9 +78,9 @@ Feature: Search Orders
             Then The system should display the "Initial date should not be greater than final date" validation message
 
             Examples:
-                | Initial Date Field      | Final Date Field          |
-                | createDateFrom          | createDateTo              |
-                | desiredShippingDateFrom | desiredShippingDateDateTo |
+                | Initial Date Field         | Final Date Field         |
+                | create date from           | create date to           |
+                | desired shipping date from | desired shipping date to |
 
     Rule: I should not be able to select create date parameters values greater than current date
         Scenario: Ensure that the selected dates for create date aren't greater than current date
@@ -91,7 +91,7 @@ Feature: Search Orders
             Then The system should display the "Initial date should not be greater than final date" validation message
 
 
-        Rule: The system should not enable the Apply and Reset options until at least one filter criteria is chosen.
+    Rule: The system should not enable the Apply and Reset options until at least one filter criteria is chosen.
         Scenario: Disable Apply and Reset options when no filter criteria is chosen
             Given I am logged in the location "123456789".
             When I choose to search orders.
@@ -107,41 +107,39 @@ Feature: Search Orders
             Then I should see "<Filter Parameter>" which "<isRequired>" required.
             # TODO: Discuss with Ben about alternatives
             Examples:
-                | Fields              | RequiredFields |
-                | orderNumber         | is not         |
-                | createDateFrom      | is             |
-                | createDateTo        | is             |
-                | desiredShipDateFrom | is not         |
-                | desiredShipDateTo   | is not         |
-                | orderStatus         | is not         |
-                | priority            | is not         |
-                | shipToCustomer      | is not         |
+                | Fields                     | RequiredFields |
+                | order number               | is not         |
+                | create date from           | is             |
+                | create date to             | is             |
+                | desired shipment date from | is not         |
+                | desired shipment date to   | is not         |
+                | orderStatus                | is not         |
+                | priority                   | is not         |
+                | ship to customer           | is not         |
 
 
     Rule: I should be prevented from selecting other filters when BioPro Order number or External ID is selected.
-        Scenario Outline: Check if other fields are disable when an order number is specified
+        Rule: I should be able to see the other filter options disabled when filtering by either the BioPro Order number or External Order ID.
+        Scenario: Check if other fields are disabled when an order number is specified
             Given I am logged in the location "123456789".
             And I choose to search orders.
             And I open the search orders filter panel
             When I type some information on Order Number Field.
-            Then "<Filter Parameter>" should be disabled.
-
-            Examples:
-                | Filter Parameter    |
-                | createDateFrom      |
-                | createDateTo        |
-                | desiredShipDateFrom |
-                | desiredShipDateTo   |
-                | orderStatus         |
-                | priority            |
-                | shipToCustomer      |
+            Then "createDateFrom,createDateTo,desiredShipDateFrom,desiredShipDateTo,orderStatus,priority,shipToCustomer" fields should be disabled.
 
 
     Rule: I should be able to multi-select options for Priority, Status, and Ship to Customer fields.
-        Given I am logged in the location "123456789".
+        Scenario Outline: Check if multiple select inputs are keeping the multiple selection after the user selects the second item
+            Given I am logged in the location "123456789".
             And I choose to search orders.
-            When I open the search orders filter panel
-
+            And I open the search orders filter panel
+            When I select two items from "<Multi Select Field>"
+            Then Two items should be selected from "<Multi Select Field>"
+            Examples:
+                | Multi Select Field |
+                | priority           |
+                | status             |
+                | ship to customer   |
 
     Rule: I should see the number of fields used to select the filter criteria.
 
@@ -149,25 +147,26 @@ Feature: Search Orders
         Scenario Outline: Check if the user can enter dates manually and pick the date from a date picker component for all date fields
             Given I am logged in the location "123456789".
             And I choose to search orders.
-            When I open the search orders filter panel
+            When I open the search orders filter panel.
             Then I should be able to open the "<Date Parameter>" datepicker and also type the date manually.
-
             Examples:
-                | Date Parameter      |
-                | createDateFrom      |
-                | createDateTo        |
-                | desiredShipDateFrom |
-                | desiredShipDateTo   |
+                | Date Parameter             |
+                | create date from           |
+                | create date to             |
+                | desired shipment date from |
+                | desired shipment date to   |
 
     Rule: I should be able to filter the results for date fields from 2 years back.
-    # TODO: Just the create date
+        Rule: I should not be able to search more than 2 years range.
+        Scenario: Check if the values informed for create date range don't exceed 2 years in the past
+            Given I am logged in the location "123456789".
+            And I choose to search orders.
+            And I open the search orders filter panel.
+            When I enter "11/31/2024" for the "create date from"
+            Then The system should display the "Create date should not exceed 2 years in the past" validation message
 
-    Rule: I should not be able to search more than 2 years range.
-    # TODO: Just the create date
 
-    Rule: I should be able to see the other filter options disabled when filtering by either the BioPro Order number or External Order ID.
-
-        Rule: I should not be able to apply filters if any field validations fail.
+    Rule: I should not be able to apply filters if any field validations fail.
         Scenario Outline: Disable apply filters button when incorrect parameters are passed
         Give
             Examples:
@@ -176,5 +175,6 @@ Feature: Search Orders
 
 
     Rule: I should be able to implement the field-level validation and display an error message if the validations fail.
-    # TODO: Add a AND condition when testing validation messages
+
+
 
