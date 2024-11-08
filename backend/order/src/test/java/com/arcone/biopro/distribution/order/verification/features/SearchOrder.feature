@@ -2,7 +2,7 @@
 Feature: Search Orders
 
 
-    @R20-227
+    @R20-227 @R20-228
     Rule: I should be able to filter the order lists by specific criteria.
     Rule: I should be able to apply filter criteria.
         Rule: I should be able to search the order by BioPro order number or External Order ID.
@@ -14,17 +14,18 @@ Feature: Search Orders
             And I have a Biopro Order with id "<External ID>", externalId "<Order Number>", Location Code "<Order LocationCode>", Priority "<Priority>" and Status "<Status>".
             And I am logged in the location "<User LocationCode>".
             And "create date from, create date to, desired shipment date from, desired shipment date to, order status, priority, ship to customer" fields are enabled.
-            And "reset, apply" options are enabled.
             And I choose search orders.
+            And I open the search orders filter panel.
+            And I enter "<Search Key>" for the "OrderNumber".
             And "create date from, create date to, desired shipment date from, desired shipment date to, order status, priority, ship to customer" fields are disabled.
-            And I enter "00000" for the "OrderNumber"
-            When I click on apply option
+            And "reset, apply" options are enabled.
+            When I click on apply option.
             Then I should see 2 orders in the search results.
 
             Examples:
-                | External ID | Order LocationCode | User LocationCode | Priority | Status | Order Key  | Order Number |
-                | 1979        | 123456789          | 123456789         | STAT     | OPEN   | orderId    | 1984         |
-                | 1984        | 123456789          | 123456789         | STAT     | OPEN   | externalId | 1979         |
+                | External ID | Order LocationCode | User LocationCode | Priority | Status | Search Key | Order Number |
+                | 1979        | 123456789          | 123456789         | STAT     | OPEN   | 1984       | 1984         |
+                | 1984        | 123456789          | 123456789         | STAT     | OPEN   | 1984       | 1979         |
 
 
         @R20-227
@@ -34,7 +35,6 @@ Feature: Search Orders
             Given I cleaned up from the database the orders with external ID "<External ID>".
             And I have a Biopro Order with externalId "<External ID>", Location Code "<Order LocationCode>", Priority "<Priority>" and Status "<Status>".
             And I am logged in the location "<User LocationCode>".
-            And "reset, apply" options are enabled.
             And I choose search orders.
             When I search the order by "<Search Key>".
             Then I should see a "Caution" message: "No Results Found".
@@ -52,10 +52,7 @@ Feature: Search Orders
             And I have a Biopro Order with id "<Order Number>", externalId "<External ID>", Location Code "<Order LocationCode>", Priority "<Priority>" and Status "<Status>".
             And I have an order item with product family "<ProductFamily>", blood type "<BloodType>", quantity <Quantity>, and order item comments "<Item Comments>".
             And I am logged in the location "<User LocationCode>".
-            And "reset, apply" options are enabled.
-            And "create date from, create date to, desired shipment date from, desired shipment date to, order status, priority, ship to customer" fields are enabled.
             And I choose search orders.
-            And "create date from, create date to, desired shipment date from, desired shipment date to, order status, priority, ship to customer" fields are disabled.
             When I search the order by "externalId".
             Then I should be redirected to the order details page.
 
@@ -69,27 +66,27 @@ Feature: Search Orders
         Rule: I should be able to see the following filter options
     Rule: I should be able to see the required filter options
         Scenario: Ensure the reset button clears the specified filter criteria
-            Given I am logged in at location "123456789"
+            Given I am logged in at location "123456789".
             And I choose search orders.
-            And I open the search orders filter panel
+            And I open the search orders filter panel.
             And I should see "order number, create date from, create date to, desired shipment date from, desired shipment date to, order status, priority, ship to customer" fields.
             And I should see "create date from, create date to" fields as required.
             And "reset, apply" options are disabled.
-            And I enter "00000" for the "OrderNumber"
+            And I enter "00000" for the "OrderNumber".
             And "reset, apply" options are enabled.
-            When I click on the reset filter button
-            Then The filter information should be empty
+            When I click on the reset filter button.
+            Then The filter information should be empty.
 
 
         @R20-228
         Rule: I should not be able to use a greater initial date when compared to final date field
         Scenario Outline: Ensure that the date range validation checks for greater initial dates when compared to final dates for range fields
-            Given I am logged in at location "123456789"
+            Given I am logged in at location "123456789".
             And I choose search orders.
-            And I open the search orders filter panel
-            And I enter "11/31/2024" for the "<Initial Date Field>"
-            When I enter "11/30/2024" for the "<Final Date Field>"
-            Then The system should display the "Initial date should not be greater than final date" validation message
+            And I open the search orders filter panel.
+            And I enter "11/31/2024" for the "<Initial Date Field>".
+            When I enter "11/30/2024" for the "<Final Date Field>".
+            Then The system should display the "Initial date should not be greater than final date" validation message.
 
             Examples:
                 | Initial Date Field         | Final Date Field         |
@@ -99,11 +96,11 @@ Feature: Search Orders
         @R20-228
         Rule: I should not be able to select create date parameters values greater than current date
         Scenario: Ensure that the selected dates for create date aren't greater than current date
-            Given I am logged in at location "123456789"
+            Given I am logged in at location "123456789".
             And I choose search orders.
-            And I open the search orders filter panel
-            When I enter a future date for the "create date from"
-            Then The system should display the "Initial date should not be greater than final date" validation message
+            And I open the search orders filter panel.
+            When I enter a future date for the "create date from".
+            Then The system should display the "Initial date should not be greater than final date" validation message.
 
 
         @R20-228
@@ -112,7 +109,7 @@ Feature: Search Orders
             Given I am logged in the location "123456789".
             And I choose to search orders.
             And I open the search orders filter panel
-            When I enter "00000" for the "OrderNumber"
+            When I enter "00000" for the "OrderNumber".
             Then "create date from, create date to, desired shipment date from, desired shipment date to, order status, priority, ship to customer" fields are disabled.
 
 
@@ -150,9 +147,11 @@ Feature: Search Orders
             And I choose to search orders.
             And I open the search orders filter panel.
             And I open "create date from" calendar.
-            And I select "11/31/2024" date from the "create date from" calendar
-            When The "create date from" calendar is not visible
-            Then The value for "create date from" should be "11/31/2024"
+            And I select "11/31/2024" date from the "create date from" calendar.
+            And The "create date from" calendar is not visible.
+            And The value for "create date from" should be "11/31/2024".
+            And I enter "12/1/2024" for the "create date from".
+            And The value for "create date from" should be "12/1/2024".
 
         @R20-228
         Rule: I should be able to filter the results for date fields from 2 years back.
