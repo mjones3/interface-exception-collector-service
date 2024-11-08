@@ -2,11 +2,7 @@
 Feature: Search Orders
 
     Background:
-        Given I cleaned up from the database the orders with external ID "1979".
-        And I cleaned up from the database the orders with external ID "1984".
-        And I cleaned up from the database the orders with external ID "2018".
-        And I cleaned up from the database the orders with external ID "DIS1141179".
-        And I cleaned up from the database the orders with external ID "114117922233510".
+        Given I cleaned up from the database the orders with external ID "1979,1984,2018,DIS1141179,114117922233510".
 
 
     Rule: I should be able to filter the order lists by specific criteria.
