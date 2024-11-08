@@ -55,7 +55,7 @@ Feature: Second Verification of Units Feature
         Rule: I should not be able to complete the shipment if all the units are not verified.
         @ui @DST-203
         Scenario Outline: Second verification units already packed.
-            Given I have a shipment for order "<Order Number>" with the units "<UN1>,<UN2>"  and product codes "<Code1>,<Code2>" packed.
+            Given I have a shipment for order "<Order Number>" with the units "<UN1>,<UN2>" and product codes "<Code1>,<Code2>" packed.
             And The second verification configuration is "enabled".
             And I am on the Shipment Fulfillment Details page for order <Order Number>.
             When I choose verify products.
