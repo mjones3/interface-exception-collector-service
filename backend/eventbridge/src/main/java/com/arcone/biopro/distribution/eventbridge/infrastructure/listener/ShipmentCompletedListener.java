@@ -1,7 +1,10 @@
 package com.arcone.biopro.distribution.eventbridge.infrastructure.listener;
 
+import com.arcone.biopro.distribution.eventbridge.application.dto.ShipmentCompletedEventDTO;
+import com.arcone.biopro.distribution.eventbridge.application.dto.ShipmentCompletedPayload;
 import com.arcone.biopro.distribution.eventbridge.domain.service.ShipmentCompletedService;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.config.KafkaConfiguration;
+import com.arcone.biopro.distribution.eventbridge.infrastructure.service.SchemaValidationService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -22,35 +25,37 @@ public class ShipmentCompletedListener extends AbstractKafkaListener {
 
     private final ObjectMapper objectMapper;
     private final ShipmentCompletedService shipmentCompletedService;
+    private final SchemaValidationService schemaValidationService;
 
     public ShipmentCompletedListener(
             @Qualifier(KafkaConfiguration.SHIPMENT_COMPLETED_CONSUMER) ReactiveKafkaConsumerTemplate<String, String> consumer
             , ObjectMapper objectMapper
             , ShipmentCompletedService shipmentCompletedService
             , @Qualifier(KafkaConfiguration.DLQ_PRODUCER) ReactiveKafkaProducerTemplate<String, String> producerTemplate
-            , @Value("${topics.shipment.shipment-completed.topic-name:ShipmentCompleted}") String topicName) {
+            , @Value("${topics.shipment.shipment-completed.topic-name:ShipmentCompleted}") String topicName , SchemaValidationService schemaValidationService) {
 
         super(consumer, objectMapper, producerTemplate, topicName);
         this.objectMapper = objectMapper;
         this.shipmentCompletedService = shipmentCompletedService;
+        this.schemaValidationService = schemaValidationService;
 
     }
 
 
     protected Mono<ReceiverRecord<String, String>> handleMessage(ReceiverRecord<String, String> event) {
         try {
-
             var message = objectMapper.readValue(event.value(), ShipmentCompletedEventDTO.class);
-            return shipmentCompletedService
-                    .processCompletedShipmentEvent(message.payload())
-                    .then(Mono.just(event))
+            return schemaValidationService.validateShipmentCompletedSchema(event.value())
+                .then(Mono.defer(() -> shipmentCompletedService
+                            .processCompletedShipmentEvent(message.payload())))
+                .then(Mono.just(event))
                     .retryWhen(Retry
                             .fixedDelay(3, Duration.ofSeconds(60))
                             .doBeforeRetry(retrySignal ->
                                     log.warn("Retrying due to error: {}. Attempt: {}",
                                             retrySignal.failure().getMessage(),
                                             retrySignal.totalRetries())))
-                    .doOnSuccess(product -> log.info("Processed message = {}", message))
+                    .doOnSuccess(product -> log.info("Processed message = {}", event))
                     .onErrorResume(e -> {
                         log.error("Skipping message processing. Reason: {} Message: {}", e.getMessage(), event);
                         sendToDlq(event.value(), e.getMessage());

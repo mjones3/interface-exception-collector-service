@@ -1,6 +1,6 @@
 package com.arcone.biopro.distribution.eventbridge.domain.service;
 
-import com.arcone.biopro.springwebsocketsrabbitmqpoc.application.dto.ShipmentCompletedPayload;
+import com.arcone.biopro.distribution.eventbridge.application.dto.ShipmentCompletedPayload;
 import reactor.core.publisher.Mono;
 
 public interface ShipmentCompletedService {
