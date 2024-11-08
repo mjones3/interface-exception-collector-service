@@ -32,10 +32,13 @@ public class RemoteWebDriverConfig {
 
     @Bean
     @Lazy
-    @ConditionalOnProperty(name = "browser", havingValue = "firefox")
+    @ConditionalOnProperty(name = "testing.browser", havingValue = "firefox")
     @Scope("browserscope")
     public WebDriver firefoxDriver() throws MalformedURLException, URISyntaxException {
         FirefoxOptions options = new FirefoxOptions();
+        if (headless) {
+            options.addArguments("--headless");
+        } // Execution without GUI.
         return new RemoteWebDriver(new URI(seleniumGridUrl).toURL(), options);
     }
 

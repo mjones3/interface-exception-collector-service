@@ -14,7 +14,9 @@ import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentReposit
 import com.arcone.biopro.distribution.shipping.domain.service.CompleteShipmentService;
 import com.arcone.biopro.distribution.shipping.domain.service.ConfigService;
 import com.arcone.biopro.distribution.shipping.domain.service.ShipmentService;
+import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryValidationRequest;
 import com.arcone.biopro.distribution.shipping.infrastructure.service.FacilityServiceMock;
+import com.arcone.biopro.distribution.shipping.infrastructure.service.InventoryRsocketClient;
 import com.arcone.biopro.distribution.shipping.infrastructure.service.dto.FacilityDTO;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -46,28 +49,18 @@ public class CompleteShipmentUseCase implements CompleteShipmentService {
     private final ShipmentItemPackedRepository shipmentItemPackedRepository;
     private static final String SHIPMENT_DETAILS_URL = "/shipment/%s/shipment-details";
     private static final String SHIPMENT_VERIFICATION_URL = "/shipment/%s/verify-products";
+    private final InventoryRsocketClient inventoryRsocketClient;
 
 
     @Override
     @WithSpan("completeShipment")
     @Transactional
     public Mono<RuleResponseDTO> completeShipment(CompleteShipmentRequest request) {
-        var secondVerificationActive = configService.findShippingSecondVerificationActive();
-        return Mono.zip(secondVerificationActive,shipmentRepository.findById(request.shipmentId()) , shipmentItemPackedRepository.countVerificationPendingByShipmentId(request.shipmentId()))
+
+        return shipmentRepository.findById(request.shipmentId())
             .switchIfEmpty(Mono.error(new RuntimeException(ShipmentServiceMessages.SHIPMENT_NOT_FOUND_ERROR)))
-            .flatMap(tuple -> {
-                if(TRUE.equals(tuple.getT1()) && tuple.getT3() > 0){
-                    return Mono.error(new ShipmentValidationException(ShipmentServiceMessages.SECOND_VERIFICATION_NOT_COMPLETED_ERROR
-                        ,List.of(NotificationDTO.builder()
-                        .name("SECOND_VERIFICATION_NOT_COMPLETED_ERROR")
-                        .statusCode(HttpStatus.BAD_REQUEST.value())
-                        .message(ShipmentServiceMessages.SECOND_VERIFICATION_NOT_COMPLETED_ERROR)
-                        .notificationType(NotificationType.WARN.name())
-                        .build()),String.format(SHIPMENT_VERIFICATION_URL,request.shipmentId()) )
-                    );
-                }
-                return updateShipment(tuple.getT2(),request);
-            })
+            .flatMap(this::validateShipment)
+            .flatMap(shipment -> this.updateShipment(shipment,request))
             .flatMap(this::raiseShipmentCompleteEvent)
             .flatMap(shipment -> Mono.just(RuleResponseDTO.builder()
                 .ruleCode(HttpStatus.OK)
@@ -112,10 +105,11 @@ public class CompleteShipmentUseCase implements CompleteShipmentService {
         if(error instanceof ShipmentValidationException exception){
            return Mono.just(RuleResponseDTO.builder()
                 .ruleCode(HttpStatus.BAD_REQUEST)
+                   .results(((ShipmentValidationException) error).getResults())
                 .notifications(List.of(NotificationDTO.builder()
                     .message(exception.getMessage())
                     .statusCode(HttpStatus.BAD_REQUEST.value())
-                    .notificationType(NotificationType.WARN.name())
+                    .notificationType(((ShipmentValidationException) error).getErrorType())
                     .build()))
                 ._links(Map.of("next",exception.getNextUrl()))
                 .build());
@@ -133,5 +127,75 @@ public class CompleteShipmentUseCase implements CompleteShipmentService {
                     .build()))
                 .build());
         }
+    }
 
-}   }
+    private Mono<Shipment> validateShipment(Shipment shipment){
+        log.debug("Validating Shipment {}",shipment.getId());
+
+        var secondVerificationActive = configService.findShippingSecondVerificationActive();
+        var countVerification = shipmentItemPackedRepository.countVerificationPendingByShipmentId(shipment.getId());
+
+        return Mono.zip(secondVerificationActive,countVerification).flatMap(tuple -> {
+            if(TRUE.equals(tuple.getT1())){
+                if(tuple.getT2() > 0){
+                    return Mono.error(new ShipmentValidationException(ShipmentServiceMessages.SECOND_VERIFICATION_NOT_COMPLETED_ERROR
+                        ,List.of(NotificationDTO.builder()
+                        .name("SECOND_VERIFICATION_NOT_COMPLETED_ERROR")
+                        .statusCode(HttpStatus.BAD_REQUEST.value())
+                        .message(ShipmentServiceMessages.SECOND_VERIFICATION_NOT_COMPLETED_ERROR)
+                        .notificationType(NotificationType.WARN.name())
+                        .build()),String.format(SHIPMENT_VERIFICATION_URL,shipment.getId()), NotificationType.WARN.name())
+                    );
+                }
+
+
+                return shipmentItemPackedRepository.listAllVerifiedByShipmentId(shipment.getId()).flatMap(itemPacked -> {
+                        return inventoryRsocketClient.validateInventory(InventoryValidationRequest.builder()
+                                .productCode(itemPacked.getProductCode())
+                                .locationCode(shipment.getLocationCode())
+                                .unitNumber(itemPacked.getUnitNumber()).build())
+                            .flatMap(inventoryValidationResponseDTO -> {
+                                if(inventoryValidationResponseDTO!= null && inventoryValidationResponseDTO.inventoryNotificationsDTO() != null && !inventoryValidationResponseDTO.inventoryNotificationsDTO().isEmpty() ){
+                                    return Mono.just(inventoryValidationResponseDTO);
+                                }else{
+                                    return  Mono.empty();
+                                }
+                            });
+
+                    })
+                    .onErrorResume(error -> {
+                        log.error("Not able to validate packed products {}",error.getMessage());
+                        return Mono.error(new ShipmentValidationException(ShipmentServiceMessages.INVENTORY_SERVICE_NOT_AVAILABLE_ERROR
+                            , List.of(NotificationDTO.builder()
+                            .name("INVENTORY_SERVICE_IS_DOWN")
+                            .statusCode(HttpStatus.BAD_REQUEST.value())
+                            .message(ShipmentServiceMessages.INVENTORY_SERVICE_NOT_AVAILABLE_ERROR)
+                            .notificationType(NotificationType.SYSTEM.name())
+                            .build()), String.format(SHIPMENT_VERIFICATION_URL, shipment.getId()),NotificationType.SYSTEM.name())
+                        );
+                    })
+                    .collectList()
+                    .flatMap(validationList -> {
+                        if(!validationList.isEmpty()){
+                            Map<String, List<?>> results  = new HashMap<>();
+                            results.put("validations", validationList);
+                            return Mono.error(new ShipmentValidationException(ShipmentServiceMessages.SHIPMENT_VALIDATION_COMPLETED_ERROR
+                                ,List.of(NotificationDTO.builder()
+                                .name("SHIPMENT_VALIDATION_COMPLETED_ERROR")
+                                .statusCode(HttpStatus.BAD_REQUEST.value())
+                                .message(ShipmentServiceMessages.SHIPMENT_VALIDATION_COMPLETED_ERROR)
+                                .notificationType(NotificationType.WARN.name())
+                                .build()),String.format(SHIPMENT_VERIFICATION_URL,shipment.getId()) , results , NotificationType.WARN.name() )
+                            );
+                        }else{
+                            return Mono.just(shipment);
+                        }
+                    });
+
+           }else {
+                return Mono.just(shipment);
+            }
+        });
+    }
+}
+

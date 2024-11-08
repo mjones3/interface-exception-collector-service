@@ -12,7 +12,6 @@
                 label="Cancel "
                 color="secondary"
                 icon="heroicons_outline:x-circle"
-                (clickEvent)="cancelButtonHandler()"
             />
             <biopro-action-button
                 id="completeShipmentBtn"
@@ -21,6 +20,7 @@
                 color="primary"
                 icon="heroicons_outline:check-circle"
                 [disabled]="!isAllPackItemsVerified()"
+                (clickEvent)="completeShipment()"
             />
         </div>
     </ng-template>
