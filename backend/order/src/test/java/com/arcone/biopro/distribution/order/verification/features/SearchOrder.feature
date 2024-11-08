@@ -111,36 +111,30 @@ Feature: Search Orders
 
     Rule: I should be able to multi-select options for Priority, Status, and Ship to Customer fields.
         Rule: I should be able to see order number disabled when filtering by remaining filter fields.
+    Rule: I should see the number of fields used to select the filter criteria.
         @R20-228
         Scenario Outline: Check if multiple select inputs are keeping the multiple selection after the user selects the second item
             Given I have a Biopro Order with id "123", externalId "1979", Location Code "123456789", Priority "STAT" and Status "OPEN".
-            And I have a Biopro Order with id "456", externalId "1984", Location Code "123456789", Priority "STAT" and Status "OPEN".
+            And I have a Biopro Order with id "456", externalId "1984", Location Code "123456789", Priority "STAT" and Status "CLOSED".
             And I have a Biopro Order with id "789", externalId "2018", Location Code "123456789", Priority "DIFF" and Status "OPEN".
             And I am logged in the location "123456789".
             And I choose to search orders.
             And I open the search orders filter panel.
-            When I select "<Selected Items>" from "<Multi Select Field>".
+            When I select "<Selected Priorities>" for the "priority".
+            And I select "<Selected Statuses>" for the "order status".
+            And I select "<Selected Customers>" for the "ship to customer".
             And "order number" field is disabled.
-            Then Items "<Selected Items>" should be selected from "<Multi Select Field>"
-            And I should see 2 orders in the search results.
+            Then Items "<Selected Priorities>" should be selected for "priority".
+            And Items "<Selected Statuses>" should be selected for "order status".
+            And Items "<Selected Customers>" should be selected for "ship to customer".
+            And I should see "<Expected External Ids>" orders in the search results.
+            And I should not see "<Not Returned External Ids>".
+            And I should see "<Expected Number of Filters>" as the number of used filters for the search.
             Examples:
-                | Multi Select Field | Selected Items |
-                | priority           | STAT,STAT2     |
-                | status             | OPEN,CLOSED    |
-                | ship to customer   | CUST1,CUST2    |
-
-
-    Rule: I should see the number of fields used to select the filter criteria.
-        @R20-228
-        Scenario: Show the number of used filter parameters for a search
-            Given I am logged in the location "123456789".
-            And I choose to search orders.
-            And I open the search orders filter panel.
-            And I select two items from "priority".
-            And I select two items from "status".
-            When I choose apply option.
-            Then I should see 2 as the number of used filters for the search.
-
+                | Selected Priorities | Selected Statuses | Selected Customers | Expected External Ids | Not Returned External Ids | Expected Number Of Filters |
+                | STAT, STAT2         | OPEN,OPEN2        |                    | 1979,1984             | 2018                      | 2                          |
+                | STAT, STAT2         |                   |                    | 1979,2018             | 1984                      | 1                          |
+                | STAT, STAT2         | OPEN,DIFF         | 1,2,3              |                       |                           | 3                          |
 
     Rule: I should be able to filter the results for date fields from 2 years back.
         Rule: I should be able to enter the create date manually or select from the integrated component.
