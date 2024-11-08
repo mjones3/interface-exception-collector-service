@@ -8,11 +8,8 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FuseCardComponent } from '@fuse/components/card/public-api';
 import { Store } from '@ngrx/store';
-import { TranslateService } from '@ngx-translate/core';
 import {
     Description,
-    NotificationDto,
-    NotificationTypeMap,
     ProcessHeaderComponent,
     ProcessHeaderService,
     SortService,
@@ -37,6 +34,7 @@ import { TableModule } from 'primeng/table';
 import { of, switchMap } from 'rxjs';
 import { catchError, take } from 'rxjs/operators';
 import { ProductFamilyMap } from '../../../shared/models/product-family.model';
+import { consumeNotifications } from '../../../shared/utils/notification.handling';
 import {
     ShipmentCompleteInfoDto,
     ShipmentDetailResponseDTO,
@@ -85,7 +83,6 @@ export class ShipmentDetailsComponent implements OnInit {
         private store: Store,
         private shippingLabelService: ShippingLabelService,
         private browserPrintingService: BrowserPrintingService,
-        private translate: TranslateService,
         private productIconService: ProductIconsService,
         @Inject(LOCALE_ID) public locale: string
     ) {
@@ -295,9 +292,7 @@ export class ShipmentDetailsComponent implements OnInit {
                     const url = value._links?.next;
 
                     if (notifications?.length) {
-                        this.displayMessageFromNotificationDto(
-                            notifications[0]
-                        );
+                        consumeNotifications(this.toaster, notifications);
                         if (url !== this._router.url) {
                             this._router.navigateByUrl(url);
                         } else {
@@ -317,15 +312,6 @@ export class ShipmentDetailsComponent implements OnInit {
             shipmentId: this.shipmentId,
             employeeId: this.loggedUserId,
         };
-    }
-
-    displayMessageFromNotificationDto(notification: NotificationDto) {
-        this.toaster.show(
-            this.translate.instant(notification.message),
-            null,
-            {},
-            NotificationTypeMap[notification.notificationType].type
-        );
     }
 
     verifyProducts() {
