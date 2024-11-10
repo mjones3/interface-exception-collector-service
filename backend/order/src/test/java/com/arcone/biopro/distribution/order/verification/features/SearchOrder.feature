@@ -17,10 +17,10 @@ Feature: Search Orders
             And I am logged in the location "<User LocationCode>".
             And I choose search orders.
             And I open the search orders filter panel.
-            And "order number, create date from, create date to, desired shipment date from, desired shipment date to, order status, priority, ship to customer" fields are enabled.
-            And I enter "<Search Key>" for the "OrderNumber".
-            And "create date from, create date to, desired shipment date from, desired shipment date to, order status, priority, ship to customer" fields are disabled.
-            When I choose apply option.
+            And "order number, create date from, create date to, desired shipment date from, desired shipment date to, order status, priority, ship to customer" fields are "enabled".
+            And I search the order by "<Search Key>".
+            And "create date from, create date to, desired shipment date from, desired shipment date to, order status, priority, ship to customer" fields are "disabled".
+            When I choose "apply" option.
             Then I should see 2 orders in the search results.
 
             Examples:
@@ -37,7 +37,9 @@ Feature: Search Orders
             Given I have a Biopro Order with externalId "<External ID>", Location Code "<Order LocationCode>", Priority "<Priority>" and Status "<Status>".
             And I am logged in the location "<User LocationCode>".
             And I choose search orders.
-            When I search the order by "<Search Key>".
+            And I open the search orders filter panel.
+            And I search the order by "<Search Key>".
+            When I choose "apply" option.
             Then I should see a "Caution" message: "No Results Found".
 
             Examples:
@@ -54,7 +56,9 @@ Feature: Search Orders
             And I have an order item with product family "<ProductFamily>", blood type "<BloodType>", quantity <Quantity>, and order item comments "<Item Comments>".
             And I am logged in the location "<User LocationCode>".
             And I choose search orders.
-            When I search the order by "externalId".
+            And I open the search orders filter panel.
+            And I search the order by "externalId".
+            When I choose "apply" option.
             Then I should be redirected to the order details page.
 
             Examples:
@@ -68,15 +72,18 @@ Feature: Search Orders
         Rule: I should be able to see the required filter options
         @R20-228
         Scenario: The reset option clears the specified filter criteria
-            Given I am logged in at location "123456789".
+            Given I am logged in the location "123456789".
             And I choose search orders.
             And I open the search orders filter panel.
             And I should see "order number, create date from, create date to, desired shipment date from, desired shipment date to, order status, priority, ship to customer" fields.
             And I should see "create date from, create date to" fields as required.
-            And "reset, apply" options are disabled.
-            And I enter "00000" for the "OrderNumber".
-            And "reset, apply" options are enabled.
-            When I choose the reset filter option.
+            And "reset" option is "disabled".
+            And "apply" option is "disabled".
+            And I search the order by "00000".
+            And "apply" option is "enabled".
+            And "reset" option is "enabled".
+            When I choose "apply" option.
+            And I choose "reset" option.
             Then The filter information should be empty.
 
 
@@ -84,11 +91,11 @@ Feature: Search Orders
     Rule: I should not be able to use a greater initial date when compared to final date field
         @R20-228
         Scenario Outline: Ensure that the date range validation checks for greater initial dates when compared to final dates for range fields
-            Given I am logged in at location "123456789".
+            Given I am logged in the location "123456789".
             And I choose search orders.
             And I open the search orders filter panel.
-            And I enter "11/31/2024" for the "<Initial Date Field>".
-            When I enter "11/30/2024" for the "<Final Date Field>".
+            When I enter "11/31/2024" for the "<Initial Date Field>".
+            And I enter "11/30/2024" for the "<Final Date Field>".
             Then The system should display the "Initial date should not be greater than final date" validation message.
 
             Examples:
@@ -100,10 +107,10 @@ Feature: Search Orders
     Rule: I should not be able to select create date parameters values greater than current date
         @R20-228
         Scenario: Ensure that the selected dates for create date aren't greater than current date
-            Given I am logged in at location "123456789".
+            Given I am logged in the location "123456789".
             And I choose search orders.
             And I open the search orders filter panel.
-            When I enter a future date for the "create date from".
+            When I enter "future date" for the "create date from".
             Then The system should display the "From date should not be greater than to date" validation message.
 
 
@@ -118,12 +125,12 @@ Feature: Search Orders
             And I have a Biopro Order with id "456", externalId "1984", Location Code "123456789", Priority "STAT" and Status "CLOSED".
             And I have a Biopro Order with id "789", externalId "2018", Location Code "123456789", Priority "DIFF" and Status "OPEN".
             And I am logged in the location "123456789".
-            And I choose to search orders.
+            And I choose search orders.
             And I open the search orders filter panel.
             When I select "<Selected Priorities>" for the "priority".
             And I select "<Selected Statuses>" for the "order status".
             And I select "<Selected Customers>" for the "ship to customer".
-            And "order number" field is disabled.
+            And "order number" field is "disabled".
             Then Items "<Selected Priorities>" should be selected for "priority".
             And Items "<Selected Statuses>" should be selected for "order status".
             And Items "<Selected Customers>" should be selected for "ship to customer".
@@ -131,7 +138,7 @@ Feature: Search Orders
             And I should not see "<Not Returned External Ids>".
             And I should see "<Expected Number of Filters>" as the number of used filters for the search.
             Examples:
-                | Selected Priorities | Selected Statuses | Selected Customers | Expected External Ids | Not Returned External Ids | Expected Number Of Filters |
+                | Selected Priorities | Selected Statuses | Selected Customers | Expected External Ids | Not Returned External Ids | Expected Number of Filters |
                 | STAT, STAT2         | OPEN,OPEN2        |                    | 1979,1984             | 2018                      | 2                          |
                 | STAT, STAT2         |                   |                    | 1979,2018             | 1984                      | 1                          |
                 | STAT, STAT2         | OPEN,DIFF         | 1,2,3              |                       |                           | 3                          |
@@ -144,9 +151,9 @@ Feature: Search Orders
         @R20-228
         Scenario: Check if the values informed for create date range don't exceed 2 years in the past
             Given I am logged in the location "123456789".
-            And I choose to search orders.
+            And I choose search orders.
             And I open the search orders filter panel.
             When I enter "11/31/2018" for the "create date from".
             Then The system should display the "From date should not exceed 2 years in the past" validation message.
-            And "reset" option is enabled.
-            And "apply" option is disabled.
+            And "reset" option is "enabled".
+            And "apply" option is "disabled".

@@ -22,15 +22,30 @@ import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assert;
+import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebElement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
+import static org.springframework.test.util.AssertionErrors.assertEquals;
+
 @Slf4j
 public class OrderSteps {
+
+    private static final String ORDER_STATUS_SELECT_ID = "orderStatusSelect";
+    private static final String ORDER_STATUS_PANEL_ID = "orderStatusSelect-panel";
+    private static final String ORDER_PRIORITY_SELECT_ID = "orderPrioritySelect";
+    private static final String ORDER_PRIORITY_PANEL_ID = "orderPrioritySelect-panel";
+    private static final String ORDER_SHIP_TO_CUSTOMER_SELECT_ID = "orderShipToCustomerSelect";
+    private static final String ORDER_SHIP_TO_CUSTOMER_PANEL_ID = "orderShipToCustomerSelect-panel";
+
 
     //    Order details
     private String externalId;
@@ -451,7 +466,7 @@ public class OrderSteps {
         orderDetailsPage.verifyProgressBarNotExists();
     }
 
-    @When("I search the order by {string}.")
+    @And("I search the order by {string}.")
     public void iSearchTheOrderBy(String value) throws InterruptedException {
         if (value.equalsIgnoreCase("orderId")) {
             searchOrderPage.searchOrder(this.orderId.toString());
@@ -459,6 +474,20 @@ public class OrderSteps {
             searchOrderPage.searchOrder(this.externalId);
         } else {
             searchOrderPage.searchOrder(value);
+        }
+    }
+
+    @When("I open the search orders filter panel.")
+    public void iOpenTheSearchPanel() throws InterruptedException {
+        searchOrderPage.openTheSearchPanel();
+    }
+
+    @When("I choose {string} option.")
+    public void iChooseApplyOption(String valueOption) throws InterruptedException {
+        if(valueOption.equalsIgnoreCase("apply")){
+            searchOrderPage.iChooseApplyOption();
+        } else {
+            searchOrderPage.iChooseResetOption();
         }
     }
 
@@ -470,5 +499,165 @@ public class OrderSteps {
     @Then("I should be redirected to the order details page.")
     public void iShouldBeRedirectedToTheOrderDetailsPage() {
         searchOrderPage.checkIfDetailsPageIsOpened();
+    }
+
+    @And("I should see {string} fields as required.")
+    public void areFieldsRequired(String valueFields) throws InterruptedException {
+        Arrays.stream(valueFields.split(",")).map(String::trim).forEach
+            (valueField -> {
+                switch (valueField) {//todo
+                    case "create date from":
+                    case "create date to":
+                    case "order number":
+                        searchOrderPage.theOrderFieldIsIsRequiredField();
+                        break;
+                    default:
+                        Assert.fail("Field not found: " + valueField);
+                }
+            });
+    }
+
+    @And("I should see {string} fields.")
+    public void allFieldsDisplayed(String valueFields) throws InterruptedException {
+        Arrays.stream(valueFields.split(",")).map(String::trim).forEach
+            (valueField -> {
+                switch (valueField) { //todo
+                    case "create date from":
+                    case "create date to":
+                    case "desired shipment date from":
+                    case "desired shipment date to":
+                    case "order status":
+                    case "priority":
+                    case "ship to customer":
+                    case "order number":
+                        try {
+                            searchOrderPage.theOrderFieldIsDisplayed();
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                        break;
+                    default:
+                        Assert.fail("Field not found: " + valueField);
+                }
+            });
+    }
+
+    @And("{string} fields are {string}.")
+    public void theFieldsHaveTheStatus(String valueFields, String valueStatus) throws InterruptedException {
+        Arrays.stream(valueFields.split(",")).map(String::trim).forEach
+            (valueField -> {
+                try {
+                    theFieldHaveTheStatus(valueField, valueStatus);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+    }
+
+    @And("{string} field is {string}.")
+    public void theFieldHaveTheStatus(String valueField, String valueStatus) throws InterruptedException {
+        if (valueStatus.equalsIgnoreCase("disabled")) {
+            switch(valueField) {//todo
+                case "create date from":
+                case "create date to":
+                case "desired shipment date from":
+                case "desired shipment date to":
+                case "order status":
+                case "priority":
+                case "ship to customer":
+                case "order number": searchOrderPage.theOrderFieldIsDisabled(); break;
+                default:
+                    Assert.fail("Field not found: " + valueField);
+            }
+        } else {
+            switch(valueField) {//todo
+                case "create date from":
+                case "create date to":
+                case "desired shipment date from":
+                case "desired shipment date to":
+                case "order status":
+                case "priority":
+                case "ship to customer":
+                case "order number": searchOrderPage.theOrderFieldIsEnabled(); break;
+                default:
+                    Assert.fail("Field not found: " + valueField);
+            }
+        }
+    }
+
+    @And("{string} option is {string}.")
+    public void theOptionHaveTheStatus(String valueOption, String valueStatus) throws InterruptedException {
+        if (valueStatus.equalsIgnoreCase("disabled")) {
+            if (valueOption.equalsIgnoreCase("reset")) {
+                searchOrderPage.theResetOptionIsDisabled();
+            } else {
+                searchOrderPage.theApplyOptionIsDisabled();
+            }
+        } else {
+            if (valueOption.equalsIgnoreCase("reset")) {
+                searchOrderPage.theResetOptionIsEnabled();
+            } else {
+                searchOrderPage.theApplyOptionIsEnabled();
+            }
+        }
+    }
+
+    private void selectValuesFromDropdown(String dropdownId, String panelId, List<String> valuesToSelect) {
+        WebElement dropdown = searchOrderPage.findElementById(dropdownId);
+        dropdown.click();
+        WebElement dropdownPanel = searchOrderPage.findElementById(panelId);
+
+        List<WebElement> options = dropdownPanel.findElements(By.xpath(".//mat-option"));
+        for (String value : valuesToSelect) {
+            options.stream()
+                .filter(option -> option.getText().trim().equalsIgnoreCase(value))
+                .findFirst()
+                .ifPresent(WebElement::click);
+            log.info("Selected value: {}", value);
+        }
+        dropdown.sendKeys(Keys.ESCAPE);
+        searchOrderPage.closeDropdownIfOpen(dropdown);
+    }
+
+    @And("I select {string} for the {string}.")
+    public void iSelectValuesForTheDropdown(String values, String dropdown) {
+        switch(dropdown) {
+            case "order status": selectValuesFromDropdown(ORDER_STATUS_SELECT_ID, ORDER_STATUS_PANEL_ID, Arrays.asList(values.split(",\\s*"))); break;
+            case "priority": selectValuesFromDropdown(ORDER_PRIORITY_SELECT_ID, ORDER_PRIORITY_PANEL_ID, Arrays.asList(values.split(",\\s*"))); break;
+            case "ship to customer": selectValuesFromDropdown(ORDER_SHIP_TO_CUSTOMER_SELECT_ID, ORDER_SHIP_TO_CUSTOMER_PANEL_ID, Arrays.asList(values.split(",\\s*"))); break;
+            default:
+                Assert.fail("Field not found: " + dropdown);
+        }
+    }
+
+    private void selectedValuesFromDropdown(String dropdownId, String panelId, List<String> valuesToSelect) {
+        WebElement dropdown = searchOrderPage.findElementById(dropdownId);
+        dropdown.click();
+        WebElement dropdownPanel = searchOrderPage.findElementById(panelId);
+
+        List<WebElement> options = dropdownPanel.findElements(By.xpath(".//mat-option"));
+
+        for (String value : valuesToSelect) {
+            Assert.assertTrue("Selected value: " + value, options.stream()
+                .anyMatch(option -> option.getText().trim().equalsIgnoreCase(value) && option.isSelected()));
+        }
+        dropdown.sendKeys(Keys.ESCAPE);
+        searchOrderPage.closeDropdownIfOpen(dropdown);
+    }
+
+    @And("Items {string} should be selected for {string}.")
+    public void itemsShouldBeSelected(String values, String dropdown) {
+        switch(dropdown) {
+            case "order status": selectedValuesFromDropdown(ORDER_STATUS_SELECT_ID, ORDER_STATUS_PANEL_ID, Arrays.asList(values.split(",\\s*"))); break;
+            case "priority": selectedValuesFromDropdown(ORDER_PRIORITY_SELECT_ID, ORDER_PRIORITY_PANEL_ID, Arrays.asList(values.split(",\\s*"))); break;
+            case "ship to customer": selectedValuesFromDropdown(ORDER_SHIP_TO_CUSTOMER_SELECT_ID, ORDER_SHIP_TO_CUSTOMER_PANEL_ID, Arrays.asList(values.split(",\\s*"))); break;
+            default:
+                Assert.fail("Field not found: " + dropdown);
+        }
+    }
+
+    @When("I enter {string} for the {string}.")
+    public void iEnterForThe(String value, String fieldName) {
+        //todo
     }
 }
