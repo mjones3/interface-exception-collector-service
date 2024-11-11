@@ -334,4 +334,12 @@ public class SharedActions {
             waitForVisible(locator);
         }
     }
+
+    public void navigateTo(String url) {
+        wait.until(e -> {
+            log.debug("Navigating to URL: {}", url);
+            e.get(baseUrl + url);
+            return true;
+        });
+    }
 }

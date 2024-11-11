@@ -1,3 +1,4 @@
+@api
 Feature: Health Check
     As an administrator
     I want to verify that the application is running

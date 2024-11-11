@@ -47,6 +47,9 @@ public class VerifyProductsPage extends CommonPageFactory {
         return String.format("//biopro-unit-number-card[@ng-reflect-product-name='%s']", productCode);
     }
 
+    public void goToPage(String shipmentId) {
+        sharedActions.navigateTo(verifyProductsUrl.replace("{shipmentId}", shipmentId));
+    }
 
     @Override
     public boolean isLoaded() {
