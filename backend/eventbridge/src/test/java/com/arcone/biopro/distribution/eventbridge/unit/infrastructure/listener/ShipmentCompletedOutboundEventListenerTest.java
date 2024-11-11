@@ -2,6 +2,8 @@ package com.arcone.biopro.distribution.eventbridge.unit.infrastructure.listener;
 
 import com.arcone.biopro.distribution.eventbridge.domain.event.ShipmentCompletedOutboundEvent;
 import com.arcone.biopro.distribution.eventbridge.domain.model.ShipmentCompletedOutbound;
+import com.arcone.biopro.distribution.eventbridge.domain.model.vo.ShipmentCustomer;
+import com.arcone.biopro.distribution.eventbridge.domain.model.vo.ShipmentLocation;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.dto.ShipmentCompletedOutboundPayload;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.listener.ShipmentCompletedOutboundEventListener;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.mapper.ShipmentCompletedOutboundMapper;
@@ -25,6 +27,8 @@ class ShipmentCompletedOutboundEventListenerTest {
         var mapper = new ShipmentCompletedOutboundMapper();
 
         var model = Mockito.mock(ShipmentCompletedOutbound.class);
+        Mockito.when(model.getShipmentCustomer()).thenReturn(new ShipmentCustomer("CUSTOMER_CODE","CUSTOMER_TYPE"));
+        Mockito.when(model.getShipmentLocation()).thenReturn(new ShipmentLocation("LOCATION_CODE","LOCATION_NAME"));
 
         var target = new ShipmentCompletedOutboundEventListener(producerTemplate, "TestTopic",mapper);
 
