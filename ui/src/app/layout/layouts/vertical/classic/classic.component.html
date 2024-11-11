@@ -87,17 +87,7 @@
         }"
     >
         <div id="copyright">
-            ARC-One Solutions &copy; {{ releaseNumber }}
-
-            @if (processProductVersion) {
-                <div
-                    matTooltip="Open Version Details"
-                    (click)="goToBuildDetails()"
-                    style="cursor: pointer"
-                >
-                    Build Version: {{ processProductVersion.buildVersion }}
-                </div>
-            }
+            ARC-One Solutions &copy; BioPro {{ releaseNumber }}
         </div>
 
         <span style="color: red; padding: 40px">{{
