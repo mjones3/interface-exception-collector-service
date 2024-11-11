@@ -10,6 +10,7 @@
                     <mat-label class="font-bold">Unit Number</mat-label>
                     <input
                         id="scanUnitNumberId"
+                        #inputUnitNumber
                         matInput
                         formControlName="unitNumber"
                         [placeholder]="'Scan Unit Number'"
@@ -55,7 +56,7 @@
                             autocomplete="off"
                             validateOn="touchedState"
                             [placeholder]="'Scan Product Code'"
-                            (keyup)="verifyProduct()"
+                            (keydown.Enter)="verifyProduct()"
                         />
                         @if (
                             unitProductGroup

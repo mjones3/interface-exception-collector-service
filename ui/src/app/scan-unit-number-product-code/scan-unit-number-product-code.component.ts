@@ -4,7 +4,7 @@ import {
     ElementRef,
     EventEmitter,
     Output,
-    ViewChild,
+    ViewChild, OnDestroy,
 } from '@angular/core';
 import {
     FormBuilder,
@@ -15,6 +15,8 @@ import {
 } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { RsaValidators } from '@shared';
+import { extractUnitNumber } from 'app/shared/utils/utils';
+import { Subscription, combineLatestWith, filter } from 'rxjs';
 
 @Component({
     selector: 'biopro-scan-unit-number-product-code',
@@ -22,20 +24,30 @@ import { RsaValidators } from '@shared';
     imports: [ReactiveFormsModule, MatInputModule, FormsModule, CommonModule],
     templateUrl: './scan-unit-number-product-code.component.html',
 })
-export class ScanUnitNumberProductCodeComponent {
+export class ScanUnitNumberProductCodeComponent implements OnDestroy {
     @ViewChild('inputUnitNumber') inputUnitNumber: ElementRef;
     @ViewChild('inputProductCode') inputProductCode: ElementRef;
-    @Output() validate: EventEmitter<{ unitNumber: string }> =
-        new EventEmitter<{
-            unitNumber: string;
-            productCode: string;
-        }>();
+    @Output() validate: EventEmitter<{
+        unitNumber: string;
+        productCode: string;
+    }> = new EventEmitter<{
+        unitNumber: string;
+        productCode: string;
+    }>();
     unitProductGroup: FormGroup;
+    formValueChange: Subscription;
 
     constructor(private fb: FormBuilder) {
-        this.unitProductGroup = this.fb.group({
+        this.buildUnitProductFormGroup();
+        setTimeout(() => {
+            this.focusOnUnitNumber();
+        }, 0);
+    }
+
+    buildUnitProductFormGroup() {
+        const formGroup = this.fb.group({
             unitNumber: [
-                null,
+                '',
                 [
                     Validators.required,
                     RsaValidators.manualEntryValidatorForUnitNumber(),
@@ -49,17 +61,32 @@ export class ScanUnitNumberProductCodeComponent {
                 ],
             ],
         });
-        setTimeout(() => {
-            this.focusOnUnitNumber();
-        }, 0);
+
+        this.formValueChange = formGroup.statusChanges
+            .pipe(
+                combineLatestWith(formGroup.valueChanges),
+                filter(
+                    ([status, value]) =>
+                        !!value.unitNumber?.trim() &&
+                        !!value.productCode?.trim() &&
+                        status === 'VALID'
+                )
+            )
+            .subscribe(() => this.verifyProduct());
+
+        this.unitProductGroup = formGroup;
+    }
+
+    ngOnDestroy() {
+        this.formValueChange?.unsubscribe();
     }
 
     get controlUnitNumber() {
         return this.unitProductGroup.controls['unitNumber'];
     }
 
-    get isScanner() {
-        return !!this.controlUnitNumber.value?.startsWith('=');
+    get controlProductCode() {
+        return this.unitProductGroup.controls['productCode'];
     }
 
     enableProductCode(): void {
@@ -81,9 +108,27 @@ export class ScanUnitNumberProductCodeComponent {
     }
 
     verifyProduct(): void {
+        const unitNumber: string = this.controlUnitNumber?.value ?? '';
+        const obj = {
+            unitNumber: this.controlUnitNumber.valid
+                ? extractUnitNumber(unitNumber).toUpperCase()
+                : '',
+            productCode: this.controlProductCode.valid
+                ? this.productCodeScannedValue
+                : '',
+        };
         if (this.unitProductGroup.valid) {
-            this.validate.emit(this.unitProductGroup.value);
+            this.validate.emit(obj);
         }
+    }
+
+    get productCodeScannedValue(): string {
+        let productCode: string = this.controlProductCode.value ?? '';
+        const scanner = productCode.startsWith('=<');
+        if (productCode && scanner) {
+            productCode = productCode.substring(2);
+        }
+        return productCode;
     }
 
     resetUnitProductGroup(): void {
