@@ -1,0 +1,44 @@
+<mat-form-field id="deviceStatus" class="block w-full" [formGroup]="formGroup">
+    <mat-label id="deviceStatusLabel">
+        {{ title }}
+    </mat-label>
+
+    <mat-select
+        [id]="matSelectId"
+        [formControlName]="formControlName"
+        [multiple]="true"
+        (closed)="controlInput.value = ''"
+        title="Order Status"
+        (opened)="controlInput.focus(); controlInput.value = ''"
+    >
+        <mat-select-trigger>
+            {{ firstSelectedValue('items', itemList) }}
+        </mat-select-trigger>
+
+        <mat-form-field class="block w-full">
+            <input
+                matInput
+                [placeholder]="placeholderText"
+                value=""
+                #controlInput
+                (keydown)="$event.stopPropagation()"
+            />
+        </mat-form-field>
+
+        <mat-option
+            id="deviceStatusSelectAll"
+            value="select-all"
+            selectAll
+            *ngIf="controlInput.value === ''"
+            [allValues]="selectOptionKeys(itemList)"
+        >
+            All
+        </mat-option>
+
+        @for (option of search(itemList, controlInput.value); track option) {
+            <mat-option [id]="option.optionKey" [value]="option.optionKey">
+                {{ option.optionDescription }}
+            </mat-option>
+        }
+    </mat-select>
+</mat-form-field>

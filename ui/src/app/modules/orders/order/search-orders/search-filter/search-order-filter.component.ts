@@ -23,6 +23,7 @@ import { ActivatedRoute } from '@angular/router';
 import { AutoUnsubscribe, SelectOptionDto } from '@shared';
 import { Subject, Subscription, debounceTime } from 'rxjs';
 import { FiltersComponent } from '../../../../../shared/components/filters/filters.component';
+import { MultipleSelectComponent } from '../../../../../shared/components/multiple-select/multiple-select.component';
 import { SelectAllDirective } from '../../../../../shared/directive/select-all/select-all.directive';
 import { BioproValidators } from '../../../../../shared/forms/biopro-validators';
 import {
@@ -58,6 +59,7 @@ const DEBOUNCE_TIME = 100;
         MatButtonModule,
         NgTemplateOutlet,
         SelectAllDirective,
+        MultipleSelectComponent,
     ],
     templateUrl: './search-order-filter.component.html',
     styleUrl: './search-order-filter.component.scss',
@@ -111,6 +113,9 @@ export class SearchOrderFilterComponent implements OnInit {
         this.searchForm = this.formBuilder.group(
             {
                 orderNumber: ['', [Validators.maxLength(25)]],
+                orderStatus: ['', []],
+                orderPriority: ['', []],
+                customer: ['', []],
             },
             { validators: BioproValidators.hasAtLeastOne }
         );
@@ -202,24 +207,5 @@ export class SearchOrderFilterComponent implements OnInit {
                 .toLowerCase()
                 .includes(filterValue.toLowerCase())
         );
-    }
-
-    firstSelectedValue(key: string, source: SelectOptionDto[]): string {
-        if (
-            !this.searchForm.controls[key].value ||
-            this.searchForm.controls[key].value?.length === 0
-        ) {
-            return '';
-        }
-        return this.searchForm.controls[key].value[0] === 'select-all'
-            ? 'All'
-            : source
-                  .filter((item) =>
-                      this.searchForm.controls[key].value.includes(
-                          item.optionKey
-                      )
-                  )
-                  .map((item) => item.optionDescription)
-                  .toString();
     }
 }

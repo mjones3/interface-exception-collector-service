@@ -100,7 +100,12 @@ describe('SearchOrderFilterComponent', () => {
             component.applySearchFilters,
             'emit'
         );
-        const expectedValue = { orderNumber: '' };
+        const expectedValue = {
+            orderNumber: '',
+            orderStatus: '',
+            orderPriority: '',
+            customer: '',
+        };
 
         component.applyFilterSearch();
 

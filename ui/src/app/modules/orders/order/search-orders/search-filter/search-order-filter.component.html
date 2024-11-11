@@ -19,7 +19,7 @@
                         id="orderNumberInput"
                         matInput
                         formControlName="orderNumber"
-                        placeholder="Enter External Order ID or BioPro Order ID"
+                        placeholder="Enter External Or  der ID or BioPro Order ID"
                         maxlength="25"
                         autocomplete="off"
                         #orderNumber
@@ -29,6 +29,42 @@
                         {{ orderNumber.value.length }} / 25
                     </mat-hint>
                 </mat-form-field>
+
+                <app-multiple-select
+                    [formGroup]="searchForm"
+                    formControlName="orderStatus"
+                    title="Order Status"
+                    [items]="[
+                        { optionKey: 'opt', optionDescription: 'Option' },
+                    ]"
+                ></app-multiple-select>
+
+                <app-multiple-select
+                    [formGroup]="searchForm"
+                    formControlName="orderPriority"
+                    title="Order Priority"
+                    [items]="[
+                        { optionKey: 'opt', optionDescription: 'Option' },
+                    ]"
+                ></app-multiple-select>
+
+                <app-multiple-select
+                    [formGroup]="searchForm"
+                    formControlName="customer"
+                    title="Ship to Customer"
+                    [items]="[
+                        { optionKey: 'opt', optionDescription: 'Option' },
+                    ]"
+                ></app-multiple-select>
+                <!--
+I should be able to see the following filter options
+
+Fields for Applying Filters-BioPro Order #, External Order ID, (Unique Identifiers)
+
+Order Status, Priority, Ship to Customer, Create Date (From), Create Date (To), Desired Ship Date (From), Desired Ship Date (To)
+
+Required fields for applying filters- Create Date (From), Create Date (To)
+-->
             </div>
         </div>
     </form>
