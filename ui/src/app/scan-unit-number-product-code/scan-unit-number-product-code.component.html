@@ -1,0 +1,87 @@
+<div
+    id="unitNumberAndProductCode"
+    class="flex flex-col"
+    [formGroup]="unitProductGroup"
+>
+    <div class="flex w-full flex-row space-x-6 px-8 pb-4 pt-4">
+        <div class="flex w-3/4 flex-col space-y-1">
+            <div class="flex w-full flex-col">
+                <mat-form-field class="block">
+                    <mat-label class="font-bold">Unit Number</mat-label>
+                    <input
+                        id="scanUnitNumberId"
+                        matInput
+                        formControlName="unitNumber"
+                        [placeholder]="'Scan Unit Number'"
+                        autocomplete="off"
+                        class="w-full"
+                        validateOn="touchedState"
+                        (keyup)="enableProductCode()"
+                        autofocus
+                    />
+                    @if (
+                        unitProductGroup.get('unitNumber').hasError('required')
+                    ) {
+                        <mat-error>Unit Number is Required</mat-error>
+                    }
+                    @if (
+                        unitProductGroup
+                            .get('unitNumber')
+                            .hasError('invalidUnitNumber')
+                    ) {
+                        <mat-error>Unit Number is Invalid</mat-error>
+                    }
+                    @if (
+                        unitProductGroup
+                            .get('unitNumber')
+                            .hasError('manualEntryUnitNumber')
+                    ) {
+                        <mat-error>Scan Unit Number</mat-error>
+                    }
+                </mat-form-field>
+            </div>
+        </div>
+
+        <div class="flex w-full flex-row space-x-6">
+            <div class="w-2/3 space-y-1">
+                <div class="mt-0 flex flex-auto flex-col">
+                    <mat-form-field class="block w-full">
+                        <mat-label class="font-bold">Product Code</mat-label>
+                        <input
+                            id="scanProductCodeId"
+                            #inputProductCode
+                            matInput
+                            formControlName="productCode"
+                            autocomplete="off"
+                            validateOn="touchedState"
+                            [placeholder]="'Scan Product Code'"
+                            (keyup)="verifyProduct()"
+                        />
+                        @if (
+                            unitProductGroup
+                                .get('productCode')
+                                .hasError('required')
+                        ) {
+                            <mat-error>Product Code is Required</mat-error>
+                        }
+
+                        @if (
+                            unitProductGroup
+                                .get('productCode')
+                                .hasError('invalidProductCode')
+                        ) {
+                            <mat-error>Product Code is Invalid</mat-error>
+                        }
+                        @if (
+                            unitProductGroup
+                                .get('productCode')
+                                .hasError('manualEntryProductCode')
+                        ) {
+                            <mat-error>Scan Product Code</mat-error>
+                        }
+                    </mat-form-field>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

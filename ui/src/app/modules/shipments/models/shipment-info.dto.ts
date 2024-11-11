@@ -102,7 +102,7 @@ export interface VerifyProductDTO {
 export interface VerifyFilledProductDto {
     unitNumber: string;
     productCode: string;
-    visualInspection: string;
+    visualInspection?: string;
 }
 
 export interface ShipmentCompleteInfoDto {

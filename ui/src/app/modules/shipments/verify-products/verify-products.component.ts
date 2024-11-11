@@ -8,6 +8,7 @@ import {
     ProcessHeaderComponent,
     ProcessHeaderService,
 } from '@shared';
+import { ScanUnitNumberProductCodeComponent } from 'app/scan-unit-number-product-code/scan-unit-number-product-code.component';
 import { ToastrService } from 'ngx-toastr';
 import { finalize, forkJoin, take, tap } from 'rxjs';
 import { FuseCardComponent } from '../../../../@fuse';
@@ -23,7 +24,6 @@ import {
     VerifyFilledProductDto,
 } from '../models/shipment-info.dto';
 import { ShipmentService } from '../services/shipment.service';
-import { EnterUnitNumberProductCodeComponent } from '../shared/enter-unit-number-product-code/enter-unit-number-product-code.component';
 import { OrderWidgetsSidebarComponent } from '../shared/order-widgets-sidebar/order-widgets-sidebar.component';
 
 @Component({
@@ -37,10 +37,10 @@ import { OrderWidgetsSidebarComponent } from '../shared/order-widgets-sidebar/or
         NgTemplateOutlet,
         OrderWidgetsSidebarComponent,
         PercentPipe,
-        EnterUnitNumberProductCodeComponent,
         MatDivider,
         UnitNumberCardComponent,
         ProgressBarComponent,
+        ScanUnitNumberProductCodeComponent,
     ],
     templateUrl: './verify-products.component.html',
 })
@@ -76,8 +76,8 @@ export class VerifyProductsComponent implements OnInit {
         );
     });
 
-    @ViewChild('enterUnitNumberProductCode')
-    protected enterUnitNumberProductCode: EnterUnitNumberProductCodeComponent;
+    @ViewChild('scanUnitNumberProductCode')
+    protected scanUnitNumberProductCode: ScanUnitNumberProductCodeComponent;
 
     constructor(
         private route: ActivatedRoute,
@@ -137,9 +137,7 @@ export class VerifyProductsComponent implements OnInit {
                     });
                 }),
                 finalize(() => {
-                    this.enterUnitNumberProductCode.productGroup.reset();
-                    this.enterUnitNumberProductCode.unitNumberComponent.reset();
-                    this.enterUnitNumberProductCode.enableProductCode();
+                    this.scanUnitNumberProductCode.resetUnitProductGroup();
                 })
             )
             .subscribe((result) => {
@@ -152,7 +150,7 @@ export class VerifyProductsComponent implements OnInit {
 
     disableInputsIfAllPackItemsVerified(): void {
         if (this.isAllPackItemsVerified()) {
-            this.enterUnitNumberProductCode.disableProductGroup();
+            this.scanUnitNumberProductCode.disableUnitProductGroup();
         }
     }
 
