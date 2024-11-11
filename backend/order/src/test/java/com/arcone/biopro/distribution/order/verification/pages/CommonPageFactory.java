@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 public abstract class CommonPageFactory {
     @Autowired
     @Lazy
-    protected static WebDriver driver;
+    protected WebDriver driver;
 
     @Autowired
     @Lazy
