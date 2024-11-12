@@ -26,7 +26,7 @@ describe('MultipleSelectComponent', () => {
         component.formGroup = new FormGroup({
             itemSelection: new FormControl([]), // Initialize with an empty array for multi-select
         });
-        component.formControlName = 'itemSelection';
+        component.controlName = 'itemSelection';
         component.items = [
             { optionKey: 'pending', optionDescription: 'Pending' },
             { optionKey: 'shipped', optionDescription: 'Shipped' },

@@ -1,11 +1,15 @@
-<mat-form-field id="deviceStatus" class="block w-full" [formGroup]="formGroup">
-    <mat-label id="deviceStatusLabel">
+<mat-form-field
+    id="multipleSelectField"
+    class="block w-full"
+    [formGroup]="formGroup"
+>
+    <mat-label id="multipleSelectLabel">
         {{ title }}
     </mat-label>
-
+    formcontrolname: {{ controlName }}
     <mat-select
         [id]="matSelectId"
-        [formControlName]="formControlName"
+        formControlName="{{ controlName }}"
         [multiple]="true"
         (closed)="controlInput.value = ''"
         title="Order Status"
@@ -26,7 +30,7 @@
         </mat-form-field>
 
         <mat-option
-            id="deviceStatusSelectAll"
+            id="itemSelectAll"
             value="select-all"
             selectAll
             *ngIf="controlInput.value === ''"

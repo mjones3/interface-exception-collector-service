@@ -36,7 +36,7 @@ import { FiltersComponent } from '../filters/filters.component';
 })
 export class MultipleSelectComponent {
     @Input() title!: string;
-    @Input() formControlName!: string;
+    @Input() controlName!: string;
     @Input() formGroup!: FormGroup;
     @Input() matSelectId = 'selectControlInput';
     @Input() control!: FormControl;
