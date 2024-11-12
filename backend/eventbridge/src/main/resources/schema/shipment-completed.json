@@ -28,7 +28,7 @@
           "type": "string"
         },
         "customerType": {
-          "type": "string"
+          "type": ["string","null"]
         },
         "shipmentId": {
           "type": "integer"
