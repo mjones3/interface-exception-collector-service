@@ -14,6 +14,7 @@ type Query {
     findOrderById(orderId:ID!):OrderResponseDTO!
     searchOrders(orderQueryCommandDTO:OrderQueryCommandDTO!):[OrderReportDTO]
     findOrderShipmentByOrderId(orderId:ID!):OrderShipmentDTO
+    searchOrderCriteria: SearchOrderCriteriaDTO
 }
 
 type Mutation {
@@ -231,5 +232,19 @@ type OrderShipmentDTO {
     shipmentId:Int
     shipmentStatus:String
     createDate:DateTime
+}
+
+type LookupDTO {
+    type: String!
+    optionValue: String!
+    descriptionKey: String!
+    orderNumber: Int!
+    active: Boolean!
+}
+
+type SearchOrderCriteriaDTO {
+    orderStatus:[LookupDTO]
+    orderPriorities:[LookupDTO]
+    customers:[OrderCustomerReportDTO]
 }
 
