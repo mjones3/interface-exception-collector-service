@@ -1,0 +1,24 @@
+<mat-form-field class="block w-full">
+    <mat-label>{{ title }}</mat-label>
+    <mat-date-range-input
+        [rangePicker]="dateRangePicker"
+        [formGroup]="formGroup"
+    >
+        <input
+            matStartDate
+            [formControlName]="dateFromFormControlName"
+            placeholder="Start date"
+        />
+        <input
+            matEndDate
+            [formControlName]="dateToFormControlName"
+            placeholder="End date"
+        />
+    </mat-date-range-input>
+
+    <mat-datepicker-toggle
+        matIconSuffix
+        [for]="dateRangePicker"
+    ></mat-datepicker-toggle>
+    <mat-date-range-picker #dateRangePicker></mat-date-range-picker>
+</mat-form-field>
