@@ -2,22 +2,16 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
-    "shipmentId": {
+    "shipmentNumber": {
       "type": "integer"
     },
-    "orderNumber": {
+    "externalOrderID": {
       "type": "string"
     },
-    "externalOrderId": {
+    "shipmentLocationCode": {
       "type": "string"
     },
-    "performedBy": {
-      "type": "string"
-    },
-    "locationCode": {
-      "type": "string"
-    },
-    "locationName": {
+    "shipmentLocationName": {
       "type": "string"
     },
     "customerCode": {
@@ -26,8 +20,11 @@
     "customerType": {
       "type": "string"
     },
-    "createDate": {
+    "shipmentDate": {
       "type": "string"
+    },
+    "quantityShipped": {
+      "type": "integer"
     },
     "lineItems": {
       "type": "array",
@@ -38,11 +35,11 @@
             "productFamily": {
               "type": "string"
             },
-            "quantity": {
+            "qtyOrdered": {
               "type": "integer"
             },
-            "bloodType": {
-              "type": "string"
+            "qtyFilled": {
+              "type": "integer"
             },
             "products": {
               "type": "array",
@@ -53,13 +50,10 @@
                     "unitNumber": {
                       "type": "string"
                     },
-                    "productFamily": {
-                      "type": "string"
-                    },
                     "productCode": {
                       "type": "string"
                     },
-                    "aboRh": {
+                    "bloodType": {
                       "type": "string"
                     },
                     "collectionDate": {
@@ -68,11 +62,8 @@
                     "expirationDate": {
                       "type": "string"
                     },
-                    "createDate": {
-                      "type": "string"
-                    },
                     "attributes": {
-                      "type": "array",
+                      "type": ["array","null"],
                       "items": [
                         {
                           "type": "object",
@@ -94,12 +85,10 @@
                   },
                   "required": [
                     "unitNumber",
-                    "productFamily",
                     "productCode",
-                    "aboRh",
+                    "bloodType",
                     "collectionDate",
-                    "expirationDate",
-                    "createDate"
+                    "expirationDate"
                   ]
                 }
               ]
@@ -107,8 +96,8 @@
           },
           "required": [
             "productFamily",
-            "quantity",
-            "bloodType",
+            "qtyOrdered",
+            "qtyFilled",
             "products"
           ]
         }
@@ -120,7 +109,7 @@
         {
           "type": "object",
           "properties": {
-            "code": {
+            "serviceItemCode": {
               "type": "string"
             },
             "quantity": {
@@ -128,7 +117,7 @@
             }
           },
           "required": [
-            "code",
+            "serviceItemCode",
             "quantity"
           ]
         }
@@ -136,14 +125,13 @@
     }
   },
   "required": [
-    "shipmentId",
-    "orderNumber",
+    "shipmentNumber",
     "externalOrderId",
-    "performedBy",
-    "locationCode",
-    "locationName",
+    "shipmentLocationCode",
+    "shipmentLocationName",
     "customerCode",
-    "createDate",
+    "quantityShipped",
+    "shipmentDate",
     "lineItems"
   ]
 }

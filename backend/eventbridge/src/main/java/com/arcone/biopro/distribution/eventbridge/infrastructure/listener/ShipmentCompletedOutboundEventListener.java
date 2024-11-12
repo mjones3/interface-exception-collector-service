@@ -8,12 +8,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.EventListener;
 import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
+@Profile("prod")
 public class ShipmentCompletedOutboundEventListener {
 
     private final ReactiveKafkaProducerTemplate<String, ShipmentCompletedOutboundPayload> producerTemplate;

@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.core.reactive.ReactiveKafkaConsumerTemplate;
 import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import java.time.Duration;
 
 @Service
 @Slf4j
+@Profile("prod")
 public class ShipmentCompletedListener extends AbstractKafkaListener {
 
     private final ObjectMapper objectMapper;
