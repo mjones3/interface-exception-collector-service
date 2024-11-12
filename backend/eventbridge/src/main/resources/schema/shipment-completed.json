@@ -85,7 +85,7 @@
                           "type": "string"
                         },
                         "attributes": {
-                          "type": "array",
+                          "type": ["array","null"],
                           "items": [
                             {
                               "type": "object",
@@ -128,7 +128,7 @@
           ]
         },
         "services": {
-          "type": "array",
+          "type": ["array","null"],
           "items": [
             {
               "type": "object",
