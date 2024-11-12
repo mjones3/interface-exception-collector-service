@@ -276,3 +276,7 @@ topics:
       partitions: 1
       replicas: 1
       topic-name: ShipmentCompleted
+    shipment-completed-outbound:
+      partitions: 1
+      replicas: 1
+      topic-name: ShipmentCompletedOutbound

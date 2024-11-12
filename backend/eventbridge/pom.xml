@@ -416,6 +416,13 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- JsonSchemaValidator -->
+        <dependency>
+            <groupId>com.networknt</groupId>
+            <artifactId>json-schema-validator</artifactId>
+            <version>1.0.57</version>
+        </dependency>
+
     </dependencies>
 
     <build>
