@@ -15,6 +15,7 @@ import {
     Validators,
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -22,6 +23,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute } from '@angular/router';
 import { AutoUnsubscribe, SelectOptionDto } from '@shared';
 import { Subject, Subscription, debounceTime } from 'rxjs';
+import { DateRangePickerComponent } from '../../../../../shared/components/date-range-picker/date-range-picker.component';
 import { FiltersComponent } from '../../../../../shared/components/filters/filters.component';
 import { MultipleSelectComponent } from '../../../../../shared/components/multiple-select/multiple-select.component';
 import { SelectAllDirective } from '../../../../../shared/directive/select-all/select-all.directive';
@@ -60,6 +62,8 @@ const DEBOUNCE_TIME = 100;
         NgTemplateOutlet,
         SelectAllDirective,
         MultipleSelectComponent,
+        MatDatepickerModule,
+        DateRangePickerComponent,
     ],
     templateUrl: './search-order-filter.component.html',
     styleUrl: './search-order-filter.component.scss',
@@ -113,9 +117,13 @@ export class SearchOrderFilterComponent implements OnInit {
         this.searchForm = this.formBuilder.group(
             {
                 orderNumber: ['', [Validators.maxLength(25)]],
-                orderStatus: ['', []],
-                orderPriority: ['', []],
-                customer: ['', []],
+                orderStatus: [''],
+                orderPriority: [''],
+                customer: [''],
+                createDateFrom: ['', [Validators.required]],
+                createDateTo: ['', [Validators.required]],
+                desiredShipmentDateFrom: [''],
+                desiredShipmentDateTo: [''],
             },
             { validators: BioproValidators.hasAtLeastOne }
         );

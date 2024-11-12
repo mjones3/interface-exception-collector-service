@@ -19,7 +19,7 @@
                         id="orderNumberInput"
                         matInput
                         formControlName="orderNumber"
-                        placeholder="Enter External Or  der ID or BioPro Order ID"
+                        placeholder="Enter External Order ID or BioPro Order ID"
                         maxlength="25"
                         autocomplete="off"
                         #orderNumber
@@ -32,7 +32,7 @@
 
                 <app-multiple-select
                     [formGroup]="searchForm"
-                    formControlName="orderStatus"
+                    [controlName]="'orderStatus'"
                     title="Order Status"
                     [items]="[
                         { optionKey: 'opt', optionDescription: 'Option' },
@@ -41,7 +41,7 @@
 
                 <app-multiple-select
                     [formGroup]="searchForm"
-                    formControlName="orderPriority"
+                    [controlName]="'orderPriority'"
                     title="Order Priority"
                     [items]="[
                         { optionKey: 'opt', optionDescription: 'Option' },
@@ -50,12 +50,27 @@
 
                 <app-multiple-select
                     [formGroup]="searchForm"
-                    formControlName="customer"
+                    [controlName]="'customer'"
                     title="Ship to Customer"
                     [items]="[
                         { optionKey: 'opt', optionDescription: 'Option' },
                     ]"
                 ></app-multiple-select>
+
+                <app-date-range-picker
+                    [formGroup]="searchForm"
+                    dateFromFormControlName="createDateFrom"
+                    dateToFormControlName="createDateTo"
+                    title="Create date"
+                ></app-date-range-picker>
+
+                <app-date-range-picker
+                    [formGroup]="searchForm"
+                    dateFromFormControlName="desiredShipmentDateFrom"
+                    dateToFormControlName="desiredShipmentDateTo"
+                    title="Desired shipment date"
+                ></app-date-range-picker>
+
                 <!--
 I should be able to see the following filter options
 
