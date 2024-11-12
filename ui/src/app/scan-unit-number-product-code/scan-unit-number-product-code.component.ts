@@ -3,8 +3,9 @@ import {
     Component,
     ElementRef,
     EventEmitter,
+    OnDestroy,
     Output,
-    ViewChild, OnDestroy,
+    ViewChild,
 } from '@angular/core';
 import {
     FormBuilder,
@@ -16,7 +17,12 @@ import {
 import { MatInputModule } from '@angular/material/input';
 import { RsaValidators } from '@shared';
 import { extractUnitNumber } from 'app/shared/utils/utils';
-import { Subscription, combineLatestWith, filter } from 'rxjs';
+import {
+    Subscription,
+    combineLatestWith,
+    distinctUntilChanged,
+    filter,
+} from 'rxjs';
 
 @Component({
     selector: 'biopro-scan-unit-number-product-code',
@@ -70,6 +76,10 @@ export class ScanUnitNumberProductCodeComponent implements OnDestroy {
                         !!value.unitNumber?.trim() &&
                         !!value.productCode?.trim() &&
                         status === 'VALID'
+                ),
+                distinctUntilChanged(
+                    (pValue, cValue) =>
+                        JSON.stringify(pValue) === JSON.stringify(cValue)
                 )
             )
             .subscribe(() => this.verifyProduct());
