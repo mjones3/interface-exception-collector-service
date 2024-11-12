@@ -26,9 +26,9 @@ Feature: Second Verification of Units Feature
             Then I should see the unit added to the verified products table.
             And I should see the log of verified products being updated.
             And The complete shipment option should be enabled.
-           Examples:
-               | Order Number | Code     | UN            |
-               | 118          | E0685V00 | W822530106087 |
+            Examples:
+                | Order Number | Code     | UN            |
+                | 118          | E0685V00 | W822530106087 |
 
 
         Rule: I should be notified when I scan a unit that is not part of the shipment.
@@ -68,46 +68,46 @@ Feature: Second Verification of Units Feature
             And  I should not see the unit added to the verified products table.
             And The complete shipment option should not be enabled.
             Examples:
-                | Order Number | Code1     | UN1          | Code2     | UN2           |
-                | 120          | E0685V00 | W822530106090 | E0685V00  | W822530106091 |
+                | Order Number | Code1    | UN1           | Code2    | UN2           |
+                | 120          | E0685V00 | W822530106090 | E0685V00 | W822530106091 |
 
 
         Rule: I should be able to scan unit number and product code.
         Rule: I should not be able to enter unit number and product code manually.
         @ui @DST-216
-            Scenario Outline: Restrict Manual Entry Unit Number.
+        Scenario Outline: Restrict Manual Entry Unit Number.
             Given I have a shipment for order "<Order Number>" with the unit "<UN>" and product code "<Code>" packed.
             And The second verification configuration is "enabled".
             And I am on the verify products page.
-            When I focus on "<Field Name>".
-            Then I should see field validation error message "Unit Nuber is Required".
-            When I "<Action>" the "<Field Name>" "<Field Value>".
-            Then I should see field validation error message "<Field Error Message>".
+            When I focus out leaving "Unit Number" empty.
+            Then I should see a field validation error message "Unit Number is Required".
+            When I "<Action>" the "Unit Number" "<Field Value>".
+            Then I should see a field validation error message "<Field Error Message>".
             And The "Product Code" field should be "disabled".
             Examples:
-               | Order Number | Code     | UN            | Action | Field Name  | Field Value   | Field Error Message|
-               | 122          | E0685V00 | W822530106093 | Type   | Unit Number | W822530106093 | Scan Unit Number   |
-               | 122          | E0685V00 | W822530106093 | Type   | Unit Number | =W82253010608 | Invalid Unit Number|
-               | 122          | E0685V00 | W822530106093 | Scan   | Unit Number | w232323232    | Invalid Unit Number|
-               
-        Rule: I should not be able to enter unit number and product code manually.
+                | Order Number | Code     | UN            | Action | Field Value   | Field Error Message    |
+                | 122          | E0685V00 | W822530106093 | Type   | W822530106093 | Scan Unit Number       |
+                | 122          | E0685V00 | W822530106093 | Type   | =W82253010608 | Unit Number is Invalid |
+                | 122          | E0685V00 | W822530106093 | Scan   | w232323232    | Unit Number is Invalid |
+
+    Rule: I should not be able to enter unit number and product code manually.
         Rule: I should be able to scan unit number and product code.
-         @ui @DST-216
-            Scenario Outline: Restrict Manual Entry Product Code.
+        @ui @DST-216
+        Scenario Outline: Restrict Manual Entry Product Code.
             Given I have a shipment for order "<Order Number>" with the unit "<UN>" and product code "<Code>" packed.
             And The second verification configuration is "enabled".
             And I am on the verify products page.
             When I "<Action>" the "<Field Name>" "<Field Value>".
             Then The "Product Code" field should be "enabled".
-            When I focus on "<Field Name>".
-            Then I should see field validation error message "Product Code is Required".
+            When I focus out leaving "<Second Field Name>" empty.
+            Then I should see a field validation error message "Product Code is Required".
             When I "<Second Action>" the "<Second Field Name>" "<Second Field Value>".
-            Then I should see field validation error message "<Field Error Message>".           
+            Then I should see a field validation error message "<Field Error Message>".
             Examples:
-               | Order Number | Code     | UN            | Action | Field Name  | Field Value   | Field Error Message| Second Action | Second Field Name | Second Field Value |
-               | 123          | E0685V00 | W822530106094 | Scan   | Unit Number | W822530106094 | Scan Product Code      | Type             | Product Code   |  E0685V00 |
-               | 123          | E0685V00 | W822530106094 | Scan   | Unit Number | W822530106094 | Invalid Product Code   | Scan             | Product Code   |  121abc |
-               | 123          | E0685V00 | W822530106087 | Scan   | Unit Number | W822530106094 | Invalid Product Code   | Type             | Product Code   |  =<1212 |
+                | Order Number | Code     | UN            | Action | Field Name  | Field Value   | Field Error Message     | Second Action | Second Field Name | Second Field Value |
+                | 123          | E0685V00 | W822530106094 | Scan   | Unit Number | W822530106094 | Scan Product Code       | Type          | Product Code      | E0685V00           |
+                | 123          | E0685V00 | W822530106094 | Scan   | Unit Number | W822530106094 | Product Code is Invalid | Scan          | Product Code      | 121abc             |
+                | 123          | E0685V00 | W822530106087 | Scan   | Unit Number | W822530106094 | Product Code is Invalid | Type          | Product Code      | =<1212             |
 
 
 

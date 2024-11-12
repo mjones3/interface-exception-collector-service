@@ -124,4 +124,31 @@ public class SecondVerificationSteps {
         homePage.goTo();
         verifyProductsPage.goToPage(this.shipmentId.toString());
     }
+
+    @When("I focus out leaving {string} empty.")
+    public void iFocusOn(String field) {
+        verifyProductsPage.focusOnField(field);
+
+    }
+
+    @Then("I should see a field validation error message {string}.")
+    public void iShouldSeeFieldValidationErrorMessage(String error) {
+        verifyProductsPage.checkFieldErrorMessage(error);
+    }
+
+    @When("I {string} the {string} {string}.")
+    public void scanOrTypeUnitOrProduct(String action, String field, String value) throws InterruptedException {
+        verifyProductsPage.scanOrTypeField(action, field, value);
+    }
+
+    @And("The {string} field should be {string}.")
+    public void verifyFieldEnabledDisabled(String field, String status) {
+        if (status.equalsIgnoreCase("enabled")) {
+            Assert.assertTrue(verifyProductsPage.isFieldEnabled(field));
+        } else if (status.equalsIgnoreCase("disabled")) {
+            Assert.assertFalse(verifyProductsPage.isFieldEnabled(field));
+        } else {
+            Assert.fail("Invalid status provided");
+        }
+    }
 }

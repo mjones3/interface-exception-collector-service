@@ -342,4 +342,16 @@ public class SharedActions {
             return true;
         });
     }
+
+    public void focusOutElement(By element) {
+        wait.until(e -> {
+            log.debug("Focusing on element {}.", element);
+            e.findElement(element).sendKeys(Keys.TAB);
+            return true;
+        });
+    }
+
+    public boolean isElementEnabled(WebDriver driver, By locator) {
+        return driver.findElement(locator).isEnabled();
+    }
 }
