@@ -33,9 +33,13 @@ public class VerifyProductsPage extends CommonPageFactory {
     private static final String orderStatus = "//*[@id='informationDetails-Status']";
     private static final String externalId = "//*[@id='informationDetails-External-Order-ID']";
     private static final String completeShipmentButton = "completeActionBtn";
-    private static final String inputUnitNumber = "inUnitNumber";
-    private static final String inputProductCode = "productCodeId";
     private static final String progressLog = "numberOfUnitAdded";
+    private static final String scanUnitNumber = "//*[@id='scanUnitNumberId']";
+    private static final String scanProductCode = "//*[@id='scanProductCodeId']";
+
+    private String validationErrorLocator(String message) {
+        return String.format("//mat-error[contains(text(),'%s')]", message);
+    }
 
     private String formatUnitLocator(String unit) {
         unit = TestUtils.removeUnitNumberScanDigits(unit);
@@ -73,8 +77,8 @@ public class VerifyProductsPage extends CommonPageFactory {
     public void scanUnitAndProduct(String unitNumber, String productCode) throws InterruptedException {
         unitNumber = String.format("=%s00", unitNumber);
         productCode = String.format("=<%s", productCode);
-        sharedActions.sendKeys(this.driver, By.id(inputUnitNumber), unitNumber);
-        sharedActions.sendKeys(this.driver, By.id(inputProductCode), productCode);
+        sharedActions.sendKeys(this.driver, By.xpath(scanUnitNumber), unitNumber);
+        sharedActions.sendKeys(this.driver, By.xpath(scanProductCode), productCode);
     }
 
     public boolean isProductVerified(String unitNumber, String productCode) {
@@ -121,6 +125,49 @@ public class VerifyProductsPage extends CommonPageFactory {
         } catch (Exception e) {
             log.debug("Complete Shipment button is not disabled");
             return false;
+        }
+    }
+
+    public void focusOnField(String field) {
+        if (field.equalsIgnoreCase("Unit Number")){
+            sharedActions.focusOutElement(By.xpath(scanUnitNumber));
+        } else if (field.equalsIgnoreCase("Product Code")){
+            sharedActions.focusOutElement(By.xpath(scanProductCode));
+        }
+    }
+
+    public void checkFieldErrorMessage(String error) {
+        sharedActions.waitForVisible(By.xpath(validationErrorLocator(error)));
+    }
+
+    public void scanOrTypeField(String action, String field, String value) throws InterruptedException {
+        if (action.equalsIgnoreCase("scan")) {
+            if (field.equalsIgnoreCase("Unit Number")) {
+                value = String.format("=%s00", value);
+                sharedActions.sendKeys(this.driver, By.xpath(scanUnitNumber), value);
+            } else if (field.equalsIgnoreCase("Product Code")) {
+                value = String.format("=<%s", value);
+                sharedActions.sendKeys(this.driver, By.xpath(scanProductCode), value);
+            }
+        } else if (action.equalsIgnoreCase("type")) {
+            if (field.equalsIgnoreCase("Unit Number")) {
+                sharedActions.sendKeys(this.driver, By.xpath(scanUnitNumber), value);
+            } else if (field.equalsIgnoreCase("Product Code")) {
+                sharedActions.sendKeys(this.driver, By.xpath(scanProductCode), value);
+            } else {
+                throw new IllegalArgumentException("Field not found: " + field);
+            }
+        }
+    }
+
+    public boolean isFieldEnabled(String field) {
+        if (field.equalsIgnoreCase("Unit Number")) {
+            return sharedActions.isElementEnabled(this.driver, By.xpath(scanUnitNumber));
+        } else if (field.equalsIgnoreCase("Product Code")) {
+            return sharedActions.isElementEnabled(this.driver, By.xpath(scanProductCode));
+        }
+        else {
+            throw new IllegalArgumentException("Field not found: " + field);
         }
     }
 }
