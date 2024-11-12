@@ -36,7 +36,7 @@ public abstract class AbstractKafkaListener implements CommandLineRunner {
             128,
             "schedulers"
     );
-    private static final String DLQ_SUFFIX = "DQL";
+    private static final String DLQ_SUFFIX = "DLQ";
 
     public AbstractKafkaListener(ReactiveKafkaConsumerTemplate<String, String> consumer
             , ObjectMapper objectMapper

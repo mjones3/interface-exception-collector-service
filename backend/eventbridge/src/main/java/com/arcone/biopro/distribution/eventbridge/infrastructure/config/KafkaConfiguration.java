@@ -27,7 +27,7 @@ import java.util.List;
 @Slf4j
 public class KafkaConfiguration {
     public static final String SHIPMENT_COMPLETED_CONSUMER = "shipment-completed";
-    public static final String DLQ_PRODUCER = "dql-producer";
+    public static final String DLQ_PRODUCER = "dlq-producer";
     public static final String SHIPMENT_COMPLETED_OUTBOUND_PRODUCER = "shipment-completed-outbound";
 
 

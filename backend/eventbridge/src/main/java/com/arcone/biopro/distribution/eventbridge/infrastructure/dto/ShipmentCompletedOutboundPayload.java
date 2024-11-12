@@ -6,33 +6,6 @@ import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.List;
 
-/*
-payload
-    externalOrderID*
-    customerCode*
-    customerType*
-    customerName --- remove
-    shipmentNumber*
-    shipmentDate*
-    quantityShipped*
-    shipmentLocationCode*
-    shipmentLocationName*
-    lineItem*
-        productFamily*
-        qtyOrdered*
-        qtyFilled*
-        products*
-            unitNumber*
-            productCode*
-            bloodType*
-            expirationDate*
-            attributes [ "key", "value" ]*
-            collectionDate*
-    services*
-        serviceItemCode*
-        quantity*
-*/
-
 @Builder
 public record ShipmentCompletedOutboundPayload(
 
