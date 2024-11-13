@@ -127,7 +127,10 @@ export class VerifyProductsComponent implements OnInit {
                 tap((result) =>
                     consumeNotifications(
                         this.toaster,
-                        result?.data?.verifyItem?.notifications
+                        result?.data?.verifyItem?.notifications,
+                        () => {
+                            this.scanUnitNumberProductCode.focusOnUnitNumber();
+                        }
                     )
                 ),
                 finalize(() =>
@@ -139,6 +142,9 @@ export class VerifyProductsComponent implements OnInit {
                     result.data?.verifyItem?.results?.results?.[0] ?? null
                 );
                 this.disableInputsIfAllPackItemsVerified();
+                if (result?.data?.verifyItem?.ruleCode === '200 OK') {
+                    this.scanUnitNumberProductCode.focusOnUnitNumber();
+                }
             });
     }
 

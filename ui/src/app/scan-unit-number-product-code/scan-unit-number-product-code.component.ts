@@ -20,6 +20,7 @@ import { extractUnitNumber } from 'app/shared/utils/utils';
 import {
     Subscription,
     combineLatestWith,
+    debounceTime,
     distinctUntilChanged,
     filter,
 } from 'rxjs';
@@ -77,6 +78,7 @@ export class ScanUnitNumberProductCodeComponent implements OnDestroy {
                         !!value.productCode?.trim() &&
                         status === 'VALID'
                 ),
+                debounceTime(300),
                 distinctUntilChanged(
                     (pValue, cValue) =>
                         JSON.stringify(pValue) === JSON.stringify(cValue)
@@ -143,7 +145,6 @@ export class ScanUnitNumberProductCodeComponent implements OnDestroy {
 
     resetUnitProductGroup(): void {
         this.unitProductGroup.reset();
-        this.focusOnUnitNumber();
         this.enableProductCode();
     }
 
