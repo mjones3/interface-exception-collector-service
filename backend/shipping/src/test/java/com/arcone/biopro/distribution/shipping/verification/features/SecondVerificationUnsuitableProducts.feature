@@ -23,7 +23,7 @@ Feature: Second Verification Notification Tab
         When I scan the unit "<Unsuitable UN>" with product code "<Unsuitable Code>".
         Then I should see a "Acknowledgment Message" message: "<Message>".
         When I confirm the acknowledgment message.
-        Then I should see the unit "<Unsuitable UN>" with code "<Unsuitable Code>" added to the removed products table with unsuitable status "<Unsuitable Status>".
+        Then I should see the unit "<Unsuitable UN>" with code "<Unsuitable Code>" added to the removed products section with unsuitable status "<Unsuitable Status>".
         And I should see the log of removed products being updated.
         And The complete shipment option should be enabled.
         And The fill more products option should be enabled.
@@ -40,10 +40,10 @@ Feature: Second Verification Notification Tab
         And I am on the verify products page with "Notification" tab active.
         When I scan the unit "WXXXXXXXXXXXX" with product code "E000000".
         Then I should see a "Warning" message: "XXXXXXXXXXXXXXXXXXX. Please re-scan all the products.".
-        And I should not see the unit added to the verified products table.
+        And I should not see the unit added to the removed products section.
         And The complete shipment option should not be enabled.
         And I should be redirected to the verify products page.
-        And I should see the verified products table empty.
+        And I should see the verified products section empty.
 
         Examples:
             | Order Number | Suitable Code | Suitable UN   | Unsuitable Code | Unsuitable UN |
@@ -61,9 +61,10 @@ Feature: Second Verification Notification Tab
         When I scan the unit "<Unsuitable UN>" with product code "<Unsuitable Code>".
         Then I should see a "Warning" message: "XXXXXXXXXXXXXXXXXXX. Please re-scan all the products.".
         And I should be redirected to the verify products page.
+        And The complete shipment option should not be enabled.
+        And I should be redirected to the verify products page.
+        And I should see the verified products section empty.
 
         Examples:
             | Order Number | Suitable Code | Suitable UN   | Unsuitable Code | Unsuitable UN |
             | 120          | E0685V00      | W822530106090 | E0685V00        | W822530106091 |
-
-    # FIXME Should we test again the new UNIT NUMBER and PRODUCT CODE inputs restricting manual entry?
