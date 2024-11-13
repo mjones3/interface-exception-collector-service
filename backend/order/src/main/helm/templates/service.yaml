@@ -4,6 +4,8 @@ metadata:
   name: {{ include "api.fullname" . }}
   labels:
     {{- include "api.labels" . | nindent 4 }}
+  annotations:
+    {{- toYaml .Values.serviceAnnotations | nindent 4 }}   
 spec:
   type: {{ .Values.service.type }}
   ports:
