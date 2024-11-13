@@ -14,7 +14,7 @@ Feature: Second Verification Notification Tab
     Rule: I should see the list of removed products.
     Rule: I should be able to fill more products to replace the units removed.
     Rule: I should be able to complete the shipment once all unacceptable products are removed.
-    @ui @DST-207
+    @ui @DIS-207
     Scenario Outline: Second verification unsuitable products - remove units.
         Given I have a shipment for order "<Order Number>" with the units "<Suitable UN>,<Unsuitable UN>" and product codes "<Suitable Code>,<Unsuitable Code>" "unsuitable verified".
         And The second verification configuration is "enabled".
@@ -33,7 +33,7 @@ Feature: Second Verification Notification Tab
             | 120          | E0685V00      | W822530106090 | E0685V00        | W822530106091 | Discarded         | This product has already been discarded for (reason) in the system. Place in biohazard container |
 
     Rule: I should restart the second verification process when I scan a unit that is not required to be removed.
-    @ui @DST-207
+    @ui @DIS-207
     Scenario Outline: Second verification unsuitable products - remove units - rescan all products.
         Given I have a shipment for order "<Order Number>" with the units "<Suitable UN>,<Unsuitable UN>" and product codes "<Suitable Code>,<Unsuitable Code>" "unsuitable verified".
         And The second verification configuration is "enabled".
@@ -50,7 +50,7 @@ Feature: Second Verification Notification Tab
             | 120          | E0685V00      | W822530106090 | E0685V00        | W822530106091 |
 
     Rule: I should restart the second verification process when I scan a unit that is already removed.
-    @ui @DST-207
+    @ui @DIS-207
     Scenario Outline: Second verification unsuitable products - remove units twice - rescan all products.
         Given I have a shipment for order "<Order Number>" with the units "<Suitable UN>,<Unsuitable UN>" and product codes "<Suitable Code>,<Unsuitable Code>" "unsuitable verified".
         And The second verification configuration is "enabled".
