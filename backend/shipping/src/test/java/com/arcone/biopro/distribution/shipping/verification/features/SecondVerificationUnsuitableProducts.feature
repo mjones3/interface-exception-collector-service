@@ -1,3 +1,4 @@
+@ui
 Feature: Second Verification Notification Tab
     As a distribution technician,
     I want to rescan products that have been flagged as unsuitable during the second verification process,
@@ -14,7 +15,7 @@ Feature: Second Verification Notification Tab
     Rule: I should see the list of removed products.
     Rule: I should be able to fill more products to replace the units removed.
     Rule: I should be able to complete the shipment once all unacceptable products are removed.
-    @ui @DIS-207
+    @DIS-207
     Scenario Outline: Second verification unsuitable products - remove units.
         Given I have a shipment for order "<Order Number>" with the units "<Suitable UN>,<Unsuitable UN>" and product codes "<Suitable Code>,<Unsuitable Code>" "unsuitable verified".
         And The second verification configuration is "enabled".
@@ -33,7 +34,7 @@ Feature: Second Verification Notification Tab
             | 120          | E0685V00      | W822530106090 | E0685V00        | W822530106091 | Discarded         | This product has already been discarded for (reason) in the system. Place in biohazard container |
 
     Rule: I should restart the second verification process when I scan a unit that is not required to be removed.
-    @ui @DIS-207
+    @DIS-207
     Scenario Outline: Second verification unsuitable products - remove units - rescan all products.
         Given I have a shipment for order "<Order Number>" with the units "<Suitable UN>,<Unsuitable UN>" and product codes "<Suitable Code>,<Unsuitable Code>" "unsuitable verified".
         And The second verification configuration is "enabled".
@@ -50,7 +51,7 @@ Feature: Second Verification Notification Tab
             | 120          | E0685V00      | W822530106090 | E0685V00        | W822530106091 |
 
     Rule: I should restart the second verification process when I scan a unit that is already removed.
-    @ui @DIS-207
+    @DIS-207
     Scenario Outline: Second verification unsuitable products - remove units twice - rescan all products.
         Given I have a shipment for order "<Order Number>" with the units "<Suitable UN>,<Unsuitable UN>" and product codes "<Suitable Code>,<Unsuitable Code>" "unsuitable verified".
         And The second verification configuration is "enabled".
@@ -68,3 +69,40 @@ Feature: Second Verification Notification Tab
         Examples:
             | Order Number | Suitable Code | Suitable UN   | Unsuitable Code | Unsuitable UN |
             | 120          | E0685V00      | W822530106090 | E0685V00        | W822530106091 |
+
+    Rule: I should be able to scan unit number and product code.
+    Rule: I should not be able to enter unit number and product code manually.
+    @DIS-207
+    Scenario Outline: Restrict Manual Entry Unit Number.
+        Given I have a shipment for order "<Order Number>" with the units "<Suitable UN>,<Unsuitable UN>" and product codes "<Suitable Code>,<Unsuitable Code>" "unsuitable verified".
+        And The second verification configuration is "enabled".
+        And I am on the verify products page.
+        When I focus out leaving "Unit Number" empty.
+        Then I should see a field validation error message "Unit Number is Required".
+        When I "<Action>" the "Unit Number" "<Field Value>".
+        Then I should see a field validation error message "<Field Error Message>".
+        And The "Product Code" field should be "disabled".
+        Examples:
+            | Order Number | Suitable Code | Suitable UN   | Unsuitable Code | Unsuitable UN | Action | Field Value   | Field Error Message    |
+            | 122          | E0685V00      | W822530106090 | E0685V00        | W822530106091 | Type   | W822530106093 | Scan Unit Number       |
+            | 122          | E0685V00      | W822530106093 | E0685V00        | W822530106091 | Type   | =W82253010608 | Unit Number is Invalid |
+            | 122          | E0685V00      | W822530106093 | E0685V00        | W822530106091 | Scan   | w232323232    | Unit Number is Invalid |
+
+    Rule: I should not be able to enter unit number and product code manually.
+    Rule: I should be able to scan unit number and product code.
+    @DIS-207
+    Scenario Outline: Restrict Manual Entry Product Code.
+        Given I have a shipment for order "<Order Number>" with the units "<Suitable UN>,<Unsuitable UN>" and product codes "<Suitable Code>,<Unsuitable Code>" "unsuitable verified".
+        And The second verification configuration is "enabled".
+        And I am on the verify products page.
+        When I "<Action>" the "<Field Name>" "<Field Value>".
+        Then The "Product Code" field should be "enabled".
+        When I focus out leaving "<Second Field Name>" empty.
+        Then I should see a field validation error message "Product Code is Required".
+        When I "<Second Action>" the "<Second Field Name>" "<Second Field Value>".
+        Then I should see a field validation error message "<Field Error Message>".
+        Examples:
+            | Order Number | Suitable Code | Suitable UN   | Unsuitable Code | Unsuitable UN | Action | Field Name  | Field Value   | Field Error Message     | Second Action | Second Field Name | Second Field Value |
+            | 123          | E0685V00      | W822530106090 | E0685V00        | W822530106091 | Scan   | Unit Number | W822530106094 | Scan Product Code       | Type          | Product Code      | E0685V00           |
+            | 123          | E0685V00      | W822530106093 | E0685V00        | W822530106091 | Scan   | Unit Number | W822530106094 | Product Code is Invalid | Scan          | Product Code      | 121abc             |
+            | 123          | E0685V00      | W822530106093 | E0685V00        | W822530106091 | Scan   | Unit Number | W822530106094 | Product Code is Invalid | Type          | Product Code      | =<1212             |
