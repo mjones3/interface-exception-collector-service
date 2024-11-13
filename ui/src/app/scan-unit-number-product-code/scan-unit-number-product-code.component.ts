@@ -17,12 +17,7 @@ import {
 import { MatInputModule } from '@angular/material/input';
 import { RsaValidators } from '@shared';
 import { extractUnitNumber } from 'app/shared/utils/utils';
-import {
-    Subscription,
-    combineLatestWith,
-    distinctUntilChanged,
-    filter,
-} from 'rxjs';
+import { Subscription, combineLatestWith, debounceTime, filter } from 'rxjs';
 
 @Component({
     selector: 'biopro-scan-unit-number-product-code',
@@ -77,10 +72,7 @@ export class ScanUnitNumberProductCodeComponent implements OnDestroy {
                         !!value.productCode?.trim() &&
                         status === 'VALID'
                 ),
-                distinctUntilChanged(
-                    (pValue, cValue) =>
-                        JSON.stringify(pValue) === JSON.stringify(cValue)
-                )
+                debounceTime(300)
             )
             .subscribe(() => this.verifyProduct());
 
@@ -143,7 +135,6 @@ export class ScanUnitNumberProductCodeComponent implements OnDestroy {
 
     resetUnitProductGroup(): void {
         this.unitProductGroup.reset();
-        this.focusOnUnitNumber();
         this.enableProductCode();
     }
 
