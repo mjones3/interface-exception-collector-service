@@ -175,6 +175,13 @@ type OrderPriorityReportDTO {
 input OrderQueryCommandDTO {
     locationCode:String!
     orderUniqueIdentifier:String
+    orderStatus:[String]
+    orderPriorities:[String]
+    customers:[String]
+    createDateFrom:Date
+    createDateTo:Date
+    desireShipDateFrom:Date
+    desireShipDateTo:Date
     querySort:QuerySortDTO
     limit:Int
 }

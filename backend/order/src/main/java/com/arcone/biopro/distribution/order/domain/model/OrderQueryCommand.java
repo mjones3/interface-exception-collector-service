@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
 
 
+import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -17,6 +18,13 @@ public class OrderQueryCommand implements Validatable {
     private String locationCode;
     private String orderNumber;
     private String externalOrderId;
+    private List<String> orderStatus;
+    private List<String> orderPriorities;
+    private List<String> customers;
+    private Date createDateFrom;
+    private Date createDateTo;
+    private Date desireShipDateFrom;
+    private Date desireShipDateTo;
     private QuerySort querySort;
     private Integer limit;
 
@@ -25,7 +33,17 @@ public class OrderQueryCommand implements Validatable {
     private static final String DEFAULT_SECOND_SORT_BY = "status";
     private static final Integer DEFAULT_LIMIT = 20;
 
-    public OrderQueryCommand(String locationCode , String orderUniqueIdentifier, QuerySort querySort ,   Integer limit) {
+    public OrderQueryCommand(
+        String locationCode ,
+        String orderUniqueIdentifier,
+        List<String> orderStatus,
+        List<String> orderPriorities,
+        List<String> customers,
+        Date createDateFrom,
+        Date createDateTo,
+        Date desireShipDateFrom,
+        Date desireShipDateTo,
+        QuerySort querySort ,   Integer limit) {
 
         this.locationCode = locationCode;
         this.querySort = querySort;
@@ -42,6 +60,13 @@ public class OrderQueryCommand implements Validatable {
         } else if (orderUniqueIdentifier != null && !orderUniqueIdentifier.isEmpty()) {
             this.externalOrderId = orderUniqueIdentifier;
         }
+        this.orderStatus = orderStatus;
+        this.orderPriorities = orderPriorities;
+        this.customers = customers;
+        this.createDateFrom = createDateFrom;
+        this.createDateTo = createDateTo;
+        this.desireShipDateFrom = desireShipDateFrom;
+        this.desireShipDateTo = desireShipDateTo;
 
         checkValid();
     }

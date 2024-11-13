@@ -19,7 +19,15 @@ import java.util.Optional;
 public class OrderQueryMapper {
 
     public OrderQueryCommand mapToDomain(final OrderQueryCommandDTO commandDTO) {
-        return new OrderQueryCommand(commandDTO.locationCode(), commandDTO.orderUniqueIdentifier(),
+        return new OrderQueryCommand(commandDTO.locationCode(),
+            commandDTO.orderUniqueIdentifier(),
+            commandDTO.orderStatus(),
+            commandDTO.orderPriorities(),
+            commandDTO.customers(),
+            commandDTO.createDateFrom(),
+            commandDTO.createDateTo(),
+            commandDTO.desireShipDateFrom(),
+            commandDTO.desireShipDateTo(),
             Optional.ofNullable(commandDTO.querySort()).map(querySortDTO -> new QuerySort(Optional
                 .of(querySortDTO.orderByList().stream().map(sortDto -> new QueryOrderBy(sortDto.property(),sortDto.direction())).toList())
                 .orElse(null))).orElse(null),
