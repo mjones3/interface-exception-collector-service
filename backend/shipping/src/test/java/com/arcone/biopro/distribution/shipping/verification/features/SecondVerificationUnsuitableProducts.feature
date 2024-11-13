@@ -17,7 +17,7 @@ Feature: Second Verification Notification Tab
     Rule: I should be able to complete the shipment once all unacceptable products are removed.
     @DIS-207
     Scenario Outline: Second verification unsuitable products - remove units.
-        Given I have a shipment for order "<Order Number>" with the units "<Suitable UN>,<Unsuitable UN>" and product codes "<Suitable Code>,<Unsuitable Code>" "unsuitable verified".
+        Given I have a shipment for order "<Order Number>" with the units "<Suitable UN>,<Unsuitable UN>" and product codes "<Suitable Code>,<Unsuitable Code>" "verified".
         And The second verification configuration is "enabled".
         And I am on the verify products page with "Notification" tab active.
         And I should see a "Notification" message: "One or more products have changed status. You must rescan the products to be removed.".
@@ -36,7 +36,7 @@ Feature: Second Verification Notification Tab
     Rule: I should restart the second verification process when I scan a unit that is not required to be removed.
     @DIS-207
     Scenario Outline: Second verification unsuitable products - remove units - rescan all products.
-        Given I have a shipment for order "<Order Number>" with the units "<Suitable UN>,<Unsuitable UN>" and product codes "<Suitable Code>,<Unsuitable Code>" "unsuitable verified".
+        Given I have a shipment for order "<Order Number>" with the units "<Suitable UN>,<Unsuitable UN>" and product codes "<Suitable Code>,<Unsuitable Code>" "verified".
         And The second verification configuration is "enabled".
         And I am on the verify products page with "Notification" tab active.
         When I scan the unit "WXXXXXXXXXXXX" with product code "E000000".
@@ -53,7 +53,7 @@ Feature: Second Verification Notification Tab
     Rule: I should restart the second verification process when I scan a unit that is already removed.
     @DIS-207
     Scenario Outline: Second verification unsuitable products - remove units twice - rescan all products.
-        Given I have a shipment for order "<Order Number>" with the units "<Suitable UN>,<Unsuitable UN>" and product codes "<Suitable Code>,<Unsuitable Code>" "unsuitable verified".
+        Given I have a shipment for order "<Order Number>" with the units "<Suitable UN>,<Unsuitable UN>" and product codes "<Suitable Code>,<Unsuitable Code>" "verified".
         And The second verification configuration is "enabled".
         And I am on the verify products page with "Notification" tab active.
         When I scan the unit "<Unsuitable UN>" with product code "<Unsuitable Code>".
