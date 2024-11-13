@@ -76,7 +76,7 @@ Feature: Second Verification Notification Tab
     Scenario Outline: Restrict Manual Entry Unit Number.
         Given I have a shipment for order "<Order Number>" with the units "<Suitable UN>,<Unsuitable UN>" and product codes "<Suitable Code>,<Unsuitable Code>" "unsuitable verified".
         And The second verification configuration is "enabled".
-        And I am on the verify products page.
+        And I am on the verify products page with "Notification" tab active.
         When I focus out leaving "Unit Number" empty.
         Then I should see a field validation error message "Unit Number is Required".
         When I "<Action>" the "Unit Number" "<Field Value>".
@@ -94,7 +94,7 @@ Feature: Second Verification Notification Tab
     Scenario Outline: Restrict Manual Entry Product Code.
         Given I have a shipment for order "<Order Number>" with the units "<Suitable UN>,<Unsuitable UN>" and product codes "<Suitable Code>,<Unsuitable Code>" "unsuitable verified".
         And The second verification configuration is "enabled".
-        And I am on the verify products page.
+        And I am on the verify products page with "Notification" tab active.
         When I "<Action>" the "<Field Name>" "<Field Value>".
         Then The "Product Code" field should be "enabled".
         When I focus out leaving "<Second Field Name>" empty.
