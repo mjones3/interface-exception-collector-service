@@ -22,3 +22,7 @@
     ></mat-datepicker-toggle>
     <mat-date-range-picker #dateRangePicker></mat-date-range-picker>
 </mat-form-field>
+
+<mat-error *ngIf="formGroup.hasError('invalidDateRange') && formGroup.touched">
+    Start date must be before end date.
+</mat-error>

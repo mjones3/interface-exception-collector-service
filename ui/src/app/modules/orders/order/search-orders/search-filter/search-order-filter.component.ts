@@ -125,7 +125,7 @@ export class SearchOrderFilterComponent implements OnInit {
                 desiredShipmentDateFrom: [''],
                 desiredShipmentDateTo: [''],
             },
-            { validators: BioproValidators.hasAtLeastOne }
+            { validators: [BioproValidators.hasAtLeastOne] }
         );
     }
 
