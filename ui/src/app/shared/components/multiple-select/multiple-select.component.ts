@@ -46,24 +46,21 @@ export class MultipleSelectComponent {
         return `Filter ${this.title}`;
     }
 
-    firstSelectedValue(key: string, source: SelectOptionDto[]): string {
-        return '';
-        if (
-            !this.formGroup.controls[key].value ||
-            this.formGroup.controls[key].value?.length === 0
-        ) {
+    selectedValues(key: string, source: SelectOptionDto[]): string {
+        const selectedValues = this.formGroup.controls[key].value;
+
+        if (!selectedValues || selectedValues.length === 0) {
             return '';
         }
-        return this.formGroup.controls[key].value[0] === 'select-all'
-            ? 'All'
-            : source
-                  .filter((item) =>
-                      this.formGroup.controls[key].value.includes(
-                          item.optionKey
-                      )
-                  )
-                  .map((item) => item.optionDescription)
-                  .toString();
+
+        if (selectedValues[0] === 'select-all') {
+            return 'All';
+        }
+
+        return source
+            .filter((item) => selectedValues.includes(item.optionKey))
+            .map((item) => item.optionDescription)
+            .join(', '); // Use join to convert array to string with a separator
     }
 
     get itemList(): SelectOptionDto[] {

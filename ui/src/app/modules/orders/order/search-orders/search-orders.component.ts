@@ -160,6 +160,28 @@ export class SearchOrdersComponent {
         if (this.currentFilter && this.currentFilter.orderNumber !== '') {
             criteria.orderUniqueIdentifier = this.currentFilter.orderNumber;
         }
+        if (
+            this.currentFilter &&
+            this.currentFilter.orderStatus &&
+            this.currentFilter.orderStatus.length > 0
+        ) {
+            criteria.orderStatus = this.currentFilter.orderStatus;
+        }
+        if (
+            this.currentFilter &&
+            this.currentFilter.orderPriorities &&
+            this.currentFilter.orderPriorities.length > 0
+        ) {
+            criteria.orderPriorities = this.currentFilter.orderPriorities;
+        }
+        if (
+            this.currentFilter &&
+            this.currentFilter.customers &&
+            this.currentFilter.customers.length > 0
+        ) {
+            criteria.customers = this.currentFilter.customers;
+        }
+        //TODO: Add remaining filters here
         return criteria;
     }
 

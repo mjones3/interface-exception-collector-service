@@ -157,12 +157,13 @@ export interface SearchOrderResolverData {
 
 export interface SearchOrderFilterDTO {
     orderNumber?: string;
+    orderStatus?: string[];
+    orderPriorities?: string[];
+    customers?: string[];
     page?: number;
     limit?: number;
     sortBy?: string;
     order?: string;
 }
-
-
 
 export type LabelStatus = 'LABELED' | 'UNLABELED';

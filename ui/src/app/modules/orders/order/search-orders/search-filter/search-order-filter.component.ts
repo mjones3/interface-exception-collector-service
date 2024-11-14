@@ -162,14 +162,16 @@ export class SearchOrderFilterComponent implements OnInit {
             {
                 orderNumber: ['', [Validators.maxLength(25)]],
                 orderStatus: [''],
-                orderPriority: [''],
-                customer: [''],
+                orderPriorities: [''],
+                customers: [''],
                 createDateFrom: ['', [Validators.required]],
-                createDateTo: ['', [Validators.required]],
-                desiredShipmentDateFrom: [''],
-                desiredShipmentDateTo: [''],
+                createDateTo: ['', []],
+                desiredShipDateFrom: [''],
+                desiredShipDateTo: [''],
             },
-            { validators: [BioproValidators.hasAtLeastOne] }
+            {
+                validators: [BioproValidators.hasAtLeastOne],
+            }
         );
     }
 
@@ -193,11 +195,7 @@ export class SearchOrderFilterComponent implements OnInit {
             this.searchForm.value
         ).filter((ele) => null != ele && '' != ele).length;
 
-        this.applySearchFilters.emit(this.removeSelectAllIndicator());
-    }
-
-    private removeSelectAllIndicator(): SearchOrderFilterDTO {
-        return this.searchForm.value;
+        this.applySearchFilters.emit(this.searchForm.value);
     }
 
     toggleFilter(toggleFlag: boolean): void {

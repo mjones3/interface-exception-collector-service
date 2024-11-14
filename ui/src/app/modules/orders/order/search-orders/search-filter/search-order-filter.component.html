@@ -39,14 +39,14 @@
 
                 <app-multiple-select
                     [formGroup]="searchForm"
-                    [controlName]="'orderPriority'"
+                    [controlName]="'orderPriorities'"
                     title="Order Priority"
                     [items]="priorityOptions"
                 ></app-multiple-select>
 
                 <app-multiple-select
                     [formGroup]="searchForm"
-                    [controlName]="'customer'"
+                    [controlName]="'customers'"
                     title="Ship to Customer"
                     [items]="customers"
                 ></app-multiple-select>
@@ -60,8 +60,8 @@
 
                 <app-date-range-picker
                     [formGroup]="searchForm"
-                    dateFromFormControlName="desiredShipmentDateFrom"
-                    dateToFormControlName="desiredShipmentDateTo"
+                    dateFromFormControlName="desiredShipDateFrom"
+                    dateToFormControlName="desiredShipDateTo"
                     title="Desired shipment date"
                 ></app-date-range-picker>
 
@@ -77,4 +77,8 @@ Required fields for applying filters- Create Date (From), Create Date (To)
             </div>
         </div>
     </form>
+
+    {{ searchForm.value | json }}
+    <br />
+    {{ searchForm.errors | json }}
 </app-filters>

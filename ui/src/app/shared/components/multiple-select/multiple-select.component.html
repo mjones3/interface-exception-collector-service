@@ -15,7 +15,7 @@
         (opened)="controlInput.focus(); controlInput.value = ''"
     >
         <mat-select-trigger>
-            {{ firstSelectedValue('items', itemList) }}
+            {{ selectedValues(controlName, itemList) }}
         </mat-select-trigger>
 
         <mat-form-field class="block w-full">
