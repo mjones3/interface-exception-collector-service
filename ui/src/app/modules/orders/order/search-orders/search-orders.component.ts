@@ -3,7 +3,7 @@ import { Component, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { Router } from '@angular/router';
-import { ApolloError } from '@apollo/client';
+import { ApolloError, ApolloQueryResult } from '@apollo/client';
 import { FuseCardComponent } from '@fuse/components/card/public-api';
 import {
     Column,
@@ -17,8 +17,13 @@ import { ToastrService } from 'ngx-toastr';
 import { Table, TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { BehaviorSubject, Subject, finalize } from 'rxjs';
 import { Cookie } from '../../../../shared/types/cookie.enum';
-import { OrderReportDTO } from '../../models/search-order.model';
+import { SearchOrderFilterDTO } from '../../models/order.dto';
+import {
+    OrderQueryCommandDTO,
+    OrderReportDTO,
+} from '../../models/search-order.model';
 import { OrderService } from '../../services/order.service';
+import { SearchOrderFilterComponent } from './search-filter/search-order-filter.component';
 
 @Component({
     selector: 'app-search-orders',
@@ -31,6 +36,7 @@ import { OrderService } from '../../services/order.service';
         AsyncPipe,
         ProcessHeaderComponent,
         MatButtonModule,
+        SearchOrderFilterComponent,
     ],
     templateUrl: './search-orders.component.html',
     styleUrls: ['./search-orders.component.scss'],
@@ -118,14 +124,17 @@ export class SearchOrdersComponent {
             default: true,
         },
     ];
-
+    isFilterToggled = false;
     defaultRowsPerPage = 20;
     defaultSortField = 'createDate';
     totalRecords = 0;
+    currentFilter: SearchOrderFilterDTO;
     items$: Subject<OrderReportDTO[]> = new BehaviorSubject([]);
     loading = true;
+    noResultsMessage: string;
+    footerMessage = '';
 
-    @ViewChild('orderTable', { static: true }) orderTable: Table;
+    @ViewChild('orderTable', { static: false }) orderTable: Table;
 
     private _selectedColumns: Column[] = this.columns.filter(
         (col) => !col.hidden
@@ -140,30 +149,74 @@ export class SearchOrdersComponent {
         private cookieService: CookieService
     ) {}
 
-    fetchOrders(event: TableLazyLoadEvent) {
-        const facilityCode = this.cookieService.get(Cookie.XFacility);
+    toggleFilter(toggleFlag: boolean): void {
+        this.isFilterToggled = toggleFlag;
+    }
+
+    private getCriteria(): OrderQueryCommandDTO {
+        const criteria: OrderQueryCommandDTO = {
+            locationCode: this.cookieService.get(Cookie.XFacility),
+        };
+        if (this.currentFilter && this.currentFilter.orderNumber !== '') {
+            criteria.orderUniqueIdentifier = this.currentFilter.orderNumber;
+        }
+        return criteria;
+    }
+
+    private searchOrder(event?: TableLazyLoadEvent) {
+        this.footerMessage = '';
+        this.loading = true;
         this.orderService
-            .searchOrders({ locationCode: facilityCode })
+            .searchOrders(this.getCriteria())
             .pipe(finalize(() => (this.loading = false)))
             .subscribe({
-                next: (response) => {
-                    this.orderTable.sortField =
-                        typeof event.sortField === 'string'
-                            ? event.sortField
-                            : event.sortField?.[0] ?? this.defaultSortField;
-                    this.items$.next(response.data.searchOrders ?? []);
-                },
+                next: (response) => this.doOnSuccess(response, event),
                 error: (e: ApolloError) => {
-                    this.orderTable.sortField = this.defaultSortField;
+                    if (this.orderTable != null) {
+                        this.orderTable.sortField = this.defaultSortField;
+                    }
                     this.items$.next([]);
                     if (e?.cause?.message) {
+                        this.noResultsMessage = e?.cause?.message;
                         this.toaster.warning(e?.cause?.message);
+                        this.footerMessage = e?.cause?.message;
                         return;
                     }
                     this.toaster.error('Something went wrong.');
+                    this.loading = false;
                     throw e;
                 },
             });
+    }
+
+    private doOnSuccess(
+        response: ApolloQueryResult<{ searchOrders: OrderReportDTO[] }>,
+        event?: TableLazyLoadEvent
+    ): void {
+        if (response.data.searchOrders.length === 1 && this.isFilterApplied()) {
+            this.details(response.data.searchOrders[0].orderId);
+        }
+        this.items$.next(response.data.searchOrders ?? []);
+        if (event) {
+            this.orderTable.sortField =
+                typeof event.sortField === 'string'
+                    ? event.sortField
+                    : event.sortField?.[0] ?? this.defaultSortField;
+        }
+    }
+
+    applyFilterSearch(searchCriteria: SearchOrderFilterDTO = {}): void {
+        this.isFilterToggled = false;
+        this.currentFilter = searchCriteria;
+        this.searchOrder();
+    }
+
+    isFilterApplied() {
+        return this.getCriteria()?.orderUniqueIdentifier != null;
+    }
+
+    fetchOrders(event: TableLazyLoadEvent) {
+        this.searchOrder(event);
     }
 
     details(id: number) {

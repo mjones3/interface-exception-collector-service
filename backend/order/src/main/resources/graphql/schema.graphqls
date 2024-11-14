@@ -173,6 +173,7 @@ type OrderPriorityReportDTO {
 
 input OrderQueryCommandDTO {
     locationCode:String!
+    orderUniqueIdentifier:String
     querySort:QuerySortDTO
     limit:Int
 }

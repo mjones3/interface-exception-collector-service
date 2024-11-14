@@ -14,6 +14,7 @@ import {
     ToastrImplService,
 } from '@shared';
 import { OrderWidgetsSidebarComponent } from 'app/modules/shipments/shared/order-widgets-sidebar/order-widgets-sidebar.component';
+import { ProgressBarComponent } from 'app/progress-bar/progress-bar.component';
 import { ProductFamilyMap } from 'app/shared/models/product-family.model';
 import { ProductIconsService } from 'app/shared/services/product-icon.service';
 import { ToastrModule } from 'ngx-toastr';
@@ -69,9 +70,9 @@ import {
         DropdownModule,
         RouterLink,
         TagComponent,
+        ProgressBarComponent,
     ],
     templateUrl: './order-details.component.html',
-    styleUrl: './order-details.component.scss',
 })
 export class OrderDetailsComponent implements OnInit, OnDestroy {
     static readonly INVENTORY_SERVICE_IS_DOWN = 'INVENTORY_SERVICE_IS_DOWN';

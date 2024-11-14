@@ -1,0 +1,10 @@
+<mat-progress-bar
+    [id]="progressBarId"
+    [value]="value"
+    [ngClass]="{
+        complete: value === 100,
+        inProgress: value > 0 && value < 100,
+    }"
+    mode="determinate"
+>
+</mat-progress-bar>

@@ -1,4 +1,4 @@
-@ui
+@ui 
 Feature: Complete Shipment Feature
     As a distribution technician, I want to complete a shipment, so I can ship products to the customer.
 
@@ -13,7 +13,7 @@ Feature: Complete Shipment Feature
         Rule: I should be able to view the pending log of products to be filled for each line item on the Shipment Fulfillment Details page.
         Rule: I should be able to complete the shipment process without second verification if configured by the blood center.
 
-        @DST-202 @DIS-162 @DIS-156 @DIS-56 @DIS-25 @DIS-21
+        @DST-202 @DIS-162 @DIS-156 @DIS-56 @DIS-25 @DIS-21 @DIS-201
         Scenario Outline: Complete Shipment with suitable products.
             Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>".
             And The check digit configuration is "disabled".

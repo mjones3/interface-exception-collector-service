@@ -1,0 +1,35 @@
+<app-filters
+    [disabled]="!enableSubmit"
+    [appliedTotalFilterCount]="appliedFiltersCounter"
+    (search)="applyFilterSearch()"
+    (resetSearchFilter)="resetFilters()"
+    (showFilterControl)="toggleFilter($event)"
+    [showFilters]="showFilters"
+>
+    <form
+        [formGroup]="searchForm"
+        class="inline-form flex w-full flex-col"
+        id="searchFormId"
+    >
+        <div class="w-full pt-2">
+            <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
+                <mat-form-field class="block w-full" id="orderNumber">
+                    <mat-label id="orderNumberLabel"> Order Number </mat-label>
+                    <input
+                        id="orderNumberInput"
+                        matInput
+                        formControlName="orderNumber"
+                        placeholder="Enter External Order ID or BioPro Order ID"
+                        maxlength="25"
+                        autocomplete="off"
+                        #orderNumber
+                        (keyup)="singleSearchInputChanged.next('orderNumber')"
+                    />
+                    <mat-hint id="orderNumberHint" align="end">
+                        {{ orderNumber.value.length }} / 25
+                    </mat-hint>
+                </mat-form-field>
+            </div>
+        </div>
+    </form>
+</app-filters>

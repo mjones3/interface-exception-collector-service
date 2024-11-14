@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.shipping.domain.model;
 
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.BloodType;
+import com.arcone.biopro.distribution.shipping.domain.model.enumeration.SecondVerification;
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.VisualInspection;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -78,6 +79,15 @@ public class ShipmentItemPacked implements Serializable, Persistable<Long> {
 
     @Column("blood_type")
     private BloodType bloodType;
+
+    @Column("second_verification")
+    private SecondVerification secondVerification;
+
+    @Column("verification_date")
+    private ZonedDateTime verificationDate;
+
+    @Column("verified_by_employee_id")
+    private String verifiedByEmployeeId;
 
     @Override
     public boolean isNew() {

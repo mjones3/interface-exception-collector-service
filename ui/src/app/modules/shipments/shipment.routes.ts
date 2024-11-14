@@ -3,6 +3,7 @@ import { EmptyLayoutComponent } from 'app/layout/layouts/empty/empty.component';
 import { FillProductsComponent } from './fill-products/fill-products.component';
 import { SearchShipmentsComponent } from './search-shipments/search-shipments.component';
 import { ShipmentDetailsComponent } from './shipment-details/shipment-details.component';
+import { VerifyProductsComponent } from './verify-products/verify-products.component';
 
 export default [
     {
@@ -31,6 +32,13 @@ export default [
                 component: FillProductsComponent,
                 data: {
                     subTitle: 'Fill Products',
+                },
+            },
+            {
+                path: ':id/verify-products',
+                component: VerifyProductsComponent,
+                data: {
+                    subTitle: 'Verify Products',
                 },
             },
         ],

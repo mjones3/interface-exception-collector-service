@@ -25,10 +25,12 @@ export class FiltersComponent {
     @Input() appliedTotalFilterCount = 0;
     @Output() search: EventEmitter<void> = new EventEmitter<void>();
     @Output() resetSearchFilter: EventEmitter<void> = new EventEmitter<void>();
-    showFilters = false;
+    @Input() showFilters: boolean = false;
+    @Output() showFilterControl: EventEmitter<boolean> = new EventEmitter<boolean>();
 
     toggleFilters() {
         this.showFilters = !this.showFilters;
+        this.showFilterControl.emit(this.showFilters);
     }
 
     applyFilter() {
@@ -37,6 +39,7 @@ export class FiltersComponent {
     }
 
     resetFilters() {
+        this.disabled = true;
         this.resetSearchFilter.emit();
     }
 }
