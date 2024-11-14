@@ -1,6 +1,5 @@
 package com.arcone.biopro.distribution.shipping.application.dto;
 
-import com.arcone.biopro.distribution.shipping.domain.model.enumeration.IneligibleStatus;
 import lombok.Builder;
 
 import java.io.Serializable;
@@ -14,7 +13,7 @@ public record ShipmentItemRemovedDTO(
     String productCode,
     ZonedDateTime removedDate,
     String removedByEmployeeId,
-    IneligibleStatus ineligibleStatus
+    String ineligibleStatus
 
 
 

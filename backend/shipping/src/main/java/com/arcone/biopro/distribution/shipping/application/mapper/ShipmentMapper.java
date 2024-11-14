@@ -73,7 +73,7 @@ public class ShipmentMapper {
             .unitNumber(shipmentItemRemoved.getUnitNumber())
             .removedDate(shipmentItemRemoved.getRemovedDate())
             .removedByEmployeeId(shipmentItemRemoved.getRemovedByEmployeeId())
-            .ineligibleStatus(shipmentItemRemoved.getIneligibleStatus())
+            .ineligibleStatus(Optional.ofNullable(shipmentItemRemoved.getIneligibleStatus()).map(ineligibleStatus -> ineligibleStatus.label).orElse(null))
             .build();
     }
 }

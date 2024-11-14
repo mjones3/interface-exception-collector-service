@@ -98,7 +98,7 @@ class RemoveShipmentItemUseCaseTest {
                 var firstRemovedItem = removeDetails.removedItems().getFirst();
                 assertEquals("UNIT_NUMBER", firstRemovedItem.unitNumber());
                 assertEquals("PRODUCT_CODE", firstRemovedItem.productCode());
-                assertEquals(IneligibleStatus.INVENTORY_IS_DISCARDED, firstRemovedItem.ineligibleStatus());
+                assertEquals(IneligibleStatus.INVENTORY_IS_DISCARDED.label, firstRemovedItem.ineligibleStatus());
 
                 var firstTobeRemovedItem = removeDetails.toBeRemovedItems().getFirst();
                 assertEquals("UNIT_NUMBER", firstTobeRemovedItem.unitNumber());
@@ -164,7 +164,7 @@ class RemoveShipmentItemUseCaseTest {
                 var firstRemovedItem = removeDetails.removedItems().getFirst();
                 assertEquals("UNIT_NUMBER", firstRemovedItem.unitNumber());
                 assertEquals("PRODUCT_CODE", firstRemovedItem.productCode());
-                assertEquals(IneligibleStatus.INVENTORY_IS_DISCARDED, firstRemovedItem.ineligibleStatus());
+                assertEquals(IneligibleStatus.INVENTORY_IS_DISCARDED.label, firstRemovedItem.ineligibleStatus());
 
                 var firstTobeRemovedItem = removeDetails.toBeRemovedItems().getFirst();
                 assertEquals("UNIT_NUMBER", firstTobeRemovedItem.unitNumber());
