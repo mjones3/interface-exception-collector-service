@@ -24,6 +24,16 @@ public interface ShipmentItemPackedRepository extends ReactiveCrudRepository<Shi
 
     @Query("select count(*) from bld_shipment_item_packed where second_verification = 'PENDING' and verification_date is null and shipment_item_id in (select id from bld_shipment_item bsi where shipment_id  = :shipmentId)")
     Mono<Integer> countVerificationPendingByShipmentId(@Param("shipmentId") Long shipmentId);
+
+    @Query("select * from bld_shipment_item_packed where ineligible_status is not null and shipment_item_id in (select id from bld_shipment_item bsi where shipment_id  = :shipmentId)")
+    Flux<ShipmentItemPacked> listAllIneligibleByShipmentId(@Param("shipmentId") Long shipmentId);
+
+    @Query("select * from bld_shipment_item_packed where unit_number = :unitNumber and product_code = :productCode and ineligible_status is not null and shipment_item_id in (select id from bld_shipment_item bsi where shipment_id  = :shipmentId)")
+    Mono<ShipmentItemPacked> findByUnitTobeRemoved(@Param("shipmentId") Long shipmentId , @Param("unitNumber") String unitNumber, @Param("productCode") String productCode);
+
+    @Query("select count(*) from bld_shipment_item_packed where ineligible_status is not null and shipment_item_id in (select id from bld_shipment_item bsi where shipment_id  = :shipmentId)")
+    Mono<Integer> countIneligibleByShipmentId(@Param("shipmentId") Long shipmentId);
+
 }
 
 

@@ -42,9 +42,14 @@ public class DatabaseSteps {
         databaseService.executeSql(query2).block();
 
         var query3 = String.format("""
-                        delete from bld_shipment where order_number in (%s);
+                        delete from bld_shipment_item_removed where shipment_id in (select id from bld_shipment where order_number in (%s));
             """, orderNumber);
         databaseService.executeSql(query3).block();
+
+        var query4 = String.format("""
+                        delete from bld_shipment where order_number in (%s);
+            """, orderNumber);
+        databaseService.executeSql(query4).block();
     }
 
     @And("The check digit configuration is {string}.")

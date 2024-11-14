@@ -8,6 +8,7 @@ type Query {
     listShipments:[ShipmentResponseDTO]
     getShipmentDetailsById(shipmentId: ID!):ShipmentDetailResponseDTO!
     getShipmentVerificationDetailsById(shipmentId: ID!):VerifyProductResponseDTO!
+    getNotificationDetailsByShipmentId(shipmentId: ID!):RemoveProductResponseDTO!
 
     # Unit Number with Check Digit Verification
     verifyCheckDigit(unitNumber: String!, checkDigit: String!): RuleResponseDTO!
@@ -17,6 +18,7 @@ type Mutation {
     packItem(packItemRequest:PackItemRequest!):RuleResponseDTO!
     completeShipment(completeShipmentRequest:CompleteShipmentRequest!):RuleResponseDTO!
     verifyItem(verifyItemRequest:VerifyItemRequest!):RuleResponseDTO!
+    removeItem(removeItemRequest:RemoveItemRequest!):RuleResponseDTO!
 }
 
 type PackingListLabelDTO {
@@ -145,6 +147,10 @@ type ShipmentItemPackedDTO {
     secondVerification:SecondVerification
     verifiedByEmployeeId:String
     verifiedDate:DateTime
+    ineligibleStatus:String
+    ineligibleReason:String
+    ineligibleMessage:String
+    ineligibleAction:String
 }
 
 input PackItemRequest {
@@ -220,6 +226,13 @@ input VerifyItemRequest {
     employeeId: String!
 }
 
+input RemoveItemRequest {
+    shipmentId : Int!
+    unitNumber: String!
+    productCode: String!
+    employeeId: String!
+}
+
 type VerifyProductResponseDTO {
     shipmentId: Int!
     packedItems:[ShipmentItemPackedDTO]
@@ -228,4 +241,23 @@ type VerifyProductResponseDTO {
 
 enum SecondVerification {
     PENDING,COMPLETED,DISABLED
+}
+
+type ShipmentItemRemovedDTO {
+
+    id:ID!
+    shipmentId: Int
+    unitNumber: String
+    productCode: String
+    removedByEmployeeId: String
+    removedDate:DateTime
+    ineligibleStatus:String
+
+}
+
+type RemoveProductResponseDTO {
+    shipmentId: Int!
+    removedItems:[ShipmentItemRemovedDTO]
+    toBeRemovedItems:[ShipmentItemPackedDTO]
+    removedItem:ShipmentItemPackedDTO
 }
