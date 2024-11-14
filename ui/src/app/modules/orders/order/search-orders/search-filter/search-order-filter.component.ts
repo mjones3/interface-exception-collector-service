@@ -21,7 +21,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute } from '@angular/router';
+import { ApolloError } from '@apollo/client';
+import { TranslateService } from '@ngx-translate/core';
 import { AutoUnsubscribe, SelectOptionDto } from '@shared';
+import { ToastrService } from 'ngx-toastr';
 import { Subject, Subscription, debounceTime } from 'rxjs';
 import { DateRangePickerComponent } from '../../../../../shared/components/date-range-picker/date-range-picker.component';
 import { FiltersComponent } from '../../../../../shared/components/filters/filters.component';
@@ -32,6 +35,7 @@ import {
     SearchOrderFilterDTO,
     SearchOrderResolverData,
 } from '../../../models/order.dto';
+import { OrderService } from '../../../services/order.service';
 
 const SINGLE_SEARCH_FILTER_KEYS: string[] = ['orderNumber'];
 const DEBOUNCE_TIME = 100;
@@ -83,17 +87,24 @@ export class SearchOrderFilterComponent implements OnInit {
     subscription$1: Subscription;
     subscription$2: Subscription;
     private appliedTotalFilterCount = 0;
-    private locationTypesOrdered = false;
+    statusOptions: SelectOptionDto[];
+    priorityOptions: SelectOptionDto[];
+    customers: SelectOptionDto[];
 
     constructor(
         private formBuilder: FormBuilder,
-        private activatedRoute: ActivatedRoute
+        private activatedRoute: ActivatedRoute,
+        private orderService: OrderService,
+        private toaster: ToastrService,
+        private translateService: TranslateService
     ) {}
 
     ngOnInit(): void {
         this.appliedTotalFilterCount = 0;
 
         this.initDataFromResolver();
+
+        this.loadCriteriaOptions();
 
         this.initForm();
 
@@ -113,7 +124,40 @@ export class SearchOrderFilterComponent implements OnInit {
         this.resolverData = this.activatedRoute.snapshot.data?.searchData;
     }
 
-    private initForm(): void {
+    private loadCriteriaOptions() {
+        this.orderService.searchOrderCriteria().subscribe({
+            next: (response) => {
+                this.statusOptions =
+                    response.data.searchOrderCriteria.orderStatus.map(
+                        (item) => ({
+                            optionKey: item.optionValue,
+                            optionDescription: this.translateService.instant(
+                                item.descriptionKey
+                            ),
+                        })
+                    );
+                this.priorityOptions =
+                    response.data.searchOrderCriteria.orderPriorities.map(
+                        (item) => ({
+                            optionKey: item.optionValue,
+                            optionDescription: this.translateService.instant(
+                                item.descriptionKey
+                            ),
+                        })
+                    );
+                this.customers =
+                    response.data.searchOrderCriteria.customers.map((item) => ({
+                        optionKey: item.code,
+                        optionDescription: item.name,
+                    }));
+            },
+            error: (error: ApolloError) => {
+                this.toaster.error('Something went wrong.');
+            },
+        });
+    }
+
+    private initForm() {
         this.searchForm = this.formBuilder.group(
             {
                 orderNumber: ['', [Validators.maxLength(25)]],

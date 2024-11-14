@@ -3,7 +3,12 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatNativeDateModule } from '@angular/material/core';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute } from '@angular/router';
+import { provideMockStore } from '@ngrx/store/testing';
+import { TranslateModule } from '@ngx-translate/core';
 import { Apollo } from 'apollo-angular';
+import { ToastrModule } from 'ngx-toastr';
+import { of } from 'rxjs';
+import { OrderService } from '../../../services/order.service';
 import { SearchOrderFilterComponent } from './search-order-filter.component';
 
 const SINGLE_SEARCH_FILTER_KEYS: string[] = ['orderNumber'];
@@ -11,6 +16,7 @@ const SINGLE_SEARCH_FILTER_KEYS: string[] = ['orderNumber'];
 describe('SearchOrderFilterComponent', () => {
     let component: SearchOrderFilterComponent;
     let fixture: ComponentFixture<SearchOrderFilterComponent>;
+    let orderService: OrderService;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
@@ -18,9 +24,12 @@ describe('SearchOrderFilterComponent', () => {
                 SearchOrderFilterComponent,
                 NoopAnimationsModule,
                 MatNativeDateModule,
+                ToastrModule.forRoot(),
+                TranslateModule.forRoot(),
             ],
             providers: [
                 provideHttpClient(),
+                provideMockStore({}),
                 Apollo,
                 {
                     provide: ActivatedRoute,
@@ -32,6 +41,7 @@ describe('SearchOrderFilterComponent', () => {
                         },
                     },
                 },
+                OrderService,
             ],
         }).compileComponents();
     });
@@ -39,6 +49,8 @@ describe('SearchOrderFilterComponent', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(SearchOrderFilterComponent);
         component = fixture.componentInstance;
+        orderService = TestBed.inject(OrderService);
+        jest.spyOn(orderService, 'searchOrderCriteria').mockReturnValue(of());
         component.ngOnInit();
     });
 

@@ -34,27 +34,21 @@
                     [formGroup]="searchForm"
                     [controlName]="'orderStatus'"
                     title="Order Status"
-                    [items]="[
-                        { optionKey: 'opt', optionDescription: 'Option' },
-                    ]"
+                    [items]="statusOptions"
                 ></app-multiple-select>
 
                 <app-multiple-select
                     [formGroup]="searchForm"
                     [controlName]="'orderPriority'"
                     title="Order Priority"
-                    [items]="[
-                        { optionKey: 'opt', optionDescription: 'Option' },
-                    ]"
+                    [items]="priorityOptions"
                 ></app-multiple-select>
 
                 <app-multiple-select
                     [formGroup]="searchForm"
                     [controlName]="'customer'"
                     title="Ship to Customer"
-                    [items]="[
-                        { optionKey: 'opt', optionDescription: 'Option' },
-                    ]"
+                    [items]="customers"
                 ></app-multiple-select>
 
                 <app-date-range-picker
