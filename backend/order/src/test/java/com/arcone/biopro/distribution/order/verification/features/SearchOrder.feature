@@ -94,14 +94,13 @@ Feature: Search Orders
             Given I am logged in the location "123456789".
             And I choose search orders.
             And I open the search orders filter panel.
-            When I enter "11/31/2024" for the "<Initial Date Field>".
-            And I enter "11/30/2024" for the "<Final Date Field>".
-            Then The system should display the "Initial date should not be greater than final date" validation message.
+            When I enter the range "11/31/2024 - 11/30/2024" for the "<Date Field>".
+            Then I should see a validation message: "Initial date should not be greater than final date".
 
             Examples:
-                | Initial Date Field         | Final Date Field         |
-                | create date from           | create date to           |
-                | desired shipping date from | desired shipping date to |
+                | Date Field            |
+                | create date           |
+                | desired shipping date |
 
 
     Rule: I should not be able to select create date parameters values greater than current date
@@ -110,9 +109,8 @@ Feature: Search Orders
             Given I am logged in the location "123456789".
             And I choose search orders.
             And I open the search orders filter panel.
-            When I enter "future date" for the "create date from".
-            Then The system should display the "From date should not be greater than to date" validation message.
-
+            When I enter future date for the "create date".
+            Then I should see a validation message: "From date should not be greater than to date".
 
 
 
@@ -153,7 +151,7 @@ Feature: Search Orders
             Given I am logged in the location "123456789".
             And I choose search orders.
             And I open the search orders filter panel.
-            When I enter "11/31/2018" for the "create date from".
-            Then The system should display the "From date should not exceed 2 years in the past" validation message.
+            When I enter "11/31/2018" for the "create date".
+            Then I should see a validation message: "From date should not exceed 2 years in the past".
             And "reset" option is "enabled".
             And "apply" option is "disabled".

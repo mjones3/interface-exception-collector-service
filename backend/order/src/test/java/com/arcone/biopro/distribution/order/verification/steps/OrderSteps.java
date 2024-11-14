@@ -29,12 +29,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Random;
-
-import static org.springframework.test.util.AssertionErrors.assertEquals;
+import java.time.Year;
+import java.util.*;
 
 @Slf4j
 public class OrderSteps {
@@ -656,8 +652,55 @@ public class OrderSteps {
         }
     }
 
+    private void validateDate(String value, String fieldName) throws InterruptedException {
+        switch (fieldName) {
+            case "create date": searchOrderPage.setCreateDateField(value);   break;
+            case "desired shipping date": searchOrderPage.setDesireDateField(value);   break;
+            default:
+                Assert.fail("Field not found: " + fieldName);
+        }
+    }
+
+    @When("I enter the range {string} for the {string}.")
+    public void iEnterTheRangeForThe(String value, String fieldName) throws InterruptedException {
+        validateDate(value, fieldName);
+    }
+
+
+    @When("I enter future date for the {string}.")
+    public void iEnterFutureDateForTheField(String fieldName) throws InterruptedException {
+        validateDate( 1 + "/" + 1 + "/" + Year.now().getValue() + 1 + "-" + 1 + "/" + 1 + "/" + Year.now().getValue() + 2 , fieldName);
+    }
+
     @When("I enter {string} for the {string}.")
-    public void iEnterForThe(String value, String fieldName) {
+    public void iEnterDateValueForTheField(String value, String fieldName) throws InterruptedException {
+        validateDate( value + "-" + LocalDate.now().getMonth().getValue() + "/" + LocalDate.now().getDayOfMonth() + "/" + LocalDate.now().getYear(), fieldName);
+    }
+
+    private void noValuesSelectedFromDropdown(String dropdownId, String panelId) {
+        WebElement dropdown = searchOrderPage.findElementById(dropdownId);
+        dropdown.click();
+        WebElement dropdownPanel = searchOrderPage.findElementById(panelId);
+
+        List<WebElement> options = dropdownPanel.findElements(By.xpath(".//mat-option"));
+        Assert.assertFalse("No selected values ", options.stream()
+            .anyMatch(WebElement::isSelected));
+        dropdown.sendKeys(Keys.ESCAPE);
+        searchOrderPage.closeDropdownIfOpen(dropdown);
+    }
+
+
+    @Then("The filter information should be empty.")
+    public void theFilterInformationShouldBeEmpty() {
         //todo
+        searchOrderPage.theOrderNumberFieldShouldHaveEmptyValue();
+        noValuesSelectedFromDropdown(ORDER_STATUS_SELECT_ID, ORDER_STATUS_PANEL_ID);
+        noValuesSelectedFromDropdown(ORDER_PRIORITY_SELECT_ID, ORDER_PRIORITY_PANEL_ID);
+        noValuesSelectedFromDropdown(ORDER_SHIP_TO_CUSTOMER_SELECT_ID, ORDER_SHIP_TO_CUSTOMER_PANEL_ID);
+    }
+
+    @Then("I should see a validation message: {string}.")
+    public void iShouldSeeAValidationMessage(String message) {
+        searchOrderPage.iShouldSeeAValidationMessage(message);
     }
 }

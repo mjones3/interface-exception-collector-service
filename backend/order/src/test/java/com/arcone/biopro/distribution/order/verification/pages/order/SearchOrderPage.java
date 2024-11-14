@@ -54,6 +54,21 @@ public class SearchOrderPage extends CommonPageFactory {
     @FindBy(id = "orderNumberInput")
     private WebElement orderNumberField;
 
+    @FindBy(id = "orderStatusId")
+    private WebElement orderStatusField;
+
+    @FindBy(id = "orderPrioritiesId")
+    private WebElement orderPrioritiesField;
+
+    @FindBy(id = "customersId")
+    private WebElement customersField;
+
+    @FindBy(id = "createDateId")
+    private WebElement createDateField;
+
+    @FindBy(id = "desiredShippingDateId")
+    private WebElement desiredShippingDateField;
+
     @FindBy(id = "applyBtn")
     private WebElement filterApplyButton;
 
@@ -240,5 +255,30 @@ public class SearchOrderPage extends CommonPageFactory {
             js.executeScript("arguments[0].setAttribute('aria-expanded', 'false');", dropdown);
             log.info("Closed dropdown using JavaScript");
         }
+    }
+
+    public void iShouldSeeAValidationMessage(String message) {
+        assertTrue(
+            "%s error message not found".formatted(message),
+            driver.getPageSource().contains("%s".formatted(message))
+        );
+    }
+
+    public void theOrderNumberFieldShouldHaveEmptyValue() {
+        theFieldShouldHaveEmptyValue(orderNumberField);
+    }
+
+    public void theFieldShouldHaveEmptyValue(WebElement fieldInput) {
+        assertTrue("The field is blank", fieldInput.getAttribute("value").isBlank());
+    }
+
+    public void setCreateDateField(String value) throws InterruptedException {
+        sharedActions.waitForVisible(createDateField);
+        sharedActions.sendKeys(createDateField, value);
+    }
+
+    public void setDesireDateField(String value) throws InterruptedException {
+        sharedActions.waitForVisible(desiredShippingDateField);
+        sharedActions.sendKeys(desiredShippingDateField, value);
     }
 }
