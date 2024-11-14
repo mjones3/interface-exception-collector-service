@@ -654,29 +654,32 @@ public class OrderSteps {
         }
     }
 
-    private void validateDate(String value, String fieldName) throws InterruptedException {
+    private void setValueForField(String value, String fieldName) throws InterruptedException {
         switch (fieldName) {
-            case "create date": searchOrderPage.setCreateDateField(value);   break;
-            case "desired shipping date": searchOrderPage.setDesireDateField(value);   break;
+            case "create date from": searchOrderPage.setCreateDateFromField(value);   break;
+            case "desired shipping date from": searchOrderPage.setDesireDateFromField(value);   break;
+            case "create date to": searchOrderPage.setCreateDateToField(value);   break;
+            case "desired shipping date to": searchOrderPage.setDesireDateToField(value);   break;
             default:
                 Assert.fail("Field not found: " + fieldName);
         }
     }
 
-    @When("I enter the date range {string} for the field {string}.")
-    public void iEnterTheDateRangeForTheField(String value, String fieldName) throws InterruptedException {
-        validateDate(value, fieldName);
+    @When("I enter the date: {string} for the field {string} and the date: {string}  for the field {string}.")
+    public void iEnterTheDateForTheFieldAndTheDateForTheField(String fromDate, String initialDateField, String toDate, String finalDateField) throws InterruptedException {
+        setValueForField(fromDate, initialDateField);
+        setValueForField(toDate, finalDateField);
     }
 
 
     @When("I enter a future date for the field {string}.")
     public void iEnterFutureDateForTheField(String fieldName) throws InterruptedException {
-        validateDate( 1 + "/" + 1 + "/" + Year.now().getValue() + 1 + " - " + 2 + "/" + 1 + "/" + Year.now().getValue() + 1 , fieldName);
+        setValueForField( 1 + "/" + 1 + "/" + Year.now().getValue() + 1, fieldName);
     }
 
     @When("I enter a past date: {string} for the field {string}.")
     public void iEnterPastDateForTheField(String value, String fieldName) throws InterruptedException {
-        validateDate( value + " - " + LocalDate.now().getMonth().getValue() + "/" + LocalDate.now().getDayOfMonth() + "/" + LocalDate.now().getYear(), fieldName);
+        setValueForField(value, fieldName);
     }
 
     private void noValuesSelectedFromDropdown(String dropdownId, String panelId) {

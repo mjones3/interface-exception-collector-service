@@ -94,13 +94,13 @@ Feature: Search Orders
             Given I am logged in the location "123456789".
             And I choose search orders.
             And I open the search orders filter panel.
-            When I enter the date range "12/31/2023 - 12/30/2023" for the field "<Date Field>".
+            When I enter the date: "12/31/2023" for the field "<Initial Date Field>" and the date: "12/30/2023"  for the field "<Final Date Field>".
             Then I should see a validation message: "Initial date should not be greater than final date".
 
             Examples:
-                | Date Field            |
-                | create date           |
-                | desired shipping date |
+                | Initial Date Field         | Final Date Field         |
+                | create date from           | create date to           |
+                | desired shipping date from | desired shipping date to |
 
 
     Rule: I should not be able to select create date parameters values greater than current date
@@ -109,7 +109,7 @@ Feature: Search Orders
             Given I am logged in the location "123456789".
             And I choose search orders.
             And I open the search orders filter panel.
-            When I enter a future date for the field "create date".
+            When I enter a future date for the field "create date from".
             Then I should see a validation message: "From date should not be greater than to date".
 
 
@@ -151,7 +151,7 @@ Feature: Search Orders
             Given I am logged in the location "123456789".
             And I choose search orders.
             And I open the search orders filter panel.
-            When I enter a past date: "11/31/2018" for the field "create date".
+            When I enter a past date: "11/31/2018" for the field "create date from".
             Then I should see a validation message: "From date should not exceed 2 years in the past".
             And "reset" option is "enabled".
             And "apply" option is "disabled".

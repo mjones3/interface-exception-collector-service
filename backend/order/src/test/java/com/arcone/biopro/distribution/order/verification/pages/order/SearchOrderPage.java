@@ -63,11 +63,17 @@ public class SearchOrderPage extends CommonPageFactory {
     @FindBy(id = "customersId")
     private WebElement customersField;
 
-    @FindBy(id = "createDateId")
-    private WebElement createDateField;
+    @FindBy(id = "createDateFromId")
+    private WebElement createDateFromField;
 
-    @FindBy(id = "desiredShippingDateId")
-    private WebElement desiredShippingDateField;
+    @FindBy(id = "createDateToId")
+    private WebElement createDateToField;
+
+    @FindBy(id = "desiredShippingDateFromId")
+    private WebElement desiredShippingDateFromField;
+
+    @FindBy(id = "desiredShippingDateToId")
+    private WebElement desiredShippingDateToField;
 
     @FindBy(id = "applyBtn")
     private WebElement filterApplyButton;
@@ -281,13 +287,23 @@ public class SearchOrderPage extends CommonPageFactory {
         assertTrue("The field is blank", fieldInput.getAttribute("value").isBlank());
     }
 
-    public void setCreateDateField(String value) throws InterruptedException {
-        sharedActions.waitForVisible(createDateField);
-        sharedActions.sendKeys(createDateField, value);
+    public void setCreateDateFromField(String value) throws InterruptedException {
+        sharedActions.waitForVisible(createDateFromField);
+        sharedActions.sendKeys(createDateFromField, value);
     }
 
-    public void setDesireDateField(String value) throws InterruptedException {
-        sharedActions.waitForVisible(desiredShippingDateField);
-        sharedActions.sendKeys(desiredShippingDateField, value);
+    public void setDesireDateFromField(String value) throws InterruptedException {
+        sharedActions.waitForVisible(desiredShippingDateFromField);
+        sharedActions.sendKeys(desiredShippingDateFromField, value);
+    }
+
+    public void setCreateDateToField(String value) throws InterruptedException {
+        sharedActions.waitForVisible(createDateToField);
+        sharedActions.sendKeys(createDateToField, value);
+    }
+
+    public void setDesireDateToField(String value) throws InterruptedException {
+        sharedActions.waitForVisible(desiredShippingDateToField);
+        sharedActions.sendKeys(desiredShippingDateToField, value);
     }
 }
