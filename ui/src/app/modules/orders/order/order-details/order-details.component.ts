@@ -6,7 +6,6 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { ApolloError } from '@apollo/client';
 import { FuseCardComponent } from '@fuse/components/card/public-api';
 import {
     ProcessHeaderComponent,
@@ -35,12 +34,12 @@ import {
 import { catchError } from 'rxjs/operators';
 import { FuseConfirmationService } from '../../../../../@fuse/services/confirmation';
 import { FuseConfirmationDialogComponent } from '../../../../../@fuse/services/confirmation/dialog/dialog.component';
-import { ERROR_MESSAGE } from '../../../../core/data/common-labels';
 import {
     DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
     DEFAULT_PAGE_SIZE_DIALOG_LANDSCAPE_WIDTH,
 } from '../../../../core/models/browser-printing.model';
 import { TagComponent } from '../../../../shared/components/tag/tag.component';
+import handleApolloError from '../../../../shared/utils/apollo-error-handling';
 import { PickListDTO } from '../../graphql/mutation-definitions/generate-pick-list.graphql';
 import { OrderShipmentDTO } from '../../graphql/query-definitions/order-details.graphql';
 import { Notification } from '../../models/notification.dto';
@@ -131,7 +130,7 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
         this.orderService
             .getOrderById(this.orderId)
             .pipe(
-                catchError((e) => this.handleError(e)),
+                catchError((e) => handleApolloError(this.toaster, e)),
                 finalize(() => (this.loading = false)),
                 map((result) => result?.data?.findOrderById),
                 switchMap(({ notifications, data: orderDetails }) => {
@@ -144,7 +143,9 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
                         ? this.orderService
                               .findOrderShipmentByOrderId(orderDetails.id)
                               .pipe(
-                                  catchError((e) => this.handleError(e)),
+                                  catchError((e) =>
+                                      handleApolloError(this.toaster, e)
+                                  ),
                                   map((result) =>
                                       [
                                           result?.data
@@ -167,7 +168,7 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
             .generatePickList(orderId, skipInventoryUnavailable)
             .pipe(
                 finalize(() => (this.loadingPickList = false)),
-                catchError((e) => this.handleError(e)),
+                catchError((e) => handleApolloError(this.toaster, e)),
                 map((response) => response?.data?.generatePickList),
                 switchMap(({ notifications, data: pickList }) => {
                     const inventoryServiceIsDown =
@@ -204,7 +205,9 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
                             this.orderService
                                 .findOrderShipmentByOrderId(orderId)
                                 .pipe(
-                                    catchError((e) => this.handleError(e)),
+                                    catchError((e) =>
+                                        handleApolloError(this.toaster, e)
+                                    ),
                                     map(
                                         (response) =>
                                             response?.data
@@ -221,7 +224,7 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
                 switchMap((orderShipment) => {
                     this.shipments = [orderShipment]; // Backend is sending only one record
                     return this.orderService.getOrderById(orderId).pipe(
-                        catchError((e) => this.handleError(e)),
+                        catchError((e) => handleApolloError(this.toaster, e)),
                         map((response) => response?.data?.findOrderById)
                     );
                 })
@@ -284,15 +287,6 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
 
     backToSearch(): void {
         this.router.navigateByUrl('/orders/search');
-    }
-
-    handleError(error: ApolloError): never {
-        if (error?.cause?.message) {
-            this.toaster?.error(error?.cause?.message);
-            throw error;
-        }
-        this.toaster?.error(ERROR_MESSAGE);
-        throw error;
     }
 
     getIcon(productFamily: string) {

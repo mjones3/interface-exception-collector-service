@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.shipping.verification.steps.shipment;
 
+import com.arcone.biopro.distribution.shipping.verification.pages.distribution.HomePage;
 import com.arcone.biopro.distribution.shipping.verification.pages.distribution.VerifyProductsPage;
 import com.arcone.biopro.distribution.shipping.verification.support.ScreenshotService;
 import com.arcone.biopro.distribution.shipping.verification.support.controllers.ShipmentTestingController;
@@ -38,6 +39,9 @@ public class SecondVerificationSteps {
     @Value("${save.all.screenshots}")
     private boolean saveAllScreenshots;
 
+    @Autowired
+    private HomePage homePage;
+
     @Given("I have a shipment for order {string} with the unit {string} and product code {string} packed.")
     public void createPackedShipment(String orderNumber, String unitNumber, String productCode){
         this.unitNumber = unitNumber;
@@ -49,7 +53,7 @@ public class SecondVerificationSteps {
 
     }
 
-    @Given("I have a shipment for order {string} with the units {string}  and product codes {string} packed.")
+    @Given("I have a shipment for order {string} with the units {string} and product codes {string} packed.")
     public void createPackedShipmentMultipleUnits(String orderNumber, String unitNumbers, String productCodes){
         var units = Arrays.stream(unitNumbers.split(",")).toList();
         var productCodeList = Arrays.stream(productCodes.split(",")).toList();
@@ -61,6 +65,14 @@ public class SecondVerificationSteps {
         Assert.assertNotNull(this.shipmentId);
         this.totalPacked = units.size();
 
+    }
+
+    @Given("I have a shipment for order {string} with the unit {string} and product code {string} verified.")
+    public void createVerifiedShipment(String orderNumber, String unitNumber, String productCode){
+        this.unitNumber = unitNumber;
+        this.productCode = productCode;
+        this.shipmentId = shipmentTestingController.createPackedShipment(orderNumber, List.of(unitNumber),List.of(productCode));
+        shipmentTestingController.verifyShipment(this.shipmentId);
     }
 
     @Then("I should be redirected to the verify products page.")
@@ -105,5 +117,38 @@ public class SecondVerificationSteps {
     @And("The complete shipment option should not be enabled.")
     public void theCompleteShipmentOptionShouldNotBeEnabled() {
         Assert.assertTrue(verifyProductsPage.isCompleteShipmentButtonDisabled());
+    }
+
+    @And("I am on the verify products page.")
+    public void iAmOnTheVerifyProductsPage() throws InterruptedException {
+        homePage.goTo();
+        verifyProductsPage.goToPage(this.shipmentId.toString());
+    }
+
+    @When("I focus out leaving {string} empty.")
+    public void iFocusOn(String field) {
+        verifyProductsPage.focusOnField(field);
+
+    }
+
+    @Then("I should see a field validation error message {string}.")
+    public void iShouldSeeFieldValidationErrorMessage(String error) {
+        verifyProductsPage.checkFieldErrorMessage(error);
+    }
+
+    @When("I {string} the {string} {string}.")
+    public void scanOrTypeUnitOrProduct(String action, String field, String value) throws InterruptedException {
+        verifyProductsPage.scanOrTypeField(action, field, value);
+    }
+
+    @And("The {string} field should be {string}.")
+    public void verifyFieldEnabledDisabled(String field, String status) {
+        if (status.equalsIgnoreCase("enabled")) {
+            Assert.assertTrue(verifyProductsPage.isFieldEnabled(field));
+        } else if (status.equalsIgnoreCase("disabled")) {
+            Assert.assertFalse(verifyProductsPage.isFieldEnabled(field));
+        } else {
+            Assert.fail("Invalid status provided");
+        }
     }
 }

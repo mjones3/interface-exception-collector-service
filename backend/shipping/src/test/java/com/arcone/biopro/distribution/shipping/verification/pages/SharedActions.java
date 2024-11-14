@@ -334,4 +334,24 @@ public class SharedActions {
             waitForVisible(locator);
         }
     }
+
+    public void navigateTo(String url) {
+        wait.until(e -> {
+            log.debug("Navigating to URL: {}", url);
+            e.get(baseUrl + url);
+            return true;
+        });
+    }
+
+    public void focusOutElement(By element) {
+        wait.until(e -> {
+            log.debug("Focusing on element {}.", element);
+            e.findElement(element).sendKeys(Keys.TAB);
+            return true;
+        });
+    }
+
+    public boolean isElementEnabled(WebDriver driver, By locator) {
+        return driver.findElement(locator).isEnabled();
+    }
 }

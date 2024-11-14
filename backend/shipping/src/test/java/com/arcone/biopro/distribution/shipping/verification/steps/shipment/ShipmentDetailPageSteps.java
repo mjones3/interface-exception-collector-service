@@ -99,4 +99,14 @@ public class ShipmentDetailPageSteps {
     public void chooseVerifyProducts() throws InterruptedException {
         shipmentDetailPage.clickVerifyProductsBtn();
     }
+
+    @Then("I should be redirected to the shipment details page.")
+    public void iShouldBeRedirectedToTheShipmentDetailsPage() {
+        shipmentDetailPage.waitForLoad();
+    }
+
+    @And("I should see the status of the shipment as {string}")
+    public void iShouldSeeTheStatusOfTheShipmentAs(String status) {
+        shipmentDetailPage.verifyShippingStatusIs(status.toUpperCase());
+    }
 }

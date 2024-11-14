@@ -12,7 +12,6 @@
                 label="Cancel "
                 color="secondary"
                 icon="heroicons_outline:x-circle"
-                (clickEvent)="cancelButtonHandler()"
             />
             <biopro-action-button
                 id="completeShipmentBtn"
@@ -21,6 +20,7 @@
                 color="primary"
                 icon="heroicons_outline:check-circle"
                 [disabled]="!isAllPackItemsVerified()"
+                (clickEvent)="completeShipment()"
             />
         </div>
     </ng-template>
@@ -66,14 +66,11 @@
 
                         <fuse-card class="flex w-full flex-col space-y-2">
                             <div class="mt-3">
-                                <rsa-enter-unit-number-product-code
-                                    #enterUnitNumberProductCode
-                                    [showCheckDigit]="false"
-                                    [showVisualInspection]="false"
-                                    (unitNumberProductCodeSelected)="
-                                        verifyItem($event)
-                                    "
-                                />
+                                <biopro-scan-unit-number-product-code
+                                    #scanUnitNumberProductCode
+                                    (validate)="verifyItem($event)"
+                                >
+                                </biopro-scan-unit-number-product-code>
                             </div>
                         </fuse-card>
 

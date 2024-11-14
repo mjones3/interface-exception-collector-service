@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 
 @Component
@@ -324,12 +323,9 @@ public class ShipmentTestingController {
                     createPackedItem(createdShipmentItem.get("id").toString(),unitNumbers.get(i),productCodes.get(i));
                 }
             }
-
             return Long.valueOf(shipmentId.toString());
-
         }
         return null;
-
     }
 
     private void createPackedItem(String shipmentItemId,String unitNumber, String productCode){
@@ -339,8 +335,11 @@ public class ShipmentTestingController {
                 " VALUES(%s, '%s', '%s', 'APH FFP C', 'BP', '5db1da0b-6392-45ff-86d0-17265ea33226', '2025-11-02 13:15:47.152', '2024-10-04 06:15:47.152', now(), now(), 'SATISFACTORY', 'B', 'PLASMA_TRANSFUSABLE','PENDING',null , null);";
 
             databaseService.executeSql(String.format(insertPackedItem, shipmentItemId, unitNumber,productCode)).block();
+    }
 
-
+    public void verifyShipment(Long shipmentId) {
+        var query = String.format("UPDATE bld_shipment_item_packed SET second_verification = 'COMPLETED', verification_date = now(), verified_by_employee_id = '5db1da0b-6392-45ff-86d0-17265ea33226' WHERE shipment_item_id in (SELECT id FROM bld_shipment_item WHERE shipment_id = %s)", shipmentId);
+        databaseService.executeSql(query).block();
     }
 
 }
