@@ -32,6 +32,8 @@ import java.time.LocalDate;
 import java.time.Year;
 import java.util.*;
 
+import static org.springframework.test.util.AssertionErrors.assertEquals;
+
 @Slf4j
 public class OrderSteps {
 
@@ -661,20 +663,20 @@ public class OrderSteps {
         }
     }
 
-    @When("I enter the range {string} for the {string}.")
-    public void iEnterTheRangeForThe(String value, String fieldName) throws InterruptedException {
+    @When("I enter the date range {string} for the field {string}.")
+    public void iEnterTheDateRangeForTheField(String value, String fieldName) throws InterruptedException {
         validateDate(value, fieldName);
     }
 
 
-    @When("I enter future date for the {string}.")
+    @When("I enter a future date for the field {string}.")
     public void iEnterFutureDateForTheField(String fieldName) throws InterruptedException {
-        validateDate( 1 + "/" + 1 + "/" + Year.now().getValue() + 1 + "-" + 1 + "/" + 1 + "/" + Year.now().getValue() + 2 , fieldName);
+        validateDate( 1 + "/" + 1 + "/" + Year.now().getValue() + 1 + " - " + 2 + "/" + 1 + "/" + Year.now().getValue() + 1 , fieldName);
     }
 
-    @When("I enter {string} for the {string}.")
-    public void iEnterDateValueForTheField(String value, String fieldName) throws InterruptedException {
-        validateDate( value + "-" + LocalDate.now().getMonth().getValue() + "/" + LocalDate.now().getDayOfMonth() + "/" + LocalDate.now().getYear(), fieldName);
+    @When("I enter a past date: {string} for the field {string}.")
+    public void iEnterPastDateForTheField(String value, String fieldName) throws InterruptedException {
+        validateDate( value + " - " + LocalDate.now().getMonth().getValue() + "/" + LocalDate.now().getDayOfMonth() + "/" + LocalDate.now().getYear(), fieldName);
     }
 
     private void noValuesSelectedFromDropdown(String dropdownId, String panelId) {
@@ -702,5 +704,47 @@ public class OrderSteps {
     @Then("I should see a validation message: {string}.")
     public void iShouldSeeAValidationMessage(String message) {
         searchOrderPage.iShouldSeeAValidationMessage(message);
+    }
+
+    private boolean isDropdownSelected(String dropdownId, String panelId) {
+        WebElement dropdown = searchOrderPage.findElementById(dropdownId);
+        dropdown.click();
+        WebElement dropdownPanel = searchOrderPage.findElementById(panelId);
+        boolean result = false;
+        List<WebElement> options = dropdownPanel.findElements(By.xpath(".//mat-option"));
+        result = options.stream()
+            .anyMatch(WebElement::isSelected);
+        dropdown.sendKeys(Keys.ESCAPE);
+        searchOrderPage.closeDropdownIfOpen(dropdown);
+        return result;
+    }
+
+
+    @And("I should see {string} as the number of used filters for the search.")
+    public void iShouldSeeAsTheNumberOfUsedFiltersForTheSearch(String value) {
+        int actualValue = 0;
+        int expectedValue = Integer.parseInt(value);
+
+        actualValue += isDropdownSelected(ORDER_STATUS_SELECT_ID, ORDER_STATUS_PANEL_ID) ? 1 : 0;
+        actualValue += isDropdownSelected(ORDER_PRIORITY_SELECT_ID, ORDER_PRIORITY_PANEL_ID) ? 1 : 0;
+        actualValue += isDropdownSelected(ORDER_SHIP_TO_CUSTOMER_SELECT_ID, ORDER_SHIP_TO_CUSTOMER_PANEL_ID) ? 1 : 0;
+
+        assertEquals("The number of used filters for the search should match.", expectedValue, actualValue);
+    }
+
+    @And("I should not see {string}.")
+    public void iShouldNotSee(String externalOrderIds) {
+        Arrays.stream(externalOrderIds.split(",")).map(String::trim).forEach
+            (externalOrderId -> {
+                searchOrderPage.verifyOrderNotExists(externalOrderId);
+            });
+    }
+
+    @And("I should see {string} orders in the search results.")
+    public void iShouldSeeOrdersInTheSearchResults(String externalOrderIds) {
+        Arrays.stream(externalOrderIds.split(",")).map(String::trim).forEach
+            (externalOrderId -> {
+                searchOrderPage.verifyOrderExists(externalOrderId);
+            });
     }
 }

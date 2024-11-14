@@ -138,6 +138,15 @@ public class SearchOrderPage extends CommonPageFactory {
         }
     }
 
+    public void verifyOrderExists(String externalId) {
+        try {
+            sharedActions.waitForVisible(driver.findElement(By.xpath(orderIdXpath(externalId))));
+            log.info("Order " + externalId + " exists in the list of orders.");
+        } catch (Exception e) {
+            Assert.fail("Order " + externalId + " does not exist in the list of orders.");
+        }
+    }
+
     public void verifyPriorityOrderList() {
 
         sharedActions.waitForVisible(orderPriorityList.getFirst());

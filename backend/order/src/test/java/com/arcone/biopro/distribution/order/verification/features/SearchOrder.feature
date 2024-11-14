@@ -94,7 +94,7 @@ Feature: Search Orders
             Given I am logged in the location "123456789".
             And I choose search orders.
             And I open the search orders filter panel.
-            When I enter the range "11/31/2024 - 11/30/2024" for the "<Date Field>".
+            When I enter the date range "12/31/2023 - 12/30/2023" for the field "<Date Field>".
             Then I should see a validation message: "Initial date should not be greater than final date".
 
             Examples:
@@ -109,7 +109,7 @@ Feature: Search Orders
             Given I am logged in the location "123456789".
             And I choose search orders.
             And I open the search orders filter panel.
-            When I enter future date for the "create date".
+            When I enter a future date for the field "create date".
             Then I should see a validation message: "From date should not be greater than to date".
 
 
@@ -151,7 +151,7 @@ Feature: Search Orders
             Given I am logged in the location "123456789".
             And I choose search orders.
             And I open the search orders filter panel.
-            When I enter "11/31/2018" for the "create date".
+            When I enter a past date: "11/31/2018" for the field "create date".
             Then I should see a validation message: "From date should not exceed 2 years in the past".
             And "reset" option is "enabled".
             And "apply" option is "disabled".
