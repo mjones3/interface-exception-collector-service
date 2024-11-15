@@ -7,6 +7,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
 
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -21,10 +23,10 @@ public class OrderQueryCommand implements Validatable {
     private List<String> orderStatus;
     private List<String> deliveryTypes;
     private List<String> customers;
-    private Date createDateFrom;
-    private Date createDateTo;
-    private Date desireShipDateFrom;
-    private Date desireShipDateTo;
+    private LocalDate createDateFrom;
+    private LocalDate createDateTo;
+    private LocalDate desireShipDateFrom;
+    private LocalDate desireShipDateTo;
     private QuerySort querySort;
     private Integer limit;
 
@@ -39,10 +41,10 @@ public class OrderQueryCommand implements Validatable {
         List<String> orderStatus,
         List<String> deliveryTypes,
         List<String> customers,
-        Date createDateFrom,
-        Date createDateTo,
-        Date desireShipDateFrom,
-        Date desireShipDateTo,
+        LocalDate createDateFrom,
+        LocalDate createDateTo,
+        LocalDate desireShipDateFrom,
+        LocalDate desireShipDateTo,
         QuerySort querySort ,   Integer limit) {
 
         this.locationCode = locationCode;

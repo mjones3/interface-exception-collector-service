@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.order.adapter.in.web.dto;
 import lombok.Builder;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -13,10 +14,10 @@ public record OrderQueryCommandDTO (
     List<String> orderStatus,
     List<String> deliveryTypes,
     List<String> customers,
-    Date createDateFrom,
-    Date createDateTo,
-    Date desireShipDateFrom,
-    Date desireShipDateTo,
+    LocalDate createDateFrom,
+    LocalDate createDateTo,
+    LocalDate desireShipDateFrom,
+    LocalDate desireShipDateTo,
     QuerySortDTO querySort,
     Integer limit
 

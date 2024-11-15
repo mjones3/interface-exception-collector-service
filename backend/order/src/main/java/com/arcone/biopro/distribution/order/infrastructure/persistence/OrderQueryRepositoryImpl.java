@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalTime;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
@@ -50,10 +51,10 @@ public class OrderQueryRepositoryImpl implements OrderQueryRepository {
             criteria = criteria.and(where("shippingCustomerCode").in(orderQueryCommand.getCustomers()));
         }
         if (Objects.nonNull(orderQueryCommand.getCreateDateFrom()) && Objects.nonNull(orderQueryCommand.getCreateDateTo())) {
-            criteria = criteria.and(where("createDate").between(orderQueryCommand.getCreateDateFrom(), orderQueryCommand.getCreateDateTo()));
+            criteria = criteria.and(where("createDate").greaterThanOrEquals(orderQueryCommand.getCreateDateFrom().atStartOfDay()).and("createDate").lessThanOrEquals(orderQueryCommand.getCreateDateTo().atTime(LocalTime.MAX)));
         }
         if (Objects.nonNull(orderQueryCommand.getDesireShipDateFrom()) && Objects.nonNull(orderQueryCommand.getDesireShipDateTo())) {
-            criteria = criteria.and(where("desiredShippingDate").between(orderQueryCommand.getDesireShipDateFrom(), orderQueryCommand.getDesireShipDateTo()));
+            criteria = criteria.and(where("desiredShippingDate").greaterThanOrEquals(orderQueryCommand.getDesireShipDateFrom().atStartOfDay()).and("desiredShippingDate").lessThanOrEquals(orderQueryCommand.getDesireShipDateTo().atTime(LocalTime.MAX)));
         }
 
         var sorts = orderQueryCommand.getQuerySort()

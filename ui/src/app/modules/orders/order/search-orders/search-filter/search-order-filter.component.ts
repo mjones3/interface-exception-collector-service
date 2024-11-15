@@ -8,7 +8,6 @@ import {
 import { CommonModule } from '@angular/common';
 import {
     ChangeDetectionStrategy,
-    ChangeDetectorRef,
     Component,
     EventEmitter,
     Input,
@@ -92,8 +91,7 @@ export class SearchOrderFilterComponent implements OnInit {
         private formBuilder: FormBuilder,
         private orderService: OrderService,
         private toaster: ToastrService,
-        private translateService: TranslateService,
-        private changeDetectorRef: ChangeDetectorRef
+        private translateService: TranslateService
     ) {}
 
     ngOnInit(): void {

@@ -48,4 +48,8 @@ export interface OrderQueryCommandDTO {
     customers?: string[];
     querySort?: QuerySortDTO;
     limit?: number;
+    createDateFrom?: string;
+    createDateTo?: string;
+    desireShipDateFrom?: string;
+    desireShipDateTo?: string;
 }

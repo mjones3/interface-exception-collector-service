@@ -41,8 +41,6 @@ export class DateRangePickerComponent implements AfterViewInit {
     @Input() maxDate?: Date;
     @Input() disabled = false;
 
-    today = new Date();
-
     ngAfterViewInit(): void {
         this.formGroup.addValidators([
             this.dateRangeRequiredValidator.bind(this),
