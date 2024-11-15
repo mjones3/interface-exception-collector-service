@@ -186,7 +186,37 @@ export class SearchOrdersComponent {
             ) {
                 criteria.createDateFrom = formatDate(
                     this.currentFilter.createDateFrom,
-                    'MM-dd-yyyy',
+                    'yyyy-MM-dd',
+                    this.locale
+                );
+            }
+            if (
+                this.currentFilter.createDateTo != null &&
+                this.currentFilter.createDateTo !== ''
+            ) {
+                criteria.createDateTo = formatDate(
+                    this.currentFilter.createDateTo,
+                    'yyyy-MM-dd',
+                    this.locale
+                );
+            }
+            if (
+                this.currentFilter.desiredShipDateFrom != null &&
+                this.currentFilter.desiredShipDateFrom !== ''
+            ) {
+                criteria.desireShipDateFrom = formatDate(
+                    this.currentFilter.desiredShipDateFrom,
+                    'yyyy-MM-dd',
+                    this.locale
+                );
+            }
+            if (
+                this.currentFilter.desiredShipDateTo != null &&
+                this.currentFilter.desiredShipDateTo !== ''
+            ) {
+                criteria.desireShipDateTo = formatDate(
+                    this.currentFilter.desiredShipDateTo,
+                    'yyyy-MM-dd',
                     this.locale
                 );
             }
