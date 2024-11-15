@@ -5,14 +5,13 @@ import {
     transition,
     trigger,
 } from '@angular/animations';
-import { CommonModule, NgTemplateOutlet } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import {
     FormBuilder,
     FormGroup,
     FormsModule,
     ReactiveFormsModule,
-    Validators,
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -25,16 +24,11 @@ import { ApolloError } from '@apollo/client';
 import { TranslateService } from '@ngx-translate/core';
 import { AutoUnsubscribe, SelectOptionDto } from '@shared';
 import { ToastrService } from 'ngx-toastr';
-import { Subject, Subscription, debounceTime } from 'rxjs';
 import { DateRangePickerComponent } from '../../../../../shared/components/date-range-picker/date-range-picker.component';
 import { FiltersComponent } from '../../../../../shared/components/filters/filters.component';
 import { MultipleSelectComponent } from '../../../../../shared/components/multiple-select/multiple-select.component';
-import { SelectAllDirective } from '../../../../../shared/directive/select-all/select-all.directive';
 import { BioproValidators } from '../../../../../shared/forms/biopro-validators';
-import {
-    SearchOrderFilterDTO,
-    SearchOrderResolverData,
-} from '../../../models/order.dto';
+import { SearchOrderFilterDTO } from '../../../models/order.dto';
 import { OrderService } from '../../../services/order.service';
 
 const SINGLE_SEARCH_FILTER_KEYS: string[] = ['orderNumber'];
@@ -63,8 +57,6 @@ const DEBOUNCE_TIME = 100;
         FiltersComponent,
         MatSelectModule,
         MatButtonModule,
-        NgTemplateOutlet,
-        SelectAllDirective,
         MultipleSelectComponent,
         MatDatepickerModule,
         DateRangePickerComponent,
@@ -80,12 +72,8 @@ export class SearchOrderFilterComponent implements OnInit {
     @Output() toggleFilters: EventEmitter<boolean> =
         new EventEmitter<boolean>();
 
-    resolverData: SearchOrderResolverData;
     searchForm: FormGroup;
-    singleSearchInputChanged: Subject<string> = new Subject<string>();
-    multiSearchInputChanged: Subject<string> = new Subject<string>();
-    subscription$1: Subscription;
-    subscription$2: Subscription;
+
     private appliedTotalFilterCount = 0;
     statusOptions: SelectOptionDto[];
     priorityOptions: SelectOptionDto[];
@@ -102,26 +90,9 @@ export class SearchOrderFilterComponent implements OnInit {
     ngOnInit(): void {
         this.appliedTotalFilterCount = 0;
 
-        this.initDataFromResolver();
-
         this.loadCriteriaOptions();
 
         this.initForm();
-
-        this.subscription$1 = this.singleSearchInputChanged
-            .pipe(debounceTime(DEBOUNCE_TIME))
-            .subscribe((res) => {
-                this.onChangeSingleSearchFilter(res);
-            });
-        this.subscription$2 = this.multiSearchInputChanged
-            .pipe(debounceTime(DEBOUNCE_TIME))
-            .subscribe((res) => {
-                this.onChangeMultipleSearchFilter(res);
-            });
-    }
-
-    private initDataFromResolver(): void {
-        this.resolverData = this.activatedRoute.snapshot.data?.searchData;
     }
 
     private loadCriteriaOptions() {
@@ -160,11 +131,11 @@ export class SearchOrderFilterComponent implements OnInit {
     private initForm() {
         this.searchForm = this.formBuilder.group(
             {
-                orderNumber: ['', [Validators.maxLength(25)]],
+                orderNumber: ['' /*, [Validators.maxLength(25)] */],
                 orderStatus: [''],
                 orderPriorities: [''],
                 customers: [''],
-                createDateFrom: ['', [Validators.required]],
+                createDateFrom: [''],
                 createDateTo: ['', []],
                 desiredShipDateFrom: [''],
                 desiredShipDateTo: [''],

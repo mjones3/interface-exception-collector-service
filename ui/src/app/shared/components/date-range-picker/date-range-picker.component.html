@@ -22,18 +22,25 @@
     ></mat-datepicker-toggle>
     <mat-date-range-picker #dateRangePicker></mat-date-range-picker>
 </mat-form-field>
-
-<!--&lt;!&ndash; Display errors for invalid start date &ndash;&gt;-->
-<!--@if (formGroup.get(dateFromFormControlName)?.hasError('invalidDate')) {-->
-<!--    <mat-error>Invalid start date</mat-error>-->
-<!--}-->
-
-<!--&lt;!&ndash; Display errors for invalid end date &ndash;&gt;-->
-<!--<mat-error *ngIf="formGroup.get(dateToFormControlName)?.hasError('invalidDate') && formGroup.get(dateToFormControlName)?.touched">-->
-<!--    Invalid end date format.-->
-<!--</mat-error>-->
-
-<!--&lt;!&ndash; Display errors for invalid date range (start date after end date) &ndash;&gt;-->
-<!--<mat-error *ngIf="formGroup.hasError('invalidDateRange') && (formGroup.get(dateFromFormControlName)?.touched || formGroup.get(dateToFormControlName)?.touched)">-->
-<!--    Start date must be before end date.-->
-<!--</mat-error>-->
+<!-- Display errors for invalid start date -->
+@if (
+    formGroup.get(dateFromFormControlName)?.hasError('matDatepickerParse') &&
+    formGroup.get(dateFromFormControlName)?.touched
+) {
+    <mat-error>Invalid start date</mat-error>
+}
+<!-- Display errors for invalid end date -->
+@if (
+    formGroup.get(dateToFormControlName)?.hasError('matDatepickerParse') &&
+    formGroup.get(dateToFormControlName)?.touched
+) {
+    <mat-error>Invalid end date</mat-error>
+}
+<!-- Display errors for invalid date range (start date after end date) -->
+@if (
+    formGroup.get(dateToFormControlName)?.hasError('matEndDateInvalid') &&
+    (formGroup.get(dateFromFormControlName)?.touched ||
+        formGroup.get(dateToFormControlName)?.touched)
+) {
+    <mat-error>Start date must be before end date</mat-error>
+}

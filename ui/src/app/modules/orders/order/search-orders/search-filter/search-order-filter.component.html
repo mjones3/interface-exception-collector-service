@@ -23,7 +23,6 @@
                         maxlength="25"
                         autocomplete="off"
                         #orderNumber
-                        (keyup)="singleSearchInputChanged.next('orderNumber')"
                     />
                     <mat-hint id="orderNumberHint" align="end">
                         {{ orderNumber.value.length }} / 25
@@ -64,21 +63,7 @@
                     dateToFormControlName="desiredShipDateTo"
                     title="Desired shipment date"
                 ></app-date-range-picker>
-
-                <!--
-I should be able to see the following filter options
-
-Fields for Applying Filters-BioPro Order #, External Order ID, (Unique Identifiers)
-
-Order Status, Priority, Ship to Customer, Create Date (From), Create Date (To), Desired Ship Date (From), Desired Ship Date (To)
-
-Required fields for applying filters- Create Date (From), Create Date (To)
--->
             </div>
         </div>
     </form>
-
-    {{ searchForm.value | json }}
-    <br />
-    {{ searchForm.errors | json }}
 </app-filters>
