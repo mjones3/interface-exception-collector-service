@@ -19,7 +19,6 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { ActivatedRoute } from '@angular/router';
 import { ApolloError } from '@apollo/client';
 import { TranslateService } from '@ngx-translate/core';
 import { AutoUnsubscribe, SelectOptionDto } from '@shared';
@@ -81,7 +80,6 @@ export class SearchOrderFilterComponent implements OnInit {
 
     constructor(
         private formBuilder: FormBuilder,
-        private activatedRoute: ActivatedRoute,
         private orderService: OrderService,
         private toaster: ToastrService,
         private translateService: TranslateService
@@ -133,7 +131,7 @@ export class SearchOrderFilterComponent implements OnInit {
             {
                 orderNumber: ['' /*, [Validators.maxLength(25)] */],
                 orderStatus: [''],
-                orderPriorities: [''],
+                deliveryTypes: [''],
                 customers: [''],
                 createDateFrom: [''],
                 createDateTo: ['', []],
@@ -192,41 +190,7 @@ export class SearchOrderFilterComponent implements OnInit {
         this.searchForm.updateValueAndValidity();
     }
 
-    // disable all single search filters when multi search filters are active
-    onChangeMultipleSearchFilter(key: string): void {
-        if (this.searchForm.controls[key].value) {
-            if (this.searchForm.controls[key].value.toString().length >= 1) {
-                SINGLE_SEARCH_FILTER_KEYS.forEach((filterKey) => {
-                    this.searchForm.controls[filterKey].setValue(null);
-                    this.searchForm.controls[filterKey].disable();
-                });
-            }
-        } else if (!this.searchForm.valid) {
-            Object.keys(this.searchForm.controls).forEach((filterKey) => {
-                this.searchForm.controls[filterKey].enable();
-            });
-        }
-        this.searchForm.updateValueAndValidity();
-    }
-
     get appliedFiltersCounter(): number {
         return this.appliedTotalFilterCount;
-    }
-
-    selectOptionKeys(selectOptions: SelectOptionDto[]): string[] {
-        return selectOptions?.length > 0
-            ? selectOptions.map((option) => option.optionKey)
-            : [];
-    }
-
-    search(source: SelectOptionDto[], filterValue: string): SelectOptionDto[] {
-        if (!filterValue || filterValue === '') {
-            return source;
-        }
-        return source.filter((optionValue) =>
-            optionValue.optionDescription
-                .toLowerCase()
-                .includes(filterValue.toLowerCase())
-        );
     }
 }

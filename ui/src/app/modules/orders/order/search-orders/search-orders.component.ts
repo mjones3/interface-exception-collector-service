@@ -169,10 +169,10 @@ export class SearchOrdersComponent {
         }
         if (
             this.currentFilter &&
-            this.currentFilter.orderPriorities &&
-            this.currentFilter.orderPriorities.length > 0
+            this.currentFilter.deliveryTypes &&
+            this.currentFilter.deliveryTypes.length > 0
         ) {
-            criteria.orderPriorities = this.currentFilter.orderPriorities;
+            criteria.deliveryTypes = this.currentFilter.deliveryTypes;
         }
         if (
             this.currentFilter &&
@@ -181,7 +181,6 @@ export class SearchOrdersComponent {
         ) {
             criteria.customers = this.currentFilter.customers;
         }
-        //TODO: Add remaining filters here
         return criteria;
     }
 

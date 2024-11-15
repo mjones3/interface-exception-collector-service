@@ -158,7 +158,7 @@ export interface SearchOrderResolverData {
 export interface SearchOrderFilterDTO {
     orderNumber?: string;
     orderStatus?: string[];
-    orderPriorities?: string[];
+    deliveryTypes?: string[];
     customers?: string[];
     page?: number;
     limit?: number;

@@ -44,7 +44,7 @@ export interface OrderQueryCommandDTO {
     locationCode: string;
     orderUniqueIdentifier?: string;
     orderStatus?: string[];
-    orderPriorities?: string[];
+    deliveryTypes?: string[];
     customers?: string[];
     querySort?: QuerySortDTO;
     limit?: number;
