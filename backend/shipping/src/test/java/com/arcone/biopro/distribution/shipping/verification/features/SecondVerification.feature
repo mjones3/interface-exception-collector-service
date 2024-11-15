@@ -1,3 +1,4 @@
+@ui
 Feature: Second Verification of Units Feature
     As a distribution technician,
     I want to perform a second verification of the products in a shipment (if configured),
@@ -5,7 +6,7 @@ Feature: Second Verification of Units Feature
 
     Background:
         Given I cleaned up from the database the packed item that used the unit number "W822530106087,W822530106089,W822530106088,W822530106090,W822530106091,W822530106092,W822530106093,W822530106094,W036898786756,W036898786757,W036898786758,W036898786700".
-        And I cleaned up from the database, all shipments with order number "118,119,120,121,122,123.124".
+        And I cleaned up from the database, all shipments with order number "118,119,120,121,122,123,124".
 
 
         Rule: I should be able to verify each unit that I have packed in the shipment.
@@ -14,7 +15,7 @@ Feature: Second Verification of Units Feature
         Rule: I should see the complete shipment option available once all the units are verified.
         Rule: I should be able to see the shipping information.
         Rule: I should be able to see the order information.
-        @ui @DIS-203
+        @DIS-203
         Scenario Outline: Second verification packed units.
             Given I have a shipment for order "<Order Number>" with the unit "<UN>" and product code "<Code>" "packed".
             And The second verification configuration is "enabled".
@@ -33,7 +34,7 @@ Feature: Second Verification of Units Feature
 
         Rule: I should be notified when I scan a unit that is not part of the shipment.
         Rule: I should not be able to complete the shipment if all the units are not verified.
-        @ui @DIS-203
+        @DIS-203
         Scenario Outline: Second verification units not packed.
             Given I have a shipment for order "<Order Number>" with the unit "<UN>" and product code "<Code>" "packed".
             And The second verification configuration is "enabled".
@@ -53,7 +54,7 @@ Feature: Second Verification of Units Feature
 
         Rule: I should be notified when I scan a unit that is already verified.
         Rule: I should not be able to complete the shipment if all the units are not verified.
-        @ui @DIS-203
+        @DIS-203
         Scenario Outline: Second verification units already packed.
             Given I have a shipment for order "<Order Number>" with the units "<UN1>,<UN2>" and product codes "<Code1>,<Code2>" "packed".
             And The second verification configuration is "enabled".
@@ -74,7 +75,7 @@ Feature: Second Verification of Units Feature
 
         Rule: I should be able to scan unit number and product code.
         Rule: I should not be able to enter unit number and product code manually.
-        @ui @DIS-216
+        @DIS-216
         Scenario Outline: Restrict Manual Entry Unit Number.
             Given I have a shipment for order "<Order Number>" with the unit "<UN>" and product code "<Code>" "packed".
             And The second verification configuration is "enabled".
@@ -94,7 +95,7 @@ Feature: Second Verification of Units Feature
         Rule: I should see the status of the shipment updated to “Completed”.
         Rule: I should see a success message indicating the shipment has been successfully completed.
         Rule: I should be able to verify the products' eligibility before completing the shipment.
-        @ui @DIS-204
+        @DIS-204
         Scenario Outline: Complete shipment Second verification suitable products.
             Given I have a shipment for order "<Order Number>" with the unit "<UN>" and product code "<Code>" "verified".
             And The second verification configuration is "enabled".
@@ -111,7 +112,7 @@ Feature: Second Verification of Units Feature
 
         Rule: I should not be able to enter unit number and product code manually.
         Rule: I should be able to scan unit number and product code.
-        @ui @DIS-216
+        @DIS-216
         Scenario Outline: Restrict Manual Entry Product Code.
             Given I have a shipment for order "<Order Number>" with the unit "<UN>" and product code "<Code>" "packed".
             And The second verification configuration is "enabled".
@@ -128,8 +129,8 @@ Feature: Second Verification of Units Feature
                 | 123          | E0685V00 | W822530106094 | Scan   | Unit Number | W822530106094 | Product Code is Invalid | Scan          | Product Code      | 121abc             |
                 | 123          | E0685V00 | W822530106087 | Scan   | Unit Number | W822530106094 | Product Code is Invalid | Type          | Product Code      | =<1212             |
 
-        @ui @DIS-206
-        Scenario Outline: Complete shipment Second verification unsuitable products.
+            @DIS-206
+            Scenario Outline: Complete shipment Second verification unsuitable products.
             Given I have a shipment for order "<Order Number>" with the units "<UNITS>" and product codes "<Codes>" "verified".
             And The second verification configuration is "enabled".
             And I am on the verify products page.
