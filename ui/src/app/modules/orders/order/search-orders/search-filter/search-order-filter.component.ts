@@ -100,7 +100,6 @@ export class SearchOrderFilterComponent implements OnInit {
         this.loadCriteriaOptions();
         this.initForm();
         this.today.setHours(0, 0, 0, 0);
-
         this.monitorChanges();
     }
 
@@ -110,7 +109,9 @@ export class SearchOrderFilterComponent implements OnInit {
                 this.searchForm
                     .get('orderNumber')
                     ?.disable({ emitEvent: false });
-                this.searchForm.get('orderNumber')?.clearValidators();
+                this.searchForm
+                    .get('orderNumber')
+                    ?.removeValidators(Validators.required);
                 Object.keys(this.searchForm.controls).forEach((key) => {
                     if (key !== 'orderNumber') {
                         this.searchForm.get(key)?.enable({ emitEvent: false });
@@ -120,7 +121,7 @@ export class SearchOrderFilterComponent implements OnInit {
                         ) {
                             this.searchForm
                                 .get(key)
-                                ?.setValidators(Validators.required);
+                                ?.addValidators(Validators.required);
                         }
                     }
                 });
@@ -138,7 +139,9 @@ export class SearchOrderFilterComponent implements OnInit {
                             key === 'createDateFrom' ||
                             key === 'createDateTo'
                         ) {
-                            this.searchForm.get(key)?.clearValidators();
+                            this.searchForm
+                                .get(key)
+                                ?.removeValidators(Validators.required);
                         }
                     }
                 });
@@ -152,7 +155,7 @@ export class SearchOrderFilterComponent implements OnInit {
                     ) {
                         this.searchForm
                             .get(key)
-                            ?.setValidators(Validators.required);
+                            ?.addValidators(Validators.required);
                     }
                 });
             }
@@ -226,7 +229,7 @@ export class SearchOrderFilterComponent implements OnInit {
     }
 
     get enableSubmit(): boolean {
-        return this.searchForm.valid;
+        return this.searchForm.errors == null || this.searchForm.valid;
     }
 
     // Reseting Filters

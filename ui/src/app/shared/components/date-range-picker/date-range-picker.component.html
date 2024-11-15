@@ -53,3 +53,11 @@
 ) {
     <mat-error>Final date should not be greater than today</mat-error>
 }
+
+@if (
+    formGroup?.getError('dateRangeExceedsTwoYears') === dateToFormControlName &&
+    (formGroup.get(dateFromFormControlName)?.touched ||
+        formGroup.get(dateToFormControlName)?.touched)
+) {
+    <mat-error>Date range exceeds two years</mat-error>
+}
