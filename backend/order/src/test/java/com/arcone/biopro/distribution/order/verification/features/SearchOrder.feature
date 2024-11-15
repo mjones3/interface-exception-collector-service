@@ -45,7 +45,7 @@ Feature: Search Orders
             Examples:
                 | External ID     | Order LocationCode | User LocationCode | Priority | Status | Search Key |
                 | 114117922233510 | 123456789          | 234567891         | STAT     | OPEN   | externalId |
-                | 114117922233510 | 123456789          | 123456789         | STAT     | OPEN   | 000111     |
+                | 114117922233510 | 123456789          | 123456788         | STAT     | OPEN   | 000111     |
 
 
 
@@ -109,7 +109,7 @@ Feature: Search Orders
             Given I am logged in the location "123456789".
             And I choose search orders.
             And I open the search orders filter panel.
-            When I enter a future date for the field "final date from".
+            When I enter a future date for the field "create date to".
             Then I should see a validation message: "Final date should not be greater than today".
 
 
@@ -152,6 +152,6 @@ Feature: Search Orders
             And I choose search orders.
             And I open the search orders filter panel.
             When I enter a past date: "11/31/2018" for the field "create date from".
-            Then I should see a validation message: "From date should not exceed 2 years in the past".
+            Then I should see a validation message: "Date range exceeds two years".
             And "reset" option is "enabled".
             And "apply" option is "disabled".

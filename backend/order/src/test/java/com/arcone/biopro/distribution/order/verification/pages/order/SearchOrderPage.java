@@ -40,7 +40,6 @@ public class SearchOrderPage extends CommonPageFactory {
     @Value("${ui.base.url}")
     private String baseUrl;
 
-
     //    Static locators and elements
     @FindBy(xpath = "//h3/*[text()='Search Orders']")
     private WebElement searchOrdersTitle;
@@ -54,25 +53,25 @@ public class SearchOrderPage extends CommonPageFactory {
     @FindBy(id = "orderNumberInput")
     private WebElement orderNumberField;
 
-    @FindBy(id = "orderStatusId")
+    @FindBy(id = "orderStatusSelect")
     private WebElement orderStatusField;
 
-    @FindBy(id = "orderPrioritiesId")
+    @FindBy(id = "deliveryTypesSelect")
     private WebElement orderPrioritiesField;
 
-    @FindBy(id = "customersId")
+    @FindBy(id = "customersSelect")
     private WebElement customersField;
 
-    @FindBy(id = "createDateFromId")
+    @FindBy(id = "createDateFrom")
     private WebElement createDateFromField;
 
-    @FindBy(id = "createDateToId")
+    @FindBy(id = "createDateTo")
     private WebElement createDateToField;
 
-    @FindBy(id = "desiredShippingDateFromId")
+    @FindBy(id = "desiredShipmentDateFrom")
     private WebElement desiredShippingDateFromField;
 
-    @FindBy(id = "desiredShippingDateToId")
+    @FindBy(id = "desiredShipmentDateTo")
     private WebElement desiredShippingDateToField;
 
     @FindBy(id = "applyBtn")
@@ -202,11 +201,57 @@ public class SearchOrderPage extends CommonPageFactory {
 
     public void theOrderFieldIsDisplayed() throws InterruptedException {
         sharedActions.waitForVisible(orderNumberField);
-        assertFalse("Order field should be displayed",orderNumberField.isDisplayed());
+        assertTrue("Order field should be displayed", orderNumberField.isDisplayed());
     }
 
-    public void theOrderFieldIsIsRequiredField() {
-        assertIsRequiredField("Order field should be displayed", orderNumberField);
+    public void theOrderStatusFieldIsDisplayed() throws InterruptedException {
+        sharedActions.waitForVisible(orderStatusField);
+        assertTrue("OrderStatus field should be displayed",orderStatusField.isDisplayed());
+    }
+
+    public void theOrderPrioritiesFieldIsDisplayed() throws InterruptedException {
+        sharedActions.waitForVisible(orderPrioritiesField);
+        assertTrue("OrderPriorities field should be displayed",orderPrioritiesField.isDisplayed());
+    }
+
+    public void theCustomersFieldIsDisplayed() throws InterruptedException {
+        sharedActions.waitForVisible(customersField);
+        assertTrue("Customers field should be displayed",customersField.isDisplayed());
+    }
+
+    public void theCreateDateFromFieldIsDisplayed() throws InterruptedException {
+        sharedActions.waitForVisible(createDateFromField);
+        assertTrue("CreateDateFrom field should be displayed",createDateFromField.isDisplayed());
+    }
+
+    public void theCreateDateToFieldIsDisplayed() throws InterruptedException {
+        sharedActions.waitForVisible(createDateToField);
+        assertTrue("CreateDateTo field should be displayed",createDateToField.isDisplayed());
+    }
+
+    public void theDesiredShipmentDateFromFieldIsDisplayed() throws InterruptedException {
+        sharedActions.waitForVisible(desiredShippingDateFromField);
+        assertTrue("DesiredShipmentDateFrom field should be displayed",desiredShippingDateFromField.isDisplayed());
+    }
+
+    public void theDesiredShipmentDateToFieldIsDisplayed() throws InterruptedException {
+        sharedActions.waitForVisible(desiredShippingDateToField);
+        assertTrue("DesiredShipmentDateTo field should be displayed",desiredShippingDateToField.isDisplayed());
+    }
+
+    public void theOrderFieldIsRequiredField() {
+        sharedActions.waitForVisible(orderNumberField);
+        assertIsRequiredField("Order field should be required", orderNumberField);
+    }
+
+    public void theCreateDateFromIsRequiredField() {
+        sharedActions.waitForVisible(createDateFromField);
+        assertIsRequiredField("CreateDateFrom field should be required", findElementById("createDateFrom"));
+    }
+
+    public void theCreateDateToIsRequiredField() {
+        sharedActions.waitForVisible(createDateToField);
+       assertIsRequiredField("CreateDateTo field should be required", findElementById("createDateTo"));
     }
 
     public void theOrderFieldIsDisabled() throws InterruptedException {
@@ -217,6 +262,79 @@ public class SearchOrderPage extends CommonPageFactory {
     public void theOrderFieldIsEnabled() throws InterruptedException {
         sharedActions.waitForVisible(orderNumberField);
         assertTrue("Order field should be enabled",orderNumberField.isEnabled());
+    }
+
+    public void theOrderStatusFieldIsDisabled() throws InterruptedException {
+        sharedActions.waitForVisible(orderStatusField);
+        assertIsAriaDisabled("OrderStatus field should be disabled", orderStatusField);
+        //assertFalse("OrderStatus field should be disabled",orderStatusField.isEnabled());
+    }
+
+    public void theOrderStatusFieldIsEnabled() throws InterruptedException {
+        sharedActions.waitForVisible(orderStatusField);
+        assertTrue("OrderStatus field should be enabled",orderStatusField.isEnabled());
+    }
+
+    public void theOrderPrioritiesFieldIsDisabled() throws InterruptedException {
+        sharedActions.waitForVisible(orderPrioritiesField);
+        assertIsAriaDisabled("OrderPriorities field should be disabled", orderPrioritiesField);
+        //assertFalse("OrderPriorities field should be disabled",orderPrioritiesField.isEnabled());
+    }
+
+    public void theOrderPrioritiesFieldIsEnabled() throws InterruptedException {
+        sharedActions.waitForVisible(orderPrioritiesField);
+        assertTrue("OrderPriorities field should be enabled",orderPrioritiesField.isEnabled());
+    }
+
+    public void theCustomersFieldIsDisabled() throws InterruptedException {
+        sharedActions.waitForVisible(customersField);
+        assertIsAriaDisabled("Customers field should be disabled", customersField);
+        //assertFalse("Customers field should be disabled",customersField.isEnabled());
+    }
+
+    public void theCustomersFieldIsEnabled() throws InterruptedException {
+        sharedActions.waitForVisible(customersField);
+        assertTrue("Customers field should be enabled",customersField.isEnabled());
+    }
+
+    public void theCreateDateFromFieldIsDisabled() throws InterruptedException {
+        sharedActions.waitForVisible(createDateFromField);
+        assertFalse("CreateDateFrom field should be disabled",createDateFromField.isEnabled());
+    }
+
+    public void theCreateDateFromFieldIsEnabled() throws InterruptedException {
+        sharedActions.waitForVisible(createDateFromField);
+        assertTrue("CreateDateFrom field should be enabled",createDateFromField.isEnabled());
+    }
+
+    public void theCreateDateToFieldIsDisabled() throws InterruptedException {
+        sharedActions.waitForVisible(createDateToField);
+        assertFalse("CreateDateTo field should be disabled",createDateToField.isEnabled());
+    }
+
+    public void theCreateDateToFieldIsEnabled() throws InterruptedException {
+        sharedActions.waitForVisible(createDateToField);
+        assertTrue("CreateDateTo field should be enabled",createDateToField.isEnabled());
+    }
+
+    public void theDesiredShippingDateFromFieldIsDisabled() throws InterruptedException {
+        sharedActions.waitForVisible(desiredShippingDateFromField);
+        assertFalse("DesiredShippingDateFrom field should be disabled",desiredShippingDateFromField.isEnabled());
+    }
+
+    public void theDesiredShippingDateFromFieldIsEnabled() throws InterruptedException {
+        sharedActions.waitForVisible(desiredShippingDateFromField);
+        assertTrue("DesiredShippingDateFrom field should be enabled",desiredShippingDateFromField.isEnabled());
+    }
+
+    public void theDesiredShippingDateToFieldIsDisabled() throws InterruptedException {
+        sharedActions.waitForVisible(desiredShippingDateToField);
+        assertFalse("DesiredShippingDateTo field should be disabled",desiredShippingDateToField.isEnabled());
+    }
+
+    public void theDesiredShippingDateToFieldIsEnabled() throws InterruptedException {
+        sharedActions.waitForVisible(desiredShippingDateToField);
+        assertTrue("DesiredShippingDateTo field should be enabled",desiredShippingDateToField.isEnabled());
     }
 
     public void theResetOptionIsDisabled() throws InterruptedException {
@@ -274,7 +392,7 @@ public class SearchOrderPage extends CommonPageFactory {
 
     public void iShouldSeeAValidationMessage(String message) {
         assertTrue(
-            "%s error message not found".formatted(message),
+            "%s".formatted(message),
             driver.getPageSource().contains("%s".formatted(message))
         );
     }

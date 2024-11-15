@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDate;
 import java.time.Year;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static org.springframework.test.util.AssertionErrors.assertEquals;
@@ -39,10 +40,10 @@ public class OrderSteps {
 
     private static final String ORDER_STATUS_SELECT_ID = "orderStatusSelect";
     private static final String ORDER_STATUS_PANEL_ID = "orderStatusSelect-panel";
-    private static final String ORDER_PRIORITY_SELECT_ID = "orderPrioritySelect";
-    private static final String ORDER_PRIORITY_PANEL_ID = "orderPrioritySelect-panel";
-    private static final String ORDER_SHIP_TO_CUSTOMER_SELECT_ID = "orderShipToCustomerSelect";
-    private static final String ORDER_SHIP_TO_CUSTOMER_PANEL_ID = "orderShipToCustomerSelect-panel";
+    private static final String ORDER_PRIORITY_SELECT_ID = "deliveryTypesSelect";
+    private static final String ORDER_PRIORITY_PANEL_ID = "deliveryTypesSelect-panel";
+    private static final String ORDER_SHIP_TO_CUSTOMER_SELECT_ID = "customersSelect";
+    private static final String ORDER_SHIP_TO_CUSTOMER_PANEL_ID = "customersSelect-panel";
 
 
     //    Order details
@@ -503,11 +504,15 @@ public class OrderSteps {
     public void areFieldsRequired(String valueFields) throws InterruptedException {
         Arrays.stream(valueFields.split(",")).map(String::trim).forEach
             (valueField -> {
-                switch (valueField) {//todo
+                switch (valueField) {
                     case "create date from":
+                        searchOrderPage.theCreateDateFromIsRequiredField();
+                        break;
                     case "create date to":
+                        searchOrderPage.theCreateDateToIsRequiredField();
+                        break;
                     case "order number":
-                        searchOrderPage.theOrderFieldIsIsRequiredField();
+                        searchOrderPage.theOrderFieldIsRequiredField();
                         break;
                     default:
                         Assert.fail("Field not found: " + valueField);
@@ -519,14 +524,49 @@ public class OrderSteps {
     public void allFieldsDisplayed(String valueFields) throws InterruptedException {
         Arrays.stream(valueFields.split(",")).map(String::trim).forEach
             (valueField -> {
-                switch (valueField) { //todo
+                switch (valueField) {
                     case "create date from":
+                        try {
+                            searchOrderPage.theCreateDateFromFieldIsDisplayed();
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
                     case "create date to":
+                        try {
+                            searchOrderPage.theCreateDateToFieldIsDisplayed();
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
                     case "desired shipment date from":
+                        try {
+                            searchOrderPage.theDesiredShipmentDateFromFieldIsDisplayed();
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
                     case "desired shipment date to":
+                        try {
+                            searchOrderPage.theDesiredShipmentDateToFieldIsDisplayed();
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
                     case "order status":
+                        try {
+                            searchOrderPage.theOrderStatusFieldIsDisplayed();
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
                     case "priority":
+                        try {
+                            searchOrderPage.theOrderPrioritiesFieldIsDisplayed();
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
                     case "ship to customer":
+                        try {
+                            searchOrderPage.theCustomersFieldIsDisplayed();
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
                     case "order number":
                         try {
                             searchOrderPage.theOrderFieldIsDisplayed();
@@ -555,27 +595,27 @@ public class OrderSteps {
     @And("{string} field is {string}.")
     public void theFieldHaveTheStatus(String valueField, String valueStatus) throws InterruptedException {
         if (valueStatus.equalsIgnoreCase("disabled")) {
-            switch(valueField) {//todo
-                case "create date from":
-                case "create date to":
-                case "desired shipment date from":
-                case "desired shipment date to":
-                case "order status":
-                case "priority":
-                case "ship to customer":
+            switch(valueField) {
+                case "create date from": searchOrderPage.theCreateDateFromFieldIsDisabled(); break;
+                case "create date to": searchOrderPage.theCreateDateToFieldIsDisabled(); break;
+                case "desired shipment date from": searchOrderPage.theDesiredShippingDateFromFieldIsDisabled(); break;
+                case "desired shipment date to": searchOrderPage.theDesiredShippingDateToFieldIsDisabled(); break;
+                case "order status": searchOrderPage.theOrderStatusFieldIsDisabled(); break;
+                case "priority": searchOrderPage.theOrderPrioritiesFieldIsDisabled(); break;
+                case "ship to customer": searchOrderPage.theCustomersFieldIsDisabled(); break;
                 case "order number": searchOrderPage.theOrderFieldIsDisabled(); break;
                 default:
                     Assert.fail("Field not found: " + valueField);
             }
         } else {
-            switch(valueField) {//todo
-                case "create date from":
-                case "create date to":
-                case "desired shipment date from":
-                case "desired shipment date to":
-                case "order status":
-                case "priority":
-                case "ship to customer":
+            switch(valueField) {
+                case "create date from": searchOrderPage.theCreateDateFromFieldIsEnabled(); break;
+                case "create date to": searchOrderPage.theCreateDateToFieldIsEnabled(); break;
+                case "desired shipment date from": searchOrderPage.theDesiredShippingDateFromFieldIsEnabled(); break;
+                case "desired shipment date to": searchOrderPage.theDesiredShippingDateToFieldIsEnabled(); break;
+                case "order status": searchOrderPage.theOrderStatusFieldIsEnabled(); break;
+                case "priority": searchOrderPage.theOrderPrioritiesFieldIsEnabled(); break;
+                case "ship to customer": searchOrderPage.theCustomersFieldIsEnabled(); break;
                 case "order number": searchOrderPage.theOrderFieldIsEnabled(); break;
                 default:
                     Assert.fail("Field not found: " + valueField);
@@ -680,6 +720,7 @@ public class OrderSteps {
     @When("I enter a past date: {string} for the field {string}.")
     public void iEnterPastDateForTheField(String value, String fieldName) throws InterruptedException {
         setValueForField(value, fieldName);
+        setValueForField(LocalDate.now().format(DateTimeFormatter.ofPattern("MM/dd/yyyy")), fieldName);
     }
 
     private void noValuesSelectedFromDropdown(String dropdownId, String panelId) {
