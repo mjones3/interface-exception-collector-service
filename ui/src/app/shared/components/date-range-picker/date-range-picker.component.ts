@@ -32,7 +32,8 @@ export class DateRangePickerComponent {
     @Input() dateFromFormControlName!: string;
     @Input() dateToFormControlName!: string;
     @Input() dateRangeId = 'dateRangeControl';
-    @Input() maxDate?: Date; // Add this line
+    @Input() maxDate?: Date;
+    @Input() disabled = false;
 
     today = new Date();
 }

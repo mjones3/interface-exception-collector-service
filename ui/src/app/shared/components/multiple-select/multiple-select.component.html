@@ -13,6 +13,7 @@
         [multiple]="true"
         (closed)="controlInput.value = ''"
         title="Order Status"
+        [disabled]="disabled"
         (opened)="controlInput.focus(); controlInput.value = ''"
     >
         <mat-select-trigger>

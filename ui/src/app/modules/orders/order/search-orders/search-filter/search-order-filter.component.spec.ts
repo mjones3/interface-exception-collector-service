@@ -77,9 +77,8 @@ describe('SearchOrderFilterComponent', () => {
     });
 
     //TODO: Add the validator logic for orderNumber OR create dates
-    it.skip('should enable apply button when order number is entered', () => {
+    it('should enable apply button when order number is entered', () => {
         component.searchForm.controls['orderNumber'].setValue('Test');
-
         expect(component.enableSubmit).toBeTruthy();
     });
 
@@ -87,7 +86,6 @@ describe('SearchOrderFilterComponent', () => {
         SINGLE_SEARCH_FILTER_KEYS.forEach((singleFilter) => {
             component.resetFilters();
             component.searchForm.controls[singleFilter].setValue('Test');
-            component.onChangeSingleSearchFilter(singleFilter);
 
             expect(component.enableSubmit).toBeTruthy();
             Object.keys(component.searchForm.controls).forEach((filterKey) => {

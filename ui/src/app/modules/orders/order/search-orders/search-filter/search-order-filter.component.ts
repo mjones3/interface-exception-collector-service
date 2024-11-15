@@ -6,12 +6,21 @@ import {
     trigger,
 } from '@angular/animations';
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    EventEmitter,
+    Input,
+    OnInit,
+    Output,
+} from '@angular/core';
 import {
     FormBuilder,
     FormGroup,
     FormsModule,
     ReactiveFormsModule,
+    Validators,
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -30,9 +39,6 @@ import { BioproValidators } from '../../../../../shared/forms/biopro-validators'
 import { SearchOrderFilterDTO } from '../../../models/order.dto';
 import { OrderService } from '../../../services/order.service';
 
-const SINGLE_SEARCH_FILTER_KEYS: string[] = ['orderNumber'];
-const DEBOUNCE_TIME = 100;
-
 @Component({
     selector: 'app-search-order-filter',
     animations: [
@@ -46,6 +52,7 @@ const DEBOUNCE_TIME = 100;
         ]),
     ],
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
         ReactiveFormsModule,
         MatInputModule,
@@ -84,17 +91,85 @@ export class SearchOrderFilterComponent implements OnInit {
         private formBuilder: FormBuilder,
         private orderService: OrderService,
         private toaster: ToastrService,
-        private translateService: TranslateService
+        private translateService: TranslateService,
+        private changeDetectorRef: ChangeDetectorRef
     ) {}
 
     ngOnInit(): void {
         this.appliedTotalFilterCount = 0;
-
         this.loadCriteriaOptions();
-
         this.initForm();
         this.today.setHours(0, 0, 0, 0);
+
+        this.monitorChanges();
     }
+
+    private monitorChanges() {
+        this.searchForm.valueChanges.subscribe((value) => {
+            if (this.remainingFieldsInformed()) {
+                this.searchForm
+                    .get('orderNumber')
+                    ?.disable({ emitEvent: false });
+                this.searchForm.get('orderNumber')?.clearValidators();
+                Object.keys(this.searchForm.controls).forEach((key) => {
+                    if (key !== 'orderNumber') {
+                        this.searchForm.get(key)?.enable({ emitEvent: false });
+                        if (
+                            key === 'createDateFrom' ||
+                            key === 'createDateTo'
+                        ) {
+                            this.searchForm
+                                .get(key)
+                                ?.setValidators(Validators.required);
+                        }
+                    }
+                });
+            } else if (this.orderNumberInformed()) {
+                this.searchForm
+                    .get('orderNumber')
+                    ?.enable({ emitEvent: false });
+                this.searchForm
+                    .get('orderNumber')
+                    ?.setValidators(Validators.required);
+                Object.keys(this.searchForm.controls).forEach((key) => {
+                    if (key !== 'orderNumber') {
+                        this.searchForm.get(key)?.disable({ emitEvent: false });
+                        if (
+                            key === 'createDateFrom' ||
+                            key === 'createDateTo'
+                        ) {
+                            this.searchForm.get(key)?.clearValidators();
+                        }
+                    }
+                });
+            } else {
+                Object.keys(this.searchForm.controls).forEach((key) => {
+                    this.searchForm.get(key)?.enable({ emitEvent: false });
+                    if (
+                        key === 'createDateFrom' ||
+                        key === 'createDateTo' ||
+                        key === 'orderNumber'
+                    ) {
+                        this.searchForm
+                            .get(key)
+                            ?.setValidators(Validators.required);
+                    }
+                });
+            }
+        });
+    }
+
+    orderNumberInformed = () =>
+        this.searchForm.get('orderNumber')?.value !== '';
+
+    remainingFieldsInformed = () =>
+        Object.keys(this.searchForm.value)
+            .filter((key) => key !== 'orderNumber')
+            .some((key) =>
+                Array.isArray(this.searchForm.value[key])
+                    ? this.searchForm.value[key].length > 0
+                    : this.searchForm.value[key]
+            );
 
     private loadCriteriaOptions() {
         this.orderService.searchOrderCriteria().subscribe({
@@ -132,11 +207,14 @@ export class SearchOrderFilterComponent implements OnInit {
     private initForm() {
         this.searchForm = this.formBuilder.group(
             {
-                orderNumber: ['' /*, [Validators.maxLength(25)] */],
+                orderNumber: [
+                    '',
+                    [Validators.required, Validators.maxLength(25)],
+                ],
                 orderStatus: [''],
                 deliveryTypes: [''],
                 customers: [''],
-                createDateFrom: [''],
+                createDateFrom: ['', [Validators.required]],
                 createDateTo: ['', []],
                 desiredShipDateFrom: [''],
                 desiredShipDateTo: [''],
@@ -172,25 +250,6 @@ export class SearchOrderFilterComponent implements OnInit {
 
     toggleFilter(toggleFlag: boolean): void {
         this.toggleFilters.emit(toggleFlag);
-    }
-
-    // disable all other filters when a single search filter is active
-    onChangeSingleSearchFilter(key: string): void {
-        if (this.searchForm.controls[key].value) {
-            if (this.searchForm.controls[key].value.toString().length >= 1) {
-                Object.keys(this.searchForm.controls).forEach((filterKey) => {
-                    if (key !== filterKey) {
-                        this.searchForm.controls[filterKey].setValue(null);
-                        this.searchForm.controls[filterKey].disable();
-                    }
-                });
-            }
-        } else {
-            Object.keys(this.searchForm.controls).forEach((filterKey) => {
-                this.searchForm.controls[filterKey].enable();
-            });
-        }
-        this.searchForm.updateValueAndValidity();
     }
 
     get appliedFiltersCounter(): number {

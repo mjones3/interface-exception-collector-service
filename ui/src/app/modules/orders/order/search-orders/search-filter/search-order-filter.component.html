@@ -72,4 +72,8 @@
             </div>
         </div>
     </form>
+
+    {{ searchForm.value | json }}
+    <br />
+    remainingFieldsInformed: {{ remainingFieldsInformed() }}
 </app-filters>

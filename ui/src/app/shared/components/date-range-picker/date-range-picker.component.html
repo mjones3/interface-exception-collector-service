@@ -1,6 +1,7 @@
 <mat-form-field class="block w-full" [id]="dateRangeId">
     <mat-label>{{ title }}</mat-label>
     <mat-date-range-input
+        [disabled]="disabled"
         [rangePicker]="dateRangePicker"
         [formGroup]="formGroup"
         [max]="maxDate"
@@ -25,27 +26,24 @@
     ></mat-datepicker-toggle>
     <mat-date-range-picker #dateRangePicker></mat-date-range-picker>
 </mat-form-field>
-<!-- Display errors for invalid start date -->
 @if (
     formGroup.get(dateFromFormControlName)?.hasError('matDatepickerParse') &&
     formGroup.get(dateFromFormControlName)?.touched
 ) {
-    <mat-error>Invalid start date</mat-error>
+    <mat-error>Invalid initial date</mat-error>
 }
-<!-- Display errors for invalid end date -->
 @if (
     formGroup.get(dateToFormControlName)?.hasError('matDatepickerParse') &&
     formGroup.get(dateToFormControlName)?.touched
 ) {
-    <mat-error>Invalid end date</mat-error>
+    <mat-error>Invalid final date</mat-error>
 }
-<!-- Display errors for invalid date range (start date after end date) -->
 @if (
     formGroup.get(dateToFormControlName)?.hasError('matEndDateInvalid') &&
     (formGroup.get(dateFromFormControlName)?.touched ||
         formGroup.get(dateToFormControlName)?.touched)
 ) {
-    <mat-error>Start date must be before end date</mat-error>
+    <mat-error>Initial date should not be greater than final date</mat-error>
 }
 
 @if (
@@ -53,5 +51,5 @@
     (formGroup.get(dateFromFormControlName)?.touched ||
         formGroup.get(dateToFormControlName)?.touched)
 ) {
-    <mat-error>End date cannot be greater than today</mat-error>
+    <mat-error>Final date should not be greater than today</mat-error>
 }

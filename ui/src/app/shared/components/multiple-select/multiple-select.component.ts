@@ -41,6 +41,7 @@ export class MultipleSelectComponent {
     @Input() matSelectId = 'multipleSelectControl';
     @Input() control!: FormControl;
     @Input() items: SelectOptionDto[] = [];
+    @Input() disabled = false;
 
     get placeholderText() {
         return `Filter ${this.title}`;

@@ -109,8 +109,8 @@ Feature: Search Orders
             Given I am logged in the location "123456789".
             And I choose search orders.
             And I open the search orders filter panel.
-            When I enter a future date for the field "create date from".
-            Then I should see a validation message: "From date should not be greater than to date".
+            When I enter a future date for the field "final date from".
+            Then I should see a validation message: "Final date should not be greater than today".
 
 
 
