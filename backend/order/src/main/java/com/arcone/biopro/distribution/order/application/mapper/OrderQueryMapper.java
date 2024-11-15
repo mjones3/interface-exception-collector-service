@@ -22,7 +22,7 @@ public class OrderQueryMapper {
         return new OrderQueryCommand(commandDTO.locationCode(),
             commandDTO.orderUniqueIdentifier(),
             commandDTO.orderStatus(),
-            commandDTO.orderPriorities(),
+            commandDTO.deliveryTypes(),
             commandDTO.customers(),
             commandDTO.createDateFrom(),
             commandDTO.createDateTo(),

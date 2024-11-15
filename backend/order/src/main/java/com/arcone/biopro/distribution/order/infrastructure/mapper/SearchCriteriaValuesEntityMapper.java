@@ -12,8 +12,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SearchCriteriaValuesEntityMapper {
 
-    public SearchOrderCriteria mapToDomain(List<Lookup> status, List<Lookup> priorities, List<OrderCustomerReport> customers) {
-        return new SearchOrderCriteria(status, priorities, customers);
+    public SearchOrderCriteria mapToDomain(List<Lookup> status, List<Lookup> deliveryTypes, List<OrderCustomerReport> customers) {
+        return new SearchOrderCriteria(status, deliveryTypes, customers);
 
     }
 }

@@ -30,7 +30,7 @@ public class SearchOrderCriteria implements Validatable {
             throw new IllegalArgumentException("orderStatus are not valid");
         }
         if (orderPriorities == null || orderPriorities.isEmpty()) {
-            throw new IllegalArgumentException("orderPriorities are not valid");
+            throw new IllegalArgumentException("deliveryTypes are not valid");
         }
         if (customers == null || customers.isEmpty()) {
             throw new IllegalArgumentException("customers are not valid");

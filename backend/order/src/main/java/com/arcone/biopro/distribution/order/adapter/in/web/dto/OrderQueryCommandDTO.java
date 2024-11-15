@@ -11,7 +11,7 @@ public record OrderQueryCommandDTO (
     String locationCode,
     String orderUniqueIdentifier,
     List<String> orderStatus,
-    List<String> orderPriorities,
+    List<String> deliveryTypes,
     List<String> customers,
     Date createDateFrom,
     Date createDateTo,

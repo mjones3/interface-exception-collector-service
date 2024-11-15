@@ -18,7 +18,7 @@ import reactor.util.function.Tuple3;
 public class SearchOrderCriteriaAggregateImpl implements SearchOrderCriteriaAggregate {
 
     private static final String ORDER_STATUS_TYPE_CODE = "ORDER_STATUS";
-    private static final String PRIORITY_TYPE_CODE = "ORDER_PRIORITY";
+    private static final String ORDER_PRIORITY_TYPE_CODE = "ORDER_PRIORITY";
 
     private final SearchCriteriaValuesEntityMapper searchCriteriaValuesEntityMapper;
     private final LookupService lookupService;
@@ -28,7 +28,7 @@ public class SearchOrderCriteriaAggregateImpl implements SearchOrderCriteriaAggr
     @Override
     public Mono<SearchOrderCriteria> searchOrderCriteria() {
         var orderStatus = lookupService.findAllByType(ORDER_STATUS_TYPE_CODE);
-        var orderPriorities = lookupService.findAllByType(PRIORITY_TYPE_CODE);
+        var orderPriorities = lookupService.findAllByType(ORDER_PRIORITY_TYPE_CODE);
         var orderCustomers = customerService.getCustomers().map(customer -> new OrderCustomerReport(customer.code(), customer.name()));
 
         return Flux.zip(orderStatus, orderPriorities, orderCustomers).collectList().map(list -> {

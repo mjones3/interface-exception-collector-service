@@ -176,7 +176,7 @@ input OrderQueryCommandDTO {
     locationCode:String!
     orderUniqueIdentifier:String
     orderStatus:[String]
-    orderPriorities:[String]
+    deliveryTypes:[String]
     customers:[String]
     createDateFrom:Date
     createDateTo:Date

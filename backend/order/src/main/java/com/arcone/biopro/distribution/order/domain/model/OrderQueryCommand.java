@@ -19,7 +19,7 @@ public class OrderQueryCommand implements Validatable {
     private String orderNumber;
     private String externalOrderId;
     private List<String> orderStatus;
-    private List<String> orderPriorities;
+    private List<String> deliveryTypes;
     private List<String> customers;
     private Date createDateFrom;
     private Date createDateTo;
@@ -37,7 +37,7 @@ public class OrderQueryCommand implements Validatable {
         String locationCode ,
         String orderUniqueIdentifier,
         List<String> orderStatus,
-        List<String> orderPriorities,
+        List<String> deliveryTypes,
         List<String> customers,
         Date createDateFrom,
         Date createDateTo,
@@ -61,7 +61,7 @@ public class OrderQueryCommand implements Validatable {
             this.externalOrderId = orderUniqueIdentifier;
         }
         this.orderStatus = orderStatus;
-        this.orderPriorities = orderPriorities;
+        this.deliveryTypes = deliveryTypes;
         this.customers = customers;
         this.createDateFrom = createDateFrom;
         this.createDateTo = createDateTo;

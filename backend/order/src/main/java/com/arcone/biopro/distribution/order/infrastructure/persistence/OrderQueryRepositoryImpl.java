@@ -43,8 +43,8 @@ public class OrderQueryRepositoryImpl implements OrderQueryRepository {
         if (Objects.nonNull(orderQueryCommand.getOrderStatus()) && !orderQueryCommand.getOrderStatus().isEmpty()) {
             criteria = criteria.and(where("status").in(orderQueryCommand.getOrderStatus()));
         }
-        if (Objects.nonNull(orderQueryCommand.getOrderPriorities()) && !orderQueryCommand.getOrderPriorities().isEmpty()) {
-            criteria = criteria.and(where("priority").in(orderQueryCommand.getOrderPriorities()));
+        if (Objects.nonNull(orderQueryCommand.getDeliveryTypes()) && !orderQueryCommand.getDeliveryTypes().isEmpty()) {
+            criteria = criteria.and(where("deliveryType").in(orderQueryCommand.getDeliveryTypes()));
         }
         if (Objects.nonNull(orderQueryCommand.getCustomers()) && !orderQueryCommand.getCustomers().isEmpty()) {
             criteria = criteria.and(where("shippingCustomerCode").in(orderQueryCommand.getCustomers()));
