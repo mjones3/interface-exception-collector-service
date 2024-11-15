@@ -161,7 +161,8 @@ export class SearchOrderFilterComponent implements OnInit {
     }
 
     orderNumberInformed = () =>
-        this.searchForm.get('orderNumber')?.value !== '';
+        this.searchForm.get('orderNumber')?.value !== '' &&
+        this.searchForm.get('orderNumber')?.value != null;
 
     remainingFieldsInformed = () =>
         Object.keys(this.searchForm.value)
@@ -169,7 +170,8 @@ export class SearchOrderFilterComponent implements OnInit {
             .some((key) =>
                 Array.isArray(this.searchForm.value[key])
                     ? this.searchForm.value[key].length > 0
-                    : this.searchForm.value[key]
+                    : this.searchForm.value[key] != null &&
+                      this.searchForm.value[key] !== ''
             );
 
     totalFieldsInformed = () =>
