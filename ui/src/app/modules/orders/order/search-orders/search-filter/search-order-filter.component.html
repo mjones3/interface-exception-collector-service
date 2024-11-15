@@ -34,6 +34,7 @@
                     [controlName]="'orderStatus'"
                     title="Order Status"
                     [items]="statusOptions"
+                    matSelectId="orderStatus"
                 ></app-multiple-select>
 
                 <app-multiple-select
@@ -41,6 +42,7 @@
                     [controlName]="'deliveryTypes'"
                     title="Order Priority"
                     [items]="priorityOptions"
+                    matSelectId="deliveryTypes"
                 ></app-multiple-select>
 
                 <app-multiple-select
@@ -48,6 +50,7 @@
                     [controlName]="'customers'"
                     title="Ship to Customer"
                     [items]="customers"
+                    matSelectId="customers"
                 ></app-multiple-select>
 
                 <app-date-range-picker
@@ -55,6 +58,7 @@
                     dateFromFormControlName="createDateFrom"
                     dateToFormControlName="createDateTo"
                     title="Create date"
+                    dateRangeId="createDate"
                 ></app-date-range-picker>
 
                 <app-date-range-picker
@@ -62,6 +66,7 @@
                     dateFromFormControlName="desiredShipDateFrom"
                     dateToFormControlName="desiredShipDateTo"
                     title="Desired shipment date"
+                    dateRangeId="desiredShipmentDate"
                 ></app-date-range-picker>
             </div>
         </div>

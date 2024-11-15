@@ -38,7 +38,7 @@ export class MultipleSelectComponent {
     @Input() title!: string;
     @Input() controlName!: string;
     @Input() formGroup!: FormGroup;
-    @Input() matSelectId = 'selectControlInput';
+    @Input() matSelectId = 'multipleSelectControl';
     @Input() control!: FormControl;
     @Input() items: SelectOptionDto[] = [];
 

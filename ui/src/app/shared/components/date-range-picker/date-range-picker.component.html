@@ -1,4 +1,4 @@
-<mat-form-field class="block w-full">
+<mat-form-field class="block w-full" [id]="dateRangeId">
     <mat-label>{{ title }}</mat-label>
     <mat-date-range-input
         [rangePicker]="dateRangePicker"
@@ -8,11 +8,13 @@
             matStartDate
             [formControlName]="dateFromFormControlName"
             placeholder="Start date"
+            [id]="dateRangeId + 'From'"
         />
         <input
             matEndDate
             [formControlName]="dateToFormControlName"
             placeholder="End date"
+            [id]="dateRangeId + 'To'"
         />
     </mat-date-range-input>
 

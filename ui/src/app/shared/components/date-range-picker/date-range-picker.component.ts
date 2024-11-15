@@ -31,4 +31,5 @@ export class DateRangePickerComponent {
     @Input() formGroup!: FormGroup;
     @Input() dateFromFormControlName!: string;
     @Input() dateToFormControlName!: string;
+    @Input() dateRangeId = 'dateRangeControl';
 }

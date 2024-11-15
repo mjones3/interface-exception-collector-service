@@ -2,12 +2,13 @@
     id="multipleSelectField"
     class="block w-full"
     [formGroup]="formGroup"
+    [id]="matSelectId"
 >
     <mat-label id="multipleSelectLabel">
         {{ title }}
     </mat-label>
     <mat-select
-        [id]="matSelectId"
+        [id]="matSelectId + 'Select'"
         formControlName="{{ controlName }}"
         [multiple]="true"
         (closed)="controlInput.value = ''"
