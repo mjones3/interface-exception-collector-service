@@ -9,7 +9,7 @@ Feature: View order details
         Given I cleaned up from the database the orders with external ID starting with "ORDER".
 
         Rule: I should be able to see the available inventory for each line item.
-        @DIS155 @DIS-121 @DIS-100 @DIS-97
+        @DIS155 @DIS-121 @DIS-100 @DIS-97 @DIS-161
         Scenario Outline: View order details
             Given I have a Biopro Order with externalId "<External ID>", Location Code "<LocationCode>", Priority "<Priority>", Status "<Status>", shipment type "<Shipment Type>", delivery type "<Delivery Type>", shipping method "<Shipping Method>", product category "<Product Category>", desired ship date "<Desired Date>", shipping customer code and name as "<Shipping Customer Code>" and "<Shipping Customer Name>", billing customer code and name as "<Billing Customer Code>" and "<Billing Customer Name>", and comments "<Order Comments>".
             And I have 2 order items with product families "<ProductFamily>", blood types "<BloodType>", quantities "<Quantity>", and order item comments "<Item Comments>".
