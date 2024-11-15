@@ -80,10 +80,11 @@ export class SearchOrderFilterComponent implements OnInit {
 
     searchForm: FormGroup;
 
-    private appliedTotalFilterCount = 0;
     statusOptions: SelectOptionDto[];
     priorityOptions: SelectOptionDto[];
     customers: SelectOptionDto[];
+
+    totalFieldsApplied = 0;
 
     today = new Date();
 
@@ -96,7 +97,6 @@ export class SearchOrderFilterComponent implements OnInit {
     ) {}
 
     ngOnInit(): void {
-        this.appliedTotalFilterCount = 0;
         this.loadCriteriaOptions();
         this.initForm();
         this.today.setHours(0, 0, 0, 0);
@@ -174,6 +174,17 @@ export class SearchOrderFilterComponent implements OnInit {
                     : this.searchForm.value[key]
             );
 
+    totalFieldsInformed = () =>
+        Object.keys(this.searchForm.value).filter(
+            (key) =>
+                key !== 'createDateTo' &&
+                key !== 'desiredShipmentDateTo' &&
+                (Array.isArray(this.searchForm.value[key])
+                    ? this.searchForm.value[key].length > 0
+                    : this.searchForm.value[key] != null &&
+                      this.searchForm.value[key] !== '')
+        ).length;
+
     private loadCriteriaOptions() {
         this.orderService.searchOrderCriteria().subscribe({
             next: (response) => {
@@ -234,28 +245,24 @@ export class SearchOrderFilterComponent implements OnInit {
 
     // Reseting Filters
     resetFilters(): void {
-        this.appliedTotalFilterCount = 0;
         this.searchForm.reset();
         Object.keys(this.searchForm.controls).forEach((filterKey) => {
             this.searchForm.controls[filterKey].enable();
         });
-        this.applySearchFilters.emit({});
+        this.emitResults({});
     }
 
     // Apply Filters
     applyFilterSearch(): void {
-        this.appliedTotalFilterCount = Object.values(
-            this.searchForm.value
-        ).filter((ele) => null != ele && '' != ele).length;
-
-        this.applySearchFilters.emit(this.searchForm.value);
+        this.emitResults(this.searchForm.value);
     }
 
     toggleFilter(toggleFlag: boolean): void {
         this.toggleFilters.emit(toggleFlag);
     }
 
-    get appliedFiltersCounter(): number {
-        return this.appliedTotalFilterCount;
+    emitResults(value?: SearchOrderFilterDTO) {
+        this.totalFieldsApplied = this.totalFieldsInformed();
+        this.applySearchFilters.emit(value);
     }
 }

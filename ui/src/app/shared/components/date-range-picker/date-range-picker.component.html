@@ -55,7 +55,8 @@
 }
 
 @if (
-    formGroup?.getError('dateRangeExceedsTwoYears') === dateToFormControlName &&
+    formGroup?.getError('dateRangeExceedsTwoYears') ===
+        dateFromFormControlName &&
     (formGroup.get(dateFromFormControlName)?.touched ||
         formGroup.get(dateToFormControlName)?.touched)
 ) {

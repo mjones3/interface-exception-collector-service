@@ -73,26 +73,19 @@ export class DateRangePickerComponent implements AfterViewInit {
                     return { dateRangeRequired: true };
                 }
 
-                // Ensure end date is after start date
-                if (startDate && endDate) {
+                // Calculate the difference in years from today to the start date does not exceed 2 years
+                if (startDate) {
                     const startDateObj = new Date(startDate);
-                    const endDateObj = new Date(endDate);
-
-                    if (endDateObj < startDateObj) {
-                        return { matEndDateInvalid: true };
-                    }
-
-                    // Calculate the difference in years
+                    const now = new Date();
                     const timeDifference =
-                        endDateObj.getTime() - startDateObj.getTime();
+                        now.getTime() - startDateObj.getTime();
                     const dayDifference = timeDifference / (1000 * 3600 * 24);
                     const yearDifference = dayDifference / 365;
-                    console.log('yearDifference', yearDifference);
 
                     if (yearDifference > 2) {
                         return {
                             dateRangeExceedsTwoYears:
-                                this.dateToFormControlName,
+                                this.dateFromFormControlName,
                         };
                     }
                 }
