@@ -40,7 +40,7 @@ public class OrderQueryCommand implements Validatable {
         List<String> deliveryTypes,
         List<String> customers,
         Date createDateFrom,
-        Date createDateTo,d
+        Date createDateTo,
         Date desireShipDateFrom,
         Date desireShipDateTo,
         QuerySort querySort ,   Integer limit) {
