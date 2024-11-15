@@ -4,8 +4,8 @@ Feature: Second Verification of Units Feature
     So that I can ensure that the products recorded in the system match the physical products inside the shipping box.
 
     Background:
-        Given I cleaned up from the database the packed item that used the unit number "W822530106087,W822530106089,W822530106088,W822530106090,W822530106091,W822530106092,W822530106093,W822530106094".
-        And I cleaned up from the database, all shipments with order number "118,119,120,121,122,123".
+        Given I cleaned up from the database the packed item that used the unit number "W822530106087,W822530106089,W822530106088,W822530106090,W822530106091,W822530106092,W822530106093,W822530106094,W036898786756,W036898786757,W036898786758,W036898786700".
+        And I cleaned up from the database, all shipments with order number "118,119,120,121,122,123.124".
 
 
         Rule: I should be able to verify each unit that I have packed in the shipment.
@@ -152,4 +152,4 @@ Feature: Second Verification of Units Feature
 
             Examples:
                 | Order Number | Codes                               | UNITS                                                   |
-                | 121          | E0713V00,E0701V00,E0707V00,E0685V00 | W036898786757,W036898786758,W036898786756,W036898786700 |
+                | 124          | E0713V00,E0701V00,E0707V00,E0685V00 | W036898786757,W036898786758,W036898786756,W036898786700 |
