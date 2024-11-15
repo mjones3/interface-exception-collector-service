@@ -78,6 +78,8 @@ export class SearchOrderFilterComponent implements OnInit {
     priorityOptions: SelectOptionDto[];
     customers: SelectOptionDto[];
 
+    today = new Date();
+
     constructor(
         private formBuilder: FormBuilder,
         private orderService: OrderService,
@@ -91,6 +93,7 @@ export class SearchOrderFilterComponent implements OnInit {
         this.loadCriteriaOptions();
 
         this.initForm();
+        this.today.setHours(0, 0, 0, 0);
     }
 
     private loadCriteriaOptions() {

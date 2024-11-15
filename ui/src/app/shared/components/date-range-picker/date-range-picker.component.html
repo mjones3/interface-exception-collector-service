@@ -3,6 +3,7 @@
     <mat-date-range-input
         [rangePicker]="dateRangePicker"
         [formGroup]="formGroup"
+        [max]="maxDate"
     >
         <input
             matStartDate
@@ -45,4 +46,12 @@
         formGroup.get(dateToFormControlName)?.touched)
 ) {
     <mat-error>Start date must be before end date</mat-error>
+}
+
+@if (
+    formGroup.get(dateToFormControlName)?.hasError('matDatepickerMax') &&
+    (formGroup.get(dateFromFormControlName)?.touched ||
+        formGroup.get(dateToFormControlName)?.touched)
+) {
+    <mat-error>End date cannot be greater than today</mat-error>
 }
