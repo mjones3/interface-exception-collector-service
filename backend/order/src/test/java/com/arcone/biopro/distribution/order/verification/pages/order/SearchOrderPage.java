@@ -256,7 +256,7 @@ public class SearchOrderPage extends CommonPageFactory {
 
     public void theOrderFieldIsDisabled() throws InterruptedException {
         sharedActions.waitForVisible(orderNumberField);
-        assertFalse("Order field should be disabled",orderNumberField.isEnabled());
+        assertFalse("Order field should be disabled",findElementById("orderNumberInput").isEnabled());
     }
 
     public void theOrderFieldIsEnabled() throws InterruptedException {
@@ -267,7 +267,6 @@ public class SearchOrderPage extends CommonPageFactory {
     public void theOrderStatusFieldIsDisabled() throws InterruptedException {
         sharedActions.waitForVisible(orderStatusField);
         assertIsAriaDisabled("OrderStatus field should be disabled", orderStatusField);
-        //assertFalse("OrderStatus field should be disabled",orderStatusField.isEnabled());
     }
 
     public void theOrderStatusFieldIsEnabled() throws InterruptedException {
@@ -278,7 +277,6 @@ public class SearchOrderPage extends CommonPageFactory {
     public void theOrderPrioritiesFieldIsDisabled() throws InterruptedException {
         sharedActions.waitForVisible(orderPrioritiesField);
         assertIsAriaDisabled("OrderPriorities field should be disabled", orderPrioritiesField);
-        //assertFalse("OrderPriorities field should be disabled",orderPrioritiesField.isEnabled());
     }
 
     public void theOrderPrioritiesFieldIsEnabled() throws InterruptedException {
@@ -289,7 +287,6 @@ public class SearchOrderPage extends CommonPageFactory {
     public void theCustomersFieldIsDisabled() throws InterruptedException {
         sharedActions.waitForVisible(customersField);
         assertIsAriaDisabled("Customers field should be disabled", customersField);
-        //assertFalse("Customers field should be disabled",customersField.isEnabled());
     }
 
     public void theCustomersFieldIsEnabled() throws InterruptedException {

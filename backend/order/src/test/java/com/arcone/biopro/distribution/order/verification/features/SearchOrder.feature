@@ -120,26 +120,26 @@ Feature: Search Orders
         @R20-228
         Scenario Outline: Check if multiple select inputs are keeping the multiple selection after the user selects the second item
             Given I have a Biopro Order with id "123", externalId "1979", Location Code "123456789", Priority "STAT" and Status "OPEN".
-            And I have a Biopro Order with id "456", externalId "1984", Location Code "123456789", Priority "STAT" and Status "CLOSED".
-            And I have a Biopro Order with id "789", externalId "2018", Location Code "123456789", Priority "DIFF" and Status "OPEN".
+            And I have a Biopro Order with id "456", externalId "1984", Location Code "123456789", Priority "ASAP" and Status "IN_PROGRESS".
+            And I have a Biopro Order with id "789", externalId "2018", Location Code "123456789", Priority "ROUTINE" and Status "OPEN".
             And I am logged in the location "123456789".
             And I choose search orders.
             And I open the search orders filter panel.
             When I select "<Selected Priorities>" for the "priority".
             And I select "<Selected Statuses>" for the "order status".
             And I select "<Selected Customers>" for the "ship to customer".
-            And "order number" field is "disabled".
-            Then Items "<Selected Priorities>" should be selected for "priority".
+            And Items "<Selected Priorities>" should be selected for "priority".
             And Items "<Selected Statuses>" should be selected for "order status".
             And Items "<Selected Customers>" should be selected for "ship to customer".
-            And I should see "<Expected External Ids>" orders in the search results.
-            And I should not see "<Not Returned External Ids>".
+            And "order number" field is "disabled".
+            Then I should see "<Expected External Ids>" orders in the search results.
             And I should see "<Expected Number of Filters>" as the number of used filters for the search.
+            And I should not see "<Not Returned External Ids>".
             Examples:
-                | Selected Priorities | Selected Statuses | Selected Customers | Expected External Ids | Not Returned External Ids | Expected Number of Filters |
-                | STAT, STAT2         | OPEN,OPEN2        |                    | 1979,1984             | 2018                      | 2                          |
-                | STAT, STAT2         |                   |                    | 1979,2018             | 1984                      | 1                          |
-                | STAT, STAT2         | OPEN,DIFF         | 1,2,3              |                       |                           | 3                          |
+                | Selected Priorities | Selected Statuses | Selected Customers         | Expected External Ids | Not Returned External Ids | Expected Number of Filters |
+                | STAT, ASAP          | OPEN,IN_PROGRESS  |                            | 1979,1984             | 2018                      | 2                          |
+                | STAT, ROUTINE       |                   |                            | 1979,2018             | 1984                      | 1                          |
+                | ASAP                | IN_PROGRESS       | Creative Testing Solutions | 1984                  | 1979,2018                 | 3                          |
 
     Rule: I should be able to filter the results for date fields from 2 years back.
         Rule: I should be able to enter the create date manually or select from the integrated component.

@@ -647,8 +647,9 @@ public class OrderSteps {
 
         List<WebElement> options = dropdownPanel.findElements(By.xpath(".//mat-option"));
         for (String value : valuesToSelect) {
+            String key = getKeyByValue(value);
             options.stream()
-                .filter(option -> option.getText().trim().equalsIgnoreCase(value))
+                .filter(option -> option.getText().trim().equalsIgnoreCase(key))
                 .findFirst()
                 .ifPresent(WebElement::click);
             log.info("Selected value: {}", value);
@@ -668,6 +669,24 @@ public class OrderSteps {
         }
     }
 
+    private String getKeyByValue(String value) {
+        return switch (value) {
+            case "STAT" -> "order-priority.stat.label";
+            case "ASAP" -> "order-priority.asap.label";
+            case "ROUTINE" -> "order-priority.routine.label";
+            case "OPEN" -> "order-status.open.label";
+            case "CREATED" -> "order-status.created.label";
+            case "SHIPPED" -> "order-status.shipped.label";
+            case "IN_PROGRESS" -> "order-status.in-progress.label";
+            case "All" -> "All";
+            case "Creative Testing Solutions" -> "Creative Testing Solutions";
+            case "Advanced Medical Center" -> "Advanced Medical Center";
+            case "Pioneer Health Services" -> "Pioneer Health Services";
+            case "Sunrise Health Clinic" -> "Sunrise Health Clinic";
+            default -> "";
+        };
+    }
+
     private void selectedValuesFromDropdown(String dropdownId, String panelId, List<String> valuesToSelect) {
         WebElement dropdown = searchOrderPage.findElementById(dropdownId);
         dropdown.click();
@@ -676,8 +695,12 @@ public class OrderSteps {
         List<WebElement> options = dropdownPanel.findElements(By.xpath(".//mat-option"));
 
         for (String value : valuesToSelect) {
-            Assert.assertTrue("Selected value: " + value, options.stream()
-                .anyMatch(option -> option.getText().trim().equalsIgnoreCase(value) && option.isSelected()));
+            if (!value.isEmpty()) {
+                String key = getKeyByValue(value);
+                Assert.assertTrue("Selected value: " + value, options.stream()
+                    .anyMatch(option -> option.getText().trim().equalsIgnoreCase(key)
+                        && option.getDomAttribute("aria-selected").equals("true")));
+            }
         }
         dropdown.sendKeys(Keys.ESCAPE);
         searchOrderPage.closeDropdownIfOpen(dropdown);
@@ -757,7 +780,7 @@ public class OrderSteps {
         boolean result = false;
         List<WebElement> options = dropdownPanel.findElements(By.xpath(".//mat-option"));
         result = options.stream()
-            .anyMatch(WebElement::isSelected);
+            .anyMatch(option -> option.getDomAttribute("aria-selected").equals("true"));
         dropdown.sendKeys(Keys.ESCAPE);
         searchOrderPage.closeDropdownIfOpen(dropdown);
         return result;
