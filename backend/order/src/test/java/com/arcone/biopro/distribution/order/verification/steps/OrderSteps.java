@@ -506,10 +506,8 @@ public class OrderSteps {
             (valueField -> {
                 switch (valueField) {
                     case "create date from":
-                        searchOrderPage.theCreateDateFromIsRequiredField();
-                        break;
                     case "create date to":
-                        searchOrderPage.theCreateDateToIsRequiredField();
+                        searchOrderPage.theCreateDateIsRequiredField();
                         break;
                     case "order number":
                         searchOrderPage.theOrderFieldIsRequiredField();
@@ -737,40 +735,14 @@ public class OrderSteps {
 
     @When("I enter a future date for the field {string}.")
     public void iEnterFutureDateForTheField(String fieldName) throws InterruptedException {
+        setValueForField(LocalDate.now().format(DateTimeFormatter.ofPattern("MM/dd/yyyy")), "create date from");
         setValueForField( 1 + "/" + 1 + "/" + Year.now().getValue() + 1, fieldName);
     }
 
     @When("I enter a past date: {string} for the field {string}.")
     public void iEnterPastDateForTheField(String value, String fieldName) throws InterruptedException {
         setValueForField(value, fieldName);
-        setValueForField(LocalDate.now().format(DateTimeFormatter.ofPattern("MM/dd/yyyy")), fieldName);
-    }
-
-    private void noValuesSelectedFromDropdown(String dropdownId, String panelId) {
-        WebElement dropdown = searchOrderPage.findElementById(dropdownId);
-        dropdown.click();
-        WebElement dropdownPanel = searchOrderPage.findElementById(panelId);
-
-        List<WebElement> options = dropdownPanel.findElements(By.xpath(".//mat-option"));
-        Assert.assertFalse("No selected values ", options.stream()
-            .anyMatch(WebElement::isSelected));
-        dropdown.sendKeys(Keys.ESCAPE);
-        searchOrderPage.closeDropdownIfOpen(dropdown);
-    }
-
-
-    @Then("The filter information should be empty.")
-    public void theFilterInformationShouldBeEmpty() {
-        //todo
-        searchOrderPage.theOrderNumberFieldShouldHaveEmptyValue();
-        noValuesSelectedFromDropdown(ORDER_STATUS_SELECT_ID, ORDER_STATUS_PANEL_ID);
-        noValuesSelectedFromDropdown(ORDER_PRIORITY_SELECT_ID, ORDER_PRIORITY_PANEL_ID);
-        noValuesSelectedFromDropdown(ORDER_SHIP_TO_CUSTOMER_SELECT_ID, ORDER_SHIP_TO_CUSTOMER_PANEL_ID);
-    }
-
-    @Then("I should see a validation message: {string}.")
-    public void iShouldSeeAValidationMessage(String message) {
-        searchOrderPage.iShouldSeeAValidationMessage(message);
+        setValueForField(LocalDate.now().format(DateTimeFormatter.ofPattern("MM/dd/yyyy")), "create date to");
     }
 
     private boolean isDropdownSelected(String dropdownId, String panelId) {
@@ -784,6 +756,17 @@ public class OrderSteps {
         dropdown.sendKeys(Keys.ESCAPE);
         searchOrderPage.closeDropdownIfOpen(dropdown);
         return result;
+    }
+
+
+    @Then("The filter information should be empty.")
+    public void theFilterInformationShouldBeEmpty() {
+        searchOrderPage.theOrderNumberFieldShouldHaveEmptyValue();
+    }
+
+    @Then("I should see a validation message: {string}.")
+    public void iShouldSeeAValidationMessage(String message) {
+        searchOrderPage.iShouldSeeAValidationMessage(message);
     }
 
 

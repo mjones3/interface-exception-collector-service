@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertFalse;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
+import static org.springframework.test.util.AssertionErrors.fail;
 
 @Component
 @Slf4j
@@ -244,6 +245,14 @@ public class SearchOrderPage extends CommonPageFactory {
         assertIsRequiredField("Order field should be required", orderNumberField);
     }
 
+    public void theCreateDateIsRequiredField() {
+        sharedActions.waitForVisible(createDateFromField);
+        sharedActions.waitForVisible(createDateToField);
+        createDateFromField.click();
+        createDateToField.click();
+        assertContainsFieldAsRequired("Create date");
+    }
+
     public void theCreateDateFromIsRequiredField() {
         sharedActions.waitForVisible(createDateFromField);
         assertIsRequiredField("CreateDateFrom field should be required", findElementById("createDateFrom"));
@@ -370,6 +379,25 @@ public class SearchOrderPage extends CommonPageFactory {
         assertTrue(message, element.getDomAttribute("aria-required").equals("true"));
     }
 
+    public WebElement findElementByXPath(String xPath) {
+        return findElementWithByWaiting(By.xpath(xPath), SECONDS_TO_WAIT_FOR_COMPONENT_TO_SHOW);
+    }
+
+    public void assertContainsFieldAsRequired(String fieldLabel) {
+        WebElement labelElement = findElementByXPath("//mat-label[contains(text(), '%s')]/parent::*".formatted(fieldLabel));
+        WebElement asteriskSpanElement = labelElement.findElement(
+            By.xpath("span[contains(@class, 'mat-mdc-form-field-required-marker')]"));
+        assertTrue(
+            "Label '%s' not visible in page".formatted(fieldLabel),
+            labelElement.isDisplayed()
+        );
+        assertTrue(
+            "Label '%s' has no visible 'asterisk' (required marker)".formatted(fieldLabel),
+            asteriskSpanElement.isDisplayed()
+        );
+    }
+
+
     public WebElement findElementById(String fieldId) {
         return findElementWithByWaiting(By.id(fieldId), SECONDS_TO_WAIT_FOR_COMPONENT_TO_SHOW);
     }
@@ -399,7 +427,7 @@ public class SearchOrderPage extends CommonPageFactory {
     }
 
     public void theFieldShouldHaveEmptyValue(WebElement fieldInput) {
-        assertTrue("The field is blank", fieldInput.getAttribute("value").isBlank());
+        assertTrue("The field is Empty", fieldInput.getAttribute("value").isEmpty());
     }
 
     public void setCreateDateFromField(String value) throws InterruptedException {
