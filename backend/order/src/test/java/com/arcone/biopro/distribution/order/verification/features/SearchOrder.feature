@@ -77,7 +77,7 @@ Feature: Search Orders
             And I open the search orders filter panel.
             And I should see "order number, create date from, create date to, desired shipment date from, desired shipment date to, order status, priority, ship to customer" fields.
             And I should see "create date from, create date to" fields as required.
-            And "reset" option is "enabled".
+            And "reset" option is "disabled".
             And "apply" option is "disabled".
             And I search the order by "00000".
             And "apply" option is "enabled".

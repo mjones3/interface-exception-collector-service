@@ -22,11 +22,13 @@ import { FuseCardComponent } from '@fuse/components/card/public-api';
 })
 export class FiltersComponent {
     @Input() disabled: boolean;
+    @Input() resetDisabled: boolean;
     @Input() appliedTotalFilterCount = 0;
     @Output() search: EventEmitter<void> = new EventEmitter<void>();
     @Output() resetSearchFilter: EventEmitter<void> = new EventEmitter<void>();
-    @Input() showFilters: boolean = false;
-    @Output() showFilterControl: EventEmitter<boolean> = new EventEmitter<boolean>();
+    @Input() showFilters = false;
+    @Output() showFilterControl: EventEmitter<boolean> =
+        new EventEmitter<boolean>();
 
     toggleFilters() {
         this.showFilters = !this.showFilters;

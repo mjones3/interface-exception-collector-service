@@ -1,5 +1,6 @@
 <app-filters
     [disabled]="!enableSubmit"
+    [resetDisabled]="!enableReset"
     [appliedTotalFilterCount]="totalFieldsApplied"
     (search)="applyFilterSearch()"
     (resetSearchFilter)="resetFilters()"

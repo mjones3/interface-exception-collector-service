@@ -243,6 +243,17 @@ export class SearchOrderFilterComponent implements OnInit {
         return this.searchForm.errors == null || this.searchForm.valid;
     }
 
+    get enableReset(): boolean {
+        return !Object.keys(this.searchForm.controls).every((key) => {
+            const controlValue = this.searchForm.get(key)?.value;
+            return (
+                controlValue === '' ||
+                controlValue === null ||
+                (Array.isArray(controlValue) && controlValue.length === 0)
+            );
+        });
+    }
+
     // Reseting Filters
     resetFilters(): void {
         this.searchForm.reset();
