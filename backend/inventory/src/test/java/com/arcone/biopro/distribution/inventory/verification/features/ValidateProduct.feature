@@ -1,4 +1,4 @@
-@api @LAB-116 @AOA-75
+@api @LAB-116 @AOA-75 @LAB-185
 Feature: Validate Inventory
 
     Scenario Outline: Validate Inventory
