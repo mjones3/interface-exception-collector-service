@@ -59,8 +59,7 @@ describe('SearchOrderFilterComponent', () => {
         expect(component.enableSubmit).toBeFalsy();
     });
 
-    //TODO: Add the validator logic for orderNumber OR create dates
-    it.skip('should clear form when reset is triggered', () => {
+    it('should clear form when reset is triggered', () => {
         Object.keys(component.searchForm.controls).forEach((filterKey) => {
             component.searchForm.controls[filterKey].setValue('Test');
             expect(component.enableSubmit).toBeTruthy();
@@ -76,9 +75,21 @@ describe('SearchOrderFilterComponent', () => {
         expect(component.enableSubmit).toBeFalsy();
     });
 
-    //TODO: Add the validator logic for orderNumber OR create dates
     it('should enable apply button when order number is entered', () => {
         component.searchForm.controls['orderNumber'].setValue('Test');
+        expect(component.enableSubmit).toBeTruthy();
+    });
+
+    it('should enable apply button when create date is entered', () => {
+        component.searchForm.controls['orderNumber'].setValue('');
+        component.searchForm.controls['createDateFrom'].setValue('01/01/2024');
+        component.searchForm.controls['createDateTo'].setValue('03/01/2029');
+        expect(component.enableSubmit).toBeTruthy();
+    });
+
+    it('should disable apply button when invalid create date is entered', () => {
+        component.searchForm.controls['createDateFrom'].setValue('01/mm/2000');
+        component.searchForm.controls['createDateTo'].setValue('03/01/2024');
         expect(component.enableSubmit).toBeTruthy();
     });
 
