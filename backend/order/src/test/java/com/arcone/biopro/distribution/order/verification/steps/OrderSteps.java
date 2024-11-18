@@ -505,8 +505,7 @@ public class OrderSteps {
         Arrays.stream(valueFields.split(",")).map(String::trim).forEach
             (valueField -> {
                 switch (valueField) {
-                    case "create date from":
-                    case "create date to":
+                    case "create date":
                         searchOrderPage.theCreateDateIsRequiredField();
                         break;
                     case "order number":
@@ -520,62 +519,7 @@ public class OrderSteps {
 
     @And("I should see {string} fields.")
     public void allFieldsDisplayed(String valueFields) throws InterruptedException {
-        Arrays.stream(valueFields.split(",")).map(String::trim).forEach
-            (valueField -> {
-                switch (valueField) {
-                    case "create date from":
-                        try {
-                            searchOrderPage.theCreateDateFromFieldIsDisplayed();
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-                    case "create date to":
-                        try {
-                            searchOrderPage.theCreateDateToFieldIsDisplayed();
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-                    case "desired shipment date from":
-                        try {
-                            searchOrderPage.theDesiredShipmentDateFromFieldIsDisplayed();
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-                    case "desired shipment date to":
-                        try {
-                            searchOrderPage.theDesiredShipmentDateToFieldIsDisplayed();
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-                    case "order status":
-                        try {
-                            searchOrderPage.theOrderStatusFieldIsDisplayed();
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-                    case "priority":
-                        try {
-                            searchOrderPage.theOrderPrioritiesFieldIsDisplayed();
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-                    case "ship to customer":
-                        try {
-                            searchOrderPage.theCustomersFieldIsDisplayed();
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-                    case "order number":
-                        try {
-                            searchOrderPage.theOrderFieldIsDisplayed();
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-                        break;
-                    default:
-                        Assert.fail("Field not found: " + valueField);
-                }
-            });
+        searchOrderPage.checkForFieldsVisibility(valueFields);
     }
 
     @And("{string} fields are {string}.")
@@ -638,78 +582,31 @@ public class OrderSteps {
         }
     }
 
-    private void selectValuesFromDropdown(String dropdownId, String panelId, List<String> valuesToSelect) {
-        WebElement dropdown = searchOrderPage.findElementById(dropdownId);
-        dropdown.click();
-        WebElement dropdownPanel = searchOrderPage.findElementById(panelId);
 
-        List<WebElement> options = dropdownPanel.findElements(By.xpath(".//mat-option"));
-        for (String value : valuesToSelect) {
-            String key = getKeyByValue(value);
-            options.stream()
-                .filter(option -> option.getText().trim().equalsIgnoreCase(key))
-                .findFirst()
-                .ifPresent(WebElement::click);
-            log.info("Selected value: {}", value);
-        }
-        dropdown.sendKeys(Keys.ESCAPE);
-        searchOrderPage.closeDropdownIfOpen(dropdown);
-    }
 
     @And("I select {string} for the {string}.")
     public void iSelectValuesForTheDropdown(String values, String dropdown) {
         switch(dropdown) {
-            case "order status": selectValuesFromDropdown(ORDER_STATUS_SELECT_ID, ORDER_STATUS_PANEL_ID, Arrays.asList(values.split(",\\s*"))); break;
-            case "priority": selectValuesFromDropdown(ORDER_PRIORITY_SELECT_ID, ORDER_PRIORITY_PANEL_ID, Arrays.asList(values.split(",\\s*"))); break;
-            case "ship to customer": selectValuesFromDropdown(ORDER_SHIP_TO_CUSTOMER_SELECT_ID, ORDER_SHIP_TO_CUSTOMER_PANEL_ID, Arrays.asList(values.split(",\\s*"))); break;
+            case "order status": searchOrderPage.selectValuesFromDropdown(ORDER_STATUS_SELECT_ID, ORDER_STATUS_PANEL_ID, Arrays.asList(values.split(","))); break;
+            case "priority": searchOrderPage.selectValuesFromDropdown(ORDER_PRIORITY_SELECT_ID, ORDER_PRIORITY_PANEL_ID, Arrays.asList(values.split(","))); break;
+            case "ship to customer": searchOrderPage.selectValuesFromDropdown(ORDER_SHIP_TO_CUSTOMER_SELECT_ID, ORDER_SHIP_TO_CUSTOMER_PANEL_ID, Arrays.asList(values.split(","))); break;
             default:
                 Assert.fail("Field not found: " + dropdown);
         }
     }
 
-    private String getKeyByValue(String value) {
-        return switch (value) {
-            case "STAT" -> "order-priority.stat.label";
-            case "ASAP" -> "order-priority.asap.label";
-            case "ROUTINE" -> "order-priority.routine.label";
-            case "OPEN" -> "order-status.open.label";
-            case "CREATED" -> "order-status.created.label";
-            case "SHIPPED" -> "order-status.shipped.label";
-            case "IN_PROGRESS" -> "order-status.in-progress.label";
-            case "All" -> "All";
-            case "Creative Testing Solutions" -> "Creative Testing Solutions";
-            case "Advanced Medical Center" -> "Advanced Medical Center";
-            case "Pioneer Health Services" -> "Pioneer Health Services";
-            case "Sunrise Health Clinic" -> "Sunrise Health Clinic";
-            default -> "";
-        };
-    }
 
-    private void selectedValuesFromDropdown(String dropdownId, String panelId, List<String> valuesToSelect) {
-        WebElement dropdown = searchOrderPage.findElementById(dropdownId);
-        dropdown.click();
-        WebElement dropdownPanel = searchOrderPage.findElementById(panelId);
 
-        List<WebElement> options = dropdownPanel.findElements(By.xpath(".//mat-option"));
 
-        for (String value : valuesToSelect) {
-            if (!value.isEmpty()) {
-                String key = getKeyByValue(value);
-                Assert.assertTrue("Selected value: " + value, options.stream()
-                    .anyMatch(option -> option.getText().trim().equalsIgnoreCase(key)
-                        && option.getDomAttribute("aria-selected").equals("true")));
-            }
-        }
-        dropdown.sendKeys(Keys.ESCAPE);
-        searchOrderPage.closeDropdownIfOpen(dropdown);
-    }
+
+
 
     @And("Items {string} should be selected for {string}.")
     public void itemsShouldBeSelected(String values, String dropdown) {
         switch(dropdown) {
-            case "order status": selectedValuesFromDropdown(ORDER_STATUS_SELECT_ID, ORDER_STATUS_PANEL_ID, Arrays.asList(values.split(",\\s*"))); break;
-            case "priority": selectedValuesFromDropdown(ORDER_PRIORITY_SELECT_ID, ORDER_PRIORITY_PANEL_ID, Arrays.asList(values.split(",\\s*"))); break;
-            case "ship to customer": selectedValuesFromDropdown(ORDER_SHIP_TO_CUSTOMER_SELECT_ID, ORDER_SHIP_TO_CUSTOMER_PANEL_ID, Arrays.asList(values.split(",\\s*"))); break;
+            case "order status": searchOrderPage.checkSelectedValuesFromDropdown(ORDER_STATUS_SELECT_ID, ORDER_STATUS_PANEL_ID, Arrays.asList(values.split(",\\s*"))); break;
+            case "priority": searchOrderPage.checkSelectedValuesFromDropdown(ORDER_PRIORITY_SELECT_ID, ORDER_PRIORITY_PANEL_ID, Arrays.asList(values.split(",\\s*"))); break;
+            case "ship to customer": searchOrderPage.checkSelectedValuesFromDropdown(ORDER_SHIP_TO_CUSTOMER_SELECT_ID, ORDER_SHIP_TO_CUSTOMER_PANEL_ID, Arrays.asList(values.split(",\\s*"))); break;
             default:
                 Assert.fail("Field not found: " + dropdown);
         }
@@ -745,18 +642,7 @@ public class OrderSteps {
         setValueForField(LocalDate.now().format(DateTimeFormatter.ofPattern("MM/dd/yyyy")), "create date to");
     }
 
-    private boolean isDropdownSelected(String dropdownId, String panelId) {
-        WebElement dropdown = searchOrderPage.findElementById(dropdownId);
-        dropdown.click();
-        WebElement dropdownPanel = searchOrderPage.findElementById(panelId);
-        boolean result = false;
-        List<WebElement> options = dropdownPanel.findElements(By.xpath(".//mat-option"));
-        result = options.stream()
-            .anyMatch(option -> option.getDomAttribute("aria-selected").equals("true"));
-        dropdown.sendKeys(Keys.ESCAPE);
-        searchOrderPage.closeDropdownIfOpen(dropdown);
-        return result;
-    }
+
 
 
     @Then("The filter information should be empty.")
@@ -775,9 +661,9 @@ public class OrderSteps {
         int actualValue = 0;
         int expectedValue = Integer.parseInt(value);
 
-        actualValue += isDropdownSelected(ORDER_STATUS_SELECT_ID, ORDER_STATUS_PANEL_ID) ? 1 : 0;
-        actualValue += isDropdownSelected(ORDER_PRIORITY_SELECT_ID, ORDER_PRIORITY_PANEL_ID) ? 1 : 0;
-        actualValue += isDropdownSelected(ORDER_SHIP_TO_CUSTOMER_SELECT_ID, ORDER_SHIP_TO_CUSTOMER_PANEL_ID) ? 1 : 0;
+        actualValue += searchOrderPage.isDropdownSelected(ORDER_STATUS_SELECT_ID, ORDER_STATUS_PANEL_ID) ? 1 : 0;
+        actualValue += searchOrderPage.isDropdownSelected(ORDER_PRIORITY_SELECT_ID, ORDER_PRIORITY_PANEL_ID) ? 1 : 0;
+        actualValue += searchOrderPage.isDropdownSelected(ORDER_SHIP_TO_CUSTOMER_SELECT_ID, ORDER_SHIP_TO_CUSTOMER_PANEL_ID) ? 1 : 0;
 
         assertEquals("The number of used filters for the search should match.", expectedValue, actualValue);
     }

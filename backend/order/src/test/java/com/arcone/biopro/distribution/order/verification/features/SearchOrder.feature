@@ -76,7 +76,7 @@ Feature: Search Orders
             And I choose search orders.
             And I open the search orders filter panel.
             And I should see "order number, create date from, create date to, desired shipment date from, desired shipment date to, order status, priority, ship to customer" fields.
-            And I should see "create date from, create date to" fields as required.
+            And I should see "create date" fields as required.
             And "reset" option is "disabled".
             And "apply" option is "disabled".
             And I search the order by "00000".
@@ -136,8 +136,8 @@ Feature: Search Orders
             And I should see "<Expected Number of Orders>" orders in the search results.
             Examples:
                 | Selected Priorities | Selected Statuses | Selected Customers         | Expected External Ids | Expected Number of Orders | Expected Number of Filters |
-                | STAT, ASAP          | OPEN,IN_PROGRESS  |                            | 1979,1984             | 2                         | 2                          |
-                | STAT, ROUTINE       |                   |                            | 1979,2018             | 2                         | 1                          |
+                | STAT,ASAP           | OPEN,IN_PROGRESS  |                            | 1979,1984             | 2                         | 2                          |
+                | STAT,ROUTINE        |                   |                            | 1979,2018             | 2                         | 1                          |
                 | ASAP                | IN_PROGRESS       | Creative Testing Solutions | 1984                  | 1                         | 3                          |
 
     Rule: I should be able to filter the results for date fields from 2 years back.

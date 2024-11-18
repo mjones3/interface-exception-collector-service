@@ -6,17 +6,15 @@ import com.arcone.biopro.distribution.order.verification.pages.SharedActions;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindAll;
 import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.time.Duration;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,7 +28,6 @@ import static org.springframework.test.util.AssertionErrors.fail;
 public class SearchOrderPage extends CommonPageFactory {
 
     OrderController orderController = new OrderController();
-    public static final int SECONDS_TO_WAIT_FOR_COMPONENT_TO_SHOW = 5;
 
     @Autowired
     private SharedActions sharedActions;
@@ -81,6 +78,9 @@ public class SearchOrderPage extends CommonPageFactory {
     @FindBy(id = "resetFilterBtn")
     private WebElement filterResetButton;
 
+
+
+
     private static final String tableRows = "//*[@id='ordersTableId']//tbody/tr";
 
     @FindBy(xpath = tableRows)
@@ -108,6 +108,12 @@ public class SearchOrderPage extends CommonPageFactory {
         return String.format("//tr[contains(@id,'order-table-row')]/child::td[contains(text(),'%s')]/following-sibling::td/span[contains(text(),'%s')]", orderId, priority);
     }
 
+    private String labelXpath(String fieldLabel) {
+        return "//mat-label[contains(text(), '%s')]/parent::*".formatted(fieldLabel);
+    }
+
+
+
     @Override
     public boolean isLoaded() {
         sharedActions.waitForVisible(searchOrdersTitle);
@@ -126,6 +132,8 @@ public class SearchOrderPage extends CommonPageFactory {
         sharedActions.waitForVisible(driver.findElement(By.xpath(orderStatusXpath(externalId, orderStatus))));
         sharedActions.waitForVisible(driver.findElement(By.xpath(orderPriorityXpath(externalId, orderPriority))));
     }
+
+
 
     public WebElement getPriorityElement(String externalId, String orderPriority) {
         return driver.findElement(By.xpath(orderPriorityXpath(externalId, orderPriority)));
@@ -174,6 +182,107 @@ public class SearchOrderPage extends CommonPageFactory {
         sharedActions.waitForNotVisible(tableLoadingOverlay);
         sharedActions.waitForVisible(By.xpath(tableRows));
         return tableRowsList.size();
+    }
+
+    public boolean isDropdownSelected(String dropdownId, String panelId) {
+        WebElement dropdown = driver.findElement(By.id(dropdownId));
+        sharedActions.click(dropdown);
+        WebElement dropdownPanel = driver.findElement(By.id(panelId));
+        List<WebElement> options = dropdownPanel.findElements(By.xpath(".//mat-option"));
+        var result = options.stream()
+            .anyMatch(option -> option.getDomAttribute("aria-selected").equals("true"));
+        sharedActions.sendKeys(dropdown, Keys.ESCAPE.toString());
+//        closeDropdownIfOpen(dropdown);
+        return result;
+    }
+
+    private void openDropDownIfClosed(WebElement dropdown) {
+        if (!Boolean.parseBoolean(dropdown.getDomAttribute("aria-expanded"))) {
+            sharedActions.click(dropdown);
+        }
+        sharedActions.waitForAttribute(dropdown, "aria-expanded","true");
+    }
+
+    private void closeDropdownIfOpen(WebElement dropdown) {
+        try {
+            if (dropdown.isDisplayed() && Boolean.parseBoolean(dropdown.getDomAttribute("aria-expanded"))) {
+                sharedActions.click(dropdown);
+            }
+        } catch (Exception ignored) {}
+    }
+
+    public void checkSelectedValuesFromDropdown(String dropdownId, String panelId, List<String> valuesToCheck) {
+        WebElement dropdown = driver.findElement(By.id(dropdownId));
+        openDropDownIfClosed(dropdown);
+        WebElement dropdownPanel = driver.findElement(By.id(panelId));
+
+        List<WebElement> options = dropdownPanel.findElements(By.xpath(".//mat-option"));
+        for (var option: options)
+        {
+            sharedActions.waitForVisible(option);
+        }
+
+        var selectedOptions = options.stream().filter(option -> option.getDomAttribute("aria-selected").equals("true")).toList();
+        for (String value : valuesToCheck) {
+
+            if (!value.isEmpty()) {
+                String key = getKeyByValue(value);
+                Assert.assertTrue("Selected value: " + value, selectedOptions.stream()
+                    .anyMatch((option -> option.getText().trim().equalsIgnoreCase(key))));
+            }
+        }
+        sharedActions.sendKeys(dropdown, Keys.ESCAPE.toString());
+        closeDropdownIfOpen(dropdown);
+    }
+
+
+
+    public void selectValuesFromDropdown(String dropdownId, String panelId, List<String> valuesToSelect) {
+
+        WebElement dropdown = driver.findElement(By.id(dropdownId));
+
+        openDropDownIfClosed(dropdown);
+
+        WebElement dropdownPanel = driver.findElement(By.id(panelId));
+
+        List<WebElement> options = dropdownPanel.findElements(By.xpath(".//mat-option"));
+        for (var option: options)
+        {
+            sharedActions.waitForVisible(option);
+        }
+        for (String value : valuesToSelect) {
+
+            String key = getKeyByValue(value);
+            options.stream()
+                .filter(option -> option.getText().trim().equalsIgnoreCase(key))
+                .findFirst()
+                .ifPresent(element -> {
+                    sharedActions.click(element);
+                    sharedActions.waitForAttribute(element, "aria-selected", "true");
+                });
+
+            log.info("Selected value: {}", value);
+        }
+        sharedActions.sendKeys(dropdown, Keys.ESCAPE.toString());
+        closeDropdownIfOpen(dropdown);
+    }
+
+    private String getKeyByValue(String value) {
+        return switch (value) {
+            case "STAT" -> "order-priority.stat.label";
+            case "ASAP" -> "order-priority.asap.label";
+            case "ROUTINE" -> "order-priority.routine.label";
+            case "OPEN" -> "order-status.open.label";
+            case "CREATED" -> "order-status.created.label";
+            case "SHIPPED" -> "order-status.shipped.label";
+            case "IN_PROGRESS" -> "order-status.in-progress.label";
+            case "All" -> "All";
+            case "Creative Testing Solutions" -> "Creative Testing Solutions";
+            case "Advanced Medical Center" -> "Advanced Medical Center";
+            case "Pioneer Health Services" -> "Pioneer Health Services";
+            case "Sunrise Health Clinic" -> "Sunrise Health Clinic";
+            default -> "";
+        };
     }
 
     public void searchOrder(String value) throws InterruptedException {
@@ -247,7 +356,6 @@ public class SearchOrderPage extends CommonPageFactory {
 
     public void theCreateDateIsRequiredField() {
         sharedActions.waitForVisible(createDateFromField);
-        sharedActions.waitForVisible(createDateToField);
         createDateFromField.click();
         createDateToField.click();
         assertContainsFieldAsRequired("Create date");
@@ -255,17 +363,17 @@ public class SearchOrderPage extends CommonPageFactory {
 
     public void theCreateDateFromIsRequiredField() {
         sharedActions.waitForVisible(createDateFromField);
-        assertIsRequiredField("CreateDateFrom field should be required", findElementById("createDateFrom"));
+        assertIsRequiredField("CreateDateFrom field should be required", createDateFromField);
     }
 
     public void theCreateDateToIsRequiredField() {
         sharedActions.waitForVisible(createDateToField);
-       assertIsRequiredField("CreateDateTo field should be required", findElementById("createDateTo"));
+       assertIsRequiredField("CreateDateTo field should be required", createDateToField);
     }
 
     public void theOrderFieldIsDisabled() throws InterruptedException {
         sharedActions.waitForVisible(orderNumberField);
-        assertFalse("Order field should be disabled",findElementById("orderNumberInput").isEnabled());
+        assertFalse("Order field should be disabled",orderNumberField.isEnabled());
     }
 
     public void theOrderFieldIsEnabled() throws InterruptedException {
@@ -379,12 +487,8 @@ public class SearchOrderPage extends CommonPageFactory {
         assertTrue(message, element.getDomAttribute("aria-required").equals("true"));
     }
 
-    public WebElement findElementByXPath(String xPath) {
-        return findElementWithByWaiting(By.xpath(xPath), SECONDS_TO_WAIT_FOR_COMPONENT_TO_SHOW);
-    }
-
     public void assertContainsFieldAsRequired(String fieldLabel) {
-        WebElement labelElement = findElementByXPath("//mat-label[contains(text(), '%s')]/parent::*".formatted(fieldLabel));
+        WebElement labelElement = driver.findElement(By.xpath(labelXpath(fieldLabel)));
         WebElement asteriskSpanElement = labelElement.findElement(
             By.xpath("span[contains(@class, 'mat-mdc-form-field-required-marker')]"));
         assertTrue(
@@ -397,23 +501,13 @@ public class SearchOrderPage extends CommonPageFactory {
         );
     }
 
-
-    public WebElement findElementById(String fieldId) {
-        return findElementWithByWaiting(By.id(fieldId), SECONDS_TO_WAIT_FOR_COMPONENT_TO_SHOW);
-    }
-
-    public WebElement findElementWithByWaiting(By field, int seconds) {
-        var wait = new WebDriverWait(driver, Duration.ofSeconds(seconds));
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(field));
-    }
-
-    public void closeDropdownIfOpen(WebElement dropdown) {
-        if ("true".equals(dropdown.getAttribute("aria-expanded"))) {
-            JavascriptExecutor js = (JavascriptExecutor) driver;
-            js.executeScript("arguments[0].setAttribute('aria-expanded', 'false');", dropdown);
-            log.info("Closed dropdown using JavaScript");
-        }
-    }
+//    public void closeDropdownIfOpen(WebElement dropdown) {
+//        if ("true".equals(dropdown.getAttribute("aria-expanded"))) {
+//            JavascriptExecutor js = (JavascriptExecutor) driver;
+//            js.executeScript("arguments[0].setAttribute('aria-expanded', 'false');", dropdown);
+//            log.info("Closed dropdown using JavaScript");
+//        }
+//    }
 
     public void iShouldSeeAValidationMessage(String message) {
         assertTrue(
@@ -448,5 +542,64 @@ public class SearchOrderPage extends CommonPageFactory {
     public void setDesireDateToField(String value) throws InterruptedException {
         sharedActions.waitForVisible(desiredShippingDateToField);
         sharedActions.sendKeys(desiredShippingDateToField, value);
+    }
+
+    public void checkForFieldsVisibility(String valueFields) {
+        Arrays.stream(valueFields.split(",")).map(String::trim).forEach
+            (valueField -> {
+                switch (valueField) {
+                    case "create date from":
+                        try {
+                            theCreateDateFromFieldIsDisplayed();
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                    case "create date to":
+                        try {
+                            theCreateDateToFieldIsDisplayed();
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                    case "desired shipment date from":
+                        try {
+                            theDesiredShipmentDateFromFieldIsDisplayed();
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                    case "desired shipment date to":
+                        try {
+                            theDesiredShipmentDateToFieldIsDisplayed();
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                    case "order status":
+                        try {
+                            theOrderStatusFieldIsDisplayed();
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                    case "priority":
+                        try {
+                            theOrderPrioritiesFieldIsDisplayed();
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                    case "ship to customer":
+                        try {
+                            theCustomersFieldIsDisplayed();
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                    case "order number":
+                        try {
+                            theOrderFieldIsDisplayed();
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                        break;
+                    default:
+                        Assert.fail("Field not found: " + valueField);
+                }
+            });
     }
 }
