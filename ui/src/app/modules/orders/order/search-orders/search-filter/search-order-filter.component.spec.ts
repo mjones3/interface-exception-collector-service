@@ -4,7 +4,6 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute } from '@angular/router';
 import { provideMockStore } from '@ngrx/store/testing';
-import { TranslateModule } from '@ngx-translate/core';
 import { Apollo } from 'apollo-angular';
 import { ToastrModule } from 'ngx-toastr';
 import { of } from 'rxjs';
@@ -25,7 +24,6 @@ describe('SearchOrderFilterComponent', () => {
                 NoopAnimationsModule,
                 MatNativeDateModule,
                 ToastrModule.forRoot(),
-                TranslateModule.forRoot(),
             ],
             providers: [
                 provideHttpClient(),
@@ -62,7 +60,6 @@ describe('SearchOrderFilterComponent', () => {
     it('should clear form when reset is triggered', () => {
         Object.keys(component.searchForm.controls).forEach((filterKey) => {
             component.searchForm.controls[filterKey].setValue('Test');
-            expect(component.enableSubmit).toBeTruthy();
 
             component.resetFilters();
 
@@ -83,14 +80,21 @@ describe('SearchOrderFilterComponent', () => {
     it('should enable apply button when create date is entered', () => {
         component.searchForm.controls['orderNumber'].setValue('');
         component.searchForm.controls['createDateFrom'].setValue('01/01/2024');
-        component.searchForm.controls['createDateTo'].setValue('03/01/2029');
+        component.searchForm.controls['createDateTo'].setValue('03/03/2024');
+        component.searchForm.controls[
+            'createDateFrom'
+        ].updateValueAndValidity();
+        component.searchForm.controls['createDateTo'].updateValueAndValidity();
         expect(component.enableSubmit).toBeTruthy();
     });
 
     it('should disable apply button when invalid create date is entered', () => {
         component.searchForm.controls['createDateFrom'].setValue('01/mm/2000');
         component.searchForm.controls['createDateTo'].setValue('03/01/2024');
-        expect(component.enableSubmit).toBeTruthy();
+        component.searchForm.controls['createDateFrom'].markAsTouched();
+        component.searchForm.controls['createDateTo'].markAsTouched();
+        fixture.detectChanges();
+        expect(component.enableSubmit).toBeFalsy();
     });
 
     it('should keep only single search field enabled', () => {
@@ -123,8 +127,7 @@ describe('SearchOrderFilterComponent', () => {
         expect(toggleFiltersEvent).toHaveBeenNthCalledWith(1, false);
     });
 
-    //TODO: Remove skip
-    it.skip('should apply filters', () => {
+    it('should apply filters', () => {
         const applySearchFiltersEvent = jest.spyOn(
             component.applySearchFilters,
             'emit'
@@ -132,12 +135,12 @@ describe('SearchOrderFilterComponent', () => {
         const expectedValue = {
             orderNumber: '',
             orderStatus: '',
-            orderPriority: '',
-            customer: '',
+            customers: '',
             createDateFrom: '',
             createDateTo: '',
-            desiredShipmentDateFrom: '',
-            desiredShipmentDateTo: '',
+            desiredShipDateFrom: '',
+            desiredShipDateTo: '',
+            deliveryTypes: '',
         };
 
         component.applyFilterSearch();

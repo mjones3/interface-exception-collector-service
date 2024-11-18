@@ -26,12 +26,32 @@ export class BioproValidators {
         if (orderNumber || (createDateFrom && createDateTo)) {
             if (createDateFrom) {
                 const twoYearsAgo = new Date();
+                const datFrom = new Date(createDateFrom);
+                const datTo = new Date(createDateTo);
                 twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
-                if (createDateFrom < twoYearsAgo) {
+                if (datFrom < twoYearsAgo) {
                     return {
                         eitherOrderNumberOrDates: true,
-                        createDateFromTooOld: true,
-                    }; // Validation fails
+                        dateRangeExceedsTwoYears: true,
+                    };
+                }
+                if (isNaN(datFrom.getDate())) {
+                    return {
+                        eitherOrderNumberOrDates: true,
+                        matStartDateInvalid: true,
+                    };
+                }
+                if (isNaN(datTo.getDate())) {
+                    return {
+                        eitherOrderNumberOrDates: true,
+                        matEndDateInvalid: true,
+                    };
+                }
+                if (datTo < datFrom) {
+                    return {
+                        eitherOrderNumberOrDates: true,
+                        matEndDateInvalid: true,
+                    };
                 }
             }
             return null; // Validation passes

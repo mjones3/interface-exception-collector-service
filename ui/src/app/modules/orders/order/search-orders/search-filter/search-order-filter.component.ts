@@ -28,7 +28,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { ApolloError } from '@apollo/client';
-import { TranslateService } from '@ngx-translate/core';
 import { AutoUnsubscribe, SelectOptionDto } from '@shared';
 import { ToastrService } from 'ngx-toastr';
 import { DateRangePickerComponent } from '../../../../../shared/components/date-range-picker/date-range-picker.component';
@@ -90,8 +89,7 @@ export class SearchOrderFilterComponent implements OnInit {
     constructor(
         private formBuilder: FormBuilder,
         private orderService: OrderService,
-        private toaster: ToastrService,
-        private translateService: TranslateService
+        private toaster: ToastrService
     ) {}
 
     ngOnInit(): void {
@@ -192,18 +190,14 @@ export class SearchOrderFilterComponent implements OnInit {
                     response.data.searchOrderCriteria.orderStatus.map(
                         (item) => ({
                             optionKey: item.optionValue,
-                            optionDescription: this.translateService.instant(
-                                item.descriptionKey
-                            ),
+                            optionDescription: item.descriptionKey,
                         })
                     );
                 this.priorityOptions =
                     response.data.searchOrderCriteria.orderPriorities.map(
                         (item) => ({
                             optionKey: item.optionValue,
-                            optionDescription: this.translateService.instant(
-                                item.descriptionKey
-                            ),
+                            optionDescription: item.descriptionKey,
                         })
                     );
                 this.customers =
@@ -234,7 +228,9 @@ export class SearchOrderFilterComponent implements OnInit {
                 desiredShipDateTo: [''],
             },
             {
-                validators: [BioproValidators.hasAtLeastOne],
+                validators: [
+                    BioproValidators.eitherOrderNumberOrDatesValidator,
+                ],
             }
         );
     }
