@@ -75,6 +75,18 @@ public class InventoryMockController {
             case "W036898786757":
                 return Mono.just(InventoryValidationResponseDTO
                     .builder()
+                    .inventoryResponseDTO(InventoryResponseDTO
+                        .builder()
+                        .productFamily("PLASMA_TRANSFUSABLE")
+                        .id(UUID.randomUUID())
+                        .aboRh("AB")
+                        .locationCode("123456789")
+                        .productCode("E0713V00")
+                        .collectionDate(ZonedDateTime.now())
+                        .unitNumber("W036898786757")
+                        .expirationDate(LocalDateTime.now())
+                        .productDescription("PRODUCT_DESCRIPTION")
+                        .build())
                         .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
                             .builder()
                             .errorName("INVENTORY_IS_DISCARDED")
@@ -86,6 +98,18 @@ public class InventoryMockController {
             case "W036898786758":
                 return Mono.just(InventoryValidationResponseDTO
                     .builder()
+                    .inventoryResponseDTO(InventoryResponseDTO
+                        .builder()
+                        .productFamily("PLASMA_TRANSFUSABLE")
+                        .id(UUID.randomUUID())
+                        .aboRh("AB")
+                        .locationCode("123456789")
+                        .productCode("E0707V00")
+                        .collectionDate(ZonedDateTime.now())
+                        .unitNumber("W036898786758")
+                        .expirationDate(LocalDateTime.now())
+                        .productDescription("PRODUCT_DESCRIPTION")
+                        .build())
                         .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
                             .builder()
                             .errorType("INFO")

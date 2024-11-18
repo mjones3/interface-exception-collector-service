@@ -184,8 +184,8 @@ public class CompleteShipmentUseCase implements CompleteShipmentService {
                                 .name("SHIPMENT_VALIDATION_COMPLETED_ERROR")
                                 .statusCode(HttpStatus.BAD_REQUEST.value())
                                 .message(ShipmentServiceMessages.SHIPMENT_VALIDATION_COMPLETED_ERROR)
-                                .notificationType(NotificationType.WARN.name())
-                                .build()),String.format(SHIPMENT_VERIFICATION_URL,shipment.getId()) , results , NotificationType.WARN.name() )
+                                .notificationType(NotificationType.CONFIRMATION.name())
+                                .build()),String.format(SHIPMENT_VERIFICATION_URL,shipment.getId()) , results , NotificationType.CONFIRMATION.name() )
                             );
                         }else{
                             return Mono.just(shipment);

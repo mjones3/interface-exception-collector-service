@@ -18,6 +18,15 @@ export const NotificationTypeMap: Record<string, NotificationConfig> = {
         type: NotificationType.info,
         timeOut: 10000,
     },
+    INFO: {
+        title: 'Information',
+        type: NotificationType.info,
+        timeOut: 10000,
+    },
+    CAUTION: {
+        type: NotificationType.warning,
+        timeOut: 10000,
+    },
     success: {
         type: NotificationType.success,
         timeOut: 10000,

@@ -2,6 +2,7 @@ package com.arcone.biopro.distribution.shipping.unit.application.usecase;
 
 import com.arcone.biopro.distribution.shipping.adapter.in.web.dto.ShipmentDetailResponseDTO;
 import com.arcone.biopro.distribution.shipping.application.dto.CompleteShipmentRequest;
+import com.arcone.biopro.distribution.shipping.application.dto.NotificationType;
 import com.arcone.biopro.distribution.shipping.application.dto.RuleResponseDTO;
 import com.arcone.biopro.distribution.shipping.application.mapper.ShipmentEventMapper;
 import com.arcone.biopro.distribution.shipping.application.usecase.CompleteShipmentUseCase;
@@ -313,7 +314,7 @@ class CompleteShipmentUseCaseTest {
 
                 assertEquals(HttpStatus.BAD_REQUEST, detail.ruleCode());
                 assertEquals(HttpStatus.BAD_REQUEST.value(), firstNotification.statusCode());
-                assertEquals("WARN", firstNotification.notificationType());
+                assertEquals(NotificationType.CONFIRMATION.name(), firstNotification.notificationType());
                 assertEquals(ShipmentServiceMessages.SHIPMENT_VALIDATION_COMPLETED_ERROR, firstNotification.message());
                 assertEquals("/shipment/1/verify-products", detail._links().get("next"));
             })

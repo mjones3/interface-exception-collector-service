@@ -127,3 +127,29 @@ Feature: Second Verification of Units Feature
             | 123          | E0685V00 | W822530106094 | Scan   | Unit Number | W822530106094 | Scan Product Code       | Type          | Product Code      | E0685V00           |
             | 123          | E0685V00 | W822530106094 | Scan   | Unit Number | W822530106094 | Product Code is Invalid | Scan          | Product Code      | 121abc             |
             | 123          | E0685V00 | W822530106087 | Scan   | Unit Number | W822530106094 | Product Code is Invalid | Type          | Product Code      | =<1212             |
+
+
+        @ui @DIS-206
+        Scenario Outline: Complete shipment Second verification unsuitable products.
+            Given I have a shipment with unsuitable products for order "<Order Number>" with the units "<UNITS>" and product codes "<Codes>" verified.
+            And The second verification configuration is "enabled".
+            And I am on the verify products page.
+            When I choose to complete the Shipment.
+            Then I should see a "Notification" message: "One or more products have changed status. You must rescan the products to be removed".
+            And I should see the status of the shipment as "open".
+            And I should have an option to acknowledge the notification.
+            And I should see a list of products grouped by the following statuses:
+                | Status        | Total Products |
+                | Discarded     | 1              |
+                | Quarantined   | 1              |
+                | Other Event   | 1              |
+            When I verify each one of the tabs.
+            Then I should see the following products.
+                | Unit Number     | Product Code          | Status      |
+                | W822530106093   | E0685V00              | Discarded   |
+                | W822530106094   | E0685V00              | Quarantined |
+                | W822530106095   | E0685V00              | Expired     |
+
+            Examples:
+                | Order Number | Codes             | UNITS                       |
+                | 121          | E0685V00,E0685V00 | W822530106093,W822530106094 |

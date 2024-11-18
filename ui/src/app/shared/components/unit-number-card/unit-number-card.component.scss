@@ -14,6 +14,14 @@
 
 .satisfactoryBadge{
   background-color: #0E9F6E;
+  color: #fff;
+  text-transform: uppercase;
+}
+
+.otherBadge {
+  background: #FEF3C7 0% 0% no-repeat padding-box;
+  color: #B45309;
+  text-transform: uppercase;
 }
 
 .rounded-pill {
@@ -26,7 +34,6 @@
   font-size: 0.75em;
   font-weight: 700;
   line-height: 1;
-  color: #fff;
   text-align: center;
   white-space: nowrap;
   vertical-align: baseline;
