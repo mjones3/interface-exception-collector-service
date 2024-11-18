@@ -11,6 +11,7 @@ public record ShipmentItemRemovedDTO(
     Long shipmentId,
     String unitNumber,
     String productCode,
+    String productFamily,
     ZonedDateTime removedDate,
     String removedByEmployeeId,
     String ineligibleStatus

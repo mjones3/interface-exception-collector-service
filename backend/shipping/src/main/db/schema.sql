@@ -134,6 +134,7 @@ CREATE TABLE bld_shipment_item_removed (
       CONSTRAINT fk_shipment_shipment_item_removed REFERENCES bld_shipment,
     unit_number                VARCHAR(255) NOT NULL,
     product_code               VARCHAR(255) NOT NULL,
+    product_family              VARCHAR(255) NOT NULL,
     removed_by_employee_id      varchar(50) NOT NULL,
     removed_date                TIMESTAMP WITH TIME ZONE NOT NULL,
     ineligible_status          VARCHAR(100) NOT NULL

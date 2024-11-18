@@ -71,6 +71,7 @@ public class ShipmentMapper {
             .shipmentId(shipmentItemRemoved.getShipmentId())
             .productCode(shipmentItemRemoved.getProductCode())
             .unitNumber(shipmentItemRemoved.getUnitNumber())
+            .productFamily(shipmentItemRemoved.getProductFamily())
             .removedDate(shipmentItemRemoved.getRemovedDate())
             .removedByEmployeeId(shipmentItemRemoved.getRemovedByEmployeeId())
             .ineligibleStatus(Optional.ofNullable(shipmentItemRemoved.getIneligibleStatus()).map(ineligibleStatus -> ineligibleStatus.label).orElse(null))

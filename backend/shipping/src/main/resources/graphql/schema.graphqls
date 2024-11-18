@@ -249,6 +249,7 @@ type ShipmentItemRemovedDTO {
     shipmentId: Int
     unitNumber: String
     productCode: String
+    productFamily: String
     removedByEmployeeId: String
     removedDate:DateTime
     ineligibleStatus:String

@@ -2,6 +2,7 @@ package com.arcone.biopro.distribution.shipping.domain.model;
 
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.IneligibleStatus;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
@@ -35,6 +36,10 @@ public class ShipmentItemRemoved implements Serializable, Persistable<Long> {
     @NotNull
     @Column("product_code")
     private String productCode;
+
+    @Size(max = 255)
+    @Column("product_family")
+    private String productFamily;
 
     @Column("ineligible_status")
     private IneligibleStatus ineligibleStatus;

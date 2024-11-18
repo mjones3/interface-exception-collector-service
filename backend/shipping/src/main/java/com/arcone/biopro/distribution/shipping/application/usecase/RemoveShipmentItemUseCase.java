@@ -88,6 +88,7 @@ public class RemoveShipmentItemUseCase implements RemoveShipmentItemService {
                     .shipmentId(removeItemRequest.shipmentId())
                     .productCode(itemPacked.getProductCode())
                     .unitNumber(itemPacked.getUnitNumber())
+                    .productFamily(itemPacked.getProductFamily())
                 .build()).flatMap(removeItem -> Mono.just(itemPacked)));
     }
 
