@@ -10,7 +10,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class SearchCriteriaValuesEntityMapper {
+public class SearchOrderCriteriaEntityMapper {
 
     public SearchOrderCriteria mapToDomain(List<Lookup> status, List<Lookup> deliveryTypes, List<OrderCustomerReport> customers) {
         return new SearchOrderCriteria(status, deliveryTypes, customers);

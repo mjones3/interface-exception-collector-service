@@ -5,7 +5,7 @@ import com.arcone.biopro.distribution.order.domain.model.vo.OrderCustomerReport;
 import com.arcone.biopro.distribution.order.domain.repository.SearchOrderCriteriaAggregate;
 import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
-import com.arcone.biopro.distribution.order.infrastructure.mapper.SearchCriteriaValuesEntityMapper;
+import com.arcone.biopro.distribution.order.infrastructure.mapper.SearchOrderCriteriaEntityMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
@@ -20,7 +20,7 @@ public class SearchOrderCriteriaAggregateImpl implements SearchOrderCriteriaAggr
     private static final String ORDER_STATUS_TYPE_CODE = "ORDER_STATUS";
     private static final String ORDER_PRIORITY_TYPE_CODE = "ORDER_PRIORITY";
 
-    private final SearchCriteriaValuesEntityMapper searchCriteriaValuesEntityMapper;
+    private final SearchOrderCriteriaEntityMapper searchCriteriaValuesEntityMapper;
     private final LookupService lookupService;
     private final CustomerService customerService;
 
