@@ -51,6 +51,7 @@ Feature: Complete Shipment Feature
             When I type the unit "<UN>", digit "<Digit>", and product code "<Code>".
             Then I can "<Message Type>" message "<Message Content>".
             And I am able to proceed with the product filling process.
+            And If the check digit configuration is enabled, the check digit field should disappear if I clean the Unit Number field.
 
             Examples:
                 | Order Number | Customer ID | Customer Name    | Quantity | BloodType | ProductFamily                                                                          | Message Content | Message Type      | Family                       | Type | Code       | UN               | Check Digit Config | Digit | Inspection Config |
