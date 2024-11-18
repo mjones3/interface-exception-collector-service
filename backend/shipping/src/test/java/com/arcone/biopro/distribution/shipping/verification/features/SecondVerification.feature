@@ -4,8 +4,8 @@ Feature: Second Verification of Units Feature
     So that I can ensure that the products recorded in the system match the physical products inside the shipping box.
 
     Background:
-        Given I cleaned up from the database the packed item that used the unit number "W822530106087,W822530106089,W822530106088,W822530106090,W822530106091,W822530106092".
-        And I cleaned up from the database, all shipments with order number "118,119,120,121".
+        Given I cleaned up from the database the packed item that used the unit number "W822530106087,W822530106089,W822530106088,W822530106090,W822530106091,W822530106092,W822530106093,W822530106094".
+        And I cleaned up from the database, all shipments with order number "118,119,120,121,122,123".
 
 
         Rule: I should be able to verify each unit that I have packed in the shipment.
@@ -14,7 +14,7 @@ Feature: Second Verification of Units Feature
         Rule: I should see the complete shipment option available once all the units are verified.
         Rule: I should be able to see the shipping information.
         Rule: I should be able to see the order information.
-        @ui @DST-203
+        @ui @DIS-203
         Scenario Outline: Second verification packed units.
             Given I have a shipment for order "<Order Number>" with the unit "<UN>" and product code "<Code>" packed.
             And The second verification configuration is "enabled".
@@ -26,14 +26,14 @@ Feature: Second Verification of Units Feature
             Then I should see the unit added to the verified products table.
             And I should see the log of verified products being updated.
             And The complete shipment option should be enabled.
-           Examples:
-               | Order Number | Code     | UN            |
-               | 118          | E0685V00 | W822530106087 |
+            Examples:
+                | Order Number | Code     | UN            |
+                | 118          | E0685V00 | W822530106087 |
 
 
         Rule: I should be notified when I scan a unit that is not part of the shipment.
         Rule: I should not be able to complete the shipment if all the units are not verified.
-        @ui @DST-203
+        @ui @DIS-203
         Scenario Outline: Second verification units not packed.
             Given I have a shipment for order "<Order Number>" with the unit "<UN>" and product code "<Code>" packed.
             And The second verification configuration is "enabled".
@@ -53,7 +53,7 @@ Feature: Second Verification of Units Feature
 
         Rule: I should be notified when I scan a unit that is already verified.
         Rule: I should not be able to complete the shipment if all the units are not verified.
-        @ui @DST-203
+        @ui @DIS-203
         Scenario Outline: Second verification units already packed.
             Given I have a shipment for order "<Order Number>" with the units "<UN1>,<UN2>" and product codes "<Code1>,<Code2>" packed.
             And The second verification configuration is "enabled".
@@ -68,26 +68,62 @@ Feature: Second Verification of Units Feature
             And  I should not see the unit added to the verified products table.
             And The complete shipment option should not be enabled.
             Examples:
-                | Order Number | Code1     | UN1          | Code2     | UN2           |
-                | 120          | E0685V00 | W822530106090 | E0685V00  | W822530106091 |
+                | Order Number | Code1    | UN1           | Code2    | UN2           |
+                | 120          | E0685V00 | W822530106090 | E0685V00 | W822530106091 |
 
 
-        Rule: I should be able to complete the shipment once all filled products have been verified.
-        Rule: I should see the status of the shipment updated to “Completed”.
-        Rule: I should see a success message indicating the shipment has been successfully completed.
-        Rule: I should be able to verify the products' eligibility before completing the shipment.
-        @ui @DST-204
-        Scenario Outline: Complete shipment Second verification suitable products.
-            Given I have a shipment for order "<Order Number>" with the unit "<UN>" and product code "<Code>" verified.
+        Rule: I should be able to scan unit number and product code.
+        Rule: I should not be able to enter unit number and product code manually.
+        @ui @DIS-216
+        Scenario Outline: Restrict Manual Entry Unit Number.
+            Given I have a shipment for order "<Order Number>" with the unit "<UN>" and product code "<Code>" packed.
             And The second verification configuration is "enabled".
             And I am on the verify products page.
-            Then I should see the unit added to the verified products table.
-            And The complete shipment option should be enabled.
-            When I choose to complete the Shipment.
-            Then I should be redirected to the shipment details page.
-            And I should see a "Success" message: "Shipment Completed".
-            And I should see the status of the shipment as "Completed"
-
+            When I focus out leaving "Unit Number" empty.
+            Then I should see a field validation error message "Unit Number is Required".
+            When I "<Action>" the "Unit Number" "<Field Value>".
+            Then I should see a field validation error message "<Field Error Message>".
+            And The "Product Code" field should be "disabled".
             Examples:
-                | Order Number | Code     | UN            |
-                | 121          | E0685V00 | W822530106092 |
+                | Order Number | Code     | UN            | Action | Field Value   | Field Error Message    |
+                | 122          | E0685V00 | W822530106093 | Type   | W822530106093 | Scan Unit Number       |
+                | 122          | E0685V00 | W822530106093 | Type   | =W82253010608 | Unit Number is Invalid |
+                | 122          | E0685V00 | W822530106093 | Scan   | w232323232    | Unit Number is Invalid |
+
+    Rule: I should be able to complete the shipment once all filled products have been verified.
+    Rule: I should see the status of the shipment updated to “Completed”.
+    Rule: I should see a success message indicating the shipment has been successfully completed.
+    Rule: I should be able to verify the products' eligibility before completing the shipment.
+    @ui @DIS-204
+    Scenario Outline: Complete shipment Second verification suitable products.
+        Given I have a shipment for order "<Order Number>" with the unit "<UN>" and product code "<Code>" verified.
+        And The second verification configuration is "enabled".
+        And I am on the verify products page.
+        Then I should see the unit added to the verified products table.
+        And The complete shipment option should be enabled.
+        When I choose to complete the Shipment.
+        Then I should be redirected to the shipment details page.
+        And I should see a "Success" message: "Shipment Completed".
+        And I should see the status of the shipment as "Completed"
+        Examples:
+            | Order Number | Code     | UN            |
+            | 121          | E0685V00 | W822530106092 |
+
+    Rule: I should not be able to enter unit number and product code manually.
+    Rule: I should be able to scan unit number and product code.
+    @ui @DIS-216
+    Scenario Outline: Restrict Manual Entry Product Code.
+        Given I have a shipment for order "<Order Number>" with the unit "<UN>" and product code "<Code>" packed.
+        And The second verification configuration is "enabled".
+        And I am on the verify products page.
+        When I "<Action>" the "<Field Name>" "<Field Value>".
+        Then The "Product Code" field should be "enabled".
+        When I focus out leaving "<Second Field Name>" empty.
+        Then I should see a field validation error message "Product Code is Required".
+        When I "<Second Action>" the "<Second Field Name>" "<Second Field Value>".
+        Then I should see a field validation error message "<Field Error Message>".
+        Examples:
+            | Order Number | Code     | UN            | Action | Field Name  | Field Value   | Field Error Message     | Second Action | Second Field Name | Second Field Value |
+            | 123          | E0685V00 | W822530106094 | Scan   | Unit Number | W822530106094 | Scan Product Code       | Type          | Product Code      | E0685V00           |
+            | 123          | E0685V00 | W822530106094 | Scan   | Unit Number | W822530106094 | Product Code is Invalid | Scan          | Product Code      | 121abc             |
+            | 123          | E0685V00 | W822530106087 | Scan   | Unit Number | W822530106094 | Product Code is Invalid | Type          | Product Code      | =<1212             |

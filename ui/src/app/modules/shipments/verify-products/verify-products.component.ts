@@ -4,6 +4,7 @@ import { MatDivider } from '@angular/material/divider';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { ProcessHeaderComponent, ProcessHeaderService } from '@shared';
+import { ScanUnitNumberProductCodeComponent } from 'app/scan-unit-number-product-code/scan-unit-number-product-code.component';
 import { ToastrService } from 'ngx-toastr';
 import { finalize, forkJoin, take, tap } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -22,7 +23,6 @@ import {
     VerifyFilledProductDto,
 } from '../models/shipment-info.dto';
 import { ShipmentService } from '../services/shipment.service';
-import { EnterUnitNumberProductCodeComponent } from '../shared/enter-unit-number-product-code/enter-unit-number-product-code.component';
 import { OrderWidgetsSidebarComponent } from '../shared/order-widgets-sidebar/order-widgets-sidebar.component';
 
 @Component({
@@ -36,10 +36,10 @@ import { OrderWidgetsSidebarComponent } from '../shared/order-widgets-sidebar/or
         NgTemplateOutlet,
         OrderWidgetsSidebarComponent,
         PercentPipe,
-        EnterUnitNumberProductCodeComponent,
         MatDivider,
         UnitNumberCardComponent,
         ProgressBarComponent,
+        ScanUnitNumberProductCodeComponent,
     ],
     templateUrl: './verify-products.component.html',
 })
@@ -76,8 +76,8 @@ export class VerifyProductsComponent implements OnInit {
         Number(this.route.snapshot.params?.id)
     );
 
-    @ViewChild('enterUnitNumberProductCode')
-    protected enterUnitNumberProductCode: EnterUnitNumberProductCodeComponent;
+    @ViewChild('scanUnitNumberProductCode')
+    protected scanUnitNumberProductCode: ScanUnitNumberProductCodeComponent;
 
     constructor(
         private route: ActivatedRoute,
@@ -127,28 +127,30 @@ export class VerifyProductsComponent implements OnInit {
                 tap((result) =>
                     consumeNotifications(
                         this.toaster,
-                        result?.data?.verifyItem?.notifications
+                        result?.data?.verifyItem?.notifications,
+                        () => {
+                            this.scanUnitNumberProductCode.focusOnUnitNumber();
+                        }
                     )
                 ),
-                finalize(() => this.resetInputs())
+                finalize(() =>
+                    this.scanUnitNumberProductCode.resetUnitProductGroup()
+                )
             )
             .subscribe((result) => {
                 this.verificationSignal.set(
                     result.data?.verifyItem?.results?.results?.[0] ?? null
                 );
                 this.disableInputsIfAllPackItemsVerified();
+                if (result?.data?.verifyItem?.ruleCode === '200 OK') {
+                    this.scanUnitNumberProductCode.focusOnUnitNumber();
+                }
             });
-    }
-
-    resetInputs(): void {
-        this.enterUnitNumberProductCode.productGroup.reset();
-        this.enterUnitNumberProductCode.unitNumberComponent.reset();
-        this.enterUnitNumberProductCode.enableProductCode();
     }
 
     disableInputsIfAllPackItemsVerified(): void {
         if (this.isAllPackItemsVerified()) {
-            this.enterUnitNumberProductCode.disableProductGroup();
+            this.scanUnitNumberProductCode.disableUnitProductGroup();
         }
     }
 
