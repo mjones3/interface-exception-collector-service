@@ -38,14 +38,6 @@ import static org.springframework.test.util.AssertionErrors.assertEquals;
 @Slf4j
 public class OrderSteps {
 
-    private static final String ORDER_STATUS_SELECT_ID = "orderStatusSelect";
-    private static final String ORDER_STATUS_PANEL_ID = "orderStatusSelect-panel";
-    private static final String ORDER_PRIORITY_SELECT_ID = "deliveryTypesSelect";
-    private static final String ORDER_PRIORITY_PANEL_ID = "deliveryTypesSelect-panel";
-    private static final String ORDER_SHIP_TO_CUSTOMER_SELECT_ID = "customersSelect";
-    private static final String ORDER_SHIP_TO_CUSTOMER_PANEL_ID = "customersSelect-panel";
-
-
     //    Order details
     private String externalId;
     private String locationCode;
@@ -502,19 +494,7 @@ public class OrderSteps {
 
     @And("I should see {string} fields as required.")
     public void areFieldsRequired(String valueFields) throws InterruptedException {
-        Arrays.stream(valueFields.split(",")).map(String::trim).forEach
-            (valueField -> {
-                switch (valueField) {
-                    case "create date":
-                        searchOrderPage.theCreateDateIsRequiredField();
-                        break;
-                    case "order number":
-                        searchOrderPage.theOrderFieldIsRequiredField();
-                        break;
-                    default:
-                        Assert.fail("Field not found: " + valueField);
-                }
-            });
+      searchOrderPage.checkRequiredFields(valueFields);
     }
 
     @And("I should see {string} fields.")
@@ -536,63 +516,19 @@ public class OrderSteps {
 
     @And("{string} field is {string}.")
     public void theFieldHaveTheStatus(String valueField, String valueStatus) throws InterruptedException {
-        if (valueStatus.equalsIgnoreCase("disabled")) {
-            switch(valueField) {
-                case "create date from": searchOrderPage.theCreateDateFromFieldIsDisabled(); break;
-                case "create date to": searchOrderPage.theCreateDateToFieldIsDisabled(); break;
-                case "desired shipment date from": searchOrderPage.theDesiredShippingDateFromFieldIsDisabled(); break;
-                case "desired shipment date to": searchOrderPage.theDesiredShippingDateToFieldIsDisabled(); break;
-                case "order status": searchOrderPage.theOrderStatusFieldIsDisabled(); break;
-                case "priority": searchOrderPage.theOrderPrioritiesFieldIsDisabled(); break;
-                case "ship to customer": searchOrderPage.theCustomersFieldIsDisabled(); break;
-                case "order number": searchOrderPage.theOrderFieldIsDisabled(); break;
-                default:
-                    Assert.fail("Field not found: " + valueField);
-            }
-        } else {
-            switch(valueField) {
-                case "create date from": searchOrderPage.theCreateDateFromFieldIsEnabled(); break;
-                case "create date to": searchOrderPage.theCreateDateToFieldIsEnabled(); break;
-                case "desired shipment date from": searchOrderPage.theDesiredShippingDateFromFieldIsEnabled(); break;
-                case "desired shipment date to": searchOrderPage.theDesiredShippingDateToFieldIsEnabled(); break;
-                case "order status": searchOrderPage.theOrderStatusFieldIsEnabled(); break;
-                case "priority": searchOrderPage.theOrderPrioritiesFieldIsEnabled(); break;
-                case "ship to customer": searchOrderPage.theCustomersFieldIsEnabled(); break;
-                case "order number": searchOrderPage.theOrderFieldIsEnabled(); break;
-                default:
-                    Assert.fail("Field not found: " + valueField);
-            }
-        }
+        searchOrderPage.checkIfEnabledOrDisabled(valueField, valueStatus.equalsIgnoreCase("enabled"));
     }
 
     @And("{string} option is {string}.")
     public void theOptionHaveTheStatus(String valueOption, String valueStatus) throws InterruptedException {
-        if (valueStatus.equalsIgnoreCase("disabled")) {
-            if (valueOption.equalsIgnoreCase("reset")) {
-                searchOrderPage.theResetOptionIsDisabled();
-            } else {
-                searchOrderPage.theApplyOptionIsDisabled();
-            }
-        } else {
-            if (valueOption.equalsIgnoreCase("reset")) {
-                searchOrderPage.theResetOptionIsEnabled();
-            } else {
-                searchOrderPage.theApplyOptionIsEnabled();
-            }
-        }
+       searchOrderPage.checkIfOptionHasStatus(valueOption, valueStatus);
     }
 
 
 
     @And("I select {string} for the {string}.")
     public void iSelectValuesForTheDropdown(String values, String dropdown) {
-        switch(dropdown) {
-            case "order status": searchOrderPage.selectValuesFromDropdown(ORDER_STATUS_SELECT_ID, ORDER_STATUS_PANEL_ID, Arrays.asList(values.split(","))); break;
-            case "priority": searchOrderPage.selectValuesFromDropdown(ORDER_PRIORITY_SELECT_ID, ORDER_PRIORITY_PANEL_ID, Arrays.asList(values.split(","))); break;
-            case "ship to customer": searchOrderPage.selectValuesFromDropdown(ORDER_SHIP_TO_CUSTOMER_SELECT_ID, ORDER_SHIP_TO_CUSTOMER_PANEL_ID, Arrays.asList(values.split(","))); break;
-            default:
-                Assert.fail("Field not found: " + dropdown);
-        }
+        searchOrderPage.selectOptionsForDropdownDescription(values, dropdown);
     }
 
 
@@ -603,24 +539,11 @@ public class OrderSteps {
 
     @And("Items {string} should be selected for {string}.")
     public void itemsShouldBeSelected(String values, String dropdown) {
-        switch(dropdown) {
-            case "order status": searchOrderPage.checkSelectedValuesFromDropdown(ORDER_STATUS_SELECT_ID, ORDER_STATUS_PANEL_ID, Arrays.asList(values.split(",\\s*"))); break;
-            case "priority": searchOrderPage.checkSelectedValuesFromDropdown(ORDER_PRIORITY_SELECT_ID, ORDER_PRIORITY_PANEL_ID, Arrays.asList(values.split(",\\s*"))); break;
-            case "ship to customer": searchOrderPage.checkSelectedValuesFromDropdown(ORDER_SHIP_TO_CUSTOMER_SELECT_ID, ORDER_SHIP_TO_CUSTOMER_PANEL_ID, Arrays.asList(values.split(",\\s*"))); break;
-            default:
-                Assert.fail("Field not found: " + dropdown);
-        }
+      searchOrderPage.checkSelectedValuesFromDropdownDescription(values, dropdown);
     }
 
     private void setValueForField(String value, String fieldName) throws InterruptedException {
-        switch (fieldName) {
-            case "create date from": searchOrderPage.setCreateDateFromField(value);   break;
-            case "desired shipping date from": searchOrderPage.setDesireDateFromField(value);   break;
-            case "create date to": searchOrderPage.setCreateDateToField(value);   break;
-            case "desired shipping date to": searchOrderPage.setDesireDateToField(value);   break;
-            default:
-                Assert.fail("Field not found: " + fieldName);
-        }
+       searchOrderPage.setValueForField(value, fieldName);
     }
 
     @When("I enter the date: {string} for the field {string} and the date: {string}  for the field {string}.")
@@ -658,14 +581,10 @@ public class OrderSteps {
 
     @And("I should see {string} as the number of used filters for the search.")
     public void iShouldSeeAsTheNumberOfUsedFiltersForTheSearch(String value) {
-        int actualValue = 0;
-        int expectedValue = Integer.parseInt(value);
 
-        actualValue += searchOrderPage.isDropdownSelected(ORDER_STATUS_SELECT_ID, ORDER_STATUS_PANEL_ID) ? 1 : 0;
-        actualValue += searchOrderPage.isDropdownSelected(ORDER_PRIORITY_SELECT_ID, ORDER_PRIORITY_PANEL_ID) ? 1 : 0;
-        actualValue += searchOrderPage.isDropdownSelected(ORDER_SHIP_TO_CUSTOMER_SELECT_ID, ORDER_SHIP_TO_CUSTOMER_PANEL_ID) ? 1 : 0;
+        searchOrderPage.checkNumberOfUsedFiltersForTheSearch(value);
 
-        assertEquals("The number of used filters for the search should match.", expectedValue, actualValue);
+
     }
 
     @And("I should not see {string}.")

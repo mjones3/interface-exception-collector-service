@@ -20,12 +20,18 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertFalse;
-import static org.springframework.test.util.AssertionErrors.assertTrue;
-import static org.springframework.test.util.AssertionErrors.fail;
+import static org.springframework.test.util.AssertionErrors.*;
 
 @Component
 @Slf4j
 public class SearchOrderPage extends CommonPageFactory {
+
+    private static final String ORDER_STATUS_SELECT_ID = "orderStatusSelect";
+    private static final String ORDER_STATUS_PANEL_ID = "orderStatusSelect-panel";
+    private static final String ORDER_PRIORITY_SELECT_ID = "deliveryTypesSelect";
+    private static final String ORDER_PRIORITY_PANEL_ID = "deliveryTypesSelect-panel";
+    private static final String ORDER_SHIP_TO_CUSTOMER_SELECT_ID = "customersSelect";
+    private static final String ORDER_SHIP_TO_CUSTOMER_PANEL_ID = "customersSelect-panel";
 
     OrderController orderController = new OrderController();
 
@@ -233,6 +239,110 @@ public class SearchOrderPage extends CommonPageFactory {
         }
         sharedActions.sendKeys(dropdown, Keys.ESCAPE.toString());
         closeDropdownIfOpen(dropdown);
+    }
+
+    public void checkRequiredFields(String valueFields) {
+        Arrays.stream(valueFields.split(",")).map(String::trim).forEach
+            (valueField -> {
+                switch (valueField) {
+                    case "create date":
+                        theCreateDateIsRequiredField();
+                        break;
+                    case "order number":
+                        theOrderFieldIsRequiredField();
+                        break;
+                    default:
+                        Assert.fail("Field not found: " + valueField);
+                }
+            });
+    }
+
+    public void checkIfEnabledOrDisabled(String valueField, boolean isEnabled) throws InterruptedException {
+        if (!isEnabled) {
+            switch(valueField) {
+                case "create date from": theCreateDateFromFieldIsDisabled(); break;
+                case "create date to": theCreateDateToFieldIsDisabled(); break;
+                case "desired shipment date from": theDesiredShippingDateFromFieldIsDisabled(); break;
+                case "desired shipment date to": theDesiredShippingDateToFieldIsDisabled(); break;
+                case "order status": theOrderStatusFieldIsDisabled(); break;
+                case "priority": theOrderPrioritiesFieldIsDisabled(); break;
+                case "ship to customer": theCustomersFieldIsDisabled(); break;
+                case "order number": theOrderFieldIsDisabled(); break;
+                default:
+                    Assert.fail("Field not found: " + valueField);
+            }
+        } else {
+            switch(valueField) {
+                case "create date from": theCreateDateFromFieldIsEnabled(); break;
+                case "create date to": theCreateDateToFieldIsEnabled(); break;
+                case "desired shipment date from": theDesiredShippingDateFromFieldIsEnabled(); break;
+                case "desired shipment date to": theDesiredShippingDateToFieldIsEnabled(); break;
+                case "order status": theOrderStatusFieldIsEnabled(); break;
+                case "priority": theOrderPrioritiesFieldIsEnabled(); break;
+                case "ship to customer": theCustomersFieldIsEnabled(); break;
+                case "order number": theOrderFieldIsEnabled(); break;
+                default:
+                    Assert.fail("Field not found: " + valueField);
+            }
+        }
+    }
+
+    public void checkIfOptionHasStatus(String valueOption, String valueStatus) throws InterruptedException {
+        if (valueStatus.equalsIgnoreCase("disabled")) {
+            if (valueOption.equalsIgnoreCase("reset")) {
+                theResetOptionIsDisabled();
+            } else {
+                theApplyOptionIsDisabled();
+            }
+        } else {
+            if (valueOption.equalsIgnoreCase("reset")) {
+                theResetOptionIsEnabled();
+            } else {
+                theApplyOptionIsEnabled();
+            }
+        }
+    }
+
+    public void checkSelectedValuesFromDropdownDescription(String values, String dropdownName) {
+        switch(dropdownName) {
+            case "order status": checkSelectedValuesFromDropdown(ORDER_STATUS_SELECT_ID, ORDER_STATUS_PANEL_ID, Arrays.asList(values.split(",\\s*"))); break;
+            case "priority": checkSelectedValuesFromDropdown(ORDER_PRIORITY_SELECT_ID, ORDER_PRIORITY_PANEL_ID, Arrays.asList(values.split(",\\s*"))); break;
+            case "ship to customer": checkSelectedValuesFromDropdown(ORDER_SHIP_TO_CUSTOMER_SELECT_ID, ORDER_SHIP_TO_CUSTOMER_PANEL_ID, Arrays.asList(values.split(",\\s*"))); break;
+            default:
+                Assert.fail("Field not found: " + dropdownName);
+        }
+    }
+
+    public void checkNumberOfUsedFiltersForTheSearch(String value) {
+        int actualValue = 0;
+        int expectedValue = Integer.parseInt(value);
+
+        actualValue += isDropdownSelected(ORDER_STATUS_SELECT_ID, ORDER_STATUS_PANEL_ID) ? 1 : 0;
+        actualValue += isDropdownSelected(ORDER_PRIORITY_SELECT_ID, ORDER_PRIORITY_PANEL_ID) ? 1 : 0;
+        actualValue += isDropdownSelected(ORDER_SHIP_TO_CUSTOMER_SELECT_ID, ORDER_SHIP_TO_CUSTOMER_PANEL_ID) ? 1 : 0;
+
+        assertEquals("The number of used filters for the search should match.", expectedValue, actualValue);
+    }
+
+    public void selectOptionsForDropdownDescription(String values, String dropdownDescription) {
+        switch(dropdownDescription) {
+            case "order status": selectValuesFromDropdown(ORDER_STATUS_SELECT_ID, ORDER_STATUS_PANEL_ID, Arrays.asList(values.split(","))); break;
+            case "priority": selectValuesFromDropdown(ORDER_PRIORITY_SELECT_ID, ORDER_PRIORITY_PANEL_ID, Arrays.asList(values.split(","))); break;
+            case "ship to customer": selectValuesFromDropdown(ORDER_SHIP_TO_CUSTOMER_SELECT_ID, ORDER_SHIP_TO_CUSTOMER_PANEL_ID, Arrays.asList(values.split(","))); break;
+            default:
+                Assert.fail("Field not found: " + dropdownDescription);
+        }
+    }
+
+    public void setValueForField(String value, String fieldName) throws InterruptedException {
+        switch (fieldName) {
+            case "create date from": setCreateDateFromField(value);   break;
+            case "desired shipping date from": setDesireDateFromField(value);   break;
+            case "create date to": setCreateDateToField(value);   break;
+            case "desired shipping date to": setDesireDateToField(value);   break;
+            default:
+                Assert.fail("Field not found: " + fieldName);
+        }
     }
 
 
