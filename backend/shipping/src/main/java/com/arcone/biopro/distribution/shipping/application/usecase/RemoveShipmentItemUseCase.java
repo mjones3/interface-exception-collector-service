@@ -1,7 +1,6 @@
 package com.arcone.biopro.distribution.shipping.application.usecase;
 
 import com.arcone.biopro.distribution.shipping.adapter.in.web.dto.RemoveProductResponseDTO;
-import com.arcone.biopro.distribution.shipping.adapter.in.web.dto.VerifyProductResponseDTO;
 import com.arcone.biopro.distribution.shipping.application.dto.NotificationDTO;
 import com.arcone.biopro.distribution.shipping.application.dto.NotificationType;
 import com.arcone.biopro.distribution.shipping.application.dto.RemoveItemRequest;
@@ -12,13 +11,13 @@ import com.arcone.biopro.distribution.shipping.domain.model.ShipmentItemPacked;
 import com.arcone.biopro.distribution.shipping.domain.model.ShipmentItemRemoved;
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemPackedRepository;
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemRemovedRepository;
-import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentRepository;
 import com.arcone.biopro.distribution.shipping.domain.service.RemoveShipmentItemService;
 import com.arcone.biopro.distribution.shipping.domain.service.SecondVerificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -34,8 +33,8 @@ public class RemoveShipmentItemUseCase implements RemoveShipmentItemService {
     private final SecondVerificationService secondVerificationService;
     private final ShipmentItemRemovedRepository shipmentItemRemovedRepository;
 
-
     @Override
+    @Transactional
     public Mono<RuleResponseDTO> removeItem(RemoveItemRequest removeItemRequest) {
         return shipmentItemPackedRepository.findByUnitTobeRemoved(removeItemRequest.shipmentId()
                 ,removeItemRequest.unitNumber(), removeItemRequest.productCode())
