@@ -40,7 +40,7 @@ public class RemoveShipmentItemUseCase implements RemoveShipmentItemService {
         return shipmentItemPackedRepository.findByUnitTobeRemoved(removeItemRequest.shipmentId()
                 ,removeItemRequest.unitNumber(), removeItemRequest.productCode())
             .switchIfEmpty(Mono.defer(() -> {
-                return secondVerificationService.resetVerification(removeItemRequest.shipmentId(), ShipmentServiceMessages.SECOND_VERIFICATION_UNIT_NOT_TOBE_REMOVED_ERROR);
+                return resetRemoveShipmentItem(removeItemRequest);
             }))
             .flatMap(shipmentItemPacked -> removeItem(shipmentItemPacked,removeItemRequest))
             .flatMap(packedItem ->
@@ -65,6 +65,12 @@ public class RemoveShipmentItemUseCase implements RemoveShipmentItemService {
             .removedItems(tuple.getT1().stream().map(shipmentMapper::toShipmentItemRemovedDTO).toList())
             .toBeRemovedItems(tuple.getT2().stream().map(shipmentMapper::toShipmentItemPackedDTO).toList())
             .build()));
+    }
+
+    private Mono<ShipmentItemPacked> resetRemoveShipmentItem(RemoveItemRequest removeItemRequest){
+        return shipmentItemRemovedRepository.findAllByShipmentId(removeItemRequest.shipmentId())
+            .flatMap(shipmentItemRemovedRepository::delete)
+            .then(secondVerificationService.resetVerification(removeItemRequest.shipmentId(),ShipmentServiceMessages.SECOND_VERIFICATION_UNIT_NOT_TOBE_REMOVED_ERROR));
     }
 
     private Mono<RemoveProductResponseDTO> getNotificationDetailsByShipmentId(RemoveItemRequest removeItemRequest , ShipmentItemPacked shipmentItemPacked) {

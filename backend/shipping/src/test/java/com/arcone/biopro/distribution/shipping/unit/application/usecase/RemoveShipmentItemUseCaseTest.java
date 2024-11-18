@@ -69,6 +69,7 @@ class RemoveShipmentItemUseCaseTest {
 
         Mockito.when(shipmentItemRemovedRepository.findAllByShipmentId(1L)).thenReturn(Flux.just(removedItem));
         Mockito.when(shipmentItemPackedRepository.listAllIneligibleByShipmentId(1L)).thenReturn(Flux.just(tobeRemovedItem));
+        Mockito.when(shipmentItemRemovedRepository.delete(Mockito.any())).thenReturn(Mono.empty());
 
         Mono<RuleResponseDTO> removeDetail = useCase.removeItem(RemoveItemRequest.builder()
             .unitNumber("UN")
