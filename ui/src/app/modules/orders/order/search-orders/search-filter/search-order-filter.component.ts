@@ -34,6 +34,8 @@ import { DateRangePickerComponent } from '../../../../../shared/components/date-
 import { FiltersComponent } from '../../../../../shared/components/filters/filters.component';
 import { MultipleSelectComponent } from '../../../../../shared/components/multiple-select/multiple-select.component';
 import { BioproValidators } from '../../../../../shared/forms/biopro-validators';
+import { OrderPriorityMap } from '../../../../../shared/models/order-priority.model';
+import { OrderStatusMap } from '../../../../../shared/models/order-status.model';
 import { SearchOrderFilterDTO } from '../../../models/order.dto';
 import { OrderService } from '../../../services/order.service';
 
@@ -70,6 +72,9 @@ import { OrderService } from '../../../services/order.service';
 })
 @AutoUnsubscribe()
 export class SearchOrderFilterComponent implements OnInit {
+    readonly OrderStatusMap = OrderStatusMap;
+    readonly OrderPriorityMap = OrderPriorityMap;
+
     @Input() showFilters = false;
     @Output() applySearchFilters: EventEmitter<SearchOrderFilterDTO> =
         new EventEmitter<SearchOrderFilterDTO>();
@@ -190,14 +195,17 @@ export class SearchOrderFilterComponent implements OnInit {
                     response.data.searchOrderCriteria.orderStatus.map(
                         (item) => ({
                             optionKey: item.optionValue,
-                            optionDescription: item.descriptionKey,
+                            optionDescription: OrderStatusMap[item.optionValue],
                         })
                     );
                 this.priorityOptions =
                     response.data.searchOrderCriteria.orderPriorities.map(
                         (item) => ({
                             optionKey: item.optionValue,
-                            optionDescription: item.descriptionKey,
+                            optionDescription:
+                                OrderPriorityMap[
+                                    item.optionValue
+                                ]?.toUpperCase(),
                         })
                     );
                 this.customers =
