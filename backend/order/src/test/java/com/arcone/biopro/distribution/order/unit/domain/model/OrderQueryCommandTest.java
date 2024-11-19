@@ -16,7 +16,7 @@ class OrderQueryCommandTest {
 
     @Test
     public void shouldCreateOrderQueryCommandWhenSortIsNull() {
-        var orderQueryCommand = new OrderQueryCommand("1","",null,null,null,null,null,null,null,null,10);
+        var orderQueryCommand = new OrderQueryCommand("1","123",null,null,null,null,null,null,null,null,10);
         Assertions.assertNotNull(orderQueryCommand);
         Assertions.assertNotNull(orderQueryCommand.getQuerySort());
         Assertions.assertNotNull(orderQueryCommand.getQuerySort().getQueryOrderByList());
@@ -30,7 +30,7 @@ class OrderQueryCommandTest {
     public void shouldCreateOrderQueryCommand() {
         var orderBy = new QueryOrderBy("TEST","DESC");
         var sort = new QuerySort(List.of(orderBy));
-        var orderQueryCommand = new OrderQueryCommand("1","",null,null,null,null,null,null,null,sort,10);
+        var orderQueryCommand = new OrderQueryCommand("1","123",null,null,null,null,null,null,null,sort,10);
         Assertions.assertNotNull(orderQueryCommand);
         Assertions.assertNotNull(orderQueryCommand.getQuerySort());
         Assertions.assertNotNull(orderQueryCommand.getQuerySort().getQueryOrderByList());
@@ -45,7 +45,7 @@ class OrderQueryCommandTest {
         Exception exception =  assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand(null,null,null,null,null,null,null,null,null, null,10));
         Assertions.assertEquals("locationCode cannot be null or empty", exception.getMessage());
 
-        exception =  assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand("TEST",null,null,null,null,null,null,null,null, null,-1));
+        exception =  assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand("TEST","123",null,null,null,null,null,null,null, null,-1));
         Assertions.assertEquals("limit must be greater than 0", exception.getMessage());
     }
 

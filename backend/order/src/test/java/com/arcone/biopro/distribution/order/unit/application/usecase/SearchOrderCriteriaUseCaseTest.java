@@ -4,6 +4,8 @@ import com.arcone.biopro.distribution.order.application.usecase.SearchOrderCrite
 import com.arcone.biopro.distribution.order.domain.model.Lookup;
 import com.arcone.biopro.distribution.order.domain.model.SearchOrderCriteria;
 import com.arcone.biopro.distribution.order.domain.model.vo.LookupId;
+import com.arcone.biopro.distribution.order.domain.model.vo.OrderCustomerReport;
+import com.arcone.biopro.distribution.order.domain.model.vo.OrderPriorityReport;
 import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
 import com.arcone.biopro.distribution.order.infrastructure.service.dto.CustomerDTO;
@@ -29,9 +31,16 @@ public class SearchOrderCriteriaUseCaseTest {
 
         var useCase = new SearchOrderCriteriaUseCase(lookupService, customerService);
 
-        var lookup = new Lookup(new LookupId("type", "value"),"description",1,true);
+        var customer = Mockito.mock(CustomerDTO.class);
+        Mockito.when(customer.code()).thenReturn("code");
+        Mockito.when(customer.name()).thenReturn("name");
 
-        var customer = new CustomerDTO("code","123","name","","","",null, "Y");
+        var lookupId = Mockito.mock(LookupId.class);
+        Mockito.when(lookupId.getType()).thenReturn("type");
+        Mockito.when(lookupId.getOptionValue()).thenReturn("value");
+
+        var lookup = Mockito.mock(Lookup.class);
+        Mockito.when(lookup.getId()).thenReturn(lookupId);
 
         Mockito.when(lookupService.findAllByType(Mockito.any())).thenReturn(Flux.just(lookup));
 

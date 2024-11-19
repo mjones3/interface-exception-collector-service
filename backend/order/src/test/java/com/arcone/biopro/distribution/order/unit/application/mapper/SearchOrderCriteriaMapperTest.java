@@ -31,9 +31,17 @@ class SearchOrderCriteriaMapperTest {
     @Test
     void testMapToDTO() {
         // Setup
-        var lookup = new Lookup(new LookupId("type", "value"),"description",1,true);
+        var customer = Mockito.mock(CustomerDTO.class);
+        Mockito.when(customer.code()).thenReturn("code");
+        Mockito.when(customer.name()).thenReturn("name");
 
-        var customer = new CustomerDTO("code","123","name","","","",null, "Y");
+        var lookupId = Mockito.mock(LookupId.class);
+        Mockito.when(lookupId.getType()).thenReturn("type");
+        Mockito.when(lookupId.getOptionValue()).thenReturn("value");
+
+        var lookup = Mockito.mock(Lookup.class);
+        Mockito.when(lookup.getId()).thenReturn(lookupId);
+        Mockito.when(lookup.isActive()).thenReturn(true);
 
         Mockito.when(lookupService.findAllByType(Mockito.any())).thenReturn(Flux.just(lookup));
 
@@ -48,7 +56,7 @@ class SearchOrderCriteriaMapperTest {
         assertEquals(searchOrderCriteria.getOrderStatus().getFirst().getDescriptionKey(), result.orderStatus().getFirst().descriptionKey());
         assertEquals(searchOrderCriteria.getCustomers().getFirst().getCode(), result.customers().getFirst().code());
         assertEquals(searchOrderCriteria.getOrderPriorities().getFirst().getId().getOptionValue(), result.orderPriorities().getFirst().optionValue());
-        assertEquals(1, result.orderPriorities().getFirst().orderNumber());
+        assertEquals(searchOrderCriteria.getOrderPriorities().getFirst().getOrderNumber(), result.orderPriorities().getFirst().orderNumber());
         assertTrue(result.orderStatus().getFirst().active());
     }
 

@@ -2,6 +2,7 @@ package com.arcone.biopro.distribution.order.unit.domain.model;
 
 import com.arcone.biopro.distribution.order.domain.model.Lookup;
 import com.arcone.biopro.distribution.order.domain.model.SearchOrderCriteria;
+import com.arcone.biopro.distribution.order.domain.model.vo.LookupId;
 import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
 import com.arcone.biopro.distribution.order.infrastructure.service.dto.CustomerDTO;
@@ -25,10 +26,16 @@ class SearchOrderCriteriaTest {
 
     @Test
     void testValidation() {
+        var customer = Mockito.mock(CustomerDTO.class);
+        Mockito.when(customer.code()).thenReturn("code");
+        Mockito.when(customer.name()).thenReturn("name");
+
+        var lookupId = Mockito.mock(LookupId.class);
+        Mockito.when(lookupId.getType()).thenReturn("type");
+        Mockito.when(lookupId.getOptionValue()).thenReturn("value");
+
         var lookup = Mockito.mock(Lookup.class);
-
-        var customer = new CustomerDTO("code","123","name","","","",null, "Y");
-
+        Mockito.when(lookup.getId()).thenReturn(lookupId);
         Mockito.when(lookupService.findAllByType(Mockito.any())).thenReturn(Flux.just(lookup));
 
         Mockito.when(customerService.getCustomers()).thenReturn(Flux.just(customer));
@@ -39,10 +46,16 @@ class SearchOrderCriteriaTest {
 
     @Test
     void customerNameShouldNotBeNull() {
+        var customer = Mockito.mock(CustomerDTO.class);
+        Mockito.when(customer.code()).thenReturn("code");
+        Mockito.when(customer.name()).thenReturn(null);
+
+        var lookupId = Mockito.mock(LookupId.class);
+        Mockito.when(lookupId.getType()).thenReturn("type");
+        Mockito.when(lookupId.getOptionValue()).thenReturn("value");
+
         var lookup = Mockito.mock(Lookup.class);
-
-        var customer = new CustomerDTO("code","123",null,"","","",null, "Y");
-
+        Mockito.when(lookup.getId()).thenReturn(lookupId);
         Mockito.when(lookupService.findAllByType(Mockito.any())).thenReturn(Flux.just(lookup));
 
         Mockito.when(customerService.getCustomers()).thenReturn(Flux.just(customer));
