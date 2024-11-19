@@ -10,13 +10,9 @@ import handleApolloError from '../../shared/utils/apollo-error-handling';
 import { consumeNotifications } from '../../shared/utils/notification.handling';
 import {
     RemoveProductResponseDTO,
-    ShipmentItemRemovedDTO,
     VerifyProductResponseDTO,
 } from './graphql/verify-products/query-definitions/verify-products.graphql';
-import {
-    ShipmentDetailResponseDTO,
-    ShipmentItemPackedDTO,
-} from './models/shipment-info.dto';
+import { ShipmentDetailResponseDTO } from './models/shipment-info.dto';
 import { ShipmentService } from './services/shipment.service';
 
 export class SecondVerificationCommon {
@@ -98,7 +94,7 @@ export class SecondVerificationCommon {
             });
     }
 
-    getItemIcon(item: ShipmentItemPackedDTO | ShipmentItemRemovedDTO) {
+    getItemIcon(item: { productFamily?: string }) {
         return this.productIconService.getIconByProductFamily(
             item.productFamily
         );
