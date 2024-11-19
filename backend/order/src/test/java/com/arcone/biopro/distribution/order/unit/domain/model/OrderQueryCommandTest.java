@@ -3,9 +3,11 @@ package com.arcone.biopro.distribution.order.unit.domain.model;
 import com.arcone.biopro.distribution.order.domain.model.OrderQueryCommand;
 import com.arcone.biopro.distribution.order.domain.model.QueryOrderBy;
 import com.arcone.biopro.distribution.order.domain.model.QuerySort;
+import com.arcone.biopro.distribution.order.domain.model.SearchOrderCriteria;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -65,5 +67,46 @@ class OrderQueryCommandTest {
         var orderQueryCommand = new OrderQueryCommand("1",uniqueIdentifier,null,null,null,null,null,null,null,sort,10);
         Assertions.assertEquals(uniqueIdentifier, orderQueryCommand.getExternalOrderId());
         Assertions.assertNull(orderQueryCommand.getOrderNumber());
+    }
+
+    @Test
+    public void shouldThrowAnExceptionWhenInitialDateIsGreaterThanFinalDate() {
+        var orderBy = new QueryOrderBy("TEST","DESC");
+        var sort = new QuerySort(List.of(orderBy));
+
+        assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand("1",null,null,null,null, LocalDate.now().plusDays(1), LocalDate.now(),null,null,sort,10), "Initial date should not be greater than final date");
+    }
+
+    @Test
+    public void shouldThrowAnExceptionWhenFinalDateIsGreaterThanToday() {
+        var orderBy = new QueryOrderBy("TEST","DESC");
+        var sort = new QuerySort(List.of(orderBy));
+
+        assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand("1",null,null,null,null, LocalDate.now().minusMonths(3), LocalDate.now().plusDays(1),null,null,sort,10), "Final date should not be greater than today");
+    }
+
+    @Test
+    public void shouldThrowAnExceptionWhenDateRangeExceededTwoYears() {
+        var orderBy = new QueryOrderBy("TEST","DESC");
+        var sort = new QuerySort(List.of(orderBy));
+
+        assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand("1",null,null,null,null, LocalDate.now().minusYears(3), LocalDate.now().minusMonths(1),null,null,sort,10), "Date range exceeds two years");
+    }
+
+    @Test
+    public void shouldThrowAnExceptionWhenOrderNUmberAndCreateDateHaveValues() {
+        var orderBy = new QueryOrderBy("TEST","DESC");
+        var sort = new QuerySort(List.of(orderBy));
+        var uniqueIdentifier = "F123";
+
+        assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand("1",uniqueIdentifier,null,null,null, LocalDate.now().minusYears(1), LocalDate.now().minusMonths(1),null,null,sort,10), "The createDate must be null or empty");
+    }
+
+    @Test
+    public void shouldThrowAnExceptionWhenOrderNumberAndCreateDateDoNotHaveValues() {
+        var orderBy = new QueryOrderBy("TEST","DESC");
+        var sort = new QuerySort(List.of(orderBy));
+
+        assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand("1",null,null,null,null, null, null,null,null,sort,10), "The createDate must not be null or empty");
     }
 }

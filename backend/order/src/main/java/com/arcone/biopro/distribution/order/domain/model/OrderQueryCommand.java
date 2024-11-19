@@ -8,9 +8,8 @@ import org.springframework.util.Assert;
 
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 @EqualsAndHashCode
@@ -78,6 +77,26 @@ public class OrderQueryCommand implements Validatable {
 
         if (this.locationCode == null || this.locationCode.isEmpty()) {
             throw new IllegalArgumentException("locationCode cannot be null or empty");
+        }
+
+        if ((Objects.nonNull(this.orderNumber) || Objects.nonNull(this.externalOrderId)) && (Objects.nonNull(this.createDateFrom) || Objects.nonNull(this.createDateTo))) {
+            throw new IllegalArgumentException("The createDate must be null or empty");
+        }
+
+        if ((Objects.isNull(this.orderNumber) && Objects.isNull(this.externalOrderId)) && (Objects.isNull(this.createDateFrom) && Objects.isNull(this.createDateTo))) {
+            throw new IllegalArgumentException("The createDate must not be null or empty");
+        }
+
+        if (Objects.nonNull(this.createDateFrom) && Objects.nonNull(this.createDateTo) && this.createDateTo.isBefore(this.createDateFrom)) {
+            throw new IllegalArgumentException("Initial date should not be greater than final date");
+        }
+
+        if (Objects.nonNull(this.createDateTo) && this.createDateTo.isAfter(LocalDate.now())) {
+            throw new IllegalArgumentException("Final date should not be greater than today");
+        }
+
+        if (Objects.nonNull(this.createDateFrom) && this.createDateFrom.isBefore(LocalDate.now().minusYears(2))) {
+            throw new IllegalArgumentException("Date range exceeds two years");
         }
 
         Assert.notNull(this.querySort, "Sort must not be null");
