@@ -1,0 +1,42 @@
+<fuse-alert
+    appearance="soft"
+    [showIcon]="false"
+    [type]="messageType"
+    [dismissed]="false"
+    [dismissible]="dismissible"
+    (dismissedChanged)="dismiss()"
+    class="w-[unset] max-w-[unset]"
+>
+    <div class="flex-column flex">
+        <div class="fuse-alert-icon">
+            <div class="fuse-alert-default-icon">
+                @switch (messageType) {
+                    @case ('error') {
+                        <mat-icon
+                            [svgIcon]="'heroicons_solid:exclamation-triangle'"
+                        ></mat-icon>
+                    }
+                    @case ('warning') {
+                        <mat-icon
+                            [svgIcon]="'heroicons_solid:exclamation-circle'"
+                        ></mat-icon>
+                    }
+                    @case ('success') {
+                        <mat-icon
+                            [svgIcon]="'heroicons_solid:check-circle'"
+                        ></mat-icon>
+                    }
+                    @case ('info') {
+                        <mat-icon
+                            [svgIcon]="'heroicons_solid:information-circle'"
+                        ></mat-icon>
+                    }
+                }
+            </div>
+        </div>
+        <div class="fuse-alert-title pr-4">
+            {{ messageTitle }}
+        </div>
+        {{ message }}
+    </div>
+</fuse-alert>
