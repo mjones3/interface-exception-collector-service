@@ -3,9 +3,12 @@ import { Component, OnInit, ViewChild, computed, signal } from '@angular/core';
 import { MatDivider } from '@angular/material/divider';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { ProcessHeaderComponent, ProcessHeaderService } from '@shared';
+import {
+    ProcessHeaderComponent,
+    ProcessHeaderService,
+    ToastrImplService,
+} from '@shared';
 import { ScanUnitNumberProductCodeComponent } from 'app/scan-unit-number-product-code/scan-unit-number-product-code.component';
-import { ToastrService } from 'ngx-toastr';
 import { finalize, forkJoin, take, tap } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { FuseCardComponent } from '../../../../@fuse';
@@ -85,7 +88,7 @@ export class VerifyProductsComponent implements OnInit {
         private store: Store,
         private shipmentService: ShipmentService,
         private productIconService: ProductIconsService,
-        private toaster: ToastrService,
+        private toaster: ToastrImplService,
         protected header: ProcessHeaderService
     ) {
         this.store
