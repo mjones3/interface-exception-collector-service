@@ -107,6 +107,6 @@ class OrderQueryCommandTest {
         var orderBy = new QueryOrderBy("TEST","DESC");
         var sort = new QuerySort(List.of(orderBy));
 
-        assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand("1",null,null,null,null, null, null,null,null,sort,10), "The createDate must not be null or empty");
+        assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand("1",null,null,null,null, null, null,LocalDate.now(),null,sort,10), "The createDate must not be null or empty");
     }
 }

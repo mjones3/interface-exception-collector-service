@@ -83,7 +83,14 @@ public class OrderQueryCommand implements Validatable {
             throw new IllegalArgumentException("The createDate must be null or empty");
         }
 
-        if ((Objects.isNull(this.orderNumber) && Objects.isNull(this.externalOrderId)) && (Objects.isNull(this.createDateFrom) && Objects.isNull(this.createDateTo))) {
+        if ((Objects.isNull(this.orderNumber)
+            && Objects.isNull(this.externalOrderId))
+            && (Objects.isNull(this.createDateFrom)
+            && Objects.isNull(this.createDateTo))
+            && ((Objects.nonNull(this.orderStatus) && !this.orderStatus.isEmpty())
+            || (Objects.nonNull(this.deliveryTypes) && !this.deliveryTypes.isEmpty())
+            || (Objects.nonNull(this.customers) && !this.customers.isEmpty())
+            || (Objects.nonNull(this.desireShipDateFrom) || Objects.nonNull(this.desireShipDateTo)))) {
             throw new IllegalArgumentException("The createDate must not be null or empty");
         }
 
