@@ -84,6 +84,9 @@ public class SearchOrderPage extends CommonPageFactory {
     @FindBy(id = "resetFilterBtn")
     private WebElement filterResetButton;
 
+    @FindBy(id = "mat-badge-content-1")
+    private WebElement filterCountBadge;
+
 
 
 
@@ -188,18 +191,6 @@ public class SearchOrderPage extends CommonPageFactory {
         sharedActions.waitForNotVisible(tableLoadingOverlay);
         sharedActions.waitForVisible(By.xpath(tableRows));
         return tableRowsList.size();
-    }
-
-    public boolean isDropdownSelected(String dropdownId, String panelId) {
-        WebElement dropdown = driver.findElement(By.id(dropdownId));
-        sharedActions.click(dropdown);
-        WebElement dropdownPanel = driver.findElement(By.id(panelId));
-        List<WebElement> options = dropdownPanel.findElements(By.xpath(".//mat-option"));
-        var result = options.stream()
-            .anyMatch(option -> option.getDomAttribute("aria-selected").equals("true"));
-        sharedActions.sendKeys(dropdown, Keys.ESCAPE.toString());
-//        closeDropdownIfOpen(dropdown);
-        return result;
     }
 
     private void openDropDownIfClosed(WebElement dropdown) {
@@ -312,14 +303,9 @@ public class SearchOrderPage extends CommonPageFactory {
         }
     }
 
-    public void checkNumberOfUsedFiltersForTheSearch(String value) {
-        int actualValue = 0;
-        int expectedValue = Integer.parseInt(value);
-
-        actualValue += isDropdownSelected(ORDER_STATUS_SELECT_ID, ORDER_STATUS_PANEL_ID) ? 1 : 0;
-        actualValue += isDropdownSelected(ORDER_PRIORITY_SELECT_ID, ORDER_PRIORITY_PANEL_ID) ? 1 : 0;
-        actualValue += isDropdownSelected(ORDER_SHIP_TO_CUSTOMER_SELECT_ID, ORDER_SHIP_TO_CUSTOMER_PANEL_ID) ? 1 : 0;
-
+    public void checkNumberOfUsedFiltersForTheSearch(String expectedValue) {
+        sharedActions.waitForVisible(filterCountBadge);
+        var actualValue = filterCountBadge.getText();
         assertEquals("The number of used filters for the search should match.", expectedValue, actualValue);
     }
 
@@ -334,14 +320,19 @@ public class SearchOrderPage extends CommonPageFactory {
     }
 
     public void setValueForField(String value, String fieldName) throws InterruptedException {
+        WebElement fieldToChange;
         switch (fieldName) {
-            case "create date from": setCreateDateFromField(value);   break;
-            case "desired shipping date from": setDesireDateFromField(value);   break;
-            case "create date to": setCreateDateToField(value);   break;
-            case "desired shipping date to": setDesireDateToField(value);   break;
+            case "create date from": fieldToChange = createDateFromField;   break;
+            case "desired shipping date from": fieldToChange = desiredShippingDateFromField;   break;
+            case "create date to": fieldToChange = createDateToField;   break;
+            case "desired shipping date to":  fieldToChange = desiredShippingDateToField;   break;
             default:
                 Assert.fail("Field not found: " + fieldName);
+                return;
         }
+        sharedActions.waitForVisible(fieldToChange);
+        sharedActions.sendKeys(fieldToChange, value);
+
     }
 
 
@@ -614,26 +605,6 @@ public class SearchOrderPage extends CommonPageFactory {
 
     public void theFieldShouldHaveEmptyValue(WebElement fieldInput) {
         assertTrue("The field is Empty", fieldInput.getAttribute("value").isEmpty());
-    }
-
-    public void setCreateDateFromField(String value) throws InterruptedException {
-        sharedActions.waitForVisible(createDateFromField);
-        sharedActions.sendKeys(createDateFromField, value);
-    }
-
-    public void setDesireDateFromField(String value) throws InterruptedException {
-        sharedActions.waitForVisible(desiredShippingDateFromField);
-        sharedActions.sendKeys(desiredShippingDateFromField, value);
-    }
-
-    public void setCreateDateToField(String value) throws InterruptedException {
-        sharedActions.waitForVisible(createDateToField);
-        sharedActions.sendKeys(createDateToField, value);
-    }
-
-    public void setDesireDateToField(String value) throws InterruptedException {
-        sharedActions.waitForVisible(desiredShippingDateToField);
-        sharedActions.sendKeys(desiredShippingDateToField, value);
     }
 
     public void checkForFieldsVisibility(String valueFields) {
