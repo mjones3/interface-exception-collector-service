@@ -87,7 +87,7 @@ public class FillProductsPage extends CommonPageFactory {
         if (checkDigitEnabled && !unit.startsWith("=")) {
             sharedActions.sendKeysAndTab(this.driver, By.id(checkDigitInput), checkDigit);
         }
-        sharedActions.sendKeysAndEnter(this.driver, By.id(productCodeInput), productCode);
+        sharedActions.sendKeys(this.driver, By.id(productCodeInput), productCode);
         sharedActions.waitLoadingAnimation();
     }
 
@@ -223,5 +223,21 @@ public class FillProductsPage extends CommonPageFactory {
     public void assertProductInspectionIs(String inspection) {
         log.debug("Asserting product inspection is {}.", inspection);
         sharedActions.waitForVisible(By.xpath(formatProductInspectionLocator(inspection)));
+    }
+
+    public boolean isCheckDigitFieldIsNotVisible() {
+        log.debug("Checking if check digit field is not visible.");
+        sharedActions.waitForNotVisible(By.id(checkDigitInput));
+        return true;
+    }
+
+    public void cleanProductCodeField() {
+        log.debug("Cleaning product code field.");
+        sharedActions.clearField(By.id(productCodeInput));
+    }
+
+    public void cleanUnitNumberField() {
+        log.debug("Cleaning unit number field.");
+        sharedActions.clearField(By.id(unitNumberInput));
     }
 }

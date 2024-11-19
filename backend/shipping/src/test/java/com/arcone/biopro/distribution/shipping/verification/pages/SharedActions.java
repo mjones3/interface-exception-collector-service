@@ -354,4 +354,15 @@ public class SharedActions {
     public boolean isElementEnabled(WebDriver driver, By locator) {
         return driver.findElement(locator).isEnabled();
     }
+
+    public void clearField(By locator) {
+        wait.until(e -> {
+            log.debug("Clearing field {}.", locator);
+            e.findElement(locator).sendKeys(Keys.BACK_SPACE);
+            e.findElement(locator).sendKeys(Keys.COMMAND + "a");
+            e.findElement(locator).sendKeys(Keys.CONTROL + "a");
+            e.findElement(locator).sendKeys(Keys.DELETE);
+            return true;
+        });
+    }
 }

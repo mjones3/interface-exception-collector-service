@@ -115,6 +115,10 @@ public class OrderDetailsPage extends CommonPageFactory {
         return String.format("//*[@id='filledOrdersCount'][normalize-space()='%s']", quantity);
     }
 
+    private String formatTemperatureCategoryLocator(String category) {
+        return String.format("//span[contains(.,'Temperature Category')]/following-sibling::span[contains(.,'%s')]", category);
+    }
+
     // Strings mappers
 
     private Map<String, String> productFamilyDescription = Map.of(
@@ -309,5 +313,9 @@ public class OrderDetailsPage extends CommonPageFactory {
 
     public void verifyProgressBarNotExists() {
         sharedActions.waitForNotVisible(orderProgressBar);
+    }
+
+    public void verifyTemperatureCategory(String category) {
+        sharedActions.waitForVisible(By.xpath(formatTemperatureCategoryLocator(category)));
     }
 }
