@@ -20,6 +20,7 @@ Feature: View order details
             And I can see the billing information card filled with the billing information.
             And I can see the Product Details section filled with all the product details.
             And I can see the number of Available Inventories for each line item.
+            And I can see the Temperature Category as "<Product Category>".
 
 
             Examples:

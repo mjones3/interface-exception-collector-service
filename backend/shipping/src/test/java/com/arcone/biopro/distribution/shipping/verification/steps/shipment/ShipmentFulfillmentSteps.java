@@ -67,6 +67,7 @@ public class ShipmentFulfillmentSteps {
     private String unitNumber;
     private String checkDigit;
     private String productCode;
+    private boolean checkDigitEnabled;
 
     private ShipmentRequestDetailsResponseType setupOrderFulfillmentRequest(String orderNumber, String customerId, String customerName, String quantities, String bloodTypes
         , String productFamilies, String unitNumbers, String productCodes) {
@@ -325,7 +326,7 @@ public class ShipmentFulfillmentSteps {
 
     @When("I type the unit {string}, digit {string}, and product code {string}.")
     public void iTypeTheUnitDigitAndProductCode(String unitNumber, String checkDigit, String productCode) throws InterruptedException {
-        boolean checkDigitEnabled = shipmentTestingController.getCheckDigitConfiguration();
+        this.checkDigitEnabled = shipmentTestingController.getCheckDigitConfiguration();
         fillProductsPage.addUnitWithDigitAndProductCode(unitNumber, checkDigit, productCode, checkDigitEnabled);
         this.unitNumber = unitNumber;
         this.checkDigit = checkDigit;
@@ -447,6 +448,15 @@ public class ShipmentFulfillmentSteps {
     @Then("I should see the verify products option available.")
     public void iShouldSeeTheVerifyProductsOptionAvailable() {
         shipmentDetailPage.checkVerifyProductsButtonIsVisible();
+    }
+
+    @Then("If the check digit configuration is enabled, the check digit field should disappear if I clean the Unit Number field.")
+    public void checkDigitDisappear() throws InterruptedException {
+        if (checkDigitEnabled) {
+        fillProductsPage.cleanProductCodeField();
+        fillProductsPage.cleanUnitNumberField();
+            Assert.assertTrue(fillProductsPage.isCheckDigitFieldIsNotVisible());
+        }
     }
 }
 
