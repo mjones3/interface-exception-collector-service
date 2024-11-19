@@ -26,6 +26,7 @@ export class UnitNumberCardComponent {
     @Input() visualInspection = '';
     @Input() showVisualInspection = false;
     @Input() disableActive = true;
+    @Input() ineligibleStatus = '';
 
     @Output() clickEvent = new EventEmitter<string | number>();
 

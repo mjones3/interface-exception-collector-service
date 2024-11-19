@@ -34,5 +34,12 @@
                 </span>
             </div>
         }
+        @if (ineligibleStatus) {
+            <div class="mt-1">
+                <span class="badge rounded-pill otherBadge">
+                    {{ ineligibleStatus }}
+                </span>
+            </div>
+        }
     </div>
 </fuse-card>
