@@ -23,7 +23,7 @@ public class ShipmentServiceMessages {
     public static final String SECOND_VERIFICATION_NOT_COMPLETED_ERROR = "Shipment cannot be completed because second verification is not completed";
     public static final String SECOND_VERIFICATION_UNIT_NOT_PACKED_ERROR = "The verification does not match all products in this order. Please re-scan all the products.";
     public static final String SECOND_VERIFICATION_ALREADY_COMPLETED_ERROR = "This product has already been verified. Please re-scan all the products in the order.";
-    public static final String SHIPMENT_VALIDATION_COMPLETED_ERROR = "Shipment cannot be completed because contains product(s) that are not eligible for shipping.";
+    public static final String SHIPMENT_VALIDATION_COMPLETED_ERROR = "One or more products have changed status. You must rescan the products to be removed.";
 
 
     //    Success messages

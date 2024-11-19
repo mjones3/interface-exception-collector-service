@@ -293,7 +293,7 @@ public class ShipmentTestingController {
         return String.join(",", records.stream().map(x-> x.get("reason_key").toString().replace("_"," ")).toList());
     }
 
-    public Long createPackedShipment(String orderNumber, List<String> unitNumbers, List<String> productCodes){
+    public Long createPackedShipment(String orderNumber, List<String> unitNumbers, List<String> productCodes, String itemStatus){
 
         var insertShipment = "INSERT INTO bld_shipment " +
             "(order_number, customer_code, customer_name, customer_phone_number, location_code, delivery_type, priority, shipment_method, product_category, status, state, postal_code, country" +
@@ -320,7 +320,11 @@ public class ShipmentTestingController {
             if(createdShipmentItem != null){
 
                 for (int i = 0; i < unitNumbers.size(); i++) {
-                    createPackedItem(createdShipmentItem.get("id").toString(),unitNumbers.get(i),productCodes.get(i));
+                    if (itemStatus.equalsIgnoreCase("packed")) {
+                        createPackedItem(createdShipmentItem.get("id").toString(), unitNumbers.get(i), productCodes.get(i));
+                    } else if (itemStatus.equalsIgnoreCase("verified")) {
+                        createVerifiedItem(createdShipmentItem.get("id").toString(), unitNumbers.get(i), productCodes.get(i));
+                    }
                 }
             }
             return Long.valueOf(shipmentId.toString());
@@ -337,9 +341,13 @@ public class ShipmentTestingController {
             databaseService.executeSql(String.format(insertPackedItem, shipmentItemId, unitNumber,productCode)).block();
     }
 
-    public void verifyShipment(Long shipmentId) {
-        var query = String.format("UPDATE bld_shipment_item_packed SET second_verification = 'COMPLETED', verification_date = now(), verified_by_employee_id = '5db1da0b-6392-45ff-86d0-17265ea33226' WHERE shipment_item_id in (SELECT id FROM bld_shipment_item WHERE shipment_id = %s)", shipmentId);
-        databaseService.executeSql(query).block();
+    private void createVerifiedItem(String shipmentItemId,String unitNumber, String productCode){
+
+        var insertPackedItem = "INSERT INTO bld_shipment_item_packed " +
+            "(shipment_item_id, unit_number, product_code, product_description, abo_rh, packed_by_employee_id, expiration_date, collection_date, create_date, modification_date, visual_inspection, blood_type, product_family,second_verification,verification_date , verified_by_employee_id) " +
+            " VALUES(%s, '%s', '%s', 'APH FFP C', 'BP', '5db1da0b-6392-45ff-86d0-17265ea33226', '2025-11-02 13:15:47.152', '2024-10-04 06:15:47.152', now(), now(), 'SATISFACTORY', 'B', 'PLASMA_TRANSFUSABLE','COMPLETED',now() , '5db1da0b-6392-45ff-86d0-17265ea33226');";
+
+        databaseService.executeSql(String.format(insertPackedItem, shipmentItemId, unitNumber,productCode)).block();
     }
 
 }
