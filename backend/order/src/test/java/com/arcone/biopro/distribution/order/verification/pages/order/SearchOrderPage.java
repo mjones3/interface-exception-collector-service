@@ -232,9 +232,8 @@ public class SearchOrderPage extends CommonPageFactory {
         for (String value : valuesToCheck) {
 
             if (!value.isEmpty()) {
-                String key = getKeyByValue(value);
                 Assert.assertTrue("Selected value: " + value, selectedOptions.stream()
-                    .anyMatch((option -> option.getText().trim().equalsIgnoreCase(key))));
+                    .anyMatch((option -> option.getText().trim().equalsIgnoreCase(value))));
             }
         }
         sharedActions.sendKeys(dropdown, Keys.ESCAPE.toString());
@@ -362,9 +361,9 @@ public class SearchOrderPage extends CommonPageFactory {
         }
         for (String value : valuesToSelect) {
 
-            String key = getKeyByValue(value);
+
             options.stream()
-                .filter(option -> option.getText().trim().equalsIgnoreCase(key))
+                .filter(option -> option.getText().trim().equalsIgnoreCase(value))
                 .findFirst()
                 .ifPresent(element -> {
                     sharedActions.click(element);
@@ -377,23 +376,6 @@ public class SearchOrderPage extends CommonPageFactory {
         closeDropdownIfOpen(dropdown);
     }
 
-    private String getKeyByValue(String value) {
-        return switch (value) {
-            case "STAT" -> "order-priority.stat.label";
-            case "ASAP" -> "order-priority.asap.label";
-            case "ROUTINE" -> "order-priority.routine.label";
-            case "OPEN" -> "order-status.open.label";
-            case "CREATED" -> "order-status.created.label";
-            case "SHIPPED" -> "order-status.shipped.label";
-            case "IN_PROGRESS" -> "order-status.in-progress.label";
-            case "All" -> "All";
-            case "Creative Testing Solutions" -> "Creative Testing Solutions";
-            case "Advanced Medical Center" -> "Advanced Medical Center";
-            case "Pioneer Health Services" -> "Pioneer Health Services";
-            case "Sunrise Health Clinic" -> "Sunrise Health Clinic";
-            default -> "";
-        };
-    }
 
     public void searchOrder(String value) throws InterruptedException {
         sharedActions.waitForVisible(orderNumberField);
