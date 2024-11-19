@@ -1,8 +1,11 @@
-import { NotificationDto, NotificationTypeMap } from '@shared';
-import { ToastrService } from 'ngx-toastr';
+import {
+    NotificationDto,
+    NotificationTypeMap,
+    ToastrImplService,
+} from '@shared';
 
 export function consumeNotification(
-    toaster: ToastrService,
+    toaster: ToastrImplService,
     notification: NotificationDto,
     callBackFn
 ): void {
@@ -17,7 +20,7 @@ export function consumeNotification(
 }
 
 export function consumeNotifications(
-    toaster: ToastrService,
+    toaster: ToastrImplService,
     notifications: NotificationDto[],
     callBackFn = () => {}
 ): void {

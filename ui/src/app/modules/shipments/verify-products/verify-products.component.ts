@@ -9,10 +9,10 @@ import {
     NotificationTypeMap,
     ProcessHeaderComponent,
     ProcessHeaderService,
+    ToastrImplService,
 } from '@shared';
 import { ScanUnitNumberProductCodeComponent } from 'app/scan-unit-number-product-code/scan-unit-number-product-code.component';
 import { NotificationComponent } from 'app/shared/components/notification/notification.component';
-import { ToastrService } from 'ngx-toastr';
 import { finalize, forkJoin, take, tap } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { FuseCardComponent } from '../../../../@fuse';
@@ -93,9 +93,9 @@ export class VerifyProductsComponent implements OnInit {
         private store: Store,
         private shipmentService: ShipmentService,
         private productIconService: ProductIconsService,
-        private toaster: ToastrService,
         protected header: ProcessHeaderService,
-        private matDialog: MatDialog
+        private matDialog: MatDialog,
+        private toaster: ToastrImplService
     ) {
         this.store
             .select(getAuthState)
