@@ -136,9 +136,9 @@ Feature: Search Orders
             And I should see "<Expected Number of Orders>" orders in the search results.
             Examples:
                 | Selected Priorities | Selected Statuses | Selected Customers         | Expected External Ids | Expected Number of Orders | Expected Number of Filters |
-                | STAT,ASAP           | OPEN,IN_PROGRESS  |                            | 1979,1984             | 2                         | 2                          |
+                | STAT,ASAP           | OPEN,IN PROGRESS  |                            | 1979,1984             | 2                         | 2                          |
                 | STAT,ROUTINE        |                   |                            | 1979,2018             | 2                         | 1                          |
-                | ASAP                | IN_PROGRESS       | Creative Testing Solutions | 1984                  | 1                         | 3                          |
+                | ASAP                | IN PROGRESS       | Creative Testing Solutions | 1984                  | 1                         | 3                          |
 
     Rule: I should be able to filter the results for date fields from 2 years back.
         Rule: I should be able to enter the create date manually or select from the integrated component.
