@@ -602,4 +602,9 @@ public class OrderSteps {
                 searchOrderPage.verifyOrderExists(externalOrderId);
             });
     }
+
+    @And("I can see the Temperature Category as {string}.")
+    public void iCanSeeTheTemperatureCategoryAs(String category) {
+        orderDetailsPage.verifyTemperatureCategory(category);
+    }
 }
