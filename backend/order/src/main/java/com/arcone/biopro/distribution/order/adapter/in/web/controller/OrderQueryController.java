@@ -22,6 +22,4 @@ public class OrderQueryController {
         return orderQueryService.searchOrders(orderQueryMapper.mapToDomain(orderQueryCommandDTO))
             .map(orderQueryMapper::mapToDTO);
     }
-
-
 }

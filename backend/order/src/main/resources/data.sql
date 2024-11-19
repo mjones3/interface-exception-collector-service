@@ -15,7 +15,7 @@ ON CONFLICT DO NOTHING;
 
 -- Order Statuses
 INSERT INTO lk_lookup (type, description_key, option_value, order_number, active)
-VALUES ('ORDER_STATUS', 'order-status.all.label', 'ALL', 1, true),
+VALUES
        ('ORDER_STATUS', 'order-status.open.label', 'OPEN', 2, true),
        ('ORDER_STATUS', 'order-status.created.label', 'CREATED', 3, true),
        ('ORDER_STATUS', 'order-status.shipped.label', 'SHIPPED', 4, true),

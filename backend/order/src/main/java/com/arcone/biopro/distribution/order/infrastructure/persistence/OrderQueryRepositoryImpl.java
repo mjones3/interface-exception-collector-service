@@ -12,7 +12,9 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalTime;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -37,6 +39,22 @@ public class OrderQueryRepositoryImpl implements OrderQueryRepository {
             criteria = criteria.and(where("orderNumber").is(orderQueryCommand.getOrderNumber()).or("externalId").is(orderQueryCommand.getOrderNumber()));
         } else if (orderQueryCommand.getExternalOrderId() != null) {
             criteria = criteria.and(where("externalId").is(orderQueryCommand.getExternalOrderId()));
+        }
+
+        if (Objects.nonNull(orderQueryCommand.getOrderStatus()) && !orderQueryCommand.getOrderStatus().isEmpty()) {
+            criteria = criteria.and(where("status").in(orderQueryCommand.getOrderStatus()));
+        }
+        if (Objects.nonNull(orderQueryCommand.getDeliveryTypes()) && !orderQueryCommand.getDeliveryTypes().isEmpty()) {
+            criteria = criteria.and(where("deliveryType").in(orderQueryCommand.getDeliveryTypes()));
+        }
+        if (Objects.nonNull(orderQueryCommand.getCustomers()) && !orderQueryCommand.getCustomers().isEmpty()) {
+            criteria = criteria.and(where("shippingCustomerCode").in(orderQueryCommand.getCustomers()));
+        }
+        if (Objects.nonNull(orderQueryCommand.getCreateDateFrom()) && Objects.nonNull(orderQueryCommand.getCreateDateTo())) {
+            criteria = criteria.and(where("createDate").greaterThanOrEquals(orderQueryCommand.getCreateDateFrom().atStartOfDay()).and("createDate").lessThanOrEquals(orderQueryCommand.getCreateDateTo().atTime(LocalTime.MAX)));
+        }
+        if (Objects.nonNull(orderQueryCommand.getDesireShipDateFrom()) && Objects.nonNull(orderQueryCommand.getDesireShipDateTo())) {
+            criteria = criteria.and(where("desiredShippingDate").greaterThanOrEquals(orderQueryCommand.getDesireShipDateFrom().atStartOfDay()).and("desiredShippingDate").lessThanOrEquals(orderQueryCommand.getDesireShipDateTo().atTime(LocalTime.MAX)));
         }
 
         var sorts = orderQueryCommand.getQuerySort()

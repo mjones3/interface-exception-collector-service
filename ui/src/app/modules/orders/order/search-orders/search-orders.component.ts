@@ -1,5 +1,5 @@
-import { AsyncPipe, CommonModule } from '@angular/common';
-import { Component, ViewChild } from '@angular/core';
+import { AsyncPipe, CommonModule, formatDate } from '@angular/common';
+import { Component, Inject, LOCALE_ID, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { Router } from '@angular/router';
@@ -146,7 +146,8 @@ export class SearchOrdersComponent {
         private orderService: OrderService,
         private router: Router,
         private toaster: ToastrService,
-        private cookieService: CookieService
+        private cookieService: CookieService,
+        @Inject(LOCALE_ID) public locale: string
     ) {}
 
     toggleFilter(toggleFlag: boolean): void {
@@ -157,9 +158,70 @@ export class SearchOrdersComponent {
         const criteria: OrderQueryCommandDTO = {
             locationCode: this.cookieService.get(Cookie.XFacility),
         };
-        if (this.currentFilter && this.currentFilter.orderNumber !== '') {
-            criteria.orderUniqueIdentifier = this.currentFilter.orderNumber;
+        if (this.currentFilter) {
+            if (this.currentFilter.orderNumber !== '') {
+                criteria.orderUniqueIdentifier = this.currentFilter.orderNumber;
+            }
+            if (
+                this.currentFilter.orderStatus &&
+                this.currentFilter.orderStatus.length > 0
+            ) {
+                criteria.orderStatus = this.currentFilter.orderStatus;
+            }
+            if (
+                this.currentFilter.deliveryTypes &&
+                this.currentFilter.deliveryTypes.length > 0
+            ) {
+                criteria.deliveryTypes = this.currentFilter.deliveryTypes;
+            }
+            if (
+                this.currentFilter.customers &&
+                this.currentFilter.customers.length > 0
+            ) {
+                criteria.customers = this.currentFilter.customers;
+            }
+            if (
+                this.currentFilter.createDateFrom != null &&
+                this.currentFilter.createDateFrom !== ''
+            ) {
+                criteria.createDateFrom = formatDate(
+                    this.currentFilter.createDateFrom,
+                    'yyyy-MM-dd',
+                    this.locale
+                );
+            }
+            if (
+                this.currentFilter.createDateTo != null &&
+                this.currentFilter.createDateTo !== ''
+            ) {
+                criteria.createDateTo = formatDate(
+                    this.currentFilter.createDateTo,
+                    'yyyy-MM-dd',
+                    this.locale
+                );
+            }
+            if (
+                this.currentFilter.desiredShipDateFrom != null &&
+                this.currentFilter.desiredShipDateFrom !== ''
+            ) {
+                criteria.desireShipDateFrom = formatDate(
+                    this.currentFilter.desiredShipDateFrom,
+                    'yyyy-MM-dd',
+                    this.locale
+                );
+            }
+            if (
+                this.currentFilter.desiredShipDateTo != null &&
+                this.currentFilter.desiredShipDateTo !== ''
+            ) {
+                criteria.desireShipDateTo = formatDate(
+                    this.currentFilter.desiredShipDateTo,
+                    'yyyy-MM-dd',
+                    this.locale
+                );
+            }
         }
+
         return criteria;
     }
 
