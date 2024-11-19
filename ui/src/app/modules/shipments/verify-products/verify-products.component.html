@@ -19,15 +19,37 @@
                 label="Complete Shipment"
                 color="primary"
                 icon="heroicons_outline:check-circle"
-                [disabled]="!isAllPackItemsVerified()"
+                [disabled]="
+                    !isAllPackItemsVerified() ||
+                    toBeRemovedItemsComputed().length > 0
+                "
                 (clickEvent)="completeShipment()"
             />
         </div>
     </ng-template>
 
+    <biopro-verify-products-navbar
+        [links]="{
+            Verified: currentRouteComputed(),
+            Notifications: verifyProductsNotificationsRouteComputed(),
+        }"
+        [activeLinkRoute]="currentRouteComputed()"
+        style="margin-top: 1px !important"
+    />
+
     <div class="flex w-full flex-row space-x-8 p-4">
         @if (verificationSignal(); as verification) {
             <div class="flex w-9/12 flex-auto flex-col space-y-3">
+                @if (toBeRemovedItemsComputed()?.length) {
+                    <biopro-global-message
+                        messageType="error"
+                        messageTitle="Notification"
+                        [message]="
+                            'One or more products have changed status. You must rescan the products to be removed.'
+                        "
+                    />
+                }
+
                 @if (packedItemsComputed(); as packedItems) {
                     @if (verifiedItemsComputed(); as verifiedItems) {
                         <fuse-card
@@ -64,15 +86,17 @@
                             </div>
                         </fuse-card>
 
-                        <fuse-card class="flex w-full flex-col space-y-2">
-                            <div class="mt-3">
-                                <biopro-scan-unit-number-product-code
-                                    #scanUnitNumberProductCode
-                                    (validate)="verifyItem($event)"
-                                >
-                                </biopro-scan-unit-number-product-code>
-                            </div>
-                        </fuse-card>
+                        @if (!toBeRemovedItemsComputed()?.length) {
+                            <fuse-card class="flex w-full flex-col space-y-2">
+                                <div class="mt-3">
+                                    <biopro-scan-unit-number-product-code
+                                        #scanUnitNumberProductCode
+                                        (validate)="verifyItem($event)"
+                                    >
+                                    </biopro-scan-unit-number-product-code>
+                                </div>
+                            </fuse-card>
+                        }
 
                         <fuse-card
                             class="mb-4 flex flex-col px-4 pb-4"
@@ -120,6 +144,9 @@
                                                 getItemIcon(verifiedItem)
                                             "
                                             [showVisualInspection]="false"
+                                            [ineligibleStatus]="
+                                                verifiedItem.ineligibleStatus
+                                            "
                                         />
                                     }
                                 </div>
