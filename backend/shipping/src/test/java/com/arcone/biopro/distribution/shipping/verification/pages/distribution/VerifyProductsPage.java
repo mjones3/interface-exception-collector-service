@@ -56,7 +56,7 @@ public class VerifyProductsPage extends CommonPageFactory {
     }
 
     private String formatDialogLocator(String message) {
-        return String.format("//app-notifications//p[contains(text(),'%s')]", message);
+        return String.format("//app-notification//p[contains(text(),'%s')]", message);
     }
 
     private String getFilledTabLocator(String status, String totalProducts) {
@@ -68,7 +68,7 @@ public class VerifyProductsPage extends CommonPageFactory {
     }
 
     private String getNotifiedProductCardLocator (String unit, String productCode, String status) {
-        return String.format("//app-notifications//biopro-unit-number-card//*[contains(text(),'%s')]/..//*[contains(text(),'%s')]/../../../..//*[contains(text(),'%s')]", unit, productCode, status);
+        return String.format("//app-notification//biopro-unit-number-card//*[contains(text(),'%s')]/..//*[contains(text(),'%s')]/../../../..//*[contains(text(),'%s')]", unit, productCode, status);
     }
 
     public void goToPage(String shipmentId) {
