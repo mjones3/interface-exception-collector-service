@@ -19,12 +19,11 @@ public class VerifyProductsPage extends CommonPageFactory {
     @Autowired
     private SharedActions sharedActions;
 
-    @Value("${ui.base.url}")
-    private String baseUrl;
-
     @Value("${ui.shipment-verify-products.url}")
-
     private String verifyProductsUrl;
+
+    @Value("${ui.shipment-verify-products-tab.url}")
+    String verifyProductsTabUrl;
 
     private static final String verifiedProductsTable = "//*[@id='prodTableId']";
     private static final String productCategory = "//*[@id='informationDetails-Labeling-Product-Category']";
@@ -40,6 +39,7 @@ public class VerifyProductsPage extends CommonPageFactory {
     private static final String scanUnitNumber = "//*[@id='scanUnitNumberId']";
     private static final String scanProductCode = "//*[@id='scanProductCodeId']";
     private static final String notificationConfirmButton = "//*[@id='notificationtBtn']";
+    private static final String fillMoreProductsBtn = "fillMoreProductsActionBtn";
 
     private String validationErrorLocator(String message) {
         return String.format("//mat-error[contains(text(),'%s')]", message);
@@ -71,6 +71,12 @@ public class VerifyProductsPage extends CommonPageFactory {
         return String.format("//app-notification//biopro-unit-number-card//*[contains(text(),'%s')]/..//*[contains(text(),'%s')]/../../../..//*[contains(text(),'%s')]", unit, productCode, status);
     }
 
+    private String formatBannerMessageLocator(String message) {
+        return String.format("//biopro-global-message//fuse-alert//div[contains(text(),'%s')]", message);
+    }
+    private String getNotifiedProductCardLocator2 (String unit, String productCode, String status) {
+        return String.format("//biopro-unit-number-card//*[contains(text(),'%s')]/..//*[contains(text(),'%s')]/../../../..//*[contains(text(),'%s')]", unit, productCode, status);
+    }
     public void goToPage(String shipmentId) {
         sharedActions.navigateTo(verifyProductsUrl.replace("{shipmentId}", shipmentId));
     }
@@ -124,7 +130,7 @@ public class VerifyProductsPage extends CommonPageFactory {
         }
     }
 
-    public String getProgressLog() {
+    public String getProductsProgressLog() {
         return sharedActions.getText(By.id(progressLog));
     }
 
@@ -225,6 +231,31 @@ public class VerifyProductsPage extends CommonPageFactory {
             sharedActions.click(this.driver, By.xpath(tab));
             sharedActions.waitForVisible(By.xpath(getNotifiedProductCardLocator(unit, productCode, status)));
             }
+        return true;
+    }
+
+    public void goToPageAndTab(String shipmentId, String tab) {
+        sharedActions.navigateTo(verifyProductsTabUrl.replace("{shipmentId}", shipmentId).replace("{tab}", tab));
+    }
+
+    public boolean isNotificationBannerVisible(String message) {
+        sharedActions.waitForVisible(By.xpath(formatBannerMessageLocator(message)));
+        return true;
+    }
+
+    public boolean isProductRemoved(String unitNumber, String productCode, String status) {
+        sharedActions.waitForVisible(By.xpath(getNotifiedProductCardLocator2(unitNumber, productCode, status)));
+        return true;
+    }
+
+    public boolean isProductNotRemoved(String unitNumber, String productCode, String status) {
+        sharedActions.waitForNotVisible(By.xpath(getNotifiedProductCardLocator2(unitNumber, productCode, status)));
+        return true;
+    }
+
+    public boolean isFillMoreProductsButtonEnabled() {
+        sharedActions.waitForVisible(By.id(fillMoreProductsBtn));
+        sharedActions.waitForEnabled(By.id(fillMoreProductsBtn));
         return true;
     }
 }

@@ -18,9 +18,10 @@ Feature: Second Verification Notification Tab
     @DIS-207
     Scenario Outline: Second verification unsuitable products - remove units.
         Given I have a shipment for order "<Order Number>" with the units "<Suitable UN>,<Unsuitable UN>" and product codes "<Suitable Code>,<Unsuitable Code>" "verified".
+        And The verified unit "<Unsuitable UN>" is unsuitable with status "<Unsuitable Status>" and message "<Message>".
         And The second verification configuration is "enabled".
-        And I am on the verify products page with "Notification" tab active.
-        And I should see a "Notification" message: "One or more products have changed status. You must rescan the products to be removed.".
+        And I am on the verify products page with "notifications" tab active.
+        And I should see a notification banner: "One or more products have changed status. You must rescan the products to be removed.".
         When I scan the unit "<Unsuitable UN>" with product code "<Unsuitable Code>".
         Then I should see a "Acknowledgment Message" message: "<Message>".
         When I confirm the acknowledgment message.
@@ -30,8 +31,8 @@ Feature: Second Verification Notification Tab
         And The fill more products option should be enabled.
 
         Examples:
-            | Order Number | Suitable Code | Suitable UN   | Unsuitable Code | Unsuitable UN | Unsuitable Status | Message                                                                                          |
-            | 120          | E0685V00      | W822530106090 | E0685V00        | W822530106091 | Discarded         | This product has already been discarded for (reason) in the system. Place in biohazard container |
+            | Order Number | Suitable Code | Suitable UN   | Unsuitable Code | Unsuitable UN | Unsuitable Status | Message                                                                                         |
+            | 120          | E0685V00      | W822530106090 | E0685V00        | W822530106091 | Discarded         | This product has already been discarded for BROKEN in the system. Place in biohazard container. |
 
     Rule: I should restart the second verification process when I scan a unit that is not required to be removed.
     @DIS-207
@@ -39,9 +40,9 @@ Feature: Second Verification Notification Tab
         Given I have a shipment for order "<Order Number>" with the units "<Suitable UN>,<Unsuitable UN>" and product codes "<Suitable Code>,<Unsuitable Code>" "verified".
         And The second verification configuration is "enabled".
         And I am on the verify products page with "Notification" tab active.
-        When I scan the unit "WXXXXXXXXXXXX" with product code "E000000".
-        Then I should see a "Warning" message: "XXXXXXXXXXXXXXXXXXX. Please re-scan all the products.".
-        And I should not see the unit added to the removed products section.
+        When I scan the unit "W822530106044" with product code "E000000".
+        Then I should see a "Warning" message: "W822530106044. Please re-scan all the products.".
+        And I should not see the unit "<Unsuitable UN>" with code "<Unsuitable Code>" added to the removed products section with unsuitable status "<Unsuitable Status>".
         And The complete shipment option should not be enabled.
         And I should be redirected to the verify products page.
         And I should see the verified products section empty.
