@@ -3,19 +3,19 @@ import { Component, OnInit, ViewChild, computed, signal } from '@angular/core';
 import { MatDivider } from '@angular/material/divider';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import {
-    NotificationTypeMap,
-    ProcessHeaderComponent,
-    ProcessHeaderService,
-} from '@shared';
+import { ProcessHeaderComponent, ProcessHeaderService } from '@shared';
+import { ScanUnitNumberProductCodeComponent } from 'app/scan-unit-number-product-code/scan-unit-number-product-code.component';
 import { ToastrService } from 'ngx-toastr';
 import { finalize, forkJoin, take, tap } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { FuseCardComponent } from '../../../../@fuse';
 import { getAuthState } from '../../../core/state/auth/auth.selectors';
 import { ProgressBarComponent } from '../../../progress-bar/progress-bar.component';
 import { ActionButtonComponent } from '../../../shared/components/action-button/action-button.component';
 import { UnitNumberCardComponent } from '../../../shared/components/unit-number-card/unit-number-card.component';
 import { ProductIconsService } from '../../../shared/services/product-icon.service';
+import handleApolloError from '../../../shared/utils/apollo-error-handling';
+import { consumeNotifications } from '../../../shared/utils/notification.handling';
 import { VerifyProductResponseDTO } from '../graphql/verify-products/query-definitions/verify-products.graphql';
 import {
     ShipmentDetailResponseDTO,
@@ -23,7 +23,6 @@ import {
     VerifyFilledProductDto,
 } from '../models/shipment-info.dto';
 import { ShipmentService } from '../services/shipment.service';
-import { EnterUnitNumberProductCodeComponent } from '../shared/enter-unit-number-product-code/enter-unit-number-product-code.component';
 import { OrderWidgetsSidebarComponent } from '../shared/order-widgets-sidebar/order-widgets-sidebar.component';
 
 @Component({
@@ -37,16 +36,14 @@ import { OrderWidgetsSidebarComponent } from '../shared/order-widgets-sidebar/or
         NgTemplateOutlet,
         OrderWidgetsSidebarComponent,
         PercentPipe,
-        EnterUnitNumberProductCodeComponent,
         MatDivider,
         UnitNumberCardComponent,
         ProgressBarComponent,
+        ScanUnitNumberProductCodeComponent,
     ],
     templateUrl: './verify-products.component.html',
 })
 export class VerifyProductsComponent implements OnInit {
-    protected shipmentId: number;
-
     protected loggedUserIdSignal = signal<string>(null);
     protected shipmentSignal = signal<ShipmentDetailResponseDTO>(null);
     protected verificationSignal = signal<VerifyProductResponseDTO>(null);
@@ -75,9 +72,12 @@ export class VerifyProductsComponent implements OnInit {
             this.packedItemsComputed()?.length
         );
     });
+    protected shipmentIdComputed = computed(() =>
+        Number(this.route.snapshot.params?.id)
+    );
 
-    @ViewChild('enterUnitNumberProductCode')
-    protected enterUnitNumberProductCode: EnterUnitNumberProductCodeComponent;
+    @ViewChild('scanUnitNumberProductCode')
+    protected scanUnitNumberProductCode: ScanUnitNumberProductCodeComponent;
 
     constructor(
         private route: ActivatedRoute,
@@ -88,7 +88,6 @@ export class VerifyProductsComponent implements OnInit {
         private toaster: ToastrService,
         protected header: ProcessHeaderService
     ) {
-        this.shipmentId = Number(this.route.snapshot.params?.id);
         this.store
             .select(getAuthState)
             .pipe(take(1))
@@ -101,10 +100,12 @@ export class VerifyProductsComponent implements OnInit {
 
     triggerFetchData(): void {
         forkJoin({
-            shipment: this.shipmentService.getShipmentById(this.shipmentId),
+            shipment: this.shipmentService.getShipmentById(
+                this.shipmentIdComputed()
+            ),
             verification:
                 this.shipmentService.getShipmentVerificationDetailsById(
-                    this.shipmentId
+                    this.shipmentIdComputed()
                 ),
         }).subscribe(({ shipment, verification }) => {
             this.shipmentSignal.set(shipment.data?.getShipmentDetailsById);
@@ -117,42 +118,39 @@ export class VerifyProductsComponent implements OnInit {
     verifyItem(item: VerifyFilledProductDto): void {
         this.shipmentService
             .verifyItem({
-                shipmentId: this.shipmentId,
+                shipmentId: this.shipmentIdComputed(),
                 unitNumber: item.unitNumber,
                 productCode: item.productCode,
                 employeeId: this.loggedUserIdSignal(),
             })
             .pipe(
-                tap((result) => {
-                    const notifications =
-                        result?.data?.verifyItem?.notifications;
-                    notifications?.forEach((notification) => {
-                        this.toaster.show(
-                            notification.message,
-                            null,
-                            {},
-                            NotificationTypeMap[notification.notificationType]
-                                .type
-                        );
-                    });
-                }),
-                finalize(() => {
-                    this.enterUnitNumberProductCode.productGroup.reset();
-                    this.enterUnitNumberProductCode.unitNumberComponent.reset();
-                    this.enterUnitNumberProductCode.enableProductCode();
-                })
+                tap((result) =>
+                    consumeNotifications(
+                        this.toaster,
+                        result?.data?.verifyItem?.notifications,
+                        () => {
+                            this.scanUnitNumberProductCode.focusOnUnitNumber();
+                        }
+                    )
+                ),
+                finalize(() =>
+                    this.scanUnitNumberProductCode.resetUnitProductGroup()
+                )
             )
             .subscribe((result) => {
                 this.verificationSignal.set(
                     result.data?.verifyItem?.results?.results?.[0] ?? null
                 );
                 this.disableInputsIfAllPackItemsVerified();
+                if (result?.data?.verifyItem?.ruleCode === '200 OK') {
+                    this.scanUnitNumberProductCode.focusOnUnitNumber();
+                }
             });
     }
 
     disableInputsIfAllPackItemsVerified(): void {
         if (this.isAllPackItemsVerified()) {
-            this.enterUnitNumberProductCode.disableProductGroup();
+            this.scanUnitNumberProductCode.disableUnitProductGroup();
         }
     }
 
@@ -162,9 +160,37 @@ export class VerifyProductsComponent implements OnInit {
         );
     }
 
-    cancelButtonHandler(): void {
-        this.router.navigateByUrl(
-            `/shipment/${this.shipmentId}/shipment-details`
+    async handleNavigation(url: string): Promise<boolean> {
+        return await this.router.navigateByUrl(url);
+    }
+
+    async cancelButtonHandler(): Promise<boolean> {
+        return await this.handleNavigation(
+            `/shipment/${this.shipmentIdComputed()}/shipment-details`
         );
+    }
+
+    completeShipment() {
+        this.shipmentService
+            .completeShipment({
+                shipmentId: this.shipmentIdComputed(),
+                employeeId: this.loggedUserIdSignal(),
+            })
+            .pipe(
+                tap((result) =>
+                    consumeNotifications(
+                        this.toaster,
+                        result?.data?.completeShipment.notifications
+                    )
+                ),
+                catchError((e) => handleApolloError(this.toaster, e))
+            )
+            .subscribe((response) => {
+                if (response.data?.completeShipment?._links?.next) {
+                    this.handleNavigation(
+                        response.data?.completeShipment?._links?.next
+                    );
+                }
+            });
     }
 }

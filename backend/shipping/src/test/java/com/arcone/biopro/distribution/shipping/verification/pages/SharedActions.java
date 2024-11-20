@@ -334,4 +334,35 @@ public class SharedActions {
             waitForVisible(locator);
         }
     }
+
+    public void navigateTo(String url) {
+        wait.until(e -> {
+            log.debug("Navigating to URL: {}", url);
+            e.get(baseUrl + url);
+            return true;
+        });
+    }
+
+    public void focusOutElement(By element) {
+        wait.until(e -> {
+            log.debug("Focusing on element {}.", element);
+            e.findElement(element).sendKeys(Keys.TAB);
+            return true;
+        });
+    }
+
+    public boolean isElementEnabled(WebDriver driver, By locator) {
+        return driver.findElement(locator).isEnabled();
+    }
+
+    public void clearField(By locator) {
+        wait.until(e -> {
+            log.debug("Clearing field {}.", locator);
+            e.findElement(locator).sendKeys(Keys.BACK_SPACE);
+            e.findElement(locator).sendKeys(Keys.COMMAND + "a");
+            e.findElement(locator).sendKeys(Keys.CONTROL + "a");
+            e.findElement(locator).sendKeys(Keys.DELETE);
+            return true;
+        });
+    }
 }

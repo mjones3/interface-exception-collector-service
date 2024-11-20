@@ -25,7 +25,7 @@ import { ActiveElementService } from './active-element.service';
 })
 export class ToastrImplService extends ToastrService {
     private renderer2: Renderer2;
-    private readonly blockingBackdropClass = 'rsa-blocking-backdrop';
+    private readonly blockingBackdropClass = 'biopro-blocking-backdrop';
 
     constructor(
         @Inject(TOAST_CONFIG) token: ToastToken,

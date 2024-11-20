@@ -1,4 +1,4 @@
-@ui 
+@ui
 Feature: Complete Shipment Feature
     As a distribution technician, I want to complete a shipment, so I can ship products to the customer.
 
@@ -13,7 +13,7 @@ Feature: Complete Shipment Feature
         Rule: I should be able to view the pending log of products to be filled for each line item on the Shipment Fulfillment Details page.
         Rule: I should be able to complete the shipment process without second verification if configured by the blood center.
 
-        @DST-202 @DIS-162 @DIS-156 @DIS-56 @DIS-25 @DIS-21 @DIS-201
+        @DIS-202 @DIS-162 @DIS-156 @DIS-56 @DIS-25 @DIS-21 @DIS-201
         Scenario Outline: Complete Shipment with suitable products.
             Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>".
             And The check digit configuration is "disabled".
@@ -51,6 +51,7 @@ Feature: Complete Shipment Feature
             When I type the unit "<UN>", digit "<Digit>", and product code "<Code>".
             Then I can "<Message Type>" message "<Message Content>".
             And I am able to proceed with the product filling process.
+            And If the check digit configuration is enabled, the check digit field should disappear if I clean the Unit Number field.
 
             Examples:
                 | Order Number | Customer ID | Customer Name    | Quantity | BloodType | ProductFamily                                                                          | Message Content | Message Type      | Family                       | Type | Code       | UN               | Check Digit Config | Digit | Inspection Config |
@@ -76,7 +77,7 @@ Feature: Complete Shipment Feature
                 | 112          | 1           | Testing Customer | 10,5,8   | AP,BP,OP  | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED | Check Digit is Required | see an error message | RED BLOOD CELLS LEUKOREDUCED | AP   | E0685V00 | W812530106088 | enabled            |       | disabled          |
 
 
-        @DST-202
+        @DIS-202
         Rule: I should be able to start the second verification process if configured by the blood center.
         Scenario Outline: Second Verification of Shipment with suitable products.
             Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>".

@@ -471,4 +471,9 @@ public class OrderSteps {
     public void iShouldBeRedirectedToTheOrderDetailsPage() {
         searchOrderPage.checkIfDetailsPageIsOpened();
     }
+
+    @And("I can see the Temperature Category as {string}.")
+    public void iCanSeeTheTemperatureCategoryAs(String category) {
+        orderDetailsPage.verifyTemperatureCategory(category);
+    }
 }

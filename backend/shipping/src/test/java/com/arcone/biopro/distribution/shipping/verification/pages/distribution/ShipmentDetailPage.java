@@ -35,9 +35,6 @@ public class ShipmentDetailPage extends CommonPageFactory {
     @FindBy(css = "[id^='fillShipmentBtn']")
     private WebElement fillProductButton;
 
-    @FindBy(id = "prodTableId")
-    private WebElement productTable;
-
     @FindBy(id = "detailsBtn")
     private WebElement productShippingDetailsSection;
 
@@ -95,9 +92,13 @@ public class ShipmentDetailPage extends CommonPageFactory {
     @FindBy(id = "informationDetails-External-Order-ID")
     private WebElement externalId;
 
+//    Static locators
+    private final String shipmentStatusValue = "//*[@id=\"informationDetails-Status\"]/following-sibling::span";
+    private final String productTable = "//*[@id='prodTableId']";
+
     @Override
     public boolean isLoaded() {
-        return sharedActions.isElementVisible(productTable);
+        return sharedActions.isElementVisible(By.xpath(productTable));
     }
 
     @Value("${testing.browser}")
@@ -164,7 +165,7 @@ public class ShipmentDetailPage extends CommonPageFactory {
     }
 
     public void waitForLoad() {
-        sharedActions.waitForVisible(productTable);
+        sharedActions.waitForVisible(By.xpath(productTable));
     }
 
     public void clickViewPackingSlip() throws InterruptedException {
@@ -237,5 +238,12 @@ public class ShipmentDetailPage extends CommonPageFactory {
 
     public void clickVerifyProductsBtn() throws InterruptedException {
         sharedActions.click(verifyProductsBtn);
+    }
+
+    public void verifyShippingStatusIs(String status) {
+        log.debug("Verifying that the shipping status is {}", status);
+        sharedActions.waitForVisible(By.xpath(shipmentStatusValue));
+        var actualStatus = sharedActions.getText(By.xpath(shipmentStatusValue));
+        assertTrue(actualStatus.contains(status), "The shipping status is not as expected. Expected: " + status + ", Actual: " + actualStatus);
     }
 }
