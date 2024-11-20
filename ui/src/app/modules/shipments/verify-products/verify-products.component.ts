@@ -1,7 +1,5 @@
-import { AsyncPipe, NgTemplateOutlet, PercentPipe } from '@angular/common';
-import { Component, OnInit, ViewChild, computed, signal } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { AsyncPipe, PercentPipe } from '@angular/common';
+import { Component, computed, OnInit, ViewChild } from '@angular/core';
 import { MatDivider } from '@angular/material/divider';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -14,10 +12,8 @@ import {
 } from '@shared';
 import { ScanUnitNumberProductCodeComponent } from 'app/scan-unit-number-product-code/scan-unit-number-product-code.component';
 import { NotificationComponent } from 'app/shared/components/notification/notification.component';
-import { finalize, forkJoin, take, tap } from 'rxjs';
-import { catchError } from 'rxjs/operators';
-import { ToastrService } from 'ngx-toastr';
 import { finalize, tap } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { FuseCardComponent } from '../../../../@fuse';
 import { ProgressBarComponent } from '../../../progress-bar/progress-bar.component';
 import { ActionButtonComponent } from '../../../shared/components/action-button/action-button.component';
@@ -30,6 +26,8 @@ import { SecondVerificationCommon } from '../second-verification-common';
 import { ShipmentService } from '../services/shipment.service';
 import { OrderWidgetsSidebarComponent } from '../shared/order-widgets-sidebar/order-widgets-sidebar.component';
 import { VerifyProductsNavbarComponent } from '../verify-products-navbar/verify-products-navbar.component';
+import handleApolloError from '../../../shared/utils/apollo-error-handling';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
     selector: 'app-verify-products',
@@ -47,7 +45,6 @@ import { VerifyProductsNavbarComponent } from '../verify-products-navbar/verify-
         ScanUnitNumberProductCodeComponent,
         VerifyProductsNavbarComponent,
         GlobalMessageComponent,
-        NotificationComponent,
     ],
     templateUrl: './verify-products.component.html',
 })
@@ -79,14 +76,14 @@ export class VerifyProductsComponent
     protected scanUnitNumberProductCode: ScanUnitNumberProductCodeComponent;
 
     constructor(
-        private route: ActivatedRoute,
-        private router: Router,
-        private store: Store,
-        private shipmentService: ShipmentService,
-        private productIconService: ProductIconsService,
+        protected route: ActivatedRoute,
+        protected router: Router,
+        protected store: Store,
+        protected shipmentService: ShipmentService,
+        protected productIconService: ProductIconsService,
+        protected toaster: ToastrImplService,
         protected header: ProcessHeaderService,
-        private matDialog: MatDialog,
-        private toaster: ToastrImplService
+        private matDialog: MatDialog
     ) {
         super(
             route,
@@ -153,12 +150,6 @@ export class VerifyProductsComponent
         if (this.isAllPackItemsVerified()) {
             this.scanUnitNumberProductCode.disableUnitProductGroup();
         }
-    }
-
-    getItemIcon(item: ShipmentItemPackedDTO) {
-        return this.productIconService.getIconByProductFamily(
-            item.productFamily
-        );
     }
 
     async handleNavigation(url: string): Promise<boolean> {

@@ -3,8 +3,11 @@ import { Component, computed, OnInit, ViewChild } from '@angular/core';
 import { MatDivider } from '@angular/material/divider';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { ProcessHeaderComponent, ProcessHeaderService } from '@shared';
-import { ToastrService } from 'ngx-toastr';
+import {
+    ProcessHeaderComponent,
+    ProcessHeaderService,
+    ToastrImplService,
+} from '@shared';
 import { finalize, switchMap, tap } from 'rxjs';
 import { FuseCardComponent } from '../../../../@fuse';
 import { FuseConfirmationService } from '../../../../@fuse/services/confirmation';
@@ -93,7 +96,7 @@ export class VerifyProductsNotificationsComponent
         protected shipmentService: ShipmentService,
         protected confirmationService: FuseConfirmationService,
         protected productIconService: ProductIconsService,
-        protected toaster: ToastrService,
+        protected toaster: ToastrImplService,
         protected header: ProcessHeaderService
     ) {
         super(
