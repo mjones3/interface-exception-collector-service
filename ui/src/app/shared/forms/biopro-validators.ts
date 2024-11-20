@@ -20,16 +20,20 @@ export class BioproValidators {
         control: AbstractControl
     ): ValidationErrors | null {
         const orderNumber = control.value.orderNumber;
-        const createDateFrom = control.value.createDateFrom;
-        const createDateTo = control.value.createDateTo;
+        const createDateFrom = control.value.createDate?.start;
+        const createDateTo = control.value.createDate?.end;
 
         if (orderNumber || (createDateFrom && createDateTo)) {
-            if (createDateFrom) {
+            if (createDateFrom || createDateTo) {
                 const twoYearsAgo = new Date();
                 const datFrom = new Date(createDateFrom);
                 const datTo = new Date(createDateTo);
+                datFrom.setHours(0, 0, 0, 0);
+                datTo.setHours(0, 0, 0, 0);
+                twoYearsAgo.setHours(0, 0, 0, 0);
                 twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
                 if (datFrom < twoYearsAgo) {
+                    console.log('dateRangeExceedsTwoYears');
                     return {
                         eitherOrderNumberOrDates: true,
                         dateRangeExceedsTwoYears: true,
@@ -51,6 +55,7 @@ export class BioproValidators {
                     return {
                         eitherOrderNumberOrDates: true,
                         matEndDateInvalid: true,
+                        initialDateGreaterThanFinalDate: true,
                     };
                 }
             }

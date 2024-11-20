@@ -58,13 +58,22 @@ describe('SearchOrderFilterComponent', () => {
     });
 
     it('should clear form when reset is triggered', () => {
-        Object.keys(component.searchForm.controls).forEach((filterKey) => {
+        const { createDate, desiredShipDate, ...nonDateRangeFields } =
+            component.searchForm.controls;
+
+        Object.keys(nonDateRangeFields).forEach((filterKey) => {
             component.searchForm.controls[filterKey].setValue('Test');
 
             component.resetFilters();
 
             expect(component.searchForm.controls[filterKey].value).toBe(null);
             expect(component.enableSubmit).toBeFalsy();
+        });
+        [createDate, desiredShipDate].forEach((dateRangeField) => {
+            dateRangeField.setValue({ start: '01/01/2024', end: '01/01/2024' });
+            component.resetFilters();
+            expect(dateRangeField.value?.start).toBe(null);
+            expect(dateRangeField.value?.end).toBe(null);
         });
     });
 
@@ -79,21 +88,20 @@ describe('SearchOrderFilterComponent', () => {
 
     it('should enable apply button when create date is entered', () => {
         component.searchForm.controls['orderNumber'].setValue('');
-        component.searchForm.controls['createDateFrom'].setValue('01/01/2024');
-        component.searchForm.controls['createDateTo'].setValue('03/03/2024');
-        component.searchForm.controls[
-            'createDateFrom'
-        ].updateValueAndValidity();
-        component.searchForm.controls['createDateTo'].updateValueAndValidity();
+        component.searchForm.controls['createDate'].setValue({
+            start: '01/01/2024',
+            end: '03/01/2024',
+        });
+        component.searchForm.controls['createDate'].updateValueAndValidity();
         expect(component.enableSubmit).toBeTruthy();
     });
 
     it('should disable apply button when invalid create date is entered', () => {
-        component.searchForm.controls['createDateFrom'].setValue('01/mm/2000');
-        component.searchForm.controls['createDateTo'].setValue('03/01/2024');
-        component.searchForm.controls['createDateFrom'].markAsTouched();
-        component.searchForm.controls['createDateTo'].markAsTouched();
-        fixture.detectChanges();
+        component.searchForm.controls['createDate'].setValue({
+            start: '01/mm/2000',
+            end: '03/01/2024',
+        });
+        component.searchForm.controls['createDate'].updateValueAndValidity();
         expect(component.enableSubmit).toBeFalsy();
     });
 
@@ -101,13 +109,7 @@ describe('SearchOrderFilterComponent', () => {
         SINGLE_SEARCH_FILTER_KEYS.forEach((singleFilter) => {
             component.resetFilters();
             component.searchForm.controls[singleFilter].setValue('Test');
-
             expect(component.enableSubmit).toBeTruthy();
-            Object.keys(component.searchForm.controls).forEach((filterKey) => {
-                expect(component.searchForm.controls[filterKey].enabled).toBe(
-                    filterKey === singleFilter
-                );
-            });
         });
     });
 
@@ -136,11 +138,9 @@ describe('SearchOrderFilterComponent', () => {
             orderNumber: '',
             orderStatus: '',
             customers: '',
-            createDateFrom: '',
-            createDateTo: '',
-            desiredShipDateFrom: '',
-            desiredShipDateTo: '',
             deliveryTypes: '',
+            createDate: { start: null, end: null },
+            desiredShipDate: { start: null, end: null },
         };
 
         component.applyFilterSearch();

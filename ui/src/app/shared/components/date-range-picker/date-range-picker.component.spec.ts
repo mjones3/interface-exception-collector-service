@@ -30,11 +30,10 @@ describe('DateRangePickerComponent', () => {
 
         fixture = TestBed.createComponent(DateRangePickerComponent);
         component = fixture.componentInstance;
-        component.dateFromFormControlName = 'dateFrom';
-        component.dateToFormControlName = 'dateTo';
+
         component.formGroup = new FormGroup({
-            dateFrom: new FormControl(),
-            dateTo: new FormControl(),
+            start: new FormControl(),
+            end: new FormControl(),
         });
         fixture.detectChanges();
     });

@@ -59,7 +59,7 @@
 
            --mat-expansion-header-disabled-state-text-color:
             rgb(26 27 31 / 38%) !important;
-            
+
             &[aria-disabled='true'] {
                 .mat-expansion-panel-header-description {
                     margin-right: 28px;
@@ -1329,7 +1329,7 @@ textarea.mat-mdc-input-element {
 }
 
 .mat-mdc-radio-button .mdc-radio--disabled+label{
-    color: rgb(26 27 31 / 38%) !important; 
+    color: rgb(26 27 31 / 38%) !important;
 }
 
 
@@ -1340,4 +1340,14 @@ textarea.mat-mdc-input-element {
 .mat-badge{
     --mat-badge-background-color: #4b5563;
     --mat-badge-text-color: #fff;
+}
+
+.mat-calendar {
+    --mat-datepicker-calendar-date-disabled-state-text-color: theme(
+            'colors.gray[400]'
+    ) !important;
+}
+
+mat-error {
+    --mat-form-field-error-text-color: red !important;
 }

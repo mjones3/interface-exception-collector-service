@@ -164,10 +164,13 @@ export interface SearchOrderFilterDTO {
     limit?: number;
     sortBy?: string;
     order?: string;
-    createDateFrom?: string;
-    createDateTo?: string;
-    desiredShipDateFrom?: string;
-    desiredShipDateTo?: string;
+    createDate?: SearchOrderFilterDateRangeDTO;
+    desiredShipDate?: SearchOrderFilterDateRangeDTO;
+}
+
+export interface SearchOrderFilterDateRangeDTO {
+    start: string;
+    end: string;
 }
 
 export type LabelStatus = 'LABELED' | 'UNLABELED';

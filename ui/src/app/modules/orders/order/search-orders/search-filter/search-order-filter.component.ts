@@ -90,6 +90,7 @@ export class SearchOrderFilterComponent implements OnInit {
     totalFieldsApplied = 0;
 
     today = new Date();
+    minCreateDateCriteria = new Date();
 
     constructor(
         private formBuilder: FormBuilder,
@@ -116,12 +117,10 @@ export class SearchOrderFilterComponent implements OnInit {
                 Object.keys(this.searchForm.controls).forEach((key) => {
                     if (key !== 'orderNumber') {
                         this.searchForm.get(key)?.enable({ emitEvent: false });
-                        if (
-                            key === 'createDateFrom' ||
-                            key === 'createDateTo'
-                        ) {
+                        if (key === 'createDate') {
                             this.searchForm
                                 .get(key)
+                                .get('start')
                                 ?.addValidators(Validators.required);
                         }
                     }
@@ -136,12 +135,10 @@ export class SearchOrderFilterComponent implements OnInit {
                 Object.keys(this.searchForm.controls).forEach((key) => {
                     if (key !== 'orderNumber') {
                         this.searchForm.get(key)?.disable({ emitEvent: false });
-                        if (
-                            key === 'createDateFrom' ||
-                            key === 'createDateTo'
-                        ) {
+                        if (key === 'createDate') {
                             this.searchForm
                                 .get(key)
+                                .get('start')
                                 ?.removeValidators(Validators.required);
                         }
                     }
@@ -149,13 +146,14 @@ export class SearchOrderFilterComponent implements OnInit {
             } else {
                 Object.keys(this.searchForm.controls).forEach((key) => {
                     this.searchForm.get(key)?.enable({ emitEvent: false });
-                    if (
-                        key === 'createDateFrom' ||
-                        key === 'createDateTo' ||
-                        key === 'orderNumber'
-                    ) {
+                    if (key === 'orderNumber') {
                         this.searchForm
                             .get(key)
+                            ?.addValidators(Validators.required);
+                    } else if (key === 'createDate') {
+                        this.searchForm
+                            .get(key)
+                            ?.get('start')
                             ?.addValidators(Validators.required);
                     }
                 });
@@ -167,15 +165,23 @@ export class SearchOrderFilterComponent implements OnInit {
         this.searchForm.get('orderNumber')?.value !== '' &&
         this.searchForm.get('orderNumber')?.value != null;
 
-    remainingFieldsInformed = () =>
-        Object.keys(this.searchForm.value)
-            .filter((key) => key !== 'orderNumber')
-            .some((key) =>
-                Array.isArray(this.searchForm.value[key])
-                    ? this.searchForm.value[key].length > 0
-                    : this.searchForm.value[key] != null &&
-                      this.searchForm.value[key] !== ''
-            );
+    remainingFieldsInformed() {
+        const { createDate, desiredShipDate, orderNumber, ...otherFields } =
+            this.searchForm.value;
+
+        return (
+            this.isDateRangeInformed(createDate) ||
+            this.isDateRangeInformed(desiredShipDate) ||
+            Object.keys(otherFields).some((key) =>
+                Array.isArray(otherFields[key])
+                    ? otherFields[key].length > 0
+                    : otherFields[key] != null && otherFields[key] !== ''
+            )
+        );
+    }
+
+    isDateRangeInformed = (date) =>
+        date != null && (date?.start != null || date?.end != null);
 
     totalFieldsInformed = () =>
         Object.keys(this.searchForm.value).filter(
@@ -221,6 +227,11 @@ export class SearchOrderFilterComponent implements OnInit {
     }
 
     private initForm() {
+        this.minCreateDateCriteria = new Date();
+        this.minCreateDateCriteria.setHours(0, 0, 0, 0);
+        this.minCreateDateCriteria.setFullYear(
+            this.minCreateDateCriteria.getFullYear() - 2
+        );
         this.searchForm = this.formBuilder.group(
             {
                 orderNumber: [
@@ -230,10 +241,14 @@ export class SearchOrderFilterComponent implements OnInit {
                 orderStatus: [''],
                 deliveryTypes: [''],
                 customers: [''],
-                createDateFrom: ['', [Validators.required]],
-                createDateTo: ['', []],
-                desiredShipDateFrom: [''],
-                desiredShipDateTo: [''],
+                createDate: this.formBuilder.group({
+                    start: [null, [Validators.required]], // Start date
+                    end: [null], // End date
+                }),
+                desiredShipDate: this.formBuilder.group({
+                    start: [null], // Start date
+                    end: [null], // End date
+                }),
             },
             {
                 validators: [
@@ -241,6 +256,13 @@ export class SearchOrderFilterComponent implements OnInit {
                 ],
             }
         );
+    }
+
+    getDateRangeFormGroup(
+        formGroup: 'createDate' | 'desiredShipDate'
+    ): FormGroup {
+        const control = this.searchForm.get(formGroup);
+        return control instanceof FormGroup ? control : null;
     }
 
     get enableSubmit(): boolean {
@@ -280,4 +302,6 @@ export class SearchOrderFilterComponent implements OnInit {
         this.totalFieldsApplied = this.totalFieldsInformed();
         this.applySearchFilters.emit(value);
     }
+
+    protected readonly FormGroup = FormGroup;
 }
