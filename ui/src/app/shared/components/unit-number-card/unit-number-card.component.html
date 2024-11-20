@@ -27,6 +27,7 @@
                     class="badge rounded-pill"
                     [ngClass]="{
                         satisfactoryBadge: visualInspection === 'SATISFACTORY',
+                        otherBadge: visualInspection != 'SATISFACTORY',
                     }"
                 >
                     {{ visualInspection }}

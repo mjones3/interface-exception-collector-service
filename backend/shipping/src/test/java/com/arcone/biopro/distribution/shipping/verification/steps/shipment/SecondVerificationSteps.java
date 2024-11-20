@@ -16,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @SpringBootTest
@@ -42,37 +43,29 @@ public class SecondVerificationSteps {
     @Autowired
     private HomePage homePage;
 
-    @Given("I have a shipment for order {string} with the unit {string} and product code {string} packed.")
-    public void createPackedShipment(String orderNumber, String unitNumber, String productCode){
+    @Given("I have a shipment for order {string} with the unit {string} and product code {string} {string}.")
+    public void createPackedShipment(String orderNumber, String unitNumber, String productCode, String itemStatus){
         this.unitNumber = unitNumber;
         this.productCode = productCode;
-        this.shipmentId = shipmentTestingController.createPackedShipment(orderNumber, List.of(unitNumber),List.of(productCode));
+        this.shipmentId = shipmentTestingController.createPackedShipment(orderNumber, List.of(unitNumber),List.of(productCode), itemStatus);
 
         Assert.assertNotNull(this.shipmentId);
         this.totalPacked = 1;
 
     }
 
-    @Given("I have a shipment for order {string} with the units {string} and product codes {string} packed.")
-    public void createPackedShipmentMultipleUnits(String orderNumber, String unitNumbers, String productCodes){
+    @Given("I have a shipment for order {string} with the units {string} and product codes {string} {string}.")
+    public void createPackedShipmentMultipleUnits(String orderNumber, String unitNumbers, String productCodes, String itemStatus){
         var units = Arrays.stream(unitNumbers.split(",")).toList();
         var productCodeList = Arrays.stream(productCodes.split(",")).toList();
 
         this.unitNumber = units.getFirst();
         this.productCode = productCodeList.getFirst();
-        this.shipmentId = shipmentTestingController.createPackedShipment(orderNumber,units,productCodeList);
+        this.shipmentId = shipmentTestingController.createPackedShipment(orderNumber,units,productCodeList, itemStatus);
 
         Assert.assertNotNull(this.shipmentId);
         this.totalPacked = units.size();
 
-    }
-
-    @Given("I have a shipment for order {string} with the unit {string} and product code {string} verified.")
-    public void createVerifiedShipment(String orderNumber, String unitNumber, String productCode){
-        this.unitNumber = unitNumber;
-        this.productCode = productCode;
-        this.shipmentId = shipmentTestingController.createPackedShipment(orderNumber, List.of(unitNumber),List.of(productCode));
-        shipmentTestingController.verifyShipment(this.shipmentId);
     }
 
     @Then("I should be redirected to the verify products page.")
@@ -150,5 +143,30 @@ public class SecondVerificationSteps {
         } else {
             Assert.fail("Invalid status provided");
         }
+    }
+
+    @Then("I should see a notification dialog with the message {string}.")
+    public void verifyDialogMessage(String message) {
+        Assert.assertTrue(verifyProductsPage.isDialogMessage(message));
+    }
+
+    @And("I should have an option to acknowledge the notification.")
+    public void iShouldHaveAnOptionToAcknowledgeTheNotification() {
+        Assert.assertTrue(verifyProductsPage.isDialogAcknowledgementButtonEnabled());
+    }
+
+    @And("I should see a list of products grouped by the following statuses:")
+    public void iShouldSeeAListOfProductsGroupedByTheFollowingStatuses(List<Map<String, String>> statuses) {
+        Assert.assertTrue(verifyProductsPage.isProductListGroupedByStatus(statuses));
+    }
+
+    @When("I verify each one of the tabs.")
+    public void iVerifyEachOneOfTheTabs() {
+        // Empty step. This is a placeholder to make the scenario more readable.
+    }
+
+    @Then("I should see the following products.")
+    public void iShouldSeeTheFollowingProducts(List<Map<String, String>> products) throws InterruptedException {
+        Assert.assertTrue(verifyProductsPage.verifyNotifiedProducts(products));
     }
 }

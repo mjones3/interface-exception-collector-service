@@ -1,0 +1,52 @@
+<div class="notifications-card">
+    <div class="notifications-card-header">
+        <h1>Notifications</h1>
+        <p>
+            One or more products have changed status. You must rescan the
+            products to be removed.
+        </p>
+    </div>
+    <div class="notifications-card-body">
+        <mat-tab-group>
+            @for (inventoryProduct of inventoryProducts; track $index) {
+                <mat-tab
+                    label="{{ inventoryProduct?.tabName }} ({{
+                        inventoryProduct?.inventoryResponse.length
+                    }})"
+                >
+                    <div
+                        id="optionButtons"
+                        class="grid max-h-[220px] grid-cols-4 gap-4 overflow-auto pb-4 pt-4"
+                    >
+                        @for (
+                            inventory of inventoryProduct?.inventoryResponse;
+                            track $index
+                        ) {
+                            <biopro-unit-number-card
+                                [id]="'unit-' + $index"
+                                class="max-h-24"
+                                [unitNumber]="inventory?.unitNumber"
+                                [productName]="inventory?.productCode"
+                                [visualInspection]="inventory?.label"
+                                [iconName]="
+                                    getItemIcon(inventory?.productFamily)
+                                "
+                                [showVisualInspection]="true"
+                                [disableActive]="false"
+                            />
+                        }
+                    </div>
+                </mat-tab>
+            }
+        </mat-tab-group>
+    </div>
+
+    <div class="notifications-card-footer">
+        <biopro-action-button
+            id="notificationtBtn"
+            btnId="notificationtActionBtn"
+            label="Confirm"
+            color="primary"
+        />
+    </div>
+</div>

@@ -1,14 +1,18 @@
 import { AsyncPipe, NgTemplateOutlet, PercentPipe } from '@angular/common';
 import { Component, OnInit, ViewChild, computed, signal } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatDivider } from '@angular/material/divider';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import {
+    NotificationDto,
+    NotificationTypeMap,
     ProcessHeaderComponent,
     ProcessHeaderService,
     ToastrImplService,
 } from '@shared';
 import { ScanUnitNumberProductCodeComponent } from 'app/scan-unit-number-product-code/scan-unit-number-product-code.component';
+import { NotificationComponent } from 'app/shared/components/notification/notification.component';
 import { finalize, forkJoin, take, tap } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { FuseCardComponent } from '../../../../@fuse';
@@ -43,6 +47,7 @@ import { OrderWidgetsSidebarComponent } from '../shared/order-widgets-sidebar/or
         UnitNumberCardComponent,
         ProgressBarComponent,
         ScanUnitNumberProductCodeComponent,
+        NotificationComponent,
     ],
     templateUrl: './verify-products.component.html',
 })
@@ -88,8 +93,9 @@ export class VerifyProductsComponent implements OnInit {
         private store: Store,
         private shipmentService: ShipmentService,
         private productIconService: ProductIconsService,
-        private toaster: ToastrImplService,
-        protected header: ProcessHeaderService
+        protected header: ProcessHeaderService,
+        private matDialog: MatDialog,
+        private toaster: ToastrImplService
     ) {
         this.store
             .select(getAuthState)
@@ -180,12 +186,26 @@ export class VerifyProductsComponent implements OnInit {
                 employeeId: this.loggedUserIdSignal(),
             })
             .pipe(
-                tap((result) =>
-                    consumeNotifications(
-                        this.toaster,
-                        result?.data?.completeShipment.notifications
-                    )
-                ),
+                tap((result) => {
+                    if (result?.data?.completeShipment?.notifications?.length) {
+                        if (
+                            result?.data?.completeShipment?.notifications?.find(
+                                (n) => n.notificationType === 'CONFIRMATION'
+                            )
+                        ) {
+                            this.matDialog.open(NotificationComponent, {
+                                data: { data: result?.data?.completeShipment },
+                                disableClose: true,
+                            });
+                        } else {
+                            const notificationDto: NotificationDto[] =
+                                result?.data?.completeShipment?.notifications;
+                            this.displayMessageFromNotificationDto(
+                                notificationDto
+                            );
+                        }
+                    }
+                }),
                 catchError((e) => handleApolloError(this.toaster, e))
             )
             .subscribe((response) => {
@@ -195,5 +215,25 @@ export class VerifyProductsComponent implements OnInit {
                     );
                 }
             });
+    }
+
+    displayMessageFromNotificationDto(notifications: NotificationDto[]) {
+        notifications.forEach((notification) => {
+            const notificationType =
+                NotificationTypeMap[notification.notificationType];
+            this.toaster.show(
+                notification.message,
+                notificationType.title,
+                {
+                    ...(notificationType.timeOut
+                        ? { timeOut: notificationType.timeOut }
+                        : {}),
+                    ...(notification.notificationType === 'SYSTEM'
+                        ? { timeOut: 0 }
+                        : {}), // Overrides timeout definition for SYSTEM notifications
+                },
+                notificationType.type
+            );
+        });
     }
 }

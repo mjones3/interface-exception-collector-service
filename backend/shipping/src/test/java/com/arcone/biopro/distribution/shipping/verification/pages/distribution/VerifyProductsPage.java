@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.Map;
+
 @Component
 @Slf4j
 public class VerifyProductsPage extends CommonPageFactory {
@@ -36,6 +39,7 @@ public class VerifyProductsPage extends CommonPageFactory {
     private static final String progressLog = "numberOfUnitAdded";
     private static final String scanUnitNumber = "//*[@id='scanUnitNumberId']";
     private static final String scanProductCode = "//*[@id='scanProductCodeId']";
+    private static final String notificationConfirmButton = "//*[@id='notificationtBtn']";
 
     private String validationErrorLocator(String message) {
         return String.format("//mat-error[contains(text(),'%s')]", message);
@@ -49,6 +53,22 @@ public class VerifyProductsPage extends CommonPageFactory {
     private String formatProductCodeLocator(String productCode) {
         productCode = TestUtils.removeProductCodeScanDigits(productCode);
         return String.format("//biopro-unit-number-card[@ng-reflect-product-name='%s']", productCode);
+    }
+
+    private String formatDialogLocator(String message) {
+        return String.format("//app-notification//p[contains(text(),'%s')]", message);
+    }
+
+    private String getFilledTabLocator(String status, String totalProducts) {
+        return String.format("//*[contains(text(),'%s (%s)')]", status, totalProducts);
+    }
+
+    private String getFilledTabLocator(String status) {
+        return String.format("//*[contains(text(),'%s (')]", status);
+    }
+
+    private String getNotifiedProductCardLocator (String unit, String productCode, String status) {
+        return String.format("//app-notification//biopro-unit-number-card//*[contains(text(),'%s')]/..//*[contains(text(),'%s')]/../../../..//*[contains(text(),'%s')]", unit, productCode, status);
     }
 
     public void goToPage(String shipmentId) {
@@ -169,5 +189,42 @@ public class VerifyProductsPage extends CommonPageFactory {
         else {
             throw new IllegalArgumentException("Field not found: " + field);
         }
+    }
+
+    public boolean isDialogMessage(String message) {
+        var locator = By.xpath(formatDialogLocator(message));
+        sharedActions.waitForVisible(locator);
+        return sharedActions.isElementVisible(locator);
+    }
+
+    public boolean isShipmentStatus(String status) {
+        var locator = By.xpath(String.format("//span[contains(text(),'%s')]", status));
+        sharedActions.waitForVisible(locator);
+        return sharedActions.isElementVisible(locator);
+    }
+
+    public boolean isDialogAcknowledgementButtonEnabled() {
+        return sharedActions.isElementEnabled(this.driver, By.xpath(notificationConfirmButton));
+    }
+
+    public boolean isProductListGroupedByStatus(List<Map<String, String>> statuses) {
+        for (Map<String, String> status : statuses) {
+            var locator = getFilledTabLocator(status.get("Status"), status.get("Total Products"));
+            sharedActions.waitForVisible(By.xpath(locator));
+        }
+        return true;
+    }
+
+    public boolean verifyNotifiedProducts(List<Map<String, String>> products) throws InterruptedException {
+        for (Map<String, String> product : products) {
+            var tab = getFilledTabLocator(product.get("Tab"));
+            var unit = product.get("Unit Number");
+            var productCode = product.get("Product Code");
+            var status = product.get("Status");
+
+            sharedActions.click(this.driver, By.xpath(tab));
+            sharedActions.waitForVisible(By.xpath(getNotifiedProductCardLocator(unit, productCode, status)));
+            }
+        return true;
     }
 }

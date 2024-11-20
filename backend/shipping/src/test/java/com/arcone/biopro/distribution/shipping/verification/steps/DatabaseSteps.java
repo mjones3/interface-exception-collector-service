@@ -4,6 +4,7 @@ import com.arcone.biopro.distribution.shipping.verification.support.DatabaseServ
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -58,5 +59,13 @@ public class DatabaseSteps {
         value = value.equalsIgnoreCase("enabled") ? "true" : "false";
         var query = String.format("UPDATE lk_lookup SET option_value = '%s' WHERE type = 'SHIPPING_SECOND_VERIFICATION_ACTIVE'", value);
         databaseService.executeSql(query).block();
+    }
+
+    @And("The shipment status for order {string} should be {string}.")
+    public void iShouldSeeTheStatusOfTheShipmentAs(String orderNumber, String status) {
+        var query = String.format("SELECT status FROM bld_shipment WHERE order_number = '%s'", orderNumber);
+        var result = databaseService.fetchData(query).first().block();
+        assert result != null;
+        Assert.assertTrue(result.get("status").toString().equalsIgnoreCase(status));
     }
 }

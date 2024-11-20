@@ -84,7 +84,7 @@ class InventoryMockControllerTest {
 
         StepVerifier.create(inventoryResponse)
             .consumeNextWith(detail -> {
-                assertNull(detail.inventoryResponseDTO());
+                assertNotNull(detail.inventoryResponseDTO());
                 assertNotNull(detail.inventoryNotificationsDTO().getFirst());
                 assertEquals(Optional.of(4), Optional.of(detail.inventoryNotificationsDTO().getFirst().errorCode()));
                 assertEquals(Optional.of(ShipmentServiceMessages.INVENTORY_QUARANTINED_ERROR), Optional.of(detail.inventoryNotificationsDTO().getFirst().errorMessage()));
@@ -105,7 +105,7 @@ class InventoryMockControllerTest {
 
         StepVerifier.create(inventoryResponse)
             .consumeNextWith(detail -> {
-                assertNull(detail.inventoryResponseDTO());
+                assertNotNull(detail.inventoryResponseDTO());
                 assertNotNull(detail.inventoryNotificationsDTO().getFirst());
                 assertEquals(Optional.of(3), Optional.of(detail.inventoryNotificationsDTO().getFirst().errorCode()));
                 assertEquals(Optional.of(ShipmentServiceMessages.INVENTORY_DISCARDED_ERROR), Optional.of(detail.inventoryNotificationsDTO().getFirst().errorMessage()));
