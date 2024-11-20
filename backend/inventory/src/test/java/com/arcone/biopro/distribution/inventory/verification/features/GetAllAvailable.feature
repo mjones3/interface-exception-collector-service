@@ -1,4 +1,4 @@
-@api
+@api @LAB-81 @AOA-75
 Feature: Get all available inventories
 
     Scenario Outline: Get all available inventories
