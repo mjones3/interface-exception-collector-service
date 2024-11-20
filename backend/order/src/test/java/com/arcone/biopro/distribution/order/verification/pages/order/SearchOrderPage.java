@@ -84,8 +84,9 @@ public class SearchOrderPage extends CommonPageFactory {
     @FindBy(id = "resetFilterBtn")
     private WebElement filterResetButton;
 
-    @FindBy(id = "mat-badge-content-1")
+    @FindBy(xpath = "//button[@id='filtersButtonId']//span[contains(@class, 'mat-badge-content')]")
     private WebElement filterCountBadge;
+
 
 
 
@@ -163,6 +164,7 @@ public class SearchOrderPage extends CommonPageFactory {
 
     public void verifyOrderExists(String externalId) {
         try {
+            sharedActions.waitForNotVisible(tableLoadingOverlay);
             sharedActions.waitForVisible(driver.findElement(By.xpath(orderIdXpath(externalId))));
             log.info("Order " + externalId + " exists in the list of orders.");
         } catch (Exception e) {

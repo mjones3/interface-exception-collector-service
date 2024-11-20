@@ -130,15 +130,19 @@ Feature: Search Orders
             And Items "<Selected Priorities>" should be selected for "priority".
             And Items "<Selected Statuses>" should be selected for "order status".
             And Items "<Selected Customers>" should be selected for "ship to customer".
+            And I select the current date as the "create date" range
+            And I select the "12/25/2024" as the "desired shipping date" range
             And "order number" field is "disabled".
-            Then I should see "<Expected External Ids>" orders in the search results.
+            Then I choose "apply" option.
+            And I should see "<Expected External Ids>" orders in the search results.
             And I should see "<Expected Number of Filters>" as the number of used filters for the search.
             And I should see "<Expected Number of Orders>" orders in the search results.
             Examples:
                 | Selected Priorities | Selected Statuses | Selected Customers         | Expected External Ids | Expected Number of Orders | Expected Number of Filters |
-                | STAT,ASAP           | OPEN,IN PROGRESS  |                            | 1979,1984             | 2                         | 2                          |
-                | STAT,ROUTINE        |                   |                            | 1979,2018             | 2                         | 1                          |
-                | ASAP                | IN PROGRESS       | Creative Testing Solutions | 1984                  | 1                         | 3                          |
+                | STAT,ASAP           | OPEN,IN PROGRESS  |                            | 1979,1984             | 2                         | 4                          |
+                | STAT,ROUTINE        |                   |                            | 1979,2018             | 2                         | 3                          |
+                | ASAP                | IN PROGRESS       | Creative Testing Solutions | 1984                  | 1                         | 5                          |
+                |                     |                   |                            | 1979,1984,2018        | 3                         | 2                          |
 
     Rule: I should be able to filter the results for date fields from 2 years back.
         Rule: I should be able to enter the create date manually or select from the integrated component.

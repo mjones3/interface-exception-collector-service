@@ -181,7 +181,7 @@ export class SearchOrderFilterComponent implements OnInit {
         Object.keys(this.searchForm.value).filter(
             (key) =>
                 key !== 'createDateTo' &&
-                key !== 'desiredShipmentDateTo' &&
+                key !== 'desiredShipDateTo' &&
                 (Array.isArray(this.searchForm.value[key])
                     ? this.searchForm.value[key].length > 0
                     : this.searchForm.value[key] != null &&
