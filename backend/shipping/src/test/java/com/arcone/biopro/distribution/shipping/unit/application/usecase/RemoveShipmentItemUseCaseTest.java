@@ -85,6 +85,7 @@ class RemoveShipmentItemUseCaseTest {
 
                 assertEquals(HttpStatus.BAD_REQUEST, detail.ruleCode());
                 assertEquals(HttpStatus.BAD_REQUEST.value(), firstNotification.statusCode());
+                assertEquals("/shipment/1/verify-products", detail._links().get("next"));
                 assertEquals("The verification does not match all products in this order. Please re-scan all the products.", firstNotification.message());
                 assertEquals("WARN", firstNotification.notificationType());
                 assertEquals("BAD_REQUEST", firstNotification.name());

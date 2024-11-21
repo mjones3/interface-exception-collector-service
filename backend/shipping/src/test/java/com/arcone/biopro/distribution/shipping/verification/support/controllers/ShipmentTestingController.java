@@ -320,9 +320,9 @@ public class ShipmentTestingController {
 
             var insertShipItem = "INSERT INTO bld_shipment_item " +
                 "(shipment_id, product_family, blood_type, quantity, \"comments\", create_date, modification_date) " +
-                "VALUES(%s, 'PLASMA_TRANSFUSABLE', 'B', 2, 'For neonatal use', now(), now());";
+                "VALUES(%s, 'PLASMA_TRANSFUSABLE', 'B', %s, 'For neonatal use', now(), now());";
 
-            databaseService.executeSql(String.format(insertShipItem, shipmentId)).block();
+            databaseService.executeSql(String.format(insertShipItem, shipmentId, unitNumbers.size() + 1)).block();
 
 
             var createdShipmentItem = databaseService.fetchData(String.format("select id from bld_shipment_item where shipment_id = %s limit 1", createdShipment.get("id"))).first().block();

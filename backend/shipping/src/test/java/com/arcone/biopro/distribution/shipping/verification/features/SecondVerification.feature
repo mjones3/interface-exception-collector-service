@@ -150,6 +150,8 @@ Feature: Second Verification of Units Feature
                 | W036898786756 | E0701V00     | Expired         | Discarded    |
                 | W036898786758 | E0707V00     | Quarantined     | Quarantined  |
                 | W036898786700 | E0707V00     | Already Shipped | Other Events |
+            When I confirm the notification dialog
+            Then I should be redirected to verify products page with "notifications" tab active.
 
             Examples:
                 | Order Number | Codes                               | UNITS                                                   |

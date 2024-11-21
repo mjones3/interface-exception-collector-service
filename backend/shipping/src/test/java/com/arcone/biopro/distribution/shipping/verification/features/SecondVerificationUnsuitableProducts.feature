@@ -63,7 +63,7 @@ Feature: Second Verification Notification Tab
         When I scan the unit "<Unsuitable UN>" with product code "<Unsuitable Code>".
         Then I should see a "Acknowledgment Message" message: "<Message>".
         And I confirm the acknowledgment message.
-        When I scan the unit "<Unsuitable UN>" with product code "<Unsuitable Code>".
+        When I rescan the unit "<Unsuitable UN>" with product code "<Unsuitable Code>".
         Then I should see a "Warning" message: "The verification does not match all products in this order. Please re-scan all the products.".
         And I should be redirected to the verify products page.
         And The complete shipment option should not be enabled.

@@ -28,6 +28,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class RemoveShipmentItemUseCase implements RemoveShipmentItemService {
 
+    private static final String VERIFY_PRODUCTS_URL = "/shipment/%s/verify-products";
+
     private final ShipmentItemPackedRepository shipmentItemPackedRepository;
     private final ShipmentMapper shipmentMapper;
     private final SecondVerificationService secondVerificationService;
@@ -102,6 +104,7 @@ public class RemoveShipmentItemUseCase implements RemoveShipmentItemService {
             return Mono.just(RuleResponseDTO.builder()
                 .ruleCode(HttpStatus.BAD_REQUEST)
                 .results(Map.of("results", List.of(details)))
+                ._links(Map.of("next", String.format(VERIFY_PRODUCTS_URL, shipmentId)))
                 .notifications(List.of(NotificationDTO
                     .builder()
                     .code(HttpStatus.BAD_REQUEST.value())

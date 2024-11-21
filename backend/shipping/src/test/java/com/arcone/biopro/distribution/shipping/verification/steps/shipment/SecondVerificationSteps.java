@@ -79,6 +79,11 @@ public class SecondVerificationSteps {
         verifyProductsPage.isPageOpen(this.shipmentId.toString());
     }
 
+    @Then("I should be redirected to verify products page with {string} tab active.")
+    public void shouldBeRedirectedToVerifyProductsPageWithTabActive(String tab) {
+        verifyProductsPage.isPageTabOpen(this.shipmentId.toString(), tab);
+    }
+
     @Then("I can see the Order Information Details and the Shipping Information Details.")
     public void checkPageContent(){
         verifyProductsPage.viewPageContent();
@@ -88,6 +93,12 @@ public class SecondVerificationSteps {
     @When("I scan the unit {string} with product code {string}.")
     public void scanUnitAndProduct(String unitNumber, String productCode) throws InterruptedException {
         verifyProductsPage.scanUnitAndProduct(unitNumber, productCode);
+    }
+
+    @When("I rescan the unit {string} with product code {string}.")
+    public void rescanUnitAndProduct(String unitNumber, String productCode) throws InterruptedException {
+        this.scanUnitAndProduct(unitNumber, productCode);
+        totalPacked--;
     }
 
     @Then("I should see the unit added to the verified products table.")
@@ -224,4 +235,10 @@ public class SecondVerificationSteps {
         var progressText = String.format("%s/%s",0,totalPacked);
         Assert.assertEquals(progress.replace(" ",""), progressText);
     }
+
+    @When("I confirm the notification dialog")
+    public void iConfirmTheNotificationDialog() {
+        verifyProductsPage.confirmNotificationDialog();
+    }
+
 }

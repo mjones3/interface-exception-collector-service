@@ -38,7 +38,7 @@ public class VerifyProductsPage extends CommonPageFactory {
     private static final String progressLog = "numberOfUnitAdded";
     private static final String scanUnitNumber = "//*[@id='scanUnitNumberId']";
     private static final String scanProductCode = "//*[@id='scanProductCodeId']";
-    private static final String notificationConfirmButton = "//*[@id='notificationtBtn']";
+    private static final String notificationConfirmButton = "//*[@id='notificationBtn']";
     private static final String fillMoreProductsBtn = "fillMoreProductsActionBtn";
 
     private String validationErrorLocator(String message) {
@@ -88,6 +88,13 @@ public class VerifyProductsPage extends CommonPageFactory {
 
     public void isPageOpen(String shipmentId) {
         sharedActions.isAtPage(verifyProductsUrl.replace("{shipmentId}", shipmentId));
+    }
+
+    public void isPageTabOpen(String shipmentId, String tab) {
+        sharedActions.isAtPage(
+            verifyProductsTabUrl.replace("{shipmentId}", shipmentId)
+                .replace("{tab}", tab)
+        );
     }
 
     public void viewPageContent() {
@@ -258,4 +265,9 @@ public class VerifyProductsPage extends CommonPageFactory {
         sharedActions.waitForEnabled(By.id(fillMoreProductsBtn));
         return true;
     }
+
+    public void confirmNotificationDialog() {
+        sharedActions.click(By.xpath(notificationConfirmButton));
+    }
+
 }
