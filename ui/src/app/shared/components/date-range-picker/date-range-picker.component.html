@@ -34,3 +34,6 @@
 @if (formGroup.get('end')?.hasError('matEndDateInvalid')) {
     <mat-error>{{ matEndDateInvalidMessage }}</mat-error>
 }
+@if (formGroup.get('end')?.hasError('matDatepickerMax')) {
+    <mat-error>{{ matDatepickerMaxMessage }}</mat-error>
+}

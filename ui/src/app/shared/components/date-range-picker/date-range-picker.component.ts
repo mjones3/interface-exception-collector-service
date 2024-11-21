@@ -36,6 +36,7 @@ export class DateRangePickerComponent implements AfterContentInit, OnDestroy {
     @Input() disabled = false;
     @Input() matDatepickerMinErrorMessage: string;
     @Input() matEndDateInvalidMessage: string;
+    @Input() matDatepickerMaxMessage: string;
 
     private readonly destroyed$ = new Subject<void>();
 
