@@ -1,4 +1,4 @@
-@ui
+@ui @AOA-40
 Feature: Second Verification of Units Feature
     As a distribution technician,
     I want to perform a second verification of the products in a shipment (if configured),

@@ -1,4 +1,4 @@
-@ui
+@ui @AOA-40
 Feature: Second Verification Notification Tab
     As a distribution technician,
     I want to rescan products that have been flagged as unsuitable during the second verification process,
