@@ -5,8 +5,8 @@ Feature: Second Verification Notification Tab
     So that I can remove them from the shipment.
 
     Background:
-        Given I cleaned up from the database the packed item that used the unit number "W822530106087,W822530106089,W822530106088,W822530106090,W822530106091,W822530106092".
-        And I cleaned up from the database, all shipments with order number "118,119,120,121".
+        Given I cleaned up from the database the packed item that used the unit number "W822530106087,W822530106089,W822530106088,W822530106090,W822530106091,W822530106092, W822530106093".
+        And I cleaned up from the database, all shipments with order number "118,119,120,121, 122, 123".
 
     Rule: I should see a notification stating that the units should be rescanned to be removed.
     Rule: I should be able to scan the unit number and product code of the products identified as unsuitable.
@@ -38,46 +38,49 @@ Feature: Second Verification Notification Tab
     @DIS-207
     Scenario Outline: Second verification unsuitable products - remove units - rescan all products.
         Given I have a shipment for order "<Order Number>" with the units "<Suitable UN>,<Unsuitable UN>" and product codes "<Suitable Code>,<Unsuitable Code>" "verified".
+        And The verified unit "<Unsuitable UN>" is unsuitable with status "<Unsuitable Status>" and message "<Message>".
         And The second verification configuration is "enabled".
-        And I am on the verify products page with "Notification" tab active.
-        When I scan the unit "W822530106044" with product code "E000000".
-        Then I should see a "Warning" message: "W822530106044. Please re-scan all the products.".
+        And I am on the verify products page with "notifications" tab active.
+        When I scan the unit "W822530106044" with product code "E0685V00".
+        Then I should see a "Warning" message: "The verification does not match all products in this order. Please re-scan all the products.".
         And I should not see the unit "<Unsuitable UN>" with code "<Unsuitable Code>" added to the removed products section with unsuitable status "<Unsuitable Status>".
         And The complete shipment option should not be enabled.
         And I should be redirected to the verify products page.
         And I should see the verified products section empty.
 
         Examples:
-            | Order Number | Suitable Code | Suitable UN   | Unsuitable Code | Unsuitable UN |
-            | 120          | E0685V00      | W822530106090 | E0685V00        | W822530106091 |
+            | Order Number | Suitable Code | Suitable UN   | Unsuitable Code | Unsuitable UN | Unsuitable Status |
+            | 120          | E0685V00      | W822530106090 | E0685V00        | W822530106091 | Discarded         |
 
     Rule: I should restart the second verification process when I scan a unit that is already removed.
     @DIS-207
     Scenario Outline: Second verification unsuitable products - remove units twice - rescan all products.
         Given I have a shipment for order "<Order Number>" with the units "<Suitable UN>,<Unsuitable UN>" and product codes "<Suitable Code>,<Unsuitable Code>" "verified".
+        And The verified unit "<Unsuitable UN>" is unsuitable with status "<Unsuitable Status>" and message "<Message>".
+        And The verified unit "<Suitable UN>" is unsuitable with status "<Unsuitable Status>" and message "<Message>".
         And The second verification configuration is "enabled".
-        And I am on the verify products page with "Notification" tab active.
+        And I am on the verify products page with "notifications" tab active.
         When I scan the unit "<Unsuitable UN>" with product code "<Unsuitable Code>".
         Then I should see a "Acknowledgment Message" message: "<Message>".
         And I confirm the acknowledgment message.
         When I scan the unit "<Unsuitable UN>" with product code "<Unsuitable Code>".
-        Then I should see a "Warning" message: "XXXXXXXXXXXXXXXXXXX. Please re-scan all the products.".
+        Then I should see a "Warning" message: "The verification does not match all products in this order. Please re-scan all the products.".
         And I should be redirected to the verify products page.
         And The complete shipment option should not be enabled.
-        And I should be redirected to the verify products page.
         And I should see the verified products section empty.
 
         Examples:
-            | Order Number | Suitable Code | Suitable UN   | Unsuitable Code | Unsuitable UN |
-            | 120          | E0685V00      | W822530106090 | E0685V00        | W822530106091 |
+            | Order Number | Suitable Code | Suitable UN   | Unsuitable Code | Unsuitable UN | Unsuitable Status | Message                                                                                         |
+            | 120          | E0685V00      | W822530106090 | E0685V00        | W822530106091 | Discarded         | This product has already been discarded for BROKEN in the system. Place in biohazard container. |
 
     Rule: I should be able to scan unit number and product code.
     Rule: I should not be able to enter unit number and product code manually.
     @DIS-207
     Scenario Outline: Restrict Manual Entry Unit Number.
         Given I have a shipment for order "<Order Number>" with the units "<Suitable UN>,<Unsuitable UN>" and product codes "<Suitable Code>,<Unsuitable Code>" "unsuitable verified".
+        And The verified unit "<Unsuitable UN>" is unsuitable with status "Discarded" and message "This product has already been discarded for BROKEN in the system. Place in biohazard container.".
         And The second verification configuration is "enabled".
-        And I am on the verify products page with "Notification" tab active.
+        And I am on the verify products page with "notifications" tab active.
         When I focus out leaving "Unit Number" empty.
         Then I should see a field validation error message "Unit Number is Required".
         When I "<Action>" the "Unit Number" "<Field Value>".
@@ -94,8 +97,9 @@ Feature: Second Verification Notification Tab
     @DIS-207
     Scenario Outline: Restrict Manual Entry Product Code.
         Given I have a shipment for order "<Order Number>" with the units "<Suitable UN>,<Unsuitable UN>" and product codes "<Suitable Code>,<Unsuitable Code>" "unsuitable verified".
+        And The verified unit "<Unsuitable UN>" is unsuitable with status "Discarded" and message "This product has already been discarded for BROKEN in the system. Place in biohazard container.".
         And The second verification configuration is "enabled".
-        And I am on the verify products page with "Notification" tab active.
+        And I am on the verify products page with "notifications" tab active.
         When I "<Action>" the "<Field Name>" "<Field Value>".
         Then The "Product Code" field should be "enabled".
         When I focus out leaving "<Second Field Name>" empty.

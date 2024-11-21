@@ -218,4 +218,10 @@ public class SecondVerificationSteps {
     }
 
 
+    @And("I should see the verified products section empty.")
+    public void iShouldSeeTheVerifiedProductsSectionEmpty() {
+        String progress = verifyProductsPage.getProductsProgressLog();
+        var progressText = String.format("%s/%s",0,totalPacked);
+        Assert.assertEquals(progress.replace(" ",""), progressText);
+    }
 }
