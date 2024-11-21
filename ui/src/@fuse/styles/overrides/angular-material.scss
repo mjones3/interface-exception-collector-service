@@ -1349,5 +1349,7 @@ textarea.mat-mdc-input-element {
 }
 
 mat-error {
-    --mat-form-field-error-text-color: red !important;
+    --mat-form-field-error-text-color: theme(
+            'colors.red[600]'
+    ) !important; !important;
 }
