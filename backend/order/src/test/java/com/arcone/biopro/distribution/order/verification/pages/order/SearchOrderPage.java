@@ -443,7 +443,7 @@ public class SearchOrderPage extends CommonPageFactory {
         sharedActions.waitForVisible(createDateFromField);
         createDateFromField.click();
         createDateToField.click();
-        assertContainsFieldAsRequired("Create date");
+        assertContainsFieldAsRequired("Create Date");
     }
 
     public void theCreateDateFromIsRequiredField() {
