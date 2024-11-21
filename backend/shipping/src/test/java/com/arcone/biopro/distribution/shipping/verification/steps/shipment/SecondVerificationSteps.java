@@ -27,6 +27,8 @@ public class SecondVerificationSteps {
     private String productCode;
     private Integer totalPacked = 0;
     private Integer totalVerified = 0;
+    private Integer totalRemoved = 0;
+    private Integer toBeRemoved = 0;
 
     @Autowired
     ShipmentTestingController shipmentTestingController;
@@ -66,11 +68,20 @@ public class SecondVerificationSteps {
         Assert.assertNotNull(this.shipmentId);
         this.totalPacked = units.size();
 
+        if (itemStatus.equalsIgnoreCase("verified")){
+            this.totalVerified = units.size();
+        }
+
     }
 
     @Then("I should be redirected to the verify products page.")
     public void shouldBeRedirectedToVerifyProductsPage() {
         verifyProductsPage.isPageOpen(this.shipmentId.toString());
+    }
+
+    @Then("I should be redirected to verify products page with {string} tab active.")
+    public void shouldBeRedirectedToVerifyProductsPageWithTabActive(String tab) {
+        verifyProductsPage.isPageTabOpen(this.shipmentId.toString(), tab);
     }
 
     @Then("I can see the Order Information Details and the Shipping Information Details.")
@@ -84,6 +95,12 @@ public class SecondVerificationSteps {
         verifyProductsPage.scanUnitAndProduct(unitNumber, productCode);
     }
 
+    @When("I rescan the unit {string} with product code {string}.")
+    public void rescanUnitAndProduct(String unitNumber, String productCode) throws InterruptedException {
+        this.scanUnitAndProduct(unitNumber, productCode);
+        totalPacked--;
+    }
+
     @Then("I should see the unit added to the verified products table.")
     public void checkVerifiedProductIsPresent() {
         Assert.assertTrue(verifyProductsPage.isProductVerified(unitNumber, productCode));
@@ -92,7 +109,7 @@ public class SecondVerificationSteps {
 
     @And("I should see the log of verified products being updated.")
     public void verifyLogInProgress() {
-        String progress = verifyProductsPage.getProgressLog();
+        String progress = verifyProductsPage.getProductsProgressLog();
         var progressText = String.format("%s/%s",totalVerified,totalPacked);
         Assert.assertEquals(progress, progressText);
     }
@@ -169,4 +186,59 @@ public class SecondVerificationSteps {
     public void iShouldSeeTheFollowingProducts(List<Map<String, String>> products) throws InterruptedException {
         Assert.assertTrue(verifyProductsPage.verifyNotifiedProducts(products));
     }
+
+    @And("The verified unit {string} is unsuitable with status {string} and message {string}.")
+    public void theVerifiedUnitIsUnsuitableWithStatus(String unitNumber, String status, String message) {
+        shipmentTestingController.updateShipmentItemStatus(this.shipmentId, unitNumber, status, message);
+        this.toBeRemoved++;
+    }
+
+    @And("I am on the verify products page with {string} tab active.")
+    public void iAmOnTheVerifyProductsPageWithTabActive(String tab) throws InterruptedException {
+        homePage.goTo();
+        verifyProductsPage.goToPageAndTab(this.shipmentId.toString(), tab);
+    }
+
+    @And("I should see a notification banner: {string}.")
+    public void iShouldSeeANotificationBanner(String message) {
+        Assert.assertTrue(verifyProductsPage.isNotificationBannerVisible(message));
+    }
+
+    @Then("I should see the unit {string} with code {string} added to the removed products section with unsuitable status {string}.")
+    public void checkUnitRemoved(String unitNumber, String productCode, String status) {
+        Assert.assertTrue(verifyProductsPage.isProductRemoved(unitNumber, productCode, status));
+        this.totalRemoved++;
+    }
+
+    @Then("I should not see the unit {string} with code {string} added to the removed products section with unsuitable status {string}.")
+    public void checkUnitNotRemoved(String unitNumber, String productCode, String status) {
+        Assert.assertTrue(verifyProductsPage.isProductNotRemoved(unitNumber, productCode, status));
+        this.totalRemoved++;
+    }
+
+    @And("I should see the log of removed products being updated.")
+    public void checkRemovedCount() {
+        String progress = verifyProductsPage.getProductsProgressLog();
+        var progressText = String.format("%s/%s",toBeRemoved,totalRemoved);
+        Assert.assertEquals(progress.replace(" ",""), progressText.replace(" ",""));
+    }
+
+    @And("The fill more products option should be enabled.")
+    public void theFillMoreProductsOptionShouldBeEnabled() {
+        Assert.assertTrue(verifyProductsPage.isFillMoreProductsButtonEnabled());
+    }
+
+
+    @And("I should see the verified products section empty.")
+    public void iShouldSeeTheVerifiedProductsSectionEmpty() {
+        String progress = verifyProductsPage.getProductsProgressLog();
+        var progressText = String.format("%s/%s",0,totalPacked);
+        Assert.assertEquals(progress.replace(" ",""), progressText);
+    }
+
+    @When("I confirm the notification dialog")
+    public void iConfirmTheNotificationDialog() {
+        verifyProductsPage.confirmNotificationDialog();
+    }
+
 }

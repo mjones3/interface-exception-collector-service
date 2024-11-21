@@ -7,11 +7,17 @@
     <ng-template #actionButtonsTpl>
         <div class="flex flex-row space-x-2">
             <biopro-action-button
-                id="cancelBtnId"
-                btnId="cancelActionBtn"
-                label="Cancel "
-                color="secondary"
+                id="fillMoreProductsBtnId"
+                btnId="fillMoreProductsActionBtn"
+                label="Fill More Products"
+                color="primary"
                 icon="heroicons_outline:x-circle"
+                [disabled]="
+                    verifiedItemsComputed().length === 0 ||
+                    shipmentItemsTotalProductsComputed() <=
+                        verifiedItemsComputed().length
+                "
+                (clickEvent)="cancelButtonHandler()"
             />
             <biopro-action-button
                 id="completeShipmentBtn"
@@ -30,15 +36,15 @@
 
     <biopro-verify-products-navbar
         [links]="{
-            Verified: currentRouteComputed(),
-            Notifications: verifyProductsNotificationsRouteComputed(),
+            Verified: verifyProductsRouteComputed(),
+            Notifications: currentRouteComputed(),
         }"
         [activeLinkRoute]="currentRouteComputed()"
         style="margin-top: 1px !important"
     />
 
     <div class="flex w-full flex-row space-x-8 p-4">
-        @if (verificationSignal(); as verification) {
+        @if (notificationDetailsSignal(); as verification) {
             <div class="flex w-9/12 flex-auto flex-col space-y-3">
                 @if (toBeRemovedItemsComputed()?.length) {
                     <biopro-global-message
@@ -50,30 +56,31 @@
                     />
                 }
 
-                @if (packedItemsComputed(); as packedItems) {
-                    @if (verifiedItemsComputed(); as verifiedItems) {
+                @if (toBeRemovedItemsComputed(); as toBeRemoved) {
+                    @if (removedItemsComputed(); as removedItems) {
                         <fuse-card
                             class="flex flex-row items-center space-x-6 p-6"
                         >
                             <div class="flex flex-row space-x-2">
                                 <span class="text-left font-bold">
                                     (<span id="filledProductsCount">{{
-                                        verifiedItems.length ?? 0
+                                        removedItems.length ?? 0
                                     }}</span>
                                     of
                                     <span id="totalProducts">{{
-                                        packedItems.length ?? 0
+                                        (toBeRemoved.length ?? 0) +
+                                            (removedItems.length ?? 0)
                                     }}</span
                                     >)
                                 </span>
                                 <span class="text-left font-bold">
-                                    Verified Products</span
-                                >
+                                    Removed Products
+                                </span>
                                 <span
                                     class="text-left font-bold"
                                     id="percentageId"
                                 >
-                                    {{ verifiedItemsPercentage() | percent }}
+                                    {{ removedItemsPercentage() | percent }}
                                 </span>
                             </div>
                             <div class="flex flex-auto flex-col">
@@ -81,22 +88,19 @@
                                     [progressBarId]="
                                         'verifyProductsProgressBarId'
                                     "
-                                    [value]="verifiedItemsPercentage() * 100"
+                                    [value]="removedItemsPercentage() * 100"
                                 />
                             </div>
                         </fuse-card>
 
-                        @if (!toBeRemovedItemsComputed()?.length) {
-                            <fuse-card class="flex w-full flex-col space-y-2">
-                                <div class="mt-3">
-                                    <biopro-scan-unit-number-product-code
-                                        #scanUnitNumberProductCode
-                                        (validate)="verifyItem($event)"
-                                    >
-                                    </biopro-scan-unit-number-product-code>
-                                </div>
-                            </fuse-card>
-                        }
+                        <fuse-card class="flex w-full flex-col space-y-2">
+                            <div class="mt-3">
+                                <biopro-scan-unit-number-product-code
+                                    #scanUnitNumberProductCode
+                                    (validate)="removeItem($event)"
+                                />
+                            </div>
+                        </fuse-card>
 
                         <fuse-card
                             class="mb-4 flex flex-col px-4 pb-4"
@@ -109,43 +113,42 @@
                                     class="flex items-center text-lg font-bold"
                                 >
                                     <span>
-                                        Verified Products (<span
+                                        Removed Products (<span
                                             id="numberOfUnitAdded"
-                                            >{{ verifiedItems.length }}/{{
-                                                packedItems.length
+                                            >{{ removedItems.length }} /
+                                            {{
+                                                (toBeRemoved.length ?? 0) +
+                                                    (removedItems.length ?? 0)
                                             }}</span
                                         >)
                                     </span>
                                 </div>
                             </div>
                             <mat-divider></mat-divider>
-                            @if (verifiedItems.length) {
+                            @if (removedItems.length) {
                                 <div
                                     id="optionButtons"
                                     class="grid max-h-[520px] grid-cols-4 gap-4 overflow-auto pb-4 pt-4"
                                 >
                                     @for (
-                                        verifiedItem of verifiedItems;
+                                        removedItem of removedItems;
                                         track $index
                                     ) {
                                         <biopro-unit-number-card
                                             [id]="'unit-' + $index"
                                             class="max-h-24"
                                             [unitNumber]="
-                                                verifiedItem.unitNumber
+                                                removedItem.unitNumber
                                             "
                                             [productName]="
-                                                verifiedItem.productCode
-                                            "
-                                            [visualInspection]="
-                                                verifiedItem.visualInspection
+                                                removedItem.productCode
                                             "
                                             [iconName]="
-                                                getItemIcon(verifiedItem)
+                                                getItemIcon(removedItem)
                                             "
                                             [showVisualInspection]="false"
                                             [ineligibleStatus]="
-                                                verifiedItem.ineligibleStatus
+                                                removedItem.ineligibleStatus
                                             "
                                         />
                                     }

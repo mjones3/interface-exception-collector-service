@@ -5,30 +5,28 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router } from '@angular/router';
 import { provideMockStore } from '@ngrx/store/testing';
-import { TranslateModule } from '@ngx-translate/core';
 import { ApolloModule } from 'apollo-angular';
 import { ApolloTestingModule } from 'apollo-angular/testing';
 import { ToastrModule } from 'ngx-toastr';
 import { of } from 'rxjs';
 import { ShipmentService } from '../services/shipment.service';
-import { VerifyProductsComponent } from './verify-products.component';
+import { VerifyProductsNotificationsComponent } from './verify-products-notifications.component';
 
 const SHIPMENT_ID = 1;
-describe('VerifyProductsComponent', () => {
-    let component: VerifyProductsComponent;
-    let fixture: ComponentFixture<VerifyProductsComponent>;
+describe('VerifyProductsNotificationsComponent', () => {
+    let component: VerifyProductsNotificationsComponent;
+    let fixture: ComponentFixture<VerifyProductsNotificationsComponent>;
     let shipmentService: ShipmentService;
     let router: Router;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [
-                VerifyProductsComponent,
+                VerifyProductsNotificationsComponent,
                 ApolloTestingModule,
                 NoopAnimationsModule,
                 MatIconTestingModule,
                 ApolloModule,
-                TranslateModule.forRoot(),
                 ToastrModule.forRoot(),
             ],
             providers: [
@@ -48,7 +46,7 @@ describe('VerifyProductsComponent', () => {
             ],
         }).compileComponents();
 
-        fixture = TestBed.createComponent(VerifyProductsComponent);
+        fixture = TestBed.createComponent(VerifyProductsNotificationsComponent);
         component = fixture.componentInstance;
         shipmentService = TestBed.inject(ShipmentService);
         router = TestBed.inject(Router);

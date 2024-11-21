@@ -79,6 +79,7 @@
                     mat-flat-button
                     [matDialogClose]="'cancelled'"
                     [class]="data.actions.cancel.class"
+                    [id]="'confirmation-dialog-cancel-btn'"
                 >
                     {{ data.actions.cancel.label }}
                 </button>
@@ -90,6 +91,7 @@
                     mat-flat-button
                     [class]="data.actions.confirm.class"
                     [matDialogClose]="'confirmed'"
+                    [id]="'confirmation-dialog-confirm-btn'"
                 >
                     {{ data.actions.confirm.label }}
                 </button>

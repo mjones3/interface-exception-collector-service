@@ -54,6 +54,16 @@ public class ShipmentTestingController {
     @Autowired
     private DatabaseService databaseService;
 
+    private static final Map<String, String> ineligibleStatusMap = Map.of(
+        "Inventory Not Found", "INVENTORY_NOT_FOUND_IN_LOCATION",
+        "Expired", "INVENTORY_IS_EXPIRED",
+        "Unsuitable", "INVENTORY_IS_UNSUITABLE",
+        "Quarantined", "INVENTORY_IS_QUARANTINED",
+        "Discarded", "INVENTORY_IS_DISCARDED",
+        "Inventory Not Exist", "INVENTORY_NOT_EXIST",
+        "Already Shipped", "INVENTORY_IS_SHIPPED"
+    );
+
 
     public long createShippingRequest(ShipmentRequestDetailsResponseType shipmentDetail) throws Exception {
 
@@ -310,9 +320,9 @@ public class ShipmentTestingController {
 
             var insertShipItem = "INSERT INTO bld_shipment_item " +
                 "(shipment_id, product_family, blood_type, quantity, \"comments\", create_date, modification_date) " +
-                "VALUES(%s, 'PLASMA_TRANSFUSABLE', 'B', 1, 'For neonatal use', now(), now());";
+                "VALUES(%s, 'PLASMA_TRANSFUSABLE', 'B', %s, 'For neonatal use', now(), now());";
 
-            databaseService.executeSql(String.format(insertShipItem, shipmentId)).block();
+            databaseService.executeSql(String.format(insertShipItem, shipmentId, unitNumbers.size() + 1)).block();
 
 
             var createdShipmentItem = databaseService.fetchData(String.format("select id from bld_shipment_item where shipment_id = %s limit 1", createdShipment.get("id"))).first().block();
@@ -324,6 +334,8 @@ public class ShipmentTestingController {
                         createPackedItem(createdShipmentItem.get("id").toString(), unitNumbers.get(i), productCodes.get(i));
                     } else if (itemStatus.equalsIgnoreCase("verified")) {
                         createVerifiedItem(createdShipmentItem.get("id").toString(), unitNumbers.get(i), productCodes.get(i));
+                    }else if (itemStatus.equalsIgnoreCase("unsuitable-verified")) {
+                        createUnsuitableVerifiedItem(createdShipmentItem.get("id").toString(), unitNumbers.get(i), productCodes.get(i));
                     }
                 }
             }
@@ -341,6 +353,15 @@ public class ShipmentTestingController {
             databaseService.executeSql(String.format(insertPackedItem, shipmentItemId, unitNumber,productCode)).block();
     }
 
+    private void createUnsuitableVerifiedItem(String shipmentItemId,String unitNumber, String productCode){
+
+            var insertPackedItem = "INSERT INTO bld_shipment_item_packed " +
+                "(shipment_item_id, unit_number, product_code, product_description, abo_rh, packed_by_employee_id, expiration_date, collection_date, create_date, modification_date, visual_inspection, blood_type, product_family,second_verification,verification_date , verified_by_employee_id, ineligible_status, ineligible_action, ineligible_reason, ineligible_message) " +
+                " VALUES(%s, '%s', '%s', 'APH FFP C', 'BP', '5db1da0b-6392-45ff-86d0-17265ea33226', '2025-11-02 13:15:47.152', '2024-10-04 06:15:47.152', now(), now(), 'SATISFACTORY', 'B', 'PLASMA_TRANSFUSABLE','COMPLETED',now() , '5db1da0b-6392-45ff-86d0-17265ea33226', STATUS, ACTION, REASON, MESSAGE);";
+
+            databaseService.executeSql(String.format(insertPackedItem, shipmentItemId, unitNumber,productCode)).block();
+    }
+
     private void createVerifiedItem(String shipmentItemId,String unitNumber, String productCode){
 
         var insertPackedItem = "INSERT INTO bld_shipment_item_packed " +
@@ -350,4 +371,8 @@ public class ShipmentTestingController {
         databaseService.executeSql(String.format(insertPackedItem, shipmentItemId, unitNumber,productCode)).block();
     }
 
+    public void updateShipmentItemStatus(Long shipmentId, String unitNumber, String status, String message) {
+        var query = String.format("UPDATE bld_shipment_item_packed SET ineligible_status = '%s', ineligible_message = '%s' WHERE unit_number = '%s' AND shipment_item_id = (SELECT id FROM bld_shipment_item WHERE shipment_id = %s)", ineligibleStatusMap.get(status), message, unitNumber, shipmentId);
+        databaseService.executeSql(query).block();
+    }
 }

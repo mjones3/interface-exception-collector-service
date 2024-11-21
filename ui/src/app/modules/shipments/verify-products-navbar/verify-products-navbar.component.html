@@ -1,0 +1,20 @@
+<ng-container>
+    <nav
+        id="verify-products-nav"
+        mat-tab-nav-bar
+        [tabPanel]="tabPanel"
+        [class]="'bg-white'"
+    >
+        @for (linkEntry of linkEntries(); track $index) {
+            <a
+                mat-tab-link
+                [title]="linkEntry[1]"
+                (click)="handleNavigation(linkEntry[1])"
+                [active]="activeLinkRoute() === linkEntry[1]"
+                class="grow-0"
+                >{{ linkEntry[0] }}</a
+            >
+        }
+    </nav>
+    <mat-tab-nav-panel #tabPanel></mat-tab-nav-panel>
+</ng-container>

@@ -164,6 +164,16 @@ public class SharedActions {
         driver.findElement(locator).click();
     }
 
+    public void click(By locator) {
+        waitForVisible(locator);
+        waitForEnabled(locator);
+        wait.until(e -> {
+            log.debug("Clicking on element {}.", locator);
+            e.findElement(locator).click();
+            return true;
+        });
+    }
+
     public void clickElementAndMoveToNewTab(WebDriver driver, WebElement element, int expectedWindowsNumber) throws InterruptedException {
         waitForVisible(element);
         waitForEnabled(element);
@@ -364,5 +374,11 @@ public class SharedActions {
             e.findElement(locator).sendKeys(Keys.DELETE);
             return true;
         });
+    }
+
+    public void confirmAcknowledgment() {
+        String confirmButtonLocator = "confirmation-dialog-confirm-btn";
+        waitForVisible(By.id(confirmButtonLocator));
+        click(By.id(confirmButtonLocator));
     }
 }

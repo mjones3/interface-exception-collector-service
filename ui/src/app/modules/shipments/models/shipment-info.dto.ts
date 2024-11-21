@@ -72,6 +72,18 @@ export interface ShipmentItemShortDateProductResponseDTO {
     modificationDate?: string;
 }
 
+export enum VisualInspection {
+    SATISFACTORY,
+    UNSATISFACTORY,
+    DISABLED,
+}
+
+export enum SecondVerification {
+    PENDING,
+    COMPLETED,
+    DISABLED,
+}
+
 export interface ShipmentItemPackedDTO {
     id?: number;
     shipmentItemId?: number;
@@ -84,10 +96,14 @@ export interface ShipmentItemPackedDTO {
     expirationDate?: string;
     collectionDate?: string;
     packedByEmployeeId?: string;
-    visualInspection?: string;
-    secondVerification?: string;
+    visualInspection?: keyof typeof VisualInspection;
+    secondVerification?: keyof typeof SecondVerification;
     verifiedByEmployeeId?: string;
     verifiedDate?: string;
+    ineligibleStatus?: string;
+    ineligibleAction?: string;
+    ineligibleReason?: string;
+    ineligibleMessage?: string;
 }
 
 export interface VerifyProductDTO {
