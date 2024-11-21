@@ -607,4 +607,16 @@ public class OrderSteps {
     public void iCanSeeTheTemperatureCategoryAs(String category) {
         orderDetailsPage.verifyTemperatureCategory(category);
     }
+
+    @And("I select the current date as the {string} range")
+    public void iSelectTheCurrentDateAsThe(String fieldRangeName) throws InterruptedException {
+        setValueForField(LocalDate.now().format(DateTimeFormatter.ofPattern("MM/dd/yyyy")), fieldRangeName + " from");
+        setValueForField(LocalDate.now().format(DateTimeFormatter.ofPattern("MM/dd/yyyy")), fieldRangeName + " to");
+    }
+
+    @And("I select the {string} as the {string} range")
+    public void iSelectTheDateAsThe(String date, String fieldRangeName) throws InterruptedException {
+        setValueForField(date, fieldRangeName + " from");
+        setValueForField(date, fieldRangeName + " to");
+    }
 }

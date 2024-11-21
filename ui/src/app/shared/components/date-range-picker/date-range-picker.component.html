@@ -5,16 +5,18 @@
         [rangePicker]="dateRangePicker"
         [formGroup]="formGroup"
         [max]="maxDate"
+        [min]="minDate"
+        sharedInputFix
     >
         <input
             matStartDate
-            [formControlName]="dateFromFormControlName"
+            formControlName="start"
             placeholder="Start date"
             [id]="dateRangeId + 'From'"
         />
         <input
             matEndDate
-            [formControlName]="dateToFormControlName"
+            formControlName="end"
             placeholder="End date"
             [id]="dateRangeId + 'To'"
         />
@@ -26,39 +28,12 @@
     ></mat-datepicker-toggle>
     <mat-date-range-picker #dateRangePicker></mat-date-range-picker>
 </mat-form-field>
-@if (
-    formGroup.get(dateFromFormControlName)?.hasError('matDatepickerParse') &&
-    formGroup.get(dateFromFormControlName)?.touched
-) {
-    <mat-error>Invalid initial date</mat-error>
+@if (formGroup.get('start')?.hasError('matDatepickerMin')) {
+    <mat-error>{{ matDatepickerMinErrorMessage }}</mat-error>
 }
-@if (
-    formGroup.get(dateToFormControlName)?.hasError('matDatepickerParse') &&
-    formGroup.get(dateToFormControlName)?.touched
-) {
-    <mat-error>Invalid final date</mat-error>
+@if (formGroup.get('end')?.hasError('matEndDateInvalid')) {
+    <mat-error>{{ matEndDateInvalidMessage }}</mat-error>
 }
-@if (
-    formGroup.get(dateToFormControlName)?.hasError('matEndDateInvalid') &&
-    (formGroup.get(dateFromFormControlName)?.touched ||
-        formGroup.get(dateToFormControlName)?.touched)
-) {
-    <mat-error>Initial date should not be greater than final date</mat-error>
-}
-
-@if (
-    formGroup.get(dateToFormControlName)?.hasError('matDatepickerMax') &&
-    (formGroup.get(dateFromFormControlName)?.touched ||
-        formGroup.get(dateToFormControlName)?.touched)
-) {
-    <mat-error>Final date should not be greater than today</mat-error>
-}
-
-@if (
-    formGroup?.getError('dateRangeExceedsTwoYears') ===
-        dateFromFormControlName &&
-    (formGroup.get(dateFromFormControlName)?.touched ||
-        formGroup.get(dateToFormControlName)?.touched)
-) {
-    <mat-error>Date range exceeds two years</mat-error>
+@if (formGroup.get('end')?.hasError('matDatepickerMax')) {
+    <mat-error>{{ matDatepickerMaxMessage }}</mat-error>
 }

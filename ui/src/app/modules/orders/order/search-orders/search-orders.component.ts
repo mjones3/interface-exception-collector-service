@@ -181,41 +181,33 @@ export class SearchOrdersComponent {
                 criteria.customers = this.currentFilter.customers;
             }
             if (
-                this.currentFilter.createDateFrom != null &&
-                this.currentFilter.createDateFrom !== ''
+                this.currentFilter.createDate?.start != null &&
+                this.currentFilter.createDate?.end != null
             ) {
                 criteria.createDateFrom = formatDate(
-                    this.currentFilter.createDateFrom,
+                    this.currentFilter.createDate?.start,
                     'yyyy-MM-dd',
                     this.locale
                 );
-            }
-            if (
-                this.currentFilter.createDateTo != null &&
-                this.currentFilter.createDateTo !== ''
-            ) {
+
                 criteria.createDateTo = formatDate(
-                    this.currentFilter.createDateTo,
+                    this.currentFilter.createDate?.end,
                     'yyyy-MM-dd',
                     this.locale
                 );
             }
             if (
-                this.currentFilter.desiredShipDateFrom != null &&
-                this.currentFilter.desiredShipDateFrom !== ''
+                this.currentFilter.desiredShipDate?.start != null &&
+                this.currentFilter.desiredShipDate?.end != null
             ) {
                 criteria.desireShipDateFrom = formatDate(
-                    this.currentFilter.desiredShipDateFrom,
+                    this.currentFilter.desiredShipDate?.start,
                     'yyyy-MM-dd',
                     this.locale
                 );
-            }
-            if (
-                this.currentFilter.desiredShipDateTo != null &&
-                this.currentFilter.desiredShipDateTo !== ''
-            ) {
+
                 criteria.desireShipDateTo = formatDate(
-                    this.currentFilter.desiredShipDateTo,
+                    this.currentFilter.desiredShipDate?.end,
                     'yyyy-MM-dd',
                     this.locale
                 );

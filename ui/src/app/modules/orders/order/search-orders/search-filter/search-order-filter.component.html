@@ -55,19 +55,19 @@
                 ></app-multiple-select>
 
                 <app-date-range-picker
-                    [formGroup]="searchForm"
-                    dateFromFormControlName="createDateFrom"
-                    dateToFormControlName="createDateTo"
-                    title="Create date"
+                    [formGroup]="getDateRangeFormGroup('createDate')"
+                    [minDate]="minCreateDateCriteria"
+                    matDatepickerMinErrorMessage="Date range exceeds two years"
+                    matEndDateInvalidMessage="Initial date should not be greater than final date"
+                    matDatepickerMaxMessage="Final date should not be greater than today"
+                    title="Create Date"
                     dateRangeId="createDate"
                     [maxDate]="today"
                 ></app-date-range-picker>
 
                 <app-date-range-picker
-                    [formGroup]="searchForm"
-                    dateFromFormControlName="desiredShipDateFrom"
-                    dateToFormControlName="desiredShipDateTo"
-                    title="Desired shipment date"
+                    [formGroup]="getDateRangeFormGroup('desiredShipDate')"
+                    title="Desired Shipment Date"
                     dateRangeId="desiredShipmentDate"
                 ></app-date-range-picker>
             </div>
