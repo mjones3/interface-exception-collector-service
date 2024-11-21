@@ -113,3 +113,18 @@ Feature: Second Verification Notification Tab
             | 123          | E0685V00      | W822530106090 | E0685V00        | W822530106091 | Scan   | Unit Number | W822530106094 | Scan Product Code       | Type          | Product Code      | E0685V00           |
             | 123          | E0685V00      | W822530106093 | E0685V00        | W822530106091 | Scan   | Unit Number | W822530106094 | Product Code is Invalid | Scan          | Product Code      | 121abc             |
             | 123          | E0685V00      | W822530106093 | E0685V00        | W822530106091 | Scan   | Unit Number | W822530106094 | Product Code is Invalid | Type          | Product Code      | =<1212             |
+
+
+        Rule: I should be able to view an acknowledgment message for an unsuitable product when the product is successfully discarded in the system.
+        @DIS-208
+        Scenario Outline: Second verification unsuitable products - discard removed units.
+            Given I have a shipment for order "<Order Number>" with the units "<Suitable UN>,<Unsuitable UN>" and product codes "<Suitable Code>,<Unsuitable Code>" "verified".
+            And The verified unit "<Unsuitable UN>" is unsuitable with status "<Unsuitable Status>" and message "<Message>".
+            And The second verification configuration is "enabled".
+            And I am on the verify products page with "notifications" tab active.
+            When I scan the unit "<Unsuitable UN>" with product code "<Unsuitable Code>".
+            Then I should see a "Acknowledgment Message" message: "<Message>".
+
+            Examples:
+            | Order Number | Suitable Code | Suitable UN   | Unsuitable Code | Unsuitable UN | Unsuitable Status | Message                                                                       |
+            | 124          | E0685V00      | W822530106094 | E0701V00        | W036898786756 | Expired           | This product is expired and has been discarded. Place in biohazard container. |

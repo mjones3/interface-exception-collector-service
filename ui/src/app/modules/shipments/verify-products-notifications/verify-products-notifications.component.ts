@@ -8,7 +8,8 @@ import {
     ProcessHeaderService,
     ToastrImplService,
 } from '@shared';
-import { finalize, switchMap, tap } from 'rxjs';
+import { CookieService } from 'ngx-cookie-service';
+import { catchError, finalize, switchMap, tap } from 'rxjs';
 import { FuseCardComponent } from '../../../../@fuse';
 import { FuseConfirmationService } from '../../../../@fuse/services/confirmation';
 import { ProgressBarComponent } from '../../../progress-bar/progress-bar.component';
@@ -16,11 +17,15 @@ import { ScanUnitNumberProductCodeComponent } from '../../../scan-unit-number-pr
 import { ActionButtonComponent } from '../../../shared/components/action-button/action-button.component';
 import { GlobalMessageComponent } from '../../../shared/components/global-message/global-message.component';
 import { UnitNumberCardComponent } from '../../../shared/components/unit-number-card/unit-number-card.component';
+import { DiscardRequestDTO } from '../../../shared/models/discard.model';
 import { RuleResponseDTO } from '../../../shared/models/rule.model';
+import { DiscardService } from '../../../shared/services/discard.service';
 import { ProductIconsService } from '../../../shared/services/product-icon.service';
+import { Cookie } from '../../../shared/types/cookie.enum';
 import { consumeNotifications } from '../../../shared/utils/notification.handling';
 import { RemoveProductResponseDTO } from '../graphql/verify-products/query-definitions/verify-products.graphql';
 import {
+    ShipmentItemPackedDTO,
     ShipmentItemResponseDTO,
     VerifyFilledProductDto,
 } from '../models/shipment-info.dto';
@@ -97,7 +102,9 @@ export class VerifyProductsNotificationsComponent
         protected confirmationService: FuseConfirmationService,
         protected productIconService: ProductIconsService,
         protected toaster: ToastrImplService,
-        protected header: ProcessHeaderService
+        protected header: ProcessHeaderService,
+        private discardService: DiscardService,
+        private cookieService: CookieService
     ) {
         super(
             route,
@@ -169,10 +176,15 @@ export class VerifyProductsNotificationsComponent
         removeItem: RuleResponseDTO<{ results: RemoveProductResponseDTO[] }>
     ): void {
         if (removeItem.ruleCode === '200 OK') {
-            this.openAcknowledgmentMessageDialog(
-                removeItem?.results?.results?.[0]?.removedItem
-                    ?.ineligibleMessage
-            );
+            const removedItem = removeItem?.results?.results?.[0]?.removedItem;
+
+            if (removedItem?.ineligibleAction === 'TRIGGER_DISCARD') {
+                return this.triggerDiscard(removedItem);
+            } else {
+                this.openAcknowledgmentMessageDialog(
+                    removedItem?.ineligibleMessage
+                );
+            }
         }
 
         if (removeItem.ruleCode === '400 BAD_REQUEST') {
@@ -211,5 +223,54 @@ export class VerifyProductsNotificationsComponent
         if (this.notificationDetailsSignal()?.toBeRemovedItems?.length === 0) {
             this.scanUnitNumberProductCode?.disableUnitProductGroup();
         }
+    }
+
+    private triggerDiscard(itemPackedDTO: ShipmentItemPackedDTO): void {
+        this.discardService
+            .discardProduct(this.getDiscardRequestDto(itemPackedDTO))
+            .pipe(
+                catchError((err) => {
+                    this.showDiscardSystemError();
+                    throw err;
+                })
+            )
+            .subscribe((response) => {
+                const data = response?.data?.discardProduct;
+                if (data) {
+                    return this.openAcknowledgmentMessageDialog(
+                        itemPackedDTO.ineligibleMessage
+                    );
+                } else {
+                    this.showDiscardSystemError();
+                }
+            });
+    }
+
+    private getDiscardRequestDto(
+        itemPackedDTO: ShipmentItemPackedDTO
+    ): DiscardRequestDTO {
+        return {
+            unitNumber: itemPackedDTO.unitNumber,
+            productCode: itemPackedDTO.productCode,
+            locationCode: this.cookieService.get(Cookie.XFacility),
+            employeeId: this.loggedUserIdSignal(),
+            triggeredBy: 'SHIPPING',
+            reasonDescriptionKey: itemPackedDTO.ineligibleReason,
+            productFamily: itemPackedDTO.productFamily,
+            productShortDescription: itemPackedDTO.productDescription,
+            comments: '',
+        };
+    }
+
+    private showDiscardSystemError() {
+        consumeNotifications(this.toaster, [
+            {
+                statusCode: 400,
+                notificationType: 'SYSTEM',
+                code: 400,
+                message:
+                    'Product has not been discarded in the system. Contact Support.',
+            },
+        ]);
     }
 }
