@@ -33,7 +33,6 @@ export class BioproValidators {
                 twoYearsAgo.setHours(0, 0, 0, 0);
                 twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
                 if (datFrom < twoYearsAgo) {
-                    console.log('dateRangeExceedsTwoYears');
                     return {
                         eitherOrderNumberOrDates: true,
                         dateRangeExceedsTwoYears: true,

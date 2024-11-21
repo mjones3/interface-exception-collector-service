@@ -161,22 +161,13 @@ export class SearchOrderFilterComponent implements OnInit {
         });
     }
 
-    orderNumberInformed = () =>
-        this.searchForm.get('orderNumber')?.value !== '' &&
-        this.searchForm.get('orderNumber')?.value != null;
+    orderNumberInformed = () => this.isFieldInformed('orderNumber');
 
     remainingFieldsInformed() {
-        const { createDate, desiredShipDate, orderNumber, ...otherFields } =
-            this.searchForm.value;
+        const { orderNumber, ...otherFields } = this.searchForm.value;
 
-        return (
-            this.isDateRangeInformed(createDate) ||
-            this.isDateRangeInformed(desiredShipDate) ||
-            Object.keys(otherFields).some((key) =>
-                Array.isArray(otherFields[key])
-                    ? otherFields[key].length > 0
-                    : otherFields[key] != null && otherFields[key] !== ''
-            )
+        return Object.keys(otherFields).some((key) =>
+            this.isFieldInformed(key)
         );
     }
 
@@ -184,15 +175,23 @@ export class SearchOrderFilterComponent implements OnInit {
         date != null && (date?.start != null || date?.end != null);
 
     totalFieldsInformed = () =>
-        Object.keys(this.searchForm.value).filter(
-            (key) =>
-                key !== 'createDateTo' &&
-                key !== 'desiredShipDateTo' &&
-                (Array.isArray(this.searchForm.value[key])
-                    ? this.searchForm.value[key].length > 0
-                    : this.searchForm.value[key] != null &&
-                      this.searchForm.value[key] !== '')
+        Object.keys(this.searchForm.value).filter((key) =>
+            this.isFieldInformed(key)
         ).length;
+
+    isFieldInformed(key: string) {
+        if (key === 'createDate' || key === 'desiredShipDate') {
+            return this.isDateRangeInformed(this.searchForm.value[key]);
+        } else if (Array.isArray(this.searchForm.value[key])) {
+            return this.searchForm.value[key].length > 0;
+        } else {
+            return (
+                this.searchForm.value[key] != null &&
+                this.searchForm.value[key] !== ''
+            );
+        }
+        return false;
+    }
 
     private loadCriteriaOptions() {
         this.orderService.searchOrderCriteria().subscribe({
