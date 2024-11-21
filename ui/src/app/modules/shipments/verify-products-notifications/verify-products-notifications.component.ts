@@ -1,5 +1,5 @@
 import { AsyncPipe, PercentPipe } from '@angular/common';
-import { Component, computed, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, computed } from '@angular/core';
 import { MatDivider } from '@angular/material/divider';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -144,9 +144,9 @@ export class VerifyProductsNotificationsComponent
                 tap((result) =>
                     this.consumeAcknowledgeNotification(result.data.removeItem)
                 ),
-                finalize(() =>
-                    this.scanUnitNumberProductCode.resetUnitProductGroup()
-                ),
+                finalize(() => {
+                    this.scanUnitNumberProductCode.resetUnitProductGroup();
+                }),
                 switchMap((result) => {
                     this.notificationDetailsSignal.set(
                         result.data?.removeItem?.results?.results?.[0] ?? null
@@ -174,8 +174,13 @@ export class VerifyProductsNotificationsComponent
                     ?.ineligibleMessage
             );
         }
+
         if (removeItem.ruleCode === '400 BAD_REQUEST') {
             consumeNotifications(this.toaster, removeItem?.notifications);
+        }
+
+        if (removeItem._links?.next) {
+            this.handleNavigation(removeItem._links?.next);
         }
     }
 

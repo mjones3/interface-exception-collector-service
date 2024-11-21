@@ -1,5 +1,6 @@
 import { AsyncPipe, PercentPipe } from '@angular/common';
-import { Component, computed, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, computed } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatDivider } from '@angular/material/divider';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -20,14 +21,13 @@ import { ActionButtonComponent } from '../../../shared/components/action-button/
 import { GlobalMessageComponent } from '../../../shared/components/global-message/global-message.component';
 import { UnitNumberCardComponent } from '../../../shared/components/unit-number-card/unit-number-card.component';
 import { ProductIconsService } from '../../../shared/services/product-icon.service';
+import handleApolloError from '../../../shared/utils/apollo-error-handling';
 import { consumeNotifications } from '../../../shared/utils/notification.handling';
 import { VerifyFilledProductDto } from '../models/shipment-info.dto';
 import { SecondVerificationCommon } from '../second-verification-common';
 import { ShipmentService } from '../services/shipment.service';
 import { OrderWidgetsSidebarComponent } from '../shared/order-widgets-sidebar/order-widgets-sidebar.component';
 import { VerifyProductsNavbarComponent } from '../verify-products-navbar/verify-products-navbar.component';
-import handleApolloError from '../../../shared/utils/apollo-error-handling';
-import { MatDialog } from '@angular/material/dialog';
 
 @Component({
     selector: 'app-verify-products',
@@ -176,10 +176,19 @@ export class VerifyProductsComponent
                                 (n) => n.notificationType === 'CONFIRMATION'
                             )
                         ) {
-                            this.matDialog.open(NotificationComponent, {
-                                data: { data: result?.data?.completeShipment },
-                                disableClose: true,
-                            });
+                            this.matDialog
+                                .open(NotificationComponent, {
+                                    data: {
+                                        data: result?.data?.completeShipment,
+                                    },
+                                    disableClose: true,
+                                })
+                                .afterClosed()
+                                .subscribe(() => {
+                                    this.handleNavigation(
+                                        `/shipment/${this.shipmentIdComputed()}/verify-products/notifications`
+                                    );
+                                });
                         } else {
                             const notificationDto: NotificationDto[] =
                                 result?.data?.completeShipment?.notifications;

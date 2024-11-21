@@ -13,8 +13,9 @@
                 color="primary"
                 icon="heroicons_outline:x-circle"
                 [disabled]="
-                    shipmentItemsTotalProductsComputed() ===
-                    verifiedItemsComputed().length
+                    verifiedItemsComputed().length === 0 ||
+                    shipmentItemsTotalProductsComputed() <=
+                        verifiedItemsComputed().length
                 "
                 (clickEvent)="cancelButtonHandler()"
             />

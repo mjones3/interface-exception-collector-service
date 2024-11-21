@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogClose } from '@angular/material/dialog';
 import { MatTabsModule } from '@angular/material/tabs';
 import {
     InventoryResponseDTO,
@@ -19,6 +19,7 @@ import { UnitNumberCardComponent } from '../unit-number-card/unit-number-card.co
         UnitNumberCardComponent,
         ActionButtonComponent,
         CommonModule,
+        MatDialogClose,
     ],
     templateUrl: './notification.component.html',
     styleUrl: './notification.component.scss',
