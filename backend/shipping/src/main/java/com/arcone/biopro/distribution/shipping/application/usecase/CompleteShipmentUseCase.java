@@ -33,6 +33,7 @@ import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static java.lang.Boolean.TRUE;
 
@@ -175,6 +176,7 @@ public class CompleteShipmentUseCase implements CompleteShipmentService {
                                     itemPacked.setIneligibleMessage(notification.errorMessage());
                                     itemPacked.setIneligibleReason(notification.reason());
                                     itemPacked.setIneligibleAction(notification.action());
+                                    itemPacked.setIneligibleDetails(Optional.ofNullable(notification.details()).map(list -> String.join(",", list)).orElse(null));
 
                                     return shipmentItemPackedRepository.save(itemPacked)
                                         .then(Mono.just(inventoryValidationResponseDTO));

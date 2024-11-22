@@ -88,6 +88,9 @@ class InventoryMockControllerTest {
                 assertNotNull(detail.inventoryNotificationsDTO().getFirst());
                 assertEquals(Optional.of(4), Optional.of(detail.inventoryNotificationsDTO().getFirst().errorCode()));
                 assertEquals(Optional.of(ShipmentServiceMessages.INVENTORY_QUARANTINED_ERROR), Optional.of(detail.inventoryNotificationsDTO().getFirst().errorMessage()));
+                assertNotNull(detail.inventoryNotificationsDTO().getFirst().details());
+                assertEquals(Optional.of(10), Optional.of(detail.inventoryNotificationsDTO().getFirst().details().size()));
+                assertEquals(Optional.of("ABS Positive"), Optional.of(detail.inventoryNotificationsDTO().getFirst().details().getFirst()));
             })
             .verifyComplete();
     }

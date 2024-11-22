@@ -29,6 +29,7 @@ const PACK_ITEM = gql<{ packItem: RuleResponseDTO }, VerifyProductDTO>`
                 action
                 reason
                 message
+                details
             }
             _links
             results
