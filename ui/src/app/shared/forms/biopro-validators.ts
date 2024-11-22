@@ -25,6 +25,8 @@ export class BioproValidators {
 
         if (orderNumber || (createDateFrom && createDateTo)) {
             if (createDateFrom || createDateTo) {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
                 const twoYearsAgo = new Date();
                 const datFrom = new Date(createDateFrom);
                 const datTo = new Date(createDateTo);
@@ -56,6 +58,9 @@ export class BioproValidators {
                         matEndDateInvalid: true,
                         initialDateGreaterThanFinalDate: true,
                     };
+                }
+                if (datTo > today) {
+                    return { matDatepickerMaxMessage: true };
                 }
             }
             return null; // Validation passes
