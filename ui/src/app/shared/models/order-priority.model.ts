@@ -3,11 +3,13 @@ export enum OrderPriority {
     ASAP,
     ROUTINE,
     SCHEDULED,
+    DATE_TIME,
 }
 
 export const OrderPriorityMap: Record<keyof typeof OrderPriority, string> = {
     STAT: 'STAT',
     ASAP: 'ASAP',
-    ROUTINE: 'Routine',
-    SCHEDULED: 'Scheduled',
+    ROUTINE: 'ROUTINE',
+    SCHEDULED: 'SCHEDULED',
+    DATE_TIME: 'DATE-TIME',
 };

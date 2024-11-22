@@ -1,4 +1,4 @@
-@ui
+@ui @AOA-39
 Feature: Search Orders
 
     Background:
@@ -110,6 +110,7 @@ Feature: Search Orders
             And I open the search orders filter panel.
             When I enter a future date for the field "create date to".
             Then I should see a validation message: "Final date should not be greater than today".
+            And "apply" option is "disabled".
 
 
 

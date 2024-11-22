@@ -12,7 +12,8 @@ INSERT INTO lk_lookup (type, description_key, option_value, order_number, active
 VALUES ('ORDER_PRIORITY', 'order-priority.stat.label', 'STAT', 1, true),
        ('ORDER_PRIORITY', 'order-priority.asap.label', 'ASAP', 2, true),
        ('ORDER_PRIORITY', 'order-priority.routine.label', 'ROUTINE', 3, true),
-       ('ORDER_PRIORITY', 'order-priority.scheduled.label', 'SCHEDULED', 4, true)
+       ('ORDER_PRIORITY', 'order-priority.scheduled.label', 'SCHEDULED', 4, true),
+       ('ORDER_PRIORITY', 'order-priority.date-time.label', 'DATE_TIME', 5, true)
 ON CONFLICT DO NOTHING;
 
 -- Order Statuses
