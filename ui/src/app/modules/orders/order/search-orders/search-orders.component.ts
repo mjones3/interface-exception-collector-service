@@ -16,6 +16,7 @@ import { CookieService } from 'ngx-cookie-service';
 import { ToastrService } from 'ngx-toastr';
 import { Table, TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { BehaviorSubject, Subject, finalize } from 'rxjs';
+import { OrderPriorityMap } from '../../../../shared/models/order-priority.model';
 import { Cookie } from '../../../../shared/types/cookie.enum';
 import { SearchOrderFilterDTO } from '../../models/order.dto';
 import {
@@ -284,4 +285,6 @@ export class SearchOrdersComponent {
     set selectedColumns(val: Column[]) {
         this._selectedColumns = this.columns.filter((col) => val.includes(col));
     }
+
+    protected readonly OrderPriorityMap = OrderPriorityMap;
 }
