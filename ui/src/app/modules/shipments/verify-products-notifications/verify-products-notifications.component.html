@@ -13,7 +13,9 @@
                 color="primary"
                 icon="heroicons_outline:x-circle"
                 [disabled]="
-                    verifiedItemsComputed().length === 0 ||
+                    !notificationDetailsSignal() ||
+                    !verificationSignal() ||
+                    toBeRemovedItemsComputed().length > 0 ||
                     shipmentItemsTotalProductsComputed() <=
                         verifiedItemsComputed().length
                 "
@@ -26,6 +28,7 @@
                 color="primary"
                 icon="heroicons_outline:check-circle"
                 [disabled]="
+                    !notificationDetailsSignal() ||
                     !isAllPackItemsVerified() ||
                     toBeRemovedItemsComputed().length > 0
                 "
