@@ -11,6 +11,7 @@ Feature: Second Verification Notification Tab
     Rule: I should see a notification stating that the units should be rescanned to be removed.
     Rule: I should be able to scan the unit number and product code of the products identified as unsuitable.
     Rule: I should be able to see and confirm an acknowledgment message every time an unsuitable product is rescanned (discarded, quarantined, etc.).
+    Rule: I should have an option to fill more products only when all the unsuitable products are removed.
     Rule: I should be able to see the progress bar that reflects the number of products removed.
     Rule: I should see the list of removed products.
     Rule: I should be able to fill more products to replace the units removed.
