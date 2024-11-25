@@ -7,7 +7,7 @@ import {
 export function consumeNotification(
     toaster: ToastrImplService,
     notification: NotificationDto,
-    callBackFn
+    onTapFn: () => void
 ): void {
     toaster
         .show(
@@ -16,15 +16,15 @@ export function consumeNotification(
             {},
             NotificationTypeMap[notification.notificationType].type
         )
-        .onTap.subscribe(() => callBackFn());
+        .onTap.subscribe(() => onTapFn());
 }
 
 export function consumeNotifications(
     toaster: ToastrImplService,
     notifications: NotificationDto[],
-    callBackFn = () => {}
+    onTapFn: () => void = () => {}
 ): void {
     notifications?.forEach((notification) =>
-        consumeNotification(toaster, notification, callBackFn)
+        consumeNotification(toaster, notification, onTapFn)
     );
 }

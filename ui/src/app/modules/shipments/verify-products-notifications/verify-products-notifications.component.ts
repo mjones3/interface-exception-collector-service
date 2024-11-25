@@ -176,7 +176,9 @@ export class VerifyProductsNotificationsComponent
         }
 
         if (removeItem.ruleCode === '400 BAD_REQUEST') {
-            consumeNotifications(this.toaster, removeItem?.notifications);
+            consumeNotifications(this.toaster, removeItem?.notifications, () =>
+                this.scanUnitNumberProductCode.focusOnUnitNumber()
+            );
         }
 
         if (removeItem._links?.next) {
