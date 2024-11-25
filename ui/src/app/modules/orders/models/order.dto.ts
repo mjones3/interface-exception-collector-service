@@ -157,12 +157,20 @@ export interface SearchOrderResolverData {
 
 export interface SearchOrderFilterDTO {
     orderNumber?: string;
+    orderStatus?: string[];
+    deliveryTypes?: string[];
+    customers?: string[];
     page?: number;
     limit?: number;
     sortBy?: string;
     order?: string;
+    createDate?: SearchOrderFilterDateRangeDTO;
+    desiredShipDate?: SearchOrderFilterDateRangeDTO;
 }
 
-
+export interface SearchOrderFilterDateRangeDTO {
+    start: string;
+    end: string;
+}
 
 export type LabelStatus = 'LABELED' | 'UNLABELED';

@@ -1,10 +1,13 @@
-import { NotificationDto, NotificationTypeMap } from '@shared';
-import { ToastrService } from 'ngx-toastr';
+import {
+    NotificationDto,
+    NotificationTypeMap,
+    ToastrImplService,
+} from '@shared';
 
 export function consumeNotification(
-    toaster: ToastrService,
+    toaster: ToastrImplService,
     notification: NotificationDto,
-    callBackFn
+    onTapFn: () => void
 ): void {
     toaster
         .show(
@@ -13,15 +16,15 @@ export function consumeNotification(
             {},
             NotificationTypeMap[notification.notificationType].type
         )
-        .onTap.subscribe(() => callBackFn());
+        .onTap.subscribe(() => onTapFn());
 }
 
 export function consumeNotifications(
-    toaster: ToastrService,
+    toaster: ToastrImplService,
     notifications: NotificationDto[],
-    callBackFn = () => {}
+    onTapFn: () => void = () => {}
 ): void {
     notifications?.forEach((notification) =>
-        consumeNotification(toaster, notification, callBackFn)
+        consumeNotification(toaster, notification, onTapFn)
     );
 }

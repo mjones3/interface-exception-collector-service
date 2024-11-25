@@ -2,6 +2,7 @@ package com.arcone.biopro.distribution.shipping.unit.application.usecase;
 
 import com.arcone.biopro.distribution.shipping.adapter.in.web.dto.ShipmentDetailResponseDTO;
 import com.arcone.biopro.distribution.shipping.application.dto.CompleteShipmentRequest;
+import com.arcone.biopro.distribution.shipping.application.dto.NotificationType;
 import com.arcone.biopro.distribution.shipping.application.dto.RuleResponseDTO;
 import com.arcone.biopro.distribution.shipping.application.mapper.ShipmentEventMapper;
 import com.arcone.biopro.distribution.shipping.application.usecase.CompleteShipmentUseCase;
@@ -114,6 +115,7 @@ class CompleteShipmentUseCaseTest {
         Mockito.when(configService.findShippingSecondVerificationActive()).thenReturn(Mono.just(Boolean.FALSE));
 
         Mockito.when(shipmentItemPackedRepository.countVerificationPendingByShipmentId(1L)).thenReturn(Mono.just(0));
+        Mockito.when(shipmentItemPackedRepository.countIneligibleByShipmentId(1L)).thenReturn(Mono.just(0));
 
         Mono<RuleResponseDTO> result = useCase.completeShipment(CompleteShipmentRequest.builder()
             .shipmentId(1L)
@@ -177,6 +179,7 @@ class CompleteShipmentUseCaseTest {
 
 
         Mockito.when(shipmentItemPackedRepository.countVerificationPendingByShipmentId(1L)).thenReturn(Mono.just(0));
+        Mockito.when(shipmentItemPackedRepository.countIneligibleByShipmentId(1L)).thenReturn(Mono.just(0));
 
 
         Mono<RuleResponseDTO> result = useCase.completeShipment(CompleteShipmentRequest.builder()
@@ -213,6 +216,7 @@ class CompleteShipmentUseCaseTest {
         Mockito.when(configService.findShippingSecondVerificationActive()).thenReturn(Mono.just(Boolean.TRUE));
 
         Mockito.when(shipmentItemPackedRepository.countVerificationPendingByShipmentId(1L)).thenReturn(Mono.just(1));
+        Mockito.when(shipmentItemPackedRepository.countIneligibleByShipmentId(1L)).thenReturn(Mono.just(0));
 
         Mono<RuleResponseDTO> result = useCase.completeShipment(CompleteShipmentRequest.builder()
             .shipmentId(1L)
@@ -246,6 +250,9 @@ class CompleteShipmentUseCaseTest {
         Mockito.when(configService.findShippingSecondVerificationActive()).thenReturn(Mono.just(Boolean.TRUE));
 
         Mockito.when(shipmentItemPackedRepository.countVerificationPendingByShipmentId(1L)).thenReturn(Mono.just(0));
+        Mockito.when(shipmentItemPackedRepository.countIneligibleByShipmentId(1L)).thenReturn(Mono.just(0));
+
+
 
         var completePackedItem = Mockito.mock(ShipmentItemPacked.class);
         Mockito.when(completePackedItem.getUnitNumber()).thenReturn("UNIT_NUMBER");
@@ -255,6 +262,8 @@ class CompleteShipmentUseCaseTest {
         Mockito.when(completePackedItem.getPackedByEmployeeId()).thenReturn("PACK_EMPLOYEE_ID");
 
         Mockito.when(shipmentItemPackedRepository.listAllVerifiedByShipmentId(Mockito.anyLong())).thenReturn(Flux.just(completePackedItem));
+
+        Mockito.when(shipmentItemPackedRepository.save(Mockito.any())).thenReturn(Mono.just(completePackedItem));
 
 
         InventoryValidationResponseDTO validationResponseDTO = Mockito.mock(InventoryValidationResponseDTO.class);
@@ -273,8 +282,8 @@ class CompleteShipmentUseCaseTest {
         Mockito.when(validationResponseDTO.inventoryNotificationsDTO()).thenReturn(List.of(InventoryNotificationDTO.builder()
             .errorMessage(ShipmentServiceMessages.INVENTORY_TEST_ERROR)
             .reason("REASON")
-            .errorType("TYPE")
-            .errorName("NAME")
+            .errorType("INVENTORY_IS_EXPIRED")
+            .errorName("INVENTORY_IS_EXPIRED")
             .action("ACTION")
             .errorCode(1)
             .build()));
@@ -299,8 +308,8 @@ class CompleteShipmentUseCaseTest {
                 var inventoryNotification = inventoryValidationResponseDTO.inventoryNotificationsDTO().getFirst();
 
                 assertEquals("REASON", inventoryNotification.reason());
-                assertEquals("TYPE", inventoryNotification.errorType());
-                assertEquals("NAME", inventoryNotification.errorName());
+                assertEquals("INVENTORY_IS_EXPIRED", inventoryNotification.errorType());
+                assertEquals("INVENTORY_IS_EXPIRED", inventoryNotification.errorName());
                 assertEquals("ACTION", inventoryNotification.action());
 
                 var inventoryResponseDTO = (InventoryResponseDTO) inventoryValidationResponseDTO.inventoryResponseDTO();
@@ -313,7 +322,7 @@ class CompleteShipmentUseCaseTest {
 
                 assertEquals(HttpStatus.BAD_REQUEST, detail.ruleCode());
                 assertEquals(HttpStatus.BAD_REQUEST.value(), firstNotification.statusCode());
-                assertEquals("WARN", firstNotification.notificationType());
+                assertEquals(NotificationType.CONFIRMATION.name(), firstNotification.notificationType());
                 assertEquals(ShipmentServiceMessages.SHIPMENT_VALIDATION_COMPLETED_ERROR, firstNotification.message());
                 assertEquals("/shipment/1/verify-products", detail._links().get("next"));
             })
@@ -364,6 +373,7 @@ class CompleteShipmentUseCaseTest {
 
 
         Mockito.when(shipmentItemPackedRepository.countVerificationPendingByShipmentId(1L)).thenReturn(Mono.just(0));
+        Mockito.when(shipmentItemPackedRepository.countIneligibleByShipmentId(1L)).thenReturn(Mono.just(0));
 
 
         var completePackedItem = Mockito.mock(ShipmentItemPacked.class);
@@ -429,6 +439,7 @@ class CompleteShipmentUseCaseTest {
         Mockito.when(configService.findShippingSecondVerificationActive()).thenReturn(Mono.just(Boolean.TRUE));
 
         Mockito.when(shipmentItemPackedRepository.countVerificationPendingByShipmentId(1L)).thenReturn(Mono.just(0));
+        Mockito.when(shipmentItemPackedRepository.countIneligibleByShipmentId(1L)).thenReturn(Mono.just(0));
 
         var completePackedItem = Mockito.mock(ShipmentItemPacked.class);
         Mockito.when(completePackedItem.getUnitNumber()).thenReturn("UNIT_NUMBER");
@@ -456,6 +467,40 @@ class CompleteShipmentUseCaseTest {
                 assertEquals(HttpStatus.BAD_REQUEST.value(), firstNotification.statusCode());
                 assertEquals("SYSTEM", firstNotification.notificationType());
                 assertEquals(ShipmentServiceMessages.INVENTORY_SERVICE_NOT_AVAILABLE_ERROR, firstNotification.message());
+                assertEquals("/shipment/1/verify-products", detail._links().get("next"));
+            })
+            .verifyComplete();
+
+    }
+
+    @Test
+    public void shouldNotCompleteShipmentWhenHasIneligibleProducts(){
+
+        var shipmentMock = Mockito.mock(Shipment.class);
+        Mockito.when(shipmentMock.getId()).thenReturn(1L);
+
+        Mockito.when(shipmentRepository.findById(1L)).thenReturn(Mono.just(shipmentMock));
+
+        Mockito.when(configService.findShippingSecondVerificationActive()).thenReturn(Mono.just(Boolean.TRUE));
+
+        Mockito.when(shipmentItemPackedRepository.countVerificationPendingByShipmentId(1L)).thenReturn(Mono.just(0));
+        Mockito.when(shipmentItemPackedRepository.countIneligibleByShipmentId(1L)).thenReturn(Mono.just(1));
+
+        Mono<RuleResponseDTO> result = useCase.completeShipment(CompleteShipmentRequest.builder()
+            .shipmentId(1L)
+            .employeeId("test")
+            .build());
+
+
+        StepVerifier
+            .create(result)
+            .consumeNextWith(detail -> {
+                var firstNotification = detail.notifications().getFirst();
+
+                assertEquals(HttpStatus.BAD_REQUEST, detail.ruleCode());
+                assertEquals(HttpStatus.BAD_REQUEST.value(), firstNotification.statusCode());
+                assertEquals("WARN", firstNotification.notificationType());
+                assertEquals(ShipmentServiceMessages.SHIPMENT_WITH_INELIGIBLE_PRODUCTS_ERROR, firstNotification.message());
                 assertEquals("/shipment/1/verify-products", detail._links().get("next"));
             })
             .verifyComplete();

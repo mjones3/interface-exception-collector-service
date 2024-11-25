@@ -14,7 +14,11 @@ import {
 } from '../graphql/shipment/query-definitions/shipment.graphql';
 import { VERIFY_CHECK_DIGIT } from '../graphql/unit-number-with-check-digit/query-definitions/unit-number-with-check-digit.graphql';
 import {
+    GET_NOTIFICATION_DETAILS_BY_SHIPMENT_ID,
     GET_SHIPMENT_VERIFICATION_DETAILS_BY_ID,
+    REMOVE_ITEM,
+    RemoveItemRequest,
+    RemoveProductResponseDTO,
     VERIFY_ITEM,
     VerifyItemRequest,
     VerifyProductResponseDTO,
@@ -86,9 +90,7 @@ export class ShipmentService {
         );
     }
 
-    public getShipmentVerificationDetailsById(
-        shipmentId: number
-    ): Observable<
+    public getShipmentVerificationDetailsById(shipmentId: number): Observable<
         ApolloQueryResult<{
             getShipmentVerificationDetailsById: VerifyProductResponseDTO;
         }>
@@ -100,9 +102,19 @@ export class ShipmentService {
         );
     }
 
-    public verifyItem(
-        verifyItemRequest: VerifyItemRequest
-    ): Observable<
+    public getNotificationDetailsByShipmentId(shipmentId: number): Observable<
+        ApolloQueryResult<{
+            getNotificationDetailsByShipmentId: RemoveProductResponseDTO;
+        }>
+    > {
+        return this.dynamicGraphqlPathService.executeQuery(
+            this.servicePath,
+            GET_NOTIFICATION_DETAILS_BY_SHIPMENT_ID,
+            { shipmentId }
+        );
+    }
+
+    public verifyItem(verifyItemRequest: VerifyItemRequest): Observable<
         MutationResult<{
             verifyItem: RuleResponseDTO<{
                 results: VerifyProductResponseDTO[];
@@ -113,6 +125,20 @@ export class ShipmentService {
             this.servicePath,
             VERIFY_ITEM,
             verifyItemRequest
+        );
+    }
+
+    public removeItem(removeItemRequest: RemoveItemRequest): Observable<
+        MutationResult<{
+            removeItem: RuleResponseDTO<{
+                results: RemoveProductResponseDTO[];
+            }>;
+        }>
+    > {
+        return this.dynamicGraphqlPathService.executeMutation(
+            this.servicePath,
+            REMOVE_ITEM,
+            removeItemRequest
         );
     }
 }

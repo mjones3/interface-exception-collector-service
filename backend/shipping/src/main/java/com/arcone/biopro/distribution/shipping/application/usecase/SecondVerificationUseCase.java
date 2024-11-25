@@ -37,7 +37,7 @@ public class SecondVerificationUseCase implements SecondVerificationService {
         return shipmentItemPackedRepository.findByShipmentIUnitNumberAndProductCode(verifyItemRequest.shipmentId()
                 ,verifyItemRequest.unitNumber(), verifyItemRequest.productCode())
             .switchIfEmpty(Mono.defer(() -> {
-                    return resetVerification(verifyItemRequest,ShipmentServiceMessages.SECOND_VERIFICATION_UNIT_NOT_PACKED_ERROR);
+                    return resetVerification(verifyItemRequest.shipmentId(),ShipmentServiceMessages.SECOND_VERIFICATION_UNIT_NOT_PACKED_ERROR);
                 }))
             .flatMap(shipmentItemPacked -> markAsVerified(shipmentItemPacked,verifyItemRequest))
                 .flatMap(savedPackedItem -> {
@@ -92,12 +92,16 @@ public class SecondVerificationUseCase implements SecondVerificationService {
 
     private Mono<ShipmentItemPacked> markAsVerified(ShipmentItemPacked itemPacked,VerifyItemRequest verifyItemRequest) {
         if(SecondVerification.COMPLETED.equals(itemPacked.getSecondVerification())){
-            return resetVerification(verifyItemRequest,ShipmentServiceMessages.SECOND_VERIFICATION_ALREADY_COMPLETED_ERROR);
+            return resetVerification(verifyItemRequest.shipmentId(),ShipmentServiceMessages.SECOND_VERIFICATION_ALREADY_COMPLETED_ERROR);
         }
 
         itemPacked.setSecondVerification(SecondVerification.COMPLETED);
         itemPacked.setVerificationDate(ZonedDateTime.now());
         itemPacked.setVerifiedByEmployeeId(verifyItemRequest.employeeId());
+        itemPacked.setIneligibleStatus(null);
+        itemPacked.setIneligibleAction(null);
+        itemPacked.setIneligibleReason(null);
+        itemPacked.setIneligibleMessage(null);
         return shipmentItemPackedRepository.save(itemPacked);
     }
 
@@ -105,11 +109,15 @@ public class SecondVerificationUseCase implements SecondVerificationService {
         itemPacked.setSecondVerification(SecondVerification.PENDING);
         itemPacked.setVerificationDate(null);
         itemPacked.setVerifiedByEmployeeId(null);
+        itemPacked.setIneligibleStatus(null);
+        itemPacked.setIneligibleAction(null);
+        itemPacked.setIneligibleReason(null);
+        itemPacked.setIneligibleMessage(null);
         return shipmentItemPackedRepository.save(itemPacked);
     }
 
-    private Mono<ShipmentItemPacked> resetVerification(VerifyItemRequest verifyItemRequest , String rootCause){
-        return Flux.from(shipmentItemPackedRepository.listAllByShipmentId(verifyItemRequest.shipmentId()))
+    public Mono<ShipmentItemPacked> resetVerification(Long shipmentId , String rootCause){
+        return Flux.from(shipmentItemPackedRepository.listAllByShipmentId(shipmentId))
             .flatMap(this::markAsVerificationPending)
             .then(Mono.error(new RuntimeException(rootCause)));
     }

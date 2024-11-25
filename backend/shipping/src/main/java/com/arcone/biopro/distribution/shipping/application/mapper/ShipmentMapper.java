@@ -2,11 +2,15 @@ package com.arcone.biopro.distribution.shipping.application.mapper;
 
 import com.arcone.biopro.distribution.shipping.adapter.in.web.dto.ShipmentItemShortDateProductResponseDTO;
 import com.arcone.biopro.distribution.shipping.application.dto.ShipmentItemPackedDTO;
+import com.arcone.biopro.distribution.shipping.application.dto.ShipmentItemRemovedDTO;
 import com.arcone.biopro.distribution.shipping.domain.model.ShipmentItemPacked;
+import com.arcone.biopro.distribution.shipping.domain.model.ShipmentItemRemoved;
 import com.arcone.biopro.distribution.shipping.domain.model.ShipmentItemShortDateProduct;
 import com.arcone.biopro.distribution.shipping.infrastructure.listener.dto.ShortDateItem;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 @Component
 @Slf4j
@@ -29,6 +33,10 @@ public class ShipmentMapper {
             .secondVerification(shipmentItemPacked.getSecondVerification())
             .verifiedByEmployeeId(shipmentItemPacked.getVerifiedByEmployeeId())
             .verifiedDate(shipmentItemPacked.getVerificationDate())
+            .ineligibleStatus(Optional.ofNullable(shipmentItemPacked.getIneligibleStatus()).map(ineligibleStatus -> ineligibleStatus.label).orElse(null))
+            .ineligibleAction(shipmentItemPacked.getIneligibleAction())
+            .ineligibleReason(shipmentItemPacked.getIneligibleReason())
+            .ineligibleMessage(shipmentItemPacked.getIneligibleMessage())
             .build();
     }
 
@@ -57,4 +65,16 @@ public class ShipmentMapper {
 
     }
 
+    public ShipmentItemRemovedDTO toShipmentItemRemovedDTO(ShipmentItemRemoved shipmentItemRemoved){
+        return ShipmentItemRemovedDTO.builder()
+            .id(shipmentItemRemoved.getId())
+            .shipmentId(shipmentItemRemoved.getShipmentId())
+            .productCode(shipmentItemRemoved.getProductCode())
+            .unitNumber(shipmentItemRemoved.getUnitNumber())
+            .productFamily(shipmentItemRemoved.getProductFamily())
+            .removedDate(shipmentItemRemoved.getRemovedDate())
+            .removedByEmployeeId(shipmentItemRemoved.getRemovedByEmployeeId())
+            .ineligibleStatus(Optional.ofNullable(shipmentItemRemoved.getIneligibleStatus()).map(ineligibleStatus -> ineligibleStatus.label).orElse(null))
+            .build();
+    }
 }

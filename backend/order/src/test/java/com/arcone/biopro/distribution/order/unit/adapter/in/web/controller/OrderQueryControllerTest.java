@@ -36,6 +36,7 @@ class OrderQueryControllerTest {
         OrderQueryCommandDTO command = OrderQueryCommandDTO
             .builder()
             .locationCode("1")
+            .orderUniqueIdentifier("123")
             .build();
 
         StepVerifier.create(orderQueryController.searchOrders(command))
@@ -55,6 +56,7 @@ class OrderQueryControllerTest {
         OrderQueryCommandDTO command = OrderQueryCommandDTO
             .builder()
             .locationCode("1")
+            .orderUniqueIdentifier("123")
             .build();
 
         StepVerifier.create(orderQueryController.searchOrders(command))

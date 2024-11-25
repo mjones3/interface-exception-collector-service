@@ -1,6 +1,7 @@
 <app-filters
     [disabled]="!enableSubmit"
-    [appliedTotalFilterCount]="appliedFiltersCounter"
+    [resetDisabled]="!enableReset"
+    [appliedTotalFilterCount]="totalFieldsApplied"
     (search)="applyFilterSearch()"
     (resetSearchFilter)="resetFilters()"
     (showFilterControl)="toggleFilter($event)"
@@ -23,12 +24,52 @@
                         maxlength="25"
                         autocomplete="off"
                         #orderNumber
-                        (keyup)="singleSearchInputChanged.next('orderNumber')"
                     />
                     <mat-hint id="orderNumberHint" align="end">
                         {{ orderNumber.value.length }} / 25
                     </mat-hint>
                 </mat-form-field>
+
+                <app-multiple-select
+                    [formGroup]="searchForm"
+                    [controlName]="'orderStatus'"
+                    title="Order Status"
+                    [items]="statusOptions"
+                    matSelectId="orderStatus"
+                ></app-multiple-select>
+
+                <app-multiple-select
+                    [formGroup]="searchForm"
+                    [controlName]="'deliveryTypes'"
+                    title="Order Priority"
+                    [items]="priorityOptions"
+                    matSelectId="deliveryTypes"
+                ></app-multiple-select>
+
+                <app-multiple-select
+                    [formGroup]="searchForm"
+                    [controlName]="'customers'"
+                    title="Ship to Customer"
+                    [items]="customers"
+                    matSelectId="customers"
+                ></app-multiple-select>
+
+                <app-date-range-picker
+                    [formGroup]="getDateRangeFormGroup('createDate')"
+                    [minDate]="minCreateDateCriteria"
+                    matDatepickerMinErrorMessage="Date range exceeds two years"
+                    matEndDateInvalidMessage="Initial date should not be greater than final date"
+                    matDatepickerMaxMessage="Final date should not be greater than today"
+                    title="Create Date"
+                    dateRangeId="createDate"
+                    [maxDate]="today"
+                ></app-date-range-picker>
+
+                <app-date-range-picker
+                    [formGroup]="getDateRangeFormGroup('desiredShipDate')"
+                    title="Desired Shipment Date"
+                    dateRangeId="desiredShipmentDate"
+                ></app-date-range-picker>
             </div>
         </div>
     </form>

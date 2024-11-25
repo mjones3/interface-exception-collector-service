@@ -29,6 +29,7 @@ class OrderQueryMapperTest {
         OrderQueryCommandDTO commandDTO = Mockito.mock(OrderQueryCommandDTO.class);
         Mockito.when(commandDTO.limit()).thenReturn(10);
         Mockito.when(commandDTO.locationCode()).thenReturn("123");
+        Mockito.when(commandDTO.orderUniqueIdentifier()).thenReturn("123");
 
         QuerySortDTO querySortDTO = Mockito.mock(QuerySortDTO.class);
 
@@ -59,6 +60,7 @@ class OrderQueryMapperTest {
         OrderQueryCommandDTO commandDTO = Mockito.mock(OrderQueryCommandDTO.class);
         Mockito.when(commandDTO.limit()).thenReturn(10);
         Mockito.when(commandDTO.locationCode()).thenReturn("123");
+        Mockito.when(commandDTO.orderUniqueIdentifier()).thenReturn("123");
 
         OrderQueryMapper orderQueryMapper = new OrderQueryMapper();
         var orderQuery = orderQueryMapper.mapToDomain(commandDTO);
@@ -75,6 +77,7 @@ class OrderQueryMapperTest {
 
         OrderQueryCommandDTO commandDTO = Mockito.mock(OrderQueryCommandDTO.class);
         Mockito.when(commandDTO.locationCode()).thenReturn("123");
+        Mockito.when(commandDTO.orderUniqueIdentifier()).thenReturn("123");
         Mockito.when(commandDTO.limit()).thenReturn(null);
 
         OrderQueryMapper orderQueryMapper = new OrderQueryMapper();

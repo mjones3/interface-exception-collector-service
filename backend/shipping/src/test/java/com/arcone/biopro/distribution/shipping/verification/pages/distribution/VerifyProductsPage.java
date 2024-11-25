@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.Map;
+
 @Component
 @Slf4j
 public class VerifyProductsPage extends CommonPageFactory {
@@ -16,12 +19,11 @@ public class VerifyProductsPage extends CommonPageFactory {
     @Autowired
     private SharedActions sharedActions;
 
-    @Value("${ui.base.url}")
-    private String baseUrl;
-
     @Value("${ui.shipment-verify-products.url}")
-
     private String verifyProductsUrl;
+
+    @Value("${ui.shipment-verify-products-tab.url}")
+    String verifyProductsTabUrl;
 
     private static final String verifiedProductsTable = "//*[@id='prodTableId']";
     private static final String productCategory = "//*[@id='informationDetails-Labeling-Product-Category']";
@@ -36,6 +38,8 @@ public class VerifyProductsPage extends CommonPageFactory {
     private static final String progressLog = "numberOfUnitAdded";
     private static final String scanUnitNumber = "//*[@id='scanUnitNumberId']";
     private static final String scanProductCode = "//*[@id='scanProductCodeId']";
+    private static final String notificationConfirmButton = "//*[@id='notificationBtn']";
+    private static final String fillMoreProductsBtn = "fillMoreProductsActionBtn";
 
     private String validationErrorLocator(String message) {
         return String.format("//mat-error[contains(text(),'%s')]", message);
@@ -51,6 +55,28 @@ public class VerifyProductsPage extends CommonPageFactory {
         return String.format("//biopro-unit-number-card[@ng-reflect-product-name='%s']", productCode);
     }
 
+    private String formatDialogLocator(String message) {
+        return String.format("//app-notification//p[contains(text(),'%s')]", message);
+    }
+
+    private String getFilledTabLocator(String status, String totalProducts) {
+        return String.format("//*[contains(text(),'%s (%s)')]", status, totalProducts);
+    }
+
+    private String getFilledTabLocator(String status) {
+        return String.format("//*[contains(text(),'%s (')]", status);
+    }
+
+    private String getNotifiedProductCardLocator (String unit, String productCode, String status) {
+        return String.format("//app-notification//biopro-unit-number-card//*[contains(text(),'%s')]/..//*[contains(text(),'%s')]/../../../..//*[contains(text(),'%s')]", unit, productCode, status);
+    }
+
+    private String formatBannerMessageLocator(String message) {
+        return String.format("//biopro-global-message//fuse-alert//div[contains(text(),'%s')]", message);
+    }
+    private String getNotifiedProductCardLocator2 (String unit, String productCode, String status) {
+        return String.format("//biopro-unit-number-card//*[contains(text(),'%s')]/..//*[contains(text(),'%s')]/../../../..//*[contains(text(),'%s')]", unit, productCode, status);
+    }
     public void goToPage(String shipmentId) {
         sharedActions.navigateTo(verifyProductsUrl.replace("{shipmentId}", shipmentId));
     }
@@ -62,6 +88,13 @@ public class VerifyProductsPage extends CommonPageFactory {
 
     public void isPageOpen(String shipmentId) {
         sharedActions.isAtPage(verifyProductsUrl.replace("{shipmentId}", shipmentId));
+    }
+
+    public void isPageTabOpen(String shipmentId, String tab) {
+        sharedActions.isAtPage(
+            verifyProductsTabUrl.replace("{shipmentId}", shipmentId)
+                .replace("{tab}", tab)
+        );
     }
 
     public void viewPageContent() {
@@ -104,7 +137,7 @@ public class VerifyProductsPage extends CommonPageFactory {
         }
     }
 
-    public String getProgressLog() {
+    public String getProductsProgressLog() {
         return sharedActions.getText(By.id(progressLog));
     }
 
@@ -170,4 +203,77 @@ public class VerifyProductsPage extends CommonPageFactory {
             throw new IllegalArgumentException("Field not found: " + field);
         }
     }
+
+    public boolean isDialogMessage(String message) {
+        var locator = By.xpath(formatDialogLocator(message));
+        sharedActions.waitForVisible(locator);
+        return sharedActions.isElementVisible(locator);
+    }
+
+    public boolean isShipmentStatus(String status) {
+        var locator = By.xpath(String.format("//span[contains(text(),'%s')]", status));
+        sharedActions.waitForVisible(locator);
+        return sharedActions.isElementVisible(locator);
+    }
+
+    public boolean isDialogAcknowledgementButtonEnabled() {
+        return sharedActions.isElementEnabled(this.driver, By.xpath(notificationConfirmButton));
+    }
+
+    public boolean isProductListGroupedByStatus(List<Map<String, String>> statuses) {
+        for (Map<String, String> status : statuses) {
+            var locator = getFilledTabLocator(status.get("Status"), status.get("Total Products"));
+            sharedActions.waitForVisible(By.xpath(locator));
+        }
+        return true;
+    }
+
+    public boolean verifyNotifiedProducts(List<Map<String, String>> products) throws InterruptedException {
+        for (Map<String, String> product : products) {
+            var tab = getFilledTabLocator(product.get("Tab"));
+            var unit = product.get("Unit Number");
+            var productCode = product.get("Product Code");
+            var status = product.get("Status");
+
+            sharedActions.click(this.driver, By.xpath(tab));
+            sharedActions.waitForVisible(By.xpath(getNotifiedProductCardLocator(unit, productCode, status)));
+            }
+        return true;
+    }
+
+    public void goToPageAndTab(String shipmentId, String tab) {
+        sharedActions.navigateTo(verifyProductsTabUrl.replace("{shipmentId}", shipmentId).replace("{tab}", tab));
+    }
+
+    public boolean isNotificationBannerVisible(String message) {
+        sharedActions.waitForVisible(By.xpath(formatBannerMessageLocator(message)));
+        return true;
+    }
+
+    public boolean isProductRemoved(String unitNumber, String productCode, String status) {
+        sharedActions.waitForVisible(By.xpath(getNotifiedProductCardLocator2(unitNumber, productCode, status)));
+        return true;
+    }
+
+    public boolean isProductNotRemoved(String unitNumber, String productCode, String status) {
+        sharedActions.waitForNotVisible(By.xpath(getNotifiedProductCardLocator2(unitNumber, productCode, status)));
+        return true;
+    }
+
+    public boolean isFillMoreProductsButtonEnabled() {
+        sharedActions.waitForVisible(By.id(fillMoreProductsBtn));
+        sharedActions.waitForEnabled(By.id(fillMoreProductsBtn));
+        return true;
+    }
+
+    public boolean isFillMoreProductsButtonDisabled() {
+        sharedActions.waitForVisible(By.id(fillMoreProductsBtn));
+        sharedActions.waitForDisabled(By.id(fillMoreProductsBtn));
+        return true;
+    }
+
+    public void confirmNotificationDialog() {
+        sharedActions.click(By.xpath(notificationConfirmButton));
+    }
+
 }

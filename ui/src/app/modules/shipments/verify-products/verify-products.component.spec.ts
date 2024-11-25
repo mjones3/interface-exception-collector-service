@@ -57,6 +57,10 @@ describe('VerifyProductsComponent', () => {
             shipmentService,
             'getShipmentVerificationDetailsById'
         ).mockReturnValue(of());
+        jest.spyOn(
+            shipmentService,
+            'getNotificationDetailsByShipmentId'
+        ).mockReturnValue(of());
         fixture.detectChanges();
     });
 
