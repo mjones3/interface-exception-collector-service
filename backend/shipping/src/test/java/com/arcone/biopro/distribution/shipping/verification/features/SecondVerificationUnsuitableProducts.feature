@@ -23,13 +23,14 @@ Feature: Second Verification Notification Tab
         And The second verification configuration is "enabled".
         And I am on the verify products page with "notifications" tab active.
         And I should see a notification banner: "One or more products have changed status. You must rescan the products to be removed.".
+        And The fill more products option should be "disabled".
         When I scan the unit "<Unsuitable UN>" with product code "<Unsuitable Code>".
         Then I should see a "Acknowledgment Message" message: "<Message>".
         When I confirm the acknowledgment message.
         Then I should see the unit "<Unsuitable UN>" with code "<Unsuitable Code>" added to the removed products section with unsuitable status "<Unsuitable Status>".
         And I should see the log of removed products being updated.
         And The complete shipment option should be enabled.
-        And The fill more products option should be enabled.
+        And The fill more products option should be "enabled".
 
         Examples:
             | Order Number | Suitable Code | Suitable UN   | Unsuitable Code | Unsuitable UN | Unsuitable Status | Message                                                                                         |

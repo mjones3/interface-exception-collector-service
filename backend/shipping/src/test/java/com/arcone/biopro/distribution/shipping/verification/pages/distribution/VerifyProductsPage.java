@@ -266,6 +266,12 @@ public class VerifyProductsPage extends CommonPageFactory {
         return true;
     }
 
+    public boolean isFillMoreProductsButtonDisabled() {
+        sharedActions.waitForVisible(By.id(fillMoreProductsBtn));
+        sharedActions.waitForDisabled(By.id(fillMoreProductsBtn));
+        return true;
+    }
+
     public void confirmNotificationDialog() {
         sharedActions.click(By.xpath(notificationConfirmButton));
     }
