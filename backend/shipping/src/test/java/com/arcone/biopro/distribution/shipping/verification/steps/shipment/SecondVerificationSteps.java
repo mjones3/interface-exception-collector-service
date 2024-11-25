@@ -223,9 +223,15 @@ public class SecondVerificationSteps {
         Assert.assertEquals(progress.replace(" ",""), progressText.replace(" ",""));
     }
 
-    @And("The fill more products option should be enabled.")
-    public void theFillMoreProductsOptionShouldBeEnabled() {
-        Assert.assertTrue(verifyProductsPage.isFillMoreProductsButtonEnabled());
+    @And("The fill more products option should be {string}.")
+    public void theFillMoreProductsOptionShouldBeEnabled(String status) {
+        if (status.equalsIgnoreCase("enabled")) {
+            Assert.assertTrue(verifyProductsPage.isFillMoreProductsButtonEnabled());
+        } else if (status.equalsIgnoreCase("disabled")) {
+            Assert.assertTrue(verifyProductsPage.isFillMoreProductsButtonDisabled());
+        } else {
+            Assert.fail("Invalid status provided");
+        }
     }
 
 
