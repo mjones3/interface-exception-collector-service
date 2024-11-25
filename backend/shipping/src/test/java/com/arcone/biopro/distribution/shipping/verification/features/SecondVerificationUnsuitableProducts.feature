@@ -5,8 +5,8 @@ Feature: Second Verification Notification Tab
     So that I can remove them from the shipment.
 
     Background:
-        Given I cleaned up from the database the packed item that used the unit number "W822530106087,W822530106089,W822530106088,W822530106090,W822530106091,W822530106092, W822530106093".
-        And I cleaned up from the database, all shipments with order number "118,119,120,121, 122, 123".
+        Given I cleaned up from the database the packed item that used the unit number "W822530106087,W822530106089,W822530106088,W822530106090,W822530106091,W822530106092, W822530106093,W036898786756".
+        And I cleaned up from the database, all shipments with order number "118,119,120,121,122,124,125".
 
     Rule: I should see a notification stating that the units should be rescanned to be removed.
     Rule: I should be able to scan the unit number and product code of the products identified as unsuitable.
@@ -110,6 +110,21 @@ Feature: Second Verification Notification Tab
         Then I should see a field validation error message "<Field Error Message>".
         Examples:
             | Order Number | Suitable Code | Suitable UN   | Unsuitable Code | Unsuitable UN | Action | Field Name  | Field Value   | Field Error Message     | Second Action | Second Field Name | Second Field Value |
-            | 123          | E0685V00      | W822530106090 | E0685V00        | W822530106091 | Scan   | Unit Number | W822530106094 | Scan Product Code       | Type          | Product Code      | E0685V00           |
-            | 123          | E0685V00      | W822530106093 | E0685V00        | W822530106091 | Scan   | Unit Number | W822530106094 | Product Code is Invalid | Scan          | Product Code      | 121abc             |
-            | 123          | E0685V00      | W822530106093 | E0685V00        | W822530106091 | Scan   | Unit Number | W822530106094 | Product Code is Invalid | Type          | Product Code      | =<1212             |
+            | 124          | E0685V00      | W822530106090 | E0685V00        | W822530106091 | Scan   | Unit Number | W822530106094 | Scan Product Code       | Type          | Product Code      | E0685V00           |
+            | 124          | E0685V00      | W822530106093 | E0685V00        | W822530106091 | Scan   | Unit Number | W822530106094 | Product Code is Invalid | Scan          | Product Code      | 121abc             |
+            | 124          | E0685V00      | W822530106093 | E0685V00        | W822530106091 | Scan   | Unit Number | W822530106094 | Product Code is Invalid | Type          | Product Code      | =<1212             |
+
+
+        Rule: I should be able to view an acknowledgment message for an unsuitable product when the product is successfully discarded in the system.
+        @DIS-208
+        Scenario Outline: Second verification unsuitable products - discard removed units.
+            Given I have a shipment for order "<Order Number>" with the units "<Suitable UN>,<Unsuitable UN>" and product codes "<Suitable Code>,<Unsuitable Code>" "verified".
+            And The verified unit "<Unsuitable UN>" is unsuitable with status "<Unsuitable Status>" and message "<Message>".
+            And The second verification configuration is "enabled".
+            And I am on the verify products page with "notifications" tab active.
+            When I scan the unit "<Unsuitable UN>" with product code "<Unsuitable Code>".
+            Then I should see a "Acknowledgment Message" message: "<Message>".
+
+            Examples:
+            | Order Number | Suitable Code | Suitable UN   | Unsuitable Code | Unsuitable UN | Unsuitable Status | Message                                                                       |
+            | 125          | E0685V00      | W822530106094 | E0701V00        | W036898786756 | Expired           | This product is expired and has been discarded. Place in biohazard container. |
