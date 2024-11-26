@@ -8,6 +8,14 @@ import { AcknowledgeDetailDTO } from 'app/shared/models';
     standalone: true,
     imports: [MatDialogModule, ActionButtonComponent],
     templateUrl: './acknowledge-confirmation.component.html',
+    styles: [
+        `
+            .confirmation-width {
+                min-width: 30rem !important;
+                max-width: 40rem !important;
+            }
+        `,
+    ],
 })
 export class AcknowledgeConfirmationComponent {
     data: AcknowledgeDetailDTO;
