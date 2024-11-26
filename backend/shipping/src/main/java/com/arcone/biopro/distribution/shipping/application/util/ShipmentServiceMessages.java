@@ -33,6 +33,6 @@ public class ShipmentServiceMessages {
 
     //    Success messages
     public static final String SHIPMENT_COMPLETED_SUCCESS = "Shipment completed";
-    public static final String SECOND_VERIFICATION_CANCEL_SUCCESS = "Second Verification cancelled successful";
+    public static final String SECOND_VERIFICATION_CANCEL_SUCCESS = "The second verification cancellation completed";
 
 }

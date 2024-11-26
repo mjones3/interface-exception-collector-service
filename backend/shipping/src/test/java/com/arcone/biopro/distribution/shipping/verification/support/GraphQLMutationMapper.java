@@ -49,6 +49,61 @@ public class GraphQLMutationMapper {
                 """
             , shipmentId , employeeId));
     }
+
+    public static String cancelSecondVerification(Long shipmentId, String employeeId) {
+        return String.format(
+            """
+                mutation CancelSecondVerification {
+                    cancelSecondVerification(
+                        cancelSecondVerificationRequest: { shipmentId: %s, employeeId: "%s" }
+                    ) {
+                        ruleCode
+                        _links
+                        results
+                        notifications {
+                            name
+                            statusCode
+                            notificationType
+                            code
+                            action
+                            reason
+                            message
+                        }
+                    }
+                }
+
+            """,
+            shipmentId, employeeId
+        );
+    }
+
+    public static String confirmCancelSecondVerification(Long shipmentId, String employeeId) {
+        return String.format(
+            """
+                mutation ConfirmCancelSecondVerification {
+                    confirmCancelSecondVerification(
+                        confirmCancelSecondVerificationRequest: { shipmentId: %s, employeeId: "%s" }
+                    ) {
+                        ruleCode
+                        _links
+                        results
+                        notifications {
+                            name
+                            statusCode
+                            notificationType
+                            code
+                            action
+                            reason
+                            message
+                        }
+                    }
+                }
+
+            """,
+            shipmentId, employeeId
+        );
+    }
+
 }
 
 
