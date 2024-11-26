@@ -8,6 +8,7 @@ import {
     ProcessHeaderService,
     ToastrImplService,
 } from '@shared';
+import { ConfirmationAcknowledgmentService } from 'app/shared/services/confirmation-acknowledgment.service';
 import { CookieService } from 'ngx-cookie-service';
 import { catchError, finalize, switchMap, tap } from 'rxjs';
 import { FuseCardComponent } from '../../../../@fuse';
@@ -96,6 +97,7 @@ export class VerifyProductsNotificationsComponent
 
     constructor(
         protected route: ActivatedRoute,
+        private confirmationAcknowledgmentService: ConfirmationAcknowledgmentService,
         protected router: Router,
         protected store: Store,
         protected shipmentService: ShipmentService,
@@ -182,7 +184,8 @@ export class VerifyProductsNotificationsComponent
                 return this.triggerDiscard(removedItem);
             } else {
                 this.openAcknowledgmentMessageDialog(
-                    removedItem?.ineligibleMessage
+                    removedItem?.ineligibleMessage,
+                    removedItem.details
                 );
             }
         }
@@ -198,25 +201,11 @@ export class VerifyProductsNotificationsComponent
         }
     }
 
-    openAcknowledgmentMessageDialog(message: string): void {
-        this.confirmationService.open({
-            title: 'Acknowledgment Message',
-            message: message,
-            dismissible: false,
-            icon: {
-                show: false,
-            },
-            actions: {
-                confirm: {
-                    label: 'Confirm',
-                    show: true,
-                    class: 'bg-violet-300 text-violet-700 font-bold',
-                },
-                cancel: {
-                    show: false,
-                },
-            },
-        });
+    openAcknowledgmentMessageDialog(message: string, details: string[]): void {
+        this.confirmationAcknowledgmentService.notificationConfirmation(
+            message,
+            details
+        );
     }
 
     disableInputsIfAllRemovableItemsWereRemoved(): void {
@@ -238,7 +227,8 @@ export class VerifyProductsNotificationsComponent
                 const data = response?.data?.discardProduct;
                 if (data) {
                     return this.openAcknowledgmentMessageDialog(
-                        itemPackedDTO.ineligibleMessage
+                        itemPackedDTO.ineligibleMessage,
+                        null
                     );
                 } else {
                     this.showDiscardSystemError();

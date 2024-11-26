@@ -49,5 +49,13 @@ export interface NotificationDto {
     notificationEventOnDismiss?: string;
     action?: string;
     reason?: string;
+    details?: string[];
     code: number;
+}
+
+export interface AcknowledgeDetailDTO {
+    title: string;
+    description: string;
+    subtitle?: string;
+    details?: string[];
 }
