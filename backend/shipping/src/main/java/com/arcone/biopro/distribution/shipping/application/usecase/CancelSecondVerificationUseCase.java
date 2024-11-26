@@ -4,6 +4,7 @@ import com.arcone.biopro.distribution.shipping.application.dto.CancelSecondVerif
 import com.arcone.biopro.distribution.shipping.application.dto.NotificationDTO;
 import com.arcone.biopro.distribution.shipping.application.dto.NotificationType;
 import com.arcone.biopro.distribution.shipping.application.dto.RuleResponseDTO;
+import com.arcone.biopro.distribution.shipping.application.exception.ShipmentValidationException;
 import com.arcone.biopro.distribution.shipping.application.util.ShipmentServiceMessages;
 import com.arcone.biopro.distribution.shipping.domain.model.Shipment;
 import com.arcone.biopro.distribution.shipping.domain.model.ShipmentItemPacked;
@@ -35,15 +36,8 @@ public class CancelSecondVerificationUseCase implements CancelSecondVerification
     public Mono<RuleResponseDTO> cancelSecondVerification(CancelSecondVerificationRequest cancelSecondVerificationRequest) {
         return shipmentRepository.findById(cancelSecondVerificationRequest.shipmentId())
             .switchIfEmpty(Mono.error(new RuntimeException(ShipmentServiceMessages.SHIPMENT_NOT_FOUND_ERROR)))
-            .flatMap(this::validateShipment)
-            .flatMap(shipment -> Mono.just(RuleResponseDTO.builder()
-                .ruleCode(HttpStatus.OK)
-                .notifications(List.of(NotificationDTO.builder()
-                    .message(ShipmentServiceMessages.SECOND_VERIFICATION_CANCEL_CONFIRMATION)
-                    .statusCode(HttpStatus.OK.value())
-                    .notificationType(NotificationType.CONFIRMATION.name())
-                    .build()))
-                .build()))
+            .flatMap(shipment -> this.validateShipment(shipment,Boolean.FALSE))
+            .flatMap(this::cancelVerification)
             .onErrorResume(error -> {
                 log.error("Failed on cancel second verification {} , {} ", cancelSecondVerificationRequest, error.getMessage());
                 return buildErrorResponse(error);
@@ -54,41 +48,77 @@ public class CancelSecondVerificationUseCase implements CancelSecondVerification
     public Mono<RuleResponseDTO> confirmCancelSecondVerification(CancelSecondVerificationRequest cancelSecondVerificationRequest) {
         return shipmentRepository.findById(cancelSecondVerificationRequest.shipmentId())
             .switchIfEmpty(Mono.error(new RuntimeException(ShipmentServiceMessages.SHIPMENT_NOT_FOUND_ERROR)))
-            .flatMap(this::validateShipment)
-            .flatMap(this::resetVerification)
-            .flatMap(shipment -> Mono.just(RuleResponseDTO.builder()
-                .ruleCode(HttpStatus.OK)
-                .notifications(List.of(NotificationDTO.builder()
-                    .message(ShipmentServiceMessages.SECOND_VERIFICATION_CANCEL_SUCCESS)
-                    .statusCode(HttpStatus.OK.value())
-                    .notificationType(NotificationType.SUCCESS.name())
-                    .build()))
-                .results(Map.of("results", List.of(shipment)))
-                ._links(Map.of("next", String.format(SHIPMENT_DETAILS_URL,shipment.getId())))
-                .build()))
+            .flatMap(shipment -> this.validateShipment(shipment,Boolean.TRUE))
+            .flatMap(this::cancelVerification)
             .onErrorResume(error -> {
                 log.error("Failed on confirm cancel second verification {} , {} ", cancelSecondVerificationRequest, error.getMessage());
                 return buildErrorResponse(error);
             });
     }
 
-    private Mono<Shipment> validateShipment(Shipment shipment) {
+    private Mono<RuleResponseDTO> cancelVerification(Shipment shipment) {
+        return this.resetVerification(shipment).flatMap(result ->
+             Mono.just(RuleResponseDTO.builder()
+                    .ruleCode(HttpStatus.OK)
+                    .notifications(List.of(NotificationDTO.builder()
+                        .message(ShipmentServiceMessages.SECOND_VERIFICATION_CANCEL_SUCCESS)
+                        .statusCode(HttpStatus.OK.value())
+                        .notificationType(NotificationType.SUCCESS.name())
+                        .build()))
+                    .results(Map.of("results", List.of(shipment)))
+                    ._links(Map.of("next", String.format(SHIPMENT_DETAILS_URL,shipment.getId())))
+                    .build()));
+    }
+
+    private Mono<Shipment> validateShipment(Shipment shipment , boolean confirmed) {
         log.debug("Validating Shipment {}", shipment.getId());
 
         if(ShipmentStatus.COMPLETED.equals(shipment.getStatus())) {
             return Mono.error(new RuntimeException(ShipmentServiceMessages.SECOND_VERIFICATION_WITH_SHIPMENT_COMPLETED_ERROR));
         }
 
-        return shipmentItemPackedRepository.countIneligibleByShipmentId(shipment.getId()).flatMap(count -> {
-            if(count > 0){
-                return Mono.error(new RuntimeException(ShipmentServiceMessages.SECOND_VERIFICATION_WITH_INELIGIBLE_PRODUCTS_ERROR));
+        var countIneligible = shipmentItemPackedRepository.countIneligibleByShipmentId(shipment.getId());
+
+        var verifiedList = shipmentItemPackedRepository.listAllVerifiedByShipmentId(shipment.getId()).collectList();
+
+        return Mono.zip(countIneligible,verifiedList).flatMap(tuple -> {
+            if(tuple.getT1() > 0){
+                return Mono.error(new ShipmentValidationException(ShipmentServiceMessages.SECOND_VERIFICATION_WITH_INELIGIBLE_PRODUCTS_ERROR
+                    ,List.of(NotificationDTO.builder()
+                    .name("SECOND_VERIFICATION_WITH_INELIGIBLE_PRODUCTS_ERROR")
+                    .statusCode(HttpStatus.BAD_REQUEST.value())
+                    .message(ShipmentServiceMessages.SECOND_VERIFICATION_WITH_INELIGIBLE_PRODUCTS_ERROR)
+                    .notificationType(NotificationType.WARN.name())
+                    .build()),null, NotificationType.WARN.name())
+                );
+            }
+
+            if(Boolean.FALSE.equals(confirmed) && !tuple.getT2().isEmpty()){
+                return Mono.error(new ShipmentValidationException(ShipmentServiceMessages.SECOND_VERIFICATION_CANCEL_CONFIRMATION
+                    ,List.of(NotificationDTO.builder()
+                    .name("SECOND_VERIFICATION_CANCEL_CONFIRMATION")
+                    .statusCode(HttpStatus.OK.value())
+                    .code(HttpStatus.OK.value())
+                    .message(ShipmentServiceMessages.SECOND_VERIFICATION_CANCEL_CONFIRMATION)
+                    .notificationType(NotificationType.CONFIRMATION.name())
+                    .build()),null, NotificationType.CONFIRMATION.name())
+                );
             }
             return Mono.just(shipment);
+
         });
+
     }
 
 
     private Mono<RuleResponseDTO> buildErrorResponse(Throwable error) {
+        if (error instanceof ShipmentValidationException exception) {
+            return Mono.just(RuleResponseDTO.builder()
+                .ruleCode(HttpStatus.valueOf(exception.getNotifications().getFirst().statusCode()))
+                .notifications(exception.getNotifications())
+                .build());
+
+        } else {
             return Mono.just(RuleResponseDTO.builder()
                 .ruleCode(HttpStatus.BAD_REQUEST)
                 .notifications(List.of(NotificationDTO
@@ -101,6 +131,7 @@ public class CancelSecondVerificationUseCase implements CancelSecondVerification
                     .build()))
                 .build());
         }
+    }
 
     private Mono<ShipmentItemPacked> markAsVerificationPending(ShipmentItemPacked itemPacked) {
         itemPacked.setSecondVerification(SecondVerification.PENDING);

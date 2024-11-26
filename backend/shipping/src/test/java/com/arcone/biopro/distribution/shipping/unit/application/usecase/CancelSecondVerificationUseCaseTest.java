@@ -52,6 +52,10 @@ class CancelSecondVerificationUseCaseTest {
 
         Mockito.when(shipmentItemPackedRepository.countIneligibleByShipmentId(Mockito.anyLong())).thenReturn(Mono.just(0));
 
+        ShipmentItemPacked item = Mockito.mock(ShipmentItemPacked.class);
+
+        Mockito.when(shipmentItemPackedRepository.listAllVerifiedByShipmentId(Mockito.anyLong())).thenReturn(Flux.just(item));
+
         var result = useCase.cancelSecondVerification(CancelSecondVerificationRequest
             .builder()
                 .employeeId("EMPLOYEE_ID")
@@ -87,6 +91,7 @@ class CancelSecondVerificationUseCaseTest {
         Mockito.when(shipmentRepository.findById(1L)).thenReturn(Mono.just(shipment));
 
         Mockito.when(shipmentItemPackedRepository.countIneligibleByShipmentId(Mockito.anyLong())).thenReturn(Mono.just(0));
+        Mockito.when(shipmentItemPackedRepository.listAllVerifiedByShipmentId(Mockito.anyLong())).thenReturn(Flux.empty());
 
         ShipmentItemPacked item = Mockito.mock(ShipmentItemPacked.class);
 
@@ -130,6 +135,7 @@ class CancelSecondVerificationUseCaseTest {
         Mockito.when(shipmentRepository.findById(1L)).thenReturn(Mono.just(shipment));
 
         Mockito.when(shipmentItemPackedRepository.countIneligibleByShipmentId(Mockito.anyLong())).thenReturn(Mono.just(1));
+        Mockito.when(shipmentItemPackedRepository.listAllVerifiedByShipmentId(Mockito.anyLong())).thenReturn(Flux.empty());
 
         var result = useCase.cancelSecondVerification(CancelSecondVerificationRequest
             .builder()
@@ -202,6 +208,7 @@ class CancelSecondVerificationUseCaseTest {
         Mockito.when(shipmentRepository.findById(1L)).thenReturn(Mono.just(shipment));
 
         Mockito.when(shipmentItemPackedRepository.countIneligibleByShipmentId(Mockito.anyLong())).thenReturn(Mono.just(1));
+        Mockito.when(shipmentItemPackedRepository.listAllVerifiedByShipmentId(Mockito.anyLong())).thenReturn(Flux.empty());
 
         var result = useCase.confirmCancelSecondVerification(CancelSecondVerificationRequest
             .builder()
@@ -254,6 +261,102 @@ class CancelSecondVerificationUseCaseTest {
                 assertEquals(HttpStatus.BAD_REQUEST.value(), firstNotification.statusCode());
                 assertEquals("WARN", firstNotification.notificationType());
                 assertEquals(ShipmentServiceMessages.SECOND_VERIFICATION_WITH_SHIPMENT_COMPLETED_ERROR, firstNotification.message());
+            })
+            .verifyComplete();
+
+    }
+
+    @Test
+    public void shouldConfirmCancelSecondVerificationWhenNoVerifiedProducts() {
+
+        Shipment shipment = Mockito.mock(Shipment.class);
+        Mockito.when(shipment.getId()).thenReturn(1L);
+        Mockito.when(shipment.getOrderNumber()).thenReturn(56L);
+        Mockito.when(shipment.getExternalId()).thenReturn("EXTERNAL_ID");
+        Mockito.when(shipment.getStatus()).thenReturn(ShipmentStatus.OPEN);
+        Mockito.when(shipment.getPriority()).thenReturn(ShipmentPriority.ASAP);
+        Mockito.when(shipment.getComments()).thenReturn("TEST_COMMENTS");
+        Mockito.when(shipment.getLocationCode()).thenReturn("LOCATION_CODE");
+
+        Mockito.when(shipmentRepository.findById(1L)).thenReturn(Mono.just(shipment));
+
+        Mockito.when(shipmentItemPackedRepository.countIneligibleByShipmentId(Mockito.anyLong())).thenReturn(Mono.just(0));
+
+        Mockito.when(shipmentItemPackedRepository.listAllVerifiedByShipmentId(Mockito.anyLong())).thenReturn(Flux.empty());
+
+        ShipmentItemPacked item = Mockito.mock(ShipmentItemPacked.class);
+
+        Mockito.when(shipmentItemPackedRepository.listAllByShipmentId(Mockito.anyLong())).thenReturn(Flux.just(item));
+
+        Mockito.when(shipmentItemPackedRepository.save(Mockito.any())).thenReturn(Mono.just(item));
+
+        var result = useCase.cancelSecondVerification(CancelSecondVerificationRequest
+            .builder()
+            .employeeId("EMPLOYEE_ID")
+            .shipmentId(1L)
+            .build());
+
+
+        StepVerifier
+            .create(result)
+            .consumeNextWith(detail -> {
+                var firstNotification = detail.notifications().getFirst();
+
+                assertEquals(HttpStatus.OK, detail.ruleCode());
+                assertEquals(HttpStatus.OK.value(), firstNotification.statusCode());
+                assertEquals("SUCCESS", firstNotification.notificationType());
+                assertEquals("/shipment/1/shipment-details", detail._links().get("next"));
+                assertEquals(ShipmentServiceMessages.SECOND_VERIFICATION_CANCEL_SUCCESS, firstNotification.message());
+            })
+            .verifyComplete();
+
+    }
+
+    @Test
+    public void shouldNotCancelSecondVerificationWhenShipmentNotFound() {
+
+        Mockito.when(shipmentRepository.findById(1L)).thenReturn(Mono.empty());
+
+        var result = useCase.cancelSecondVerification(CancelSecondVerificationRequest
+            .builder()
+            .employeeId("EMPLOYEE_ID")
+            .shipmentId(1L)
+            .build());
+
+        StepVerifier
+            .create(result)
+            .consumeNextWith(detail -> {
+                var firstNotification = detail.notifications().getFirst();
+
+                assertEquals(HttpStatus.BAD_REQUEST, detail.ruleCode());
+                assertEquals(HttpStatus.BAD_REQUEST.value(), firstNotification.statusCode());
+                assertEquals("WARN", firstNotification.notificationType());
+                assertEquals(ShipmentServiceMessages.SHIPMENT_NOT_FOUND_ERROR, firstNotification.message());
+            })
+            .verifyComplete();
+
+    }
+
+    @Test
+    public void shouldNotConfirmCancelSecondVerificationWhenShipmentNotFound() {
+
+        Mockito.when(shipmentRepository.findById(1L)).thenReturn(Mono.empty());
+
+        var result = useCase.confirmCancelSecondVerification(CancelSecondVerificationRequest
+            .builder()
+            .employeeId("EMPLOYEE_ID")
+            .shipmentId(1L)
+            .build());
+
+        StepVerifier
+            .create(result)
+            .consumeNextWith(detail -> {
+                var firstNotification = detail.notifications().getFirst();
+
+                assertEquals(HttpStatus.BAD_REQUEST, detail.ruleCode());
+                assertEquals(HttpStatus.BAD_REQUEST.value(), firstNotification.statusCode());
+                assertEquals("WARN", firstNotification.notificationType());
+                assertEquals(ShipmentServiceMessages.SHIPMENT_NOT_FOUND_ERROR, firstNotification.message());
             })
             .verifyComplete();
 
