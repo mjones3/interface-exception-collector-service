@@ -173,6 +173,9 @@ class CancelSecondVerificationUseCaseTest {
 
         Mockito.when(shipmentItemPackedRepository.countIneligibleByShipmentId(Mockito.anyLong())).thenReturn(Mono.just(1));
 
+        Mockito.when(shipmentItemPackedRepository.countIneligibleByShipmentId(Mockito.anyLong())).thenReturn(Mono.just(0));
+        Mockito.when(shipmentItemPackedRepository.listAllVerifiedByShipmentId(Mockito.anyLong())).thenReturn(Flux.empty());
+
         var result = useCase.cancelSecondVerification(CancelSecondVerificationRequest
             .builder()
             .employeeId("EMPLOYEE_ID")
@@ -246,6 +249,8 @@ class CancelSecondVerificationUseCaseTest {
 
         Mockito.when(shipmentItemPackedRepository.countIneligibleByShipmentId(Mockito.anyLong())).thenReturn(Mono.just(1));
 
+        Mockito.when(shipmentItemPackedRepository.listAllVerifiedByShipmentId(Mockito.anyLong())).thenReturn(Flux.empty());
+
         var result = useCase.confirmCancelSecondVerification(CancelSecondVerificationRequest
             .builder()
             .employeeId("EMPLOYEE_ID")
@@ -317,6 +322,9 @@ class CancelSecondVerificationUseCaseTest {
 
         Mockito.when(shipmentRepository.findById(1L)).thenReturn(Mono.empty());
 
+        Mockito.when(shipmentItemPackedRepository.countIneligibleByShipmentId(Mockito.anyLong())).thenReturn(Mono.just(0));
+        Mockito.when(shipmentItemPackedRepository.listAllVerifiedByShipmentId(Mockito.anyLong())).thenReturn(Flux.empty());
+
         var result = useCase.cancelSecondVerification(CancelSecondVerificationRequest
             .builder()
             .employeeId("EMPLOYEE_ID")
@@ -341,6 +349,9 @@ class CancelSecondVerificationUseCaseTest {
     public void shouldNotConfirmCancelSecondVerificationWhenShipmentNotFound() {
 
         Mockito.when(shipmentRepository.findById(1L)).thenReturn(Mono.empty());
+
+        Mockito.when(shipmentItemPackedRepository.countIneligibleByShipmentId(Mockito.anyLong())).thenReturn(Mono.just(0));
+        Mockito.when(shipmentItemPackedRepository.listAllVerifiedByShipmentId(Mockito.anyLong())).thenReturn(Flux.empty());
 
         var result = useCase.confirmCancelSecondVerification(CancelSecondVerificationRequest
             .builder()

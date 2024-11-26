@@ -34,9 +34,7 @@ public class CancelSecondVerificationUseCase implements CancelSecondVerification
 
     @Override
     public Mono<RuleResponseDTO> cancelSecondVerification(CancelSecondVerificationRequest cancelSecondVerificationRequest) {
-        return shipmentRepository.findById(cancelSecondVerificationRequest.shipmentId())
-            .switchIfEmpty(Mono.error(new RuntimeException(ShipmentServiceMessages.SHIPMENT_NOT_FOUND_ERROR)))
-            .flatMap(shipment -> this.validateShipment(shipment,Boolean.FALSE))
+        return this.validateShipment(cancelSecondVerificationRequest,Boolean.FALSE)
             .flatMap(this::cancelVerification)
             .onErrorResume(error -> {
                 log.error("Failed on cancel second verification {} , {} ", cancelSecondVerificationRequest, error.getMessage());
@@ -46,9 +44,7 @@ public class CancelSecondVerificationUseCase implements CancelSecondVerification
 
     @Override
     public Mono<RuleResponseDTO> confirmCancelSecondVerification(CancelSecondVerificationRequest cancelSecondVerificationRequest) {
-        return shipmentRepository.findById(cancelSecondVerificationRequest.shipmentId())
-            .switchIfEmpty(Mono.error(new RuntimeException(ShipmentServiceMessages.SHIPMENT_NOT_FOUND_ERROR)))
-            .flatMap(shipment -> this.validateShipment(shipment,Boolean.TRUE))
+            return this.validateShipment(cancelSecondVerificationRequest,Boolean.TRUE)
             .flatMap(this::cancelVerification)
             .onErrorResume(error -> {
                 log.error("Failed on confirm cancel second verification {} , {} ", cancelSecondVerificationRequest, error.getMessage());
@@ -70,19 +66,23 @@ public class CancelSecondVerificationUseCase implements CancelSecondVerification
                     .build()));
     }
 
-    private Mono<Shipment> validateShipment(Shipment shipment , boolean confirmed) {
-        log.debug("Validating Shipment {}", shipment.getId());
+    private Mono<Shipment> validateShipment(CancelSecondVerificationRequest cancelSecondVerificationRequest , boolean confirmed) {
+        log.debug("Validating Shipment {}", cancelSecondVerificationRequest.shipmentId());
 
-        if(ShipmentStatus.COMPLETED.equals(shipment.getStatus())) {
-            return Mono.error(new RuntimeException(ShipmentServiceMessages.SECOND_VERIFICATION_WITH_SHIPMENT_COMPLETED_ERROR));
-        }
+        var shipment = shipmentRepository.findById(cancelSecondVerificationRequest.shipmentId())
+            .switchIfEmpty(Mono.error(new RuntimeException(ShipmentServiceMessages.SHIPMENT_NOT_FOUND_ERROR)));
 
-        var countIneligible = shipmentItemPackedRepository.countIneligibleByShipmentId(shipment.getId());
+        var countIneligible = shipmentItemPackedRepository.countIneligibleByShipmentId(cancelSecondVerificationRequest.shipmentId());
 
-        var verifiedList = shipmentItemPackedRepository.listAllVerifiedByShipmentId(shipment.getId()).collectList();
+        var verifiedList = shipmentItemPackedRepository.listAllVerifiedByShipmentId(cancelSecondVerificationRequest.shipmentId()).collectList();
 
-        return Mono.zip(countIneligible,verifiedList).flatMap(tuple -> {
-            if(tuple.getT1() > 0){
+        return Mono.zip(shipment,countIneligible,verifiedList).flatMap(tuple -> {
+
+            if(ShipmentStatus.COMPLETED.equals(tuple.getT1().getStatus())) {
+                return Mono.error(new RuntimeException(ShipmentServiceMessages.SECOND_VERIFICATION_WITH_SHIPMENT_COMPLETED_ERROR));
+            }
+
+            if(tuple.getT2() > 0){
                 return Mono.error(new ShipmentValidationException(ShipmentServiceMessages.SECOND_VERIFICATION_WITH_INELIGIBLE_PRODUCTS_ERROR
                     ,List.of(NotificationDTO.builder()
                     .name("SECOND_VERIFICATION_WITH_INELIGIBLE_PRODUCTS_ERROR")
@@ -93,7 +93,7 @@ public class CancelSecondVerificationUseCase implements CancelSecondVerification
                 );
             }
 
-            if(Boolean.FALSE.equals(confirmed) && !tuple.getT2().isEmpty()){
+            if(Boolean.FALSE.equals(confirmed) && !tuple.getT3().isEmpty()){
                 return Mono.error(new ShipmentValidationException(ShipmentServiceMessages.SECOND_VERIFICATION_CANCEL_CONFIRMATION
                     ,List.of(NotificationDTO.builder()
                     .name("SECOND_VERIFICATION_CANCEL_CONFIRMATION")
@@ -104,8 +104,8 @@ public class CancelSecondVerificationUseCase implements CancelSecondVerification
                     .build()),null, NotificationType.CONFIRMATION.name())
                 );
             }
-            return Mono.just(shipment);
 
+            return Mono.just(tuple.getT1());
         });
 
     }
