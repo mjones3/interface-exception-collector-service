@@ -384,7 +384,7 @@ public class SharedActions {
     }
 
     public void confirmAcknowledgment() {
-        String confirmButtonLocator = "confirmation-dialog-confirm-btn";
+        String confirmButtonLocator = "confirmButton";
         waitForVisible(By.id(confirmButtonLocator));
         click(By.id(confirmButtonLocator));
     }
