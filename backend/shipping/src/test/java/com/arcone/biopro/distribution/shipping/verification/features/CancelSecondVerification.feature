@@ -5,8 +5,8 @@ Feature: Cancel Verification Second Verification of Units Feature
     So that I can stop the verification process.
 
     Background:
-        Given I cleaned up from the database the packed item that used the unit number "W825530106087,W825530106088,W825530106089,W825530106090,W825530106091".
-        And I cleaned up from the database, all shipments with order number "125,126,127,128,129".
+        Given I cleaned up from the database the packed item that used the unit number "W825530106087,W825530106088,W825530106089,W825530106090,W825530106091,W825530106092".
+        And I cleaned up from the database, all shipments with order number "125,126,127,128,129,130".
 
         Rule: I should be able to cancel the second verification process (at any time) before submitting.
         Rule: I should see a confirmation message stating that all verified products at the current step will be removed.
@@ -50,6 +50,7 @@ Feature: Cancel Verification Second Verification of Units Feature
                 | Order Number | Code     | UN            |
                 | 126          | E0685V00 | W825530106088 |
 
+        Rule: I should not be able to cancel when there are ineligible products to be removed.
         @api @DIS-205
         Scenario Outline: Cancel Second verification when there are ineligible products to be removed.
             Given I have a shipment for order "<Order Number>" with the unit "<UN>" and product code "<Code>" "packed".
@@ -61,6 +62,7 @@ Feature: Cancel Verification Second Verification of Units Feature
                 | Order Number | Code     | UN            |
                 | 127          | E0685V00 | W825530106089 |
 
+        Rule: I should be able to cancel the second verification process (at any time) before submitting.
         @api @DIS-205
         Scenario Outline: Cancel Second verification when there's no verified units (API).
             Given I have a shipment for order "<Order Number>" with the unit "<UN>" and product code "<Code>" "packed".
@@ -72,6 +74,7 @@ Feature: Cancel Verification Second Verification of Units Feature
                 | Order Number | Code     | UN            |
                 | 128          | E0685V00 | W825530106090 |
 
+        Rule: I should see a confirmation message stating that all verified products at the current step will be removed.
         @api @DIS-205
         Scenario Outline: Cancel Second verification verified units (API).
             Given I have a shipment for order "<Order Number>" with the unit "<UN>" and product code "<Code>" "verified".
@@ -82,6 +85,7 @@ Feature: Cancel Verification Second Verification of Units Feature
                 | Order Number | Code     | UN            |
                 | 129          | E0685V00 | W825530106091 |
 
+        Rule: I should return to the shipment details page when I confirm the cancellation and will receive a message that the cancellation was successful.
         @api @DIS-205
         Scenario Outline: Confirm cancellation of Second verification verified units.
             Given I have a shipment for order "<Order Number>" with the unit "<UN>" and product code "<Code>" "verified".
@@ -91,4 +95,4 @@ Feature: Cancel Verification Second Verification of Units Feature
             And I should receive a redirect address to "Shipment Details Page".
             Examples:
                 | Order Number | Code     | UN            |
-                | 129          | E0685V00 | W825530106091 |
+                | 130          | E0685V00 | W825530106092 |
