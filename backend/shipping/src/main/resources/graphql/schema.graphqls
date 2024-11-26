@@ -19,6 +19,8 @@ type Mutation {
     completeShipment(completeShipmentRequest:CompleteShipmentRequest!):RuleResponseDTO!
     verifyItem(verifyItemRequest:VerifyItemRequest!):RuleResponseDTO!
     removeItem(removeItemRequest:RemoveItemRequest!):RuleResponseDTO!
+    cancelSecondVerification(cancelSecondVerificationRequest:CancelSecondVerificationRequest!):RuleResponseDTO!
+    confirmCancelSecondVerification(confirmCancelSecondVerificationRequest:CancelSecondVerificationRequest!):RuleResponseDTO!
 }
 
 type PackingListLabelDTO {
@@ -262,4 +264,9 @@ type RemoveProductResponseDTO {
     removedItems:[ShipmentItemRemovedDTO]
     toBeRemovedItems:[ShipmentItemPackedDTO]
     removedItem:ShipmentItemPackedDTO
+}
+
+input CancelSecondVerificationRequest {
+    shipmentId: Int!,
+    employeeId: String
 }
