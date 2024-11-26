@@ -185,7 +185,7 @@ export class VerifyProductsNotificationsComponent
             } else {
                 this.openAcknowledgmentMessageDialog(
                     removedItem?.ineligibleMessage,
-                    removedItem.details
+                    removedItem?.ineligibleDetails
                 );
             }
         }

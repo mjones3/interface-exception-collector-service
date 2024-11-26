@@ -104,7 +104,7 @@ export interface ShipmentItemPackedDTO {
     ineligibleAction?: string;
     ineligibleReason?: string;
     ineligibleMessage?: string;
-    details?: string[];
+    ineligibleDetails?: string[];
 }
 
 export interface VerifyProductDTO {
