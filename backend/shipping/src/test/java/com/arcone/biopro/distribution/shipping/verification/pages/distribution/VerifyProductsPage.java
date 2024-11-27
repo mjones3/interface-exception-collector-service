@@ -40,6 +40,7 @@ public class VerifyProductsPage extends CommonPageFactory {
     private static final String scanProductCode = "//*[@id='scanProductCodeId']";
     private static final String notificationConfirmButton = "//*[@id='notificationBtn']";
     private static final String fillMoreProductsBtn = "fillMoreProductsActionBtn";
+    private static final String cancelSecondVerificationBtn = "cancelActionBtn";
 
     private String validationErrorLocator(String message) {
         return String.format("//mat-error[contains(text(),'%s')]", message);
@@ -276,4 +277,7 @@ public class VerifyProductsPage extends CommonPageFactory {
         sharedActions.click(By.xpath(notificationConfirmButton));
     }
 
+    public void cancelSecondVerification() {
+        sharedActions.click(By.id(cancelSecondVerificationBtn));
+    }
 }

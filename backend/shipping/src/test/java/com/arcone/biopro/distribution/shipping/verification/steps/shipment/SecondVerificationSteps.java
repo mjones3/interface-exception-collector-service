@@ -295,4 +295,9 @@ public class SecondVerificationSteps {
         Assert.assertNotNull(this.cancelSecondVerificationResponse);
     }
 
+    @When("I choose to cancel the second verification process.")
+    public void iChooseToCancelTheSecondVerificationProcess() {
+        log.debug("Cancelling second verification process.");
+        verifyProductsPage.cancelSecondVerification();
+    }
 }
