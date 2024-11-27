@@ -408,7 +408,8 @@ export class FillProductsComponent implements OnInit {
         const details = notification.details;
         this.confirmationAcknowledgmentService.notificationConfirmation(
             message,
-            details
+            details,
+            null // TODO
         );
     }
 

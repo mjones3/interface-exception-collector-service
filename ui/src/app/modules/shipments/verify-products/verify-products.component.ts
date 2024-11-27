@@ -176,6 +176,7 @@ export class VerifyProductsComponent
                                 (n) => n.notificationType === 'CONFIRMATION'
                             )
                         ) {
+                            this.scanUnitNumberProductCode.disableUnitProductGroup();
                             this.matDialog
                                 .open(NotificationComponent, {
                                     data: {

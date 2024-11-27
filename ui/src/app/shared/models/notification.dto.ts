@@ -16,7 +16,7 @@ export const NotificationTypeMap: Record<string, NotificationConfig> = {
     SYSTEM: {
         title: 'System',
         type: NotificationType.info,
-        timeOut: 10000,
+        timeOut: 0,
     },
     INFO: {
         title: 'Information',
@@ -33,7 +33,7 @@ export const NotificationTypeMap: Record<string, NotificationConfig> = {
     },
     WARN: {
         type: NotificationType.error,
-        timeOut: 10000,
+        timeOut: 0,
     },
     ERROR: {
         type: NotificationType.error,

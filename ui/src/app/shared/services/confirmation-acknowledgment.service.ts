@@ -9,7 +9,7 @@ import { AcknowledgeDetailDTO } from '../models';
 export class ConfirmationAcknowledgmentService {
     constructor(private matDialog: MatDialog) {}
 
-    notificationConfirmation(message: string, details: string[]) {
+    notificationConfirmation(message: string, details: string[], callBackFn) {
         const acknowledgeDetail: AcknowledgeDetailDTO = {
             title: 'Acknowledgment Message',
             description: message,
@@ -17,9 +17,14 @@ export class ConfirmationAcknowledgmentService {
             details: details,
         };
 
-        this.matDialog.open(AcknowledgeConfirmationComponent, {
-            disableClose: true,
-            data: acknowledgeDetail,
-        });
+        this.matDialog
+            .open(AcknowledgeConfirmationComponent, {
+                disableClose: true,
+                data: acknowledgeDetail,
+            })
+            .afterClosed()
+            .subscribe(() => {
+                callBackFn();
+            });
     }
 }

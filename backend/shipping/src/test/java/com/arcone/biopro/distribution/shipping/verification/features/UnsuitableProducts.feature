@@ -1,4 +1,4 @@
-@ui
+@ui @AOA-40 @AOA-6
 Feature: Prevent filling a shipment with unsuitable products
     As a distribution technician, I want to prevent filling a shipment with unsuitable products, so that I can avoid shipping the wrong products to the customer.
 
