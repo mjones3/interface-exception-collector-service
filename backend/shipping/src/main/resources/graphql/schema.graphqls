@@ -182,6 +182,7 @@ type NotificationDTO {
     action:String
     reason:String
     message:String
+    details:[String]
 }
 
 enum ShipmentPriority {

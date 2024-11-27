@@ -36,6 +36,7 @@ import reactor.test.StepVerifier;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -91,6 +92,7 @@ class PackItemUseCaseTest {
             .errorName("NAME")
             .action("ACTION")
             .errorCode(1)
+            .details(Arrays.asList("REASON1","REASON2","REASON3"))
             .build()));
 
         Mockito.when(inventoryRsocketClient.validateInventory(Mockito.any(InventoryValidationRequest.class))).thenReturn(Mono.just(validationResponseDTO));
@@ -122,6 +124,9 @@ class PackItemUseCaseTest {
                 assertEquals("TYPE", firstNotification.notificationType());
                 assertEquals("NAME", firstNotification.name());
                 assertEquals("ACTION", firstNotification.action());
+                assertEquals(3, firstNotification.details().size());
+                assertEquals("REASON1", firstNotification.details().getFirst());
+
 
                 var inventoryResponseDTO = (InventoryResponseDTO) detail.results().get("inventory").getFirst();
                 assertEquals("E0701V00", inventoryResponseDTO.productCode());

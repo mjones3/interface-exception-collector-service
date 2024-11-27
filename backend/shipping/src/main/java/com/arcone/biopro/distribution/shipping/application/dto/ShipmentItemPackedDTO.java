@@ -1,14 +1,13 @@
 package com.arcone.biopro.distribution.shipping.application.dto;
 
-import com.arcone.biopro.distribution.shipping.domain.model.enumeration.IneligibleStatus;
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.SecondVerification;
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.VisualInspection;
 import lombok.Builder;
-import org.springframework.data.relational.core.mapping.Column;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.List;
 
 @Builder
 public record ShipmentItemPackedDTO(
@@ -30,7 +29,8 @@ public record ShipmentItemPackedDTO(
     String ineligibleStatus,
     String ineligibleAction,
     String ineligibleReason,
-    String ineligibleMessage
+    String ineligibleMessage,
+    List<String> ineligibleDetails
 ) implements Serializable {
 
 }

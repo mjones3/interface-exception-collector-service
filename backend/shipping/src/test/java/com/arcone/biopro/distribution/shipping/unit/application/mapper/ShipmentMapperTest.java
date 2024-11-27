@@ -2,6 +2,7 @@ package com.arcone.biopro.distribution.shipping.unit.application.mapper;
 
 import com.arcone.biopro.distribution.shipping.application.mapper.ShipmentMapper;
 import com.arcone.biopro.distribution.shipping.domain.model.ShipmentItemPacked;
+import com.arcone.biopro.distribution.shipping.domain.model.enumeration.IneligibleStatus;
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.SecondVerification;
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.VisualInspection;
 import org.junit.jupiter.api.Assertions;
@@ -33,6 +34,11 @@ class ShipmentMapperTest {
             .secondVerification(SecondVerification.COMPLETED)
             .verifiedByEmployeeId("VERIFY_EMPLOYEE_ID")
             .verificationDate(ZonedDateTime.now())
+            .ineligibleAction("ACTION")
+            .ineligibleDetails("DETAILS1,DETAILS2,DETAILS3")
+            .ineligibleMessage("MESSAGE")
+            .ineligibleReason("REASON")
+            .ineligibleStatus(IneligibleStatus.INVENTORY_IS_EXPIRED)
             .build();
 
         var dto = mapper.toShipmentItemPackedDTO(itemPacked);
@@ -53,5 +59,18 @@ class ShipmentMapperTest {
         Assertions.assertEquals("VERIFY_EMPLOYEE_ID",dto.verifiedByEmployeeId());
         Assertions.assertNotNull(dto.verifiedDate());
 
+        Assertions.assertEquals("ACTION",dto.ineligibleAction());
+        Assertions.assertEquals("MESSAGE",dto.ineligibleMessage());
+        Assertions.assertEquals("REASON",dto.ineligibleReason());
+
+        Assertions.assertEquals(3,dto.ineligibleDetails().size());
+        Assertions.assertEquals("DETAILS1",dto.ineligibleDetails().getFirst());
+
+
+
+
+
     }
+
+
 }

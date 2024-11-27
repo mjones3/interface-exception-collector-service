@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.shipping.application.dto;
 import lombok.Builder;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Builder
 public record NotificationDTO(
@@ -12,6 +13,7 @@ public record NotificationDTO(
     String message,
     Integer code,
     String action,
-    String reason
+    String reason,
+    List<String> details
 ) implements Serializable {
 }

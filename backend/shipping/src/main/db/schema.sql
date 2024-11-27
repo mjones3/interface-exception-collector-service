@@ -126,6 +126,8 @@ ALTER TABLE bld_shipment_item_packed ADD COLUMN ineligible_reason varchar(100) D
 
 ALTER TABLE bld_shipment_item_packed ADD COLUMN ineligible_message varchar(255) DEFAULT NULL;
 
+ALTER TABLE bld_shipment_item_packed ADD COLUMN ineligible_details varchar(500) DEFAULT NULL;
+
 
 CREATE TABLE bld_shipment_item_removed (
     id BIGSERIAL               NOT NULL
