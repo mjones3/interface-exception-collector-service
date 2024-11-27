@@ -185,8 +185,12 @@ export class VerifyProductsNotificationsComponent
             } else {
                 this.openAcknowledgmentMessageDialog(
                     removedItem?.ineligibleMessage,
-                    removedItem?.ineligibleDetails
+                    removedItem?.ineligibleDetails,
+                    () => {
+                        this.scanUnitNumberProductCode.focusOnUnitNumber();
+                    }
                 );
+                this.scanUnitNumberProductCode.resetUnitProductGroup();
             }
         }
 
@@ -201,10 +205,15 @@ export class VerifyProductsNotificationsComponent
         }
     }
 
-    openAcknowledgmentMessageDialog(message: string, details: string[]): void {
+    openAcknowledgmentMessageDialog(
+        message: string,
+        details: string[],
+        callBackFn
+    ): void {
         this.confirmationAcknowledgmentService.notificationConfirmation(
             message,
-            details
+            details,
+            callBackFn
         );
     }
 
@@ -228,7 +237,10 @@ export class VerifyProductsNotificationsComponent
                 if (data) {
                     return this.openAcknowledgmentMessageDialog(
                         itemPackedDTO.ineligibleMessage,
-                        null
+                        null,
+                        () => {
+                            this.scanUnitNumberProductCode.focusOnUnitNumber();
+                        }
                     );
                 } else {
                     this.showDiscardSystemError();
