@@ -10,6 +10,7 @@ import { ApolloModule } from 'apollo-angular';
 import { ApolloTestingModule } from 'apollo-angular/testing';
 import { ToastrModule } from 'ngx-toastr';
 import { of } from 'rxjs';
+import { FuseConfirmationService } from '../../../../@fuse/services/confirmation';
 import { ShipmentService } from '../services/shipment.service';
 import { VerifyProductsComponent } from './verify-products.component';
 
@@ -18,6 +19,7 @@ describe('VerifyProductsComponent', () => {
     let component: VerifyProductsComponent;
     let fixture: ComponentFixture<VerifyProductsComponent>;
     let shipmentService: ShipmentService;
+    let fuseConfirmationService: FuseConfirmationService;
     let router: Router;
 
     beforeEach(async () => {

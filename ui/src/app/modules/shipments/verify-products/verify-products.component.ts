@@ -16,6 +16,7 @@ import { NotificationComponent } from 'app/shared/components/notification/notifi
 import { finalize, tap } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { FuseCardComponent } from '../../../../@fuse';
+import { FuseConfirmationService } from '../../../../@fuse/services/confirmation';
 import { ProgressBarComponent } from '../../../progress-bar/progress-bar.component';
 import { ActionButtonComponent } from '../../../shared/components/action-button/action-button.component';
 import { GlobalMessageComponent } from '../../../shared/components/global-message/global-message.component';
@@ -23,6 +24,7 @@ import { UnitNumberCardComponent } from '../../../shared/components/unit-number-
 import { ProductIconsService } from '../../../shared/services/product-icon.service';
 import handleApolloError from '../../../shared/utils/apollo-error-handling';
 import { consumeNotifications } from '../../../shared/utils/notification.handling';
+import { CancelSecondVerificationRequest } from '../graphql/verify-products/query-definitions/verify-products.graphql';
 import { VerifyFilledProductDto } from '../models/shipment-info.dto';
 import { SecondVerificationCommon } from '../second-verification-common';
 import { ShipmentService } from '../services/shipment.service';
@@ -83,7 +85,8 @@ export class VerifyProductsComponent
         protected productIconService: ProductIconsService,
         protected toaster: ToastrImplService,
         protected header: ProcessHeaderService,
-        private matDialog: MatDialog
+        protected matDialog: MatDialog,
+        protected fuseConfirmationService: FuseConfirmationService
     ) {
         super(
             route,
@@ -156,10 +159,89 @@ export class VerifyProductsComponent
         return await this.router.navigateByUrl(url);
     }
 
-    async cancelButtonHandler(): Promise<boolean> {
-        return await this.handleNavigation(
-            `/shipment/${this.shipmentIdComputed()}/shipment-details`
-        );
+    cancelButtonHandler(): void {
+        const request: CancelSecondVerificationRequest = {
+            shipmentId: this.shipmentIdComputed(),
+            employeeId: this.loggedUserIdSignal(),
+        };
+        this.shipmentService
+            .cancelSecondVerification(request)
+            .pipe(catchError((e) => handleApolloError(this.toaster, e)))
+            .subscribe(async (result) => {
+                const confirmationNotification =
+                    result.data?.cancelSecondVerification?.notifications?.find(
+                        (n) => n.notificationType === 'CONFIRMATION'
+                    );
+                if (confirmationNotification) {
+                    this.scanUnitNumberProductCode.disableUnitProductGroup();
+                    return this.fuseConfirmationService
+                        .open({
+                            title: 'Cancel Confirmation',
+                            message: confirmationNotification.message,
+                            dismissible: false,
+                            icon: {
+                                show: false,
+                            },
+                            actions: {
+                                confirm: {
+                                    label: 'Yes',
+                                    class: 'bg-red-700 text-white font-bold',
+                                },
+                                cancel: {
+                                    class: 'font-bold',
+                                },
+                            },
+                        })
+                        .afterClosed()
+                        .subscribe((result) => {
+                            this.scanUnitNumberProductCode.resetUnitProductGroup();
+                            if (result === 'confirmed') {
+                                this.confirmCancel();
+                            }
+                        });
+                }
+
+                consumeNotifications(
+                    this.toaster,
+                    result?.data?.cancelSecondVerification?.notifications
+                );
+                if (
+                    result.data?.cancelSecondVerification?.ruleCode === '200 OK'
+                ) {
+                    return await this.handleNavigation(
+                        result.data?.cancelSecondVerification?._links?.next
+                    );
+                }
+            });
+    }
+
+    confirmCancel(): void {
+        const request: CancelSecondVerificationRequest = {
+            shipmentId: this.shipmentIdComputed(),
+            employeeId: this.loggedUserIdSignal(),
+        };
+        this.shipmentService
+            .confirmCancelSecondVerification(request)
+            .pipe(
+                catchError((e) => handleApolloError(this.toaster, e)),
+                tap((result) =>
+                    consumeNotifications(
+                        this.toaster,
+                        result?.data?.confirmCancelSecondVerification
+                            ?.notifications
+                    )
+                )
+            )
+            .subscribe(async (result) => {
+                if (
+                    result.data?.confirmCancelSecondVerification?.ruleCode ===
+                    '200 OK'
+                ) {
+                    await this.handleNavigation(
+                        result.data.confirmCancelSecondVerification._links.next
+                    );
+                }
+            });
     }
 
     completeShipment() {
