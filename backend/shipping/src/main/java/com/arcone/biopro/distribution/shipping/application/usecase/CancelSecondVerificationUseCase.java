@@ -61,7 +61,6 @@ public class CancelSecondVerificationUseCase implements CancelSecondVerification
                         .statusCode(HttpStatus.OK.value())
                         .notificationType(NotificationType.SUCCESS.name())
                         .build()))
-                    .results(Map.of("results", List.of(shipment)))
                     ._links(Map.of("next", String.format(SHIPMENT_DETAILS_URL,shipment.getId())))
                     .build()));
     }
