@@ -173,7 +173,7 @@ export class VerifyProductsComponent
                         (n) => n.notificationType === 'CONFIRMATION'
                     );
                 if (confirmationNotification) {
-                    this.scanUnitNumberProductCode.disableUnitProductGroup();
+                    this.scanUnitNumberProductCode?.disableUnitProductGroup();
                     return this.fuseConfirmationService
                         .open({
                             title: 'Cancel Confirmation',
@@ -194,7 +194,7 @@ export class VerifyProductsComponent
                         })
                         .afterClosed()
                         .subscribe((result) => {
-                            this.scanUnitNumberProductCode.resetUnitProductGroup();
+                            this.scanUnitNumberProductCode?.resetUnitProductGroup();
                             if (result === 'confirmed') {
                                 this.confirmCancel();
                             }
