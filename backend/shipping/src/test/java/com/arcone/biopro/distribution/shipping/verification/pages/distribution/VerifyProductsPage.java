@@ -41,6 +41,8 @@ public class VerifyProductsPage extends CommonPageFactory {
     private static final String notificationConfirmButton = "//*[@id='notificationBtn']";
     private static final String fillMoreProductsBtn = "fillMoreProductsActionBtn";
     private static final String cancelSecondVerificationBtn = "cancelActionBtn";
+    private static final String cancelSecondVerificationCancellationBtn = "confirmation-dialog-cancel-btn";
+    private static final String confirmCancelSecondVerificationBtn = "confirmation-dialog-confirm-btn";
 
     private String validationErrorLocator(String message) {
         return String.format("//mat-error[contains(text(),'%s')]", message);
@@ -279,5 +281,13 @@ public class VerifyProductsPage extends CommonPageFactory {
 
     public void cancelSecondVerification() {
         sharedActions.click(By.id(cancelSecondVerificationBtn));
+    }
+
+    public void cancelSecondVerificationCancellation() {
+        sharedActions.click(By.id(cancelSecondVerificationCancellationBtn));
+    }
+
+    public void confirmCancelSecondVerification() {
+        sharedActions.click(By.id(confirmCancelSecondVerificationBtn));
     }
 }

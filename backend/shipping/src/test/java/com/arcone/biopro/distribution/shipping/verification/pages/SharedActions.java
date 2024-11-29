@@ -206,7 +206,7 @@ public class SharedActions {
     public void verifyMessage(String header, String message) {
         log.info("Verifying message: {}", message);
         var bannerMessageLocator = "";
-        if (header.startsWith("Acknowledgment")) {
+        if (header.startsWith("Acknowledgment") || header.startsWith("Cancel Confirmation")) {
             verifyAckMessage(header,message);
         } else {
             bannerMessageLocator = "//*[@id='toast-container']//fuse-alert";
@@ -387,5 +387,10 @@ public class SharedActions {
         String confirmButtonLocator = "confirmButton";
         waitForVisible(By.id(confirmButtonLocator));
         click(By.id(confirmButtonLocator));
+    }
+
+    public void confirmationDialogIsNotVisible() {
+        log.debug("confirmationDialogIsNotVisible");
+        waitForNotVisible(By.xpath("//mat-dialog-container[starts-with(@id,'mat-mdc-dialog')]//fuse-confirmation-dialog"));
     }
 }

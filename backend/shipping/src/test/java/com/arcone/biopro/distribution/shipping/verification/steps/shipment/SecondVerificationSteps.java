@@ -1,6 +1,8 @@
 package com.arcone.biopro.distribution.shipping.verification.steps.shipment;
 
+import com.arcone.biopro.distribution.shipping.verification.pages.SharedActions;
 import com.arcone.biopro.distribution.shipping.verification.pages.distribution.HomePage;
+import com.arcone.biopro.distribution.shipping.verification.pages.distribution.ShipmentDetailPage;
 import com.arcone.biopro.distribution.shipping.verification.pages.distribution.VerifyProductsPage;
 import com.arcone.biopro.distribution.shipping.verification.support.ApiHelper;
 import com.arcone.biopro.distribution.shipping.verification.support.GraphQLMutationMapper;
@@ -53,6 +55,10 @@ public class SecondVerificationSteps {
 
     @Autowired
     private HomePage homePage;
+    @Autowired
+    private SharedActions sharedActions;
+    @Autowired
+    private ShipmentDetailPage shipmentDetailPage;
 
     @Given("I have a shipment for order {string} with the unit {string} and product code {string} {string}.")
     public void createPackedShipment(String orderNumber, String unitNumber, String productCode, String itemStatus){
@@ -142,6 +148,7 @@ public class SecondVerificationSteps {
     public void iAmOnTheVerifyProductsPage() throws InterruptedException {
         homePage.goTo();
         verifyProductsPage.goToPage(this.shipmentId.toString());
+        Thread.sleep(500);
     }
 
     @When("I focus out leaving {string} empty.")
@@ -296,8 +303,39 @@ public class SecondVerificationSteps {
     }
 
     @When("I choose to cancel the second verification process.")
-    public void iChooseToCancelTheSecondVerificationProcess() {
+    public void iChooseToCancelTheSecondVerificationProcess() throws InterruptedException {
         log.debug("Cancelling second verification process.");
+        Thread.sleep(500);
         verifyProductsPage.cancelSecondVerification();
+    }
+
+    @When("I choose to cancel the confirmation.")
+    public void iChooseToCancelTheConfirmation() {
+        verifyProductsPage.cancelSecondVerificationCancellation();
+    }
+
+    @Then("The confirmation dialog should be closed.")
+    public void theConfirmationDialogShouldBeClosed() {
+        sharedActions.confirmationDialogIsNotVisible();
+    }
+
+    @And("The verified units should remain in the verified products table.")
+    public void theVerifiedUnitsShouldRemainInTheVerifiedProductsTable() {
+        Assert.assertTrue(verifyProductsPage.isProductVerified(unitNumber, productCode));
+    }
+
+    @When("I confirm the cancellation.")
+    public void iConfirmTheCancellation() {
+        verifyProductsPage.confirmCancelSecondVerification();
+    }
+
+    @And("I should not have any verified product in the shipment.")
+    public void iShouldNotHaveAnyVerifiedProductInTheShipment() {
+        Assert.assertTrue(verifyProductsPage.isProductNotVerified(unitNumber, productCode));
+    }
+
+    @And("The verify option should be enabled.")
+    public void theVerifyOptionShouldBeEnabled() {
+        shipmentDetailPage.checkVerifyProductsButtonIsVisible();
     }
 }

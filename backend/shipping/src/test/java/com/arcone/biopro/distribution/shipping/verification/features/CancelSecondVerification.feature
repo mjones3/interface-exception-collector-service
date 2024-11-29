@@ -19,19 +19,19 @@ Feature: Cancel Verification Second Verification of Units Feature
             And The second verification configuration is "enabled".
             And I am on the verify products page.
             When I choose to cancel the second verification process.
-            Then I should see a confirmation dialog with the message "When cancelling, all verified products will be removed. Are you sure you want to cancel and remove all the products?".
+            Then I should see a "Cancel Confirmation" message: "When cancelling, all verified products will be removed. Are you sure you want to cancel and remove all the products?".
             When I choose to cancel the confirmation.
             Then The confirmation dialog should be closed.
             And The verified units should remain in the verified products table.
             And The complete shipment option should be enabled.
             When I choose to cancel the second verification process.
-            Then I should see a confirmation dialog with the message "When cancelling, all verified products will be removed. Are you sure you want to cancel and remove all the products?".
+            Then I should see a "Cancel Confirmation" message: "When cancelling, all verified products will be removed. Are you sure you want to cancel and remove all the products?".
             When I confirm the cancellation.
             Then The confirmation dialog should be closed.
             And I should not have any verified product in the shipment.
             And I should be redirected to the shipment details page.
             And I should see a "Success" message: "The second verification cancellation completed".
-            And The complete shipment option should not be enabled.
+            And The verify option should be enabled.
             Examples:
                 | Order Number | Code     | UN            |
                 | 125          | E0685V00 | W825530106087 |
