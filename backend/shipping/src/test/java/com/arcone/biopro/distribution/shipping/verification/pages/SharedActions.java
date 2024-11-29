@@ -206,10 +206,15 @@ public class SharedActions {
     public void verifyMessage(String header, String message) {
         log.info("Verifying message: {}", message);
         var bannerMessageLocator = "";
-        if (header.startsWith("Acknowledgment") || header.startsWith("Cancel Confirmation")) {
-            verifyAckMessage(header,message);
+        if (header.startsWith("Acknowledgment")) {
+            verifyAckMessage(header, message);
         } else {
-            bannerMessageLocator = "//*[@id='toast-container']//fuse-alert";
+            if(header.startsWith("Cancel Confirmation")){
+                bannerMessageLocator = "//mat-dialog-container[starts-with(@id,'mat-mdc-dialog')]//fuse-confirmation-dialog";
+            }else{
+                bannerMessageLocator = "//*[@id='toast-container']//fuse-alert";
+            }
+
             String finalBannerMessageLocator = bannerMessageLocator;
             waitForVisible(By.xpath(finalBannerMessageLocator));
             String msg = wait.until(e -> e.findElement(By.xpath(finalBannerMessageLocator))).getText();
@@ -220,6 +225,7 @@ public class SharedActions {
             Assert.assertEquals(message.toUpperCase(), msgParts[1].toUpperCase());
         }
     }
+
 
     public void verifyAckMessage(String header, String message) {
         log.info("Verifying Ack message: {}", message);
