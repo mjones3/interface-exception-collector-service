@@ -148,7 +148,6 @@ public class SecondVerificationSteps {
     public void iAmOnTheVerifyProductsPage() throws InterruptedException {
         homePage.goTo();
         verifyProductsPage.goToPage(this.shipmentId.toString());
-        Thread.sleep(500);
     }
 
     @When("I focus out leaving {string} empty.")
@@ -305,7 +304,6 @@ public class SecondVerificationSteps {
     @When("I choose to cancel the second verification process.")
     public void iChooseToCancelTheSecondVerificationProcess() throws InterruptedException {
         log.debug("Cancelling second verification process.");
-        Thread.sleep(500);
         verifyProductsPage.cancelSecondVerification();
     }
 
