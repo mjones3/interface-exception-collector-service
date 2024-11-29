@@ -14,11 +14,16 @@ import {
 } from '../graphql/shipment/query-definitions/shipment.graphql';
 import { VERIFY_CHECK_DIGIT } from '../graphql/unit-number-with-check-digit/query-definitions/unit-number-with-check-digit.graphql';
 import {
+    CANCEL_SECOND_VERIFICATION,
+    CONFIRM_CANCEL_SECOND_VERIFICATION,
+    CancelSecondVerificationRequest,
+    ConfirmCancelSecondVerificationRequest,
     GET_NOTIFICATION_DETAILS_BY_SHIPMENT_ID,
     GET_SHIPMENT_VERIFICATION_DETAILS_BY_ID,
     REMOVE_ITEM,
     RemoveItemRequest,
     RemoveProductResponseDTO,
+    ShipmentDTO,
     VERIFY_ITEM,
     VerifyItemRequest,
     VerifyProductResponseDTO,
@@ -139,6 +144,38 @@ export class ShipmentService {
             this.servicePath,
             REMOVE_ITEM,
             removeItemRequest
+        );
+    }
+
+    public cancelSecondVerification(
+        cancelSecondVerificationRequest: CancelSecondVerificationRequest
+    ): Observable<
+        MutationResult<{
+            cancelSecondVerification: RuleResponseDTO<{
+                results: ShipmentDTO[];
+            }>;
+        }>
+    > {
+        return this.dynamicGraphqlPathService.executeMutation(
+            this.servicePath,
+            CANCEL_SECOND_VERIFICATION,
+            cancelSecondVerificationRequest
+        );
+    }
+
+    public confirmCancelSecondVerification(
+        confirmCancelSecondVerificationRequest: ConfirmCancelSecondVerificationRequest
+    ): Observable<
+        MutationResult<{
+            confirmCancelSecondVerification: RuleResponseDTO<{
+                results: ShipmentDTO[];
+            }>;
+        }>
+    > {
+        return this.dynamicGraphqlPathService.executeMutation(
+            this.servicePath,
+            CONFIRM_CANCEL_SECOND_VERIFICATION,
+            confirmCancelSecondVerificationRequest
         );
     }
 }

@@ -1,6 +1,7 @@
 import { computed, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
+import { ToastrImplService } from '@shared';
 import { forkJoin, take, tap } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { getAuthState } from '../../core/state/auth/auth.selectors';
@@ -13,7 +14,6 @@ import {
 } from './graphql/verify-products/query-definitions/verify-products.graphql';
 import { ShipmentDetailResponseDTO } from './models/shipment-info.dto';
 import { ShipmentService } from './services/shipment.service';
-import { ToastrImplService } from '@shared';
 
 export class SecondVerificationCommon {
     protected currentRouteComputed = computed(() => this.router.url);
@@ -104,7 +104,7 @@ export class SecondVerificationCommon {
         return await this.router.navigateByUrl(url);
     }
 
-    async cancelButtonHandler(): Promise<boolean> {
+    async goBackToShipmentDetails(): Promise<boolean> {
         return await this.handleNavigation(
             `/shipment/${this.shipmentIdComputed()}/shipment-details`
         );

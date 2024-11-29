@@ -1,7 +1,11 @@
 package com.arcone.biopro.distribution.shipping.verification.steps.shipment;
 
+import com.arcone.biopro.distribution.shipping.verification.pages.SharedActions;
 import com.arcone.biopro.distribution.shipping.verification.pages.distribution.HomePage;
+import com.arcone.biopro.distribution.shipping.verification.pages.distribution.ShipmentDetailPage;
 import com.arcone.biopro.distribution.shipping.verification.pages.distribution.VerifyProductsPage;
+import com.arcone.biopro.distribution.shipping.verification.support.ApiHelper;
+import com.arcone.biopro.distribution.shipping.verification.support.GraphQLMutationMapper;
 import com.arcone.biopro.distribution.shipping.verification.support.ScreenshotService;
 import com.arcone.biopro.distribution.shipping.verification.support.controllers.ShipmentTestingController;
 import io.cucumber.java.en.And;
@@ -29,6 +33,10 @@ public class SecondVerificationSteps {
     private Integer totalVerified = 0;
     private Integer totalRemoved = 0;
     private Integer toBeRemoved = 0;
+    private Map cancelSecondVerificationResponse;
+
+    @Autowired
+    private ApiHelper apiHelper;
 
     @Autowired
     ShipmentTestingController shipmentTestingController;
@@ -42,8 +50,15 @@ public class SecondVerificationSteps {
     @Value("${save.all.screenshots}")
     private boolean saveAllScreenshots;
 
+    @Value("${ui.shipment-details.url}")
+    private String shipmentDetailsUrl;
+
     @Autowired
     private HomePage homePage;
+    @Autowired
+    private SharedActions sharedActions;
+    @Autowired
+    private ShipmentDetailPage shipmentDetailPage;
 
     @Given("I have a shipment for order {string} with the unit {string} and product code {string} {string}.")
     public void createPackedShipment(String orderNumber, String unitNumber, String productCode, String itemStatus){
@@ -247,4 +262,78 @@ public class SecondVerificationSteps {
         verifyProductsPage.confirmNotificationDialog();
     }
 
+    @When("I request to cancel the second verification process.")
+    public void iRequestToCancelTheSecondVerificationProcess() {
+        this.cancelSecondVerificationResponse = apiHelper.graphQlRequest(GraphQLMutationMapper.cancelSecondVerification(this.shipmentId, "test-emplyee-id"), "cancelSecondVerification");
+        log.debug("Cancel second verification completed: {}", this.cancelSecondVerificationResponse);
+        Assert.assertNotNull(this.cancelSecondVerificationResponse);
+    }
+
+    @Then("I should receive status {string} with type {string} and message {string}.")
+    public void iShouldReceiveStatusWithTheMessage(String status, String notificationType, String message) {
+        var responseStatus = this.cancelSecondVerificationResponse.get("ruleCode");
+        Assert.assertEquals(status, responseStatus);
+
+        var notifications = (List<Map>) this.cancelSecondVerificationResponse.get("notifications");
+
+        var responseNotificationType = notifications.getFirst().get("notificationType");
+        Assert.assertEquals(notificationType, responseNotificationType);
+
+        var responseMessage = notifications.getFirst().get("message");
+        Assert.assertEquals(message, responseMessage);
+    }
+
+    @And("I should receive a redirect address to {string}.")
+    public void iShouldReceiveARedirectAddressTo(String page) {
+        var url = switch (page) {
+            case "Shipment Details Page" -> shipmentDetailsUrl.replace("{shipmentId}", this.shipmentId.toString());
+            default -> throw new IllegalArgumentException("Page not mapped");
+        };
+
+        var links = (Map) this.cancelSecondVerificationResponse.get("_links");
+        Assert.assertEquals(url, links.get("next"));
+    }
+
+    @When("I request to confirm the cancellation.")
+    public void iRequestToConfirmTheCancellation() {
+        this.cancelSecondVerificationResponse = apiHelper.graphQlRequest(GraphQLMutationMapper.confirmCancelSecondVerification(this.shipmentId, "test-emplyee-id"), "confirmCancelSecondVerification");
+        log.debug("Confirm cancel second verification completed: {}", this.cancelSecondVerificationResponse);
+        Assert.assertNotNull(this.cancelSecondVerificationResponse);
+    }
+
+    @When("I choose to cancel the second verification process.")
+    public void iChooseToCancelTheSecondVerificationProcess() throws InterruptedException {
+        log.debug("Cancelling second verification process.");
+        verifyProductsPage.cancelSecondVerification();
+    }
+
+    @When("I choose to cancel the confirmation.")
+    public void iChooseToCancelTheConfirmation() {
+        verifyProductsPage.cancelSecondVerificationCancellation();
+    }
+
+    @Then("The confirmation dialog should be closed.")
+    public void theConfirmationDialogShouldBeClosed() {
+        sharedActions.confirmationDialogIsNotVisible();
+    }
+
+    @And("The verified units should remain in the verified products table.")
+    public void theVerifiedUnitsShouldRemainInTheVerifiedProductsTable() {
+        Assert.assertTrue(verifyProductsPage.isProductVerified(unitNumber, productCode));
+    }
+
+    @When("I confirm the cancellation.")
+    public void iConfirmTheCancellation() {
+        verifyProductsPage.confirmCancelSecondVerification();
+    }
+
+    @And("I should not have any verified product in the shipment.")
+    public void iShouldNotHaveAnyVerifiedProductInTheShipment() {
+        Assert.assertTrue(verifyProductsPage.isProductNotVerified(unitNumber, productCode));
+    }
+
+    @And("The verify option should be enabled.")
+    public void theVerifyOptionShouldBeEnabled() {
+        shipmentDetailPage.checkVerifyProductsButtonIsVisible();
+    }
 }

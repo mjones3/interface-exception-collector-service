@@ -223,3 +223,71 @@ export const REMOVE_ITEM = gql<
         }
     }
 `;
+
+export interface CancelSecondVerificationRequest {
+    shipmentId: number;
+    employeeId: string;
+}
+export type ConfirmCancelSecondVerificationRequest =
+    CancelSecondVerificationRequest;
+
+export interface ShipmentDTO {
+    id: number;
+}
+
+export const CANCEL_SECOND_VERIFICATION = gql<
+    { cancelSecondVerification: RuleResponseDTO<{ results: never }> },
+    CancelSecondVerificationRequest
+>`
+    mutation CancelSecondVerification($shipmentId: Int!, $employeeId: String!) {
+        cancelSecondVerification(
+            cancelSecondVerificationRequest: {
+                shipmentId: $shipmentId
+                employeeId: $employeeId
+            }
+        ) {
+            ruleCode
+            _links
+            results
+            notifications {
+                name
+                statusCode
+                notificationType
+                code
+                action
+                reason
+                message
+            }
+        }
+    }
+`;
+
+export const CONFIRM_CANCEL_SECOND_VERIFICATION = gql<
+    { confirmCancelSecondVerification: RuleResponseDTO<{ results: never }> },
+    ConfirmCancelSecondVerificationRequest
+>`
+    mutation ConfirmCancelSecondVerification(
+        $shipmentId: Int!
+        $employeeId: String!
+    ) {
+        confirmCancelSecondVerification(
+            confirmCancelSecondVerificationRequest: {
+                shipmentId: $shipmentId
+                employeeId: $employeeId
+            }
+        ) {
+            ruleCode
+            _links
+            results
+            notifications {
+                name
+                statusCode
+                notificationType
+                code
+                action
+                reason
+                message
+            }
+        }
+    }
+`;

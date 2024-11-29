@@ -27,6 +27,11 @@ export const NotificationTypeMap: Record<string, NotificationConfig> = {
         type: NotificationType.warning,
         timeOut: 10000,
     },
+    SUCCESS: {
+        type: NotificationType.success,
+        timeOut: 10000,
+    },
+    // FIXME: lowercased "success" should be removed after refactoring backend
     success: {
         type: NotificationType.success,
         timeOut: 10000,
