@@ -143,3 +143,5 @@ CREATE TABLE bld_shipment_item_removed (
 );
 
 CREATE UNIQUE INDEX idx_bld_shipment_item_removed ON bld_shipment_item_removed (unit_number, product_code ,shipment_id);
+
+ALTER TABLE bld_shipment_item_packed ALTER COLUMN ineligible_details TYPE TEXT ;
