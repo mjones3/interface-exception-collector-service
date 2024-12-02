@@ -26,13 +26,13 @@ public class ShipmentServiceMessages {
     public static final String SHIPMENT_VALIDATION_COMPLETED_ERROR = "One or more products have changed status. You must rescan the products to be removed.";
     public static final String SECOND_VERIFICATION_UNIT_NOT_TOBE_REMOVED_ERROR = "The verification does not match all products in this order. Please re-scan all the products.";
     public static final String SHIPMENT_WITH_INELIGIBLE_PRODUCTS_ERROR = "Shipment cannot be completed because contains product(s) that are not eligible for shipping.";
-    public static final String SECOND_VERIFICATION_WITH_INELIGIBLE_PRODUCTS_ERROR = "Second Verification cannot be cancelled because contains product(s) that should be removed from the shipment.";
+    public static final String SECOND_VERIFICATION_WITH_INELIGIBLE_PRODUCTS_ERROR = "Second Verification cannot be cancelled because there are product(s) that should be removed from the shipment.";
     public static final String SECOND_VERIFICATION_CANCEL_CONFIRMATION = "When cancelling, all verified products will be removed. Are you sure you want to cancel and remove all the products?";
     public static final String SECOND_VERIFICATION_WITH_SHIPMENT_COMPLETED_ERROR = "Second Verification cannot be cancelled because the shipment is already completed.";
 
 
     //    Success messages
     public static final String SHIPMENT_COMPLETED_SUCCESS = "Shipment completed";
-    public static final String SECOND_VERIFICATION_CANCEL_SUCCESS = "The second verification cancellation completed";
+    public static final String SECOND_VERIFICATION_CANCEL_SUCCESS = "Second verification cancellation completed";
 
 }
