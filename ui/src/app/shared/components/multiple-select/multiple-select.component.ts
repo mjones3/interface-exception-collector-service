@@ -12,6 +12,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { SelectOptionDto } from '@shared';
+import {
+    firstSelectedOption,
+    selectedOptionsCount,
+} from 'app/shared/utils/mat-select-trigger.utils';
 import { SelectAllDirective } from '../../directive/select-all/select-all.directive';
 import { FiltersComponent } from '../filters/filters.component';
 
@@ -47,25 +51,26 @@ export class MultipleSelectComponent {
         return `Filter ${this.title}`;
     }
 
-    selectedValues(key: string, source: SelectOptionDto[]): string {
-        const selectedValues = this.formGroup.controls[key].value;
+    firstSelectedOption(items: SelectOptionDto[]) {
+        const selectedOptions =
+            (this.formGroup.get(this.controlName)?.value as string[]) || [];
+        return firstSelectedOption(selectedOptions, items);
+    }
 
-        if (!selectedValues || selectedValues.length === 0) {
-            return '';
-        }
-
-        if (selectedValues[0] === 'select-all') {
-            return 'All';
-        }
-
-        return source
-            .filter((item) => selectedValues.includes(item.optionKey))
-            .map((item) => item.optionDescription)
-            .join(', '); // Use join to convert array to string with a separator
+    selectedOptionsCount() {
+        return selectedOptionsCount(
+            (this.formGroup.get(this.controlName)?.value as string[]) || []
+        );
     }
 
     get itemList(): SelectOptionDto[] {
         return this.items ? this.items : [];
+    }
+
+    isNotAMatch(optionDescription: string, valueToFilter: string) {
+        return !optionDescription
+            .toLowerCase()
+            .includes(valueToFilter?.toLowerCase());
     }
 
     selectOptionKeys(selectOptions: SelectOptionDto[]): string[] {
