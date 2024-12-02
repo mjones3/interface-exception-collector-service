@@ -126,9 +126,6 @@ export class SearchOrderFilterComponent implements OnInit {
                 this.searchForm
                     .get('orderNumber')
                     ?.enable({ emitEvent: false });
-                this.searchForm
-                    .get('orderNumber')
-                    ?.setValidators(Validators.required);
                 Object.keys(this.searchForm.controls).forEach((key) => {
                     if (key !== 'orderNumber') {
                         this.searchForm.get(key)?.disable({ emitEvent: false });
@@ -146,12 +143,12 @@ export class SearchOrderFilterComponent implements OnInit {
                     if (key === 'orderNumber') {
                         this.searchForm
                             .get(key)
-                            ?.addValidators(Validators.required);
+                            ?.removeValidators(Validators.required);
                     } else if (key === 'createDate') {
                         this.searchForm
                             .get(key)
                             ?.get('start')
-                            ?.addValidators(Validators.required);
+                            ?.removeValidators(Validators.required);
                     }
                 });
             }
