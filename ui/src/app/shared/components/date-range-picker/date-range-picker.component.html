@@ -31,13 +31,7 @@
         [for]="dateRangePicker"
     ></mat-datepicker-toggle>
     <mat-date-range-picker #dateRangePicker></mat-date-range-picker>
-    @if (formGroup.get('start')?.hasError('matDatepickerMin')) {
-        <mat-error>{{ matDatepickerMinErrorMessage }}</mat-error>
-    }
-    @if (formGroup.get('end')?.hasError('matEndDateInvalid')) {
-        <mat-error>{{ matEndDateInvalidMessage }}</mat-error>
-    }
-    @if (formGroup.get('end')?.hasError('matDatepickerMax')) {
-        <mat-error>{{ matDatepickerMaxMessage }}</mat-error>
+    @if (errorMessage()) {
+        <mat-error>{{ errorMessage() }}</mat-error>
     }
 </mat-form-field>

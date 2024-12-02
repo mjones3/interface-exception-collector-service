@@ -111,9 +111,6 @@ export class SearchOrderFilterComponent implements OnInit {
                 this.searchForm
                     .get('orderNumber')
                     ?.disable({ emitEvent: false });
-                this.searchForm
-                    .get('orderNumber')
-                    ?.removeValidators(Validators.required);
                 Object.keys(this.searchForm.controls).forEach((key) => {
                     if (key !== 'orderNumber') {
                         this.searchForm.get(key)?.enable({ emitEvent: false });
@@ -171,6 +168,13 @@ export class SearchOrderFilterComponent implements OnInit {
         );
     }
 
+    isInvalidDateRangeInformed = (field: 'createDate' | 'desiredShipDate') =>
+        this.searchForm
+            .get(field)
+            ?.get('start')
+            ?.hasError('matDatepickerParse') ||
+        this.searchForm.get(field)?.get('end')?.hasError('matDatepickerParse');
+
     isDateRangeInformed = (date) =>
         date != null && (date?.start != null || date?.end != null);
 
@@ -181,7 +185,10 @@ export class SearchOrderFilterComponent implements OnInit {
 
     isFieldInformed(key: string) {
         if (key === 'createDate' || key === 'desiredShipDate') {
-            return this.isDateRangeInformed(this.searchForm.value[key]);
+            return (
+                this.isDateRangeInformed(this.searchForm.value[key]) ||
+                this.isInvalidDateRangeInformed(key)
+            );
         } else if (Array.isArray(this.searchForm.value[key])) {
             return this.searchForm.value[key].length > 0;
         } else {
@@ -190,7 +197,6 @@ export class SearchOrderFilterComponent implements OnInit {
                 this.searchForm.value[key] !== ''
             );
         }
-        return false;
     }
 
     private loadCriteriaOptions() {
@@ -233,15 +239,12 @@ export class SearchOrderFilterComponent implements OnInit {
         );
         this.searchForm = this.formBuilder.group(
             {
-                orderNumber: [
-                    '',
-                    [Validators.required, Validators.maxLength(25)],
-                ],
+                orderNumber: ['', [Validators.maxLength(25)]],
                 orderStatus: [''],
                 deliveryTypes: [''],
                 customers: [''],
                 createDate: this.formBuilder.group({
-                    start: [null, [Validators.required]], // Start date
+                    start: [null], // Start date
                     end: [null], // End date
                 }),
                 desiredShipDate: this.formBuilder.group({
