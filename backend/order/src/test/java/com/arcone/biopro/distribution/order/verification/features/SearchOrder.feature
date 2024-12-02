@@ -69,14 +69,12 @@ Feature: Search Orders
     Rule: I should be able to reset the applied filter criteria.
         Rule: The system should not enable the Apply and Reset options until at least one filter criteria is chosen.
     Rule: I should be able to see the following filter options
-        Rule: I should be able to see the required filter options
         @R20-228
         Scenario: The reset option clears the specified filter criteria
             Given I am logged in the location "123456789".
             And I choose search orders.
             And I open the search orders filter panel.
             And I should see "order number, create date from, create date to, desired shipment date from, desired shipment date to, order status, priority, ship to customer" fields.
-            And I should see "create date" fields as required.
             And "reset" option is "disabled".
             And "apply" option is "disabled".
             And I search the order by "00000".
@@ -88,6 +86,7 @@ Feature: Search Orders
 
 
     Rule: I should not be able to use a greater initial date when compared to final date field
+        Rule: I should be able to see the required filter options
         @R20-228
         Scenario Outline: Ensure that the date range validation checks for greater initial dates when compared to final dates for range fields
             Given I am logged in the location "123456789".
@@ -95,6 +94,7 @@ Feature: Search Orders
             And I open the search orders filter panel.
             When I enter the date: "12/31/2023" for the field "<Initial Date Field>" and the date: "12/30/2023"  for the field "<Final Date Field>".
             Then I should see a validation message: "Initial date should not be greater than final date".
+            And  I should see "create date" fields as required.
 
             Examples:
                 | Initial Date Field         | Final Date Field         |
