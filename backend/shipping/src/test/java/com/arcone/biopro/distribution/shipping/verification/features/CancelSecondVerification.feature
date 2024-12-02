@@ -30,7 +30,7 @@ Feature: Cancel Verification Second Verification of Units Feature
             Then The confirmation dialog should be closed.
             And I should not have any verified product in the shipment.
             And I should be redirected to the shipment details page.
-            And I should see a "Success" message: "The second verification cancellation completed".
+            And I should see a "Success" message: "Second verification cancellation completed".
             And The verify option should be enabled.
             Examples:
                 | Order Number | Code     | UN            |
@@ -44,7 +44,7 @@ Feature: Cancel Verification Second Verification of Units Feature
             And I am on the verify products page.
             When I choose to cancel the second verification process.
             And I should be redirected to the shipment details page.
-            And I should see a "Success" message: "The second verification cancellation completed".
+            And I should see a "Success" message: "Second verification cancellation completed".
             And The verify option should be enabled.
             Examples:
                 | Order Number | Code     | UN            |
@@ -57,7 +57,7 @@ Feature: Cancel Verification Second Verification of Units Feature
             And The verified unit "<UN>" is unsuitable with status "Discarded" and message "This product has already been discarded for BROKEN in the system. Place in biohazard container.".
             And The second verification configuration is "enabled".
             When I request to cancel the second verification process.
-            Then I should receive status "400 BAD_REQUEST" with type "WARN" and message "Second Verification cannot be cancelled because contains product(s) that should be removed from the shipment.".
+            Then I should receive status "400 BAD_REQUEST" with type "WARN" and message "Second Verification cannot be cancelled because there are product(s) that should be removed from the shipment.".
             Examples:
                 | Order Number | Code     | UN            |
                 | 127          | E0685V00 | W825530106089 |
@@ -68,7 +68,7 @@ Feature: Cancel Verification Second Verification of Units Feature
             Given I have a shipment for order "<Order Number>" with the unit "<UN>" and product code "<Code>" "packed".
             And The second verification configuration is "enabled".
             When I request to cancel the second verification process.
-            Then I should receive status "200 OK" with type "SUCCESS" and message "The second verification cancellation completed".
+            Then I should receive status "200 OK" with type "SUCCESS" and message "Second verification cancellation completed".
             And I should receive a redirect address to "Shipment Details Page".
             Examples:
                 | Order Number | Code     | UN            |
@@ -91,7 +91,7 @@ Feature: Cancel Verification Second Verification of Units Feature
             Given I have a shipment for order "<Order Number>" with the unit "<UN>" and product code "<Code>" "verified".
             And The second verification configuration is "enabled".
             When I request to confirm the cancellation.
-            Then I should receive status "200 OK" with type "SUCCESS" and message "The second verification cancellation completed".
+            Then I should receive status "200 OK" with type "SUCCESS" and message "Second verification cancellation completed".
             And I should receive a redirect address to "Shipment Details Page".
             Examples:
                 | Order Number | Code     | UN            |
