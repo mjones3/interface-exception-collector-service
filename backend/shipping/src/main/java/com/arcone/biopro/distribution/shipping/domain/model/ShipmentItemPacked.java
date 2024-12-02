@@ -102,6 +102,9 @@ public class ShipmentItemPacked implements Serializable, Persistable<Long> {
     @Column("ineligible_message")
     private String ineligibleMessage;
 
+    @Column("ineligible_details")
+    private String ineligibleDetails;
+
     @Override
     public boolean isNew() {
         return createDate == null;

@@ -2,7 +2,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { provideMockStore } from '@ngrx/store/testing';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrImplService } from '@shared';
@@ -10,6 +9,7 @@ import {
     ApolloTestingController,
     ApolloTestingModule,
 } from 'apollo-angular/testing';
+import { ConfirmationAcknowledgmentService } from 'app/shared/services/confirmation-acknowledgment.service';
 import { ToastrModule } from 'ngx-toastr';
 import { of } from 'rxjs';
 import { VerifyFilledProductDto } from '../models/shipment-info.dto';
@@ -22,7 +22,7 @@ describe('FillProductsComponent', () => {
     let router: Router;
     let service: ShipmentService;
     let toaster: ToastrImplService;
-    let confirmationService: FuseConfirmationService;
+    let confirmationAcknowledgmentService: ConfirmationAcknowledgmentService;
     let controller: ApolloTestingController;
 
     beforeEach(async () => {
@@ -57,7 +57,9 @@ describe('FillProductsComponent', () => {
         component = fixture.componentInstance;
         toaster = TestBed.inject(ToastrImplService);
         service = TestBed.inject(ShipmentService);
-        confirmationService = TestBed.inject(FuseConfirmationService);
+        confirmationAcknowledgmentService = TestBed.inject(
+            ConfirmationAcknowledgmentService
+        );
         controller = TestBed.inject(ApolloTestingController);
 
         jest.spyOn(service, 'getShipmentById').mockReturnValue(of());
@@ -149,17 +151,21 @@ describe('FillProductsComponent', () => {
     });
 
     it('should open openAcknowledgmentMessageDialog', () => {
-        const notification = [
-            {
-                statusCode: 1,
-                notificationType: '',
-                message: '',
-                code: 1,
-            },
-        ];
-        jest.spyOn(confirmationService, 'open');
+        const notification = {
+            statusCode: 1,
+            notificationType: '',
+            message: '',
+            details: ['expired', 'broken bag'],
+            code: 1,
+        };
+        jest.spyOn(
+            confirmationAcknowledgmentService,
+            'notificationConfirmation'
+        );
         component.openAcknowledgmentMessageDialog(notification);
-        expect(confirmationService.open).toHaveBeenCalled();
+        expect(
+            confirmationAcknowledgmentService.notificationConfirmation
+        ).toHaveBeenCalled();
     });
 
     it('should increment selected units card length', () => {

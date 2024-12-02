@@ -40,6 +40,7 @@ import reactor.test.StepVerifier;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -286,6 +287,7 @@ class CompleteShipmentUseCaseTest {
             .errorName("INVENTORY_IS_EXPIRED")
             .action("ACTION")
             .errorCode(1)
+                .details(Arrays.asList("REASON1","REASON2","REASON3"))
             .build()));
 
         Mockito.when(inventoryRsocketClient.validateInventory(Mockito.any(InventoryValidationRequest.class))).thenReturn(Mono.just(validationResponseDTO));
@@ -311,6 +313,8 @@ class CompleteShipmentUseCaseTest {
                 assertEquals("INVENTORY_IS_EXPIRED", inventoryNotification.errorType());
                 assertEquals("INVENTORY_IS_EXPIRED", inventoryNotification.errorName());
                 assertEquals("ACTION", inventoryNotification.action());
+                assertEquals(3, inventoryNotification.details().size());
+                assertEquals("REASON1", inventoryNotification.details().getFirst());
 
                 var inventoryResponseDTO = (InventoryResponseDTO) inventoryValidationResponseDTO.inventoryResponseDTO();
 

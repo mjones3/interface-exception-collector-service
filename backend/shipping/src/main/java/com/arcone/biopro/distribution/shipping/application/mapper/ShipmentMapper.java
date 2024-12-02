@@ -10,6 +10,7 @@ import com.arcone.biopro.distribution.shipping.infrastructure.listener.dto.Short
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 @Component
@@ -37,6 +38,8 @@ public class ShipmentMapper {
             .ineligibleAction(shipmentItemPacked.getIneligibleAction())
             .ineligibleReason(shipmentItemPacked.getIneligibleReason())
             .ineligibleMessage(shipmentItemPacked.getIneligibleMessage())
+            .ineligibleDetails(Optional.ofNullable(shipmentItemPacked.getIneligibleDetails()).map(details -> Arrays.asList(details.split(","))).orElse(null))
+
             .build();
     }
 

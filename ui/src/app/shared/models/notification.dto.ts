@@ -16,7 +16,7 @@ export const NotificationTypeMap: Record<string, NotificationConfig> = {
     SYSTEM: {
         title: 'System',
         type: NotificationType.info,
-        timeOut: 10000,
+        timeOut: 0,
     },
     INFO: {
         title: 'Information',
@@ -27,13 +27,18 @@ export const NotificationTypeMap: Record<string, NotificationConfig> = {
         type: NotificationType.warning,
         timeOut: 10000,
     },
+    SUCCESS: {
+        type: NotificationType.success,
+        timeOut: 10000,
+    },
+    // FIXME: lowercased "success" should be removed after refactoring backend
     success: {
         type: NotificationType.success,
         timeOut: 10000,
     },
     WARN: {
         type: NotificationType.error,
-        timeOut: 10000,
+        timeOut: 0,
     },
     ERROR: {
         type: NotificationType.error,
@@ -49,5 +54,13 @@ export interface NotificationDto {
     notificationEventOnDismiss?: string;
     action?: string;
     reason?: string;
+    details?: string[];
     code: number;
+}
+
+export interface AcknowledgeDetailDTO {
+    title: string;
+    description: string;
+    subtitle?: string;
+    details?: string[];
 }
