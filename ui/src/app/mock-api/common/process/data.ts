@@ -12,13 +12,13 @@ export const process: ProcessProductModel = {
             'INVESTIGATIONAL_DEVICE',
             'CAUTION – Investigational device. Limited by Federal (or United States) law to investigational use.',
         ],
-        ['release_number', 'PI3.3-#21f0939c'],
+        ['release_number', 'PI3.5-#6c46bbee'],
     ]),
 };
 
 export const productVersion: ProcessProductVersionModel = {
     id: '1',
-    buildVersion: 'PI3.3-#69838bc2',
+    buildVersion: 'PI3.5-#6c46bbee',
     productId: '3638168f-f78e-4541-8055-af8fdb6f9623',
     releaseNotes: '1.0.0',
     releaseVersion: '1.0.0',
