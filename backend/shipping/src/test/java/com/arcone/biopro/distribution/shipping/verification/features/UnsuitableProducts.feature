@@ -5,7 +5,7 @@ Feature: Prevent filling a shipment with unsuitable products
     Background:
         Given I cleaned up from the database, all shipments with order number "999771,999778,999764,999779,999765".
 
-    @DIS-125 @DIS-78 @DIS-56
+    @DIS-125 @DIS-78 @DIS-56 @DIS-194
     Scenario Outline: Entering an unsuitable product
         Given The shipment details are order Number "<orderNumber>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>".
         And I have received a shipment fulfillment request with above details.

@@ -8,6 +8,7 @@ import com.arcone.biopro.distribution.shipping.domain.model.ShipmentItemRemoved;
 import com.arcone.biopro.distribution.shipping.domain.model.ShipmentItemShortDateProduct;
 import com.arcone.biopro.distribution.shipping.infrastructure.listener.dto.ShortDateItem;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -38,7 +39,7 @@ public class ShipmentMapper {
             .ineligibleAction(shipmentItemPacked.getIneligibleAction())
             .ineligibleReason(shipmentItemPacked.getIneligibleReason())
             .ineligibleMessage(shipmentItemPacked.getIneligibleMessage())
-            .ineligibleDetails(Optional.ofNullable(shipmentItemPacked.getIneligibleDetails()).map(details -> Arrays.asList(details.split(","))).orElse(null))
+            .ineligibleDetails(!StringUtils.isEmpty(shipmentItemPacked.getIneligibleDetails()) ? Arrays.asList(shipmentItemPacked.getIneligibleDetails().split(",")) : null)
 
             .build();
     }
