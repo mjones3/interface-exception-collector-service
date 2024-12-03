@@ -7,7 +7,7 @@
             {{ data.description }}
         </div>
 
-        @if (data.details) {
+        @if (data.details?.length > 0) {
             <div class="py-4 pb-2">
                 <div class="text-lg font-bold" id="acknowledgeSubtitle">
                     {{ data.subtitle }}

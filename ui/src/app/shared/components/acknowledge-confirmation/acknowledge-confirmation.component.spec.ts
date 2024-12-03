@@ -39,7 +39,7 @@ describe('AcknowledgeConfirmationComponent', () => {
     });
 
     it('should display acknowledgeSubtitle and acknowledgeDetails if details is available', () => {
-        component.data.details = [];
+        component.data.details = ['reason'];
         fixture.detectChanges();
         const subTitleDiv = fixture.debugElement.query(
             By.css('#acknowledgeSubtitle')
@@ -49,6 +49,19 @@ describe('AcknowledgeConfirmationComponent', () => {
             By.css('#acknowledgeDetails')
         );
         expect(detailDiv).toBeTruthy();
+    });
+
+    it('should not acknowledgeSubtitle and display acknowledgeDetails if details is empty', () => {
+        component.data.details = [];
+        fixture.detectChanges();
+        const subTitleDiv = fixture.debugElement.query(
+            By.css('#acknowledgeSubtitle')
+        );
+        expect(subTitleDiv).toBeFalsy();
+        const detailDiv = fixture.debugElement.query(
+            By.css('#acknowledgeDetails')
+        );
+        expect(detailDiv).toBeFalsy();
     });
 
     it('should not acknowledgeSubtitle and display acknowledgeDetails if details is null', () => {
