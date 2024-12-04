@@ -12,12 +12,16 @@
             matStartDate
             formControlName="start"
             placeholder="Start date"
+            [minlength]="10"
+            [maxLength]="10"
             [id]="dateRangeId + 'From'"
         />
         <input
             matEndDate
             formControlName="end"
             placeholder="End date"
+            [minlength]="10"
+            [maxLength]="10"
             [id]="dateRangeId + 'To'"
         />
     </mat-date-range-input>
@@ -27,13 +31,7 @@
         [for]="dateRangePicker"
     ></mat-datepicker-toggle>
     <mat-date-range-picker #dateRangePicker></mat-date-range-picker>
+    @if (errorMessage()) {
+        <mat-error>{{ errorMessage() }}</mat-error>
+    }
 </mat-form-field>
-@if (formGroup.get('start')?.hasError('matDatepickerMin')) {
-    <mat-error>{{ matDatepickerMinErrorMessage }}</mat-error>
-}
-@if (formGroup.get('end')?.hasError('matEndDateInvalid')) {
-    <mat-error>{{ matEndDateInvalidMessage }}</mat-error>
-}
-@if (formGroup.get('end')?.hasError('matDatepickerMax')) {
-    <mat-error>{{ matDatepickerMaxMessage }}</mat-error>
-}

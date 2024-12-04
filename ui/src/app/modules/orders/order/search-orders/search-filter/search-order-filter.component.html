@@ -25,14 +25,11 @@
                         autocomplete="off"
                         #orderNumber
                     />
-                    <mat-hint id="orderNumberHint" align="end">
-                        {{ orderNumber.value.length }} / 25
-                    </mat-hint>
                 </mat-form-field>
 
                 <app-multiple-select
                     [formGroup]="searchForm"
-                    [controlName]="'orderStatus'"
+                    controlName="orderStatus"
                     title="Order Status"
                     [items]="statusOptions"
                     matSelectId="orderStatus"
@@ -40,7 +37,7 @@
 
                 <app-multiple-select
                     [formGroup]="searchForm"
-                    [controlName]="'deliveryTypes'"
+                    controlName="deliveryTypes"
                     title="Order Priority"
                     [items]="priorityOptions"
                     matSelectId="deliveryTypes"
@@ -48,7 +45,7 @@
 
                 <app-multiple-select
                     [formGroup]="searchForm"
-                    [controlName]="'customers'"
+                    controlName="customers"
                     title="Ship to Customer"
                     [items]="customers"
                     matSelectId="customers"
