@@ -24,7 +24,6 @@ import { Subject, distinctUntilChanged, takeUntil } from 'rxjs';
         MatDatepickerModule,
     ],
     templateUrl: './date-range-picker.component.html',
-    //
 })
 export class DateRangePickerComponent implements AfterContentInit, OnDestroy {
     @Input() title!: string;
