@@ -69,6 +69,24 @@ service:
   rsocket:
     port: 7002
 
+serviceAnnotations:
+  # Enable Dynatrace Istio metrics collection for the service
+  metrics.dynatrace.com/port: '15020'
+  metrics.dynatrace.com/scrape: 'true'
+  metrics.dynatrace.com/path: "/stats/prometheus"
+  metrics.dynatrace.com/filter: '{
+    "mode": "include",
+    "names": [
+      "istio_requests_total",
+      "istio_tcp_received_bytes_total",
+      "istio_tcp_sent_bytes_total",
+      "istio_tcp_connections_closed_total",
+      "istio_tcp_connections_opened_total",
+      "istio_request_duration_milliseconds",
+      "pilot_k8s_cfg_events"
+    ]
+  }'
+
 # We usually recommend not to specify default resources and to leave this as a conscious
 # choice for the user. This also increases chances charts run on environments with little
 # resources, such as Minikube. If you do want to specify resources, uncomment the following
