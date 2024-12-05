@@ -169,8 +169,6 @@ export class SearchOrdersComponent implements OnInit {
         this.searchOrders();
     }
 
-    //====================== Angular Material ========================
-
     protected readonly defaultSort = {
         id: 'bloodCenterID',
         start: 'asc',
@@ -267,8 +265,6 @@ export class SearchOrdersComponent implements OnInit {
             });
         }
     }
-
-    //=================================================================
 
     searchOrders() {
         this.footerMessage = '';

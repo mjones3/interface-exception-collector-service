@@ -1,6 +1,5 @@
 import { TemplateRef } from '@angular/core';
 
-/* eslint-disable @typescript-eslint/ban-types */
 export interface Column {
     field: string;
     header: string;
@@ -125,4 +124,3 @@ export interface TagClass {
     text?: string;
     icon?: string;
 }
-/* eslint-enable @typescript-eslint/ban-types */

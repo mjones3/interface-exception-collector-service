@@ -171,12 +171,6 @@ export class TableComponent<T extends TableDataSource = TableDataSource>
         if (this.configuration.selectable) {
             this.columnsId.unshift('select');
         }
-        // if (this.configuration.progressBar) {
-        //     this.columnsId.push('progressBar');
-        // }
-        // if (this.configuration.actions) {
-        //     this.columnsId.push('actions');
-        // }
     }
 
     //#region Expand
