@@ -115,10 +115,13 @@ export class SearchOrderFilterComponent implements OnInit {
                     if (key !== 'orderNumber') {
                         this.searchForm.get(key)?.enable({ emitEvent: false });
                         if (key === 'createDate') {
-                            this.searchForm
+                            const startControl = this.searchForm
                                 .get(key)
-                                .get('start')
-                                ?.addValidators(Validators.required);
+                                ?.get('start');
+                            startControl?.addValidators(Validators.required);
+                            startControl?.updateValueAndValidity({
+                                emitEvent: false,
+                            });
                         }
                     }
                 });
@@ -130,10 +133,13 @@ export class SearchOrderFilterComponent implements OnInit {
                     if (key !== 'orderNumber') {
                         this.searchForm.get(key)?.disable({ emitEvent: false });
                         if (key === 'createDate') {
-                            this.searchForm
+                            const startControl = this.searchForm
                                 .get(key)
-                                .get('start')
-                                ?.removeValidators(Validators.required);
+                                ?.get('start');
+                            startControl?.removeValidators(Validators.required);
+                            startControl?.updateValueAndValidity({
+                                emitEvent: false,
+                            });
                         }
                     }
                 });
@@ -145,10 +151,13 @@ export class SearchOrderFilterComponent implements OnInit {
                             .get(key)
                             ?.removeValidators(Validators.required);
                     } else if (key === 'createDate') {
-                        this.searchForm
+                        const startControl = this.searchForm
                             .get(key)
-                            ?.get('start')
-                            ?.removeValidators(Validators.required);
+                            ?.get('start');
+                        startControl?.removeValidators(Validators.required);
+                        startControl?.updateValueAndValidity({
+                            emitEvent: false,
+                        });
                     }
                 });
             }

@@ -1,6 +1,12 @@
-import { AfterViewInit, Directive, inject, Input, OnDestroy } from '@angular/core';
-import { MatSelect } from '@angular/material/select';
+import {
+    AfterViewInit,
+    Directive,
+    inject,
+    Input,
+    OnDestroy,
+} from '@angular/core';
 import { MatOption } from '@angular/material/core';
+import { MatSelect } from '@angular/material/select';
 import { Subscription } from 'rxjs';
 
 @Directive({
@@ -37,16 +43,33 @@ export class SelectAllDirective implements AfterViewInit, OnDestroy {
                     if (!v.source.selected) {
                         this._matOption.deselect(false);
                         v.source.deselect(false);
-                        parentFormControl.setValue(parentSelect.value.filter(item => item !== 'select-all' && item !== v.source.value));
+                        parentFormControl.setValue(
+                            parentSelect.value.filter(
+                                (item) =>
+                                    item !== 'select-all' &&
+                                    item !== v.source.value
+                            )
+                        );
                     } else {
-                        const selectedValues = parentFormControl?.value?.filter(item => this.allValues.includes(item));
-                        if ((selectedValues?.length + 1) === this.allValues.length) {
-                            parentFormControl.setValue(['select-all',...parentSelect.value]);
-                            this._matOption.select(false);
+                        if (parentFormControl?.value) {
+                            const selectedValues =
+                                parentFormControl?.value?.filter((item) =>
+                                    this.allValues.includes(item)
+                                );
+                            if (
+                                selectedValues?.length + 1 ===
+                                this.allValues.length
+                            ) {
+                                parentFormControl.setValue([
+                                    'select-all',
+                                    ...parentSelect.value,
+                                ]);
+                                this._matOption.select(false);
+                            }
                         }
                     }
                 }
-            }),
+            })
         );
     }
 
@@ -54,5 +77,3 @@ export class SelectAllDirective implements AfterViewInit, OnDestroy {
         this._subscriptions.forEach((s) => s.unsubscribe());
     }
 }
-
-
