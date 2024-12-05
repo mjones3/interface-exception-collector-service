@@ -55,12 +55,15 @@ public class OrderQueryCommand implements Validatable {
         if(this.querySort == null){
             this.querySort = new QuerySort(List.of(new QueryOrderBy(DEFAULT_FIRST_SORT_BY,DEFAULT_SORT_DIRECTION),new QueryOrderBy(DEFAULT_SECOND_SORT_BY,DEFAULT_SORT_DIRECTION)));
         }
-        if (StringUtils.isNumeric(orderUniqueIdentifier)) {
+
+        try {
+            var _orderNumber = Long.parseLong(orderUniqueIdentifier);
             this.orderNumber = orderUniqueIdentifier;
             this.externalOrderId = orderUniqueIdentifier;
-        } else if (orderUniqueIdentifier != null && !orderUniqueIdentifier.isEmpty()) {
+        } catch (NumberFormatException e) {
             this.externalOrderId = orderUniqueIdentifier;
         }
+
         this.orderStatus = orderStatus;
         this.deliveryTypes = deliveryTypes;
         this.customers = customers;
