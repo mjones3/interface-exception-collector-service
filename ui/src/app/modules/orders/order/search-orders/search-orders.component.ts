@@ -1,20 +1,33 @@
 import { AsyncPipe, CommonModule, formatDate } from '@angular/common';
-import { Component, Inject, LOCALE_ID, ViewChild } from '@angular/core';
+import {
+    Component,
+    Inject,
+    Input,
+    LOCALE_ID,
+    TemplateRef,
+    ViewChild,
+    computed,
+    viewChild, OnInit,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatSortable, Sort } from '@angular/material/sort';
 import { Router } from '@angular/router';
 import { ApolloError, ApolloQueryResult } from '@apollo/client';
 import { FuseCardComponent } from '@fuse/components/card/public-api';
 import {
+    AngularMaterialTableConfiguration,
     Column,
     FacilityService,
     ProcessHeaderComponent,
     ProcessHeaderService,
+    TableColumn,
 } from '@shared';
+import { TableComponent } from 'app/shared/components/table/table.component';
 import { OrderStatusMap } from 'app/shared/models/order-status.model';
 import { CookieService } from 'ngx-cookie-service';
 import { ToastrService } from 'ngx-toastr';
-import { Table, TableLazyLoadEvent, TableModule } from 'primeng/table';
+import { Table, TableModule } from 'primeng/table';
 import { BehaviorSubject, Subject, finalize } from 'rxjs';
 import { OrderPriorityMap } from '../../../../shared/models/order-priority.model';
 import { Cookie } from '../../../../shared/types/cookie.enum';
@@ -38,11 +51,12 @@ import { SearchOrderFilterComponent } from './search-filter/search-order-filter.
         ProcessHeaderComponent,
         MatButtonModule,
         SearchOrderFilterComponent,
+        TableComponent,
     ],
     templateUrl: './search-orders.component.html',
     styleUrls: ['./search-orders.component.scss'],
 })
-export class SearchOrdersComponent {
+export class SearchOrdersComponent implements OnInit {
     protected readonly OrderStatusMap = OrderStatusMap;
 
     readonly hiddenColumns: Column[] = [
@@ -65,7 +79,7 @@ export class SearchOrdersComponent {
             hidden: true,
         },
     ];
-    readonly columns: Column[] = [
+    readonly filterColumns: Column[] = [
         {
             field: 'orderNumber',
             header: 'BioPro Order ID',
@@ -137,7 +151,7 @@ export class SearchOrdersComponent {
 
     @ViewChild('orderTable', { static: false }) orderTable: Table;
 
-    private _selectedColumns: Column[] = this.columns.filter(
+    private _selectedColumns: Column[] = this.filterColumns.filter(
         (col) => !col.hidden
     );
 
@@ -150,6 +164,134 @@ export class SearchOrdersComponent {
         private cookieService: CookieService,
         @Inject(LOCALE_ID) public locale: string
     ) {}
+
+    ngOnInit() {
+        this.searchOrders();
+    }
+
+    //====================== Angular Material ========================
+
+    protected readonly defaultSort = {
+        id: 'bloodCenterID',
+        start: 'asc',
+    } as MatSortable;
+
+    @Input() dataSource: OrderReportDTO[] = [];
+    @Input() totalElements = 0;
+    priorityTemplateRef = viewChild<TemplateRef<Element>>(
+        'priorityTemplateRef'
+    );
+    customerNameTemplateRef = viewChild<TemplateRef<Element>>(
+        'customerNameTemplateRef'
+    );
+    detialBtnTemplateRef = viewChild<TemplateRef<Element>>(
+        'detialBtnTemplateRef'
+    );
+    createDateTemplateRef = viewChild<TemplateRef<Element>>(
+        'createDateTemplateRef'
+    );
+    desireShipDateTemplateRef = viewChild<TemplateRef<Element>>(
+        'desireShipDateTemplateRef'
+    );
+    columns = computed<TableColumn[]>(() => [
+        {
+            id: 'orderNumber',
+            header: 'BioPro Order ID',
+            sort: true,
+            icon: false,
+        },
+        {
+            id: 'externalId',
+            header: 'External Order ID',
+            sort: true,
+            icon: false,
+        },
+        {
+            id: 'orderPriorityReport.priority',
+            header: 'Priority',
+            sort: true,
+            icon: false,
+            columnTempRef: this.priorityTemplateRef(),
+        },
+        {
+            id: 'orderStatus',
+            header: 'Status',
+            sort: true,
+            icon: false,
+        },
+        {
+            id: 'orderCustomerReport.name',
+            header: 'Ship to Customer Name',
+            sort: true,
+            icon: false,
+            columnTempRef: this.customerNameTemplateRef(),
+        },
+        {
+            id: 'createDate',
+            header: 'Create Date and Time',
+            sort: true,
+            icon: false,
+            columnTempRef: this.createDateTemplateRef(),
+        },
+        {
+            id: 'desireShipDate',
+            header: 'Desired Ship Date',
+            sort: true,
+            icon: false,
+            columnTempRef: this.desireShipDateTemplateRef(),
+        },
+        {
+            id: 'action',
+            header: '',
+            columnTempRef: this.detialBtnTemplateRef(),
+        },
+    ]);
+    tableConfig = computed<AngularMaterialTableConfiguration>(() => {
+        return {
+            title: 'Results',
+            columns: this.columns(),
+            showExpandAll: false,
+            expandableKey: 'expand',
+            pageSize: 10,
+        };
+    });
+
+    sort(sort: Sort) {
+        if (sort.active === 'deviceStatus' || sort.active === 'status') {
+            this.dataSource.sort((a, b) => {
+                const direction =
+                    sort.direction === 'asc' || !sort.direction ? 1 : -1;
+                return a[sort.active].label > b[sort.active].label
+                    ? direction
+                    : -direction;
+            });
+        }
+    }
+
+    //=================================================================
+
+    searchOrders() {
+        this.footerMessage = '';
+        this.loading = true;
+        this.dataSource = [];
+        this.orderService
+            .searchOrders(this.getCriteria())
+            .pipe(finalize(() => (this.loading = false)))
+            .subscribe({
+                next: (response) => this.doOnSuccess(response),
+                error: (e: ApolloError) => {
+                    if (e?.cause?.message) {
+                        this.dataSource = [];
+                        this.toaster.warning(e?.cause?.message);
+                        this.footerMessage = e?.cause?.message;
+                        return;
+                    }
+                    this.toaster.error('Something went wrong.');
+                    this.loading = false;
+                    throw e;
+                },
+            });
+    }
 
     toggleFilter(toggleFlag: boolean): void {
         this.isFilterToggled = toggleFlag;
@@ -217,61 +359,24 @@ export class SearchOrdersComponent {
 
         return criteria;
     }
-
-    private searchOrder(event?: TableLazyLoadEvent) {
-        this.footerMessage = '';
-        this.loading = true;
-        this.orderService
-            .searchOrders(this.getCriteria())
-            .pipe(finalize(() => (this.loading = false)))
-            .subscribe({
-                next: (response) => this.doOnSuccess(response, event),
-                error: (e: ApolloError) => {
-                    if (this.orderTable != null) {
-                        this.orderTable.sortField = this.defaultSortField;
-                    }
-                    this.items$.next([]);
-                    if (e?.cause?.message) {
-                        this.noResultsMessage = e?.cause?.message;
-                        this.toaster.warning(e?.cause?.message);
-                        this.footerMessage = e?.cause?.message;
-                        return;
-                    }
-                    this.toaster.error('Something went wrong.');
-                    this.loading = false;
-                    throw e;
-                },
-            });
-    }
-
     private doOnSuccess(
-        response: ApolloQueryResult<{ searchOrders: OrderReportDTO[] }>,
-        event?: TableLazyLoadEvent
+        response: ApolloQueryResult<{ searchOrders: OrderReportDTO[] }>
     ): void {
         if (response.data.searchOrders.length === 1 && this.isFilterApplied()) {
             this.details(response.data.searchOrders[0].orderId);
-        }
-        this.items$.next(response.data.searchOrders ?? []);
-        if (event) {
-            this.orderTable.sortField =
-                typeof event.sortField === 'string'
-                    ? event.sortField
-                    : event.sortField?.[0] ?? this.defaultSortField;
+        } else {
+            this.dataSource = response?.data?.searchOrders;
         }
     }
 
     applyFilterSearch(searchCriteria: SearchOrderFilterDTO = {}): void {
         this.isFilterToggled = false;
         this.currentFilter = searchCriteria;
-        this.searchOrder();
+        this.searchOrders();
     }
 
     isFilterApplied() {
         return this.getCriteria()?.orderUniqueIdentifier != null;
-    }
-
-    fetchOrders(event: TableLazyLoadEvent) {
-        this.searchOrder(event);
     }
 
     details(id: number) {
@@ -283,7 +388,9 @@ export class SearchOrdersComponent {
     }
 
     set selectedColumns(val: Column[]) {
-        this._selectedColumns = this.columns.filter((col) => val.includes(col));
+        this._selectedColumns = this.filterColumns.filter((col) =>
+            val.includes(col)
+        );
     }
 
     protected readonly OrderPriorityMap = OrderPriorityMap;

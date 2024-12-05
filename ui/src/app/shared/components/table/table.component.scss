@@ -1,0 +1,29 @@
+biopro-table {
+    .mat-mdc-table {
+        .mdc-data-table__header-row {
+            background-color: rgb(30 41 59 / 15%) !important;
+
+            span {
+                @apply font-medium;
+            }
+        }
+
+        .mdc-data-table__row:not(.mdc-data-table__row--selected, .h-0) {
+            &:hover {
+                background: whitesmoke !important;
+            }
+
+            &:active {
+                background: #efefef !important;
+            }
+        }
+
+        span {
+            @apply text-gray-800 opacity-85;
+        }
+    }
+
+    .mdc-button__label{
+        color:#fff !important;
+    }
+}
