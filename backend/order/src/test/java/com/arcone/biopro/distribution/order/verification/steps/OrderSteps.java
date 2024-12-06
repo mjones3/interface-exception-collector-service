@@ -22,18 +22,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assert;
-import org.openqa.selenium.By;
-import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebElement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDate;
 import java.time.Year;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
-
-import static org.springframework.test.util.AssertionErrors.assertEquals;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.Random;
 
 @Slf4j
 public class OrderSteps {
@@ -158,7 +155,7 @@ public class OrderSteps {
         this.locationCode = locationCode;
         this.priority = priority;
         this.status = status;
-        var query = DatabaseQueries.insertBioProOrder(externalId, locationCode, orderController.getPriorityValue(priority), priority, status);
+        var query = DatabaseQueries.insertBioProOrder(externalId, locationCode, orderController.getPriorityValue(priority), priority.replace('-', '_'), status);
         databaseService.executeSql(query).block();
     }
     @Given("I have a Biopro Order with id {string}, externalId {string}, Location Code {string}, Priority {string} and Status {string}.")
