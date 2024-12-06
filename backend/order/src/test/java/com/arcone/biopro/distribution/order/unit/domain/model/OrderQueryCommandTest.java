@@ -24,6 +24,12 @@ class OrderQueryCommandTest {
         Assertions.assertEquals("priority",orderQueryCommand.getQuerySort().getQueryOrderByList().get(0).getProperty());
         Assertions.assertEquals("ASC",orderQueryCommand.getQuerySort().getQueryOrderByList().get(1).getDirection());
         Assertions.assertEquals("status",orderQueryCommand.getQuerySort().getQueryOrderByList().get(1).getProperty());
+        Assertions.assertEquals("desired_shipping_date", orderQueryCommand.getQuerySort().getQueryOrderByList().get(2).getProperty());
+        Assertions.assertEquals("ASC",orderQueryCommand.getQuerySort().getQueryOrderByList().get(2).getDirection());
+        Assertions.assertTrue(orderQueryCommand.getOrderStatus().contains("IN_PROGRESS"));
+        Assertions.assertTrue(orderQueryCommand.getOrderStatus().contains("OPEN"));
+        Assertions.assertFalse(orderQueryCommand.getOrderStatus().contains("COMPLETED"));
+        Assertions.assertEquals(2, orderQueryCommand.getOrderStatus().size());
     }
 
     @Test
@@ -54,11 +60,17 @@ class OrderQueryCommandTest {
     public void shouldNotCreateOrderQueryCommand() {
         assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand(null,null,null,null,null,null,null,null,null, null,null));
 
-        Exception exception =  assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand(null,null,null,null,null,null,null,null,null, null,10));
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand(null,null,null,null,null,null,null,null,null, null,10));
         Assertions.assertEquals("locationCode cannot be null or empty", exception.getMessage());
 
-        exception =  assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand("TEST","123",null,null,null,null,null,null,null, null,-1));
+        exception = assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand("TEST","123",null,null,null,null,null,null,null, null,-1));
         Assertions.assertEquals("limit must be greater than 0", exception.getMessage());
+
+        exception = assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand("1",null,List.of("OPEN", "IN_PROGRESS", "COMPLETED"),null,null,null,null,null,null,null,10));
+        Assertions.assertEquals("The createDate must not be null or empty", exception.getMessage());
+
+        exception = assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand("1",null,List.of("COMPLETED", "IN_PROGRESS"),null,null,null,null,null,null,null,10));
+        Assertions.assertEquals("The createDate must not be null or empty", exception.getMessage());
     }
 
     @Test
@@ -67,8 +79,12 @@ class OrderQueryCommandTest {
         var sort = new QuerySort(List.of(orderBy));
         var uniqueIdentifier = "123";
         var orderQueryCommand = new OrderQueryCommand("1","123",null,null,null,null,null,null,null,sort,10);
+
         Assertions.assertEquals(uniqueIdentifier, orderQueryCommand.getOrderNumber());
         Assertions.assertEquals(uniqueIdentifier, orderQueryCommand.getExternalOrderId());
+
+        var orderQueryCommandInitialScenario = new OrderQueryCommand("1",null,null,null,null,null,null,null,null,sort,10);
+        Assertions.assertEquals(List.of("OPEN","IN_PROGRESS"), orderQueryCommandInitialScenario.getOrderStatus());
     }
 
     @Test
