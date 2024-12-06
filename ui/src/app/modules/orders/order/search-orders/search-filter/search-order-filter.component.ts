@@ -245,7 +245,7 @@ export class SearchOrderFilterComponent implements OnInit {
         );
         this.searchForm = this.formBuilder.group(
             {
-                orderNumber: ['', [Validators.maxLength(25)]],
+                orderNumber: ['', [Validators.maxLength(50)]],
                 orderStatus: [''],
                 deliveryTypes: [''],
                 customers: [''],
