@@ -35,7 +35,7 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { FuseCardComponent } from '@fuse/components/card';
 import { ProgressBarComponent } from 'app/progress-bar/progress-bar.component';
 import {
-    AngularMaterialTableConfiguration,
+    TableConfiguration,
     TableDataSource,
 } from 'app/shared/models/table.model';
 import { ProductIconsService } from 'app/shared/services/product-icon.service';
@@ -78,18 +78,18 @@ import { PaginatorComponent } from '../paginator/paginator.component';
 export class TableComponent<T extends TableDataSource = TableDataSource>
     implements OnInit
 {
-    private _defaultConfig: AngularMaterialTableConfiguration = {
+    private _defaultConfig: TableConfiguration = {
         menus: [],
         columns: [],
         pageSize: 20,
         showPagination: true,
         showSorting: true,
     };
-    private _configuration: AngularMaterialTableConfiguration;
+    private _configuration: TableConfiguration;
 
     dataSource = input.required<T[]>();
 
-    @Input() set configuration(config: AngularMaterialTableConfiguration) {
+    @Input() set configuration(config: TableConfiguration) {
         this._configuration = merge({}, this._defaultConfig, config);
         this.setColumnIds();
     }

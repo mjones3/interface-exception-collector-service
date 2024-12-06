@@ -23,7 +23,7 @@ export interface TableConfiguration {
     showSorting?: boolean;
     expandableRows?: boolean;
     expandableKey?: string;
-    pageSize?: number[];
+    pageSize?: number;
     title?: string;
     noPaddingTitle?: boolean;
     hasMenu?: boolean;
@@ -31,6 +31,9 @@ export interface TableConfiguration {
     showExpandAllRows?: boolean;
     selectRowOnClick?: boolean;
     component?: string;
+    columns: TableColumn[];
+    selectable?: boolean;
+    showExpandAll?:boolean
 }
 
 export interface ColumnConfig {
@@ -73,23 +76,6 @@ export interface TableColumnFilter {
     options: TableColumnFilterOption[];
 }
 
-export interface TableColumnAction {
-    label: string;
-    click: Function;
-    class?: string;
-}
-
-export interface AngularMaterialTableConfiguration {
-    title?: string;
-    menus?: TableMenu[];
-    showPagination?: boolean;
-    pageSize?: number;
-    showExpandAll?: boolean;
-    expandableKey?: string;
-    selectable?: boolean;
-    columns: TableColumn[];
-    showSorting?: boolean;
-}
 
 export interface TableMenu {
     id: string;
@@ -111,16 +97,4 @@ export interface TableColumn {
 
 export interface TableDataSource {
     expanded?: boolean;
-}
-
-export interface Tag {
-    label: string;
-    icon?: string;
-    classes?: TagClass;
-}
-
-export interface TagClass {
-    wrapper?: string;
-    text?: string;
-    icon?: string;
 }

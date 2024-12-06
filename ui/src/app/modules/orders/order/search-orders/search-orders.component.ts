@@ -2,7 +2,6 @@ import { AsyncPipe, CommonModule, formatDate } from '@angular/common';
 import {
     Component,
     Inject,
-    Input,
     LOCALE_ID,
     TemplateRef,
     ViewChild,
@@ -16,19 +15,19 @@ import { Router } from '@angular/router';
 import { ApolloError, ApolloQueryResult } from '@apollo/client';
 import { FuseCardComponent } from '@fuse/components/card/public-api';
 import {
-    AngularMaterialTableConfiguration,
     Column,
     FacilityService,
     ProcessHeaderComponent,
     ProcessHeaderService,
     TableColumn,
+    TableConfiguration,
 } from '@shared';
 import { TableComponent } from 'app/shared/components/table/table.component';
 import { OrderStatusMap } from 'app/shared/models/order-status.model';
 import { CookieService } from 'ngx-cookie-service';
 import { ToastrService } from 'ngx-toastr';
 import { Table, TableModule } from 'primeng/table';
-import { BehaviorSubject, Subject, finalize } from 'rxjs';
+import { finalize } from 'rxjs';
 import { OrderPriorityMap } from '../../../../shared/models/order-priority.model';
 import { Cookie } from '../../../../shared/types/cookie.enum';
 import { SearchOrderFilterDTO } from '../../models/order.dto';
@@ -140,14 +139,8 @@ export class SearchOrdersComponent implements OnInit {
         },
     ];
     isFilterToggled = false;
-    defaultRowsPerPage = 20;
-    defaultSortField = 'createDate';
-    totalRecords = 0;
     currentFilter: SearchOrderFilterDTO;
-    items$: Subject<OrderReportDTO[]> = new BehaviorSubject([]);
     loading = true;
-    noResultsMessage: string;
-    footerMessage = '';
 
     @ViewChild('orderTable', { static: false }) orderTable: Table;
 
@@ -157,7 +150,6 @@ export class SearchOrdersComponent implements OnInit {
 
     constructor(
         public header: ProcessHeaderService,
-        private facilityService: FacilityService,
         private orderService: OrderService,
         private router: Router,
         private toaster: ToastrService,
@@ -174,8 +166,7 @@ export class SearchOrdersComponent implements OnInit {
         start: 'asc',
     } as MatSortable;
 
-    @Input() dataSource: OrderReportDTO[] = [];
-    @Input() totalElements = 0;
+    dataSource: OrderReportDTO[] = [];
     priorityTemplateRef = viewChild<TemplateRef<Element>>(
         'priorityTemplateRef'
     );
@@ -244,13 +235,12 @@ export class SearchOrdersComponent implements OnInit {
             columnTempRef: this.detialBtnTemplateRef(),
         },
     ]);
-    tableConfig = computed<AngularMaterialTableConfiguration>(() => {
+    tableConfig = computed<TableConfiguration>(() => {
         return {
             title: 'Results',
             columns: this.columns(),
-            showExpandAll: false,
-            expandableKey: 'expand',
             pageSize: 10,
+            showPagination:true
         };
     });
 
@@ -267,7 +257,6 @@ export class SearchOrdersComponent implements OnInit {
     }
 
     searchOrders() {
-        this.footerMessage = '';
         this.loading = true;
         this.dataSource = [];
         this.orderService
@@ -279,7 +268,6 @@ export class SearchOrdersComponent implements OnInit {
                     if (e?.cause?.message) {
                         this.dataSource = [];
                         this.toaster.warning(e?.cause?.message);
-                        this.footerMessage = e?.cause?.message;
                         return;
                     }
                     this.toaster.error('Something went wrong.');
