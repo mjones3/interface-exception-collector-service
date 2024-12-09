@@ -1,13 +1,24 @@
 <div class="flex flex-auto flex-col">
-    <biopro-process-header [subTitle]="header.subTitle | async" [title]="header.title | async"></biopro-process-header>
-    <app-search-order-filter (applySearchFilters)="applyFilterSearch($event)" (toggleFilters)="toggleFilter($event)"
-        [showFilters]="isFilterToggled">
+    <biopro-process-header
+        [subTitle]="header.subTitle | async"
+        [title]="header.title | async"
+    ></biopro-process-header>
+    <app-search-order-filter
+        (applySearchFilters)="applyFilterSearch($event)"
+        (toggleFilters)="toggleFilter($event)"
+        [showFilters]="isFilterToggled"
+    >
     </app-search-order-filter>
     <div class="flex flex-col">
         <div class="flex w-full flex-row space-x-4 p-4">
             <div class="w-full">
-                <biopro-table [dataSource]="dataSource" [configuration]="tableConfig()" [defaultSort]="defaultSort"
-                    (sort)="sort($event)">
+                <biopro-table
+                    tableId="ordersTableId"
+                    [dataSource]="dataSource"
+                    [configuration]="tableConfig()"
+                    [defaultSort]="defaultSort"
+                    (sort)="sort($event)"
+                >
                 </biopro-table>
                 <ng-template #customerNameTemplateRef let-element="element">
                     {{ element.orderCustomerReport?.name }}
@@ -22,18 +33,25 @@
                 </ng-template>
 
                 <ng-template #priorityTemplateRef let-element="element">
-                    <span class="badge rounded-pill" [ngStyle]="{
-                                'background-color':
-                                    element?.orderPriorityReport
-                                        ?.priorityColor ?? '#222222',
-                            }">
+                    <span
+                        class="badge rounded-pill"
+                        [ngStyle]="{
+                            'background-color':
+                                element?.orderPriorityReport?.priorityColor ??
+                                '#222222',
+                        }"
+                    >
                         {{ element.orderPriorityReport?.priority }}
                     </span>
                 </ng-template>
 
                 <ng-template #detialBtnTemplateRef let-element="element">
-                    <button id="detailsBtn" class="bg-custom-red justify-center text-white" mat-flat-button
-                        (click)="details(element?.orderId)">
+                    <button
+                        id="detailsBtn"
+                        class="bg-custom-red justify-center text-white"
+                        mat-flat-button
+                        (click)="details(element?.orderId)"
+                    >
                         Details
                     </button>
                 </ng-template>

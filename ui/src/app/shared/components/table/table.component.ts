@@ -99,6 +99,7 @@ export class TableComponent<T extends TableDataSource = TableDataSource>
 
     @Input({ transform: booleanAttribute }) serverPagination = false;
     @Input({ transform: numberAttribute }) totalElements: number;
+    @Input() tableId: string;
     @Input() expandTemplateRef?: TemplateRef<Element>;
     @Input() footerTemplateRef?: TemplateRef<Element>;
     @Input() tableNoResultsMessage?: string = 'No Results Found.';
