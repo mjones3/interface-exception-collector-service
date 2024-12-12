@@ -137,7 +137,7 @@ Feature: Search Orders
             Then I choose "apply" option.
             And I should see "<Expected External Ids>" orders in the search results.
             And I should see "<Expected Number of Filters>" as the number of used filters for the search.
-            And I should see "<Expected Number of Orders>" orders in the search results.
+            And I should see <Expected Number of Orders> orders in the search results.
             Examples:
                 | Selected Priorities | Selected Statuses | Selected Customers         | Expected External Ids | Expected Number of Orders | Expected Number of Filters |
                 | STAT,ASAP           | OPEN,IN PROGRESS  |                            | 1979,1984             | 2                         | 4                          |
