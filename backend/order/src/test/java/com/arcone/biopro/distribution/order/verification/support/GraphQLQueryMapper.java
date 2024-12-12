@@ -28,4 +28,29 @@ public class GraphQLQueryMapper {
             }
             """, code));
     }
+
+    public static String listOrders(String locationCode) {
+        return String.format("""
+            query  {
+              searchOrders(orderQueryCommandDTO:{
+                locationCode:"%s"
+              }) {
+                orderId
+                orderNumber
+                externalId
+                orderStatus
+                createDate
+                desireShipDate
+                orderPriorityReport {
+                  priority
+                  priorityColor
+                }
+                orderCustomerReport {
+                  code
+                  name
+                }
+              }
+            }
+            """, locationCode);
+    }
 }

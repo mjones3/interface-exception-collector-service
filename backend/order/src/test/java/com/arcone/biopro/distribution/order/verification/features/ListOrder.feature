@@ -61,6 +61,37 @@ Feature: List of all orders in Search Order
                 | External ID     | Order LocationCode | User LocationCode | Priority | Status |
                 | 114117922233510 | DL1                | 234567891         | STAT     | OPEN   |
 
+    Rule: I should see the list of orders sorted by priority, status, and desired shipping date (ascending order) where the user logged in.
+        Scenario: List Biopro Orders in the specified order by default
+            Given I cleaned up from the database the orders with order numbers "321,320,225,123,443,915,541,114,179".
+            And I have these BioPro Orders.
+                | Order Id | External ID | Location Code | Priority | Status      | Desired Shipment Date |
+                | 321      | EXT223321   | 1979          | STAT     | IN_PROGRESS | 2025-01-01            |
+                | 320      | EXT320123   | 1979          | STAT     | IN_PROGRESS | 2025-01-02            |
+                | 225      | EXT225123   | 1979          | STAT     | OPEN        | 2025-01-01            |
+                | 114      | EXT114123   | 1979          | ROUTINE  | IN_PROGRESS | 2025-01-02            |
+                | 123      | EXT123123   | 1979          | ASAP     | IN_PROGRESS | 2025-01-01            |
+                | 179      | EXT179123   | 1979          | ROUTINE  | OPEN        | 2025-01-01            |
+                | 443      | EXT443123   | 1979          | ASAP     | IN_PROGRESS | 2025-01-02            |
+                | 915      | EXT915123   | 1979          | ASAP     | OPEN        | 2025-01-01            |
+                | 541      | EXT541123   | 1979          | ROUTINE  | IN_PROGRESS | 2025-01-01            |
+            When I want to list orders for location "1979"
+            Then I should have orders listed in the following order "321,320,225,123,443,915,541,114,179".
+
+
+
+
+    Rule: I should be able to see all the orders that are open and in progress at that location.
+        Scenario: List Biopro Orders in OPEN or IN_PROGRESS status
+            Given I cleaned up from the database the orders with order numbers "321,320,225".
+            And I have these BioPro Orders.
+                | Order Id | External ID | Location Code | Priority | Status      | Desired Shipment Date |
+                | 321      | EXT223321   | 1979          | STAT     | IN_PROGRESS | 2025-01-01            |
+                | 320      | EXT320123   | 1979          | STAT     | IN_PROGRESS | 2025-01-02            |
+                | 225      | EXT225123   | 1979          | STAT     | COMPLETED   | 2025-01-01            |
+            When I want to list orders for location "1979"
+            Then I should have orders listed in the following order "321,320".
+
 
     Rule: I should be able to view a maximum of 20 rows in the Results table.
         @DIS-95
@@ -69,3 +100,6 @@ Feature: List of all orders in Search Order
             When I choose search orders.
             Then I should not see more than 20 orders in the list.
             And I should see the list of orders based on priority and status.
+
+
+

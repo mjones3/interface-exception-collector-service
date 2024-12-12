@@ -8,12 +8,9 @@ import com.arcone.biopro.distribution.order.verification.pages.SharedActions;
 import com.arcone.biopro.distribution.order.verification.pages.order.HomePage;
 import com.arcone.biopro.distribution.order.verification.pages.order.OrderDetailsPage;
 import com.arcone.biopro.distribution.order.verification.pages.order.SearchOrderPage;
-import com.arcone.biopro.distribution.order.verification.support.DatabaseQueries;
-import com.arcone.biopro.distribution.order.verification.support.DatabaseService;
-import com.arcone.biopro.distribution.order.verification.support.KafkaHelper;
-import com.arcone.biopro.distribution.order.verification.support.TestUtils;
-import com.arcone.biopro.distribution.order.verification.support.Topics;
+import com.arcone.biopro.distribution.order.verification.support.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -32,11 +29,13 @@ import java.time.LocalDate;
 import java.time.Year;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.springframework.test.util.AssertionErrors.assertEquals;
 
 @Slf4j
 public class OrderSteps {
+
 
     //    Order details
     private String externalId;
@@ -59,10 +58,14 @@ public class OrderSteps {
     private String[] quantityList;
     private String[] commentsList;
 
+
     private OrderController orderController = new OrderController();
     private JSONObject partnerOrder;
     private boolean isLoggedIn = false;
     private JSONObject orderShipment;
+
+    @Autowired
+    private ApiHelper apiHelper;
 
     @Autowired
     private SharedActions sharedActions;
@@ -91,6 +94,8 @@ public class OrderSteps {
     @Value("${kafka.waiting.time}")
     private long kafkaWaitingTime;
 
+    private Object[] response;
+
     private void createOrderInboundRequest(String jsonContent, OrderReceivedEventDTO eventPayload) throws JSONException {
         partnerOrder = new JSONObject(jsonContent);
         log.info("JSON PAYLOAD :{}", partnerOrder);
@@ -98,6 +103,27 @@ public class OrderSteps {
         Assert.assertNotNull(partnerOrder);
         var event = kafkaHelper.sendEvent(eventPayload.payload().id().toString(), eventPayload, Topics.ORDER_RECEIVED).block();
         Assert.assertNotNull(event);
+    }
+
+    @When("I want to list orders for location {string}")
+    public void searchOrders(String locationCode) {
+        response = apiHelper.graphQlRequestObjectList(GraphQLQueryMapper.listOrders(locationCode), "searchOrders");
+    }
+
+    @Then("I should have orders listed in the following order {string}.")
+    public void iShouldHaveOrdersListedInTheFollowingOrder(String order) {
+        var responseIds = Arrays.stream(response)
+            .map(r ->
+            {
+                if (r instanceof LinkedHashMap) {
+                    return ((LinkedHashMap<?, ?>) r).get("orderNumber").toString();
+                } else {
+                    throw new IllegalArgumentException("Unexpected response type: " + r.getClass().getName());
+                }
+            })
+            .collect(Collectors.joining(","));
+
+        Assert.assertEquals(order, responseIds);
     }
 
 
@@ -170,6 +196,22 @@ public class OrderSteps {
         this.status = status;
         var query = DatabaseQueries.insertBioProOrder(orderId, externalId, locationCode, orderController.getPriorityValue(priority), priority, status);
         databaseService.executeSql(query).block();
+    }
+
+    @Given("I have this/these BioPro Order(s).")
+    public void createBioproOrder(DataTable table) {
+        var headers = table.row(0);
+        for(var i=1;i<table.height();i++) {
+            var row = table.row(i);
+            this.orderId = Integer.parseInt(row.get(headers.indexOf("Order Id")));
+            this.externalId = row.get(headers.indexOf("External ID"));
+            this.locationCode = row.get(headers.indexOf("Location Code"));
+            this.priority = row.get(headers.indexOf("Priority"));
+            this.status = row.get(headers.indexOf("Status"));
+            var query = DatabaseQueries.insertBioProOrder(orderId, externalId, locationCode, orderController.getPriorityValue(priority), priority, status, row.get(headers.indexOf("Desired Shipment Date")));
+            databaseService.executeSql(query).block();
+        }
+
     }
 
     @And("I have an order item with product family {string}, blood type {string}, quantity {int}, and order item comments {string}.")
