@@ -103,10 +103,15 @@ resources:
 
 # Add default environment variables for the service
 defaultEnv:
-  - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+  - name: SPRING_KAFKA_CONSUMER_BOOTSTRAP_SERVERS
     valueFrom:
       secretKeyRef:
         name: kafka-secret
+        key: url
+  - name: SPRING_KAFKA_PRODUCER_BOOTSTRAP_SERVERS
+    valueFrom:
+      secretKeyRef:
+        name: kafka-secret-external
         key: url
   - name: SPRING_R2DBC_URL
     valueFrom:
