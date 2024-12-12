@@ -24,12 +24,12 @@ Feature: List of all orders in Search Order
             And I should see an option to see the order details.
 
             Examples:
-                | External ID     | LocationCode | Priority  | Status | Priority Color |
-                | 114117922233594 | 123456789    | STAT      | OPEN   | Red            |
-                | 114117922233595 | 123456789    | ROUTINE   | OPEN   | Grey           |
-                | 114117922233596 | 123456789    | ASAP      | OPEN   | Orange         |
-                | 114117922233597 | 123456789    | SCHEDULED | OPEN   | Violet         |
-                | 114117922233598 | 123456789    | DATE-TIME | OPEN   | Blue           |
+                | External ID      | LocationCode | Priority  | Status | Priority Color |
+                | EXT114117922233594 | 123456789    | STAT      | OPEN   | Red            |
+                | EXT114117922233595  | 123456789    | ROUTINE   | OPEN   | Grey           |
+                | EXT114117922233596  | 123456789    | ASAP      | OPEN   | Orange         |
+                | EXT114117922233597  | 123456789    | SCHEDULED | OPEN   | Violet         |
+                | EXT114117922233598  | 123456789    | DATE-TIME | OPEN   | Blue           |
 
 
     Rule: I should be able to configure the color options for the priority column.
@@ -44,8 +44,8 @@ Feature: List of all orders in Search Order
 
             Examples:
                 | External ID     | LocationCode | Priority | Status | Priority Color |
-                | 114117922233578 | 123456789    | STAT     | OPEN   | Green          |
-                | 114117922233579 | 123456789    | ROUTINE  | OPEN   | Yellow         |
+                | EXT114117922233578 | 123456789    | STAT     | OPEN   | Green          |
+                | EXT114117922233579 | 123456789    | ROUTINE  | OPEN   | Yellow         |
 
 
         @DIS-146 @DIS-95
@@ -59,7 +59,7 @@ Feature: List of all orders in Search Order
 
             Examples:
                 | External ID     | Order LocationCode | User LocationCode | Priority | Status |
-                | 114117922233510 | DL1                | 234567891         | STAT     | OPEN   |
+                | EXT114117922233510 | DL1                | 234567891         | STAT     | OPEN   |
 
     Rule: I should see the list of orders sorted by priority, status, and desired shipping date (ascending order) where the user logged in.
         Scenario: List Biopro Orders in the specified order by default
