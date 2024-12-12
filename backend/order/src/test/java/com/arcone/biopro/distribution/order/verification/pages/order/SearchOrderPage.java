@@ -92,31 +92,35 @@ public class SearchOrderPage extends CommonPageFactory {
 
 
 
-    private static final String tableRows = "//*[@id='ordersTableId']//tbody/tr";
+    private static final String tableRows = "//biopro-table//tbody/tr";
 
     @FindBy(xpath = tableRows)
     private List<WebElement> tableRowsList;
 
     @FindAll({
-        @FindBy(xpath = "//tr[contains(@id,'order-table-row')]//td[position()=3]")
+        @FindBy(xpath = "//td[starts-with(@id,'orderPriorityReport.priorityRow')]")
     })
     private List<WebElement> orderPriorityList;
 
     //    Dynamic locators
-    private String orderDetailsButtonXpath(String orderId) {
-        return String.format("//tr[contains(@id,'order-table-row')]/child::td[contains(text(),'%s')]/following-sibling::td/button[@id='detailsBtn']", orderId);
+    private String orderDetailsButtonXpath(String externalId) {
+        return String.format("//td[starts-with(@id,'externalIdRow')]//span[contains(text(),'%s')]/../../..//button[@id='detailsBtn']", externalId);
     }
 
     private String orderIdXpath(String orderId) {
-        return String.format("//tr[contains(@id,'order-table-row')]/child::td[contains(text(),'%s')]", orderId);
+        return String.format("//td[starts-with(@id,'orderNumberRow')]//span[contains(text(),'%s')]", orderId);
+    }
+
+    private String externalIdXpath(String externalId) {
+        return String.format("//td[starts-with(@id,'externalIdRow')]//span[contains(text(),'%s')]", externalId);
     }
 
     private String orderStatusXpath(String orderId, String status) {
-        return String.format("//tr[contains(@id,'order-table-row')]/child::td[contains(text(),'%s')]/following-sibling::td[contains(text(),'%s')]", orderId, status);
+        return String.format("//td[starts-with(@id,'externalIdRow')]//span[contains(text(),'%s')]/../../..//span[contains(text(),'%s')]", orderId, status.toUpperCase());
     }
 
     private String orderPriorityXpath(String orderId, String priority) {
-        return String.format("//tr[contains(@id,'order-table-row')]/child::td[contains(text(),'%s')]/following-sibling::td/span[contains(text(),'%s')]", orderId, priority);
+        return String.format("//td[starts-with(@id,'externalIdRow')]//span[contains(text(),'%s')]/../../..//span[contains(text(),'%s')]", orderId, priority.toUpperCase());
     }
 
     private String labelXpath(String fieldLabel) {
@@ -139,7 +143,7 @@ public class SearchOrderPage extends CommonPageFactory {
 
     public void validateOrderDetails(String externalId, String orderStatus, String orderPriority) throws InterruptedException {
         sharedActions.waitLoadingAnimation();
-        sharedActions.waitForVisible(driver.findElement(By.xpath(orderIdXpath(externalId))));
+        sharedActions.waitForVisible(driver.findElement(By.xpath(externalIdXpath(externalId))));
         sharedActions.waitForVisible(driver.findElement(By.xpath(orderStatusXpath(externalId, orderStatus))));
         sharedActions.waitForVisible(driver.findElement(By.xpath(orderPriorityXpath(externalId, orderPriority))));
     }
@@ -193,6 +197,7 @@ public class SearchOrderPage extends CommonPageFactory {
     public int tableRowsCount() {
         sharedActions.waitForNotVisible(tableLoadingOverlay);
         sharedActions.waitForVisible(By.xpath(tableRows));
+        var a = tableRowsList.size();
         return tableRowsList.size();
     }
 
