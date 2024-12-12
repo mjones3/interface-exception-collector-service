@@ -20,7 +20,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertFalse;
-import static org.springframework.test.util.AssertionErrors.*;
+import static org.springframework.test.util.AssertionErrors.assertEquals;
+import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 @Component
 @Slf4j
@@ -165,7 +166,7 @@ public class SearchOrderPage extends CommonPageFactory {
     public void verifyOrderExists(String externalId) {
         try {
             sharedActions.waitForNotVisible(tableLoadingOverlay);
-            sharedActions.waitForVisible(driver.findElement(By.xpath(orderIdXpath(externalId))));
+            sharedActions.waitForVisible(By.xpath(orderIdXpath(externalId)));
             log.info("Order " + externalId + " exists in the list of orders.");
         } catch (Exception e) {
             Assert.fail("Order " + externalId + " does not exist in the list of orders.");
