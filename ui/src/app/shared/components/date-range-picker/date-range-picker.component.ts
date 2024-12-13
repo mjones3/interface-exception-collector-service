@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { AfterContentInit, Component, Input, OnDestroy } from '@angular/core';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,7 +12,6 @@ import { Subject, distinctUntilChanged, takeUntil } from 'rxjs';
 @Component({
     selector: 'app-date-range-picker',
     standalone: true,
-    providers: [provideNativeDateAdapter()],
     imports: [
         ReactiveFormsModule,
         MatInputModule,
@@ -37,27 +35,66 @@ export class DateRangePickerComponent implements AfterContentInit, OnDestroy {
     @Input() matDatepickerMinErrorMessage: string;
     @Input() matEndDateInvalidMessage: string;
     @Input() matDatepickerMaxMessage: string;
+    @Input() invalidDateMessage = 'Date is Invalid';
+    @Input() noDateInformedMessage = 'Date is Required';
 
     private readonly destroyed$ = new Subject<void>();
 
-    ngAfterContentInit(): void {
-        const startFormControl = this.formGroup.get('start');
-        const endFormControl = this.formGroup.get('end');
+    get startControl() {
+        return this.formGroup.get('start');
+    }
+    get endControl() {
+        return this.formGroup.get('end');
+    }
 
-        startFormControl.valueChanges
+    ngAfterContentInit(): void {
+        this.startControl.valueChanges
             .pipe(distinctUntilChanged(), takeUntil(this.destroyed$))
             .subscribe(() =>
-                setTimeout(() => endFormControl.updateValueAndValidity())
+                setTimeout(() => this.endControl.updateValueAndValidity())
             );
 
-        endFormControl.valueChanges
+        this.endControl.valueChanges
             .pipe(distinctUntilChanged(), takeUntil(this.destroyed$))
             .subscribe(() =>
-                setTimeout(() => startFormControl.updateValueAndValidity())
+                setTimeout(() => this.startControl.updateValueAndValidity())
             );
     }
 
     ngOnDestroy(): void {
         this.destroyed$.next();
+    }
+
+    errorMessage(): string | null {
+        const startControl = this.formGroup.get('start');
+        const endControl = this.formGroup.get('end');
+
+        if (startControl?.errors) {
+            const errorKeys = Object.keys(startControl.errors);
+            if (errorKeys.includes('matDatepickerParse')) {
+                return this.invalidDateMessage;
+            } else if (errorKeys.includes('invalidDate')) {
+                return this.invalidDateMessage;
+            } else if (errorKeys.includes('required')) {
+                return this.noDateInformedMessage;
+            } else if (errorKeys.includes('matDatepickerMin')) {
+                return this.matDatepickerMinErrorMessage;
+            }
+        } else if (endControl?.errors) {
+            const errorKeys = Object.keys(endControl.errors);
+            if (errorKeys.includes('matEndDateInvalid')) {
+                return this.matEndDateInvalidMessage;
+            } else if (errorKeys.includes('matDatepickerMax')) {
+                return this.matDatepickerMaxMessage;
+            } else if (errorKeys.includes('matDatepickerParse')) {
+                return this.invalidDateMessage;
+            } else if (errorKeys.includes('invalidDate')) {
+                return this.invalidDateMessage;
+            } else if (errorKeys.includes('required')) {
+                return this.noDateInformedMessage;
+            }
+        }
+
+        return null;
     }
 }

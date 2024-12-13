@@ -39,6 +39,18 @@ class OrderQueryCommandTest {
     }
 
     @Test
+    public void shouldCreateOrderQueryCommandWhenUniqueIdentifierIsBigNumeric() {
+        var orderBy = new QueryOrderBy("TEST", "DESC");
+        var sort = new QuerySort(List.of(orderBy));
+        var orderQueryCommand = new OrderQueryCommand("1", "99999999999999999999999999999999999999999999999999", null, null, null, null, null, null, null, sort, 10);
+        Assertions.assertNotNull(orderQueryCommand);
+        Assertions.assertNotNull(orderQueryCommand.getQuerySort());
+        Assertions.assertNotNull(orderQueryCommand.getQuerySort().getQueryOrderByList());
+        Assertions.assertNull(orderQueryCommand.getOrderNumber());
+        Assertions.assertEquals("99999999999999999999999999999999999999999999999999", orderQueryCommand.getExternalOrderId());
+    }
+
+    @Test
     public void shouldNotCreateOrderQueryCommand() {
         assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand(null,null,null,null,null,null,null,null,null, null,null));
 
