@@ -13,7 +13,7 @@ Feature: List of all orders in Search Order
         BioPro Order Number, External Order ID, Priority, Status, Ship to Customer Name, Create Date and Time (MM/DD/YYYY HR:MINS), Desired Ship Date.
     Rule: I should be able to see an option to view the details of an order.
     Rule: I should be able to see the priority column color coded.
-        @DIS-95
+        @DIS-95 @ui
         Scenario Outline: List Biopro Orders by priority, status and location
             Given I cleaned up from the database the orders with external ID "<External ID>".
             And I have a Biopro Order with externalId "<External ID>", Location Code "<LocationCode>", Priority "<Priority>" and Status "<Status>".
@@ -33,7 +33,7 @@ Feature: List of all orders in Search Order
 
 
     Rule: I should be able to configure the color options for the priority column.
-        @DIS-95
+        @DIS-95 @ui
         Scenario Outline: List Biopro Orders, changing Status color setup.
             Given I cleaned up from the database the orders with external ID "<External ID>".
             And I have a Biopro Order with externalId "<External ID>", Location Code "<LocationCode>", Priority "<Priority>" and Status "<Status>".
@@ -48,7 +48,7 @@ Feature: List of all orders in Search Order
                 | EXT114117922233579 | 123456789    | ROUTINE  | OPEN   | Yellow         |
 
 
-        @DIS-146 @DIS-95
+        @DIS-146 @DIS-95 @ui
         Scenario Outline: List Biopro Orders different location
             Given I cleaned up from the database the orders with external ID "<External ID>".
             And I have a Biopro Order with externalId "<External ID>", Location Code "<Order LocationCode>", Priority "<Priority>" and Status "<Status>".
