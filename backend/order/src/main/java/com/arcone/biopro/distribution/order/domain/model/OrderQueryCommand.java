@@ -34,7 +34,7 @@ public class OrderQueryCommand implements Validatable {
 
     private static final List<QueryOrderBy> DEFAULT_SORTING = List.of(
         new QueryOrderBy("priority", "ASC"),
-        new QueryOrderBy("status", "ASC"),
+        new QueryOrderBy("status", "DESC"),
         new QueryOrderBy("desired_shipping_date", "ASC")
     );
 

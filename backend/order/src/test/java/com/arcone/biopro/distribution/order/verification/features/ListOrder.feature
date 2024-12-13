@@ -79,19 +79,20 @@ Feature: List of all orders in Search Order
             When I want to list orders for location "1979".
             Then I should have orders listed in the following order.
                 | Order Id | External ID | Location Code | Priority | Status      | Desired Shipment Date |
+                | 225      | EXT225123   | 1979          | STAT     | OPEN        | 2025-01-01            |
                 | 321      | EXT223321   | 1979          | STAT     | IN_PROGRESS | 2025-01-01            |
                 | 320      | EXT320123   | 1979          | STAT     | IN_PROGRESS | 2025-01-02            |
-                | 225      | EXT225123   | 1979          | STAT     | OPEN        | 2025-01-01            |
+                | 915      | EXT915123   | 1979          | ASAP     | OPEN        | 2025-01-01            |
                 | 123      | EXT123123   | 1979          | ASAP     | IN_PROGRESS | 2025-01-01            |
                 | 443      | EXT443123   | 1979          | ASAP     | IN_PROGRESS | 2025-01-02            |
-                | 915      | EXT915123   | 1979          | ASAP     | OPEN        | 2025-01-01            |
+                | 179      | EXT179123   | 1979          | ROUTINE  | OPEN        | 2025-01-01            |
                 | 541      | EXT541123   | 1979          | ROUTINE  | IN_PROGRESS | 2025-01-01            |
                 | 114      | EXT114123   | 1979          | ROUTINE  | IN_PROGRESS | 2025-01-02            |
-                | 179      | EXT179123   | 1979          | ROUTINE  | OPEN        | 2025-01-01            |
 
 
-    @R20-274
-    Rule: I should be able to see all the orders that are open and in progress at that location.
+
+        @R20-274
+        Rule: I should be able to see all the orders that are open and in progress at that location.
         Scenario: List Biopro Orders in OPEN or IN_PROGRESS status
             Given I cleaned up from the database the orders with order numbers "321,320,225".
             And I have these BioPro Orders.
