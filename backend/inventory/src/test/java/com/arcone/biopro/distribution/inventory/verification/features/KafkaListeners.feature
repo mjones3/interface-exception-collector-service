@@ -7,16 +7,25 @@ Feature: Kafka listeners
         Then The inventory status is "<Status>"
         And the expected fields for "<Event>" are stored
 
+        @LAB-82 @AOA-75 @LAB-149 @AOA-40
+        Examples:
+            | Event             | Status    |
+            | Label Applied     | AVAILABLE |
+
+        @LAB-80 @AOA-75
+        Examples:
+            | Event             | Status    |
+            | Product Discarded | DISCARDED |
+
+        @LAB-79 @AOA-75
         Examples:
             | Event               | Status      |
-            | Label Applied       | AVAILABLE   |
-            | Product Discarded   | DISCARDED   |
             | Product Quarantined | QUARANTINED |
             | Quarantine Updated  | QUARANTINED |
             | Quarantine Removed  | AVAILABLE   |
             | Product Recovered   | AVAILABLE   |
 
-
+    @LAB-96 @AOA-75 @LAB-116
     Scenario Outline: Application is listening storage events from kafka
         Given I am listening the "<Event>" event for "<Unit Number>"
         When I receive a "<Event>" message with unit number "<Unit Number>", product code "<Product Code>" and location "<Location>"
