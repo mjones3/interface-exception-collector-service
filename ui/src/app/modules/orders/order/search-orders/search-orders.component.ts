@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatSortable, Sort } from '@angular/material/sort';
+import { MatSortable } from '@angular/material/sort';
 import { Router } from '@angular/router';
 import { ApolloError, ApolloQueryResult } from '@apollo/client';
 import { FuseCardComponent } from '@fuse/components/card/public-api';
@@ -246,18 +246,6 @@ export class SearchOrdersComponent implements OnInit {
             showPagination: false,
         };
     });
-
-    sort(sort: Sort) {
-        if (sort.active === 'deviceStatus' || sort.active === 'status') {
-            this.dataSource.sort((a, b) => {
-                const direction =
-                    sort.direction === 'asc' || !sort.direction ? 1 : -1;
-                return a[sort.active].label > b[sort.active].label
-                    ? direction
-                    : -direction;
-            });
-        }
-    }
 
     searchOrders() {
         this.loading = true;

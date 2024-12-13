@@ -16,8 +16,6 @@
                     tableId="ordersTableId"
                     [dataSource]="dataSource"
                     [configuration]="tableConfig()"
-                    [defaultSort]="defaultSort"
-                    (sort)="sort($event)"
                 >
                 </biopro-table>
                 <ng-template #customerNameTemplateRef let-element="element">
