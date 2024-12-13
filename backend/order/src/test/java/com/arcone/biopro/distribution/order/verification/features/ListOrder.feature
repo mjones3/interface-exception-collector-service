@@ -1,4 +1,4 @@
-@ui
+@AOA-39
 Feature: List of all orders in Search Order
     As a Distribution Technician,
     I want to see the list of orders
@@ -61,8 +61,9 @@ Feature: List of all orders in Search Order
                 | External ID        | Order LocationCode | User LocationCode | Priority | Status |
                 | EXT114117922233510 | DL1                | 234567891         | STAT     | OPEN   |
 
-    @R20-274
+
     Rule: I should see the list of orders sorted by priority (ascending order), status (descending order), and desired shipping date (ascending order) where the user logged in.
+        @R20-274 @api
         Scenario: List Biopro Orders in the specified order by default
             Given I cleaned up from the database the orders with order numbers "321,320,225,123,443,915,541,114,179".
             And I have these BioPro Orders.
@@ -91,18 +92,21 @@ Feature: List of all orders in Search Order
 
 
 
-        @R20-274
+
         Rule: I should be able to see all the orders that are open and in progress at that location.
+            @R20-274 @api
         Scenario: List Biopro Orders in OPEN or IN_PROGRESS status
             Given I cleaned up from the database the orders with order numbers "321,320,225".
             And I have these BioPro Orders.
                 | Order Id | External ID | Location Code | Priority | Status      | Desired Shipment Date |
+                | 322      | EXT223322   | 1979          | STAT     | OPEN        | 2025-01-02            |
                 | 321      | EXT223321   | 1979          | STAT     | IN_PROGRESS | 2025-01-01            |
                 | 320      | EXT320123   | 1979          | STAT     | IN_PROGRESS | 2025-01-02            |
                 | 225      | EXT225123   | 1979          | STAT     | COMPLETED   | 2025-01-01            |
-            When I want to list orders for location "1979".
+                When I want to list orders for location "1979".
             Then I should have orders listed in the following order.
                 | Order Id | External ID | Location Code | Priority | Status      | Desired Shipment Date |
+                | 322      | EXT223322   | 1979          | STAT     | OPEN        | 2025-01-02            |
                 | 321      | EXT223321   | 1979          | STAT     | IN_PROGRESS | 2025-01-01            |
                 | 320      | EXT320123   | 1979          | STAT     | IN_PROGRESS | 2025-01-02            |
 
