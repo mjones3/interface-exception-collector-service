@@ -3,10 +3,11 @@ import {
     Component,
     Inject,
     LOCALE_ID,
+    OnInit,
     TemplateRef,
     ViewChild,
     computed,
-    viewChild, OnInit,
+    viewChild,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
@@ -16,7 +17,6 @@ import { ApolloError, ApolloQueryResult } from '@apollo/client';
 import { FuseCardComponent } from '@fuse/components/card/public-api';
 import {
     Column,
-    FacilityService,
     ProcessHeaderComponent,
     ProcessHeaderService,
     TableColumn,
@@ -24,6 +24,7 @@ import {
 } from '@shared';
 import { TableComponent } from 'app/shared/components/table/table.component';
 import { OrderStatusMap } from 'app/shared/models/order-status.model';
+import { PriorityMap } from 'app/shared/models/product-family.model';
 import { CookieService } from 'ngx-cookie-service';
 import { ToastrService } from 'ngx-toastr';
 import { Table, TableModule } from 'primeng/table';
@@ -57,6 +58,7 @@ import { SearchOrderFilterComponent } from './search-filter/search-order-filter.
 })
 export class SearchOrdersComponent implements OnInit {
     protected readonly OrderStatusMap = OrderStatusMap;
+    readonly PriorityMap = PriorityMap;
 
     readonly hiddenColumns: Column[] = [
         {
@@ -161,6 +163,7 @@ export class SearchOrdersComponent implements OnInit {
         this.searchOrders();
     }
 
+    // TODO
     protected readonly defaultSort = {
         id: 'bloodCenterID',
         start: 'asc',
@@ -186,46 +189,46 @@ export class SearchOrdersComponent implements OnInit {
         {
             id: 'orderNumber',
             header: 'BioPro Order ID',
-            sort: true,
+            sort: false,
             icon: false,
         },
         {
             id: 'externalId',
             header: 'External Order ID',
-            sort: true,
+            sort: false,
             icon: false,
         },
         {
             id: 'orderPriorityReport.priority',
             header: 'Priority',
-            sort: true,
+            sort: false,
             icon: false,
             columnTempRef: this.priorityTemplateRef(),
         },
         {
             id: 'orderStatus',
             header: 'Status',
-            sort: true,
+            sort: false,
             icon: false,
         },
         {
             id: 'orderCustomerReport.name',
             header: 'Ship to Customer Name',
-            sort: true,
+            sort: false,
             icon: false,
             columnTempRef: this.customerNameTemplateRef(),
         },
         {
             id: 'createDate',
             header: 'Create Date and Time',
-            sort: true,
+            sort: false,
             icon: false,
             columnTempRef: this.createDateTemplateRef(),
         },
         {
             id: 'desireShipDate',
             header: 'Desired Ship Date',
-            sort: true,
+            sort: false,
             icon: false,
             columnTempRef: this.desireShipDateTemplateRef(),
         },
@@ -240,7 +243,7 @@ export class SearchOrdersComponent implements OnInit {
             title: 'Results',
             columns: this.columns(),
             pageSize: 10,
-            showPagination:true
+            showPagination: false,
         };
     });
 
