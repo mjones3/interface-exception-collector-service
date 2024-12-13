@@ -48,11 +48,11 @@ public class DatabaseQueries {
     public static String restoreDefaultPriorityColors() {
         return """
             DELETE FROM lk_lookup WHERE type = 'ORDER_PRIORITY_COLOR';
-            INSERT into lk_lookup (id, type, description_key, option_value, order_number, active) values ( 28, 'ORDER_PRIORITY_COLOR','STAT', '#ff3333',1, true);
-            INSERT into lk_lookup (id, type, description_key, option_value, order_number, active) values ( 29, 'ORDER_PRIORITY_COLOR','ASAP', '#ffb833',2, true);
-            INSERT into lk_lookup (id, type, description_key, option_value, order_number, active) values ( 30, 'ORDER_PRIORITY_COLOR','ROUTINE', '#d7d6d3',3, true);
-            INSERT into lk_lookup (id, type, description_key, option_value, order_number, active) values ( 31, 'ORDER_PRIORITY_COLOR','SCHEDULED', '#97a6f2',4, true);
-            INSERT into lk_lookup (id, type, description_key, option_value, order_number, active) values ( 32, 'ORDER_PRIORITY_COLOR', 'DATE-TIME', '#0930f6',5, true);
+            INSERT into lk_lookup (type, description_key, option_value, order_number, active) values ( 'ORDER_PRIORITY_COLOR','STAT', '#ff3333',1, true);
+            INSERT into lk_lookup (type, description_key, option_value, order_number, active) values ( 'ORDER_PRIORITY_COLOR','ASAP', '#ffb833',2, true);
+            INSERT into lk_lookup (type, description_key, option_value, order_number, active) values ( 'ORDER_PRIORITY_COLOR','ROUTINE', '#d7d6d3',3, true);
+            INSERT into lk_lookup (type, description_key, option_value, order_number, active) values ( 'ORDER_PRIORITY_COLOR','SCHEDULED', '#97a6f2',4, true);
+            INSERT into lk_lookup (type, description_key, option_value, order_number, active) values ( 'ORDER_PRIORITY_COLOR', 'DATE-TIME', '#0930f6',5, true);
             """;
     }
 
