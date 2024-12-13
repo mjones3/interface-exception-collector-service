@@ -58,10 +58,11 @@ Feature: List of all orders in Search Order
             And I should see a "Caution" message: "No Results Found".
 
             Examples:
-                | External ID     | Order LocationCode | User LocationCode | Priority | Status |
+                | External ID        | Order LocationCode | User LocationCode | Priority | Status |
                 | EXT114117922233510 | DL1                | 234567891         | STAT     | OPEN   |
 
-    Rule: I should see the list of orders sorted by priority, status, and desired shipping date (ascending order) where the user logged in.
+    @R20-274
+    Rule: I should see the list of orders sorted by priority (ascending order), status (descending order), and desired shipping date (ascending order) where the user logged in.
         Scenario: List Biopro Orders in the specified order by default
             Given I cleaned up from the database the orders with order numbers "321,320,225,123,443,915,541,114,179".
             And I have these BioPro Orders.
@@ -75,12 +76,21 @@ Feature: List of all orders in Search Order
                 | 443      | EXT443123   | 1979          | ASAP     | IN_PROGRESS | 2025-01-02            |
                 | 915      | EXT915123   | 1979          | ASAP     | OPEN        | 2025-01-01            |
                 | 541      | EXT541123   | 1979          | ROUTINE  | IN_PROGRESS | 2025-01-01            |
-            When I want to list orders for location "1979"
-            Then I should have orders listed in the following order "321,320,225,123,443,915,541,114,179".
+            When I want to list orders for location "1979".
+            Then I should have orders listed in the following order.
+                | Order Id | External ID | Location Code | Priority | Status      | Desired Shipment Date |
+                | 321      | EXT223321   | 1979          | STAT     | IN_PROGRESS | 2025-01-01            |
+                | 320      | EXT320123   | 1979          | STAT     | IN_PROGRESS | 2025-01-02            |
+                | 225      | EXT225123   | 1979          | STAT     | OPEN        | 2025-01-01            |
+                | 123      | EXT123123   | 1979          | ASAP     | IN_PROGRESS | 2025-01-01            |
+                | 443      | EXT443123   | 1979          | ASAP     | IN_PROGRESS | 2025-01-02            |
+                | 915      | EXT915123   | 1979          | ASAP     | OPEN        | 2025-01-01            |
+                | 541      | EXT541123   | 1979          | ROUTINE  | IN_PROGRESS | 2025-01-01            |
+                | 114      | EXT114123   | 1979          | ROUTINE  | IN_PROGRESS | 2025-01-02            |
+                | 179      | EXT179123   | 1979          | ROUTINE  | OPEN        | 2025-01-01            |
 
 
-
-
+    @R20-274
     Rule: I should be able to see all the orders that are open and in progress at that location.
         Scenario: List Biopro Orders in OPEN or IN_PROGRESS status
             Given I cleaned up from the database the orders with order numbers "321,320,225".
@@ -89,14 +99,18 @@ Feature: List of all orders in Search Order
                 | 321      | EXT223321   | 1979          | STAT     | IN_PROGRESS | 2025-01-01            |
                 | 320      | EXT320123   | 1979          | STAT     | IN_PROGRESS | 2025-01-02            |
                 | 225      | EXT225123   | 1979          | STAT     | COMPLETED   | 2025-01-01            |
-            When I want to list orders for location "1979"
-            Then I should have orders listed in the following order "321,320".
+            When I want to list orders for location "1979".
+            Then I should have orders listed in the following order.
+                | Order Id | External ID | Location Code | Priority | Status      | Desired Shipment Date |
+                | 321      | EXT223321   | 1979          | STAT     | IN_PROGRESS | 2025-01-01            |
+                | 320      | EXT320123   | 1979          | STAT     | IN_PROGRESS | 2025-01-02            |
 
 
     Rule: I should be able to view a maximum of 20 rows in the Results table.
         @DIS-95
         Scenario: List Biopro Orders by priority, status and location maximum records
-            Given I have more than 20 Biopro Orders.
+            Given I cleaned up from the database the orders with external ID starting with "EXT".
+            And I have more than 20 Biopro Orders.
             When I choose search orders.
             Then I should not see more than 20 orders in the list.
             And I should see the list of orders based on priority and status.

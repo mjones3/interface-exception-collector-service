@@ -102,13 +102,16 @@ public class OrderSteps {
         Assert.assertNotNull(event);
     }
 
-    @When("I want to list orders for location {string}")
+    @When("I want to list orders for location {string}.")
     public void searchOrders(String locationCode) {
         response = apiHelper.graphQlRequestObjectList(GraphQLQueryMapper.listOrders(locationCode), "searchOrders");
     }
 
-    @Then("I should have orders listed in the following order {string}.")
-    public void iShouldHaveOrdersListedInTheFollowingOrder(String order) {
+    @Then("I should have orders listed in the following order.")
+    public void iShouldHaveOrdersListedInTheFollowingOrder(DataTable table) {
+        var headers = table.row(0);
+
+
         var responseIds = Arrays.stream(response)
             .map(r ->
             {
@@ -120,7 +123,13 @@ public class OrderSteps {
             })
             .collect(Collectors.joining(","));
 
-        Assert.assertEquals(order, responseIds);
+        var expectedIds = new ArrayList<String>();
+        for(var i=1;i<table.height();i++) {
+            var row = table.row(i);
+            expectedIds.add(row.get(headers.indexOf("Order Id")));
+        }
+
+        Assert.assertEquals(String.join(",", expectedIds), responseIds);
     }
 
 
