@@ -25,11 +25,15 @@ export class UnitNumberCardComponent {
     @Input() active = false;
     @Input() visualInspection = '';
     @Input() showVisualInspection = false;
+    @Input() disableActive = true;
+    @Input() ineligibleStatus = '';
 
     @Output() clickEvent = new EventEmitter<string | number>();
 
     handleClick(id: number | string) {
-        this.active = !this.active;
+        if (this.disableActive) {
+            this.active = !this.active;
+        }
         this.clickEvent.emit(id);
     }
 }

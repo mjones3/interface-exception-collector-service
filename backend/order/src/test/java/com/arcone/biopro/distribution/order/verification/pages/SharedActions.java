@@ -7,12 +7,14 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import static org.openqa.selenium.support.ui.ExpectedConditions.numberOfWindowsToBe;
+import static org.openqa.selenium.support.ui.ExpectedConditions.attributeContains;
 
 
 @Component
@@ -119,6 +121,11 @@ public class SharedActions {
     public void sendKeys(WebElement element, String text) {
         waitForVisible(element);
         element.sendKeys(text);
+    }
+
+    public void waitForAttribute(WebElement element, String attribute, String value) {
+        waitForVisible(element);
+        wait.until(ExpectedConditions.attributeContains(element, attribute, value));
     }
 
     public void click(WebElement element) {

@@ -38,7 +38,6 @@ export const appConfig: ApplicationConfig = {
     providers: [
         provideAnimations(),
         provideHttpClient(),
-
         // Translate Loader
         importProvidersFrom(
             TranslateModule.forRoot({
@@ -49,21 +48,17 @@ export const appConfig: ApplicationConfig = {
                 },
             })
         ),
-
         provideRouter(
             appRoutes,
             withPreloading(PreloadAllModules),
             withInMemoryScrolling({ scrollPositionRestoration: 'enabled' })
         ),
-
         // initialize the store and effects
         provideStore({
             [AUTH_FEATURE_KEY]: authReducerFactory,
             [CONFIGURATION_FEATURE_KEY]: configurationReducerFactory,
         }),
-
         provideEffects(),
-
         // Material Date Adapter
         {
             provide: DateAdapter,
@@ -76,7 +71,7 @@ export const appConfig: ApplicationConfig = {
                     dateInput: 'D',
                 },
                 display: {
-                    dateInput: 'DDD',
+                    dateInput: 'MM/dd/yyyy',
                     monthYearLabel: 'LLL yyyy',
                     dateA11yLabel: 'DD',
                     monthYearA11yLabel: 'LLLL yyyy',

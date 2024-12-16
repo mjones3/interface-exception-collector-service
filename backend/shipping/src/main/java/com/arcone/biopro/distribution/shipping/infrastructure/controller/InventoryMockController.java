@@ -33,9 +33,9 @@ public class InventoryMockController {
 
     @MessageMapping("validateInventory")
     public Mono<InventoryValidationResponseDTO> validateInventory(@Payload InventoryValidationRequest request) {
-        log.info("Checking inventory {} , {} , {} ",request.unitNumber(), request.productCode() , request.locationCode());
+        log.info("Checking inventory {} , {} , {} ", request.unitNumber(), request.productCode(), request.locationCode());
 
-        if(inventoryResponseDTOList == null){
+        if (inventoryResponseDTOList == null) {
             initInventoryMockList();
         }
 
@@ -43,56 +43,109 @@ public class InventoryMockController {
             | Discarded            | =W03689878675700 | =<E0713V00  Discarded error message   |
             | Quarantined          | W036898786758    | E0707V00    Quarantined error message |
             | Non existent         | =W03689878675900 | =<E0701V00  Non existent error        |
-            | Different Location   | =W03689878676300 | =<E0703V00  Product not found error   |*/
+            | Different Location   | =W03689878676300 | =<E0703V00  Product not found error   |
+            | Already Shipped      | W036898786700    | E0707V00                                */
 
 
         switch (request.unitNumber()) {
             case "W036898786756":
                 return Mono.just(InventoryValidationResponseDTO
-                .builder()
-                        .inventoryResponseDTO(InventoryResponseDTO
-                            .builder()
-                            .productFamily("PLASMA_TRANSFUSABLE")
-                            .id(UUID.randomUUID())
-                            .aboRh("AB")
-                            .locationCode("123456789")
-                            .productCode("E0701V00")
-                            .collectionDate(ZonedDateTime.now())
-                            .unitNumber("W036898786756")
-                            .expirationDate(LocalDateTime.now())
-                            .productDescription("PRODUCT_DESCRIPTION")
-                            .build())
-                        .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
-                                .builder()
-                                .errorName("INVENTORY_IS_EXPIRED")
-                                .errorType("INFO")
-                                .errorCode(2)
-                                .errorMessage(ShipmentServiceMessages.INVENTORY_EXPIRED_ERROR)
-                                .action("TRIGGER_DISCARD")
-                                .reason("EXPIRED")
-                                .build())).build()
-               );
+                    .builder()
+                    .inventoryResponseDTO(InventoryResponseDTO
+                        .builder()
+                        .productFamily("PLASMA_TRANSFUSABLE")
+                        .id(UUID.randomUUID())
+                        .aboRh("AB")
+                        .locationCode("123456789")
+                        .productCode("E0701V00")
+                        .collectionDate(ZonedDateTime.now())
+                        .unitNumber("W036898786756")
+                        .expirationDate(LocalDateTime.now())
+                        .productDescription("PRODUCT_DESCRIPTION")
+                        .build())
+                    .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
+                        .builder()
+                        .errorName("INVENTORY_IS_EXPIRED")
+                        .errorType("INFO")
+                        .errorCode(2)
+                        .errorMessage(ShipmentServiceMessages.INVENTORY_EXPIRED_ERROR)
+                        .action("TRIGGER_DISCARD")
+                        .reason("EXPIRED")
+                        .build())).build()
+                );
             case "W036898786757":
                 return Mono.just(InventoryValidationResponseDTO
                     .builder()
-                        .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
-                            .builder()
-                            .errorName("INVENTORY_IS_DISCARDED")
-                            .errorCode(3)
-                            .errorType("INFO")
-                            .errorMessage(ShipmentServiceMessages.INVENTORY_DISCARDED_ERROR)
+                    .inventoryResponseDTO(InventoryResponseDTO
+                        .builder()
+                        .productFamily("PLASMA_TRANSFUSABLE")
+                        .id(UUID.randomUUID())
+                        .aboRh("AB")
+                        .locationCode("123456789")
+                        .productCode("E0713V00")
+                        .collectionDate(ZonedDateTime.now())
+                        .unitNumber("W036898786757")
+                        .expirationDate(LocalDateTime.now())
+                        .productDescription("PRODUCT_DESCRIPTION")
+                        .build())
+                    .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
+                        .builder()
+                        .errorName("INVENTORY_IS_DISCARDED")
+                        .errorCode(3)
+                        .errorType("INFO")
+                        .errorMessage(ShipmentServiceMessages.INVENTORY_DISCARDED_ERROR)
                         .build()))
                     .build());
             case "W036898786758":
+
+
                 return Mono.just(InventoryValidationResponseDTO
                     .builder()
-                        .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
-                            .builder()
-                            .errorType("INFO")
-                            .errorName("INVENTORY_IS_QUARANTINED")
-                            .errorCode(4)
-                            .errorMessage(ShipmentServiceMessages.INVENTORY_QUARANTINED_ERROR)
-                            .build()))
+                    .inventoryResponseDTO(InventoryResponseDTO
+                        .builder()
+                        .productFamily("PLASMA_TRANSFUSABLE")
+                        .id(UUID.randomUUID())
+                        .aboRh("AB")
+                        .locationCode("123456789")
+                        .productCode("E0707V00")
+                        .collectionDate(ZonedDateTime.now())
+                        .unitNumber("W036898786758")
+                        .expirationDate(LocalDateTime.now())
+                        .productDescription("PRODUCT_DESCRIPTION")
+                        .build())
+                    .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
+                        .builder()
+                        .errorType("INFO")
+                        .errorName("INVENTORY_IS_QUARANTINED")
+                        .errorCode(4)
+                        .errorMessage(ShipmentServiceMessages.INVENTORY_QUARANTINED_ERROR)
+                        .details(List.of("ABS Positive", "BCA Unit Needed", "CCP Eligible", "Failed Visual Inspection"
+                            , "Hold Until Expiration", "In Process Hold", "Pending Further Review Inspection",
+                            "Save Plasma for CTS", "Other", "Under Investigation"))
+                        .build()))
+                    .build());
+            case "W036898786700":
+                return Mono.just(InventoryValidationResponseDTO
+                    .builder()
+                    .inventoryResponseDTO(InventoryResponseDTO
+                        .builder()
+                        .productFamily("PLASMA_TRANSFUSABLE")
+                        .id(UUID.randomUUID())
+                        .aboRh("AB")
+                        .locationCode("123456789")
+                        .productCode("E0707V00")
+                        .collectionDate(ZonedDateTime.now())
+                        .unitNumber("W036898786700")
+                        .expirationDate(LocalDateTime.now())
+                        .productDescription("PRODUCT_DESCRIPTION")
+                        .build())
+                    .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
+                        .builder()
+                        .errorType("INFO")
+                        .errorName("INVENTORY_IS_SHIPPED")
+                        .errorCode(4)
+                        .errorMessage(ShipmentServiceMessages.INVENTORY_NOT_FOUND_ERROR)
+                        .build()))
                     .build());
             case "W036898786812":
                 return Mono.error(new RuntimeException("Testing Exception Handlers"));
@@ -103,22 +156,22 @@ public class InventoryMockController {
                             && inventory.locationCode().equals(request.locationCode());
                     }
                 ).findAny();
-                if(inventoryResponse.isPresent()){
+                if (inventoryResponse.isPresent()) {
 
                     return Mono.just(InventoryValidationResponseDTO
                         .builder()
                         .inventoryResponseDTO(inventoryResponse.get())
                         .build());
-                }else{
+                } else {
                     return Mono.just(InventoryValidationResponseDTO
                         .builder()
-                            .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
-                                .builder()
-                                .errorName("INVENTORY_NOT_FOUND_IN_LOCATION")
-                                .errorType("WARN")
-                                .errorCode(1)
-                                .errorMessage(ShipmentServiceMessages.INVENTORY_NOT_FOUND_ERROR)
-                                .build()))
+                        .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
+                            .builder()
+                            .errorName("INVENTORY_NOT_FOUND_IN_LOCATION")
+                            .errorType("WARN")
+                            .errorCode(1)
+                            .errorMessage(ShipmentServiceMessages.INVENTORY_NOT_FOUND_ERROR)
+                            .build()))
                         .build());
                 }
 

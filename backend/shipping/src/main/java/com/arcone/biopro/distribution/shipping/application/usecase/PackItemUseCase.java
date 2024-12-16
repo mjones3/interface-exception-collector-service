@@ -123,6 +123,7 @@ public class PackItemUseCase implements PackItemService {
                         .action(inventoryNotificationDTO.action())
                         .notificationType(inventoryNotificationDTO.errorType())
                         .reason(inventoryNotificationDTO.reason())
+                        .details(inventoryNotificationDTO.details())
                         .build() )
                     .toList()));
             }

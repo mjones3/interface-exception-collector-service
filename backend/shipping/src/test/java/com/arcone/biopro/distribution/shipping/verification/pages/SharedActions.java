@@ -164,6 +164,16 @@ public class SharedActions {
         driver.findElement(locator).click();
     }
 
+    public void click(By locator) {
+        waitForVisible(locator);
+        waitForEnabled(locator);
+        wait.until(e -> {
+            log.debug("Clicking on element {}.", locator);
+            e.findElement(locator).click();
+            return true;
+        });
+    }
+
     public void clickElementAndMoveToNewTab(WebDriver driver, WebElement element, int expectedWindowsNumber) throws InterruptedException {
         waitForVisible(element);
         waitForEnabled(element);
@@ -197,22 +207,35 @@ public class SharedActions {
         log.info("Verifying message: {}", message);
         var bannerMessageLocator = "";
         if (header.startsWith("Acknowledgment")) {
-            bannerMessageLocator = "//mat-dialog-container[starts-with(@id,'mat-mdc-dialog')]//fuse-confirmation-dialog";
+            verifyAckMessage(header, message);
         } else {
-            bannerMessageLocator = "//*[@id='toast-container']//fuse-alert";
+            if(header.startsWith("Cancel Confirmation")){
+                bannerMessageLocator = "//mat-dialog-container[starts-with(@id,'mat-mdc-dialog')]//fuse-confirmation-dialog";
+            }else{
+                bannerMessageLocator = "//*[@id='toast-container']//fuse-alert";
+            }
+
+            String finalBannerMessageLocator = bannerMessageLocator;
+            waitForVisible(By.xpath(finalBannerMessageLocator));
+            String msg = wait.until(e -> e.findElement(By.xpath(finalBannerMessageLocator))).getText();
+
+            // Split the message at line break to get header and message
+            String[] msgParts = msg.split("\n");
+            Assert.assertEquals(header.toUpperCase(), msgParts[0].toUpperCase());
+            Assert.assertEquals(message.toUpperCase(), msgParts[1].toUpperCase());
         }
+    }
 
-        String finalBannerMessageLocator = bannerMessageLocator;
-        waitForVisible(By.xpath(finalBannerMessageLocator));
-        String msg = wait.until(e -> e.findElement(By.xpath(finalBannerMessageLocator))).getText();
 
-        // Split the message at line break to get header and message
-        String[] msgParts = msg.split("\n");
-        Assert.assertEquals(header.toUpperCase(), msgParts[0].toUpperCase());
-        Assert.assertEquals(message.toUpperCase(), msgParts[1].toUpperCase());
+    public void verifyAckMessage(String header, String message) {
+        log.info("Verifying Ack message: {}", message);
+        waitForVisible(By.xpath("//mat-dialog-container[starts-with(@id,'mat-mdc-dialog')]"));
 
-        // dialog "//*[@id='mat-mdc-dialog-0']/div/div/fuse-confirmation-dialog"
+        String title = wait.until(e -> e.findElement(By.id("acknowledgeTitle"))).getText();
+        String msg = wait.until(e -> e.findElement(By.id("acknowledgeDescription"))).getText();
 
+        Assert.assertEquals(header.toUpperCase(), title.toUpperCase());
+        Assert.assertEquals(message.toUpperCase(), msg.toUpperCase());
 
     }
 
@@ -364,5 +387,16 @@ public class SharedActions {
             e.findElement(locator).sendKeys(Keys.DELETE);
             return true;
         });
+    }
+
+    public void confirmAcknowledgment() {
+        String confirmButtonLocator = "confirmButton";
+        waitForVisible(By.id(confirmButtonLocator));
+        click(By.id(confirmButtonLocator));
+    }
+
+    public void confirmationDialogIsNotVisible() {
+        log.debug("confirmationDialogIsNotVisible");
+        waitForNotVisible(By.xpath("//mat-dialog-container[starts-with(@id,'mat-mdc-dialog')]//fuse-confirmation-dialog"));
     }
 }

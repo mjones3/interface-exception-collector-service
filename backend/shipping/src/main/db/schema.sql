@@ -117,3 +117,31 @@ ALTER TABLE bld_shipment_item_packed ADD COLUMN second_verification VARCHAR(50) 
 ALTER TABLE bld_shipment_item_packed ADD COLUMN verification_date TIMESTAMP WITH TIME ZONE DEFAULT NULL;
 
 ALTER TABLE bld_shipment_item_packed ADD COLUMN verified_by_employee_id varchar(50) DEFAULT NULL;
+
+ALTER TABLE bld_shipment_item_packed ADD COLUMN ineligible_status varchar(100) DEFAULT NULL;
+
+ALTER TABLE bld_shipment_item_packed ADD COLUMN ineligible_action varchar(100) DEFAULT NULL;
+
+ALTER TABLE bld_shipment_item_packed ADD COLUMN ineligible_reason varchar(100) DEFAULT NULL;
+
+ALTER TABLE bld_shipment_item_packed ADD COLUMN ineligible_message varchar(255) DEFAULT NULL;
+
+ALTER TABLE bld_shipment_item_packed ADD COLUMN ineligible_details varchar(500) DEFAULT NULL;
+
+
+CREATE TABLE bld_shipment_item_removed (
+    id BIGSERIAL               NOT NULL
+      CONSTRAINT pk_bld_shipment_item_removed PRIMARY KEY,
+    shipment_id BIGINT         NOT NULL
+      CONSTRAINT fk_shipment_shipment_item_removed REFERENCES bld_shipment,
+    unit_number                VARCHAR(255) NOT NULL,
+    product_code               VARCHAR(255) NOT NULL,
+    product_family              VARCHAR(255) NOT NULL,
+    removed_by_employee_id      varchar(50) NOT NULL,
+    removed_date                TIMESTAMP WITH TIME ZONE NOT NULL,
+    ineligible_status          VARCHAR(100) NOT NULL
+);
+
+CREATE UNIQUE INDEX idx_bld_shipment_item_removed ON bld_shipment_item_removed (unit_number, product_code ,shipment_id);
+
+ALTER TABLE bld_shipment_item_packed ALTER COLUMN ineligible_details TYPE TEXT ;

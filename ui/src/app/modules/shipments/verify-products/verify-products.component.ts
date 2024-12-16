@@ -1,29 +1,35 @@
-import { AsyncPipe, NgTemplateOutlet, PercentPipe } from '@angular/common';
-import { Component, OnInit, ViewChild, computed, signal } from '@angular/core';
+import { AsyncPipe, PercentPipe } from '@angular/common';
+import { Component, OnInit, ViewChild, computed } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatDivider } from '@angular/material/divider';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { ProcessHeaderComponent, ProcessHeaderService } from '@shared';
+import {
+    NotificationDto,
+    NotificationTypeMap,
+    ProcessHeaderComponent,
+    ProcessHeaderService,
+    ToastrImplService,
+} from '@shared';
 import { ScanUnitNumberProductCodeComponent } from 'app/scan-unit-number-product-code/scan-unit-number-product-code.component';
-import { ToastrService } from 'ngx-toastr';
-import { finalize, forkJoin, take, tap } from 'rxjs';
+import { NotificationComponent } from 'app/shared/components/notification/notification.component';
+import { finalize, tap } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { FuseCardComponent } from '../../../../@fuse';
-import { getAuthState } from '../../../core/state/auth/auth.selectors';
+import { FuseConfirmationService } from '../../../../@fuse/services/confirmation';
 import { ProgressBarComponent } from '../../../progress-bar/progress-bar.component';
 import { ActionButtonComponent } from '../../../shared/components/action-button/action-button.component';
+import { GlobalMessageComponent } from '../../../shared/components/global-message/global-message.component';
 import { UnitNumberCardComponent } from '../../../shared/components/unit-number-card/unit-number-card.component';
 import { ProductIconsService } from '../../../shared/services/product-icon.service';
 import handleApolloError from '../../../shared/utils/apollo-error-handling';
 import { consumeNotifications } from '../../../shared/utils/notification.handling';
-import { VerifyProductResponseDTO } from '../graphql/verify-products/query-definitions/verify-products.graphql';
-import {
-    ShipmentDetailResponseDTO,
-    ShipmentItemPackedDTO,
-    VerifyFilledProductDto,
-} from '../models/shipment-info.dto';
+import { CancelSecondVerificationRequest } from '../graphql/verify-products/query-definitions/verify-products.graphql';
+import { VerifyFilledProductDto } from '../models/shipment-info.dto';
+import { SecondVerificationCommon } from '../second-verification-common';
 import { ShipmentService } from '../services/shipment.service';
 import { OrderWidgetsSidebarComponent } from '../shared/order-widgets-sidebar/order-widgets-sidebar.component';
+import { VerifyProductsNavbarComponent } from '../verify-products-navbar/verify-products-navbar.component';
 
 @Component({
     selector: 'app-verify-products',
@@ -33,32 +39,24 @@ import { OrderWidgetsSidebarComponent } from '../shared/order-widgets-sidebar/or
         ProcessHeaderComponent,
         ActionButtonComponent,
         FuseCardComponent,
-        NgTemplateOutlet,
         OrderWidgetsSidebarComponent,
         PercentPipe,
         MatDivider,
         UnitNumberCardComponent,
         ProgressBarComponent,
         ScanUnitNumberProductCodeComponent,
+        VerifyProductsNavbarComponent,
+        GlobalMessageComponent,
     ],
     templateUrl: './verify-products.component.html',
 })
-export class VerifyProductsComponent implements OnInit {
-    protected loggedUserIdSignal = signal<string>(null);
-    protected shipmentSignal = signal<ShipmentDetailResponseDTO>(null);
-    protected verificationSignal = signal<VerifyProductResponseDTO>(null);
-    protected packedItemsComputed = computed(
-        () => this.verificationSignal()?.packedItems ?? []
-    );
-    protected verifiedItemsComputed = computed(
-        () => this.verificationSignal()?.verifiedItems ?? []
-    );
-    protected isAllPackItemsVerified = computed(
+export class VerifyProductsComponent
+    extends SecondVerificationCommon
+    implements OnInit
+{
+    protected verifyProductsNotificationsRouteComputed = computed(
         () =>
-            this.packedItemsComputed()?.length &&
-            this.verifiedItemsComputed()?.length &&
-            this.packedItemsComputed().length ===
-                this.verifiedItemsComputed().length
+            `/shipment/${this.route.snapshot.params?.id}/verify-products/notifications`
     );
     protected verifiedItemsPercentage = computed(() => {
         if (
@@ -72,47 +70,50 @@ export class VerifyProductsComponent implements OnInit {
             this.packedItemsComputed()?.length
         );
     });
-    protected shipmentIdComputed = computed(() =>
-        Number(this.route.snapshot.params?.id)
+    protected toBeRemovedItemsComputed = computed(
+        () => this.notificationDetailsSignal()?.toBeRemovedItems ?? []
     );
 
     @ViewChild('scanUnitNumberProductCode')
     protected scanUnitNumberProductCode: ScanUnitNumberProductCodeComponent;
 
     constructor(
-        private route: ActivatedRoute,
-        private router: Router,
-        private store: Store,
-        private shipmentService: ShipmentService,
-        private productIconService: ProductIconsService,
-        private toaster: ToastrService,
-        protected header: ProcessHeaderService
+        protected route: ActivatedRoute,
+        protected router: Router,
+        protected store: Store,
+        protected shipmentService: ShipmentService,
+        protected productIconService: ProductIconsService,
+        protected toaster: ToastrImplService,
+        protected header: ProcessHeaderService,
+        protected matDialog: MatDialog,
+        protected fuseConfirmationService: FuseConfirmationService
     ) {
-        this.store
-            .select(getAuthState)
-            .pipe(take(1))
-            .subscribe((auth) => this.loggedUserIdSignal.set(auth.id));
+        super(
+            route,
+            router,
+            store,
+            shipmentService,
+            toaster,
+            productIconService
+        );
     }
 
     ngOnInit(): void {
-        this.triggerFetchData();
+        this.subscribeTriggerFetchData();
     }
 
-    triggerFetchData(): void {
-        forkJoin({
-            shipment: this.shipmentService.getShipmentById(
-                this.shipmentIdComputed()
-            ),
-            verification:
-                this.shipmentService.getShipmentVerificationDetailsById(
-                    this.shipmentIdComputed()
-                ),
-        }).subscribe(({ shipment, verification }) => {
-            this.shipmentSignal.set(shipment.data?.getShipmentDetailsById);
-            this.verificationSignal.set(
-                verification.data?.getShipmentVerificationDetailsById
-            );
-        });
+    subscribeTriggerFetchData(): void {
+        super
+            .triggerFetchData()
+            .subscribe(({ shipment, verification, notificationDetails }) => {
+                this.shipmentSignal.set(shipment.data?.getShipmentDetailsById);
+                this.verificationSignal.set(
+                    verification.data?.getShipmentVerificationDetailsById
+                );
+                this.notificationDetailsSignal.set(
+                    notificationDetails.data.getNotificationDetailsByShipmentId
+                );
+            });
     }
 
     verifyItem(item: VerifyFilledProductDto): void {
@@ -154,20 +155,93 @@ export class VerifyProductsComponent implements OnInit {
         }
     }
 
-    getItemIcon(item: ShipmentItemPackedDTO) {
-        return this.productIconService.getIconByProductFamily(
-            item.productFamily
-        );
-    }
-
     async handleNavigation(url: string): Promise<boolean> {
         return await this.router.navigateByUrl(url);
     }
 
-    async cancelButtonHandler(): Promise<boolean> {
-        return await this.handleNavigation(
-            `/shipment/${this.shipmentIdComputed()}/shipment-details`
-        );
+    cancelButtonHandler(): void {
+        const request: CancelSecondVerificationRequest = {
+            shipmentId: this.shipmentIdComputed(),
+            employeeId: this.loggedUserIdSignal(),
+        };
+        this.shipmentService
+            .cancelSecondVerification(request)
+            .pipe(catchError((e) => handleApolloError(this.toaster, e)))
+            .subscribe(async (result) => {
+                const confirmationNotification =
+                    result.data?.cancelSecondVerification?.notifications?.find(
+                        (n) => n.notificationType === 'CONFIRMATION'
+                    );
+                if (confirmationNotification) {
+                    this.scanUnitNumberProductCode?.disableUnitProductGroup();
+                    return this.fuseConfirmationService
+                        .open({
+                            title: 'Cancel Confirmation',
+                            message: confirmationNotification.message,
+                            dismissible: false,
+                            icon: {
+                                show: false,
+                            },
+                            actions: {
+                                confirm: {
+                                    label: 'Yes',
+                                    class: 'bg-red-700 text-white font-bold',
+                                },
+                                cancel: {
+                                    class: 'font-bold',
+                                },
+                            },
+                        })
+                        .afterClosed()
+                        .subscribe((result) => {
+                            this.scanUnitNumberProductCode?.resetUnitProductGroup();
+                            if (result === 'confirmed') {
+                                this.confirmCancel();
+                            }
+                        });
+                }
+
+                consumeNotifications(
+                    this.toaster,
+                    result?.data?.cancelSecondVerification?.notifications
+                );
+                if (
+                    result.data?.cancelSecondVerification?.ruleCode === '200 OK'
+                ) {
+                    return await this.handleNavigation(
+                        result.data?.cancelSecondVerification?._links?.next
+                    );
+                }
+            });
+    }
+
+    confirmCancel(): void {
+        const request: CancelSecondVerificationRequest = {
+            shipmentId: this.shipmentIdComputed(),
+            employeeId: this.loggedUserIdSignal(),
+        };
+        this.shipmentService
+            .confirmCancelSecondVerification(request)
+            .pipe(
+                catchError((e) => handleApolloError(this.toaster, e)),
+                tap((result) =>
+                    consumeNotifications(
+                        this.toaster,
+                        result?.data?.confirmCancelSecondVerification
+                            ?.notifications
+                    )
+                )
+            )
+            .subscribe(async (result) => {
+                if (
+                    result.data?.confirmCancelSecondVerification?.ruleCode ===
+                    '200 OK'
+                ) {
+                    await this.handleNavigation(
+                        result.data.confirmCancelSecondVerification._links.next
+                    );
+                }
+            });
     }
 
     completeShipment() {
@@ -177,12 +251,36 @@ export class VerifyProductsComponent implements OnInit {
                 employeeId: this.loggedUserIdSignal(),
             })
             .pipe(
-                tap((result) =>
-                    consumeNotifications(
-                        this.toaster,
-                        result?.data?.completeShipment.notifications
-                    )
-                ),
+                tap((result) => {
+                    if (result?.data?.completeShipment?.notifications?.length) {
+                        if (
+                            result?.data?.completeShipment?.notifications?.find(
+                                (n) => n.notificationType === 'CONFIRMATION'
+                            )
+                        ) {
+                            this.scanUnitNumberProductCode.disableUnitProductGroup();
+                            this.matDialog
+                                .open(NotificationComponent, {
+                                    data: {
+                                        data: result?.data?.completeShipment,
+                                    },
+                                    disableClose: true,
+                                })
+                                .afterClosed()
+                                .subscribe(() => {
+                                    this.handleNavigation(
+                                        `/shipment/${this.shipmentIdComputed()}/verify-products/notifications`
+                                    );
+                                });
+                        } else {
+                            const notificationDto: NotificationDto[] =
+                                result?.data?.completeShipment?.notifications;
+                            this.displayMessageFromNotificationDto(
+                                notificationDto
+                            );
+                        }
+                    }
+                }),
                 catchError((e) => handleApolloError(this.toaster, e))
             )
             .subscribe((response) => {
@@ -192,5 +290,25 @@ export class VerifyProductsComponent implements OnInit {
                     );
                 }
             });
+    }
+
+    displayMessageFromNotificationDto(notifications: NotificationDto[]) {
+        notifications.forEach((notification) => {
+            const notificationType =
+                NotificationTypeMap[notification.notificationType];
+            this.toaster.show(
+                notification.message,
+                notificationType.title,
+                {
+                    ...(notificationType.timeOut
+                        ? { timeOut: notificationType.timeOut }
+                        : {}),
+                    ...(notification.notificationType === 'SYSTEM'
+                        ? { timeOut: 0 }
+                        : {}), // Overrides timeout definition for SYSTEM notifications
+                },
+                notificationType.type
+            );
+        });
     }
 }

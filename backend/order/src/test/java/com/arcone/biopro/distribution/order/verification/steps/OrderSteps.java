@@ -26,6 +26,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDate;
+import java.time.Year;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Random;
 
@@ -152,7 +155,7 @@ public class OrderSteps {
         this.locationCode = locationCode;
         this.priority = priority;
         this.status = status;
-        var query = DatabaseQueries.insertBioProOrder(externalId, locationCode, orderController.getPriorityValue(priority), priority, status);
+        var query = DatabaseQueries.insertBioProOrder(externalId, locationCode, orderController.getPriorityValue(priority), priority.replace('-', '_'), status);
         databaseService.executeSql(query).block();
     }
     @Given("I have a Biopro Order with id {string}, externalId {string}, Location Code {string}, Priority {string} and Status {string}.")
@@ -451,7 +454,7 @@ public class OrderSteps {
         orderDetailsPage.verifyProgressBarNotExists();
     }
 
-    @When("I search the order by {string}.")
+    @And("I search the order by {string}.")
     public void iSearchTheOrderBy(String value) throws InterruptedException {
         if (value.equalsIgnoreCase("orderId")) {
             searchOrderPage.searchOrder(this.orderId.toString());
@@ -459,6 +462,20 @@ public class OrderSteps {
             searchOrderPage.searchOrder(this.externalId);
         } else {
             searchOrderPage.searchOrder(value);
+        }
+    }
+
+    @When("I open the search orders filter panel.")
+    public void iOpenTheSearchPanel() throws InterruptedException {
+        searchOrderPage.openTheSearchPanel();
+    }
+
+    @When("I choose {string} option.")
+    public void iChooseApplyOption(String valueOption) throws InterruptedException {
+        if(valueOption.equalsIgnoreCase("apply")){
+            searchOrderPage.iChooseApplyOption();
+        } else {
+            searchOrderPage.iChooseResetOption();
         }
     }
 
@@ -472,8 +489,131 @@ public class OrderSteps {
         searchOrderPage.checkIfDetailsPageIsOpened();
     }
 
+    @And("I should see {string} fields as required.")
+    public void areFieldsRequired(String valueFields) throws InterruptedException {
+      searchOrderPage.checkRequiredFields(valueFields);
+    }
+
+    @And("I should see {string} fields.")
+    public void allFieldsDisplayed(String valueFields) throws InterruptedException {
+        searchOrderPage.checkForFieldsVisibility(valueFields);
+    }
+
+    @And("{string} fields are {string}.")
+    public void theFieldsHaveTheStatus(String valueFields, String valueStatus) throws InterruptedException {
+        Arrays.stream(valueFields.split(",")).map(String::trim).forEach
+            (valueField -> {
+                try {
+                    theFieldHaveTheStatus(valueField, valueStatus);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+    }
+
+    @And("{string} field is {string}.")
+    public void theFieldHaveTheStatus(String valueField, String valueStatus) throws InterruptedException {
+        searchOrderPage.checkIfEnabledOrDisabled(valueField, valueStatus.equalsIgnoreCase("enabled"));
+    }
+
+    @And("{string} option is {string}.")
+    public void theOptionHaveTheStatus(String valueOption, String valueStatus) throws InterruptedException {
+       searchOrderPage.checkIfOptionHasStatus(valueOption, valueStatus);
+    }
+
+
+
+    @And("I select {string} for the {string}.")
+    public void iSelectValuesForTheDropdown(String values, String dropdown) {
+        searchOrderPage.selectOptionsForDropdownDescription(values, dropdown);
+    }
+
+
+
+
+
+
+
+    @And("Items {string} should be selected for {string}.")
+    public void itemsShouldBeSelected(String values, String dropdown) {
+      searchOrderPage.checkSelectedValuesFromDropdownDescription(values, dropdown);
+    }
+
+    private void setValueForField(String value, String fieldName) throws InterruptedException {
+       searchOrderPage.setValueForField(value, fieldName);
+    }
+
+    @When("I enter the date: {string} for the field {string} and the date: {string}  for the field {string}.")
+    public void iEnterTheDateForTheFieldAndTheDateForTheField(String fromDate, String initialDateField, String toDate, String finalDateField) throws InterruptedException {
+        setValueForField(fromDate, initialDateField);
+        setValueForField(toDate, finalDateField);
+    }
+
+
+    @When("I enter a future date for the field {string}.")
+    public void iEnterFutureDateForTheField(String fieldName) throws InterruptedException {
+        setValueForField(LocalDate.now().format(DateTimeFormatter.ofPattern("MM/dd/yyyy")), "create date from");
+        setValueForField( 1 + "/" + 1 + "/" + Year.now().getValue() + 1, fieldName);
+    }
+
+    @When("I enter a past date: {string} for the field {string}.")
+    public void iEnterPastDateForTheField(String value, String fieldName) throws InterruptedException {
+        setValueForField(value, fieldName);
+        setValueForField(LocalDate.now().format(DateTimeFormatter.ofPattern("MM/dd/yyyy")), "create date to");
+    }
+
+
+
+
+    @Then("The filter information should be empty.")
+    public void theFilterInformationShouldBeEmpty() {
+        searchOrderPage.theOrderNumberFieldShouldHaveEmptyValue();
+    }
+
+    @Then("I should see a validation message: {string}.")
+    public void iShouldSeeAValidationMessage(String message) {
+        searchOrderPage.iShouldSeeAValidationMessage(message);
+    }
+
+
+    @And("I should see {string} as the number of used filters for the search.")
+    public void iShouldSeeAsTheNumberOfUsedFiltersForTheSearch(String value) {
+
+        searchOrderPage.checkNumberOfUsedFiltersForTheSearch(value);
+
+
+    }
+
+    @And("I should not see {string}.")
+    public void iShouldNotSee(String externalOrderIds) {
+        Arrays.stream(externalOrderIds.split(",")).map(String::trim).forEach
+            (externalOrderId -> {
+                searchOrderPage.verifyOrderNotExists(externalOrderId);
+            });
+    }
+
+    @And("I should see {string} orders in the search results.")
+    public void iShouldSeeOrdersInTheSearchResults(String externalOrderIds) {
+        Arrays.stream(externalOrderIds.split(",")).map(String::trim).forEach
+            (externalOrderId -> {
+                searchOrderPage.verifyOrderExists(externalOrderId);
+            });
+    }
+
     @And("I can see the Temperature Category as {string}.")
     public void iCanSeeTheTemperatureCategoryAs(String category) {
         orderDetailsPage.verifyTemperatureCategory(category);
+    }
+
+    @And("I select the current date as the {string} range")
+    public void iSelectTheCurrentDateAsThe(String fieldRangeName) throws InterruptedException {
+        setValueForField(LocalDate.now().format(DateTimeFormatter.ofPattern("MM/dd/yyyy")), fieldRangeName + " from");
+        setValueForField(LocalDate.now().format(DateTimeFormatter.ofPattern("MM/dd/yyyy")), fieldRangeName + " to");
+    }
+
+    @And("I select the {string} as the {string} range")
+    public void iSelectTheDateAsThe(String date, String fieldRangeName) throws InterruptedException {
+        setValueForField(date, fieldRangeName + " from");
+        setValueForField(date, fieldRangeName + " to");
     }
 }

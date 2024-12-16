@@ -16,7 +16,6 @@ import { Store } from '@ngrx/store';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { MatDialog } from '@angular/material/dialog';
-import { FuseConfirmationService } from '@fuse/services/confirmation/public-api';
 import {
     Description,
     DescriptionCardComponent,
@@ -32,6 +31,7 @@ import { getAuthState } from 'app/core/state/auth/auth.selectors';
 import { ProgressBarComponent } from 'app/progress-bar/progress-bar.component';
 import { ActionButtonComponent } from 'app/shared/components/action-button/action-button.component';
 import { UnitNumberCardComponent } from 'app/shared/components/unit-number-card/unit-number-card.component';
+import { ConfirmationAcknowledgmentService } from 'app/shared/services/confirmation-acknowledgment.service';
 import { ProductIconsService } from 'app/shared/services/product-icon.service';
 import { Cookie } from 'app/shared/types/cookie.enum';
 import { CookieService } from 'ngx-cookie-service';
@@ -111,7 +111,7 @@ export class FillProductsComponent implements OnInit {
         private store: Store,
         private _router: Router,
         private cd: ChangeDetectorRef,
-        private confirmationService: FuseConfirmationService,
+        private confirmationAcknowledgmentService: ConfirmationAcknowledgmentService,
         private discardService: DiscardService,
         private productIconService: ProductIconsService,
         private recordUnsatisfactoryVisualInspectionDialog: MatDialog
@@ -223,12 +223,12 @@ export class FillProductsComponent implements OnInit {
                                 )
                             ) {
                                 return this.triggerDiscard(
-                                    infoNotifications,
+                                    infoNotifications[0],
                                     inventory
                                 );
                             } else {
                                 return this.openAcknowledgmentMessageDialog(
-                                    infoNotifications
+                                    infoNotifications[0]
                                 );
                             }
                         }
@@ -346,14 +346,12 @@ export class FillProductsComponent implements OnInit {
                             if (data) {
                                 this.productSelection.productGroup.reset();
                                 this.productSelection.enableVisualInspection();
-                                return this.openAcknowledgmentMessageDialog([
-                                    {
-                                        statusCode: 400,
-                                        notificationType: 'INFO',
-                                        code: 400,
-                                        message: result.message,
-                                    },
-                                ]);
+                                return this.openAcknowledgmentMessageDialog({
+                                    statusCode: 400,
+                                    notificationType: 'INFO',
+                                    code: 400,
+                                    message: result.message,
+                                });
                             } else {
                                 this.showDiscardSystemError();
                             }
@@ -405,62 +403,47 @@ export class FillProductsComponent implements OnInit {
         });
     }
 
-    openAcknowledgmentMessageDialog(notifications: NotificationDto[]): void {
-        this.confirmationService.open({
-            title: 'Acknowledgment Message',
-            message: notifications
-                .map((notification) => notification.message)
-                .join('<br/>'),
-            dismissible: false,
-            icon: {
-                show: false,
-            },
-            actions: {
-                confirm: {
-                    label: 'Confirm',
-                    show: true,
-                    class: 'bg-violet-300 text-violet-700 font-bold',
-                },
-                cancel: {
-                    show: false,
-                },
-            },
-        });
+    openAcknowledgmentMessageDialog(notification: NotificationDto): void {
+        const message = notification.message;
+        const details = notification.details;
+        this.confirmationAcknowledgmentService.notificationConfirmation(
+            message,
+            details,
+            null // TODO
+        );
     }
 
     private triggerDiscard(
-        triggerDiscardNotifications: NotificationDto[],
+        triggerDiscardNotifications: NotificationDto,
         inventory: InventoryDTO
     ): void {
-        for (const triggerDiscardNotification of triggerDiscardNotifications) {
-            this.discardService
-                .discardProduct(
-                    this.getDiscardRequestDto(
-                        inventory,
-                        triggerDiscardNotification.reason
-                    )
+        this.discardService
+            .discardProduct(
+                this.getDiscardRequestDto(
+                    inventory,
+                    triggerDiscardNotifications.reason
                 )
-                .pipe(
-                    catchError((err) => {
-                        this.showDiscardSystemError();
-                        throw err;
-                    }),
-                    finalize(() => {
-                        this.loading = false;
-                        this.unitNumberFocus = true;
-                    })
-                )
-                .subscribe((response) => {
-                    const data = response?.data?.discardProduct;
-                    if (data) {
-                        return this.openAcknowledgmentMessageDialog(
-                            triggerDiscardNotifications
-                        );
-                    } else {
-                        this.showDiscardSystemError();
-                    }
-                });
-        }
+            )
+            .pipe(
+                catchError((err) => {
+                    this.showDiscardSystemError();
+                    throw err;
+                }),
+                finalize(() => {
+                    this.loading = false;
+                    this.unitNumberFocus = true;
+                })
+            )
+            .subscribe((response) => {
+                const data = response?.data?.discardProduct;
+                if (data) {
+                    return this.openAcknowledgmentMessageDialog(
+                        triggerDiscardNotifications
+                    );
+                } else {
+                    this.showDiscardSystemError();
+                }
+            });
     }
 
     private getDiscardRequestDto(

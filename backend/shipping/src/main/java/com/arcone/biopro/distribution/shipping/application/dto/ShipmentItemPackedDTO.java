@@ -7,6 +7,7 @@ import lombok.Builder;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.List;
 
 @Builder
 public record ShipmentItemPackedDTO(
@@ -24,9 +25,12 @@ public record ShipmentItemPackedDTO(
     VisualInspection visualInspection,
     SecondVerification secondVerification,
     String verifiedByEmployeeId,
-    ZonedDateTime verifiedDate
-
-
+    ZonedDateTime verifiedDate,
+    String ineligibleStatus,
+    String ineligibleAction,
+    String ineligibleReason,
+    String ineligibleMessage,
+    List<String> ineligibleDetails
 ) implements Serializable {
 
 }

@@ -135,6 +135,7 @@ export class ScanUnitNumberProductCodeComponent implements OnDestroy {
 
     resetUnitProductGroup(): void {
         this.unitProductGroup.reset();
+        this.unitProductGroup.enable();
         this.enableProductCode();
     }
 

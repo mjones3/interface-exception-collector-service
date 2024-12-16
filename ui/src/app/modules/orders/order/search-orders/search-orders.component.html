@@ -139,8 +139,11 @@
                                                 }"
                                             >
                                                 {{
-                                                    order?.orderPriorityReport
-                                                        ?.priority
+                                                    OrderPriorityMap[
+                                                        order
+                                                            ?.orderPriorityReport
+                                                            ?.priority
+                                                    ]
                                                 }}
                                             </span>
                                         </ng-template>

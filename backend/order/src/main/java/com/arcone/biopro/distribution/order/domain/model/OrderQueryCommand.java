@@ -7,7 +7,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
 
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 @EqualsAndHashCode
@@ -17,6 +19,13 @@ public class OrderQueryCommand implements Validatable {
     private String locationCode;
     private String orderNumber;
     private String externalOrderId;
+    private List<String> orderStatus;
+    private List<String> deliveryTypes;
+    private List<String> customers;
+    private LocalDate createDateFrom;
+    private LocalDate createDateTo;
+    private LocalDate desireShipDateFrom;
+    private LocalDate desireShipDateTo;
     private QuerySort querySort;
     private Integer limit;
 
@@ -25,7 +34,17 @@ public class OrderQueryCommand implements Validatable {
     private static final String DEFAULT_SECOND_SORT_BY = "status";
     private static final Integer DEFAULT_LIMIT = 20;
 
-    public OrderQueryCommand(String locationCode , String orderUniqueIdentifier, QuerySort querySort ,   Integer limit) {
+    public OrderQueryCommand(
+        String locationCode ,
+        String orderUniqueIdentifier,
+        List<String> orderStatus,
+        List<String> deliveryTypes,
+        List<String> customers,
+        LocalDate createDateFrom,
+        LocalDate createDateTo,
+        LocalDate desireShipDateFrom,
+        LocalDate desireShipDateTo,
+        QuerySort querySort ,   Integer limit) {
 
         this.locationCode = locationCode;
         this.querySort = querySort;
@@ -36,12 +55,22 @@ public class OrderQueryCommand implements Validatable {
         if(this.querySort == null){
             this.querySort = new QuerySort(List.of(new QueryOrderBy(DEFAULT_FIRST_SORT_BY,DEFAULT_SORT_DIRECTION),new QueryOrderBy(DEFAULT_SECOND_SORT_BY,DEFAULT_SORT_DIRECTION)));
         }
-        if (StringUtils.isNumeric(orderUniqueIdentifier)) {
+
+        try {
+            var _orderNumber = Long.parseLong(orderUniqueIdentifier);
             this.orderNumber = orderUniqueIdentifier;
             this.externalOrderId = orderUniqueIdentifier;
-        } else if (orderUniqueIdentifier != null && !orderUniqueIdentifier.isEmpty()) {
+        } catch (NumberFormatException e) {
             this.externalOrderId = orderUniqueIdentifier;
         }
+
+        this.orderStatus = orderStatus;
+        this.deliveryTypes = deliveryTypes;
+        this.customers = customers;
+        this.createDateFrom = createDateFrom;
+        this.createDateTo = createDateTo;
+        this.desireShipDateFrom = desireShipDateFrom;
+        this.desireShipDateTo = desireShipDateTo;
 
         checkValid();
     }
@@ -51,6 +80,33 @@ public class OrderQueryCommand implements Validatable {
 
         if (this.locationCode == null || this.locationCode.isEmpty()) {
             throw new IllegalArgumentException("locationCode cannot be null or empty");
+        }
+
+        if ((Objects.nonNull(this.orderNumber) || Objects.nonNull(this.externalOrderId)) && (Objects.nonNull(this.createDateFrom) || Objects.nonNull(this.createDateTo))) {
+            throw new IllegalArgumentException("The createDate must be null or empty");
+        }
+
+        if ((Objects.isNull(this.orderNumber)
+            && Objects.isNull(this.externalOrderId))
+            && (Objects.isNull(this.createDateFrom)
+            && Objects.isNull(this.createDateTo))
+            && ((Objects.nonNull(this.orderStatus) && !this.orderStatus.isEmpty())
+            || (Objects.nonNull(this.deliveryTypes) && !this.deliveryTypes.isEmpty())
+            || (Objects.nonNull(this.customers) && !this.customers.isEmpty())
+            || (Objects.nonNull(this.desireShipDateFrom) || Objects.nonNull(this.desireShipDateTo)))) {
+            throw new IllegalArgumentException("The createDate must not be null or empty");
+        }
+
+        if (Objects.nonNull(this.createDateFrom) && Objects.nonNull(this.createDateTo) && this.createDateTo.isBefore(this.createDateFrom)) {
+            throw new IllegalArgumentException("Initial date should not be greater than final date");
+        }
+
+        if (Objects.nonNull(this.createDateTo) && this.createDateTo.isAfter(LocalDate.now())) {
+            throw new IllegalArgumentException("Final date should not be greater than today");
+        }
+
+        if (Objects.nonNull(this.createDateFrom) && this.createDateFrom.isBefore(LocalDate.now().minusYears(2))) {
+            throw new IllegalArgumentException("Date range exceeds two years");
         }
 
         Assert.notNull(this.querySort, "Sort must not be null");

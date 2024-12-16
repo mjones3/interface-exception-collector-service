@@ -1,0 +1,72 @@
+<mat-form-field
+    id="multipleSelectField"
+    class="block w-full"
+    [formGroup]="formGroup"
+    [id]="matSelectId"
+>
+    <mat-label id="multipleSelectLabel">
+        {{ title }}
+    </mat-label>
+    <mat-select
+        [id]="matSelectId + 'Select'"
+        formControlName="{{ controlName }}"
+        [multiple]="true"
+        (closed)="controlInput.value = ''"
+        title="Order Status"
+        [disabled]="disabled"
+        (opened)="controlInput.focus(); controlInput.value = ''"
+    >
+        <mat-select-trigger>
+            {{ firstSelectedOption(items) }}
+            <span class="text-xs leading-none opacity-75">
+                {{ selectedOptionsCount() }}
+            </span>
+        </mat-select-trigger>
+
+        <mat-form-field class="block w-full">
+            <input
+                matInput
+                [placeholder]="placeholderText"
+                value=""
+                #controlInput
+                (keydown)="$event.stopPropagation()"
+            />
+            @if (controlInput.value) {
+                <button
+                    matSuffix
+                    mat-icon-button
+                    aria-label="Clear"
+                    class="p-4"
+                    (click)="controlInput.value = ''"
+                >
+                    <mat-icon>close</mat-icon>
+                </button>
+            }
+        </mat-form-field>
+
+        <mat-option
+            id="itemSelectAll"
+            value="select-all"
+            selectAll
+            *ngIf="controlInput.value === ''"
+            [allValues]="selectOptionKeys(itemList)"
+        >
+            All
+        </mat-option>
+
+        @for (option of itemList; track option) {
+            <mat-option
+                [id]="option.optionKey"
+                [value]="option.optionKey"
+                [ngClass]="{
+                    hidden: isNotAMatch(
+                        option.optionDescription,
+                        controlInput.value
+                    ),
+                }"
+            >
+                {{ option.optionDescription }}
+            </mat-option>
+        }
+    </mat-select>
+</mat-form-field>

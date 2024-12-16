@@ -43,6 +43,13 @@ export interface QuerySortDTO {
 export interface OrderQueryCommandDTO {
     locationCode: string;
     orderUniqueIdentifier?: string;
+    orderStatus?: string[];
+    deliveryTypes?: string[];
+    customers?: string[];
     querySort?: QuerySortDTO;
     limit?: number;
+    createDateFrom?: string;
+    createDateTo?: string;
+    desireShipDateFrom?: string;
+    desireShipDateTo?: string;
 }

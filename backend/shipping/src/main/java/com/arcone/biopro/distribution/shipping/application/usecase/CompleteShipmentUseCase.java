@@ -8,6 +8,7 @@ import com.arcone.biopro.distribution.shipping.application.exception.ShipmentVal
 import com.arcone.biopro.distribution.shipping.application.mapper.ShipmentEventMapper;
 import com.arcone.biopro.distribution.shipping.application.util.ShipmentServiceMessages;
 import com.arcone.biopro.distribution.shipping.domain.model.Shipment;
+import com.arcone.biopro.distribution.shipping.domain.model.enumeration.IneligibleStatus;
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.ShipmentStatus;
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemPackedRepository;
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentRepository;
@@ -32,6 +33,7 @@ import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static java.lang.Boolean.TRUE;
 
@@ -134,8 +136,9 @@ public class CompleteShipmentUseCase implements CompleteShipmentService {
 
         var secondVerificationActive = configService.findShippingSecondVerificationActive();
         var countVerification = shipmentItemPackedRepository.countVerificationPendingByShipmentId(shipment.getId());
+        var countIneligible = shipmentItemPackedRepository.countIneligibleByShipmentId(shipment.getId());
 
-        return Mono.zip(secondVerificationActive,countVerification).flatMap(tuple -> {
+        return Mono.zip(secondVerificationActive,countVerification,countIneligible).flatMap(tuple -> {
             if(TRUE.equals(tuple.getT1())){
                 if(tuple.getT2() > 0){
                     return Mono.error(new ShipmentValidationException(ShipmentServiceMessages.SECOND_VERIFICATION_NOT_COMPLETED_ERROR
@@ -148,6 +151,16 @@ public class CompleteShipmentUseCase implements CompleteShipmentService {
                     );
                 }
 
+                if(tuple.getT3() > 0){
+                    return Mono.error(new ShipmentValidationException(ShipmentServiceMessages.SHIPMENT_WITH_INELIGIBLE_PRODUCTS_ERROR
+                        ,List.of(NotificationDTO.builder()
+                        .name("SHIPMENT_WITH_INELIGIBLE_PRODUCTS_ERROR")
+                        .statusCode(HttpStatus.BAD_REQUEST.value())
+                        .message(ShipmentServiceMessages.SHIPMENT_WITH_INELIGIBLE_PRODUCTS_ERROR)
+                        .notificationType(NotificationType.WARN.name())
+                        .build()),String.format(SHIPMENT_VERIFICATION_URL,shipment.getId()), NotificationType.WARN.name())
+                    );
+                }
 
                 return shipmentItemPackedRepository.listAllVerifiedByShipmentId(shipment.getId()).flatMap(itemPacked -> {
                         return inventoryRsocketClient.validateInventory(InventoryValidationRequest.builder()
@@ -156,7 +169,17 @@ public class CompleteShipmentUseCase implements CompleteShipmentService {
                                 .unitNumber(itemPacked.getUnitNumber()).build())
                             .flatMap(inventoryValidationResponseDTO -> {
                                 if(inventoryValidationResponseDTO!= null && inventoryValidationResponseDTO.inventoryNotificationsDTO() != null && !inventoryValidationResponseDTO.inventoryNotificationsDTO().isEmpty() ){
-                                    return Mono.just(inventoryValidationResponseDTO);
+
+                                    var notification = inventoryValidationResponseDTO.inventoryNotificationsDTO().getFirst();
+
+                                    itemPacked.setIneligibleStatus(IneligibleStatus.valueOf(notification.errorName()));
+                                    itemPacked.setIneligibleMessage(notification.errorMessage());
+                                    itemPacked.setIneligibleReason(notification.reason());
+                                    itemPacked.setIneligibleAction(notification.action());
+                                    itemPacked.setIneligibleDetails(Optional.ofNullable(notification.details()).map(list -> String.join(",", list)).orElse(null));
+
+                                    return shipmentItemPackedRepository.save(itemPacked)
+                                        .then(Mono.just(inventoryValidationResponseDTO));
                                 }else{
                                     return  Mono.empty();
                                 }
@@ -184,8 +207,8 @@ public class CompleteShipmentUseCase implements CompleteShipmentService {
                                 .name("SHIPMENT_VALIDATION_COMPLETED_ERROR")
                                 .statusCode(HttpStatus.BAD_REQUEST.value())
                                 .message(ShipmentServiceMessages.SHIPMENT_VALIDATION_COMPLETED_ERROR)
-                                .notificationType(NotificationType.WARN.name())
-                                .build()),String.format(SHIPMENT_VERIFICATION_URL,shipment.getId()) , results , NotificationType.WARN.name() )
+                                .notificationType(NotificationType.CONFIRMATION.name())
+                                .build()),String.format(SHIPMENT_VERIFICATION_URL,shipment.getId()) , results , NotificationType.CONFIRMATION.name() )
                             );
                         }else{
                             return Mono.just(shipment);

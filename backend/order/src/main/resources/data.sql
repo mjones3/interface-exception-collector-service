@@ -1,3 +1,5 @@
+TRUNCATE TABLE lk_lookup;
+
 -- Shipping Methods
 INSERT INTO lk_lookup (type, description_key, option_value, order_number, active)
 VALUES ('ORDER_SHIPPING_METHOD', 'order-shipping-method.shuttle.label', 'SHUTTLE', 1, true),
@@ -10,15 +12,14 @@ INSERT INTO lk_lookup (type, description_key, option_value, order_number, active
 VALUES ('ORDER_PRIORITY', 'order-priority.stat.label', 'STAT', 1, true),
        ('ORDER_PRIORITY', 'order-priority.asap.label', 'ASAP', 2, true),
        ('ORDER_PRIORITY', 'order-priority.routine.label', 'ROUTINE', 3, true),
-       ('ORDER_PRIORITY', 'order-priority.scheduled.label', 'SCHEDULED', 4, true)
+       ('ORDER_PRIORITY', 'order-priority.scheduled.label', 'SCHEDULED', 4, true),
+       ('ORDER_PRIORITY', 'order-priority.date-time.label', 'DATE_TIME', 5, true)
 ON CONFLICT DO NOTHING;
 
 -- Order Statuses
 INSERT INTO lk_lookup (type, description_key, option_value, order_number, active)
-VALUES ('ORDER_STATUS', 'order-status.all.label', 'ALL', 1, true),
+VALUES
        ('ORDER_STATUS', 'order-status.open.label', 'OPEN', 2, true),
-       ('ORDER_STATUS', 'order-status.created.label', 'CREATED', 3, true),
-       ('ORDER_STATUS', 'order-status.shipped.label', 'SHIPPED', 4, true),
        ('ORDER_STATUS', 'order-status.in-progress.label', 'IN_PROGRESS', 5, true),
        ('ORDER_STATUS', 'order-status.completed.label', 'COMPLETED', 6, true)
 ON CONFLICT DO NOTHING;

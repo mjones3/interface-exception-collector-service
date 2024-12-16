@@ -47,7 +47,7 @@
 
         @if (data.title || data.message) {
             <div
-                class="mt-4 flex flex-col items-center space-y-1 text-center sm:mt-0 sm:items-start sm:pr-8 sm:text-left"
+                class="mt-4 flex flex-col items-center space-y-4 text-center sm:mt-0 sm:items-start sm:pr-8 sm:text-left"
             >
                 <!-- Title -->
                 @if (data.title) {
@@ -79,6 +79,7 @@
                     mat-flat-button
                     [matDialogClose]="'cancelled'"
                     [class]="data.actions.cancel.class"
+                    [id]="'confirmation-dialog-cancel-btn'"
                 >
                     {{ data.actions.cancel.label }}
                 </button>
@@ -90,6 +91,7 @@
                     mat-flat-button
                     [class]="data.actions.confirm.class"
                     [matDialogClose]="'confirmed'"
+                    [id]="'confirmation-dialog-confirm-btn'"
                 >
                     {{ data.actions.confirm.label }}
                 </button>

@@ -3,6 +3,7 @@ import { ApolloQueryResult } from '@apollo/client';
 import { MutationResult } from 'apollo-angular';
 import { Observable } from 'rxjs';
 import { DynamicGraphqlPathService } from '../../../core/services/dynamic-graphql-path.service';
+import { SEARCH_ORDER_CRITERIA } from '../../shipments/graphql/order/query-definitions/search-order-criteria.graphsql';
 import { SEARCH_ORDERS } from '../../shipments/graphql/order/query-definitions/search-orders.graphql';
 import {
     GENERATE_PICK_LIST,
@@ -14,6 +15,7 @@ import {
     OrderShipmentDTO,
 } from '../graphql/query-definitions/order-details.graphql';
 import { Notification } from '../models/notification.dto';
+import { OrderCriteriaDTO } from '../models/order-criteria.model';
 import { OrderDetailsDTO } from '../models/order-details.dto';
 import {
     OrderQueryCommandDTO,
@@ -35,6 +37,15 @@ export class OrderService {
             this.servicePath,
             SEARCH_ORDERS,
             { orderQueryCommandDTO }
+        );
+    }
+
+    public searchOrderCriteria(): Observable<
+        ApolloQueryResult<{ searchOrderCriteria: OrderCriteriaDTO }>
+    > {
+        return this.dynamicGraphqlPathService.executeQuery(
+            this.servicePath,
+            SEARCH_ORDER_CRITERIA
         );
     }
 

@@ -1,4 +1,4 @@
-@ui
+@ui @AOA-6
 Feature: Access Shipment Details Page
 
     Background:

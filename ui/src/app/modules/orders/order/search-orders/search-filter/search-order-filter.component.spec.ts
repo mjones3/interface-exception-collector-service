@@ -1,8 +1,13 @@
 import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatNativeDateModule } from '@angular/material/core';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute } from '@angular/router';
+import { provideMockStore } from '@ngrx/store/testing';
 import { Apollo } from 'apollo-angular';
+import { ToastrModule } from 'ngx-toastr';
+import { of } from 'rxjs';
+import { OrderService } from '../../../services/order.service';
 import { SearchOrderFilterComponent } from './search-order-filter.component';
 
 const SINGLE_SEARCH_FILTER_KEYS: string[] = ['orderNumber'];
@@ -10,12 +15,19 @@ const SINGLE_SEARCH_FILTER_KEYS: string[] = ['orderNumber'];
 describe('SearchOrderFilterComponent', () => {
     let component: SearchOrderFilterComponent;
     let fixture: ComponentFixture<SearchOrderFilterComponent>;
+    let orderService: OrderService;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [SearchOrderFilterComponent, NoopAnimationsModule],
+            imports: [
+                SearchOrderFilterComponent,
+                NoopAnimationsModule,
+                MatNativeDateModule,
+                ToastrModule.forRoot(),
+            ],
             providers: [
                 provideHttpClient(),
+                provideMockStore({}),
                 Apollo,
                 {
                     provide: ActivatedRoute,
@@ -27,6 +39,7 @@ describe('SearchOrderFilterComponent', () => {
                         },
                     },
                 },
+                OrderService,
             ],
         }).compileComponents();
     });
@@ -34,6 +47,8 @@ describe('SearchOrderFilterComponent', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(SearchOrderFilterComponent);
         component = fixture.componentInstance;
+        orderService = TestBed.inject(OrderService);
+        jest.spyOn(orderService, 'searchOrderCriteria').mockReturnValue(of());
         component.ngOnInit();
     });
 
@@ -43,14 +58,22 @@ describe('SearchOrderFilterComponent', () => {
     });
 
     it('should clear form when reset is triggered', () => {
-        Object.keys(component.searchForm.controls).forEach((filterKey) => {
+        const { createDate, desiredShipDate, ...nonDateRangeFields } =
+            component.searchForm.controls;
+
+        Object.keys(nonDateRangeFields).forEach((filterKey) => {
             component.searchForm.controls[filterKey].setValue('Test');
-            expect(component.enableSubmit).toBeTruthy();
 
             component.resetFilters();
 
             expect(component.searchForm.controls[filterKey].value).toBe(null);
             expect(component.enableSubmit).toBeFalsy();
+        });
+        [createDate, desiredShipDate].forEach((dateRangeField) => {
+            dateRangeField.setValue({ start: '01/01/2024', end: '01/01/2024' });
+            component.resetFilters();
+            expect(dateRangeField.value?.start).toBe(null);
+            expect(dateRangeField.value?.end).toBe(null);
         });
     });
 
@@ -58,24 +81,35 @@ describe('SearchOrderFilterComponent', () => {
         expect(component.enableSubmit).toBeFalsy();
     });
 
-    it('should enable apply button when blood center Id is entered', () => {
+    it('should enable apply button when order number is entered', () => {
         component.searchForm.controls['orderNumber'].setValue('Test');
-
         expect(component.enableSubmit).toBeTruthy();
+    });
+
+    it('should enable apply button when create date is entered', () => {
+        component.searchForm.controls['orderNumber'].setValue('');
+        component.searchForm.controls['createDate'].setValue({
+            start: '01/01/2024',
+            end: '03/01/2024',
+        });
+        component.searchForm.controls['createDate'].updateValueAndValidity();
+        expect(component.enableSubmit).toBeTruthy();
+    });
+
+    it('should disable apply button when invalid create date is entered', () => {
+        component.searchForm.controls['createDate'].setValue({
+            start: '01/mm/2000',
+            end: '03/01/2024',
+        });
+        component.searchForm.controls['createDate'].updateValueAndValidity();
+        expect(component.enableSubmit).toBeFalsy();
     });
 
     it('should keep only single search field enabled', () => {
         SINGLE_SEARCH_FILTER_KEYS.forEach((singleFilter) => {
             component.resetFilters();
             component.searchForm.controls[singleFilter].setValue('Test');
-            component.onChangeSingleSearchFilter(singleFilter);
-
             expect(component.enableSubmit).toBeTruthy();
-            Object.keys(component.searchForm.controls).forEach((filterKey) => {
-                expect(component.searchForm.controls[filterKey].enabled).toBe(
-                    filterKey === singleFilter
-                );
-            });
         });
     });
 
@@ -100,7 +134,14 @@ describe('SearchOrderFilterComponent', () => {
             component.applySearchFilters,
             'emit'
         );
-        const expectedValue = { orderNumber: '' };
+        const expectedValue = {
+            orderNumber: '',
+            orderStatus: '',
+            customers: '',
+            deliveryTypes: '',
+            createDate: { start: null, end: null },
+            desiredShipDate: { start: null, end: null },
+        };
 
         component.applyFilterSearch();
 

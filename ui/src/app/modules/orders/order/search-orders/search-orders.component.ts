@@ -1,5 +1,5 @@
-import { AsyncPipe, CommonModule } from '@angular/common';
-import { Component, ViewChild } from '@angular/core';
+import { AsyncPipe, CommonModule, formatDate } from '@angular/common';
+import { Component, Inject, LOCALE_ID, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { Router } from '@angular/router';
@@ -16,6 +16,7 @@ import { CookieService } from 'ngx-cookie-service';
 import { ToastrService } from 'ngx-toastr';
 import { Table, TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { BehaviorSubject, Subject, finalize } from 'rxjs';
+import { OrderPriorityMap } from '../../../../shared/models/order-priority.model';
 import { Cookie } from '../../../../shared/types/cookie.enum';
 import { SearchOrderFilterDTO } from '../../models/order.dto';
 import {
@@ -146,7 +147,8 @@ export class SearchOrdersComponent {
         private orderService: OrderService,
         private router: Router,
         private toaster: ToastrService,
-        private cookieService: CookieService
+        private cookieService: CookieService,
+        @Inject(LOCALE_ID) public locale: string
     ) {}
 
     toggleFilter(toggleFlag: boolean): void {
@@ -157,9 +159,62 @@ export class SearchOrdersComponent {
         const criteria: OrderQueryCommandDTO = {
             locationCode: this.cookieService.get(Cookie.XFacility),
         };
-        if (this.currentFilter && this.currentFilter.orderNumber !== '') {
-            criteria.orderUniqueIdentifier = this.currentFilter.orderNumber;
+        if (this.currentFilter) {
+            if (this.currentFilter.orderNumber !== '') {
+                criteria.orderUniqueIdentifier = this.currentFilter.orderNumber;
+            }
+            if (
+                this.currentFilter.orderStatus &&
+                this.currentFilter.orderStatus.length > 0
+            ) {
+                criteria.orderStatus = this.currentFilter.orderStatus;
+            }
+            if (
+                this.currentFilter.deliveryTypes &&
+                this.currentFilter.deliveryTypes.length > 0
+            ) {
+                criteria.deliveryTypes = this.currentFilter.deliveryTypes;
+            }
+            if (
+                this.currentFilter.customers &&
+                this.currentFilter.customers.length > 0
+            ) {
+                criteria.customers = this.currentFilter.customers;
+            }
+            if (
+                this.currentFilter.createDate?.start != null &&
+                this.currentFilter.createDate?.end != null
+            ) {
+                criteria.createDateFrom = formatDate(
+                    this.currentFilter.createDate?.start,
+                    'yyyy-MM-dd',
+                    this.locale
+                );
+
+                criteria.createDateTo = formatDate(
+                    this.currentFilter.createDate?.end,
+                    'yyyy-MM-dd',
+                    this.locale
+                );
+            }
+            if (
+                this.currentFilter.desiredShipDate?.start != null &&
+                this.currentFilter.desiredShipDate?.end != null
+            ) {
+                criteria.desireShipDateFrom = formatDate(
+                    this.currentFilter.desiredShipDate?.start,
+                    'yyyy-MM-dd',
+                    this.locale
+                );
+
+                criteria.desireShipDateTo = formatDate(
+                    this.currentFilter.desiredShipDate?.end,
+                    'yyyy-MM-dd',
+                    this.locale
+                );
+            }
         }
+
         return criteria;
     }
 
@@ -230,4 +285,6 @@ export class SearchOrdersComponent {
     set selectedColumns(val: Column[]) {
         this._selectedColumns = this.columns.filter((col) => val.includes(col));
     }
+
+    protected readonly OrderPriorityMap = OrderPriorityMap;
 }

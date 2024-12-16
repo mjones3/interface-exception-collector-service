@@ -27,9 +27,17 @@
                     class="badge rounded-pill"
                     [ngClass]="{
                         satisfactoryBadge: visualInspection === 'SATISFACTORY',
+                        otherBadge: visualInspection != 'SATISFACTORY',
                     }"
                 >
                     {{ visualInspection }}
+                </span>
+            </div>
+        }
+        @if (ineligibleStatus) {
+            <div class="mt-1">
+                <span class="badge rounded-pill otherBadge">
+                    {{ ineligibleStatus }}
                 </span>
             </div>
         }
