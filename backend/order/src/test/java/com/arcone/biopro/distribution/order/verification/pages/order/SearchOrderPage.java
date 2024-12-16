@@ -94,9 +94,6 @@ public class SearchOrderPage extends CommonPageFactory {
 
     private static final String tableRows = "//biopro-table//tbody/tr";
 
-    @FindBy(xpath = tableRows)
-    private List<WebElement> tableRowsList;
-
     @FindAll({
         @FindBy(xpath = "//td[starts-with(@id,'orderPriorityReport.priorityRow')]")
     })
@@ -197,8 +194,7 @@ public class SearchOrderPage extends CommonPageFactory {
     public int tableRowsCount() {
         sharedActions.waitForNotVisible(tableLoadingOverlay);
         sharedActions.waitForVisible(By.xpath(tableRows));
-        var a = tableRowsList.size();
-        return tableRowsList.size();
+        return sharedActions.countElements(this.driver, By.xpath(tableRows));
     }
 
     private void openDropDownIfClosed(WebElement dropdown) {
