@@ -14,7 +14,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import static org.openqa.selenium.support.ui.ExpectedConditions.numberOfWindowsToBe;
-import static org.openqa.selenium.support.ui.ExpectedConditions.attributeContains;
 
 
 @Component
@@ -185,5 +184,10 @@ public class SharedActions {
 
     public boolean isElementEmpty(WebElement element) {
         return element.getText().isEmpty();
+    }
+
+    public int countElements(WebDriver driver, By xpath) {
+        waitForVisible(xpath);
+        return driver.findElements(xpath).size();
     }
 }
