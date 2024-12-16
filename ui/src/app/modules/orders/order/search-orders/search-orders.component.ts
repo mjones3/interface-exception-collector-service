@@ -11,7 +11,6 @@ import {
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatSortable } from '@angular/material/sort';
 import { Router } from '@angular/router';
 import { ApolloError, ApolloQueryResult } from '@apollo/client';
 import { FuseCardComponent } from '@fuse/components/card/public-api';
@@ -22,6 +21,7 @@ import {
     TableColumn,
     TableConfiguration,
 } from '@shared';
+import { ERROR_MESSAGE } from 'app/core/data/common-labels';
 import { TableComponent } from 'app/shared/components/table/table.component';
 import { OrderStatusMap } from 'app/shared/models/order-status.model';
 import { PriorityMap } from 'app/shared/models/product-family.model';
@@ -163,12 +163,6 @@ export class SearchOrdersComponent implements OnInit {
         this.searchOrders();
     }
 
-    // TODO
-    protected readonly defaultSort = {
-        id: 'bloodCenterID',
-        start: 'asc',
-    } as MatSortable;
-
     dataSource: OrderReportDTO[] = [];
     priorityTemplateRef = viewChild<TemplateRef<Element>>(
         'priorityTemplateRef'
@@ -261,7 +255,7 @@ export class SearchOrdersComponent implements OnInit {
                         this.toaster.warning(e?.cause?.message);
                         return;
                     }
-                    this.toaster.error('Something went wrong.');
+                    this.toaster.error(ERROR_MESSAGE);
                     this.loading = false;
                     throw e;
                 },
