@@ -167,7 +167,7 @@ public class SearchOrderPage extends CommonPageFactory {
     public void verifyOrderExists(String externalId) {
         try {
             sharedActions.waitForNotVisible(tableLoadingOverlay);
-            sharedActions.waitForVisible(By.xpath(orderIdXpath(externalId)));
+            sharedActions.waitForVisible(By.xpath(externalIdXpath(externalId)));
             log.info("Order " + externalId + " exists in the list of orders.");
         } catch (Exception e) {
             Assert.fail("Order " + externalId + " does not exist in the list of orders.");
