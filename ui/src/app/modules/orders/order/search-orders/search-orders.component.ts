@@ -28,7 +28,6 @@ import { PriorityMap } from 'app/shared/models/product-family.model';
 import { CookieService } from 'ngx-cookie-service';
 import { ToastrService } from 'ngx-toastr';
 import { Table, TableModule } from 'primeng/table';
-import { finalize } from 'rxjs';
 import { OrderPriorityMap } from '../../../../shared/models/order-priority.model';
 import { Cookie } from '../../../../shared/types/cookie.enum';
 import { SearchOrderFilterDTO } from '../../models/order.dto';
@@ -179,6 +178,8 @@ export class SearchOrdersComponent implements OnInit {
     desireShipDateTemplateRef = viewChild<TemplateRef<Element>>(
         'desireShipDateTemplateRef'
     );
+
+    statusTemplateRef = viewChild<TemplateRef<Element>>('statusTemplateRef');
     columns = computed<TableColumn[]>(() => [
         {
             id: 'orderNumber',
@@ -204,6 +205,7 @@ export class SearchOrdersComponent implements OnInit {
             header: 'Status',
             sort: false,
             icon: false,
+            columnTempRef: this.statusTemplateRef(),
         },
         {
             id: 'orderCustomerReport.name',
@@ -244,22 +246,21 @@ export class SearchOrdersComponent implements OnInit {
     searchOrders() {
         this.loading = true;
         this.dataSource = [];
-        this.orderService
-            .searchOrders(this.getCriteria())
-            .pipe(finalize(() => (this.loading = false)))
-            .subscribe({
-                next: (response) => this.doOnSuccess(response),
-                error: (e: ApolloError) => {
-                    if (e?.cause?.message) {
-                        this.dataSource = [];
-                        this.toaster.warning(e?.cause?.message);
-                        return;
-                    }
-                    this.toaster.error(ERROR_MESSAGE);
-                    this.loading = false;
-                    throw e;
-                },
-            });
+        this.orderService.searchOrders(this.getCriteria()).subscribe({
+            next: (response) => {
+                (this.loading = false), this.doOnSuccess(response);
+            },
+            error: (e: ApolloError) => {
+                this.loading = false;
+                if (e?.cause?.message) {
+                    this.dataSource = [];
+                    this.toaster.warning(e?.cause?.message);
+                    return;
+                }
+                this.toaster.error(ERROR_MESSAGE);
+                throw e;
+            },
+        });
     }
 
     toggleFilter(toggleFlag: boolean): void {

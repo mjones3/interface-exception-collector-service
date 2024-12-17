@@ -10,50 +10,63 @@
     >
     </app-search-order-filter>
     <div class="flex flex-col">
-        <div class="flex w-full flex-row space-x-4 p-4">
-            <div class="w-full">
-                <biopro-table
-                    tableId="ordersTableId"
-                    [dataSource]="dataSource"
-                    [configuration]="tableConfig()"
-                >
-                </biopro-table>
-                <ng-template #customerNameTemplateRef let-element="element">
-                    {{ element.orderCustomerReport?.name }}
-                </ng-template>
-
-                <ng-template #createDateTemplateRef let-element="element">
-                    {{ element?.createDate | date: 'MM/dd/yyyy HH:mm' }}
-                </ng-template>
-
-                <ng-template #desireShipDateTemplateRef let-element="element">
-                    {{ element?.desireShipDate | date: 'MM/dd/yyyy' }}
-                </ng-template>
-
-                <ng-template #priorityTemplateRef let-element="element">
-                    <span
-                        class="badge rounded-pill"
-                        [ngStyle]="{
-                            'background-color':
-                                element?.orderPriorityReport?.priorityColor ??
-                                '#222222',
-                        }"
+        @if (!loading) {
+            <div class="flex w-full flex-row space-x-4 p-4">
+                <div class="w-full">
+                    <biopro-table
+                        tableId="ordersTableId"
+                        [dataSource]="dataSource"
+                        [configuration]="tableConfig()"
                     >
-                        {{ PriorityMap[element.orderPriorityReport?.priority] }}
-                    </span>
-                </ng-template>
+                    </biopro-table>
+                    <ng-template #customerNameTemplateRef let-element="element">
+                        {{ element.orderCustomerReport?.name }}
+                    </ng-template>
 
-                <ng-template #detialBtnTemplateRef let-element="element">
-                    <button
-                        id="detailsBtn"
-                        class="bg-custom-red justify-center text-white"
-                        mat-flat-button
-                        (click)="details(element?.orderId)"
+                    <ng-template #createDateTemplateRef let-element="element">
+                        {{ element?.createDate | date: 'MM/dd/yyyy HH:mm' }}
+                    </ng-template>
+
+                    <ng-template
+                        #desireShipDateTemplateRef
+                        let-element="element"
                     >
-                        Details
-                    </button>
-                </ng-template>
+                        {{ element?.desireShipDate | date: 'MM/dd/yyyy' }}
+                    </ng-template>
+
+                    <ng-template #statusTemplateRef let-element="element">
+                        {{ OrderStatusMap[element.orderStatus] }}
+                    </ng-template>
+
+                    <ng-template #priorityTemplateRef let-element="element">
+                        <span
+                            class="badge rounded-pill"
+                            [ngStyle]="{
+                                'background-color':
+                                    element?.orderPriorityReport
+                                        ?.priorityColor ?? '#222222',
+                            }"
+                        >
+                            {{
+                                PriorityMap[
+                                    element.orderPriorityReport?.priority
+                                ]
+                            }}
+                        </span>
+                    </ng-template>
+
+                    <ng-template #detialBtnTemplateRef let-element="element">
+                        <button
+                            id="detailsBtn"
+                            class="bg-custom-red justify-center text-white"
+                            mat-flat-button
+                            (click)="details(element?.orderId)"
+                        >
+                            Details
+                        </button>
+                    </ng-template>
+                </div>
             </div>
-        </div>
+        }
     </div>
 </div>

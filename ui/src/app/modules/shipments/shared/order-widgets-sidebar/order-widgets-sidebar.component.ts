@@ -6,6 +6,7 @@ import {
     DescriptionCardComponent,
     WidgetComponent,
 } from '@shared';
+import { PriorityMap } from 'app/shared/models/product-family.model';
 import { OrderStatusMap } from '../../../../shared/models/order-status.model';
 
 @Component({
@@ -80,7 +81,9 @@ export class OrderWidgetsSidebarComponent {
             ? [
                   {
                       label: 'Priority',
-                      value: this.orderInput()?.priority,
+                      value:
+                          PriorityMap?.[this.orderInput()?.priority] ??
+                          'Unknown',
                   },
               ]
             : []),
