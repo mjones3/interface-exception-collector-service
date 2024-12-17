@@ -40,6 +40,7 @@ public class OrderSteps {
     private String priority;
     private String status;
     private Integer orderId;
+    private Integer orderNumber;
     private String orderComments;
     private String shippingCustomerCode;
     private String shippingCustomerName;
@@ -422,9 +423,10 @@ public class OrderSteps {
 
     @Given("I have received a shipment created event.")
     public void postShipmentCreatedEvent() throws Exception {
-        this.externalId = externalId;
+        var orderId = Integer.valueOf(databaseService.fetchData(DatabaseQueries.getOrderId(this.externalId)).first().block().get("id").toString());
+        this.orderNumber = Integer.valueOf(databaseService.fetchData(DatabaseQueries.getOrderNumber(orderId.toString())).first().block().get("order_number").toString());
         var jsonContent = testUtils.getResource("shipment-created-event-automation.json");
-        jsonContent = jsonContent.replace("{order-number}", this.orderId.toString());
+        jsonContent = jsonContent.replace("{order-number}", this.orderNumber.toString());
         var eventPayload = objectMapper.readValue(jsonContent, ShipmentCreatedEventDTO.class);
 
         createShipmentCreatedRequest(jsonContent, eventPayload);
