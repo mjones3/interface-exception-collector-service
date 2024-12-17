@@ -21,7 +21,7 @@ public class OrderController {
         this.priorities.put("ASAP", 2);
         this.priorities.put("ROUTINE", 3);
         this.priorities.put("SCHEDULED", 4);
-        this.priorities.put("DATE-TIME", 5);
+        this.priorities.put("DATE_TIME", 5);
 
         this.colors.put("RED", "#ff3333");
         this.colors.put("GREY", "#d7d6d3");
@@ -57,7 +57,7 @@ public class OrderController {
     public boolean isPriorityOrdered(Set<String> priorityList) {
         var lastPriorityIndex = 1;
         for (int i = 0; i < priorityList.size(); i++) {
-            var priority = priorityList.toArray()[i].toString();
+            var priority = priorityList.toArray()[i].toString().replace("-", "_");
             log.info("Priority: {} found at position: {}", priority, i+1);
 
 

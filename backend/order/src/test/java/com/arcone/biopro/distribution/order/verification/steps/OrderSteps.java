@@ -191,7 +191,7 @@ public class OrderSteps {
         this.locationCode = locationCode;
         this.priority = priority;
         this.status = status;
-        var query = DatabaseQueries.insertBioProOrder(externalId, locationCode, orderController.getPriorityValue(priority), priority.replace('-', '_'), status);
+        var query = DatabaseQueries.insertBioProOrder(externalId, locationCode, orderController.getPriorityValue(priority.replace('-', '_')), priority.replace('-', '_'), status);
         databaseService.executeSql(query).block();
     }
     @Given("I have a Biopro Order with id {string}, externalId {string}, Location Code {string}, Priority {string} and Status {string}.")

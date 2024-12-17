@@ -35,7 +35,11 @@
                     </ng-template>
 
                     <ng-template #statusTemplateRef let-element="element">
-                        {{ OrderStatusMap[element.orderStatus] }}
+                        <span>
+                            {{
+                                OrderStatusMap[element.orderStatus] | uppercase
+                            }}
+                        </span>
                     </ng-template>
 
                     <ng-template #priorityTemplateRef let-element="element">
