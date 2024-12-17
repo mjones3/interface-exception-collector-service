@@ -79,6 +79,6 @@ public class DatabaseQueries {
 
     public static String insertBioProOrderShipment(String orderId){
         return String.format("INSERT INTO bld_order_shipment (order_id, shipment_id, shipment_status, create_date, modification_date) " +
-            "VALUES ((SELECT id FROM bld_order WHERE external_id = '%s'), 1, 'OPEN', current_date, current_date)", orderId);
+            "VALUES (%s, 1, 'OPEN', current_date, current_date)", orderId);
     }
 }
