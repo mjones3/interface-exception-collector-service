@@ -258,8 +258,11 @@ public class OrderSteps {
         var query = DatabaseQueries.insertBioProOrderWithDetails(externalId, locationCode, orderController.getPriorityValue(priority), priority, status, shipmentType, shippingMethod, productCategory, desiredShipDate, shippingCustomerCode, shippingCustomerName, billingCustomerCode, billingCustomerName, comments);
         databaseService.executeSql(query).block();
 
+        this.orderId = Integer.valueOf(databaseService.fetchData(DatabaseQueries.getOrderId(this.externalId)).first().block().get("id").toString());
+        Assert.assertNotNull(this.orderId);
+
         if (status.equals("IN_PROGRESS")) {
-            var queryOrderShipment = DatabaseQueries.insertBioProOrderShipment(externalId);
+            var queryOrderShipment = DatabaseQueries.insertBioProOrderShipment(this.orderId.toString());
             databaseService.executeSql(queryOrderShipment).block();
         }
     }
@@ -423,7 +426,6 @@ public class OrderSteps {
 
     @Given("I have received a shipment created event.")
     public void postShipmentCreatedEvent() throws Exception {
-        var orderId = Integer.valueOf(databaseService.fetchData(DatabaseQueries.getOrderId(this.externalId)).first().block().get("id").toString());
         this.orderNumber = Integer.valueOf(databaseService.fetchData(DatabaseQueries.getOrderNumber(orderId.toString())).first().block().get("order_number").toString());
         var jsonContent = testUtils.getResource("shipment-created-event-automation.json");
         jsonContent = jsonContent.replace("{order-number}", this.orderNumber.toString());
