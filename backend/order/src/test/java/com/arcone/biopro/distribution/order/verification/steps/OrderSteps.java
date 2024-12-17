@@ -193,6 +193,8 @@ public class OrderSteps {
         this.status = status;
         var query = DatabaseQueries.insertBioProOrder(externalId, locationCode, orderController.getPriorityValue(priority.replace('-', '_')), priority.replace('-', '_'), status);
         databaseService.executeSql(query).block();
+        this.orderId = Integer.valueOf(databaseService.fetchData(DatabaseQueries.getOrderId(this.externalId)).first().block().get("id").toString());
+        Assert.assertNotNull(this.orderId);
     }
     @Given("I have a Biopro Order with id {string}, externalId {string}, Location Code {string}, Priority {string} and Status {string}.")
     public void createBioproOrder(String id, String externalId, String locationCode, String priority, String status) {
@@ -670,5 +672,11 @@ public class OrderSteps {
     public void iSelectTheDateAsThe(String date, String fieldRangeName) throws InterruptedException {
         setValueForField(date, fieldRangeName + " from");
         setValueForField(date, fieldRangeName + " to");
+    }
+
+    @And("I have another Biopro Order with the externalId equals to order number of the previous order.")
+    public void iHaveAnotherBioproOrderWithTheExternalIdEqualsToOrderNumberOfThePreviousOrder() {
+        var query = DatabaseQueries.insertBioProOrder(orderId.toString(), locationCode, orderController.getPriorityValue(priority), priority.replace('-', '_'), status);
+        databaseService.executeSql(query).block();
     }
 }
