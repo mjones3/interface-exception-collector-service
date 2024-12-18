@@ -14,6 +14,7 @@ import {
 } from '@shared';
 import { OrderWidgetsSidebarComponent } from 'app/modules/shipments/shared/order-widgets-sidebar/order-widgets-sidebar.component';
 import { ProgressBarComponent } from 'app/progress-bar/progress-bar.component';
+import { OrderStatusMap } from 'app/shared/models/order-status.model';
 import { ProductFamilyMap } from 'app/shared/models/product-family.model';
 import { ProductIconsService } from 'app/shared/services/product-icon.service';
 import { ToastrModule } from 'ngx-toastr';
@@ -74,6 +75,7 @@ import {
     templateUrl: './order-details.component.html',
 })
 export class OrderDetailsComponent implements OnInit, OnDestroy {
+    protected readonly OrderStatusMap = OrderStatusMap;
     static readonly INVENTORY_SERVICE_IS_DOWN = 'INVENTORY_SERVICE_IS_DOWN';
     static readonly POLLING_INTERVAL = 2 * 1000; // 2 seconds
     static readonly POLLING_MAX_TIMEOUT = 60 * 1000; // 60 seconds

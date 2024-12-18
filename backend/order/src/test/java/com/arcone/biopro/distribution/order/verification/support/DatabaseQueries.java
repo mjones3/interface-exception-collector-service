@@ -69,12 +69,16 @@ public class DatabaseQueries {
         return String.format("SELECT id FROM bld_order WHERE external_id = '%s'", externalId);
     }
 
+    public static String getOrderNumber(String orderId) {
+        return String.format("SELECT order_number FROM bld_order WHERE id = '%s'", orderId);
+    }
+
     public static String deleteShipmentsByOrderExternalIdStartingWith(String externalIdPrefix) {
         return String.format("DELETE FROM bld_order_shipment WHERE order_id in ( SELECT id from bld_order WHERE external_id like '%s%%')", externalIdPrefix);
     }
 
-    public static String insertBioProOrderShipment(String externalId){
+    public static String insertBioProOrderShipment(String orderId){
         return String.format("INSERT INTO bld_order_shipment (order_id, shipment_id, shipment_status, create_date, modification_date) " +
-            "VALUES ((SELECT id FROM bld_order WHERE external_id = '%s'), 1, 'OPEN', current_date, current_date)", externalId);
+            "VALUES (%s, 1, 'OPEN', current_date, current_date)", orderId);
     }
 }

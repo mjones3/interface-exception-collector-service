@@ -40,6 +40,7 @@ public class OrderSteps {
     private String priority;
     private String status;
     private Integer orderId;
+    private Integer orderNumber;
     private String orderComments;
     private String shippingCustomerCode;
     private String shippingCustomerName;
@@ -190,7 +191,7 @@ public class OrderSteps {
         this.locationCode = locationCode;
         this.priority = priority;
         this.status = status;
-        var query = DatabaseQueries.insertBioProOrder(externalId, locationCode, orderController.getPriorityValue(priority), priority.replace('-', '_'), status);
+        var query = DatabaseQueries.insertBioProOrder(externalId, locationCode, orderController.getPriorityValue(priority.replace('-', '_')), priority.replace('-', '_'), status);
         databaseService.executeSql(query).block();
     }
     @Given("I have a Biopro Order with id {string}, externalId {string}, Location Code {string}, Priority {string} and Status {string}.")
@@ -257,8 +258,11 @@ public class OrderSteps {
         var query = DatabaseQueries.insertBioProOrderWithDetails(externalId, locationCode, orderController.getPriorityValue(priority), priority, status, shipmentType, shippingMethod, productCategory, desiredShipDate, shippingCustomerCode, shippingCustomerName, billingCustomerCode, billingCustomerName, comments);
         databaseService.executeSql(query).block();
 
+        this.orderId = Integer.valueOf(databaseService.fetchData(DatabaseQueries.getOrderId(this.externalId)).first().block().get("id").toString());
+        Assert.assertNotNull(this.orderId);
+
         if (status.equals("IN_PROGRESS")) {
-            var queryOrderShipment = DatabaseQueries.insertBioProOrderShipment(externalId);
+            var queryOrderShipment = DatabaseQueries.insertBioProOrderShipment(this.orderId.toString());
             databaseService.executeSql(queryOrderShipment).block();
         }
     }
@@ -422,9 +426,9 @@ public class OrderSteps {
 
     @Given("I have received a shipment created event.")
     public void postShipmentCreatedEvent() throws Exception {
-        this.externalId = externalId;
+        this.orderNumber = Integer.valueOf(databaseService.fetchData(DatabaseQueries.getOrderNumber(orderId.toString())).first().block().get("order_number").toString());
         var jsonContent = testUtils.getResource("shipment-created-event-automation.json");
-        jsonContent = jsonContent.replace("{order-number}", this.orderId.toString());
+        jsonContent = jsonContent.replace("{order-number}", this.orderNumber.toString());
         var eventPayload = objectMapper.readValue(jsonContent, ShipmentCreatedEventDTO.class);
 
         createShipmentCreatedRequest(jsonContent, eventPayload);
