@@ -399,4 +399,9 @@ public class SharedActions {
         log.debug("confirmationDialogIsNotVisible");
         waitForNotVisible(By.xpath("//mat-dialog-container[starts-with(@id,'mat-mdc-dialog')]//fuse-confirmation-dialog"));
     }
+
+    public WebElement getElement(WebDriver driver, By externalId) {
+        waitForVisible(externalId);
+        return driver.findElement(externalId);
+    }
 }
