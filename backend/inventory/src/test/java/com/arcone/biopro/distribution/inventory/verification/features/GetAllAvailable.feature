@@ -40,7 +40,7 @@ Feature: Get all available inventories
             | 29       | WHOLE_BLOOD_LEUKOREDUCED | ANY         | LOCATION_1 | 12                  |
             | 10       | WHOLE_BLOOD              | ABN         | LOCATION_2 | 10                  |
 
-
+    @LAB-81 @AOA-75 @LAB-257 @AOA-152
     Scenario: Get all available inventories grouped
         Given I have "2" of the "PLASMA_TRANSFUSABLE" of the blood type "OP" in the "LOCATION_1" will expire in "2" days
         And I have "3" of the "PLASMA_TRANSFUSABLE" of the blood type "OP" in the "LOCATION_2" will expire in "2" days
