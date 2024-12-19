@@ -77,24 +77,14 @@ public class ShipmentDetailPage extends CommonPageFactory {
     @FindBy(id = "viewPackingListBtn")
     private WebElement viewPackingListButton;
 
-    @FindBy(id = "viewShippingLabelBtn")
-    private WebElement printShippingLabelButton;
-
-    @FindBy(id = "completeShipmentBtn")
-    private WebElement completeShipmentButton;
-
-    @FindBy(id = "verifyProductsBtn")
-    private WebElement verifyProductsBtn;
-
-    @FindBy(id = "percentageId")
-    private WebElement pendingPercentage;
-
-    @FindBy(id = "informationDetails-External-Order-ID")
-    private WebElement externalId;
-
 //    Static locators
-    private final String shipmentStatusValue = "//*[@id=\"informationDetails-Status\"]/following-sibling::span";
-    private final String productTable = "//*[@id='prodTableId']";
+    private final static String shipmentStatusValue = "//*[@id=\"informationDetails-Status\"]/following-sibling::span";
+    private final static String productTable = "//*[@id='prodTableId']";
+    private final static String verifyProductsBtn = "//*[@id='verifyProductsBtn']";
+    private final static String pendingPercentage = "//*[@id='percentageId']";
+    private final static String externalId = "//*[@id='informationDetails-External-Order-ID']";
+    private final static String completeShipmentButton = "//*[@id='completeShipmentBtn']";
+    private final static String printShippingLabelButton = "//*[@id='viewShippingLabelBtn']";
 
     @Override
     public boolean isLoaded() {
@@ -147,7 +137,7 @@ public class ShipmentDetailPage extends CommonPageFactory {
     }
 
     public void viewPageContent() {
-        waitForElementsVisible(quantityColumn, productFamilyColumn, bloodTypeColumn, shippingMethodElement, orderCriteriaTable, productCategory, orderNumber, orderPriority, customerId, customerName, orderStatus, externalId);
+        waitForElementsVisible(quantityColumn, productFamilyColumn, bloodTypeColumn, shippingMethodElement, orderCriteriaTable, productCategory, orderNumber, orderPriority, customerId, customerName, orderStatus, sharedActions.getElement(this.driver, By.xpath(externalId)));
     }
 
     private void waitForElementsVisible(WebElement... elements) {
@@ -175,7 +165,7 @@ public class ShipmentDetailPage extends CommonPageFactory {
 
     public void clickPrintShippingLabel() throws InterruptedException {
         log.info("Clicking on the Print Shipping Label button.");
-        sharedActions.clickElementAndMoveToNewTab(driver, printShippingLabelButton, getExpectedWindowsNumber());
+        sharedActions.clickElementAndMoveToNewTab(driver, sharedActions.getElement(this.driver, By.xpath(printShippingLabelButton)), getExpectedWindowsNumber());
     }
 
     public void ensureViewPackingSlipButtonIsNotVisible() {
@@ -183,7 +173,7 @@ public class ShipmentDetailPage extends CommonPageFactory {
     }
 
     public void ensureViewShippingLabelButtonIsNotVisible() {
-        sharedActions.waitForNotVisible(printShippingLabelButton);
+        sharedActions.waitForNotVisible(By.xpath(printShippingLabelButton));
     }
 
     public void clickFillProduct(String familyName, String bloodType) throws InterruptedException {
@@ -197,7 +187,7 @@ public class ShipmentDetailPage extends CommonPageFactory {
 
     public void completeShipment() throws InterruptedException {
         log.info("Completing shipment.");
-        sharedActions.click(completeShipmentButton);
+        sharedActions.click(By.xpath(completeShipmentButton));
     }
 
     public void checkTotalProductsShipped(int totalProductsShipped) {
@@ -208,7 +198,7 @@ public class ShipmentDetailPage extends CommonPageFactory {
 
     public void checkPendingLogNotVisible() {
         log.info("Checking if the pending log is not visible.");
-        sharedActions.waitForNotVisible(pendingPercentage);
+        sharedActions.waitForNotVisible(By.xpath(pendingPercentage));
     }
 
     public void checkOrderComment(String comment) throws InterruptedException {
@@ -223,21 +213,21 @@ public class ShipmentDetailPage extends CommonPageFactory {
 
     public void checkCompleteButtonIsNotVisible() {
         log.debug("checking Complete shipment button is visible.");
-        sharedActions.waitForNotVisible(completeShipmentButton);
+        sharedActions.waitForNotVisible(By.xpath(completeShipmentButton));
     }
 
     public void checkVerifyProductsButtonIsNotVisible(){
         log.debug("checking Verify products button is not visible.");
-        sharedActions.waitForNotVisible(verifyProductsBtn);
+        sharedActions.waitForNotVisible(By.xpath(verifyProductsBtn));
     }
 
     public void checkVerifyProductsButtonIsVisible(){
         log.debug("checking Verify products button is visible.");
-        sharedActions.waitForVisible(verifyProductsBtn);
+        sharedActions.waitForVisible(By.xpath(verifyProductsBtn));
     }
 
     public void clickVerifyProductsBtn() throws InterruptedException {
-        sharedActions.click(verifyProductsBtn);
+        sharedActions.click(By.xpath(verifyProductsBtn));
     }
 
     public void verifyShippingStatusIs(String status) {

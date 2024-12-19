@@ -1,9 +1,12 @@
+CREATE SCHEMA IF NOT EXISTS shipping;
+
 -- SHIPMENT
-CREATE TABLE bld_shipment (
+CREATE TABLE shipping.bld_shipment (
     id                         BIGSERIAL NOT NULL
         CONSTRAINT pk_bld_shipment PRIMARY KEY,
     order_number                   BIGINT NOT NULL,
-    customer_code              BIGINT,
+    external_id                 VARCHAR(50) DEFAULT NULL,
+    customer_code              varchar(50),
     customer_name varchar(255) NOT NULL,
     customer_phone_number varchar(255) NULL,
     location_code              VARCHAR(255) NOT NULL,
@@ -32,11 +35,12 @@ CREATE TABLE bld_shipment (
     complete_date TIMESTAMP WITH TIME ZONE
 );
 
-CREATE TABLE bld_shipment_item (
+
+CREATE TABLE shipping.bld_shipment_item (
     id BIGSERIAL               NOT NULL
        CONSTRAINT pk_bld_shipment_item PRIMARY KEY,
     shipment_id BIGINT         NOT NULL
-       CONSTRAINT fk_shipment_shipment_item REFERENCES bld_shipment,
+       CONSTRAINT fk_shipment_shipment_item REFERENCES shipping.bld_shipment,
 
     product_family varchar(255) NOT NULL,
     blood_type varchar(255) NOT NULL,
@@ -46,11 +50,11 @@ CREATE TABLE bld_shipment_item (
     modification_date          TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
-CREATE TABLE bld_shipment_item_short_date_product (
+CREATE TABLE shipping.bld_shipment_item_short_date_product (
     id BIGSERIAL               NOT NULL
        CONSTRAINT pk_bld_shipment_item_short_date_product PRIMARY KEY,
     shipment_item_id BIGINT         NOT NULL
-       CONSTRAINT fk_shipment_shipment_item_short_date REFERENCES bld_shipment_item,
+       CONSTRAINT fk_shipment_shipment_item_short_date REFERENCES shipping.bld_shipment_item,
     unit_number                VARCHAR(255) NOT NULL,
     product_code               VARCHAR(255) NOT NULL,
     storage_location               VARCHAR(255) NULL,
@@ -59,36 +63,36 @@ CREATE TABLE bld_shipment_item_short_date_product (
     modification_date          TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
-CREATE TABLE bld_shipment_item_packed (
+CREATE TABLE shipping.bld_shipment_item_packed (
     id BIGSERIAL               NOT NULL
         CONSTRAINT pk_bld_shipment_item_packed PRIMARY KEY,
     shipment_item_id BIGINT         NOT NULL
-        CONSTRAINT fk_shipment_item_shipment_item_packed REFERENCES bld_shipment_item,
+        CONSTRAINT fk_shipment_item_shipment_item_packed REFERENCES shipping.bld_shipment_item,
     unit_number                VARCHAR(255) NOT NULL,
     product_code               VARCHAR(255) NOT NULL,
     product_description        VARCHAR(255) NOT NULL,
     abo_rh                     VARCHAR(10) NOT NULL,
+    blood_type                 VARCHAR(10) NOT NULL,
+    product_family             varchar(255) NULL,
     packed_by_employee_id      varchar(50) NOT NULL,
-    expiration_date          TIMESTAMP WITH TIME ZONE NOT NULL,
+    expiration_date          TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     collection_date          TIMESTAMP WITH TIME ZONE NULL,
+    visual_inspection          VARCHAR(50) NOT NULL,
+    second_verification VARCHAR(50) DEFAULT NULL,
+    verification_date TIMESTAMP WITH TIME ZONE DEFAULT NULL,
+    verified_by_employee_id varchar(50) DEFAULT NULL,
+    ineligible_status varchar(100) DEFAULT NULL,
+    ineligible_action varchar(100) DEFAULT NULL,
+    ineligible_reason varchar(100) DEFAULT NULL,
+    ineligible_message varchar(255) DEFAULT NULL,
+    ineligible_details TEXT DEFAULT NULL,
     create_date                TIMESTAMP WITH TIME ZONE NOT NULL,
-    modification_date          TIMESTAMP WITH TIME ZONE NOT NULL,
-    visual_inspection          VARCHAR(50) NOT NULL
+    modification_date          TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
-CREATE UNIQUE INDEX idx_bld_shipment_item_packed ON bld_shipment_item_packed (unit_number, product_code ,shipment_item_id);
+CREATE UNIQUE INDEX idx_bld_shipment_item_packed ON shipping.bld_shipment_item_packed (unit_number, product_code ,shipment_item_id);
 
-ALTER TABLE bld_shipment ALTER COLUMN customer_code TYPE VARCHAR(50) using (customer_code::varchar);
-
-ALTER TABLE bld_shipment_item_packed ADD COLUMN blood_type VARCHAR(10) NOT NULL;
-
-ALTER TABLE bld_shipment_item_packed ADD COLUMN product_family varchar(255) NULL;
-
-ALTER TABLE bld_shipment_item_packed ALTER COLUMN expiration_date TYPE TIMESTAMP WITHOUT TIME ZONE ;
-
-ALTER TABLE bld_shipment ADD COLUMN external_id VARCHAR(50) DEFAULT NULL;
-
-CREATE TABLE lk_lookup (
+CREATE TABLE shipping.lk_lookup (
     id                BIGSERIAL                NOT NULL CONSTRAINT pk_lk_lookup PRIMARY KEY,
     type              VARCHAR(50)              NOT NULL,
     description_key   VARCHAR(255)             NOT NULL,
@@ -97,9 +101,9 @@ CREATE TABLE lk_lookup (
     active            BOOLEAN                  NOT NULL
 );
 
-CREATE UNIQUE INDEX uq_idx_lk_lookup_type_option_value ON lk_lookup (type, option_value);
+CREATE UNIQUE INDEX uq_idx_lk_lookup_type_option_value ON shipping.lk_lookup (type, option_value);
 
-CREATE TABLE lk_reason
+CREATE TABLE shipping.lk_reason
 (
     id               BIGSERIAL    NOT NULL CONSTRAINT pk_lk_reason PRIMARY KEY,
     type             varchar(255) NOT NULL,
@@ -109,31 +113,13 @@ CREATE TABLE lk_reason
     active            BOOLEAN                  NOT NULL
 );
 
-CREATE UNIQUE INDEX uq_idx_lk_reason_type_key ON lk_reason (type, reason_key);
+CREATE UNIQUE INDEX uq_idx_lk_reason_type_key ON shipping.lk_reason (type, reason_key);
 
-
-ALTER TABLE bld_shipment_item_packed ADD COLUMN second_verification VARCHAR(50) DEFAULT NULL;
-
-ALTER TABLE bld_shipment_item_packed ADD COLUMN verification_date TIMESTAMP WITH TIME ZONE DEFAULT NULL;
-
-ALTER TABLE bld_shipment_item_packed ADD COLUMN verified_by_employee_id varchar(50) DEFAULT NULL;
-
-ALTER TABLE bld_shipment_item_packed ADD COLUMN ineligible_status varchar(100) DEFAULT NULL;
-
-ALTER TABLE bld_shipment_item_packed ADD COLUMN ineligible_action varchar(100) DEFAULT NULL;
-
-ALTER TABLE bld_shipment_item_packed ADD COLUMN ineligible_reason varchar(100) DEFAULT NULL;
-
-ALTER TABLE bld_shipment_item_packed ADD COLUMN ineligible_message varchar(255) DEFAULT NULL;
-
-ALTER TABLE bld_shipment_item_packed ADD COLUMN ineligible_details varchar(500) DEFAULT NULL;
-
-
-CREATE TABLE bld_shipment_item_removed (
+CREATE TABLE shipping.bld_shipment_item_removed (
     id BIGSERIAL               NOT NULL
       CONSTRAINT pk_bld_shipment_item_removed PRIMARY KEY,
     shipment_id BIGINT         NOT NULL
-      CONSTRAINT fk_shipment_shipment_item_removed REFERENCES bld_shipment,
+      CONSTRAINT fk_shipment_shipment_item_removed REFERENCES shipping.bld_shipment,
     unit_number                VARCHAR(255) NOT NULL,
     product_code               VARCHAR(255) NOT NULL,
     product_family              VARCHAR(255) NOT NULL,
@@ -142,6 +128,4 @@ CREATE TABLE bld_shipment_item_removed (
     ineligible_status          VARCHAR(100) NOT NULL
 );
 
-CREATE UNIQUE INDEX idx_bld_shipment_item_removed ON bld_shipment_item_removed (unit_number, product_code ,shipment_id);
-
-ALTER TABLE bld_shipment_item_packed ALTER COLUMN ineligible_details TYPE TEXT ;
+CREATE UNIQUE INDEX idx_bld_shipment_item_removed ON shipping.bld_shipment_item_removed (unit_number, product_code ,shipment_id);

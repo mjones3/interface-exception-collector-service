@@ -15,7 +15,7 @@ public class CommonSteps {
     private SharedActions sharedActions;
 
     @Then("I should see a {string} message: {string}.")
-    public void iShouldSeeAMessage(String header, String message) {
+    public void iShouldSeeAMessage(String header, String message) throws InterruptedException {
         log.info("I should see a message: {}", message);
         sharedActions.verifyMessage(header, message);
     }
