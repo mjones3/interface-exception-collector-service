@@ -203,9 +203,10 @@ public class SharedActions {
         }
     }
 
-    public void verifyMessage(String header, String message) {
+    public void verifyMessage(String header, String message) throws InterruptedException {
         log.info("Verifying message: {}", message);
         var bannerMessageLocator = "";
+        Thread.sleep(500); // Avoid first empty container get read
         if (header.startsWith("Acknowledgment")) {
             verifyAckMessage(header, message);
         } else {
