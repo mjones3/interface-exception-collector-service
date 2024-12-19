@@ -35,9 +35,9 @@ Feature: Get all available inventories
         Examples:
             | Quantity | Product Family           | Abo Rh Type | Location   | Short Date Quantity |
             | 4        | WHOLE_BLOOD              | OP          | LOCATION_1 | 4                   |
-            | 0        | WHOLE_BLOOD_LEUKOREDUCED | OP          | LOCATION_2 | 0                   |
+            | 5        | WHOLE_BLOOD_LEUKOREDUCED | OP          | LOCATION_2 | 5                   |
             | 22       | WHOLE_BLOOD              | ANY         | LOCATION_1 | 4                   |
-            | 29       | WHOLE_BLOOD_LEUKOREDUCED | ANY         | LOCATION_1 | 12                  |
+            | 19        | WHOLE_BLOOD_LEUKOREDUCED | ANY         | LOCATION_1 | 12                  |
             | 10       | WHOLE_BLOOD              | ABN         | LOCATION_2 | 10                  |
 
     @LAB-81 @AOA-75 @LAB-257 @AOA-152
@@ -58,13 +58,13 @@ Feature: Get all available inventories
         And I select "PLASMA_TRANSFUSABLE" of the blood type "AB"
         And I select "RED_BLOOD_CELLS_LEUKOREDUCED" of the blood type "ANY"
         And I select "WHOLE_BLOOD_LEUKOREDUCED" of the blood type "AB"
-        And I select "WHOLE_BLOO" of the blood type "ANY"
+        And I select "WHOLE_BLOOD" of the blood type "ANY"
         And I request to location "LOCATION_1"
 
-        Then I receive "3" groups
+        Then I receive "5" groups
         And I receive a group of product family "PLASMA_TRANSFUSABLE" and abo rh criteria "O" with "10" inventories and "10" product short date listed
         And I receive a group of product family "PLASMA_TRANSFUSABLE" and abo rh criteria "AB" with "34" inventories and "13" product short date listed
         And I receive a group of product family "RED_BLOOD_CELLS_LEUKOREDUCED" and abo rh criteria "ANY" with "5" inventories and "5" product short date listed
         And I receive a group of product family "WHOLE_BLOOD_LEUKOREDUCED" and abo rh criteria "AB" with "12" inventories and "0" product short date listed
-        And I receive a group of product family "WHOLE_BLOOD" and abo rh criteria "ANY" with "14" inventories and "3" product short date listed
+        And I receive a group of product family "WHOLE_BLOOD" and abo rh criteria "ANY" with "14" inventories and "4" product short date listed
 

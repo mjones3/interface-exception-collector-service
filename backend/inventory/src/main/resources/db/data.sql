@@ -28,5 +28,8 @@ insert into lk_product_family (product_family, time_frame)
 values ('RED_BLOOD_CELLS', 5);
 insert into lk_product_family (product_family, time_frame)
 values ('RED_BLOOD_CELLS_LEUKOREDUCED', 5);
-
+insert into lk_product_family (product_family, time_frame)
+values ('WHOLE_BLOOD', 5);
+insert into lk_product_family (product_family, time_frame)
+values ('WHOLE_BLOOD_LEUKOREDUCED', 5);
 
