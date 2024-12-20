@@ -60,7 +60,7 @@ public class ShipmentCompletedIntegrationIT {
         var payloadObject = objectMapper.readValue(PAYLOAD, Object.class);
         kafkaHelper.sendEvent(TOPIC, "test-key", payloadObject).block();
 
-        logMonitor.await("successfully consumed.*");
+        logMonitor.await("Processed message.*");
 
         ArgumentCaptor<ShipmentCompletedInput> captor = ArgumentCaptor.forClass(ShipmentCompletedInput.class);
 

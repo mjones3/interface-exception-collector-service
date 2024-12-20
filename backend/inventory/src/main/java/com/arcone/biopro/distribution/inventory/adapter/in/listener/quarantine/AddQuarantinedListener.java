@@ -2,7 +2,6 @@ package com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine;
 
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.AbstractListener;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.EventMessage;
-import com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage;
 import com.arcone.biopro.distribution.inventory.application.dto.AddQuarantineInput;
 import com.arcone.biopro.distribution.inventory.application.dto.InventoryOutput;
 import com.arcone.biopro.distribution.inventory.application.usecase.UseCase;
