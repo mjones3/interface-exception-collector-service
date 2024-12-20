@@ -27,8 +27,8 @@ import static org.mockito.Mockito.when;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @DirtiesContext
-@EmbeddedKafka(partitions = 1, topics = {"ShipmentCompleted"}, brokerProperties = {"listeners=PLAINTEXT://localhost:9092", "port=9092"})
-public class KafkaListenerShipmentCompletedIntegrationIT {
+@EmbeddedKafka(partitions = 1, topics = {"ShipmentCompleted"}, brokerProperties = {"listeners=PLAINTEXT://localhost:9093", "port=9093"})
+public class ShipmentCompletedIntegrationIT {
 
     private static final String TOPIC = "ShipmentCompleted";
 
@@ -54,7 +54,7 @@ public class KafkaListenerShipmentCompletedIntegrationIT {
         var payloadObject = objectMapper.readValue(PAYLOAD, Object.class);
         kafkaHelper.sendEvent(TOPIC, "test-key", payloadObject).block();
 
-        logMonitor.await("successfully consumed.*");
+        logMonitor.await("Processed message.*");
 
         ArgumentCaptor<ShipmentCompletedInput> captor = ArgumentCaptor.forClass(ShipmentCompletedInput.class);
 
