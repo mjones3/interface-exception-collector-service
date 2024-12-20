@@ -1,0 +1,53 @@
+{
+  "eventId": "7eaefe46-e6cf-4434-93c4-a4b1e7d44285",
+  "occurredOn": "2024-08-22T12:34:32.270657005Z",
+  "eventType":"ApheresisPlasmaProductCreated",
+  "eventVersion":"1.0",
+  "payload":{
+    "unitNumber":"W036824009002",
+    "productCode":"E086900",
+    "productDescription":"APH FFP",
+    "productFamily":"PLASMA_TRANSFUSABLE",
+    "completionStage":"INTERMEDIATE",
+    "weight":{
+      "value":200,
+      "unit":"GRAMS"
+    },
+    "volume":{
+      "value":200,
+      "unit":"MILLILITERS"
+    },
+    "anticoagulantVolume":{
+      "value":4,
+      "unit":"MILLILITERS"
+    },
+    "expirationDate":"2024-01-08T02:05:45.231Z",
+    "drawTime":"2024-01-08T02:05:45.231Z",
+    "donationType":"ALLOGENEIC",
+    "procedureType":"APHERESIS_PLASMA",
+    "collectionLocation":"COLLECTION_LOCATION",
+    "manufacturingLocation":"MANUFACTURING_LOCATION",
+    "aboRh":"AP",
+    "performedBy":"USER_ID",
+    "createDate":"2024-01-08T02:05:45.231Z",
+    "inputProducts":[
+      {
+        "unitNumber":"W123456748998",
+        "productCode":"PLASAPHP",
+        "completionStage":"GENERIC"
+      }
+    ],
+    "additionalSteps":[
+      {
+        "stepType":"DONOR_ELIGIBILITY_SCREENING",
+        "status":"PENDING",
+        "lastUpdated":null
+      },
+      {
+        "stepType":"STANDARD_TEST_RESULTS",
+        "status":"PENDING",
+        "lastUpdated":null
+      }
+    ]
+  }
+}

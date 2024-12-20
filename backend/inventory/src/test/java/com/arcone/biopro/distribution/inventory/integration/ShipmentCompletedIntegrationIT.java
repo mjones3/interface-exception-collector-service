@@ -25,10 +25,16 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest
-@DirtiesContext
-@EmbeddedKafka(partitions = 1, topics = {"ShipmentCompleted"}, brokerProperties = {"listeners=PLAINTEXT://localhost:9092", "port=9092"})
-public class KafkaListenerShipmentCompletedIntegrationIT {
+@SpringBootTest(
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    properties = {
+        "spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}",
+        "spring.kafka.consumer.auto-offset-reset=earliest",
+        "spring.kafka.consumer.group-id=shipment-test-group"
+    })
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@EmbeddedKafka(partitions = 1, brokerProperties = {"listeners=PLAINTEXT://localhost:9092", "port=9092"})
+public class ShipmentCompletedIntegrationIT {
 
     private static final String TOPIC = "ShipmentCompleted";
 
