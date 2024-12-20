@@ -11,7 +11,6 @@ import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.reactive.ReactiveKafkaConsumerTemplate;
 import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
 import org.springframework.stereotype.Service;
@@ -20,29 +19,18 @@ import reactor.core.publisher.Mono;
 @Service
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class LabelAppliedListener extends AbstractListener<InventoryInput, InventoryOutput, EventMessage<LabelAppliedMessage>> {
-
-    UseCase<Mono<InventoryOutput>, InventoryInput> handler;
-    LabelAppliedMessageMapper mapper;
+public class LabelAppliedListener extends AbstractListener<InventoryInput, InventoryOutput, LabelAppliedMessage> {
 
     public LabelAppliedListener(@Qualifier("LABEL_APPLIED_CONSUMER") ReactiveKafkaConsumerTemplate<String, String> consumer,
                                 ObjectMapper objectMapper,
                                 ReactiveKafkaProducerTemplate<String, String> producerDLQTemplate,
-                                @Value("${topic.label-applied.name}") String topic,
                                 LabelAppliedMessageMapper mapper,
-                                UseCase<Mono<InventoryOutput>, InventoryInput> handler) {
-        super(consumer, objectMapper, producerDLQTemplate, topic, new TypeReference<>() {});
-        this.mapper = mapper;
-        this.handler = handler;
+                                UseCase<Mono<InventoryOutput>, InventoryInput> useCase) {
+        super(consumer, objectMapper, producerDLQTemplate, useCase, mapper);
     }
 
     @Override
-    protected Mono<InventoryOutput> processInput(InventoryInput input) {
-        return handler.execute(input);
-    }
-
-    @Override
-    protected InventoryInput fromMessageToInput(EventMessage<LabelAppliedMessage> message) {
-        return mapper.toInput(message.payload());
+    protected TypeReference<EventMessage<LabelAppliedMessage>> getMessageTypeReference() {
+        return new TypeReference<EventMessage<LabelAppliedMessage>>() {};
     }
 }
