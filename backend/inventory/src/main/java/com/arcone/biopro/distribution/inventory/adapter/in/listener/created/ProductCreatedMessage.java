@@ -11,9 +11,9 @@ public record ProductCreatedMessage(
     String productCode,
     String productDescription,
     String expirationDate,
-    Integer weight,
-    ZonedDateTime collectionDate,
-    String location,
+    ValueUnit weight,
+    ZonedDateTime drawTime,
+    String manufacturingLocation,
     String productFamily,
     AboRhType aboRh,
     List<InputProduct> inputProducts) {
