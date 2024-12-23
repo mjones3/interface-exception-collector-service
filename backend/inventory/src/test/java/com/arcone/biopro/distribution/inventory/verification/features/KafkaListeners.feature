@@ -22,6 +22,8 @@ Feature: Kafka listeners
             | Event              | Status    |
             | Quarantine Removed | AVAILABLE |
             | Product Recovered  | AVAILABLE |
+            | Product Quarantined | AVAILABLE |
+            | Quarantine Updated  | AVAILABLE |
 
     @LAB-96 @AOA-75 @LAB-116
     Scenario Outline: Application is listening storage events from kafka
