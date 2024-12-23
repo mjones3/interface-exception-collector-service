@@ -268,6 +268,5 @@ public class RsocketSteps {
         InventoryStatus inventoryStatus = "EXPIRED".equals(status) ? InventoryStatus.AVAILABLE : InventoryStatus.valueOf(status);
 
         createInventory(unitNumber, productCode, "PLASMA_TRANSFUSABLE", AboRhType.OP, location, days, inventoryStatus, null, null, null, false);
-       //this.iHaveOneProductWithAndInStatusWithReason(unitNumber, productCode, location, status, "ACTIVE_DEFERRAL");
     }
 }
