@@ -41,6 +41,9 @@ class KafkaConfiguration {
     @Value("${topic.product-created.apheresis.rbc.name}")
     private String apheresisRBCProductCreatedTopic;
 
+    @Value("${topic.product-created.wholeblood.name}")
+    private String wholebloodCreatedTopic;
+
     @Value("${topic.label-applied.name}")
     private String labelAppliedTopic;
 
@@ -69,7 +72,7 @@ class KafkaConfiguration {
     @Qualifier("PRODUCT_CREATED")
     ReceiverOptions<String, String> productCreatedReceiverOptions(KafkaProperties kafkaProperties) {
         return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
-            .subscription(List.of(apheresisPlasmaProductCreatedTopic, apheresisRBCProductCreatedTopic));
+            .subscription(List.of(apheresisPlasmaProductCreatedTopic, apheresisRBCProductCreatedTopic, wholebloodCreatedTopic));
     }
 
     @Bean

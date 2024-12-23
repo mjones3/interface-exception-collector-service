@@ -275,6 +275,8 @@ application:
 
 topic:
   product-created:
+    wholeblood:
+      name: WholeBloodProductCreated
     apheresis:
       plasma:
         name: ApheresisPlasmaProductCreated
