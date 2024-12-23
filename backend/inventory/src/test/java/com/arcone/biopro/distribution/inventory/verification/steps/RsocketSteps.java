@@ -94,10 +94,10 @@ public class RsocketSteps {
 
     private void createInventory(String unitNumber, String productCode, String productFamily, AboRhType aboRhType, String location, Integer daysToExpire, InventoryStatus status, String statusReason, String comments, List<Quarantine> specificQuarantines) {
         //List<Quarantine> quarantines = InventoryStatus.QUARANTINED.equals(status) && specificQuarantines.isEmpty() ? TestUtil.createQuarantines() : List.of();
-        List<Quarantine> quarantines = specificQuarantines.isEmpty() ? TestUtil.createQuarantines() : List.of();
-        if(!specificQuarantines.isEmpty()) {
-            quarantines = specificQuarantines;
-        }
+//        List<Quarantine> quarantines = specificQuarantines.isEmpty() ? TestUtil.createQuarantines() : List.of();
+//        if(!specificQuarantines.isEmpty()) {
+//            quarantines = specificQuarantines;
+//        }
         inventoryEntityRepository.save(InventoryEntity.builder()
             .id(UUID.randomUUID())
             .productFamily(productFamily)
@@ -114,7 +114,7 @@ public class RsocketSteps {
             .comments(comments)
             .shortDescription("Short description")
             .storageLocation("FREEZER 1, RACK 1, SHELF 1")
-            .quarantines(quarantines)
+            .quarantines(specificQuarantines)
             .isLabeled(true)
             .build()).block();
 
