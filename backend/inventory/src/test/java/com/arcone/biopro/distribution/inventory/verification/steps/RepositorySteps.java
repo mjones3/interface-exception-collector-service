@@ -157,7 +157,8 @@ public class RepositorySteps {
                         "comments",
                         "storageLocation",
                         "quarantines",
-                        "statusReason"
+                        "statusReason",
+                        "isLabeled"
                     );
                 break;
             case EVENT_SHIPMENT_COMPLETED:

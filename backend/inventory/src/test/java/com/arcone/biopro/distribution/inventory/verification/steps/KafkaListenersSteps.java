@@ -296,6 +296,7 @@ public class KafkaListenersSteps {
             .shortDescription("Short description")
             .comments(comment)
             .statusReason(reason)
+            .isLabeled(true)
             .build()).block();
 
     }
