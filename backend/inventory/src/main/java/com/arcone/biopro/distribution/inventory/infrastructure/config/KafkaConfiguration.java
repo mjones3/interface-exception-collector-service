@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.inventory.infrastructure.config;
 
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.discarded.ProductDiscardedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.label.LabelAppliedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.AddQuarantinedMessage;
@@ -34,6 +35,15 @@ import java.util.List;
 @Slf4j
 class KafkaConfiguration {
 
+    @Value("${topic.product-created.apheresis.plasma.name}")
+    private String apheresisPlasmaProductCreatedTopic;
+
+    @Value("${topic.product-created.apheresis.rbc.name}")
+    private String apheresisRBCProductCreatedTopic;
+
+    @Value("${topic.product-created.wholeblood.name}")
+    private String wholebloodCreatedTopic;
+
     @Value("${topic.label-applied.name}")
     private String labelAppliedTopic;
 
@@ -46,7 +56,6 @@ class KafkaConfiguration {
     @Value("${topic.product-discarded.name}")
     private String productDiscardedTopic;
 
-
     @Value("${topic.product-recovered.name}")
     private String productRecoveredTopic;
 
@@ -58,6 +67,13 @@ class KafkaConfiguration {
 
     @Value("${topic.product-quarantined.name}")
     private String addQuarantinedTopic;
+
+    @Bean
+    @Qualifier("PRODUCT_CREATED")
+    ReceiverOptions<String, String> productCreatedReceiverOptions(KafkaProperties kafkaProperties) {
+        return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
+            .subscription(List.of(apheresisPlasmaProductCreatedTopic, apheresisRBCProductCreatedTopic, wholebloodCreatedTopic));
+    }
 
     @Bean
     @Qualifier("LABEL_APPLIED")
@@ -92,6 +108,23 @@ class KafkaConfiguration {
     ReceiverOptions<String, String> shipmentCompletedReceiverOptions(KafkaProperties kafkaProperties) {
         return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
             .subscription(List.of(shipmentCompletedTopic));
+    }
+
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "ApheresisPlasmaProductCreated",
+        description = "Apheresis Plasma Product has been created.",
+        payloadType = ProductCreatedMessage.class
+    ))
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "ApheresisRBCProductCreated",
+        description = "Apheresis RBC Product has been created.",
+        payloadType = ProductCreatedMessage.class
+    ))
+    @Bean(name = "PRODUCT_CREATED_CONSUMER")
+    ReactiveKafkaConsumerTemplate<String, String> productCreatedConsumerTemplate(
+        @Qualifier("PRODUCT_CREATED") ReceiverOptions<String, String> receiverOptions
+    ) {
+        return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
     }
 
     @AsyncListener(operation = @AsyncOperation(
