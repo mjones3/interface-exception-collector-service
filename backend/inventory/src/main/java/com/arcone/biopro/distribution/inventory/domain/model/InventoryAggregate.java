@@ -36,8 +36,15 @@ public class InventoryAggregate {
 
         if (!inventory.getLocation().equals(location)) {
             notificationMessages.add(createNotificationMessage(MessageType.INVENTORY_NOT_FOUND_IN_LOCATION, null));
-        } else if (!inventory.getInventoryStatus().equals(InventoryStatus.AVAILABLE) && !inventory.getIsLabeled()) {
+        }
+        else if (isQuarantined()) {
+            notificationMessages.addAll(createQuarantinesNotificationMessage());
+        }
+        else if (!inventory.getInventoryStatus().equals(InventoryStatus.AVAILABLE)) {
             notificationMessages.addAll(createNotificationMessage());
+        } else if (!inventory.getIsLabeled()) {
+            throw new RuntimeException("Product is not labeled");
+            //notificationMessages.addAll(createLabeledNotificationMessage());
         } else if (isExpired()) {
             notificationMessages.add(createNotificationMessage(MessageType.INVENTORY_IS_EXPIRED, EXPIRED));
         }
@@ -53,10 +60,6 @@ public class InventoryAggregate {
     }
 
     private List<NotificationMessage> createNotificationMessage() {
-
-        if (isQuarantined()) {
-            return createQuarantinesNotificationMessage();
-        }
 
         MessageType messageType = MessageType.fromStatus(inventory.getInventoryStatus())
             .orElseThrow(UnavailableStatusNotMappedException::new);
