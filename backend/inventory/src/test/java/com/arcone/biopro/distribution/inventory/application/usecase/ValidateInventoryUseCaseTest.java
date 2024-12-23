@@ -112,7 +112,9 @@ class ValidateInventoryUseCaseTest {
             .build();
 
         var inventoryAggregate = createInventoryAggregate(InventoryStatus.SHIPPED, LocalDateTime.now().plusDays(1));
-        inventoryAggregate.getInventory().setIsLabeled(false);
+        inventoryAggregate.getInventory().setIsLabeled(Boolean.FALSE);
+        inventoryAggregate.getInventory().setQuarantines(TestUtil.createQuarantines());
+
         when(inventoryAggregateRepository.findByUnitNumberAndProductCode(any(), any()))
             .thenReturn(Mono.just(inventoryAggregate));
 
@@ -154,7 +156,7 @@ class ValidateInventoryUseCaseTest {
                     .location(LOCATION_1)
                     .inventoryStatus(status)
                     .expirationDate(expirationDate)
-                    .quarantines(TestUtil.createQuarantines())
+                    .isLabeled(Boolean.TRUE)
                     .build())
             .build();
     }
