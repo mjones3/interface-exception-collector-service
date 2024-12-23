@@ -101,15 +101,15 @@ class InventoryAggregateTest {
     }
 
     @Test
-    @DisplayName("Should Fail When Product Is Not Labeled And Shipped")
-    void shouldFailWhenProductIsNotLabeledAndShipped() {
+    @DisplayName("Should Fail When Product Is Available And Not Labeled")
+    void shouldFailWhenProductIsAvailableAndNotLabeledAndShipped() {
         when(inventoryMock.getInventoryStatus()).thenReturn(InventoryStatus.AVAILABLE);
         when(inventoryMock.getIsLabeled()).thenReturn(Boolean.FALSE);
         when(inventoryMock.getExpirationDate()).thenReturn(LocalDateTime.now().plusDays(10));
 
         inventoryAggregate.checkIfIsValidToShip("LOCATION_1");
 
-        assertFalse(inventoryAggregate.getNotificationMessages().isEmpty(), "Expected notification messages when inventory is expired");
+        assertFalse(inventoryAggregate.getNotificationMessages().isEmpty());
         NotificationMessage message = inventoryAggregate.getNotificationMessages().get(0);
         assertEquals(MessageType.INVENTORY_IS_UNLABELED.name(), message.name());
     }
