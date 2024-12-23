@@ -1,6 +1,6 @@
 package com.arcone.biopro.distribution.inventory.verification.steps;
 
-import com.arcone.biopro.distribution.inventory.commm.TestUtil;
+import com.arcone.biopro.distribution.inventory.common.TestUtil;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.History;
@@ -119,10 +119,10 @@ public class RepositorySteps {
         if(InventoryStatus.AVAILABLE.toString().equals(previousStatus)) {
             histories = List.of(new History(InventoryStatus.valueOf(previousStatus), null, null));
         }
-        if (InventoryStatus.QUARANTINED.toString().equals(previousStatus)) {
-            quarantines = List.of(new Quarantine(1L, "OTHER", "a comment"));
-            histories = List.of(new History(InventoryStatus.valueOf(previousStatus), null, null));
-        }
+
+        quarantines = List.of(new Quarantine(1L, "OTHER", "a comment"));
+        histories = List.of(new History(InventoryStatus.valueOf(previousStatus), null, null));
+
 
 
         inventoryEntityRepository.save(InventoryEntity.builder()

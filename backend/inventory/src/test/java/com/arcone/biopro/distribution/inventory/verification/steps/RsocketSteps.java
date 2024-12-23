@@ -1,7 +1,7 @@
 package com.arcone.biopro.distribution.inventory.verification.steps;
 
 import com.arcone.biopro.distribution.inventory.adapter.in.socket.dto.*;
-import com.arcone.biopro.distribution.inventory.commm.TestUtil;
+import com.arcone.biopro.distribution.inventory.common.TestUtil;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhCriteria;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
@@ -80,7 +80,8 @@ public class RsocketSteps {
 
     @Given("I have one product with {string}, {string} and {string} in {string} status with reason {string} and comments {string}")
     public void iHaveOneProductWithAndInStatus(String unitNumber, String productCode, String location, String status, String statusReason, String comments) {
-        Integer days = InventoryStatus.EXPIRED.equals(InventoryStatus.valueOf(status)) || InventoryStatus.DISCARDED.equals(InventoryStatus.valueOf(status))   ? -1 : 1;
+        //Integer days = InventoryStatus.EXPIRED.equals(InventoryStatus.valueOf(status)) || InventoryStatus.DISCARDED.equals(InventoryStatus.valueOf(status))   ? -1 : 1;
+        Integer days = InventoryStatus.DISCARDED.equals(InventoryStatus.valueOf(status))   ? -1 : 1;
 
         InventoryStatus inventoryStatus = "EXPIRED".equals(status) ? InventoryStatus.AVAILABLE : InventoryStatus.valueOf(status);
 
@@ -92,7 +93,8 @@ public class RsocketSteps {
     }
 
     private void createInventory(String unitNumber, String productCode, String productFamily, AboRhType aboRhType, String location, Integer daysToExpire, InventoryStatus status, String statusReason, String comments, List<Quarantine> specificQuarantines) {
-        List<Quarantine> quarantines = InventoryStatus.QUARANTINED.equals(status) && specificQuarantines.isEmpty() ? TestUtil.createQuarantines() : List.of();
+        //List<Quarantine> quarantines = InventoryStatus.QUARANTINED.equals(status) && specificQuarantines.isEmpty() ? TestUtil.createQuarantines() : List.of();
+        List<Quarantine> quarantines = specificQuarantines.isEmpty() ? TestUtil.createQuarantines() : List.of();
         if(!specificQuarantines.isEmpty()) {
             quarantines = specificQuarantines;
         }
@@ -113,6 +115,7 @@ public class RsocketSteps {
             .shortDescription("Short description")
             .storageLocation("FREEZER 1, RACK 1, SHELF 1")
             .quarantines(quarantines)
+            .isLabeled(true)
             .build()).block();
 
     }
@@ -226,14 +229,16 @@ public class RsocketSteps {
 
     @And("I have one product with {string}, {string} and {string} in {string} status with quarantine reasons {string} and comments {string}")
     public void iHaveOneProductWithAndInStatusWithQuarantineReasonsAndComments(String unitNumber, String productCode, String location, String status, String quarantineReasons, String quarantineComments) {
-        Integer days = InventoryStatus.EXPIRED.equals(InventoryStatus.valueOf(status)) || InventoryStatus.DISCARDED.equals(InventoryStatus.valueOf(status))   ? -1 : 1;
+        //Integer days = InventoryStatus.EXPIRED.equals(InventoryStatus.valueOf(status)) || InventoryStatus.DISCARDED.equals(InventoryStatus.valueOf(status))   ? -1 : 1;
+        Integer days = InventoryStatus.DISCARDED.equals(InventoryStatus.valueOf(status))   ? -1 : 1;
         List<Quarantine> quarantines = Arrays.stream(quarantineReasons.split(",")).map(String::trim).map(reason -> new Quarantine(1L, reason, quarantineComments)).collect(Collectors.toList());
         createInventory(unitNumber, productCode, "PLASMA_TRANSFUSABLE", AboRhType.OP, location, days, InventoryStatus.valueOf(status), "ACTIVE_DEFERRAL", null, quarantines);
     }
 
     @And("I have one product with {string}, {string} and {string} in {string} status with reason {string}")
     public void iHaveOneProductWithAndInStatusWithReason(String unitNumber, String productCode, String location, String status, String reason) {
-        Integer days = InventoryStatus.EXPIRED.equals(InventoryStatus.valueOf(status)) || InventoryStatus.DISCARDED.equals(InventoryStatus.valueOf(status))   ? -1 : 1;
+        //Integer days = InventoryStatus.EXPIRED.equals(InventoryStatus.valueOf(status)) || InventoryStatus.DISCARDED.equals(InventoryStatus.valueOf(status))   ? -1 : 1;
+        Integer days =  InventoryStatus.DISCARDED.equals(InventoryStatus.valueOf(status))   ? -1 : 1;
         InventoryStatus inventoryStatus = "EXPIRED".equals(status) ? InventoryStatus.AVAILABLE : InventoryStatus.valueOf(status);
         createInventory(unitNumber, productCode, "PLASMA_TRANSFUSABLE", AboRhType.OP, location, days, inventoryStatus, reason, null);
     }

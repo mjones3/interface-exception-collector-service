@@ -36,7 +36,7 @@ public class InventoryAggregate {
 
         if (!inventory.getLocation().equals(location)) {
             notificationMessages.add(createNotificationMessage(MessageType.INVENTORY_NOT_FOUND_IN_LOCATION, null));
-        } else if (!inventory.getInventoryStatus().equals(InventoryStatus.AVAILABLE)) {
+        } else if (!inventory.getInventoryStatus().equals(InventoryStatus.AVAILABLE) && !inventory.getIsLabeled()) {
             notificationMessages.addAll(createNotificationMessage());
         } else if (isExpired()) {
             notificationMessages.add(createNotificationMessage(MessageType.INVENTORY_IS_EXPIRED, EXPIRED));
@@ -48,9 +48,13 @@ public class InventoryAggregate {
         return new NotificationMessage(notificationType.name(), notificationType.getCode(), notificationType.name(), notificationType.getType().name(), notificationType.getAction().name(), reason, List.of());
     }
 
+    private Boolean isQuarantined() {
+        return !inventory.getQuarantines().isEmpty();
+    }
+
     private List<NotificationMessage> createNotificationMessage() {
 
-        if (inventory.getInventoryStatus().equals(InventoryStatus.QUARANTINED)) {
+        if (isQuarantined()) {
             return createQuarantinesNotificationMessage();
         }
 

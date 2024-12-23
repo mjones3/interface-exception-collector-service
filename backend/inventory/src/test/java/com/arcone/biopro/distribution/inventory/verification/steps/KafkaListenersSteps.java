@@ -1,6 +1,6 @@
 package com.arcone.biopro.distribution.inventory.verification.steps;
 
-import com.arcone.biopro.distribution.inventory.commm.TestUtil;
+import com.arcone.biopro.distribution.inventory.common.TestUtil;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.History;
@@ -271,7 +271,7 @@ public class KafkaListenersSteps {
         if (topicName.equals(quarantineRemovedTopic) || topicName.equals(quarantineUpdatedTopic)) {
             quarantines = List.of(new Quarantine(1L, "OTHER", "a comment"));
             histories = List.of(new History(InventoryStatus.AVAILABLE, null, null));
-            status = InventoryStatus.QUARANTINED;
+//            status = InventoryStatus.QUARANTINED;
         }
 
         if (topicName.equals(productRecoveredTopic)) {
