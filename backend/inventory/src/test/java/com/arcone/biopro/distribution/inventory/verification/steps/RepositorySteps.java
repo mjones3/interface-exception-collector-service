@@ -27,7 +27,9 @@ import static com.arcone.biopro.distribution.inventory.verification.steps.UseCas
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -82,6 +84,19 @@ public class RepositorySteps {
         }
     }
 
+    @Then("The inventory status has quarantine")
+    public void theInventoryIsCreatedCorrectly() {
+        InventoryEntity inventory = getInventory(scenarioContext.getUnitNumber(), scenarioContext.getProductCode(), InventoryStatus.AVAILABLE);
+        assertNotNull(inventory);
+        assertEquals(scenarioContext.getProductCode(), inventory.getProductCode());
+        assertEquals(scenarioContext.getUnitNumber(), inventory.getUnitNumber());
+        assertFalse(inventory.getQuarantines().isEmpty());
+
+        if (EVENT_QUARANTINE_UPDATED.equals(scenarioContext.getEvent())) {
+            assertEquals("UNDER_INVESTIGATION", inventory.getQuarantines().getFirst().reason());
+        }
+    }
+
     @And("For unit number {string} and product code {string} the device stored is {string} and the storage location is {string}")
     public void forUnitNumberAndProductCodeTheDeviceStoredIsAndTheStorageLocationIs(String unitNumber, String productCode, String deviceStorage, String storageLocation) throws InterruptedException {
         InventoryEntity inventory = getStoredInventory(scenarioContext.getUnitNumber(), scenarioContext.getProductCode(), InventoryStatus.AVAILABLE);
@@ -99,7 +114,7 @@ public class RepositorySteps {
 
     @Then("I verify the quarantine reason {string} with id {string} is found {string} for unit number {string} and product {string}")
     public void iVerifyTheQuarantineReasonIsInactiveForUnitNumberAndProduct(String quarantineReason, String quarantineReasonId, String isFound, String unitNumber, String productCode) throws InterruptedException {
-        InventoryEntity inventory = getInventory(scenarioContext.getUnitNumber(), scenarioContext.getProductCode(), InventoryStatus.valueOf("QUARANTINED"));
+        InventoryEntity inventory = getInventory(scenarioContext.getUnitNumber(), scenarioContext.getProductCode(), InventoryStatus.AVAILABLE);
 
         assert inventory != null;
         List<Quarantine> productsReason =  inventory.getQuarantines().stream().filter(q -> quarantineReasonMap.get(quarantineReason)

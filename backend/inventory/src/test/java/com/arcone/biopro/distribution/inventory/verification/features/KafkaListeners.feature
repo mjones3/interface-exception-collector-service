@@ -19,11 +19,9 @@ Feature: Kafka listeners
 
         @LAB-79 @AOA-75
         Examples:
-            | Event               | Status      |
-            | Product Quarantined | QUARANTINED |
-            | Quarantine Updated  | QUARANTINED |
-            | Quarantine Removed  | AVAILABLE   |
-            | Product Recovered   | AVAILABLE   |
+            | Event              | Status    |
+            | Quarantine Removed | AVAILABLE |
+            | Product Recovered  | AVAILABLE |
 
     @LAB-96 @AOA-75 @LAB-116
     Scenario Outline: Application is listening storage events from kafka
