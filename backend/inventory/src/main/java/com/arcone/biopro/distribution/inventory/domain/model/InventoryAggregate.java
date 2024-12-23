@@ -43,8 +43,7 @@ public class InventoryAggregate {
         else if (!inventory.getInventoryStatus().equals(InventoryStatus.AVAILABLE)) {
             notificationMessages.addAll(createNotificationMessage());
         } else if (!inventory.getIsLabeled()) {
-            throw new RuntimeException("Product is not labeled");
-            //notificationMessages.addAll(createLabeledNotificationMessage());
+            notificationMessages.add(createNotificationMessage(MessageType.INVENTORY_IS_UNLABELED, null));
         } else if (isExpired()) {
             notificationMessages.add(createNotificationMessage(MessageType.INVENTORY_IS_EXPIRED, EXPIRED));
         }

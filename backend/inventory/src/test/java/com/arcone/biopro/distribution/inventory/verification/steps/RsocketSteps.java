@@ -242,4 +242,9 @@ public class RsocketSteps {
         InventoryStatus inventoryStatus = "EXPIRED".equals(status) ? InventoryStatus.AVAILABLE : InventoryStatus.valueOf(status);
         createInventory(unitNumber, productCode, "PLASMA_TRANSFUSABLE", AboRhType.OP, location, days, inventoryStatus, reason, null);
     }
+
+    @And("I have one product with {string}, {string} and {string} in {string} status and is unlabeled")
+    public void iHaveOneProductWithAndInStatusAndIsUnlabeled(String unitNumber, String productCode, String location, String status) {
+        this.iHaveOneProductWithAndInStatusWithReason(unitNumber, productCode, location, status, "ACTIVE_DEFERRAL");
+    }
 }
