@@ -4,7 +4,7 @@ Feature: Validate Inventory
     Scenario Outline: Validate Inventory
         Given I have one product with "W012345678901", "E0869V00" and "LOCATION_1" in "AVAILABLE" status
         And I have one product with "W012345678902", "E0869V01" and "LOCATION_2" in "AVAILABLE" status
-        And I have one product with "W012345678903", "E0869V02" and "LOCATION_2" in "QUARANTINED" status with quarantine reasons "ABS_POSITIVE, PENDING_FURTHER_REVIEW_INSPECTION, OTHER" and comments "Quarantine other comments"
+        And I have one product with "W012345678903", "E0869V02" and "LOCATION_2" in "AVAILABLE" status with quarantine reasons "ABS_POSITIVE, PENDING_FURTHER_REVIEW_INSPECTION, OTHER" and comments "Quarantine other comments"
         And I have one product with "W012345678904", "E0869V03" and "LOCATION_1" in "EXPIRED" status
         And I have one product with "W012345678905", "E0869V05" and "LOCATION_1" in "DISCARDED" status with reason "ADDITIVE_SOLUTION_ISSUES" and comments ""
         And I have one product with "W012345678906", "E0869V05" and "LOCATION_1" in "UNSUITABLE" status with reason "ACTIVE_DEFERRAL"
