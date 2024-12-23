@@ -206,6 +206,7 @@ public class RepositorySteps {
         }
     }
 
+    @Then("the parent inventory statuses should be updated as follows:")
     @Then("the inventory statuses should be updated as follows:")
     public void theInventoryStatusesShouldBeUpdatedAsFollows(DataTable dataTable) {
         List<Map<String, String>> inventories = dataTable.asMaps(String.class, String.class);
@@ -214,6 +215,9 @@ public class RepositorySteps {
             String productCode = inventory.get("Product Code");
             String expectedStatus = inventory.get("Status");
             var inventoryEntity = this.getInventory(unitNumber, productCode);
+            if (inventory.containsKey("Is Labeled")) {
+                assertEquals(Boolean.valueOf(inventory.get("Is Labeled")), inventoryEntity.getIsLabeled());
+            }
             assertEquals(expectedStatus, inventoryEntity.getInventoryStatus().name());
         }
     }

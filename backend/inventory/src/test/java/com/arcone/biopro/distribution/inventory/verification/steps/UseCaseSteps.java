@@ -1,10 +1,7 @@
 package com.arcone.biopro.distribution.inventory.verification.steps;
 
 import com.arcone.biopro.distribution.inventory.application.dto.*;
-import com.arcone.biopro.distribution.inventory.application.usecase.AddQuarantinedUseCase;
-import com.arcone.biopro.distribution.inventory.application.usecase.ProductRecoveredUseCase;
-import com.arcone.biopro.distribution.inventory.application.usecase.RemoveQuarantinedUseCase;
-import com.arcone.biopro.distribution.inventory.application.usecase.ShipmentCompletedUseCase;
+import com.arcone.biopro.distribution.inventory.application.usecase.*;
 import com.arcone.biopro.distribution.inventory.verification.common.ScenarioContext;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.When;
@@ -27,6 +24,8 @@ public class UseCaseSteps {
     private final ProductRecoveredUseCase productRecoveredUseCase;
 
     private final ShipmentCompletedUseCase shipmentCompletedUseCase;
+
+    private final ProductCreatedUseCase productCreatedUseCase;
 
     private final ScenarioContext scenarioContext;
 
