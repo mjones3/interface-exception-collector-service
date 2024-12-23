@@ -32,7 +32,7 @@ import static org.mockito.Mockito.when;
         "spring.kafka.consumer.auto-offset-reset=earliest",
         "spring.kafka.consumer.group-id=shipment-test-group"
     })
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @EmbeddedKafka(partitions = 1, brokerProperties = {"listeners=PLAINTEXT://localhost:9092", "port=9092"})
 public class ShipmentCompletedIntegrationIT {
 

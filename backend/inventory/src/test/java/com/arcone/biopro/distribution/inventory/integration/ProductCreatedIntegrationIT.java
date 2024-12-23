@@ -37,7 +37,7 @@ import static org.mockito.Mockito.*;
         "spring.kafka.consumer.auto-offset-reset=earliest",
         "spring.kafka.consumer.group-id=created-test-group"
     })
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @EmbeddedKafka(partitions = 1, brokerProperties = {"listeners=PLAINTEXT://localhost:9093", "port=9093"})
 public class ProductCreatedIntegrationIT {
 
@@ -71,7 +71,17 @@ public class ProductCreatedIntegrationIT {
     @Test
     @DisplayName("Should publish, receive, map and call usecase with correct input for apheresis PLASMA")
     public void test2() throws InterruptedException, IOException {
-        var payloadJson = publishCreatedEvent("json/apheresis/rbc/product_created.json", APHERESIS_PLASMA_PRODUCT_CREATED_TOPIC);
+        var payloadJson = publishCreatedEvent("json/apheresis/plasma/product_created.json", APHERESIS_PLASMA_PRODUCT_CREATED_TOPIC);
+        ArgumentCaptor<ProductCreatedInput> captor = ArgumentCaptor.forClass(ProductCreatedInput.class);
+        verify(productCreatedUseCase, times(1)).execute(captor.capture());
+        ProductCreatedInput capturedInput = captor.getValue();
+        assertDefaultProductCreatedValues(capturedInput, payloadJson);
+    }
+
+    @Test
+    @DisplayName("Should publish, receive, map and call usecase with correct input for wholeblood")
+    public void test3() throws InterruptedException, IOException {
+        var payloadJson = publishCreatedEvent("json/wholeblood/product_created.json", WHOLEBLOOD_CREATED_TOPIC);
         ArgumentCaptor<ProductCreatedInput> captor = ArgumentCaptor.forClass(ProductCreatedInput.class);
         verify(productCreatedUseCase, times(1)).execute(captor.capture());
         ProductCreatedInput capturedInput = captor.getValue();
@@ -100,7 +110,7 @@ public class ProductCreatedIntegrationIT {
         var resource = new ClassPathResource(path).getFile().toPath();
         var payloadJson = objectMapper.readTree(Files.newInputStream(resource));
         kafkaHelper.sendEvent(topic, topic + "test-key", payloadJson).block();
-        logMonitor.await("successfully consumed String=InventoryOutput*");
+        logMonitor.await("Processed message.*");
         return payloadJson;
     }
 }
