@@ -42,9 +42,11 @@ public class InventoryAggregate {
         }
         else if (!inventory.getInventoryStatus().equals(InventoryStatus.AVAILABLE)) {
             notificationMessages.addAll(createNotificationMessage());
-        } else if (!inventory.getIsLabeled()) {
+        }
+        else if (!inventory.getIsLabeled()) {
             notificationMessages.add(createNotificationMessage(MessageType.INVENTORY_IS_UNLABELED, null));
-        } else if (isExpired()) {
+        }
+        else if (isExpired()) {
             notificationMessages.add(createNotificationMessage(MessageType.INVENTORY_IS_EXPIRED, EXPIRED));
         }
         return this;
@@ -54,7 +56,7 @@ public class InventoryAggregate {
         return new NotificationMessage(notificationType.name(), notificationType.getCode(), notificationType.name(), notificationType.getType().name(), notificationType.getAction().name(), reason, List.of());
     }
 
-    private Boolean isQuarantined() {
+    public Boolean isQuarantined() {
         return !inventory.getQuarantines().isEmpty();
     }
 
@@ -142,5 +144,18 @@ public class InventoryAggregate {
 
     private void transitionStatus(InventoryStatus newStatus, String statusReason) {
         inventory.transitionStatus(newStatus, statusReason);
+    }
+
+    public boolean isAvailable() {
+        return InventoryStatus.AVAILABLE.equals(this.inventory.getInventoryStatus());
+    }
+
+    public boolean getIsLabeled() {
+        return this.inventory.getIsLabeled();
+    }
+
+    public InventoryAggregate convertProduct() {
+        inventory.transitionStatus(InventoryStatus.CONVERTED, "Child manufactured");
+        return this;
     }
 }

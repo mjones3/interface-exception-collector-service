@@ -1,7 +1,7 @@
 package com.arcone.biopro.distribution.inventory.adapter.in.listener.created;
 
-import com.arcone.biopro.distribution.inventory.application.dto.InputProduct;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
+import com.arcone.biopro.distribution.inventory.domain.model.vo.InputProduct;
 
 import java.time.ZonedDateTime;
 import java.util.List;

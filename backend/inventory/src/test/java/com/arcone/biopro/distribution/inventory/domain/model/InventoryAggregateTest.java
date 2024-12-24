@@ -46,6 +46,7 @@ class InventoryAggregateTest {
     void testCheckIfIsValidToShip_ShouldAddNotification_WhenInventoryIsExpired() {
         when(inventoryMock.getInventoryStatus()).thenReturn(InventoryStatus.AVAILABLE);
         when(inventoryMock.getExpirationDate()).thenReturn(LocalDateTime.now().minusDays(1));
+        when(inventoryMock.getIsLabeled()).thenReturn(Boolean.TRUE);
 
         inventoryAggregate.checkIfIsValidToShip("LOCATION_1");
 
@@ -100,17 +101,17 @@ class InventoryAggregateTest {
     }
 
     @Test
-    @DisplayName("Should Fail When Product Is Not Labeled And Shipped")
-    void shouldFailWhenProductIsNotLabeledAndShipped() {
-        when(inventoryMock.getInventoryStatus()).thenReturn(InventoryStatus.SHIPPED);
+    @DisplayName("Should Fail When Product Is Available And Not Labeled")
+    void shouldFailWhenProductIsAvailableAndNotLabeledAndShipped() {
+        when(inventoryMock.getInventoryStatus()).thenReturn(InventoryStatus.AVAILABLE);
         when(inventoryMock.getIsLabeled()).thenReturn(Boolean.FALSE);
         when(inventoryMock.getExpirationDate()).thenReturn(LocalDateTime.now().plusDays(10));
 
         inventoryAggregate.checkIfIsValidToShip("LOCATION_1");
 
-        assertFalse(inventoryAggregate.getNotificationMessages().isEmpty(), "Expected notification messages when inventory is expired");
+        assertFalse(inventoryAggregate.getNotificationMessages().isEmpty());
         NotificationMessage message = inventoryAggregate.getNotificationMessages().get(0);
-        assertEquals(MessageType.INVENTORY_IS_SHIPPED.name(), message.name());
+        assertEquals(MessageType.INVENTORY_IS_UNLABELED.name(), message.name());
     }
 
 }
