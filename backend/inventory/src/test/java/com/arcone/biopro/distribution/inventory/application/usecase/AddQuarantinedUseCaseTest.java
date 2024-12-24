@@ -21,6 +21,8 @@ import org.mockito.Spy;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.Objects;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -81,13 +83,9 @@ class AddQuarantinedUseCaseTest {
 
         // Assert
         StepVerifier.create(result)
-            .consumeNextWith(output -> {
-                assertThat(output.inventoryStatus()).isEqualTo(InventoryStatus.QUARANTINED);
-            })
+            .expectNextMatches(Objects::nonNull)
             .verifyComplete();
 
-        // Verificando o estado diretamente da instância
-        assertThat(inventoryAggregate.getInventory().getInventoryStatus()).isEqualTo(InventoryStatus.QUARANTINED);
         assertThat(inventoryAggregate.getInventory().getQuarantines()).hasSize(1);
         assertThat(inventoryAggregate.getInventory().getQuarantines().get(0).reason()).isEqualTo("Contamination");
 

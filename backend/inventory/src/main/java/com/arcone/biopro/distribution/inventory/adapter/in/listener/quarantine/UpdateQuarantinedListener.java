@@ -11,7 +11,6 @@ import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.reactive.ReactiveKafkaConsumerTemplate;
 import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
 import org.springframework.stereotype.Service;
@@ -20,33 +19,18 @@ import reactor.core.publisher.Mono;
 @Service
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class UpdateQuarantinedListener extends AbstractListener<UpdateQuarantineInput, InventoryOutput, EventMessage<UpdateQuarantinedMessage>> {
-
-    UseCase<Mono<InventoryOutput>, UpdateQuarantineInput> updateQuarantineUseCase;
-    QuarantinedMessageMapper quarantinedMessageMapper;
+public class UpdateQuarantinedListener extends AbstractListener<UpdateQuarantineInput, InventoryOutput, UpdateQuarantinedMessage> {
 
     public UpdateQuarantinedListener(@Qualifier("PRODUCT_UPDATE_QUARANTINED_CONSUMER") ReactiveKafkaConsumerTemplate<String, String> consumer,
                                      ObjectMapper objectMapper,
                                      ReactiveKafkaProducerTemplate<String, String> producerDLQTemplate,
-                                     @Value("${topic.product-update-quarantined.name}") String productQuarantinedTopic,
-                                     UseCase<Mono<InventoryOutput>, UpdateQuarantineInput> updateQuarantineUseCase,
-                                     QuarantinedMessageMapper quarantinedMessageMapper) {
-        super(consumer, objectMapper, producerDLQTemplate, productQuarantinedTopic, new TypeReference<>() {
-        });
-        this.quarantinedMessageMapper = quarantinedMessageMapper;
-        this.updateQuarantineUseCase = updateQuarantineUseCase;
+                                     UseCase<Mono<InventoryOutput>, UpdateQuarantineInput> useCase,
+                                     UpdateQuarantinedMessageMapper mapper) {
+        super(consumer, objectMapper, producerDLQTemplate, useCase, mapper);
     }
 
     @Override
-    protected Mono<InventoryOutput> processInput(UpdateQuarantineInput domainMessage) {
-        return updateQuarantineUseCase.execute(domainMessage);
+    protected TypeReference<EventMessage<UpdateQuarantinedMessage>> getMessageTypeReference() {
+        return new TypeReference<EventMessage<UpdateQuarantinedMessage>>() {};
     }
-
-    @Override
-    protected UpdateQuarantineInput fromMessageToInput(EventMessage<UpdateQuarantinedMessage> message) {
-        return quarantinedMessageMapper.toInput(message.payload());
-    }
-
-
-
 }

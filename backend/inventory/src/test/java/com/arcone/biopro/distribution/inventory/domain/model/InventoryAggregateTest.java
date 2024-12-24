@@ -4,6 +4,7 @@ import com.arcone.biopro.distribution.inventory.domain.model.enumeration.Invento
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.MessageType;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.NotificationMessage;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -45,6 +46,7 @@ class InventoryAggregateTest {
     void testCheckIfIsValidToShip_ShouldAddNotification_WhenInventoryIsExpired() {
         when(inventoryMock.getInventoryStatus()).thenReturn(InventoryStatus.AVAILABLE);
         when(inventoryMock.getExpirationDate()).thenReturn(LocalDateTime.now().minusDays(1));
+        when(inventoryMock.getIsLabeled()).thenReturn(Boolean.TRUE);
 
         inventoryAggregate.checkIfIsValidToShip("LOCATION_1");
 
@@ -96,6 +98,20 @@ class InventoryAggregateTest {
     void testAddQuarantine_ShouldAddNewQuarantine() {
         inventoryAggregate.addQuarantine(1L, "Contamination", "Detected contamination");
         verify(inventoryMock).addQuarantine(1L, "Contamination", "Detected contamination");
+    }
+
+    @Test
+    @DisplayName("Should Fail When Product Is Available And Not Labeled")
+    void shouldFailWhenProductIsAvailableAndNotLabeledAndShipped() {
+        when(inventoryMock.getInventoryStatus()).thenReturn(InventoryStatus.AVAILABLE);
+        when(inventoryMock.getIsLabeled()).thenReturn(Boolean.FALSE);
+        when(inventoryMock.getExpirationDate()).thenReturn(LocalDateTime.now().plusDays(10));
+
+        inventoryAggregate.checkIfIsValidToShip("LOCATION_1");
+
+        assertFalse(inventoryAggregate.getNotificationMessages().isEmpty());
+        NotificationMessage message = inventoryAggregate.getNotificationMessages().get(0);
+        assertEquals(MessageType.INVENTORY_IS_UNLABELED.name(), message.name());
     }
 
 }

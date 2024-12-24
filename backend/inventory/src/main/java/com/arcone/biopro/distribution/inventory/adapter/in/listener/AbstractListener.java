@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.inventory.adapter.in.listener;
 
+import com.arcone.biopro.distribution.inventory.application.usecase.UseCase;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,34 +20,29 @@ import reactor.util.retry.Retry;
 import java.time.Duration;
 import java.util.HashMap;
 
-/**
-  AbstractListener is a base class for processing Kafka messages.
-
-  @param <T> the application layer input type.
- * @param <G> the application layer output type.
- * @param <U> the adapter layer Kafka message DTO.
- */
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public abstract class AbstractListener<T, G, U> implements CommandLineRunner {
+public abstract class AbstractListener<TInput, TOutput, TPayload> implements CommandLineRunner {
 
-    TypeReference<U> typeReference;
+    private static final String JSON_DESERIALIZATION_DLQ = "LabelingJsonDeserializationDLQ";
+
+    MessageMapper<TInput, TPayload> mapper;
+    UseCase<Mono<TOutput>, TInput> useCase;
     ReactiveKafkaConsumerTemplate<String, String> consumer;
     ObjectMapper objectMapper;
     ReactiveKafkaProducerTemplate<String, String> producerDLQTemplate;
-    String topicDLQ;
     Scheduler scheduler = Schedulers.newBoundedElastic(16, 128, "schedulers");
 
     public AbstractListener(ReactiveKafkaConsumerTemplate<String, String> consumer,
                             ObjectMapper objectMapper,
                             ReactiveKafkaProducerTemplate<String, String> producerDLQTemplate,
-                            String topic,
-                            TypeReference<U> typeReference) {
+                            UseCase<Mono<TOutput>, TInput> useCase,
+                            MessageMapper<TInput, TPayload> mapper) {
         this.consumer = consumer;
         this.objectMapper = objectMapper;
         this.producerDLQTemplate = producerDLQTemplate;
-        this.topicDLQ = topic + "DLQ";
-        this.typeReference = typeReference;
+        this.useCase = useCase;
+        this.mapper = mapper;
     }
 
     @Override
@@ -54,7 +50,7 @@ public abstract class AbstractListener<T, G, U> implements CommandLineRunner {
         handleEvent().publishOn(scheduler).subscribe();
     }
 
-    private Flux<G> handleEvent() {
+    private Flux<TOutput> handleEvent() {
         return consumer
             .receiveAutoAck()
             .doOnNext(
@@ -73,36 +69,41 @@ public abstract class AbstractListener<T, G, U> implements CommandLineRunner {
             .doOnError(throwable -> log.error("something bad happened while consuming: {}", throwable.getMessage()));
     }
 
-    private Mono<G> handleMessage(String value) {
+    private Mono<TOutput> handleMessage(String value) {
         try {
-            U message = objectMapper.readValue(value, typeReference);
-            return processInput(fromMessageToInput(message))
+            EventMessage<TPayload> message = getMessage(value);
+            TInput input = toInput(message.payload());
+            return processMessage(input)
                 .retryWhen(Retry
                     .fixedDelay(3, Duration.ofSeconds(60))
                     .doBeforeRetry(retrySignal ->
                         log.warn("Retrying due to error: {}. Attempt: {}",
                             retrySignal.failure().getMessage(),
                             retrySignal.totalRetries())))
-                .doOnSuccess(product -> log.info("Processed message = {}", message))
+                .doOnSuccess(output -> log.info("Processed message = {}", output))
                 .onErrorResume(e -> {
                     log.error("Skipping message processing. Reason: {} Message: {}", e.getMessage(), value);
-                    sendToDlq(value, e.getMessage());
+                    sendToDlq(value, e.getMessage(), "LabelingDLQ" + message.eventType());
                     return Mono.empty();
                 });
         } catch (JsonProcessingException e) {
-            log.error(String.format("Problem deserializing an instance of [%s] with the following json: %s ",  typeReference.getType(), value), e);
-            sendToDlq(value, e.getMessage());
+            log.error(String.format("Problem deserializing an instance of [%s] with the following json: %s ", getMessageTypeReference().getClass().getSimpleName(), value), e);
+            sendToDlq(value, e.getMessage(), JSON_DESERIALIZATION_DLQ);
             return Mono.empty();
         }
     }
 
-    private void sendToDlq(String value, String errorMessage) {
+    private EventMessage<TPayload> getMessage(String value) throws JsonProcessingException {
+        return objectMapper.readValue(value, getMessageTypeReference());
+    }
+
+    private void sendToDlq(String value, String errorMessage, String dlqTopic) {
         var dlqMessage = new HashMap<String, String>();
         dlqMessage.put("message", value);
         dlqMessage.put("error", errorMessage);
         try {
             var dlqMessageJson = objectMapper.writeValueAsString(dlqMessage);
-            producerDLQTemplate.send(topicDLQ, dlqMessageJson)
+            producerDLQTemplate.send(dlqTopic, dlqMessageJson)
                 .doOnError(e -> log.error("Send failed", e))
                 .subscribe();
         } catch (JsonProcessingException e) {
@@ -110,8 +111,15 @@ public abstract class AbstractListener<T, G, U> implements CommandLineRunner {
         }
     }
 
-    protected abstract Mono<G> processInput(T input);
+    private Mono<TOutput> processMessage(TInput input) {
+        return this.useCase.execute(input);
+    }
 
-    protected abstract T fromMessageToInput(U message);
+    private TInput toInput(TPayload message) {
+        return this.mapper.toInput(message);
+    }
+
+    protected abstract TypeReference<EventMessage<TPayload>> getMessageTypeReference();
+
 }
 

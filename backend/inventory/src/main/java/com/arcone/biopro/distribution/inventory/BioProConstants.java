@@ -6,4 +6,9 @@ public interface BioProConstants {
     String EXPIRED = "EXPIRED";
     String TEXT_CONFIG_DELIMITER = "; ";
 
+    String APHERESIS_RBC_PRODUCT_CREATED_TOPIC = "ApheresisRBCProductCreated";
+    String APHERESIS_PLASMA_PRODUCT_CREATED_TOPIC = "ApheresisPlasmaProductCreated";
+    String WHOLEBLOOD_CREATED_TOPIC = "WholeBloodProductCreated";
+    String PAYLOAD = "payload";
+
 }
