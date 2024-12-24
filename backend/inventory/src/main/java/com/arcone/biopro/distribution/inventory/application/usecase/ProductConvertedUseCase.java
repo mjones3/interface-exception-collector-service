@@ -23,28 +23,8 @@ import reactor.core.publisher.Mono;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ProductConvertedUseCase implements UseCase<Mono<InventoryOutput>, ProductConvertedInput> {
 
-    InventoryAggregateRepository inventoryAggregateRepository;
-    InventoryOutputMapper mapper;
-
     @Override
     public Mono<InventoryOutput> execute(ProductConvertedInput productConvertedInput) {
-        return inventoryAggregateRepository.findByUnitNumberAndProductCode(productConvertedInput.unitNumber().value(), productConvertedInput.productCode().value())
-            .switchIfEmpty(Mono.error(InvalidUpdateProductStatusException::new))
-            .flatMap(inventoryAggregateRepository::saveInventory)
-            .doOnSuccess(aggregate -> publisher.publish(new ProductCreatedEvent(aggregate)))
-            .flatMap(this::buildOutput)
-            .doOnSuccess(response -> log.info("Product created/updated: {}", response))
-            .doOnError(e -> log.error("Error occurred during product creation/update. Input: {}, error: {}", productCreatedInput, e.getMessage(), e));
-    }
-
-    private Mono<InventoryOutput> buildOutput(InventoryAggregate aggregate) {
-        // TODO tbd
         return Mono.empty();
     }
-
-    private Mono<InventoryAggregate> buildAggregate(ProductCreatedInput productCreatedInput) {
-        return Mono.just(mapper.toAggregate(productCreatedInput));
-    }
-
-
 }

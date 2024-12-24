@@ -86,7 +86,7 @@ public abstract class InventoryOutputMapper {
     @Mapping(target = "inventory.productFamily", source = "productFamily")
     @Mapping(target = "inventory.aboRh", source = "aboRh")
     @Mapping(target = "inventory.id", expression = "java(java.util.UUID.randomUUID())")
-    @Mapping(target = "inventory.aboRh", source = "inputProducts")
+    @Mapping(target = "inventory.inputProducts", source = "inputProducts")
     @Mapping(target = "inventory.isLabeled", expression = "java(java.lang.Boolean.FALSE)")
     @Mapping(target = "inventory.inventoryStatus", expression = "java(com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus.AVAILABLE)")
     @Mapping(target = "notificationMessages", ignore = true)
