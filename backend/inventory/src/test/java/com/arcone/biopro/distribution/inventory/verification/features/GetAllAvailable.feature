@@ -65,7 +65,7 @@ Feature: Get all available inventories
         And I select "WHOLE_BLOOD" of the blood type "ANY"
         And I request available inventories in location "LOCATION_1"
 
-        Then I receive "5" groups
+        Then I receive "6" groups
         And I receive a group of product family "PLASMA_TRANSFUSABLE" and abo rh criteria "O" with "10" inventories and "10" product short date listed
         And I receive a group of product family "PLASMA_TRANSFUSABLE" and abo rh criteria "AB" with "34" inventories and "13" product short date listed
         And I receive a group of product family "RED_BLOOD_CELLS" and abo rh criteria "ANY" with "5" inventories and "5" product short date listed
