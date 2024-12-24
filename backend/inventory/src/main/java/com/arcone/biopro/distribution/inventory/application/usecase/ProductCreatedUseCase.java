@@ -4,7 +4,7 @@ import com.arcone.biopro.distribution.inventory.application.dto.InventoryOutput;
 import com.arcone.biopro.distribution.inventory.application.dto.ProductCreatedInput;
 import com.arcone.biopro.distribution.inventory.application.mapper.InventoryOutputMapper;
 import com.arcone.biopro.distribution.inventory.domain.event.InventoryEventPublisher;
-import com.arcone.biopro.distribution.inventory.domain.event.ProductCreatedEvent;
+import com.arcone.biopro.distribution.inventory.domain.event.InventoryCreatedEvent;
 import com.arcone.biopro.distribution.inventory.domain.exception.InvalidUpdateProductStatusException;
 import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
 import com.arcone.biopro.distribution.inventory.domain.repository.InventoryAggregateRepository;
@@ -32,7 +32,7 @@ public class ProductCreatedUseCase implements UseCase<Mono<InventoryOutput>, Pro
             .filter(aggregate -> aggregate.isAvailable() && !aggregate.getIsLabeled() && !aggregate.isQuarantined())
             .switchIfEmpty(Mono.error(InvalidUpdateProductStatusException::new))
             .flatMap(inventoryAggregateRepository::saveInventory)
-            .doOnSuccess(aggregate -> publisher.publish(new ProductCreatedEvent(aggregate)))
+            .doOnSuccess(aggregate -> publisher.publish(new InventoryCreatedEvent(aggregate)))
             .flatMap(this::buildOutput)
             .doOnSuccess(response -> log.info("Product created/updated: {}", response))
             .doOnError(e -> log.error("Error occurred during product creation/update. Input: {}, error: {}", productCreatedInput, e.getMessage(), e));
