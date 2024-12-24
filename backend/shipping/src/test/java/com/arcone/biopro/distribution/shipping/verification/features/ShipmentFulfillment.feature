@@ -69,14 +69,14 @@ Feature: Shipment fulfillment request
         @api @bug @DIS-273
         Scenario Outline: Fill Shipment with ANY as blood type.
             Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>".
-            And The shipment fulfillment is created for the order number "<Order Number>".
-            And The visual inspection configuration is "<Inspection Config>".
-            When I fill a product with the unit number "<UN>" , product code "<Code>" , blood Type "<Type>" and Visual Inspection "SATISFACTORY".
+            And The visual inspection configuration is "enabled".
+            And I have received a shipment fulfillment request with above details.
+            When I fill a product with the unit number "<UN>", product code "<Code>".
             Then The product unit number "<UN>" and product code "<Code>" should be packed in the shipment.
             Examples:
-                | Order Number | Customer ID | Customer Name    | Quantity | BloodType | ProductFamily                | Type | UN            | Code     | Inspection Config |
-                | 132          | 1           | Testing Customer | 10       | ANY       | PLASMA_TRANSFUSABLE          | AP   | W822530106093 | E7648V00 | enabled           |
-                | 133          | 1           | Testing Customer | 5        | ANY       | RED_BLOOD_CELLS_LEUKOREDUCED | OP   | W822530106094 | E0685V00 | enabled           |
+                | Order Number | Customer ID | Customer Name    | Quantity | BloodType | ProductFamily                | UN            | Code     |
+                | 132          | 1           | Testing Customer | 10       | ANY       | PLASMA_TRANSFUSABLE          | W822530106093 | E7648V00 |
+                | 133          | 1           | Testing Customer | 5        | ANY       | RED_BLOOD_CELLS_LEUKOREDUCED | W822530106094 | E0685V00 |
 
 
 
