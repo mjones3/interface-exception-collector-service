@@ -3,7 +3,7 @@ package com.arcone.biopro.distribution.inventory.application.usecase;
 import com.arcone.biopro.distribution.inventory.application.dto.InventoryOutput;
 import com.arcone.biopro.distribution.inventory.application.dto.ProductDiscardedInput;
 import com.arcone.biopro.distribution.inventory.application.mapper.InventoryOutputMapper;
-import com.arcone.biopro.distribution.inventory.commm.TestUtil;
+import com.arcone.biopro.distribution.inventory.common.TestUtil;
 import com.arcone.biopro.distribution.inventory.domain.exception.InventoryNotFoundException;
 import com.arcone.biopro.distribution.inventory.domain.model.Inventory;
 import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;

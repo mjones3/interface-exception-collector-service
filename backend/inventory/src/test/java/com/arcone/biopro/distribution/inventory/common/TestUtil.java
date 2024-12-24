@@ -1,4 +1,4 @@
-package com.arcone.biopro.distribution.inventory.commm;
+package com.arcone.biopro.distribution.inventory.common;
 
 import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
 import org.apache.commons.lang3.RandomStringUtils;

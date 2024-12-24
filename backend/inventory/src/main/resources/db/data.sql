@@ -17,6 +17,9 @@ insert into lk_text_config (context, key_code, text)
 values ('INVENTORY_IS_SHIPPED', 'DEFAULT', 'This product was previously shipped.');
 
 insert into lk_text_config (context, key_code, text)
+values ('INVENTORY_IS_UNLABELED', 'DEFAULT', 'This product is not labeled and cannot be shipped.');
+
+insert into lk_text_config (context, key_code, text)
 values ('INVENTORY_IS_UNSUITABLE', 'ACTIVE_DEFERRAL', 'This product has an active deferral with a discard consequence and has been discarded. Place in biohazard container.');
 
 insert into lk_text_config (context, key_code, text)

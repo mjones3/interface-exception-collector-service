@@ -110,6 +110,10 @@ public class InventoryEntity implements Serializable, Persistable<UUID> {
     @Column("comments")
     String comments;
 
+    @NotNull
+    @Column("is_labeled")
+    Boolean isLabeled;
+
     @JsonIgnore
     @Override
     public boolean isNew() {

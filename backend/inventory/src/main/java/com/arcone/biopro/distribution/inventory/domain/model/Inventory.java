@@ -40,6 +40,8 @@ public class Inventory {
 
     Boolean isLicensed;
 
+    Boolean isLabeled;
+
     Integer weight;
 
     String location;
@@ -83,10 +85,6 @@ public class Inventory {
     }
 
     public void addQuarantine(Long quarantineId, String reason, String comments) {
-        if (quarantines.isEmpty()) {
-            transitionStatus(InventoryStatus.QUARANTINED, null);
-        }
-
         quarantines.add(new Quarantine(quarantineId, reason, comments));
     }
 
