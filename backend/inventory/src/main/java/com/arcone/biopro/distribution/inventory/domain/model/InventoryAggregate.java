@@ -42,9 +42,11 @@ public class InventoryAggregate {
         }
         else if (!inventory.getInventoryStatus().equals(InventoryStatus.AVAILABLE)) {
             notificationMessages.addAll(createNotificationMessage());
-        } else if (!inventory.getIsLabeled()) {
+        }
+        else if (!inventory.getIsLabeled()) {
             notificationMessages.add(createNotificationMessage(MessageType.INVENTORY_IS_UNLABELED, null));
-        } else if (isExpired()) {
+        }
+        else if (isExpired()) {
             notificationMessages.add(createNotificationMessage(MessageType.INVENTORY_IS_EXPIRED, EXPIRED));
         }
         return this;

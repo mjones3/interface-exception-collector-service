@@ -74,6 +74,7 @@ public abstract class InventoryOutputMapper {
     @Mapping(target = "inventory.id", expression = "java(java.util.UUID.randomUUID())")
     @Mapping(target = "inventory.inventoryStatus", expression = "java(com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus.AVAILABLE)")
     @Mapping(target = "notificationMessages", ignore = true)
+    @Mapping(target = "inventory.isLabeled", expression = "java(java.lang.Boolean.TRUE)")
     public abstract InventoryAggregate toAggregate(InventoryInput input);
 
     @Mapping(target = "inventory.unitNumber.value", source = "unitNumber")
