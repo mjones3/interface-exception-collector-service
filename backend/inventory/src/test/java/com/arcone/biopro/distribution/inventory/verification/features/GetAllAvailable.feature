@@ -4,6 +4,7 @@ Feature: Get all available inventories
     Scenario Outline: Get all available inventories
         Given I have "2" products of family "PLASMA_TRANSFUSABLE" with ABORh "OP" in location "LOCATION_1" and that will expire in "2" days
         And I have "3" products of family "PLASMA_TRANSFUSABLE" with ABORh "OP" in location "LOCATION_2" and that will expire in "2" days
+        And I have "5" products of family "RED_BLOOD_CELLS" with ABORh "OP" in location "LOCATION_1" and that will expire in "2" days
         And I have "5" products of family "RED_BLOOD_CELLS_LEUKOREDUCED" with ABORh "OP" in location "LOCATION_1" and that will expire in "2" days
         And I have "8" products of family "PLASMA_TRANSFUSABLE" with ABORh "ON" in location "LOCATION_1" and that will expire in "2" days
         And I have "13" products of family "PLASMA_TRANSFUSABLE" with ABORh "ABN" in location "LOCATION_1" and that will expire in "2" days
@@ -26,6 +27,7 @@ Feature: Get all available inventories
             | 10       | PLASMA_TRANSFUSABLE          | O           | LOCATION_1 | 10                  |
             | 44       | PLASMA_TRANSFUSABLE          | ANY         | LOCATION_1 | 23                  |
             | 3        | PLASMA_TRANSFUSABLE          | ANY         | LOCATION_2 | 3                   |
+            | 5        | RED_BLOOD_CELLS              | ANY         | LOCATION_1 | 5                   |
             | 5        | RED_BLOOD_CELLS_LEUKOREDUCED | ANY         | LOCATION_1 | 5                   |
             | 13       | PLASMA_TRANSFUSABLE          | ABN         | LOCATION_1 | 13                  |
             | 21       | PLASMA_TRANSFUSABLE          | ABP         | LOCATION_1 | 0                   |
@@ -44,6 +46,7 @@ Feature: Get all available inventories
     Scenario: Get all available inventories grouped
         Given I have "2" products of family "PLASMA_TRANSFUSABLE" with ABORh "OP" in location "LOCATION_1" and that will expire in "2" days
         And I have "3" products of family "PLASMA_TRANSFUSABLE" with ABORh "OP" in location "LOCATION_2" and that will expire in "2" days
+        And I have "5" products of family "RED_BLOOD_CELLS" with ABORh "OP" in location "LOCATION_1" and that will expire in "2" days
         And I have "5" products of family "RED_BLOOD_CELLS_LEUKOREDUCED" with ABORh "OP" in location "LOCATION_1" and that will expire in "2" days
         And I have "8" products of family "PLASMA_TRANSFUSABLE" with ABORh "ON" in location "LOCATION_1" and that will expire in "2" days
         And I have "13" products of family "PLASMA_TRANSFUSABLE" with ABORh "ABN" in location "LOCATION_1" and that will expire in "2" days
@@ -56,6 +59,7 @@ Feature: Get all available inventories
 
         When I select "PLASMA_TRANSFUSABLE" of the blood type "O"
         And I select "PLASMA_TRANSFUSABLE" of the blood type "AB"
+        And I select "RED_BLOOD_CELLS" of the blood type "ANY"
         And I select "RED_BLOOD_CELLS_LEUKOREDUCED" of the blood type "ANY"
         And I select "WHOLE_BLOOD_LEUKOREDUCED" of the blood type "AB"
         And I select "WHOLE_BLOOD" of the blood type "ANY"
@@ -64,6 +68,7 @@ Feature: Get all available inventories
         Then I receive "5" groups
         And I receive a group of product family "PLASMA_TRANSFUSABLE" and abo rh criteria "O" with "10" inventories and "10" product short date listed
         And I receive a group of product family "PLASMA_TRANSFUSABLE" and abo rh criteria "AB" with "34" inventories and "13" product short date listed
+        And I receive a group of product family "RED_BLOOD_CELLS" and abo rh criteria "ANY" with "5" inventories and "5" product short date listed
         And I receive a group of product family "RED_BLOOD_CELLS_LEUKOREDUCED" and abo rh criteria "ANY" with "5" inventories and "5" product short date listed
         And I receive a group of product family "WHOLE_BLOOD_LEUKOREDUCED" and abo rh criteria "AB" with "12" inventories and "0" product short date listed
         And I receive a group of product family "WHOLE_BLOOD" and abo rh criteria "ANY" with "14" inventories and "4" product short date listed
