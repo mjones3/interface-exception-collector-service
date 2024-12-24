@@ -4,6 +4,7 @@ import com.arcone.biopro.distribution.inventory.domain.exception.UnavailableStat
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.MessageType;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.NotificationMessage;
+import com.arcone.biopro.distribution.inventory.domain.model.vo.ProductCode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -161,5 +162,12 @@ public class InventoryAggregate {
 
     public boolean hasParent() {
         return !this.inventory.getInputProducts().isEmpty();
+    }
+
+    public InventoryAggregate label(Boolean isLicensed, String finalProductCode) {
+        inventory.setIsLabeled(true);
+        inventory.setIsLicensed(isLicensed);
+        inventory.setProductCode(new ProductCode(finalProductCode));
+        return this;
     }
 }
