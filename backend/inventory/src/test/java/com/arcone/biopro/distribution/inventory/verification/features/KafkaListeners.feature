@@ -7,7 +7,7 @@ Feature: Kafka listeners
         Then The inventory status is "<Status>"
         And the expected fields for "<Event>" are stored
 
-        @LAB-82 @AOA-75 @LAB-149 @AOA-40
+        @LAB-82 @AOA-75 @LAB-149 @AOA-40 @LAB-254
         Examples:
             | Event             | Status    |
             | Label Applied     | AVAILABLE |
@@ -17,7 +17,7 @@ Feature: Kafka listeners
             | Event             | Status    |
             | Product Discarded | DISCARDED |
 
-        @LAB-79 @AOA-75
+        @LAB-79 @AOA-75 @LAB-254
         Examples:
             | Event              | Status    |
             | Quarantine Removed | AVAILABLE |
