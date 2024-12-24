@@ -143,4 +143,12 @@ public class InventoryAggregate {
     private void transitionStatus(InventoryStatus newStatus, String statusReason) {
         inventory.transitionStatus(newStatus, statusReason);
     }
+
+    public boolean isAvailable() {
+        return InventoryStatus.AVAILABLE.equals(this.inventory.getInventoryStatus());
+    }
+
+    public boolean getIsLabeled() {
+        return this.inventory.getIsLabeled();
+    }
 }

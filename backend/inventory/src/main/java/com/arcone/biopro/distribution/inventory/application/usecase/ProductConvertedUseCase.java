@@ -1,10 +1,12 @@
 package com.arcone.biopro.distribution.inventory.application.usecase;
 
 import com.arcone.biopro.distribution.inventory.application.dto.InventoryOutput;
+import com.arcone.biopro.distribution.inventory.application.dto.Product;
+import com.arcone.biopro.distribution.inventory.application.dto.ProductConvertedInput;
 import com.arcone.biopro.distribution.inventory.application.dto.ProductCreatedInput;
 import com.arcone.biopro.distribution.inventory.application.mapper.InventoryOutputMapper;
-import com.arcone.biopro.distribution.inventory.domain.event.InventoryEventPublisher;
 import com.arcone.biopro.distribution.inventory.domain.event.ProductCreatedEvent;
+import com.arcone.biopro.distribution.inventory.domain.event.InventoryEventPublisher;
 import com.arcone.biopro.distribution.inventory.domain.exception.InvalidUpdateProductStatusException;
 import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
 import com.arcone.biopro.distribution.inventory.domain.repository.InventoryAggregateRepository;
@@ -19,17 +21,14 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class ProductCreatedUseCase implements UseCase<Mono<InventoryOutput>, ProductCreatedInput> {
+public class ProductConvertedUseCase implements UseCase<Mono<InventoryOutput>, ProductConvertedInput> {
 
     InventoryAggregateRepository inventoryAggregateRepository;
     InventoryOutputMapper mapper;
-    InventoryEventPublisher publisher;
 
     @Override
-    public Mono<InventoryOutput> execute(ProductCreatedInput productCreatedInput) {
-        return inventoryAggregateRepository.findByUnitNumberAndProductCode(productCreatedInput.unitNumber(), productCreatedInput.productCode())
-            .switchIfEmpty(Mono.defer(() -> buildAggregate(productCreatedInput)))
-            .filter(aggregate -> aggregate.isAvailable() && !aggregate.getIsLabeled()) // add is quarantined
+    public Mono<InventoryOutput> execute(ProductConvertedInput productConvertedInput) {
+        return inventoryAggregateRepository.findByUnitNumberAndProductCode(productConvertedInput.unitNumber().value(), productConvertedInput.productCode().value())
             .switchIfEmpty(Mono.error(InvalidUpdateProductStatusException::new))
             .flatMap(inventoryAggregateRepository::saveInventory)
             .doOnSuccess(aggregate -> publisher.publish(new ProductCreatedEvent(aggregate)))

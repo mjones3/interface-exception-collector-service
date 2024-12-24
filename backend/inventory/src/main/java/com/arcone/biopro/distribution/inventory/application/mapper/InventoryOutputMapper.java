@@ -4,6 +4,7 @@ import com.arcone.biopro.distribution.inventory.application.dto.*;
 import com.arcone.biopro.distribution.inventory.domain.model.Inventory;
 import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhCriteria;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.MessageType;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.NotificationMessage;
 import com.arcone.biopro.distribution.inventory.domain.service.TextConfigService;
@@ -13,6 +14,7 @@ import lombok.experimental.FieldDefaults;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Setter
@@ -73,6 +75,22 @@ public abstract class InventoryOutputMapper {
     @Mapping(target = "inventory.inventoryStatus", expression = "java(com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus.AVAILABLE)")
     @Mapping(target = "notificationMessages", ignore = true)
     public abstract InventoryAggregate toAggregate(InventoryInput input);
+
+    @Mapping(target = "inventory.unitNumber.value", source = "unitNumber")
+    @Mapping(target = "inventory.productCode.value", source = "productCode")
+    @Mapping(target = "inventory.shortDescription", source = "productDescription")
+    @Mapping(target = "inventory.expirationDate", source = "expirationDate")
+    @Mapping(target = "inventory.collectionDate", source = "collectionDate")
+    @Mapping(target = "inventory.weight", source = "weight")
+    @Mapping(target = "inventory.location", source = "location")
+    @Mapping(target = "inventory.productFamily", source = "productFamily")
+    @Mapping(target = "inventory.aboRh", source = "aboRh")
+    @Mapping(target = "inventory.id", expression = "java(java.util.UUID.randomUUID())")
+    @Mapping(target = "inventory.aboRh", source = "inputProducts")
+    @Mapping(target = "inventory.isLabeled", expression = "java(java.lang.Boolean.FALSE)")
+    @Mapping(target = "inventory.inventoryStatus", expression = "java(com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus.AVAILABLE)")
+    @Mapping(target = "notificationMessages", ignore = true)
+    public abstract InventoryAggregate toAggregate(ProductCreatedInput input);
 
 
 
