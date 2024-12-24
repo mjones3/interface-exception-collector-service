@@ -14,7 +14,11 @@ import lombok.experimental.FieldDefaults;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Setter
@@ -80,7 +84,7 @@ public abstract class InventoryOutputMapper {
     @Mapping(target = "inventory.unitNumber.value", source = "unitNumber")
     @Mapping(target = "inventory.productCode.value", source = "productCode")
     @Mapping(target = "inventory.shortDescription", source = "productDescription")
-    @Mapping(target = "inventory.expirationDate", source = "expirationDate")
+    @Mapping(target = "inventory.expirationDate", expression = "java(createExpirationDate(productCreatedInput.expirationDate(), productCreatedInput.expirationTime()))")
     @Mapping(target = "inventory.collectionDate", source = "collectionDate")
     @Mapping(target = "inventory.weight", source = "weight")
     @Mapping(target = "inventory.location", source = "location")
@@ -91,12 +95,13 @@ public abstract class InventoryOutputMapper {
     @Mapping(target = "inventory.isLabeled", expression = "java(java.lang.Boolean.FALSE)")
     @Mapping(target = "inventory.inventoryStatus", expression = "java(com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus.AVAILABLE)")
     @Mapping(target = "notificationMessages", ignore = true)
-    public abstract InventoryAggregate toAggregate(ProductCreatedInput input);
-
-
+    public abstract InventoryAggregate toAggregate(ProductCreatedInput productCreatedInput);
 
     List<String> toDetails(List<String> details, String context) {
         return details.stream().map(d -> textConfigService.getText(context + "_DETAIL", d)).toList();
     }
 
+    LocalDateTime createExpirationDate(String expDate, String expTime) {
+        return LocalDateTime.of(LocalDate.parse(expDate, DateTimeFormatter.ofPattern("mm/DD/yyyy")), LocalTime.parse(expTime));
+    }
 }

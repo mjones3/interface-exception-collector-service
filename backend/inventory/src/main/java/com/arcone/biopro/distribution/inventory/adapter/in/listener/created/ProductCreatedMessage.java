@@ -11,6 +11,8 @@ public record ProductCreatedMessage(
     String productCode,
     String productDescription,
     String expirationDate,
+    String expirationTime,
+    String expirationTimeZone,
     ValueUnit weight,
     ZonedDateTime drawTime,
     String manufacturingLocation,

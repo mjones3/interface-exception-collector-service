@@ -158,4 +158,8 @@ public class InventoryAggregate {
         inventory.transitionStatus(InventoryStatus.CONVERTED, "Child manufactured");
         return this;
     }
+
+    public boolean hasParent() {
+        return !this.inventory.getInputProducts().isEmpty();
+    }
 }

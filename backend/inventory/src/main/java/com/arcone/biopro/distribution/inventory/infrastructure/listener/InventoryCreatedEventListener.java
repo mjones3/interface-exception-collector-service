@@ -23,16 +23,18 @@ public class InventoryCreatedEventListener {
     @EventListener
     public void convertedProduct(InventoryCreatedEvent inventoryCreatedEvent) {
         var aggregate = inventoryCreatedEvent.aggregate();
-        var parentProductCode = aggregate.getInventory().getInputProducts().getFirst().productCode();
-        var input = new ProductConvertedInput(aggregate.getInventory().getUnitNumber(), new ProductCode(parentProductCode));
-        useCase.execute(input)
-            .retryWhen(Retry
-                .backoff(3, Duration.ofSeconds(5))
-                .jitter(0.5)
-                .doBeforeRetry(retrySignal ->
-                    log.warn("Retrying due to error: {}. Attempt: {}",
-                        retrySignal.failure().getMessage(),
-                        retrySignal.totalRetries())))
-            .subscribe();
+        if (aggregate.hasParent()) {
+            var parentProductCode = aggregate.getInventory().getInputProducts().getFirst().productCode();
+            var input = new ProductConvertedInput(aggregate.getInventory().getUnitNumber(), new ProductCode(parentProductCode));
+            useCase.execute(input)
+                .retryWhen(Retry
+                    .backoff(3, Duration.ofSeconds(5))
+                    .jitter(0.5)
+                    .doBeforeRetry(retrySignal ->
+                        log.warn("Retrying due to error: {}. Attempt: {}",
+                            retrySignal.failure().getMessage(),
+                            retrySignal.totalRetries())))
+                .subscribe();
+        }
     }
 }
