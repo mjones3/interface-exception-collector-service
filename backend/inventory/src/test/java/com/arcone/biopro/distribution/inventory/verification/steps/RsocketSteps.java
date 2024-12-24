@@ -1,7 +1,7 @@
 package com.arcone.biopro.distribution.inventory.verification.steps;
 
 import com.arcone.biopro.distribution.inventory.adapter.in.socket.dto.*;
-import com.arcone.biopro.distribution.inventory.commm.TestUtil;
+import com.arcone.biopro.distribution.inventory.common.TestUtil;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhCriteria;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
@@ -80,7 +80,8 @@ public class RsocketSteps {
 
     @Given("I have one product with {string}, {string} and {string} in {string} status with reason {string} and comments {string}")
     public void iHaveOneProductWithAndInStatus(String unitNumber, String productCode, String location, String status, String statusReason, String comments) {
-        Integer days = InventoryStatus.EXPIRED.equals(InventoryStatus.valueOf(status)) || InventoryStatus.DISCARDED.equals(InventoryStatus.valueOf(status))   ? -1 : 1;
+        //Integer days = InventoryStatus.EXPIRED.equals(InventoryStatus.valueOf(status)) || InventoryStatus.DISCARDED.equals(InventoryStatus.valueOf(status))   ? -1 : 1;
+        Integer days = "EXPIRED".equals(status)   ? -1 : 1;
 
         InventoryStatus inventoryStatus = "EXPIRED".equals(status) ? InventoryStatus.AVAILABLE : InventoryStatus.valueOf(status);
 
@@ -92,10 +93,7 @@ public class RsocketSteps {
     }
 
     private void createInventory(String unitNumber, String productCode, String productFamily, AboRhType aboRhType, String location, Integer daysToExpire, InventoryStatus status, String statusReason, String comments, List<Quarantine> specificQuarantines) {
-        List<Quarantine> quarantines = InventoryStatus.QUARANTINED.equals(status) && specificQuarantines.isEmpty() ? TestUtil.createQuarantines() : List.of();
-        if(!specificQuarantines.isEmpty()) {
-            quarantines = specificQuarantines;
-        }
+
         inventoryEntityRepository.save(InventoryEntity.builder()
             .id(UUID.randomUUID())
             .productFamily(productFamily)
@@ -112,7 +110,32 @@ public class RsocketSteps {
             .comments(comments)
             .shortDescription("Short description")
             .storageLocation("FREEZER 1, RACK 1, SHELF 1")
-            .quarantines(quarantines)
+            .quarantines(specificQuarantines)
+            .isLabeled(true)
+            .build()).block();
+
+    }
+
+    private void createInventory(String unitNumber, String productCode, String productFamily, AboRhType aboRhType, String location, Integer daysToExpire, InventoryStatus status, String statusReason, String comments, List<Quarantine> specificQuarantines, boolean isLabeled) {
+
+        inventoryEntityRepository.save(InventoryEntity.builder()
+            .id(UUID.randomUUID())
+            .productFamily(productFamily)
+            .aboRh(aboRhType)
+            .location(location)
+            .collectionDate(ZonedDateTime.now())
+            .inventoryStatus(status)
+            .expirationDate(LocalDateTime.now().plusDays(daysToExpire))
+            .unitNumber(unitNumber)
+            .weight(123)
+            .isLicensed(true)
+            .productCode(productCode)
+            .statusReason(statusReason)
+            .comments(comments)
+            .shortDescription("Short description")
+            .storageLocation("FREEZER 1, RACK 1, SHELF 1")
+            .quarantines(specificQuarantines)
+            .isLabeled(isLabeled)
             .build()).block();
 
     }
@@ -226,15 +249,24 @@ public class RsocketSteps {
 
     @And("I have one product with {string}, {string} and {string} in {string} status with quarantine reasons {string} and comments {string}")
     public void iHaveOneProductWithAndInStatusWithQuarantineReasonsAndComments(String unitNumber, String productCode, String location, String status, String quarantineReasons, String quarantineComments) {
-        Integer days = InventoryStatus.EXPIRED.equals(InventoryStatus.valueOf(status)) || InventoryStatus.DISCARDED.equals(InventoryStatus.valueOf(status))   ? -1 : 1;
+        Integer days = InventoryStatus.DISCARDED.equals(InventoryStatus.valueOf(status))   ? -1 : 1;
         List<Quarantine> quarantines = Arrays.stream(quarantineReasons.split(",")).map(String::trim).map(reason -> new Quarantine(1L, reason, quarantineComments)).collect(Collectors.toList());
         createInventory(unitNumber, productCode, "PLASMA_TRANSFUSABLE", AboRhType.OP, location, days, InventoryStatus.valueOf(status), "ACTIVE_DEFERRAL", null, quarantines);
     }
 
     @And("I have one product with {string}, {string} and {string} in {string} status with reason {string}")
     public void iHaveOneProductWithAndInStatusWithReason(String unitNumber, String productCode, String location, String status, String reason) {
-        Integer days = InventoryStatus.EXPIRED.equals(InventoryStatus.valueOf(status)) || InventoryStatus.DISCARDED.equals(InventoryStatus.valueOf(status))   ? -1 : 1;
+        Integer days =  "EXPIRED".equals(status) ? -1 : 1;
         InventoryStatus inventoryStatus = "EXPIRED".equals(status) ? InventoryStatus.AVAILABLE : InventoryStatus.valueOf(status);
         createInventory(unitNumber, productCode, "PLASMA_TRANSFUSABLE", AboRhType.OP, location, days, inventoryStatus, reason, null);
+    }
+
+    @And("I have one product with {string}, {string} and {string} in {string} status and is unlabeled")
+    public void iHaveOneProductWithAndInStatusAndIsUnlabeled(String unitNumber, String productCode, String location, String status) {
+        Integer days = "EXPIRED".equals(status)   ? -1 : 1;
+
+        InventoryStatus inventoryStatus = "EXPIRED".equals(status) ? InventoryStatus.AVAILABLE : InventoryStatus.valueOf(status);
+
+        createInventory(unitNumber, productCode, "PLASMA_TRANSFUSABLE", AboRhType.OP, location, days, inventoryStatus, null, null, null, false);
     }
 }

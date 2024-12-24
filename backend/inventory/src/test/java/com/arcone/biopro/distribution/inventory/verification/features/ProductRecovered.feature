@@ -9,5 +9,3 @@ Feature: Product Recovered event
             Examples:
                 | Previous Status |
                 | AVAILABLE       |
-                | QUARANTINED     |
-#                | UNSUITABLE      |

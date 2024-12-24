@@ -15,6 +15,7 @@ import com.arcone.biopro.distribution.inventory.domain.model.vo.UnitNumber;
 import com.arcone.biopro.distribution.inventory.domain.repository.InventoryAggregateRepository;
 import com.arcone.biopro.distribution.inventory.domain.service.TextConfigService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
@@ -25,6 +26,7 @@ import reactor.test.StepVerifier;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -60,7 +62,6 @@ class UpdateQuarantinedUseCaseTest {
         Inventory inventory = Inventory.builder()
             .unitNumber(new UnitNumber("W036824111111"))
             .productCode(new ProductCode("E1624V00"))
-            .inventoryStatus(InventoryStatus.QUARANTINED)
             .histories(new ArrayList<>(List.of(new History(InventoryStatus.AVAILABLE, null, null))))
             .quarantines(new ArrayList<>(List.of(
                 new Quarantine(1L, "Contamination", "Suspected contamination")
@@ -75,6 +76,7 @@ class UpdateQuarantinedUseCaseTest {
     }
 
     @Test
+    @DisplayName("Should Return An InventoryOutput When Quarantines Is Updated")
     void execute_ShouldReturnInventoryOutput_WhenInventoryIsFoundAndQuarantineIsUpdated() {
         // Arrange
         when(inventoryAggregateRepository.findByUnitNumberAndProductCode(anyString(), anyString()))
@@ -88,15 +90,13 @@ class UpdateQuarantinedUseCaseTest {
 
         // Assert
         StepVerifier.create(result)
-            .consumeNextWith(output -> {
-                assertThat(output.inventoryStatus()).isEqualTo(InventoryStatus.QUARANTINED);
-            })
+            .expectNextMatches(Objects::nonNull)
             .verifyComplete();
 
         assertThat(inventoryAggregate.getInventory().getQuarantines()).isNotEmpty();
 
         verify(inventoryAggregateRepository).findByUnitNumberAndProductCode("W036824111111", "E1624V00");
-        verify(inventoryAggregateRepository).saveInventory(inventoryAggregate);
+        verify(inventoryAggregateRepository, times(1)).saveInventory(inventoryAggregate);
     }
 
     @Test

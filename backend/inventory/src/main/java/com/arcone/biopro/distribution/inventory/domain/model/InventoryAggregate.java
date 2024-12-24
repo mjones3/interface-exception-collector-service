@@ -36,9 +36,17 @@ public class InventoryAggregate {
 
         if (!inventory.getLocation().equals(location)) {
             notificationMessages.add(createNotificationMessage(MessageType.INVENTORY_NOT_FOUND_IN_LOCATION, null));
-        } else if (!inventory.getInventoryStatus().equals(InventoryStatus.AVAILABLE)) {
+        }
+        else if (isQuarantined()) {
+            notificationMessages.addAll(createQuarantinesNotificationMessage());
+        }
+        else if (!inventory.getInventoryStatus().equals(InventoryStatus.AVAILABLE)) {
             notificationMessages.addAll(createNotificationMessage());
-        } else if (isExpired()) {
+        }
+        else if (!inventory.getIsLabeled()) {
+            notificationMessages.add(createNotificationMessage(MessageType.INVENTORY_IS_UNLABELED, null));
+        }
+        else if (isExpired()) {
             notificationMessages.add(createNotificationMessage(MessageType.INVENTORY_IS_EXPIRED, EXPIRED));
         }
         return this;
@@ -48,11 +56,11 @@ public class InventoryAggregate {
         return new NotificationMessage(notificationType.name(), notificationType.getCode(), notificationType.name(), notificationType.getType().name(), notificationType.getAction().name(), reason, List.of());
     }
 
-    private List<NotificationMessage> createNotificationMessage() {
+    private Boolean isQuarantined() {
+        return !inventory.getQuarantines().isEmpty();
+    }
 
-        if (inventory.getInventoryStatus().equals(InventoryStatus.QUARANTINED)) {
-            return createQuarantinesNotificationMessage();
-        }
+    private List<NotificationMessage> createNotificationMessage() {
 
         MessageType messageType = MessageType.fromStatus(inventory.getInventoryStatus())
             .orElseThrow(UnavailableStatusNotMappedException::new);

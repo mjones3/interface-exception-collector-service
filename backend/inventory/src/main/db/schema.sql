@@ -22,6 +22,7 @@ CREATE TABLE inventory.bld_inventory
     quarantines                 JSONB,
     histories                   JSONB,
     comments                     VARCHAR(255),
+    is_labeled                  BOOLEAN,
     CONSTRAINT pk_bld_inventory PRIMARY KEY (id)
 );
 
