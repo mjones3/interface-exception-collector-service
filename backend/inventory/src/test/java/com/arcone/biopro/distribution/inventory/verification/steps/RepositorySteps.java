@@ -172,9 +172,9 @@ public class RepositorySteps {
                         "comments",
                         "storageLocation",
                         "quarantines",
-                        "statusReason",
-                        "isLabeled"
-                    );
+                        "statusReason"
+                    )
+                    .hasFieldOrPropertyWithValue("isLabeled", true);
                 break;
             case EVENT_SHIPMENT_COMPLETED:
                 break;
