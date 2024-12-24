@@ -461,8 +461,8 @@ public class ShipmentFulfillmentSteps {
     @Then("If the check digit configuration is enabled, the check digit field should disappear if I clean the Unit Number field.")
     public void checkDigitDisappear() throws InterruptedException {
         if (checkDigitEnabled) {
-        fillProductsPage.cleanProductCodeField();
-        fillProductsPage.cleanUnitNumberField();
+            fillProductsPage.cleanProductCodeField();
+            fillProductsPage.cleanUnitNumberField();
             Assert.assertTrue(fillProductsPage.isCheckDigitFieldIsNotVisible());
         }
     }
@@ -475,12 +475,13 @@ public class ShipmentFulfillmentSteps {
 
     @Then("The product unit number {string} and product code {string} should be packed in the shipment.")
     public void theProductUnitNumberAndProductCodeShouldBePackedInTheShipment(String unitNumber, String productCode) throws IOException {
-        var results =  this.packItemResponse.get("results");
-//        FIX: This mapping is not working
-        List<PackProductResponseType> resultsObject = new ObjectMapper().convertValue(results, new TypeReference<List<PackProductResponseType>>() {});
+        var results = (Map) this.packItemResponse.get("results");
+        ObjectMapper mapper = new ObjectMapper();
+        List<PackProductResponseType> resultsObject = mapper.convertValue(results.get("results"), new TypeReference<List<PackProductResponseType>>() {
+        });
         boolean match = resultsObject.stream().anyMatch(item -> {
-           var items =  Arrays.stream(item.getPackedItems()).toList();
-              return items.stream().anyMatch(packedItem -> packedItem.getUnitNumber().equals(unitNumber) && packedItem.getProductCode().equals(productCode));
+            var items = Arrays.stream(item.getPackedItems()).toList();
+            return items.stream().anyMatch(packedItem -> packedItem.getUnitNumber().equals(unitNumber) && packedItem.getProductCode().equals(productCode));
         });
         assertTrue(match, "Failed to find the product in the packed items.");
     }
