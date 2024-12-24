@@ -29,7 +29,7 @@ public class ProductCreatedUseCase implements UseCase<Mono<InventoryOutput>, Pro
     public Mono<InventoryOutput> execute(ProductCreatedInput productCreatedInput) {
         return inventoryAggregateRepository.findByUnitNumberAndProductCode(productCreatedInput.unitNumber(), productCreatedInput.productCode())
             .switchIfEmpty(Mono.defer(() -> buildAggregate(productCreatedInput)))
-            .filter(aggregate -> aggregate.isAvailable() && !aggregate.getIsLabeled()) // add is quarantined
+            .filter(aggregate -> aggregate.isAvailable() && !aggregate.getIsLabeled() && !aggregate.isQuarantined())
             .switchIfEmpty(Mono.error(InvalidUpdateProductStatusException::new))
             .flatMap(inventoryAggregateRepository::saveInventory)
             .doOnSuccess(aggregate -> publisher.publish(new ProductCreatedEvent(aggregate)))
