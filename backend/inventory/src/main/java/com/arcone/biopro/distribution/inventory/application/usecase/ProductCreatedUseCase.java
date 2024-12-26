@@ -32,7 +32,16 @@ public class ProductCreatedUseCase implements UseCase<Mono<InventoryOutput>, Pro
 
     @Override
     public Mono<InventoryOutput> execute(ProductCreatedInput productCreatedInput) {
-        return inventoryAggregateRepository.findByUnitNumberAndProductCode(productCreatedInput.unitNumber(), productCreatedInput.productCode()).switchIfEmpty(Mono.defer(() -> buildAggregate(productCreatedInput))).filter(aggregate -> aggregate.isAvailable() && !aggregate.getIsLabeled() && !aggregate.isQuarantined()).switchIfEmpty(Mono.error(InvalidUpdateProductStatusException::new)).flatMap(inventoryAggregateRepository::saveInventory).doOnSuccess(aggregate -> publisher.publish(new InventoryCreatedEvent(aggregate))).flatMap(this::buildOutput).doOnSuccess(response -> log.info("Product created/updated: {}", response)).doOnError(e -> log.error("Error occurred during product creation/update. Input: {}, error: {}", productCreatedInput, e.getMessage(), e));
+        return inventoryAggregateRepository
+            .findByUnitNumberAndProductCode(productCreatedInput.unitNumber(), productCreatedInput.productCode())
+            .switchIfEmpty(Mono.defer(() -> buildAggregate(productCreatedInput)))
+            .filter(aggregate -> aggregate.isAvailable() && !aggregate.getIsLabeled() && !aggregate.isQuarantined())
+            .switchIfEmpty(Mono.error(InvalidUpdateProductStatusException::new))
+            .flatMap(inventoryAggregateRepository::saveInventory)
+            .doOnSuccess(aggregate -> publisher.publish(new InventoryCreatedEvent(aggregate)))
+            .flatMap(this::buildOutput)
+            .doOnSuccess(response -> log.info("Product created/updated: {}", response))
+            .doOnError(e -> log.error("Error occurred during product creation/update. Input: {}, error: {}", productCreatedInput, e.getMessage(), e));
     }
 
     private Mono<InventoryOutput> buildOutput(InventoryAggregate aggregate) {

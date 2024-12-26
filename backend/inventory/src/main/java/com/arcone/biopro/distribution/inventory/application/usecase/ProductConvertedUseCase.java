@@ -27,6 +27,7 @@ public class ProductConvertedUseCase implements UseCase<Mono<InventoryOutput>, P
         return inventoryAggregateRepository.findByUnitNumberAndProductCode(productConvertedInput.unitNumber().value(), productConvertedInput.productCode().value())
             .switchIfEmpty(Mono.error(InventoryNotFoundException::new))
             .flatMap(aggregate -> inventoryAggregateRepository.saveInventory(aggregate.convertProduct()))
+            .doOnSuccess(aggregate -> log.info("Product converted: {}", aggregate))
             .map(InventoryAggregate::getInventory)
             .map(inventoryOutputMapper::toOutput);
     }

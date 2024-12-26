@@ -4,7 +4,7 @@ CREATE TABLE inventory.bld_inventory
 (
     id                          uuid NOT NULL,
     unit_number                 VARCHAR(13) NOT NULL,
-    product_code                VARCHAR(8) NOT NULL CHECK,
+    product_code                VARCHAR(30) NOT NULL,
     short_description           VARCHAR(255) NOT NULL,
     status                      VARCHAR(255) NOT NULL,
     expiration_date             TIMESTAMP WITHOUT TIME ZONE NOT NULL,

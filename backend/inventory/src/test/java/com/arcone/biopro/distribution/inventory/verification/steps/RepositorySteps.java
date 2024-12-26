@@ -9,6 +9,7 @@ import com.arcone.biopro.distribution.inventory.infrastructure.persistence.Inven
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntityRepository;
 import com.arcone.biopro.distribution.inventory.verification.common.ScenarioContext;
 import com.arcone.biopro.distribution.inventory.verification.utils.ISBTProductUtil;
+import com.arcone.biopro.distribution.inventory.verification.utils.LogMonitor;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
@@ -16,6 +17,7 @@ import io.cucumber.java.en.Then;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -40,7 +42,8 @@ public class RepositorySteps {
 
     private final ScenarioContext scenarioContext;
 
-    private final String defaultLocation = "123456789";
+    @Value("${default.location}")
+    private String defaultLocation;
 
     public InventoryEntity getInventory(String unitNumber, String productCode) {
         return inventoryEntityRepository.findByUnitNumberAndProductCode(unitNumber, productCode).block();
@@ -71,6 +74,7 @@ public class RepositorySteps {
                 .expirationDate(LocalDateTime.now().plusDays(1))
                 .unitNumber(unitNumber)
                 .productCode(productCode)
+                .isLabeled(false)
                 .shortDescription(ISBTProductUtil.getProductDescription(productCode))
                 .build();
         return inventory;
@@ -223,13 +227,21 @@ public class RepositorySteps {
                 inventoryEntity.setExpirationDate(LocalDateTime.parse(expirationDate));
             }
 
+            if (headers.contains("Is licensed")) {
+                var field = inventory.get("Is licensed");
+                switch (field) {
+                    case "MISSING": inventoryEntity.setIsLicensed(null);
+                    case "YES": inventoryEntity.setIsLicensed(true);
+                    case "NO": inventoryEntity.setIsLicensed(false);
+                }
+            }
             createInventory(inventoryEntity);
         }
     }
 
     @Then("the parent inventory statuses should be updated as follows:")
     @Then("the inventory statuses should be updated as follows:")
-    public void theInventoryStatusesShouldBeUpdatedAsFollows(DataTable dataTable) {
+    public void theInventoryStatusesShouldBeUpdatedAsFollows(DataTable dataTable) throws InterruptedException {
         List<Map<String, String>> inventories = dataTable.asMaps(String.class, String.class);
         for (Map<String, String> inventory : inventories) {
             String unitNumber = inventory.get("Unit Number");
@@ -238,6 +250,9 @@ public class RepositorySteps {
             var inventoryEntity = this.getInventory(unitNumber, productCode);
             if (inventory.containsKey("Is Labeled")) {
                 assertEquals(Boolean.valueOf(inventory.get("Is Labeled")), inventoryEntity.getIsLabeled());
+            }
+            if (inventory.containsKey("Is licensed")) {
+                assertEquals(Boolean.valueOf(inventory.get("Is licensed")), inventoryEntity.getIsLicensed());
             }
             assertEquals(expectedStatus, inventoryEntity.getInventoryStatus().name());
         }

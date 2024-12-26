@@ -297,6 +297,33 @@
     "Expiration in Days": "365"
   },
   {
+    "Product Code": "E0112",
+    "Division Code": "00",
+    "ISBT Product Description": "WHOLE BLOOD|CP2D/500mL/refg",
+    "Product Description": "CP2D WB",
+    "Temperature Category": "REFRIGERATED",
+    "Product Family": "WHOLEBLOOD",
+    "Expiration in Days": "42"
+  },
+  {
+    "Product Code": "E0167",
+    "Division Code": "00",
+    "ISBT Product Description": "RED BLOOD CELLS|CPD/500mL/refg",
+    "Product Description": "CPD RBC",
+    "Temperature Category": "REFRIGERATED",
+    "Product Family": "RED_BLOOD_CELLS",
+    "Expiration in Days": "42"
+  },
+  {
+    "Product Code": "E0701",
+    "Division Code": "00",
+    "ISBT Product Description": "FRESH FROZEN PLASMA|CPD/XX/<=-18C",
+    "Product Description": "FFP",
+    "Temperature Category": "FROZEN",
+    "Product Family": "PLASMA_TRANSFUSABLE",
+    "Expiration in Days": "365"
+  },
+  {
     "Product Code": "PLASAPHP",
     "Division Code": "",
     "ISBT Product Description": "APH PLASMA",
@@ -331,5 +358,32 @@
     "Temperature Category": "REFRIGERATED",
     "Product Family": "RED_BLOOD_CELLS_LEUKOREDUCED",
     "Expiration in Days": "365"
+  },
+  {
+    "Product Code": "RBC",
+    "Division Code": "",
+    "ISBT Product Description": "CP2D RBC",
+    "Product Description": "CP2D RBC",
+    "Temperature Category": "REFRIGERATED",
+    "Product Family": "RED_BLOOD_CELLS",
+    "Expiration in Days": "42"
+  },
+  {
+    "Product Code": "PLASMA",
+    "Division Code": "",
+    "ISBT Product Description": "PLS",
+    "Product Description": "PLS",
+    "Temperature Category": "FROZEN",
+    "Product Family": "PLASMA_TRANSFUSABLE",
+    "Expiration in Days": "365"
+  },
+  {
+    "Product Code": "WHOLEBLOOD",
+    "Division Code": "",
+    "ISBT Product Description": "WB PARENT",
+    "Product Description": "WB PARENT",
+    "Temperature Category": "REFRIGERATED",
+    "Product Family": "WHOLEBLOOD",
+    "Expiration in Days": "42"
   }
 ]

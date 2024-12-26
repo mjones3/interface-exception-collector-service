@@ -7,8 +7,8 @@ Feature: Product Created event
                 | <Unit Number> | <Parent Product Code> | AVAILABLE |
 
             When I received a Product Created event for the following products:
-                | Unit Number     | Product Code     | Product Description | Expiration Date | Manufacturing Location |
-                | "<Unit Number>" | "<Product Code>" |                     |                 |                        |
+                | Unit Number   | Product Code   | Parent Product Code   |
+                | <Unit Number> | <Product Code> | <Parent Product Code> |
 
             Then the parent inventory statuses should be updated as follows:
                 | Unit Number   | Product Code          | Status    |
@@ -19,10 +19,11 @@ Feature: Product Created event
                 | <Unit Number> | <Product Code> | AVAILABLE | false      |
 
             Examples:
-                | Unit Number   | Parent Product Code | Product Code | Product Description | Expiration Date | Collection Date | Manufacturing Location | Collection Location | Product Family | ABO/RH |
-                | W036824211111 | PLASAPHP            | E1624V00     |                     |                 |                 |                        |                     |                |        |
-                | W036824211112 | RBCAPH1             |              |                     |                 |                 |                        |                     |                |        |
-                | W036824211113 | WHOLEBLOOD          | final        |                     |                 |                 |                        |                     |                |        |
-                | W036824211113 | WHOLEBLOOD          | RBC          |                     |                 |                 |                        |                     |                |        |
-                | W036824211113 | WHOLEBLOOD          | plasma       |                     |                 |                 |                        |                     |                |        |
-                | W036824211113 | RBC                 | FINAL        |                     |                 |                 |                        |                     |                |        |
+                | Unit Number   | Parent Product Code | Product Code |
+                | W036824211111 | PLASAPHP            | E765000      |
+                | W036824211112 | RBCAPH              | E453200      |
+                | W036824211113 | WHOLEBLOOD          | E011200      |
+                | W036824211113 | WHOLEBLOOD          | RBC          |
+                | W036824211113 | WHOLEBLOOD          | PLASMA       |
+                | W036824211113 | RBC                 | E016700      |
+                | W036824211113 | PLASMA              | E070100      |

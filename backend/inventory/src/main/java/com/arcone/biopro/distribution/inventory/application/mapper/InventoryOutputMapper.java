@@ -102,6 +102,6 @@ public abstract class InventoryOutputMapper {
     }
 
     LocalDateTime createExpirationDate(String expDate, String expTime) {
-        return LocalDateTime.of(LocalDate.parse(expDate, DateTimeFormatter.ofPattern("mm/DD/yyyy")), LocalTime.parse(expTime));
+        return LocalDateTime.of(LocalDate.parse(expDate, DateTimeFormatter.ofPattern("MM/dd/yyyy")), LocalTime.parse(expTime));
     }
 }
