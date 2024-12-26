@@ -11,9 +11,9 @@ public class DatabaseQueries {
             "VALUES ('%s', '%s', '%s', '%s', '%s', 'FEDEX', '2024-12-25', 'A1235', 'BILLING NAME', 'A1235', 'Creative Testing Solutions', CURRENT_DATE, CURRENT_DATE, 'FROZEN', 'ee1bf88e-2137-4a17-835a-d43e7b738374')", externalId, locationCode, priority, deliveryType, status);
     }
 
-    public static String insertBioProOrder(Integer orderNumber, String externalId, String locationCode, Integer priority, String deliveryType, String status, String desiredShipdate) {
-        return String.format("INSERT INTO bld_order (order_number, external_id, location_code, priority, delivery_type, status, shipping_method, billing_customer_code, billing_customer_name, shipping_customer_code, shipping_customer_name, create_date, modification_date, product_category, create_employee_id, desired_shipping_date) " +
-            "VALUES ('%s', '%s', '%s', '%s', '%s', '%s', 'FEDEX', 'A1235', 'BILLING NAME', 'A1235', 'Creative Testing Solutions', CURRENT_DATE, CURRENT_DATE, 'FROZEN', 'ee1bf88e-2137-4a17-835a-d43e7b738374', '%s')", orderNumber, externalId, locationCode, priority, deliveryType, status, desiredShipdate);
+    public static String insertBioProOrder(String externalId, String locationCode, Integer priority, String deliveryType, String status, String desiredShipdate) {
+        return String.format("INSERT INTO bld_order (external_id, location_code, priority, delivery_type, status, shipping_method, billing_customer_code, billing_customer_name, shipping_customer_code, shipping_customer_name, create_date, modification_date, product_category, create_employee_id, desired_shipping_date) " +
+            "VALUES ('%s', '%s', '%s', '%s', '%s', 'FEDEX', 'A1235', 'BILLING NAME', 'A1235', 'Creative Testing Solutions', CURRENT_DATE, CURRENT_DATE, 'FROZEN', 'ee1bf88e-2137-4a17-835a-d43e7b738374', '%s')", externalId, locationCode, priority, deliveryType, status, desiredShipdate);
     }
 
     public static String insertBioProOrderWithDetails(String externalId, String locationCode, Integer priority, String deliveryType, String status, String shipmentType, String shippingMethod, String productCategory, String desiredShipDate, String shippingCustomerCode, String shippingCustomerName, String billingCustomerCode, String billingCustomerName, String comments) {
