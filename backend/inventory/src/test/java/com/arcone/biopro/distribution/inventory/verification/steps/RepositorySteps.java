@@ -8,6 +8,8 @@ import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntity;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntityRepository;
 import com.arcone.biopro.distribution.inventory.verification.common.ScenarioContext;
+import com.arcone.biopro.distribution.inventory.verification.utils.ISBTProductUtil;
+import com.arcone.biopro.distribution.inventory.verification.utils.LogMonitor;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
@@ -15,6 +17,7 @@ import io.cucumber.java.en.Then;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -25,6 +28,7 @@ import java.util.UUID;
 import static com.arcone.biopro.distribution.inventory.verification.steps.KafkaListenersSteps.*;
 import static com.arcone.biopro.distribution.inventory.verification.steps.UseCaseSteps.quarantineReasonMap;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.in;
 import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -37,6 +41,9 @@ public class RepositorySteps {
     private final InventoryEntityRepository inventoryEntityRepository;
 
     private final ScenarioContext scenarioContext;
+
+    @Value("${default.location}")
+    private String defaultLocation;
 
     public InventoryEntity getInventory(String unitNumber, String productCode) {
         return inventoryEntityRepository.findByUnitNumberAndProductCode(unitNumber, productCode).block();
@@ -51,24 +58,26 @@ public class RepositorySteps {
         return inventoryEntityRepository.findByUnitNumberAndProductCodeAndInventoryStatus(unitNumber, productCode, status).block();
     }
 
-    private void createInventory(String unitNumber, String productCode, InventoryStatus status) {
-        this.createInventory(unitNumber, productCode, "PLASMA_TRANSFUSABLE", AboRhType.OP, "123456789", 2, status);
+    private void createInventory(InventoryEntity inventoryEntity) {
+        inventoryEntityRepository.save(inventoryEntity).block();
     }
 
-    private void createInventory(String unitNumber, String productCode, String productFamily, AboRhType aboRhType, String location, Integer daysToExpire, InventoryStatus status) {
-        inventoryEntityRepository.save(InventoryEntity.builder()
-            .id(UUID.randomUUID())
-            .productFamily(productFamily)
-            .aboRh(aboRhType)
-            .location(location)
-            .collectionDate(ZonedDateTime.now())
-            .inventoryStatus(status)
-            .expirationDate(LocalDateTime.now().plusDays(daysToExpire))
-            .unitNumber(unitNumber)
-            .productCode(productCode)
-            .shortDescription("Short description")
-            .build()).block();
-
+    private InventoryEntity newInventoryObject(String unitNumber, String productCode, InventoryStatus status) {
+        InventoryEntity inventory =
+            InventoryEntity.builder()
+                .id(UUID.randomUUID())
+                .productFamily(ISBTProductUtil.getProductFamily(productCode))
+                .aboRh(AboRhType.OP)
+                .location(defaultLocation)
+                .collectionDate(ZonedDateTime.now())
+                .inventoryStatus(status)
+                .expirationDate(LocalDateTime.now().plusDays(1))
+                .unitNumber(unitNumber)
+                .productCode(productCode)
+                .isLabeled(false)
+                .shortDescription(ISBTProductUtil.getProductDescription(productCode))
+                .build();
+        return inventory;
     }
 
     @Then("The inventory status is {string}")
@@ -106,10 +115,11 @@ public class RepositorySteps {
     }
 
     @Given("I have a unit number {string} with product {string} that is {string}")
-    public void iAmListeningEventForUnitNumber(String untNumber, String productCode, String status) {
-        scenarioContext.setUnitNumber(untNumber);
+    public void iAmListeningEventForUnitNumber(String unitNumber, String productCode, String status) {
+        scenarioContext.setUnitNumber(unitNumber);
         scenarioContext.setProductCode(productCode);
-        createInventory(scenarioContext.getUnitNumber(), scenarioContext.getProductCode(), "PLASMA_TRANSFUSABLE", AboRhType.OP, "Miami", 10, InventoryStatus.valueOf(status));
+        InventoryEntity inventoryEntity = newInventoryObject(unitNumber, productCode, InventoryStatus.valueOf(status));
+        createInventory(inventoryEntity);
     }
 
     @Then("I verify the quarantine reason {string} with id {string} is found {string} for unit number {string} and product {string}")
@@ -117,7 +127,7 @@ public class RepositorySteps {
         InventoryEntity inventory = getInventory(scenarioContext.getUnitNumber(), scenarioContext.getProductCode(), InventoryStatus.AVAILABLE);
 
         assert inventory != null;
-        List<Quarantine> productsReason =  inventory.getQuarantines().stream().filter(q -> quarantineReasonMap.get(quarantineReason)
+        List<Quarantine> productsReason = inventory.getQuarantines().stream().filter(q -> quarantineReasonMap.get(quarantineReason)
             .equals(q.reason()) && q.externId().equals(Long.parseLong(quarantineReasonId))).toList();
 
         assertEquals(Boolean.valueOf(isFound), !productsReason.isEmpty());
@@ -131,13 +141,12 @@ public class RepositorySteps {
         scenarioContext.setUnitNumber(TestUtil.randomString(13));
         scenarioContext.setProductCode("E0869VA0");
 
-        if(InventoryStatus.AVAILABLE.toString().equals(previousStatus)) {
+        if (InventoryStatus.AVAILABLE.toString().equals(previousStatus)) {
             histories = List.of(new History(InventoryStatus.valueOf(previousStatus), null, null));
         }
 
         quarantines = List.of(new Quarantine(1L, "OTHER", "a comment"));
         histories = List.of(new History(InventoryStatus.valueOf(previousStatus), null, null));
-
 
 
         inventoryEntityRepository.save(InventoryEntity.builder()
@@ -198,22 +207,53 @@ public class RepositorySteps {
     @Given("I have the following inventories:")
     public void iHaveTheFollowingInventories(DataTable dataTable) {
         List<Map<String, String>> inventories = dataTable.asMaps(String.class, String.class);
+        List<String> headers = dataTable.row(0);
         for (Map<String, String> inventory : inventories) {
             String unitNumber = inventory.get("Unit Number");
             String productCode = inventory.get("Product Code");
-            String status = inventory.get("Status");
-            this.createInventory(unitNumber, productCode, InventoryStatus.valueOf(status));
+            InventoryStatus status = InventoryStatus.AVAILABLE;
+            if (headers.contains("Status")) {
+                status = InventoryStatus.valueOf(inventory.get("Status"));
+            }
+            InventoryEntity inventoryEntity = newInventoryObject(unitNumber, productCode, status);
+
+            if (headers.contains("ABO/RH")) {
+                String aboRh = inventory.get("ABO/RH");
+                inventoryEntity.setAboRh(AboRhType.valueOf(aboRh));
+            }
+
+            if (headers.contains("Expiration Date")) {
+                String expirationDate = inventory.get("Expiration Date");
+                inventoryEntity.setExpirationDate(LocalDateTime.parse(expirationDate));
+            }
+
+            if (headers.contains("Is licensed")) {
+                var field = inventory.get("Is licensed");
+                switch (field) {
+                    case "MISSING": inventoryEntity.setIsLicensed(null);
+                    case "YES": inventoryEntity.setIsLicensed(true);
+                    case "NO": inventoryEntity.setIsLicensed(false);
+                }
+            }
+            createInventory(inventoryEntity);
         }
     }
 
+    @Then("the parent inventory statuses should be updated as follows:")
     @Then("the inventory statuses should be updated as follows:")
-    public void theInventoryStatusesShouldBeUpdatedAsFollows(DataTable dataTable) {
+    public void theInventoryStatusesShouldBeUpdatedAsFollows(DataTable dataTable) throws InterruptedException {
         List<Map<String, String>> inventories = dataTable.asMaps(String.class, String.class);
         for (Map<String, String> inventory : inventories) {
             String unitNumber = inventory.get("Unit Number");
             String productCode = inventory.get("Product Code");
             String expectedStatus = inventory.get("Status");
             var inventoryEntity = this.getInventory(unitNumber, productCode);
+            if (inventory.containsKey("Is Labeled")) {
+                assertEquals(Boolean.valueOf(inventory.get("Is Labeled")), inventoryEntity.getIsLabeled());
+            }
+            if (inventory.containsKey("Is licensed")) {
+                assertEquals(Boolean.valueOf(inventory.get("Is licensed")), inventoryEntity.getIsLicensed());
+            }
             assertEquals(expectedStatus, inventoryEntity.getInventoryStatus().name());
         }
     }

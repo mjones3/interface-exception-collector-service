@@ -4,6 +4,7 @@ import com.arcone.biopro.distribution.inventory.domain.exception.UnavailableStat
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.MessageType;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.NotificationMessage;
+import com.arcone.biopro.distribution.inventory.domain.model.vo.ProductCode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -56,7 +57,7 @@ public class InventoryAggregate {
         return new NotificationMessage(notificationType.name(), notificationType.getCode(), notificationType.name(), notificationType.getType().name(), notificationType.getAction().name(), reason, List.of());
     }
 
-    private Boolean isQuarantined() {
+    public Boolean isQuarantined() {
         return !inventory.getQuarantines().isEmpty();
     }
 
@@ -144,5 +145,29 @@ public class InventoryAggregate {
 
     private void transitionStatus(InventoryStatus newStatus, String statusReason) {
         inventory.transitionStatus(newStatus, statusReason);
+    }
+
+    public boolean isAvailable() {
+        return InventoryStatus.AVAILABLE.equals(this.inventory.getInventoryStatus());
+    }
+
+    public boolean getIsLabeled() {
+        return this.inventory.getIsLabeled();
+    }
+
+    public InventoryAggregate convertProduct() {
+        inventory.transitionStatus(InventoryStatus.CONVERTED, "Child manufactured");
+        return this;
+    }
+
+    public boolean hasParent() {
+        return !this.inventory.getInputProducts().isEmpty();
+    }
+
+    public InventoryAggregate label(Boolean isLicensed, String finalProductCode) {
+        inventory.setIsLabeled(true);
+        inventory.setIsLicensed(isLicensed);
+        inventory.setProductCode(new ProductCode(finalProductCode));
+        return this;
     }
 }

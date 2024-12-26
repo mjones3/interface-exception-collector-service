@@ -75,7 +75,8 @@ public abstract class AbstractListener<TInput, TOutput, TPayload> implements Com
             TInput input = toInput(message.payload());
             return processMessage(input)
                 .retryWhen(Retry
-                    .fixedDelay(3, Duration.ofSeconds(60))
+                    .backoff(3, Duration.ofSeconds(5))
+                    .jitter(0.5)
                     .doBeforeRetry(retrySignal ->
                         log.warn("Retrying due to error: {}. Attempt: {}",
                             retrySignal.failure().getMessage(),
