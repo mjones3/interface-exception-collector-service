@@ -15,11 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -39,19 +34,13 @@ public class ProductCreatedUseCase implements UseCase<Mono<InventoryOutput>, Pro
             .switchIfEmpty(Mono.error(InvalidUpdateProductStatusException::new))
             .flatMap(inventoryAggregateRepository::saveInventory)
             .doOnSuccess(aggregate -> publisher.publish(new InventoryCreatedEvent(aggregate)))
-            .flatMap(this::buildOutput)
+            .map(InventoryAggregate::getInventory)
+            .map(mapper::toOutput)
             .doOnSuccess(response -> log.info("Product created/updated: {}", response))
             .doOnError(e -> log.error("Error occurred during product creation/update. Input: {}, error: {}", productCreatedInput, e.getMessage(), e));
-    }
-
-    private Mono<InventoryOutput> buildOutput(InventoryAggregate aggregate) {
-        // TODO tbd
-        return Mono.empty();
     }
 
     private Mono<InventoryAggregate> buildAggregate(ProductCreatedInput productCreatedInput) {
         return Mono.just(mapper.toAggregate(productCreatedInput));
     }
-
-
 }

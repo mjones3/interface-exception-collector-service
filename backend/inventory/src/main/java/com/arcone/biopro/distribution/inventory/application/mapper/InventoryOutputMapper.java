@@ -4,7 +4,6 @@ import com.arcone.biopro.distribution.inventory.application.dto.*;
 import com.arcone.biopro.distribution.inventory.domain.model.Inventory;
 import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhCriteria;
-import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.MessageType;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.NotificationMessage;
 import com.arcone.biopro.distribution.inventory.domain.service.TextConfigService;
@@ -17,7 +16,6 @@ import org.mapstruct.Mapping;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
