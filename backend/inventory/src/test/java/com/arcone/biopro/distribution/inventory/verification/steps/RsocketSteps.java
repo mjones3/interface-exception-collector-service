@@ -62,7 +62,7 @@ public class RsocketSteps {
         inventoryCriteriaList = new ArrayList<>();
     }
 
-    @Given("I have {string} of the {string} of the blood type {string} in the {string} will expire in {string} days")
+    @Given("I have {string} products of family {string} with ABORh {string} in location {string} and that will expire in {string} days")
     public void iHaveOfTheOfTheBloodTypeInThe(String quantity, String productFamily, String aboRh, String location, String days) {
         createProducts(quantity, productFamily, aboRh, location, days, InventoryStatus.AVAILABLE);
     }
@@ -145,7 +145,7 @@ public class RsocketSteps {
         inventoryCriteriaList.add(new AvailableInventoryCriteriaDTO(productFamily, AboRhCriteria.valueOf(aboRh)));
     }
 
-    @When("I request {string} of the blood type {string} in the {string}")
+    @When("I request available inventories for family {string} and ABORh {string} in location {string}")
     public void iRequestOfTheOfTheBloodType(String productFamily, String aboRh, String location) {
         getAvailableInventoryResponseDTOMonoResult = requester
             .route("getAvailableInventoryWithShortDatedProducts")
@@ -153,7 +153,7 @@ public class RsocketSteps {
             .retrieveMono(GetAvailableInventoryResponseDTO.class);
     }
 
-    @When("I request to location {string}")
+    @When("I request available inventories in location {string}")
     public void iRequestToLocation(String location) {
         getAvailableInventoryResponseDTOMonoResult = requester
             .route("getAvailableInventoryWithShortDatedProducts")
