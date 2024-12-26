@@ -126,6 +126,8 @@ defaultEnv:
       secretKeyRef:
         name: shipping-database-secret
         key: password
+  - name: SPRING_R2DBC_PROPERTIES_SCHEMA
+    value: "shipping"
   - name: SPRING_KAFKA_SECURITY_PROTOCOL
     value: "SSL"
   - name: ASYNC-CALL_INVENTORY_TCP-ADDRESS

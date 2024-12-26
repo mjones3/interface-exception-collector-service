@@ -1,0 +1,12 @@
+<mat-paginator
+    id="paginator"
+    class="flex justify-end"
+    aria-label="Select page of elements"
+    [showFirstLastButtons]="showFirstLastButtons"
+    [length]="total"
+    [pageIndex]="pageIndex"
+    [pageSize]="size"
+    [hidePageSize]="hidePageSize"
+    (page)="onPaginate($event)"
+>
+</mat-paginator>

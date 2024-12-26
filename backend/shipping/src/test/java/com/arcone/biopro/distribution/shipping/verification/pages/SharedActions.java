@@ -203,9 +203,10 @@ public class SharedActions {
         }
     }
 
-    public void verifyMessage(String header, String message) {
+    public void verifyMessage(String header, String message) throws InterruptedException {
         log.info("Verifying message: {}", message);
         var bannerMessageLocator = "";
+        Thread.sleep(500); // Avoid first empty container get read
         if (header.startsWith("Acknowledgment")) {
             verifyAckMessage(header, message);
         } else {
@@ -398,5 +399,10 @@ public class SharedActions {
     public void confirmationDialogIsNotVisible() {
         log.debug("confirmationDialogIsNotVisible");
         waitForNotVisible(By.xpath("//mat-dialog-container[starts-with(@id,'mat-mdc-dialog')]//fuse-confirmation-dialog"));
+    }
+
+    public WebElement getElement(WebDriver driver, By externalId) {
+        waitForVisible(externalId);
+        return driver.findElement(externalId);
     }
 }

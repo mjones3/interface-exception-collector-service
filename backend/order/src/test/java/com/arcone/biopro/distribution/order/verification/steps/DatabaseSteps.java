@@ -47,6 +47,12 @@ public class DatabaseSteps {
         databaseService.executeSql(query).block();
     }
 
+    @Given("I cleaned up from the database the orders with order numbers {string}.")
+    public void cleanUpOrdersByOrderNumbers(String orderNumbers) {
+        var query = DatabaseQueries.deleteOrdersByOrderNumbers(orderNumbers);
+        databaseService.executeSql(query).block();
+    }
+
     @And("I cleaned up from the database the orders with external ID starting with {string}.")
     public void cleanUpOrdersStartingWith(String externalIdPrefix) {
         var shipmentQuery = DatabaseQueries.deleteShipmentsByOrderExternalIdStartingWith(externalIdPrefix);
