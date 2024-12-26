@@ -1,4 +1,4 @@
-@api @LAB-253 @AOA-152 @disabled
+@api @LAB-253 @AOA-152
 Feature: Product Created event
     Rule: As an inventory service I want to listen to product created event so that I can create the inventory, convert it's parent if any, and manage it's statuses
         Scenario Outline: Create the inventory as AVAILABLE and UNLABELED and convert it's parent after receiving a Product Created event.

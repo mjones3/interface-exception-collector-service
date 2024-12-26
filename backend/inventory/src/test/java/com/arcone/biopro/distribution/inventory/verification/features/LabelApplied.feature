@@ -1,4 +1,4 @@
-@api @LAB-253 @AOA-152 @disabled
+@api @LAB-253 @AOA-152
 Feature: Label Applied Event
     Rule: As an inventory service I want to listen to label applied event so that I can update the inventory information about license, product code with 6th digit and labeled status
         Scenario Outline: Update the inventory information about license, product code with 6th digit and labeled status after receiving a Label Applied Event.
