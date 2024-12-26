@@ -571,4 +571,93 @@ class PackItemUseCaseTest {
             .verifyComplete();
     }
 
+    @Test
+    public void shouldPackItemWhenRequestingBloodTypeAnyAndProductHasAboRh(){
+
+
+        InventoryValidationResponseDTO validationResponseDTO = Mockito.mock(InventoryValidationResponseDTO.class);
+        Mockito.when(validationResponseDTO.inventoryResponseDTO()).thenReturn(InventoryResponseDTO
+            .builder()
+            .locationCode("123456789")
+            .productCode("123")
+            .unitNumber("UN")
+            .productFamily("product_family")
+            .aboRh("AP")
+            .build());
+
+        Mockito.when(shipmentItemRepository.findById(Mockito.anyLong())).thenReturn(Mono.just(ShipmentItem.builder()
+            .productFamily("product_family")
+            .id(1L)
+            .bloodType(BloodType.ANY)
+            .quantity(10)
+            .build()));
+
+
+        Mockito.when(shipmentItemPackedRepository.save(Mockito.any(ShipmentItemPacked.class))).thenReturn(Mono.just(ShipmentItemPacked.builder()
+            .id(1L)
+            .unitNumber("UN")
+            .shipmentItemId(1L)
+            .productCode("product_code")
+            .packedByEmployeeId("test")
+            .shipmentItemId(1L)
+            .build()));
+
+        Mockito.when(shipmentItemPackedRepository.findAllByShipmentItemId(Mockito.anyLong())).thenReturn(Flux.just(ShipmentItemPacked.builder()
+            .id(1L)
+            .unitNumber("UN")
+            .productCode("product_code")
+            .packedByEmployeeId("test")
+            .shipmentItemId(1L)
+            .build()));
+
+        Mockito.when(inventoryRsocketClient.validateInventory(Mockito.any(InventoryValidationRequest.class))).thenReturn(Mono.just(validationResponseDTO));
+
+        Mockito.when(shipmentItemPackedRepository.countAllByShipmentItemId(Mockito.anyLong())).thenReturn(Mono.just(0));
+
+        ShipmentItemShortDateProduct shortDateItem = Mockito.mock(ShipmentItemShortDateProduct.class);
+        Mockito.when(shortDateItem.getProductCode()).thenReturn("ABCD");
+        Mockito.when(shortDateItem.getUnitNumber()).thenReturn("UNIT_NUMBER");
+
+        Mockito.when(shipmentItemShortDateProductRepository.findAllByShipmentItemId(Mockito.anyLong())).thenReturn(Flux.just(shortDateItem));
+
+        Mockito.when(shipmentItemPackedRepository.countAllByUnitNumberAndProductCode(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just(0));
+
+        Mockito.when(configService.findShippingVisualInspectionActive()).thenReturn(Mono.just(Boolean.TRUE));
+
+        Mockito.when(configService.findShippingSecondVerificationActive()).thenReturn(Mono.just(Boolean.FALSE));
+
+        Mono<RuleResponseDTO>  packDetail = useCase.packItem(PackItemRequest.builder()
+            .unitNumber("UN")
+            .shipmentItemId(1L)
+            .employeeId("test")
+            .locationCode("123456789")
+            .productCode("123")
+            .visualInspection(VisualInspection.SATISFACTORY)
+            .build());
+
+        StepVerifier
+            .create(packDetail)
+            .consumeNextWith(detail -> {
+                assertEquals(HttpStatus.OK, detail.ruleCode());
+                assertNull(detail.notifications());
+                assertNotNull(detail.results());
+
+                var ruleResults = detail.results().get("results");
+                var firstRuleResult = ruleResults.getFirst();
+                assertNotNull(ruleResults);
+                assertNotNull(firstRuleResult);
+
+                var shipmentItem = (ShipmentItemResponseDTO) firstRuleResult;
+                var firstPackedItem = shipmentItem.packedItems().getFirst();
+                assertEquals("UN", firstPackedItem.unitNumber());
+                assertEquals("product_code", firstPackedItem.productCode());
+                assertEquals("test", firstPackedItem.packedByEmployeeId());
+
+                var firstShortDateProduct = shipmentItem.shortDateProducts().getFirst();
+                assertEquals("UNIT_NUMBER", firstShortDateProduct.unitNumber());
+                assertEquals("ABCD", firstShortDateProduct.productCode());
+            })
+            .verifyComplete();
+    }
+
 }

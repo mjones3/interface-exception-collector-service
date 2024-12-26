@@ -3,11 +3,15 @@ package com.arcone.biopro.distribution.shipping.verification.steps.shipment;
 import com.arcone.biopro.distribution.shipping.verification.pages.distribution.FillProductsPage;
 import com.arcone.biopro.distribution.shipping.verification.pages.distribution.HomePage;
 import com.arcone.biopro.distribution.shipping.verification.pages.distribution.ShipmentDetailPage;
+import com.arcone.biopro.distribution.shipping.verification.support.KafkaHelper;
 import com.arcone.biopro.distribution.shipping.verification.support.ScreenshotService;
 import com.arcone.biopro.distribution.shipping.verification.support.StaticValuesMapper;
 import com.arcone.biopro.distribution.shipping.verification.support.controllers.ShipmentTestingController;
 import com.arcone.biopro.distribution.shipping.verification.support.types.ListShipmentsResponseType;
+import com.arcone.biopro.distribution.shipping.verification.support.types.PackProductResponseType;
 import com.arcone.biopro.distribution.shipping.verification.support.types.ShipmentRequestDetailsResponseType;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -19,7 +23,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.io.IOException;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -34,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class ShipmentFulfillmentSteps {
 
     private List<ListShipmentsResponseType> result;
-
+    private Map packItemResponse;
     private Map resultMap;
 
     private List<ListShipmentsResponseType> orders;
@@ -68,6 +74,8 @@ public class ShipmentFulfillmentSteps {
     private String checkDigit;
     private String productCode;
     private boolean checkDigitEnabled;
+    @Autowired
+    private KafkaHelper kafkaHelper;
 
     private ShipmentRequestDetailsResponseType setupOrderFulfillmentRequest(String orderNumber, String customerId, String customerName, String quantities, String bloodTypes
         , String productFamilies, String unitNumbers, String productCodes) {
@@ -453,10 +461,29 @@ public class ShipmentFulfillmentSteps {
     @Then("If the check digit configuration is enabled, the check digit field should disappear if I clean the Unit Number field.")
     public void checkDigitDisappear() throws InterruptedException {
         if (checkDigitEnabled) {
-        fillProductsPage.cleanProductCodeField();
-        fillProductsPage.cleanUnitNumberField();
+            fillProductsPage.cleanProductCodeField();
+            fillProductsPage.cleanUnitNumberField();
             Assert.assertTrue(fillProductsPage.isCheckDigitFieldIsNotVisible());
         }
+    }
+
+    @When("I fill a product with the unit number {string}, product code {string}.")
+    public void iFillAProductWithTheUnitNumberProductCodeBloodTypeAndVisualInspection(String unitNumber, String productCode) throws Exception {
+        this.shipmentId = shipmentTestingController.getOrderShipmentId(this.orderNumber);
+        this.packItemResponse = shipmentTestingController.fillShipment(this.shipmentId, unitNumber, productCode);
+    }
+
+    @Then("The product unit number {string} and product code {string} should be packed in the shipment.")
+    public void theProductUnitNumberAndProductCodeShouldBePackedInTheShipment(String unitNumber, String productCode) throws IOException {
+        var results = (Map) this.packItemResponse.get("results");
+        ObjectMapper mapper = new ObjectMapper();
+        List<PackProductResponseType> resultsObject = mapper.convertValue(results.get("results"), new TypeReference<List<PackProductResponseType>>() {
+        });
+        boolean match = resultsObject.stream().anyMatch(item -> {
+            var items = Arrays.stream(item.getPackedItems()).toList();
+            return items.stream().anyMatch(packedItem -> packedItem.getUnitNumber().equals(unitNumber) && packedItem.getProductCode().equals(productCode));
+        });
+        assertTrue(match, "Failed to find the product in the packed items.");
     }
 }
 
