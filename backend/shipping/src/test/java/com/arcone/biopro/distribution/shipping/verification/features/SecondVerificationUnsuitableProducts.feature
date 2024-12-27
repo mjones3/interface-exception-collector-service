@@ -5,8 +5,8 @@ Feature: Second Verification Notification Tab
     So that I can remove them from the shipment.
 
     Background:
-        Given I cleaned up from the database the packed item that used the unit number "W822530106087,W822530106089,W822530106088,W822530106090,W822530106091,W822530106092, W822530106093,W036898786756".
-        And I cleaned up from the database, all shipments with order number "118,119,120,121,122,124,125".
+        Given I cleaned up from the database the packed item that used the unit number "W822530106090,W822530106091,W822530106093,W036898786756".
+        And I cleaned up from the database, all shipments with order number "1120,1122,1124,1125".
 
     Rule: I should see a notification stating that the units should be rescanned to be removed.
     Rule: I should be able to scan the unit number and product code of the products identified as unsuitable.
@@ -34,7 +34,7 @@ Feature: Second Verification Notification Tab
 
         Examples:
             | Order Number | Suitable Code | Suitable UN   | Unsuitable Code | Unsuitable UN | Unsuitable Status | Message                                                                                         |
-            | 120          | E0685V00      | W822530106090 | E0685V00        | W822530106091 | Discarded         | This product has already been discarded for BROKEN in the system. Place in biohazard container. |
+            | 1120          | E0685V00      | W822530106090 | E0685V00        | W822530106091 | Discarded         | This product has already been discarded for BROKEN in the system. Place in biohazard container. |
 
     Rule: I should restart the second verification process when I scan a unit that is not required to be removed.
     @DIS-207
@@ -52,7 +52,7 @@ Feature: Second Verification Notification Tab
 
         Examples:
             | Order Number | Suitable Code | Suitable UN   | Unsuitable Code | Unsuitable UN | Unsuitable Status |
-            | 120          | E0685V00      | W822530106090 | E0685V00        | W822530106091 | Discarded         |
+            | 1120          | E0685V00      | W822530106090 | E0685V00        | W822530106091 | Discarded         |
 
     Rule: I should restart the second verification process when I scan a unit that is already removed.
     @DIS-207
@@ -73,7 +73,7 @@ Feature: Second Verification Notification Tab
 
         Examples:
             | Order Number | Suitable Code | Suitable UN   | Unsuitable Code | Unsuitable UN | Unsuitable Status | Message                                                                                         |
-            | 120          | E0685V00      | W822530106090 | E0685V00        | W822530106091 | Discarded         | This product has already been discarded for BROKEN in the system. Place in biohazard container. |
+            | 1120          | E0685V00      | W822530106090 | E0685V00        | W822530106091 | Discarded         | This product has already been discarded for BROKEN in the system. Place in biohazard container. |
 
     Rule: I should be able to scan unit number and product code.
     Rule: I should not be able to enter unit number and product code manually.
@@ -90,9 +90,9 @@ Feature: Second Verification Notification Tab
         And The "Product Code" field should be "disabled".
         Examples:
             | Order Number | Suitable Code | Suitable UN   | Unsuitable Code | Unsuitable UN | Action | Field Value   | Field Error Message    |
-            | 122          | E0685V00      | W822530106090 | E0685V00        | W822530106091 | Type   | W822530106093 | Scan Unit Number       |
-            | 122          | E0685V00      | W822530106093 | E0685V00        | W822530106091 | Type   | =W82253010608 | Unit Number is Invalid |
-            | 122          | E0685V00      | W822530106093 | E0685V00        | W822530106091 | Scan   | w232323232    | Unit Number is Invalid |
+            | 1122          | E0685V00      | W822530106090 | E0685V00        | W822530106091 | Type   | W822530106093 | Scan Unit Number       |
+            | 1122          | E0685V00      | W822530106093 | E0685V00        | W822530106091 | Type   | =W82253010608 | Unit Number is Invalid |
+            | 1122          | E0685V00      | W822530106093 | E0685V00        | W822530106091 | Scan   | w232323232    | Unit Number is Invalid |
 
     Rule: I should not be able to enter unit number and product code manually.
     Rule: I should be able to scan unit number and product code.
@@ -110,9 +110,9 @@ Feature: Second Verification Notification Tab
         Then I should see a field validation error message "<Field Error Message>".
         Examples:
             | Order Number | Suitable Code | Suitable UN   | Unsuitable Code | Unsuitable UN | Action | Field Name  | Field Value   | Field Error Message     | Second Action | Second Field Name | Second Field Value |
-            | 124          | E0685V00      | W822530106090 | E0685V00        | W822530106091 | Scan   | Unit Number | W822530106094 | Scan Product Code       | Type          | Product Code      | E0685V00           |
-            | 124          | E0685V00      | W822530106093 | E0685V00        | W822530106091 | Scan   | Unit Number | W822530106094 | Product Code is Invalid | Scan          | Product Code      | 121abc             |
-            | 124          | E0685V00      | W822530106093 | E0685V00        | W822530106091 | Scan   | Unit Number | W822530106094 | Product Code is Invalid | Type          | Product Code      | =<1212             |
+            | 1124          | E0685V00      | W822530106090 | E0685V00        | W822530106091 | Scan   | Unit Number | W822530106094 | Scan Product Code       | Type          | Product Code      | E0685V00           |
+            | 1124          | E0685V00      | W822530106093 | E0685V00        | W822530106091 | Scan   | Unit Number | W822530106094 | Product Code is Invalid | Scan          | Product Code      | 121abc             |
+            | 1124          | E0685V00      | W822530106093 | E0685V00        | W822530106091 | Scan   | Unit Number | W822530106094 | Product Code is Invalid | Type          | Product Code      | =<1212             |
 
 
         Rule: I should be able to view an acknowledgment message for an unsuitable product when the product is successfully discarded in the system.
@@ -127,4 +127,4 @@ Feature: Second Verification Notification Tab
 
             Examples:
             | Order Number | Suitable Code | Suitable UN   | Unsuitable Code | Unsuitable UN | Unsuitable Status | Message                                                                       |
-            | 125          | E0685V00      | W822530106094 | E0701V00        | W036898786756 | Expired           | This product is expired and has been discarded. Place in biohazard container. |
+            | 1125          | E0685V00      | W822530106094 | E0701V00        | W036898786756 | Expired           | This product is expired and has been discarded. Place in biohazard container. |
