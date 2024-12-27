@@ -30,6 +30,8 @@ import java.util.UUID;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class UseCaseSteps {
 
+    private final CheckInCompletedUseCase checkInCompletedUseCase;
+
     private final AddQuarantinedUseCase addQuarantinedUseCase;
 
     private final LabelAppliedUseCase labelAppliedUseCase;
@@ -160,6 +162,28 @@ public class UseCaseSteps {
             .productCode(productCode)
             .productDescription(ISBTProductUtil.getProductDescription(productCode))
             .inputProducts(inputProducts)
+            .build();
+    }
+
+    @When("I received a CheckIn Completed event for the following products:")
+    public void iReceivedACheckInCompletedEventForTheFollowingProducts(DataTable dataTable) {
+        List<Map<String, String>> products = dataTable.asMaps(String.class, String.class);
+        for (Map<String, String> product : products) {
+            String unitNumber = product.get("Unit Number");
+            String productCode = product.get("Product Code");
+            checkInCompletedUseCase.execute(this.newCheckInCompletedInput(unitNumber, productCode)).block();
+        }
+    }
+
+    private CheckInCompletedInput newCheckInCompletedInput(String unitNumber, String productCode) {
+        return CheckInCompletedInput.builder()
+            .productFamily(ISBTProductUtil.getProductFamily(productCode))
+            .aboRh(AboRhType.OP)
+            .location(defaultLocation)
+            .collectionDate(ZonedDateTime.now())
+            .unitNumber(unitNumber)
+            .productCode(productCode)
+            .productDescription(ISBTProductUtil.getProductDescription(productCode))
             .build();
     }
 }

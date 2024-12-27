@@ -7,7 +7,7 @@ CREATE TABLE inventory.bld_inventory
     product_code                VARCHAR(30) NOT NULL,
     short_description           VARCHAR(255) NOT NULL,
     status                      VARCHAR(255) NOT NULL,
-    expiration_date             TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    expiration_date             TIMESTAMP WITHOUT TIME ZONE,
     collection_date             TIMESTAMP WITH TIME ZONE NOT NULL,
     location                    VARCHAR(255) NOT NULL,
     product_family              VARCHAR(255) NOT NULL,
