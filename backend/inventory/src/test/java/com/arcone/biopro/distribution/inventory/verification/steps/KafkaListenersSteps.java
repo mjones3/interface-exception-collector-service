@@ -5,9 +5,8 @@ import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhTy
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.History;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
-import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntity;
-import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntityRepository;
 import com.arcone.biopro.distribution.inventory.verification.common.ScenarioContext;
+import com.arcone.biopro.distribution.inventory.verification.utils.InventoryUtil;
 import com.arcone.biopro.distribution.inventory.verification.utils.KafkaHelper;
 import com.arcone.biopro.distribution.inventory.verification.utils.LogMonitor;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,8 +26,6 @@ import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-
 
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -52,6 +49,8 @@ public class KafkaListenersSteps {
     @Value("${topic.product-update-quarantined.name}")
     private String quarantineUpdatedTopic;
 
+    private final InventoryUtil inventoryUtil;
+
     private final ScenarioContext scenarioContext;
 
     private final LogMonitor logMonitor;
@@ -59,8 +58,6 @@ public class KafkaListenersSteps {
     private final ObjectMapper objectMapper;
 
     private final KafkaHelper kafkaHelper;
-
-    private final InventoryEntityRepository inventoryEntityRepository;
 
 
     @Value("classpath:/db/data.sql")
@@ -233,7 +230,7 @@ public class KafkaListenersSteps {
         }
     }
 
-    private InventoryEntity createInventory(String unitNumber, String productCode, String productFamily, AboRhType aboRhType, String location, Integer daysToExpire, InventoryStatus statusParam) {
+    private void createInventory(String unitNumber, String productCode, String productFamily, AboRhType aboRhType, String location, Integer daysToExpire, InventoryStatus statusParam) {
 
         List<Quarantine> quarantines = null;
         List<History> histories = null;
@@ -245,7 +242,6 @@ public class KafkaListenersSteps {
         if (topicName.equals(quarantineRemovedTopic) || topicName.equals(quarantineUpdatedTopic)) {
             quarantines = List.of(new Quarantine(1L, "OTHER", "a comment"));
             histories = List.of(new History(InventoryStatus.AVAILABLE, null, null));
-//            status = InventoryStatus.QUARANTINED;
         }
 
         if (topicName.equals(productRecoveredTopic)) {
@@ -255,24 +251,18 @@ public class KafkaListenersSteps {
             status = InventoryStatus.DISCARDED;
         }
 
-        return inventoryEntityRepository.save(InventoryEntity.builder()
-            .id(UUID.randomUUID())
-            .productFamily(productFamily)
-            .aboRh(aboRhType)
-            .location(location)
-            .collectionDate(ZonedDateTime.now())
-            .inventoryStatus(status)
-            .expirationDate(LocalDateTime.now().plusDays(daysToExpire))
-            .unitNumber(unitNumber)
-            .productCode(productCode)
-            .quarantines(quarantines)
-            .histories(histories)
-            .shortDescription("Short description")
-            .comments(comment)
-            .statusReason(reason)
-            .isLabeled(true)
-            .build()).block();
-
+        var inventory = inventoryUtil.newInventoryEntity(unitNumber, productCode, status);
+        inventory.setAboRh(aboRhType);
+        inventory.setLocation(location);
+        inventory.setCollectionDate(ZonedDateTime.now());
+        inventory.setExpirationDate(LocalDateTime.now().plusDays(daysToExpire));
+        inventory.setProductFamily(productFamily);
+        inventory.setQuarantines(quarantines);
+        inventory.setHistories(histories);
+        inventory.setComments(comment);
+        inventory.setStatusReason(reason);
+        inventory.setIsLabeled(true);
+        inventoryUtil.saveInventory(inventory);
     }
 
     @When("I receive an event {string} event")

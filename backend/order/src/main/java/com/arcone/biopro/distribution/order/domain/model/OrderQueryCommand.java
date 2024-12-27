@@ -29,13 +29,17 @@ public class OrderQueryCommand implements Validatable {
     private QuerySort querySort;
     private Integer limit;
 
-    private static final String DEFAULT_SORT_DIRECTION = "ASC";
-    private static final String DEFAULT_FIRST_SORT_BY = "priority";
-    private static final String DEFAULT_SECOND_SORT_BY = "status";
     private static final Integer DEFAULT_LIMIT = 20;
+    private static final List<String> DEFAULT_STATUSES = List.of("OPEN", "IN_PROGRESS");
+
+    private static final List<QueryOrderBy> DEFAULT_SORTING = List.of(
+        new QueryOrderBy("priority", "ASC"),
+        new QueryOrderBy("status", "DESC"),
+        new QueryOrderBy("desired_shipping_date", "ASC")
+    );
 
     public OrderQueryCommand(
-        String locationCode ,
+        String locationCode,
         String orderUniqueIdentifier,
         List<String> orderStatus,
         List<String> deliveryTypes,
@@ -44,16 +48,16 @@ public class OrderQueryCommand implements Validatable {
         LocalDate createDateTo,
         LocalDate desireShipDateFrom,
         LocalDate desireShipDateTo,
-        QuerySort querySort ,   Integer limit) {
+        QuerySort querySort, Integer limit) {
 
         this.locationCode = locationCode;
         this.querySort = querySort;
         this.limit = limit;
-        if(this.limit == null){
+        if (this.limit == null) {
             this.limit = DEFAULT_LIMIT;
         }
-        if(this.querySort == null){
-            this.querySort = new QuerySort(List.of(new QueryOrderBy(DEFAULT_FIRST_SORT_BY,DEFAULT_SORT_DIRECTION),new QueryOrderBy(DEFAULT_SECOND_SORT_BY,DEFAULT_SORT_DIRECTION)));
+        if (this.querySort == null) {
+            this.querySort = new QuerySort(DEFAULT_SORTING);
         }
 
         try {
@@ -65,6 +69,9 @@ public class OrderQueryCommand implements Validatable {
         }
 
         this.orderStatus = orderStatus;
+        if (orderStatus == null) {
+            this.orderStatus = DEFAULT_STATUSES;
+        }
         this.deliveryTypes = deliveryTypes;
         this.customers = customers;
         this.createDateFrom = createDateFrom;
@@ -90,7 +97,7 @@ public class OrderQueryCommand implements Validatable {
             && Objects.isNull(this.externalOrderId))
             && (Objects.isNull(this.createDateFrom)
             && Objects.isNull(this.createDateTo))
-            && ((Objects.nonNull(this.orderStatus) && !this.orderStatus.isEmpty())
+            && ((Objects.nonNull(this.orderStatus) && !this.orderStatus.isEmpty() && (this.orderStatus.size() != DEFAULT_STATUSES.size() || !this.orderStatus.containsAll(DEFAULT_STATUSES)))
             || (Objects.nonNull(this.deliveryTypes) && !this.deliveryTypes.isEmpty())
             || (Objects.nonNull(this.customers) && !this.customers.isEmpty())
             || (Objects.nonNull(this.desireShipDateFrom) || Objects.nonNull(this.desireShipDateTo)))) {

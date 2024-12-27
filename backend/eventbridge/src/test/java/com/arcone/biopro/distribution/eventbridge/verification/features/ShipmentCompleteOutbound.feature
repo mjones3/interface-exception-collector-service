@@ -1,3 +1,4 @@
+@api @AOA-100
 Feature: Shipment Completed Outbound Event
     As an Event Bridge Service,
     I want to be able to consume the shipment completed event once the Biopro shipment is completed
@@ -5,7 +6,7 @@ Feature: Shipment Completed Outbound Event
 
     Rule: I should be able to receive a shipment completed outbound event once a Biopro shipment is completed.
     Rule: I should be able to produce a shipment completed outbound event.
-    @API @DIS-189
+    @api @DIS-189
     Scenario: Consume Shipment Completed and Produce Shipment Completed Outbound Event
         Given The shipment completed event is triggered.
         When The shipment completed event is received.

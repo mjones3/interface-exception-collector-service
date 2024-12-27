@@ -1,9 +1,15 @@
 package com.arcone.biopro.distribution.shipping.verification;
 
-import org.junit.platform.suite.api.*;
+import org.junit.platform.suite.api.ConfigurationParameter;
+import org.junit.platform.suite.api.ConfigurationParameters;
+import org.junit.platform.suite.api.IncludeEngines;
+import org.junit.platform.suite.api.SelectDirectories;
+import org.junit.platform.suite.api.Suite;
 import org.springframework.test.context.ActiveProfiles;
 
-import static io.cucumber.core.options.Constants.*;
+import static io.cucumber.core.options.Constants.FILTER_TAGS_PROPERTY_NAME;
+import static io.cucumber.core.options.Constants.GLUE_PROPERTY_NAME;
+import static io.cucumber.core.options.Constants.PLUGIN_PROPERTY_NAME;
 
 @Suite
 @IncludeEngines("cucumber")

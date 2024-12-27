@@ -4,7 +4,7 @@
         "prettier --write",
         "eslint --fix",
         "eslint",
-        "jest --ci --bail --findRelatedTests"
+        "jest --ci --bail --findRelatedTests --passWithNoTests"
     ],
     "*/**/*.{html,json,md}": ["prettier --write"]
 }
