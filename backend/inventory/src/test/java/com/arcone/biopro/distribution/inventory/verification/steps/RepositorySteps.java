@@ -18,10 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import static com.arcone.biopro.distribution.inventory.verification.steps.KafkaListenersSteps.*;
 import static com.arcone.biopro.distribution.inventory.verification.steps.UseCaseSteps.quarantineReasonMap;
@@ -114,30 +112,18 @@ public class RepositorySteps {
         scenarioContext.setUnitNumber(TestUtil.randomString(13));
         scenarioContext.setProductCode("E0869VA0");
 
+        histories = List.of(new History(InventoryStatus.valueOf(previousStatus), null, null));
+
         if (InventoryStatus.AVAILABLE.toString().equals(previousStatus)) {
             histories = List.of(new History(InventoryStatus.valueOf(previousStatus), null, null));
         }
 
         quarantines = List.of(new Quarantine(1L, "OTHER", "a comment"));
-        histories = List.of(new History(InventoryStatus.valueOf(previousStatus), null, null));
 
-
-        inventoryEntityRepository.save(InventoryEntity.builder()
-            .id(UUID.randomUUID())
-            .productFamily("PLASMA_TRANSFUSABLE")
-            .aboRh(AboRhType.OP)
-            .location("Miami")
-            .collectionDate(ZonedDateTime.now())
-            .inventoryStatus(InventoryStatus.DISCARDED)
-            .expirationDate(LocalDateTime.now().plusDays(10))
-            .unitNumber(scenarioContext.getUnitNumber())
-            .productCode(scenarioContext.getProductCode())
-            .quarantines(quarantines)
-            .histories(histories)
-            .shortDescription("Short description")
-            .comments("Some comments")
-            .statusReason("EXPIRED")
-            .build()).block();
+        var inventory = inventoryUtil.newInventoryEntity(scenarioContext.getUnitNumber(), scenarioContext.getProductCode(), InventoryStatus.DISCARDED);
+        inventory.setQuarantines(quarantines);
+        inventory.setHistories(histories);
+        inventoryUtil.saveInventory(inventory);
     }
 
     @And("the expected fields for {string} are stored")
@@ -203,9 +189,12 @@ public class RepositorySteps {
             if (headers.contains("Is licensed")) {
                 var field = inventory.get("Is licensed");
                 switch (field) {
-                    case "MISSING": inventoryEntity.setIsLicensed(null);
-                    case "YES": inventoryEntity.setIsLicensed(true);
-                    case "NO": inventoryEntity.setIsLicensed(false);
+                    case "MISSING":
+                        inventoryEntity.setIsLicensed(null);
+                    case "YES":
+                        inventoryEntity.setIsLicensed(true);
+                    case "NO":
+                        inventoryEntity.setIsLicensed(false);
                 }
             }
             inventoryUtil.saveInventory(inventoryEntity);
