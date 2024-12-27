@@ -2,6 +2,7 @@ package com.arcone.biopro.distribution.inventory.integration;
 
 import com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput;
 import com.arcone.biopro.distribution.inventory.application.usecase.ShipmentCompletedUseCase;
+import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntityRepository;
 import com.arcone.biopro.distribution.inventory.verification.utils.KafkaHelper;
 import com.arcone.biopro.distribution.inventory.verification.utils.LogMonitor;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -30,7 +31,8 @@ import static org.mockito.Mockito.when;
     properties = {
         "spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}",
         "spring.kafka.consumer.auto-offset-reset=earliest",
-        "spring.kafka.consumer.group-id=shipment-test-group"
+        "spring.kafka.consumer.group-id=shipment-test-group",
+        "default.location=TestLocation"
     })
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @EmbeddedKafka(partitions = 1, brokerProperties = {"listeners=PLAINTEXT://localhost:9092", "port=9092"})
@@ -43,6 +45,10 @@ public class ShipmentCompletedIntegrationIT {
 
     @MockBean
     private ShipmentCompletedUseCase shipmentCompletedUseCase;
+
+    @MockBean
+    private InventoryEntityRepository inventoryEntityRepository;
+
 
     @Autowired
     private ObjectMapper objectMapper;

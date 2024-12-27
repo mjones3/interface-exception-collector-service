@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.inventory.integration;
 import com.arcone.biopro.distribution.inventory.application.dto.ProductCreatedInput;
 import com.arcone.biopro.distribution.inventory.application.usecase.ProductCreatedUseCase;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
+import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntityRepository;
 import com.arcone.biopro.distribution.inventory.verification.utils.KafkaHelper;
 import com.arcone.biopro.distribution.inventory.verification.utils.LogMonitor;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -35,7 +36,8 @@ import static org.mockito.Mockito.*;
     properties = {
         "spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}",
         "spring.kafka.consumer.auto-offset-reset=earliest",
-        "spring.kafka.consumer.group-id=created-test-group"
+        "spring.kafka.consumer.group-id=created-test-group",
+        "default.location=TestLocation"
     })
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @EmbeddedKafka(partitions = 1, brokerProperties = {"listeners=PLAINTEXT://localhost:9093", "port=9093"})
@@ -46,6 +48,9 @@ public class ProductCreatedIntegrationIT {
 
     @MockBean
     private ProductCreatedUseCase productCreatedUseCase;
+
+    @MockBean
+    private InventoryEntityRepository inventoryEntityRepository;
 
     @Autowired
     private ObjectMapper objectMapper;
