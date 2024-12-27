@@ -10,6 +10,7 @@ import com.arcone.biopro.distribution.shipping.application.mapper.ReasonDomainMa
 import com.arcone.biopro.distribution.shipping.application.mapper.ShipmentMapper;
 import com.arcone.biopro.distribution.shipping.application.util.ShipmentServiceMessages;
 import com.arcone.biopro.distribution.shipping.domain.model.ShipmentItemPacked;
+import com.arcone.biopro.distribution.shipping.domain.model.enumeration.BloodType;
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.SecondVerification;
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.VisualInspection;
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemPackedRepository;
@@ -147,7 +148,7 @@ public class PackItemUseCase implements PackItemService {
                         .name("PRODUCT_CRITERIA_FAMILY_ERROR")
                         .build())));
 
-                } else if (!inventoryResponseDTO.aboRh().contains(shipmentItem.getBloodType().name())) {
+                } else if (!BloodType.ANY.equals(shipmentItem.getBloodType()) && !inventoryResponseDTO.aboRh().contains(shipmentItem.getBloodType().name())) {
                     log.error("Blood Type does not match");
                     return Mono.error(new ProductValidationException(ShipmentServiceMessages.PRODUCT_CRITERIA_BLOOD_TYPE_ERROR , List.of(NotificationDTO
                         .builder()
