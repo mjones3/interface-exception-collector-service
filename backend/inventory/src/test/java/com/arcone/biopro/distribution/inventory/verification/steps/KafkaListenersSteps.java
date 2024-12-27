@@ -10,6 +10,7 @@ import com.arcone.biopro.distribution.inventory.infrastructure.persistence.Inven
 import com.arcone.biopro.distribution.inventory.verification.common.ScenarioContext;
 import com.arcone.biopro.distribution.inventory.verification.utils.KafkaHelper;
 import com.arcone.biopro.distribution.inventory.verification.utils.LogMonitor;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
@@ -20,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.r2dbc.connection.init.ResourceDatabasePopulator;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
@@ -33,9 +33,6 @@ import java.util.UUID;
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class KafkaListenersSteps {
-
-    @Value("${topic.label-applied.name}")
-    private String labelAppliedTopic;
 
     @Value("${topic.product-stored.name}")
     private String productStoredTopic;
@@ -70,27 +67,6 @@ public class KafkaListenersSteps {
     private Resource testDataSql;
 
     private final ConnectionFactory connectionFactory;
-
-    private static final String LABEL_APPLIED_MESSAGE = """
-         {
-            "eventType":"LabelApplied",
-            "eventVersion":"1.0",
-            "payload":{
-               "unitNumber":"%s",
-               "productCode":"%s",
-               "productDescription":"APH PLASMA 24H",
-               "location":"%s",
-               "aboRh":"OP",
-               "weight": 123,
-               "isLicensed": true,
-               "productFamily": "PLASMA_TRANSFUSABLE",
-               "collectionDate":"2025-01-08T06:00:00.000Z",
-               "expirationDate":"2025-01-08T06:00:00.000Z",
-               "performedBy":"userId",
-               "createDate":"2025-01-08T06:00:00.000Z"
-            }
-         }
-        """;
 
     private static final String PRODUCT_STORED_MESSAGE = """
         {
@@ -217,7 +193,6 @@ public class KafkaListenersSteps {
     public void before() {
         populateTestData();
         topicsMap = Map.of(
-            EVENT_LABEL_APPLIED, labelAppliedTopic,
             EVENT_PRODUCT_STORED, productStoredTopic,
             EVENT_PRODUCT_DISCARDED, productDiscardedTopic,
             EVENT_PRODUCT_QUARANTINED, productQuarantinedTopic,
@@ -227,7 +202,6 @@ public class KafkaListenersSteps {
         );
 
         messagesMap = Map.of(
-            EVENT_LABEL_APPLIED, LABEL_APPLIED_MESSAGE,
             EVENT_PRODUCT_STORED, PRODUCT_STORED_MESSAGE,
             EVENT_PRODUCT_DISCARDED, PRODUCT_DISCARDED_MESSAGE,
             EVENT_PRODUCT_QUARANTINED, PRODUCT_QUARANTINED_MESSAGE,

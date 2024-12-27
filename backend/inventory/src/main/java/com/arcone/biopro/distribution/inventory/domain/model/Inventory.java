@@ -2,10 +2,7 @@ package com.arcone.biopro.distribution.inventory.domain.model;
 
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
-import com.arcone.biopro.distribution.inventory.domain.model.vo.History;
-import com.arcone.biopro.distribution.inventory.domain.model.vo.ProductCode;
-import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
-import com.arcone.biopro.distribution.inventory.domain.model.vo.UnitNumber;
+import com.arcone.biopro.distribution.inventory.domain.model.vo.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -61,6 +58,8 @@ public class Inventory {
 
     @Builder.Default
     List<History> histories = new ArrayList<>();
+
+    List<InputProduct> inputProducts;
 
     String comments;
 

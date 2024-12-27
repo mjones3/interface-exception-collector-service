@@ -22,7 +22,8 @@
       "value":4,
       "unit":"MILLILITERS"
     },
-    "expirationDate":"2024-01-08T02:05:45.231Z",
+    "expirationDate":"01/08/2024",
+    "expirationTime":"23:59",
     "drawTime":"2024-01-08T02:05:45.231Z",
     "donationType":"ALLOGENEIC",
     "procedureType":"APHERESIS_RBC",
