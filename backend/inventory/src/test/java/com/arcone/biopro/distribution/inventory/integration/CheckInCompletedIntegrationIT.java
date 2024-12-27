@@ -36,7 +36,8 @@ import static org.mockito.Mockito.*;
     properties = {
         "spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}",
         "spring.kafka.consumer.auto-offset-reset=earliest",
-        "spring.kafka.consumer.group-id=checkin-test-group"
+        "spring.kafka.consumer.group-id=checkin-test-group",
+        "default.location=TestLocation"
     })
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @EmbeddedKafka(partitions = 1, brokerProperties = {"listeners=PLAINTEXT://localhost:9095", "port=9095"})

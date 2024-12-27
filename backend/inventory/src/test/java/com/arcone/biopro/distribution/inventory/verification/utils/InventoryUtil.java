@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.inventory.verification.utils;
 
+import com.arcone.biopro.distribution.inventory.application.dto.CheckInCompletedInput;
 import com.arcone.biopro.distribution.inventory.application.dto.InventoryInput;
 import com.arcone.biopro.distribution.inventory.application.dto.ProductCreatedInput;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
@@ -108,6 +109,18 @@ public class InventoryUtil {
             .productCode(productCode)
             .productDescription(ISBTProductUtil.getProductDescription(productCode))
             .inputProducts(inputProducts)
+            .build();
+    }
+
+    public CheckInCompletedInput newCheckInCompletedInput(String unitNumber, String productCode) {
+        return CheckInCompletedInput.builder()
+            .productFamily(ISBTProductUtil.getProductFamily(productCode))
+            .aboRh(AboRhType.OP)
+            .location(defaultLocation)
+            .collectionDate(ZonedDateTime.now())
+            .unitNumber(unitNumber)
+            .productCode(productCode)
+            .productDescription(ISBTProductUtil.getProductDescription(productCode))
             .build();
     }
 }
