@@ -8,6 +8,7 @@ import com.arcone.biopro.distribution.inventory.domain.model.vo.InputProduct;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntity;
 import com.arcone.biopro.distribution.inventory.verification.common.ScenarioContext;
 import com.arcone.biopro.distribution.inventory.verification.utils.ISBTProductUtil;
+import com.arcone.biopro.distribution.inventory.verification.utils.InventoryUtil;
 import com.arcone.biopro.distribution.inventory.verification.utils.LogMonitor;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.When;
@@ -43,6 +44,8 @@ public class UseCaseSteps {
     private final ProductCreatedUseCase productCreatedUseCase;
 
     private final ScenarioContext scenarioContext;
+
+    private final InventoryUtil inventoryUtil;
 
     private final LogMonitor logMonitor;
 

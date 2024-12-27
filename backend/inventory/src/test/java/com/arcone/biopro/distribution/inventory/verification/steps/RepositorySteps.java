@@ -8,8 +8,7 @@ import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntity;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntityRepository;
 import com.arcone.biopro.distribution.inventory.verification.common.ScenarioContext;
-import com.arcone.biopro.distribution.inventory.verification.utils.ISBTProductUtil;
-import com.arcone.biopro.distribution.inventory.verification.utils.LogMonitor;
+import com.arcone.biopro.distribution.inventory.verification.utils.InventoryUtil;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
@@ -28,12 +27,10 @@ import java.util.UUID;
 import static com.arcone.biopro.distribution.inventory.verification.steps.KafkaListenersSteps.*;
 import static com.arcone.biopro.distribution.inventory.verification.steps.UseCaseSteps.quarantineReasonMap;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.in;
 import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -42,8 +39,7 @@ public class RepositorySteps {
 
     private final ScenarioContext scenarioContext;
 
-    @Value("${default.location}")
-    private String defaultLocation;
+    private final InventoryUtil inventoryUtil;
 
     public InventoryEntity getInventory(String unitNumber, String productCode) {
         return inventoryEntityRepository.findByUnitNumberAndProductCode(unitNumber, productCode).block();
@@ -56,28 +52,6 @@ public class RepositorySteps {
     public InventoryEntity getStoredInventory(String unitNumber, String productCode, InventoryStatus status) {
 
         return inventoryEntityRepository.findByUnitNumberAndProductCodeAndInventoryStatus(unitNumber, productCode, status).block();
-    }
-
-    private void createInventory(InventoryEntity inventoryEntity) {
-        inventoryEntityRepository.save(inventoryEntity).block();
-    }
-
-    private InventoryEntity newInventoryObject(String unitNumber, String productCode, InventoryStatus status) {
-        InventoryEntity inventory =
-            InventoryEntity.builder()
-                .id(UUID.randomUUID())
-                .productFamily(ISBTProductUtil.getProductFamily(productCode))
-                .aboRh(AboRhType.OP)
-                .location(defaultLocation)
-                .collectionDate(ZonedDateTime.now())
-                .inventoryStatus(status)
-                .expirationDate(LocalDateTime.now().plusDays(1))
-                .unitNumber(unitNumber)
-                .productCode(productCode)
-                .isLabeled(false)
-                .shortDescription(ISBTProductUtil.getProductDescription(productCode))
-                .build();
-        return inventory;
     }
 
     @Then("The inventory status is {string}")
@@ -118,8 +92,8 @@ public class RepositorySteps {
     public void iAmListeningEventForUnitNumber(String unitNumber, String productCode, String status) {
         scenarioContext.setUnitNumber(unitNumber);
         scenarioContext.setProductCode(productCode);
-        InventoryEntity inventoryEntity = newInventoryObject(unitNumber, productCode, InventoryStatus.valueOf(status));
-        createInventory(inventoryEntity);
+        InventoryEntity inventoryEntity = inventoryUtil.createNewInventoryObject(unitNumber, productCode, InventoryStatus.valueOf(status));
+        inventoryUtil.saveInventory(inventoryEntity);
     }
 
     @Then("I verify the quarantine reason {string} with id {string} is found {string} for unit number {string} and product {string}")
@@ -215,7 +189,7 @@ public class RepositorySteps {
             if (headers.contains("Status")) {
                 status = InventoryStatus.valueOf(inventory.get("Status"));
             }
-            InventoryEntity inventoryEntity = newInventoryObject(unitNumber, productCode, status);
+            InventoryEntity inventoryEntity = inventoryUtil.createNewInventoryObject(unitNumber, productCode, status);
 
             if (headers.contains("ABO/RH")) {
                 String aboRh = inventory.get("ABO/RH");
@@ -235,7 +209,7 @@ public class RepositorySteps {
                     case "NO": inventoryEntity.setIsLicensed(false);
                 }
             }
-            createInventory(inventoryEntity);
+            inventoryUtil.saveInventory(inventoryEntity);
         }
     }
 
