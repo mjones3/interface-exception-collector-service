@@ -47,7 +47,10 @@ public class InventoryUtil {
             .expirationDate(LocalDateTime.now().plusDays(1))
             .unitNumber(unitNumber)
             .productCode(productCode)
+            .storageLocation("FREEZER 1, RACK 1, SHELF 1")
+            .weight(100)
             .isLabeled(false)
+            .isLicensed(true)
             .shortDescription(ISBTProductUtil.getProductDescription(productCode))
             .build();
     }

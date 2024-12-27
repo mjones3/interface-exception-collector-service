@@ -9,6 +9,7 @@ import com.arcone.biopro.distribution.inventory.domain.model.enumeration.Message
 import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntity;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntityRepository;
+import com.arcone.biopro.distribution.inventory.verification.utils.InventoryUtil;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
@@ -41,6 +42,9 @@ public class RsocketSteps {
     @Autowired
     InventoryEntityRepository inventoryEntityRepository;
 
+    @Autowired
+    InventoryUtil inventoryUtil;
+
     @Value("${spring.rsocket.server.port}")
     Integer port;
 
@@ -70,74 +74,45 @@ public class RsocketSteps {
     private void createProducts(String quantity, String productFamily, String aboRh, String location, String days, InventoryStatus status) {
         Stream.iterate(0, i -> i + 1)
             .limit(Integer.parseInt(quantity))
-            .forEach(i -> this.createInventory(TestUtil.randomString(13), "E0869V00", productFamily, AboRhType.valueOf(aboRh), location, Integer.parseInt(days), status,"ACTIVE_DEFERRAL", null));
+            .forEach(i -> this.createInventory(TestUtil.randomString(13), "E0869V00", productFamily, AboRhType.valueOf(aboRh), location, Integer.parseInt(days), status, "ACTIVE_DEFERRAL", null));
     }
 
     @Given("I have one product with {string}, {string} and {string} in {string} status")
     public void iHaveOneProductWithAndInStatus(String unitNumber, String productCode, String location, String status) {
-        this.iHaveOneProductWithAndInStatusWithReason(unitNumber, productCode, location, status, "ACTIVE_DEFERRAL");
+        int days = "EXPIRED".equals(status) ? -1 : 1;
+        InventoryStatus inventoryStatus = "EXPIRED".equals(status) ? InventoryStatus.AVAILABLE : InventoryStatus.valueOf(status);
+
+        var inventory = inventoryUtil.newInventoryEntity(unitNumber, productCode, inventoryStatus);
+        inventory.setLocation(location);
+        inventory.setIsLabeled(true);
+        inventory.setExpirationDate(LocalDateTime.now().plusDays(days));
+        inventoryUtil.saveInventory(inventory);
     }
 
     @Given("I have one product with {string}, {string} and {string} in {string} status with reason {string} and comments {string}")
     public void iHaveOneProductWithAndInStatus(String unitNumber, String productCode, String location, String status, String statusReason, String comments) {
-        //Integer days = InventoryStatus.EXPIRED.equals(InventoryStatus.valueOf(status)) || InventoryStatus.DISCARDED.equals(InventoryStatus.valueOf(status))   ? -1 : 1;
-        Integer days = "EXPIRED".equals(status)   ? -1 : 1;
-
+        int days = "EXPIRED".equals(status) ? -1 : 1;
         InventoryStatus inventoryStatus = "EXPIRED".equals(status) ? InventoryStatus.AVAILABLE : InventoryStatus.valueOf(status);
 
-        createInventory(unitNumber, productCode, "PLASMA_TRANSFUSABLE", AboRhType.OP, location, days, inventoryStatus, statusReason, comments);
+        var inventory = inventoryUtil.newInventoryEntity(unitNumber, productCode, inventoryStatus);
+        inventory.setLocation(location);
+        inventory.setExpirationDate(LocalDateTime.now().plusDays(days));
+        inventory.setStatusReason(statusReason);
+        inventory.setComments(comments);
+        inventory.setIsLabeled(true);
+        inventoryUtil.saveInventory(inventory);
     }
 
     private void createInventory(String unitNumber, String productCode, String productFamily, AboRhType aboRhType, String location, Integer daysToExpire, InventoryStatus status, String statusReason, String comments) {
-        this.createInventory(unitNumber, productCode, productFamily, aboRhType, location, daysToExpire, status, statusReason, comments, List.of());
-    }
-
-    private void createInventory(String unitNumber, String productCode, String productFamily, AboRhType aboRhType, String location, Integer daysToExpire, InventoryStatus status, String statusReason, String comments, List<Quarantine> specificQuarantines) {
-
-        inventoryEntityRepository.save(InventoryEntity.builder()
-            .id(UUID.randomUUID())
-            .productFamily(productFamily)
-            .aboRh(aboRhType)
-            .location(location)
-            .collectionDate(ZonedDateTime.now())
-            .inventoryStatus(status)
-            .expirationDate(LocalDateTime.now().plusDays(daysToExpire))
-            .unitNumber(unitNumber)
-            .weight(123)
-            .isLicensed(true)
-            .productCode(productCode)
-            .statusReason(statusReason)
-            .comments(comments)
-            .shortDescription("Short description")
-            .storageLocation("FREEZER 1, RACK 1, SHELF 1")
-            .quarantines(specificQuarantines)
-            .isLabeled(true)
-            .build()).block();
-
-    }
-
-    private void createInventory(String unitNumber, String productCode, String productFamily, AboRhType aboRhType, String location, Integer daysToExpire, InventoryStatus status, String statusReason, String comments, List<Quarantine> specificQuarantines, boolean isLabeled) {
-
-        inventoryEntityRepository.save(InventoryEntity.builder()
-            .id(UUID.randomUUID())
-            .productFamily(productFamily)
-            .aboRh(aboRhType)
-            .location(location)
-            .collectionDate(ZonedDateTime.now())
-            .inventoryStatus(status)
-            .expirationDate(LocalDateTime.now().plusDays(daysToExpire))
-            .unitNumber(unitNumber)
-            .weight(123)
-            .isLicensed(true)
-            .productCode(productCode)
-            .statusReason(statusReason)
-            .comments(comments)
-            .shortDescription("Short description")
-            .storageLocation("FREEZER 1, RACK 1, SHELF 1")
-            .quarantines(specificQuarantines)
-            .isLabeled(isLabeled)
-            .build()).block();
-
+        var inventory = inventoryUtil.newInventoryEntity(unitNumber, productCode, status);
+        inventory.setLocation(location);
+        inventory.setExpirationDate(LocalDateTime.now().plusDays(daysToExpire));
+        inventory.setProductFamily(productFamily);
+        inventory.setAboRh(aboRhType);
+        inventory.setStatusReason(statusReason);
+        inventory.setComments(comments);
+        inventory.setIsLabeled(true);
+        inventoryUtil.saveInventory(inventory);
     }
 
     @When("I select {string} of the blood type {string}")
@@ -234,14 +209,13 @@ public class RsocketSteps {
                 if (MessageType.INVENTORY_IS_QUARANTINED.getCode().equals(errorCode)) {
                     var detailsList = Arrays.stream(details.split(",")).map(String::toString).map(String::trim).toList();
                     detailsList.forEach(
-                        detail ->  assertThat(message.inventoryNotificationsDTO().getFirst().details().contains(detail)).isTrue());
+                        detail -> assertThat(message.inventoryNotificationsDTO().getFirst().details().contains(detail)).isTrue());
                     assertThat(message.inventoryNotificationsDTO().size()).isEqualTo(1);
                 }
 
                 if (MessageType.INVENTORY_IS_EXPIRED.getCode().equals(errorCode)) {
                     assertThat(message.inventoryNotificationsDTO().getFirst().reason()).isEqualTo(reason);
                 }
-
                 log.debug("Received message from validate inventory {}", message);
             })
             .verifyComplete();
@@ -249,24 +223,41 @@ public class RsocketSteps {
 
     @And("I have one product with {string}, {string} and {string} in {string} status with quarantine reasons {string} and comments {string}")
     public void iHaveOneProductWithAndInStatusWithQuarantineReasonsAndComments(String unitNumber, String productCode, String location, String status, String quarantineReasons, String quarantineComments) {
-        Integer days = InventoryStatus.DISCARDED.equals(InventoryStatus.valueOf(status))   ? -1 : 1;
+        int days = InventoryStatus.DISCARDED.equals(InventoryStatus.valueOf(status)) ? -1 : 1;
         List<Quarantine> quarantines = Arrays.stream(quarantineReasons.split(",")).map(String::trim).map(reason -> new Quarantine(1L, reason, quarantineComments)).collect(Collectors.toList());
-        createInventory(unitNumber, productCode, "PLASMA_TRANSFUSABLE", AboRhType.OP, location, days, InventoryStatus.valueOf(status), "ACTIVE_DEFERRAL", null, quarantines);
+
+        var inventory = inventoryUtil.newInventoryEntity(unitNumber, productCode, InventoryStatus.valueOf(status));
+        inventory.setExpirationDate(LocalDateTime.now().plusDays(days));
+        inventory.setLocation(location);
+        inventory.setQuarantines(quarantines);
+        inventory.setStatusReason("ACTIVE_DEFERRAL");
+        inventory.setComments(null);
+        inventory.setIsLabeled(true);
+        inventoryUtil.saveInventory(inventory);
     }
 
     @And("I have one product with {string}, {string} and {string} in {string} status with reason {string}")
     public void iHaveOneProductWithAndInStatusWithReason(String unitNumber, String productCode, String location, String status, String reason) {
-        Integer days =  "EXPIRED".equals(status) ? -1 : 1;
+        int days = "EXPIRED".equals(status) ? -1 : 1;
         InventoryStatus inventoryStatus = "EXPIRED".equals(status) ? InventoryStatus.AVAILABLE : InventoryStatus.valueOf(status);
-        createInventory(unitNumber, productCode, "PLASMA_TRANSFUSABLE", AboRhType.OP, location, days, inventoryStatus, reason, null);
+
+        var inventory = inventoryUtil.newInventoryEntity(unitNumber, productCode, inventoryStatus);
+        inventory.setLocation(location);
+        inventory.setExpirationDate(LocalDateTime.now().plusDays(days));
+        inventory.setStatusReason(reason);
+        inventory.setIsLabeled(true);
+        inventoryUtil.saveInventory(inventory);
     }
 
     @And("I have one product with {string}, {string} and {string} in {string} status and is unlabeled")
     public void iHaveOneProductWithAndInStatusAndIsUnlabeled(String unitNumber, String productCode, String location, String status) {
-        Integer days = "EXPIRED".equals(status)   ? -1 : 1;
-
+        int days = "EXPIRED".equals(status) ? -1 : 1;
         InventoryStatus inventoryStatus = "EXPIRED".equals(status) ? InventoryStatus.AVAILABLE : InventoryStatus.valueOf(status);
 
-        createInventory(unitNumber, productCode, "PLASMA_TRANSFUSABLE", AboRhType.OP, location, days, inventoryStatus, null, null, null, false);
+        var inventory = inventoryUtil.newInventoryEntity(unitNumber, productCode, inventoryStatus);
+        inventory.setLocation(location);
+        inventory.setExpirationDate(LocalDateTime.now().plusDays(days));
+        inventory.setIsLabeled(false);
+        inventoryUtil.saveInventory(inventory);
     }
 }
