@@ -8,7 +8,6 @@ import com.arcone.biopro.distribution.inventory.domain.model.enumeration.Invento
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.MessageType;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntity;
-import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntityRepository;
 import com.arcone.biopro.distribution.inventory.verification.utils.InventoryUtil;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.And;
@@ -23,13 +22,10 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -38,9 +34,6 @@ public class RsocketSteps {
 
     @Autowired
     RSocketRequester.Builder builder;
-
-    @Autowired
-    InventoryEntityRepository inventoryEntityRepository;
 
     @Autowired
     InventoryUtil inventoryUtil;
@@ -68,14 +61,9 @@ public class RsocketSteps {
 
     @Given("I have {string} products of family {string} with ABORh {string} in location {string} and that will expire in {string} days")
     public void iHaveOfTheOfTheBloodTypeInThe(String quantity, String productFamily, String aboRh, String location, String days) {
-        createProducts(quantity, productFamily, aboRh, location, days, InventoryStatus.AVAILABLE);
+        createMultipleProducts(quantity, productFamily, aboRh, location, days, InventoryStatus.AVAILABLE);
     }
 
-    private void createProducts(String quantity, String productFamily, String aboRh, String location, String days, InventoryStatus status) {
-        Stream.iterate(0, i -> i + 1)
-            .limit(Integer.parseInt(quantity))
-            .forEach(i -> this.createInventory(TestUtil.randomString(13), "E0869V00", productFamily, AboRhType.valueOf(aboRh), location, Integer.parseInt(days), status, "ACTIVE_DEFERRAL", null));
-    }
 
     @Given("I have one product with {string}, {string} and {string} in {string} status")
     public void iHaveOneProductWithAndInStatus(String unitNumber, String productCode, String location, String status) {
@@ -97,18 +85,6 @@ public class RsocketSteps {
         var inventory = inventoryUtil.newInventoryEntity(unitNumber, productCode, inventoryStatus);
         inventory.setLocation(location);
         inventory.setExpirationDate(LocalDateTime.now().plusDays(days));
-        inventory.setStatusReason(statusReason);
-        inventory.setComments(comments);
-        inventory.setIsLabeled(true);
-        inventoryUtil.saveInventory(inventory);
-    }
-
-    private void createInventory(String unitNumber, String productCode, String productFamily, AboRhType aboRhType, String location, Integer daysToExpire, InventoryStatus status, String statusReason, String comments) {
-        var inventory = inventoryUtil.newInventoryEntity(unitNumber, productCode, status);
-        inventory.setLocation(location);
-        inventory.setExpirationDate(LocalDateTime.now().plusDays(daysToExpire));
-        inventory.setProductFamily(productFamily);
-        inventory.setAboRh(aboRhType);
         inventory.setStatusReason(statusReason);
         inventory.setComments(comments);
         inventory.setIsLabeled(true);
@@ -259,5 +235,38 @@ public class RsocketSteps {
         inventory.setExpirationDate(LocalDateTime.now().plusDays(days));
         inventory.setIsLabeled(false);
         inventoryUtil.saveInventory(inventory);
+    }
+
+
+    private void createInventory(String unitNumber, String productCode, String productFamily, AboRhType aboRhType, String location, Integer daysToExpire, InventoryStatus status, String statusReason, String comments) {
+        var inventory = inventoryUtil.newInventoryEntity(unitNumber, productCode, status);
+        inventory.setLocation(location);
+        inventory.setExpirationDate(LocalDateTime.now().plusDays(daysToExpire));
+        inventory.setProductFamily(productFamily);
+        inventory.setAboRh(aboRhType);
+        inventory.setStatusReason(statusReason);
+        inventory.setComments(comments);
+        inventory.setIsLabeled(true);
+        inventoryUtil.saveInventory(inventory);
+    }
+
+    private void createMultipleProducts(String quantity, String productFamily, String aboRh, String location, String days, InventoryStatus status) {
+        int qty = Integer.parseInt(quantity);
+        int daysToExpire = Integer.parseInt(days);
+        AboRhType aboRhType = AboRhType.valueOf(aboRh);
+
+        for (int i = 0; i < qty; i++) {
+            InventoryEntity inventory = inventoryUtil.newInventoryEntity(
+                TestUtil.randomString(13),
+                "E0869V00",
+                status
+            );
+            inventory.setLocation(location);
+            inventory.setExpirationDate(LocalDateTime.now().plusDays(daysToExpire));
+            inventory.setProductFamily(productFamily);
+            inventory.setAboRh(aboRhType);
+            inventory.setIsLabeled(true);
+            inventoryUtil.saveInventory(inventory);
+        }
     }
 }
