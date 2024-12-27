@@ -76,6 +76,18 @@ def kafka_service():
         ,trigger_mode=TRIGGER_MODE_MANUAL
     )
 
+def kafka_external_service():
+    # Specify the Kubernetes manifest for the deployment
+    k8s_yaml([
+        './src/main/k8s/kafka-external-service.yaml',
+        './src/main/k8s/kafka-external-deployment.yaml'
+    ])
+    k8s_resource(
+        'kafka-external-deployment',
+        port_forwards=29093,
+        resource_deps=['zookeeper-deployment']
+        ,trigger_mode=TRIGGER_MODE_MANUAL
+    )
 
 # Function to build and deploy: redpanda console service
 def redpanda_console_service():
@@ -186,6 +198,7 @@ otel_operator()
 keycloak_service()
 zookeeper_service()
 kafka_service()
+kafka_external_service()
 redpanda_console_service()
 postgresql_service()
 atlas_operator()

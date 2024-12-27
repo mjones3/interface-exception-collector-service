@@ -22,4 +22,4 @@ spec:
             - containerPort: 8080
           env:
             - name: KAFKA_BROKERS
-              value: "kafka-service.queue.svc.cluster.local:9092"
+              value: "kafka-service.queue.svc.cluster.local:9092,kafka-external-service.queue.svc.cluster.local:9093"

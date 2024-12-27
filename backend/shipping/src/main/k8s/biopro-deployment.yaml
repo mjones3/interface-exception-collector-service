@@ -34,6 +34,8 @@ spec:
               value: 'biopro'
             - name: SPRING_R2DBC_PASSWORD
               value: 'biopro-password'
+            - name: SPRING_R2DBC_PROPERTIES_SCHEMA
+              value: "shipping"
             - name: SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_OIDC_ISSUER_URI
               value: 'http://keycloak-service.id.svc.cluster.local:9080/realms/biopro'
             - name: SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_ID

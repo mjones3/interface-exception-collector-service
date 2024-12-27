@@ -143,8 +143,9 @@ spring:
     allow-bean-definition-overriding: true
     web-application-type: REACTIVE
   kafka:
-    bootstrap-servers: localhost:29092
+    bootstrap-servers: localhost:29093
     consumer:
+      bootstrap-servers: localhost:29092
       group-id: ${spring.application.name}
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
@@ -152,6 +153,7 @@ spring:
       properties:
         interceptor.classes: io.opentelemetry.instrumentation.kafkaclients.v2_6.TracingConsumerInterceptor
     producer:
+      bootstrap-servers: localhost:29093
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:

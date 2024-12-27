@@ -41,7 +41,11 @@ spec:
             - name: SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_SECRET
               value: 'web_app'
             - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+              value: 'kafka-service.queue.svc.cluster.local:9093'
+            - name: SPRING_KAFKA_CONSUMER_BOOTSTRAP_SERVERS
               value: 'kafka-service.queue.svc.cluster.local:9092'
+            - name: SPRING_KAFKA_PRODUCER_BOOTSTRAP_SERVERS
+              value: 'kafka-external-service.queue.svc.cluster.local:9093'
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
               value: 'http://api-collector:4318'
           resources:

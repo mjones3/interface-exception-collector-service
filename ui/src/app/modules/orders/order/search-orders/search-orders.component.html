@@ -10,229 +10,67 @@
     >
     </app-search-order-filter>
     <div class="flex flex-col">
-        <div class="flex w-full flex-row space-x-4 p-4">
-            <div class="w-full">
-                <fuse-card class="flex-col pb-4">
-                    <div class="fuse-card-title">
-                        <div
-                            class="flex w-full flex-row items-baseline justify-between px-5"
+        @if (!loading) {
+            <div class="flex w-full flex-row space-x-4 p-4">
+                <div class="w-full">
+                    <biopro-table
+                        tableId="ordersTableId"
+                        [dataSource]="dataSource"
+                        [configuration]="tableConfig()"
+                    >
+                    </biopro-table>
+                    <ng-template #customerNameTemplateRef let-element="element">
+                        {{ element.orderCustomerReport?.name }}
+                    </ng-template>
+
+                    <ng-template #createDateTemplateRef let-element="element">
+                        {{ element?.createDate | date: 'MM/dd/yyyy HH:mm' }}
+                    </ng-template>
+
+                    <ng-template
+                        #desireShipDateTemplateRef
+                        let-element="element"
+                    >
+                        {{ element?.desireShipDate | date: 'MM/dd/yyyy' }}
+                    </ng-template>
+
+                    <ng-template #statusTemplateRef let-element="element">
+                        <span>
+                            {{
+                                OrderStatusMap[element.orderStatus] | uppercase
+                            }}
+                        </span>
+                    </ng-template>
+
+                    <ng-template #priorityTemplateRef let-element="element">
+                        <span
+                            class="badge rounded-pill"
+                            [ngStyle]="{
+                                'background-color':
+                                    element?.orderPriorityReport
+                                        ?.priorityColor ?? '#222222',
+                            }"
                         >
-                            <h3>Results</h3>
-                        </div>
-                    </div>
+                            {{
+                                PriorityMap[
+                                    element.orderPriorityReport?.priority
+                                ]
+                            }}
+                        </span>
+                    </ng-template>
 
-                    <div class="table-wrapper">
-                        <p-table
-                            #orderTable
-                            id="ordersTableId"
-                            dataKey="id"
-                            styleClass="p-datatable-customers p-datatable-sm"
-                            [value]="items$ | async"
-                            [columns]="selectedColumns"
-                            [rows]="defaultRowsPerPage"
-                            [totalRecords]="totalRecords"
-                            [showCurrentPageReport]="true"
-                            [paginator]="true"
-                            [paginatorStyleClass]="'items-center justify-end'"
-                            currentPageReportTemplate="Items per page: 20&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Page {currentPage} - {totalPages} of {totalRecords}"
-                            [loading]="loading"
-                            [lazy]="true"
-                            [sortField]="defaultSortField"
-                            (onLazyLoad)="fetchOrders($event)"
+                    <ng-template #detialBtnTemplateRef let-element="element">
+                        <button
+                            id="detailsBtn"
+                            class="bg-custom-red justify-center text-white"
+                            mat-flat-button
+                            (click)="details(element?.orderId)"
                         >
-                            <ng-template pTemplate="header" let-columns>
-                                <tr>
-                                    <th class="w-12"></th>
-                                    <th
-                                        [pSortableColumn]="
-                                            col.sortable
-                                                ? col.sortFieldName
-                                                    ? col.sortFieldName
-                                                    : col.field
-                                                : null
-                                        "
-                                        [ngClass]="col.headerCls"
-                                        *ngFor="
-                                            let col of columns;
-                                            let i = index
-                                        "
-                                    >
-                                        @if (!col.hideHeader) {
-                                            <div
-                                                class="p-d-flex p-jc-between p-ai-center flex items-center"
-                                            >
-                                                {{ col.header }}
-                                                @if (col.sortable) {
-                                                    <p-sortIcon
-                                                        [field]="
-                                                            col.sortFieldName
-                                                                ? col.sortFieldName
-                                                                : col.field
-                                                        "
-                                                    ></p-sortIcon>
-                                                }
-                                            </div>
-                                        }
-                                    </th>
-                                </tr>
-                            </ng-template>
-                            <ng-template
-                                pTemplate="body"
-                                let-order
-                                let-expanded="expanded"
-                                let-columns="columns"
-                            >
-                                <tr [id]="'order-table-row#' + order.orderId">
-                                    <th class="w-12"></th>
-                                    <td
-                                        *ngFor="
-                                            let col of columns;
-                                            let i = index
-                                        "
-                                        class="break-all"
-                                    >
-                                        <ng-template
-                                            #shipToCustomerTpl
-                                            let-order
-                                        >
-                                            {{ order.orderCustomerReport.name }}
-                                        </ng-template>
-                                        <ng-template
-                                            #dateTimeTpl
-                                            let-order
-                                            let-field="field"
-                                        >
-                                            {{
-                                                order[field]
-                                                    | date: 'MM/dd/yyyy HH:mm'
-                                            }}
-                                        </ng-template>
-                                        <ng-template
-                                            #dateTpl
-                                            let-order
-                                            let-field="field"
-                                        >
-                                            {{
-                                                order[field]
-                                                    | date: 'MM/dd/yyyy'
-                                            }}
-                                        </ng-template>
-                                        <ng-template #actionTpl let-order>
-                                            <button
-                                                id="detailsBtn"
-                                                class="bg-custom-red justify-center text-white"
-                                                mat-flat-button
-                                                (click)="details(order.orderId)"
-                                            >
-                                                Details
-                                            </button>
-                                        </ng-template>
-                                        <ng-template #priorityTpl let-order>
-                                            <span
-                                                class="badge rounded-pill"
-                                                [ngStyle]="{
-                                                    'background-color':
-                                                        order
-                                                            ?.orderPriorityReport
-                                                            ?.priorityColor ??
-                                                        '#222222',
-                                                }"
-                                            >
-                                                {{
-                                                    OrderPriorityMap[
-                                                        order
-                                                            ?.orderPriorityReport
-                                                            ?.priority
-                                                    ]
-                                                }}
-                                            </span>
-                                        </ng-template>
-                                        <ng-template #statusTpl let-order>
-                                            {{
-                                                OrderStatusMap[
-                                                    order.orderStatus
-                                                ]
-                                            }}
-                                        </ng-template>
-
-                                        @if (
-                                            {
-                                                shipToCustomerTpl:
-                                                    shipToCustomerTpl,
-                                                dateTimeTpl: dateTimeTpl,
-                                                dateTpl: dateTpl,
-                                                priorityTpl: priorityTpl,
-                                                statusTpl: statusTpl,
-                                                actionTpl: actionTpl,
-                                            };
-                                            as templates
-                                        ) {
-                                            <ng-container>
-                                                @if (col?.templateRef) {
-                                                    <ng-container>
-                                                        <ng-container
-                                                            *ngTemplateOutlet="
-                                                                templates[
-                                                                    col
-                                                                        ?.templateRef
-                                                                ];
-                                                                context: {
-                                                                    $implicit:
-                                                                        order,
-                                                                    field: col?.field,
-                                                                }
-                                                            "
-                                                        ></ng-container>
-                                                    </ng-container>
-                                                }
-                                            </ng-container>
-                                        }
-
-                                        @if (!col?.templateRef) {
-                                            <ng-container>
-                                                {{
-                                                    order[col.field]?.toString()
-                                                        | uppercase
-                                                }}
-                                            </ng-container>
-                                        }
-                                    </td>
-                                </tr>
-                            </ng-template>
-                            <ng-template pTemplate="rowexpansion" let-order>
-                                <tr>
-                                    <td
-                                        [attr.colspan]="selectedColumns?.length"
-                                    >
-                                        <div class="p-4">
-                                            <span
-                                                class="mb-1 mr-4 w-60 text-left font-bold"
-                                            >
-                                                Comments</span
-                                            >
-                                            <span class="flex-auto text-left">{{
-                                                order?.comments | uppercase
-                                            }}</span>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </ng-template>
-                            <ng-template pTemplate="emptymessage">
-                                <tr>
-                                    <td
-                                        class="py-4 text-center"
-                                        [colSpan]="columns.length"
-                                    >
-                                        <span class="ml-6">{{
-                                            footerMessage
-                                        }}</span>
-                                    </td>
-                                </tr>
-                            </ng-template>
-                        </p-table>
-                    </div>
-                </fuse-card>
+                            Details
+                        </button>
+                    </ng-template>
+                </div>
             </div>
-        </div>
+        }
     </div>
 </div>
