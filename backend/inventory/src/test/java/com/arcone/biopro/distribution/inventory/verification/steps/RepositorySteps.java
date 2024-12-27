@@ -16,7 +16,6 @@ import io.cucumber.java.en.Then;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -92,7 +91,7 @@ public class RepositorySteps {
     public void iAmListeningEventForUnitNumber(String unitNumber, String productCode, String status) {
         scenarioContext.setUnitNumber(unitNumber);
         scenarioContext.setProductCode(productCode);
-        InventoryEntity inventoryEntity = inventoryUtil.createNewInventoryObject(unitNumber, productCode, InventoryStatus.valueOf(status));
+        InventoryEntity inventoryEntity = inventoryUtil.newInventoryEntity(unitNumber, productCode, InventoryStatus.valueOf(status));
         inventoryUtil.saveInventory(inventoryEntity);
     }
 
@@ -189,7 +188,7 @@ public class RepositorySteps {
             if (headers.contains("Status")) {
                 status = InventoryStatus.valueOf(inventory.get("Status"));
             }
-            InventoryEntity inventoryEntity = inventoryUtil.createNewInventoryObject(unitNumber, productCode, status);
+            InventoryEntity inventoryEntity = inventoryUtil.newInventoryEntity(unitNumber, productCode, status);
 
             if (headers.contains("ABO/RH")) {
                 String aboRh = inventory.get("ABO/RH");
