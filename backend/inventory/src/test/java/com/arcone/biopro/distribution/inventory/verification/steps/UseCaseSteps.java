@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.inventory.verification.steps;
 import com.arcone.biopro.distribution.inventory.application.dto.*;
 import com.arcone.biopro.distribution.inventory.application.usecase.*;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ShipmentType;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.InputProduct;
 import com.arcone.biopro.distribution.inventory.verification.common.ScenarioContext;
 import com.arcone.biopro.distribution.inventory.verification.utils.ISBTProductUtil;
@@ -98,8 +99,8 @@ public class UseCaseSteps {
         }
     }
 
-    @When("I received a Shipment Completed event for the following units:")
-    public void iReceivedAShipmentCompletedEventForTheFollowingUnits(DataTable dataTable) {
+    @When("I received a Shipment Completed event with shipment type {string} for the following units:")
+    public void iReceivedAShipmentCompletedEventForTheFollowingUnits(String shipmentType, DataTable dataTable) {
         List<ShipmentCompletedInput.LineItem> lines = new ArrayList<>();
         List<ShipmentCompletedInput.LineItem.Product> products = new ArrayList<>();
         List<Map<String, String>> inventories = dataTable.asMaps(String.class, String.class);
@@ -111,6 +112,7 @@ public class UseCaseSteps {
         lines.add(new ShipmentCompletedInput.LineItem(products));
         var input = new ShipmentCompletedInput(
             "a-shipment-id",
+            ShipmentType.valueOf(shipmentType),
             "an-order-number",
             "a-performed-by",
             lines);

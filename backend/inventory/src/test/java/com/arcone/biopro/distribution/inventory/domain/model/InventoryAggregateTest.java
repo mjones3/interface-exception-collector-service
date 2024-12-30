@@ -2,6 +2,7 @@ package com.arcone.biopro.distribution.inventory.domain.model;
 
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.MessageType;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ShipmentType;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.InputProduct;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.NotificationMessage;
 import org.junit.jupiter.api.BeforeEach;
@@ -73,8 +74,14 @@ class InventoryAggregateTest {
 
     @Test
     void testCompleteShipment_ShouldTransitionStatusToShipped() {
-        inventoryAggregate.completeShipment();
+        inventoryAggregate.completeShipment(ShipmentType.NORMAL);
         verify(inventoryMock).transitionStatus(InventoryStatus.SHIPPED, null);
+    }
+
+    @Test
+    void testCompleteShipment_ShouldTransitionStatusToInTransit() {
+        inventoryAggregate.completeShipment(ShipmentType.INTERNAL_TRANSFER);
+        verify(inventoryMock).transitionStatus(InventoryStatus.IN_TRANSIT, null);
     }
 
     @Test
