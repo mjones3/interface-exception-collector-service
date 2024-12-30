@@ -1,9 +1,8 @@
 package com.arcone.biopro.distribution.inventory.integration;
 
-import com.arcone.biopro.distribution.inventory.application.dto.InventoryInput;
-import com.arcone.biopro.distribution.inventory.application.usecase.LabelAppliedUseCase;
+import com.arcone.biopro.distribution.inventory.application.dto.CheckInCompletedInput;
+import com.arcone.biopro.distribution.inventory.application.usecase.CheckInCompletedUseCase;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
-import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntityRepository;
 import com.arcone.biopro.distribution.inventory.verification.utils.KafkaHelper;
 import com.arcone.biopro.distribution.inventory.verification.utils.LogMonitor;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -24,11 +23,8 @@ import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 
-import static com.arcone.biopro.distribution.inventory.BioProConstants.LABEL_APPLIED_TOPIC;
+import static com.arcone.biopro.distribution.inventory.BioProConstants.CHECK_IN_COMPLETED_TOPIC;
 import static com.arcone.biopro.distribution.inventory.BioProConstants.PAYLOAD;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -40,21 +36,18 @@ import static org.mockito.Mockito.*;
     properties = {
         "spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}",
         "spring.kafka.consumer.auto-offset-reset=earliest",
-        "spring.kafka.consumer.group-id=label-applied-test-group",
+        "spring.kafka.consumer.group-id=checkin-test-group",
         "default.location=TestLocation"
     })
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@EmbeddedKafka(partitions = 1, brokerProperties = {"listeners=PLAINTEXT://localhost:9094", "port=9094"})
-public class LabelAppliedIntegrationIT {
+@EmbeddedKafka(partitions = 1, brokerProperties = {"listeners=PLAINTEXT://localhost:9095", "port=9095"})
+public class CheckInCompletedIntegrationIT {
 
     @Autowired
     private KafkaHelper kafkaHelper;
 
     @MockBean
-    private LabelAppliedUseCase labelAppliedUseCase;
-
-    @MockBean
-    private InventoryEntityRepository inventoryEntityRepository;
+    private CheckInCompletedUseCase checkInCompletedUseCase;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -64,29 +57,25 @@ public class LabelAppliedIntegrationIT {
 
     @BeforeEach
     void setUp() {
-        when(labelAppliedUseCase.execute(any(InventoryInput.class))).thenReturn(Mono.empty());
+        when(checkInCompletedUseCase.execute(any(CheckInCompletedInput.class))).thenReturn(Mono.empty());
     }
 
     @Test
-    @DisplayName("Should publish, receive, map and call usecase with correct input for label applied")
+    @DisplayName("Should publish, receive, map and call usecase with correct input for check in completed payload")
     public void test1() throws InterruptedException, IOException {
-        var payloadJson = publishCreatedEvent("json/label_applied.json", LABEL_APPLIED_TOPIC);
-        ArgumentCaptor<InventoryInput> captor = ArgumentCaptor.forClass(InventoryInput.class);
-        verify(labelAppliedUseCase, times(1)).execute(captor.capture());
-        InventoryInput capturedInput = captor.getValue();
+        var payloadJson = publishCreatedEvent("json/check_in_completed.json", CHECK_IN_COMPLETED_TOPIC);
+        ArgumentCaptor<CheckInCompletedInput> captor = ArgumentCaptor.forClass(CheckInCompletedInput.class);
+        verify(checkInCompletedUseCase, times(1)).execute(captor.capture());
+        CheckInCompletedInput capturedInput = captor.getValue();
         assertDefaultProductCreatedValues(capturedInput, payloadJson);
     }
 
-    private static void assertDefaultProductCreatedValues(InventoryInput capturedInput, JsonNode payloadJson) {
+    private static void assertDefaultProductCreatedValues(CheckInCompletedInput capturedInput, JsonNode payloadJson) {
         assertThat(capturedInput.unitNumber()).isEqualTo(payloadJson.path(PAYLOAD).path("unitNumber").asText());
         assertThat(capturedInput.productCode()).isEqualTo(payloadJson.path(PAYLOAD).path("productCode").asText());
-        assertThat(capturedInput.shortDescription()).isEqualTo(payloadJson.path(PAYLOAD).path("productDescription").asText());
-        ZonedDateTime zonedDateTime = ZonedDateTime.parse(payloadJson.path(PAYLOAD).path("expirationDate").asText(), DateTimeFormatter.ISO_ZONED_DATE_TIME);
-        assertThat(capturedInput.expirationDate()).isEqualTo(zonedDateTime.toLocalDateTime());
-        assertThat(capturedInput.isLicensed().toString()).isEqualTo(payloadJson.path(PAYLOAD).path("isLicensed").asText());
-        assertThat(capturedInput.weight()).isEqualTo(payloadJson.path(PAYLOAD).path("weight").asInt());
-        assertThat(capturedInput.collectionDate()).isEqualTo(payloadJson.path(PAYLOAD).path("collectionDate").asText());
-        assertThat(capturedInput.location()).isEqualTo(payloadJson.path(PAYLOAD).path("location").asText());
+        assertThat(capturedInput.productDescription()).isEqualTo(payloadJson.path(PAYLOAD).path("productDescription").asText());
+        assertThat(capturedInput.collectionDate()).isEqualTo(payloadJson.path(PAYLOAD).path("drawTime").asText());
+        assertThat(capturedInput.location()).isEqualTo(payloadJson.path(PAYLOAD).path("collectionLocation").asText());
         assertThat(capturedInput.productFamily()).isEqualTo(payloadJson.path(PAYLOAD).path("productFamily").asText());
         assertThat(capturedInput.aboRh()).isEqualTo(AboRhType.valueOf(payloadJson.path(PAYLOAD).path("aboRh").asText()));
     }

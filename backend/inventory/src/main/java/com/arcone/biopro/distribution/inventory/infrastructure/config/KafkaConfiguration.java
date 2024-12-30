@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.inventory.infrastructure.config;
 
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.checkin.CheckInCompletedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.discarded.ProductDiscardedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.label.LabelAppliedMessage;
@@ -35,6 +36,9 @@ import java.util.List;
 @Slf4j
 class KafkaConfiguration {
 
+    @Value("${topic.check-in.completed.name}")
+    private String checkInCompletedTopic;
+
     @Value("${topic.product-created.apheresis.plasma.name}")
     private String apheresisPlasmaProductCreatedTopic;
 
@@ -67,6 +71,13 @@ class KafkaConfiguration {
 
     @Value("${topic.product-quarantined.name}")
     private String addQuarantinedTopic;
+
+    @Bean
+    @Qualifier("CHECK_IN_COMPLETED")
+    ReceiverOptions<String, String> checkInCompletedReceiverOptions(KafkaProperties kafkaProperties) {
+        return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
+            .subscription(List.of(checkInCompletedTopic));
+    }
 
     @Bean
     @Qualifier("PRODUCT_CREATED")
@@ -108,6 +119,18 @@ class KafkaConfiguration {
     ReceiverOptions<String, String> shipmentCompletedReceiverOptions(KafkaProperties kafkaProperties) {
         return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
             .subscription(List.of(shipmentCompletedTopic));
+    }
+
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "CheckInCompleted",
+        description = "CheckIn completed product has been created.",
+        payloadType = CheckInCompletedMessage.class
+    ))
+    @Bean(name = "CHECK_IN_COMPLETED_CONSUMER")
+    ReactiveKafkaConsumerTemplate<String, String> checkInCompletedConsumerTemplate(
+        @Qualifier("CHECK_IN_COMPLETED") ReceiverOptions<String, String> receiverOptions
+    ) {
+        return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
     }
 
     @AsyncListener(operation = @AsyncOperation(

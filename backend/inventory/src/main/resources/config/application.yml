@@ -274,6 +274,9 @@ application:
         - api://default
 
 topic:
+  check-in:
+    completed:
+      name: CheckInCompleted
   product-created:
     wholeblood:
       name: WholeBloodProductCreated
