@@ -11,7 +11,7 @@ CREATE TABLE inventory.bld_inventory
     collection_date             TIMESTAMP WITH TIME ZONE NOT NULL,
     location                    VARCHAR(255) NOT NULL,
     product_family              VARCHAR(255) NOT NULL,
-    abo_rh                      VARCHAR(3) NOT NULL,
+    abo_rh                      VARCHAR(3),
     weight                      INTEGER,
     is_licensed                 BOOLEAN,
     create_date                 TIMESTAMP WITH TIME ZONE NOT NULL,
