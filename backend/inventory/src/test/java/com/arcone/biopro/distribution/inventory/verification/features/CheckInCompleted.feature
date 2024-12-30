@@ -6,7 +6,7 @@ Feature: CheckIn Completed Event
                 | Unit Number   | Product Code   |
                 | <Unit Number> | <Product Code> |
 
-            And the inventory statuses should be updated as follows:
+            Then the inventory statuses should be updated as follows:
                 | Unit Number   | Product Code   | Status    | Is Labeled |
                 | <Unit Number> | <Product Code> | AVAILABLE | false      |
 
