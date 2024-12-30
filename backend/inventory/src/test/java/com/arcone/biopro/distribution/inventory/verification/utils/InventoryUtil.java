@@ -50,7 +50,7 @@ public class InventoryUtil {
             .productCode(productCode)
             .storageLocation("FREEZER 1, RACK 1, SHELF 1")
             .weight(100)
-            .isLabeled(false)
+            .isLabeled(true)
             .isLicensed(true)
             .shortDescription(ISBTProductUtil.getProductDescription(productCode))
             .build();
