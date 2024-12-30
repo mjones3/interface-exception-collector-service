@@ -2,8 +2,10 @@ package com.arcone.biopro.distribution.inventory.verification.steps;
 
 import com.arcone.biopro.distribution.inventory.application.dto.*;
 import com.arcone.biopro.distribution.inventory.application.usecase.*;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.InputProduct;
 import com.arcone.biopro.distribution.inventory.verification.common.ScenarioContext;
+import com.arcone.biopro.distribution.inventory.verification.utils.ISBTProductUtil;
 import com.arcone.biopro.distribution.inventory.verification.utils.InventoryUtil;
 import com.arcone.biopro.distribution.inventory.verification.utils.LogMonitor;
 import io.cucumber.datatable.DataTable;
@@ -13,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +35,8 @@ public class UseCaseSteps {
     private final ShipmentCompletedUseCase shipmentCompletedUseCase;
 
     private final ProductCreatedUseCase productCreatedUseCase;
+
+    private final CheckInCompletedUseCase checkInCompletedUseCase;
 
     private final ScenarioContext scenarioContext;
 
@@ -124,6 +129,16 @@ public class UseCaseSteps {
             ProductCreatedInput productCreatedInput = inventoryUtil.newProductCreatedInput(unitNumber, productCode, inputProducts);
             productCreatedUseCase.execute(productCreatedInput).block();
             logMonitor.await("Product converted.*");
+        }
+    }
+
+    @When("I received a CheckIn Completed event for the following products:")
+    public void iReceivedACheckInCompletedEventForTheFollowingProducts(DataTable dataTable) {
+        List<Map<String, String>> products = dataTable.asMaps(String.class, String.class);
+        for (Map<String, String> product : products) {
+            String unitNumber = product.get("Unit Number");
+            String productCode = product.get("Product Code");
+            checkInCompletedUseCase.execute(inventoryUtil.newCheckInCompletedInput(unitNumber, productCode)).block();
         }
     }
 }
