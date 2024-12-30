@@ -69,6 +69,7 @@ public class ShipmentCompletedIntegrationIT {
         assertThat(capturedInput).isNotNull();
         assertThat(capturedInput.shipmentId()).isEqualTo(payloadJson.path(PAYLOAD).path("shipmentId").asText());
         assertThat(capturedInput.orderNumber()).isEqualTo(payloadJson.path(PAYLOAD).path("orderNumber").asText());
+        assertThat(capturedInput.shipmentType().name()).isEqualTo(payloadJson.path(PAYLOAD).path("shipmentType").asText());
         assertThat(capturedInput.performedBy()).isEqualTo(payloadJson.path(PAYLOAD).path("performedBy").asText());
         assertThat(capturedInput.shipmentId()).isEqualTo(payloadJson.path(PAYLOAD).path("shipmentId").asText());
         assertThat(capturedInput.shipmentId()).isEqualTo(payloadJson.path(PAYLOAD).path("shipmentId").asText());

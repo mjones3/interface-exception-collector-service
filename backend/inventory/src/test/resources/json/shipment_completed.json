@@ -3,7 +3,7 @@
   "eventType": "ShipmentCompleted",
   "payload": {
     "shipmentId": 8,
-    "shipmentType": "{{shipmentType}}",
+    "shipmentType": "NORMAL",
     "orderNumber": 109,
     "externalOrderId": "EXTERNAL_ID",
     "performedBy": "4c973896-5761-41fc-8217-07c5d13a004b",
