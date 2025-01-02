@@ -9,6 +9,7 @@ import {
 import { ApolloTestingModule } from 'apollo-angular/testing';
 import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { of } from 'rxjs';
+import { VerifyFilledProductDto } from '../../models/shipment-info.dto';
 import { ShipmentService } from '../../services/shipment.service';
 import { EnterUnitNumberProductCodeComponent } from './enter-unit-number-product-code.component';
 
@@ -212,5 +213,20 @@ describe('EnterUnitNumberProductCodeComponent', () => {
                 '#visualInspectionId'
             )
         ).toBeFalsy();
+    });
+
+    it('should emit unitNumberProductCodeSelected', () => {
+        const emitSpy = jest.spyOn(
+            component.unitNumberProductCodeSelected,
+            'emit'
+        );
+        fixture.detectChanges();
+        const pValue: VerifyFilledProductDto = {
+            unitNumber: 'W036898786801',
+            productCode: 'E7646V00',
+        };
+        component.productGroup.patchValue(pValue);
+        component.verifyProduct();
+        expect(emitSpy).toHaveBeenCalledWith(pValue);
     });
 });

@@ -32,7 +32,14 @@ import {
 } from '@shared';
 import { ERROR_MESSAGE } from 'app/core/data/common-labels';
 import { RuleResponseDTO } from 'app/shared/models/rule.model';
-import { Subscription, catchError, combineLatestWith, filter, of } from 'rxjs';
+import {
+    Subscription,
+    catchError,
+    combineLatestWith,
+    debounceTime,
+    filter,
+    of,
+} from 'rxjs';
 import { VerifyFilledProductDto } from '../../models/shipment-info.dto';
 import { ShipmentService } from '../../services/shipment.service';
 
@@ -104,7 +111,8 @@ export class EnterUnitNumberProductCodeComponent implements OnDestroy {
                             ? !!value.visualInspection?.trim()
                             : true) &&
                         status === 'VALID'
-                )
+                ),
+                debounceTime(300)
             )
             .subscribe(() => this.verifyProduct());
 
@@ -168,10 +176,12 @@ export class EnterUnitNumberProductCodeComponent implements OnDestroy {
     }
 
     verifyProduct(): void {
-        this.unitNumberProductCodeSelected.emit({
-            ...this.productGroup.value,
-            productCode: this.productCode,
-        });
+        if (this.productGroup.valid) {
+            this.unitNumberProductCodeSelected.emit({
+                ...this.productGroup.value,
+                productCode: this.productCode,
+            });
+        }
     }
 
     disableProductGroup(): void {
@@ -184,12 +194,17 @@ export class EnterUnitNumberProductCodeComponent implements OnDestroy {
     resetProductFormGroup(): void {
         if (this.showVisualInspection) {
             this.productGroup.controls.visualInspection.setValue(null);
+            this.enableVisualInspection();
         }
-
+        this.enableProductCode();
         this.productGroup.reset();
         this.unitNumberComponent.reset();
         this.productGroup.updateValueAndValidity();
         this.changeDetector.detectChanges();
+    }
+
+    focusUnitNumber() {
+        this.unitNumberComponent.focusOnUnitNumber();
     }
 
     get unitNumber(): string {
@@ -249,20 +264,6 @@ export class EnterUnitNumberProductCodeComponent implements OnDestroy {
         } else {
             this.productGroup.controls.productCode.disable();
             this.productGroup.controls.productCode.reset();
-        }
-    }
-
-    onEnterProductCode(): void {
-        if (this.showVisualInspection) {
-            this.enableVisualInspection();
-        } else if (
-            !this.showVisualInspection &&
-            this.productGroup.valid &&
-            this.checkDigitValid
-        ) {
-            setTimeout(() => {
-                this.verifyProduct();
-            }, 300);
         }
     }
 
