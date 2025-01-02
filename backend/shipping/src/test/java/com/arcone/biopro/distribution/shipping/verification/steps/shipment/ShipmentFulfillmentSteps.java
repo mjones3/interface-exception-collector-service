@@ -74,6 +74,7 @@ public class ShipmentFulfillmentSteps {
     private String checkDigit;
     private String productCode;
     private boolean checkDigitEnabled;
+    private String orderPriority;
     @Autowired
     private KafkaHelper kafkaHelper;
 
@@ -125,6 +126,7 @@ public class ShipmentFulfillmentSteps {
     @When("I receive a shipment fulfillment request event.")
     public void receiveFulfillmentOrderRequest() throws Exception {
         this.orderNumber = shipmentTestingController.createShippingRequest();
+        this.orderPriority = "ASAP";
     }
 
     @Then("The shipment request will be available in the Distribution local data store and I can fill the shipment.")
@@ -136,6 +138,7 @@ public class ShipmentFulfillmentSteps {
 
         assertNotNull(this.order, "Failed to get order fulfillment details.");
         assertEquals(this.orderNumber, this.order.getOrderNumber(), "Failed to get order by number.");
+        assertEquals(this.orderPriority, this.order.getPriority(), "Failed to compare order priority.");
 
     }
 
@@ -484,6 +487,13 @@ public class ShipmentFulfillmentSteps {
             return items.stream().anyMatch(packedItem -> packedItem.getUnitNumber().equals(unitNumber) && packedItem.getProductCode().equals(productCode));
         });
         assertTrue(match, "Failed to find the product in the packed items.");
+    }
+
+    @When("I receive a shipment fulfillment request event for the order number {string} and priority {string}.")
+    public void receiveFulfillmentOrderRequest(String orderNumber , String priority) throws Exception {
+        this.orderNumber = shipmentTestingController.createShippingRequest(Long.valueOf(orderNumber),priority);
+        this.orderPriority = priority;
+
     }
 }
 
