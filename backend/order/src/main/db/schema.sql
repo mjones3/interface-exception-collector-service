@@ -35,7 +35,7 @@ CREATE TABLE order_service.lk_order_product_family (
     modification_date TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
-CREATE UNIQUE INDEX uq_idx_lk_order_product_family ON order_service.lk_order_product_family (family_category, family_type);
+CREATE UNIQUE INDEX uq_idx_lk_order_product_family ON order_service.lk_order_product_family (family_category, product_family);
 
 CREATE TABLE order_service.bld_order (
     id                         BIGSERIAL                          NOT NULL CONSTRAINT pk_bld_order PRIMARY KEY,
