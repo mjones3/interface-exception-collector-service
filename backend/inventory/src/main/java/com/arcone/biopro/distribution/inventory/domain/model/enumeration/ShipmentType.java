@@ -2,6 +2,6 @@ package com.arcone.biopro.distribution.inventory.domain.model.enumeration;
 
 public enum ShipmentType {
 
-    NORMAL,
+    CUSTOMER,
     INTERNAL_TRANSFER;
 }

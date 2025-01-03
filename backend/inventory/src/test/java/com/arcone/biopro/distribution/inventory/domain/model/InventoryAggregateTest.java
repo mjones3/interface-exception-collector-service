@@ -74,7 +74,7 @@ class InventoryAggregateTest {
 
     @Test
     void testCompleteShipment_ShouldTransitionStatusToShipped() {
-        inventoryAggregate.completeShipment(ShipmentType.NORMAL);
+        inventoryAggregate.completeShipment(ShipmentType.CUSTOMER);
         verify(inventoryMock).transitionStatus(InventoryStatus.SHIPPED, null);
     }
 
