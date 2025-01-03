@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.inventory.domain.model;
 import com.arcone.biopro.distribution.inventory.domain.exception.UnavailableStatusNotMappedException;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.MessageType;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ShipmentType;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.NotificationMessage;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.ProductCode;
 import lombok.AllArgsConstructor;
@@ -102,7 +103,11 @@ public class InventoryAggregate {
             details));
     }
 
-    public InventoryAggregate completeShipment() {
+    public InventoryAggregate completeShipment(ShipmentType shipmentType) {
+        if(ShipmentType.INTERNAL_TRANSFER.equals(shipmentType)) {
+            transitionStatus(InventoryStatus.IN_TRANSIT, null);
+            return this;
+        }
         transitionStatus(InventoryStatus.SHIPPED, null);
         return this;
     }

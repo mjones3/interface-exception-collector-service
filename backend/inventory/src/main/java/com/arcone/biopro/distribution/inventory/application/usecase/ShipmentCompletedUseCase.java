@@ -6,6 +6,7 @@ import com.arcone.biopro.distribution.inventory.application.dto.ShipmentComplete
 import com.arcone.biopro.distribution.inventory.application.mapper.InventoryOutputMapper;
 import com.arcone.biopro.distribution.inventory.domain.exception.InventoryNotFoundException;
 import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ShipmentType;
 import com.arcone.biopro.distribution.inventory.domain.repository.InventoryAggregateRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -30,16 +31,16 @@ public class ShipmentCompletedUseCase implements UseCase<Mono<ShipmentCompletedO
     public Mono<ShipmentCompletedOutput> execute(ShipmentCompletedInput input) {
         return Flux.fromIterable(input.lineItems())
             .flatMap(lineItem -> Flux.fromIterable(lineItem.products()))
-            .flatMap(this::processProduct)
+            .flatMap(product -> processProduct(product, input.shipmentType()))
             .collectList()
             .map(inventoryOutputs -> createShipmentCompletedOutput(input, inventoryOutputs));
     }
 
-    private Mono<InventoryOutput> processProduct(ShipmentCompletedInput.LineItem.Product product) {
+    private Mono<InventoryOutput> processProduct(ShipmentCompletedInput.LineItem.Product product, ShipmentType shipmentType) {
         return inventoryAggregateRepository.findByUnitNumberAndProductCode(product.unitNumber(), product.productCode())
             .switchIfEmpty(Mono.error(InventoryNotFoundException::new))
             .flatMap(inventoryAggregate -> inventoryAggregateRepository.saveInventory(
-                inventoryAggregate.completeShipment()
+                inventoryAggregate.completeShipment(shipmentType)
             ))
             .map(InventoryAggregate::getInventory)
             .map(mapper::toOutput);
