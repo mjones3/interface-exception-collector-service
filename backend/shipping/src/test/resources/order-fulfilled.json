@@ -6,7 +6,7 @@
   "payload": {
     "orderNumber": {order.number},
     "externalId": "EXTERNAL_ID",
-    "priority": "ASAP",
+    "priority": "{order.priority}",
     "status": "OPEN",
   "shippingCustomerCode": "1",
     "locationCode": "123456789",

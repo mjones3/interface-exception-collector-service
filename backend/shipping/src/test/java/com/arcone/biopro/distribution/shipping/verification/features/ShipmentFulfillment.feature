@@ -1,9 +1,9 @@
-@api
+@api @AOA-6
 Feature: Shipment fulfillment request
 
     Background:
         Given I cleaned up from the database the packed item that used the unit number "W822530106093,W822530106094".
-        And I cleaned up from the database, all shipments with order number "132,133".
+        And I cleaned up from the database, all shipments with order number "132,133,134,135,136,137,138".
 
         Rule: I should be able to receive the shipment fulfillment request.
         Rule: I should be able to persist the shipment fulfilled request on the local store.
@@ -79,5 +79,16 @@ Feature: Shipment fulfillment request
                 | 133          | 1           | Testing Customer | 5        | ANY       | RED_BLOOD_CELLS_LEUKOREDUCED | W822530106094 | E0685V00 |
 
 
-
-
+        Rule: Distribution Technicians must be able to process and ship products for “DATE-TIME” delivery type orders.
+        @api @bug @DIS-260
+        Scenario Outline: Receive a shipment fulfillment request based on priority
+            Given I have no shipment fulfillment requests.
+            When I receive a shipment fulfillment request event for the order number "<Order Number>" and priority "<Priority>".
+            Then The shipment request will be available in the Distribution local data store and I can fill the shipment.
+            Examples:
+            | Order Number | Priority   |
+            |    134       |  DATE_TIME |
+            |    135       |  ASAP      |
+            |    136       |  ROUTINE   |
+            |    137       |  STAT      |
+            |    138       |  SCHEDULED |

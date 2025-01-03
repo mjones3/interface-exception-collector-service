@@ -191,7 +191,8 @@ enum ShipmentPriority {
     ASAP,
     ROUTINE ,
     STAT ,
-    SCHEDULED
+    SCHEDULED,
+    DATE_TIME
 }
 enum ShipmentStatus {
     OPEN,
