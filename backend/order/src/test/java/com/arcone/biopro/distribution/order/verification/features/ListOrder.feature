@@ -117,6 +117,7 @@ Feature: List of all orders in Search Order
             When I choose search orders.
             Then I should not see more than 20 orders in the list.
             And I should see the list of orders based on priority and status.
+            Then I cleaned up from the database the orders with external ID starting with "EXT20RECORDS".
 
 
 
