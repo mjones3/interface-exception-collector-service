@@ -208,6 +208,7 @@ export class FillProductsComponent implements OnInit {
                             ? [...ruleResult.notifications]
                             : [];
                     if (notifications?.length) {
+                        this.productSelection.resetProductFormGroup();
                         const infoNotifications = this.pullOutNotifications(
                             notifications,
                             { notificationType: 'INFO' }
@@ -237,6 +238,7 @@ export class FillProductsComponent implements OnInit {
                             })?.[0];
                         if (unsatisfactoryVisualInspection) {
                             const reasons = ruleResult?.results?.reasons;
+                            this.productSelection.resetProductFormGroup();
                             return this.showUnsatisfactoryVisualInspectionDialog(
                                 reasons,
                                 unsatisfactoryVisualInspection.message,

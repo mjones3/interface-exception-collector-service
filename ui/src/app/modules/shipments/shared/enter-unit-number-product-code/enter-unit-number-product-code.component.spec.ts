@@ -229,4 +229,53 @@ describe('EnterUnitNumberProductCodeComponent', () => {
         component.verifyProduct();
         expect(emitSpy).toHaveBeenCalledWith(pValue);
     });
+
+    describe('resetProductFormGroup', () => {
+        let enableVisualInspectionSpy;
+        let enableProductCodeSpy;
+        let productGroupResetSpy;
+        let unitNumberComponentResetSpy;
+
+        beforeEach(() => {
+            enableVisualInspectionSpy = jest.spyOn(
+                component,
+                'enableVisualInspection'
+            );
+            enableProductCodeSpy = jest.spyOn(component, 'enableProductCode');
+            productGroupResetSpy = jest.spyOn(component.productGroup, 'reset');
+            unitNumberComponentResetSpy = jest.spyOn(
+                component.unitNumberComponent,
+                'reset'
+            );
+        });
+        it('should set visual inspection value as null', () => {
+            component.showVisualInspection = true;
+            component.resetProductFormGroup();
+            expect(enableVisualInspectionSpy).toHaveBeenCalled();
+        });
+
+        it('should not call enableVisualInspection', () => {
+            component.showVisualInspection = false;
+            component.resetProductFormGroup();
+            expect(enableVisualInspectionSpy).not.toHaveBeenCalled();
+        });
+
+        it('should call enableProductCode', () => {
+            component.showVisualInspection = true;
+            component.resetProductFormGroup();
+            expect(enableProductCodeSpy).toHaveBeenCalled();
+        });
+
+        it('should reset productGroup', () => {
+            component.showVisualInspection = true;
+            component.resetProductFormGroup();
+            expect(productGroupResetSpy).toHaveBeenCalled();
+        });
+
+        it('should reset unitNumberComponent', () => {
+            component.showVisualInspection = true;
+            component.resetProductFormGroup();
+            expect(unitNumberComponentResetSpy).toHaveBeenCalled();
+        });
+    });
 });
