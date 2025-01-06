@@ -7,7 +7,7 @@ Feature: Record Unsatisfactory Visual Inspection
 
         Background:
             Given I cleaned up from the database the packed item that used the unit number "W036898786803,W812530106091".
-            And I cleaned up from the database, all shipments with order number "200,201".
+            And I cleaned up from the database, all shipments with order number "2001,2011".
 
         Rule: I should be able to see the list of the discard reasons configured for distribution.
         Rule: I should be able to select the configured reasons for failed visual inspection.
@@ -43,5 +43,5 @@ Feature: Record Unsatisfactory Visual Inspection
 
             Examples:
                 | Order Number | Customer ID | Customer Name    | Quantity | BloodType | ProductFamily                                                                          | Family                       | Type | UN               | Code       | Reason     |
-                | 200          | 1           | Testing Customer | 10,5,8   | A,B,O     | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE                            | PLASMA TRANSFUSABLE          | A    | =W03689878680300 | =<E7650V00 | AGGREGATES |
-                | 201          | 1           | Testing Customer | 8,5,8    | AP,BP,OP  | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED | RED BLOOD CELLS LEUKOREDUCED | AP   | =W81253010609100 | =<E0685V00 | CLOTTED    |
+                | 2001          | 1           | Testing Customer | 10,5,8   | A,B,O     | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE                            | PLASMA TRANSFUSABLE          | A    | =W03689878680300 | =<E7650V00 | AGGREGATES |
+                | 2011          | 1           | Testing Customer | 8,5,8    | AP,BP,OP  | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED | RED BLOOD CELLS LEUKOREDUCED | AP   | =W81253010609100 | =<E0685V00 | CLOTTED    |
