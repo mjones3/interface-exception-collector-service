@@ -1,19 +1,24 @@
-@api @DIS-91
+@api @AOA-152
 Feature: Partner Order Inbound Interface
     As a partner blood center system,
     I want to send the order request,
     so that my order can be processed by the BioPro system.
 
+    @DIS-91 @DIS-252
     Scenario Outline: Receive a Partner order inbound request
         Given I have a Partner order "<JsonPayloadName>".
         When I send a request to the Partner Order Inbound Interface.
         Then The response status should be <responseCode>.
         And The Order status should be "<status>".
         Examples:
-            | JsonPayloadName                                                     | responseCode | status  |
-            |inbound-test-files/order-inbound-scenario-happy-path.json            |    201       | CREATED |
-            |inbound-test-files/order-inbound-scenario-aph-rbc-products-path.json |    201       | CREATED |
+            | JsonPayloadName                                                              | responseCode | status  |
+            | inbound-test-files/order-inbound-scenario-happy-path.json                    | 201          | CREATED |
+            | inbound-test-files/order-inbound-scenario-aph-rbc-products-path.json         | 201          | CREATED |
+            | inbound-test-files/order-inbound-scenario-rbc-path.json                      | 201          | CREATED |
+            | inbound-test-files/order-inbound-scenario-whole-blood-path.json              | 201          | CREATED |
+            | inbound-test-files/order-inbound-scenario-whole-blood-leukoreduced-path.json | 201          | CREATED |
 
+    @DIS-91
     Scenario Outline: Validate Partner order inbound request
         Given I have a Partner order "<JsonPayloadName>".
         When I send a request to the Partner Order Inbound Interface.
