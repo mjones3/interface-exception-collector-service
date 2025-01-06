@@ -199,7 +199,6 @@ export class FillProductsComponent implements OnInit {
                         if (result) {
                             this.filledProductsData = [...result.packedItems];
                             this.productSelection.resetProductFormGroup();
-                            this.productSelection.focusUnitNumber();
                         }
                     }
 
@@ -300,11 +299,9 @@ export class FillProductsComponent implements OnInit {
         inventory: InventoryDTO
     ): void {
         if (!reasons?.length) {
-            this.toaster
-                .error(
-                    'Unable to record unsatisfactory visual inspection. No reasons provided by the system. Contact support.'
-                )
-                .onTap.subscribe(() => this.productSelection.focusUnitNumber());
+            this.toaster.error(
+                'Unable to record unsatisfactory visual inspection. No reasons provided by the system. Contact support.'
+            );
             return;
         }
         this.recordUnsatisfactoryVisualInspectionDialog
@@ -358,7 +355,6 @@ export class FillProductsComponent implements OnInit {
                         });
                 } else {
                     this.productSelection.resetProductFormGroup();
-                    this.productSelection.focusUnitNumber();
                 }
             });
     }
@@ -386,21 +382,19 @@ export class FillProductsComponent implements OnInit {
         notifications.forEach((notification) => {
             const notificationType =
                 NotificationTypeMap[notification.notificationType];
-            this.toaster
-                .show(
-                    this.translateService.instant(notification.message),
-                    notificationType.title,
-                    {
-                        ...(notificationType.timeOut
-                            ? { timeOut: notificationType.timeOut }
-                            : {}),
-                        ...(notification.notificationType === 'SYSTEM'
-                            ? { timeOut: 0 }
-                            : {}), // Overrides timeout definition for SYSTEM notifications
-                    },
-                    notificationType.type
-                )
-                .onTap.subscribe(() => this.productSelection.focusUnitNumber());
+            this.toaster.show(
+                this.translateService.instant(notification.message),
+                notificationType.title,
+                {
+                    ...(notificationType.timeOut
+                        ? { timeOut: notificationType.timeOut }
+                        : {}),
+                    ...(notification.notificationType === 'SYSTEM'
+                        ? { timeOut: 0 }
+                        : {}), // Overrides timeout definition for SYSTEM notifications
+                },
+                notificationType.type
+            );
         });
     }
 
@@ -410,9 +404,7 @@ export class FillProductsComponent implements OnInit {
         this.confirmationAcknowledgmentService.notificationConfirmation(
             message,
             details,
-            () => {
-                this.productSelection.focusUnitNumber();
-            }
+            null // TODO
         );
     }
 

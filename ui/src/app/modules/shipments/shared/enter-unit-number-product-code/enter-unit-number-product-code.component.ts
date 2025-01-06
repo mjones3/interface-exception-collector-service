@@ -203,10 +203,6 @@ export class EnterUnitNumberProductCodeComponent implements OnDestroy {
         this.changeDetector.detectChanges();
     }
 
-    focusUnitNumber() {
-        this.unitNumberComponent.focusOnUnitNumber();
-    }
-
     get unitNumber(): string {
         return this.productGroup.controls.unitNumber.value;
     }

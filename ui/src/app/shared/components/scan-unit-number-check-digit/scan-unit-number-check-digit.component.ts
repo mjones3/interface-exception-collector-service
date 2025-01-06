@@ -150,6 +150,7 @@ export class ScanUnitNumberCheckDigitComponent implements OnChanges {
     reset(): void {
         this.controlCheckDigit?.disable({ emitEvent: false, onlySelf: true });
         this.form.reset();
+        this.focusOnUnitNumber();
     }
 
     focusOnUnitNumber() {
