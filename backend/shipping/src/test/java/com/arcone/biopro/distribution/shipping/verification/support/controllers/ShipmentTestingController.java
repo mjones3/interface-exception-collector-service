@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.shipping.verification.support.controllers
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.BloodType;
 import com.arcone.biopro.distribution.shipping.verification.support.ApiHelper;
 import com.arcone.biopro.distribution.shipping.verification.support.DatabaseService;
+import com.arcone.biopro.distribution.shipping.verification.support.GraphQLMutationMapper;
 import com.arcone.biopro.distribution.shipping.verification.support.GraphQLQueryMapper;
 import com.arcone.biopro.distribution.shipping.verification.support.KafkaHelper;
 import com.arcone.biopro.distribution.shipping.verification.support.TestUtils;
@@ -51,6 +52,10 @@ public class ShipmentTestingController {
 
     @Value("${kafka.waiting.time}")
     private long kafkaWaitingTime;
+
+    @Value("${default.ui.facility}")
+    private String facility;
+
     @Autowired
     private DatabaseService databaseService;
 
@@ -374,5 +379,19 @@ public class ShipmentTestingController {
     public void updateShipmentItemStatus(Long shipmentId, String unitNumber, String status, String message) {
         var query = String.format("UPDATE bld_shipment_item_packed SET ineligible_status = '%s', ineligible_message = '%s' WHERE unit_number = '%s' AND shipment_item_id = (SELECT id FROM bld_shipment_item WHERE shipment_id = %s)", ineligibleStatusMap.get(status), message, unitNumber, shipmentId);
         databaseService.executeSql(query).block();
+    }
+
+    public Map fillShipment(long shipmentId, String unitNumber, String productCode) throws Exception {
+        var shipmentDetails = parseShipmentRequestDetail(
+            getShipmentRequestDetails(shipmentId));
+        Long shipmentItem;
+        shipmentItem = shipmentDetails.getItems().getFirst().getId();
+
+        var response = apiHelper.graphQlRequest(GraphQLMutationMapper.packItemMutation(shipmentItem, facility
+            , TestUtils.removeUnitNumberScanDigits(unitNumber), "test-emplyee-id", TestUtils.removeProductCodeScanDigits(productCode), "SATISFACTORY"), "packItem");
+        log.info("Shipment item successfully packed: {}", response);
+        Assert.assertEquals("200 OK", response.get("ruleCode"));
+        Thread.sleep(kafkaWaitingTime);
+        return response;
     }
 }
