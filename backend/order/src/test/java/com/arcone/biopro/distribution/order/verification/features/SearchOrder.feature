@@ -2,8 +2,7 @@
 Feature: Search Orders
 
     Background:
-        Given I cleaned up from the database the orders with external ID "1979,1984,2018,DIS1141179,114117922233510".
-        And I cleaned up from the database the orders with external ID starting with "EXT".
+        Given I cleaned up from the database the orders with external ID starting with "EXTSEARCH1".
 
 
     Rule: I should be able to filter the order lists by specific criteria.
@@ -13,8 +12,8 @@ Feature: Search Orders
     Rule: I should be able to see the other filter options disabled when filtering by either the BioPro Order number or External Order ID.
         @R20-227 @R20-228
         Scenario Outline: Search orders by Order Number
-            Given I have a Biopro Order with id "<Order Number>", externalId "<External ID>", Location Code "<Order LocationCode>", Priority "<Priority>" and Status "<Status>".
-            And I have a Biopro Order with id "<External ID>", externalId "<Order Number>", Location Code "<Order LocationCode>", Priority "<Priority>" and Status "<Status>".
+            Given I have a Biopro Order with externalId "<External ID>", Location Code "<Order LocationCode>", Priority "<Priority>" and Status "<Status>".
+            And I have another Biopro Order with the externalId equals to order number of the previous order.
             And I am logged in the location "<User LocationCode>".
             And I choose search orders.
             And I open the search orders filter panel.
@@ -25,9 +24,9 @@ Feature: Search Orders
             Then I should see 2 orders in the search results.
 
             Examples:
-                | External ID | Order LocationCode | User LocationCode | Priority | Status | Search Key | Order Number |
-                | 1979        | 123456789          | 123456789         | STAT     | OPEN   | 1984       | 1984         |
-                | 1984        | 123456789          | 123456789         | STAT     | OPEN   | 1984       | 1979         |
+                | External ID   | Order LocationCode | User LocationCode | Priority | Status | Search Key |
+                | EXTSEARCH1979 | 123456789          | 123456789         | STAT     | OPEN   | orderId    |
+                | EXTSEARCH1984 | 123456789          | 123456789         | STAT     | OPEN   | orderId    |
 
 
 
@@ -44,16 +43,16 @@ Feature: Search Orders
             Then I should see a "Caution" message: "No Results Found".
 
             Examples:
-                | External ID     | Order LocationCode | User LocationCode | Priority | Status | Search Key |
-                | 114117922233510 | 123456789          | 234567891         | STAT     | OPEN   | externalId |
-                | 114117922233510 | 123456789          | 123456788         | STAT     | OPEN   | 000111     |
+                | External ID              | Order LocationCode | User LocationCode | Priority | Status | Search Key |
+                | EXTSEARCH114117922233510 | 123456789          | 234567891         | STAT     | OPEN   | externalId |
+                | EXTSEARCH114117922233510 | 123456789          | 123456788         | STAT     | OPEN   | 000111     |
 
 
 
     Rule: I should be redirected to the Order Details page if there is only one order in the system that matches the search criteria.
         @R20-227
         Scenario Outline: Search for an order and view the details
-            Given I have a Biopro Order with id "<Order Number>", externalId "<External ID>", Location Code "<Order LocationCode>", Priority "<Priority>" and Status "<Status>".
+            Given I have a Biopro Order with externalId "<External ID>", Location Code "<Order LocationCode>", Priority "<Priority>" and Status "<Status>".
             And I have an order item with product family "<ProductFamily>", blood type "<BloodType>", quantity <Quantity>, and order item comments "<Item Comments>".
             And I am logged in the location "<User LocationCode>".
             And I choose search orders.
@@ -63,8 +62,8 @@ Feature: Search Orders
             Then I should be redirected to the order details page.
 
             Examples:
-                | Order Number | External ID | Order LocationCode | User LocationCode | Priority | Status | ProductFamily       | BloodType | Quantity | Item Comments |
-                | 2018         | DIS1141179  | 123456789          | 123456789         | STAT     | OPEN   | PLASMA_TRANSFUSABLE | AB        | 3        | Needed asap   |
+                | External ID          | Order LocationCode | User LocationCode | Priority | Status | ProductFamily       | BloodType | Quantity | Item Comments |
+                | EXTSEARCH1DIS1141179 | 123456789          | 123456789         | STAT     | OPEN   | PLASMA_TRANSFUSABLE | AB        | 3        | Needed asap   |
 
 
     Rule: I should be able to reset the applied filter criteria.
@@ -120,9 +119,10 @@ Feature: Search Orders
     Rule: I should see the number of fields used to select the filter criteria.
         @R20-228
         Scenario Outline: Check if multiple select inputs are keeping the multiple selection after the user selects the second item
-            Given I have a Biopro Order with id "123", externalId "1979", Location Code "123456789", Priority "STAT" and Status "OPEN".
-            And I have a Biopro Order with id "456", externalId "1984", Location Code "123456789", Priority "ASAP" and Status "IN_PROGRESS".
-            And I have a Biopro Order with id "789", externalId "2018", Location Code "123456789", Priority "ROUTINE" and Status "OPEN".
+
+            Given I have a Biopro Order with externalId "EXTSEARCH1979", Location Code "123456789", Priority "STAT" and Status "OPEN".
+            And I have a Biopro Order with externalId "EXTSEARCH1984", Location Code "123456789", Priority "ASAP" and Status "IN_PROGRESS".
+            And I have a Biopro Order with externalId "EXTSEARCH12018", Location Code "123456789", Priority "ROUTINE" and Status "OPEN".
             And I am logged in the location "123456789".
             And I choose search orders.
             And I open the search orders filter panel.
@@ -139,11 +139,11 @@ Feature: Search Orders
             And I should see "<Expected External Ids>" orders in the search results.
             And I should see "<Expected Number of Filters>" as the number of used filters for the search.
             Examples:
-                | Selected Priorities | Selected Statuses | Selected Customers         | Expected External Ids | Expected Number of Filters |
-                | STAT,ASAP           | OPEN,IN PROGRESS  |                            | 1979,1984             | 4                          |
-                | STAT,ROUTINE        |                   |                            | 1979,2018             | 3                          |
-                | ASAP                | IN PROGRESS       | Creative Testing Solutions | 1984                  | 5                          |
-                |                     |                   |                            | 1979,1984,2018        | 2                          |
+                | Selected Priorities | Selected Statuses | Selected Customers         | Expected External Ids                      | Expected Number of Filters |
+                | STAT,ASAP           | OPEN,IN PROGRESS  |                            | EXTSEARCH1979,EXTSEARCH1984                | 4                          |
+                | STAT,ROUTINE        |                   |                            | EXTSEARCH1979,EXTSEARCH12018               | 3                          |
+                | ASAP                | IN PROGRESS       | Creative Testing Solutions | EXTSEARCH1984                              | 5                          |
+                |                     |                   |                            | EXTSEARCH1979,EXTSEARCH1984,EXTSEARCH12018 | 2                          |
 
     Rule: I should be able to filter the results for date fields from 2 years back.
         Rule: I should be able to enter the create date manually or select from the integrated component.

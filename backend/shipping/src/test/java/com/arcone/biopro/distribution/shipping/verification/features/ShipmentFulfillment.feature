@@ -1,9 +1,9 @@
-@api
+@api @AOA-6
 Feature: Shipment fulfillment request
 
     Background:
         Given I cleaned up from the database the packed item that used the unit number "W822530106093,W822530106094".
-        And I cleaned up from the database, all shipments with order number "132,133".
+        And I cleaned up from the database, all shipments with order number "1321,1331,1341,1351,1361,1371,1381".
 
         Rule: I should be able to receive the shipment fulfillment request.
         Rule: I should be able to persist the shipment fulfilled request on the local store.
@@ -75,9 +75,20 @@ Feature: Shipment fulfillment request
             Then The product unit number "<UN>" and product code "<Code>" should be packed in the shipment.
             Examples:
                 | Order Number | Customer ID | Customer Name    | Quantity | BloodType | ProductFamily                | UN            | Code     |
-                | 132          | 1           | Testing Customer | 10       | ANY       | PLASMA_TRANSFUSABLE          | W822530106093 | E7648V00 |
-                | 133          | 1           | Testing Customer | 5        | ANY       | RED_BLOOD_CELLS_LEUKOREDUCED | W822530106094 | E0685V00 |
+                | 1321          | 1           | Testing Customer | 10       | ANY       | PLASMA_TRANSFUSABLE          | W822530106093 | E7648V00 |
+                | 1331          | 1           | Testing Customer | 5        | ANY       | RED_BLOOD_CELLS_LEUKOREDUCED | W822530106094 | E0685V00 |
 
 
-
-
+        Rule: Distribution Technicians must be able to process and ship products for “DATE-TIME” delivery type orders.
+        @api @bug @DIS-260
+        Scenario Outline: Receive a shipment fulfillment request based on priority
+            Given I have no shipment fulfillment requests.
+            When I receive a shipment fulfillment request event for the order number "<Order Number>" and priority "<Priority>".
+            Then The shipment request will be available in the Distribution local data store and I can fill the shipment.
+            Examples:
+                | Order Number | Priority  |
+                | 1341         | DATE_TIME |
+                | 1351         | ASAP      |
+                | 1361         | ROUTINE   |
+                | 1371         | STAT      |
+                | 1381         | SCHEDULED |

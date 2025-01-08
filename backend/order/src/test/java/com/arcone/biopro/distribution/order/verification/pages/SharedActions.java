@@ -100,6 +100,16 @@ public class SharedActions {
         }
     }
 
+    public void waitForElementToBePresent(By locator) {
+        try {
+            wait.until(ExpectedConditions.presenceOfElementLocated(locator));
+            log.debug("Element {} is present now.", locator);
+        } catch (Exception e) {
+            log.error("Element {} is not present after the specified timeout.", locator);
+            throw e;
+        }
+    }
+
     public void waitForRedirectTo(String url) {
         try {
             wait.until(e -> {
