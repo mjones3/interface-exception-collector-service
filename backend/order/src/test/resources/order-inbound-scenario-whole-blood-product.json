@@ -13,15 +13,15 @@
     "willPickUp": true,
     "willPickUpPhoneNumber": "12333333",
     "shippingMethod": "FEDEX",
-    "productCategory": "FROZEN",
+    "productCategory": "REFRIGERATED",
     "desiredShippingDate": "DESIRED_DATE",
     "shippingCustomerCode": "A1235",
     "billingCustomerCode": "A1235",
     "comments": "string",
     "orderItems": [
       {
-        "productFamily": "PLASMA_TRANSFUSABLE",
-        "bloodType": "AB",
+        "productFamily": "WHOLE_BLOOD",
+        "bloodType": "AN",
         "quantity": 1,
         "comments": "Comments"
       }

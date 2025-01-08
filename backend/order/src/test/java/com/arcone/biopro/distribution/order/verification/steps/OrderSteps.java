@@ -148,7 +148,8 @@ public class OrderSteps {
         var newDesiredShippingDate = LocalDate.now().plusDays(
             new Random().nextInt(10) + 1
         ).toString();
-        jsonContent = jsonContent.replace("DESIRED_DATE", newDesiredShippingDate);
+        jsonContent = jsonContent.replace("DESIRED_DATE", newDesiredShippingDate)
+            .replace("{EXTERNAL_ID}",externalId);
         var eventPayload = objectMapper.readValue(jsonContent, OrderReceivedEventDTO.class);
         createOrderInboundRequest(jsonContent, eventPayload);
     }
@@ -157,7 +158,8 @@ public class OrderSteps {
     public void postOrderReceivedEventPast(String externalId, String jsonFileName, String date) throws Exception {
         this.externalId = externalId;
         var jsonContent = testUtils.getResource(jsonFileName);
-        jsonContent = jsonContent.replace("DESIRED_DATE", date);
+        jsonContent = jsonContent.replace("DESIRED_DATE", date)
+            .replace("{EXTERNAL_ID}",externalId);
         var eventPayload = objectMapper.readValue(jsonContent, OrderReceivedEventDTO.class);
         createOrderInboundRequest(jsonContent, eventPayload);
     }
