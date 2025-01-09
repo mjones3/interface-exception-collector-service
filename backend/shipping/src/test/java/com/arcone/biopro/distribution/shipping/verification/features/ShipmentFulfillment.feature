@@ -108,3 +108,5 @@ Feature: Shipment fulfillment request
                 | 1393         | 1           | Testing Customer | 5        | ABP       | WHOLE_BLOOD_LEUKOREDUCED     | W812530106095 | E0033V00 |
                 | 1394         | 1           | Testing Customer | 5        | AP        | WHOLE_BLOOD                  | W812530106097 | E0023V00 |
                 | 1395         | 1           | Testing Customer | 5        | ON        | RED_BLOOD_CELLS              | W812530106098 | E0167V00 |
+
+
