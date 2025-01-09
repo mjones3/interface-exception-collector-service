@@ -45,7 +45,7 @@ Feature: Prevent filling a shipment with unsuitable products
             Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>".
             And The visual inspection configuration is "enabled".
             And I have received a shipment fulfillment request with above details.
-            When I fill a product with the unit number "<UN>", product code "<Code>" , visual Inspection "<Inspection>".
+            When I fill an unsuitable product with the unit number "<UN>", product code "<Code>", and visual Inspection "<Inspection>".
             Then I should receive a "<Message Type>" message "<Message>".
             And The product unit number "<UN>" and product code "<Code>" should not be packed in the shipment.
             Examples:

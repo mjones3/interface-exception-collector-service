@@ -73,14 +73,14 @@ public class PrintPackingListSteps {
     @And("I have filled the shipment with the unit number {string} and product code {string}.")
     public void fillShipmentStep(String unitNumber, String productCode) throws Exception {
         this.shipmentId = shipmentTestingController.getOrderShipmentId(this.orderNumber);
-        shipmentController.fillShipment(this.shipmentId, TestUtils.removeUnitNumberScanDigits(unitNumber), TestUtils.removeProductCodeScanDigits(productCode));
+        shipmentController.fillShipment(this.shipmentId, TestUtils.removeUnitNumberScanDigits(unitNumber), TestUtils.removeProductCodeScanDigits(productCode), "SATISFACTORY", false);
     }
 
     @And("I have filled the shipment with the unit number {string} and product code {string} for order {string}.")
     public void fillShipmentForOrder(String unitNumber, String productCode, String orderNumber) throws Exception {
         this.orderNumber = Long.parseLong(orderNumber);
         this.shipmentId = shipmentTestingController.getOrderShipmentId(this.orderNumber);
-        shipmentController.fillShipment(this.shipmentId, TestUtils.removeUnitNumberScanDigits(unitNumber), TestUtils.removeProductCodeScanDigits(productCode));
+        shipmentController.fillShipment(this.shipmentId, TestUtils.removeUnitNumberScanDigits(unitNumber), TestUtils.removeProductCodeScanDigits(productCode), "SATISFACTORY", false);
     }
 
     @And("I have completed a shipment with above details.")
