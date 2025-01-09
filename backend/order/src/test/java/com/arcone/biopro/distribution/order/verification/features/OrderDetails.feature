@@ -1,4 +1,4 @@
-@ui
+@ui @AOA-152
 Feature: View order details
 
     As a Distribution Technician,
@@ -9,7 +9,7 @@ Feature: View order details
         Given I cleaned up from the database the orders with external ID starting with "ORDER".
 
         Rule: I should be able to see the available inventory for each line item.
-        @DIS155 @DIS-121 @DIS-100 @DIS-97 @DIS-161
+        @DIS155 @DIS-121 @DIS-100 @DIS-97 @DIS-161 @DIS-253
         Scenario Outline: View order details
             Given I have a Biopro Order with externalId "<External ID>", Location Code "<LocationCode>", Priority "<Priority>", Status "<Status>", shipment type "<Shipment Type>", delivery type "<Delivery Type>", shipping method "<Shipping Method>", product category "<Product Category>", desired ship date "<Desired Date>", shipping customer code and name as "<Shipping Customer Code>" and "<Shipping Customer Name>", billing customer code and name as "<Billing Customer Code>" and "<Billing Customer Name>", and comments "<Order Comments>".
             And I have 2 order items with product families "<ProductFamily>", blood types "<BloodType>", quantities "<Quantity>", and order item comments "<Item Comments>".
@@ -22,18 +22,20 @@ Feature: View order details
             And I can see the number of Available Inventories for each line item.
             And I can see the Temperature Category as "<Product Category>".
 
-
             Examples:
                 | External ID | LocationCode | Priority | Status | ProductFamily                                              | BloodType | Quantity | Shipment Type | Shipping Method | Product Category | Desired Date | Shipping Customer Code | Shipping Customer Name     | Billing Customer Code | Billing Customer Name      | Order Comments     | Item Comments                |
                 | ORDER001    | 123456789    | STAT     | OPEN   | PLASMA_TRANSFUSABLE, PLASMA_TRANSFUSABLE                   | AB, O     | 3, 2     | CUSTOMER      | FEDEX           | FROZEN           | 2024-08-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap, Another comment |
                 | ORDER006    | 123456789    | STAT     | OPEN   | RED_BLOOD_CELLS_LEUKOREDUCED, RED_BLOOD_CELLS_LEUKOREDUCED | AP, ON    | 5, 5     | CUSTOMER      | FEDEX           | REFRIGERATED     | 2024-08-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap, Another comment |
+                | ORDER008    | 123456789    | STAT     | OPEN   | WHOLE_BLOOD,WHOLE_BLOOD                                    | AP, AN    | 5, 5     | CUSTOMER      | FEDEX           | REFRIGERATED     | 2024-08-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap, Another comment |
+                | ORDER009    | 123456789    | STAT     | OPEN   | WHOLE_BLOOD_LEUKOREDUCED, WHOLE_BLOOD_LEUKOREDUCED         | ABN, ABP  | 5, 3     | CUSTOMER      | FEDEX           | REFRIGERATED     | 2024-08-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap, Another comment |
+                | ORDER010    | 123456789    | STAT     | OPEN   | RED_BLOOD_CELLS, RED_BLOOD_CELLS                           | ON, OP    | 10, 5    | CUSTOMER      | FEDEX           | REFRIGERATED     | 2024-08-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap, Another comment |
 
 
             Rule: I should be able to create the order fulfillment request when the pick list is generated.Rule: The BioPro order status must be updated to InProgress when an order is being fulfilled.
             Rule: I should not be able to generate multiple pick lists for the same order.
             Rule: I should be able to view or reprint the pick list that was previously generated.
             Rule: I should be able to see the short-dated products if applicable.
-            @DIS-121 @DIS-100
+            @DIS-121 @DIS-100 @DIS-253
             Scenario Outline: Generate pick list no short date products
             Given I have a Biopro Order with externalId "<External ID>", Location Code "<LocationCode>", Priority "<Priority>", Status "<Status>", shipment type "<Shipment Type>", delivery type "<Delivery Type>", shipping method "<Shipping Method>", product category "<Product Category>", desired ship date "<Desired Date>", shipping customer code and name as "<Shipping Customer Code>" and "<Shipping Customer Name>", billing customer code and name as "<Billing Customer Code>" and "<Billing Customer Name>", and comments "<Order Comments>".
             And I have an order item with product family "<ProductFamily>", blood type "<BloodType>", quantity <Quantity>, and order item comments "<Item Comments>".
@@ -57,6 +59,9 @@ Feature: View order details
                 | ORDER002    | 123456789    | STAT     | OPEN   | PLASMA_TRANSFUSABLE          | AB        | 3        | CUSTOMER      | FEDEX           | FROZEN           | 2024-08-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap   | CAN        |
                 | ORDER003    | 123456789    | STAT     | OPEN   | PLASMA_TRANSFUSABLE          | B         | 8        | CUSTOMER      | FEDEX           | FROZEN           | 2024-09-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Send asap          | Needed asap   | CANNOT     |
                 | ORDER007    | 123456789    | STAT     | OPEN   | RED_BLOOD_CELLS_LEUKOREDUCED | ABP       | 3        | CUSTOMER      | FEDEX           | REFRIGERATED     | 2024-08-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap   | CAN        |
+                | ORDER011    | 123456789    | STAT     | OPEN   | WHOLE_BLOOD                  | AN        | 8        | CUSTOMER      | FEDEX           | REFRIGERATED     | 2024-09-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Send asap          | Needed asap   | CANNOT     |
+                | ORDER012    | 123456789    | STAT     | OPEN   | WHOLE_BLOOD_LEUKOREDUCED     | BP        | 8        | CUSTOMER      | FEDEX           | REFRIGERATED     | 2024-09-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Send asap          | Needed asap   | CANNOT     |
+                | ORDER013    | 123456789    | STAT     | OPEN   | RED_BLOOD_CELLS              | BN        | 8        | CUSTOMER      | FEDEX           | REFRIGERATED     | 2024-09-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Send asap          | Needed asap   | CANNOT     |
 
 
 
