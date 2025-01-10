@@ -1,4 +1,4 @@
-@ui @AOA-40 @AOA-6
+@ui @AOA-40 @AOA-6 @AOA-152
 Feature: Prevent filling a shipment with unsuitable products
     As a distribution technician, I want to prevent filling a shipment with unsuitable products, so that I can avoid shipping the wrong products to the customer.
 
@@ -52,6 +52,6 @@ Feature: Prevent filling a shipment with unsuitable products
                 | Order Number | Customer ID | Customer Name    | Quantity | BloodType | ProductFamily                | UN            | Code     | Inspection     | Message                                                                                                   | Message Type |
                 | 999766       | 1           | Testing Customer | 10       | ANY       | PLASMA_TRANSFUSABLE          | W036898786756 | E0701V00 | SATISFACTORY   | This product is expired and has been discarded. Place in biohazard container.                             | INFO         |
                 | 999767       | 1           | Testing Customer | 5        | ANY       | RED_BLOOD_CELLS_LEUKOREDUCED | W036898786758 | E0703V00 | SATISFACTORY   | This product is quarantined and cannot be shipped                                                         | INFO         |
-                | 999768       | 1           | Testing Customer | 5        | ABP       | WHOLE_BLOOD_LEUKOREDUCED     | W812530106097 | E0023V00 | SATISFACTORY   | Product Family does not match                                                                             | WARN         |
-                | 999769       | 1           | Testing Customer | 5        | BP        | WHOLE_BLOOD                  | W812530106097 | E0023V00 | SATISFACTORY   | Blood type does not match                                                                                 | WARN         |
-                | 999770       | 1           | Testing Customer | 5        | ON        | RED_BLOOD_CELLS              | W812530106098 | E0167V00 | UNSATISFACTORY | This product has been discarded for failed visual inspection in the system. Place in biohazard container. | WARN         |
+                | 999768       | 1           | Testing Customer | 5        | ABP       | WHOLE_BLOOD_LEUKOREDUCED     | W812530107002 | E0023V00 | SATISFACTORY   | Product Family does not match                                                                             | WARN         |
+                | 999769       | 1           | Testing Customer | 5        | BP        | WHOLE_BLOOD                  | W812530107002 | E0023V00 | SATISFACTORY   | Blood type does not match                                                                                 | WARN         |
+                | 999770       | 1           | Testing Customer | 5        | ON        | RED_BLOOD_CELLS              | W812530107003 | E0167V00 | UNSATISFACTORY | This product has been discarded for failed visual inspection in the system. Place in biohazard container. | WARN         |
