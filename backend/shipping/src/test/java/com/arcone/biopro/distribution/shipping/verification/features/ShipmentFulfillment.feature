@@ -106,7 +106,7 @@ Feature: Shipment fulfillment request
                 | 1391         | 1           | Testing Customer | 10       | ANY       | PLASMA_TRANSFUSABLE          | W822530106093 | E7648V00 |
                 | 1392         | 1           | Testing Customer | 5        | ANY       | RED_BLOOD_CELLS_LEUKOREDUCED | W822530106094 | E0685V00 |
                 | 1393         | 1           | Testing Customer | 5        | ABP       | WHOLE_BLOOD_LEUKOREDUCED     | W812530106095 | E0033V00 |
-                | 1394         | 1           | Testing Customer | 5        | AP        | WHOLE_BLOOD                  | W812530106097 | E0023V00 |
+                | 1394         | 1           | Testing Customer | 5        | AP        | WHOLE_BLOOD                  | W812530107002 | E0023V00 |
                 | 1395         | 1           | Testing Customer | 5        | ON        | RED_BLOOD_CELLS              | W812530106098 | E0167V00 |
 
 
