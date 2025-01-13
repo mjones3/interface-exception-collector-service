@@ -6,6 +6,8 @@ export enum ProductFamily {
     RED_BLOOD_CELLS,
     LEUKOREDUCED,
     RED_BLOOD_CELLS_LEUKOREDUCED,
+    WHOLE_BLOOD,
+    WHOLE_BLOOD_LEUKOREDUCED,
 }
 
 export enum Priority {
@@ -24,6 +26,8 @@ export const ProductFamilyMap: Record<keyof typeof ProductFamily, string> = {
     RED_BLOOD_CELLS: 'Red Blood Cells',
     LEUKOREDUCED: 'Leukoreduced',
     RED_BLOOD_CELLS_LEUKOREDUCED: 'Red Blood Cells Leukoreduced',
+    WHOLE_BLOOD: 'Whole Blood',
+    WHOLE_BLOOD_LEUKOREDUCED: 'Whole Blood Leukoreduced',
 };
 
 export const PriorityMap: Record<keyof typeof Priority, string> = {

@@ -395,16 +395,17 @@ public class ShipmentTestingController {
         databaseService.executeSql(query).block();
     }
 
-    public Map fillShipment(long shipmentId, String unitNumber, String productCode) throws Exception {
+    public Map fillShipment(long shipmentId, String unitNumber, String productCode, String inspection, boolean unsuitable) throws Exception {
         var shipmentDetails = parseShipmentRequestDetail(
             getShipmentRequestDetails(shipmentId));
         Long shipmentItem;
         shipmentItem = shipmentDetails.getItems().getFirst().getId();
 
         var response = apiHelper.graphQlRequest(GraphQLMutationMapper.packItemMutation(shipmentItem, facility
-            , TestUtils.removeUnitNumberScanDigits(unitNumber), "test-emplyee-id", TestUtils.removeProductCodeScanDigits(productCode), "SATISFACTORY"), "packItem");
-        log.info("Shipment item successfully packed: {}", response);
+            , TestUtils.removeUnitNumberScanDigits(unitNumber), "test-emplyee-id", TestUtils.removeProductCodeScanDigits(productCode), inspection), "packItem");
+        if (!unsuitable){
         Assert.assertEquals("200 OK", response.get("ruleCode"));
+        }
         Thread.sleep(kafkaWaitingTime);
         return response;
     }
