@@ -60,11 +60,17 @@ public class SecondVerificationSteps {
     @Autowired
     private ShipmentDetailPage shipmentDetailPage;
 
+
     @Given("I have a shipment for order {string} with the unit {string} and product code {string} {string}.")
     public void createPackedShipment(String orderNumber, String unitNumber, String productCode, String itemStatus){
+        createPackedShipment(orderNumber,unitNumber,productCode,itemStatus,"PLASMA_TRANSFUSABLE","B");
+    }
+
+    @Given("I have a shipment for order {string} with the unit {string} and product code {string} {string} into the line item {string} and Blood Type {string}.")
+    public void createPackedShipment(String orderNumber, String unitNumber, String productCode, String itemStatus,String productFamily , String bloodType ){
         this.unitNumber = unitNumber;
         this.productCode = productCode;
-        this.shipmentId = shipmentTestingController.createPackedShipment(orderNumber, List.of(unitNumber),List.of(productCode), itemStatus);
+        this.shipmentId = shipmentTestingController.createPackedShipment(orderNumber, List.of(unitNumber),List.of(productCode), itemStatus , productFamily , bloodType);
 
         Assert.assertNotNull(this.shipmentId);
         this.totalPacked = 1;
@@ -78,7 +84,7 @@ public class SecondVerificationSteps {
 
         this.unitNumber = units.getFirst();
         this.productCode = productCodeList.getFirst();
-        this.shipmentId = shipmentTestingController.createPackedShipment(orderNumber,units,productCodeList, itemStatus);
+        this.shipmentId = shipmentTestingController.createPackedShipment(orderNumber,units,productCodeList, itemStatus,"PLASMA_TRANSFUSABLE","B");
 
         Assert.assertNotNull(this.shipmentId);
         this.totalPacked = units.size();

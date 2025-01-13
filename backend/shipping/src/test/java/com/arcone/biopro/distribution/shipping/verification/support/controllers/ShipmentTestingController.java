@@ -322,7 +322,7 @@ public class ShipmentTestingController {
         return String.join(",", records.stream().map(x-> x.get("reason_key").toString().replace("_"," ")).toList());
     }
 
-    public Long createPackedShipment(String orderNumber, List<String> unitNumbers, List<String> productCodes, String itemStatus){
+    public Long createPackedShipment(String orderNumber, List<String> unitNumbers, List<String> productCodes, String itemStatus, String productFamily, String bloodType){
 
         var insertShipment = "INSERT INTO bld_shipment " +
             "(order_number, customer_code, customer_name, customer_phone_number, location_code, delivery_type, priority, shipment_method, product_category, status, state, postal_code, country" +
@@ -339,9 +339,9 @@ public class ShipmentTestingController {
 
             var insertShipItem = "INSERT INTO bld_shipment_item " +
                 "(shipment_id, product_family, blood_type, quantity, \"comments\", create_date, modification_date) " +
-                "VALUES(%s, 'PLASMA_TRANSFUSABLE', 'B', %s, 'For neonatal use', now(), now());";
+                "VALUES(%s, '%s', '%s', %s, 'For neonatal use', now(), now());";
 
-            databaseService.executeSql(String.format(insertShipItem, shipmentId, unitNumbers.size() + 1)).block();
+            databaseService.executeSql(String.format(insertShipItem, shipmentId,productFamily,bloodType, unitNumbers.size() + 1)).block();
 
 
             var createdShipmentItem = databaseService.fetchData(String.format("select id from bld_shipment_item where shipment_id = %s limit 1", createdShipment.get("id"))).first().block();
