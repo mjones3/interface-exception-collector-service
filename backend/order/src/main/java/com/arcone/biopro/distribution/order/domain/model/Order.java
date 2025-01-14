@@ -57,6 +57,10 @@ public class Order implements Validatable {
     private ZonedDateTime modificationDate;
     private ZonedDateTime deleteDate;
     private List<OrderItem> orderItems;
+    private String closeEmployeeId;
+    private ZonedDateTime closeDate;
+    private String closeComments;
+    private String closeReason;
 
     @Getter(AccessLevel.NONE)
     private Integer totalShipped;
@@ -66,6 +70,8 @@ public class Order implements Validatable {
 
     @Getter(AccessLevel.NONE)
     private Integer totalProducts;
+
+    private static final  String COMPLETE_STATUS = "COMPLETED";
 
     public Order(
         CustomerService customerService,
@@ -201,5 +207,21 @@ public class Order implements Validatable {
     public boolean isCompleted() {
         log.debug("Order {} totalShipped: {} totalRemaining: {} totalProducts: {}", this.orderNumber, this.totalShipped, this.totalRemaining, this.totalProducts);
         return this.getTotalRemaining().equals(0);
+    }
+
+    public boolean canBeClosed(){
+        return !COMPLETE_STATUS.equals(orderStatus.getOrderStatus()) && (this.getTotalRemaining().compareTo(0) > 0) ;
+    }
+
+    public void closeOrder(CloseOrderCommand closeOrderCommand){
+        if(COMPLETE_STATUS.equals(orderStatus.getOrderStatus())){
+            throw new IllegalArgumentException("Order is already closed");
+        }
+
+        this.orderStatus = new OrderStatus(COMPLETE_STATUS, getOrderStatus().getLookupService());
+        this.closeDate = ZonedDateTime.now();
+        this.closeReason = closeOrderCommand.getReason();
+        this.closeComments = closeOrderCommand.getComments();
+        this.closeEmployeeId = closeOrderCommand.getEmployeeId();
     }
 }

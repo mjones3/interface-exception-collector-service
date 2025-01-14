@@ -46,6 +46,10 @@ public class OrderEntityMapper {
             .createDate(order.getCreateDate())
             .modificationDate(order.getModificationDate())
             .deleteDate(order.getDeleteDate())
+            .closeComments(order.getCloseComments())
+            .closeReason(order.getCloseReason())
+            .closeEmployeeId(order.getCloseEmployeeId())
+            .closeDate(order.getCloseDate())
             .build();
     }
 

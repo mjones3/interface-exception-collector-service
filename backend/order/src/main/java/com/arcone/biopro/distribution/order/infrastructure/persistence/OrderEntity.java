@@ -106,4 +106,16 @@ public class OrderEntity {
     @Column("delete_date")
     private ZonedDateTime deleteDate;
 
+    @Column("close_employee_id")
+    private String closeEmployeeId;
+
+    @Column("close_date")
+    private ZonedDateTime closeDate;
+
+    @Column("close_comments")
+    private String closeComments;
+
+    @Column("close_reason")
+    private String closeReason;
+
 }

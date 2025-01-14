@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.order.infrastructure.config;
 
+import com.arcone.biopro.distribution.order.infrastructure.dto.OrderCompletedDTO;
 import com.arcone.biopro.distribution.order.infrastructure.dto.OrderCreatedDTO;
 import com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledEventDTO;
 import com.arcone.biopro.distribution.order.infrastructure.dto.OrderRejectedDTO;
@@ -39,6 +40,7 @@ public class KafkaConfiguration {
     public static final String ORDER_RECEIVED_CONSUMER = "order-received";
     public static final String SHIPMENT_CREATED_CONSUMER = "shipment-created";
     public static final String SHIPMENT_COMPLETED_CONSUMER = "shipment-completed";
+    public static final String ORDER_COMPLETED_PRODUCER = "order-created";
 
     @Bean
     NewTopic orderReceivedTopic(
@@ -90,6 +92,15 @@ public class KafkaConfiguration {
         @Value("${topics.shipment.shipment-completed.partitions:1}") Integer partitions,
         @Value("${topics.shipment.shipment-completed.replicas:1}") Integer replicas,
         @Value("${topics.shipment.shipment-completed.topic-name:ShipmentCompleted}") String topicName
+    ) {
+        return TopicBuilder.name(topicName).partitions(partitions).replicas(replicas).build();
+    }
+
+    @Bean
+    NewTopic orderCompletedTopic(
+        @Value("${topics.order.order-completed.partitions:1}") Integer partitions,
+        @Value("${topics.order.order-completed.replicas:1}") Integer replicas,
+        @Value("${topics.order.order-completed.topic-name:OrderCompleted}") String topicName
     ) {
         return TopicBuilder.name(topicName).partitions(partitions).replicas(replicas).build();
     }
@@ -158,6 +169,19 @@ public class KafkaConfiguration {
     }
 
     @Bean
+    SenderOptions<String, OrderCompletedDTO> completedSenderOptions(
+        KafkaProperties kafkaProperties,
+        ObjectMapper objectMapper,
+        MeterRegistry meterRegistry) {
+        var props = kafkaProperties.buildProducerProperties(null);
+        props.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, TracingProducerInterceptor.class.getName());
+        return SenderOptions.<String, OrderCompletedDTO>create(props)
+            .withValueSerializer(new JsonSerializer<>(objectMapper))
+            .maxInFlight(1) // to keep ordering, prevent duplicate messages (and avoid data loss)
+            .producerListener(new MicrometerProducerListener(meterRegistry)); // we want standard Kafka metrics
+    }
+
+    @Bean
     SenderOptions<String, OrderRejectedDTO> rejectedSenderOptions(
         KafkaProperties kafkaProperties,
         ObjectMapper objectMapper,
@@ -200,6 +224,12 @@ public class KafkaConfiguration {
     ReactiveKafkaProducerTemplate<String, OrderFulfilledEventDTO> orderFulfilledProducerTemplate(
         SenderOptions<String, OrderFulfilledEventDTO> orderFulfilledSenderOptions) {
         return new ReactiveKafkaProducerTemplate<>(orderFulfilledSenderOptions);
+    }
+
+    @Bean(name = ORDER_COMPLETED_PRODUCER )
+    ReactiveKafkaProducerTemplate<String, OrderCompletedDTO> orderCompletedProducerTemplate(
+        SenderOptions<String, OrderCompletedDTO> completedSenderOptions) {
+        return new ReactiveKafkaProducerTemplate<>(completedSenderOptions);
     }
 
 }

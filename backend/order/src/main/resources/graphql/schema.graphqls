@@ -22,6 +22,7 @@ type Mutation {
     updateLookup(lookup: LookupInput!): Lookup!
     deleteLookup(lookup: LookupInput!): Lookup!
     generatePickList(orderId: ID! , skipInventoryUnavailable:Boolean!):PickListResponseDTO!
+    closeOrder(closeOrderCommandDTO:CloseOrderCommandDTO!):OrderResponseDTO!
 }
 
 input LookupIdInput {
@@ -193,6 +194,13 @@ input QuerySortDTO {
 input QueryOrderByDTO {
     property:String
     direction:String
+}
+
+input CloseOrderCommandDTO {
+    orderId:ID!
+    employeeId:String!
+    reason:String!
+    comments:String
 }
 
 type PickListResponseDTO {

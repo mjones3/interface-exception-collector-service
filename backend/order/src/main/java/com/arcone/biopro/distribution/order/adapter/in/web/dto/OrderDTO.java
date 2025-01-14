@@ -32,6 +32,10 @@ public record OrderDTO(
     List<OrderItemDTO> orderItems,
     Integer totalShipped,
     Integer totalRemaining,
-    Integer totalProducts
-
+    Integer totalProducts,
+    boolean canBeClosed,
+    String closeEmployeeId,
+    ZonedDateTime closeDate,
+    String closeComments,
+    String closeReason
 ) {}

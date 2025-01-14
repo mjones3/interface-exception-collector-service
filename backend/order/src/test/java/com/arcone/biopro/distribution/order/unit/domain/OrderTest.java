@@ -1,20 +1,29 @@
 package com.arcone.biopro.distribution.order.unit.domain;
 
+import com.arcone.biopro.distribution.order.domain.model.CloseOrderCommand;
+import com.arcone.biopro.distribution.order.domain.model.Lookup;
 import com.arcone.biopro.distribution.order.domain.model.Order;
+import com.arcone.biopro.distribution.order.domain.model.vo.LookupId;
+import com.arcone.biopro.distribution.order.domain.model.vo.OrderNumber;
 import com.arcone.biopro.distribution.order.domain.repository.OrderRepository;
 import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
 import com.arcone.biopro.distribution.order.domain.service.OrderConfigService;
 import com.arcone.biopro.distribution.order.infrastructure.service.dto.CustomerDTO;
+import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 
 import static java.lang.Boolean.TRUE;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -77,4 +86,69 @@ class OrderTest {
             .verifyComplete();
     }
 
+    @Test
+    void testCanCloseOrder() {
+        var lookupMock = Mockito.mock(Lookup.class);
+        var lookupId = Mockito.mock(LookupId.class);
+        Mockito.when(lookupMock.getId()).thenReturn(lookupId);
+        Mockito.when(lookupId.getOptionValue()).thenReturn("TYPE");
+
+        Mockito.when(lookupService.findAllByType(Mockito.anyString())).thenReturn(Flux.just(lookupMock));
+
+        var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
+            , "TYPE", "TYPE", "123", "123","2025-01-31"
+            , null, null, "TYPE", null, "TYPE", "TYPE", "CREATE_EMPLOYEE"
+            , null, null, null);
+
+        Assertions.assertFalse(order.canBeClosed());
+
+        Mockito.when(orderConfigService.findProductFamilyByCategory(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just("TEST"));
+        Mockito.when(orderConfigService.findBloodTypeByFamilyAndType(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just("TEST"));
+
+        order.addItem(1L,"TYPE","TYPE",10,1,"", ZonedDateTime.now(),ZonedDateTime.now(),orderConfigService);
+
+
+        Assertions.assertTrue(order.canBeClosed());
+
+    }
+
+    @Test
+    void shouldNotCloseOrderWhenItsCompleted(){
+
+        var lookupMock = Mockito.mock(Lookup.class);
+        var lookupId = Mockito.mock(LookupId.class);
+        Mockito.when(lookupMock.getId()).thenReturn(lookupId);
+        Mockito.when(lookupId.getOptionValue()).thenReturn("COMPLETED");
+
+        Mockito.when(lookupService.findAllByType(Mockito.anyString())).thenReturn(Flux.just(lookupMock));
+
+        var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
+            , "COMPLETED", "COMPLETED", "123", "123","2025-01-31"
+            , null, null, "COMPLETED", null, "COMPLETED", "COMPLETED", "CREATE_EMPLOYEE"
+            , null, null, null);
+
+        assertThrows(IllegalArgumentException.class, () -> order.closeOrder(new CloseOrderCommand(1L,"employeeid","REASON","comments")) , "Order is already closed");
+
+    }
+
+    @Test
+    void shouldCloseOrder(){
+
+        Mockito.when(lookupService.findAllByType(Mockito.anyString())).thenReturn(Flux.just(new Lookup(new LookupId("IN_PROGRESS","IN_PROGRESS"),"description",1,true)
+            , new Lookup(new LookupId("COMPLETED","COMPLETED"),"description",2,true)));
+
+        var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
+            , "IN_PROGRESS", "IN_PROGRESS", "123", "123","2025-01-31"
+            , null, null, "IN_PROGRESS", null, "IN_PROGRESS", "IN_PROGRESS", "CREATE_EMPLOYEE"
+            , null, null, null);
+
+        assertDoesNotThrow(() -> order.closeOrder(new CloseOrderCommand(1L,"close-employeeid","REASON","comments")));
+
+        Assertions.assertNotNull(order.getCloseDate());
+        Assertions.assertEquals("comments",order.getCloseComments());
+        Assertions.assertEquals("REASON",order.getCloseReason());
+        Assertions.assertEquals("close-employeeid",order.getCloseEmployeeId());
+
+
+    }
 }
