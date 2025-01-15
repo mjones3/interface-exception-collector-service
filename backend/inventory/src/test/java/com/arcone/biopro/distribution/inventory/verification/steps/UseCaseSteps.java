@@ -13,6 +13,7 @@ import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.When;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -20,6 +21,8 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -38,6 +41,8 @@ public class UseCaseSteps {
     private final ProductCreatedUseCase productCreatedUseCase;
 
     private final CheckInCompletedUseCase checkInCompletedUseCase;
+
+    private final ProductDiscardedUseCase productDiscardedUseCase;
 
     private final ScenarioContext scenarioContext;
 
@@ -141,6 +146,24 @@ public class UseCaseSteps {
             String unitNumber = product.get("Unit Number");
             String productCode = product.get("Product Code");
             checkInCompletedUseCase.execute(inventoryUtil.newCheckInCompletedInput(unitNumber, productCode)).block();
+        }
+    }
+
+    @When("I received a Discard Created event for the following products:")
+    public void iReceivedADiscardCreatedEventForTheFollowingProducts(DataTable dataTable) {
+        List<Map<String, String>> products = dataTable.asMaps(String.class, String.class);
+        for (Map<String, String> product : products) {
+            String unitNumber = product.get("Unit Number");
+            String productCode = product.get("Product Code");
+            String reason = product.get("Reason");
+            String comments = null;
+            if (product.containsKey("Comments")) {
+                comments = product.get("Comments");
+            }
+            if (product.containsKey("Comment Length")) {
+                comments = RandomStringUtils.randomAlphabetic(Integer.parseInt(product.get("Comment Length")));
+            }
+            productDiscardedUseCase.execute(inventoryUtil.newProductDiscardedInput(unitNumber, productCode, reason, comments)).block();
         }
     }
 }
