@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.inventory.verification.utils;
 import com.arcone.biopro.distribution.inventory.application.dto.CheckInCompletedInput;
 import com.arcone.biopro.distribution.inventory.application.dto.InventoryInput;
 import com.arcone.biopro.distribution.inventory.application.dto.ProductCreatedInput;
+import com.arcone.biopro.distribution.inventory.application.dto.ProductDiscardedInput;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.InputProduct;
@@ -121,6 +122,15 @@ public class InventoryUtil {
             .unitNumber(unitNumber)
             .productCode(productCode)
             .productDescription(ISBTProductUtil.getProductDescription(productCode))
+            .build();
+    }
+
+    public ProductDiscardedInput newProductDiscardedInput(String unitNumber, String productCode, String reason, String comments) {
+        return ProductDiscardedInput.builder()
+            .unitNumber(unitNumber)
+            .productCode(productCode)
+            .reason(reason)
+            .comments(comments)
             .build();
     }
 }
