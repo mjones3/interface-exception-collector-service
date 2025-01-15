@@ -5,6 +5,7 @@ import com.arcone.biopro.distribution.shipping.application.dto.RuleResponseDTO;
 import com.arcone.biopro.distribution.shipping.application.dto.UnpackItemRequest;
 import com.arcone.biopro.distribution.shipping.application.dto.UnpackItemsRequest;
 import com.arcone.biopro.distribution.shipping.application.mapper.ShipmentMapper;
+import com.arcone.biopro.distribution.shipping.application.usecase.SecondVerificationUseCase;
 import com.arcone.biopro.distribution.shipping.application.usecase.UnpackItemUseCase;
 import com.arcone.biopro.distribution.shipping.application.util.ShipmentServiceMessages;
 import com.arcone.biopro.distribution.shipping.domain.model.Shipment;
@@ -17,6 +18,7 @@ import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemPac
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemRepository;
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemShortDateProductRepository;
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentRepository;
+import com.arcone.biopro.distribution.shipping.domain.service.SecondVerificationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -38,6 +40,7 @@ class UnpackItemUseCaseTest {
     private ShipmentMapper shipmentMapper;
     private UnpackItemUseCase useCase;
     private ShipmentRepository shipmentRepository;
+    private SecondVerificationService secondVerificationService;
 
 
     @BeforeEach
@@ -47,8 +50,9 @@ class UnpackItemUseCaseTest {
         shipmentItemPackedRepository = Mockito.mock( ShipmentItemPackedRepository.class);
         shipmentMapper = new ShipmentMapper();
         shipmentRepository = Mockito.mock(ShipmentRepository.class);
+        secondVerificationService = new SecondVerificationUseCase(shipmentItemPackedRepository,shipmentRepository,shipmentMapper);
 
-        useCase = new UnpackItemUseCase(shipmentItemPackedRepository,shipmentItemRepository,shipmentItemShortDateProductRepository,shipmentMapper,shipmentRepository);
+        useCase = new UnpackItemUseCase(shipmentItemPackedRepository,shipmentItemRepository,shipmentItemShortDateProductRepository,shipmentMapper,shipmentRepository,secondVerificationService);
     }
 
     @Test
@@ -185,6 +189,8 @@ class UnpackItemUseCaseTest {
 
         Mockito.when(shipmentItemPackedRepository.findByShipmentIUnitNumberAndProductCode(Mockito.anyLong(),Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.empty());
 
+        Mockito.when(shipmentItemPackedRepository.listAllByShipmentId(Mockito.anyLong())).thenReturn(Flux.empty());
+
 
         Mono<RuleResponseDTO>  unpackDetail = useCase.unpackItems(UnpackItemsRequest.builder()
             .shipmentItemId(1L)
@@ -244,6 +250,9 @@ class UnpackItemUseCaseTest {
         Mockito.when(shortDateItem.getUnitNumber()).thenReturn("UNIT_NUMBER");
 
         Mockito.when(shipmentItemShortDateProductRepository.findAllByShipmentItemId(Mockito.anyLong())).thenReturn(Flux.just(shortDateItem));
+
+        Mockito.when(shipmentItemPackedRepository.listAllByShipmentId(Mockito.anyLong())).thenReturn(Flux.just(ShipmentItemPacked.builder().build()));
+        Mockito.when(shipmentItemPackedRepository.save(Mockito.any())).thenReturn(Mono.just(ShipmentItemPacked.builder().build()));
 
 
         Mono<RuleResponseDTO>  unpackDetail = useCase.unpackItems(UnpackItemsRequest.builder()

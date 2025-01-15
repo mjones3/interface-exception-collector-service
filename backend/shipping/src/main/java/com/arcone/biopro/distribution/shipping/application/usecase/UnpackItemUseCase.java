@@ -7,11 +7,13 @@ import com.arcone.biopro.distribution.shipping.application.dto.RuleResponseDTO;
 import com.arcone.biopro.distribution.shipping.application.dto.UnpackItemsRequest;
 import com.arcone.biopro.distribution.shipping.application.mapper.ShipmentMapper;
 import com.arcone.biopro.distribution.shipping.application.util.ShipmentServiceMessages;
+import com.arcone.biopro.distribution.shipping.domain.model.ShipmentItemPacked;
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.ShipmentStatus;
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemPackedRepository;
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemRepository;
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemShortDateProductRepository;
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentRepository;
+import com.arcone.biopro.distribution.shipping.domain.service.SecondVerificationService;
 import com.arcone.biopro.distribution.shipping.domain.service.UnpackItemService;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +38,7 @@ public class UnpackItemUseCase implements UnpackItemService {
     private final ShipmentItemShortDateProductRepository shipmentItemShortDateProductRepository;
     private final ShipmentMapper shipmentMapper;
     private final ShipmentRepository shipmentRepository;
+    private final SecondVerificationService secondVerificationService;
 
 
     @Override
@@ -51,24 +54,26 @@ public class UnpackItemUseCase implements UnpackItemService {
                 if(ShipmentStatus.COMPLETED.equals(shipment.getStatus())){
                     return Mono.error(new RuntimeException(ShipmentServiceMessages.UNPACK_SHIPMENT_COMPLETED_ERROR));
                 }
-
+                return Flux.from(shipmentItemPackedRepository.listAllByShipmentId(shipment.getId()))
+                    .switchIfEmpty(Mono.empty())
+                    .flatMap(secondVerificationService::markAsVerificationPending)
+                    .collectList();
+            }).flatMap(resetItems -> {
                 return Flux.fromStream(unpackItemsRequest.unpackItems().stream())
                     .flatMap(unpackItemRequest -> shipmentItemPackedRepository.findByShipmentIUnitNumberAndProductCode(unpackItemsRequest.shipmentItemId(),unpackItemRequest.unitNumber(),unpackItemRequest.productCode()))
                     .switchIfEmpty(Mono.error(new RuntimeException(ShipmentServiceMessages.UNPACK_PRODUCT_NOT_FOUND_ERROR)))
                     .flatMap(shipmentItemPackedRepository::delete)
-                    .collectList()
-                    .then(Mono.from(getShipmentItemById(unpackItemsRequest.shipmentItemId())).flatMap(shipmentItemResponseDTO -> Mono.just(RuleResponseDTO.builder()
-                        .ruleCode(HttpStatus.OK)
-                        .notifications(List.of(NotificationDTO.builder()
-                            .message(ShipmentServiceMessages.UNPACK_ITEM_SUCCESS)
-                            .statusCode(HttpStatus.OK.value())
-                            .notificationType("success")
-                            .build()))
-                        .results(Map.of("results", List.of(shipmentItemResponseDTO)))
-                        .build())));
+                    .collectList();
 
-
-            })
+            }).flatMap(removedItems -> Mono.from(getShipmentItemById(unpackItemsRequest.shipmentItemId())).flatMap(shipmentItemResponseDTO -> Mono.just(RuleResponseDTO.builder()
+                .ruleCode(HttpStatus.OK)
+                .notifications(List.of(NotificationDTO.builder()
+                    .message(ShipmentServiceMessages.UNPACK_ITEM_SUCCESS)
+                    .statusCode(HttpStatus.OK.value())
+                    .notificationType("success")
+                    .build()))
+                .results(Map.of("results", List.of(shipmentItemResponseDTO)))
+                .build())))
             .onErrorResume(error -> {
                 log.error("Failed on unpack item {} , {} ", unpackItemsRequest, error.getMessage());
                 return buildUnpackItemErrorResponse(error);
