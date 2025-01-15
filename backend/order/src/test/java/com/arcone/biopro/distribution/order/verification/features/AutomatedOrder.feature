@@ -1,20 +1,23 @@
-@api
+@api @AOA-152
 Feature: Validate order
     As a system, I want to validate the customer order
     so that I can save the order or decline the order based on the validation result.
 
     Background:
-        Given I cleaned up from the database the orders with external ID "114117922233599,114117922233500,114117922233511,114117922233512,114117922233513,114117922233514,114117922233515,114117922233516,114117922233517,114117922233518,114117922233519,114117922233520,114117922233521".
+        Given I cleaned up from the database the orders with external ID "114117922233599,114117922233500,114117922233511,114117922233512,114117922233513,114117922233514,114117922233515,114117922233516,114117922233517,114117922233518,114117922233519,114117922233520,114117922233521,114117922233522,114117922233523,114117922233524".
 
-    @DIS-161 @DIS-92
+    @DIS-161 @DIS-92 @DIS-253
     Scenario Outline: Creating a BioPro order from a valid order inbound request
         Given I have received an order inbound request with externalId "<External ID>" and content "<JsonPayloadName>".
         When The system process the order request.
         Then A biopro Order will be available in the Distribution local data store.
         Examples:
-            | External ID     | JsonPayloadName                             |
-            | 114117922233500 | order-inbound-scenario-1-happy-path.json    |
-            | 114117922233521 | order-inbound-scenario-aph-rbc-product.json |
+            | External ID     | JsonPayloadName                                              |
+            | 114117922233500 | order-inbound-scenario-1-happy-path.json                     |
+            | 114117922233521 | order-inbound-scenario-aph-rbc-product.json                  |
+            | 114117922233522 | order-inbound-scenario-whole-blood-product.json              |
+            | 114117922233523 | order-inbound-scenario-whole-blood-leukoreduced-product.json |
+            | 114117922233524 | order-inbound-scenario-red-blood-cells-product.json          |
 
     @DIS-92
     Scenario Outline: Creating a BioPro order from an invalid order inbound request

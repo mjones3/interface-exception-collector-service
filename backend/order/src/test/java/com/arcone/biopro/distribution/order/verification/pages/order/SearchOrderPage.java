@@ -140,9 +140,9 @@ public class SearchOrderPage extends CommonPageFactory {
 
     public void validateOrderDetails(String externalId, String orderStatus, String orderPriority) throws InterruptedException {
         sharedActions.waitLoadingAnimation();
-        sharedActions.waitForVisible(By.xpath(externalIdXpath(externalId)));
-        sharedActions.waitForVisible(By.xpath(orderStatusXpath(externalId, orderStatus)));
-        sharedActions.waitForVisible(By.xpath(orderPriorityXpath(externalId, orderPriority)));
+        sharedActions.waitForElementToBePresent(By.xpath(externalIdXpath(externalId)));
+        sharedActions.waitForElementToBePresent(By.xpath(orderStatusXpath(externalId, orderStatus)));
+        sharedActions.waitForElementToBePresent(By.xpath(orderPriorityXpath(externalId, orderPriority)));
     }
 
 

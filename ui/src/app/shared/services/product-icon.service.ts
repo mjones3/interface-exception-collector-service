@@ -24,6 +24,14 @@ export class ProductIconsService {
             value: 'rsa:product-rbc',
         },
         { productFamily: 'PLATELETS', value: 'rsa:product-platelets' },
+        {
+            productFamily: 'WHOLE_BLOOD',
+            value: 'rsa:product-rbc',
+        },
+        {
+            productFamily: 'WHOLE_BLOOD_LEUKOREDUCED',
+            value: 'rsa:product-rbc',
+        },
     ];
 
     getProductIcons() {

@@ -179,7 +179,10 @@
       "type": "string",
       "examples": [
         "RED_BLOOD_CELLS_LEUKOREDUCED",
-        "PLASMA_TRANSFUSABLE"
+        "PLASMA_TRANSFUSABLE",
+        "RED_BLOOD_CELLS",
+        "WHOLE_BLOOD_LEUKOREDUCED",
+        "WHOLE_BLOOD"
       ],
 	  "minLength": 1,
       "title": "Ordered product family"

@@ -3,7 +3,7 @@
   "eventVersion": "1.0",
   "payload": {
     "id": "7ff46d1b-14a1-4928-a7cc-40c49155f3bb",
-    "externalId": "114117922233599",
+    "externalId": "{EXTERNAL_ID}",
     "orderStatus": "OPEN",
     "locationCode": "123456789",
     "createDate": "2023-04-25 20:09:01",

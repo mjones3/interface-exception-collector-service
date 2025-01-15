@@ -8,7 +8,13 @@ import com.arcone.biopro.distribution.order.verification.pages.SharedActions;
 import com.arcone.biopro.distribution.order.verification.pages.order.HomePage;
 import com.arcone.biopro.distribution.order.verification.pages.order.OrderDetailsPage;
 import com.arcone.biopro.distribution.order.verification.pages.order.SearchOrderPage;
-import com.arcone.biopro.distribution.order.verification.support.*;
+import com.arcone.biopro.distribution.order.verification.support.ApiHelper;
+import com.arcone.biopro.distribution.order.verification.support.DatabaseQueries;
+import com.arcone.biopro.distribution.order.verification.support.DatabaseService;
+import com.arcone.biopro.distribution.order.verification.support.GraphQLQueryMapper;
+import com.arcone.biopro.distribution.order.verification.support.KafkaHelper;
+import com.arcone.biopro.distribution.order.verification.support.TestUtils;
+import com.arcone.biopro.distribution.order.verification.support.Topics;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.And;
@@ -25,10 +31,11 @@ import org.springframework.beans.factory.annotation.Value;
 import java.time.LocalDate;
 import java.time.Year;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.Objects;
 import java.util.Random;
-import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -117,7 +124,7 @@ public class OrderSteps {
             .map(r ->
             {
                 if (r instanceof LinkedHashMap) {
-                    return ((LinkedHashMap<?, ?>) r).get("orderNumber").toString();
+                    return ((LinkedHashMap<?, ?>) r).get("externalId").toString();
                 } else {
                     throw new IllegalArgumentException("Unexpected response type: " + r.getClass().getName());
                 }
@@ -127,7 +134,7 @@ public class OrderSteps {
         var expectedIds = new ArrayList<String>();
         for(var i=1;i<table.height();i++) {
             var row = table.row(i);
-            expectedIds.add(row.get(headers.indexOf("Order Id")));
+            expectedIds.add(row.get(headers.indexOf("External ID")));
         }
 
         Assert.assertEquals(String.join(",", expectedIds), responseIds);
@@ -141,7 +148,8 @@ public class OrderSteps {
         var newDesiredShippingDate = LocalDate.now().plusDays(
             new Random().nextInt(10) + 1
         ).toString();
-        jsonContent = jsonContent.replace("DESIRED_DATE", newDesiredShippingDate);
+        jsonContent = jsonContent.replace("DESIRED_DATE", newDesiredShippingDate)
+            .replace("{EXTERNAL_ID}",externalId);
         var eventPayload = objectMapper.readValue(jsonContent, OrderReceivedEventDTO.class);
         createOrderInboundRequest(jsonContent, eventPayload);
     }
@@ -150,7 +158,8 @@ public class OrderSteps {
     public void postOrderReceivedEventPast(String externalId, String jsonFileName, String date) throws Exception {
         this.externalId = externalId;
         var jsonContent = testUtils.getResource(jsonFileName);
-        jsonContent = jsonContent.replace("DESIRED_DATE", date);
+        jsonContent = jsonContent.replace("DESIRED_DATE", date)
+            .replace("{EXTERNAL_ID}",externalId);
         var eventPayload = objectMapper.readValue(jsonContent, OrderReceivedEventDTO.class);
         createOrderInboundRequest(jsonContent, eventPayload);
     }
@@ -193,6 +202,9 @@ public class OrderSteps {
         this.status = status;
         var query = DatabaseQueries.insertBioProOrder(externalId, locationCode, orderController.getPriorityValue(priority.replace('-', '_')), priority.replace('-', '_'), status);
         databaseService.executeSql(query).block();
+        this.orderId = Integer.valueOf(databaseService.fetchData(DatabaseQueries.getOrderId(this.externalId)).first().block().get("id").toString());
+        this.orderNumber = Integer.valueOf(databaseService.fetchData(DatabaseQueries.getOrderNumber(this.orderId.toString())).first().block().get("order_number").toString());
+        Assert.assertNotNull(this.orderId);
     }
     @Given("I have a Biopro Order with id {string}, externalId {string}, Location Code {string}, Priority {string} and Status {string}.")
     public void createBioproOrder(String id, String externalId, String locationCode, String priority, String status) {
@@ -210,12 +222,11 @@ public class OrderSteps {
         var headers = table.row(0);
         for(var i=1;i<table.height();i++) {
             var row = table.row(i);
-            this.orderId = Integer.parseInt(row.get(headers.indexOf("Order Id")));
             this.externalId = row.get(headers.indexOf("External ID"));
             this.locationCode = row.get(headers.indexOf("Location Code"));
             this.priority = row.get(headers.indexOf("Priority"));
             this.status = row.get(headers.indexOf("Status"));
-            var query = DatabaseQueries.insertBioProOrder(orderId, externalId, locationCode, orderController.getPriorityValue(priority), priority, status, row.get(headers.indexOf("Desired Shipment Date")));
+            var query = DatabaseQueries.insertBioProOrder(externalId, locationCode, orderController.getPriorityValue(priority), priority, status, row.get(headers.indexOf("Desired Shipment Date")));
             databaseService.executeSql(query).block();
         }
 
@@ -271,7 +282,7 @@ public class OrderSteps {
     public void createMultipleBioproOrders(int quantity) {
         for (int i = 0; i <= quantity; i++) {
             var priority = orderController.getRandomPriority();
-            var externalId = "EXT" + i;
+            var externalId = "EXT20RECORDS" + i;
             var query = DatabaseQueries.insertBioProOrder(externalId, "123456789", priority.getValue(), priority.getKey(), "OPEN");
             databaseService.executeSql(query).block();
         }
@@ -670,5 +681,11 @@ public class OrderSteps {
     public void iSelectTheDateAsThe(String date, String fieldRangeName) throws InterruptedException {
         setValueForField(date, fieldRangeName + " from");
         setValueForField(date, fieldRangeName + " to");
+    }
+
+    @And("I have another Biopro Order with the externalId equals to order number of the previous order.")
+    public void iHaveAnotherBioproOrderWithTheExternalIdEqualsToOrderNumberOfThePreviousOrder() {
+        var query = DatabaseQueries.insertBioProOrder(orderNumber.toString(), locationCode, orderController.getPriorityValue(priority), priority.replace('-', '_'), status);
+        databaseService.executeSql(query).block();
     }
 }

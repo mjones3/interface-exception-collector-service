@@ -74,6 +74,7 @@ public class ShipmentFulfillmentSteps {
     private String checkDigit;
     private String productCode;
     private boolean checkDigitEnabled;
+    private String orderPriority;
     @Autowired
     private KafkaHelper kafkaHelper;
 
@@ -125,6 +126,7 @@ public class ShipmentFulfillmentSteps {
     @When("I receive a shipment fulfillment request event.")
     public void receiveFulfillmentOrderRequest() throws Exception {
         this.orderNumber = shipmentTestingController.createShippingRequest();
+        this.orderPriority = "ASAP";
     }
 
     @Then("The shipment request will be available in the Distribution local data store and I can fill the shipment.")
@@ -136,6 +138,7 @@ public class ShipmentFulfillmentSteps {
 
         assertNotNull(this.order, "Failed to get order fulfillment details.");
         assertEquals(this.orderNumber, this.order.getOrderNumber(), "Failed to get order by number.");
+        assertEquals(this.orderPriority, this.order.getPriority(), "Failed to compare order priority.");
 
     }
 
@@ -470,7 +473,19 @@ public class ShipmentFulfillmentSteps {
     @When("I fill a product with the unit number {string}, product code {string}.")
     public void iFillAProductWithTheUnitNumberProductCodeBloodTypeAndVisualInspection(String unitNumber, String productCode) throws Exception {
         this.shipmentId = shipmentTestingController.getOrderShipmentId(this.orderNumber);
-        this.packItemResponse = shipmentTestingController.fillShipment(this.shipmentId, unitNumber, productCode);
+        this.packItemResponse = shipmentTestingController.fillShipment(this.shipmentId, unitNumber, productCode, "SATISFACTORY", false);
+    }
+
+    @When("I fill a product with the unit number {string}, product code {string}, and visual Inspection {string}.")
+    public void fillProductWithInspection(String unitNumber, String productCode, String inspection) throws Exception {
+        this.shipmentId = shipmentTestingController.getOrderShipmentId(this.orderNumber);
+        this.packItemResponse = shipmentTestingController.fillShipment(this.shipmentId, unitNumber, productCode, inspection, false);
+    }
+
+    @When("I fill an unsuitable product with the unit number {string}, product code {string}, and visual Inspection {string}.")
+    public void fillUnsuitableProductWithInspection(String unitNumber, String productCode, String inspection) throws Exception {
+        this.shipmentId = shipmentTestingController.getOrderShipmentId(this.orderNumber);
+        this.packItemResponse = shipmentTestingController.fillShipment(this.shipmentId, unitNumber, productCode, inspection, true);
     }
 
     @Then("The product unit number {string} and product code {string} should be packed in the shipment.")
@@ -484,6 +499,39 @@ public class ShipmentFulfillmentSteps {
             return items.stream().anyMatch(packedItem -> packedItem.getUnitNumber().equals(unitNumber) && packedItem.getProductCode().equals(productCode));
         });
         assertTrue(match, "Failed to find the product in the packed items.");
+    }
+
+    @When("I receive a shipment fulfillment request event for the order number {string} and priority {string}.")
+    public void receiveFulfillmentOrderRequest(String orderNumber, String priority) throws Exception {
+        this.orderNumber = shipmentTestingController.createShippingRequest(Long.valueOf(orderNumber), priority);
+        this.orderPriority = priority;
+
+    }
+
+    @Then("I should receive a {string} message {string}.")
+    public void iShouldReceiveAMessage(String messageType, String message) {
+        var notifications = (List<Map>) this.packItemResponse.get("notifications");
+        var notification = notifications.stream().filter(x -> x.get("notificationType").equals(messageType)).findAny().orElse(null);
+        assertNotNull(notification, "Failed to find the notification.");
+        assertEquals(message, notification.get("message"), "Failed to find the message.");
+        log.debug("Notification found: {}", notification);
+    }
+
+    @And("The product unit number {string} and product code {string} should not be packed in the shipment.")
+    public void theProductUnitNumberAndProductCodeShouldNotBePackedInTheShipment(String unitNumber, String productCode) {
+        var results = (Map) this.packItemResponse.get("results");
+        ObjectMapper mapper = new ObjectMapper();
+        List<PackProductResponseType> resultsObject = mapper.convertValue(results.get("results"), new TypeReference<List<PackProductResponseType>>() {
+        });
+        if (resultsObject == null) {
+            log.info("No packed products found");
+        } else {
+            boolean match = resultsObject.stream().anyMatch(item -> {
+                var items = Arrays.stream(item.getPackedItems()).toList();
+                return items.stream().anyMatch(packedItem -> packedItem.getUnitNumber().equals(unitNumber) && packedItem.getProductCode().equals(productCode));
+            });
+            assertFalse(match, "Unsuitable product found in the shipment.");
+        }
     }
 }
 

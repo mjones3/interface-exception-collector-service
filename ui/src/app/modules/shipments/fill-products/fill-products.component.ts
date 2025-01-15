@@ -178,8 +178,6 @@ export class FillProductsComponent implements OnInit {
                     if (this.productSelection) {
                         this.productSelection.resetProductFormGroup();
                     }
-                    this.productSelection.enableVisualInspection();
-                    this.productSelection.enableProductCode();
                     throw err;
                 }),
                 finalize(() => {
@@ -200,9 +198,7 @@ export class FillProductsComponent implements OnInit {
                             ruleResult?.results[0];
                         if (result) {
                             this.filledProductsData = [...result.packedItems];
-                            this.productSelection.productGroup.reset();
-                            this.productSelection.enableVisualInspection();
-                            this.productSelection.enableProductCode();
+                            this.productSelection.resetProductFormGroup();
                         }
                     }
 
@@ -211,6 +207,7 @@ export class FillProductsComponent implements OnInit {
                             ? [...ruleResult.notifications]
                             : [];
                     if (notifications?.length) {
+                        this.productSelection.resetProductFormGroup();
                         const infoNotifications = this.pullOutNotifications(
                             notifications,
                             { notificationType: 'INFO' }
@@ -240,6 +237,7 @@ export class FillProductsComponent implements OnInit {
                             })?.[0];
                         if (unsatisfactoryVisualInspection) {
                             const reasons = ruleResult?.results?.reasons;
+                            this.productSelection.resetProductFormGroup();
                             return this.showUnsatisfactoryVisualInspectionDialog(
                                 reasons,
                                 unsatisfactoryVisualInspection.message,
@@ -344,8 +342,7 @@ export class FillProductsComponent implements OnInit {
                         .subscribe((response) => {
                             const data = response?.data?.discardProduct;
                             if (data) {
-                                this.productSelection.productGroup.reset();
-                                this.productSelection.enableVisualInspection();
+                                this.productSelection.resetProductFormGroup();
                                 return this.openAcknowledgmentMessageDialog({
                                     statusCode: 400,
                                     notificationType: 'INFO',
@@ -357,9 +354,7 @@ export class FillProductsComponent implements OnInit {
                             }
                         });
                 } else {
-                    this.productSelection.productGroup.reset();
-                    this.productSelection.enableVisualInspection();
-                    this.productSelection.enableProductCode();
+                    this.productSelection.resetProductFormGroup();
                 }
             });
     }

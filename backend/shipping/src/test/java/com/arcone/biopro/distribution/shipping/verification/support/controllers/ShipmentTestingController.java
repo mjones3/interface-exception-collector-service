@@ -88,10 +88,23 @@ public class ShipmentTestingController {
         return shipmentDetail.getOrderNumber();
     }
 
+    public long createShippingRequest(long orderNumber, String priority) throws Exception {
+        var resource = utils.getResource("order-fulfilled.json")
+            .replace("{order.number}", String.valueOf(orderNumber))
+            .replace("{order.priority}",priority);
+
+        kafkaHelper.sendEvent(UUID.randomUUID().toString(), objectMapper.readValue(resource, OrderFulfilledEventType.class), Topics.ORDER_FULFILLED).block();
+        // Add sleep to wait for the message to be consumed.
+        Thread.sleep(3000);
+
+        log.info("Message sent to create the order: {}", orderNumber);
+        return orderNumber;
+    }
     public long createShippingRequest() throws Exception {
         long orderId = new Random().nextInt(10000);
         var resource = utils.getResource("order-fulfilled.json")
-            .replace("{order.number}", String.valueOf(orderId));
+            .replace("{order.number}", String.valueOf(orderId))
+            .replace("{order.priority}","ASAP");;
 
         kafkaHelper.sendEvent(UUID.randomUUID().toString(), objectMapper.readValue(resource, OrderFulfilledEventType.class), Topics.ORDER_FULFILLED).block();
         // Add sleep to wait for the message to be consumed.
@@ -172,6 +185,7 @@ public class ShipmentTestingController {
         return ShipmentRequestDetailsResponseType.builder()
             .id(Long.valueOf((String) result.get("id")))
             .orderNumber(Long.valueOf((Integer) result.get("orderNumber")))
+            .priority((String) result.get("priority"))
             .items(lineItems)
             .build();
     }
@@ -381,16 +395,17 @@ public class ShipmentTestingController {
         databaseService.executeSql(query).block();
     }
 
-    public Map fillShipment(long shipmentId, String unitNumber, String productCode) throws Exception {
+    public Map fillShipment(long shipmentId, String unitNumber, String productCode, String inspection, boolean unsuitable) throws Exception {
         var shipmentDetails = parseShipmentRequestDetail(
             getShipmentRequestDetails(shipmentId));
         Long shipmentItem;
         shipmentItem = shipmentDetails.getItems().getFirst().getId();
 
         var response = apiHelper.graphQlRequest(GraphQLMutationMapper.packItemMutation(shipmentItem, facility
-            , TestUtils.removeUnitNumberScanDigits(unitNumber), "test-emplyee-id", TestUtils.removeProductCodeScanDigits(productCode), "SATISFACTORY"), "packItem");
-        log.info("Shipment item successfully packed: {}", response);
+            , TestUtils.removeUnitNumberScanDigits(unitNumber), "test-emplyee-id", TestUtils.removeProductCodeScanDigits(productCode), inspection), "packItem");
+        if (!unsuitable){
         Assert.assertEquals("200 OK", response.get("ruleCode"));
+        }
         Thread.sleep(kafkaWaitingTime);
         return response;
     }

@@ -1,10 +1,10 @@
-@ui
+@ui @AOA-6 @AOA-40 @AOA-152
 Feature: Complete Shipment Feature
     As a distribution technician, I want to complete a shipment, so I can ship products to the customer.
 
     Background:
-        Given I cleaned up from the database the packed item that used the unit number "W036898786802,W812530106086,W812530106089,W036824705327,W812530106090".
-        And I cleaned up from the database, all shipments with order number "108,109,110,111,112,113,114,115,116,117".
+        Given I cleaned up from the database the packed item that used the unit number "W036898786802,W812530106086,W812530106089,W036824705327,W812530106090,W812530107002,W812530107001,W812530106099".
+        And I cleaned up from the database, all shipments with order number "108,109,110,111,112,113,114,115,116,117,254001,254002,254003".
 
         Rule: I should be able to complete a shipment whenever at least one product is filledRule: I should be able to view the list of packed products added once it is filled on the Shipment Fulfillment Details page.
         Rule: I should see a success message when the shipment is completed.
@@ -13,7 +13,7 @@ Feature: Complete Shipment Feature
         Rule: I should be able to view the pending log of products to be filled for each line item on the Shipment Fulfillment Details page.
         Rule: I should be able to complete the shipment process without second verification if configured by the blood center.
 
-        @DIS-202 @DIS-162 @DIS-156 @DIS-56 @DIS-25 @DIS-21 @DIS-201 @bug @DIS-273
+        @DIS-202 @DIS-162 @DIS-156 @DIS-56 @DIS-25 @DIS-21 @DIS-201 @bug @DIS-273 @DIS-254
         Scenario Outline: Complete Shipment with suitable products.
             Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>".
             And The check digit configuration is "disabled".
@@ -38,6 +38,10 @@ Feature: Complete Shipment Feature
                 | 108          | 1           | Testing Customer | 10,5,8   | ANY,B,O   | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE                            | PLASMA TRANSFUSABLE          | ANY  | =W03689878680200 | =<E7648V00 | 1                | enabled           |
                 | 109          | 1           | Testing Customer | 10,5,8   | ANY,BP,OP | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED | RED BLOOD CELLS LEUKOREDUCED | ANY  | W812530106086    | E0685V00   | 1                | enabled           |
                 | 116          | 1           | Testing Customer | 10,5,8   | ABP,BP,OP | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED | RED BLOOD CELLS LEUKOREDUCED | ABP  | W812530106086    | E0685V00   | 1                | disabled          |
+                | 254001       | 1           | Testing Customer | 5,8      | AP,BN     | WHOLE_BLOOD,WHOLE_BLOOD                                                                | WHOLE BLOOD                  | AP   | =W81253010700200 | =<E0023V00 | 1                | enabled           |
+                | 254002       | 1           | Testing Customer | 10,5     | ABP,AP    | WHOLE_BLOOD_LEUKOREDUCED,WHOLE_BLOOD_LEUKOREDUCED                                     | WHOLE BLOOD LEUKOREDUCED     | ABP   | =W81253010700100 | =<E0033V00 | 1                | enabled           |
+                | 254003       | 1           | Testing Customer | 2,2      | OP,ON     | RED_BLOOD_CELLS,RED_BLOOD_CELLS                                                       | RED BLOOD CELLS              | ON   | =W81253010609900 | =<E0167V00 | 1                | enabled           |
+
 
 
 
