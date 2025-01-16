@@ -129,12 +129,3 @@ VALUES ('ORDER_PRIORITY_COLOR', 'STAT', '#ff3333', 1, true),
        ('ORDER_PRIORITY_COLOR', 'SCHEDULED', '#97a6f2', 4, true),
        ('ORDER_PRIORITY_COLOR', 'DATE-TIME', '#0930f6', 5, true)
 ON CONFLICT DO NOTHING;
-
--- Close Order Reasons
-INSERT INTO lk_lookup (type, description_key, option_value, order_number, active)
-VALUES ('CLOSE_ORDER_REASON', 'REASON 1', 'REASON_1', 1, true),
-       ('CLOSE_ORDER_REASON', 'REASON 2', 'REASON_2', 2, true),
-       ('CLOSE_ORDER_REASON', 'REASON 3', 'REASON_3', 3, true),
-       ('CLOSE_ORDER_REASON', 'REASON 4', 'REASON_4', 4, true),
-       ('CLOSE_ORDER_REASON', 'REASON 5', 'REASON_5', 5, true)
-    ON CONFLICT DO NOTHING;

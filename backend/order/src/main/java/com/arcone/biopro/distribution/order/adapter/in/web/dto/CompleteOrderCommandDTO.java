@@ -5,10 +5,9 @@ import lombok.Builder;
 import java.io.Serializable;
 
 @Builder
-public record CloseOrderCommandDTO (
+public record CompleteOrderCommandDTO(
     Long orderId,
     String employeeId,
-    String reason,
     String comments
 ) implements Serializable  {
 

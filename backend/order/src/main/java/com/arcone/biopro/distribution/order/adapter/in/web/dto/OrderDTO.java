@@ -34,8 +34,7 @@ public record OrderDTO(
     Integer totalRemaining,
     Integer totalProducts,
     boolean canBeClosed,
-    String closeEmployeeId,
-    ZonedDateTime closeDate,
-    String closeComments,
-    String closeReason
+    String completeEmployeeId,
+    ZonedDateTime completeDate,
+    String completeComments
 ) {}

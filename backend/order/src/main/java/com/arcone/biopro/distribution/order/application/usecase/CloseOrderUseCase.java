@@ -5,10 +5,12 @@ import com.arcone.biopro.distribution.order.application.dto.UseCaseNotificationD
 import com.arcone.biopro.distribution.order.application.dto.UseCaseResponseDTO;
 import com.arcone.biopro.distribution.order.application.exception.DomainNotFoundForKeyException;
 import com.arcone.biopro.distribution.order.domain.event.OrderCompletedEvent;
-import com.arcone.biopro.distribution.order.domain.model.CloseOrderCommand;
+import com.arcone.biopro.distribution.order.domain.model.CompleteOrderCommand;
 import com.arcone.biopro.distribution.order.domain.model.Order;
 import com.arcone.biopro.distribution.order.domain.repository.OrderRepository;
 import com.arcone.biopro.distribution.order.domain.service.CloseOrderService;
+import com.arcone.biopro.distribution.order.domain.service.LookupService;
+import com.arcone.biopro.distribution.order.domain.service.OrderShipmentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -25,14 +27,16 @@ public class CloseOrderUseCase implements CloseOrderService {
 
     private final OrderRepository orderRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final OrderShipmentService orderShipmentService;
+    private final LookupService lookupService;
 
     @Override
     @Transactional
-    public Mono<UseCaseResponseDTO<Order>> closeOrder(CloseOrderCommand closeOrderCommand) {
-        return this.orderRepository.findOneById(closeOrderCommand.getOrderId())
-            .switchIfEmpty(Mono.error(new DomainNotFoundForKeyException(String.format("%s",closeOrderCommand.getOrderId()))))
+    public Mono<UseCaseResponseDTO<Order>> completeOrder(CompleteOrderCommand completeOrderCommand) {
+        return this.orderRepository.findOneById(completeOrderCommand.getOrderId())
+            .switchIfEmpty(Mono.error(new DomainNotFoundForKeyException(String.format("%s", completeOrderCommand.getOrderId()))))
             .flatMap(order -> {
-                order.closeOrder(closeOrderCommand);
+                order.completeOrder(completeOrderCommand,lookupService,orderShipmentService);
                 return orderRepository.update(order);
             }).flatMap(orderClosed -> Mono.just(new UseCaseResponseDTO<>(List.of(UseCaseNotificationDTO
                 .builder()

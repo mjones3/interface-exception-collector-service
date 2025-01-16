@@ -7,17 +7,15 @@ import lombok.ToString;
 @Getter
 @EqualsAndHashCode
 @ToString
-public class CloseOrderCommand implements Validatable {
+public class CompleteOrderCommand implements Validatable {
 
     private Long orderId;
     private String employeeId;
-    private String reason;
     private String comments;
 
-    public CloseOrderCommand(Long orderId, String employeeId, String reason, String comments) {
+    public CompleteOrderCommand(Long orderId, String employeeId, String comments) {
         this.orderId = orderId;
         this.employeeId = employeeId;
-        this.reason = reason;
         this.comments = comments;
 
         checkValid();
@@ -32,10 +30,6 @@ public class CloseOrderCommand implements Validatable {
 
         if (this.employeeId == null || this.employeeId.isEmpty()) {
             throw new IllegalArgumentException("employeeId cannot be null or empty");
-        }
-
-        if (this.reason == null || this.reason.isEmpty()) {
-            throw new IllegalArgumentException("reason cannot be null or empty");
         }
     }
 }

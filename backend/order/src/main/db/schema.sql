@@ -60,10 +60,9 @@ CREATE TABLE order_service.bld_order (
     create_date                TIMESTAMP WITH TIME ZONE           NOT NULL,
     modification_date          TIMESTAMP WITH TIME ZONE           NOT NULL,
     delete_date                TIMESTAMP WITH TIME ZONE,
-    close_employee_id          VARCHAR(50) DEFAULT NULL           ,
-    close_date                 TIMESTAMP WITH TIME ZONE DEFAULT NULL ,
-    close_reason               VARCHAR(255) DEFAULT NULL,
-    close_comments             VARCHAR(1000) DEFAULT NULL
+    complete_employee_id          VARCHAR(50) DEFAULT NULL           ,
+    complete_date                 TIMESTAMP WITH TIME ZONE DEFAULT NULL ,
+    complete_comments             VARCHAR(1000) DEFAULT NULL
 
 );
 

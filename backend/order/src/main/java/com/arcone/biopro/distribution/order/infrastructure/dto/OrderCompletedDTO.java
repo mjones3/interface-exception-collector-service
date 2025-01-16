@@ -31,10 +31,9 @@ public record OrderCompletedDTO(
     Integer totalShipped,
     Integer totalRemaining,
     Integer totalProducts,
-    String closeEmployeeId,
-    ZonedDateTime closeDate,
-    String closeComments,
-    String closeReason,
+    String completeEmployeeId,
+    ZonedDateTime completeDate,
+    String completeComments,
     List<OrderItemCompletedDTO> orderItems
 ) implements Serializable {
 }

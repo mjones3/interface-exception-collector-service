@@ -8,6 +8,7 @@ import com.arcone.biopro.distribution.order.domain.model.Order;
 import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
 import com.arcone.biopro.distribution.order.domain.service.OrderConfigService;
+import com.arcone.biopro.distribution.order.domain.service.OrderShipmentService;
 import com.arcone.biopro.distribution.order.infrastructure.service.dto.CustomerDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -26,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 
-@SpringJUnitConfig(classes = { OrderMapper.class, OrderItemMapper.class })
+@SpringJUnitConfig(classes = { OrderMapper.class, OrderItemMapper.class , OrderShipmentService.class})
 class OrderMapperTest {
 
     @MockBean
@@ -37,6 +38,8 @@ class OrderMapperTest {
     OrderConfigService orderConfigService;
     @MockBean
     LookupService lookupService;
+    @MockBean
+    OrderShipmentService orderShipmentService;
 
     @BeforeEach
     void beforeEach() {

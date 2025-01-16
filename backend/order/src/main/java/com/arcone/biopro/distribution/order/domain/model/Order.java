@@ -13,6 +13,7 @@ import com.arcone.biopro.distribution.order.domain.repository.OrderRepository;
 import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
 import com.arcone.biopro.distribution.order.domain.service.OrderConfigService;
+import com.arcone.biopro.distribution.order.domain.service.OrderShipmentService;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -57,10 +58,9 @@ public class Order implements Validatable {
     private ZonedDateTime modificationDate;
     private ZonedDateTime deleteDate;
     private List<OrderItem> orderItems;
-    private String closeEmployeeId;
-    private ZonedDateTime closeDate;
-    private String closeComments;
-    private String closeReason;
+    private String completeEmployeeId;
+    private ZonedDateTime completeDate;
+    private String completeComments;
 
     @Getter(AccessLevel.NONE)
     private Integer totalShipped;
@@ -71,7 +71,9 @@ public class Order implements Validatable {
     @Getter(AccessLevel.NONE)
     private Integer totalProducts;
 
-    private static final  String COMPLETE_STATUS = "COMPLETED";
+    private static final  String ORDER_IN_PROGRESS_STATUS = "IN_PROGRESS";
+    private static final  String ORDER_COMPLETED_STATUS = "COMPLETED";
+    private static final  String ORDER_SHIPMENT_OPEN_STATUS = "OPEN";
 
     public Order(
         CustomerService customerService,
@@ -209,19 +211,31 @@ public class Order implements Validatable {
         return this.getTotalRemaining().equals(0);
     }
 
-    public boolean canBeClosed(){
-        return !COMPLETE_STATUS.equals(orderStatus.getOrderStatus()) && (this.getTotalRemaining().compareTo(0) > 0) ;
+    public boolean canBeCompleted(OrderShipmentService orderShipmentService){
+        return ORDER_IN_PROGRESS_STATUS.equals(orderStatus.getOrderStatus()) && (this.getTotalRemaining().compareTo(0) > 0) && !hasShipmentOpen(orderShipmentService) ;
     }
 
-    public void closeOrder(CloseOrderCommand closeOrderCommand){
-        if(COMPLETE_STATUS.equals(orderStatus.getOrderStatus())){
-            throw new IllegalArgumentException("Order is already closed");
+    public void completeOrder(CompleteOrderCommand completeOrderCommand, LookupService lookupService , OrderShipmentService orderShipmentService){
+        if(ORDER_COMPLETED_STATUS.equals(orderStatus.getOrderStatus())){
+            throw new IllegalArgumentException("Order is already completed");
         }
 
-        this.orderStatus = new OrderStatus(COMPLETE_STATUS, getOrderStatus().getLookupService());
-        this.closeDate = ZonedDateTime.now();
-        this.closeReason = closeOrderCommand.getReason();
-        this.closeComments = closeOrderCommand.getComments();
-        this.closeEmployeeId = closeOrderCommand.getEmployeeId();
+        if(!ORDER_IN_PROGRESS_STATUS.equals(orderStatus.getOrderStatus())){
+            throw new IllegalArgumentException("Order is not in-progress cannot be completed");
+        }
+
+        if(hasShipmentOpen(orderShipmentService)){
+            throw new IllegalArgumentException("Order has an open shipment");
+        }
+
+        this.orderStatus = new OrderStatus(ORDER_IN_PROGRESS_STATUS, lookupService);
+        this.completeDate = ZonedDateTime.now();
+        this.completeComments = completeOrderCommand.getComments();
+        this.completeEmployeeId = completeOrderCommand.getEmployeeId();
+    }
+
+    private boolean hasShipmentOpen(OrderShipmentService orderShipmentService){
+        var orderShipment = orderShipmentService.findOneByOrderId(this.getId()).blockOptional();
+        return orderShipment.map(shipment -> shipment.getShipmentStatus().equals(ORDER_SHIPMENT_OPEN_STATUS)).orElse(false);
     }
 }
