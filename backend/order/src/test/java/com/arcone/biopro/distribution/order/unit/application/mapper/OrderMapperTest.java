@@ -69,6 +69,8 @@ class OrderMapperTest {
         Mockito.when(orderConfigService.findProductFamilyByCategory(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just("productFamily"));
         Mockito.when(orderConfigService.findBloodTypeByFamilyAndType(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just("bloodType"));
 
+        Mockito.when(orderConfigService.findBackOrderConfiguration()).thenReturn(Mono.just(Boolean.FALSE));
+
 
     }
 
@@ -151,6 +153,7 @@ class OrderMapperTest {
             assertEquals(orderItem.getModificationDate(), orderItemDTO.modificationDate());
         });
         assertFalse(result.canBeCompleted());
+        assertFalse(result.backOrderCreationActive());
     }
 
     @Test

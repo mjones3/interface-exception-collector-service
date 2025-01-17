@@ -128,3 +128,9 @@ VALUES ('ORDER_PRIORITY_COLOR', 'STAT', '#ff3333', 1, true),
        ('ORDER_PRIORITY_COLOR', 'SCHEDULED', '#97a6f2', 4, true),
        ('ORDER_PRIORITY_COLOR', 'DATE-TIME', '#0930f6', 5, true)
 ON CONFLICT DO NOTHING;
+
+
+-- Back-order configuration
+-- Shipping Methods
+INSERT INTO lk_lookup (type, description_key, option_value, order_number, active)
+VALUES ('BACK_ORDER_CREATION', 'back-order-creation.label', 'true', 1, true) ON CONFLICT DO NOTHING;

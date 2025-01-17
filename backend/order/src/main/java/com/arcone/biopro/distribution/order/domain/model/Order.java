@@ -14,6 +14,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -66,9 +67,13 @@ public class Order implements Validatable {
     @Getter(AccessLevel.NONE)
     private Integer totalProducts;
 
+    @Setter
+    private boolean backOrder;
+
     private static final String ORDER_IN_PROGRESS_STATUS = "IN_PROGRESS";
     private static final String ORDER_COMPLETED_STATUS = "COMPLETED";
     private static final String ORDER_SHIPMENT_OPEN_STATUS = "OPEN";
+    private static final String ORDER_OPEN_STATUS = "OPEN";
 
     public Order(
         CustomerService customerService,
@@ -116,6 +121,7 @@ public class Order implements Validatable {
         this.createDate = createDate;
         this.modificationDate = modificationDate;
         this.deleteDate = deleteDate;
+        this.backOrder = false;
 
         this.checkValid();
     }
@@ -238,4 +244,55 @@ public class Order implements Validatable {
         var orderShipment = orderShipmentService.findOneByOrderId(this.getId()).blockOptional();
         return orderShipment.map(shipment -> shipment.getShipmentStatus().equals(ORDER_SHIPMENT_OPEN_STATUS)).orElse(false);
     }
+
+    public boolean canCreateBackOrders(OrderConfigService orderConfigService){
+        var backOrderActive = orderConfigService.findBackOrderConfiguration().blockOptional();
+        return backOrderActive.orElse(false);
+    }
+
+    public Order createBackOrder(String createEmployeeId,CustomerService customerService , LookupService lookupService , OrderConfigService orderConfigService){
+
+        if(!canCreateBackOrders(orderConfigService)){
+            throw new IllegalArgumentException("Back Order cannot be created, configuration is not active");
+        }
+
+        var backOrder =  new Order(
+           customerService,
+            lookupService,
+            null,
+            null,
+            this.getOrderExternalId().getOrderExternalId(),
+            this.getLocationCode(),
+            this.getShipmentType().getShipmentType(),
+            this.getShippingMethod().getShippingMethod(),
+            this.getShippingCustomer().getCode(),
+            this.getBillingCustomer().getCode(),
+            this.getDesiredShippingDate().format(DateTimeFormatter.ISO_LOCAL_DATE),
+            this.getWillCallPickup() == null ? FALSE : this.getWillCallPickup(),
+            this.getPhoneNumber(),
+            this.getProductCategory().getProductCategory(),
+            this.getComments(),
+            ORDER_OPEN_STATUS,
+            this.getOrderPriority().getDeliveryType(),
+           createEmployeeId,
+            null,
+            null,
+            null);
+
+        backOrder.setBackOrder(TRUE);
+
+        var remainingItems = this.orderItems.stream().filter(orderItem -> orderItem.getQuantityRemaining().compareTo(0) > 0).toList();
+        if(remainingItems.isEmpty()){
+            throw new IllegalArgumentException("Back Order cannot be created, there is no remaining items");
+        }
+        remainingItems.forEach(remainingItem -> {
+            backOrder.addItem(null,remainingItem.getProductFamily().getProductFamily()
+                ,remainingItem.getBloodType().getBloodType(),remainingItem.getQuantityRemaining()
+                ,0,remainingItem.getComments(),null,null,orderConfigService);
+        });
+
+        return backOrder;
+
+    }
+
 }
