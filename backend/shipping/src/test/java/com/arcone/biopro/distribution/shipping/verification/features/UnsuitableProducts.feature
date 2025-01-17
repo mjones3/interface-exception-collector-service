@@ -1,11 +1,11 @@
-@ui @AOA-40 @AOA-6 @AOA-152
+@AOA-40 @AOA-6 @AOA-152
 Feature: Prevent filling a shipment with unsuitable products
     As a distribution technician, I want to prevent filling a shipment with unsuitable products, so that I can avoid shipping the wrong products to the customer.
 
     Background:
         Given I cleaned up from the database, all shipments with order number "999771,999778,999764,999779,999765,999766,999767,999768,999769,999770".
 
-    @DIS-125 @DIS-78 @DIS-56 @DIS-194 @DIS-162
+    @ui @DIS-125 @DIS-78 @DIS-56 @DIS-194 @DIS-162
     Scenario Outline: Entering an unsuitable product
         Given The shipment details are order Number "<orderNumber>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>".
         And I have received a shipment fulfillment request with above details.
@@ -23,7 +23,7 @@ Feature: Prevent filling a shipment with unsuitable products
             | =W03689878676300 | =<E0703V00 | Satisfactory | This product is not in the inventory and cannot be shipped                    | Warning                | 999779      | 999998      | Tampa         | 10,5,23  | AP,AN,OP  | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE                            | PLASMA TRANSFUSABLE          |
 
 
-    @DIS-78 @DIS-56
+    @ui @DIS-78 @DIS-56
     Scenario Outline: Filling a product which is already filled in another shipment
         Given The shipment details are order Number "<orderNumber>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>".
         And I have received a shipment fulfillment request with above details.
