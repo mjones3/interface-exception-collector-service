@@ -17,6 +17,7 @@ import com.arcone.biopro.distribution.order.domain.service.OrderShipmentService;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -58,8 +59,11 @@ public class Order implements Validatable {
     private ZonedDateTime modificationDate;
     private ZonedDateTime deleteDate;
     private List<OrderItem> orderItems;
+    @Setter
     private String completeEmployeeId;
+    @Setter
     private ZonedDateTime completeDate;
+    @Setter
     private String completeComments;
 
     @Getter(AccessLevel.NONE)
@@ -71,9 +75,9 @@ public class Order implements Validatable {
     @Getter(AccessLevel.NONE)
     private Integer totalProducts;
 
-    private static final  String ORDER_IN_PROGRESS_STATUS = "IN_PROGRESS";
-    private static final  String ORDER_COMPLETED_STATUS = "COMPLETED";
-    private static final  String ORDER_SHIPMENT_OPEN_STATUS = "OPEN";
+    private static final String ORDER_IN_PROGRESS_STATUS = "IN_PROGRESS";
+    private static final String ORDER_COMPLETED_STATUS = "COMPLETED";
+    private static final String ORDER_SHIPMENT_OPEN_STATUS = "OPEN";
 
     public Order(
         CustomerService customerService,
@@ -165,14 +169,14 @@ public class Order implements Validatable {
         }
     }
 
-    public void addItem(Long id, String productFamily, String bloodType, Integer quantity ,Integer quantityShipped, String comments
+    public void addItem(Long id, String productFamily, String bloodType, Integer quantity, Integer quantityShipped, String comments
         , ZonedDateTime createDate, ZonedDateTime modificationDate, OrderConfigService orderConfigService) {
 
         if (this.orderItems == null) {
             this.orderItems = new ArrayList<>();
         }
 
-        this.orderItems.add(new OrderItem(id, this.id, productFamily, bloodType, quantity , quantityShipped, comments, createDate
+        this.orderItems.add(new OrderItem(id, this.id, productFamily, bloodType, quantity, quantityShipped, comments, createDate
             , modificationDate, this.getProductCategory().getProductCategory(), orderConfigService));
     }
 
@@ -211,30 +215,35 @@ public class Order implements Validatable {
         return this.getTotalRemaining().equals(0);
     }
 
-    public boolean canBeCompleted(OrderShipmentService orderShipmentService){
-        return ORDER_IN_PROGRESS_STATUS.equals(orderStatus.getOrderStatus()) && (this.getTotalRemaining().compareTo(0) > 0) && !hasShipmentOpen(orderShipmentService) ;
+    public boolean canBeCompleted(OrderShipmentService orderShipmentService) {
+        return ORDER_IN_PROGRESS_STATUS.equals(orderStatus.getOrderStatus()) && (this.getTotalRemaining().compareTo(0) > 0) && !hasShipmentOpen(orderShipmentService);
     }
 
-    public void completeOrder(CompleteOrderCommand completeOrderCommand, LookupService lookupService , OrderShipmentService orderShipmentService){
-        if(ORDER_COMPLETED_STATUS.equals(orderStatus.getOrderStatus())){
+    public void completeOrder(CompleteOrderCommand completeOrderCommand, LookupService lookupService, OrderShipmentService orderShipmentService) {
+        if (ORDER_COMPLETED_STATUS.equals(orderStatus.getOrderStatus())) {
             throw new IllegalArgumentException("Order is already completed");
         }
 
-        if(!ORDER_IN_PROGRESS_STATUS.equals(orderStatus.getOrderStatus())){
+        if (!ORDER_IN_PROGRESS_STATUS.equals(orderStatus.getOrderStatus())) {
             throw new IllegalArgumentException("Order is not in-progress cannot be completed");
         }
 
-        if(hasShipmentOpen(orderShipmentService)){
+        if (hasShipmentOpen(orderShipmentService)) {
             throw new IllegalArgumentException("Order has an open shipment");
         }
 
-        this.orderStatus = new OrderStatus(ORDER_IN_PROGRESS_STATUS, lookupService);
+        this.orderStatus = new OrderStatus(ORDER_COMPLETED_STATUS, lookupService);
         this.completeDate = ZonedDateTime.now();
         this.completeComments = completeOrderCommand.getComments();
         this.completeEmployeeId = completeOrderCommand.getEmployeeId();
     }
 
-    private boolean hasShipmentOpen(OrderShipmentService orderShipmentService){
+    public void completeOrderAutomatic(){
+        this.orderStatus.setStatus(ORDER_COMPLETED_STATUS);
+        this.completeDate = ZonedDateTime.now();
+    }
+
+    private boolean hasShipmentOpen(OrderShipmentService orderShipmentService) {
         var orderShipment = orderShipmentService.findOneByOrderId(this.getId()).blockOptional();
         return orderShipment.map(shipment -> shipment.getShipmentStatus().equals(ORDER_SHIPMENT_OPEN_STATUS)).orElse(false);
     }

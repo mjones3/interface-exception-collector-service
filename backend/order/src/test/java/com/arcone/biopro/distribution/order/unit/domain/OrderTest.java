@@ -109,7 +109,7 @@ class OrderTest {
         var order2 = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
             , "TYPE", "TYPE", "123", "123","2025-01-31"
             , null, null, "TYPE", null, "IN_PROGRESS", "TYPE", "CREATE_EMPLOYEE"
-            , null, null, null);
+            , null, null,null);
 
         order2.addItem(1L,"TYPE","TYPE",10,1,"", ZonedDateTime.now(),ZonedDateTime.now(),orderConfigService);
 
@@ -178,6 +178,7 @@ class OrderTest {
         Assertions.assertNotNull(order.getCompleteDate());
         Assertions.assertEquals("comments",order.getCompleteComments());
         Assertions.assertEquals("close-employeeid",order.getCompleteEmployeeId());
+        Assertions.assertEquals("COMPLETED",order.getOrderStatus().getOrderStatus());
 
 
     }

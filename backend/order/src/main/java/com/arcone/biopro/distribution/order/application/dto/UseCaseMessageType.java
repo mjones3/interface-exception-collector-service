@@ -11,8 +11,8 @@ import lombok.experimental.FieldDefaults;
 public enum UseCaseMessageType {
 
     INVENTORY_SERVICE_IS_DOWN(1,  UseCaseNotificationType.ERROR, "Inventory Service is down."),
-    ORDER_CLOSED_SUCCESSFULLY(2,  UseCaseNotificationType.SUCCESS, "Order completed successfully"),
-    CLOSE_ORDER_ERROR(3,  UseCaseNotificationType.ERROR, "Cannot close order");
+    ORDER_COMPLETED_SUCCESSFULLY(2,  UseCaseNotificationType.SUCCESS, "Order completed successfully"),
+    COMPLETE_ORDER_ERROR(3,  UseCaseNotificationType.ERROR, "Cannot complete order");
 
     Integer code;
     UseCaseNotificationType type;

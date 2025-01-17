@@ -8,7 +8,7 @@ import com.arcone.biopro.distribution.order.domain.event.OrderCompletedEvent;
 import com.arcone.biopro.distribution.order.domain.model.CompleteOrderCommand;
 import com.arcone.biopro.distribution.order.domain.model.Order;
 import com.arcone.biopro.distribution.order.domain.repository.OrderRepository;
-import com.arcone.biopro.distribution.order.domain.service.CloseOrderService;
+import com.arcone.biopro.distribution.order.domain.service.CompleteOrderService;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
 import com.arcone.biopro.distribution.order.domain.service.OrderShipmentService;
 import lombok.RequiredArgsConstructor;
@@ -17,13 +17,14 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class CloseOrderUseCase implements CloseOrderService {
+public class CompleteOrderUseCase implements CompleteOrderService {
 
     private final OrderRepository orderRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
@@ -35,16 +36,20 @@ public class CloseOrderUseCase implements CloseOrderService {
     public Mono<UseCaseResponseDTO<Order>> completeOrder(CompleteOrderCommand completeOrderCommand) {
         return this.orderRepository.findOneById(completeOrderCommand.getOrderId())
             .switchIfEmpty(Mono.error(new DomainNotFoundForKeyException(String.format("%s", completeOrderCommand.getOrderId()))))
-            .flatMap(order -> {
+            .map(order -> {
                 order.completeOrder(completeOrderCommand,lookupService,orderShipmentService);
-                return orderRepository.update(order);
-            }).flatMap(orderClosed -> Mono.just(new UseCaseResponseDTO<>(List.of(UseCaseNotificationDTO
-                .builder()
-                .useCaseMessageType(UseCaseMessageType.ORDER_CLOSED_SUCCESSFULLY)
-                .build()), orderClosed)))
+                return order;
+            }).flatMap(orderRepository::update)
+            .map(order -> {
+                return new UseCaseResponseDTO<>(List.of(UseCaseNotificationDTO
+                    .builder()
+                    .useCaseMessageType(UseCaseMessageType.ORDER_COMPLETED_SUCCESSFULLY)
+                    .build()), order);
+            })
             .doOnSuccess(this::publishOrderCompletedEvent)
+            .publishOn(Schedulers.boundedElastic())
             .onErrorResume(error -> {
-                log.error("Not able to close order",error);
+                log.error("Error occurred while completing order", error);
                 return Mono.just(buildErrorResponse());
             });
     }
@@ -52,12 +57,12 @@ public class CloseOrderUseCase implements CloseOrderService {
     private UseCaseResponseDTO<Order> buildErrorResponse(){
         return new UseCaseResponseDTO<>(List.of(UseCaseNotificationDTO
             .builder()
-            .useCaseMessageType(UseCaseMessageType.CLOSE_ORDER_ERROR)
+            .useCaseMessageType(UseCaseMessageType.COMPLETE_ORDER_ERROR)
             .build()), null);
     }
 
-    private void publishOrderCompletedEvent(UseCaseResponseDTO<Order> responseDTO) {
-        log.debug("Publishing OrderCompletedEvent {} , ID {}", responseDTO.data(), responseDTO.data().getId());
-        applicationEventPublisher.publishEvent(new OrderCompletedEvent(responseDTO.data()));
+    private void publishOrderCompletedEvent(UseCaseResponseDTO<Order> useCaseResponseDTO) {
+        log.debug("Publishing OrderCompletedEvent {} , ID {}", useCaseResponseDTO, useCaseResponseDTO.data().getId());
+        applicationEventPublisher.publishEvent(new OrderCompletedEvent(useCaseResponseDTO.data()));
     }
 }

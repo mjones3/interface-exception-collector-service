@@ -1,6 +1,6 @@
 package com.arcone.biopro.distribution.order.unit.application.usecase;
 
-import com.arcone.biopro.distribution.order.application.usecase.CloseOrderUseCase;
+import com.arcone.biopro.distribution.order.application.usecase.CompleteOrderUseCase;
 import com.arcone.biopro.distribution.order.domain.event.OrderCompletedEvent;
 import com.arcone.biopro.distribution.order.domain.model.CompleteOrderCommand;
 import com.arcone.biopro.distribution.order.domain.model.Order;
@@ -18,7 +18,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 @SpringJUnitConfig
-class CloseOrderUseCaseTest {
+class CompleteOrderUseCaseTest {
 
     @MockBean
     ApplicationEventPublisher applicationEventPublisher;
@@ -28,14 +28,14 @@ class CloseOrderUseCaseTest {
     private OrderShipmentService orderShipmentService;
     private LookupService lookupService;
 
-    private CloseOrderUseCase useCase;
+    private CompleteOrderUseCase useCase;
 
     @BeforeEach
     public void setup() {
         orderRepository = Mockito.mock(OrderRepository.class);
         orderShipmentService = Mockito.mock(OrderShipmentService.class);
         lookupService = Mockito.mock(LookupService.class);
-        useCase = new CloseOrderUseCase(orderRepository, applicationEventPublisher ,orderShipmentService,lookupService);
+        useCase = new CompleteOrderUseCase(orderRepository, applicationEventPublisher ,orderShipmentService,lookupService);
     }
 
     @Test
@@ -44,9 +44,9 @@ class CloseOrderUseCaseTest {
 
         StepVerifier.create(useCase.completeOrder(new CompleteOrderCommand(1L,"employeeId","COMMENTS")))
             .consumeNextWith(detail -> {
-                    Assertions.assertEquals("CLOSE_ORDER_ERROR",  detail.notifications().getFirst().useCaseMessageType().name());
+                    Assertions.assertEquals("COMPLETE_ORDER_ERROR",  detail.notifications().getFirst().useCaseMessageType().name());
                     Assertions.assertEquals("ERROR",  detail.notifications().getFirst().useCaseMessageType().getType().name());
-                    Assertions.assertEquals("Cannot close order",  detail.notifications().getFirst().useCaseMessageType().getMessage());
+                    Assertions.assertEquals("Cannot complete order",  detail.notifications().getFirst().useCaseMessageType().getMessage());
 
                 }
             )
@@ -67,9 +67,9 @@ class CloseOrderUseCaseTest {
 
         StepVerifier.create(useCase.completeOrder(new CompleteOrderCommand(1L,"employeeId","COMMENTS")))
             .consumeNextWith(detail -> {
-                    Assertions.assertEquals("CLOSE_ORDER_ERROR",  detail.notifications().getFirst().useCaseMessageType().name());
+                    Assertions.assertEquals("COMPLETE_ORDER_ERROR",  detail.notifications().getFirst().useCaseMessageType().name());
                     Assertions.assertEquals("ERROR",  detail.notifications().getFirst().useCaseMessageType().getType().name());
-                    Assertions.assertEquals("Cannot close order",  detail.notifications().getFirst().useCaseMessageType().getMessage());
+                    Assertions.assertEquals("Cannot complete order",  detail.notifications().getFirst().useCaseMessageType().getMessage());
 
                 }
             )
@@ -88,7 +88,7 @@ class CloseOrderUseCaseTest {
 
         StepVerifier.create(useCase.completeOrder(new CompleteOrderCommand(1L,"employeeId","COMMENTS")))
             .consumeNextWith(detail -> {
-                    Assertions.assertEquals("ORDER_CLOSED_SUCCESSFULLY",  detail.notifications().getFirst().useCaseMessageType().name());
+                    Assertions.assertEquals("ORDER_COMPLETED_SUCCESSFULLY",  detail.notifications().getFirst().useCaseMessageType().name());
                     Assertions.assertEquals("SUCCESS",  detail.notifications().getFirst().useCaseMessageType().getType().name());
                     Assertions.assertEquals("Order completed successfully",  detail.notifications().getFirst().useCaseMessageType().getMessage());
                     Assertions.assertNotNull( detail.data());

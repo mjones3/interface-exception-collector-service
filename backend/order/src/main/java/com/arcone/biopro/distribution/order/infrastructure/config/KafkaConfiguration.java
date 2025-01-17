@@ -40,7 +40,7 @@ public class KafkaConfiguration {
     public static final String ORDER_RECEIVED_CONSUMER = "order-received";
     public static final String SHIPMENT_CREATED_CONSUMER = "shipment-created";
     public static final String SHIPMENT_COMPLETED_CONSUMER = "shipment-completed";
-    public static final String ORDER_COMPLETED_PRODUCER = "order-created";
+    public static final String ORDER_COMPLETED_PRODUCER = "order-completed";
 
     @Bean
     NewTopic orderReceivedTopic(

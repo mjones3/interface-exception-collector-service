@@ -41,7 +41,7 @@ public class OrderMapper {
                     .build())
                 .toList()
             )
-            .data(mapToDTO(useCaseResponse.data()))
+            .data(useCaseResponse.data() != null ?  mapToDTO(useCaseResponse.data()) : null)
             .build();
     }
 
@@ -79,7 +79,7 @@ public class OrderMapper {
             .totalRemaining(order.getTotalRemaining())
             .totalShipped(order.getTotalShipped())
             .totalProducts(order.getTotalProducts())
-            .canBeClosed(order.canBeCompleted(orderShipmentService))
+            //.canBeClosed(order.canBeCompleted(orderShipmentService))
             .build();
     }
 

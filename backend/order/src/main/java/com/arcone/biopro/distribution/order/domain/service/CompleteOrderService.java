@@ -5,7 +5,7 @@ import com.arcone.biopro.distribution.order.domain.model.CompleteOrderCommand;
 import com.arcone.biopro.distribution.order.domain.model.Order;
 import reactor.core.publisher.Mono;
 
-public interface CloseOrderService {
+public interface CompleteOrderService {
 
     Mono<UseCaseResponseDTO<Order>> completeOrder(CompleteOrderCommand completeOrderCommand);
 }

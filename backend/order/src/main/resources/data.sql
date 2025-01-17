@@ -1,7 +1,6 @@
 TRUNCATE TABLE lk_lookup;
 TRUNCATE TABLE lk_order_blood_type;
 TRUNCATE TABLE lk_order_product_family;
-TRUNCATE TABLE lk_reason;
 
 -- Shipping Methods
 INSERT INTO lk_lookup (type, description_key, option_value, order_number, active)

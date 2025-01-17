@@ -4,6 +4,7 @@ import com.arcone.biopro.distribution.order.application.dto.ShipmentCompletedIte
 import com.arcone.biopro.distribution.order.application.dto.ShipmentCompletedItemProductPayload;
 import com.arcone.biopro.distribution.order.application.dto.ShipmentCompletedPayload;
 import com.arcone.biopro.distribution.order.application.usecase.ShipmentCompletedUseCase;
+import com.arcone.biopro.distribution.order.domain.event.OrderCompletedEvent;
 import com.arcone.biopro.distribution.order.domain.model.Order;
 import com.arcone.biopro.distribution.order.domain.model.OrderItem;
 import com.arcone.biopro.distribution.order.domain.model.OrderShipment;
@@ -14,6 +15,9 @@ import com.arcone.biopro.distribution.order.domain.repository.OrderRepository;
 import com.arcone.biopro.distribution.order.domain.repository.OrderShipmentRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -21,8 +25,11 @@ import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
 
-
+@SpringJUnitConfig
 class ShipmentCompletedUseCaseTest {
+
+    @MockBean
+    ApplicationEventPublisher applicationEventPublisher;
 
     @Test
     public void shouldProcessShipmentCompletedEvent(){
@@ -30,7 +37,7 @@ class ShipmentCompletedUseCaseTest {
         var orderRepository =  Mockito.mock(OrderRepository.class) ;
         var orderShipmentRepository = Mockito.mock(OrderShipmentRepository.class);
 
-        var target = new ShipmentCompletedUseCase(orderRepository,orderShipmentRepository);
+        var target = new ShipmentCompletedUseCase(orderRepository,orderShipmentRepository,applicationEventPublisher);
 
         var order = Mockito.mock(Order.class);
 
@@ -51,10 +58,6 @@ class ShipmentCompletedUseCaseTest {
         Mockito.when(oderItem.getProductFamily()).thenReturn(productFamily);
 
         Mockito.when(order.getOrderItems()).thenReturn(List.of(oderItem));
-
-        var orderStatus = Mockito.mock(OrderStatus.class);
-
-        Mockito.when(order.getOrderStatus()).thenReturn(orderStatus);
 
         Mockito.when(orderRepository.findOneByOrderNumber(Mockito.any())).thenReturn(Mono.just(order));
 
@@ -94,7 +97,9 @@ class ShipmentCompletedUseCaseTest {
 
         Mockito.verify(oderItem).defineShippedQuantity(1);
         Mockito.verify(orderShipment).setShipmentStatus("COMPLETED");
-        Mockito.verify(orderStatus).setStatus("COMPLETED");
+        Mockito.verify(order).completeOrderAutomatic();
+
+        Mockito.verify(applicationEventPublisher).publishEvent(Mockito.any(OrderCompletedEvent.class));
     }
 
 }

@@ -75,7 +75,8 @@ public class OrderEntityMapper {
             orderEntity.getCreateEmployeeId(),
             orderEntity.getCreateDate(),
             orderEntity.getModificationDate(),
-            orderEntity.getDeleteDate());
+            orderEntity.getDeleteDate()
+        );
 
         ofNullable(orderItemEntities)
             .filter(orderItems -> !orderItems.isEmpty())
@@ -86,6 +87,10 @@ public class OrderEntityMapper {
                     , orderItemEntity.getModificationDate(), this.orderConfigService
                 )
             );
+
+        order.setCompleteComments(orderEntity.getCompleteComments());
+        order.setCompleteEmployeeId(orderEntity.getCompleteEmployeeId());
+        order.setCompleteDate(orderEntity.getCompleteDate());
 
         return order;
     }

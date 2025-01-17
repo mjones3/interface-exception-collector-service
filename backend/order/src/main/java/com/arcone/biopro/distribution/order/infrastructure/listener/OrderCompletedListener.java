@@ -40,7 +40,7 @@ public class OrderCompletedListener {
             .createDate(order.getCreateDate())
             .desiredShippingDate(order.getDesiredShippingDate())
             .orderNumber(order.getOrderNumber().getOrderNumber())
-            .willPickUp(order.getWillCallPickup())
+            .willPickUp(order.getWillCallPickup() == null ? Boolean.FALSE : Boolean.TRUE)
             .willPickUpPhoneNumber(order.getPhoneNumber())
             .locationCode(order.getLocationCode())
             .externalId(order.getOrderExternalId().getOrderExternalId())
