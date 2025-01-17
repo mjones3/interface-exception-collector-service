@@ -79,7 +79,7 @@ public class OrderMapper {
             .totalRemaining(order.getTotalRemaining())
             .totalShipped(order.getTotalShipped())
             .totalProducts(order.getTotalProducts())
-            //.canBeClosed(order.canBeCompleted(orderShipmentService))
+            .canBeCompleted(order.canBeCompleted(orderShipmentService))
             .build();
     }
 

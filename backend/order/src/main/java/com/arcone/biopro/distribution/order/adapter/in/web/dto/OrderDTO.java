@@ -33,7 +33,7 @@ public record OrderDTO(
     Integer totalShipped,
     Integer totalRemaining,
     Integer totalProducts,
-    boolean canBeClosed,
+    boolean canBeCompleted,
     String completeEmployeeId,
     ZonedDateTime completeDate,
     String completeComments

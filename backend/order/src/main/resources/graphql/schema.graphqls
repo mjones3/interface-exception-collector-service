@@ -148,6 +148,7 @@ type Order {
     totalShipped:Int!
     totalRemaining:Int!
     totalProducts:Int!
+    canBeCompleted:Boolean
 
 }
 
