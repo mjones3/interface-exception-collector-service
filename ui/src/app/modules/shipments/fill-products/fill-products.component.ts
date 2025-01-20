@@ -80,6 +80,7 @@ import { OrderWidgetsSidebarComponent } from '../shared/order-widgets-sidebar/or
         OrderWidgetsSidebarComponent,
     ],
     templateUrl: './fill-products.component.html',
+    styleUrls: ['./fill-products.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FillProductsComponent implements OnInit {
@@ -489,5 +490,75 @@ export class FillProductsComponent implements OnInit {
         } else {
             this.selectedProducts.push(product);
         }
+    }
+
+    get numberOfUnits() {
+        return this.filledProductsData.length;
+    }
+
+    get numberOfSelectedUnits() {
+        return this.selectedProducts.length;
+    }
+
+    get selectAllTextRule() {
+        return (
+            this.numberOfSelectedUnits < this.numberOfUnits ||
+            this.numberOfUnits === 0
+        );
+    }
+
+    public selectAllUnits() {
+        if (this.selectedProducts.length === this.filledProductsData.length) {
+            this.selectedProducts = [];
+        } else {
+            this.selectedProducts = [].concat(this.filledProductsData);
+        }
+    }
+
+    removeSelectedProducts() {
+        const unpackedItemList = [];
+        this.selectedProducts.forEach((product) => {
+            unpackedItemList.push({
+                unitNumber: product.unitNumber,
+                productCode: product.productCode,
+            });
+        });
+        const req = {
+            shipmentItemId: +this.productId,
+            employeeId: this.loggedUserId,
+            locationCode: this.cookieService.get(Cookie.XFacility),
+            unpackItems: unpackedItemList,
+        };
+        this.shipmentService
+            .unpackedItem(req)
+            .pipe(
+                catchError((err) => {
+                    this.toaster.error(ERROR_MESSAGE);
+                    throw err;
+                })
+            )
+            .subscribe((response) => {
+                const ruleResult = response?.data?.unpackItems;
+                if (ruleResult) {
+                    if (ruleResult.ruleCode === '200 OK') {
+                        const notification = ruleResult.notifications[0];
+                        this.toaster.show(
+                            notification?.message,
+                            notification.notificationType,
+                            null,
+                            NotificationTypeMap[notification?.notificationType]
+                                .type
+                        );
+                        const result =
+                            ruleResult?.results?.results[0] ||
+                            ruleResult?.results[0];
+                        if (result) {
+                            this.filledProductsData = [...result.packedItems];
+                            this.selectedProducts = [];
+                            this.productSelection.resetProductFormGroup();
+                        }
+                    }
+                }
+            });
     }
 }

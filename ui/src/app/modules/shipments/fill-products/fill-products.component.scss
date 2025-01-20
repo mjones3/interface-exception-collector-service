@@ -1,0 +1,18 @@
+#select-all-btn {
+    color: rgb(97 7 97) !important;
+
+    &:hover {
+        background-color: #bbc4cd !important;
+    }
+
+    &[disabled='true'] {
+        background-color: transparent !important;
+        color: rgb(148 163 184 / 100%) !important;
+    }
+}
+
+#remove-btn{
+  &:hover {
+    background-color: #bbc4cd !important;
+  }
+}

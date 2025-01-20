@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { By } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router } from '@angular/router';
 import { provideMockStore } from '@ngrx/store/testing';
@@ -193,5 +194,41 @@ describe('FillProductsComponent', () => {
         component.toggleProduct(products);
         fixture.detectChanges();
         expect(component.selectedProducts.length).toBe(0);
+    });
+
+    it('should disable select all and remove buttons when filled product is empty', () => {
+        component.filledProductsData = [];
+        const selectAllBtn = fixture.debugElement.query(
+            By.css('#select-all-btn')
+        ).nativeElement;
+        const removeBtn = fixture.debugElement.query(
+            By.css('#remove-btn')
+        ).nativeElement;
+
+        expect(selectAllBtn.disabled).toBeTruthy();
+        expect(removeBtn.disabled).toBeTruthy();
+    });
+
+    it('should enable selecte all button when alteast one product is added on the list', () => {
+        component.filledProductsData = [{}];
+        fixture.detectChanges();
+        const selectAllBtn = fixture.debugElement.query(
+            By.css('#select-all-btn')
+        ).nativeElement;
+        expect(selectAllBtn.disabled).toBeFalsy();
+    });
+
+    it('should enable remove button when at least one product is selected', () => {
+        component.selectedProducts = [
+            {
+                unitNumber: 'W12121212121',
+                productCode: 'E121212V44',
+            },
+        ];
+        fixture.detectChanges();
+        const selectAllBtn = fixture.debugElement.query(
+            By.css('#remove-btn')
+        ).nativeElement;
+        expect(selectAllBtn.disabled).toBeFalsy();
     });
 });
