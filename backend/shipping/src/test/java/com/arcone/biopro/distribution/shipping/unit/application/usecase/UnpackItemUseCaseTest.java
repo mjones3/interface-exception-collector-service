@@ -44,24 +44,24 @@ class UnpackItemUseCaseTest {
 
 
     @BeforeEach
-    public void setUp(){
+    public void setUp() {
         shipmentItemRepository = Mockito.mock(ShipmentItemRepository.class);
         shipmentItemShortDateProductRepository = Mockito.mock(ShipmentItemShortDateProductRepository.class);
-        shipmentItemPackedRepository = Mockito.mock( ShipmentItemPackedRepository.class);
+        shipmentItemPackedRepository = Mockito.mock(ShipmentItemPackedRepository.class);
         shipmentMapper = new ShipmentMapper();
         shipmentRepository = Mockito.mock(ShipmentRepository.class);
-        secondVerificationService = new SecondVerificationUseCase(shipmentItemPackedRepository,shipmentRepository,shipmentMapper);
+        secondVerificationService = new SecondVerificationUseCase(shipmentItemPackedRepository, shipmentRepository, shipmentMapper);
 
-        useCase = new UnpackItemUseCase(shipmentItemPackedRepository,shipmentItemRepository,shipmentItemShortDateProductRepository,shipmentMapper,shipmentRepository,secondVerificationService);
+        useCase = new UnpackItemUseCase(shipmentItemPackedRepository, shipmentItemRepository, shipmentItemShortDateProductRepository, shipmentMapper, shipmentRepository, secondVerificationService);
     }
 
     @Test
-    public void shouldNotUnPackItemWhenShipmentItemDoesNotExist(){
+    public void shouldNotUnPackItemWhenShipmentItemDoesNotExist() {
 
         Mockito.when(shipmentItemRepository.findById(Mockito.anyLong())).thenReturn(Mono.empty());
 
 
-        Mono<RuleResponseDTO>  unpackDetail = useCase.unpackItems(UnpackItemsRequest.builder()
+        Mono<RuleResponseDTO> unpackDetail = useCase.unpackItems(UnpackItemsRequest.builder()
             .shipmentItemId(1L)
             .employeeId("test")
             .locationCode("123456789")
@@ -85,18 +85,18 @@ class UnpackItemUseCaseTest {
     }
 
     @Test
-    public void shouldNotUnPackItemWhenShipmentDoesNotExist(){
+    public void shouldNotUnPackItemWhenShipmentDoesNotExist() {
 
         Mockito.when(shipmentItemRepository.findById(Mockito.anyLong())).thenReturn(Mono.just(ShipmentItem.builder()
-                .shipmentId(1L)
-                .id(1L)
+            .shipmentId(1L)
+            .id(1L)
             .productFamily("product_family")
             .bloodType(BloodType.BP)
             .build()));
 
         Mockito.when(shipmentRepository.findById(Mockito.anyLong())).thenReturn(Mono.empty());
 
-        Mono<RuleResponseDTO>  unpackDetail = useCase.unpackItems(UnpackItemsRequest.builder()
+        Mono<RuleResponseDTO> unpackDetail = useCase.unpackItems(UnpackItemsRequest.builder()
             .shipmentItemId(1L)
             .employeeId("test")
             .locationCode("123456789")
@@ -120,7 +120,7 @@ class UnpackItemUseCaseTest {
     }
 
     @Test
-    public void shouldNotUnPackItemWhenShipmentIsCompleted(){
+    public void shouldNotUnPackItemWhenShipmentIsCompleted() {
 
         Mockito.when(shipmentItemRepository.findById(Mockito.anyLong())).thenReturn(Mono.just(ShipmentItem.builder()
             .shipmentId(1L)
@@ -130,11 +130,11 @@ class UnpackItemUseCaseTest {
             .build()));
 
         Mockito.when(shipmentRepository.findById(Mockito.anyLong())).thenReturn(Mono.just(Shipment.builder()
-                .id(1L)
-                .status(ShipmentStatus.COMPLETED)
+            .id(1L)
+            .status(ShipmentStatus.COMPLETED)
             .build()));
 
-        Mono<RuleResponseDTO>  unpackDetail = useCase.unpackItems(UnpackItemsRequest.builder()
+        Mono<RuleResponseDTO> unpackDetail = useCase.unpackItems(UnpackItemsRequest.builder()
             .shipmentItemId(1L)
             .employeeId("test")
             .locationCode("123456789")
@@ -159,7 +159,7 @@ class UnpackItemUseCaseTest {
 
 
     @Test
-    public void shouldNotUnPackItemWhenProductIsNotPacked(){
+    public void shouldNotUnPackItemWhenProductIsNotPacked() {
 
         Mockito.when(shipmentItemRepository.findById(Mockito.anyLong())).thenReturn(Mono.just(ShipmentItem.builder()
             .shipmentId(1L)
@@ -187,21 +187,21 @@ class UnpackItemUseCaseTest {
 
         Mockito.when(shipmentItemShortDateProductRepository.findAllByShipmentItemId(Mockito.anyLong())).thenReturn(Flux.just(shortDateItem));
 
-        Mockito.when(shipmentItemPackedRepository.findByShipmentIUnitNumberAndProductCode(Mockito.anyLong(),Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.empty());
+        Mockito.when(shipmentItemPackedRepository.findByShipmentIUnitNumberAndProductCode(Mockito.anyLong(), Mockito.anyString(), Mockito.anyString())).thenReturn(Mono.empty());
 
         Mockito.when(shipmentItemPackedRepository.listAllByShipmentId(Mockito.anyLong())).thenReturn(Flux.empty());
 
 
-        Mono<RuleResponseDTO>  unpackDetail = useCase.unpackItems(UnpackItemsRequest.builder()
+        Mono<RuleResponseDTO> unpackDetail = useCase.unpackItems(UnpackItemsRequest.builder()
             .shipmentItemId(1L)
             .employeeId("test")
             .locationCode("123456789")
-                .unpackItems(List.of(UnpackItemRequest.builder()
-                    .unitNumber("UN")
-                    .productCode("123")
-                    .build()))
+            .unpackItems(List.of(UnpackItemRequest.builder()
+                .unitNumber("UN")
+                .productCode("123")
+                .build()))
             .build()
-            );
+        );
 
         StepVerifier
             .create(unpackDetail)
@@ -215,7 +215,7 @@ class UnpackItemUseCaseTest {
     }
 
     @Test
-    public void shouldUnpackItem(){
+    public void shouldUnpackItem() {
 
         Mockito.when(shipmentItemRepository.findById(Mockito.anyLong())).thenReturn(Mono.just(ShipmentItem.builder()
             .shipmentId(1L)
@@ -229,7 +229,7 @@ class UnpackItemUseCaseTest {
             .status(ShipmentStatus.OPEN)
             .build()));
 
-        Mockito.when(shipmentItemPackedRepository.findByShipmentIUnitNumberAndProductCode(Mockito.anyLong(),Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just(ShipmentItemPacked
+        Mockito.when(shipmentItemPackedRepository.findByShipmentIUnitNumberAndProductCode(Mockito.anyLong(), Mockito.anyString(), Mockito.anyString())).thenReturn(Mono.just(ShipmentItemPacked
             .builder()
             .id(1L)
             .build()));
@@ -250,12 +250,12 @@ class UnpackItemUseCaseTest {
         Mockito.when(shortDateItem.getUnitNumber()).thenReturn("UNIT_NUMBER");
 
         Mockito.when(shipmentItemShortDateProductRepository.findAllByShipmentItemId(Mockito.anyLong())).thenReturn(Flux.just(shortDateItem));
+        var packedItem = ShipmentItemPacked.builder().unitNumber("UN").productCode("123").build();
+        Mockito.when(shipmentItemPackedRepository.listAllByShipmentId(Mockito.anyLong())).thenReturn(Flux.just(packedItem));
+        Mockito.when(shipmentItemPackedRepository.save(Mockito.any())).thenReturn(Mono.just(packedItem));
 
-        Mockito.when(shipmentItemPackedRepository.listAllByShipmentId(Mockito.anyLong())).thenReturn(Flux.just(ShipmentItemPacked.builder().build()));
-        Mockito.when(shipmentItemPackedRepository.save(Mockito.any())).thenReturn(Mono.just(ShipmentItemPacked.builder().build()));
 
-
-        Mono<RuleResponseDTO>  unpackDetail = useCase.unpackItems(UnpackItemsRequest.builder()
+        Mono<RuleResponseDTO> unpackDetail = useCase.unpackItems(UnpackItemsRequest.builder()
             .shipmentItemId(1L)
             .employeeId("test")
             .locationCode("123456789")

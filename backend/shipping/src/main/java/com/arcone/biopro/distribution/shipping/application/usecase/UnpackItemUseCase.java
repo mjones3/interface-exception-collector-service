@@ -7,7 +7,6 @@ import com.arcone.biopro.distribution.shipping.application.dto.RuleResponseDTO;
 import com.arcone.biopro.distribution.shipping.application.dto.UnpackItemsRequest;
 import com.arcone.biopro.distribution.shipping.application.mapper.ShipmentMapper;
 import com.arcone.biopro.distribution.shipping.application.util.ShipmentServiceMessages;
-import com.arcone.biopro.distribution.shipping.domain.model.ShipmentItemPacked;
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.ShipmentStatus;
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemPackedRepository;
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemRepository;
@@ -51,7 +50,7 @@ public class UnpackItemUseCase implements UnpackItemService {
             .flatMap(shipmentItem -> shipmentRepository.findById(shipmentItem.getShipmentId()))
             .switchIfEmpty(Mono.error(new RuntimeException(ShipmentServiceMessages.UNPACK_SHIPMENT_NOT_FOUND_ERROR)))
             .flatMap(shipment -> {
-                if(ShipmentStatus.COMPLETED.equals(shipment.getStatus())){
+                if (ShipmentStatus.COMPLETED.equals(shipment.getStatus())) {
                     return Mono.error(new RuntimeException(ShipmentServiceMessages.UNPACK_SHIPMENT_COMPLETED_ERROR));
                 }
                 return Flux.from(shipmentItemPackedRepository.listAllByShipmentId(shipment.getId()))
@@ -60,7 +59,10 @@ public class UnpackItemUseCase implements UnpackItemService {
                     .collectList();
             }).flatMap(resetItems -> {
                 return Flux.fromStream(unpackItemsRequest.unpackItems().stream())
-                    .flatMap(unpackItemRequest -> shipmentItemPackedRepository.findByShipmentIUnitNumberAndProductCode(unpackItemsRequest.shipmentItemId(),unpackItemRequest.unitNumber(),unpackItemRequest.productCode()))
+                    .flatMap(unpackItemRequest ->
+                        Flux.fromStream(resetItems.stream().filter(shipmentItemPacked -> shipmentItemPacked.getUnitNumber().equals(unpackItemRequest.unitNumber()) && shipmentItemPacked.getProductCode().equals(unpackItemRequest.productCode()))
+                        )
+                    )
                     .switchIfEmpty(Mono.error(new RuntimeException(ShipmentServiceMessages.UNPACK_PRODUCT_NOT_FOUND_ERROR)))
                     .flatMap(shipmentItemPackedRepository::delete)
                     .collectList();
