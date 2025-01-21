@@ -59,7 +59,7 @@ public class PrintPackingListSteps {
 
 
     @Given("The shipment details are Order Number {int}, Location Code {string}, Customer ID {string}, Customer Name {string}, Department {string}, Address Line 1 {string}, Address Line 2 {string}, Unit Number {string}, Product Code {string}, Product Family {string}, Blood Type {string}, Expiration {string}, Quantity {int}.")
-    public void setShipmentDetails(int orderNumber, String locationCode, String customerID, String customerName, String department, String addressLine1, String addressLine2, String unitNumber, String productCode, String productFamily, String bloodType, String expiration, int quantity) {
+    public void setShipmentDetails(Long orderNumber, String locationCode, String customerID, String customerName, String department, String addressLine1, String addressLine2, String unitNumber, String productCode, String productFamily, String bloodType, String expiration, int quantity) {
         this.shipmentDetails = shipmentController.buildShipmentRequestDetailsResponseType(orderNumber, locationCode, customerID, customerName, department, addressLine1, addressLine2, TestUtils.removeUnitNumberScanDigits(unitNumber), TestUtils.removeProductCodeScanDigits(productCode), productFamily, bloodType, expiration, quantity);
         context.setOrderNumber(orderNumber);
         Assert.assertNotNull(this.shipmentDetails);
@@ -79,7 +79,7 @@ public class PrintPackingListSteps {
 
     @And("I have filled the shipment with the unit number {string} and product code {string} for order {string}.")
     public void fillShipmentForOrder(String unitNumber, String productCode, String orderNumber) throws Exception {
-        context.setOrderNumber(Integer.valueOf(orderNumber));
+        context.setOrderNumber(Long.valueOf(orderNumber));
         context.setShipmentId(shipmentTestingController.getOrderShipmentId(context.getOrderNumber()));
         shipmentController.fillShipment(context.getShipmentId(), TestUtils.removeUnitNumberScanDigits(unitNumber), TestUtils.removeProductCodeScanDigits(productCode), "SATISFACTORY", false);
     }

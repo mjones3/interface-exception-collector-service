@@ -102,7 +102,7 @@ public class GraphQLMutationMapper {
         );
     }
 
-    public static String unpackItemsMutation(Integer shipmentItemId, String locationCode, String employeeId, String unitNumber, String productCode) {
+    public static String unpackItemsMutation(Long shipmentItemId, String locationCode, String employeeId, String unitNumber, String productCode) {
         return String.format(
             """
                 mutation {

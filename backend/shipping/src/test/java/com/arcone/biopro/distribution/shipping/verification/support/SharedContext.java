@@ -27,7 +27,7 @@ public class SharedContext {
     private String employeeId;
 
     // Order data
-    private Integer orderNumber;
+    private Long orderNumber;
 
     // Shipment data
     private Long shipmentId;
@@ -36,11 +36,17 @@ public class SharedContext {
     private String unitNumber;
     private String productCode;
 
-    // Packing / Verification data
+    // Packing data
+    @Builder.Default
     private Integer totalPacked = 0;
+    @Builder.Default
     private Integer totalVerified = 0;
+    @Builder.Default
     private Integer totalRemoved = 0;
+    @Builder.Default
     private Integer toBeRemoved = 0;
+
+    // Verification data
     private Map cancelSecondVerificationResponse;
 
     // General API response data

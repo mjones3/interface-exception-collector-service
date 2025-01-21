@@ -410,11 +410,11 @@ public class ShipmentTestingController {
         return response;
     }
 
-    public int getShipmentItemId(long shipmentId, String family, String bloodType) {
+    public Long getShipmentItemId(long shipmentId, String family, String bloodType) {
         var query = String.format("SELECT id FROM bld_shipment_item WHERE shipment_id = %s AND product_family = '%s' AND blood_type = '%s'", shipmentId, family, bloodType);
         var shipmentItem = databaseService.fetchData(query);
         var records = shipmentItem.first().block();
         assert records != null;
-        return Integer.parseInt(records.get("id").toString());
+        return Long.valueOf(records.get("id").toString());
     }
 }

@@ -9,9 +9,12 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Component
 @Slf4j
@@ -20,11 +23,11 @@ public class FillProductsPage extends CommonPageFactory {
     @Autowired
     private SharedActions sharedActions;
 
-    @FindBy(xpath = "//h3[normalize-space()='Fill Products']")
-    private WebElement fillProductsHeader;
+    @Autowired
+    private HomePage homePage;
 
-    private String checkDigitError = "//*[@id='inCheckDigit']/../../../..//mat-error";
-
+    @Value("${ui.shipment-fill-products.url}")
+    private String fillProductsUrl;
 
     @FindBy(id = "inspection-satisfactory")
     private WebElement visualInspectionSatisfactory;
@@ -34,6 +37,8 @@ public class FillProductsPage extends CommonPageFactory {
 
     // Static locators
 
+    private static final String fillProductsHeaderLocator = "//h3[normalize-space()='Fill Products']";
+    private static final String checkDigitError = "//*[@id='inCheckDigit']/../../../..//mat-error";
     private static final String checkDigitInput = "inCheckDigit";
     private static final String productCodeInput = "productCodeId";
     private static final String unitNumberInput = "inUnitNumber";
@@ -47,6 +52,7 @@ public class FillProductsPage extends CommonPageFactory {
     private static final String dialogSubtitleLocator = "//*[@id='mat-mdc-dialog-0']//h2";
     private static final String reasonsLocator = "//*[@id='mat-mdc-dialog-0']//*[@id='recordUnsatisfactoryVisualInspectionReasons']//biopro-action-button";
     private static final String discardComments = "recordUnsatisfactoryVisualInspectionCommentsTextArea";
+    private static final String removeButtonLocator = "remove-btn";
 
     // Dynamic locators
 
@@ -54,9 +60,28 @@ public class FillProductsPage extends CommonPageFactory {
         return String.format("%sactionBtn", reason.replace(" ", "_").toUpperCase());
     }
 
+    private String productButtonLocator(String unitNumber, String productCode) {
+        return String.format("//biopro-unit-number-card//*[contains(text(),'%s')]/..//*[contains(text(),'%s')]", unitNumber, productCode);
+    }
+
     @Override
     public boolean isLoaded() {
-        return sharedActions.isElementVisible(fillProductsHeader);
+        return sharedActions.isElementVisible(By.xpath(fillProductsHeaderLocator));
+    }
+
+    public void goTo(String shipmentId, String shipmentItemId) throws InterruptedException {
+        homePage.goTo();
+
+        var url = fillProductsUrl.replace("{shipmentId}", shipmentId).replace("{shipmentItemId}", shipmentItemId);
+
+        log.debug("Navigating to the fill products page: {}", url);
+        sharedActions.navigateTo(url);
+        this.waitForLoad();
+        assertTrue(isLoaded());
+    }
+
+    public void waitForLoad() {
+        sharedActions.waitForVisible(By.xpath(fillProductsHeaderLocator));
     }
 
     private String formatUnitLocator(String unit) {
@@ -161,21 +186,21 @@ public class FillProductsPage extends CommonPageFactory {
         sharedActions.sendKeysAndTab(this.driver, By.id(checkDigitInput), checkDigit);
     }
 
-    public void verifyVisualInspectionDialog(String header , String title){
-        log.info("Verifying visual Inspection Dialog: {} , {}", header , title);
+    public void verifyVisualInspectionDialog(String header, String title) {
+        log.info("Verifying visual Inspection Dialog: {} , {}", header, title);
 
         String headerText = sharedActions.getText(By.xpath(dialogHeaderLocator));
         String subtitleText = sharedActions.getText(By.xpath(dialogSubtitleLocator));
-        Assert.assertEquals(header.toUpperCase(),headerText.toUpperCase());
+        Assert.assertEquals(header.toUpperCase(), headerText.toUpperCase());
         Assert.assertEquals(title.toUpperCase(), subtitleText.toUpperCase());
     }
 
-    public void verifyDiscardReasons(String reasons){
-        log.debug("Verifying discardReasons: {}" , reasons);
+    public void verifyDiscardReasons(String reasons) {
+        log.debug("Verifying discardReasons: {}", reasons);
         sharedActions.waitForVisible(By.xpath(reasonsLocator));
         List<WebElement> reasonList = wait.until(e -> e.findElements(By.xpath(reasonsLocator)));
         var reasonStr = reasonList.stream().map(WebElement::getText).toList();
-        Assert.assertEquals(String.join(",", reasonStr),reasons);
+        Assert.assertEquals(String.join(",", reasonStr), reasons);
 
     }
 
@@ -184,13 +209,13 @@ public class FillProductsPage extends CommonPageFactory {
         sharedActions.click(this.driver, By.xpath(discardDialogCancelButton));
     }
 
-    public void verifyDiscardDialogIsClosed(){
+    public void verifyDiscardDialogIsClosed() {
         log.debug("Verifying visual Inspection Dialog close");
         sharedActions.waitForNotVisible(By.xpath(dialogLocator));
     }
 
     public void selectDiscardReason(String reason) throws InterruptedException {
-        log.debug("Selecting discard reason: {}" , reason);
+        log.debug("Selecting discard reason: {}", reason);
         sharedActions.click(this.driver, By.id(discardReasonButton(reason)));
     }
 
@@ -201,17 +226,17 @@ public class FillProductsPage extends CommonPageFactory {
     }
 
     public void verifyDiscardSubmitIs(String option) {
-        log.debug("Verifying discard submit is: {}" , option);
+        log.debug("Verifying discard submit is: {}", option);
         sharedActions.waitForVisible(By.id(discardDialogSubmitButton));
-        if(option.equalsIgnoreCase("enabled")){
+        if (option.equalsIgnoreCase("enabled")) {
             sharedActions.waitForEnabled(By.id(discardDialogSubmitButton));
-        }else{
+        } else {
             sharedActions.waitForDisabled(By.id(discardDialogSubmitButton));
         }
     }
 
     public void fillDiscardComments(String comments) throws InterruptedException {
-        log.debug("Filling discard comments: {}" , comments);
+        log.debug("Filling discard comments: {}", comments);
         sharedActions.sendKeys(this.driver, By.id(discardComments), comments);
     }
 
@@ -239,5 +264,15 @@ public class FillProductsPage extends CommonPageFactory {
     public void cleanUnitNumberField() {
         log.debug("Cleaning unit number field.");
         sharedActions.clearField(By.id(unitNumberInput));
+    }
+
+    public void selectProduct(String unitNumber, String productCode) throws InterruptedException {
+        log.debug("Selecting product {} with product code {}.", unitNumber, productCode);
+        sharedActions.click(this.driver, By.xpath(productButtonLocator(unitNumber, productCode)));
+    }
+
+    public void clickRemoveProductsButton() throws InterruptedException {
+        log.debug("Clicking remove products button.");
+        sharedActions.click(this.driver, By.id(removeButtonLocator));
     }
 }

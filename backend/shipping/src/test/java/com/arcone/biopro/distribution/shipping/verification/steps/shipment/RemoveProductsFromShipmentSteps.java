@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.shipping.verification.steps.shipment;
 
+import com.arcone.biopro.distribution.shipping.verification.pages.distribution.FillProductsPage;
 import com.arcone.biopro.distribution.shipping.verification.support.ApiHelper;
 import com.arcone.biopro.distribution.shipping.verification.support.GraphQLMutationMapper;
 import com.arcone.biopro.distribution.shipping.verification.support.SharedContext;
@@ -28,13 +29,16 @@ public class RemoveProductsFromShipmentSteps {
     @Autowired
     private ShipmentTestingController shipmentTestingController;
 
+    @Autowired
+    private FillProductsPage fillProductsPage;
+
     private Map removeProductResultsList;
 
     @When("I remove the product {string} with product code {string} from the line item {string} {string}.")
     public void removeProductFromShipment(String unitNumber, String productCode, String family, String bloodType) {
         log.debug("Removing product {} with product code {} from the line item {} {}.", unitNumber, productCode, family, bloodType);
 
-        Integer shipmentItemId = shipmentTestingController.getShipmentItemId(context.getShipmentId(), family, bloodType);
+        Long shipmentItemId = shipmentTestingController.getShipmentItemId(context.getShipmentId(), family, bloodType);
         String removeProductMutation = GraphQLMutationMapper.unpackItemsMutation(shipmentItemId, context.getFacility(), context.getEmployeeId(), unitNumber, productCode);
         var response = apiHelper.graphQlRequest(removeProductMutation, "unpackItems");
 
@@ -69,5 +73,10 @@ public class RemoveProductsFromShipmentSteps {
             var verified = packedItems.stream().filter(item -> item.get("secondVerification").equals("COMPLETE")).toList();
             Assert.assertEquals(expectedQuantity, Integer.valueOf(verified.size()));
         }
+    }
+
+    @When("I select the product {string} with product code {string}.")
+    public void iSelectTheProductWithProductCode(String unitNumber, String productCode) throws InterruptedException {
+        fillProductsPage.selectProduct(unitNumber, productCode);
     }
 }
