@@ -191,6 +191,12 @@ export class EnterUnitNumberProductCodeComponent implements OnDestroy {
         this.enableVisualInspection();
     }
 
+    enableProductGroup(): void {
+        this.unitNumberComponent.controlUnitNumber.enable();
+        this.productGroup.enable();
+        this.resetProductFormGroup();
+    }
+
     resetProductFormGroup(): void {
         if (this.showVisualInspection) {
             this.productGroup.controls.visualInspection.setValue(null);

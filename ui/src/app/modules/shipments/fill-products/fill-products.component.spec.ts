@@ -231,4 +231,74 @@ describe('FillProductsComponent', () => {
         ).nativeElement;
         expect(selectAllBtn.disabled).toBeFalsy();
     });
+
+    it('should disable submit button when at least one product is selected', () => {
+        component.selectedProducts = [
+            { unitNumber: 'W12121212132', productCode: 'E121212V0' },
+        ];
+        fixture.detectChanges();
+        const submitBtn = fixture.debugElement.query(
+            By.css('#backActionBtn')
+        ).nativeElement;
+        expect(submitBtn.disabled).toBeTruthy();
+    });
+
+    it('should remove selected products when user choose remove option', () => {
+        component.filledProductsData = [
+            { unitNumber: 'w1233333333333', productCode: 'E23231111' },
+            { unitNumber: 'w1212121455212', productCode: 'E232454532V0' },
+        ];
+        jest.spyOn(toaster, 'show');
+        const enableFillUnitNumberAndProductCodeSpy = jest.spyOn(
+            component,
+            'enableFillUnitNumberAndProductCode'
+        );
+        const unpackItemsSpy = jest
+            .spyOn(service, 'unpackedItem')
+            .mockReturnValue(
+                of({
+                    data: {
+                        unpackItems: {
+                            ruleCode: '200 OK',
+                            _links: null,
+                            results: {
+                                results: [
+                                    {
+                                        packedItems: [
+                                            {
+                                                unitNumber: 'w1233333333333',
+                                                productCode: 'E23231111',
+                                            },
+                                        ],
+                                    },
+                                ],
+                            },
+                            notifications: [
+                                {
+                                    statusCode: 200,
+                                    notificationType: 'SUCCESS',
+                                    name: 'REMOVED SUCCESSFULLY',
+                                    action: null,
+                                    reason: null,
+                                    code: null,
+                                    message: 'REMOVED SUCCESSFULLY',
+                                },
+                            ],
+                        },
+                    },
+                })
+            );
+        component.selectedProducts = [
+            {
+                unitNumber: 'w1212121455212',
+                productCode: 'E232454532V0',
+            },
+        ];
+        component.removeSelectedProducts();
+        fixture.detectChanges();
+        expect(unpackItemsSpy).toHaveBeenCalled();
+        expect(component.filledProductsData.length).toBe(1);
+        expect(component.selectedProducts.length).toBe(0);
+        expect(enableFillUnitNumberAndProductCodeSpy).toHaveBeenCalled();
+    });
 });

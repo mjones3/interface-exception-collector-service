@@ -515,7 +515,11 @@ export class FillProductsComponent implements OnInit {
         }
     }
 
-    removeSelectedProducts() {
+    enableFillUnitNumberAndProductCode(): void {
+        this.productSelection.enableProductGroup();
+    }
+
+    removeSelectedProducts(): void {
         const unpackedItemList = [];
         this.selectedProducts.forEach((product) => {
             unpackedItemList.push({
@@ -555,8 +559,8 @@ export class FillProductsComponent implements OnInit {
                         if (result) {
                             this.filledProductsData = [...result.packedItems];
                             this.selectedProducts = [];
-                            this.productSelection.resetProductFormGroup();
                         }
+                        this.enableFillUnitNumberAndProductCode();
                     }
                 }
             });
