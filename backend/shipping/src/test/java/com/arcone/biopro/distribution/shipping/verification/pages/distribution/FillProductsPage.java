@@ -144,11 +144,7 @@ public class FillProductsPage extends CommonPageFactory {
         unit = TestUtils.removeUnitNumberScanDigits(unit);
         productCode = TestUtils.removeProductCodeScanDigits(productCode);
 
-        String unitLocator = this.formatUnitLocator(unit);
-        String productCodeLocator = this.formatProductCodeLocator(productCode);
-
-        sharedActions.waitForVisible(By.xpath(unitLocator));
-        sharedActions.waitForVisible(By.xpath(productCodeLocator));
+        sharedActions.waitForVisible(By.xpath(productButtonLocator(unit, productCode)));
     }
 
     public void ensureProductIsNotAdded(String unit, String productCode) throws InterruptedException {
@@ -157,11 +153,8 @@ public class FillProductsPage extends CommonPageFactory {
         unit = TestUtils.removeUnitNumberScanDigits(unit);
         productCode = TestUtils.removeProductCodeScanDigits(productCode);
 
-        String unitLocator = this.formatUnitLocator(unit);
-        String productCodeLocator = this.formatProductCodeLocator(productCode);
         sharedActions.waitLoadingAnimation();
-        sharedActions.waitForNotVisible(By.xpath(unitLocator));
-        sharedActions.waitForNotVisible(By.xpath(productCodeLocator));
+        sharedActions.waitForNotVisible(By.xpath(productButtonLocator(unit, productCode)));
     }
 
     public void clickBackButton() throws InterruptedException {
@@ -268,7 +261,7 @@ public class FillProductsPage extends CommonPageFactory {
 
     public void selectProduct(String unitNumber, String productCode) throws InterruptedException {
         log.debug("Selecting product {} with product code {}.", unitNumber, productCode);
-        sharedActions.click(this.driver, By.xpath(productButtonLocator(unitNumber, productCode)));
+        sharedActions.click(this.driver, By.xpath(productButtonLocator(TestUtils.removeUnitNumberScanDigits(unitNumber), TestUtils.removeProductCodeScanDigits(productCode))));
     }
 
     public void clickRemoveProductsButton() throws InterruptedException {

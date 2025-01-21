@@ -74,15 +74,17 @@ Feature: Remove Product from a Shipment
       And The second verification configuration is "disabled".
       And The visual inspection configuration is "disabled".
       And I am on the fill product page of line item related to the "<Product Family>" "<Blood Type>".
-      And I add the unit "<UN>" with product code "<Code>".
-      Then I should receive a "WARN" message "Quantity exceeded".
-      When I select the product "<UN>" with product code "<Code>".
-      And I choose remove products.
-      Then I should receive a "success" message "Product(s) successfully removed".
-      When I add the unit "<UN>" with product code "<Code>".
-      Then I should see the list of packed products added including "<UN>" and "<Code>".
+      And I add the unit "<Unit Added>" with product code "<Code Added>".
+      Then I should see a "Warning" message: "Quantity exceeded".
+      When I close the acknowledgment message.
+      And I select the product "<Unit Removed>" with product code "<Code Removed>".
+      And I choose to remove products.
+      Then I should see a "success" message: "Product(s) successfully removed".
+      When I close the acknowledgment message.
+      And I add the unit "<Unit Added>" with product code "<Code Added>".
+      Then I should see the list of packed products added including "<Unit Added>" and "<Code Added>".
 
         #refactor table
       Examples:
-        | Order Number | Customer ID | Customer Name    | Quantity | BloodType | ProductFamily       | Family              | Type | UN               | Code       |
-        | 3005         | 1           | Testing Customer | 1        | ANY       | PLASMA_TRANSFUSABLE | PLASMA TRANSFUSABLE | ANY  | =W03689878680200 | =<E7648V00 |
+        | Order Number | Units                       | Product Codes     | Quantity Requested | Blood Type | Product Family      | Unit Removed  | Code Removed | Unit Added       | Code Added |
+        | 3005         | W822530103008,W822530103009 | E0685V00,E0685V00 | 2                  | AP         | PLASMA_TRANSFUSABLE | W822530103008 | E0685V00     | =W03689878680200 | =<E7648V00 |

@@ -32,6 +32,11 @@ public class CommonSteps {
         sharedActions.confirmAcknowledgment();
     }
 
+    @When("I close the acknowledgment message.")
+    public void iCloseTheAcknowledgmentMessage() {
+        sharedActions.closeAcknowledgment();
+    }
+
     @Then("I should receive a {string} message response {string}.")
     public void iShouldReceiveAMessage(String messageType, String message) {
         // Step to verify the notifications response from the last API call. This is a common step that can be reused in other scenarios.
