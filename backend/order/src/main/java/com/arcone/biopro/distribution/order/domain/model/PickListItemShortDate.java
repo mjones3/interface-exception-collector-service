@@ -19,12 +19,12 @@ public class PickListItemShortDate implements Validatable {
         this.productCode = productCode;
         this.aboRh = aboRh;
         this.storageLocation = storageLocation;
+
         checkValid();
     }
 
     @Override
     public void checkValid() {
-
         if (this.unitNumber == null) {
             throw new IllegalArgumentException("unitNumber cannot be null");
         }
@@ -34,9 +34,5 @@ public class PickListItemShortDate implements Validatable {
         if (this.aboRh == null) {
             throw new IllegalArgumentException("aboRh cannot be null");
         }
-        if (this.storageLocation == null) {
-            throw new IllegalArgumentException("storageLocation cannot be null");
-        }
-
     }
 }

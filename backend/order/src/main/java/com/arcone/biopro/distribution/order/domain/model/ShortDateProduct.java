@@ -25,7 +25,6 @@ public class ShortDateProduct implements Validatable {
 
     @Override
     public void checkValid() {
-
         if (this.unitNumber == null) {
             throw new IllegalArgumentException("unitNumber cannot be null");
         }
@@ -34,9 +33,6 @@ public class ShortDateProduct implements Validatable {
         }
         if (this.aboRh == null) {
             throw new IllegalArgumentException("aboRh cannot be null or blank");
-        }
-        if (this.storageLocation == null) {
-            throw new IllegalArgumentException("storageLocation cannot be null");
         }
     }
 }
