@@ -37,8 +37,8 @@ Feature: Back Orders
 
 
         Rule: I should be able to complete an order manually with partial order fulfillment
-        Rule: I should be able to receive a success message when an order is completed.
-        Rule: I should be prompted to add a reason to complete an order that is partially fulfilled.
+        Rule: I should be prompted to confirm before completing an order.
+        Rule: I should have an option to enter the reason for completing a partially fulfilled order.
         @ui @DIS-111
         Scenario Outline: Complete an order with partial fulfillment
             Given I have an order partially fulfilled with a shipment "<Shipment Status>".
