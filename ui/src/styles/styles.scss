@@ -368,6 +368,26 @@ biopro-process-header {
     }
 }
 
+.mdc-button {
+    @apply rounded-md #{'!important'};
+
+    &.mat-primary {
+        @apply text-primary hover:bg-primary/10 disabled:text-accent/10;
+    }
+
+    &.mat-secondary {
+        @apply text-accent hover:bg-accent/10 disabled:text-accent/10;
+    }
+
+    &[disabled='true'] {
+        color: rgba(var(--fuse-accent-rgb), 0.6) !important;
+    }
+
+    mat-icon {
+        @apply pr-1;
+    }
+}
+
 /* -------------------------------------------------------------------------- */
 
 /*  @ Divider

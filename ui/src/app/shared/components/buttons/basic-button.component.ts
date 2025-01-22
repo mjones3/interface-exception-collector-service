@@ -1,10 +1,4 @@
-import {
-    Component,
-    ViewEncapsulation,
-    booleanAttribute,
-    input,
-    output,
-} from '@angular/core';
+import { Component, booleanAttribute, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
@@ -28,8 +22,6 @@ import { MatIconModule } from '@angular/material/icon';
             {{ label() }}
         </button>
     `,
-    styleUrl: './button.scss',
-    encapsulation: ViewEncapsulation.None,
 })
 export class BasicButtonComponent {
     id = input.required<string>();
