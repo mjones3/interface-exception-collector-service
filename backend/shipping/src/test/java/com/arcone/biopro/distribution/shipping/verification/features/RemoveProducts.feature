@@ -57,7 +57,7 @@ Feature: Remove Product from a Shipment
 
 
 
-        @ui @DIS-3 @disabled
+        @ui @DIS-3
         Scenario Outline: Remove Products from shipment - ui flow.
             Given I have a shipment for order "<Order Number>" with the units "<Units>" and product codes "<Product Codes>" of family "<Product Family>" and blood type "<Blood Type>" "packed", out of <Quantity Requested> requested.
             And I am on the fill product page of line item related to the "<Product Family>" "<Blood Type>".
@@ -73,7 +73,7 @@ Feature: Remove Product from a Shipment
                 | 3004         | E0033V00,E0033V00,E0033V00 | W822530103007,W822530103008,W822530103009 | WHOLE_BLOOD_LEUKOREDUCED     | OP         | W822530103009 | E0033V00     | 5                  |
                 | 3004         | E0167V00,E0167V00,E0167V00 | W822530103007,W822530103008               | RED_BLOOD_CELLS              | ON         | W822530103007 | E0167V00     | 9                  |
 
-        @ui @DIS-3 @disabled
+        @ui @DIS-3
         Rule: I should be able to fill another product(s) in order to replace the ones I removed.
         Scenario Outline: Remove a product from a fully packed shipment, then add it back.
             Given I have a shipment for order "<Order Number>" with the units "<Units>" and product codes "<Product Codes>" of family "<Product Family>" and blood type "<Blood Type>" "packed", out of <Quantity Requested> requested.
