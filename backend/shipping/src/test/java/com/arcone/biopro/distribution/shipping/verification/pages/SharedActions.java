@@ -405,4 +405,10 @@ public class SharedActions {
         waitForVisible(externalId);
         return driver.findElement(externalId);
     }
+
+    public void closeAcknowledgment() {
+        String closeButtonLocator = "//rsa-toaster//button";
+        waitForVisible(By.xpath(closeButtonLocator));
+        click(By.xpath(closeButtonLocator));
+    }
 }

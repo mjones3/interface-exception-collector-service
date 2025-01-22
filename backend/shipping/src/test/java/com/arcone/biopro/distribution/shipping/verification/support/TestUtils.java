@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Base64;
 
 @Component
@@ -94,6 +95,10 @@ public class TestUtils {
             productCode = productCode.substring(2);
         }
         return productCode;
+    }
+
+    public String[] getCommaSeparatedList(String param) {
+        return Arrays.stream(param.split(",")).map(String::trim).toArray(String[]::new);
     }
 
 }

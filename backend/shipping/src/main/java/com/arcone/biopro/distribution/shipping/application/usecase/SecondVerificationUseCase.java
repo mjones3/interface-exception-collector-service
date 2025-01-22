@@ -105,7 +105,7 @@ public class SecondVerificationUseCase implements SecondVerificationService {
         return shipmentItemPackedRepository.save(itemPacked);
     }
 
-    private Mono<ShipmentItemPacked> markAsVerificationPending(ShipmentItemPacked itemPacked) {
+    public Mono<ShipmentItemPacked> markAsVerificationPending(ShipmentItemPacked itemPacked) {
         itemPacked.setSecondVerification(SecondVerification.PENDING);
         itemPacked.setVerificationDate(null);
         itemPacked.setVerifiedByEmployeeId(null);

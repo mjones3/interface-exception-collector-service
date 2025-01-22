@@ -14,6 +14,10 @@ import {
 } from '../graphql/shipment/query-definitions/shipment.graphql';
 import { VERIFY_CHECK_DIGIT } from '../graphql/unit-number-with-check-digit/query-definitions/unit-number-with-check-digit.graphql';
 import {
+    UNPACK_ITEM,
+    UnpackItemRequest,
+} from '../graphql/unpack-product.graphql';
+import {
     CANCEL_SECOND_VERIFICATION,
     CONFIRM_CANCEL_SECOND_VERIFICATION,
     CancelSecondVerificationRequest,
@@ -144,6 +148,16 @@ export class ShipmentService {
             this.servicePath,
             REMOVE_ITEM,
             removeItemRequest
+        );
+    }
+
+    public unpackedItem(
+        unpackItemsRequest: UnpackItemRequest
+    ): Observable<MutationResult<{ unpackItems: RuleResponseDTO }>> {
+        return this.dynamicGraphqlPathService.executeMutation(
+            this.servicePath,
+            UNPACK_ITEM,
+            unpackItemsRequest
         );
     }
 

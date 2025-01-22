@@ -5,7 +5,9 @@ import com.arcone.biopro.distribution.shipping.verification.pages.distribution.H
 import com.arcone.biopro.distribution.shipping.verification.pages.distribution.ShipmentDetailPage;
 import com.arcone.biopro.distribution.shipping.verification.support.KafkaHelper;
 import com.arcone.biopro.distribution.shipping.verification.support.ScreenshotService;
+import com.arcone.biopro.distribution.shipping.verification.support.SharedContext;
 import com.arcone.biopro.distribution.shipping.verification.support.StaticValuesMapper;
+import com.arcone.biopro.distribution.shipping.verification.support.TestUtils;
 import com.arcone.biopro.distribution.shipping.verification.support.controllers.ShipmentTestingController;
 import com.arcone.biopro.distribution.shipping.verification.support.types.ListShipmentsResponseType;
 import com.arcone.biopro.distribution.shipping.verification.support.types.PackProductResponseType;
@@ -45,9 +47,9 @@ public class ShipmentFulfillmentSteps {
 
     private List<ListShipmentsResponseType> orders;
     private ShipmentRequestDetailsResponseType order;
-    private long orderNumber;
 
-    private long shipmentId;
+    @Autowired
+    private SharedContext context;
 
     @Autowired
     private ShipmentTestingController shipmentTestingController;
@@ -70,9 +72,7 @@ public class ShipmentFulfillmentSteps {
 
     private ShipmentRequestDetailsResponseType shipmentDetailType;
 
-    private String unitNumber;
     private String checkDigit;
-    private String productCode;
     private boolean checkDigitEnabled;
     private String orderPriority;
     @Autowired
@@ -125,7 +125,7 @@ public class ShipmentFulfillmentSteps {
 
     @When("I receive a shipment fulfillment request event.")
     public void receiveFulfillmentOrderRequest() throws Exception {
-        this.orderNumber = shipmentTestingController.createShippingRequest();
+        context.setOrderNumber(shipmentTestingController.createShippingRequest());
         this.orderPriority = "ASAP";
     }
 
@@ -134,18 +134,18 @@ public class ShipmentFulfillmentSteps {
         // Getting the order
         this.orders = shipmentTestingController.listShipments();
         setShipmentId();
-        this.order = shipmentTestingController.parseShipmentRequestDetail(shipmentTestingController.getShipmentRequestDetails(this.shipmentId));
+        this.order = shipmentTestingController.parseShipmentRequestDetail(shipmentTestingController.getShipmentRequestDetails(context.getShipmentId()));
 
         assertNotNull(this.order, "Failed to get order fulfillment details.");
-        assertEquals(this.orderNumber, this.order.getOrderNumber(), "Failed to get order by number.");
+        assertEquals(context.getOrderNumber(), this.order.getOrderNumber(), "Failed to get order by number.");
         assertEquals(this.orderPriority, this.order.getPriority(), "Failed to compare order priority.");
 
     }
 
     private void setShipmentId() {
-        var orderFilter = this.orders.stream().filter(x -> x.getOrderNumber().equals(this.orderNumber)).findAny().orElse(null);
+        var orderFilter = this.orders.stream().filter(x -> x.getOrderNumber().equals(context.getOrderNumber())).findAny().orElse(null);
         if (orderFilter != null) {
-            this.shipmentId = orderFilter.getId();
+            context.setShipmentId(orderFilter.getId());
             log.info("Found Shipment by Order Number");
         }
     }
@@ -153,7 +153,7 @@ public class ShipmentFulfillmentSteps {
     @Given("I have a shipment request persisted.")
     public void orderRequestPersisted() throws Exception {
         // Add an order request.
-        this.orderNumber = shipmentTestingController.createShippingRequest();
+        context.setOrderNumber(shipmentTestingController.createShippingRequest());
     }
 
     @When("I retrieve the shipment list.")
@@ -174,7 +174,7 @@ public class ShipmentFulfillmentSteps {
     @When("I retrieve one shipment by shipment id.")
     public void retrieveOneOrder() throws Exception {
         setShipmentId();
-        this.resultMap = shipmentTestingController.getShipmentRequestDetails(this.shipmentId);
+        this.resultMap = shipmentTestingController.getShipmentRequestDetails(context.getShipmentId());
         this.order = shipmentTestingController.parseShipmentRequestDetail(this.resultMap);
 
         assertNotNull(result, "Failed to get order fulfillment requests.");
@@ -280,8 +280,8 @@ public class ShipmentFulfillmentSteps {
     @When("I add the unit {string} with product code {string}.")
     public void addUnitWithProductCode(String unit, String productCode) throws InterruptedException {
         fillProductsPage.addUnitWithProductCode(unit, productCode);
-        this.unitNumber = unit;
-        this.productCode = productCode;
+        context.setUnitNumber(TestUtils.removeUnitNumberScanDigits(unit));
+        context.setProductCode(TestUtils.removeProductCodeScanDigits(productCode));
     }
 
     @And("I define visual inspection as {string}.")
@@ -316,13 +316,13 @@ public class ShipmentFulfillmentSteps {
 
     @And("I have received a shipment fulfillment request with above details.")
     public void triggerOrderFulfillmentEvent() throws Exception {
-        this.orderNumber = shipmentTestingController.createShippingRequest(this.shipmentDetailType);
-        Assert.assertNotNull(this.orderNumber);
+        context.setOrderNumber(shipmentTestingController.createShippingRequest(this.shipmentDetailType));
+        Assert.assertNotNull(context.getOrderNumber());
     }
 
     @And("I am on the Shipment Fulfillment Details page.")
     public void goToShipmentDetailsPage() throws Exception {
-        this.goToDetailsPage(this.orderNumber);
+        this.goToDetailsPage(context.getOrderNumber());
     }
 
     @And("I am on the Shipment Fulfillment Details page for order {int}.")
@@ -339,9 +339,9 @@ public class ShipmentFulfillmentSteps {
     public void iTypeTheUnitDigitAndProductCode(String unitNumber, String checkDigit, String productCode) throws InterruptedException {
         this.checkDigitEnabled = shipmentTestingController.getCheckDigitConfiguration();
         fillProductsPage.addUnitWithDigitAndProductCode(unitNumber, checkDigit, productCode, checkDigitEnabled);
-        this.unitNumber = unitNumber;
+        context.setUnitNumber(unitNumber);
         this.checkDigit = checkDigit;
-        this.productCode = productCode;
+        context.setProductCode(productCode);
     }
 
     @And("The visual inspection field is {string}.")
@@ -379,14 +379,14 @@ public class ShipmentFulfillmentSteps {
         if (visualInspectionEnabled) {
             fillProductsPage.assertVisualInspectionIs("enabled");
         } else {
-            fillProductsPage.ensureProductIsAdded(this.unitNumber, this.productCode);
+            fillProductsPage.ensureProductIsAdded(context.getUnitNumber(), context.getProductCode());
         }
     }
 
     @When("I type the unit {string}, digit {string}.")
     public void iTypeTheUnitDigit(String unitNumber, String checkDigit) throws InterruptedException {
         fillProductsPage.addUnitWithDigit(unitNumber, checkDigit);
-        this.unitNumber = unitNumber;
+        context.setUnitNumber(unitNumber);
         this.checkDigit = checkDigit;
     }
 
@@ -472,20 +472,20 @@ public class ShipmentFulfillmentSteps {
 
     @When("I fill a product with the unit number {string}, product code {string}.")
     public void iFillAProductWithTheUnitNumberProductCodeBloodTypeAndVisualInspection(String unitNumber, String productCode) throws Exception {
-        this.shipmentId = shipmentTestingController.getOrderShipmentId(this.orderNumber);
-        this.packItemResponse = shipmentTestingController.fillShipment(this.shipmentId, unitNumber, productCode, "SATISFACTORY", false);
+        context.setShipmentId(shipmentTestingController.getOrderShipmentId(context.getOrderNumber()));
+        this.packItemResponse = shipmentTestingController.fillShipment(context.getShipmentId(), unitNumber, productCode, "SATISFACTORY", false);
     }
 
     @When("I fill a product with the unit number {string}, product code {string}, and visual Inspection {string}.")
     public void fillProductWithInspection(String unitNumber, String productCode, String inspection) throws Exception {
-        this.shipmentId = shipmentTestingController.getOrderShipmentId(this.orderNumber);
-        this.packItemResponse = shipmentTestingController.fillShipment(this.shipmentId, unitNumber, productCode, inspection, false);
+        context.setShipmentId(shipmentTestingController.getOrderShipmentId(context.getOrderNumber()));
+        this.packItemResponse = shipmentTestingController.fillShipment(context.getShipmentId(), unitNumber, productCode, inspection, false);
     }
 
     @When("I fill an unsuitable product with the unit number {string}, product code {string}, and visual Inspection {string}.")
     public void fillUnsuitableProductWithInspection(String unitNumber, String productCode, String inspection) throws Exception {
-        this.shipmentId = shipmentTestingController.getOrderShipmentId(this.orderNumber);
-        this.packItemResponse = shipmentTestingController.fillShipment(this.shipmentId, unitNumber, productCode, inspection, true);
+        context.setShipmentId(shipmentTestingController.getOrderShipmentId(context.getOrderNumber()));
+        this.packItemResponse = shipmentTestingController.fillShipment(context.getShipmentId(), unitNumber, productCode, inspection, true);
     }
 
     @Then("The product unit number {string} and product code {string} should be packed in the shipment.")
@@ -503,7 +503,7 @@ public class ShipmentFulfillmentSteps {
 
     @When("I receive a shipment fulfillment request event for the order number {string} and priority {string}.")
     public void receiveFulfillmentOrderRequest(String orderNumber, String priority) throws Exception {
-        this.orderNumber = shipmentTestingController.createShippingRequest(Long.valueOf(orderNumber), priority);
+        context.setOrderNumber(shipmentTestingController.createShippingRequest(Long.valueOf(orderNumber), priority));
         this.orderPriority = priority;
 
     }
@@ -532,6 +532,17 @@ public class ShipmentFulfillmentSteps {
             });
             assertFalse(match, "Unsuitable product found in the shipment.");
         }
+    }
+
+    @And("I am on the fill product page of line item related to the {string} {string}.")
+    public void iAmOnTheFillProductPageOfLineItemRelatedToThe(String family, String bloodType) throws InterruptedException {
+        Long shipmentItemId = shipmentTestingController.getShipmentItemId(context.getShipmentId(), family, bloodType);
+        fillProductsPage.goTo(context.getShipmentId().toString(),shipmentItemId.toString());
+    }
+
+    @And("I choose to remove products.")
+    public void iChooseToRemoveProducts() throws InterruptedException {
+        fillProductsPage.clickRemoveProductsButton();
     }
 }
 

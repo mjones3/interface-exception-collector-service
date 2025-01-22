@@ -21,6 +21,7 @@ type Mutation {
     removeItem(removeItemRequest:RemoveItemRequest!):RuleResponseDTO!
     cancelSecondVerification(cancelSecondVerificationRequest:CancelSecondVerificationRequest!):RuleResponseDTO!
     confirmCancelSecondVerification(confirmCancelSecondVerificationRequest:CancelSecondVerificationRequest!):RuleResponseDTO!
+    unpackItems(unpackItemsRequest:UnpackItemsRequest!):RuleResponseDTO!
 }
 
 type PackingListLabelDTO {
@@ -270,4 +271,16 @@ type RemoveProductResponseDTO {
 input CancelSecondVerificationRequest {
     shipmentId: Int!,
     employeeId: String
+}
+
+input UnpackItemsRequest {
+    shipmentItemId : Int!
+    locationCode: String!
+    employeeId: String!
+    unpackItems:[UnpackItemRequest]
+}
+
+input UnpackItemRequest {
+    unitNumber: String!
+    productCode: String!
 }

@@ -23,9 +23,6 @@ public class ShipmentDetailPage extends CommonPageFactory {
     @Autowired
     private SharedActions sharedActions;
 
-    @Value("${ui.base.url}")
-    private String baseUrl;
-
     @Value("${ui.shipment-details.url}")
     private String shipmentDetailsUrl;
 
@@ -147,9 +144,9 @@ public class ShipmentDetailPage extends CommonPageFactory {
     }
 
     public void goTo(Long shipmentId) {
-        var url = baseUrl + shipmentDetailsUrl.replace("{shipmentId}", String.valueOf(shipmentId));
+        var url = shipmentDetailsUrl.replace("{shipmentId}", String.valueOf(shipmentId));
         log.info("Navigating to the shipment details page: {}", url);
-        this.driver.get(url);
+        sharedActions.navigateTo(url);
         this.waitForLoad();
         assertTrue(isLoaded());
     }

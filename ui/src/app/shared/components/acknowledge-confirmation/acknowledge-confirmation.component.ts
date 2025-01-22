@@ -1,7 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { ActionButtonComponent } from 'app/shared/components/action-button/action-button.component';
 import { AcknowledgeDetailDTO } from 'app/shared/models';
+import { ActionButtonComponent } from '../buttons/action-button.component';
 
 @Component({
     selector: 'app-acknowledge-confirmation',

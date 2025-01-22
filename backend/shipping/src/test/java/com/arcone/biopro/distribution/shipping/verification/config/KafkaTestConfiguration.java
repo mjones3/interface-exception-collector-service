@@ -1,4 +1,4 @@
-package com.arcone.biopro.distribution.shipping.verification.support;
+package com.arcone.biopro.distribution.shipping.verification.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.core.instrument.MeterRegistry;

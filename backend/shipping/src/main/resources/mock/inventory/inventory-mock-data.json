@@ -266,6 +266,19 @@
       "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00"
+    },   {
+      "id": "5675C972-186C-4ACB-A08F-7960E7E7404D",
+      "locationCode": "123456789",
+      "unitNumber": "W822530106079",
+      "productCode": "E0685V00",
+      "productDescription": "APH AS-3 RBC SR",
+      "expirationDate": "2024-09-03T10:15:30",
+      "aboRh": "OP",
+      "productFamily": "RED_BLOOD_CELLS_LEUKOREDUCED",
+      "collectionDate": "2011-12-03T10:15:30+01:00",
+      "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
+      "createDate": "2011-12-03T10:15:30+01:00",
+      "modificationDate": "2011-12-03T10:15:30+01:00"
     },
     {
       "id": "dd8af54c-a40a-438c-a870-b9619447e91f",
@@ -322,6 +335,19 @@
       "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00"
+    },    {
+      "id": "dd8af54c-a40a-438c-a870-b9619447e91f",
+      "locationCode": "123456789",
+      "unitNumber": "W812530107865",
+      "productCode": "E0033V00",
+      "productDescription": "WHOLE BLOOD|CPD/500mL/refg|ResLeu:<5E6",
+      "expirationDate": "2024-09-03T10:15:30",
+      "aboRh": "ABP",
+      "productFamily": "WHOLE_BLOOD_LEUKOREDUCED",
+      "collectionDate": "2011-12-03T10:15:30+01:00",
+      "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
+      "createDate": "2011-12-03T10:15:30+01:00",
+      "modificationDate": "2011-12-03T10:15:30+01:00"
     },
     {
       "id": "dd8af54c-a40a-438c-a870-b9619447e91f",
@@ -355,6 +381,19 @@
       "id": "dd8af54c-a40a-438c-a870-b9619447e91f",
       "locationCode": "123456789",
       "unitNumber": "W812530106099",
+      "productCode": "E0167V00",
+      "productDescription": "RED BLOOD CELLS|CPD/500mL/refg",
+      "expirationDate": "2024-09-03T10:15:30",
+      "aboRh": "ON",
+      "productFamily": "RED_BLOOD_CELLS",
+      "collectionDate": "2011-12-03T10:15:30+01:00",
+      "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
+      "createDate": "2011-12-03T10:15:30+01:00",
+      "modificationDate": "2011-12-03T10:15:30+01:00"
+    },    {
+      "id": "dd8af54c-a40a-438c-a870-b9619447e91f",
+      "locationCode": "123456789",
+      "unitNumber": "W812530106199",
       "productCode": "E0167V00",
       "productDescription": "RED BLOOD CELLS|CPD/500mL/refg",
       "expirationDate": "2024-09-03T10:15:30",
