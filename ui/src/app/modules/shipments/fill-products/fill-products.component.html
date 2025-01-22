@@ -70,27 +70,28 @@
                         </span>
                     </div>
                     <div class="flex flex-row gap-5 p-2">
-                        <button
-                            mat-button
+                        <biopro-basic-button
                             id="select-all-btn"
-                            [disabled]="numberOfUnits === 0"
-                            (click)="selectAllUnits()"
-                        >
-                            {{
+                            [label]="
                                 selectAllTextRule
                                     ? 'Select All'
                                     : 'Unselect All'
-                            }}
-                        </button>
-
-                        <button
-                            id="remove-btn"
-                            [disabled]="numberOfSelectedUnits === 0"
-                            mat-button
-                            (click)="removeSelectedProducts()"
+                            "
+                            [disabled]="numberOfUnits === 0"
+                            color="primary"
+                            class="text-primary"
+                            (buttonClicked)="selectAllUnits()"
                         >
-                            Remove
-                        </button>
+                        </biopro-basic-button>
+
+                        <biopro-basic-button
+                            id="remove-btn"
+                            label="Remove"
+                            [disabled]="numberOfSelectedUnits === 0"
+                            color="secondary"
+                            (buttonClicked)="removeSelectedProducts()"
+                        >
+                        </biopro-basic-button>
                     </div>
                 </div>
                 <mat-divider></mat-divider>

@@ -198,11 +198,15 @@ describe('FillProductsComponent', () => {
 
     it('should disable select all and remove buttons when filled product is empty', () => {
         component.filledProductsData = [];
+        jest.spyOn(component, 'numberOfUnits', 'get').mockReturnValue(0);
+        jest.spyOn(component, 'numberOfSelectedUnits', 'get').mockReturnValue(
+            0
+        );
         const selectAllBtn = fixture.debugElement.query(
-            By.css('#select-all-btn')
+            By.css('#select-all-btn button')
         ).nativeElement;
         const removeBtn = fixture.debugElement.query(
-            By.css('#remove-btn')
+            By.css('#remove-btn button')
         ).nativeElement;
 
         expect(selectAllBtn.disabled).toBeTruthy();

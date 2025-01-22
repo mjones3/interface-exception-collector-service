@@ -8,7 +8,7 @@ import {
     NotificationTabDTO,
 } from 'app/shared/models/rule.model';
 import { ProductIconsService } from 'app/shared/services/product-icon.service';
-import { ActionButtonComponent } from '../action-button/action-button.component';
+import { ActionButtonComponent } from '../buttons/action-button.component';
 import { UnitNumberCardComponent } from '../unit-number-card/unit-number-card.component';
 
 @Component({

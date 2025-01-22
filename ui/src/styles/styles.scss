@@ -359,10 +359,10 @@ biopro-process-header {
         }
 
         &[disabled='true'] {
-            color: rgb(var(--fuse-accent-rgb) 0.6) !important;
+            color: rgba(var(--fuse-accent-rgb), 0.6) !important;
 
             &.mat-primary {
-                background-color: rgb(var(--fuse-accent-rgb) 0.15) !important;
+                background-color: rgba(var(--fuse-accent-rgb), 0.15) !important;
             }
         }
     }

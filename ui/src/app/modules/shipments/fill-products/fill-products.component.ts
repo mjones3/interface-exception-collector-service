@@ -29,7 +29,8 @@ import {
 import { ERROR_MESSAGE } from 'app/core/data/common-labels';
 import { getAuthState } from 'app/core/state/auth/auth.selectors';
 import { ProgressBarComponent } from 'app/progress-bar/progress-bar.component';
-import { ActionButtonComponent } from 'app/shared/components/action-button/action-button.component';
+import { ActionButtonComponent } from 'app/shared/components/buttons/action-button.component';
+import { BasicButtonComponent } from 'app/shared/components/buttons/basic-button.component';
 import { UnitNumberCardComponent } from 'app/shared/components/unit-number-card/unit-number-card.component';
 import { ConfirmationAcknowledgmentService } from 'app/shared/services/confirmation-acknowledgment.service';
 import { ProductIconsService } from 'app/shared/services/product-icon.service';
@@ -78,9 +79,9 @@ import { OrderWidgetsSidebarComponent } from '../shared/order-widgets-sidebar/or
         ActionButtonComponent,
         ProgressBarComponent,
         OrderWidgetsSidebarComponent,
+        BasicButtonComponent,
     ],
     templateUrl: './fill-products.component.html',
-    styleUrls: ['./fill-products.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FillProductsComponent implements OnInit {
