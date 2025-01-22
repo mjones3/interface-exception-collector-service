@@ -6,7 +6,7 @@ Feature: Remove Product from a Shipment
 
 
   Background:
-    Given I cleaned up from the database the packed item that used the unit number "W036898786801,W822530103001,W822530103002,W822530103003,W822530103004,W822530103005,W822530103006,W822530103007".
+    Given I cleaned up from the database the packed item that used the unit number "W036898786801,W036898786802,W822530103001,W822530103002,W822530103003,W822530103004,W822530103005,W822530103006,W822530103007,W822530103008,W822530103009".
     And I cleaned up from the database, all shipments with order number "3001,3002,3003,3004,3005".
 
   Rule: I should be able to remove one, multiple, or all products from the order until the product status has been moved to shipped status.

@@ -7,6 +7,7 @@ import com.arcone.biopro.distribution.shipping.verification.support.KafkaHelper;
 import com.arcone.biopro.distribution.shipping.verification.support.ScreenshotService;
 import com.arcone.biopro.distribution.shipping.verification.support.SharedContext;
 import com.arcone.biopro.distribution.shipping.verification.support.StaticValuesMapper;
+import com.arcone.biopro.distribution.shipping.verification.support.TestUtils;
 import com.arcone.biopro.distribution.shipping.verification.support.controllers.ShipmentTestingController;
 import com.arcone.biopro.distribution.shipping.verification.support.types.ListShipmentsResponseType;
 import com.arcone.biopro.distribution.shipping.verification.support.types.PackProductResponseType;
@@ -279,8 +280,8 @@ public class ShipmentFulfillmentSteps {
     @When("I add the unit {string} with product code {string}.")
     public void addUnitWithProductCode(String unit, String productCode) throws InterruptedException {
         fillProductsPage.addUnitWithProductCode(unit, productCode);
-        context.setUnitNumber(unit);
-        context.setProductCode(productCode);
+        context.setUnitNumber(TestUtils.removeUnitNumberScanDigits(unit));
+        context.setProductCode(TestUtils.removeProductCodeScanDigits(productCode));
     }
 
     @And("I define visual inspection as {string}.")
