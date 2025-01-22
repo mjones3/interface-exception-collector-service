@@ -232,8 +232,15 @@ public class OrderDetailsPage extends CommonPageFactory {
         for (int i = 0; i < productFamily.length; i++) {
             String productFamilyDescription = productFamily[i].replace("_", " ");
             sharedActions.waitForVisible(By.xpath(availableInventory(productFamilyDescription, bloodType[i], Integer.valueOf(quantity[i]))));
-            Assert.assertFalse(sharedActions.isElementEmpty(driver.findElement(By.xpath(availableInventory(productFamilyDescription, bloodType[i], Integer.valueOf(quantity[i]))))));
 
+            try {
+                var availableInventoryValue = sharedActions.getText(By.xpath(availableInventory(productFamilyDescription, bloodType[i], Integer.valueOf(quantity[i]))));
+
+                // We must have a numeric value in this column
+                Integer.parseInt(availableInventoryValue.trim());
+            } catch (NumberFormatException e) {
+                throw new RuntimeException("Unable to read available inventory value");
+            }
         }
     }
 

@@ -207,10 +207,14 @@
                                             <td class="text-center">
                                                 {{ shortDateProduct.aboRh }}
                                             </td>
-                                            <td class="text-center">
+                                            <td class="storage-location text-center">
+                                            @if (shortDateProduct.storageLocation) {
                                                 {{
                                                     shortDateProduct.storageLocation
                                                 }}
+                                            } @else {
+                                                {{ noStorageLocationAvailableMessage() }}
+                                            }
                                             </td>
                                         </tr>
                                     }
