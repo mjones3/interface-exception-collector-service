@@ -80,6 +80,9 @@ public class OrderMapper {
             .totalShipped(order.getTotalShipped())
             .totalProducts(order.getTotalProducts())
             .canBeCompleted(order.canBeCompleted(orderShipmentService))
+            .completeEmployeeId(order.getCompleteEmployeeId())
+            .completeDate(order.getCompleteDate())
+            .completeComments(order.getCompleteComments())
             .build();
     }
 
