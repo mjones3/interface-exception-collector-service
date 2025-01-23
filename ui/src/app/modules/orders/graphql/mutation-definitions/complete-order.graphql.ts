@@ -1,18 +1,34 @@
 import { gql } from 'apollo-angular';
-import { Notification } from '../../models/notification.dto';
 import { OrderDetailsDTO } from '../../models/order-details.dto';
+import { Notification } from '../../models/notification.dto';
 
-export const GET_ORDER_BY_ID = gql<
+export interface CompleteOrderCommandDTO {
+    orderId: number;
+    employeeId: string;
+    comments?: string;
+}
+
+export const COMPLETE_ORDER = gql<
     {
-        findOrderById: {
+        completeOrder: {
             notifications: Notification[];
             data: OrderDetailsDTO;
-        };
+        }
     },
-    { orderId: number }
+    CompleteOrderCommandDTO
 >`
-    query FindOrderById($orderId: ID!) {
-        findOrderById(orderId: $orderId) {
+    mutation CompleteOrder(
+        $orderId: ID!
+        $employeeId: String!
+        $comments: String
+    ) {
+        completeOrder(
+            completeOrderCommandDTO: {
+                orderId: $orderId
+                employeeId: $employeeId
+                comments: $comments
+            }
+        ) {
             notifications {
                 name
                 notificationType
@@ -40,6 +56,10 @@ export const GET_ORDER_BY_ID = gql<
                 createDate
                 modificationDate
                 deleteDate
+                totalShipped
+                totalRemaining
+                totalProducts
+                canBeCompleted
                 orderItems {
                     id
                     orderId
@@ -53,36 +73,7 @@ export const GET_ORDER_BY_ID = gql<
                     quantityShipped
                     quantityRemaining
                 }
-                totalShipped
-                totalRemaining
-                totalProducts
-                canBeCompleted
-                completeEmployeeId
-                completeDate
-                completeComments
             }
-        }
-    }
-`;
-
-export interface OrderShipmentDTO {
-    id: number;
-    orderId: number;
-    shipmentId: number;
-    shipmentStatus: string;
-    createDate: string;
-}
-export const FIND_ORDER_SHIPMENT_BY_ORDER_ID = gql<
-    { findOrderShipmentByOrderId: OrderShipmentDTO | null }, // NULL here means "order shipment not found"
-    { orderId: number }
->`
-    query FindOrderShipmentByOrderId($orderId: ID!) {
-        findOrderShipmentByOrderId(orderId: $orderId) {
-            id
-            orderId
-            shipmentId
-            shipmentStatus
-            createDate
         }
     }
 `;

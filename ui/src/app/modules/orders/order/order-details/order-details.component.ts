@@ -22,11 +22,11 @@ import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
 import { TableModule } from 'primeng/table';
 import {
-    Subscription,
     filter,
     finalize,
     map,
     of,
+    Subscription,
     switchMap,
     take,
     takeWhile,
@@ -50,6 +50,10 @@ import {
     ViewPickListComponent,
     ViewPickListData,
 } from '../view-pick-list/view-pick-list.component';
+import { CompleteOrderComponent } from '../../complete-order/complete-order.component';
+import { CompleteOrderCommandDTO } from '../../graphql/mutation-definitions/complete-order.graphql';
+import { getAuthState } from '../../../../core/state/auth/auth.selectors';
+import { Store } from '@ngrx/store';
 
 @Component({
     selector: 'app-order-details',
@@ -91,6 +95,7 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
     pollingSubscription: Subscription;
     filledOrdersCount = 0;
     totalOrderProducts: number;
+    loggedUserId: string;
 
     loading = true;
     loadingPickList = false;
@@ -103,8 +108,16 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
         private orderService: OrderService,
         private toaster: ToastrImplService,
         private fuseConfirmationService: FuseConfirmationService,
-        private productIconService: ProductIconsService
-    ) {}
+        private productIconService: ProductIconsService,
+        private store: Store
+    ) {
+        this.store
+            .select(getAuthState)
+            .pipe(take(1))
+            .subscribe((auth) => {
+                this.loggedUserId = auth['id'];
+            });
+    }
 
     get isOrderComplete(): boolean {
         return this.orderDetails?.status === 'COMPLETED';
@@ -294,4 +307,30 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
     getIcon(productFamily: string) {
         return this.productIconService.getIconByProductFamily(productFamily);
     }
+
+    openCompleteOrderDialog(): void {
+        this.matDialog
+            .open<CompleteOrderComponent, never, Partial<CompleteOrderCommandDTO>>(CompleteOrderComponent, {
+                id: 'CompleteOrderDialog',
+                width: '24rem',
+            })
+            .afterClosed()
+            .pipe(filter(Boolean))
+            .subscribe(command => this.complete(command));
+    }
+
+    complete(command: Partial<CompleteOrderCommandDTO>): void {
+        this.orderService
+            .completeOrder({
+                orderId: Number(this.orderId),
+                employeeId: this.loggedUserId,
+                ...command
+            })
+            .pipe(catchError((e) => handleApolloError(this.toaster, e)))
+            .subscribe((response) => {
+                this.orderDetails = response?.data?.completeOrder?.data;
+                this.notifications = response?.data?.completeOrder?.notifications ?? [];
+            });
+    }
+
 }

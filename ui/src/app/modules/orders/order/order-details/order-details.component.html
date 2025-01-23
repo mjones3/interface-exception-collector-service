@@ -75,6 +75,16 @@
 
 <ng-template #actionButtonsTpl>
     <div class="flex flex-row space-x-2">
+        @if (orderDetails?.canBeCompleted) {
+        <button
+            id="completeBtnId"
+            class="bg-green-highlighted text-white"
+            mat-flat-button
+            (click)="openCompleteOrderDialog()"
+        >
+            Complete Order
+        </button>
+        }
         <button
             id="backBtnId"
             class="bg-green-highlighted text-white"
