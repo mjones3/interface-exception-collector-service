@@ -2,9 +2,9 @@ package com.arcone.biopro.distribution.shipping.verification.steps.shipment;
 
 import com.arcone.biopro.distribution.shipping.verification.pages.distribution.FillProductsPage;
 import com.arcone.biopro.distribution.shipping.verification.support.ApiHelper;
-import com.arcone.biopro.distribution.shipping.verification.support.GraphQLMutationMapper;
 import com.arcone.biopro.distribution.shipping.verification.support.SharedContext;
 import com.arcone.biopro.distribution.shipping.verification.support.controllers.ShipmentTestingController;
+import com.arcone.biopro.distribution.shipping.verification.support.graphql.GraphQLMutationMapper;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;

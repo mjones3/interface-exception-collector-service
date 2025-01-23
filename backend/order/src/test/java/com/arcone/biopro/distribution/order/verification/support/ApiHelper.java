@@ -12,6 +12,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -20,6 +21,9 @@ public class ApiHelper {
 
     @Autowired
     private WebTestClient webTestClient;
+
+    @Autowired
+    private SharedContext context;
 
     @Value("${api.base.url}")
     private String baseUrl;
@@ -120,7 +124,10 @@ public class ApiHelper {
     public Map graphQlRequest(String document, String path) {
         HttpGraphQlClient qlClient = HttpGraphQlClient.create(webTestClientGraphQl);
         try {
-            return qlClient.document(document).retrieveSync(path).toEntity(Map.class);
+            var response = qlClient.document(document).retrieveSync(path).toEntity(Map.class);
+            // Set the API response to the context so that it can be used in other steps.
+            context.setApiMessageResponse((List<Map>)response.get("notifications"));
+            return response;
         } catch (FieldAccessException e) {
             return e.getResponse().toMap();
         }
