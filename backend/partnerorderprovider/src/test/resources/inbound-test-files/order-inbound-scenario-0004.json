@@ -11,7 +11,7 @@
     "phoneNumber": "12333333"
   },
   "shippingMethod": "FEDEX",
-  "productCategory": "ORDER_PRODUCT_CATEGORY_FROZEN",
+  "productCategory": "FROZEN",
   "desiredShippingDate": "30/06/2024",
   "shippingCustomerCode": "99741",
   "billingCustomerCode": "99741",
