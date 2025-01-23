@@ -213,7 +213,7 @@ describe('FillProductsComponent', () => {
         expect(removeBtn.disabled).toBeTruthy();
     });
 
-    it('should enable selecte all button when alteast one product is added on the list', () => {
+    it('should enable selecte all button when at least one product is added on the list', () => {
         component.filledProductsData = [{}];
         fixture.detectChanges();
         const selectAllBtn = fixture.debugElement.query(
