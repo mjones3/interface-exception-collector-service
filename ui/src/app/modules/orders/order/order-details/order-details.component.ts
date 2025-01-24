@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FuseCardComponent } from '@fuse/components/card/public-api';
+import { Store } from '@ngrx/store';
 import {
     ProcessHeaderComponent,
     ProcessHeaderService,
@@ -22,14 +23,15 @@ import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
 import { TableModule } from 'primeng/table';
 import {
+    Subscription,
     filter,
     finalize,
     map,
     of,
-    Subscription,
     switchMap,
     take,
     takeWhile,
+    tap,
     timer,
 } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -39,8 +41,13 @@ import {
     DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
     DEFAULT_PAGE_SIZE_DIALOG_LANDSCAPE_WIDTH,
 } from '../../../../core/models/browser-printing.model';
+import { getAuthState } from '../../../../core/state/auth/auth.selectors';
+import { ActionButtonComponent } from '../../../../shared/components/buttons/action-button.component';
 import { TagComponent } from '../../../../shared/components/tag/tag.component';
 import handleApolloError from '../../../../shared/utils/apollo-error-handling';
+import { consumeNotificationMessages } from '../../../../shared/utils/notification.handling';
+import { CompleteOrderComponent } from '../../complete-order/complete-order.component';
+import { CompleteOrderCommandDTO } from '../../graphql/mutation-definitions/complete-order.graphql';
 import { PickListDTO } from '../../graphql/mutation-definitions/generate-pick-list.graphql';
 import { OrderShipmentDTO } from '../../graphql/query-definitions/order-details.graphql';
 import { Notification } from '../../models/notification.dto';
@@ -50,10 +57,6 @@ import {
     ViewPickListComponent,
     ViewPickListData,
 } from '../view-pick-list/view-pick-list.component';
-import { CompleteOrderComponent } from '../../complete-order/complete-order.component';
-import { CompleteOrderCommandDTO } from '../../graphql/mutation-definitions/complete-order.graphql';
-import { getAuthState } from '../../../../core/state/auth/auth.selectors';
-import { Store } from '@ngrx/store';
 
 @Component({
     selector: 'app-order-details',
@@ -75,6 +78,7 @@ import { Store } from '@ngrx/store';
         RouterLink,
         TagComponent,
         ProgressBarComponent,
+        ActionButtonComponent,
     ],
     templateUrl: './order-details.component.html',
 })
@@ -310,13 +314,17 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
 
     openCompleteOrderDialog(): void {
         this.matDialog
-            .open<CompleteOrderComponent, never, Partial<CompleteOrderCommandDTO>>(CompleteOrderComponent, {
+            .open<
+                CompleteOrderComponent,
+                never,
+                Partial<CompleteOrderCommandDTO>
+            >(CompleteOrderComponent, {
                 id: 'CompleteOrderDialog',
                 width: '24rem',
             })
             .afterClosed()
             .pipe(filter(Boolean))
-            .subscribe(command => this.complete(command));
+            .subscribe((command) => this.complete(command));
     }
 
     complete(command: Partial<CompleteOrderCommandDTO>): void {
@@ -324,13 +332,21 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
             .completeOrder({
                 orderId: Number(this.orderId),
                 employeeId: this.loggedUserId,
-                ...command
+                ...command,
             })
-            .pipe(catchError((e) => handleApolloError(this.toaster, e)))
+            .pipe(
+                tap((response) =>
+                    consumeNotificationMessages(
+                        this.toaster,
+                        response?.data?.completeOrder?.notifications
+                    )
+                ),
+                catchError((e) => handleApolloError(this.toaster, e))
+            )
             .subscribe((response) => {
                 this.orderDetails = response?.data?.completeOrder?.data;
-                this.notifications = response?.data?.completeOrder?.notifications ?? [];
+                this.notifications =
+                    response?.data?.completeOrder?.notifications ?? [];
             });
     }
-
 }
