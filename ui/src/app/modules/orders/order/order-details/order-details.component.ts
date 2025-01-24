@@ -320,7 +320,7 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
                 Partial<CompleteOrderCommandDTO>
             >(CompleteOrderComponent, {
                 id: 'CompleteOrderDialog',
-                width: '24rem',
+                width: '30rem',
             })
             .afterClosed()
             .pipe(filter(Boolean))
@@ -332,6 +332,7 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
             .completeOrder({
                 orderId: Number(this.orderId),
                 employeeId: this.loggedUserId,
+                createBackOrder: false,
                 ...command,
             })
             .pipe(

@@ -1,5 +1,7 @@
-import { Component, inject } from '@angular/core';
-import { CompleteOrderCommandDTO } from '../graphql/mutation-definitions/complete-order.graphql';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatButton } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import {
     MatDialogActions,
     MatDialogClose,
@@ -7,10 +9,13 @@ import {
     MatDialogRef,
     MatDialogTitle,
 } from '@angular/material/dialog';
-import { MatFormField, MatLabel } from '@angular/material/form-field';
+import {
+    MatFormField,
+    MatFormFieldModule,
+    MatLabel,
+} from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
-import { MatButton } from '@angular/material/button';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { CompleteOrderCommandDTO } from '../graphql/mutation-definitions/complete-order.graphql';
 
 @Component({
     selector: 'app-complete-order',
@@ -24,16 +29,23 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
         MatDialogActions,
         MatButton,
         MatDialogClose,
+        MatFormFieldModule,
         ReactiveFormsModule,
+        MatButtonToggleModule,
     ],
     templateUrl: './complete-order.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CompleteOrderComponent {
-    dialogRef = inject(MatDialogRef<CompleteOrderCommandDTO, CompleteOrderCommandDTO>);
+    dialogRef = inject(
+        MatDialogRef<CompleteOrderCommandDTO, CompleteOrderCommandDTO>
+    );
     formBuilder = inject(FormBuilder);
+    readonly commentsMaxLength = 1000;
 
     form = this.formBuilder.group({
-        comments: ['', [ Validators.maxLength(1000) ]],
+        comments: ['', [Validators.maxLength(this.commentsMaxLength)]],
+        createBackOrder: [false],
     });
 
     continue(_event: Event): void {

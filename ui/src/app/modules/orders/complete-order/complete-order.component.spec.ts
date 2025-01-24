@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
+import { MatButtonToggleChange } from '@angular/material/button-toggle';
 import { MatDialogRef } from '@angular/material/dialog';
 import { By } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
@@ -50,9 +51,15 @@ describe('CompleteOrderComponent', () => {
         const completeOrderReasonElement = element.query(
             By.css('#completeOrderReason')
         );
+        const completeOrderBackOrderToggleElement = element.query(
+            By.css('#createBackOrderId')
+        );
         const completeOrderReasonTextarea =
             completeOrderReasonElement.nativeElement as HTMLTextAreaElement;
+        const completeOrderCreateBackOrder =
+            completeOrderBackOrderToggleElement.nativeElement as MatButtonToggleChange;
         completeOrderReasonTextarea.value = 'ABC123';
+        completeOrderCreateBackOrder.value = false;
         completeOrderReasonTextarea.dispatchEvent(new Event('input'));
 
         const continueButtonElement = element.query(
@@ -64,6 +71,7 @@ describe('CompleteOrderComponent', () => {
         continueButton.click();
         expect(component.dialogRef.close).toHaveBeenCalledWith({
             comments: 'ABC123',
+            createBackOrder: false,
         });
     });
 });
