@@ -1,7 +1,5 @@
 @api @AOA-152
 Feature: Validate order
-    As a system, I want to validate the customer order
-    so that I can save the order or decline the order based on the validation result.
 
     Background:
         Given I cleaned up from the database the orders with external ID "114117922233599,114117922233500,114117922233511,114117922233512,114117922233513,114117922233514,114117922233515,114117922233516,114117922233517,114117922233518,114117922233519,114117922233520,114117922233521,114117922233522,114117922233523,114117922233524".

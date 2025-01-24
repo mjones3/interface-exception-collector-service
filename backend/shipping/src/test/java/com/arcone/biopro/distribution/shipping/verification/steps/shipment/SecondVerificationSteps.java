@@ -5,10 +5,10 @@ import com.arcone.biopro.distribution.shipping.verification.pages.distribution.H
 import com.arcone.biopro.distribution.shipping.verification.pages.distribution.ShipmentDetailPage;
 import com.arcone.biopro.distribution.shipping.verification.pages.distribution.VerifyProductsPage;
 import com.arcone.biopro.distribution.shipping.verification.support.ApiHelper;
-import com.arcone.biopro.distribution.shipping.verification.support.GraphQLMutationMapper;
 import com.arcone.biopro.distribution.shipping.verification.support.ScreenshotService;
 import com.arcone.biopro.distribution.shipping.verification.support.SharedContext;
 import com.arcone.biopro.distribution.shipping.verification.support.controllers.ShipmentTestingController;
+import com.arcone.biopro.distribution.shipping.verification.support.graphql.GraphQLMutationMapper;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;

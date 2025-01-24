@@ -22,6 +22,7 @@ type Mutation {
     updateLookup(lookup: LookupInput!): Lookup!
     deleteLookup(lookup: LookupInput!): Lookup!
     generatePickList(orderId: ID! , skipInventoryUnavailable:Boolean!):PickListResponseDTO!
+    completeOrder(completeOrderCommandDTO:CompleteOrderCommandDTO!): OrderResponseDTO!
 }
 
 input LookupIdInput {
@@ -144,10 +145,13 @@ type Order {
     modificationDate: DateTime!
     deleteDate: DateTime
     orderItems: [OrderItem]!
-    totalShipped:Int!
-    totalRemaining:Int!
-    totalProducts:Int!
-
+    totalShipped: Int!
+    totalRemaining: Int!
+    totalProducts: Int!
+    canBeCompleted: Boolean
+    completeEmployeeId: String
+    completeDate: DateTime
+    completeComments: String
 }
 
 type OrderReportDTO {
@@ -193,6 +197,12 @@ input QuerySortDTO {
 input QueryOrderByDTO {
     property:String
     direction:String
+}
+
+input CompleteOrderCommandDTO {
+    orderId:ID!
+    employeeId:String!
+    comments:String
 }
 
 type PickListResponseDTO {

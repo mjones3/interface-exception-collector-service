@@ -75,14 +75,24 @@
 
 <ng-template #actionButtonsTpl>
     <div class="flex flex-row space-x-2">
-        <button
-            id="backBtnId"
-            class="bg-green-highlighted text-white"
-            mat-flat-button
-            (click)="backToSearch()"
-        >
-            Back
-        </button>
+        @if (orderDetails?.canBeCompleted) {
+            <biopro-action-button
+                id="completeActionBtn"
+                btnId="completeBtnId"
+                label="Complete Order"
+                color="primary"
+                icon="heroicons_outline:check-circle"
+                (clickEvent)="openCompleteOrderDialog()"
+            />
+        }
+        <biopro-action-button
+            id="backActionBtn"
+            btnId="backBtnId"
+            label="Back"
+            color="secondary"
+            icon="heroicons_outline:arrow-uturn-left"
+            (clickEvent)="backToSearch()"
+        />
     </div>
 </ng-template>
 

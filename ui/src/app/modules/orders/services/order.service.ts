@@ -21,6 +21,10 @@ import {
     OrderQueryCommandDTO,
     OrderReportDTO,
 } from '../models/search-order.model';
+import {
+    COMPLETE_ORDER,
+    CompleteOrderCommandDTO,
+} from '../graphql/mutation-definitions/complete-order.graphql';
 
 @Injectable({
     providedIn: 'root',
@@ -91,6 +95,21 @@ export class OrderService {
             this.servicePath,
             FIND_ORDER_SHIPMENT_BY_ORDER_ID,
             { orderId }
+        );
+    }
+
+    public completeOrder(command: CompleteOrderCommandDTO): Observable<
+        MutationResult<{
+            completeOrder: {
+                notifications: Notification[];
+                data: OrderDetailsDTO;
+            };
+        }>
+    > {
+        return this.dynamicGraphqlPathService.executeMutation(
+            this.servicePath,
+            COMPLETE_ORDER,
+            command
         );
     }
 }

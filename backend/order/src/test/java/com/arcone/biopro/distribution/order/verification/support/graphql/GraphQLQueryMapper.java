@@ -1,4 +1,4 @@
-package com.arcone.biopro.distribution.order.verification.support;
+package com.arcone.biopro.distribution.order.verification.support.graphql;
 
 public class GraphQLQueryMapper {
     public static String findCustomerByCode(String code) {

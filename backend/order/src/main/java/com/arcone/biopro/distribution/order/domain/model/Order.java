@@ -1,22 +1,14 @@
 package com.arcone.biopro.distribution.order.domain.model;
 
 
-import com.arcone.biopro.distribution.order.domain.model.vo.OrderCustomer;
-import com.arcone.biopro.distribution.order.domain.model.vo.OrderExternalId;
-import com.arcone.biopro.distribution.order.domain.model.vo.OrderNumber;
-import com.arcone.biopro.distribution.order.domain.model.vo.OrderPriority;
-import com.arcone.biopro.distribution.order.domain.model.vo.OrderStatus;
-import com.arcone.biopro.distribution.order.domain.model.vo.ProductCategory;
-import com.arcone.biopro.distribution.order.domain.model.vo.ShipmentType;
-import com.arcone.biopro.distribution.order.domain.model.vo.ShippingMethod;
+import com.arcone.biopro.distribution.order.domain.exception.DomainException;
+import com.arcone.biopro.distribution.order.domain.model.vo.*;
 import com.arcone.biopro.distribution.order.domain.repository.OrderRepository;
 import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
 import com.arcone.biopro.distribution.order.domain.service.OrderConfigService;
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import com.arcone.biopro.distribution.order.domain.service.OrderShipmentService;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
@@ -27,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.arcone.biopro.distribution.order.application.dto.UseCaseMessageType.*;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static java.util.Optional.ofNullable;
@@ -57,6 +50,12 @@ public class Order implements Validatable {
     private ZonedDateTime modificationDate;
     private ZonedDateTime deleteDate;
     private List<OrderItem> orderItems;
+    @Setter
+    private String completeEmployeeId;
+    @Setter
+    private ZonedDateTime completeDate;
+    @Setter
+    private String completeComments;
 
     @Getter(AccessLevel.NONE)
     private Integer totalShipped;
@@ -66,6 +65,10 @@ public class Order implements Validatable {
 
     @Getter(AccessLevel.NONE)
     private Integer totalProducts;
+
+    private static final String ORDER_IN_PROGRESS_STATUS = "IN_PROGRESS";
+    private static final String ORDER_COMPLETED_STATUS = "COMPLETED";
+    private static final String ORDER_SHIPMENT_OPEN_STATUS = "OPEN";
 
     public Order(
         CustomerService customerService,
@@ -157,14 +160,14 @@ public class Order implements Validatable {
         }
     }
 
-    public void addItem(Long id, String productFamily, String bloodType, Integer quantity ,Integer quantityShipped, String comments
+    public void addItem(Long id, String productFamily, String bloodType, Integer quantity, Integer quantityShipped, String comments
         , ZonedDateTime createDate, ZonedDateTime modificationDate, OrderConfigService orderConfigService) {
 
         if (this.orderItems == null) {
             this.orderItems = new ArrayList<>();
         }
 
-        this.orderItems.add(new OrderItem(id, this.id, productFamily, bloodType, quantity , quantityShipped, comments, createDate
+        this.orderItems.add(new OrderItem(id, this.id, productFamily, bloodType, quantity, quantityShipped, comments, createDate
             , modificationDate, this.getProductCategory().getProductCategory(), orderConfigService));
     }
 
@@ -201,5 +204,38 @@ public class Order implements Validatable {
     public boolean isCompleted() {
         log.debug("Order {} totalShipped: {} totalRemaining: {} totalProducts: {}", this.orderNumber, this.totalShipped, this.totalRemaining, this.totalProducts);
         return this.getTotalRemaining().equals(0);
+    }
+
+    public boolean canBeCompleted(OrderShipmentService orderShipmentService) {
+        return ORDER_IN_PROGRESS_STATUS.equals(orderStatus.getOrderStatus()) && (this.getTotalRemaining().compareTo(0) > 0) && !hasShipmentOpen(orderShipmentService);
+    }
+
+    public void completeOrder(CompleteOrderCommand completeOrderCommand, LookupService lookupService, OrderShipmentService orderShipmentService) {
+        if (ORDER_COMPLETED_STATUS.equals(orderStatus.getOrderStatus())) {
+            throw new DomainException(ORDER_IS_ALREADY_COMPLETED);
+        }
+
+        if (!ORDER_IN_PROGRESS_STATUS.equals(orderStatus.getOrderStatus())) {
+            throw new DomainException(ORDER_IS_NOT_IN_PROGRESS_AND_CANNOT_BE_COMPLETED);
+        }
+
+        if (hasShipmentOpen(orderShipmentService)) {
+            throw new DomainException(ORDER_HAS_AN_OPEN_SHIPMENT);
+        }
+
+        this.orderStatus = new OrderStatus(ORDER_COMPLETED_STATUS, lookupService);
+        this.completeDate = ZonedDateTime.now();
+        this.completeComments = completeOrderCommand.getComments();
+        this.completeEmployeeId = completeOrderCommand.getEmployeeId();
+    }
+
+    public void completeOrderAutomatic(){
+        this.orderStatus.setStatus(ORDER_COMPLETED_STATUS);
+        this.completeDate = ZonedDateTime.now();
+    }
+
+    private boolean hasShipmentOpen(OrderShipmentService orderShipmentService) {
+        var orderShipment = orderShipmentService.findOneByOrderId(this.getId()).blockOptional();
+        return orderShipment.map(shipment -> shipment.getShipmentStatus().equals(ORDER_SHIPMENT_OPEN_STATUS)).orElse(false);
     }
 }

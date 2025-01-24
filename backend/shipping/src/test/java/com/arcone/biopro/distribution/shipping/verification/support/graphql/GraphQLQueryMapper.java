@@ -1,4 +1,4 @@
-package com.arcone.biopro.distribution.shipping.verification.support;
+package com.arcone.biopro.distribution.shipping.verification.support.graphql;
 
 public class GraphQLQueryMapper {
     public static String printPackingListQuery(Long shipmentId) {

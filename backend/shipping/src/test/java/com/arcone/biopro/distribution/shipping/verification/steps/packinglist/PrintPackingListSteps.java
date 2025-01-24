@@ -2,11 +2,11 @@ package com.arcone.biopro.distribution.shipping.verification.steps.packinglist;
 
 import com.arcone.biopro.distribution.shipping.verification.pages.distribution.ShipmentDetailPage;
 import com.arcone.biopro.distribution.shipping.verification.support.ApiHelper;
-import com.arcone.biopro.distribution.shipping.verification.support.GraphQLMutationMapper;
 import com.arcone.biopro.distribution.shipping.verification.support.ScreenshotService;
 import com.arcone.biopro.distribution.shipping.verification.support.SharedContext;
 import com.arcone.biopro.distribution.shipping.verification.support.TestUtils;
 import com.arcone.biopro.distribution.shipping.verification.support.controllers.ShipmentTestingController;
+import com.arcone.biopro.distribution.shipping.verification.support.graphql.GraphQLMutationMapper;
 import com.arcone.biopro.distribution.shipping.verification.support.types.ShipmentRequestDetailsResponseType;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
@@ -21,8 +21,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.List;
 import java.util.Map;
 
-import static com.arcone.biopro.distribution.shipping.verification.support.GraphQLQueryMapper.printPackingListQuery;
-import static com.arcone.biopro.distribution.shipping.verification.support.GraphQLQueryMapper.printShippingLabelQuery;
+import static com.arcone.biopro.distribution.shipping.verification.support.graphql.GraphQLQueryMapper.printPackingListQuery;
+import static com.arcone.biopro.distribution.shipping.verification.support.graphql.GraphQLQueryMapper.printShippingLabelQuery;
 
 @SpringBootTest
 @Slf4j

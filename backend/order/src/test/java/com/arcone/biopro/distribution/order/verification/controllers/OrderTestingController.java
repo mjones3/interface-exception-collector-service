@@ -1,8 +1,13 @@
 package com.arcone.biopro.distribution.order.verification.controllers;
 
+import com.arcone.biopro.distribution.order.verification.support.ApiHelper;
+import com.arcone.biopro.distribution.order.verification.support.SharedContext;
+import com.arcone.biopro.distribution.order.verification.support.graphql.GraphQLMutationMapper;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -11,12 +16,19 @@ import java.util.Random;
 import java.util.Set;
 
 @Slf4j
-public class OrderController {
+@Component
+public class OrderTestingController {
+    @Autowired
+    private ApiHelper apiHelper;
+
+    @Autowired
+    private SharedContext context;
+
     public Map<String, Integer> priorities = new LinkedHashMap<>();
     public Map<String, String> colors = new HashMap<>();
 
     // Constructor
-    public OrderController() {
+    public OrderTestingController() {
         this.priorities.put("STAT", 1);
         this.priorities.put("ASAP", 2);
         this.priorities.put("ROUTINE", 3);
@@ -81,6 +93,11 @@ public class OrderController {
         ;
 
         private final String description;
+    }
+
+    public Map completeOrder(Integer orderId) {
+        String employeeId = context.getEmployeeId();
+        return apiHelper.graphQlRequest(GraphQLMutationMapper.completeOrderMutation(orderId, employeeId, "Order completed comment"), "completeOrder");
     }
 
 }

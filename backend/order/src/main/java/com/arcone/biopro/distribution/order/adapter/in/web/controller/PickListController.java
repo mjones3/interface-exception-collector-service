@@ -1,6 +1,5 @@
 package com.arcone.biopro.distribution.order.adapter.in.web.controller;
 
-import com.arcone.biopro.distribution.order.adapter.in.web.dto.PickListDTO;
 import com.arcone.biopro.distribution.order.adapter.in.web.dto.PickListResponseDTO;
 import com.arcone.biopro.distribution.order.application.mapper.PickListMapper;
 import com.arcone.biopro.distribution.order.domain.service.PickListService;

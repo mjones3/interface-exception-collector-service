@@ -1,0 +1,32 @@
+<h1 mat-dialog-title class="flex p-6 pb-0 text-3xl">
+    Complete Order
+</h1>
+<mat-dialog-content class="mat-typography flex flex-col gap-4">
+    <h3>This order will be closed. Are you sure you want to continue?</h3>
+    <form [formGroup]="form" class="flex flex-col gap-4">
+        <mat-form-field class="example-full-width">
+            <mat-label>Reason</mat-label>
+            <textarea id="completeOrderReason" formControlName="comments" matInput></textarea>
+        </mat-form-field>
+    </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end" class="space-x-6 p-6 pt-0">
+    <button
+        id="completeOrderCancelBtn"
+        type="button"
+        [matDialogClose]="false"
+        mat-flat-button
+    >
+        Cancel
+    </button>
+    <button
+        id="completeOrderSubmitBtn"
+        type="submit"
+        mat-flat-button
+        class="bg-green-highlighted text-white"
+        (click)="continue($event)"
+        [disabled]="form.invalid"
+    >
+        Continue
+    </button>
+</mat-dialog-actions>

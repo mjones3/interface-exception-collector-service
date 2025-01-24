@@ -1,4 +1,4 @@
-package com.arcone.biopro.distribution.order.verification.steps;
+package com.arcone.biopro.distribution.order.verification.config;
 
 import com.arcone.biopro.distribution.order.BioProApplication;
 import io.cucumber.spring.CucumberContextConfiguration;

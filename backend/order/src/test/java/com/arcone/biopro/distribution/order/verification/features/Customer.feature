@@ -1,8 +1,5 @@
 @api @DIS-88
 Feature: Customer validation
-    As a developer,
-    I want to create a mock provider for the Customer,
-    so that I can validate if the customer exists in BioPro.  Be able to ship and bill an order received from different customers.
 
     Scenario Outline: Validate an existent customer
 
