@@ -200,4 +200,38 @@ public class SharedActions {
         waitForVisible(xpath);
         return driver.findElements(xpath).size();
     }
+
+    public void waitForEnabled(By locator) {
+        try {
+            wait.until(e -> {
+                log.debug("Waiting for element {} to be enabled.", locator);
+                try {
+                    return e.findElement(locator).isEnabled();
+                } catch (NoSuchElementException | StaleElementReferenceException ex) {
+                    try {
+                        log.debug("Waiting for element {} to be enabled for the second time.", locator);
+                        return e.findElement(locator).isEnabled();
+                    } catch (NoSuchElementException |
+                             StaleElementReferenceException ex2) {                    // Element not found, consider it as not enabled
+                        log.debug("Element {} not found after two tries, considering it as not enabled.", locator);
+                        return false;
+                    }
+                }
+            });
+            log.debug("Element {} is enabled now.", locator);
+        } catch (Exception e) {
+            log.error("Element {} is not visible after the specified timeout.", locator);
+            throw e;
+        }
+    }
+
+    public String getText(By locator) {
+        waitForVisible(locator);
+        waitForEnabled(locator);
+        return wait.until(e -> {
+            log.debug("Getting text from element {}.", locator);
+            return e.findElement(locator).getText();
+        });
+    }
+
 }

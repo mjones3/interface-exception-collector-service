@@ -29,10 +29,15 @@ public class ShipmentServiceMessages {
     public static final String SECOND_VERIFICATION_WITH_INELIGIBLE_PRODUCTS_ERROR = "Second Verification cannot be cancelled because there are product(s) that should be removed from the shipment.";
     public static final String SECOND_VERIFICATION_CANCEL_CONFIRMATION = "When cancelling, all verified products will be removed. Are you sure you want to cancel and remove all the products?";
     public static final String SECOND_VERIFICATION_WITH_SHIPMENT_COMPLETED_ERROR = "Second Verification cannot be cancelled because the shipment is already completed.";
+    public static final String UNPACK_PRODUCT_NOT_FOUND_ERROR = "Product cannot be removed because does not exist";
+    public static final String UNPACK_SHIPMENT_ITEM_NOT_FOUND_ERROR = "Product cannot be removed because line item does not exist";
+    public static final String UNPACK_SHIPMENT_NOT_FOUND_ERROR = "Product cannot be removed because shipment does not exist";
+    public static final String UNPACK_SHIPMENT_COMPLETED_ERROR = "Product cannot be removed because shipment is completed";
 
 
     //    Success messages
     public static final String SHIPMENT_COMPLETED_SUCCESS = "Shipment completed";
     public static final String SECOND_VERIFICATION_CANCEL_SUCCESS = "Second verification cancellation completed";
+    public static final String UNPACK_ITEM_SUCCESS = "Product(s) successfully removed";
 
 }

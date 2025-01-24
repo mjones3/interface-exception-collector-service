@@ -69,6 +69,31 @@
                             }
                         </span>
                     </div>
+                    <div class="flex flex-row gap-5 p-2">
+                        <biopro-basic-button
+                            id="select-all-btn"
+                            [label]="
+                                selectAllTextRule
+                                    ? 'Select All'
+                                    : 'Unselect All'
+                            "
+                            [disabled]="numberOfUnits === 0"
+                            color="primary"
+                            class="text-primary"
+                            (buttonClicked)="selectAllUnits()"
+                        >
+                        </biopro-basic-button>
+
+                        <biopro-basic-button
+                            id="remove-btn"
+                            label="Remove"
+                            class="text-accent"
+                            [disabled]="numberOfSelectedUnits === 0"
+                            color="secondary"
+                            (buttonClicked)="removeSelectedProducts()"
+                        >
+                        </biopro-basic-button>
+                    </div>
                 </div>
                 <mat-divider></mat-divider>
                 <div
@@ -128,6 +153,7 @@
         <biopro-action-button
             id="backBtn"
             btnId="backActionBtn"
+            [disabled]="numberOfSelectedUnits > 0"
             label="Submit"
             color="primary"
             icon="heroicons_outline:paper-airplane"

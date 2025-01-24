@@ -11,4 +11,5 @@ public interface SecondVerificationService {
     Mono<RuleResponseDTO> verifyItem(VerifyItemRequest verifyItemRequest);
     Mono<VerifyProductResponseDTO> getVerificationDetailsByShipmentId(Long shipmentId);
     Mono<ShipmentItemPacked> resetVerification(Long shipmentId , String rootCause);
+    Mono<ShipmentItemPacked> markAsVerificationPending(ShipmentItemPacked itemPacked);
 }

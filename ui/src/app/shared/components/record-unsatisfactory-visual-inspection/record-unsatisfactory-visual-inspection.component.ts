@@ -21,7 +21,7 @@ import { MatInput } from '@angular/material/input';
 import { Subscription } from 'rxjs';
 import { InventoryDTO } from '../../models/inventory.model';
 import { ReasonDTO, ReasonMap } from '../../models/reason.dto';
-import { ActionButtonComponent } from '../action-button/action-button.component';
+import { ActionButtonComponent } from '../buttons/action-button.component';
 
 export interface RecordUnsatisfactoryVisualInspectionData {
     reasons: ReasonDTO[];

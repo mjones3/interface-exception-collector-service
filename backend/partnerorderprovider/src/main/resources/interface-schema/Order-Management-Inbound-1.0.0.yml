@@ -84,7 +84,7 @@ components:
           example: "FEDEX"
         productCategory:
           type: "string"
-          example: "ORDER_PRODUCT_CATEGORY_FROZEN"
+          example: "FROZEN"
         desiredShippingDate:
           $ref: '#/components/schemas/datePattern'
         shippingCustomerCode:

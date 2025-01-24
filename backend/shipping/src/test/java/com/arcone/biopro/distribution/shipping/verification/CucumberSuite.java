@@ -16,7 +16,7 @@ import static io.cucumber.core.options.Constants.PLUGIN_PROPERTY_NAME;
 @ActiveProfiles("AUTOMATION")
 @SelectDirectories("src/test/java/com/arcone/biopro/distribution/shipping/verification/features")
 @ConfigurationParameters({
-    @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "com.arcone.biopro.distribution.shipping.verification.steps"),
+    @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "com.arcone.biopro.distribution.shipping.verification"),
     @ConfigurationParameter(key = FILTER_TAGS_PROPERTY_NAME, value = "(@api or @ui) and not @disabled"),
     @ConfigurationParameter(
         key = PLUGIN_PROPERTY_NAME,
