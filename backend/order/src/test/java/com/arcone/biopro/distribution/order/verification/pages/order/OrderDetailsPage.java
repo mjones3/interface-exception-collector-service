@@ -37,6 +37,8 @@ public class OrderDetailsPage extends CommonPageFactory {
 
     @FindBy(how = How.ID, using = "ViewPickListDialog")
     private WebElement ViewPickListDialog;
+    @Autowired
+    private HomePage homePage;
 
     public boolean isPicklistDialogLoaded() {
         return sharedActions.isElementVisible(ViewPickListDialog);
@@ -64,6 +66,10 @@ public class OrderDetailsPage extends CommonPageFactory {
     private static final By filledProductsCountLabel = By.id("filledOrdersCount");
     private static final By totalProductsCountLabel = By.id("totalOrderProducts");
     private static final By orderProgressBar = By.id("orderProgressBarId");
+    private static final By completeOrderButton = By.id("completeBtnId");
+    private static final By completeOrderConfirmBox = By.id("CompleteOrderDialog");
+    private static final By completeOrderCommentTextArea = By.id("completeOrderReason");
+    private static final By completeOrderSubmitBtn = By.id("completeOrderSubmitBtn");
 
 
     //Dynamic locators
@@ -137,9 +143,10 @@ public class OrderDetailsPage extends CommonPageFactory {
         return sharedActions.isElementVisible(orderDetailsTitle);
     }
 
-    public void goToOrderDetails(Integer orderId) {
-        var orderDetailsUrl = baseUrl + "/orders/" + orderId + "/order-details";
-        driver.get(orderDetailsUrl);
+    public void goToOrderDetails(Integer orderId) throws InterruptedException {
+        homePage.goTo();
+        var orderDetailsUrl = "/orders/" + orderId + "/order-details";
+        sharedActions.navigateTo(orderDetailsUrl);
         Assert.assertTrue(isLoaded());
     }
 
@@ -327,5 +334,20 @@ public class OrderDetailsPage extends CommonPageFactory {
 
     public void verifyTemperatureCategory(String category) {
         sharedActions.waitForVisible(By.xpath(formatTemperatureCategoryLocator(category)));
+    }
+
+    public void completeOrder() {
+        sharedActions.click(completeOrderButton);
+    }
+
+    public boolean verifyCompleteOrderConfirmation() {
+        return sharedActions.isElementVisible(completeOrderConfirmBox);
+    }
+
+    public void confirmCompleteOrder(String comment) {
+        if (!comment.isBlank()) {
+            sharedActions.sendKeys(completeOrderCommentTextArea, comment);
+        }
+        sharedActions.click(completeOrderSubmitBtn);
     }
 }

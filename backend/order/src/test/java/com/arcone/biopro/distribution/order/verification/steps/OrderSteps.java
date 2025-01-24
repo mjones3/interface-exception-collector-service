@@ -352,7 +352,7 @@ public class OrderSteps {
     }
 
     @When("I navigate to the order details page.")
-    public void navigateToOrderDetails() {
+    public void navigateToOrderDetails() throws InterruptedException {
         context.setOrderId(Integer.valueOf(databaseService.fetchData(DatabaseQueries.getOrderId(context.getExternalId())).first().block().get("id").toString()));
         orderDetailsPage.goToOrderDetails(context.getOrderId());
     }
@@ -747,5 +747,20 @@ public class OrderSteps {
         // Order Item
         var createOrderItemQuery = DatabaseQueries.insertBioProOrderItem(context.getExternalId(), "PLASMA_TRANSFUSABLE", "A", 10, "Comments");
         databaseService.executeSql(createOrderItemQuery).block();
+    }
+
+    @And("I choose to complete the order.")
+    public void iChooseToCompleteTheOrder() {
+        orderDetailsPage.completeOrder();
+    }
+
+    @Then("I should be prompted to confirm to complete the order.")
+    public void iShouldBePromptedToConfirmToCompleteTheOrder() {
+        Assert.assertTrue(orderDetailsPage.verifyCompleteOrderConfirmation());
+    }
+
+    @When("I confirm to complete the order with the reason {string}.")
+    public void iConfirmToCompleteTheOrderWithTheReason(String comment) {
+        orderDetailsPage.confirmCompleteOrder(comment);
     }
 }
