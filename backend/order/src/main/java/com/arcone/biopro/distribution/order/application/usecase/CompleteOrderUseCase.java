@@ -5,6 +5,7 @@ import com.arcone.biopro.distribution.order.application.dto.UseCaseNotificationD
 import com.arcone.biopro.distribution.order.application.dto.UseCaseResponseDTO;
 import com.arcone.biopro.distribution.order.application.exception.DomainNotFoundForKeyException;
 import com.arcone.biopro.distribution.order.domain.event.OrderCompletedEvent;
+import com.arcone.biopro.distribution.order.domain.exception.DomainException;
 import com.arcone.biopro.distribution.order.domain.model.CompleteOrderCommand;
 import com.arcone.biopro.distribution.order.domain.model.Order;
 import com.arcone.biopro.distribution.order.domain.repository.OrderRepository;
@@ -50,14 +51,19 @@ public class CompleteOrderUseCase implements CompleteOrderService {
             .publishOn(Schedulers.boundedElastic())
             .onErrorResume(error -> {
                 log.error("Error occurred while completing order", error);
-                return Mono.just(buildErrorResponse());
+                return Mono.just(buildErrorResponse(error));
             });
     }
 
-    private UseCaseResponseDTO<Order> buildErrorResponse(){
+    private UseCaseResponseDTO<Order> buildErrorResponse(Throwable throwable) {
+        var messageType = UseCaseMessageType.COMPLETE_ORDER_ERROR;
+        if (throwable instanceof DomainException e) {
+            messageType = e.getUseCaseMessageType();
+        }
+
         return new UseCaseResponseDTO<>(List.of(UseCaseNotificationDTO
             .builder()
-            .useCaseMessageType(UseCaseMessageType.COMPLETE_ORDER_ERROR)
+            .useCaseMessageType(messageType)
             .build()), null);
     }
 

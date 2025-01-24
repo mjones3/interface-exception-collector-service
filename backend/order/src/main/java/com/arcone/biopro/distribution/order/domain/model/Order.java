@@ -1,24 +1,14 @@
 package com.arcone.biopro.distribution.order.domain.model;
 
 
-import com.arcone.biopro.distribution.order.domain.model.vo.OrderCustomer;
-import com.arcone.biopro.distribution.order.domain.model.vo.OrderExternalId;
-import com.arcone.biopro.distribution.order.domain.model.vo.OrderNumber;
-import com.arcone.biopro.distribution.order.domain.model.vo.OrderPriority;
-import com.arcone.biopro.distribution.order.domain.model.vo.OrderStatus;
-import com.arcone.biopro.distribution.order.domain.model.vo.ProductCategory;
-import com.arcone.biopro.distribution.order.domain.model.vo.ShipmentType;
-import com.arcone.biopro.distribution.order.domain.model.vo.ShippingMethod;
+import com.arcone.biopro.distribution.order.domain.exception.DomainException;
+import com.arcone.biopro.distribution.order.domain.model.vo.*;
 import com.arcone.biopro.distribution.order.domain.repository.OrderRepository;
 import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
 import com.arcone.biopro.distribution.order.domain.service.OrderConfigService;
 import com.arcone.biopro.distribution.order.domain.service.OrderShipmentService;
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
@@ -29,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.arcone.biopro.distribution.order.application.dto.UseCaseMessageType.*;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static java.util.Optional.ofNullable;
@@ -221,15 +212,15 @@ public class Order implements Validatable {
 
     public void completeOrder(CompleteOrderCommand completeOrderCommand, LookupService lookupService, OrderShipmentService orderShipmentService) {
         if (ORDER_COMPLETED_STATUS.equals(orderStatus.getOrderStatus())) {
-            throw new IllegalArgumentException("Order is already completed");
+            throw new DomainException(ORDER_IS_ALREADY_COMPLETED);
         }
 
         if (!ORDER_IN_PROGRESS_STATUS.equals(orderStatus.getOrderStatus())) {
-            throw new IllegalArgumentException("Order is not in-progress cannot be completed");
+            throw new DomainException(ORDER_IS_NOT_IN_PROGRESS_AND_CANNOT_BE_COMPLETED);
         }
 
         if (hasShipmentOpen(orderShipmentService)) {
-            throw new IllegalArgumentException("Order has an open shipment");
+            throw new DomainException(ORDER_HAS_AN_OPEN_SHIPMENT);
         }
 
         this.orderStatus = new OrderStatus(ORDER_COMPLETED_STATUS, lookupService);
