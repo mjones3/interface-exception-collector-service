@@ -196,7 +196,7 @@ class OrderTest {
             , null, null, "OPEN", null, "OPEN", "OPEN", "CREATE_EMPLOYEE"
             , null, null, null);
 
-        assertThrows(DomainException.class, () -> order.createBackOrder("CREATE-EMPLOYEE-ID",customerService,lookupService,orderConfigService) , "Back Order cannot be created, configuration is not active");
+        assertThrows(IllegalArgumentException.class, () -> order.createBackOrder("CREATE-EMPLOYEE-ID",customerService,lookupService,orderConfigService) , "Back Order cannot be created, configuration is not active");
     }
 
     @Test
@@ -218,7 +218,7 @@ class OrderTest {
 
         order.addItem(1L,"TYPE","TYPE",1,1,"", ZonedDateTime.now(),ZonedDateTime.now(),orderConfigService);
 
-        assertThrows(DomainException.class, () -> order.createBackOrder("CREATE-EMPLOYEE-ID",customerService,lookupService,orderConfigService) , "Back Order cannot be created, there is no remaining items");
+        assertThrows(IllegalArgumentException.class, () -> order.createBackOrder("CREATE-EMPLOYEE-ID",customerService,lookupService,orderConfigService) , "Back Order cannot be created, there is no remaining items");
     }
 
 

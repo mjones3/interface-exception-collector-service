@@ -5,15 +5,12 @@ import com.arcone.biopro.distribution.order.application.dto.UseCaseNotificationD
 import com.arcone.biopro.distribution.order.application.dto.UseCaseResponseDTO;
 import com.arcone.biopro.distribution.order.application.exception.DomainNotFoundForKeyException;
 import com.arcone.biopro.distribution.order.domain.event.OrderCompletedEvent;
+import com.arcone.biopro.distribution.order.domain.event.OrderCreatedEvent;
 import com.arcone.biopro.distribution.order.domain.exception.DomainException;
 import com.arcone.biopro.distribution.order.domain.model.CompleteOrderCommand;
 import com.arcone.biopro.distribution.order.domain.model.Order;
 import com.arcone.biopro.distribution.order.domain.repository.OrderRepository;
-import com.arcone.biopro.distribution.order.domain.service.CompleteOrderService;
-import com.arcone.biopro.distribution.order.domain.service.CustomerService;
-import com.arcone.biopro.distribution.order.domain.service.LookupService;
-import com.arcone.biopro.distribution.order.domain.service.OrderConfigService;
-import com.arcone.biopro.distribution.order.domain.service.OrderShipmentService;
+import com.arcone.biopro.distribution.order.domain.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
