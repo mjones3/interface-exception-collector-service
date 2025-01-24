@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.order.unit.domain;
 
+import com.arcone.biopro.distribution.order.domain.exception.DomainException;
 import com.arcone.biopro.distribution.order.domain.model.CompleteOrderCommand;
 import com.arcone.biopro.distribution.order.domain.model.Lookup;
 import com.arcone.biopro.distribution.order.domain.model.Order;
@@ -150,8 +151,7 @@ class OrderTest {
             , null, null, "COMPLETED", null, "COMPLETED", "COMPLETED", "CREATE_EMPLOYEE"
             , null, null, null);
 
-        assertThrows(IllegalArgumentException.class, () -> order.completeOrder(new CompleteOrderCommand(1L,"employeeid","comments"),lookupService,orderShipmentServiceMock) , "Order is already closed");
-
+        assertThrows(DomainException.class, () -> order.completeOrder(new CompleteOrderCommand(1L,"employeeid","comments"),lookupService,orderShipmentServiceMock) , "Order is already closed");
     }
 
     @Test
