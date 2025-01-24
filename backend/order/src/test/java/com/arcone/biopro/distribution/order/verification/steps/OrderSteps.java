@@ -286,7 +286,7 @@ public class OrderSteps {
         for (int i = 0; i <= quantity; i++) {
             var priority = orderController.getRandomPriority();
             var externalId = "EXT20RECORDS" + i;
-            var query = DatabaseQueries.insertBioProOrder(context.getExternalId(), "123456789", priority.getValue(), priority.getKey(), "OPEN");
+            var query = DatabaseQueries.insertBioProOrder(externalId, "123456789", priority.getValue(), priority.getKey(), "OPEN");
             databaseService.executeSql(query).block();
         }
     }
