@@ -42,8 +42,8 @@
     } ],
     "histories" : [ ],
     "comments" : null,
-    "deviceStored" : null,
-    "storageLocation" : "FREEZER 1, RACK 1, SHELF 1"
+    "deviceStored" : "FREEZER 1",
+    "storageLocation" : "RACK 1, SHELF 1"
   },
   "notificationMessages" : [ {
     "name" : "INVENTORY_IS_QUARANTINED",

@@ -40,7 +40,7 @@ public abstract class InventoryOutputMapper {
 
     @Mapping(target = "unitNumber", source = "inventory.unitNumber.value")
     @Mapping(target = "productCode", source = "inventory.productCode.value")
-    @Mapping(target = "storageLocation", source = "inventory.storageLocation")
+    @Mapping(target = "storageLocation", expression = "java(inventoryAggregate.getInventory().getDeviceStored() + \" - \" + inventoryAggregate.getInventory().getStorageLocation())")
     @Mapping(target = "aboRh", source = "inventory.aboRh")
     protected abstract Product toOutput(InventoryAggregate inventoryAggregate);
 
