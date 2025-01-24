@@ -69,13 +69,13 @@ public class InventoryOutputMapperTest {
     public void testOutputFamily(){
         var unitNumber = inventoryAggregate.getInventory().getUnitNumber().value();
         var productCode = inventoryAggregate.getInventory().getProductCode().value();
-        var storageLocation = inventoryAggregate.getInventory().getStorageLocation();
+        var storageLocation = inventoryAggregate.getInventory().getDeviceStored() + " - " +inventoryAggregate.getInventory().getStorageLocation();
         var aboRh = inventoryAggregate.getInventory().getAboRh();
         InventoryFamily family = mapper.toOutput("a-product-family", AboRhCriteria.A, 1L, List.of(inventoryAggregate));
         assertEquals("a-product-family", family.productFamily());
         assertEquals(AboRhCriteria.A, family.aboRh());
         assertEquals(1L, family.quantityAvailable());
-        assertEquals(List.of(new Product(unitNumber, productCode, storageLocation, aboRh)), family.shortDateProducts());
+        assertEquals(new Product(unitNumber, productCode, storageLocation, aboRh), family.shortDateProducts().getFirst());
     }
 
     @Test
@@ -97,7 +97,7 @@ public class InventoryOutputMapperTest {
         Product output = mapper.toOutput(inventoryAggregate);
         assertEquals(inventoryAggregate.getInventory().getUnitNumber().value(), output.unitNumber());
         assertEquals(inventoryAggregate.getInventory().getProductCode().value(), output.productCode());
-        assertEquals(inventoryAggregate.getInventory().getStorageLocation(), output.storageLocation());
+        assertEquals(inventoryAggregate.getInventory().getDeviceStored() + " - " + inventoryAggregate.getInventory().getStorageLocation(), output.storageLocation());
         assertEquals(inventoryAggregate.getInventory().getAboRh(), output.aboRh());
     }
 
