@@ -123,8 +123,8 @@
       "minLength": 1,
       "title": "Ordered product category",
       "examples": [
-        "ORDER_PRODUCT_CATEGORY_FROZEN",
-        "ORDER_PRODUCT_CATEGORY_REFRIGERATED"
+        "FROZEN",
+        "REFRIGERATED"
       ]
     },
     "shippingMethod": {
