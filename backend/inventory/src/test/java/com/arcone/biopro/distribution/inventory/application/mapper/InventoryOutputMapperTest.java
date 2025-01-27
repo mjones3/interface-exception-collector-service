@@ -69,7 +69,7 @@ public class InventoryOutputMapperTest {
     @ParameterizedTest
     @DisplayName("should return correct storageLocation based on deviceStored and storageLocation values")
     @CsvSource({
-        "REFRIGERATOR 1, SHELF 1, REFRIGERATOR 1 - SHELF 1",
+        "'REFRIGERATOR 1', 'SHELF 1, BIN2', 'REFRIGERATOR 1 SHELF 1, BIN2'",
         "REFRIGERATOR 1, , REFRIGERATOR 1",
         ", SHELF 1, ",
         ", , "
@@ -87,7 +87,7 @@ public class InventoryOutputMapperTest {
     public void testOutputFamily(){
         var unitNumber = inventoryAggregate.getInventory().getUnitNumber().value();
         var productCode = inventoryAggregate.getInventory().getProductCode().value();
-        var storageLocation = inventoryAggregate.getInventory().getDeviceStored() + " - " + inventoryAggregate.getInventory().getStorageLocation();
+        var storageLocation = inventoryAggregate.getInventory().getDeviceStored() + " " + inventoryAggregate.getInventory().getStorageLocation();
         var aboRh = inventoryAggregate.getInventory().getAboRh();
         InventoryFamily family = mapper.toOutput("a-product-family", AboRhCriteria.A, 1L, List.of(inventoryAggregate));
         assertEquals("a-product-family", family.productFamily());
@@ -115,7 +115,7 @@ public class InventoryOutputMapperTest {
         Product output = mapper.toOutput(inventoryAggregate);
         assertEquals(inventoryAggregate.getInventory().getUnitNumber().value(), output.unitNumber());
         assertEquals(inventoryAggregate.getInventory().getProductCode().value(), output.productCode());
-        assertEquals(inventoryAggregate.getInventory().getDeviceStored() + " - " + inventoryAggregate.getInventory().getStorageLocation(), output.storageLocation());
+        assertEquals(inventoryAggregate.getInventory().getDeviceStored() + " " + inventoryAggregate.getInventory().getStorageLocation(), output.storageLocation());
         assertEquals(inventoryAggregate.getInventory().getAboRh(), output.aboRh());
     }
 

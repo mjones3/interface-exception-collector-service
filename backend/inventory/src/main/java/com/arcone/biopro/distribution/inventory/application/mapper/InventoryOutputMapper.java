@@ -50,7 +50,7 @@ public abstract class InventoryOutputMapper {
         } else if (inventory.getStorageLocation() == null) {
             return inventory.getDeviceStored();
         } else {
-            return inventory.getDeviceStored() + " - " + inventory.getStorageLocation();
+            return inventory.getDeviceStored() + " " + inventory.getStorageLocation();
         }
     }
 
