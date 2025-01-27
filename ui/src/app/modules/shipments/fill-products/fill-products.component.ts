@@ -549,7 +549,7 @@ export class FillProductsComponent implements OnInit {
                         const notification = ruleResult.notifications[0];
                         this.toaster.show(
                             notification?.message,
-                            notification.notificationType,
+                            null,
                             null,
                             NotificationTypeMap[notification?.notificationType]
                                 .type
