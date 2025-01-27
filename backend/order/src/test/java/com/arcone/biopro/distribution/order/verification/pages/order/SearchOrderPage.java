@@ -1,6 +1,6 @@
 package com.arcone.biopro.distribution.order.verification.pages.order;
 
-import com.arcone.biopro.distribution.order.verification.controllers.OrderController;
+import com.arcone.biopro.distribution.order.verification.controllers.OrderTestingController;
 import com.arcone.biopro.distribution.order.verification.pages.CommonPageFactory;
 import com.arcone.biopro.distribution.order.verification.pages.SharedActions;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +34,7 @@ public class SearchOrderPage extends CommonPageFactory {
     private static final String ORDER_SHIP_TO_CUSTOMER_SELECT_ID = "customersSelect";
     private static final String ORDER_SHIP_TO_CUSTOMER_PANEL_ID = "customersSelect-panel";
 
-    OrderController orderController = new OrderController();
+    OrderTestingController orderController = new OrderTestingController();
 
     @Autowired
     private SharedActions sharedActions;

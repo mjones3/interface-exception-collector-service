@@ -77,8 +77,12 @@ public class DatabaseQueries {
         return String.format("DELETE FROM bld_order_shipment WHERE order_id in ( SELECT id from bld_order WHERE external_id like '%s%%')", externalIdPrefix);
     }
 
-    public static String insertBioProOrderShipment(String orderId){
+    public static String insertBioProOrderShipment(String orderId, String shipmentStatus) {
         return String.format("INSERT INTO bld_order_shipment (order_id, shipment_id, shipment_status, create_date, modification_date) " +
-            "VALUES (%s, 1, 'OPEN', current_date, current_date)", orderId);
+            "VALUES (%s, 1, '%s', current_date, current_date)", orderId, shipmentStatus);
+    }
+
+    public static String insertBioProOrderShipment(String orderId){
+        return insertBioProOrderShipment(orderId, "OPEN");
     }
 }

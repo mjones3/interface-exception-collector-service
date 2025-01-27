@@ -59,7 +59,11 @@ CREATE TABLE order_service.bld_order (
     create_employee_id         VARCHAR(50)                        NOT NULL,
     create_date                TIMESTAMP WITH TIME ZONE           NOT NULL,
     modification_date          TIMESTAMP WITH TIME ZONE           NOT NULL,
-    delete_date                TIMESTAMP WITH TIME ZONE
+    delete_date                TIMESTAMP WITH TIME ZONE,
+    complete_employee_id          VARCHAR(50) DEFAULT NULL           ,
+    complete_date                 TIMESTAMP WITH TIME ZONE DEFAULT NULL ,
+    complete_comments             VARCHAR(1000) DEFAULT NULL
+
 );
 
 CREATE UNIQUE INDEX uq_idx_bld_order_external_id ON order_service.bld_order (external_id);

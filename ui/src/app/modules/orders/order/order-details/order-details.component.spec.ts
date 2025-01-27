@@ -3,8 +3,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router } from '@angular/router';
+import { provideMockStore } from '@ngrx/store/testing';
 import { TranslateModule } from '@ngx-translate/core';
-import { ApolloModule } from 'apollo-angular';
 import { ApolloTestingModule } from 'apollo-angular/testing';
 import { ToastrModule } from 'ngx-toastr';
 import { of } from 'rxjs';
@@ -24,12 +24,12 @@ describe('OrderDetailsComponent', () => {
                 ApolloTestingModule,
                 NoopAnimationsModule,
                 MatIconTestingModule,
-                ApolloModule,
                 TranslateModule.forRoot(),
                 ToastrModule.forRoot(),
             ],
             providers: [
                 provideHttpClient(),
+                provideMockStore({}),
                 {
                     provide: ActivatedRoute,
                     useValue: {

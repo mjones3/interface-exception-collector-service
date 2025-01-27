@@ -2,7 +2,7 @@ package com.arcone.biopro.distribution.order.verification.steps;
 
 import com.arcone.biopro.distribution.order.verification.controllers.CustomerController;
 import com.arcone.biopro.distribution.order.verification.support.ApiHelper;
-import com.arcone.biopro.distribution.order.verification.support.GraphQLQueryMapper;
+import com.arcone.biopro.distribution.order.verification.support.graphql.GraphQLQueryMapper;
 import com.arcone.biopro.distribution.order.verification.support.types.CustomerType;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;

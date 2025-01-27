@@ -10,6 +10,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +24,9 @@ public class SharedActions {
     @Autowired
     @Lazy
     private WebDriverWait wait;
+
+    @Value("${ui.base.url}")
+    private String baseUrl;
 
     public void waitForVisible(WebElement element) {
         try {
@@ -127,9 +131,26 @@ public class SharedActions {
         return element.isDisplayed();
     }
 
+    public boolean isElementVisible(By locator) {
+        try {
+            return wait.until(ExpectedConditions.visibilityOfElementLocated(locator)).isDisplayed();
+        } catch (NoSuchElementException e) {
+            return false;
+        }
+    }
+
     public void sendKeys(WebElement element, String text) {
         waitForVisible(element);
         element.sendKeys(text);
+    }
+
+    public void sendKeys (By locator, String text) {
+        waitForVisible(locator);
+        wait.until(e -> {
+            log.debug("Sending keys {} to element {}.", text, locator);
+            sendKeys(e.findElement(locator), text);
+            return true;
+        });
     }
 
     public void waitForAttribute(WebElement element, String attribute, String value) {
@@ -145,6 +166,16 @@ public class SharedActions {
     public void click(WebDriver driver, By byElement) {
         waitForVisible(byElement);
         driver.findElement(byElement).click();
+    }
+
+    public void click(By locator) {
+        waitForVisible(locator);
+        waitForEnabled(locator);
+        wait.until(e -> {
+            log.debug("Clicking on element {}.", locator);
+            e.findElement(locator).click();
+            return true;
+        });
     }
 
     public void clickElementAndMoveToNewTab(WebDriver driver, WebElement element, int expectedWindowsNumber) {
@@ -175,7 +206,7 @@ public class SharedActions {
     public void verifyMessage(String header, String message) {
         log.info("Verifying message: {}", message);
         String bannerMessageLocator = "#toast-container";
-        String msg = wait.until(e -> e.findElement(By.cssSelector(bannerMessageLocator))).getText();
+        String msg = getText(By.cssSelector(bannerMessageLocator));
 
         // Split the message at line break to get header and message
         String[] msgParts = msg.split("\n");
@@ -234,4 +265,11 @@ public class SharedActions {
         });
     }
 
+    public void navigateTo(String url) {
+        wait.until(e -> {
+            log.debug("Navigating to URL: {}", url);
+            e.get(baseUrl + url);
+            return true;
+        });
+    }
 }

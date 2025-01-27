@@ -8,6 +8,7 @@ import com.arcone.biopro.distribution.order.domain.model.Order;
 import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
 import com.arcone.biopro.distribution.order.domain.service.OrderConfigService;
+import com.arcone.biopro.distribution.order.domain.service.OrderShipmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -24,6 +25,7 @@ public class OrderMapper {
     private final OrderItemMapper orderItemMapper;
     private final LookupService lookupService;
     private final OrderConfigService orderConfigService;
+    private final OrderShipmentService orderShipmentService;
 
     public OrderResponseDTO  mapToDTO(final UseCaseResponseDTO<Order> useCaseResponse) {
 
@@ -39,7 +41,7 @@ public class OrderMapper {
                     .build())
                 .toList()
             )
-            .data(mapToDTO(useCaseResponse.data()))
+            .data(useCaseResponse.data() != null ?  mapToDTO(useCaseResponse.data()) : null)
             .build();
     }
 
@@ -77,6 +79,10 @@ public class OrderMapper {
             .totalRemaining(order.getTotalRemaining())
             .totalShipped(order.getTotalShipped())
             .totalProducts(order.getTotalProducts())
+            .canBeCompleted(order.canBeCompleted(orderShipmentService))
+            .completeEmployeeId(order.getCompleteEmployeeId())
+            .completeDate(order.getCompleteDate())
+            .completeComments(order.getCompleteComments())
             .build();
     }
 

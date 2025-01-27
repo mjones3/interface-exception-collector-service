@@ -305,4 +305,31 @@ describe('FillProductsComponent', () => {
         expect(component.selectedProducts.length).toBe(0);
         expect(enableFillUnitNumberAndProductCodeSpy).toHaveBeenCalled();
     });
+
+    describe('select/unselect all units', () => {
+        const unpackedItemList = [
+            {
+                unitNumber: 'W123424138945',
+                productCode: 'RBCAPH1',
+            },
+            {
+                unitNumber: 'W123424138945',
+                productCode: 'RBCAPH2',
+            },
+        ];
+        it('should select all units', () => {
+            component.filledProductsData = [...unpackedItemList];
+            component.selectAllUnits();
+            expect(component.selectedProducts).toHaveLength(
+                unpackedItemList.length
+            );
+        });
+
+        it('should unselect all units', () => {
+            component.filledProductsData = [...unpackedItemList];
+            component.selectedProducts = [...unpackedItemList];
+            component.selectAllUnits();
+            expect(component.selectedProducts).toHaveLength(0);
+        });
+    });
 });

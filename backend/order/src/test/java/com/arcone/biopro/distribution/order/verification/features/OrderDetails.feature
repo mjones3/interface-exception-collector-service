@@ -1,10 +1,6 @@
 @ui @AOA-152
 Feature: View order details
 
-    As a Distribution Technician,
-    I want to be able to view the details of an order,
-    so that I know the customer requirements for filling the products in an order.
-
     Background:
         Given I cleaned up from the database the orders with external ID starting with "ORDER".
 

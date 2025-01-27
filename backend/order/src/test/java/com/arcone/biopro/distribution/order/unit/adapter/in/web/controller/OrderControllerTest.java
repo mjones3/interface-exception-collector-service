@@ -18,6 +18,7 @@ import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
 import com.arcone.biopro.distribution.order.domain.service.OrderConfigService;
 import com.arcone.biopro.distribution.order.domain.service.OrderService;
+import com.arcone.biopro.distribution.order.domain.service.OrderShipmentService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -29,11 +30,12 @@ import reactor.test.StepVerifier;
 
 import static org.mockito.ArgumentMatchers.anyLong;
 
-@SpringJUnitConfig(classes = { OrderController.class, OrderMapper.class, OrderItemMapper.class })
+@SpringJUnitConfig(classes = { OrderController.class, OrderMapper.class, OrderItemMapper.class, OrderShipmentService.class })
 class OrderControllerTest {
 
     @Autowired
     OrderController orderController;
+
     @Autowired
     OrderMapper orderMapper;
     @MockBean
@@ -44,6 +46,8 @@ class OrderControllerTest {
     OrderConfigService orderConfigService;
     @MockBean
     LookupService lookupService;
+    @MockBean
+    OrderShipmentService orderShipmentService;
 
     @Test
     public void shouldFindOrderById(){

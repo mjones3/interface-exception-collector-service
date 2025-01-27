@@ -1,4 +1,4 @@
-package com.arcone.biopro.distribution.order.verification.steps;
+package com.arcone.biopro.distribution.order.verification.config;
 
 import io.cucumber.java.After;
 import lombok.extern.slf4j.Slf4j;

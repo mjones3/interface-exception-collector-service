@@ -1,8 +1,5 @@
 @AOA-39
 Feature: List of all orders in Search Order
-    As a Distribution Technician,
-    I want to see the list of orders
-    so that I am able to see the list of orders based on priority.
 
     Background:
         Given I cleaned up from the database the orders with external ID starting with "EXT1141179".

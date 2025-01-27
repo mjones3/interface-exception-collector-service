@@ -3,11 +3,11 @@ package com.arcone.biopro.distribution.shipping.verification.support.controllers
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.BloodType;
 import com.arcone.biopro.distribution.shipping.verification.support.ApiHelper;
 import com.arcone.biopro.distribution.shipping.verification.support.DatabaseService;
-import com.arcone.biopro.distribution.shipping.verification.support.GraphQLMutationMapper;
-import com.arcone.biopro.distribution.shipping.verification.support.GraphQLQueryMapper;
 import com.arcone.biopro.distribution.shipping.verification.support.KafkaHelper;
 import com.arcone.biopro.distribution.shipping.verification.support.TestUtils;
 import com.arcone.biopro.distribution.shipping.verification.support.Topics;
+import com.arcone.biopro.distribution.shipping.verification.support.graphql.GraphQLMutationMapper;
+import com.arcone.biopro.distribution.shipping.verification.support.graphql.GraphQLQueryMapper;
 import com.arcone.biopro.distribution.shipping.verification.support.types.ListShipmentsResponseType;
 import com.arcone.biopro.distribution.shipping.verification.support.types.OrderFulfilledEventType;
 import com.arcone.biopro.distribution.shipping.verification.support.types.ShipmentFulfillmentRequest;

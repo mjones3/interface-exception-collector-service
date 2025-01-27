@@ -100,23 +100,19 @@
                     id="optionButtons"
                     class="grid max-h-[520px] grid-cols-4 gap-4 overflow-auto pb-4 pt-4"
                 >
-                    @if (filledProductsData.length === 0) {
-                        <p>Scan or Enter Unit Number</p>
-                    } @else {
-                        @for (option of filledProductsData; track $index) {
-                            <biopro-unit-number-card
-                                [id]="'unit-' + $index"
-                                class="max-h-24"
-                                [unitNumber]="option.unitNumber"
-                                [productName]="option.productCode"
-                                [productDescription]="option.productDescription"
-                                [visualInspection]="option.visualInspection"
-                                [iconName]="getIcon()"
-                                [active]="selectedProducts.includes(option)"
-                                (clickEvent)="toggleProduct(option)"
-                                [showVisualInspection]="showVisualInspection"
-                            ></biopro-unit-number-card>
-                        }
+                    @for (option of filledProductsData; track $index) {
+                        <biopro-unit-number-card
+                            [id]="'unit-' + $index"
+                            class="max-h-24"
+                            [unitNumber]="option.unitNumber"
+                            [productName]="option.productCode"
+                            [productDescription]="option.productDescription"
+                            [visualInspection]="option.visualInspection"
+                            [iconName]="getIcon()"
+                            [active]="selectedProducts.includes(option)"
+                            (clickEvent)="toggleProduct(option)"
+                            [showVisualInspection]="showVisualInspection"
+                        ></biopro-unit-number-card>
                     }
                 </div>
             </fuse-card>
