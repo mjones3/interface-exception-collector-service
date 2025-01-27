@@ -42,7 +42,7 @@ export class CompleteOrderComponent {
         MatDialogRef<CompleteOrderCommandDTO, CompleteOrderCommandDTO>
     );
     formBuilder = inject(FormBuilder);
-    readonly commentsMaxLength = 1000;
+    readonly commentsMaxLength = 250;
 
     form = this.formBuilder.group({
         comments: ['', [Validators.maxLength(this.commentsMaxLength)]],

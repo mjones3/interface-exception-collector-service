@@ -325,6 +325,7 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
                 data: {
                     isBackOrderCreationActive: this.isBackOrderCreationActive,
                 },
+                disableClose: true,
                 id: 'CompleteOrderDialog',
                 width: '30rem',
             })
