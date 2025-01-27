@@ -40,9 +40,19 @@ public abstract class InventoryOutputMapper {
 
     @Mapping(target = "unitNumber", source = "inventory.unitNumber.value")
     @Mapping(target = "productCode", source = "inventory.productCode.value")
-    @Mapping(target = "storageLocation", expression = "java(inventoryAggregate.getInventory().getDeviceStored() + \" - \" + inventoryAggregate.getInventory().getStorageLocation())")
+    @Mapping(target = "storageLocation", expression = "java(mapStorageLocation(inventoryAggregate.getInventory()))")
     @Mapping(target = "aboRh", source = "inventory.aboRh")
     protected abstract Product toOutput(InventoryAggregate inventoryAggregate);
+
+    protected String mapStorageLocation(Inventory inventory) {
+        if (inventory.getDeviceStored() == null) {
+            return null;
+        } else if (inventory.getStorageLocation() == null) {
+            return inventory.getDeviceStored();
+        } else {
+            return inventory.getDeviceStored() + " - " + inventory.getStorageLocation();
+        }
+    }
 
     @Mapping(target = "inventoryOutput", source = "inventory")
     @Mapping(target = "notificationMessages.message", expression = "java(toOutput(notificationMessage.message()))")

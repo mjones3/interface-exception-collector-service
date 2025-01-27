@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.inventory.application.mapper;
 
 import com.arcone.biopro.distribution.inventory.application.dto.*;
+import com.arcone.biopro.distribution.inventory.domain.model.Inventory;
 import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhCriteria;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mapstruct.factory.Mappers;
 import org.mockito.Mock;
@@ -64,12 +66,28 @@ public class InventoryOutputMapperTest {
         assertEquals(inventoryAggregate.getInventory().getProductCode().value(), outPut.productCode());
     }
 
+    @ParameterizedTest
+    @DisplayName("should return correct storageLocation based on deviceStored and storageLocation values")
+    @CsvSource({
+        "REFRIGERATOR 1, SHELF 1, REFRIGERATOR 1 - SHELF 1",
+        "REFRIGERATOR 1, , REFRIGERATOR 1",
+        ", SHELF 1, ",
+        ", , "
+    })
+    void testStorageLocation(String deviceStored, String storageLocation, String expected) {
+        Inventory inventory = new Inventory();
+        inventory.setDeviceStored(deviceStored);
+        inventory.setStorageLocation(storageLocation);
+        Product product = mapper.toOutput(InventoryAggregate.builder().inventory(inventory).build());
+        assertEquals(expected, product.storageLocation());
+    }
+
     @Test
     @DisplayName("should return output with InventoryFamily")
     public void testOutputFamily(){
         var unitNumber = inventoryAggregate.getInventory().getUnitNumber().value();
         var productCode = inventoryAggregate.getInventory().getProductCode().value();
-        var storageLocation = inventoryAggregate.getInventory().getDeviceStored() + " - " +inventoryAggregate.getInventory().getStorageLocation();
+        var storageLocation = inventoryAggregate.getInventory().getDeviceStored() + " - " + inventoryAggregate.getInventory().getStorageLocation();
         var aboRh = inventoryAggregate.getInventory().getAboRh();
         InventoryFamily family = mapper.toOutput("a-product-family", AboRhCriteria.A, 1L, List.of(inventoryAggregate));
         assertEquals("a-product-family", family.productFamily());
