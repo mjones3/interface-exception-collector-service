@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import {
+    MAT_DIALOG_DATA,
     MatDialogActions,
     MatDialogClose,
     MatDialogContent,
@@ -18,7 +19,7 @@ import { MatInput } from '@angular/material/input';
 import { CompleteOrderCommandDTO } from '../graphql/mutation-definitions/complete-order.graphql';
 
 @Component({
-    selector: 'app-complete-order',
+    selector: 'biopro-complete-order',
     standalone: true,
     imports: [
         MatDialogTitle,
@@ -47,6 +48,7 @@ export class CompleteOrderComponent {
         comments: ['', [Validators.maxLength(this.commentsMaxLength)]],
         createBackOrder: [false],
     });
+    data = inject<{ isBackOrderCreationActive: boolean }>(MAT_DIALOG_DATA);
 
     continue(_event: Event): void {
         this.dialogRef.close(this.form.getRawValue());

@@ -28,6 +28,7 @@ export interface OrderDetailsDTO {
     completeEmployeeId: string;
     completeDate: string;
     completeComments: string;
+    backOrderCreationActive: boolean;
 }
 
 export interface OrderItemDetailsDto {
