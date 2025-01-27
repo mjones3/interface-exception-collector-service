@@ -2,7 +2,7 @@ package com.arcone.biopro.distribution.order.verification.support.graphql;
 
 public class GraphQLMutationMapper {
 
-    public static String completeOrderMutation(Integer orderId, String employeeId, String comments) {
+    public static String completeOrderMutation(Integer orderId, String employeeId, String comments, boolean createBackOrder) {
         return (String.format("""
             mutation {
                 completeOrder(
@@ -10,6 +10,7 @@ public class GraphQLMutationMapper {
                 orderId: %s
                 employeeId: "%s"
                 comments: "%s"
+                createBackOrder: %s
             }
         ) {
             notifications {
@@ -59,7 +60,7 @@ public class GraphQLMutationMapper {
             }
         }
     }
-    """, orderId, employeeId, comments));
+    """, orderId, employeeId, comments, createBackOrder));
     }
 
 }

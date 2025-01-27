@@ -719,7 +719,7 @@ public class OrderSteps {
 
     @When("I request to complete the order.")
     public void iRequestToCompleteTheOrder() {
-        Map completeOrderRequest = orderController.completeOrder(context.getOrderId());
+        Map completeOrderRequest = orderController.completeOrder(context.getOrderId(), false);
         try{
         Map orderStatus = (Map) completeOrderRequest.get("data");
         context.setOrderStatus(orderStatus.get("status").toString());}
@@ -763,4 +763,12 @@ public class OrderSteps {
     public void iConfirmToCompleteTheOrderWithTheReason(String comment) {
         orderDetailsPage.confirmCompleteOrder(comment);
     }
+
+    @And("I define the backorder creation option as {string}.")
+    public void iDefineTheBackorderCreationOptionAs(String createBackOrderOption) {
+        boolean createBkOrderOption = createBackOrderOption.equalsIgnoreCase("true");
+
+        orderDetailsPage.defineBackOrderOption(createBkOrderOption);
+    }
+
 }

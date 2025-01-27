@@ -2,16 +2,22 @@ package com.arcone.biopro.distribution.order.verification.steps;
 
 import com.arcone.biopro.distribution.order.verification.support.DatabaseQueries;
 import com.arcone.biopro.distribution.order.verification.support.DatabaseService;
+import com.arcone.biopro.distribution.order.verification.support.SharedContext;
 import com.arcone.biopro.distribution.order.verification.support.TestUtils;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
+import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Objects;
 
 public class DatabaseSteps {
     @Autowired
     private DatabaseService databaseService;
     @Autowired
     private TestUtils testUtils;
+    @Autowired
+    private SharedContext context;
 
     @And("I cleaned up from the database, all shipments with order number {string}.")
     public void cleanUpShipments(String orderNumber) {
@@ -67,5 +73,24 @@ public class DatabaseSteps {
     public void restoreDefaultPriorityColors() {
         var query = DatabaseQueries.restoreDefaultPriorityColors();
         databaseService.executeSql(query).block();
+    }
+
+    @And("A back order {string} be created with the same external ID and status {string}.")
+    public void ifConfiguredABackOrderMustBeCreatedWithTheSameExternalID(String option, String status) {
+        var query = DatabaseQueries.countBackOrders(context.getExternalId(), context.getOrderId());
+        var data = databaseService.fetchData(query);
+
+        if (option.equalsIgnoreCase("should")) {
+            var records = data.first().block();
+            assert records != null;
+            Assert.assertFalse(records.isEmpty());
+            Assert.assertEquals(records.get("status"), status);
+            Assert.assertEquals(records.get("external_id"), context.getExternalId());
+        } else if (option.equalsIgnoreCase("should not")) {
+            var records = data.first().block();
+            assert Objects.requireNonNull(records).isEmpty();
+        } else {
+            Assert.fail("Invalid value. Use 'Should' or 'Should Not' to define the correct configuration.");
+        }
     }
 }

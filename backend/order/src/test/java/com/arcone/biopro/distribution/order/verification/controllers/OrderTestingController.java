@@ -95,9 +95,9 @@ public class OrderTestingController {
         private final String description;
     }
 
-    public Map completeOrder(Integer orderId) {
+    public Map completeOrder(Integer orderId, boolean createBackOrder) {
         String employeeId = context.getEmployeeId();
-        return apiHelper.graphQlRequest(GraphQLMutationMapper.completeOrderMutation(orderId, employeeId, "Order completed comment"), "completeOrder");
+        return apiHelper.graphQlRequest(GraphQLMutationMapper.completeOrderMutation(orderId, employeeId, "Order completed comment", createBackOrder), "completeOrder");
     }
 
 }
