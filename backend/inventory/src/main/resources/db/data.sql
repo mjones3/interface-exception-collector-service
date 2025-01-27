@@ -17,6 +17,9 @@ insert into lk_text_config (context, key_code, text)
 values ('INVENTORY_IS_SHIPPED', 'DEFAULT', 'This product was previously shipped.');
 
 insert into lk_text_config (context, key_code, text)
+values ('INVENTORY_IS_UNLABELED', 'DEFAULT', 'This product is not labeled and cannot be shipped.');
+
+insert into lk_text_config (context, key_code, text)
 values ('INVENTORY_IS_UNSUITABLE', 'ACTIVE_DEFERRAL', 'This product has an active deferral with a discard consequence and has been discarded. Place in biohazard container.');
 
 insert into lk_text_config (context, key_code, text)
@@ -28,5 +31,8 @@ insert into lk_product_family (product_family, time_frame)
 values ('RED_BLOOD_CELLS', 5);
 insert into lk_product_family (product_family, time_frame)
 values ('RED_BLOOD_CELLS_LEUKOREDUCED', 5);
-
+insert into lk_product_family (product_family, time_frame)
+values ('WHOLE_BLOOD', 5);
+insert into lk_product_family (product_family, time_frame)
+values ('WHOLE_BLOOD_LEUKOREDUCED', 5);
 

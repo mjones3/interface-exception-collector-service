@@ -8,7 +8,7 @@
       "value" : "E0869V02"
     },
     "shortDescription" : "Short description",
-    "inventoryStatus" : "QUARANTINED",
+    "inventoryStatus" : "AVAILABLE",
     "expirationDate" : "2024-10-31T13:02:48.179494",
     "collectionDate" : "2024-10-30T16:02:48.179494Z",
     "isLicensed" : true,
@@ -42,8 +42,8 @@
     } ],
     "histories" : [ ],
     "comments" : null,
-    "deviceStored" : null,
-    "storageLocation" : "FREEZER 1, RACK 1, SHELF 1"
+    "deviceStored" : "FREEZER 1",
+    "storageLocation" : "RACK 1, SHELF 1"
   },
   "notificationMessages" : [ {
     "name" : "INVENTORY_IS_QUARANTINED",

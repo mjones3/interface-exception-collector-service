@@ -3,17 +3,17 @@ package com.arcone.biopro.distribution.inventory.application.usecase;
 import com.arcone.biopro.distribution.inventory.application.dto.InventoryInput;
 import com.arcone.biopro.distribution.inventory.application.dto.ValidateInventoryOutput;
 import com.arcone.biopro.distribution.inventory.application.mapper.InventoryOutputMapper;
-import com.arcone.biopro.distribution.inventory.commm.TestUtil;
+import com.arcone.biopro.distribution.inventory.common.TestUtil;
 import com.arcone.biopro.distribution.inventory.domain.model.Inventory;
 import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.MessageType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.ProductCode;
-import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.UnitNumber;
 import com.arcone.biopro.distribution.inventory.domain.repository.InventoryAggregateRepository;
 import com.arcone.biopro.distribution.inventory.domain.service.TextConfigService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
@@ -24,7 +24,6 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -104,6 +103,7 @@ class ValidateInventoryUseCaseTest {
     }
 
     @Test
+    @DisplayName("Should Validate If Inventory Is In Quarantine")
     void execute_shouldValidate_inventory_is_quarantined() {
         InventoryInput input = InventoryInput.builder()
             .unitNumber(UNIT_NUMBER)
@@ -111,8 +111,12 @@ class ValidateInventoryUseCaseTest {
             .location(LOCATION_1)
             .build();
 
+        var inventoryAggregate = createInventoryAggregate(InventoryStatus.SHIPPED, LocalDateTime.now().plusDays(1));
+        inventoryAggregate.getInventory().setIsLabeled(Boolean.FALSE);
+        inventoryAggregate.getInventory().setQuarantines(TestUtil.createQuarantines());
+
         when(inventoryAggregateRepository.findByUnitNumberAndProductCode(any(), any()))
-            .thenReturn(Mono.just(createInventoryAggregate(InventoryStatus.QUARANTINED, LocalDateTime.now().plusDays(1))));
+            .thenReturn(Mono.just(inventoryAggregate));
 
         Mono<ValidateInventoryOutput> result = useCase.execute(input);
 
@@ -152,7 +156,7 @@ class ValidateInventoryUseCaseTest {
                     .location(LOCATION_1)
                     .inventoryStatus(status)
                     .expirationDate(expirationDate)
-                    .quarantines(TestUtil.createQuarantines())
+                    .isLabeled(Boolean.TRUE)
                     .build())
             .build();
     }

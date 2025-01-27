@@ -274,6 +274,17 @@ application:
         - api://default
 
 topic:
+  check-in:
+    completed:
+      name: CheckInCompleted
+  product-created:
+    wholeblood:
+      name: WholeBloodProductCreated
+    apheresis:
+      plasma:
+        name: ApheresisPlasmaProductCreated
+      rbc:
+        name: ApheresisRBCProductCreated
   label-applied:
     name: LabelApplied
   shipment-completed:

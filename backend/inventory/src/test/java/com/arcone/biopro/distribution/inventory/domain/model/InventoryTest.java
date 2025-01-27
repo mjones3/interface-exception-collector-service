@@ -5,6 +5,7 @@ import com.arcone.biopro.distribution.inventory.domain.model.enumeration.Invento
 import com.arcone.biopro.distribution.inventory.domain.model.vo.History;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -59,37 +60,19 @@ class InventoryTest {
     }
 
     @Test
-    void testRestoreHistory_ShouldRestoreMostRecentHistory() throws InterruptedException {
-        // Arrange
-        inventory.createHistory();
-        inventory.setInventoryStatus(InventoryStatus.QUARANTINED);
-        inventory.setStatusReason("Quarantined for testing");
-        inventory.setComments("Quarantine applied");
-        Thread.sleep(1);
-        inventory.createHistory();
-
-        // Act
-        inventory.restoreHistory();
-
-        // Assert
-        assertEquals(InventoryStatus.QUARANTINED, inventory.getInventoryStatus(), "Expected most recent history status to be restored");
-        assertEquals("Quarantined for testing", inventory.getStatusReason(), "Expected most recent history reason to be restored");
-        assertEquals("Quarantine applied", inventory.getComments(), "Expected most recent history comments to be restored");
-        assertEquals(3, inventory.getHistories().size(), "Expected 3 histories after restore");
-    }
-
-    @Test
-    void testAddQuarantine_ShouldAddQuarantineAndChangeStatus() {
+    @DisplayName("Should Add Quarantine Into The Inventory")
+    void testAddQuarantine_ShouldAddQuarantine() {
         // Act
         inventory.addQuarantine(1L, "Contamination", "Detected contamination");
 
         // Assert
+        assertNotNull(inventory.getQuarantines());
         assertEquals(1, inventory.getQuarantines().size(), "Quarantine should be added");
-        assertEquals(InventoryStatus.QUARANTINED, inventory.getInventoryStatus(), "Inventory status should change to QUARANTINED");
-        assertNull(inventory.getStatusReason(), "Status reason should be null after transition to QUARANTINED");
+
     }
 
     @Test
+    @DisplayName("Should Add Two Quarantines And Update One")
     void testUpdateQuarantine_ShouldUpdateFirstQuarantine() {
         // Act
         inventory.addQuarantine(1L, "Contamination", "Detected contamination");
@@ -99,9 +82,8 @@ class InventoryTest {
         inventory.updateQuarantine(1L, "OTHER", "Other Comment");
 
         // Assert
+        assertNotNull(inventory.getQuarantines());
         assertEquals(2, inventory.getQuarantines().size(), "Quarantine should be added");
-        assertEquals(InventoryStatus.QUARANTINED, inventory.getInventoryStatus(), "Inventory status should change to QUARANTINED");
-        assertNull(inventory.getStatusReason(), "Status reason should be null after transition to QUARANTINED");
 
         Quarantine quarantine = inventory.getQuarantines().stream().filter(q -> q.externId().equals(1L)).findFirst().get();
 
@@ -124,18 +106,17 @@ class InventoryTest {
     }
 
     @Test
+    @DisplayName("Should Add Two Quarantines And Remove One")
     void testRemoveQuarantine_ShouldRemoveQuarantineAndKeepSameStatus() {
         // Arrange
         inventory.addQuarantine(1L, "Contamination", "Detected contamination");
         inventory.addQuarantine(2L, "Under Investigation", "Product is in investigation");
-
 
         // Act
         inventory.removeQuarantine(1L);
 
         // Assert
         assertEquals(1, inventory.getQuarantines().size(), "Quarantine should be removed");
-        assertEquals(InventoryStatus.QUARANTINED, inventory.getInventoryStatus(), "Status shouldn't be restored to the most recent after removing quarantine");
     }
 
     @Test
@@ -152,21 +133,4 @@ class InventoryTest {
         assertEquals("In Use", history.reason(), "Expected previous reason to be saved in history");
     }
 
-    @Test
-    void testRestoreHistory_ShouldAddNewHistoryAfterRestore() {
-        // Arrange
-        inventory.createHistory();
-        inventory.setInventoryStatus(InventoryStatus.QUARANTINED);
-        inventory.setStatusReason("Quarantined due to contamination");
-        inventory.setComments("Details about the quarantine");
-        inventory.createHistory();
-
-        // Act
-        inventory.restoreHistory();
-
-        // Assert
-        assertEquals(3, inventory.getHistories().size(), "Expected an additional history after restoring");
-        History lastHistory = inventory.getHistories().get(2);
-        assertEquals(InventoryStatus.QUARANTINED, lastHistory.inventoryStatus(), "Expected restored status in the last history");
-    }
 }

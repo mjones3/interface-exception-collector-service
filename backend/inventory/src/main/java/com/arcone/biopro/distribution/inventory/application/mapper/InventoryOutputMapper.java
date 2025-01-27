@@ -13,6 +13,10 @@ import lombok.experimental.FieldDefaults;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Setter
@@ -36,7 +40,7 @@ public abstract class InventoryOutputMapper {
 
     @Mapping(target = "unitNumber", source = "inventory.unitNumber.value")
     @Mapping(target = "productCode", source = "inventory.productCode.value")
-    @Mapping(target = "storageLocation", source = "inventory.storageLocation")
+    @Mapping(target = "storageLocation", expression = "java(inventoryAggregate.getInventory().getDeviceStored() + \" - \" + inventoryAggregate.getInventory().getStorageLocation())")
     @Mapping(target = "aboRh", source = "inventory.aboRh")
     protected abstract Product toOutput(InventoryAggregate inventoryAggregate);
 
@@ -72,12 +76,43 @@ public abstract class InventoryOutputMapper {
     @Mapping(target = "inventory.id", expression = "java(java.util.UUID.randomUUID())")
     @Mapping(target = "inventory.inventoryStatus", expression = "java(com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus.AVAILABLE)")
     @Mapping(target = "notificationMessages", ignore = true)
+    @Mapping(target = "inventory.isLabeled", expression = "java(java.lang.Boolean.TRUE)")
     public abstract InventoryAggregate toAggregate(InventoryInput input);
 
-
+    @Mapping(target = "inventory.unitNumber.value", source = "unitNumber")
+    @Mapping(target = "inventory.productCode.value", source = "productCode")
+    @Mapping(target = "inventory.shortDescription", source = "productDescription")
+    @Mapping(target = "inventory.expirationDate", expression = "java(createExpirationDate(productCreatedInput.expirationDate(), productCreatedInput.expirationTime()))")
+    @Mapping(target = "inventory.collectionDate", source = "collectionDate")
+    @Mapping(target = "inventory.weight", source = "weight")
+    @Mapping(target = "inventory.location", source = "location")
+    @Mapping(target = "inventory.productFamily", source = "productFamily")
+    @Mapping(target = "inventory.aboRh", source = "aboRh")
+    @Mapping(target = "inventory.id", expression = "java(java.util.UUID.randomUUID())")
+    @Mapping(target = "inventory.inputProducts", source = "inputProducts")
+    @Mapping(target = "inventory.isLabeled", expression = "java(java.lang.Boolean.FALSE)")
+    @Mapping(target = "inventory.inventoryStatus", expression = "java(com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus.AVAILABLE)")
+    @Mapping(target = "notificationMessages", ignore = true)
+    public abstract InventoryAggregate toAggregate(ProductCreatedInput productCreatedInput);
 
     List<String> toDetails(List<String> details, String context) {
         return details.stream().map(d -> textConfigService.getText(context + "_DETAIL", d)).toList();
     }
 
+    LocalDateTime createExpirationDate(String expDate, String expTime) {
+        return LocalDateTime.of(LocalDate.parse(expDate, DateTimeFormatter.ofPattern("MM/dd/yyyy")), LocalTime.parse(expTime));
+    }
+
+    @Mapping(target = "inventory.unitNumber.value", source = "unitNumber")
+    @Mapping(target = "inventory.productCode.value", source = "productCode")
+    @Mapping(target = "inventory.shortDescription", source = "productDescription")
+    @Mapping(target = "inventory.collectionDate", source = "collectionDate")
+    @Mapping(target = "inventory.location", source = "location")
+    @Mapping(target = "inventory.productFamily", source = "productFamily")
+    @Mapping(target = "inventory.aboRh", source = "aboRh")
+    @Mapping(target = "inventory.id", expression = "java(java.util.UUID.randomUUID())")
+    @Mapping(target = "inventory.isLabeled", expression = "java(java.lang.Boolean.FALSE)")
+    @Mapping(target = "inventory.inventoryStatus", expression = "java(com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus.AVAILABLE)")
+    @Mapping(target = "notificationMessages", ignore = true)
+    public abstract InventoryAggregate toAggregate(CheckInCompletedInput checkInCompletedInput);
 }

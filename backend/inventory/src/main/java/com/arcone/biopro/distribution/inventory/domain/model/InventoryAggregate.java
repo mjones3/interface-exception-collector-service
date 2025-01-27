@@ -3,7 +3,9 @@ package com.arcone.biopro.distribution.inventory.domain.model;
 import com.arcone.biopro.distribution.inventory.domain.exception.UnavailableStatusNotMappedException;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.MessageType;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ShipmentType;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.NotificationMessage;
+import com.arcone.biopro.distribution.inventory.domain.model.vo.ProductCode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -36,9 +38,17 @@ public class InventoryAggregate {
 
         if (!inventory.getLocation().equals(location)) {
             notificationMessages.add(createNotificationMessage(MessageType.INVENTORY_NOT_FOUND_IN_LOCATION, null));
-        } else if (!inventory.getInventoryStatus().equals(InventoryStatus.AVAILABLE)) {
+        }
+        else if (isQuarantined()) {
+            notificationMessages.addAll(createQuarantinesNotificationMessage());
+        }
+        else if (!inventory.getInventoryStatus().equals(InventoryStatus.AVAILABLE)) {
             notificationMessages.addAll(createNotificationMessage());
-        } else if (isExpired()) {
+        }
+        else if (!inventory.getIsLabeled()) {
+            notificationMessages.add(createNotificationMessage(MessageType.INVENTORY_IS_UNLABELED, null));
+        }
+        else if (isExpired()) {
             notificationMessages.add(createNotificationMessage(MessageType.INVENTORY_IS_EXPIRED, EXPIRED));
         }
         return this;
@@ -48,11 +58,11 @@ public class InventoryAggregate {
         return new NotificationMessage(notificationType.name(), notificationType.getCode(), notificationType.name(), notificationType.getType().name(), notificationType.getAction().name(), reason, List.of());
     }
 
-    private List<NotificationMessage> createNotificationMessage() {
+    public Boolean isQuarantined() {
+        return !inventory.getQuarantines().isEmpty();
+    }
 
-        if (inventory.getInventoryStatus().equals(InventoryStatus.QUARANTINED)) {
-            return createQuarantinesNotificationMessage();
-        }
+    private List<NotificationMessage> createNotificationMessage() {
 
         MessageType messageType = MessageType.fromStatus(inventory.getInventoryStatus())
             .orElseThrow(UnavailableStatusNotMappedException::new);
@@ -93,7 +103,11 @@ public class InventoryAggregate {
             details));
     }
 
-    public InventoryAggregate completeShipment() {
+    public InventoryAggregate completeShipment(ShipmentType shipmentType) {
+        if(ShipmentType.INTERNAL_TRANSFER.equals(shipmentType)) {
+            transitionStatus(InventoryStatus.IN_TRANSIT, null);
+            return this;
+        }
         transitionStatus(InventoryStatus.SHIPPED, null);
         return this;
     }
@@ -136,5 +150,29 @@ public class InventoryAggregate {
 
     private void transitionStatus(InventoryStatus newStatus, String statusReason) {
         inventory.transitionStatus(newStatus, statusReason);
+    }
+
+    public boolean isAvailable() {
+        return InventoryStatus.AVAILABLE.equals(this.inventory.getInventoryStatus());
+    }
+
+    public boolean getIsLabeled() {
+        return this.inventory.getIsLabeled();
+    }
+
+    public InventoryAggregate convertProduct() {
+        inventory.transitionStatus(InventoryStatus.CONVERTED, "Child manufactured");
+        return this;
+    }
+
+    public boolean hasParent() {
+        return !this.inventory.getInputProducts().isEmpty();
+    }
+
+    public InventoryAggregate label(Boolean isLicensed, String finalProductCode) {
+        inventory.setIsLabeled(true);
+        inventory.setIsLicensed(isLicensed);
+        inventory.setProductCode(new ProductCode(finalProductCode));
+        return this;
     }
 }

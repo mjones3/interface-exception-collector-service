@@ -4,14 +4,14 @@ CREATE TABLE inventory.bld_inventory
 (
     id                          uuid NOT NULL,
     unit_number                 VARCHAR(13) NOT NULL,
-    product_code                VARCHAR(8) NOT NULL CHECK (LENGTH(product_code) >= 7),
+    product_code                VARCHAR(30) NOT NULL,
     short_description           VARCHAR(255) NOT NULL,
     status                      VARCHAR(255) NOT NULL,
-    expiration_date             TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    expiration_date             TIMESTAMP WITHOUT TIME ZONE,
     collection_date             TIMESTAMP WITH TIME ZONE NOT NULL,
     location                    VARCHAR(255) NOT NULL,
     product_family              VARCHAR(255) NOT NULL,
-    abo_rh                      VARCHAR(3) NOT NULL,
+    abo_rh                      VARCHAR(3),
     weight                      INTEGER,
     is_licensed                 BOOLEAN,
     create_date                 TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -21,7 +21,8 @@ CREATE TABLE inventory.bld_inventory
     status_reason               VARCHAR(255),
     quarantines                 JSONB,
     histories                   JSONB,
-    comments                     VARCHAR(255),
+    comments                    text,
+    is_labeled                  BOOLEAN DEFAULT false,
     CONSTRAINT pk_bld_inventory PRIMARY KEY (id)
 );
 
@@ -29,7 +30,7 @@ CREATE TABLE inventory.lk_text_config
 (
     id                          UUID NOT NULL DEFAULT gen_random_uuid(),
     context                     VARCHAR(255) NOT NULL,
-    key_code                         VARCHAR(255) NOT NULL,
+    key_code                    VARCHAR(255) NOT NULL,
     text                        VARCHAR(255) NOT NULL,
     CONSTRAINT pk_lk_text_config PRIMARY KEY (id)
 );

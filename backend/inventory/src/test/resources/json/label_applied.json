@@ -1,0 +1,20 @@
+{
+  "eventId": "7eaefe46-e6cf-4434-93c4-a4b1e7d44285",
+  "occurredOn": "2024-08-22T12:34:32.270657005Z",
+  "eventType":"LabelApplied",
+  "eventVersion":"1.0",
+  "payload":{
+    "unitNumber":"W123456748999",
+    "productCode":"E0869V00",
+    "productDescription":"APH RBC 24H",
+    "location":"MIAMI",
+    "aboRh":"OP",
+    "productFamily": "RBC_TRANSFUSABLE",
+    "collectionDate":"2025-01-08T06:00:00.000Z",
+    "expirationDate":"2025-01-08T06:00:00.000Z",
+    "performedBy":"userId",
+    "createDate":"2025-01-08T06:00:00.000Z",
+    "isLicensed":true,
+    "weight":225
+  }
+}
