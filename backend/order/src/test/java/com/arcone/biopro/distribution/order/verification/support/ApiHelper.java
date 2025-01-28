@@ -12,6 +12,8 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -126,10 +128,22 @@ public class ApiHelper {
         try {
             var response = qlClient.document(document).retrieveSync(path).toEntity(Map.class);
             // Set the API response to the context so that it can be used in other steps.
-            context.setApiMessageResponse((List<Map>)response.get("notifications"));
+            var notifications = (ArrayList) response.get("notifications");
+            if (notifications != null && !notifications.isEmpty()) {
+                context.setApiMessageResponse((List<Map>) response.get("notifications"));
+            }
             return response;
         } catch (FieldAccessException e) {
             return e.getResponse().toMap();
+        }
+    }
+
+    public List<Map> graphQlListRequest(String document, String path) {
+        HttpGraphQlClient qlClient = HttpGraphQlClient.create(webTestClientGraphQl);
+        try {
+            return qlClient.document(document).retrieveSync(path).toEntityList(Map.class);
+        } catch (FieldAccessException e) {
+            return Collections.emptyList();
         }
     }
 

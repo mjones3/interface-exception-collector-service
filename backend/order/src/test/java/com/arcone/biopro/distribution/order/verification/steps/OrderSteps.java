@@ -115,7 +115,7 @@ public class OrderSteps {
 
     @When("I want to list orders for location {string}.")
     public void searchOrders(String locationCode) {
-        response = apiHelper.graphQlRequestObjectList(GraphQLQueryMapper.listOrders(locationCode), "searchOrders");
+        response = apiHelper.graphQlRequestObjectList(GraphQLQueryMapper.listOrdersById(locationCode), "searchOrders");
     }
 
     @Then("I should have orders listed in the following order.")
@@ -135,7 +135,7 @@ public class OrderSteps {
             .collect(Collectors.joining(","));
 
         var expectedIds = new ArrayList<String>();
-        for(var i=1;i<table.height();i++) {
+        for (var i = 1; i < table.height(); i++) {
             var row = table.row(i);
             expectedIds.add(row.get(headers.indexOf("External ID")));
         }
@@ -152,7 +152,7 @@ public class OrderSteps {
             new Random().nextInt(10) + 1
         ).toString();
         jsonContent = jsonContent.replace("DESIRED_DATE", newDesiredShippingDate)
-            .replace("{EXTERNAL_ID}",externalId);
+            .replace("{EXTERNAL_ID}", externalId);
         var eventPayload = objectMapper.readValue(jsonContent, OrderReceivedEventDTO.class);
         createOrderInboundRequest(jsonContent, eventPayload);
     }
@@ -162,7 +162,7 @@ public class OrderSteps {
         context.setExternalId(externalId);
         var jsonContent = testUtils.getResource(jsonFileName);
         jsonContent = jsonContent.replace("DESIRED_DATE", date)
-            .replace("{EXTERNAL_ID}",externalId);
+            .replace("{EXTERNAL_ID}", externalId);
         var eventPayload = objectMapper.readValue(jsonContent, OrderReceivedEventDTO.class);
         createOrderInboundRequest(jsonContent, eventPayload);
     }
@@ -209,6 +209,7 @@ public class OrderSteps {
         context.setOrderNumber(Integer.valueOf(databaseService.fetchData(DatabaseQueries.getOrderNumber(context.getOrderId().toString())).first().block().get("order_number").toString()));
         Assert.assertNotNull(context.getOrderId());
     }
+
     @Given("I have a Biopro Order with id {string}, externalId {string}, Location Code {string}, Priority {string} and Status {string}.")
     public void createBioproOrder(String id, String externalId, String locationCode, String priority, String status) {
         context.setOrderId(Integer.valueOf(id));
@@ -223,7 +224,7 @@ public class OrderSteps {
     @Given("I have this/these BioPro Order(s).")
     public void createBioproOrder(DataTable table) {
         var headers = table.row(0);
-        for(var i=1;i<table.height();i++) {
+        for (var i = 1; i < table.height(); i++) {
             var row = table.row(i);
             context.setExternalId(row.get(headers.indexOf("External ID")));
             context.setLocationCode(row.get(headers.indexOf("Location Code")));
@@ -541,7 +542,7 @@ public class OrderSteps {
 
     @When("I choose {string} option.")
     public void iChooseApplyOption(String valueOption) throws InterruptedException {
-        if(valueOption.equalsIgnoreCase("apply")){
+        if (valueOption.equalsIgnoreCase("apply")) {
             searchOrderPage.iChooseApplyOption();
         } else {
             searchOrderPage.iChooseResetOption();
@@ -549,7 +550,7 @@ public class OrderSteps {
     }
 
     @Then("I should see {int} orders in the search results.")
-    public void iShouldSeeOrdersInTheSearchResults(int quantity)  {
+    public void iShouldSeeOrdersInTheSearchResults(int quantity) {
         Assert.assertEquals(quantity, searchOrderPage.tableRowsCount());
     }
 
@@ -560,7 +561,7 @@ public class OrderSteps {
 
     @And("I should see {string} fields as required.")
     public void areFieldsRequired(String valueFields) throws InterruptedException {
-      searchOrderPage.checkRequiredFields(valueFields);
+        searchOrderPage.checkRequiredFields(valueFields);
     }
 
     @And("I should see {string} fields.")
@@ -587,9 +588,8 @@ public class OrderSteps {
 
     @And("{string} option is {string}.")
     public void theOptionHaveTheStatus(String valueOption, String valueStatus) throws InterruptedException {
-       searchOrderPage.checkIfOptionHasStatus(valueOption, valueStatus);
+        searchOrderPage.checkIfOptionHasStatus(valueOption, valueStatus);
     }
-
 
 
     @And("I select {string} for the {string}.")
@@ -598,18 +598,13 @@ public class OrderSteps {
     }
 
 
-
-
-
-
-
     @And("Items {string} should be selected for {string}.")
     public void itemsShouldBeSelected(String values, String dropdown) {
-      searchOrderPage.checkSelectedValuesFromDropdownDescription(values, dropdown);
+        searchOrderPage.checkSelectedValuesFromDropdownDescription(values, dropdown);
     }
 
     private void setValueForField(String value, String fieldName) throws InterruptedException {
-       searchOrderPage.setValueForField(value, fieldName);
+        searchOrderPage.setValueForField(value, fieldName);
     }
 
     @When("I enter the date: {string} for the field {string} and the date: {string}  for the field {string}.")
@@ -622,7 +617,7 @@ public class OrderSteps {
     @When("I enter a future date for the field {string}.")
     public void iEnterFutureDateForTheField(String fieldName) throws InterruptedException {
         setValueForField(LocalDate.now().format(DateTimeFormatter.ofPattern("MM/dd/yyyy")), "create date from");
-        setValueForField( 1 + "/" + 1 + "/" + Year.now().getValue() + 1, fieldName);
+        setValueForField(1 + "/" + 1 + "/" + Year.now().getValue() + 1, fieldName);
     }
 
     @When("I enter a past date: {string} for the field {string}.")
@@ -630,8 +625,6 @@ public class OrderSteps {
         setValueForField(value, fieldName);
         setValueForField(LocalDate.now().format(DateTimeFormatter.ofPattern("MM/dd/yyyy")), "create date to");
     }
-
-
 
 
     @Then("The filter information should be empty.")
@@ -720,10 +713,10 @@ public class OrderSteps {
     @When("I request to complete the order.")
     public void iRequestToCompleteTheOrder() {
         Map completeOrderRequest = orderController.completeOrder(context.getOrderId(), context.isBackOrderConfig());
-        try{
-        Map orderStatus = (Map) completeOrderRequest.get("data");
-        context.setOrderStatus(orderStatus.get("status").toString());}
-        catch (NullPointerException e){
+        try {
+            Map orderStatus = (Map) completeOrderRequest.get("data");
+            context.setOrderStatus(orderStatus.get("status").toString());
+        } catch (NullPointerException e) {
             log.error("Order complete request failed: {}", e.getMessage());
         }
     }
@@ -777,10 +770,37 @@ public class OrderSteps {
 
     @Then("I {string} have an option to create a back order.")
     public void iShouldHaveTheBackOrderConfigurationAs(String backOrderConfig) {
-        if (backOrderConfig.equalsIgnoreCase("should")){
-        Assert.assertEquals(true, context.getOrderDetails().get("backOrderCreationActive"));
-        } else if (backOrderConfig.equalsIgnoreCase("should not")){
+        if (backOrderConfig.equalsIgnoreCase("should")) {
+            Assert.assertEquals(true, context.getOrderDetails().get("backOrderCreationActive"));
+        } else if (backOrderConfig.equalsIgnoreCase("should not")) {
             Assert.assertEquals(false, context.getOrderDetails().get("backOrderCreationActive"));
+        } else {
+            Assert.fail("Invalid option for back order configuration.");
+        }
+    }
+
+    @And("I {string} have {int} remaining products as part of the back order created.")
+    public void iHaveRemainingProductsAsPartOfTheBackOrderCreated(String choice, Integer quantity) throws InterruptedException {
+        Thread.sleep(kafkaWaitingTime);
+        orderController.listOrdersByExternalId();
+        var originalOrder = context.getOrderList().stream().filter(order -> order.get("orderStatus").equals("COMPLETED")).findFirst().orElse(null);
+        Assert.assertNotNull(originalOrder);
+
+        if (choice.equalsIgnoreCase("should")) { // Back order configured
+            Assert.assertEquals(2, context.getOrderList().size());
+
+            var backOrder = context.getOrderList().stream().filter(order -> order.get("orderStatus").equals("OPEN")).findFirst().orElse(null);
+            Assert.assertNotNull(backOrder);
+
+            // Get by id backOrder
+            orderController.getOrderDetails(Integer.valueOf(backOrder.get("orderId").toString()));
+            var backOrderDetails = context.getOrderDetails();
+
+            // Check remaining quantity
+            Assert.assertEquals(quantity, Integer.valueOf(backOrderDetails.get("totalProducts").toString()));
+
+        } else if (choice.equalsIgnoreCase("should not")) { // Back order not configured
+            Assert.assertEquals(1, context.getOrderList().size());
         } else {
             Assert.fail("Invalid option for back order configuration.");
         }

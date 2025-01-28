@@ -82,6 +82,11 @@ public class OrderTestingController {
         return true;
     }
 
+    public void listOrdersByExternalId() {
+        var response = apiHelper.graphQlListRequest(GraphQLQueryMapper.listOrdersByExternalId(context.getLocationCode(),context.getExternalId()), "searchOrders");
+        context.setOrderList(response);
+    }
+
     @Getter
     @RequiredArgsConstructor
     public
@@ -98,12 +103,15 @@ public class OrderTestingController {
 
     public Map completeOrder(Integer orderId, boolean createBackOrder) {
         String employeeId = context.getEmployeeId();
-        return apiHelper.graphQlRequest(GraphQLMutationMapper.completeOrderMutation(orderId, employeeId, "Order completed comment", createBackOrder), "completeOrder");
+        var response =  apiHelper.graphQlRequest(GraphQLMutationMapper.completeOrderMutation(orderId, employeeId, "Order completed comment", createBackOrder), "completeOrder");
+        log.debug("Order completed response: {}", response);
+        return response;
     }
 
     public void getOrderDetails(Integer orderId) {
         var response =  apiHelper.graphQlRequest(GraphQLQueryMapper.findOrderById(orderId), "findOrderById");
         context.setOrderDetails((Map) response.get("data"));
+        log.debug("Order details: {}", context.getOrderDetails());
     }
 
 }

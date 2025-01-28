@@ -9,8 +9,6 @@ import io.cucumber.java.en.Given;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Objects;
-
 public class DatabaseSteps {
     @Autowired
     private DatabaseService databaseService;
@@ -100,5 +98,11 @@ public class DatabaseSteps {
         var query = DatabaseQueries.updateBackOrderConfiguration(backOrderConfig);
         databaseService.executeSql(query).block();
         context.setBackOrderConfig(backOrderConfig);
+    }
+
+    @And("I have Shipped {string} products of each item line.")
+    public void iHaveShippedShippedQuantityProducts(String quantity) {
+        var query = DatabaseQueries.insertBioProOrderShipmentQuantity(quantity, context.getOrderId().toString());
+        databaseService.executeSql(query).block();
     }
 }
