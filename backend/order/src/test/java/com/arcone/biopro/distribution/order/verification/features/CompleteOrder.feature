@@ -50,6 +50,8 @@ Feature: Complete Order
         Rule: I should be able to complete an order manually with partial order fulfillment
         Rule: I should be prompted to confirm before completing an order.
         Rule: I should have an option to enter the reason for completing a partially fulfilled order.
+        Rule: The system must not create a backorder if the user doesn’t confirm the action to create a backorder.
+        Rule: The system must create a backorder if the user confirms the creation of a backorder.
         @ui @DIS-111 @DIS-175
         Scenario Outline: Complete an order with partial fulfillment
             Given I have an order with external ID "EXTDIS11104" partially fulfilled with a shipment "<Shipment Status>".
@@ -69,7 +71,10 @@ Feature: Complete Order
 
         Rule: The system must not create a backorder if the user doesn’t confirm the action to create a backorder.
         Rule: The system must create a backorder if the user confirms the creation of a backorder.
-        Rule: The system must include the remaining products from the original order in the back order created.
+        Rule: The system must include the details of the unfulfilled products from the original order.
+        Rule: The status of the backorder must be assigned as “Open”.
+        Rule: The backorder must be visible in the system.
+        Rule: The backorder must contain the same external ID as the original order.
         @api @DIS-175
         Scenario Outline: Complete an order with back order configuration <Back Order Config>
             Given I have an order with external ID "EXTDIS11105" partially fulfilled with a shipment "<Shipment Status>".
