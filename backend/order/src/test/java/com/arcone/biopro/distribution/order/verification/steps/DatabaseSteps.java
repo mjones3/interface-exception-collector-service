@@ -93,4 +93,12 @@ public class DatabaseSteps {
             Assert.fail("Invalid value. Use 'Should' or 'Should Not' to define the correct configuration.");
         }
     }
+
+    @And("I have the back order configuration set to {string}.")
+    public void iHaveTheBackOrderConfigurationSetTo(String config) {
+        boolean backOrderConfig = config.equalsIgnoreCase("true");
+        var query = DatabaseQueries.updateBackOrderConfiguration(backOrderConfig);
+        databaseService.executeSql(query).block();
+        context.setBackOrderConfig(backOrderConfig);
+    }
 }

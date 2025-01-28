@@ -1,5 +1,5 @@
 @AOA-152
-Feature: Back Orders
+Feature: Complete Order
 
     Background:
         Given I cleaned up from the database the orders with external ID starting with "EXTDIS111".
@@ -50,7 +50,7 @@ Feature: Back Orders
         Rule: I should be able to complete an order manually with partial order fulfillment
         Rule: I should be prompted to confirm before completing an order.
         Rule: I should have an option to enter the reason for completing a partially fulfilled order.
-        @ui @DIS-111
+        @ui @DIS-111 @DIS-175
         Scenario Outline: Complete an order with partial fulfillment
             Given I have an order with external ID "EXTDIS11104" partially fulfilled with a shipment "<Shipment Status>".
             When I navigate to the order details page.
@@ -65,4 +65,19 @@ Feature: Back Orders
                 | Shipment Status | Message Type | Message                      | Reason   | Create Backorder | Create?    |
                 | COMPLETED       | success      | Order completed successfully | Comments | true             | should     |
                 | COMPLETED       | success      | Order completed successfully | Comments | false            | should not |
+
+
+        Rule: The system must not create a backorder if the user doesn’t confirm the action to create a backorder.
+        Rule: The system must create a backorder if the user confirms the creation of a backorder
+        @api @DIS-175
+        Scenario Outline: Complete an order with back order configuration <Back Order Config>
+            Given I have an order with external ID "EXTDIS11105" partially fulfilled with a shipment "<Shipment Status>".
+            And I have the back order configuration set to "<Back Order Config>".
+            When I request the order details.
+            Then I "<Option>" have an option to create a back order.
+
+            Examples:
+                | Shipment Status | Back Order Config | Option     |
+                | COMPLETED       | false             | should not |
+                | COMPLETED       | true              | should     |
 

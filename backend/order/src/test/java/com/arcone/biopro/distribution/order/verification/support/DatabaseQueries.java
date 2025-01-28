@@ -89,4 +89,8 @@ public class DatabaseQueries {
     public static String countBackOrders(String externalId, Integer orderId) {
         return String.format("Select * from bld_order where external_id = '%s' and id != %s", externalId, orderId);
     }
+
+    public static String updateBackOrderConfiguration(boolean config) {
+        return String.format("UPDATE lk_lookup SET option_value = %s WHERE type = 'BACK_ORDER_CREATION' and description_key = 'back-order-creation.label'", config);
+    }
 }

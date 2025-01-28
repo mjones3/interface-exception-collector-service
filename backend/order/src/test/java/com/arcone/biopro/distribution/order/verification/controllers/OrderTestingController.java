@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.order.verification.controllers;
 import com.arcone.biopro.distribution.order.verification.support.ApiHelper;
 import com.arcone.biopro.distribution.order.verification.support.SharedContext;
 import com.arcone.biopro.distribution.order.verification.support.graphql.GraphQLMutationMapper;
+import com.arcone.biopro.distribution.order.verification.support.graphql.GraphQLQueryMapper;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -98,6 +99,11 @@ public class OrderTestingController {
     public Map completeOrder(Integer orderId, boolean createBackOrder) {
         String employeeId = context.getEmployeeId();
         return apiHelper.graphQlRequest(GraphQLMutationMapper.completeOrderMutation(orderId, employeeId, "Order completed comment", createBackOrder), "completeOrder");
+    }
+
+    public void getOrderDetails(Integer orderId) {
+        var response =  apiHelper.graphQlRequest(GraphQLQueryMapper.findOrderById(orderId), "findOrderById");
+        context.setOrderDetails((Map) response.get("data"));
     }
 
 }
