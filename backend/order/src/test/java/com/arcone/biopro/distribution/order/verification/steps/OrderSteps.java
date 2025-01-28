@@ -780,7 +780,8 @@ public class OrderSteps {
     }
 
     @And("I {string} have {int} remaining products as part of the back order created.")
-    public void iHaveRemainingProductsAsPartOfTheBackOrderCreated(String choice, Integer quantity) {
+    public void iHaveRemainingProductsAsPartOfTheBackOrderCreated(String choice, Integer quantity) throws InterruptedException {
+        Thread.sleep(kafkaWaitingTime);
         orderController.listOrdersByExternalId();
         var originalOrder = context.getOrderList().stream().filter(order -> order.get("orderStatus").equals("COMPLETED")).findFirst().orElse(null);
         Assert.assertNotNull(originalOrder);
