@@ -93,4 +93,8 @@ public class DatabaseQueries {
     public static String updateBackOrderConfiguration(boolean config) {
         return String.format("UPDATE lk_lookup SET option_value = %s WHERE type = 'BACK_ORDER_CREATION' and description_key = 'back-order-creation.label'", config);
     }
+
+    public static String insertBioProOrderShipmentQuantity(String quantity, String orderId){
+        return String.format("UPDATE bld_order_item SET quantity_shipped = %s where order_id = %s", quantity, orderId);
+    }
 }

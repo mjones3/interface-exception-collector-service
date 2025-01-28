@@ -35,6 +35,7 @@ public class SharedContext {
     private Integer orderId;
     private String orderStatus;
     private Map orderDetails;
+    private List<Map> orderList;
 
     // LK configurations
     private boolean backOrderConfig;

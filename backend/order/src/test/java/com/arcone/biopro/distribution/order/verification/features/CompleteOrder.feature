@@ -68,16 +68,21 @@ Feature: Complete Order
 
 
         Rule: The system must not create a backorder if the user doesn’t confirm the action to create a backorder.
-        Rule: The system must create a backorder if the user confirms the creation of a backorder
+        Rule: The system must create a backorder if the user confirms the creation of a backorder.
+        Rule: The system must include the remaining products from the original order in the back order created.
         @api @DIS-175
         Scenario Outline: Complete an order with back order configuration <Back Order Config>
             Given I have an order with external ID "EXTDIS11105" partially fulfilled with a shipment "<Shipment Status>".
+            And I have Shipped "<Shipped Quantity>" products of each item line.
             And I have the back order configuration set to "<Back Order Config>".
             When I request the order details.
             Then I "<Option>" have an option to create a back order.
+            When I request to complete the order.
+            Then The order status should be "COMPLETED".
+            And I "<Option>" have <Remaining Quantity> remaining products as part of the back order created.
 
             Examples:
-                | Shipment Status | Back Order Config | Option     |
-                | COMPLETED       | false             | should not |
-                | COMPLETED       | true              | should     |
+                | Shipment Status | Back Order Config | Option     | Shipped Quantity | Remaining Quantity |
+                | COMPLETED       | false             | should not | 2                | 8                  |
+                | COMPLETED       | true              | should     | 3                | 7                  |
 
