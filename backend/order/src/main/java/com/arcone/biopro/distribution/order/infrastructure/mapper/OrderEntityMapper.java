@@ -92,6 +92,7 @@ public class OrderEntityMapper {
         order.setCompleteComments(orderEntity.getCompleteComments());
         order.setCompleteEmployeeId(orderEntity.getCompleteEmployeeId());
         order.setCompleteDate(orderEntity.getCompleteDate());
+        order.setBackOrder(order.isBackOrder());
 
         return order;
     }
