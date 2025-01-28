@@ -62,7 +62,7 @@ CREATE TABLE order_service.bld_order (
     delete_date                TIMESTAMP WITH TIME ZONE,
     complete_employee_id          VARCHAR(50) DEFAULT NULL           ,
     complete_date                 TIMESTAMP WITH TIME ZONE DEFAULT NULL ,
-    complete_comments             VARCHAR(1000) DEFAULT NULL,
+    complete_comments             VARCHAR(255) DEFAULT NULL,
     back_order                  BOOLEAN DEFAULT false
 );
 
