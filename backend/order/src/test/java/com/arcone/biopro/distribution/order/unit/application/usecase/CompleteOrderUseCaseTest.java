@@ -5,7 +5,9 @@ import com.arcone.biopro.distribution.order.domain.event.OrderCompletedEvent;
 import com.arcone.biopro.distribution.order.domain.model.CompleteOrderCommand;
 import com.arcone.biopro.distribution.order.domain.model.Order;
 import com.arcone.biopro.distribution.order.domain.repository.OrderRepository;
+import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
+import com.arcone.biopro.distribution.order.domain.service.OrderConfigService;
 import com.arcone.biopro.distribution.order.domain.service.OrderShipmentService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,22 +29,25 @@ class CompleteOrderUseCaseTest {
 
     private OrderShipmentService orderShipmentService;
     private LookupService lookupService;
-
+    private CustomerService customerService;
+    private OrderConfigService orderConfigService;
     private CompleteOrderUseCase useCase;
 
     @BeforeEach
     public void setup() {
         orderRepository = Mockito.mock(OrderRepository.class);
         orderShipmentService = Mockito.mock(OrderShipmentService.class);
+        customerService = Mockito.mock(CustomerService.class);
         lookupService = Mockito.mock(LookupService.class);
-        useCase = new CompleteOrderUseCase(orderRepository, applicationEventPublisher ,orderShipmentService,lookupService);
+        orderConfigService = Mockito.mock(OrderConfigService.class);
+        useCase = new CompleteOrderUseCase(orderRepository, applicationEventPublisher ,orderShipmentService,lookupService,customerService,orderConfigService);
     }
 
     @Test
     public void shouldNotCompleteOrderWhenOrderDoesNotExist() {
         Mockito.when(orderRepository.findOneById(Mockito.anyLong())).thenReturn(Mono.empty());
 
-        StepVerifier.create(useCase.completeOrder(new CompleteOrderCommand(1L,"employeeId","COMMENTS")))
+        StepVerifier.create(useCase.completeOrder(new CompleteOrderCommand(1L,"employeeId","COMMENTS",Boolean.FALSE)))
             .consumeNextWith(detail -> {
                     Assertions.assertEquals("COMPLETE_ORDER_ERROR",  detail.notifications().getFirst().useCaseMessageType().name());
                     Assertions.assertEquals("ERROR",  detail.notifications().getFirst().useCaseMessageType().getType().name());
@@ -65,7 +70,7 @@ class CompleteOrderUseCaseTest {
 
         Mockito.doThrow(new IllegalArgumentException("Order is already completed")).when(order).completeOrder(Mockito.any(CompleteOrderCommand.class),Mockito.any(LookupService.class),Mockito.any(OrderShipmentService.class));
 
-        StepVerifier.create(useCase.completeOrder(new CompleteOrderCommand(1L,"employeeId","COMMENTS")))
+        StepVerifier.create(useCase.completeOrder(new CompleteOrderCommand(1L,"employeeId","COMMENTS",Boolean.FALSE)))
             .consumeNextWith(detail -> {
                     Assertions.assertEquals("COMPLETE_ORDER_ERROR",  detail.notifications().getFirst().useCaseMessageType().name());
                     Assertions.assertEquals("ERROR",  detail.notifications().getFirst().useCaseMessageType().getType().name());
@@ -86,7 +91,7 @@ class CompleteOrderUseCaseTest {
         Mockito.when(orderRepository.findOneById(Mockito.anyLong())).thenReturn(Mono.just(order));
         Mockito.when(orderRepository.update(Mockito.any(Order.class))).thenReturn(Mono.just(order));
 
-        StepVerifier.create(useCase.completeOrder(new CompleteOrderCommand(1L,"employeeId","COMMENTS")))
+        StepVerifier.create(useCase.completeOrder(new CompleteOrderCommand(1L,"employeeId","COMMENTS",Boolean.FALSE)))
             .consumeNextWith(detail -> {
                     Assertions.assertEquals("ORDER_COMPLETED_SUCCESSFULLY",  detail.notifications().getFirst().useCaseMessageType().name());
                     Assertions.assertEquals("SUCCESS",  detail.notifications().getFirst().useCaseMessageType().getType().name());

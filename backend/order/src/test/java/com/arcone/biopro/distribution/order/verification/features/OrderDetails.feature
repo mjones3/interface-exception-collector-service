@@ -79,7 +79,7 @@ Feature: View order details
 
             Examples:
                 | External ID | LocationCode | Priority | Status      | Items Quantity | ProductFamily                            | BloodType | Quantity | Filled Quantity | Expected Quantity | Total Quantity | Shipment Type | Shipping Method | Product Category | Desired Date | Shipping Customer Code | Shipping Customer Name     | Billing Customer Code | Billing Customer Name      | Order Comments     | Item Comments                |
-                | ORDER004    | 123456789    | STAT     | IN_PROGRESS | 2              | PLASMA_TRANSFUSABLE, PLASMA_TRANSFUSABLE | AB, O     | 3, 2     | 1, 0            | 1                 | 5              | CUSTOMER      | FEDEX           | FROZEN           | 2024-08-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap, Another comment |
+                | ORDER004    | 123456789    | STAT     | IN_PROGRESS | 2              | PLASMA_TRANSFUSABLE, PLASMA_TRANSFUSABLE | AB, O     | 3, 2     | 1, 0            | 1                 | 5              | CUSTOMER      | FEDEX           | FROZEN           | 2030-12-31   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap, Another comment |
 
 
 

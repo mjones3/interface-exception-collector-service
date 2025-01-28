@@ -719,7 +719,7 @@ public class OrderSteps {
 
     @When("I request to complete the order.")
     public void iRequestToCompleteTheOrder() {
-        Map completeOrderRequest = orderController.completeOrder(context.getOrderId());
+        Map completeOrderRequest = orderController.completeOrder(context.getOrderId(), context.isBackOrderConfig());
         try{
         Map orderStatus = (Map) completeOrderRequest.get("data");
         context.setOrderStatus(orderStatus.get("status").toString());}
@@ -762,5 +762,27 @@ public class OrderSteps {
     @When("I confirm to complete the order with the reason {string}.")
     public void iConfirmToCompleteTheOrderWithTheReason(String comment) {
         orderDetailsPage.confirmCompleteOrder(comment);
+    }
+
+    @And("I define the backorder creation option as {string}.")
+    public void iDefineTheBackorderCreationOptionAs(String createBackOrderOption) {
+        boolean createBkOrderOption = createBackOrderOption.equalsIgnoreCase("true");
+        orderDetailsPage.defineBackOrderOption(createBkOrderOption);
+    }
+
+    @When("I request the order details.")
+    public void iRequestTheOrderDetails() {
+        orderController.getOrderDetails(context.getOrderId());
+    }
+
+    @Then("I {string} have an option to create a back order.")
+    public void iShouldHaveTheBackOrderConfigurationAs(String backOrderConfig) {
+        if (backOrderConfig.equalsIgnoreCase("should")){
+        Assert.assertEquals(true, context.getOrderDetails().get("backOrderCreationActive"));
+        } else if (backOrderConfig.equalsIgnoreCase("should not")){
+            Assert.assertEquals(false, context.getOrderDetails().get("backOrderCreationActive"));
+        } else {
+            Assert.fail("Invalid option for back order configuration.");
+        }
     }
 }

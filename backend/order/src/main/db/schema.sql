@@ -62,11 +62,11 @@ CREATE TABLE order_service.bld_order (
     delete_date                TIMESTAMP WITH TIME ZONE,
     complete_employee_id          VARCHAR(50) DEFAULT NULL           ,
     complete_date                 TIMESTAMP WITH TIME ZONE DEFAULT NULL ,
-    complete_comments             VARCHAR(1000) DEFAULT NULL
-
+    complete_comments             VARCHAR(255) DEFAULT NULL,
+    back_order                  BOOLEAN DEFAULT false
 );
 
-CREATE UNIQUE INDEX uq_idx_bld_order_external_id ON order_service.bld_order (external_id);
+CREATE UNIQUE INDEX uq_idx_bld_order_external_id ON order_service.bld_order (external_id) WHERE (back_order is false);
 
 CREATE TABLE order_service.bld_order_item (
     id                BIGSERIAL                   NOT NULL CONSTRAINT pk_bld_order_item PRIMARY KEY,

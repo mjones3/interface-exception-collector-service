@@ -151,7 +151,7 @@ class OrderTest {
             , null, null, "COMPLETED", null, "COMPLETED", "COMPLETED", "CREATE_EMPLOYEE"
             , null, null, null);
 
-        assertThrows(DomainException.class, () -> order.completeOrder(new CompleteOrderCommand(1L,"employeeid","comments"),lookupService,orderShipmentServiceMock) , "Order is already closed");
+        assertThrows(DomainException.class, () -> order.completeOrder(new CompleteOrderCommand(1L,"employeeid","comments",Boolean.FALSE),lookupService,orderShipmentServiceMock) , "Order is already closed");
     }
 
     @Test
@@ -173,13 +173,135 @@ class OrderTest {
         Mockito.when(orderShipmentServiceMock.findOneByOrderId(Mockito.anyLong())).thenReturn(Mono.just(orderShipment));
 
 
-        assertDoesNotThrow(() -> order.completeOrder(new CompleteOrderCommand(1L,"close-employeeid","comments"),lookupService,orderShipmentServiceMock));
+        assertDoesNotThrow(() -> order.completeOrder(new CompleteOrderCommand(1L,"close-employeeid","comments",Boolean.FALSE),lookupService,orderShipmentServiceMock));
 
         Assertions.assertNotNull(order.getCompleteDate());
         Assertions.assertEquals("comments",order.getCompleteComments());
         Assertions.assertEquals("close-employeeid",order.getCompleteEmployeeId());
         Assertions.assertEquals("COMPLETED",order.getOrderStatus().getOrderStatus());
 
+
+    }
+
+    @Test
+    void shouldNotCreateBackOrderWhenConfigIsInactive(){
+
+        Mockito.when(lookupService.findAllByType(Mockito.anyString())).thenReturn(Flux.just(new Lookup(new LookupId("OPEN","OPEN"),"description",1,true)
+            , new Lookup(new LookupId("COMPLETED","COMPLETED"),"description",2,true)));
+
+        Mockito.when(orderConfigService.findBackOrderConfiguration()).thenReturn(Mono.just(Boolean.FALSE));
+
+        var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
+            , "OPEN", "OPEN", "123", "123","2025-01-31"
+            , null, null, "OPEN", null, "OPEN", "OPEN", "CREATE_EMPLOYEE"
+            , null, null, null);
+
+        assertThrows(IllegalArgumentException.class, () -> order.createBackOrder("CREATE-EMPLOYEE-ID",customerService,lookupService,orderConfigService) , "Back Order cannot be created, configuration is not active");
+    }
+
+    @Test
+    void shouldNotCreateBackOrderWhenThereIsNoRemainingItems(){
+
+        Mockito.when(lookupService.findAllByType(Mockito.anyString())).thenReturn(Flux.just(new Lookup(new LookupId("OPEN","OPEN"),"description",1,true)
+            , new Lookup(new LookupId("COMPLETED","COMPLETED"),"description",2,true)));
+
+        Mockito.when(orderConfigService.findBackOrderConfiguration()).thenReturn(Mono.just(TRUE));
+
+        var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
+            , "OPEN", "OPEN", "123", "123","2025-01-31"
+            , null, null, "OPEN", null, "OPEN", "OPEN", "CREATE_EMPLOYEE"
+            , null, null, null);
+
+        Mockito.when(orderConfigService.findProductFamilyByCategory(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just("TYPE"));
+        Mockito.when(orderConfigService.findBloodTypeByFamilyAndType(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just("TYPE"));
+
+
+        order.addItem(1L,"TYPE","TYPE",1,1,"", ZonedDateTime.now(),ZonedDateTime.now(),orderConfigService);
+
+        assertThrows(IllegalArgumentException.class, () -> order.createBackOrder("CREATE-EMPLOYEE-ID",customerService,lookupService,orderConfigService) , "Back Order cannot be created, there is no remaining items");
+    }
+
+
+    @Test
+    void shouldCreateBackOrder(){
+
+        Mockito.when(lookupService.findAllByType(Mockito.anyString())).thenReturn(Flux.just(new Lookup(new LookupId("OPEN","OPEN"),"description",1,true)
+            , new Lookup(new LookupId("COMPLETED","COMPLETED"),"description",2,true)));
+
+        Mockito.when(orderConfigService.findBackOrderConfiguration()).thenReturn(Mono.just(TRUE));
+
+        var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
+            , "OPEN", "OPEN", "123", "123","2025-01-31"
+            , null, null, "OPEN", null, "OPEN", "OPEN", "CREATE_EMPLOYEE"
+            , null, null, null);
+
+        Mockito.when(orderConfigService.findProductFamilyByCategory(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just("TYPE"));
+        Mockito.when(orderConfigService.findBloodTypeByFamilyAndType(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just("TYPE"));
+
+
+        order.addItem(1L,"TYPE","TYPE",10,5,"", ZonedDateTime.now(),ZonedDateTime.now(),orderConfigService);
+
+        var backOrder = order.createBackOrder("CREATE-EMPLOYEE-ID",customerService,lookupService,orderConfigService);
+
+        Assertions.assertNotNull(backOrder);
+        Assertions.assertEquals("OPEN",backOrder.getOrderStatus().getOrderStatus());
+        Assertions.assertNull(backOrder.getOrderNumber().getOrderNumber());
+        Assertions.assertNull(backOrder.getId());
+        Assertions.assertEquals(order.getOrderExternalId().getOrderExternalId(),backOrder.getOrderExternalId().getOrderExternalId());
+        Assertions.assertEquals(1,backOrder.getOrderItems().size());
+        Assertions.assertEquals(5,backOrder.getOrderItems().getFirst().getQuantity());
+        Assertions.assertEquals("TYPE",backOrder.getOrderItems().getFirst().getBloodType().getBloodType());
+        Assertions.assertEquals("TYPE",backOrder.getOrderItems().getFirst().getProductFamily().getProductFamily());
+        Assertions.assertEquals("2025-01-31",backOrder.getDesiredShippingDate().toString());
+        Assertions.assertNull(backOrder.getCompleteDate());
+        Assertions.assertNull(backOrder.getCompleteComments());
+        Assertions.assertNull(backOrder.getCompleteEmployeeId());
+        Assertions.assertEquals("CREATE-EMPLOYEE-ID",backOrder.getCreateEmployeeId());
+        Assertions.assertTrue(backOrder.isBackOrder());
+    }
+
+    @Test
+    void shouldCreateBackOrderWithRemainingItems(){
+
+        Mockito.when(lookupService.findAllByType(Mockito.anyString())).thenReturn(Flux.just(new Lookup(new LookupId("OPEN","OPEN"),"description",1,true)
+            , new Lookup(new LookupId("COMPLETED","COMPLETED"),"description",2,true)
+            , new Lookup(new LookupId("CATEGORY","CATEGORY"),"description",2,true)
+        ));
+
+        Mockito.when(orderConfigService.findBackOrderConfiguration()).thenReturn(Mono.just(TRUE));
+
+        var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
+            , "OPEN", "OPEN", "123", "123","2025-01-31"
+            , null, null, "CATEGORY", null, "OPEN", "OPEN", "CREATE_EMPLOYEE"
+            , null, null, null);
+
+        Mockito.when(orderConfigService.findProductFamilyByCategory(Mockito.eq("CATEGORY"),Mockito.eq("FAMILY"))).thenReturn(Mono.just("TYPE"));
+        Mockito.when(orderConfigService.findBloodTypeByFamilyAndType(Mockito.eq("FAMILY"),Mockito.eq("TYPE"))).thenReturn(Mono.just("TYPE"));
+
+        order.addItem(1L,"FAMILY","TYPE",5,5,"", ZonedDateTime.now(),ZonedDateTime.now(),orderConfigService);
+
+        Mockito.when(orderConfigService.findProductFamilyByCategory(Mockito.eq("CATEGORY"),Mockito.eq("FAMILY2"))).thenReturn(Mono.just("TYPE2"));
+        Mockito.when(orderConfigService.findBloodTypeByFamilyAndType(Mockito.eq("FAMILY2"),Mockito.eq("TYPE2"))).thenReturn(Mono.just("TYPE2"));
+
+        order.addItem(2L,"FAMILY2","TYPE2",10,5,"", ZonedDateTime.now(),ZonedDateTime.now(),orderConfigService);
+
+        var backOrder = order.createBackOrder("CREATE-EMPLOYEE-ID",customerService,lookupService,orderConfigService);
+
+        Assertions.assertNotNull(backOrder);
+        Assertions.assertEquals("OPEN",backOrder.getOrderStatus().getOrderStatus());
+        Assertions.assertNull(backOrder.getOrderNumber().getOrderNumber());
+        Assertions.assertNull(backOrder.getId());
+        Assertions.assertEquals(order.getOrderExternalId().getOrderExternalId(),backOrder.getOrderExternalId().getOrderExternalId());
+        Assertions.assertEquals(1,backOrder.getOrderItems().size());
+        Assertions.assertEquals(5,backOrder.getOrderItems().getFirst().getQuantity());
+        Assertions.assertEquals("TYPE2",backOrder.getOrderItems().getFirst().getBloodType().getBloodType());
+        Assertions.assertEquals("FAMILY2",backOrder.getOrderItems().getFirst().getProductFamily().getProductFamily());
+        Assertions.assertEquals("2025-01-31",backOrder.getDesiredShippingDate().toString());
+        Assertions.assertNull(backOrder.getCompleteDate());
+        Assertions.assertNull(backOrder.getCompleteComments());
+        Assertions.assertNull(backOrder.getCompleteEmployeeId());
+        Assertions.assertEquals("CREATE-EMPLOYEE-ID",backOrder.getCreateEmployeeId());
+        Assertions.assertTrue(backOrder.isBackOrder());
 
     }
 }

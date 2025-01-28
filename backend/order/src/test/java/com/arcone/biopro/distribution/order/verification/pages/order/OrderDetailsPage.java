@@ -70,6 +70,8 @@ public class OrderDetailsPage extends CommonPageFactory {
     private static final By completeOrderConfirmBox = By.id("CompleteOrderDialog");
     private static final By completeOrderCommentTextArea = By.id("completeOrderReason");
     private static final By completeOrderSubmitBtn = By.id("completeOrderSubmitBtn");
+    private static final By createBackOrderTrueBtn = By.id("createBackOrderTrue-button");
+    private static final By createBackOrderFalseBtn = By.id("createBackOrderFalse-button");
 
 
     //Dynamic locators
@@ -117,7 +119,7 @@ public class OrderDetailsPage extends CommonPageFactory {
         return String.format("//p-table[@id='shipmentsTableId']//td[text()='%s']", detail);
     }
 
-    private String expectedFilledOrderQuantity(String quantity){
+    private String expectedFilledOrderQuantity(String quantity) {
         return String.format("//*[@id='filledOrdersCount'][normalize-space()='%s']", quantity);
     }
 
@@ -129,10 +131,10 @@ public class OrderDetailsPage extends CommonPageFactory {
 
     private Map<String, String> productFamilyDescription = Map.of(
         "PLASMA_TRANSFUSABLE", "Plasma Transfusable",
-        "RED_BLOOD_CELLS_LEUKOREDUCED","Red Blood Cells Leukoreduced",
+        "RED_BLOOD_CELLS_LEUKOREDUCED", "Red Blood Cells Leukoreduced",
         "WHOLE_BLOOD", "Whole Blood",
-        "WHOLE_BLOOD_LEUKOREDUCED","Whole Blood Leukoreduced",
-        "RED_BLOOD_CELLS","Red Blood Cells"
+        "WHOLE_BLOOD_LEUKOREDUCED", "Whole Blood Leukoreduced",
+        "RED_BLOOD_CELLS", "Red Blood Cells"
     );
 
 
@@ -320,7 +322,7 @@ public class OrderDetailsPage extends CommonPageFactory {
         Assert.assertEquals(totalProducts, Integer.valueOf(driver.findElement(totalProductsCountLabel).getText()));
     }
 
-    public void verifyFilledProductsSection(String productFamily, String bloodType, String quantity, String filledQuantity){
+    public void verifyFilledProductsSection(String productFamily, String bloodType, String quantity, String filledQuantity) {
         sharedActions.waitForVisible(By.xpath(filledProductDetails(productFamily, bloodType, quantity, filledQuantity)));
     }
 
@@ -349,5 +351,13 @@ public class OrderDetailsPage extends CommonPageFactory {
             sharedActions.sendKeys(completeOrderCommentTextArea, comment);
         }
         sharedActions.click(completeOrderSubmitBtn);
+    }
+
+    public void defineBackOrderOption(boolean option) {
+        if (option) {
+            sharedActions.click(createBackOrderTrueBtn);
+        } else {
+            sharedActions.click(createBackOrderFalseBtn);
+        }
     }
 }

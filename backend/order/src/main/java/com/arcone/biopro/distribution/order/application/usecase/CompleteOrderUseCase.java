@@ -5,13 +5,12 @@ import com.arcone.biopro.distribution.order.application.dto.UseCaseNotificationD
 import com.arcone.biopro.distribution.order.application.dto.UseCaseResponseDTO;
 import com.arcone.biopro.distribution.order.application.exception.DomainNotFoundForKeyException;
 import com.arcone.biopro.distribution.order.domain.event.OrderCompletedEvent;
+import com.arcone.biopro.distribution.order.domain.event.OrderCreatedEvent;
 import com.arcone.biopro.distribution.order.domain.exception.DomainException;
 import com.arcone.biopro.distribution.order.domain.model.CompleteOrderCommand;
 import com.arcone.biopro.distribution.order.domain.model.Order;
 import com.arcone.biopro.distribution.order.domain.repository.OrderRepository;
-import com.arcone.biopro.distribution.order.domain.service.CompleteOrderService;
-import com.arcone.biopro.distribution.order.domain.service.LookupService;
-import com.arcone.biopro.distribution.order.domain.service.OrderShipmentService;
+import com.arcone.biopro.distribution.order.domain.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -31,6 +30,8 @@ public class CompleteOrderUseCase implements CompleteOrderService {
     private final ApplicationEventPublisher applicationEventPublisher;
     private final OrderShipmentService orderShipmentService;
     private final LookupService lookupService;
+    private final CustomerService customerService;
+    private final OrderConfigService orderConfigService;
 
     @Override
     @Transactional
@@ -40,7 +41,8 @@ public class CompleteOrderUseCase implements CompleteOrderService {
             .map(order -> {
                 order.completeOrder(completeOrderCommand,lookupService,orderShipmentService);
                 return order;
-            }).flatMap(orderRepository::update)
+            })
+            .flatMap(orderRepository::update)
             .map(order -> {
                 return new UseCaseResponseDTO<>(List.of(UseCaseNotificationDTO
                     .builder()
@@ -48,6 +50,7 @@ public class CompleteOrderUseCase implements CompleteOrderService {
                     .build()), order);
             })
             .doOnSuccess(this::publishOrderCompletedEvent)
+            .doOnSuccess(orderUseCaseResponseDTO -> this.createBackOrder(orderUseCaseResponseDTO,completeOrderCommand))
             .publishOn(Schedulers.boundedElastic())
             .onErrorResume(error -> {
                 log.error("Error occurred while completing order", error);
@@ -71,4 +74,19 @@ public class CompleteOrderUseCase implements CompleteOrderService {
         log.debug("Publishing OrderCompletedEvent {} , ID {}", useCaseResponseDTO, useCaseResponseDTO.data().getId());
         applicationEventPublisher.publishEvent(new OrderCompletedEvent(useCaseResponseDTO.data()));
     }
+
+    private void createBackOrder(UseCaseResponseDTO<Order> useCaseResponseDTO,CompleteOrderCommand completeOrderCommand){
+        if(Boolean.TRUE.equals(completeOrderCommand.getCreateBackOrder())){
+            var backOrder = useCaseResponseDTO.data().createBackOrder(completeOrderCommand.getEmployeeId(),customerService,lookupService,orderConfigService);
+            this.orderRepository.insert(backOrder)
+                .doOnSuccess(this::publishOrderCreatedEvent)
+                .subscribe();
+        }
+    }
+    private void publishOrderCreatedEvent(Order order) {
+        log.debug("Publishing OrderCreatedEvent {} , ID {}", order, order.getId());
+        applicationEventPublisher.publishEvent(new OrderCreatedEvent(order));
+    }
+
+
 }

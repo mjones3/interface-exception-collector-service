@@ -91,6 +91,7 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
     readonly ProductFamilyMap = ProductFamilyMap;
 
     expandedRows = {};
+    isBackOrderCreationActive: boolean;
 
     orderDetails: OrderDetailsDTO;
     private notifications: Notification[] = [];
@@ -158,6 +159,8 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
 
                     this.totalOrderProducts = this.orderDetails.totalProducts;
                     this.filledOrdersCount = this.orderDetails.totalShipped;
+                    this.isBackOrderCreationActive =
+                        this.orderDetails.backOrderCreationActive;
                     return orderDetails.status !== 'OPEN'
                         ? this.orderService
                               .findOrderShipmentByOrderId(orderDetails.id)
@@ -316,11 +319,15 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
         this.matDialog
             .open<
                 CompleteOrderComponent,
-                never,
+                { isBackOrderCreationActive: boolean },
                 Partial<CompleteOrderCommandDTO>
             >(CompleteOrderComponent, {
+                data: {
+                    isBackOrderCreationActive: this.isBackOrderCreationActive,
+                },
+                disableClose: true,
                 id: 'CompleteOrderDialog',
-                width: '24rem',
+                width: '30rem',
             })
             .afterClosed()
             .pipe(filter(Boolean))
@@ -332,6 +339,7 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
             .completeOrder({
                 orderId: Number(this.orderId),
                 employeeId: this.loggedUserId,
+                createBackOrder: false,
                 ...command,
             })
             .pipe(

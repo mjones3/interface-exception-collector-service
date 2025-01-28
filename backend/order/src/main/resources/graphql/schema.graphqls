@@ -152,6 +152,7 @@ type Order {
     completeEmployeeId: String
     completeDate: DateTime
     completeComments: String
+    backOrderCreationActive: Boolean!
 }
 
 type OrderReportDTO {
@@ -202,6 +203,7 @@ input QueryOrderByDTO {
 input CompleteOrderCommandDTO {
     orderId:ID!
     employeeId:String!
+    createBackOrder:Boolean!
     comments:String
 }
 

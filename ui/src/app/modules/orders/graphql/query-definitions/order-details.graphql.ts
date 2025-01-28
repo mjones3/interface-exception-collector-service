@@ -60,6 +60,7 @@ export const GET_ORDER_BY_ID = gql<
                 completeEmployeeId
                 completeDate
                 completeComments
+                backOrderCreationActive
             }
         }
     }

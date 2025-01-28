@@ -49,6 +49,7 @@ public class OrderEntityMapper {
             .completeComments(order.getCompleteComments())
             .completeEmployeeId(order.getCompleteEmployeeId())
             .completeDate(order.getCompleteDate())
+            .backOrder(order.isBackOrder())
             .build();
     }
 

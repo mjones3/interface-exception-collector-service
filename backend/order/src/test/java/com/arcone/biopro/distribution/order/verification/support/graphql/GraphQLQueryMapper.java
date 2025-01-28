@@ -53,4 +53,54 @@ public class GraphQLQueryMapper {
             }
             """, locationCode);
     }
+
+    public static String findOrderById(Integer orderId) {
+        return String.format("""
+            query  {
+              findOrderById(orderId:%s) {
+                       data{
+                           id
+                           orderNumber
+                           externalId
+                           locationCode
+                           shipmentType
+                           shippingMethod
+                           shippingCustomerName
+                           shippingCustomerCode
+                           billingCustomerName
+                           billingCustomerCode
+                           desiredShippingDate
+                           willCallPickup
+                           phoneNumber
+                           productCategory
+                           comments
+                           status
+                           priority
+                           createEmployeeId
+                           createDate
+                           modificationDate
+                           deleteDate
+                           orderItems{
+                                                     id
+                                                     productFamily
+                                                     bloodType
+                                                     quantity
+                                                 }
+                           totalShipped
+                           totalRemaining
+                           totalProducts
+                           canBeCompleted
+                           completeEmployeeId
+                           completeDate
+                           completeComments
+                           backOrderCreationActive
+                       }
+                       notifications{
+                           notificationType
+                           notificationMessage
+                       }
+                   }
+            }
+            """, orderId);
+    }
 }

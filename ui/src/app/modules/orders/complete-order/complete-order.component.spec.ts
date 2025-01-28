@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { By } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { CompleteOrderComponent } from './complete-order.component';
@@ -8,12 +8,16 @@ import { CompleteOrderComponent } from './complete-order.component';
 describe('CompleteOrderComponent', () => {
     let component: CompleteOrderComponent;
     let fixture: ComponentFixture<CompleteOrderComponent>;
+    const mockDialogData = {
+        backOrderCreationActive: false,
+    };
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [CompleteOrderComponent, ReactiveFormsModule],
             providers: [
                 provideAnimations(),
+                { provide: MAT_DIALOG_DATA, useValue: mockDialogData },
                 {
                     provide: MatDialogRef,
                     useValue: {
@@ -46,7 +50,7 @@ describe('CompleteOrderComponent', () => {
 
     it('should return CompleteOrderCommandDTO with values when Continue button is clicked', () => {
         const element = fixture.debugElement;
-
+        component.data.isBackOrderCreationActive = true;
         const completeOrderReasonElement = element.query(
             By.css('#completeOrderReason')
         );
@@ -64,6 +68,15 @@ describe('CompleteOrderComponent', () => {
         continueButton.click();
         expect(component.dialogRef.close).toHaveBeenCalledWith({
             comments: 'ABC123',
+            createBackOrder: false,
         });
+    });
+
+    it('should hide toggle button for back order field when isBackOrderCreationActive is false', () => {
+        component.data = { isBackOrderCreationActive: false };
+        fixture.detectChanges();
+        expect(
+            fixture.debugElement.nativeElement.querySelector('#isBackOrderId')
+        ).toBeNull();
     });
 });

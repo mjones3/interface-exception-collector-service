@@ -8,6 +8,7 @@ import java.io.Serializable;
 public record CompleteOrderCommandDTO(
     Long orderId,
     String employeeId,
+    Boolean createBackOrder,
     String comments
 ) implements Serializable  {
 

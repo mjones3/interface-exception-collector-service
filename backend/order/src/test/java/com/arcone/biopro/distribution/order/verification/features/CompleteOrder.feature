@@ -1,10 +1,10 @@
 @AOA-152
-Feature: Back Orders
+Feature: Complete Order
 
     Background:
         Given I cleaned up from the database the orders with external ID starting with "EXTDIS111".
 
-    Rule: I should be able to complete an order manually with partial order fulfillment
+        Rule: I should be able to complete an order manually with partial order fulfillment
         Rule: I should be able to receive a success message when an order is completed.
         @api @DIS-111
         Scenario Outline: Complete an order with partial fulfillment
@@ -19,7 +19,7 @@ Feature: Back Orders
 
 
 
-    Rule: I should not be able to complete an order with pending shipments.
+        Rule: I should not be able to complete an order with pending shipments.
         @api @DIS-111
         Scenario Outline: Try to complete an order with an open shipment
             Given I have an order with external ID "EXTDIS11102" partially fulfilled with a shipment "<Shipment Status>".
@@ -32,7 +32,7 @@ Feature: Back Orders
                 | OPEN            | IN_PROGRESS  | error        | Order has an open shipment |
 
 
-    Rule: I should not be able to complete an order with an open status (without starting the fulfillment process).
+        Rule: I should not be able to complete an order with an open status (without starting the fulfillment process).
         Rule: I should not be able to complete an order already closed (completed).
         @api @DIS-111
         Scenario Outline: Try to complete an open/completed order
@@ -47,19 +47,37 @@ Feature: Back Orders
                 | COMPLETED    | error        | Order is already completed                       |
 
 
-    Rule: I should be able to complete an order manually with partial order fulfillment
+        Rule: I should be able to complete an order manually with partial order fulfillment
         Rule: I should be prompted to confirm before completing an order.
-    Rule: I should have an option to enter the reason for completing a partially fulfilled order.
-        @ui @DIS-111
+        Rule: I should have an option to enter the reason for completing a partially fulfilled order.
+        @ui @DIS-111 @DIS-175
         Scenario Outline: Complete an order with partial fulfillment
             Given I have an order with external ID "EXTDIS11104" partially fulfilled with a shipment "<Shipment Status>".
             When I navigate to the order details page.
             And I choose to complete the order.
             Then I should be prompted to confirm to complete the order.
+            And I define the backorder creation option as "<Create Backorder>".
             When I confirm to complete the order with the reason "<Reason>".
             Then I should see a "<Message Type>" message: "<Message>".
+            And A back order "<Create?>" be created with the same external ID and status "OPEN".
 
             Examples:
-                | Shipment Status | Message Type | Message                      | Reason   |
-                | COMPLETED       | success      | Order completed successfully | Comments |
+                | Shipment Status | Message Type | Message                      | Reason   | Create Backorder | Create?    |
+                | COMPLETED       | success      | Order completed successfully | Comments | true             | should     |
+                | COMPLETED       | success      | Order completed successfully | Comments | false            | should not |
+
+
+        Rule: The system must not create a backorder if the user doesn’t confirm the action to create a backorder.
+        Rule: The system must create a backorder if the user confirms the creation of a backorder
+        @api @DIS-175
+        Scenario Outline: Complete an order with back order configuration <Back Order Config>
+            Given I have an order with external ID "EXTDIS11105" partially fulfilled with a shipment "<Shipment Status>".
+            And I have the back order configuration set to "<Back Order Config>".
+            When I request the order details.
+            Then I "<Option>" have an option to create a back order.
+
+            Examples:
+                | Shipment Status | Back Order Config | Option     |
+                | COMPLETED       | false             | should not |
+                | COMPLETED       | true              | should     |
 
