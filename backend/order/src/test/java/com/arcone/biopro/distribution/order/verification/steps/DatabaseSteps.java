@@ -81,14 +81,14 @@ public class DatabaseSteps {
         var data = databaseService.fetchData(query);
 
         if (option.equalsIgnoreCase("should")) {
-            var records = data.first().block();
-            assert records != null;
-            Assert.assertFalse(records.isEmpty());
-            Assert.assertEquals(records.get("status"), status);
-            Assert.assertEquals(records.get("external_id"), context.getExternalId());
+            var records = data.first().blockOptional();
+            assert records.isPresent();
+            var orderData = records.get();
+            Assert.assertEquals(orderData.get("status"), status);
+            Assert.assertEquals(orderData.get("external_id"), context.getExternalId());
         } else if (option.equalsIgnoreCase("should not")) {
-            var records = data.first().block();
-            assert Objects.requireNonNull(records).isEmpty();
+            var records = data.first().blockOptional();
+            assert records.isEmpty();
         } else {
             Assert.fail("Invalid value. Use 'Should' or 'Should Not' to define the correct configuration.");
         }

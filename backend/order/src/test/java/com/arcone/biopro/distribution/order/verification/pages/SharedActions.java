@@ -206,7 +206,9 @@ public class SharedActions {
     public void verifyMessage(String header, String message) {
         log.info("Verifying message: {}", message);
         String bannerMessageLocator = "#toast-container";
-        String msg = getText(By.cssSelector(bannerMessageLocator));
+        waitForVisible(By.cssSelector(bannerMessageLocator));
+
+        String msg = wait.until(e -> e.findElement(By.cssSelector(bannerMessageLocator))).getText();
 
         // Split the message at line break to get header and message
         String[] msgParts = msg.split("\n");
