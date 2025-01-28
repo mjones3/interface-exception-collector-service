@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.order.verification.controllers;
 import com.arcone.biopro.distribution.order.verification.support.ApiHelper;
 import com.arcone.biopro.distribution.order.verification.support.SharedContext;
 import com.arcone.biopro.distribution.order.verification.support.graphql.GraphQLMutationMapper;
+import com.arcone.biopro.distribution.order.verification.support.graphql.GraphQLQueryMapper;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -81,6 +82,11 @@ public class OrderTestingController {
         return true;
     }
 
+    public void listOrdersByExternalId() {
+        var response = apiHelper.graphQlListRequest(GraphQLQueryMapper.listOrdersByExternalId(context.getLocationCode(),context.getExternalId()), "searchOrders");
+        context.setOrderList(response);
+    }
+
     @Getter
     @RequiredArgsConstructor
     public
@@ -95,9 +101,17 @@ public class OrderTestingController {
         private final String description;
     }
 
-    public Map completeOrder(Integer orderId) {
+    public Map completeOrder(Integer orderId, boolean createBackOrder) {
         String employeeId = context.getEmployeeId();
-        return apiHelper.graphQlRequest(GraphQLMutationMapper.completeOrderMutation(orderId, employeeId, "Order completed comment"), "completeOrder");
+        var response =  apiHelper.graphQlRequest(GraphQLMutationMapper.completeOrderMutation(orderId, employeeId, "Order completed comment", createBackOrder), "completeOrder");
+        log.debug("Order completed response: {}", response);
+        return response;
+    }
+
+    public void getOrderDetails(Integer orderId) {
+        var response =  apiHelper.graphQlRequest(GraphQLQueryMapper.findOrderById(orderId), "findOrderById");
+        context.setOrderDetails((Map) response.get("data"));
+        log.debug("Order details: {}", context.getOrderDetails());
     }
 
 }

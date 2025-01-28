@@ -29,7 +29,7 @@ public class GraphQLQueryMapper {
             """, code));
     }
 
-    public static String listOrders(String locationCode) {
+    public static String listOrdersById(String locationCode) {
         return String.format("""
             query  {
               searchOrders(orderQueryCommandDTO:{
@@ -52,5 +52,82 @@ public class GraphQLQueryMapper {
               }
             }
             """, locationCode);
+    }
+
+    public static String listOrdersByExternalId(String locationCode, String externalId) {
+        return String.format("""
+            query  {
+              searchOrders(orderQueryCommandDTO:{
+                locationCode:"%s",
+                orderUniqueIdentifier:"%s",
+                orderStatus: ["OPEN", "IN_PROGRESS", "COMPLETED"]
+              }) {
+                orderId
+                orderNumber
+                externalId
+                orderStatus
+                createDate
+                desireShipDate
+                orderPriorityReport {
+                  priority
+                  priorityColor
+                }
+                orderCustomerReport {
+                  code
+                  name
+                }
+              }
+            }
+            """, locationCode, externalId);
+    }
+
+    public static String findOrderById(Integer orderId) {
+        return String.format("""
+            query  {
+              findOrderById(orderId:%s) {
+                       data{
+                           id
+                           orderNumber
+                           externalId
+                           locationCode
+                           shipmentType
+                           shippingMethod
+                           shippingCustomerName
+                           shippingCustomerCode
+                           billingCustomerName
+                           billingCustomerCode
+                           desiredShippingDate
+                           willCallPickup
+                           phoneNumber
+                           productCategory
+                           comments
+                           status
+                           priority
+                           createEmployeeId
+                           createDate
+                           modificationDate
+                           deleteDate
+                           orderItems{
+                                                     id
+                                                     productFamily
+                                                     bloodType
+                                                     quantity
+                                                 }
+                           totalShipped
+                           totalRemaining
+                           totalProducts
+                           canBeCompleted
+                           completeEmployeeId
+                           completeDate
+                           completeComments
+                           backOrderCreationActive
+                       }
+                       notifications{
+                           notificationType
+                           notificationMessage
+                       }
+                   }
+            }
+            """, orderId);
     }
 }

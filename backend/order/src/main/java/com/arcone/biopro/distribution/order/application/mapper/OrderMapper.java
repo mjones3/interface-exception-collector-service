@@ -83,6 +83,7 @@ public class OrderMapper {
             .completeEmployeeId(order.getCompleteEmployeeId())
             .completeDate(order.getCompleteDate())
             .completeComments(order.getCompleteComments())
+            .backOrderCreationActive(order.canCreateBackOrders(orderConfigService))
             .build();
     }
 

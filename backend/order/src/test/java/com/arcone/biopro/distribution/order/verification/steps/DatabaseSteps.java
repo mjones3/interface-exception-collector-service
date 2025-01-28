@@ -2,9 +2,11 @@ package com.arcone.biopro.distribution.order.verification.steps;
 
 import com.arcone.biopro.distribution.order.verification.support.DatabaseQueries;
 import com.arcone.biopro.distribution.order.verification.support.DatabaseService;
+import com.arcone.biopro.distribution.order.verification.support.SharedContext;
 import com.arcone.biopro.distribution.order.verification.support.TestUtils;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
+import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class DatabaseSteps {
@@ -12,6 +14,8 @@ public class DatabaseSteps {
     private DatabaseService databaseService;
     @Autowired
     private TestUtils testUtils;
+    @Autowired
+    private SharedContext context;
 
     @And("I cleaned up from the database, all shipments with order number {string}.")
     public void cleanUpShipments(String orderNumber) {
@@ -66,6 +70,39 @@ public class DatabaseSteps {
     @And("I have restored the default configuration for the order priority colors.")
     public void restoreDefaultPriorityColors() {
         var query = DatabaseQueries.restoreDefaultPriorityColors();
+        databaseService.executeSql(query).block();
+    }
+
+    @And("A back order {string} be created with the same external ID and status {string}.")
+    public void ifConfiguredABackOrderMustBeCreatedWithTheSameExternalID(String option, String status) {
+        var query = DatabaseQueries.countBackOrders(context.getExternalId(), context.getOrderId());
+        var data = databaseService.fetchData(query);
+
+        if (option.equalsIgnoreCase("should")) {
+            var records = data.first().blockOptional();
+            assert records.isPresent();
+            var orderData = records.get();
+            Assert.assertEquals(orderData.get("status"), status);
+            Assert.assertEquals(orderData.get("external_id"), context.getExternalId());
+        } else if (option.equalsIgnoreCase("should not")) {
+            var records = data.first().blockOptional();
+            assert records.isEmpty();
+        } else {
+            Assert.fail("Invalid value. Use 'Should' or 'Should Not' to define the correct configuration.");
+        }
+    }
+
+    @And("I have the back order configuration set to {string}.")
+    public void iHaveTheBackOrderConfigurationSetTo(String config) {
+        boolean backOrderConfig = config.equalsIgnoreCase("true");
+        var query = DatabaseQueries.updateBackOrderConfiguration(backOrderConfig);
+        databaseService.executeSql(query).block();
+        context.setBackOrderConfig(backOrderConfig);
+    }
+
+    @And("I have Shipped {string} products of each item line.")
+    public void iHaveShippedShippedQuantityProducts(String quantity) {
+        var query = DatabaseQueries.insertBioProOrderShipmentQuantity(quantity, context.getOrderId().toString());
         databaseService.executeSql(query).block();
     }
 }

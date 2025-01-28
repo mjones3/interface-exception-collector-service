@@ -34,6 +34,11 @@ public class SharedContext {
     private String externalId;
     private Integer orderId;
     private String orderStatus;
+    private Map orderDetails;
+    private List<Map> orderList;
+
+    // LK configurations
+    private boolean backOrderConfig;
 
     // General API response data
     private List<Map> apiMessageResponse;

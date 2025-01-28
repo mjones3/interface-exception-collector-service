@@ -11,6 +11,7 @@ import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 @Controller
 @RequiredArgsConstructor
@@ -24,7 +25,8 @@ public class CompleteOrderController {
     public Mono<OrderResponseDTO> completeOrder(@Argument("completeOrderCommandDTO") CompleteOrderCommandDTO completeOrderCommandDTO) {
       log.debug("Request to completeOrder {}", completeOrderCommandDTO);
         return completeOrderService.completeOrder(new CompleteOrderCommand(completeOrderCommandDTO.orderId()
-                , completeOrderCommandDTO.employeeId(), completeOrderCommandDTO.comments() ))
+                , completeOrderCommandDTO.employeeId(), completeOrderCommandDTO.comments() , completeOrderCommandDTO.createBackOrder()))
+            .publishOn(Schedulers.boundedElastic())
             .map(orderMapper::mapToDTO);
     }
 }

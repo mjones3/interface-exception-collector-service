@@ -114,4 +114,7 @@ public class OrderEntity {
 
     @Column("complete_comments")
     private String completeComments;
+
+    @Column("back_order")
+    private Boolean backOrder;
 }

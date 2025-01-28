@@ -1,11 +1,12 @@
 import { gql } from 'apollo-angular';
-import { OrderDetailsDTO } from '../../models/order-details.dto';
 import { Notification } from '../../models/notification.dto';
+import { OrderDetailsDTO } from '../../models/order-details.dto';
 
 export interface CompleteOrderCommandDTO {
     orderId: number;
     employeeId: string;
     comments?: string;
+    createBackOrder: boolean;
 }
 
 export const COMPLETE_ORDER = gql<
@@ -13,7 +14,7 @@ export const COMPLETE_ORDER = gql<
         completeOrder: {
             notifications: Notification[];
             data: OrderDetailsDTO;
-        }
+        };
     },
     CompleteOrderCommandDTO
 >`
@@ -21,12 +22,14 @@ export const COMPLETE_ORDER = gql<
         $orderId: ID!
         $employeeId: String!
         $comments: String
+        $createBackOrder: Boolean!
     ) {
         completeOrder(
             completeOrderCommandDTO: {
                 orderId: $orderId
                 employeeId: $employeeId
                 comments: $comments
+                createBackOrder: $createBackOrder
             }
         ) {
             notifications {

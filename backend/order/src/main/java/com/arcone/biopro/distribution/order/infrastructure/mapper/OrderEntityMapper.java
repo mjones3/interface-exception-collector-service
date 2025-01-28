@@ -49,6 +49,7 @@ public class OrderEntityMapper {
             .completeComments(order.getCompleteComments())
             .completeEmployeeId(order.getCompleteEmployeeId())
             .completeDate(order.getCompleteDate())
+            .backOrder(order.isBackOrder())
             .build();
     }
 
@@ -91,6 +92,7 @@ public class OrderEntityMapper {
         order.setCompleteComments(orderEntity.getCompleteComments());
         order.setCompleteEmployeeId(orderEntity.getCompleteEmployeeId());
         order.setCompleteDate(orderEntity.getCompleteDate());
+        order.setBackOrder(orderEntity.getBackOrder());
 
         return order;
     }
