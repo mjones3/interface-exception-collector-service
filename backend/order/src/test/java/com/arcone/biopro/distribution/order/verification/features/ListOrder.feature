@@ -60,7 +60,7 @@ Feature: List of all orders in Search Order
 
 
     Rule: I should see the list of orders sorted by priority (ascending order), status (descending order), and desired shipping date (ascending order) where the user logged in.
-        @R20-274 @api @bug @DIS-295
+        @R20-274 @api @bug @DIS-285
         Scenario: List Biopro Orders in the specified order by default
             Given I have these BioPro Orders.
                 | External ID      | Location Code | Priority | Status      | Desired Shipment Date |
