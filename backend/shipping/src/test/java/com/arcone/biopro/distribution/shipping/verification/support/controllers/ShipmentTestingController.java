@@ -88,10 +88,11 @@ public class ShipmentTestingController {
         return shipmentDetail.getOrderNumber();
     }
 
-    public long createShippingRequest(long orderNumber, String priority) throws Exception {
+    public long createShippingRequest(long orderNumber, String priority , String shippingDate) throws Exception {
         var resource = utils.getResource("order-fulfilled.json")
             .replace("{order.number}", String.valueOf(orderNumber))
-            .replace("{order.priority}",priority);
+            .replace("{order.priority}",priority)
+            .replace("{order.shipping_date}",shippingDate);
 
         kafkaHelper.sendEvent(UUID.randomUUID().toString(), objectMapper.readValue(resource, OrderFulfilledEventType.class), Topics.ORDER_FULFILLED).block();
         // Add sleep to wait for the message to be consumed.
@@ -104,7 +105,8 @@ public class ShipmentTestingController {
         long orderId = new Random().nextInt(10000);
         var resource = utils.getResource("order-fulfilled.json")
             .replace("{order.number}", String.valueOf(orderId))
-            .replace("{order.priority}","ASAP");;
+            .replace("{order.shipping_date}","2025-31-12")
+            .replace("{order.priority}","ASAP");
 
         kafkaHelper.sendEvent(UUID.randomUUID().toString(), objectMapper.readValue(resource, OrderFulfilledEventType.class), Topics.ORDER_FULFILLED).block();
         // Add sleep to wait for the message to be consumed.

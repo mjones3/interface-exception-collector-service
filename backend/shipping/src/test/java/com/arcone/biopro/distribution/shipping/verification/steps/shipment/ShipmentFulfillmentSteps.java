@@ -501,9 +501,9 @@ public class ShipmentFulfillmentSteps {
         assertTrue(match, "Failed to find the product in the packed items.");
     }
 
-    @When("I receive a shipment fulfillment request event for the order number {string} and priority {string}.")
-    public void receiveFulfillmentOrderRequest(String orderNumber, String priority) throws Exception {
-        context.setOrderNumber(shipmentTestingController.createShippingRequest(Long.valueOf(orderNumber), priority));
+    @When("I receive a shipment fulfillment request event for the order number {string} and priority {string} and shipping date {string}.")
+    public void receiveFulfillmentOrderRequest(String orderNumber, String priority , String shippingDate) throws Exception {
+        context.setOrderNumber(shipmentTestingController.createShippingRequest(Long.valueOf(orderNumber), priority,shippingDate ));
         this.orderPriority = priority;
 
     }
