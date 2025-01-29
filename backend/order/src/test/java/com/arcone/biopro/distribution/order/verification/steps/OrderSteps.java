@@ -28,6 +28,7 @@ import org.json.JSONObject;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.testcontainers.shaded.org.checkerframework.checker.units.qual.A;
 
 import java.time.LocalDate;
 import java.time.Year;
@@ -151,7 +152,7 @@ public class OrderSteps {
         var newDesiredShippingDate = LocalDate.now().plusDays(
             new Random().nextInt(10) + 1
         ).toString();
-        jsonContent = jsonContent.replace("DESIRED_DATE", newDesiredShippingDate)
+        jsonContent = jsonContent.replace("\"DESIRED_DATE\"", "\""+newDesiredShippingDate+"\"")
             .replace("{EXTERNAL_ID}", externalId);
         var eventPayload = objectMapper.readValue(jsonContent, OrderReceivedEventDTO.class);
         createOrderInboundRequest(jsonContent, eventPayload);
@@ -160,8 +161,18 @@ public class OrderSteps {
     @Given("I have received an order inbound request with externalId {string}, content {string}, and desired shipping date {string}.")
     public void postOrderReceivedEventPast(String externalId, String jsonFileName, String date) throws Exception {
         context.setExternalId(externalId);
+        var dateValue = "";
+        if("NULL_VALUE".equals(date)) {
+            dateValue = "null";
+        }else if("CURRENT_DATE".equals(date)){
+            dateValue = "\""+LocalDate.now()+"\"";
+        }
+        else{
+            dateValue = "\""+date+"\"";
+        }
+
         var jsonContent = testUtils.getResource(jsonFileName);
-        jsonContent = jsonContent.replace("DESIRED_DATE", date)
+        jsonContent = jsonContent.replace("\"DESIRED_DATE\"", dateValue)
             .replace("{EXTERNAL_ID}", externalId);
         var eventPayload = objectMapper.readValue(jsonContent, OrderReceivedEventDTO.class);
         createOrderInboundRequest(jsonContent, eventPayload);
@@ -181,12 +192,18 @@ public class OrderSteps {
         Assert.assertEquals(1L, records.get("count"));
     }
 
-    @Then("A biopro Order will not be available in the Distribution local data store.")
-    public void checkOrderDoesNotExist() {
+    @Then("A biopro Order {string} be available in the Distribution local data store.")
+    public void checkOrderDoesNotExist(String action) {
         var query = DatabaseQueries.countOrdersByExternalId(context.getExternalId());
         var data = databaseService.fetchData(query);
         var records = data.first().block();
-        Assert.assertEquals(0L, records.get("count"));
+        if("should not".equalsIgnoreCase(action)){
+            Assert.assertEquals(0L, records.get("count"));
+        }else if("should".equalsIgnoreCase(action)) {
+            Assert.assertEquals(1L, records.get("count"));
+        }else{
+            Assert.fail("unexpected action: " + action);
+        }
     }
 
     @Then("The duplicated biopro Order will not be available in the Distribution local data store.")
@@ -230,7 +247,8 @@ public class OrderSteps {
             context.setLocationCode(row.get(headers.indexOf("Location Code")));
             this.priority = row.get(headers.indexOf("Priority"));
             this.status = row.get(headers.indexOf("Status"));
-            var query = DatabaseQueries.insertBioProOrder(context.getExternalId(), context.getLocationCode(), orderController.getPriorityValue(priority), priority, status, row.get(headers.indexOf("Desired Shipment Date")));
+            var desireShipDate = row.get(headers.indexOf("Desired Shipment Date")).equals("NULL_VALUE") ? null : "'"+row.get(headers.indexOf("Desired Shipment Date"))+"'";
+            var query = DatabaseQueries.insertBioProOrder(context.getExternalId(), context.getLocationCode(), orderController.getPriorityValue(priority), priority, status, desireShipDate);
             databaseService.executeSql(query).block();
         }
 
