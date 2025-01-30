@@ -133,7 +133,7 @@ Feature: Search Orders
             And Items "<Selected Statuses>" should be selected for "order status".
             And Items "<Selected Customers>" should be selected for "ship to customer".
             And I select the current date as the "create date" range
-            And I select the "12/25/2024" as the "desired shipping date" range
+            And I select the "12/25/2026" as the "desired shipping date" range
             And "order number" field is "disabled".
             Then I choose "apply" option.
             And I should see "<Expected External Ids>" orders in the search results.
