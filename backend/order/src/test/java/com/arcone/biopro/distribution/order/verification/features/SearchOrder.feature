@@ -159,3 +159,15 @@ Feature: Search Orders
             Then I should see a validation message: "Date range exceeds two years".
             And "reset" option is "enabled".
             And "apply" option is "disabled".
+
+
+    Rule: I should be able to search completed orders by order number.
+        @api @DIS-294 @bug
+        Scenario: Search completed order by order number.
+            Given I have these BioPro Orders.
+                | External ID      | Location Code | Priority | Status      | Desired Shipment Date |
+                | EXTSEARCH1DIS294 | 123456789     | STAT     | COMPLETED   | 2025-01-02            |
+
+            When I search for orders by externalID "EXTSEARCH1DIS294".
+            Then I should receive the search results containing "1" order.
+

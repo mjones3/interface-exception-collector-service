@@ -16,7 +16,7 @@ class OrderQueryCommandTest {
 
     @Test
     public void shouldCreateOrderQueryCommandWhenSortIsNull() {
-        var orderQueryCommand = new OrderQueryCommand("1","123",null,null,null,null,null,null,null,null,10);
+        var orderQueryCommand = new OrderQueryCommand("1",null,null,null,null,null,null,null,null,null,10);
         Assertions.assertNotNull(orderQueryCommand);
         Assertions.assertNotNull(orderQueryCommand.getQuerySort());
         Assertions.assertNotNull(orderQueryCommand.getQuerySort().getQueryOrderByList());

@@ -69,7 +69,7 @@ public class OrderQueryCommand implements Validatable {
         }
 
         this.orderStatus = orderStatus;
-        if (orderStatus == null) {
+        if (orderStatus == null && (orderUniqueIdentifier == null || this.orderNumber == null)) {
             this.orderStatus = DEFAULT_STATUSES;
         }
         this.deliveryTypes = deliveryTypes;
