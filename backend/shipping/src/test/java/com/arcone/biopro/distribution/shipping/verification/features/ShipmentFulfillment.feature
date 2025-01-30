@@ -88,11 +88,11 @@ Feature: Shipment fulfillment request
             Then The shipment request will be available in the Distribution local data store and I can fill the shipment.
             Examples:
                 | Order Number | Priority  | ShippingDate |
-                | 1341         | DATE_TIME | 2025-31-12   |
-                | 1351         | ASAP      | 2025-31-12   |
-                | 1361         | ROUTINE   | 2025-31-12   |
-                | 1371         | STAT      | 2025-31-12   |
-                | 1381         | SCHEDULED | 2025-31-12   |
+                | 1341         | DATE_TIME | 2025-12-31   |
+                | 1351         | ASAP      | 2025-12-31   |
+                | 1361         | ROUTINE   | 2025-12-31   |
+                | 1371         | STAT      | 2025-12-31   |
+                | 1381         | SCHEDULED | 2025-12-31   |
                 | 2852         | ROUTINE   | NULL_VALUE   |
 
         Rule: I should be able to fill orders with Whole Blood and Derived Products.

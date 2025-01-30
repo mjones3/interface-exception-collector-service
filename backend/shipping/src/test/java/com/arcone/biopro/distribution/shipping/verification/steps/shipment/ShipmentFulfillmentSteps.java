@@ -503,6 +503,9 @@ public class ShipmentFulfillmentSteps {
 
     @When("I receive a shipment fulfillment request event for the order number {string} and priority {string} and shipping date {string}.")
     public void receiveFulfillmentOrderRequest(String orderNumber, String priority , String shippingDate) throws Exception {
+        if("NULL_VALUE".equals(shippingDate)) {
+            shippingDate = null;
+        }
         context.setOrderNumber(shipmentTestingController.createShippingRequest(Long.valueOf(orderNumber), priority,shippingDate ));
         this.orderPriority = priority;
 

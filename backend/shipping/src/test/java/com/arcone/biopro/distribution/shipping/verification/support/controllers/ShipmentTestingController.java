@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 
@@ -89,10 +90,13 @@ public class ShipmentTestingController {
     }
 
     public long createShippingRequest(long orderNumber, String priority , String shippingDate) throws Exception {
+
+        var shippingDateFormat = Optional.ofNullable(shippingDate).map(shippingDateMap -> "\""+shippingDateMap+"\"").orElse("null");
+
         var resource = utils.getResource("order-fulfilled.json")
             .replace("{order.number}", String.valueOf(orderNumber))
             .replace("{order.priority}",priority)
-            .replace("{order.shipping_date}",shippingDate);
+            .replace("\"{order.shipping_date}\"",shippingDateFormat);
 
         kafkaHelper.sendEvent(UUID.randomUUID().toString(), objectMapper.readValue(resource, OrderFulfilledEventType.class), Topics.ORDER_FULFILLED).block();
         // Add sleep to wait for the message to be consumed.

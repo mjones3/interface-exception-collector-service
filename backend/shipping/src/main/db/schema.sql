@@ -24,7 +24,7 @@ CREATE TABLE shipping.bld_shipment (
     address_line1              VARCHAR(255)             NOT NULL,
     address_line2              VARCHAR(255),
     address_contact_name varchar(255) NULL,
-    shipping_date DATE NOT NULL,
+    shipping_date              DATE DEFAULT NULL            NULL,
     create_date                TIMESTAMP WITH TIME ZONE NOT NULL,
     modification_date          TIMESTAMP WITH TIME ZONE NOT NULL,
     delete_date                TIMESTAMP WITH TIME ZONE,
