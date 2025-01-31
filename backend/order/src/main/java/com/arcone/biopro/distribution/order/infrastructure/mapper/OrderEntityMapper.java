@@ -9,6 +9,7 @@ import com.arcone.biopro.distribution.order.infrastructure.persistence.OrderItem
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
@@ -66,7 +67,7 @@ public class OrderEntityMapper {
             orderEntity.getShippingMethod(),
             orderEntity.getShippingCustomerCode(),
             orderEntity.getBillingCustomerCode(),
-            java.util.Optional.of(orderEntity.getDesiredShippingDate().toString()).orElse(""),
+            ofNullable(orderEntity.getDesiredShippingDate()).map(LocalDate::toString).orElse(null),
             orderEntity.getWillCallPickup(),
             orderEntity.getPhoneNumber(),
             orderEntity.getProductCategory(),

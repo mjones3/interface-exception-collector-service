@@ -58,10 +58,10 @@ public class PrintPackingListSteps {
     private boolean headless;
 
 
-    @Given("The shipment details are Order Number {int}, Location Code {string}, Customer ID {string}, Customer Name {string}, Department {string}, Address Line 1 {string}, Address Line 2 {string}, Unit Number {string}, Product Code {string}, Product Family {string}, Blood Type {string}, Expiration {string}, Quantity {int}.")
-    public void setShipmentDetails(Long orderNumber, String locationCode, String customerID, String customerName, String department, String addressLine1, String addressLine2, String unitNumber, String productCode, String productFamily, String bloodType, String expiration, int quantity) {
-        this.shipmentDetails = shipmentController.buildShipmentRequestDetailsResponseType(orderNumber, locationCode, customerID, customerName, department, addressLine1, addressLine2, TestUtils.removeUnitNumberScanDigits(unitNumber), TestUtils.removeProductCodeScanDigits(productCode), productFamily, bloodType, expiration, quantity);
-        context.setOrderNumber(orderNumber);
+    @Given("The shipment details are Order Number {string}, Location Code {string}, Customer ID {string}, Customer Name {string}, Department {string}, Address Line 1 {string}, Address Line 2 {string}, Unit Number {string}, Product Code {string}, Product Family {string}, Blood Type {string}, Expiration {string}, Quantity {int}.")
+    public void setShipmentDetails(String orderNumber, String locationCode, String customerID, String customerName, String department, String addressLine1, String addressLine2, String unitNumber, String productCode, String productFamily, String bloodType, String expiration, int quantity) {
+        this.shipmentDetails = shipmentController.buildShipmentRequestDetailsResponseType(Long.parseLong(orderNumber), locationCode, customerID, customerName, department, addressLine1, addressLine2, TestUtils.removeUnitNumberScanDigits(unitNumber), TestUtils.removeProductCodeScanDigits(productCode), productFamily, bloodType, expiration, quantity);
+        context.setOrderNumber(Long.parseLong(orderNumber));
         Assert.assertNotNull(this.shipmentDetails);
     }
 

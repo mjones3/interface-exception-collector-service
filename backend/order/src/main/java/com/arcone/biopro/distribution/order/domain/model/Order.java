@@ -106,11 +106,14 @@ public class Order implements Validatable {
         this.shippingMethod = new ShippingMethod(shippingMethod, lookupService);
         this.shippingCustomer = new OrderCustomer(shippingCustomerCode, customerService);
         this.billingCustomer = new OrderCustomer(billingCustomerCode, customerService);
-        try {
-            this.desiredShippingDate = LocalDate.parse(desiredShippingDate);
-        } catch (DateTimeParseException e) {
-            throw new IllegalArgumentException("desiredShippingDate is invalid");
+        if(desiredShippingDate != null){
+            try {
+                this.desiredShippingDate = LocalDate.parse(desiredShippingDate);
+            } catch (DateTimeParseException e) {
+                throw new IllegalArgumentException("desiredShippingDate is invalid");
+            }
         }
+
         this.willCallPickup = willCallPickup;
         this.phoneNumber = phoneNumber;
         this.productCategory = new ProductCategory(productCategory, lookupService);
@@ -146,10 +149,7 @@ public class Order implements Validatable {
         if (this.billingCustomer == null) {
             throw new IllegalArgumentException("billingCustomer could not be found or it is null");
         }
-        if (this.desiredShippingDate == null) {
-            throw new IllegalArgumentException("desiredShippingDate cannot be null");
-        }
-        if (this.desiredShippingDate.isBefore(LocalDate.now()) && this.id == null) {
+        if (this.desiredShippingDate != null && this.desiredShippingDate.isBefore(LocalDate.now()) && this.id == null) {
             throw new IllegalArgumentException("desiredShippingDate cannot be in the past");
         }
         if (this.productCategory == null) {
@@ -256,6 +256,9 @@ public class Order implements Validatable {
             throw new IllegalArgumentException("Back Order cannot be created, configuration is not active");
         }
 
+        var desireShipDate = ofNullable(this.desiredShippingDate).filter(date -> !date.isBefore(LocalDate.now()))
+            .map(validDate -> validDate.format(DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
+
         var backOrder =  new Order(
            customerService,
             lookupService,
@@ -267,7 +270,7 @@ public class Order implements Validatable {
             this.getShippingMethod().getShippingMethod(),
             this.getShippingCustomer().getCode(),
             this.getBillingCustomer().getCode(),
-            this.getDesiredShippingDate().format(DateTimeFormatter.ISO_LOCAL_DATE),
+            desireShipDate,
             this.getWillCallPickup() == null ? FALSE : this.getWillCallPickup(),
             this.getPhoneNumber(),
             this.getProductCategory().getProductCategory(),

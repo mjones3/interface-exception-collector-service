@@ -3,7 +3,7 @@ Feature: Shipment fulfillment request
 
     Background:
         Given I cleaned up from the database the packed item that used the unit number "W822530106093,W822530106094,W812530106095,W812530106097,W812530106098".
-        And I cleaned up from the database, all shipments with order number "1321,1331,1341,1351,1361,1371,1381,1391,1392,1393,1394,1395".
+        And I cleaned up from the database, all shipments with order number "1321,1331,1341,1351,1361,1371,1381,1391,1392,1393,1394,1395,2851,2852".
 
         Rule: I should be able to receive the shipment fulfillment request.
         Rule: I should be able to persist the shipment fulfilled request on the local store.
@@ -80,18 +80,20 @@ Feature: Shipment fulfillment request
 
 
         Rule: Distribution Technicians must be able to process and ship products for “DATE-TIME” delivery type orders.
-        @api @bug @DIS-260
+        Rule:
+        @api @bug @DIS-260 @DIS-285
         Scenario Outline: Receive a shipment fulfillment request based on priority
             Given I have no shipment fulfillment requests.
-            When I receive a shipment fulfillment request event for the order number "<Order Number>" and priority "<Priority>".
+            When I receive a shipment fulfillment request event for the order number "<Order Number>" and priority "<Priority>" and shipping date "<ShippingDate>".
             Then The shipment request will be available in the Distribution local data store and I can fill the shipment.
             Examples:
-                | Order Number | Priority  |
-                | 1341         | DATE_TIME |
-                | 1351         | ASAP      |
-                | 1361         | ROUTINE   |
-                | 1371         | STAT      |
-                | 1381         | SCHEDULED |
+                | Order Number | Priority  | ShippingDate |
+                | 1341         | DATE_TIME | 2025-12-31   |
+                | 1351         | ASAP      | 2025-12-31   |
+                | 1361         | ROUTINE   | 2025-12-31   |
+                | 1371         | STAT      | 2025-12-31   |
+                | 1381         | SCHEDULED | 2025-12-31   |
+                | 2852         | ROUTINE   | NULL_VALUE   |
 
         Rule: I should be able to fill orders with Whole Blood and Derived Products.
         @api @DIS-254
