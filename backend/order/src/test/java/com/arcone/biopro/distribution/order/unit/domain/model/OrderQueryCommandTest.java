@@ -3,7 +3,6 @@ package com.arcone.biopro.distribution.order.unit.domain.model;
 import com.arcone.biopro.distribution.order.domain.model.OrderQueryCommand;
 import com.arcone.biopro.distribution.order.domain.model.QueryOrderBy;
 import com.arcone.biopro.distribution.order.domain.model.QuerySort;
-import com.arcone.biopro.distribution.order.domain.model.SearchOrderCriteria;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -136,5 +135,19 @@ class OrderQueryCommandTest {
         var sort = new QuerySort(List.of(orderBy));
 
         assertThrows(IllegalArgumentException.class, () -> new OrderQueryCommand("1",null,null,null,null, null, null,LocalDate.now(),null,sort,10), "The createDate must not be null or empty");
+    }
+
+    @Test
+    public void shouldDefineStatusWhenSearchWithUniqueIdentifierNull() {
+        var orderQueryCommand = new OrderQueryCommand("1", null, null, null, null, null, null, null, null, null, 10);
+        Assertions.assertNotNull(orderQueryCommand.getOrderStatus());
+        Assertions.assertTrue(orderQueryCommand.getOrderStatus().contains("IN_PROGRESS"));
+        Assertions.assertTrue(orderQueryCommand.getOrderStatus().contains("OPEN"));
+    }
+
+    @Test
+    public void shouldNotDefineStatusWhenSearchByUniqueIdentifier() {
+        var orderQueryCommand = new OrderQueryCommand("1", "123", null, null, null, null, null, null, null, null, 10);
+        Assertions.assertNull(orderQueryCommand.getOrderStatus());
     }
 }
