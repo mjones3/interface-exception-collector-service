@@ -109,7 +109,7 @@ public class ShipmentTestingController {
         long orderId = new Random().nextInt(10000);
         var resource = utils.getResource("order-fulfilled.json")
             .replace("{order.number}", String.valueOf(orderId))
-            .replace("{order.shipping_date}","2025-31-12")
+            .replace("{order.shipping_date}","2025-12-31")
             .replace("{order.priority}","ASAP");
 
         kafkaHelper.sendEvent(UUID.randomUUID().toString(), objectMapper.readValue(resource, OrderFulfilledEventType.class), Topics.ORDER_FULFILLED).block();
