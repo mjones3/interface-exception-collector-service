@@ -29,7 +29,7 @@ public class GraphQLQueryMapper {
             """, code));
     }
 
-    public static String listOrdersById(String locationCode) {
+    public static String listOrdersByLocation(String locationCode) {
         return String.format("""
             query  {
               searchOrders(orderQueryCommandDTO:{
