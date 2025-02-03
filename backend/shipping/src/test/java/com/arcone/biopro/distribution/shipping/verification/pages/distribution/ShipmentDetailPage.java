@@ -29,9 +29,6 @@ public class ShipmentDetailPage extends CommonPageFactory {
     @FindBy(how = How.ID, using = "viewPickListBtn")
     private WebElement viewPickListButton;
 
-    @FindBy(css = "[id^='fillShipmentBtn']")
-    private WebElement fillProductButton;
-
     @FindBy(id = "detailsBtn")
     private WebElement productShippingDetailsSection;
 
@@ -95,11 +92,17 @@ public class ShipmentDetailPage extends CommonPageFactory {
 
     private By orderCommentAccordion = By.id("orderInfoComment");
     private By backButnLocator = By.id("backBtnId");
+//    private By manageProductsBtn = By.cssSelector("[id^='fillShipmentBtn']");
+    private By manageProductsBtn = By.cssSelector("[id^='manageProductBtn']");
 
     // Dynamic By Locators
 
     private By orderComment(String comment) {
         return By.xpath(String.format("//*[@id='orderInfoComment']//div[contains(text(),'%s')]", comment));
+    }
+
+    private By manageProductButton(String family, String bloodType) {
+        return By.xpath(String.format("//td[normalize-space()='%s']/following-sibling::td[normalize-space()='%s']/following-sibling::td//button", family.toUpperCase().replace("_", " "), bloodType.toUpperCase()));
     }
 
     private int getExpectedWindowsNumber() {
@@ -130,7 +133,7 @@ public class ShipmentDetailPage extends CommonPageFactory {
     }
 
     public void viewFillProduct() {
-        sharedActions.waitForVisible(fillProductButton);
+        sharedActions.waitForVisible(manageProductsBtn);
     }
 
     public void viewPageContent() {
@@ -232,5 +235,14 @@ public class ShipmentDetailPage extends CommonPageFactory {
         sharedActions.waitForVisible(By.xpath(shipmentStatusValue));
         var actualStatus = sharedActions.getText(By.xpath(shipmentStatusValue));
         assertTrue(actualStatus.contains(status), "The shipping status is not as expected. Expected: " + status + ", Actual: " + actualStatus);
+    }
+
+    public void verifyManageProductsButtonIsVisible(boolean visible, String family, String bloodType) {
+        log.debug("Verifying that the Manage Products button is {}", visible ? "visible" : "not visible");
+        if (visible) {
+            sharedActions.waitForVisible(manageProductButton(family, bloodType));
+        } else {
+            sharedActions.waitForNotVisible(manageProductButton(family, bloodType));
+        }
     }
 }

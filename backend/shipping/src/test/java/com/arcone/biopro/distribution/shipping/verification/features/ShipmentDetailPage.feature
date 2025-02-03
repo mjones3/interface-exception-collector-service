@@ -74,7 +74,7 @@ Feature: Access Shipment Details Page
             Given I have a shipment for order "<Order Number>" with the units "<Units>" and product codes "<Product Codes>" of family "<Product Family>" and blood type "<Blood Type>" "packed", out of <Quantity Requested> requested.
             And  The shipment status is "<Shipment Status>".
             When I am on the Shipment Fulfillment Details page.
-            Then I "<Display Manage Option>" have an option to manage the products in the shipment.
+            Then I "<Display Manage Option>" have an option to manage the products in the shipment for "<Product Family>" and "<Blood Type>" line item.
 
             Examples:
                 | Order Number | Quantity Requested | Blood Type | Product Family               | Shipment Status | Units                       | Product Codes     | Display Manage Option |

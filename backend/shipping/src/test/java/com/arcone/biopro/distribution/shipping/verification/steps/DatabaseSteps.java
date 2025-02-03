@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.shipping.verification.steps;
 
 import com.arcone.biopro.distribution.shipping.verification.support.DatabaseService;
+import com.arcone.biopro.distribution.shipping.verification.support.SharedContext;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,9 @@ public class DatabaseSteps {
 
     @Autowired
     private DatabaseService databaseService;
+
+    @Autowired
+    private SharedContext context;
 
     @Given("I cleaned up from the database the packed item that used the unit number {string}.")
     public void cleanUpPackedUnit(String unitNumber) {
@@ -72,5 +76,11 @@ public class DatabaseSteps {
         var result = databaseService.fetchData(query).first().block();
         assert result != null;
         Assert.assertTrue(result.get("status").toString().equalsIgnoreCase(status));
+    }
+
+    @And("The shipment status is {string}.")
+    public void theShipmentStatusIs(String status) {
+        var query = "UPDATE bld_shipment SET status = '" + status + "' WHERE ID = " + context.getShipmentId();
+        databaseService.executeSql(query).block();
     }
 }
