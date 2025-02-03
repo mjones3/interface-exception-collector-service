@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
 
 @Setter
 @Mapper
@@ -100,7 +101,10 @@ public abstract class InventoryOutputMapper {
     }
 
     LocalDateTime createExpirationDate(String expDate, String expTime) {
-        return LocalDateTime.of(LocalDate.parse(expDate, DateTimeFormatter.ofPattern("MM/dd/yyyy")), LocalTime.parse(expTime));
+        if (Objects.nonNull(expDate) && Objects.nonNull(expTime)) {
+            return LocalDateTime.of(LocalDate.parse(expDate, DateTimeFormatter.ofPattern("MM/dd/yyyy")), LocalTime.parse(expTime));
+        }
+        return null;
     }
 
     @Mapping(target = "inventory.unitNumber.value", source = "unitNumber")
