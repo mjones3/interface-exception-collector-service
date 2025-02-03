@@ -244,8 +244,10 @@ class OrderTest {
 
         Mockito.when(orderConfigService.findBackOrderConfiguration()).thenReturn(Mono.just(TRUE));
 
+        var desireShipDate = LocalDate.now();
+
         var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
-            , "OPEN", "OPEN", "123", "123","2025-01-31"
+            , "OPEN", "OPEN", "123", "123",desireShipDate.format(DateTimeFormatter.ISO_LOCAL_DATE)
             , null, null, "OPEN", null, "OPEN", "OPEN", "CREATE_EMPLOYEE"
             , null, null, null);
 
@@ -266,7 +268,7 @@ class OrderTest {
         Assertions.assertEquals(5,backOrder.getOrderItems().getFirst().getQuantity());
         Assertions.assertEquals("TYPE",backOrder.getOrderItems().getFirst().getBloodType().getBloodType());
         Assertions.assertEquals("TYPE",backOrder.getOrderItems().getFirst().getProductFamily().getProductFamily());
-        Assertions.assertEquals("2025-01-31",backOrder.getDesiredShippingDate().toString());
+        Assertions.assertEquals(desireShipDate.format(DateTimeFormatter.ISO_LOCAL_DATE),backOrder.getDesiredShippingDate().toString());
         Assertions.assertNull(backOrder.getCompleteDate());
         Assertions.assertNull(backOrder.getCompleteComments());
         Assertions.assertNull(backOrder.getCompleteEmployeeId());
@@ -284,8 +286,10 @@ class OrderTest {
 
         Mockito.when(orderConfigService.findBackOrderConfiguration()).thenReturn(Mono.just(TRUE));
 
+        var desireShipDate = LocalDate.now();
+
         var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
-            , "OPEN", "OPEN", "123", "123","2025-01-31"
+            , "OPEN", "OPEN", "123", "123",desireShipDate.format(DateTimeFormatter.ISO_LOCAL_DATE)
             , null, null, "CATEGORY", null, "OPEN", "OPEN", "CREATE_EMPLOYEE"
             , null, null, null);
 
@@ -310,7 +314,7 @@ class OrderTest {
         Assertions.assertEquals(5,backOrder.getOrderItems().getFirst().getQuantity());
         Assertions.assertEquals("TYPE2",backOrder.getOrderItems().getFirst().getBloodType().getBloodType());
         Assertions.assertEquals("FAMILY2",backOrder.getOrderItems().getFirst().getProductFamily().getProductFamily());
-        Assertions.assertEquals("2025-01-31",backOrder.getDesiredShippingDate().toString());
+        Assertions.assertEquals(desireShipDate.format(DateTimeFormatter.ISO_LOCAL_DATE),backOrder.getDesiredShippingDate().toString());
         Assertions.assertNull(backOrder.getCompleteDate());
         Assertions.assertNull(backOrder.getCompleteComments());
         Assertions.assertNull(backOrder.getCompleteEmployeeId());
