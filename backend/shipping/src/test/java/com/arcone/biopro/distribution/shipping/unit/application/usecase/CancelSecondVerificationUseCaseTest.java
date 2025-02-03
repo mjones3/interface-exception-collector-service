@@ -9,6 +9,7 @@ import com.arcone.biopro.distribution.shipping.domain.model.enumeration.Shipment
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.ShipmentStatus;
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemPackedRepository;
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentRepository;
+import com.arcone.biopro.distribution.shipping.domain.service.SecondVerificationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -27,12 +28,14 @@ class CancelSecondVerificationUseCaseTest {
     private ShipmentRepository shipmentRepository;
     private ShipmentItemPackedRepository shipmentItemPackedRepository;
     private CancelSecondVerificationUseCase useCase;
+    private SecondVerificationService secondVerificationService;
 
     @BeforeEach
     public void setUp() {
         shipmentRepository = Mockito.mock(ShipmentRepository.class);
         shipmentItemPackedRepository = Mockito.mock(ShipmentItemPackedRepository.class);
-        useCase = new CancelSecondVerificationUseCase(shipmentRepository, shipmentItemPackedRepository);
+        secondVerificationService = Mockito.mock(SecondVerificationService.class);
+        useCase = new CancelSecondVerificationUseCase(shipmentRepository, shipmentItemPackedRepository,secondVerificationService);
     }
 
 
@@ -98,6 +101,8 @@ class CancelSecondVerificationUseCaseTest {
         Mockito.when(shipmentItemPackedRepository.listAllByShipmentId(Mockito.anyLong())).thenReturn(Flux.just(item));
 
         Mockito.when(shipmentItemPackedRepository.save(Mockito.any())).thenReturn(Mono.just(item));
+
+        Mockito.when(secondVerificationService.resetVerification(Mockito.any())).thenReturn(Mono.just(Shipment.builder().build()));
 
         var result = useCase.confirmCancelSecondVerification(CancelSecondVerificationRequest
             .builder()
@@ -294,6 +299,8 @@ class CancelSecondVerificationUseCaseTest {
         Mockito.when(shipmentItemPackedRepository.listAllByShipmentId(Mockito.anyLong())).thenReturn(Flux.just(item));
 
         Mockito.when(shipmentItemPackedRepository.save(Mockito.any())).thenReturn(Mono.just(item));
+
+        Mockito.when(secondVerificationService.resetVerification(Mockito.any())).thenReturn(Mono.just(Shipment.builder().build()));
 
         var result = useCase.cancelSecondVerification(CancelSecondVerificationRequest
             .builder()

@@ -53,7 +53,7 @@ public class UnpackItemUseCase implements UnpackItemService {
                 if (ShipmentStatus.COMPLETED.equals(shipment.getStatus())) {
                     return Mono.error(new RuntimeException(ShipmentServiceMessages.UNPACK_SHIPMENT_COMPLETED_ERROR));
                 }
-                return Flux.from(shipmentItemPackedRepository.listAllByShipmentId(shipment.getId()))
+                return  Flux.from(shipmentItemPackedRepository.listAllByShipmentId(shipment.getId()))
                     .switchIfEmpty(Mono.empty())
                     .flatMap(secondVerificationService::markAsVerificationPending)
                     .collectList();
