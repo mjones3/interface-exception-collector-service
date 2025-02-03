@@ -190,7 +190,7 @@ export class ShipmentDetailsComponent implements OnInit {
         });
     }
 
-    fillProducts(item: ShipmentItemResponseDTO): void {
+    manageProducts(item: ShipmentItemResponseDTO): void {
         const url = `shipment/${this.shipmentId}/manage-products/${item.id}`;
         this._router.navigateByUrl(url);
     }

@@ -94,7 +94,7 @@ describe('ShipmentDetailsComponent', () => {
         const shipment = {
             id: '1',
         };
-        component.fillProducts(shipment);
+        component.manageProducts(shipment);
         expect(router.navigateByUrl).toHaveBeenCalledWith(
             'shipment/1/manage-products/1'
         );
@@ -148,10 +148,10 @@ describe('ShipmentDetailsComponent', () => {
             );
             component.products = [{}];
             fixture.detectChanges();
-            const fillShipmentBtn0 = fixture.debugElement.query(
-                By.css('#fillShipmentBtn0')
+            const manageProductsBtn0 = fixture.debugElement.query(
+                By.css('#manageProductsBtn0')
             );
-            expect(fillShipmentBtn0).toBeTruthy();
+            expect(manageProductsBtn0).toBeTruthy();
         });
 
         it('should not display if shipment status is completed', () => {
@@ -160,10 +160,10 @@ describe('ShipmentDetailsComponent', () => {
             );
             component.products = [{}];
             fixture.detectChanges();
-            const fillShipmentBtn0 = fixture.debugElement.query(
-                By.css('#fillShipmentBtn0')
+            const manageProductsBtn1 = fixture.debugElement.query(
+                By.css('#manageProductsBtn1')
             );
-            expect(fillShipmentBtn0).toBeFalsy();
+            expect(manageProductsBtn1).toBeFalsy();
         });
     });
 });
