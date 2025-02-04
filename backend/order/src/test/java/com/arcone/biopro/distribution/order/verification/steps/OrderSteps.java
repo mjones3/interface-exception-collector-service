@@ -116,7 +116,7 @@ public class OrderSteps {
 
     @When("I want to list orders for location {string}.")
     public void searchOrders(String locationCode) {
-        response = apiHelper.graphQlRequestObjectList(GraphQLQueryMapper.listOrdersById(locationCode), "searchOrders");
+        response = apiHelper.graphQlRequestObjectList(GraphQLQueryMapper.listOrdersByLocation(locationCode), "searchOrders");
     }
 
     @Then("I should have orders listed in the following order.")
@@ -250,6 +250,9 @@ public class OrderSteps {
             var desireShipDate = row.get(headers.indexOf("Desired Shipment Date")).equals("NULL_VALUE") ? null : "'"+row.get(headers.indexOf("Desired Shipment Date"))+"'";
             var query = DatabaseQueries.insertBioProOrder(context.getExternalId(), context.getLocationCode(), orderController.getPriorityValue(priority), priority, status, desireShipDate);
             databaseService.executeSql(query).block();
+
+            // Will keep the last order id
+            context.setOrderId(Integer.valueOf(databaseService.fetchData(DatabaseQueries.getOrderId(context.getExternalId())).first().block().get("id").toString()));
         }
 
     }
@@ -822,5 +825,16 @@ public class OrderSteps {
         } else {
             Assert.fail("Invalid option for back order configuration.");
         }
+    }
+
+    @When("I search for orders by externalID {string}.")
+    public void iSearchForOrdersByExternalID(String externalId) {
+        orderController.listOrdersByExternalId();
+    }
+
+    @Then("I should receive the search results containing {string} order.")
+    public void iShouldReceiveTheSearchResultsContainingOrder(String expectedQuantity) {
+        var orderList = context.getOrderList();
+        Assert.assertEquals(Integer.parseInt(expectedQuantity), orderList.size());
     }
 }
