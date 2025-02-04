@@ -29,10 +29,10 @@ export default [
                 },
             },
             {
-                path: ':id/fill-products/:productId',
+                path: ':id/manage-products/:productId',
                 component: FillProductsComponent,
                 data: {
-                    subTitle: 'Fill Products',
+                    subTitle: 'Manage Products',
                 },
             },
             {
