@@ -30,7 +30,7 @@ Feature: Access Shipment Details Page
             Given The shipment details are order Number "<orderNumber>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>".
             And I have received a shipment fulfillment request with above details.
             When I am on the Shipment Fulfillment Details page.
-            Then I should have an option to fill the products in the shipment.
+            Then I should have an option to fill the products in the shipment for "<ProductFamily>" and "<BloodType>" line items.
 
             Examples:
                 | orderNumber | Customer ID | Customer Name | Quantity | BloodType | ProductFamily                                                                          |
