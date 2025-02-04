@@ -54,7 +54,7 @@ public class GraphQLQueryMapper {
             """, locationCode);
     }
 
-    public static String listOrdersByExternalId(String locationCode, String externalId) {
+    public static String listOrdersByUniqueIdentifier(String locationCode, String externalId) {
         return String.format("""
             query  {
               searchOrders(orderQueryCommandDTO:{
