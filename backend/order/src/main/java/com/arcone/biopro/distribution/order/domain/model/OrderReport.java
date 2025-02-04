@@ -48,7 +48,6 @@ public class OrderReport implements Validatable {
         Assert.notNull(orderCustomerReport, "orderCustomerReport must not be null");
         Assert.notNull(orderPriorityReport, "orderPriorityReport must not be null");
         Assert.notNull(createDate, "createDate must not be null");
-        Assert.notNull(desireShipDate, "desireShipDate must not be null");
         Assert.notNull(orderStatus, "orderStatus must not be null");
     }
 }

@@ -25,6 +25,7 @@ import reactor.test.StepVerifier;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 import static java.lang.Boolean.TRUE;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -56,21 +57,34 @@ class OrderTest {
     }
 
     @Test
-    @Disabled("Disabled until Manual Order Creation is implemented")
     void testValidation() {
+
+        Mockito.when(customerService.getCustomerByCode(Mockito.anyString())).thenReturn(Mono.just(CustomerDTO.builder()
+                .name("Name")
+                .code("Code")
+            .build()));
+        Mockito.when(lookupService.findAllByType(Mockito.anyString())).thenReturn(Flux.just(new Lookup(new LookupId("shipmentType","shipmentType"),"shipmentType",1,true)
+            , new Lookup(new LookupId("shippingMethod","shippingMethod"),"shippingMethod",2,true)
+            , new Lookup(new LookupId("productCategory","productCategory"),"productCategory",2,true)
+            , new Lookup(new LookupId("status","status"),"status",2,true)
+            , new Lookup(new LookupId("priority","priority"),"priority",2,true)
+        ));
+
+
         assertThrows(IllegalArgumentException.class, () -> new Order(customerService,lookupService, 1L, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null), "orderNumber cannot be null");
         assertThrows(IllegalArgumentException.class, () -> new Order(customerService,lookupService, 1L, 1L, "externalId", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null), "locationCode cannot be null or blank");
         assertThrows(IllegalArgumentException.class, () -> new Order(customerService,lookupService, 1L, 1L, "externalId", "locationCode", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null), "shipmentType cannot be null");
-        assertThrows(IllegalArgumentException.class, () -> new Order(customerService,lookupService, 1L, 1L, "externalId", "locationCode", "shipmentType", null, null, null, null, null, null, null, null, null, null, null, null, null, null), "shippingMethod cannot be null");
         assertThrows(IllegalArgumentException.class, () -> new Order(customerService,lookupService, 1L, 1L, "externalId", "locationCode", "shipmentType", "shippingMethod", null, null, null, null, null, null, null, null, null, null, null, null, null), "shippingCustomer could not be found or it is null");
         assertThrows(IllegalArgumentException.class, () -> new Order(customerService,lookupService, 1L, 1L, "externalId", "locationCode", "shipmentType", "shippingMethod", "code", null, null, null, null, null, null, null, null, null, null, null, null), "billingCustomer could not be found or it is null");
-        assertThrows(IllegalArgumentException.class, () -> new Order(customerService,lookupService, 1L, 1L, "externalId", "locationCode", "shipmentType", "shippingMethod", "code", "code", null, null, null, null, null, null, null, null, null, null, null), "desiredShippingDate cannot be null");
         assertThrows(IllegalArgumentException.class, () -> new Order(customerService,lookupService, 1L, 1L, "externalId", "locationCode", "shipmentType", "shippingMethod", "code", "code", LocalDate.parse("2025-01-01").toString(), null, null, null, null, null, null, null, null, null, null), "desiredShippingDate cannot be in the past");
         assertThrows(IllegalArgumentException.class, () -> new Order(customerService,lookupService, 1L, 1L, "externalId", "locationCode", "shipmentType", "shippingMethod", "code", "code", LocalDate.now().toString(), TRUE, "phoneNumber", null, null, null, null, null, null, null, null), "productCategory cannot be null");
         assertThrows(IllegalArgumentException.class, () -> new Order(customerService,lookupService, 1L, 1L, "externalId", "locationCode", "shipmentType", "shippingMethod", "code", "code", LocalDate.now().toString(), TRUE, "phoneNumber", "productCategory", "comments", null, null, null, null, null, null), "orderStatus cannot be null");
         assertThrows(IllegalArgumentException.class, () -> new Order(customerService,lookupService, 1L, 1L, "externalId", "locationCode", "shipmentType", "shippingMethod", "code", "code", LocalDate.now().toString(), TRUE, "phoneNumber", "productCategory", "comments", "status", null, null, null, null, null), "orderPriority cannot be null");
         assertThrows(IllegalArgumentException.class, () -> new Order(customerService,lookupService, 1L, 1L, "externalId", "locationCode", "shipmentType", "shippingMethod", "code", "code", LocalDate.now().toString(), TRUE, "phoneNumber", "productCategory", "comments", "status", "priority", null, null, null, null), "createEmployeeId cannot be null or blank");
-        assertThrows(IllegalArgumentException.class, () -> new Order(customerService,lookupService, 1L, 1L, "externalId", "locationCode", "shipmentType", "shippingMethod", "code", "code", LocalDate.now().toString(), TRUE, "phoneNumber", "productCategory", "comments", "status", "priority", "createEmployeeId", null, null, null), "orderItems cannot be null or empty");
+
+
+        assertDoesNotThrow(() -> new Order(customerService,lookupService, null, 1L, "externalId", "locationCode", "shipmentType", "shippingMethod", "code", "code", null, TRUE, "phoneNumber", "productCategory", "comments", "status", "priority", "createEmployeeId", null, null, null));
+
         assertDoesNotThrow(() -> new Order(customerService,lookupService, null, 1L, "externalId", "locationCode", "shipmentType", "shippingMethod", "code", "code", LocalDate.now().toString(), TRUE, "phoneNumber", "productCategory", "comments", "status", "priority", "createEmployeeId", null, null, null));
     }
 
@@ -230,8 +244,10 @@ class OrderTest {
 
         Mockito.when(orderConfigService.findBackOrderConfiguration()).thenReturn(Mono.just(TRUE));
 
+        var desireShipDate = LocalDate.now();
+
         var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
-            , "OPEN", "OPEN", "123", "123","2025-01-31"
+            , "OPEN", "OPEN", "123", "123",desireShipDate.format(DateTimeFormatter.ISO_LOCAL_DATE)
             , null, null, "OPEN", null, "OPEN", "OPEN", "CREATE_EMPLOYEE"
             , null, null, null);
 
@@ -252,7 +268,7 @@ class OrderTest {
         Assertions.assertEquals(5,backOrder.getOrderItems().getFirst().getQuantity());
         Assertions.assertEquals("TYPE",backOrder.getOrderItems().getFirst().getBloodType().getBloodType());
         Assertions.assertEquals("TYPE",backOrder.getOrderItems().getFirst().getProductFamily().getProductFamily());
-        Assertions.assertEquals("2025-01-31",backOrder.getDesiredShippingDate().toString());
+        Assertions.assertEquals(desireShipDate.format(DateTimeFormatter.ISO_LOCAL_DATE),backOrder.getDesiredShippingDate().toString());
         Assertions.assertNull(backOrder.getCompleteDate());
         Assertions.assertNull(backOrder.getCompleteComments());
         Assertions.assertNull(backOrder.getCompleteEmployeeId());
@@ -270,8 +286,10 @@ class OrderTest {
 
         Mockito.when(orderConfigService.findBackOrderConfiguration()).thenReturn(Mono.just(TRUE));
 
+        var desireShipDate = LocalDate.now();
+
         var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
-            , "OPEN", "OPEN", "123", "123","2025-01-31"
+            , "OPEN", "OPEN", "123", "123",desireShipDate.format(DateTimeFormatter.ISO_LOCAL_DATE)
             , null, null, "CATEGORY", null, "OPEN", "OPEN", "CREATE_EMPLOYEE"
             , null, null, null);
 
@@ -296,12 +314,64 @@ class OrderTest {
         Assertions.assertEquals(5,backOrder.getOrderItems().getFirst().getQuantity());
         Assertions.assertEquals("TYPE2",backOrder.getOrderItems().getFirst().getBloodType().getBloodType());
         Assertions.assertEquals("FAMILY2",backOrder.getOrderItems().getFirst().getProductFamily().getProductFamily());
-        Assertions.assertEquals("2025-01-31",backOrder.getDesiredShippingDate().toString());
+        Assertions.assertEquals(desireShipDate.format(DateTimeFormatter.ISO_LOCAL_DATE),backOrder.getDesiredShippingDate().toString());
         Assertions.assertNull(backOrder.getCompleteDate());
         Assertions.assertNull(backOrder.getCompleteComments());
         Assertions.assertNull(backOrder.getCompleteEmployeeId());
         Assertions.assertEquals("CREATE-EMPLOYEE-ID",backOrder.getCreateEmployeeId());
         Assertions.assertTrue(backOrder.isBackOrder());
 
+    }
+
+    @Test
+    void shouldCreateBackOrderWithDesireShipDate(){
+
+        Mockito.when(lookupService.findAllByType(Mockito.anyString())).thenReturn(Flux.just(new Lookup(new LookupId("OPEN","OPEN"),"description",1,true)
+            , new Lookup(new LookupId("COMPLETED","COMPLETED"),"description",2,true)));
+
+        Mockito.when(orderConfigService.findBackOrderConfiguration()).thenReturn(Mono.just(TRUE));
+
+        var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
+            , "OPEN", "OPEN", "123", "123",LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+            , null, null, "OPEN", null, "OPEN", "OPEN", "CREATE_EMPLOYEE"
+            , null, null, null);
+
+        Mockito.when(orderConfigService.findProductFamilyByCategory(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just("TYPE"));
+        Mockito.when(orderConfigService.findBloodTypeByFamilyAndType(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just("TYPE"));
+
+
+        order.addItem(1L,"TYPE","TYPE",10,5,"", ZonedDateTime.now(),ZonedDateTime.now(),orderConfigService);
+
+        var backOrder = order.createBackOrder("CREATE-EMPLOYEE-ID",customerService,lookupService,orderConfigService);
+
+        Assertions.assertNotNull(backOrder);
+        Assertions.assertEquals(LocalDate.now(),backOrder.getDesiredShippingDate());
+        Assertions.assertTrue(backOrder.isBackOrder());
+    }
+
+    @Test
+    void shouldCreateBackOrderWithDesireShipDateAsNull(){
+
+        Mockito.when(lookupService.findAllByType(Mockito.anyString())).thenReturn(Flux.just(new Lookup(new LookupId("OPEN","OPEN"),"description",1,true)
+            , new Lookup(new LookupId("COMPLETED","COMPLETED"),"description",2,true)));
+
+        Mockito.when(orderConfigService.findBackOrderConfiguration()).thenReturn(Mono.just(TRUE));
+
+        var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
+            , "OPEN", "OPEN", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
+            , null, null, "OPEN", null, "OPEN", "OPEN", "CREATE_EMPLOYEE"
+            , null, null, null);
+
+        Mockito.when(orderConfigService.findProductFamilyByCategory(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just("TYPE"));
+        Mockito.when(orderConfigService.findBloodTypeByFamilyAndType(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just("TYPE"));
+
+
+        order.addItem(1L,"TYPE","TYPE",10,5,"", ZonedDateTime.now(),ZonedDateTime.now(),orderConfigService);
+
+        var backOrder = order.createBackOrder("CREATE-EMPLOYEE-ID",customerService,lookupService,orderConfigService);
+
+        Assertions.assertNotNull(backOrder);
+        Assertions.assertNull(backOrder.getDesiredShippingDate());
+        Assertions.assertTrue(backOrder.isBackOrder());
     }
 }

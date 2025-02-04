@@ -48,7 +48,7 @@ CREATE TABLE order_service.bld_order (
     shipping_customer_code     VARCHAR(10)                        NOT NULL,
     billing_customer_name      VARCHAR(255)                       NOT NULL,
     billing_customer_code      VARCHAR(10)                        NOT NULL,
-    desired_shipping_date      DATE                               NOT NULL,
+    desired_shipping_date      DATE DEFAULT NULL                  NULL,
     will_call_pickup           BOOLEAN,
     phone_number               VARCHAR(50),
     product_category           VARCHAR(255)                       NOT NULL,

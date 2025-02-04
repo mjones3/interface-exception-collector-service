@@ -57,7 +57,7 @@ input OrderInput {
     shippingCustomerCode: String!
     billingCustomerName: String
     billingCustomerCode: String!
-    desiredShippingDate: Date!
+    desiredShippingDate: Date
     willCallPickup: Boolean
     phoneNumber: String
     productCategory: String!
@@ -133,7 +133,7 @@ type Order {
     shippingCustomerCode: String!
     billingCustomerName: String!
     billingCustomerCode: String!
-    desiredShippingDate: Date!
+    desiredShippingDate: Date
     willCallPickup: Boolean
     phoneNumber: String
     productCategory: String!
