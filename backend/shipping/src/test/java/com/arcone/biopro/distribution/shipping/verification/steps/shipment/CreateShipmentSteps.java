@@ -54,6 +54,7 @@ public class CreateShipmentSteps {
 
         context.setUnitNumber(units.getFirst());
         context.setProductCode(productCodeList.getFirst());
+        context.setOrderNumber(Long.valueOf(orderNumber));
         context.setShipmentId(shipmentTestingController.createPackedShipment(orderNumber,units,productCodeList, itemStatus,productFamily,bloodType, totalRequested));
 
         Assert.assertNotNull(context.getShipmentId());

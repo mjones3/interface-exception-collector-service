@@ -2,7 +2,7 @@
 Feature: Access Shipment Details Page
 
     Background:
-        Given I cleaned up from the database, all shipments with order number "999996,999997,999998,999999,999990,999991,999992".
+        Given I cleaned up from the database, all shipments with order number "999996,999997,999998,999999,999990,999991,999992,999998300".
 
     Rule: I should be able to view order information, shipping information, and order criteria( Pick List)
         @DIS-148 @DIS-195
@@ -24,12 +24,13 @@ Feature: Access Shipment Details Page
 
 
     Rule:I should have the option to Fill the shipment
-        @DIS-48
+    Rule:I should be able to manage a product(s) from the shipment until the shipment is completed.
+        @DIS-48 @DIS-300
         Scenario Outline: Filling the shipment
             Given The shipment details are order Number "<orderNumber>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>".
             And I have received a shipment fulfillment request with above details.
             When I am on the Shipment Fulfillment Details page.
-            Then I should have an option to fill the products in the shipment.
+            Then I should have an option to fill the products in the shipment for "<ProductFamily>" and "<BloodType>" line items.
 
             Examples:
                 | orderNumber | Customer ID | Customer Name | Quantity | BloodType | ProductFamily                                                                          |
@@ -63,4 +64,23 @@ Feature: Access Shipment Details Page
             Examples:
                 | orderNumber | Customer ID | Customer Name | Quantity | BloodType | ProductFamily                                               |
                 | 999990      | 999990      | Tampa         | 10,5,23  | AP,AN,OP  | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE |
+
+
+    Rule:I should be able to manage a product(s) from the shipment until the shipment is completed.
+    Rule:I should be able to manage a product(s) when all requested product(s) for given line item are already filled.
+    Rule:I should not be able to manage(add/remove) a product(s) once the shipment is completed.
+        @DIS-300
+        Scenario Outline: Being able to manage the product(s) based on shipment status.
+            Given I have a shipment for order "<Order Number>" with the units "<Units>" and product codes "<Product Codes>" of family "<Product Family>" and blood type "<Blood Type>" "packed", out of <Quantity Requested> requested.
+            And  The shipment status is "<Shipment Status>".
+            When I am on the Shipment Fulfillment Details page.
+            Then I "<Display Manage Option>" have an option to manage the products in the shipment for "<Product Family>" and "<Blood Type>" line item.
+
+            Examples:
+                | Order Number | Quantity Requested | Blood Type | Product Family               | Shipment Status | Units                       | Product Codes     | Display Manage Option |
+                | 999998300    | 1                  | AP         | PLASMA_TRANSFUSABLE          | OPEN            | W812530106086               | E0685V00          | should                |
+                | 999998300    | 8                  | AP         | WHOLE_BLOOD                  | OPEN            | W822530103010,W822530103011 | E0685V00,E0685V00 | should                |
+                | 999998300    | 10                 | ABP        | RED_BLOOD_CELLS_LEUKOREDUCED | COMPLETED       | W812530106089               | E0685V00          | should not            |
+
+
 
