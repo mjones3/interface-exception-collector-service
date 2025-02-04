@@ -146,7 +146,13 @@ class OrderQueryCommandTest {
     }
 
     @Test
-    public void shouldNotDefineStatusWhenSearchByUniqueIdentifier() {
+    public void shouldNotDefineStatusWhenSearchByUniqueIdentifierAsExternalOrderId() {
+        var orderQueryCommand = new OrderQueryCommand("1", "123abx", null, null, null, null, null, null, null, null, 10);
+        Assertions.assertNull(orderQueryCommand.getOrderStatus());
+    }
+
+    @Test
+    public void shouldNotDefineStatusWhenSearchByUniqueIdentifierAsOrderId() {
         var orderQueryCommand = new OrderQueryCommand("1", "123", null, null, null, null, null, null, null, null, 10);
         Assertions.assertNull(orderQueryCommand.getOrderStatus());
     }
