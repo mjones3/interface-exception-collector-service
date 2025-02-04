@@ -7,8 +7,8 @@ Feature: Product Created event
                 | <Unit Number> | <Parent Product Code> | AVAILABLE |
 
             When I received a Product Created event for the following products:
-                | Unit Number   | Product Code   | Parent Product Code   |
-                | <Unit Number> | <Product Code> | <Parent Product Code> |
+                | Unit Number   | Product Code   | Parent Product Code   | Has Expiration Date   |
+                | <Unit Number> | <Product Code> | <Parent Product Code> | <Has Expiration Date> |
 
             Then the parent inventory statuses should be updated as follows:
                 | Unit Number   | Product Code          | Status    |
@@ -19,11 +19,11 @@ Feature: Product Created event
                 | <Unit Number> | <Product Code> | AVAILABLE | false      |
 
             Examples:
-                | Unit Number   | Parent Product Code | Product Code |
-                | W036824211111 | PLASAPHP            | E765000      |
-                | W036824211112 | RBCAPH              | E453200      |
-                | W036824211113 | WHOLEBLOOD          | E011200      |
-                | W036824211113 | WHOLEBLOOD          | RBC          |
-                | W036824211113 | WHOLEBLOOD          | PLASMA       |
-                | W036824211113 | RBC                 | E016700      |
-                | W036824211113 | PLASMA              | E070100      |
+                | Unit Number   | Parent Product Code | Product Code | Has Expiration Date |
+                | W036824211111 | PLASAPHP            | E765000      | Yes                 |
+                | W036824211112 | RBCAPH              | E453200      | Yes                 |
+                | W036824211113 | WHOLEBLOOD          | E011200      | Yes                 |
+                | W036824211113 | WHOLEBLOOD          | RBC          | No                  |
+                | W036824211113 | WHOLEBLOOD          | PLASMA       | No                  |
+                | W036824211113 | RBC                 | E016700      | Yes                 |
+                | W036824211113 | PLASMA              | E070100      | Yes                 |
