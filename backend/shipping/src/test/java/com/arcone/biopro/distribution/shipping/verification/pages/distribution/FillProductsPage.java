@@ -37,7 +37,7 @@ public class FillProductsPage extends CommonPageFactory {
 
     // Static locators
 
-    private static final String fillProductsHeaderLocator = "//h3[normalize-space()='Fill Products']";
+    private static final String fillProductsHeaderLocator = "//h3[normalize-space()='Manage Products']";
     private static final String checkDigitError = "//*[@id='inCheckDigit']/../../../..//mat-error";
     private static final String checkDigitInput = "inCheckDigit";
     private static final String productCodeInput = "productCodeId";
