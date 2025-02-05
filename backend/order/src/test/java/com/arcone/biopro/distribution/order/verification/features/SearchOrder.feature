@@ -5,11 +5,11 @@ Feature: Search Orders
         Given I cleaned up from the database the orders with external ID starting with "EXTSEARCH1".
 
 
-        Rule: I should be able to filter the order lists by specific criteria.
-        Rule: I should be able to apply filter criteria.
-        Rule: I should be able to search the order by BioPro order number or External Order ID.
-        Rule: I should be prevented from selecting other filters when BioPro Order number or External ID is selected.
-        Rule: I should be able to see the other filter options disabled when filtering by either the BioPro Order number or External Order ID.
+    Rule: I should be able to filter the order lists by specific criteria.
+    Rule: I should be able to apply filter criteria.
+    Rule: I should be able to search the order by BioPro order number or External Order ID.
+    Rule: I should be prevented from selecting other filters when BioPro Order number or External ID is selected.
+    Rule: I should be able to see the other filter options disabled when filtering by either the BioPro Order number or External Order ID.
         @R20-227 @R20-228
         Scenario Outline: Search orders by Order Number
             Given I have a Biopro Order with externalId "<External ID>", Location Code "<Order LocationCode>", Priority "<Priority>" and Status "<Status>".
@@ -30,7 +30,7 @@ Feature: Search Orders
 
 
 
-        Rule: I should not be able to see the orders from a different location.
+    Rule: I should not be able to see the orders from a different location.
         Rule: I should be able to view an error message when I search for a non-existent order number.
         @R20-227
         Scenario Outline: Search for an order number from a different location
@@ -49,7 +49,7 @@ Feature: Search Orders
 
 
 
-        Rule: I should be redirected to the Order Details page if there is only one order in the system that matches the search criteria.
+    Rule: I should be redirected to the Order Details page if there is only one order in the system that matches the search criteria.
         @R20-227
         Scenario Outline: Search for an order and view the details
             Given I have a Biopro Order with externalId "<External ID>", Location Code "<Order LocationCode>", Priority "<Priority>" and Status "<Status>".
@@ -66,9 +66,9 @@ Feature: Search Orders
                 | EXTSEARCH1DIS1141179 | 123456789          | 123456789         | STAT     | OPEN   | PLASMA_TRANSFUSABLE | AB        | 3        | Needed asap   |
 
 
-        Rule: I should be able to reset the applied filter criteria.
-        Rule: The system should not enable the Apply and Reset options until at least one filter criteria is chosen.
-        Rule: I should be able to see the following filter options
+    Rule: I should be able to reset the applied filter criteria.
+    Rule: The system should not enable the Apply and Reset options until at least one filter criteria is chosen.
+    Rule: I should be able to see the following filter options
         @R20-228
         Scenario: The reset option clears the specified filter criteria
             Given I am logged in the location "123456789".
@@ -85,7 +85,7 @@ Feature: Search Orders
 
 
 
-        Rule: I should not be able to use a greater initial date when compared to final date field
+    Rule: I should not be able to use a greater initial date when compared to final date field
         Rule: I should be able to see the required filter options
         @R20-228
         Scenario Outline: Ensure that the date range validation checks for greater initial dates when compared to final dates for range fields
@@ -102,7 +102,7 @@ Feature: Search Orders
                 | desired shipping date from | desired shipping date to |
 
 
-        Rule: I should not be able to select create date parameters values greater than current date
+    Rule: I should not be able to select create date parameters values greater than current date
         @R20-228
         Scenario: Ensure that the selected dates for create date aren't greater than current date
             Given I am logged in the location "123456789".
@@ -114,9 +114,9 @@ Feature: Search Orders
 
 
 
-        Rule: I should be able to multi-select options for Priority, Status, and Ship to Customer fields.
-        Rule: I should be able to see order number disabled when filtering by remaining filter fields.
-        Rule: I should see the number of fields used to select the filter criteria.
+    Rule: I should be able to multi-select options for Priority, Status, and Ship to Customer fields.
+    Rule: I should be able to see order number disabled when filtering by remaining filter fields.
+    Rule: I should see the number of fields used to select the filter criteria.
         @R20-228
         Scenario Outline: Check if multiple select inputs are keeping the multiple selection after the user selects the second item
 
@@ -145,11 +145,11 @@ Feature: Search Orders
                 | ASAP                | IN PROGRESS       | Creative Testing Solutions | EXTSEARCH1984                              | 5                          |
                 |                     |                   |                            | EXTSEARCH1979,EXTSEARCH1984,EXTSEARCH12018 | 2                          |
 
-        Rule: I should be able to filter the results for date fields from 2 years back.
-        Rule: I should be able to enter the create date manually or select from the integrated component.
-        Rule: I should not be able to search more than 2 years range.
-        Rule: I should not be able to apply filters if any field validations fail.
-        Rule: I should be able to implement the field-level validation and display an error message if the validations fail.
+    Rule: I should be able to filter the results for date fields from 2 years back.
+    Rule: I should be able to enter the create date manually or select from the integrated component.
+    Rule: I should not be able to search more than 2 years range.
+    Rule: I should not be able to apply filters if any field validations fail.
+    Rule: I should be able to implement the field-level validation and display an error message if the validations fail.
         @R20-228
         Scenario: Check if the values informed for create date range don't exceed 2 years in the past
             Given I am logged in the location "123456789".
@@ -161,12 +161,27 @@ Feature: Search Orders
             And "apply" option is "disabled".
 
 
-        Rule: I should be able to search completed orders by order number.
+    Rule: I should be able to search completed orders by order number.
         @api @DIS-294 @bug
         Scenario: Search completed order by order number.
             Given I have these BioPro Orders.
-                | External ID      | Location Code | Priority | Status    | Desired Shipment Date |
-                | EXTSEARCH1DIS294 | 123456789     | STAT     | COMPLETED | 2025-01-02            |
-            When I search for orders by externalID "EXTSEARCH1DIS294".
+                | External ID        | Location Code | Priority | Status    | Desired Shipment Date |
+                | EXTSEARCH1DIS29401 | 123456789     | STAT     | COMPLETED | 2025-01-02            |
+            When I search for orders by "externalID" "EXTSEARCH1DIS29401".
             Then I should receive the search results containing "1" order.
+
+    Rule: I should be able to search completed orders by order number.
+        @api @DIS-294
+        Scenario Outline: Search completed order and the associated backorder
+            Given I have an order with external ID "EXTSEARCH1DIS29402" partially fulfilled with a shipment "<Shipment Status>".
+            And I have Shipped "<Shipped Quantity>" products of each item line.
+            And I have the back order configuration set to "true".
+            And I request to complete the order.
+            When I search for orders by "<Search Key>" "EXTSEARCH1DIS29402".
+            Then I should receive the search results containing "<Expected Quantity>" orders.
+
+            Examples:
+                | Shipment Status | Search Key | Shipped Quantity | Expected Quantity |
+                | COMPLETED       | externalId | 2                | 2                 |
+                | COMPLETED       | orderId    | 3                | 1                 |
 
