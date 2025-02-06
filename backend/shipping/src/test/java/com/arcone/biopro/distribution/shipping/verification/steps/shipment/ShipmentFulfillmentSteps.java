@@ -28,6 +28,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -546,6 +547,23 @@ public class ShipmentFulfillmentSteps {
     @And("I choose to remove products.")
     public void iChooseToRemoveProducts() throws InterruptedException {
         fillProductsPage.clickRemoveProductsButton();
+    }
+
+    @And("I should have {int} items {string} in the shipment.")
+    public void iShouldHaveExpectedQtyItems(Integer expectedQuantity, String status) {
+        log.debug("Verifying that I have {} items {}.", expectedQuantity, status);
+
+        var results = this.packItemResponse.get("results") != null ?  (List<Map>) ((LinkedHashMap) this.packItemResponse.get("results")).get("results") : List.of();
+        List<Map> packedItems = results != null ? (List)((LinkedHashMap) results.get(0)).get("packedItems") : List.of();
+
+        Assert.assertFalse(packedItems.isEmpty());
+
+        if (status.equalsIgnoreCase("packed")) {
+            Assert.assertEquals(expectedQuantity, Integer.valueOf(packedItems.size()));
+        } else if (status.equalsIgnoreCase("verified")) {
+            var verified = packedItems.stream().filter(item -> item.get("secondVerification").equals("COMPLETE")).toList();
+            Assert.assertEquals(expectedQuantity, Integer.valueOf(verified.size()));
+        }
     }
 }
 

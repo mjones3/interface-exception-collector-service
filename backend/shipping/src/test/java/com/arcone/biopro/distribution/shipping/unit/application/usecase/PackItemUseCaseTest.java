@@ -9,6 +9,7 @@ import com.arcone.biopro.distribution.shipping.application.mapper.ShipmentMapper
 import com.arcone.biopro.distribution.shipping.application.usecase.PackItemUseCase;
 import com.arcone.biopro.distribution.shipping.application.util.ShipmentServiceMessages;
 import com.arcone.biopro.distribution.shipping.domain.model.Reason;
+import com.arcone.biopro.distribution.shipping.domain.model.Shipment;
 import com.arcone.biopro.distribution.shipping.domain.model.ShipmentItem;
 import com.arcone.biopro.distribution.shipping.domain.model.ShipmentItemPacked;
 import com.arcone.biopro.distribution.shipping.domain.model.ShipmentItemShortDateProduct;
@@ -18,6 +19,7 @@ import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemPac
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemRepository;
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemShortDateProductRepository;
 import com.arcone.biopro.distribution.shipping.domain.service.ConfigService;
+import com.arcone.biopro.distribution.shipping.domain.service.SecondVerificationService;
 import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryNotificationDTO;
 import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryResponseDTO;
 import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryValidationRequest;
@@ -55,6 +57,7 @@ class PackItemUseCaseTest {
     private ShipmentMapper shipmentMapper;
     private PackItemUseCase useCase;
     private ReasonDomainMapper reasonDomainMapper;
+    private SecondVerificationService secondVerificationService;
 
     @BeforeEach
     public void setUp(){
@@ -63,10 +66,11 @@ class PackItemUseCaseTest {
         inventoryRsocketClient = Mockito.mock(InventoryRsocketClient.class);
         shipmentItemPackedRepository = Mockito.mock( ShipmentItemPackedRepository.class);
         configService = Mockito.mock(ConfigService.class);
+        secondVerificationService = Mockito.mock(SecondVerificationService.class);
         reasonDomainMapper = new ReasonDomainMapper();
         shipmentMapper = new ShipmentMapper();
 
-        useCase = new PackItemUseCase(configService,shipmentItemRepository,shipmentItemShortDateProductRepository,shipmentItemPackedRepository,shipmentMapper,reasonDomainMapper,inventoryRsocketClient);
+        useCase = new PackItemUseCase(configService,shipmentItemRepository,shipmentItemShortDateProductRepository,shipmentItemPackedRepository,shipmentMapper,reasonDomainMapper,inventoryRsocketClient,secondVerificationService);
     }
 
     @Test
@@ -411,6 +415,7 @@ class PackItemUseCaseTest {
         Mockito.when(configService.findShippingVisualInspectionActive()).thenReturn(Mono.just(Boolean.TRUE));
 
         Mockito.when(configService.findShippingSecondVerificationActive()).thenReturn(Mono.just(Boolean.FALSE));
+        Mockito.when(secondVerificationService.resetVerification(Mockito.any(Shipment.class))).thenReturn(Mono.just(Shipment.builder().build()));
 
         Mono<RuleResponseDTO>  packDetail = useCase.packItem(PackItemRequest.builder()
             .unitNumber("UN")
@@ -500,6 +505,8 @@ class PackItemUseCaseTest {
         Mockito.when(configService.findShippingVisualInspectionActive()).thenReturn(Mono.just(Boolean.FALSE));
 
         Mockito.when(configService.findShippingSecondVerificationActive()).thenReturn(Mono.just(Boolean.FALSE));
+
+        Mockito.when(secondVerificationService.resetVerification(Mockito.any(Shipment.class))).thenReturn(Mono.just(Shipment.builder().build()));
 
         Mono<RuleResponseDTO>  packDetail = useCase.packItem(PackItemRequest.builder()
             .unitNumber("UN")
@@ -625,6 +632,8 @@ class PackItemUseCaseTest {
         Mockito.when(configService.findShippingVisualInspectionActive()).thenReturn(Mono.just(Boolean.TRUE));
 
         Mockito.when(configService.findShippingSecondVerificationActive()).thenReturn(Mono.just(Boolean.FALSE));
+
+        Mockito.when(secondVerificationService.resetVerification(Mockito.any(Shipment.class))).thenReturn(Mono.just(Shipment.builder().build()));
 
         Mono<RuleResponseDTO>  packDetail = useCase.packItem(PackItemRequest.builder()
             .unitNumber("UN")
