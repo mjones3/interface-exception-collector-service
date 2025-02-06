@@ -97,7 +97,7 @@ public class TestUtils {
         return productCode;
     }
 
-    public String[] getCommaSeparatedList(String param) {
+    public static String[] getCommaSeparatedList(String param) {
         return Arrays.stream(param.split(",")).map(String::trim).toArray(String[]::new);
     }
 

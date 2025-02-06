@@ -1,6 +1,7 @@
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { By } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router } from '@angular/router';
 import { provideMockStore } from '@ngrx/store/testing';
@@ -93,9 +94,9 @@ describe('ShipmentDetailsComponent', () => {
         const shipment = {
             id: '1',
         };
-        component.fillProducts(shipment);
+        component.manageProducts(shipment);
         expect(router.navigateByUrl).toHaveBeenCalledWith(
-            'shipment/1/fill-products/1'
+            'shipment/1/manage-products/1'
         );
     });
 
@@ -138,5 +139,31 @@ describe('ShipmentDetailsComponent', () => {
                 '#completeShipmentBtn'
             )
         ).toBeTruthy();
+    });
+
+    describe('manage products button', () => {
+        it('should display if shipment status is not completed', () => {
+            jest.spyOn(component, 'isProductComplete', 'get').mockReturnValue(
+                false
+            );
+            component.products = [{}];
+            fixture.detectChanges();
+            const manageProductsBtn0 = fixture.debugElement.query(
+                By.css('#manageProductsBtn0')
+            );
+            expect(manageProductsBtn0).toBeTruthy();
+        });
+
+        it('should not display if shipment status is completed', () => {
+            jest.spyOn(component, 'isProductComplete', 'get').mockReturnValue(
+                true
+            );
+            component.products = [{}];
+            fixture.detectChanges();
+            const manageProductsBtn1 = fixture.debugElement.query(
+                By.css('#manageProductsBtn1')
+            );
+            expect(manageProductsBtn1).toBeFalsy();
+        });
     });
 });

@@ -83,7 +83,12 @@ public class OrderTestingController {
     }
 
     public void listOrdersByExternalId() {
-        var response = apiHelper.graphQlListRequest(GraphQLQueryMapper.listOrdersByExternalId(context.getLocationCode(),context.getExternalId()), "searchOrders");
+        var response = apiHelper.graphQlListRequest(GraphQLQueryMapper.listOrdersByUniqueIdentifier(context.getLocationCode(),context.getExternalId()), "searchOrders");
+        context.setOrderList(response);
+    }
+
+    public void listOrdersByOrderId() {
+        var response = apiHelper.graphQlListRequest(GraphQLQueryMapper.listOrdersByUniqueIdentifier(context.getLocationCode(),context.getOrderId().toString()), "searchOrders");
         context.setOrderList(response);
     }
 
