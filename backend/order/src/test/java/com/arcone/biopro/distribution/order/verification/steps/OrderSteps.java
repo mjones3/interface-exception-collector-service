@@ -730,11 +730,12 @@ public class OrderSteps {
     }
 
     @When("I request to complete the order.")
-    public void iRequestToCompleteTheOrder() {
+    public void iRequestToCompleteTheOrder() throws InterruptedException {
         Map completeOrderRequest = orderController.completeOrder(context.getOrderId(), context.isBackOrderConfig());
         try {
             Map orderStatus = (Map) completeOrderRequest.get("data");
             context.setOrderStatus(orderStatus.get("status").toString());
+            Thread.sleep(kafkaWaitingTime);
         } catch (NullPointerException e) {
             log.error("Order complete request failed: {}", e.getMessage());
         }
@@ -825,8 +826,8 @@ public class OrderSteps {
         }
     }
 
-    @When("I search for orders by {string} {string}.")
-    public void iSearchForOrdersByExternalID(String key, String externalId) {
+    @When("I search for orders by {string}.")
+    public void iSearchForOrdersByExternalID(String key) {
         if (key.equalsIgnoreCase("externalId")) {
             orderController.listOrdersByExternalId();
         } else if (key.equalsIgnoreCase("orderId")) {
