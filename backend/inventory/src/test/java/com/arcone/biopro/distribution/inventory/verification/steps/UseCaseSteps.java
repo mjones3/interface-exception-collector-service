@@ -46,6 +46,8 @@ public class UseCaseSteps {
 
     private final ProductDiscardedUseCase productDiscardedUseCase;
 
+    private final ProductStoredUseCase productStoredUseCase;
+
     private final ScenarioContext scenarioContext;
 
     private final InventoryUtil inventoryUtil;
@@ -169,6 +171,18 @@ public class UseCaseSteps {
         }
     }
 
+    @When("I received a Product Storage event for unit {string} and product {string} with device {string} and storageLocations {string} at location {string}")
+    public void iReceivedAProductStorageEventWithUnitProductDeviceStorageLocationAndLocation(String unitNumber, String productCode, String device, String storageLocations, String location) {
+        ProductStorageInput productInput = ProductStorageInput.builder()
+            .unitNumber(unitNumber)
+            .productCode(productCode)
+            .location(location)
+            .deviceStored(device)
+            .storageLocation(storageLocations)
+            .build();
+        productStoredUseCase.execute(productInput).block();
+    }
+
     @When("I received a {string} event for the following products:")
     public void iReceivedAEventForTheFollowingProducts(String eventType, DataTable dataTable) {
         List<Map<String, String>> products = dataTable.asMaps(String.class, String.class);
@@ -178,6 +192,10 @@ public class UseCaseSteps {
             var reason = product.get("Reason");
             var reasonId = product.get("Reason Id");
             var shipmentType = product.get("Shipment Type");
+            var deviceStorage = product.get("Device Storage");
+            var storageLocations = product.get("Storage Locations");
+            var location = product.get("Location");
+
             switch (eventType) {
                 case "Label Applied":
                     iReceivedALabelAppliedEventForTheFollowingProducts(dataTable);
@@ -196,7 +214,7 @@ public class UseCaseSteps {
                     iReceivedADiscardCreatedEventForTheFollowingProducts(dataTable);
                     break;
                 case "Product Stored":
-                    throw new NotImplementedException("To be implemented");
+                    iReceivedAProductStorageEventWithUnitProductDeviceStorageLocationAndLocation(unitNumber, productCode, deviceStorage, storageLocations, location);
                 default:
                     break;
             }
