@@ -21,8 +21,6 @@ public class CreateShipmentSteps {
 
     @Autowired
     private ShipmentTestingController shipmentTestingController;
-    @Autowired
-    private TestUtils testUtils;
 
     @Given("I have a shipment for order {string} with the unit {string} and product code {string} {string}.")
     public void createPackedShipment(String orderNumber, String unitNumber, String productCode, String itemStatus){
@@ -41,7 +39,7 @@ public class CreateShipmentSteps {
 
     @Given("I have a shipment for order {string} with the units {string} and product codes {string} {string}.")
     public void createPackedShipmentMultipleUnits(String orderNumber, String unitNumbers, String productCodes, String itemStatus){
-        int countUnits = testUtils.getCommaSeparatedList(unitNumbers).length;
+        int countUnits = TestUtils.getCommaSeparatedList(unitNumbers).length;
         createPackedShipmentMultipleUnits(orderNumber,unitNumbers,productCodes,"PLASMA_TRANSFUSABLE","B",itemStatus,countUnits);
     }
 
@@ -56,7 +54,6 @@ public class CreateShipmentSteps {
         context.setProductCode(productCodeList.getFirst());
         context.setOrderNumber(Long.valueOf(orderNumber));
         context.setShipmentId(shipmentTestingController.createPackedShipment(orderNumber,units,productCodeList, itemStatus,productFamily,bloodType, totalRequested));
-        context.setOrderNumber(Long.parseLong(orderNumber));
 
         Assert.assertNotNull(context.getShipmentId());
         context.setTotalPacked(units.size());
