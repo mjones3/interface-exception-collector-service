@@ -6,6 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { provideMockStore } from '@ngrx/store/testing';
 import { TranslateModule } from '@ngx-translate/core';
 import { ApolloTestingModule } from 'apollo-angular/testing';
+import { ProductIconsService } from 'app/shared/services/product-icon.service';
 import { ToastrModule } from 'ngx-toastr';
 import { of } from 'rxjs';
 import { OrderService } from '../../services/order.service';
@@ -16,6 +17,7 @@ describe('OrderDetailsComponent', () => {
     let fixture: ComponentFixture<OrderDetailsComponent>;
     let router: Router;
     let orderService: OrderService;
+    let productIconService: ProductIconsService;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
@@ -46,6 +48,7 @@ describe('OrderDetailsComponent', () => {
         fixture = TestBed.createComponent(OrderDetailsComponent);
         component = fixture.componentInstance;
         router = TestBed.inject(Router);
+        productIconService = TestBed.inject(ProductIconsService);
         orderService = TestBed.inject(OrderService);
         jest.spyOn(orderService, 'getOrderById').mockReturnValue(of());
         fixture.detectChanges();
@@ -65,5 +68,18 @@ describe('OrderDetailsComponent', () => {
         const orderId = 1;
         component.fetchOrderDetails();
         expect(orderService.getOrderById).toHaveBeenCalledWith(orderId);
+    });
+
+    it('should get icon based on product family', () => {
+        let productFamily: string;
+        jest.spyOn(
+            productIconService,
+            'getIconByProductFamily'
+        ).mockReturnValue('WHOLE_BLOOD_LEUKOREDUCED');
+        component.getIcon(productFamily);
+        fixture.detectChanges();
+        expect(component.getIcon(productFamily)).toBe(
+            'WHOLE_BLOOD_LEUKOREDUCED'
+        );
     });
 });
