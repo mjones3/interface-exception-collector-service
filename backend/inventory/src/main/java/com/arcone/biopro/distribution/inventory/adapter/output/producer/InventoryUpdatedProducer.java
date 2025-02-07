@@ -27,7 +27,7 @@ public class InventoryUpdatedProducer {
 
     @EventListener
     public void send(InventoryUpdatedApplicationEvent event) {
-        var message = new EventMessage<>("InventoryUpdated","1.0", mapper.toEvent(event.inventory()));
+        var message = new EventMessage<>("InventoryUpdated","1.0", mapper.toEvent(event.inventory(), event.inventoryUpdateType()));
         producerInventoryUpdatedTemplate.send(topicName, message)
             .doOnError(e-> log.error("Send failed", e))
             .doOnNext(senderResult -> log.info("Inventory Updated Message {}-{} event produced: {}",

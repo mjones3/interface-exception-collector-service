@@ -192,9 +192,9 @@ public class UseCaseSteps {
             var productCode = product.get("Product Code");
             var reason = product.get("Reason");
             var reasonId = product.get("Reason Id");
-            var shipmentType = product.get("Shipment Type");
+            var shipmentType = product.get("Shipment type");
             var deviceStorage = product.get("Device Storage");
-            var storageLocations = product.get("Storage Locations");
+            var storageLocation = product.get("Storage Location");
             var location = product.get("Location");
 
             switch (eventType) {
@@ -215,7 +215,7 @@ public class UseCaseSteps {
                     iReceivedADiscardCreatedEventForTheFollowingProducts(dataTable);
                     break;
                 case "Product Stored":
-                    iReceivedAProductStorageEventWithUnitProductDeviceStorageLocationAndLocation(unitNumber, productCode, deviceStorage, storageLocations, location);
+                    iReceivedAProductStorageEventWithUnitProductDeviceStorageLocationAndLocation(unitNumber, productCode, deviceStorage, storageLocation, location);
                 default:
                     break;
             }

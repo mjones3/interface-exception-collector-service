@@ -10,7 +10,6 @@ import java.util.Map;
 
 @Builder
 public record InventoryUpdatedEvent(
-    String eventVersion,
     ZonedDateTime occurredOn,
     String updateType,
     String unitNumber,

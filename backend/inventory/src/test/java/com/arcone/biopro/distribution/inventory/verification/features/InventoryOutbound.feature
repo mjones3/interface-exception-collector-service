@@ -3,8 +3,8 @@ Feature: Inventory Outbound Interface
     Rule: As an inventory service I want to create an inventory update event every time an inventory is created/updated
         Scenario Outline: Produce an inventory updated event every time an inventory is create/update
             Given I have the following inventories:
-                | Unit Number   | Product Code   |
-                | <Unit Number> | <Product Code> |
+                | Unit Number   | Product Code   | Location   |
+                | <Unit Number> | <Product Code> | <Location> |
 
             When I received a "<Event>" event for the following products:
                 | Unit Number   | Product Code   | Is licensed   | Reason   | Reason Id   | Shipment type   | Device Storage   | Storage Location   | Location   |

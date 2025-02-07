@@ -186,6 +186,11 @@ public class RepositorySteps {
                 inventoryEntity.setExpirationDate(LocalDateTime.parse(expirationDate));
             }
 
+            if (headers.contains("Location")) {
+                String location = inventory.get("Location");
+                inventoryEntity.setLocation(location);
+            }
+
             if (headers.contains("Is licensed")) {
                 var field = inventory.get("Is licensed");
                 switch (field) {
