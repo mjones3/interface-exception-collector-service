@@ -4,8 +4,11 @@ import com.arcone.biopro.distribution.inventory.application.dto.InventoryOutput;
 import com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput;
 import com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedOutput;
 import com.arcone.biopro.distribution.inventory.application.mapper.InventoryOutputMapper;
+import com.arcone.biopro.distribution.inventory.domain.event.InventoryEventPublisher;
+import com.arcone.biopro.distribution.inventory.domain.event.InventoryUpdatedApplicationEvent;
 import com.arcone.biopro.distribution.inventory.domain.exception.InventoryNotFoundException;
 import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryUpdateType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ShipmentType;
 import com.arcone.biopro.distribution.inventory.domain.repository.InventoryAggregateRepository;
 import lombok.AccessLevel;
@@ -26,6 +29,7 @@ public class ShipmentCompletedUseCase implements UseCase<Mono<ShipmentCompletedO
 
     InventoryAggregateRepository inventoryAggregateRepository;
     InventoryOutputMapper mapper;
+    InventoryEventPublisher inventoryEventPublisher;
 
     @Override
     public Mono<ShipmentCompletedOutput> execute(ShipmentCompletedInput input) {
@@ -43,6 +47,7 @@ public class ShipmentCompletedUseCase implements UseCase<Mono<ShipmentCompletedO
                 inventoryAggregate.completeShipment(shipmentType)
             ))
             .map(InventoryAggregate::getInventory)
+            .doOnSuccess(inventory -> inventoryEventPublisher.publish(new InventoryUpdatedApplicationEvent(inventory, InventoryUpdateType.SHIPPED)))
             .map(mapper::toOutput);
     }
 

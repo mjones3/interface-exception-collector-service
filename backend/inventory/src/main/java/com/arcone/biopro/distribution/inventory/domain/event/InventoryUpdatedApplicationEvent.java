@@ -1,10 +1,12 @@
 package com.arcone.biopro.distribution.inventory.domain.event;
 
 import com.arcone.biopro.distribution.inventory.domain.model.Inventory;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryUpdateType;
 import lombok.Builder;
 
 @Builder
 public record InventoryUpdatedApplicationEvent(
-    Inventory inventory
+    Inventory inventory,
+    InventoryUpdateType inventoryUpdateType
 ) implements InventoryEvent {
 }
