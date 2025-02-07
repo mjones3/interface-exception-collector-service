@@ -188,7 +188,9 @@ public class RepositorySteps {
 
             if (headers.contains("Location")) {
                 String location = inventory.get("Location");
-                inventoryEntity.setLocation(location);
+                if (location != null && !location.isEmpty()) {
+                    inventoryEntity.setLocation(location);
+                }
             }
 
             if (headers.contains("Is licensed")) {

@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
+@EmbeddedKafka(partitions = 1, topics = {"${topic.inventory-updated.name}"})
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class KafkaListenersSteps {
 

@@ -29,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@EmbeddedKafka(partitions = 1, topics = {"${topic.inventory-updated.name}"})
 public class UseCaseSteps {
 
     private final AddQuarantinedUseCase addQuarantinedUseCase;
