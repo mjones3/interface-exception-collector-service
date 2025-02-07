@@ -160,6 +160,7 @@ def flyway_service():
             'keycloak-deployment',
             'opentelemetry-collector'
         ]
+        ,trigger_mode=TRIGGER_MODE_MANUAL
     )
 
 def biopro_service():

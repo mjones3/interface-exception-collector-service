@@ -150,7 +150,8 @@ def flyway_service():
             'kafka-deployment',
             'keycloak-deployment',
             'opentelemetry-collector'
-        ]
+        ],
+         trigger_mode=TRIGGER_MODE_MANUAL
     )
 
 
