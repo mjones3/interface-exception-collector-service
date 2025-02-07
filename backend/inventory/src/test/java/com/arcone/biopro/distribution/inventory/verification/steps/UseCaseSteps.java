@@ -17,6 +17,7 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.web.client.HttpServerErrorException;
 
 import java.time.ZonedDateTime;
