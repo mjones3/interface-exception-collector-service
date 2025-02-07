@@ -154,7 +154,6 @@ def flyway_service():
          trigger_mode=TRIGGER_MODE_MANUAL
     )
 
-
 def biopro_service():
     # Specify the Kubernetes manifest for the deployment
     nerdctl_build(
