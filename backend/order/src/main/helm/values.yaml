@@ -20,12 +20,6 @@ environment: "dev"
 # Add default domain for the service
 domain: "api.local.gd"
 
-# Disable Atlas as default
-atlas:
-  enabled: false
-  blockDropSchema: true
-  blockDestructiveChanges: true
-
 # Enable Istio as default
 istio:
   enabled: true
@@ -178,3 +172,30 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+flyway:
+  enabled: true
+  # Add default environment variables for the flyway
+  env:
+    - name: FLYWAY_URL
+      valueFrom:
+        secretKeyRef:
+          name: order-database-secret
+          key: jdbc_url
+    - name: FLYWAY_USER
+      valueFrom:
+        secretKeyRef:
+          name: flyway-configuration
+          key: username
+    - name: FLYWAY_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: flyway-configuration
+          key: password
+    - name: FLYWAY_SCHEMAS
+      value: "order_service"
+    - name: FLYWAY_LOCATIONS
+      valueFrom:
+        secretKeyRef:
+          name: flyway-configuration
+          key: locations
