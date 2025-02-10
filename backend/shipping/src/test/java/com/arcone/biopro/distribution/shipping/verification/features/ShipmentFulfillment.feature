@@ -2,8 +2,8 @@
 Feature: Shipment fulfillment request
 
     Background:
-        Given I cleaned up from the database the packed item that used the unit number "W822530106093,W822530106094,W812530106095,W812530106097,W812530106098".
-        And I cleaned up from the database, all shipments with order number "1321,1331,1341,1351,1361,1371,1381,1391,1392,1393,1394,1395,2851,2852".
+        Given I cleaned up from the database the packed item that used the unit number "W822530106093,W822530106094,W812530106095,W812530106097,W812530106098,W812530106199".
+        And I cleaned up from the database, all shipments with order number "1321,1331,1341,1351,1361,1371,1381,1391,1392,1393,1394,1395,2851,2852,261002".
 
         Rule: I should be able to receive the shipment fulfillment request.
         Rule: I should be able to persist the shipment fulfilled request on the local store.
@@ -110,5 +110,22 @@ Feature: Shipment fulfillment request
                 | 1393         | 1           | Testing Customer | 5        | ABP       | WHOLE_BLOOD_LEUKOREDUCED     | W812530106095 | E0033V00 |
                 | 1394         | 1           | Testing Customer | 5        | AP        | WHOLE_BLOOD                  | W812530107002 | E0023V00 |
                 | 1395         | 1           | Testing Customer | 5        | ON        | RED_BLOOD_CELLS              | W812530106098 | E0167V00 |
+
+            @api @DIS-261
+            Rule: The second verification process should be restarted when a product is added into the shipment.
+            Scenario Outline: Restart verification status when a Product is added into a Shipment.
+                Given I have a shipment for order "<Order Number>" with the units "<Units>" and product codes "<Product Codes>" of family "<Product Family>" and blood type "<Blood Type>" "verified", out of <Quantity Requested> requested.
+                And The second verification configuration is "enabled".
+                When I fill a product with the unit number "<Unit Filled>", product code "<Code Filled>".
+                Then The product unit number "<Unit Filled>" and product code "<Code Filled>" should be packed in the shipment.
+                And I should have 0 items "verified" in the shipment.
+                Examples:
+
+                    | Order Number | Product Codes              | Units                                     | Product Family               | Blood Type | Unit Filled   | Code Filled  | Quantity Requested |
+                    | 261002       | E4701V00,E4701V00,E4701V00 | W822530103004,W822530103005,W822530103006 | PLASMA_TRANSFUSABLE          | AP         | W822530106093 | E7648V00     | 10                 |
+                    | 261002       | E0685V00,E0685V00,E0685V00 | W822530103004,W822530103005               | RED_BLOOD_CELLS_LEUKOREDUCED | OP         | W822530106094 | E0685V00     | 8                  |
+                    | 261002       | E0033V00,E0033V00,E0033V00 | W822530103004,W822530103005,W822530103006 | WHOLE_BLOOD_LEUKOREDUCED     | ABP        | W812530106095 | E0033V00     | 5                  |
+                    | 261002       | E0167V00,E0167V00,E0167V00 | W822530103004,W822530103005               | RED_BLOOD_CELLS              | ON         | W812530106098 | E0167V00     | 5                  |
+                    | 261002       | E0167V00,E0167V00,E0167V00 | W822530103004,W822530103005               | WHOLE_BLOOD                  | AP         | W812530107002 | E0023V00     | 9                  |
 
 

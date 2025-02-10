@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { UnitNumberCardComponent } from './unit-number-card.component';
 
 describe('UnitNumberCardComponent', () => {
@@ -18,5 +17,17 @@ describe('UnitNumberCardComponent', () => {
 
     it('should create', () => {
         expect(component).toBeTruthy();
+    });
+    it('should set disableActive value', () => {
+        component.disableActive = false;
+        fixture.detectChanges();
+        expect(component.disableActive).toBe(false);
+    });
+
+    it('should emit the clickEvent', () => {
+        const id = 1;
+        jest.spyOn(component.clickEvent, 'emit');
+        component.handleClick(id);
+        expect(component.clickEvent.emit).toHaveBeenCalled();
     });
 });

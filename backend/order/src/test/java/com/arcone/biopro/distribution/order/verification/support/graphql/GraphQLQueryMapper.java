@@ -59,8 +59,7 @@ public class GraphQLQueryMapper {
             query  {
               searchOrders(orderQueryCommandDTO:{
                 locationCode:"%s",
-                orderUniqueIdentifier:"%s",
-                orderStatus: ["OPEN", "IN_PROGRESS", "COMPLETED"]
+                orderUniqueIdentifier:"%s"
               }) {
                 orderId
                 orderNumber
