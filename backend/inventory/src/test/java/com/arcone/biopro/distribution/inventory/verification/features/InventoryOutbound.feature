@@ -7,8 +7,8 @@ Feature: Inventory Outbound Interface
                 | <Unit Number> | <Product Code> | <Location> |
 
             When I received a "<Event>" event for the following products:
-                | Unit Number   | Product Code   | Is licensed   | Reason   | Reason Id   | Shipment type   | Device Storage   | Storage Location   | Location   |
-                | <Unit Number> | <Product Code> | <Is licensed> | <Reason> | <Reason Id> | <Shipment type> | <Device Storage> | <Storage Location> | <Location> |
+                | Unit Number   | Product Code         | Is licensed   | Reason   | Reason Id   | Shipment type   | Device Storage   | Storage Location   | Location   |
+                | <Unit Number> | <Final Product Code> | <Is licensed> | <Reason> | <Reason Id> | <Shipment type> | <Device Storage> | <Storage Location> | <Location> |
 
             Then the inventory updated event should be produced with the "<Update Type>" value in the payload for the following units:
                 | Unit Number   | Final Product Code   |
