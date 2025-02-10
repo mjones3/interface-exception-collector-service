@@ -2,6 +2,7 @@ package com.arcone.biopro.distribution.inventory.verification.steps;
 
 import com.arcone.biopro.distribution.inventory.application.dto.*;
 import com.arcone.biopro.distribution.inventory.application.usecase.*;
+import com.arcone.biopro.distribution.inventory.domain.event.InventoryEventPublisher;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ShipmentType;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.InputProduct;
@@ -17,6 +18,7 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.web.client.HttpServerErrorException;
 
@@ -26,11 +28,13 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
 
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @EmbeddedKafka(partitions = 1, topics = {"${topic.inventory-updated.name}"})
 public class UseCaseSteps {
+
 
     private final AddQuarantinedUseCase addQuarantinedUseCase;
 
@@ -55,6 +59,8 @@ public class UseCaseSteps {
     private final InventoryUtil inventoryUtil;
 
     private final LogMonitor logMonitor;
+
+
 
     @Value("${default.location}")
     private String defaultLocation;
