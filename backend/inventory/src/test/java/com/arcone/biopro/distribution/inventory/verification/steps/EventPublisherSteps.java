@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @Slf4j
@@ -36,7 +37,8 @@ public class EventPublisherSteps {
     @Then("the inventory updated event should be produced with the {string} value in the payload for the following units:")
     public void theInventoryUpdatedEventShouldProduceTheUpdateTypeInThePayloadForTheFollowingUnits(String updateType, DataTable dataTable) throws InterruptedException {
         var eventCaptor = ArgumentCaptor.forClass(InventoryUpdatedApplicationEvent.class);
-        verify(inventoryEventPublisher).publish(eventCaptor.capture());
+        var numberOfInvocations = updateType.equalsIgnoreCase("QUARANTINE_REMOVED") ? 2 : 1; //For ‘quarantine removed’ scenarios, it must check the second event call (the first one is for discarding the tested product).
+        verify(inventoryEventPublisher, times(numberOfInvocations)).publish(eventCaptor.capture());
         var capturedEvent = eventCaptor.getValue();
         assertEquals(capturedEvent.inventoryUpdateType().toString(), updateType);
         List<Map<String, String>> products = dataTable.asMaps(String.class, String.class);
