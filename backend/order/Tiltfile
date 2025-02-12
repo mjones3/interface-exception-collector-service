@@ -132,27 +132,27 @@ def postgresql_service():
         ,trigger_mode=TRIGGER_MODE_MANUAL
     )
 
-
-# Function to build and deploy: atlas operator
-def atlas_operator():
-    # Specify the Kubernetes manifest for the deployment
-    helm_remote(
-        'atlas-operator',
-        repo_name='oci://ghcr.io/ariga/charts',
-        version='0.4.4'
+# Function to build and deploy: Flyway Service
+def flyway_service():
+    nerdctl_build(
+        'local/order-migration',
+        context='./',
+        dockerfile='./src/main/docker/DockerfileFlyway'
     )
+    k8s_yaml([
+        './src/main/k8s/api-namespace.yaml',
+        './src/main/k8s/biopro-job.yaml'
+    ])
     k8s_resource(
-        'atlas-operator',
-        resource_deps=['postgresql-deployment']
-        ,trigger_mode=TRIGGER_MODE_MANUAL
+        'database-migration',
+        resource_deps=[
+            'postgresql-deployment',
+            'kafka-deployment',
+            'keycloak-deployment',
+            'opentelemetry-collector'
+        ],
+         trigger_mode=TRIGGER_MODE_MANUAL
     )
-    configmap_create(
-        'biopro-migration',
-        namespace='db',
-        from_file=['schema.sql=./src/main/db/schema.sql']
-    )
-    k8s_yaml('./src/main/k8s/atlas-operator-migration.yaml')
-
 
 def biopro_service():
     # Specify the Kubernetes manifest for the deployment
@@ -164,7 +164,6 @@ def biopro_service():
 #        live_update=[sync('./target/classes', '/app')]
     )
     k8s_yaml([
-        './src/main/k8s/api-namespace.yaml',
         './src/main/k8s/biopro-deployment.yaml',
         './src/main/k8s/biopro-service.yaml',
         './src/main/k8s/api-ingress.yaml'
@@ -199,5 +198,5 @@ zookeeper_service()
 kafka_service()
 redpanda_console_service()
 postgresql_service()
-atlas_operator()
+flyway_service()
 biopro_service()

@@ -1,45 +1,53 @@
-# Local Cache
-FROM maven:3.9.6-eclipse-temurin-21 AS local-cache
-
-WORKDIR /app
-
-# Fetch dependencies first
-COPY ./pom.xml .
-COPY ./sonar-project.properties .
-
-RUN mvn dependency:go-offline -Dsilent=true -DexcludeGroupIds="com.arcone.biopro" -am
+# Flyway
+FROM flyway/flyway:10.21.0-alpine AS flyway
 
 # Builder
-FROM maven:3.9.6-eclipse-temurin-21 AS builder
+FROM maven:3.9.9-eclipse-temurin-21-alpine AS builder
 
 WORKDIR /app
 
-# Then copy the rest
-COPY ./src ./src
-# Copy the local cache
-COPY --from=local-cache /app/pom.xml .
-COPY --from=local-cache /app/sonar-project.properties .
-COPY --from=local-cache /root/.m2 /root/.m2
+# Copy the source code into the image for building
+COPY ./.mvn ./.mvn
+COPY ./pom.xml .
+COPY ./checkstyle.xml .
+COPY ./sonar-project.properties .
+COPY ./src/main/java ./src/main/java
+COPY ./src/main/resources ./src/main/resources
 
-RUN chmod +x ./src/main/docker/scripts/build_backend_version.sh
-
-# Build
-RUN ./src/main/docker/scripts/build_backend_version.sh
+RUN mvn install -DskipTests && \
+    mkdir -p target/dependency && \
+    (cd target/dependency; jar -xf ../*.jar)
 
 # Runner
-FROM eclipse-temurin:21-jre-jammy AS runner
+FROM eclipse-temurin:21-jre-alpine AS runner
 
+############################################
+### Install Bash
+############################################
+RUN apk add --no-cache bash
+
+############################################
+### Install Flyway CLI
+############################################
+WORKDIR /flyway
+
+COPY --from=flyway /flyway /flyway
+COPY ./src/main/db ./db
+
+ENV PATH="/flyway:${PATH}"
+
+############################################
+### Install BIOPRO application
+############################################
 WORKDIR /app
 COPY --from=builder /app/target/*.jar ./app.jar
 
 ENV CLUSTER_PORT=${CLUSTER_PORT:-8082}
 ENV ADMIN_PORT=${ADMIN_PORT:-8081}
 ENV API_PORT=${API_PORT:-8080}
-ENV RSOCKET_PORT=${RSOCKET_PORT:-7002}
-
 
 ENTRYPOINT [ "java", "-jar", "app.jar" ]
 
 CMD [ "standalone" ]
 
-EXPOSE $CLUSTER_PORT $ADMIN_PORT $API_PORT $RSOCKET_PORT
+EXPOSE $CLUSTER_PORT $ADMIN_PORT $API_PORT
