@@ -2,10 +2,11 @@ package com.arcone.biopro.distribution.shipping.verification.steps.packinglist;
 
 import com.arcone.biopro.distribution.shipping.verification.pages.distribution.ShipmentDetailPage;
 import com.arcone.biopro.distribution.shipping.verification.support.ApiHelper;
-import com.arcone.biopro.distribution.shipping.verification.support.GraphQLMutationMapper;
 import com.arcone.biopro.distribution.shipping.verification.support.ScreenshotService;
+import com.arcone.biopro.distribution.shipping.verification.support.SharedContext;
 import com.arcone.biopro.distribution.shipping.verification.support.TestUtils;
 import com.arcone.biopro.distribution.shipping.verification.support.controllers.ShipmentTestingController;
+import com.arcone.biopro.distribution.shipping.verification.support.graphql.GraphQLMutationMapper;
 import com.arcone.biopro.distribution.shipping.verification.support.types.ShipmentRequestDetailsResponseType;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
@@ -20,8 +21,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.List;
 import java.util.Map;
 
-import static com.arcone.biopro.distribution.shipping.verification.support.GraphQLQueryMapper.printPackingListQuery;
-import static com.arcone.biopro.distribution.shipping.verification.support.GraphQLQueryMapper.printShippingLabelQuery;
+import static com.arcone.biopro.distribution.shipping.verification.support.graphql.GraphQLQueryMapper.printPackingListQuery;
+import static com.arcone.biopro.distribution.shipping.verification.support.graphql.GraphQLQueryMapper.printShippingLabelQuery;
 
 @SpringBootTest
 @Slf4j
@@ -44,6 +45,9 @@ public class PrintPackingListSteps {
     @Autowired
     private ApiHelper apiHelper;
 
+    @Autowired
+    private SharedContext context;
+
     @Value("${save.all.screenshots}")
     private boolean saveAllScreenshots;
 
@@ -53,40 +57,37 @@ public class PrintPackingListSteps {
     @Value("${selenium.headless.execution}")
     private boolean headless;
 
-    private long shipmentId;
 
-    private long orderNumber;
-
-    @Given("The shipment details are Order Number {int}, Location Code {string}, Customer ID {string}, Customer Name {string}, Department {string}, Address Line 1 {string}, Address Line 2 {string}, Unit Number {string}, Product Code {string}, Product Family {string}, Blood Type {string}, Expiration {string}, Quantity {int}.")
-    public void setShipmentDetails(int orderNumber, String locationCode, String customerID, String customerName, String department, String addressLine1, String addressLine2, String unitNumber, String productCode, String productFamily, String bloodType, String expiration, int quantity) {
-        this.shipmentDetails = shipmentController.buildShipmentRequestDetailsResponseType(orderNumber, locationCode, customerID, customerName, department, addressLine1, addressLine2, TestUtils.removeUnitNumberScanDigits(unitNumber), TestUtils.removeProductCodeScanDigits(productCode), productFamily, bloodType, expiration, quantity);
-        this.orderNumber = orderNumber;
+    @Given("The shipment details are Order Number {string}, Location Code {string}, Customer ID {string}, Customer Name {string}, Department {string}, Address Line 1 {string}, Address Line 2 {string}, Unit Number {string}, Product Code {string}, Product Family {string}, Blood Type {string}, Expiration {string}, Quantity {int}.")
+    public void setShipmentDetails(String orderNumber, String locationCode, String customerID, String customerName, String department, String addressLine1, String addressLine2, String unitNumber, String productCode, String productFamily, String bloodType, String expiration, int quantity) {
+        this.shipmentDetails = shipmentController.buildShipmentRequestDetailsResponseType(Long.parseLong(orderNumber), locationCode, customerID, customerName, department, addressLine1, addressLine2, TestUtils.removeUnitNumberScanDigits(unitNumber), TestUtils.removeProductCodeScanDigits(productCode), productFamily, bloodType, expiration, quantity);
+        context.setOrderNumber(Long.parseLong(orderNumber));
         Assert.assertNotNull(this.shipmentDetails);
     }
 
     @And("I received a shipment fulfillment request with above details.")
     public void receiveShipmentFulfillmentRequest() throws Exception {
         shipmentController.createShippingRequest(this.shipmentDetails);
-        log.info("Order number successfully created: {}", this.orderNumber);
+        log.info("Order number successfully created: {}", context.getOrderNumber());
     }
 
     @And("I have filled the shipment with the unit number {string} and product code {string}.")
     public void fillShipmentStep(String unitNumber, String productCode) throws Exception {
-        this.shipmentId = shipmentTestingController.getOrderShipmentId(this.orderNumber);
-        shipmentController.fillShipment(this.shipmentId, TestUtils.removeUnitNumberScanDigits(unitNumber), TestUtils.removeProductCodeScanDigits(productCode), "SATISFACTORY", false);
+        context.setShipmentId(shipmentTestingController.getOrderShipmentId(context.getOrderNumber()));
+        shipmentController.fillShipment(context.getShipmentId(), TestUtils.removeUnitNumberScanDigits(unitNumber), TestUtils.removeProductCodeScanDigits(productCode), "SATISFACTORY", false);
     }
 
     @And("I have filled the shipment with the unit number {string} and product code {string} for order {string}.")
     public void fillShipmentForOrder(String unitNumber, String productCode, String orderNumber) throws Exception {
-        this.orderNumber = Long.parseLong(orderNumber);
-        this.shipmentId = shipmentTestingController.getOrderShipmentId(this.orderNumber);
-        shipmentController.fillShipment(this.shipmentId, TestUtils.removeUnitNumberScanDigits(unitNumber), TestUtils.removeProductCodeScanDigits(productCode), "SATISFACTORY", false);
+        context.setOrderNumber(Long.valueOf(orderNumber));
+        context.setShipmentId(shipmentTestingController.getOrderShipmentId(context.getOrderNumber()));
+        shipmentController.fillShipment(context.getShipmentId(), TestUtils.removeUnitNumberScanDigits(unitNumber), TestUtils.removeProductCodeScanDigits(productCode), "SATISFACTORY", false);
     }
 
     @And("I have completed a shipment with above details.")
     public void completeShipment() {
 
-        var response = apiHelper.graphQlRequest(GraphQLMutationMapper.completeShipmentMutation(this.shipmentId, "test-emplyee-id"), "completeShipment");
+        var response = apiHelper.graphQlRequest(GraphQLMutationMapper.completeShipmentMutation(context.getShipmentId(), "test-emplyee-id"), "completeShipment");
         log.info("Shipment successfully completed: {}", response);
         Assert.assertEquals("200 OK", response.get("ruleCode"));
     }
@@ -117,14 +118,14 @@ public class PrintPackingListSteps {
 
     @Then("I am able to see the Packing Slip content.")
     public void iAmAbleToSeeThePackingSlipContent() {
-        var query = printPackingListQuery(this.shipmentId);
+        var query = printPackingListQuery(context.getShipmentId());
         var packingList = apiHelper.graphQlRequest(query, "generatePackingListLabel");
         log.info("Packing slip content: {}", packingList);
 
         // TODO: When implemented, update the assertions with the current shipment information
         Assert.assertNotNull(packingList);
         Assert.assertEquals(Math.toIntExact(this.shipmentDetails.getOrderNumber()), packingList.get("orderNumber"));
-        Assert.assertEquals(String.valueOf(this.shipmentId), packingList.get("shipmentId"));
+        Assert.assertEquals(String.valueOf(context.getShipmentId()), packingList.get("shipmentId"));
 
         // Ship to
         Map<String, Object> shipTo = (Map<String, Object>) packingList.get("shipTo");
@@ -161,14 +162,14 @@ public class PrintPackingListSteps {
 
     @Then("I am able to see the Shipping Label content.")
     public void iAmAbleToSeeTheShippingLabelContent() {
-        var query = printShippingLabelQuery(this.shipmentId);
+        var query = printShippingLabelQuery(context.getShipmentId());
         var shippingLabel = apiHelper.graphQlRequest(query, "generateShippingLabel");
         log.info("Shipping label content: {}", shippingLabel);
 
         // TODO: When implemented, update the assertions with the current shipment information
         Assert.assertNotNull(shippingLabel);
         Assert.assertEquals(Math.toIntExact(this.shipmentDetails.getOrderNumber()), shippingLabel.get("orderNumber"));
-        Assert.assertEquals(Math.toIntExact(this.shipmentId), shippingLabel.get("shipmentId"));
+        Assert.assertEquals(Math.toIntExact(context.getShipmentId()), shippingLabel.get("shipmentId"));
         Assert.assertNotNull(shippingLabel.get("orderIdBase64Barcode"));
         Assert.assertNotNull(shippingLabel.get("shipmentIdBase64Barcode"));
 

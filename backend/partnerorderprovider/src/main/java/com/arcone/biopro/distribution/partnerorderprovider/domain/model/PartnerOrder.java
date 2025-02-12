@@ -37,7 +37,7 @@ public class PartnerOrder {
         this.deliveryType = Objects.requireNonNull(deliveryType,"Delivery Type cannot be null");
         this.shippingMethod = Objects.requireNonNull(shippingMethod,"Shipping Method cannot be null");
         this.productCategory = Objects.requireNonNull(productCategory,"Product Category cannot be null");
-        this.desiredShippingDate = Objects.requireNonNull(desiredShippingDate,"Desire Shipping Date cannot be null");
+        this.desiredShippingDate = desiredShippingDate;
         this.shippingCustomerCode = Objects.requireNonNull(shippingCustomerCode,"Shipping Customer code cannot be null");
         this.billingCustomerCode = Objects.requireNonNull(billingCustomerCode,"Billing Customer Code cannot be null");
         this.comments = comments;

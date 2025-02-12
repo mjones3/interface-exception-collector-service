@@ -1,15 +1,11 @@
 @ui @AOA-152
 Feature: View order details
 
-    As a Distribution Technician,
-    I want to be able to view the details of an order,
-    so that I know the customer requirements for filling the products in an order.
-
     Background:
         Given I cleaned up from the database the orders with external ID starting with "ORDER".
 
         Rule: I should be able to see the available inventory for each line item.
-        @DIS155 @DIS-121 @DIS-100 @DIS-97 @DIS-161 @DIS-253
+        @DIS155 @DIS-121 @DIS-100 @DIS-97 @DIS-161 @DIS-253 @bug @DIS-295
         Scenario Outline: View order details
             Given I have a Biopro Order with externalId "<External ID>", Location Code "<LocationCode>", Priority "<Priority>", Status "<Status>", shipment type "<Shipment Type>", delivery type "<Delivery Type>", shipping method "<Shipping Method>", product category "<Product Category>", desired ship date "<Desired Date>", shipping customer code and name as "<Shipping Customer Code>" and "<Shipping Customer Name>", billing customer code and name as "<Billing Customer Code>" and "<Billing Customer Name>", and comments "<Order Comments>".
             And I have 2 order items with product families "<ProductFamily>", blood types "<BloodType>", quantities "<Quantity>", and order item comments "<Item Comments>".
@@ -83,7 +79,7 @@ Feature: View order details
 
             Examples:
                 | External ID | LocationCode | Priority | Status      | Items Quantity | ProductFamily                            | BloodType | Quantity | Filled Quantity | Expected Quantity | Total Quantity | Shipment Type | Shipping Method | Product Category | Desired Date | Shipping Customer Code | Shipping Customer Name     | Billing Customer Code | Billing Customer Name      | Order Comments     | Item Comments                |
-                | ORDER004    | 123456789    | STAT     | IN_PROGRESS | 2              | PLASMA_TRANSFUSABLE, PLASMA_TRANSFUSABLE | AB, O     | 3, 2     | 1, 0            | 1                 | 5              | CUSTOMER      | FEDEX           | FROZEN           | 2024-08-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap, Another comment |
+                | ORDER004    | 123456789    | STAT     | IN_PROGRESS | 2              | PLASMA_TRANSFUSABLE, PLASMA_TRANSFUSABLE | AB, O     | 3, 2     | 1, 0            | 1                 | 5              | CUSTOMER      | FEDEX           | FROZEN           | 2030-12-31   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap, Another comment |
 
 
 

@@ -1,4 +1,3 @@
-import { AsyncPipe } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatIconButton } from '@angular/material/button';
 import {
@@ -19,24 +18,28 @@ export interface ViewPickListData {
 @Component({
     selector: 'app-view-pick-list',
     standalone: true,
-    imports: [MatIcon, MatIconButton, MatDialogClose, AsyncPipe],
+    imports: [MatIcon, MatIconButton, MatDialogClose],
     templateUrl: './view-pick-list.component.html',
 })
 export class ViewPickListComponent implements OnInit {
-    protected readonly ProductFamilyMap = ProductFamilyMap;
 
-    protected dialogRef = inject(MatDialogRef<ViewPickListComponent>);
-    protected dialogData = inject<ViewPickListData>(MAT_DIALOG_DATA);
-    protected browserPrintingService = inject(BrowserPrintingService);
+    static readonly NO_STORAGE_LOCATION_AVAILABLE_MESSAGE = 'No storage location available';
 
-    protected pickListModel = signal<PickListDTO>(null);
-    protected skipInventoryUnavailable = signal<boolean>(false);
-    protected hasAnyShortDateItem = computed(
+    readonly ProductFamilyMap = ProductFamilyMap;
+
+    dialogRef = inject(MatDialogRef<ViewPickListComponent>);
+    dialogData = inject<ViewPickListData>(MAT_DIALOG_DATA);
+    browserPrintingService = inject(BrowserPrintingService);
+
+    pickListModel = signal<PickListDTO>(null);
+    skipInventoryUnavailable = signal<boolean>(false);
+    hasAnyShortDateItem = computed(
         () =>
             !!this.pickListModel()?.pickListItems?.some(
                 (i) => i.shortDateList?.length
             )
     );
+    noStorageLocationAvailableMessage = computed(() => ViewPickListComponent.NO_STORAGE_LOCATION_AVAILABLE_MESSAGE);
 
     ngOnInit(): void {
         this.pickListModel.set(this.dialogData.pickListDTO);

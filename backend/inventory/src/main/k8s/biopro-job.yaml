@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: database-migration
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: flyway
+          image: local/inventory-migration
+          command: [ "/flyway/flyway" ]  # Overrides the default entrypoint
+          args:
+            - info
+            - repair
+            - migrate
+            - info
+          env:
+            - name: FLYWAY_URL
+              value: 'jdbc:postgresql://postgresql-service.db.svc.cluster.local:5432/inventory'
+            - name: FLYWAY_USER
+              value: 'inventory'
+            - name: FLYWAY_PASSWORD
+              value: 'biopro-password'
+            - name: FLYWAY_DEFAULT_SCHEMA
+              value: 'inventory'
+            - name: FLYWAY_LOCATIONS
+              value: 'filesystem:/flyway/db/sql/common'

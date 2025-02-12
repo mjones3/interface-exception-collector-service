@@ -29,7 +29,8 @@ import {
 import { ERROR_MESSAGE } from 'app/core/data/common-labels';
 import { getAuthState } from 'app/core/state/auth/auth.selectors';
 import { ProgressBarComponent } from 'app/progress-bar/progress-bar.component';
-import { ActionButtonComponent } from 'app/shared/components/action-button/action-button.component';
+import { ActionButtonComponent } from 'app/shared/components/buttons/action-button.component';
+import { BasicButtonComponent } from 'app/shared/components/buttons/basic-button.component';
 import { UnitNumberCardComponent } from 'app/shared/components/unit-number-card/unit-number-card.component';
 import { ConfirmationAcknowledgmentService } from 'app/shared/services/confirmation-acknowledgment.service';
 import { ProductIconsService } from 'app/shared/services/product-icon.service';
@@ -78,6 +79,7 @@ import { OrderWidgetsSidebarComponent } from '../shared/order-widgets-sidebar/or
         ActionButtonComponent,
         ProgressBarComponent,
         OrderWidgetsSidebarComponent,
+        BasicButtonComponent,
     ],
     templateUrl: './fill-products.component.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -489,5 +491,79 @@ export class FillProductsComponent implements OnInit {
         } else {
             this.selectedProducts.push(product);
         }
+    }
+
+    get numberOfUnits() {
+        return this.filledProductsData.length;
+    }
+
+    get numberOfSelectedUnits() {
+        return this.selectedProducts.length;
+    }
+
+    get selectAllTextRule() {
+        return (
+            this.numberOfSelectedUnits < this.numberOfUnits ||
+            this.numberOfUnits === 0
+        );
+    }
+
+    public selectAllUnits() {
+        if (this.selectedProducts.length === this.filledProductsData.length) {
+            this.selectedProducts = [];
+        } else {
+            this.selectedProducts = [].concat(this.filledProductsData);
+        }
+    }
+
+    enableFillUnitNumberAndProductCode(): void {
+        this.productSelection.enableProductGroup();
+    }
+
+    removeSelectedProducts(): void {
+        const unpackedItemList = [];
+        this.selectedProducts.forEach((product) => {
+            unpackedItemList.push({
+                unitNumber: product.unitNumber,
+                productCode: product.productCode,
+            });
+        });
+        const req = {
+            shipmentItemId: +this.productId,
+            employeeId: this.loggedUserId,
+            locationCode: this.cookieService.get(Cookie.XFacility),
+            unpackItems: unpackedItemList,
+        };
+        this.shipmentService
+            .unpackedItem(req)
+            .pipe(
+                catchError((err) => {
+                    this.toaster.error(ERROR_MESSAGE);
+                    throw err;
+                })
+            )
+            .subscribe((response) => {
+                const ruleResult = response?.data?.unpackItems;
+                if (ruleResult) {
+                    if (ruleResult.ruleCode === '200 OK') {
+                        const notification = ruleResult.notifications[0];
+                        this.toaster.show(
+                            notification?.message,
+                            null,
+                            null,
+                            NotificationTypeMap[notification?.notificationType]
+                                .type
+                        );
+                        const result =
+                            ruleResult?.results?.results[0] ||
+                            ruleResult?.results[0];
+                        if (result) {
+                            this.filledProductsData = [...result.packedItems];
+                            this.selectedProducts = [];
+                        }
+                        this.enableFillUnitNumberAndProductCode();
+                    }
+                }
+            });
     }
 }

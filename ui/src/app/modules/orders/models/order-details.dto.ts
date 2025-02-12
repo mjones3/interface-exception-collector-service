@@ -20,10 +20,15 @@ export interface OrderDetailsDTO {
     createDate: Date;
     modificationDate: Date;
     deleteDate: Date;
+    orderItems: OrderItemDetailsDto[];
     totalShipped: number;
     totalRemaining: number;
     totalProducts: number;
-    orderItems: OrderItemDetailsDto[];
+    canBeCompleted: boolean;
+    completeEmployeeId: string;
+    completeDate: string;
+    completeComments: string;
+    backOrderCreationActive: boolean;
 }
 
 export interface OrderItemDetailsDto {

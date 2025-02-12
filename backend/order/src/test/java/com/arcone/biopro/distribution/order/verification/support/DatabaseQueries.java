@@ -3,7 +3,7 @@ package com.arcone.biopro.distribution.order.verification.support;
 public class DatabaseQueries {
     public static String insertBioProOrder(String externalId, String locationCode, Integer priority, String deliveryType, String status) {
         return String.format("INSERT INTO bld_order (external_id, location_code, priority, delivery_type, status, shipping_method, desired_shipping_date, billing_customer_code, billing_customer_name, shipping_customer_code, shipping_customer_name, create_date, modification_date, product_category, create_employee_id) " +
-            "VALUES ('%s', '%s', '%s', '%s', '%s', 'FEDEX', '2024-12-25', 'A1235', 'BILLING NAME', 'A1235', 'Creative Testing Solutions', CURRENT_DATE, CURRENT_DATE, 'FROZEN', 'ee1bf88e-2137-4a17-835a-d43e7b738374')", externalId, locationCode, priority, deliveryType, status);
+            "VALUES ('%s', '%s', '%s', '%s', '%s', 'FEDEX', '2026-12-25', 'A1235', 'BILLING NAME', 'A1235', 'Creative Testing Solutions', CURRENT_DATE, CURRENT_DATE, 'FROZEN', 'ee1bf88e-2137-4a17-835a-d43e7b738374')", externalId, locationCode, priority, deliveryType, status);
     }
 
     public static String insertBioProOrder(Integer orderNumber, String externalId, String locationCode, Integer priority, String deliveryType, String status) {
@@ -13,7 +13,7 @@ public class DatabaseQueries {
 
     public static String insertBioProOrder(String externalId, String locationCode, Integer priority, String deliveryType, String status, String desiredShipdate) {
         return String.format("INSERT INTO bld_order (external_id, location_code, priority, delivery_type, status, shipping_method, billing_customer_code, billing_customer_name, shipping_customer_code, shipping_customer_name, create_date, modification_date, product_category, create_employee_id, desired_shipping_date) " +
-            "VALUES ('%s', '%s', '%s', '%s', '%s', 'FEDEX', 'A1235', 'BILLING NAME', 'A1235', 'Creative Testing Solutions', CURRENT_DATE, CURRENT_DATE, 'FROZEN', 'ee1bf88e-2137-4a17-835a-d43e7b738374', '%s')", externalId, locationCode, priority, deliveryType, status, desiredShipdate);
+            "VALUES ('%s', '%s', '%s', '%s', '%s', 'FEDEX', 'A1235', 'BILLING NAME', 'A1235', 'Creative Testing Solutions', CURRENT_DATE, CURRENT_DATE, 'FROZEN', 'ee1bf88e-2137-4a17-835a-d43e7b738374', %s)", externalId, locationCode, priority, deliveryType, status, desiredShipdate);
     }
 
     public static String insertBioProOrderWithDetails(String externalId, String locationCode, Integer priority, String deliveryType, String status, String shipmentType, String shippingMethod, String productCategory, String desiredShipDate, String shippingCustomerCode, String shippingCustomerName, String billingCustomerCode, String billingCustomerName, String comments) {
@@ -77,8 +77,24 @@ public class DatabaseQueries {
         return String.format("DELETE FROM bld_order_shipment WHERE order_id in ( SELECT id from bld_order WHERE external_id like '%s%%')", externalIdPrefix);
     }
 
-    public static String insertBioProOrderShipment(String orderId){
+    public static String insertBioProOrderShipment(String orderId, String shipmentStatus) {
         return String.format("INSERT INTO bld_order_shipment (order_id, shipment_id, shipment_status, create_date, modification_date) " +
-            "VALUES (%s, 1, 'OPEN', current_date, current_date)", orderId);
+            "VALUES (%s, 1, '%s', current_date, current_date)", orderId, shipmentStatus);
+    }
+
+    public static String insertBioProOrderShipment(String orderId){
+        return insertBioProOrderShipment(orderId, "OPEN");
+    }
+
+    public static String countBackOrders(String externalId, Integer orderId) {
+        return String.format("Select * from bld_order where external_id = '%s' and id != %s", externalId, orderId);
+    }
+
+    public static String updateBackOrderConfiguration(boolean config) {
+        return String.format("UPDATE lk_lookup SET option_value = %s WHERE type = 'BACK_ORDER_CREATION' and description_key = 'back-order-creation.label'", config);
+    }
+
+    public static String insertBioProOrderShipmentQuantity(String quantity, String orderId){
+        return String.format("UPDATE bld_order_item SET quantity_shipped = %s where order_id = %s", quantity, orderId);
     }
 }

@@ -289,20 +289,17 @@
                                 </div>
                             </td>
                             <td>
-                                @if (
-                                    product?.packedItems?.length !==
-                                        product?.quantity && !isProductComplete
-                                ) {
+                                @if (!isProductComplete) {
                                     <div
                                         class="flex flex-row justify-center space-x-4"
                                     >
                                         <button
-                                            [id]="'fillShipmentBtn' + i"
+                                            [id]="'manageProductsBtn' + i"
                                             mat-flat-button
                                             class="bg-custom-red text-white"
-                                            (click)="fillProducts(product)"
+                                            (click)="manageProducts(product)"
                                         >
-                                            Fill Product
+                                            Manage Products
                                         </button>
                                     </div>
                                 }

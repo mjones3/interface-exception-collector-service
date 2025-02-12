@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { By } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router } from '@angular/router';
 import { provideMockStore } from '@ngrx/store/testing';
@@ -193,5 +194,142 @@ describe('FillProductsComponent', () => {
         component.toggleProduct(products);
         fixture.detectChanges();
         expect(component.selectedProducts.length).toBe(0);
+    });
+
+    it('should disable select all and remove buttons when filled product is empty', () => {
+        component.filledProductsData = [];
+        jest.spyOn(component, 'numberOfUnits', 'get').mockReturnValue(0);
+        jest.spyOn(component, 'numberOfSelectedUnits', 'get').mockReturnValue(
+            0
+        );
+        const selectAllBtn = fixture.debugElement.query(
+            By.css('#select-all-btn button')
+        ).nativeElement;
+        const removeBtn = fixture.debugElement.query(
+            By.css('#remove-btn button')
+        ).nativeElement;
+
+        expect(selectAllBtn.disabled).toBeTruthy();
+        expect(removeBtn.disabled).toBeTruthy();
+    });
+
+    it('should enable selecte all button when at least one product is added on the list', () => {
+        component.filledProductsData = [{}];
+        fixture.detectChanges();
+        const selectAllBtn = fixture.debugElement.query(
+            By.css('#select-all-btn')
+        ).nativeElement;
+        expect(selectAllBtn.disabled).toBeFalsy();
+    });
+
+    it('should enable remove button when at least one product is selected', () => {
+        component.selectedProducts = [
+            {
+                unitNumber: 'W12121212121',
+                productCode: 'E121212V44',
+            },
+        ];
+        fixture.detectChanges();
+        const selectAllBtn = fixture.debugElement.query(
+            By.css('#remove-btn')
+        ).nativeElement;
+        expect(selectAllBtn.disabled).toBeFalsy();
+    });
+
+    it('should disable submit button when at least one product is selected', () => {
+        component.selectedProducts = [
+            { unitNumber: 'W12121212132', productCode: 'E121212V0' },
+        ];
+        fixture.detectChanges();
+        const submitBtn = fixture.debugElement.query(
+            By.css('#backActionBtn')
+        ).nativeElement;
+        expect(submitBtn.disabled).toBeTruthy();
+    });
+
+    it('should remove selected products when user choose remove option', () => {
+        component.filledProductsData = [
+            { unitNumber: 'w1233333333333', productCode: 'E23231111' },
+            { unitNumber: 'w1212121455212', productCode: 'E232454532V0' },
+        ];
+        jest.spyOn(toaster, 'show');
+        const enableFillUnitNumberAndProductCodeSpy = jest.spyOn(
+            component,
+            'enableFillUnitNumberAndProductCode'
+        );
+        const unpackItemsSpy = jest
+            .spyOn(service, 'unpackedItem')
+            .mockReturnValue(
+                of({
+                    data: {
+                        unpackItems: {
+                            ruleCode: '200 OK',
+                            _links: null,
+                            results: {
+                                results: [
+                                    {
+                                        packedItems: [
+                                            {
+                                                unitNumber: 'w1233333333333',
+                                                productCode: 'E23231111',
+                                            },
+                                        ],
+                                    },
+                                ],
+                            },
+                            notifications: [
+                                {
+                                    statusCode: 200,
+                                    notificationType: 'SUCCESS',
+                                    name: 'REMOVED SUCCESSFULLY',
+                                    action: null,
+                                    reason: null,
+                                    code: null,
+                                    message: 'REMOVED SUCCESSFULLY',
+                                },
+                            ],
+                        },
+                    },
+                })
+            );
+        component.selectedProducts = [
+            {
+                unitNumber: 'w1212121455212',
+                productCode: 'E232454532V0',
+            },
+        ];
+        component.removeSelectedProducts();
+        fixture.detectChanges();
+        expect(unpackItemsSpy).toHaveBeenCalled();
+        expect(component.filledProductsData.length).toBe(1);
+        expect(component.selectedProducts.length).toBe(0);
+        expect(enableFillUnitNumberAndProductCodeSpy).toHaveBeenCalled();
+    });
+
+    describe('select/unselect all units', () => {
+        const unpackedItemList = [
+            {
+                unitNumber: 'W123424138945',
+                productCode: 'RBCAPH1',
+            },
+            {
+                unitNumber: 'W123424138945',
+                productCode: 'RBCAPH2',
+            },
+        ];
+        it('should select all units', () => {
+            component.filledProductsData = [...unpackedItemList];
+            component.selectAllUnits();
+            expect(component.selectedProducts).toHaveLength(
+                unpackedItemList.length
+            );
+        });
+
+        it('should unselect all units', () => {
+            component.filledProductsData = [...unpackedItemList];
+            component.selectedProducts = [...unpackedItemList];
+            component.selectAllUnits();
+            expect(component.selectedProducts).toHaveLength(0);
+        });
     });
 });

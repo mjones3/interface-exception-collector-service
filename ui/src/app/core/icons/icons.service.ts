@@ -18,40 +18,79 @@ export class IconsService {
                 'icons/material-twotone.svg'
             )
         );
+
         matIconRegistry.addSvgIconSetInNamespace(
             'mat_outline',
             domSanitizer.bypassSecurityTrustResourceUrl(
                 'icons/material-outline.svg'
             )
         );
+
         matIconRegistry.addSvgIconSetInNamespace(
             'mat_solid',
             domSanitizer.bypassSecurityTrustResourceUrl(
                 'icons/material-solid.svg'
             )
         );
+
         matIconRegistry.addSvgIconSetInNamespace(
             'feather',
             domSanitizer.bypassSecurityTrustResourceUrl('icons/feather.svg')
         );
+
         matIconRegistry.addSvgIconSetInNamespace(
             'heroicons_outline',
             domSanitizer.bypassSecurityTrustResourceUrl(
                 'icons/heroicons-outline.svg'
             )
         );
+
         matIconRegistry.addSvgIconSetInNamespace(
             'heroicons_solid',
             domSanitizer.bypassSecurityTrustResourceUrl(
                 'icons/heroicons-solid.svg'
             )
         );
+
         matIconRegistry.addSvgIconSetInNamespace(
             'heroicons_mini',
             domSanitizer.bypassSecurityTrustResourceUrl(
                 'icons/heroicons-mini.svg'
             )
         );
+
+        matIconRegistry.addSvgIconInNamespace(
+            'biopro',
+            'product-platelets',
+            domSanitizer.bypassSecurityTrustResourceUrl(
+                'icons/biopro/biopro-product-platelets.svg'
+            )
+        );
+
+        matIconRegistry.addSvgIconInNamespace(
+            'biopro',
+            'product-rbc',
+            domSanitizer.bypassSecurityTrustResourceUrl(
+                'icons/biopro/biopro-product-rbc.svg'
+            )
+        );
+
+        matIconRegistry.addSvgIconInNamespace(
+            'biopro',
+            'product-whole-blood',
+            domSanitizer.bypassSecurityTrustResourceUrl(
+                'icons/biopro/biopro-product-whole-blood.svg'
+            )
+        );
+
+        matIconRegistry.addSvgIconInNamespace(
+            'biopro',
+            'product-plasma',
+            domSanitizer.bypassSecurityTrustResourceUrl(
+                'icons/biopro/biopro-product-plasma.svg'
+            )
+        );
+
         // Adding icons
         [...RSA_ICONS, ...DRIP_ICONS, ...HEROIC_ICONS].forEach((icon) => {
             matIconRegistry.addSvgIconLiteralInNamespace(

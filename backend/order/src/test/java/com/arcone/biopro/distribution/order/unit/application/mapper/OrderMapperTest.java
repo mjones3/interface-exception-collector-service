@@ -4,17 +4,23 @@ import com.arcone.biopro.distribution.order.adapter.in.web.dto.OrderDTO;
 import com.arcone.biopro.distribution.order.adapter.in.web.dto.OrderItemDTO;
 import com.arcone.biopro.distribution.order.application.mapper.OrderItemMapper;
 import com.arcone.biopro.distribution.order.application.mapper.OrderMapper;
+import com.arcone.biopro.distribution.order.domain.model.Lookup;
 import com.arcone.biopro.distribution.order.domain.model.Order;
+import com.arcone.biopro.distribution.order.domain.model.OrderItem;
+import com.arcone.biopro.distribution.order.domain.model.vo.LookupId;
 import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
 import com.arcone.biopro.distribution.order.domain.service.OrderConfigService;
+import com.arcone.biopro.distribution.order.domain.service.OrderShipmentService;
 import com.arcone.biopro.distribution.order.infrastructure.service.dto.CustomerDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
@@ -23,10 +29,12 @@ import java.util.List;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 
-@SpringJUnitConfig(classes = { OrderMapper.class, OrderItemMapper.class })
+@SpringJUnitConfig(classes = { OrderMapper.class, OrderItemMapper.class , OrderShipmentService.class})
 class OrderMapperTest {
 
     @MockBean
@@ -37,6 +45,8 @@ class OrderMapperTest {
     OrderConfigService orderConfigService;
     @MockBean
     LookupService lookupService;
+    @MockBean
+    OrderShipmentService orderShipmentService;
 
     @BeforeEach
     void beforeEach() {
@@ -47,11 +57,26 @@ class OrderMapperTest {
                     .name("name")
                     .build()
             ));
+
+        Mockito.when(lookupService.findAllByType(Mockito.anyString())).thenReturn(Flux.just(new Lookup(new LookupId("shipmentType","shipmentType"),"description",1,true)
+                , new Lookup(new LookupId("shippingMethod","shippingMethod"),"description",2,true)
+                , new Lookup(new LookupId("productCategory","productCategory"),"description",2,true)
+                , new Lookup(new LookupId("status","status"),"description",2,true)
+                , new Lookup(new LookupId("priority","priority"),"description",2,true)
+            )
+        );
+
+        Mockito.when(orderConfigService.findProductFamilyByCategory(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just("productFamily"));
+        Mockito.when(orderConfigService.findBloodTypeByFamilyAndType(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just("bloodType"));
+
+        Mockito.when(orderConfigService.findBackOrderConfiguration()).thenReturn(Mono.just(Boolean.FALSE));
+
+
     }
 
     @Test
-    @Disabled("Disabled until DDD refactor is done")
     void testMapToDTO() {
+
         // Setup
         var order = new Order(
             customerService,
@@ -74,29 +99,18 @@ class OrderMapperTest {
             "createEmployeeId",
             ZonedDateTime.now(),
             ZonedDateTime.now(),
-            ZonedDateTime.now()/*,
-            List.of(
-                new OrderItem(
-                    1L,
-                    1L,
-                    "productFamily1",
-                    "bloodType1",
-                    3,
-                    "comments1",
-                    ZonedDateTime.now(),
-                    ZonedDateTime.now()
-                ),
-                new OrderItem(
-                    2L,
-                    1L,
-                    "productFamily2",
-                    "bloodType2",
-                    5,
-                    "comments2",
-                    ZonedDateTime.now(),
-                    ZonedDateTime.now()
-                )
-            )*/
+            ZonedDateTime.now()
+        );
+        order.addItem(
+                1L,
+                "productFamily",
+                "bloodType",
+                3,
+                0,
+                null,
+                ZonedDateTime.now(),
+                ZonedDateTime.now(),
+                orderConfigService
         );
 
         // Execute
@@ -138,10 +152,11 @@ class OrderMapperTest {
             assertEquals(orderItem.getCreateDate(), orderItemDTO.createDate());
             assertEquals(orderItem.getModificationDate(), orderItemDTO.modificationDate());
         });
+        assertFalse(result.canBeCompleted());
+        assertFalse(result.backOrderCreationActive());
     }
 
     @Test
-    @Disabled("Disabled until DDD refactor is done")
     void testMapToDomain() {
         // Setup
         var orderDTO = OrderDTO.builder()

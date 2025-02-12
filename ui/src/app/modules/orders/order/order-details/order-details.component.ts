@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FuseCardComponent } from '@fuse/components/card/public-api';
+import { Store } from '@ngrx/store';
 import {
     ProcessHeaderComponent,
     ProcessHeaderService,
@@ -30,6 +31,7 @@ import {
     switchMap,
     take,
     takeWhile,
+    tap,
     timer,
 } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -39,8 +41,13 @@ import {
     DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
     DEFAULT_PAGE_SIZE_DIALOG_LANDSCAPE_WIDTH,
 } from '../../../../core/models/browser-printing.model';
+import { getAuthState } from '../../../../core/state/auth/auth.selectors';
+import { ActionButtonComponent } from '../../../../shared/components/buttons/action-button.component';
 import { TagComponent } from '../../../../shared/components/tag/tag.component';
 import handleApolloError from '../../../../shared/utils/apollo-error-handling';
+import { consumeNotificationMessages } from '../../../../shared/utils/notification.handling';
+import { CompleteOrderComponent } from '../../complete-order/complete-order.component';
+import { CompleteOrderCommandDTO } from '../../graphql/mutation-definitions/complete-order.graphql';
 import { PickListDTO } from '../../graphql/mutation-definitions/generate-pick-list.graphql';
 import { OrderShipmentDTO } from '../../graphql/query-definitions/order-details.graphql';
 import { Notification } from '../../models/notification.dto';
@@ -71,6 +78,7 @@ import {
         RouterLink,
         TagComponent,
         ProgressBarComponent,
+        ActionButtonComponent,
     ],
     templateUrl: './order-details.component.html',
 })
@@ -83,6 +91,7 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
     readonly ProductFamilyMap = ProductFamilyMap;
 
     expandedRows = {};
+    isBackOrderCreationActive: boolean;
 
     orderDetails: OrderDetailsDTO;
     private notifications: Notification[] = [];
@@ -91,6 +100,7 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
     pollingSubscription: Subscription;
     filledOrdersCount = 0;
     totalOrderProducts: number;
+    loggedUserId: string;
 
     loading = true;
     loadingPickList = false;
@@ -103,8 +113,16 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
         private orderService: OrderService,
         private toaster: ToastrImplService,
         private fuseConfirmationService: FuseConfirmationService,
-        private productIconService: ProductIconsService
-    ) {}
+        private productIconService: ProductIconsService,
+        private store: Store
+    ) {
+        this.store
+            .select(getAuthState)
+            .pipe(take(1))
+            .subscribe((auth) => {
+                this.loggedUserId = auth['id'];
+            });
+    }
 
     get isOrderComplete(): boolean {
         return this.orderDetails?.status === 'COMPLETED';
@@ -141,6 +159,8 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
 
                     this.totalOrderProducts = this.orderDetails.totalProducts;
                     this.filledOrdersCount = this.orderDetails.totalShipped;
+                    this.isBackOrderCreationActive =
+                        this.orderDetails.backOrderCreationActive;
                     return orderDetails.status !== 'OPEN'
                         ? this.orderService
                               .findOrderShipmentByOrderId(orderDetails.id)
@@ -293,5 +313,48 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
 
     getIcon(productFamily: string) {
         return this.productIconService.getIconByProductFamily(productFamily);
+    }
+
+    openCompleteOrderDialog(): void {
+        this.matDialog
+            .open<
+                CompleteOrderComponent,
+                { isBackOrderCreationActive: boolean },
+                Partial<CompleteOrderCommandDTO>
+            >(CompleteOrderComponent, {
+                data: {
+                    isBackOrderCreationActive: this.isBackOrderCreationActive,
+                },
+                disableClose: true,
+                id: 'CompleteOrderDialog',
+                width: '30rem',
+            })
+            .afterClosed()
+            .pipe(filter(Boolean))
+            .subscribe((command) => this.complete(command));
+    }
+
+    complete(command: Partial<CompleteOrderCommandDTO>): void {
+        this.orderService
+            .completeOrder({
+                orderId: Number(this.orderId),
+                employeeId: this.loggedUserId,
+                createBackOrder: false,
+                ...command,
+            })
+            .pipe(
+                tap((response) =>
+                    consumeNotificationMessages(
+                        this.toaster,
+                        response?.data?.completeOrder?.notifications
+                    )
+                ),
+                catchError((e) => handleApolloError(this.toaster, e))
+            )
+            .subscribe((response) => {
+                this.orderDetails = response?.data?.completeOrder?.data;
+                this.notifications =
+                    response?.data?.completeOrder?.notifications ?? [];
+            });
     }
 }

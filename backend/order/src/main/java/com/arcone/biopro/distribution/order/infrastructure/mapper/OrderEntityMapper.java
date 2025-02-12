@@ -9,6 +9,7 @@ import com.arcone.biopro.distribution.order.infrastructure.persistence.OrderItem
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
@@ -46,6 +47,10 @@ public class OrderEntityMapper {
             .createDate(order.getCreateDate())
             .modificationDate(order.getModificationDate())
             .deleteDate(order.getDeleteDate())
+            .completeComments(order.getCompleteComments())
+            .completeEmployeeId(order.getCompleteEmployeeId())
+            .completeDate(order.getCompleteDate())
+            .backOrder(order.isBackOrder())
             .build();
     }
 
@@ -62,7 +67,7 @@ public class OrderEntityMapper {
             orderEntity.getShippingMethod(),
             orderEntity.getShippingCustomerCode(),
             orderEntity.getBillingCustomerCode(),
-            java.util.Optional.of(orderEntity.getDesiredShippingDate().toString()).orElse(""),
+            ofNullable(orderEntity.getDesiredShippingDate()).map(LocalDate::toString).orElse(null),
             orderEntity.getWillCallPickup(),
             orderEntity.getPhoneNumber(),
             orderEntity.getProductCategory(),
@@ -72,7 +77,8 @@ public class OrderEntityMapper {
             orderEntity.getCreateEmployeeId(),
             orderEntity.getCreateDate(),
             orderEntity.getModificationDate(),
-            orderEntity.getDeleteDate());
+            orderEntity.getDeleteDate()
+        );
 
         ofNullable(orderItemEntities)
             .filter(orderItems -> !orderItems.isEmpty())
@@ -83,6 +89,11 @@ public class OrderEntityMapper {
                     , orderItemEntity.getModificationDate(), this.orderConfigService
                 )
             );
+
+        order.setCompleteComments(orderEntity.getCompleteComments());
+        order.setCompleteEmployeeId(orderEntity.getCompleteEmployeeId());
+        order.setCompleteDate(orderEntity.getCompleteDate());
+        order.setBackOrder(orderEntity.getBackOrder());
 
         return order;
     }

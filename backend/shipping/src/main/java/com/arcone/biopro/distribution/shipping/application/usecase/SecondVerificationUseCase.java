@@ -7,6 +7,7 @@ import com.arcone.biopro.distribution.shipping.application.dto.RuleResponseDTO;
 import com.arcone.biopro.distribution.shipping.application.dto.VerifyItemRequest;
 import com.arcone.biopro.distribution.shipping.application.mapper.ShipmentMapper;
 import com.arcone.biopro.distribution.shipping.application.util.ShipmentServiceMessages;
+import com.arcone.biopro.distribution.shipping.domain.model.Shipment;
 import com.arcone.biopro.distribution.shipping.domain.model.ShipmentItemPacked;
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.SecondVerification;
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemPackedRepository;
@@ -105,7 +106,8 @@ public class SecondVerificationUseCase implements SecondVerificationService {
         return shipmentItemPackedRepository.save(itemPacked);
     }
 
-    private Mono<ShipmentItemPacked> markAsVerificationPending(ShipmentItemPacked itemPacked) {
+    public Mono<ShipmentItemPacked> markAsVerificationPending(ShipmentItemPacked itemPacked) {
+        log.debug("Marking Item as Verification Pending {}",itemPacked);
         itemPacked.setSecondVerification(SecondVerification.PENDING);
         itemPacked.setVerificationDate(null);
         itemPacked.setVerifiedByEmployeeId(null);
@@ -117,8 +119,18 @@ public class SecondVerificationUseCase implements SecondVerificationService {
     }
 
     public Mono<ShipmentItemPacked> resetVerification(Long shipmentId , String rootCause){
-        return Flux.from(shipmentItemPackedRepository.listAllByShipmentId(shipmentId))
-            .flatMap(this::markAsVerificationPending)
+        return this.markAllItemsAsVerificationPending(shipmentId)
             .then(Mono.error(new RuntimeException(rootCause)));
+    }
+
+    public Mono<Shipment> resetVerification(Shipment shipment){
+        return this.markAllItemsAsVerificationPending(shipment.getId())
+            .then(Mono.just(shipment));
+    }
+
+    private Flux<ShipmentItemPacked> markAllItemsAsVerificationPending(Long shipmentId) {
+        log.debug("Resetting second verification for all items from Shipment ID {}",shipmentId);
+        return Flux.from(shipmentItemPackedRepository.listAllByShipmentId(shipmentId))
+            .flatMap(this::markAsVerificationPending);
     }
 }

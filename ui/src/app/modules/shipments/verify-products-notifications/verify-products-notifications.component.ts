@@ -15,7 +15,7 @@ import { FuseCardComponent } from '../../../../@fuse';
 import { FuseConfirmationService } from '../../../../@fuse/services/confirmation';
 import { ProgressBarComponent } from '../../../progress-bar/progress-bar.component';
 import { ScanUnitNumberProductCodeComponent } from '../../../scan-unit-number-product-code/scan-unit-number-product-code.component';
-import { ActionButtonComponent } from '../../../shared/components/action-button/action-button.component';
+import { ActionButtonComponent } from '../../../shared/components/buttons/action-button.component';
 import { GlobalMessageComponent } from '../../../shared/components/global-message/global-message.component';
 import { UnitNumberCardComponent } from '../../../shared/components/unit-number-card/unit-number-card.component';
 import { DiscardRequestDTO } from '../../../shared/models/discard.model';
@@ -39,9 +39,9 @@ import { VerifyProductsNavbarComponent } from '../verify-products-navbar/verify-
     selector: 'app-verify-products-notifications',
     standalone: true,
     imports: [
-        ActionButtonComponent,
         AsyncPipe,
         FuseCardComponent,
+        ActionButtonComponent,
         MatDivider,
         OrderWidgetsSidebarComponent,
         PercentPipe,

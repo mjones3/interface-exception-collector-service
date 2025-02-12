@@ -37,6 +37,8 @@ public class OrderDetailsPage extends CommonPageFactory {
 
     @FindBy(how = How.ID, using = "ViewPickListDialog")
     private WebElement ViewPickListDialog;
+    @Autowired
+    private HomePage homePage;
 
     public boolean isPicklistDialogLoaded() {
         return sharedActions.isElementVisible(ViewPickListDialog);
@@ -64,6 +66,12 @@ public class OrderDetailsPage extends CommonPageFactory {
     private static final By filledProductsCountLabel = By.id("filledOrdersCount");
     private static final By totalProductsCountLabel = By.id("totalOrderProducts");
     private static final By orderProgressBar = By.id("orderProgressBarId");
+    private static final By completeOrderButton = By.id("completeBtnId");
+    private static final By completeOrderConfirmBox = By.id("CompleteOrderDialog");
+    private static final By completeOrderCommentTextArea = By.id("completeOrderReason");
+    private static final By completeOrderSubmitBtn = By.id("completeOrderSubmitBtn");
+    private static final By createBackOrderTrueBtn = By.id("createBackOrderTrue-button");
+    private static final By createBackOrderFalseBtn = By.id("createBackOrderFalse-button");
 
 
     //Dynamic locators
@@ -111,7 +119,7 @@ public class OrderDetailsPage extends CommonPageFactory {
         return String.format("//p-table[@id='shipmentsTableId']//td[text()='%s']", detail);
     }
 
-    private String expectedFilledOrderQuantity(String quantity){
+    private String expectedFilledOrderQuantity(String quantity) {
         return String.format("//*[@id='filledOrdersCount'][normalize-space()='%s']", quantity);
     }
 
@@ -123,10 +131,10 @@ public class OrderDetailsPage extends CommonPageFactory {
 
     private Map<String, String> productFamilyDescription = Map.of(
         "PLASMA_TRANSFUSABLE", "Plasma Transfusable",
-        "RED_BLOOD_CELLS_LEUKOREDUCED","Red Blood Cells Leukoreduced",
+        "RED_BLOOD_CELLS_LEUKOREDUCED", "Red Blood Cells Leukoreduced",
         "WHOLE_BLOOD", "Whole Blood",
-        "WHOLE_BLOOD_LEUKOREDUCED","Whole Blood Leukoreduced",
-        "RED_BLOOD_CELLS","Red Blood Cells"
+        "WHOLE_BLOOD_LEUKOREDUCED", "Whole Blood Leukoreduced",
+        "RED_BLOOD_CELLS", "Red Blood Cells"
     );
 
 
@@ -137,9 +145,10 @@ public class OrderDetailsPage extends CommonPageFactory {
         return sharedActions.isElementVisible(orderDetailsTitle);
     }
 
-    public void goToOrderDetails(Integer orderId) {
-        var orderDetailsUrl = baseUrl + "/orders/" + orderId + "/order-details";
-        driver.get(orderDetailsUrl);
+    public void goToOrderDetails(Integer orderId) throws InterruptedException {
+        homePage.goTo();
+        var orderDetailsUrl = "/orders/" + orderId + "/order-details";
+        sharedActions.navigateTo(orderDetailsUrl);
         Assert.assertTrue(isLoaded());
     }
 
@@ -232,8 +241,15 @@ public class OrderDetailsPage extends CommonPageFactory {
         for (int i = 0; i < productFamily.length; i++) {
             String productFamilyDescription = productFamily[i].replace("_", " ");
             sharedActions.waitForVisible(By.xpath(availableInventory(productFamilyDescription, bloodType[i], Integer.valueOf(quantity[i]))));
-            Assert.assertFalse(sharedActions.isElementEmpty(driver.findElement(By.xpath(availableInventory(productFamilyDescription, bloodType[i], Integer.valueOf(quantity[i]))))));
 
+            try {
+                var availableInventoryValue = sharedActions.getText(By.xpath(availableInventory(productFamilyDescription, bloodType[i], Integer.valueOf(quantity[i]))));
+
+                // We must have a numeric value in this column
+                Integer.parseInt(availableInventoryValue.trim());
+            } catch (NumberFormatException e) {
+                throw new RuntimeException("Unable to read available inventory value");
+            }
         }
     }
 
@@ -306,7 +322,7 @@ public class OrderDetailsPage extends CommonPageFactory {
         Assert.assertEquals(totalProducts, Integer.valueOf(driver.findElement(totalProductsCountLabel).getText()));
     }
 
-    public void verifyFilledProductsSection(String productFamily, String bloodType, String quantity, String filledQuantity){
+    public void verifyFilledProductsSection(String productFamily, String bloodType, String quantity, String filledQuantity) {
         sharedActions.waitForVisible(By.xpath(filledProductDetails(productFamily, bloodType, quantity, filledQuantity)));
     }
 
@@ -320,5 +336,28 @@ public class OrderDetailsPage extends CommonPageFactory {
 
     public void verifyTemperatureCategory(String category) {
         sharedActions.waitForVisible(By.xpath(formatTemperatureCategoryLocator(category)));
+    }
+
+    public void completeOrder() {
+        sharedActions.click(completeOrderButton);
+    }
+
+    public boolean verifyCompleteOrderConfirmation() {
+        return sharedActions.isElementVisible(completeOrderConfirmBox);
+    }
+
+    public void confirmCompleteOrder(String comment) {
+        if (!comment.isBlank()) {
+            sharedActions.sendKeys(completeOrderCommentTextArea, comment);
+        }
+        sharedActions.click(completeOrderSubmitBtn);
+    }
+
+    public void defineBackOrderOption(boolean option) {
+        if (option) {
+            sharedActions.click(createBackOrderTrueBtn);
+        } else {
+            sharedActions.click(createBackOrderFalseBtn);
+        }
     }
 }

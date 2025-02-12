@@ -24,7 +24,7 @@ import {
 import { BrowserPrintingService } from 'app/core/services/browser-printing/browser-printing.service';
 import { getAuthState } from 'app/core/state/auth/auth.selectors';
 import { ProgressBarComponent } from 'app/progress-bar/progress-bar.component';
-import { ActionButtonComponent } from 'app/shared/components/action-button/action-button.component';
+import { ActionButtonComponent } from 'app/shared/components/buttons/action-button.component';
 import { ProductIconsService } from 'app/shared/services/product-icon.service';
 import { ToastrModule } from 'ngx-toastr';
 import { SortEvent } from 'primeng/api';
@@ -190,8 +190,8 @@ export class ShipmentDetailsComponent implements OnInit {
         });
     }
 
-    fillProducts(item: ShipmentItemResponseDTO): void {
-        const url = `shipment/${this.shipmentId}/fill-products/${item.id}`;
+    manageProducts(item: ShipmentItemResponseDTO): void {
+        const url = `shipment/${this.shipmentId}/manage-products/${item.id}`;
         this._router.navigateByUrl(url);
     }
 

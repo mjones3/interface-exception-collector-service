@@ -33,7 +33,6 @@ export * from './icons/hi_outline/ChevronRightHeroiconsOutline';
 export * from './icons/hi_outline/ClipboardCheckHeroiconsOutline';
 export * from './icons/hi_outline/XCircleHeroiconsOutline';
 export * from './icons/hi_outline/XHeroiconsOutline';
-export * from './icons/rsa/ProductPlasmaRsa';
 
 //Models
 export * from './models/index';

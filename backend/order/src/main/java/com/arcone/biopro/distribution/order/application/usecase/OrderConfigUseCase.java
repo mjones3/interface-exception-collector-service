@@ -9,6 +9,8 @@ import reactor.core.publisher.Mono;
 public class OrderConfigUseCase implements OrderConfigService {
     private final OrderConfigRepository orderConfigRepository;
 
+    private static final String BACK_ORDER_CREATION_CONFIG_TYPE = "BACK_ORDER_CREATION";
+
     public OrderConfigUseCase(OrderConfigRepository orderConfigRepository) {
         this.orderConfigRepository = orderConfigRepository;
     }
@@ -21,5 +23,10 @@ public class OrderConfigUseCase implements OrderConfigService {
     @Override
     public Mono<String> findBloodTypeByFamilyAndType(String productFamily, String bloodType) {
         return orderConfigRepository.findBloodTypeByFamilyAndType(productFamily, bloodType);
+    }
+
+    @Override
+    public Mono<Boolean> findBackOrderConfiguration() {
+        return orderConfigRepository.findFirstConfigAsBoolean(BACK_ORDER_CREATION_CONFIG_TYPE);
     }
 }

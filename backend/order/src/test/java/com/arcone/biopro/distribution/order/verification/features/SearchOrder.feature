@@ -3,6 +3,7 @@ Feature: Search Orders
 
     Background:
         Given I cleaned up from the database the orders with external ID starting with "EXTSEARCH1".
+        And I cleaned up from the database the orders with external ID starting with "29402".
 
 
     Rule: I should be able to filter the order lists by specific criteria.
@@ -133,7 +134,7 @@ Feature: Search Orders
             And Items "<Selected Statuses>" should be selected for "order status".
             And Items "<Selected Customers>" should be selected for "ship to customer".
             And I select the current date as the "create date" range
-            And I select the "12/25/2024" as the "desired shipping date" range
+            And I select the "12/25/2026" as the "desired shipping date" range
             And "order number" field is "disabled".
             Then I choose "apply" option.
             And I should see "<Expected External Ids>" orders in the search results.
@@ -159,3 +160,21 @@ Feature: Search Orders
             Then I should see a validation message: "Date range exceeds two years".
             And "reset" option is "enabled".
             And "apply" option is "disabled".
+
+
+    Rule: I should be able to search completed orders by order number.
+        @api @DIS-294 @bug
+        Scenario Outline: Search completed order and the associated backorder
+            Given I have an order with external ID "<External Id>" partially fulfilled with a shipment "<Shipment Status>".
+            And I have Shipped "<Shipped Quantity>" products of each item line.
+            And I have the back order configuration set to "true".
+            And I request to complete the order.
+            When I search for orders by "<Search Key>".
+            Then I should receive the search results containing "<Expected Quantity>" orders.
+
+            Examples:
+                | Shipment Status | Search Key | Shipped Quantity | Expected Quantity | External Id        |
+                | COMPLETED       | externalId | 2                | 2                 | EXTSEARCH1DIS29402 |
+                | COMPLETED       | externalId | 2                | 2                 | 29402              |
+                | COMPLETED       | orderId    | 3                | 1                 | EXTSEARCH1DIS29402 |
+                | COMPLETED       | orderId    | 3                | 1                 | 29402              |
