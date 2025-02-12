@@ -9,7 +9,7 @@ Feature: As a BioPro system,
     Scenario Outline: Receive a Partner cancel order request
         Given I have a Partner cancel order request payload "<JsonPayloadName>".
         When I send a request to the Partner Cancel Order Inbound Interface.
-        Then The response code should be <responseCode>.
+        Then The response status code should be <responseCode>.
         And The response status should be "<status>".
         Examples:
             | JsonPayloadName                                                     | responseCode | status   |
@@ -21,8 +21,8 @@ Feature: As a BioPro system,
     Scenario Outline: Validate Partner cancel order inbound request
         Given I have a Partner cancel order request payload "<JsonPayloadName>".
         When I send a request to the Partner Cancel Order Inbound Interface.
-        Then The response code should be <responseCode>.
-        And The error message should be "<errorMessage>".
+        Then The response status code should be <responseCode>.
+        And The cancel error message should be "<errorMessage>".
         Examples:
             | JsonPayloadName                                   | responseCode | errorMessage                                                            |
             | inbound-test-files/cancel-order-scenario-001.json | 400          | $.externalId: null found, string expected                               |

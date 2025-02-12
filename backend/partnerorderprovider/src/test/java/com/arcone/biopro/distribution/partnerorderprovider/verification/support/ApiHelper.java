@@ -98,6 +98,29 @@ public class ApiHelper {
         }
     }
 
+    public ResponseEntity<String> patchRequest(String endpoint, String body, String customBaseUrl) {
+        String url = (customBaseUrl == null ? baseUrl : customBaseUrl) + endpoint;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> request = new HttpEntity<>(body, headers);
+
+        try {
+            // Attempt to send the request
+            ResponseEntity<String> response = restTemplate.exchange(url,HttpMethod.PATCH, request, String.class);
+            log.info("PATCH request to {} with body {} returned: {}", url, body, response.getBody());
+            return response;
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            // Handle client and server errors
+            log.error("Request to {} failed with status code {}: {}", url, e.getStatusCode(), e.getResponseBodyAsString());
+            return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsString());
+        } catch (ResourceAccessException e) {
+            // Handle I/O errors
+            log.error("Request to {} failed: {}", url, e.getMessage());
+            return ResponseEntity.badRequest().body("Failed to access resource");
+        }
+    }
+
     /**
      * This method is a convenience method that sends a POST request to a specified endpoint with a given body using the default base URL.
      * It simply calls the postRequest method with the endpoint, body, and null as the custom base URL.
@@ -108,6 +131,10 @@ public class ApiHelper {
      */
     public ResponseEntity<String> postRequest(String endpoint, String body) {
         return postRequest(endpoint, body, null);
+    }
+
+    public ResponseEntity<String> patchRequest(String endpoint, String body) {
+        return patchRequest(endpoint, body, null);
     }
 
     @PostConstruct
