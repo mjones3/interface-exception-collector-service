@@ -55,16 +55,7 @@ public class OrderInboundSteps {
 
     @And("The error message should be {string}.")
     public void checkErrorMessage(String message) throws JSONException {
-        var errorList = partnerOrderResponse.getJSONArray("errors");
-        var errorFound = false;
-        for (int i = 0; i < errorList.length(); i++) {
-            var error = errorList.getJSONObject(i);
-            if (error.getString("description").equals(message)) {
-                errorFound = true;
-                break;
-            }
-        }
-        Assert.assertTrue(errorFound);
+        testUtils.checkErrorMessage(message,partnerOrderResponse);
     }
 
 }
