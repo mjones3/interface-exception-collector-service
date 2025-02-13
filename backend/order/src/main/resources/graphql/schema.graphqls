@@ -153,6 +153,10 @@ type Order {
     completeDate: DateTime
     completeComments: String
     backOrderCreationActive: Boolean!
+    canManageItems:Boolean!
+    cancelEmployeeId:String
+    cancelDate:DateTime
+    cancelReason:String
 }
 
 type OrderReportDTO {

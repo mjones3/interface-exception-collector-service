@@ -74,6 +74,14 @@ public class Order implements Validatable {
     private static final String ORDER_COMPLETED_STATUS = "COMPLETED";
     private static final String ORDER_SHIPMENT_OPEN_STATUS = "OPEN";
     private static final String ORDER_OPEN_STATUS = "OPEN";
+    private static final String ORDER_CANCELLED_STATUS = "CANCELLED";
+
+    @Setter
+    private String cancelEmployeeId;
+    @Setter
+    private ZonedDateTime cancelDate;
+    @Setter
+    private String cancelReason;
 
     public Order(
         CustomerService customerService,
@@ -248,6 +256,27 @@ public class Order implements Validatable {
     public boolean canCreateBackOrders(OrderConfigService orderConfigService){
         var backOrderActive = orderConfigService.findBackOrderConfiguration().blockOptional();
         return backOrderActive.orElse(false);
+    }
+
+    public void cancel(CancelOrderCommand cancelOrderCommand){
+
+        if (ORDER_CANCELLED_STATUS.equals(orderStatus.getOrderStatus())) {
+            throw new DomainException(ORDER_IS_ALREADY_CANCELLED);
+        }
+
+        if (!ORDER_OPEN_STATUS.equals(orderStatus.getOrderStatus())) {
+            throw new DomainException(ORDER_IS_NOT_OPEN_AND_CANNOT_BE_CANCELLED);
+        }
+
+        this.orderStatus.setStatus(ORDER_CANCELLED_STATUS);
+        this.cancelDate = ZonedDateTime.now();
+        this.cancelEmployeeId = cancelOrderCommand.getEmployeeId();
+        this.cancelReason = cancelOrderCommand.getReason();
+
+    }
+
+    public boolean canManageItems(){
+        return ORDER_IN_PROGRESS_STATUS.equals(orderStatus.getOrderStatus()) || ORDER_OPEN_STATUS.equals(orderStatus.getOrderStatus());
     }
 
     public Order createBackOrder(String createEmployeeId,CustomerService customerService , LookupService lookupService , OrderConfigService orderConfigService){

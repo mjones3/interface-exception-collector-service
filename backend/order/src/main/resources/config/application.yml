@@ -312,6 +312,10 @@ topics:
       partitions: 1
       replicas: 1
       topic-name: OrderCompleted
+    cancel-order-received:
+      partitions: 1
+      replicas: 1
+      topic-name: CancelOrderReceived
   shipment:
     shipment-created:
       partitions: 1

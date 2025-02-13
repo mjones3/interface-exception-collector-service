@@ -41,6 +41,8 @@ public class KafkaConfiguration {
     public static final String SHIPMENT_CREATED_CONSUMER = "shipment-created";
     public static final String SHIPMENT_COMPLETED_CONSUMER = "shipment-completed";
     public static final String ORDER_COMPLETED_PRODUCER = "order-completed";
+    public static final String CANCEL_ORDER_RECEIVED_CONSUMER = "cancel-order-received";
+    public static final String DLQ_PRODUCER = "dlq-producer";
 
     @Bean
     NewTopic orderReceivedTopic(
@@ -105,6 +107,15 @@ public class KafkaConfiguration {
         return TopicBuilder.name(topicName).partitions(partitions).replicas(replicas).build();
     }
 
+    @Bean
+    NewTopic cancelOrderReceivedTopic(
+        @Value("${topics.order.cancel-order-received.partitions:1}") Integer partitions,
+        @Value("${topics.order.cancel-order-received.replicas:1}") Integer replicas,
+        @Value("${topics.order.cancel-order-received.topic-name:CancelOrderReceived}") String topicName
+    ) {
+        return TopicBuilder.name(topicName).partitions(partitions).replicas(replicas).build();
+    }
+
 
     @Bean
     ReceiverOptions<String, String> orderServiceReceiverOptions(KafkaProperties kafkaProperties
@@ -122,6 +133,12 @@ public class KafkaConfiguration {
     ReceiverOptions<String, String> shipmentCompletedReceiverOptions(KafkaProperties kafkaProperties
         , @Value("${topics.shipment.shipment-completed.topic-name:ShipmentCompleted}") String shipmentCompletedTopicName) {
         return buildReceiverOptions(kafkaProperties, shipmentCompletedTopicName);
+    }
+
+    @Bean
+    ReceiverOptions<String, String> cancelOrderReceiverOptions(KafkaProperties kafkaProperties
+        , @Value("${topics.order.cancel-order-received.topic-name:CancelOrderReceived}") String cancelOrderReceivedTopicName) {
+        return buildReceiverOptions(kafkaProperties, cancelOrderReceivedTopicName);
     }
 
 
@@ -153,6 +170,13 @@ public class KafkaConfiguration {
         ReceiverOptions<String, String> shipmentCompletedReceiverOptions
     ) {
         return new ReactiveKafkaConsumerTemplate<>(shipmentCompletedReceiverOptions);
+    }
+
+    @Bean(CANCEL_ORDER_RECEIVED_CONSUMER)
+    ReactiveKafkaConsumerTemplate<String, String> cancelOrderReceivedConsumerTemplate(
+        ReceiverOptions<String, String> cancelOrderReceiverOptions
+    ) {
+        return new ReactiveKafkaConsumerTemplate<>(cancelOrderReceiverOptions);
     }
 
     @Bean
@@ -230,6 +254,22 @@ public class KafkaConfiguration {
     ReactiveKafkaProducerTemplate<String, OrderCompletedDTO> orderCompletedProducerTemplate(
         SenderOptions<String, OrderCompletedDTO> completedSenderOptions) {
         return new ReactiveKafkaProducerTemplate<>(completedSenderOptions);
+    }
+
+    @Bean
+    SenderOptions<String, String> senderOptions(
+        KafkaProperties kafkaProperties,
+        ObjectMapper objectMapper) {
+        var props = kafkaProperties.buildProducerProperties(null);
+        return SenderOptions.<String, String>create(props)
+            .withValueSerializer(new JsonSerializer<>(objectMapper))
+            .maxInFlight(1); // to keep ordering, prevent duplicate messages (and avoid data loss)
+    }
+
+    @Bean(name = DLQ_PRODUCER )
+    ReactiveKafkaProducerTemplate<String, String> dlqProducerTemplate(
+        SenderOptions<String, String> senderOptions) {
+        return new ReactiveKafkaProducerTemplate<>(senderOptions);
     }
 
 }
