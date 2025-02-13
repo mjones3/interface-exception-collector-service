@@ -2,9 +2,12 @@ package com.arcone.biopro.distribution.partnerorderprovider.verification.support
 
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -142,7 +145,10 @@ public class ApiHelper {
         webTestClient = webTestClient.mutate()
             .responseTimeout(Duration.ofMillis(30000))
             .build();
-        restTemplate = new RestTemplate();
-    }
 
+        restTemplate = new RestTemplate();
+        HttpClient httpClient = HttpClientBuilder.create().build();
+        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
+        restTemplate.setRequestFactory(requestFactory);
+    }
 }

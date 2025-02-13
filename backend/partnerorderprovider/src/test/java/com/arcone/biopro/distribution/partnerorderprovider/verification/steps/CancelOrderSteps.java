@@ -38,7 +38,7 @@ public class CancelOrderSteps {
 
     @When("I send a request to the Partner Cancel Order Inbound Interface.")
     public void sendOrderCancelRequest() throws JSONException {
-        orderInboundResponse = apiHelper.postRequest(Endpoints.CANCEL_ORDER_INBOUND.replace("{externalId}",cancelOrderRequest.getString("externalId")), cancelOrderRequest.toString());
+        orderInboundResponse = apiHelper.patchRequest(Endpoints.CANCEL_ORDER_INBOUND.replace("{externalId}",cancelOrderRequest.getString("externalId")), cancelOrderRequest.toString());
         log.info("Cancel Order inbound response :{}", orderInboundResponse.getBody());
         cancelOrderResponse = new JSONObject(String.valueOf(orderInboundResponse.getBody()));
         Assert.assertNotNull(orderInboundResponse);

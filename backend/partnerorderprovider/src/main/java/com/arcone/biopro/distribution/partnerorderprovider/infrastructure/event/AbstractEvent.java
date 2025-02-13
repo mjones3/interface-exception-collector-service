@@ -34,8 +34,20 @@ public abstract class AbstractEvent<T> {
     )
     private final T payload;
 
-    abstract String getEventType();
+    @Schema(
+        title = "Event Type",
+        description = "The event type",
+        example = "CollectionReceived",
+        requiredMode = Schema.RequiredMode.REQUIRED
+    )
+    private final String eventType;
 
-    abstract String getEventVersion();
+    @Schema(
+        title = "Event Version",
+        description = "The event version",
+        example = "1.0",
+        requiredMode = Schema.RequiredMode.REQUIRED
+    )
+    private final String eventVersion;
 
 }

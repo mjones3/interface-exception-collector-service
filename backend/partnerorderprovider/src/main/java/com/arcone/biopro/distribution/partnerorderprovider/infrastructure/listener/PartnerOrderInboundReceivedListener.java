@@ -1,12 +1,14 @@
 package com.arcone.biopro.distribution.partnerorderprovider.infrastructure.listener;
 
 import com.arcone.biopro.distribution.partnerorderprovider.domain.event.PartnerOrderInboundReceived;
+import com.arcone.biopro.distribution.partnerorderprovider.infrastructure.config.KafkaConfiguration;
 import com.arcone.biopro.distribution.partnerorderprovider.infrastructure.event.OrderReceivedEvent;
 import com.arcone.biopro.distribution.partnerorderprovider.infrastructure.listener.dto.OrderDTO;
 import com.arcone.biopro.distribution.partnerorderprovider.infrastructure.listener.dto.OrderItemDTO;
 import com.arcone.biopro.distribution.partnerorderprovider.infrastructure.service.FacilityServiceMock;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
@@ -23,7 +25,7 @@ public class PartnerOrderInboundReceivedListener {
     private final String topicName;
     private final FacilityServiceMock facilityServiceMock;
 
-    public PartnerOrderInboundReceivedListener(ReactiveKafkaProducerTemplate<String, OrderReceivedEvent> producerTemplate,  @Value("${topics.order-received.name:OrderReceived}") String topicName ,FacilityServiceMock facilityServiceMock) {
+    public PartnerOrderInboundReceivedListener(@Qualifier(KafkaConfiguration.ORDER_RECEIVED_PRODUCER) ReactiveKafkaProducerTemplate<String, OrderReceivedEvent> producerTemplate, @Value("${topics.order-received.name:OrderReceived}") String topicName , FacilityServiceMock facilityServiceMock) {
         this.producerTemplate = producerTemplate;
         this.topicName = topicName;
         this.facilityServiceMock = facilityServiceMock;

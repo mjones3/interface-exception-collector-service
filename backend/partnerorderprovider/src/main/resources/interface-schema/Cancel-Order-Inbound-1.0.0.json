@@ -17,9 +17,8 @@
       "maxLength": 250
     },
     "cancelEmployeeCode": {
-      "type": "string",
+      "type":["null","string"],
       "title": "Cancel Employee Code",
-      "minLength": 1,
       "maxLength": 50
     }
 

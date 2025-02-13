@@ -1,5 +1,6 @@
 @api @AOA-152
-Feature: As a BioPro system,
+Feature: Receive Cancel orders through third party application
+    As a BioPro system,
     I want to receive a canceled order through the third-party application,
     so that I can process the canceled order request in the BioPro application.
 
@@ -28,5 +29,5 @@ Feature: As a BioPro system,
             | inbound-test-files/cancel-order-scenario-001.json | 400          | $.externalId: null found, string expected                               |
             | inbound-test-files/cancel-order-scenario-002.json | 400          | $.cancelDate: null found, string expected                               |
             | inbound-test-files/cancel-order-scenario-003.json | 400          | $.cancelReason: null found, string expected                             |
-            | inbound-test-files/cancel-order-scenario-004.json | 400          | $.cancelDate: does not match the regex pattern ^(\\d{4}-\\d{2}-\\d{2})$ |
+            | inbound-test-files/cancel-order-scenario-004.json | 400          | $.cancelDate: does not match the regex pattern ^(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2})$ |
 

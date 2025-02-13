@@ -14,8 +14,12 @@ public class CancelOrder {
     private String cancelEmployeeCode;
     private String cancelReason;
 
-    public CancelOrder(UUID id, String externalId, String cancelDate, String cancelEmployeeCode, String cancelReason) {
+    public CancelOrder(String externalId, String cancelDate, String cancelEmployeeCode, String cancelReason) {
+        this.id = UUID.randomUUID();
         this.externalId = Objects.requireNonNull(externalId,"External ID cannot be null");
+        this.cancelDate = Objects.requireNonNull(externalId,"Cancel Date cannot be null");
+        this.cancelReason = Objects.requireNonNull(externalId,"Cancel Reason cannot be null");
+        this.cancelEmployeeCode = cancelEmployeeCode;
 
     }
 }
