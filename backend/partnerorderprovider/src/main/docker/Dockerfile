@@ -27,6 +27,16 @@ FROM eclipse-temurin:21-jre-alpine AS runner
 RUN apk add --no-cache bash
 
 ############################################
+### Install Flyway CLI
+############################################
+WORKDIR /flyway
+
+COPY --from=flyway /flyway /flyway
+COPY ./src/main/db ./db
+
+ENV PATH="/flyway:${PATH}"
+
+############################################
 ### Install BIOPRO application
 ############################################
 WORKDIR /app
