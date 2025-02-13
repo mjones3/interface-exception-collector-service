@@ -1,10 +1,14 @@
 package com.arcone.biopro.distribution.partnerorderprovider.domain.event;
 
 import com.arcone.biopro.distribution.partnerorderprovider.domain.model.CancelOrder;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.time.Instant;
 import java.util.UUID;
 
+@ToString
+@EqualsAndHashCode
 public class CancelOrderInboundReceived implements DomainEvent{
 
     private final UUID eventId;

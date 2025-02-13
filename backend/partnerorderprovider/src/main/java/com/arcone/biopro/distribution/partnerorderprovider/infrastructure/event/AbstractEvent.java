@@ -2,13 +2,17 @@ package com.arcone.biopro.distribution.partnerorderprovider.infrastructure.event
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.time.Instant;
 import java.util.UUID;
 
 @Getter
 @AllArgsConstructor
+@ToString
+@EqualsAndHashCode
 public abstract class AbstractEvent<T> {
 
     @Schema(
