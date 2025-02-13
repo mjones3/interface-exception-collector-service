@@ -32,7 +32,6 @@ RUN apk add --no-cache bash
 WORKDIR /flyway
 
 COPY --from=flyway /flyway /flyway
-COPY ./src/main/db ./db
 
 ENV PATH="/flyway:${PATH}"
 
