@@ -34,7 +34,7 @@ class CancelOrderUseCaseTest {
     }
 
     @Test
-    void shouldNotProcessCancelOrderWhenOrderDoesNotExist(){
+    void shouldProcessCancelOrderAndRejectWhenOrderDoesNotExist(){
 
         Mockito.when(orderRepository.findByExternalId(Mockito.any(String.class))).thenReturn(Flux.empty());
 
@@ -45,8 +45,30 @@ class CancelOrderUseCaseTest {
 
 
         StepVerifier.create(useCase.processCancelOrderReceivedEvent(event))
-            .expectError(RuntimeException.class)
-            .verify();
+            .verifyComplete();
+
+        Mockito.verify(applicationEventPublisher).publishEvent(Mockito.any(OrderRejectedEvent.class));
+    }
+
+    @Test
+    void shouldProcessCancelOrderAndRejectWhenOrderCancelRequestIsInvalid(){
+
+        var order = Mockito.mock(Order.class);
+        Mockito.when(order.cancel(Mockito.any(CancelOrderCommand.class),Mockito.anyList())).thenReturn(order);
+
+        Mockito.when(orderRepository.findByExternalId(Mockito.any(String.class))).thenReturn(Flux.just(order));
+
+        var event = Mockito.mock(CancelOrderReceivedDTO.class);
+        Mockito.when(event.payload()).thenReturn(CancelOrderReceivedPayloadDTO.builder()
+            .externalId("externalId")
+            .cancelDate("INVALID_DATE")
+            .cancelReason("Reason")
+            .cancelEmployeeCode("employee-id")
+            .build());
+
+
+        StepVerifier.create(useCase.processCancelOrderReceivedEvent(event))
+            .verifyComplete();
 
         Mockito.verify(applicationEventPublisher).publishEvent(Mockito.any(OrderRejectedEvent.class));
     }
@@ -55,7 +77,7 @@ class CancelOrderUseCaseTest {
     void shouldProcessCancelOrder(){
 
         var order = Mockito.mock(Order.class);
-        Mockito.doNothing().when(order).cancel(Mockito.any(CancelOrderCommand.class));
+        Mockito.when(order.cancel(Mockito.any(CancelOrderCommand.class),Mockito.anyList())).thenReturn(order);
 
         Mockito.when(orderRepository.findByExternalId(Mockito.any(String.class))).thenReturn(Flux.just(order));
 
@@ -75,7 +97,4 @@ class CancelOrderUseCaseTest {
 
         Mockito.verify(applicationEventPublisher).publishEvent(Mockito.any(OrderCancelledEvent.class));
     }
-
-
-
 }

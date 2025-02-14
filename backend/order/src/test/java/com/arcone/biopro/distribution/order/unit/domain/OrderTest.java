@@ -28,6 +28,7 @@ import reactor.test.StepVerifier;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 import static java.lang.Boolean.TRUE;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -390,11 +391,8 @@ class OrderTest {
             , null, null, "CANCELLED", null, "CANCELLED", "CANCELLED", "CREATE_EMPLOYEE"
             , null, null, null);
 
-        Mockito.when(orderConfigService.findProductFamilyByCategory(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just("TYPE"));
-        Mockito.when(orderConfigService.findBloodTypeByFamilyAndType(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just("TYPE"));
-
         try{
-            order.cancel(new CancelOrderCommand("1233","employee-id","reason"));
+            order.cancel(new CancelOrderCommand("1233","employee-id","reason","2025-01-01 11:09:55"), List.of(order));
             Assertions.fail();
         }catch (Exception e){
             Assertions.assertEquals(DomainException.class,e.getClass());
@@ -417,11 +415,8 @@ class OrderTest {
             , null, null, "COMPLETED", null, "COMPLETED", "COMPLETED", "CREATE_EMPLOYEE"
             , null, null, null);
 
-        Mockito.when(orderConfigService.findProductFamilyByCategory(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just("TYPE"));
-        Mockito.when(orderConfigService.findBloodTypeByFamilyAndType(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just("TYPE"));
-
         try{
-            order.cancel(new CancelOrderCommand("1233","employee-id","reason"));
+            order.cancel(new CancelOrderCommand("1233","employee-id","reason","2025-01-01 11:09:55") , List.of(order));
             Assertions.fail();
         }catch (Exception e){
             Assertions.assertEquals(DomainException.class,e.getClass());
@@ -444,15 +439,132 @@ class OrderTest {
             , null, null, "COMPLETED", null, "OPEN", "OPEN", "CREATE_EMPLOYEE"
             , null, null, null);
 
-        Mockito.when(orderConfigService.findProductFamilyByCategory(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just("TYPE"));
-        Mockito.when(orderConfigService.findBloodTypeByFamilyAndType(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just("TYPE"));
+        var response = order.cancel(new CancelOrderCommand("1233","employee-id","reason","2025-01-01 11:09:55"), List.of(order));
 
-        order.cancel(new CancelOrderCommand("1233","employee-id","reason"));
+        Assertions.assertNotNull(response.getCancelDate());
+        Assertions.assertEquals("reason",response.getCancelReason());
+        Assertions.assertEquals("employee-id",response.getCancelEmployeeId());
+        Assertions.assertEquals("CANCELLED",response.getOrderStatus().getOrderStatus());
 
-        Assertions.assertNotNull(order.getCancelDate());
-        Assertions.assertEquals("reason",order.getCancelReason());
-        Assertions.assertEquals("employee-id",order.getCancelEmployeeId());
-        Assertions.assertEquals("CANCELLED",order.getOrderStatus().getOrderStatus());
+    }
+
+    @Test
+    void shouldNotCancelWhenIsBackOrderIsCancelled(){
+
+        Mockito.when(lookupService.findAllByType(Mockito.anyString())).thenReturn(Flux.just(new Lookup(new LookupId("CANCELLED","CANCELLED"),"description",1,true)
+            , new Lookup(new LookupId("COMPLETED","COMPLETED"),"description",2,true)));
+
+        Mockito.when(orderConfigService.findBackOrderConfiguration()).thenReturn(Mono.just(TRUE));
+
+        var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
+            , "COMPLETED", "COMPLETED", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
+            , null, null, "COMPLETED", null, "COMPLETED", "COMPLETED", "CREATE_EMPLOYEE"
+            , null, null, null);
+
+        var backOrder = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
+            , "CANCELLED", "CANCELLED", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
+            , null, null, "CANCELLED", null, "CANCELLED", "CANCELLED", "CREATE_EMPLOYEE"
+            , null, null, null);
+
+        backOrder.setBackOrder(TRUE);
+
+        try{
+            order.cancel(new CancelOrderCommand("1233","employee-id","reason","2025-01-01 11:09:55"), List.of(order,backOrder));
+            Assertions.fail();
+        }catch (Exception e){
+            Assertions.assertEquals(DomainException.class,e.getClass());
+
+            Assertions.assertEquals("Order is already cancelled",((DomainException) e).getUseCaseMessageType().getMessage());
+        }
+
+    }
+
+    @Test
+    void shouldNotCancelWhenIsBackOrderIsNotOpen(){
+
+        Mockito.when(lookupService.findAllByType(Mockito.anyString())).thenReturn(Flux.just(new Lookup(new LookupId("IN_PROGRESS","IN_PROGRESS"),"description",1,true)
+            , new Lookup(new LookupId("COMPLETED","COMPLETED"),"description",2,true)
+            , new Lookup(new LookupId("CANCELLED","CANCELLED"),"description",2,true)
+        ));
+
+        Mockito.when(orderConfigService.findBackOrderConfiguration()).thenReturn(Mono.just(TRUE));
+
+        var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
+            , "COMPLETED", "COMPLETED", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
+            , null, null, "COMPLETED", null, "COMPLETED", "COMPLETED", "CREATE_EMPLOYEE"
+            , null, null, null);
+
+        var backOrder = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
+            , "IN_PROGRESS", "CANCELLED", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
+            , null, null, "CANCELLED", null, "IN_PROGRESS", "IN_PROGRESS", "CREATE_EMPLOYEE"
+            , null, null, null);
+
+        backOrder.setBackOrder(TRUE);
+
+        try{
+            order.cancel(new CancelOrderCommand("1233","employee-id","reason","2025-01-01 11:09:55"), List.of(order,backOrder));
+            Assertions.fail();
+        }catch (Exception e){
+            Assertions.assertEquals(DomainException.class,e.getClass());
+            Assertions.assertEquals("Order is not open and cannot be cancelled",((DomainException) e).getUseCaseMessageType().getMessage());
+        }
+
+    }
+
+    @Test
+    void shouldNotCancelWhenThereIsNotOrderToBeCancelled(){
+
+        Mockito.when(lookupService.findAllByType(Mockito.anyString())).thenReturn(Flux.just(new Lookup(new LookupId("IN_PROGRESS","IN_PROGRESS"),"description",1,true)
+            , new Lookup(new LookupId("COMPLETED","COMPLETED"),"description",2,true)
+            , new Lookup(new LookupId("CANCELLED","CANCELLED"),"description",2,true)
+        ));
+
+        Mockito.when(orderConfigService.findBackOrderConfiguration()).thenReturn(Mono.just(TRUE));
+
+        var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
+            , "COMPLETED", "COMPLETED", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
+            , null, null, "COMPLETED", null, "COMPLETED", "COMPLETED", "CREATE_EMPLOYEE"
+            , null, null, null);
+
+        try{
+            order.cancel(new CancelOrderCommand("1233","employee-id","reason","2025-01-01 11:09:55"), null);
+            Assertions.fail();
+        }catch (Exception e){
+            Assertions.assertEquals(DomainException.class,e.getClass());
+            Assertions.assertEquals("There is no order to be cancelled",((DomainException) e).getUseCaseMessageType().getMessage());
+        }
+
+    }
+
+    @Test
+    void shouldCancelOrderBackOrder(){
+
+        Mockito.when(lookupService.findAllByType(Mockito.anyString())).thenReturn(Flux.just(new Lookup(new LookupId("OPEN","OPEN"),"description",1,true)
+            , new Lookup(new LookupId("COMPLETED","COMPLETED"),"description",2,true)));
+
+        Mockito.when(orderConfigService.findBackOrderConfiguration()).thenReturn(Mono.just(TRUE));
+
+        var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
+            , "OPEN", "OPEN", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
+            , null, null, "COMPLETED", null, "COMPLETED", "OPEN", "CREATE_EMPLOYEE"
+            , null, null, null);
+
+
+        var backOrder = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
+            , "OPEN", "OPEN", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
+            , null, null, "COMPLETED", null, "OPEN", "OPEN", "CREATE_EMPLOYEE"
+            , null, null, null);
+
+        backOrder.setBackOrder(TRUE);
+
+
+        var response = order.cancel(new CancelOrderCommand("1233","employee-id","reason","2025-01-01 11:09:55"), List.of(order,backOrder));
+
+        Assertions.assertNotNull(response.getCancelDate());
+        Assertions.assertEquals("reason",response.getCancelReason());
+        Assertions.assertEquals("employee-id",response.getCancelEmployeeId());
+        Assertions.assertTrue(response.isBackOrder());
+        Assertions.assertEquals("CANCELLED",response.getOrderStatus().getOrderStatus());
 
     }
 }

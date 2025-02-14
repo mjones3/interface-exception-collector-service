@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.arcone.biopro.distribution.order.application.dto.UseCaseMessageType.NO_ORDER_TO_BE_CANCELLED;
 import static com.arcone.biopro.distribution.order.application.dto.UseCaseMessageType.ORDER_HAS_AN_OPEN_SHIPMENT;
 import static com.arcone.biopro.distribution.order.application.dto.UseCaseMessageType.ORDER_IS_ALREADY_CANCELLED;
 import static com.arcone.biopro.distribution.order.application.dto.UseCaseMessageType.ORDER_IS_ALREADY_COMPLETED;
@@ -273,21 +274,41 @@ public class Order implements Validatable {
         return backOrderActive.orElse(false);
     }
 
-    public void cancel(CancelOrderCommand cancelOrderCommand){
+    public Order cancel(CancelOrderCommand cancelOrderCommand , List<Order> orderList){
 
-        if (ORDER_CANCELLED_STATUS.equals(orderStatus.getOrderStatus())) {
+        if(orderList == null || orderList.isEmpty()){
+            throw new DomainException(NO_ORDER_TO_BE_CANCELLED);
+        }
+        Order orderToBeCancelled;
+        if(orderList.size() > 1){
+            var backOrders = orderList.stream().filter(order -> order.backOrder && !ORDER_CANCELLED_STATUS.equals(order.getOrderStatus().getOrderStatus())).toList();
+            if(backOrders.isEmpty()){
+                throw new DomainException(ORDER_IS_ALREADY_CANCELLED);
+            }
+            orderToBeCancelled = backOrders.getFirst();
+
+        }else{
+            orderToBeCancelled = orderList.getFirst();
+        }
+        cancel(cancelOrderCommand , orderToBeCancelled);
+
+        return orderToBeCancelled;
+    }
+
+    private void cancel(CancelOrderCommand cancelOrderCommand , Order order){
+
+        if (ORDER_CANCELLED_STATUS.equals(order.getOrderStatus().getOrderStatus())) {
             throw new DomainException(ORDER_IS_ALREADY_CANCELLED);
         }
 
-        if (!ORDER_OPEN_STATUS.equals(orderStatus.getOrderStatus())) {
+        if (!ORDER_OPEN_STATUS.equals(order.getOrderStatus().getOrderStatus())) {
             throw new DomainException(ORDER_IS_NOT_OPEN_AND_CANNOT_BE_CANCELLED);
         }
 
-        this.orderStatus.setStatus(ORDER_CANCELLED_STATUS);
-        this.cancelDate = ZonedDateTime.now();
-        this.cancelEmployeeId = cancelOrderCommand.getEmployeeId();
-        this.cancelReason = cancelOrderCommand.getReason();
-
+        order.getOrderStatus().setStatus(ORDER_CANCELLED_STATUS);
+        order.setCancelDate(ZonedDateTime.now());
+        order.setCancelEmployeeId(cancelOrderCommand.getEmployeeId());
+        order.setCancelReason(cancelOrderCommand.getReason());
     }
 
     public Order createBackOrder(String createEmployeeId,CustomerService customerService , LookupService lookupService , OrderConfigService orderConfigService){

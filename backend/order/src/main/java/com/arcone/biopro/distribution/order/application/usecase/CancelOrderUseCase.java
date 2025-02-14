@@ -27,14 +27,15 @@ public class CancelOrderUseCase implements CancelOrderService {
     public Mono<Void> processCancelOrderReceivedEvent(CancelOrderReceivedDTO cancelOrderReceivedDTO) {
         return this.orderRepository.findByExternalId(cancelOrderReceivedDTO.payload().externalId())
             .switchIfEmpty(Mono.error(new DomainNotFoundForKeyException(String.format("%s", cancelOrderReceivedDTO.payload().externalId()))))
-            .flatMap(order -> {
+            .collectList()
+            .flatMap(orderList -> {
                 var cancelCommand = new CancelOrderCommand(cancelOrderReceivedDTO.payload().externalId()
                     ,cancelOrderReceivedDTO.payload().cancelDate()
-                    , cancelOrderReceivedDTO.payload().cancelReason());
-                order.cancel(cancelCommand);
-                return this.orderRepository.update(order)
+                    , cancelOrderReceivedDTO.payload().cancelReason(), cancelOrderReceivedDTO.payload().cancelDate());
+                var orderCancelled = orderList.getFirst().cancel(cancelCommand,orderList);
+                return this.orderRepository.update(orderCancelled)
                     .doOnSuccess(this::publishOrderCancelledEvent);
-            }).collectList()
+            })
             .then()
             .onErrorResume(error -> {
                 log.error("Not able to process order cancel event {}",error.getMessage());

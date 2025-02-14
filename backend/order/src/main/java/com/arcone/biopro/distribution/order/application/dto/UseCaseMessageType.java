@@ -18,6 +18,7 @@ public enum UseCaseMessageType {
     COMPLETE_ORDER_ERROR(6,  UseCaseNotificationType.ERROR, "Cannot complete order"),
     ORDER_IS_ALREADY_CANCELLED(7,  UseCaseNotificationType.ERROR, "Order is already cancelled"),
     ORDER_IS_NOT_OPEN_AND_CANNOT_BE_CANCELLED(8, UseCaseNotificationType.ERROR, "Order is not open and cannot be cancelled"),
+    NO_ORDER_TO_BE_CANCELLED(9,  UseCaseNotificationType.ERROR, "There is no order to be cancelled"),
     ;
 
     Integer code;
