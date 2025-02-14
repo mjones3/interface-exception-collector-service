@@ -84,7 +84,6 @@ public class OrderMapper {
             .completeDate(order.getCompleteDate())
             .completeComments(order.getCompleteComments())
             .backOrderCreationActive(order.canCreateBackOrders(orderConfigService))
-            .canManageItems(order.canManageItems())
             .cancelDate(order.getCancelDate())
             .cancelEmployeeId(order.getCancelEmployeeId())
             .cancelReason(order.getCancelReason())

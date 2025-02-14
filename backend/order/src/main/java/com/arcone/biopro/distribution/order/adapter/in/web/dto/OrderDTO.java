@@ -38,7 +38,6 @@ public record OrderDTO(
     ZonedDateTime completeDate,
     String completeComments,
     boolean backOrderCreationActive,
-    boolean canManageItems,
     String cancelEmployeeId,
     ZonedDateTime cancelDate,
     String cancelReason

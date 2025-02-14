@@ -1,0 +1,187 @@
+{
+  "asyncapi": "3.0.0",
+  "info": {
+    "title": "order-service",
+    "version": "0.0.1",
+    "x-generator": "springwolf"
+  },
+  "defaultContentType": "application/json",
+  "servers": {
+    "kafka": {
+      "host": "localhost:29092",
+      "protocol": "kafka"
+    }
+  },
+  "channels": {
+    "OrderRejected": {
+      "address": "OrderRejected",
+      "messages": {
+        "OrderRejected": {
+          "$ref": "#/components/messages/OrderRejected"
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Headers-508626639": {
+        "title": "Headers-508626639",
+        "type": "object",
+        "properties": {
+          "__TypeId__": {
+            "type": "string",
+            "description": "Spring Type Id Header",
+            "enum": [
+              "com.arcone.biopro.distribution.order.infrastructure.event.OrderRejectedEvent"
+            ],
+            "examples": [
+              "com.arcone.biopro.distribution.order.infrastructure.event.OrderRejectedEvent"
+            ]
+          }
+        },
+        "examples": [
+          {
+            "__TypeId__": "com.arcone.biopro.distribution.order.infrastructure.event.OrderRejectedEvent"
+          }
+        ]
+      },
+      "OrderRejected": {
+        "title": "OrderRejected",
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "title": "Event ID",
+            "type": "string",
+            "description": "The event ID",
+            "format": "uuid",
+            "examples": [
+              "ae94cf69-6863-4c26-ad34-99347a9a4c8a"
+            ]
+          },
+          "eventType": {
+            "title": "Event Type",
+            "type": "string",
+            "description": "The event type",
+            "examples": [
+              "CollectionReceived"
+            ]
+          },
+          "eventVersion": {
+            "title": "Event Version",
+            "type": "string",
+            "description": "The event version",
+            "examples": [
+              "1.0"
+            ]
+          },
+          "occurredOn": {
+            "title": "Occurred On",
+            "type": "string",
+            "description": "When the event occurred",
+            "format": "date-time",
+            "examples": [
+              "2024-10-07T20:59:16.925110827Z"
+            ]
+          },
+          "payload": {
+            "$ref": "#/components/schemas/OrderRejectedPayload"
+          }
+        },
+        "description": "Order Rejected Event",
+        "examples": [
+          {
+            "eventId": "ae94cf69-6863-4c26-ad34-99347a9a4c8a",
+            "eventType": "CollectionReceived",
+            "eventVersion": "1.0",
+            "occurredOn": "2024-10-07T20:59:16.925110827Z",
+            "payload": {
+              "externalId": "ABC56865",
+              "rejectedReason": "Order already exists"
+            }
+          }
+        ],
+        "required": [
+          "eventId",
+          "eventType",
+          "eventVersion",
+          "occurredOn",
+          "payload"
+        ]
+      },
+      "OrderRejectedPayload": {
+        "title": "OrderRejectedPayload",
+        "type": "object",
+        "properties": {
+          "externalId": {
+            "title": "External Order ID",
+            "type": "string",
+            "description": "The external order ID",
+            "examples": [
+              "ABC56865"
+            ]
+          },
+          "rejectedReason": {
+            "title": "Rejected Reason",
+            "type": "string",
+            "description": "The rejected reason",
+            "examples": [
+              "Order already exists"
+            ]
+          }
+        },
+        "description": "Order Rejected Event Payload",
+        "examples": [
+          {
+            "externalId": "ABC56865",
+            "rejectedReason": "Order already exists"
+          }
+        ],
+        "required": [
+          "externalId",
+          "rejectedReason"
+        ]
+      }
+    },
+    "messages": {
+      "OrderRejected": {
+        "headers": {
+          "$ref": "#/components/schemas/Headers-508626639"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/OrderRejected"
+          }
+        },
+        "name": "OrderRejected",
+        "title": "OrderRejected",
+        "description": "Order Rejected Event",
+        "bindings": {
+          "kafka": {
+            "bindingVersion": "0.5.0"
+          }
+        }
+      }
+    }
+  },
+  "operations": {
+    "OrderRejected_send_handleOrderRejectedEvent": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/OrderRejected"
+      },
+      "title": "OrderRejected_send",
+      "description": "Order Rejected Event",
+      "bindings": {
+        "kafka": {
+          "bindingVersion": "0.5.0"
+        }
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/OrderRejected/messages/OrderRejected"
+        }
+      ]
+    }
+  }
+}

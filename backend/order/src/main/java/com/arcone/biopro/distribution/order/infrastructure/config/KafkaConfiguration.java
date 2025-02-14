@@ -4,6 +4,8 @@ import com.arcone.biopro.distribution.order.infrastructure.dto.OrderCompletedDTO
 import com.arcone.biopro.distribution.order.infrastructure.dto.OrderCreatedDTO;
 import com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledEventDTO;
 import com.arcone.biopro.distribution.order.infrastructure.dto.OrderRejectedDTO;
+import com.arcone.biopro.distribution.order.infrastructure.event.OrderCancelledOutputEvent;
+import com.arcone.biopro.distribution.order.infrastructure.event.OrderRejectedOutputEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.opentelemetry.instrumentation.kafkaclients.v2_6.TracingProducerInterceptor;
@@ -43,6 +45,7 @@ public class KafkaConfiguration {
     public static final String ORDER_COMPLETED_PRODUCER = "order-completed";
     public static final String CANCEL_ORDER_RECEIVED_CONSUMER = "cancel-order-received";
     public static final String DLQ_PRODUCER = "dlq-producer";
+    public static final String ORDER_CANCELLED_PRODUCER = "order-cancelled";
 
     @Bean
     NewTopic orderReceivedTopic(
@@ -112,6 +115,15 @@ public class KafkaConfiguration {
         @Value("${topics.order.cancel-order-received.partitions:1}") Integer partitions,
         @Value("${topics.order.cancel-order-received.replicas:1}") Integer replicas,
         @Value("${topics.order.cancel-order-received.topic-name:CancelOrderReceived}") String topicName
+    ) {
+        return TopicBuilder.name(topicName).partitions(partitions).replicas(replicas).build();
+    }
+
+    @Bean
+    NewTopic orderCancelledTopic(
+        @Value("${topics.order.order-cancelled.partitions:1}") Integer partitions,
+        @Value("${topics.order.order-cancelled.replicas:1}") Integer replicas,
+        @Value("${topics.order.order-cancelled.topic-name:OrderCancelled}") String topicName
     ) {
         return TopicBuilder.name(topicName).partitions(partitions).replicas(replicas).build();
     }
@@ -206,13 +218,26 @@ public class KafkaConfiguration {
     }
 
     @Bean
-    SenderOptions<String, OrderRejectedDTO> rejectedSenderOptions(
+    SenderOptions<String, OrderCancelledOutputEvent> cancelledSenderOptions(
         KafkaProperties kafkaProperties,
         ObjectMapper objectMapper,
         MeterRegistry meterRegistry) {
         var props = kafkaProperties.buildProducerProperties(null);
         props.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, TracingProducerInterceptor.class.getName());
-        return SenderOptions.<String, OrderRejectedDTO>create(props)
+        return SenderOptions.<String, OrderCancelledOutputEvent>create(props)
+            .withValueSerializer(new JsonSerializer<>(objectMapper))
+            .maxInFlight(1) // to keep ordering, prevent duplicate messages (and avoid data loss)
+            .producerListener(new MicrometerProducerListener(meterRegistry)); // we want standard Kafka metrics
+    }
+
+    @Bean
+    SenderOptions<String, OrderRejectedOutputEvent> rejectedSenderOptions(
+        KafkaProperties kafkaProperties,
+        ObjectMapper objectMapper,
+        MeterRegistry meterRegistry) {
+        var props = kafkaProperties.buildProducerProperties(null);
+        props.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, TracingProducerInterceptor.class.getName());
+        return SenderOptions.<String, OrderRejectedOutputEvent>create(props)
             .withValueSerializer(new JsonSerializer<>(objectMapper))
             .maxInFlight(1) // to keep ordering, prevent duplicate messages (and avoid data loss)
             .producerListener(new MicrometerProducerListener(meterRegistry)); // we want standard Kafka metrics
@@ -239,8 +264,8 @@ public class KafkaConfiguration {
     }
 
     @Bean(name = ORDER_REJECTED_PRODUCER )
-    ReactiveKafkaProducerTemplate<String, OrderRejectedDTO> orderRejectedProducerTemplate(
-        SenderOptions<String, OrderRejectedDTO> rejectedSenderOptions) {
+    ReactiveKafkaProducerTemplate<String, OrderRejectedOutputEvent> orderRejectedProducerTemplate(
+        SenderOptions<String, OrderRejectedOutputEvent> rejectedSenderOptions) {
         return new ReactiveKafkaProducerTemplate<>(rejectedSenderOptions);
     }
 
@@ -270,6 +295,12 @@ public class KafkaConfiguration {
     ReactiveKafkaProducerTemplate<String, String> dlqProducerTemplate(
         SenderOptions<String, String> senderOptions) {
         return new ReactiveKafkaProducerTemplate<>(senderOptions);
+    }
+
+    @Bean(name = ORDER_CANCELLED_PRODUCER )
+    ReactiveKafkaProducerTemplate<String, OrderCancelledOutputEvent> orderCancelledProducerTemplate(
+        SenderOptions<String, OrderCancelledOutputEvent> cancelledSenderOptions) {
+        return new ReactiveKafkaProducerTemplate<>(cancelledSenderOptions);
     }
 
 }

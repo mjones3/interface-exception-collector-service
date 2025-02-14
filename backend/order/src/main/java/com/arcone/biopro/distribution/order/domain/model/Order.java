@@ -2,13 +2,24 @@ package com.arcone.biopro.distribution.order.domain.model;
 
 
 import com.arcone.biopro.distribution.order.domain.exception.DomainException;
-import com.arcone.biopro.distribution.order.domain.model.vo.*;
+import com.arcone.biopro.distribution.order.domain.model.vo.OrderCustomer;
+import com.arcone.biopro.distribution.order.domain.model.vo.OrderExternalId;
+import com.arcone.biopro.distribution.order.domain.model.vo.OrderNumber;
+import com.arcone.biopro.distribution.order.domain.model.vo.OrderPriority;
+import com.arcone.biopro.distribution.order.domain.model.vo.OrderStatus;
+import com.arcone.biopro.distribution.order.domain.model.vo.ProductCategory;
+import com.arcone.biopro.distribution.order.domain.model.vo.ShipmentType;
+import com.arcone.biopro.distribution.order.domain.model.vo.ShippingMethod;
 import com.arcone.biopro.distribution.order.domain.repository.OrderRepository;
 import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
 import com.arcone.biopro.distribution.order.domain.service.OrderConfigService;
 import com.arcone.biopro.distribution.order.domain.service.OrderShipmentService;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
@@ -20,7 +31,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.arcone.biopro.distribution.order.application.dto.UseCaseMessageType.*;
+import static com.arcone.biopro.distribution.order.application.dto.UseCaseMessageType.ORDER_HAS_AN_OPEN_SHIPMENT;
+import static com.arcone.biopro.distribution.order.application.dto.UseCaseMessageType.ORDER_IS_ALREADY_CANCELLED;
+import static com.arcone.biopro.distribution.order.application.dto.UseCaseMessageType.ORDER_IS_ALREADY_COMPLETED;
+import static com.arcone.biopro.distribution.order.application.dto.UseCaseMessageType.ORDER_IS_NOT_IN_PROGRESS_AND_CANNOT_BE_COMPLETED;
+import static com.arcone.biopro.distribution.order.application.dto.UseCaseMessageType.ORDER_IS_NOT_OPEN_AND_CANNOT_BE_CANCELLED;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static java.util.Optional.ofNullable;
@@ -273,10 +288,6 @@ public class Order implements Validatable {
         this.cancelEmployeeId = cancelOrderCommand.getEmployeeId();
         this.cancelReason = cancelOrderCommand.getReason();
 
-    }
-
-    public boolean canManageItems(){
-        return ORDER_IN_PROGRESS_STATUS.equals(orderStatus.getOrderStatus()) || ORDER_OPEN_STATUS.equals(orderStatus.getOrderStatus());
     }
 
     public Order createBackOrder(String createEmployeeId,CustomerService customerService , LookupService lookupService , OrderConfigService orderConfigService){
