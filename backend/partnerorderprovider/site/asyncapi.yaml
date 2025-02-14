@@ -1,0 +1,200 @@
+{
+  "asyncapi": "3.0.0",
+  "info": {
+    "title": "partner-order-provider-service",
+    "version": "0.0.1",
+    "x-generator": "springwolf"
+  },
+  "defaultContentType": "application/json",
+  "servers": {
+    "kafka-server": {
+      "host": "localhost:29092",
+      "protocol": "kafka"
+    }
+  },
+  "channels": {
+    "CancelOrderReceived": {
+      "address": "CancelOrderReceived",
+      "messages": {
+        "CancelOrderReceived": {
+          "$ref": "#/components/messages/CancelOrderReceived"
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CancelOrderPayload": {
+        "title": "CancelOrderPayload",
+        "type": "object",
+        "properties": {
+          "cancelDate": {
+            "title": "Cancel Date",
+            "type": "string",
+            "description": "The cancel date",
+            "examples": [
+              "2025-01-01 11:09:55"
+            ]
+          },
+          "cancelEmployeeCode": {
+            "title": "Cancel Employee Code",
+            "type": "string",
+            "description": "The cancel employee code",
+            "examples": [
+              "ee1bf88e-2137-4a17-835a-d43e7b738374"
+            ]
+          },
+          "cancelReason": {
+            "title": "Cancel Reason",
+            "type": "string",
+            "description": "The cancel reason",
+            "examples": [
+              "Customer no longer need"
+            ]
+          },
+          "externalId": {
+            "title": "External Order ID",
+            "type": "string",
+            "description": "The external order ID",
+            "examples": [
+              "ABC56865"
+            ]
+          }
+        },
+        "description": "Cancel Order Received Event Payload",
+        "examples": [
+          {
+            "cancelDate": "2025-01-01 11:09:55",
+            "cancelEmployeeCode": "ee1bf88e-2137-4a17-835a-d43e7b738374",
+            "cancelReason": "Customer no longer need",
+            "externalId": "ABC56865"
+          }
+        ],
+        "required": [
+          "cancelDate",
+          "cancelReason",
+          "externalId"
+        ]
+      },
+      "CancelOrderReceived": {
+        "title": "CancelOrderReceived",
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "title": "Event ID",
+            "type": "string",
+            "description": "The event ID",
+            "format": "uuid",
+            "examples": [
+              "ae94cf69-6863-4c26-ad34-99347a9a4c8a"
+            ]
+          },
+          "eventType": {
+            "title": "Event Type",
+            "type": "string",
+            "description": "The event type",
+            "examples": [
+              "CollectionReceived"
+            ]
+          },
+          "eventVersion": {
+            "title": "Event Version",
+            "type": "string",
+            "description": "The event version",
+            "examples": [
+              "1.0"
+            ]
+          },
+          "occurredOn": {
+            "title": "Occurred On",
+            "type": "string",
+            "description": "When the event occurred",
+            "format": "date-time",
+            "examples": [
+              "2024-10-07T20:59:16.925110827Z"
+            ]
+          },
+          "payload": {
+            "$ref": "#/components/schemas/CancelOrderPayload"
+          }
+        },
+        "description": "Cancel Order Received Event",
+        "examples": [
+          {
+            "eventId": "ae94cf69-6863-4c26-ad34-99347a9a4c8a",
+            "eventType": "CollectionReceived",
+            "eventVersion": "1.0",
+            "occurredOn": "2024-10-07T20:59:16.925110827Z",
+            "payload": {
+              "cancelDate": "2025-01-01 11:09:55",
+              "cancelEmployeeCode": "ee1bf88e-2137-4a17-835a-d43e7b738374",
+              "cancelReason": "Customer no longer need",
+              "externalId": "ABC56865"
+            }
+          }
+        ],
+        "required": [
+          "eventId",
+          "eventType",
+          "eventVersion",
+          "occurredOn",
+          "payload"
+        ]
+      },
+      "Headers-1426470477": {
+        "title": "Headers-1426470477",
+        "type": "object",
+        "properties": {
+          "__TypeId__": {
+            "type": "string",
+            "description": "Spring Type Id Header",
+            "enum": [
+              "com.arcone.biopro.distribution.partnerorderprovider.infrastructure.event.CancelOrderReceivedEvent"
+            ],
+            "examples": [
+              "com.arcone.biopro.distribution.partnerorderprovider.infrastructure.event.CancelOrderReceivedEvent"
+            ]
+          }
+        },
+        "examples": [
+          {
+            "__TypeId__": "com.arcone.biopro.distribution.partnerorderprovider.infrastructure.event.CancelOrderReceivedEvent"
+          }
+        ]
+      }
+    },
+    "messages": {
+      "CancelOrderReceived": {
+        "headers": {
+          "$ref": "#/components/schemas/Headers-1426470477"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/CancelOrderReceived"
+          }
+        },
+        "name": "CancelOrderReceived",
+        "title": "CancelOrderReceived",
+        "description": "Cancel Order Received Event",
+        "bindings": {}
+      }
+    }
+  },
+  "operations": {
+    "CancelOrderReceived_send_handleUserCancelOrderReceivedEvent": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/CancelOrderReceived"
+      },
+      "title": "CancelOrderReceived_send",
+      "description": "Cancel Order Received Event",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/CancelOrderReceived/messages/CancelOrderReceived"
+        }
+      ]
+    }
+  }
+}
