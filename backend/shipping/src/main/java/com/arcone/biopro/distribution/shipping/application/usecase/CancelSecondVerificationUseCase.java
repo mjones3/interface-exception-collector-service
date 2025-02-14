@@ -13,6 +13,7 @@ import com.arcone.biopro.distribution.shipping.domain.model.enumeration.Shipment
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemPackedRepository;
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentRepository;
 import com.arcone.biopro.distribution.shipping.domain.service.CancelSecondVerificationService;
+import com.arcone.biopro.distribution.shipping.domain.service.SecondVerificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -31,6 +32,7 @@ public class CancelSecondVerificationUseCase implements CancelSecondVerification
     private final ShipmentRepository shipmentRepository;
     private final ShipmentItemPackedRepository shipmentItemPackedRepository;
     private static final String SHIPMENT_DETAILS_URL = "/shipment/%s/shipment-details";
+    private final SecondVerificationService secondVerificationService;
 
     @Override
     public Mono<RuleResponseDTO> cancelSecondVerification(CancelSecondVerificationRequest cancelSecondVerificationRequest) {
@@ -53,7 +55,7 @@ public class CancelSecondVerificationUseCase implements CancelSecondVerification
     }
 
     private Mono<RuleResponseDTO> cancelVerification(Shipment shipment) {
-        return this.resetVerification(shipment).flatMap(result ->
+        return secondVerificationService.resetVerification(shipment).flatMap(result ->
              Mono.just(RuleResponseDTO.builder()
                     .ruleCode(HttpStatus.OK)
                     .notifications(List.of(NotificationDTO.builder()
@@ -130,22 +132,5 @@ public class CancelSecondVerificationUseCase implements CancelSecondVerification
                     .build()))
                 .build());
         }
-    }
-
-    private Mono<ShipmentItemPacked> markAsVerificationPending(ShipmentItemPacked itemPacked) {
-        itemPacked.setSecondVerification(SecondVerification.PENDING);
-        itemPacked.setVerificationDate(null);
-        itemPacked.setVerifiedByEmployeeId(null);
-        itemPacked.setIneligibleStatus(null);
-        itemPacked.setIneligibleAction(null);
-        itemPacked.setIneligibleReason(null);
-        itemPacked.setIneligibleMessage(null);
-        return shipmentItemPackedRepository.save(itemPacked);
-    }
-
-    private Mono<Shipment> resetVerification(Shipment shipment){
-        return Flux.from(shipmentItemPackedRepository.listAllByShipmentId(shipment.getId()))
-            .flatMap(this::markAsVerificationPending)
-            .then(Mono.just(shipment));
     }
 }

@@ -29,7 +29,7 @@ public class GraphQLQueryMapper {
             """, code));
     }
 
-    public static String listOrdersById(String locationCode) {
+    public static String listOrdersByLocation(String locationCode) {
         return String.format("""
             query  {
               searchOrders(orderQueryCommandDTO:{
@@ -54,13 +54,12 @@ public class GraphQLQueryMapper {
             """, locationCode);
     }
 
-    public static String listOrdersByExternalId(String locationCode, String externalId) {
+    public static String listOrdersByUniqueIdentifier(String locationCode, String externalId) {
         return String.format("""
             query  {
               searchOrders(orderQueryCommandDTO:{
                 locationCode:"%s",
-                orderUniqueIdentifier:"%s",
-                orderStatus: ["OPEN", "IN_PROGRESS", "COMPLETED"]
+                orderUniqueIdentifier:"%s"
               }) {
                 orderId
                 orderNumber

@@ -4,13 +4,17 @@ import com.arcone.biopro.distribution.shipping.verification.pages.SharedActions;
 import com.arcone.biopro.distribution.shipping.verification.pages.distribution.FillProductsPage;
 import com.arcone.biopro.distribution.shipping.verification.pages.distribution.ShipmentDetailPage;
 import com.arcone.biopro.distribution.shipping.verification.support.ScreenshotService;
+import com.arcone.biopro.distribution.shipping.verification.support.TestUtils;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.Arrays;
 
 
 @Slf4j
@@ -41,11 +45,23 @@ public class ShipmentDetailPageSteps {
         screenshot.attachConditionalScreenshot(saveAllScreenshots);
     }
 
-    @Then("I should have an option to fill the products in the shipment.")
-    public void viewFillProduct() {
-        shipmentDetailPage.viewFillProduct();
+    @Then("I should have an option to fill the products in the shipment for {string} and {string} line items.")
+    public void viewFillProduct(String families, String bloodTypes) {
+        var familyList = Arrays.stream(TestUtils.getCommaSeparatedList(families)).toList();
+        var bloodTypeList = Arrays.stream(TestUtils.getCommaSeparatedList(bloodTypes)).toList();
 
-    screenshot.attachConditionalScreenshot(saveAllScreenshots);}
+        Assert.assertEquals(familyList.size(), bloodTypeList.size());
+
+        for (int i = 0; i < familyList.size(); i++) {
+            shipmentDetailPage.verifyManageProductsButtonIsVisible(
+                true,
+                familyList.get(i).replace("_", " "),
+                bloodTypeList.get(i).replace("_", " ")
+            );
+        }
+
+        screenshot.attachConditionalScreenshot(saveAllScreenshots);
+    }
 
     @Then("I should not be able to see any product shipped details.")
     public void viewProductShippingDetails() {
@@ -61,7 +77,7 @@ public class ShipmentDetailPageSteps {
     }
 
     @Then("I can see the Order Information, the Shipping Information, and Order Criteria.")
-    public void checkPageContent(){
+    public void checkPageContent() {
         shipmentDetailPage.viewPageContent();
         screenshot.attachConditionalScreenshot(saveAllScreenshots);
     }
@@ -108,5 +124,16 @@ public class ShipmentDetailPageSteps {
     @And("I should see the status of the shipment as {string}")
     public void iShouldSeeTheStatusOfTheShipmentAs(String status) {
         shipmentDetailPage.verifyShippingStatusIs(status.toUpperCase());
+    }
+
+    @Then("I {string} have an option to manage the products in the shipment for {string} and {string} line item.")
+    public void iHaveAnOptionToManageTheProductsInTheShipment(String option, String family, String bloodType) {
+        if ("should".equalsIgnoreCase(option)) {
+            shipmentDetailPage.verifyManageProductsButtonIsVisible(true, family, bloodType);
+        } else if ("should not".equalsIgnoreCase(option)) {
+            shipmentDetailPage.verifyManageProductsButtonIsVisible(false, family, bloodType);
+        } else {
+            Assert.fail("Invalid option: " + option);
+        }
     }
 }

@@ -89,6 +89,11 @@ public class InventoryUtil {
             .build();
     }
 
+
+    public ProductCreatedInput newProductCreatedInput(String unitNumber, String productCode, List<InputProduct> inputProducts) {
+        return this.newProductCreatedInput(unitNumber, productCode, inputProducts, true);
+    }
+
     /**
      * Creates a new ProductCreatedInput object with the provided parameters.
      *
@@ -97,20 +102,22 @@ public class InventoryUtil {
      * @param inputProducts the list of input products
      * @return a newly created ProductCreatedInput instance
      */
-    public ProductCreatedInput newProductCreatedInput(String unitNumber, String productCode, List<InputProduct> inputProducts) {
-        return ProductCreatedInput.builder()
-            .productFamily(ISBTProductUtil.getProductFamily(productCode))
+    public ProductCreatedInput newProductCreatedInput(String unitNumber, String productCode, List<InputProduct> inputProducts, Boolean hasExpDate) {
+        var builder = ProductCreatedInput.builder();
+        builder.productFamily(ISBTProductUtil.getProductFamily(productCode))
             .aboRh(AboRhType.OP)
             .location(defaultLocation)
             .collectionDate(ZonedDateTime.now())
-            .expirationDate(DateTimeFormatter.ofPattern("MM/dd/yyyy").format(LocalDate.now().plusDays(1)))
-            .expirationTime(LocalTime.now().toString())
             .weight(100)
             .unitNumber(unitNumber)
             .productCode(productCode)
             .productDescription(ISBTProductUtil.getProductDescription(productCode))
-            .inputProducts(inputProducts)
-            .build();
+            .inputProducts(inputProducts);
+        if(hasExpDate) {
+            builder.expirationDate(DateTimeFormatter.ofPattern("MM/dd/yyyy").format(LocalDate.now().plusDays(1)))
+                .expirationTime(LocalTime.now().toString());
+        }
+        return builder.build();
     }
 
     public CheckInCompletedInput newCheckInCompletedInput(String unitNumber, String productCode) {

@@ -9,6 +9,7 @@ import com.arcone.biopro.distribution.shipping.application.exception.ProductVali
 import com.arcone.biopro.distribution.shipping.application.mapper.ReasonDomainMapper;
 import com.arcone.biopro.distribution.shipping.application.mapper.ShipmentMapper;
 import com.arcone.biopro.distribution.shipping.application.util.ShipmentServiceMessages;
+import com.arcone.biopro.distribution.shipping.domain.model.Shipment;
 import com.arcone.biopro.distribution.shipping.domain.model.ShipmentItemPacked;
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.BloodType;
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.SecondVerification;
@@ -18,6 +19,7 @@ import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemRep
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemShortDateProductRepository;
 import com.arcone.biopro.distribution.shipping.domain.service.ConfigService;
 import com.arcone.biopro.distribution.shipping.domain.service.PackItemService;
+import com.arcone.biopro.distribution.shipping.domain.service.SecondVerificationService;
 import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryResponseDTO;
 import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryValidationRequest;
 import com.arcone.biopro.distribution.shipping.infrastructure.service.InventoryRsocketClient;
@@ -53,6 +55,7 @@ public class PackItemUseCase implements PackItemService {
     private final ShipmentMapper shipmentMapper;
     private final ReasonDomainMapper reasonDomainMapper;
     private final InventoryRsocketClient inventoryRsocketClient;
+    private final SecondVerificationService secondVerificationUseCase;
 
     @Override
     @WithSpan("packItem")
@@ -63,6 +66,7 @@ public class PackItemUseCase implements PackItemService {
         var validateInventory = validateInventory(packItemRequest);
         return Mono.zip(validateInventory,visualInspection,secondVerification)
             .flatMap(tuple -> validateProductCriteria(packItemRequest, tuple.getT1(), tuple.getT2() , tuple.getT3()))
+            .flatMap(this::resetSecondVerification)
             .flatMap(shipmentItemPacked ->
                 Mono.from(getShipmentItemById(shipmentItemPacked.getShipmentItemId())).flatMap(shipmentItemResponseDTO -> Mono.just(RuleResponseDTO.builder()
                     .ruleCode(HttpStatus.OK)
@@ -258,5 +262,14 @@ public class PackItemUseCase implements PackItemService {
                     .build()))
                 .build());
         }
+    }
+
+    private Mono<ShipmentItemPacked> resetSecondVerification(ShipmentItemPacked shipmentItemPacked){
+        log.debug("Reset Second Verification {}",shipmentItemPacked);
+        return shipmentItemRepository.findById(shipmentItemPacked.getShipmentItemId())
+            .map(shipmentItem -> Shipment.builder().id(shipmentItem.getShipmentId()).build())
+            .flatMap(secondVerificationUseCase::resetVerification)
+            .thenReturn(shipmentItemPacked);
+
     }
 }

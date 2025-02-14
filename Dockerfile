@@ -1,5 +1,8 @@
+# Flyway
+FROM artifactory.sha.ao.arc-one.com/docker/flyway/flyway:10.21.0-alpine AS flyway
+
 # Builder
-FROM artifactory.sha.ao.arc-one.com/docker/system/build-cicd/java_maven:21.0.2.3.9.7 AS builder
+FROM artifactory.sha.ao.arc-one.com/docker/maven:3.9.9-eclipse-temurin-21-alpine AS builder
 
 WORKDIR /app
 
@@ -16,19 +19,38 @@ RUN mvn install -DskipTests && \
     (cd target/dependency; jar -xf ../*.jar)
 
 # Runner
-FROM artifactory.sha.ao.arc-one.com/docker/system/build-cicd/java_maven:21-jre-alpine AS runner
+FROM artifactory.sha.ao.arc-one.com/docker/eclipse-temurin:21-jre-alpine AS runner
 
+############################################
+### Install Bash
+############################################
+RUN apk add --no-cache bash
+
+############################################
+### Install Flyway CLI
+############################################
+WORKDIR /flyway
+
+COPY --from=flyway /flyway /flyway
+COPY ./src/main/db ./db
+
+ENV PATH="/flyway:${PATH}"
+
+############################################
+### Install BIOPRO application
+############################################
 WORKDIR /app
 
-ENV API_PORT=${API_PORT:-8080}
-
 ARG START_CLASS
+#=com.arcone.biopro.seeddata.seeddata.BioProApplication
 ARG DEPENDENCY=/app/target/dependency
 COPY --from=builder ${DEPENDENCY}/BOOT-INF/lib /app/lib
 COPY --from=builder ${DEPENDENCY}/META-INF /app/META-INF
 COPY --from=builder ${DEPENDENCY}/BOOT-INF/classes /app
+
+# RUN echo ${START_CLASS}
+
 ENV START_CLASS=${START_CLASS}
+ENTRYPOINT java -XX:+AlwaysPreTouch -Djava.security.egd=file:/dev/./urandom -cp .:./lib/* ${START_CLASS} "$@"
 
-ENTRYPOINT java -noverify -XX:+AlwaysPreTouch -Djava.security.egd=file:/dev/./urandom -cp .:./lib/* ${START_CLASS} "$@"
-
-EXPOSE ${API_PORT}
+EXPOSE 8080

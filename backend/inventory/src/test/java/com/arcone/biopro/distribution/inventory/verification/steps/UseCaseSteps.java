@@ -14,6 +14,7 @@ import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.When;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,9 +33,7 @@ import static org.mockito.Mockito.mock;
 
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-@EmbeddedKafka(partitions = 1, topics = {"${topic.inventory-updated.name}"})
 public class UseCaseSteps {
-
 
     private final AddQuarantinedUseCase addQuarantinedUseCase;
 
@@ -144,8 +143,9 @@ public class UseCaseSteps {
             String unitNumber = product.get("Unit Number");
             String productCode = product.get("Product Code");
             String parentProductCode = product.get("Parent Product Code");
+            Boolean hasExpDate = BooleanUtils.toBoolean(product.get("Has Expiration Date").toLowerCase());
             var inputProducts = List.of(new InputProduct(unitNumber, parentProductCode));
-            ProductCreatedInput productCreatedInput = inventoryUtil.newProductCreatedInput(unitNumber, productCode, inputProducts);
+            ProductCreatedInput productCreatedInput = inventoryUtil.newProductCreatedInput(unitNumber, productCode, inputProducts, hasExpDate);
             productCreatedUseCase.execute(productCreatedInput).block();
             logMonitor.await("Product converted.*");
         }
