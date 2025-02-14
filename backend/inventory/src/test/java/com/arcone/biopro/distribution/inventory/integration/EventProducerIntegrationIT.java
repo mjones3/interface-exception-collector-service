@@ -71,7 +71,6 @@ public class EventProducerIntegrationIT {
 
     private static final BlockingQueue<ConsumerRecord<String, String>> receivedRecords = new LinkedBlockingQueue<>();
 
-
     @BeforeEach
     void setUp() {
         var uuid = UUID.randomUUID();
@@ -102,7 +101,13 @@ public class EventProducerIntegrationIT {
     public void test1() throws InterruptedException, IOException {
         publishCreatedEvent("json/label_applied.json", LABEL_APPLIED_TOPIC);
         assertProducedMessageValues("W123456789012", "E0869V00", "LABEL_APPLIED");
+    }
 
+    @Test
+    @DisplayName("Should receive shipment completed event, map, call usecase and produce the event with the correct information")
+    public void test2() throws InterruptedException, IOException {
+        publishCreatedEvent("json/shipment_completed.json", SHIPMENT_COMPLETED_TOPIC);
+        assertProducedMessageValues("W123456789012", "E123412", "SHIPMENT_COMPLETED");
     }
 
     private JsonNode publishCreatedEvent(String path, String topic) throws IOException, InterruptedException {
