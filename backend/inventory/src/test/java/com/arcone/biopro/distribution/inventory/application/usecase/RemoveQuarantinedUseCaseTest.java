@@ -4,6 +4,7 @@ import com.arcone.biopro.distribution.inventory.application.dto.InventoryOutput;
 import com.arcone.biopro.distribution.inventory.application.dto.Product;
 import com.arcone.biopro.distribution.inventory.application.dto.RemoveQuarantineInput;
 import com.arcone.biopro.distribution.inventory.application.mapper.InventoryOutputMapper;
+import com.arcone.biopro.distribution.inventory.domain.event.InventoryEventPublisher;
 import com.arcone.biopro.distribution.inventory.domain.exception.InventoryNotFoundException;
 import com.arcone.biopro.distribution.inventory.domain.model.Inventory;
 import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
@@ -47,6 +48,9 @@ class RemoveQuarantinedUseCaseTest {
 
     private RemoveQuarantineInput removeQuarantineInput;
     private InventoryAggregate inventoryAggregate;
+
+    @Mock
+    private InventoryEventPublisher inventoryEventPublisher;
 
     @BeforeEach
     void setUp() {
