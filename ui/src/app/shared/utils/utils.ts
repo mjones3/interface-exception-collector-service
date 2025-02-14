@@ -33,7 +33,7 @@ export const commonRegex = {
     unitNumberWithZerosTail: '^=W[0-9]{12}00$',
     extractUnitNumber: '(^[=])(W[\\d]{12})(00)',
     bagLetter: '[A-Z]{1}',
-    productCode: '^E\\w{6}$',
+    productCode: '^E\\w{7}$',
     fullProductCode: '^E\\w{7}$',
     scannedProductCode: '\\=\\<\\w{8}',
     extractProductCode: '(^=<)(E[\\d]{4})([^\\d])([\\d]{2})\\S*',

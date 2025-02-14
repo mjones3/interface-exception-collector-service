@@ -1,0 +1,130 @@
+<div class="flex flex-auto flex-col space-y-2">
+    <biopro-process-header
+        [subTitle]="header.subTitle | async"
+        [title]="header.title | async"
+        [buttons]="actionButtonsTpl"
+    ></biopro-process-header>
+
+    <ng-template #actionButtonsTpl>
+        <div class="flex flex-row space-x-2">
+            <biopro-action-button
+                id="cancelActionBtn"
+                btnId="cancelBtnId"
+                label="Cancel"
+                color="secondary"
+                icon="heroicons_outline:x-circle"
+            />
+            <biopro-action-button
+                id="submitActionBtn"
+                btnId="submitBtnId"
+                label="Submit"
+                color="primary"
+                icon="heroicons_outline:check-circle"
+            />
+        </div>
+    </ng-template>
+
+    <div class="mb-6 flex flex-col space-y-3">
+        <div class="flex flex-col">
+            <ng-container
+                *ngTemplateOutlet="addedProductTpl; context: { review: true }"
+            ></ng-container>
+        </div>
+    </div>
+</div>
+
+<ng-template #addedProductTpl>
+    <div class="flex w-full flex-col space-y-2 p-2 pt-0">
+        <fuse-card>
+            <div class="w-full px-8 pt-2">
+                <div
+                    [formGroup]="externalTransfer"
+                    class="grid grid-cols-1 gap-3 pb-4 pt-4 md:grid-cols-3"
+                >
+                    <div class="w-full">
+                        <biopro-search-select
+                            id="transferCustomerId"
+                            [formGroup]="externalTransfer"
+                            controlName="transferCustomer"
+                            title="Transfer To Customer"
+                            required="true"
+                            [items]="statusOptions"
+                            matSelectId="'transferCustomerSelectId'"
+                        >
+                        </biopro-search-select>
+                    </div>
+                    <mat-form-field class="block w-full" appearance="outline">
+                        <mat-label class="font-bold"
+                            >Hospital Transfer ID</mat-label
+                        >
+                        <input
+                            id="hospitalTransferId"
+                            matInput
+                            formControlName="hospitalTransfer"
+                            autocomplete="off"
+                            validateOn="touchedState"
+                        />
+                    </mat-form-field>
+                    <mat-form-field class="block w-full" appearance="outline">
+                        <mat-label class="font-bold">Transfer Date</mat-label>
+                        <input
+                            id="TransferdateId"
+                            matInput
+                            required
+                            formControlName="transferDate"
+                            placeholder="MM/DD/YYYY"
+                            autocomplete="off"
+                            validateOn="touchedState"
+                            [matDatepicker]="transferDatePicker"
+                            [max]="maxDate"
+                        />
+                        <mat-datepicker-toggle
+                            matIconSuffix
+                            [for]="transferDatePicker"
+                        ></mat-datepicker-toggle>
+                        <mat-datepicker #transferDatePicker></mat-datepicker>
+                        @if (
+                            externalTransfer
+                                .get('transferDate')
+                                .hasError('required')
+                        ) {
+                            <mat-error>Transfer Date is Required</mat-error>
+                        }
+
+                        @if (
+                            externalTransfer
+                                .get('transferDate')
+                                .hasError('matDatepickerMax')
+                        ) {
+                            <mat-error>Transfer Date is Invalid</mat-error>
+                        }
+                    </mat-form-field>
+                </div>
+            </div>
+        </fuse-card>
+
+        @if (isTransferInfoValid) {
+            <fuse-card>
+                <div class="flex w-full flex-col">
+                    <div class="flex w-full flex-row gap-4 pb-4 pt-4">
+                        <div class="flex w-3/4 flex-col space-y-1">
+                            <biopro-enter-products
+                                #enterProducts
+                                (validate)="enterProduct($event)"
+                            >
+                            </biopro-enter-products>
+                        </div>
+                        @if (isShippedLocation) {
+                            <div class="flex w-2/4 flex-row items-center p-4">
+                                <span class="mr-4 text-left font-bold">
+                                    Last Shipped Location:
+                                </span>
+                                <span class="flex-auto text-left"> </span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </fuse-card>
+        }
+    </div>
+</ng-template>
