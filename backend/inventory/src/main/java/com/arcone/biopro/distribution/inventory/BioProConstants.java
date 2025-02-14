@@ -13,5 +13,8 @@ public interface BioProConstants {
     String APHERESIS_PLASMA_PRODUCT_CREATED_TOPIC = "ApheresisPlasmaProductCreated";
     String WHOLEBLOOD_CREATED_TOPIC = "WholeBloodProductCreated";
     String PAYLOAD = "payload";
+    String UNIT_NUMBER = "unitNumber";
+    String PRODUCT_CODE = "productCode";
+    String UPDATE_TYPE = "updateType";
 
 }
