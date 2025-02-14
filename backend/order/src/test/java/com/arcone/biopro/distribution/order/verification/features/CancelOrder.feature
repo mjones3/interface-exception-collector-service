@@ -15,12 +15,12 @@ Feature: Cancel Order
         And I have received a cancel order request with externalId "<Cancel External ID>" and content "cancel-order-valid-request.json".
         When The system processes the cancel order request.
         Then The Biopro Order must have status "<Final Status>".
-        And I "<Should/Should not see Cancel Details>" be able to receive the cancel details.
+        And I "<Should/Should not receive Cancel Details>" be able to receive the cancel details.
         Examples:
-            | Source External ID | Cancel External ID | Backorder Flag | Initial Status | Final Status | Should/Should not see Cancel Details |
-            | EXTDIS3150001      | EXTDIS3150001      | false          | OPEN           | CANCELED     | should                               |
-            | EXTDIS3150002      | EXTDIS3150002      | true           | OPEN           | CANCELED     | should                               |
-            | EXTDIS3150003      | EXTDIS3150003      | false          | IN_PROGRESS    | IN_PROGRESS  | should not                           |
-            | EXTDIS3150004      | EXTDIS3150004      | false          | COMPLETED      | COMPLETED    | should not                           |
-            | EXTDIS3150005      | EXTDIS3150005      | false          | CANCELED       | CANCELED     | should not                           |
-            | EXTDIS3150006      | EXTDIS315NULL      | false          | OPEN           | OPEN         | should not                           |
+            | Source External ID | Cancel External ID | Backorder Flag | Initial Status | Final Status | Should/Should not receive Cancel Details |
+            | EXTDIS3150001      | EXTDIS3150001      | false          | OPEN           | CANCELED     | should                                   |
+            | EXTDIS3150002      | EXTDIS3150002      | true           | OPEN           | CANCELED     | should                                   |
+            | EXTDIS3150003      | EXTDIS3150003      | false          | IN_PROGRESS    | IN_PROGRESS  | should not                               |
+            | EXTDIS3150004      | EXTDIS3150004      | false          | COMPLETED      | COMPLETED    | should not                               |
+            | EXTDIS3150005      | EXTDIS3150005      | false          | CANCELED       | CANCELED     | should                                   |
+            | EXTDIS3150006      | EXTDIS315NULL      | false          | OPEN           | OPEN         | should not                               |
