@@ -5,6 +5,9 @@ import com.arcone.biopro.distribution.order.domain.service.CancelOrderService;
 import com.arcone.biopro.distribution.order.infrastructure.config.KafkaConfiguration;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.springwolf.bindings.kafka.annotations.KafkaAsyncOperationBinding;
+import io.github.springwolf.core.asyncapi.annotations.AsyncListener;
+import io.github.springwolf.core.asyncapi.annotations.AsyncOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,7 +42,12 @@ public class CancelOrderReceivedListener extends AbstractKafkaListener {
 
     }
 
-
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "CancelOrderReceived",
+        description = "Partner Cancel Order received Events", // Optional
+        payloadType = CancelOrderReceivedDTO.class
+    ))
+    @KafkaAsyncOperationBinding
     protected Mono<ReceiverRecord<String, String>> handleMessage(ReceiverRecord<String, String> event) {
         try {
             var message = objectMapper.readValue(event.value(), CancelOrderReceivedDTO.class);

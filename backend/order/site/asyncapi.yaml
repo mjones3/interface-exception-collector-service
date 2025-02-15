@@ -13,6 +13,14 @@
     }
   },
   "channels": {
+    "CancelOrderReceived": {
+      "address": "CancelOrderReceived",
+      "messages": {
+        "com.arcone.biopro.distribution.order.application.dto.CancelOrderReceivedDTO": {
+          "$ref": "#/components/messages/com.arcone.biopro.distribution.order.application.dto.CancelOrderReceivedDTO"
+        }
+      }
+    },
     "OrderCancelled": {
       "address": "OrderCancelled",
       "messages": {
@@ -21,11 +29,59 @@
         }
       }
     },
+    "OrderCompleted": {
+      "address": "OrderCompleted",
+      "messages": {
+        "com.arcone.biopro.distribution.order.infrastructure.dto.OrderCompletedDTO": {
+          "$ref": "#/components/messages/com.arcone.biopro.distribution.order.infrastructure.dto.OrderCompletedDTO"
+        }
+      }
+    },
+    "OrderCreated": {
+      "address": "OrderCreated",
+      "messages": {
+        "com.arcone.biopro.distribution.order.infrastructure.dto.OrderCreatedDTO": {
+          "$ref": "#/components/messages/com.arcone.biopro.distribution.order.infrastructure.dto.OrderCreatedDTO"
+        }
+      }
+    },
+    "OrderFulfilled": {
+      "address": "OrderFulfilled",
+      "messages": {
+        "com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledEventDTO": {
+          "$ref": "#/components/messages/com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledEventDTO"
+        }
+      }
+    },
+    "OrderReceived": {
+      "address": "OrderReceived",
+      "messages": {
+        "com.arcone.biopro.distribution.order.application.dto.OrderReceivedEventDTO": {
+          "$ref": "#/components/messages/com.arcone.biopro.distribution.order.application.dto.OrderReceivedEventDTO"
+        }
+      }
+    },
     "OrderRejected": {
       "address": "OrderRejected",
       "messages": {
         "OrderRejected": {
           "$ref": "#/components/messages/OrderRejected"
+        }
+      }
+    },
+    "ShipmentCompleted": {
+      "address": "ShipmentCompleted",
+      "messages": {
+        "com.arcone.biopro.distribution.order.application.dto.ShipmentCompletedEventDTO": {
+          "$ref": "#/components/messages/com.arcone.biopro.distribution.order.application.dto.ShipmentCompletedEventDTO"
+        }
+      }
+    },
+    "ShipmentCreated": {
+      "address": "ShipmentCreated",
+      "messages": {
+        "com.arcone.biopro.distribution.order.application.dto.ShipmentCreatedEventDTO": {
+          "$ref": "#/components/messages/com.arcone.biopro.distribution.order.application.dto.ShipmentCreatedEventDTO"
         }
       }
     }
@@ -53,6 +109,48 @@
           }
         ]
       },
+      "Headers-351548566": {
+        "title": "Headers-351548566",
+        "type": "object",
+        "properties": {
+          "__TypeId__": {
+            "type": "string",
+            "description": "Spring Type Id Header",
+            "enum": [
+              "com.arcone.biopro.distribution.order.infrastructure.dto.OrderCompletedDTO"
+            ],
+            "examples": [
+              "com.arcone.biopro.distribution.order.infrastructure.dto.OrderCompletedDTO"
+            ]
+          }
+        },
+        "examples": [
+          {
+            "__TypeId__": "com.arcone.biopro.distribution.order.infrastructure.dto.OrderCompletedDTO"
+          }
+        ]
+      },
+      "Headers-722970795": {
+        "title": "Headers-722970795",
+        "type": "object",
+        "properties": {
+          "__TypeId__": {
+            "type": "string",
+            "description": "Spring Type Id Header",
+            "enum": [
+              "com.arcone.biopro.distribution.order.infrastructure.dto.OrderCreatedDTO"
+            ],
+            "examples": [
+              "com.arcone.biopro.distribution.order.infrastructure.dto.OrderCreatedDTO"
+            ]
+          }
+        },
+        "examples": [
+          {
+            "__TypeId__": "com.arcone.biopro.distribution.order.infrastructure.dto.OrderCreatedDTO"
+          }
+        ]
+      },
       "Headers-842767543": {
         "title": "Headers-842767543",
         "type": "object",
@@ -72,6 +170,15 @@
           {
             "__TypeId__": "com.arcone.biopro.distribution.order.infrastructure.event.OrderCancelledOutputEvent"
           }
+        ]
+      },
+      "HeadersNotDocumented": {
+        "title": "HeadersNotDocumented",
+        "type": "object",
+        "properties": {},
+        "description": "There can be headers, but they are not explicitly documented.",
+        "examples": [
+          {}
         ]
       },
       "OrderCancelled": {
@@ -590,6 +697,1162 @@
           "externalId",
           "rejectedReason"
         ]
+      },
+      "com.arcone.biopro.distribution.order.application.dto.CancelOrderReceivedDTO": {
+        "title": "CancelOrderReceivedDTO",
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "eventType": {
+            "type": "string"
+          },
+          "eventVersion": {
+            "type": "string"
+          },
+          "occurredOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.order.application.dto.CancelOrderReceivedPayloadDTO"
+          }
+        },
+        "examples": [
+          {
+            "eventId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "eventType": "string",
+            "eventVersion": "string",
+            "occurredOn": "2015-07-20T15:49:04-07:00",
+            "payload": {
+              "cancelDate": "string",
+              "cancelEmployeeCode": "string",
+              "cancelReason": "string",
+              "externalId": "string",
+              "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+            }
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.order.application.dto.CancelOrderReceivedPayloadDTO": {
+        "title": "CancelOrderReceivedPayloadDTO",
+        "type": "object",
+        "properties": {
+          "cancelDate": {
+            "type": "string"
+          },
+          "cancelEmployeeCode": {
+            "type": "string"
+          },
+          "cancelReason": {
+            "type": "string"
+          },
+          "externalId": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "examples": [
+          {
+            "cancelDate": "string",
+            "cancelEmployeeCode": "string",
+            "cancelReason": "string",
+            "externalId": "string",
+            "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.order.application.dto.OrderItemEventDTO": {
+        "title": "OrderItemEventDTO",
+        "type": "object",
+        "properties": {
+          "bloodType": {
+            "type": "string"
+          },
+          "comments": {
+            "type": "string"
+          },
+          "productFamily": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "examples": [
+          {
+            "bloodType": "string",
+            "comments": "string",
+            "productFamily": "string",
+            "quantity": 0
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.order.application.dto.OrderReceivedEventDTO": {
+        "title": "OrderReceivedEventDTO",
+        "type": "object",
+        "properties": {
+          "eventType": {
+            "type": "string"
+          },
+          "eventVersion": {
+            "type": "string"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.order.application.dto.OrderReceivedEventPayloadDTO"
+          }
+        },
+        "examples": [
+          {
+            "eventType": "string",
+            "eventVersion": "string",
+            "payload": {
+              "billingCustomerCode": "string",
+              "comments": "string",
+              "createDate": "string",
+              "createEmployeeCode": "string",
+              "deliveryType": "string",
+              "desiredShippingDate": "string",
+              "externalId": "string",
+              "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+              "locationCode": "string",
+              "orderItems": [
+                {
+                  "bloodType": "string",
+                  "comments": "string",
+                  "productFamily": "string",
+                  "quantity": 0
+                }
+              ],
+              "orderStatus": "string",
+              "productCategory": "string",
+              "shipmentType": "string",
+              "shippingCustomerCode": "string",
+              "shippingMethod": "string",
+              "willPickUp": true,
+              "willPickUpPhoneNumber": "string"
+            }
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.order.application.dto.OrderReceivedEventPayloadDTO": {
+        "title": "OrderReceivedEventPayloadDTO",
+        "type": "object",
+        "properties": {
+          "billingCustomerCode": {
+            "type": "string"
+          },
+          "comments": {
+            "type": "string"
+          },
+          "createDate": {
+            "type": "string"
+          },
+          "createEmployeeCode": {
+            "type": "string"
+          },
+          "deliveryType": {
+            "type": "string"
+          },
+          "desiredShippingDate": {
+            "type": "string"
+          },
+          "externalId": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "locationCode": {
+            "type": "string"
+          },
+          "orderItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/com.arcone.biopro.distribution.order.application.dto.OrderItemEventDTO"
+            }
+          },
+          "orderStatus": {
+            "type": "string"
+          },
+          "productCategory": {
+            "type": "string"
+          },
+          "shipmentType": {
+            "type": "string"
+          },
+          "shippingCustomerCode": {
+            "type": "string"
+          },
+          "shippingMethod": {
+            "type": "string"
+          },
+          "willPickUp": {
+            "type": "boolean"
+          },
+          "willPickUpPhoneNumber": {
+            "type": "string"
+          }
+        },
+        "examples": [
+          {
+            "billingCustomerCode": "string",
+            "comments": "string",
+            "createDate": "string",
+            "createEmployeeCode": "string",
+            "deliveryType": "string",
+            "desiredShippingDate": "string",
+            "externalId": "string",
+            "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "locationCode": "string",
+            "orderItems": [
+              {
+                "bloodType": "string",
+                "comments": "string",
+                "productFamily": "string",
+                "quantity": 0
+              }
+            ],
+            "orderStatus": "string",
+            "productCategory": "string",
+            "shipmentType": "string",
+            "shippingCustomerCode": "string",
+            "shippingMethod": "string",
+            "willPickUp": true,
+            "willPickUpPhoneNumber": "string"
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.order.application.dto.ShipmentCompletedEventDTO": {
+        "title": "ShipmentCompletedEventDTO",
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "eventType": {
+            "type": "string"
+          },
+          "eventVersion": {
+            "type": "string"
+          },
+          "occurredOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.order.application.dto.ShipmentCompletedPayload"
+          }
+        },
+        "examples": [
+          {
+            "eventId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "eventType": "string",
+            "eventVersion": "string",
+            "occurredOn": "2015-07-20T15:49:04-07:00",
+            "payload": {
+              "createDate": "2015-07-20T15:49:04-07:00",
+              "customerCode": "string",
+              "customerType": "string",
+              "externalOrderId": "string",
+              "lineItems": [
+                {
+                  "bloodType": "string",
+                  "productFamily": "string",
+                  "products": [
+                    {
+                      "aboRh": "string",
+                      "attributes": [
+                        {
+                          "key": "string"
+                        }
+                      ],
+                      "collectionDate": "2015-07-20T15:49:04-07:00",
+                      "createDate": "2015-07-20T15:49:04-07:00",
+                      "expirationDate": "2015-07-20T15:49:04-07:00",
+                      "productCode": "string",
+                      "productFamily": "string",
+                      "unitNumber": "string"
+                    }
+                  ],
+                  "quantity": 0
+                }
+              ],
+              "locationCode": "string",
+              "locationName": "string",
+              "orderNumber": 0,
+              "performedBy": "string",
+              "services": [
+                {
+                  "code": "string",
+                  "quantity": 0
+                }
+              ],
+              "shipmentId": 0
+            }
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.order.application.dto.ShipmentCompletedItemPayload": {
+        "title": "ShipmentCompletedItemPayload",
+        "type": "object",
+        "properties": {
+          "bloodType": {
+            "type": "string"
+          },
+          "productFamily": {
+            "type": "string"
+          },
+          "products": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/com.arcone.biopro.distribution.order.application.dto.ShipmentCompletedItemProductPayload"
+            }
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "examples": [
+          {
+            "bloodType": "string",
+            "productFamily": "string",
+            "products": [
+              {
+                "aboRh": "string",
+                "attributes": [
+                  {
+                    "key": "string"
+                  }
+                ],
+                "collectionDate": "2015-07-20T15:49:04-07:00",
+                "createDate": "2015-07-20T15:49:04-07:00",
+                "expirationDate": "2015-07-20T15:49:04-07:00",
+                "productCode": "string",
+                "productFamily": "string",
+                "unitNumber": "string"
+              }
+            ],
+            "quantity": 0
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.order.application.dto.ShipmentCompletedItemProductPayload": {
+        "title": "ShipmentCompletedItemProductPayload",
+        "type": "object",
+        "properties": {
+          "aboRh": {
+            "type": "string"
+          },
+          "attributes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "collectionDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expirationDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "productCode": {
+            "type": "string"
+          },
+          "productFamily": {
+            "type": "string"
+          },
+          "unitNumber": {
+            "type": "string"
+          }
+        },
+        "examples": [
+          {
+            "aboRh": "string",
+            "attributes": [
+              {
+                "key": "string"
+              }
+            ],
+            "collectionDate": "2015-07-20T15:49:04-07:00",
+            "createDate": "2015-07-20T15:49:04-07:00",
+            "expirationDate": "2015-07-20T15:49:04-07:00",
+            "productCode": "string",
+            "productFamily": "string",
+            "unitNumber": "string"
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.order.application.dto.ShipmentCompletedPayload": {
+        "title": "ShipmentCompletedPayload",
+        "type": "object",
+        "properties": {
+          "createDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "customerCode": {
+            "type": "string"
+          },
+          "customerType": {
+            "type": "string"
+          },
+          "externalOrderId": {
+            "type": "string"
+          },
+          "lineItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/com.arcone.biopro.distribution.order.application.dto.ShipmentCompletedItemPayload"
+            }
+          },
+          "locationCode": {
+            "type": "string"
+          },
+          "locationName": {
+            "type": "string"
+          },
+          "orderNumber": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "performedBy": {
+            "type": "string"
+          },
+          "services": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/com.arcone.biopro.distribution.order.application.dto.ShipmentCompletedServicePayload"
+            }
+          },
+          "shipmentId": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "examples": [
+          {
+            "createDate": "2015-07-20T15:49:04-07:00",
+            "customerCode": "string",
+            "customerType": "string",
+            "externalOrderId": "string",
+            "lineItems": [
+              {
+                "bloodType": "string",
+                "productFamily": "string",
+                "products": [
+                  {
+                    "aboRh": "string",
+                    "attributes": [
+                      {
+                        "key": "string"
+                      }
+                    ],
+                    "collectionDate": "2015-07-20T15:49:04-07:00",
+                    "createDate": "2015-07-20T15:49:04-07:00",
+                    "expirationDate": "2015-07-20T15:49:04-07:00",
+                    "productCode": "string",
+                    "productFamily": "string",
+                    "unitNumber": "string"
+                  }
+                ],
+                "quantity": 0
+              }
+            ],
+            "locationCode": "string",
+            "locationName": "string",
+            "orderNumber": 0,
+            "performedBy": "string",
+            "services": [
+              {
+                "code": "string",
+                "quantity": 0
+              }
+            ],
+            "shipmentId": 0
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.order.application.dto.ShipmentCompletedServicePayload": {
+        "title": "ShipmentCompletedServicePayload",
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "examples": [
+          {
+            "code": "string",
+            "quantity": 0
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.order.application.dto.ShipmentCreatedEvenPayloadDTO": {
+        "title": "ShipmentCreatedEvenPayloadDTO",
+        "type": "object",
+        "properties": {
+          "orderNumber": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "shipmentId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "shipmentStatus": {
+            "type": "string"
+          }
+        },
+        "examples": [
+          {
+            "orderNumber": 0,
+            "shipmentId": 0,
+            "shipmentStatus": "string"
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.order.application.dto.ShipmentCreatedEventDTO": {
+        "title": "ShipmentCreatedEventDTO",
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "eventType": {
+            "type": "string"
+          },
+          "eventVersion": {
+            "type": "string"
+          },
+          "occurredOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.order.application.dto.ShipmentCreatedEvenPayloadDTO"
+          }
+        },
+        "examples": [
+          {
+            "eventId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "eventType": "string",
+            "eventVersion": "string",
+            "occurredOn": "2015-07-20T15:49:04-07:00",
+            "payload": {
+              "orderNumber": 0,
+              "shipmentId": 0,
+              "shipmentStatus": "string"
+            }
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.order.infrastructure.dto.OrderCompletedDTO": {
+        "title": "OrderCompletedDTO",
+        "type": "object",
+        "properties": {
+          "billingCustomerCode": {
+            "type": "string"
+          },
+          "comments": {
+            "type": "string"
+          },
+          "completeComments": {
+            "type": "string"
+          },
+          "completeDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "completeEmployeeId": {
+            "type": "string"
+          },
+          "createDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createEmployeeCode": {
+            "type": "string"
+          },
+          "desiredShippingDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "externalId": {
+            "type": "string"
+          },
+          "locationCode": {
+            "type": "string"
+          },
+          "occurredOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "orderItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/com.arcone.biopro.distribution.order.infrastructure.dto.OrderItemCompletedDTO"
+            }
+          },
+          "orderNumber": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "orderStatus": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "string"
+          },
+          "productCategory": {
+            "type": "string"
+          },
+          "shipmentType": {
+            "type": "string"
+          },
+          "shippingCustomerCode": {
+            "type": "string"
+          },
+          "shippingMethod": {
+            "type": "string"
+          },
+          "totalProducts": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalRemaining": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalShipped": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "willPickUp": {
+            "type": "boolean"
+          },
+          "willPickUpPhoneNumber": {
+            "type": "string"
+          }
+        },
+        "examples": [
+          {
+            "billingCustomerCode": "string",
+            "comments": "string",
+            "completeComments": "string",
+            "completeDate": "2015-07-20T15:49:04-07:00",
+            "completeEmployeeId": "string",
+            "createDate": "2015-07-20T15:49:04-07:00",
+            "createEmployeeCode": "string",
+            "desiredShippingDate": "2015-07-20",
+            "eventId": "string",
+            "externalId": "string",
+            "locationCode": "string",
+            "occurredOn": "2015-07-20T15:49:04-07:00",
+            "orderItems": [
+              {
+                "bloodType": "string",
+                "comments": "string",
+                "productFamily": "string",
+                "quantity": 0,
+                "quantityRemaining": 0,
+                "quantityShipped": 0
+              }
+            ],
+            "orderNumber": 0,
+            "orderStatus": "string",
+            "priority": "string",
+            "productCategory": "string",
+            "shipmentType": "string",
+            "shippingCustomerCode": "string",
+            "shippingMethod": "string",
+            "totalProducts": 0,
+            "totalRemaining": 0,
+            "totalShipped": 0,
+            "willPickUp": true,
+            "willPickUpPhoneNumber": "string"
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.order.infrastructure.dto.OrderCreatedDTO": {
+        "title": "OrderCreatedDTO",
+        "type": "object",
+        "properties": {
+          "billingCustomerCode": {
+            "type": "string"
+          },
+          "comments": {
+            "type": "string"
+          },
+          "createDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createEmployeeCode": {
+            "type": "string"
+          },
+          "desiredShippingDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "externalId": {
+            "type": "string"
+          },
+          "locationCode": {
+            "type": "string"
+          },
+          "occurredOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "orderItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/com.arcone.biopro.distribution.order.infrastructure.dto.OrderItemCreatedDTO"
+            }
+          },
+          "orderNumber": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "orderStatus": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "string"
+          },
+          "productCategory": {
+            "type": "string"
+          },
+          "shipmentType": {
+            "type": "string"
+          },
+          "shippingCustomerCode": {
+            "type": "string"
+          },
+          "shippingMethod": {
+            "type": "string"
+          },
+          "willPickUp": {
+            "type": "boolean"
+          },
+          "willPickUpPhoneNumber": {
+            "type": "string"
+          }
+        },
+        "examples": [
+          {
+            "billingCustomerCode": "string",
+            "comments": "string",
+            "createDate": "2015-07-20T15:49:04-07:00",
+            "createEmployeeCode": "string",
+            "desiredShippingDate": "2015-07-20",
+            "eventId": "string",
+            "externalId": "string",
+            "locationCode": "string",
+            "occurredOn": "2015-07-20T15:49:04-07:00",
+            "orderItems": [
+              {
+                "bloodType": "string",
+                "comments": "string",
+                "productFamily": "string",
+                "quantity": 0
+              }
+            ],
+            "orderNumber": 0,
+            "orderStatus": "string",
+            "priority": "string",
+            "productCategory": "string",
+            "shipmentType": "string",
+            "shippingCustomerCode": "string",
+            "shippingMethod": "string",
+            "willPickUp": true,
+            "willPickUpPhoneNumber": "string"
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledDTO": {
+        "title": "OrderFulfilledDTO",
+        "type": "object",
+        "properties": {
+          "billingCustomerCode": {
+            "type": "string"
+          },
+          "billingCustomerName": {
+            "type": "string"
+          },
+          "comments": {
+            "type": "string"
+          },
+          "customerAddressAddressLine1": {
+            "type": "string"
+          },
+          "customerAddressAddressLine2": {
+            "type": "string"
+          },
+          "customerAddressCity": {
+            "type": "string"
+          },
+          "customerAddressCountry": {
+            "type": "string"
+          },
+          "customerAddressCountryCode": {
+            "type": "string"
+          },
+          "customerAddressDistrict": {
+            "type": "string"
+          },
+          "customerAddressPostalCode": {
+            "type": "string"
+          },
+          "customerAddressState": {
+            "type": "string"
+          },
+          "customerPhoneNumber": {
+            "type": "string"
+          },
+          "deliveryType": {
+            "type": "string"
+          },
+          "departmentName": {
+            "type": "string"
+          },
+          "externalId": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledItemDTO"
+            }
+          },
+          "locationCode": {
+            "type": "string"
+          },
+          "orderNumber": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "priority": {
+            "type": "string"
+          },
+          "productCategory": {
+            "type": "string"
+          },
+          "shippingCustomerCode": {
+            "type": "string"
+          },
+          "shippingCustomerName": {
+            "type": "string"
+          },
+          "shippingDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "shippingMethod": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "examples": [
+          {
+            "billingCustomerCode": "string",
+            "billingCustomerName": "string",
+            "comments": "string",
+            "customerAddressAddressLine1": "string",
+            "customerAddressAddressLine2": "string",
+            "customerAddressCity": "string",
+            "customerAddressCountry": "string",
+            "customerAddressCountryCode": "string",
+            "customerAddressDistrict": "string",
+            "customerAddressPostalCode": "string",
+            "customerAddressState": "string",
+            "customerPhoneNumber": "string",
+            "deliveryType": "string",
+            "departmentName": "string",
+            "externalId": "string",
+            "id": 0,
+            "items": [
+              {
+                "bloodType": "string",
+                "comments": "string",
+                "id": 0,
+                "orderId": 0,
+                "productFamily": "string",
+                "quantity": 0,
+                "shortDateProducts": [
+                  {
+                    "productCode": "string",
+                    "storageLocation": "string",
+                    "unitNumber": "string"
+                  }
+                ],
+                "totalAvailable": 0
+              }
+            ],
+            "locationCode": "string",
+            "orderNumber": 0,
+            "priority": "string",
+            "productCategory": "string",
+            "shippingCustomerCode": "string",
+            "shippingCustomerName": "string",
+            "shippingDate": "2015-07-20",
+            "shippingMethod": "string",
+            "status": "string"
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledEventDTO": {
+        "title": "OrderFulfilledEventDTO",
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "eventType": {
+            "type": "string"
+          },
+          "eventVersion": {
+            "type": "string"
+          },
+          "occurredOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledDTO"
+          }
+        },
+        "examples": [
+          {
+            "eventId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "eventType": "string",
+            "eventVersion": "string",
+            "occurredOn": "2015-07-20T15:49:04-07:00",
+            "payload": {
+              "billingCustomerCode": "string",
+              "billingCustomerName": "string",
+              "comments": "string",
+              "customerAddressAddressLine1": "string",
+              "customerAddressAddressLine2": "string",
+              "customerAddressCity": "string",
+              "customerAddressCountry": "string",
+              "customerAddressCountryCode": "string",
+              "customerAddressDistrict": "string",
+              "customerAddressPostalCode": "string",
+              "customerAddressState": "string",
+              "customerPhoneNumber": "string",
+              "deliveryType": "string",
+              "departmentName": "string",
+              "externalId": "string",
+              "id": 0,
+              "items": [
+                {
+                  "bloodType": "string",
+                  "comments": "string",
+                  "id": 0,
+                  "orderId": 0,
+                  "productFamily": "string",
+                  "quantity": 0,
+                  "shortDateProducts": [
+                    {
+                      "productCode": "string",
+                      "storageLocation": "string",
+                      "unitNumber": "string"
+                    }
+                  ],
+                  "totalAvailable": 0
+                }
+              ],
+              "locationCode": "string",
+              "orderNumber": 0,
+              "priority": "string",
+              "productCategory": "string",
+              "shippingCustomerCode": "string",
+              "shippingCustomerName": "string",
+              "shippingDate": "2015-07-20",
+              "shippingMethod": "string",
+              "status": "string"
+            }
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledItemDTO": {
+        "title": "OrderFulfilledItemDTO",
+        "type": "object",
+        "properties": {
+          "bloodType": {
+            "type": "string"
+          },
+          "comments": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "orderId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "productFamily": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "shortDateProducts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledItemShortDateDTO"
+            }
+          },
+          "totalAvailable": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "examples": [
+          {
+            "bloodType": "string",
+            "comments": "string",
+            "id": 0,
+            "orderId": 0,
+            "productFamily": "string",
+            "quantity": 0,
+            "shortDateProducts": [
+              {
+                "productCode": "string",
+                "storageLocation": "string",
+                "unitNumber": "string"
+              }
+            ],
+            "totalAvailable": 0
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledItemShortDateDTO": {
+        "title": "OrderFulfilledItemShortDateDTO",
+        "type": "object",
+        "properties": {
+          "productCode": {
+            "type": "string"
+          },
+          "storageLocation": {
+            "type": "string"
+          },
+          "unitNumber": {
+            "type": "string"
+          }
+        },
+        "examples": [
+          {
+            "productCode": "string",
+            "storageLocation": "string",
+            "unitNumber": "string"
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.order.infrastructure.dto.OrderItemCompletedDTO": {
+        "title": "OrderItemCompletedDTO",
+        "type": "object",
+        "properties": {
+          "bloodType": {
+            "type": "string"
+          },
+          "comments": {
+            "type": "string"
+          },
+          "productFamily": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "quantityRemaining": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "quantityShipped": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "examples": [
+          {
+            "bloodType": "string",
+            "comments": "string",
+            "productFamily": "string",
+            "quantity": 0,
+            "quantityRemaining": 0,
+            "quantityShipped": 0
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.order.infrastructure.dto.OrderItemCreatedDTO": {
+        "title": "OrderItemCreatedDTO",
+        "type": "object",
+        "properties": {
+          "bloodType": {
+            "type": "string"
+          },
+          "comments": {
+            "type": "string"
+          },
+          "productFamily": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "examples": [
+          {
+            "bloodType": "string",
+            "comments": "string",
+            "productFamily": "string",
+            "quantity": 0
+          }
+        ]
       }
     },
     "messages": {
@@ -630,10 +1893,157 @@
             "bindingVersion": "0.5.0"
           }
         }
+      },
+      "com.arcone.biopro.distribution.order.application.dto.CancelOrderReceivedDTO": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.order.application.dto.CancelOrderReceivedDTO"
+          }
+        },
+        "name": "com.arcone.biopro.distribution.order.application.dto.CancelOrderReceivedDTO",
+        "title": "CancelOrderReceivedDTO",
+        "bindings": {
+          "kafka": {
+            "bindingVersion": "0.5.0"
+          }
+        }
+      },
+      "com.arcone.biopro.distribution.order.application.dto.OrderReceivedEventDTO": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.order.application.dto.OrderReceivedEventDTO"
+          }
+        },
+        "name": "com.arcone.biopro.distribution.order.application.dto.OrderReceivedEventDTO",
+        "title": "OrderReceivedEventDTO",
+        "bindings": {
+          "kafka": {
+            "bindingVersion": "0.5.0"
+          }
+        }
+      },
+      "com.arcone.biopro.distribution.order.application.dto.ShipmentCompletedEventDTO": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.order.application.dto.ShipmentCompletedEventDTO"
+          }
+        },
+        "name": "com.arcone.biopro.distribution.order.application.dto.ShipmentCompletedEventDTO",
+        "title": "ShipmentCompletedEventDTO",
+        "bindings": {
+          "kafka": {
+            "bindingVersion": "0.5.0"
+          }
+        }
+      },
+      "com.arcone.biopro.distribution.order.application.dto.ShipmentCreatedEventDTO": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.order.application.dto.ShipmentCreatedEventDTO"
+          }
+        },
+        "name": "com.arcone.biopro.distribution.order.application.dto.ShipmentCreatedEventDTO",
+        "title": "ShipmentCreatedEventDTO",
+        "bindings": {
+          "kafka": {
+            "bindingVersion": "0.5.0"
+          }
+        }
+      },
+      "com.arcone.biopro.distribution.order.infrastructure.dto.OrderCompletedDTO": {
+        "headers": {
+          "$ref": "#/components/schemas/Headers-351548566"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.order.infrastructure.dto.OrderCompletedDTO"
+          }
+        },
+        "name": "OrderCompleted",
+        "title": "OrderCompleted",
+        "description": "Order Completed Event Payload",
+        "bindings": {
+          "kafka": {
+            "bindingVersion": "0.5.0"
+          }
+        }
+      },
+      "com.arcone.biopro.distribution.order.infrastructure.dto.OrderCreatedDTO": {
+        "headers": {
+          "$ref": "#/components/schemas/Headers-722970795"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.order.infrastructure.dto.OrderCreatedDTO"
+          }
+        },
+        "name": "OrderCreated",
+        "title": "OrderCreated",
+        "description": "Order Created Event Payload",
+        "bindings": {
+          "kafka": {
+            "bindingVersion": "0.5.0"
+          }
+        }
+      },
+      "com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledEventDTO": {
+        "headers": {
+          "$ref": "#/components/schemas/Headers-351548566"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledEventDTO"
+          }
+        },
+        "name": "OrderFulfilled",
+        "title": "OrderFulfilled",
+        "description": "Order Fulfilled Event Payload",
+        "bindings": {
+          "kafka": {
+            "bindingVersion": "0.5.0"
+          }
+        }
       }
     }
   },
   "operations": {
+    "CancelOrderReceived_receive_handleMessage": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/CancelOrderReceived"
+      },
+      "title": "CancelOrderReceived_receive",
+      "description": "Partner Cancel Order received Events",
+      "bindings": {
+        "kafka": {
+          "bindingVersion": "0.5.0"
+        }
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/CancelOrderReceived/messages/com.arcone.biopro.distribution.order.application.dto.CancelOrderReceivedDTO"
+        }
+      ]
+    },
     "OrderCancelled_send_handleOrderCompletedEvent": {
       "action": "send",
       "channel": {
@@ -652,6 +2062,78 @@
         }
       ]
     },
+    "OrderCompleted_send_handleOrderCompletedEvent": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/OrderCompleted"
+      },
+      "title": "OrderCompleted_send",
+      "description": "Order Completed Event",
+      "bindings": {
+        "kafka": {
+          "bindingVersion": "0.5.0"
+        }
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/OrderCompleted/messages/com.arcone.biopro.distribution.order.infrastructure.dto.OrderCompletedDTO"
+        }
+      ]
+    },
+    "OrderCreated_send_handleOrderCreatedEvent": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/OrderCreated"
+      },
+      "title": "OrderCreated_send",
+      "description": "Order Created Event",
+      "bindings": {
+        "kafka": {
+          "bindingVersion": "0.5.0"
+        }
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/OrderCreated/messages/com.arcone.biopro.distribution.order.infrastructure.dto.OrderCreatedDTO"
+        }
+      ]
+    },
+    "OrderFulfilled_send_handlePickListCreatedEvent": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/OrderFulfilled"
+      },
+      "title": "OrderFulfilled_send",
+      "description": "Order Fulfilled Event",
+      "bindings": {
+        "kafka": {
+          "bindingVersion": "0.5.0"
+        }
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/OrderFulfilled/messages/com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledEventDTO"
+        }
+      ]
+    },
+    "OrderReceived_receive_handleMessage": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/OrderReceived"
+      },
+      "title": "OrderReceived_receive",
+      "description": "Partner Order received Events",
+      "bindings": {
+        "kafka": {
+          "bindingVersion": "0.5.0"
+        }
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/OrderReceived/messages/com.arcone.biopro.distribution.order.application.dto.OrderReceivedEventDTO"
+        }
+      ]
+    },
     "OrderRejected_send_handleOrderRejectedEvent": {
       "action": "send",
       "channel": {
@@ -667,6 +2149,42 @@
       "messages": [
         {
           "$ref": "#/channels/OrderRejected/messages/OrderRejected"
+        }
+      ]
+    },
+    "ShipmentCompleted_receive_handleMessage": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/ShipmentCompleted"
+      },
+      "title": "ShipmentCompleted_receive",
+      "description": "Shipment completed Events",
+      "bindings": {
+        "kafka": {
+          "bindingVersion": "0.5.0"
+        }
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/ShipmentCompleted/messages/com.arcone.biopro.distribution.order.application.dto.ShipmentCompletedEventDTO"
+        }
+      ]
+    },
+    "ShipmentCreated_receive_handleMessage": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/ShipmentCreated"
+      },
+      "title": "ShipmentCreated_receive",
+      "description": "Shipment created Events",
+      "bindings": {
+        "kafka": {
+          "bindingVersion": "0.5.0"
+        }
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/ShipmentCreated/messages/com.arcone.biopro.distribution.order.application.dto.ShipmentCreatedEventDTO"
         }
       ]
     }

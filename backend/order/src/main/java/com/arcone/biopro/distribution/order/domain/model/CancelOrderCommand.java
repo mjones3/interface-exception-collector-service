@@ -33,10 +33,6 @@ public class CancelOrderCommand implements Validatable {
             throw new IllegalArgumentException("External ID cannot be null");
         }
 
-        if (this.employeeId == null || this.employeeId.isEmpty()) {
-            throw new IllegalArgumentException("Cancel Employee Code cannot be null or empty");
-        }
-
         if (this.reason == null || this.reason.isEmpty()) {
             throw new IllegalArgumentException("Reason cannot be null or empty");
         }

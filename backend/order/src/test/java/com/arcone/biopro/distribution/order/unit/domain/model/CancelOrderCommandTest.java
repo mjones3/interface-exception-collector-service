@@ -11,7 +11,6 @@ class CancelOrderCommandTest {
     @Test
     void testValidation() {
         assertThrows(IllegalArgumentException.class, () -> new CancelOrderCommand(null,null,null,null), "External ID cannot be null");
-        assertThrows(IllegalArgumentException.class, () -> new CancelOrderCommand("123",null,null,null), "Employee ID cannot be null");
         assertThrows(IllegalArgumentException.class, () -> new CancelOrderCommand("123","employee-id",null,null), "Reason cannot be null");
         assertThrows(IllegalArgumentException.class, () -> new CancelOrderCommand("123","employee-id","COMMENTS",null), "Cancel Date cannot be null");
         assertThrows(IllegalArgumentException.class, () -> new CancelOrderCommand("123","employee-id","COMMENTS","2025-01-01"), "Cancel Date cannot be invalid");
