@@ -842,4 +842,54 @@ public class OrderSteps {
         var orderList = context.getOrderList();
         Assert.assertEquals(Integer.parseInt(expectedQuantity), orderList.size());
     }
+
+    @Given("I have an order with external ID {string}, status {string} and backorder flag {string}.")
+    public void iHaveAnOrderWithExternalIDStatusAndBackorderFlag(String externalId, String status, String backOrderFlag) {
+        context.setExternalId(externalId);
+        context.setOrderStatus(status);
+
+        var priority = orderController.getRandomPriority();
+        var query = DatabaseQueries.insertBioProOrder(externalId, context.getLocationCode(), priority.getValue(), priority.getKey(), status, Boolean.parseBoolean(backOrderFlag));
+        databaseService.executeSql(query).block();
+
+        context.setOrderId(Integer.valueOf(databaseService.fetchData(DatabaseQueries.getOrderId(externalId)).first().block().get("id").toString()));
+
+        createOrderItem("PLASMA_TRANSFUSABLE", "A", 10, "Comments");
+    }
+
+    @And("I have received a cancel order request with externalId {string} and content {string}.")
+    public void iHaveReceivedACancelOrderRequestWithExternalIdAndContent(String externalId, String jsonFileName) throws Exception {
+        orderController.cancelOrder(externalId, jsonFileName);
+    }
+
+    @When("The system processes the cancel order request.")
+    public void theSystemProcessesTheCancelOrderRequest() throws InterruptedException {
+        Thread.sleep(kafkaWaitingTime);
+    }
+
+    @Then("The Biopro Order must have status {string}.")
+    public void theBioproOrderMustHaveStatus(String expectedStatus) {
+        var query = DatabaseQueries.getOrderStatus(context.getExternalId());
+        var data = databaseService.fetchData(query);
+        var records = data.first().block();
+        Assert.assertNotNull(records);
+        Assert.assertEquals(expectedStatus, records.get("status"));
+    }
+
+    @And("I {string} be able to receive the cancel details.")
+    public void iBeAbleToReceiveTheCancelDetails(String isShould) {
+        orderController.getOrderDetails(context.getOrderId());
+
+        if (isShould.equalsIgnoreCase("should")) {
+            Assert.assertNotNull(context.getOrderDetails().get("cancelEmployeeId"));
+            Assert.assertNotNull(context.getOrderDetails().get("cancelReason"));
+            Assert.assertNotNull(context.getOrderDetails().get("cancelDate"));
+        } else if (isShould.equalsIgnoreCase("should not")) {
+            Assert.assertNull(context.getOrderDetails().get("cancelEmployeeId"));
+            Assert.assertNull(context.getOrderDetails().get("cancelReason"));
+            Assert.assertNull(context.getOrderDetails().get("cancelDate"));
+        } else {
+            Assert.fail("Invalid option for cancel details.");
+        }
+    }
 }

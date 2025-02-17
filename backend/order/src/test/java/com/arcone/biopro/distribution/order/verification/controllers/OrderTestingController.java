@@ -1,12 +1,19 @@
 package com.arcone.biopro.distribution.order.verification.controllers;
 
+import com.arcone.biopro.distribution.order.application.dto.CancelOrderReceivedDTO;
 import com.arcone.biopro.distribution.order.verification.support.ApiHelper;
+import com.arcone.biopro.distribution.order.verification.support.KafkaHelper;
 import com.arcone.biopro.distribution.order.verification.support.SharedContext;
+import com.arcone.biopro.distribution.order.verification.support.TestUtils;
+import com.arcone.biopro.distribution.order.verification.support.Topics;
 import com.arcone.biopro.distribution.order.verification.support.graphql.GraphQLMutationMapper;
 import com.arcone.biopro.distribution.order.verification.support.graphql.GraphQLQueryMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -24,6 +32,12 @@ public class OrderTestingController {
 
     @Autowired
     private SharedContext context;
+
+    @Autowired
+    private TestUtils testUtils;
+
+    @Autowired
+    private KafkaHelper kafkaHelper;
 
     public Map<String, Integer> priorities = new LinkedHashMap<>();
     public Map<String, String> colors = new HashMap<>();
@@ -90,6 +104,15 @@ public class OrderTestingController {
     public void listOrdersByOrderId() {
         var response = apiHelper.graphQlListRequest(GraphQLQueryMapper.listOrdersByUniqueIdentifier(context.getLocationCode(),context.getOrderId().toString()), "searchOrders");
         context.setOrderList(response);
+    }
+
+    public void cancelOrder(String externalId, String payload) throws Exception {
+        var jsonContent = testUtils.getResource(payload).replace("{EXTERNAL_ID}", externalId).replace("{EVENT_ID}", UUID.randomUUID().toString());
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        var eventPayload = objectMapper.readValue(jsonContent, CancelOrderReceivedDTO.class);
+        var event = kafkaHelper.sendEvent(eventPayload.eventId().toString(), eventPayload, Topics.CANCEL_ORDER_RECEIVED).block();
+        Assert.assertNotNull(event);
     }
 
     @Getter
