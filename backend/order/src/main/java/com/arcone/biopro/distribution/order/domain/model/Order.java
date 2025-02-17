@@ -281,9 +281,9 @@ public class Order implements Validatable {
         }
         Order orderToBeCancelled;
         if(orderList.size() > 1){
-            var backOrders = orderList.stream().filter(order -> order.backOrder && !ORDER_CANCELLED_STATUS.equals(order.getOrderStatus().getOrderStatus())).toList();
+            var backOrders = orderList.stream().filter(order -> order.backOrder && ORDER_OPEN_STATUS.equals(order.getOrderStatus().getOrderStatus())).toList();
             if(backOrders.isEmpty()){
-                throw new DomainException(ORDER_IS_ALREADY_CANCELLED);
+                throw new DomainException(NO_ORDER_TO_BE_CANCELLED);
             }
             orderToBeCancelled = backOrders.getFirst();
 

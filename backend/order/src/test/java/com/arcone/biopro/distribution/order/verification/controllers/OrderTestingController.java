@@ -106,8 +106,8 @@ public class OrderTestingController {
         context.setOrderList(response);
     }
 
-    public void cancelOrder(String externalId, String payload) throws Exception {
-        var jsonContent = testUtils.getResource(payload).replace("{EXTERNAL_ID}", externalId).replace("{EVENT_ID}", UUID.randomUUID().toString());
+    public void cancelOrder(String externalId, String cancelDate, String payload) throws Exception {
+        var jsonContent = testUtils.getResource(payload).replace("{EXTERNAL_ID}", externalId).replace("{EVENT_ID}", UUID.randomUUID().toString()).replace("{CANCEL_DATE}", cancelDate);
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         var eventPayload = objectMapper.readValue(jsonContent, CancelOrderReceivedDTO.class);

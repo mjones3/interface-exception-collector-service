@@ -13,7 +13,6 @@ import com.arcone.biopro.distribution.order.domain.service.LookupService;
 import com.arcone.biopro.distribution.order.domain.service.OrderConfigService;
 import com.arcone.biopro.distribution.order.domain.service.OrderShipmentService;
 import com.arcone.biopro.distribution.order.infrastructure.service.dto.CustomerDTO;
-import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -474,7 +473,7 @@ class OrderTest {
         }catch (Exception e){
             Assertions.assertEquals(DomainException.class,e.getClass());
 
-            Assertions.assertEquals("Order is already cancelled",((DomainException) e).getUseCaseMessageType().getMessage());
+            Assertions.assertEquals("There is no open order to be cancelled",((DomainException) e).getUseCaseMessageType().getMessage());
         }
 
     }
@@ -506,7 +505,7 @@ class OrderTest {
             Assertions.fail();
         }catch (Exception e){
             Assertions.assertEquals(DomainException.class,e.getClass());
-            Assertions.assertEquals("Order is not open and cannot be cancelled",((DomainException) e).getUseCaseMessageType().getMessage());
+            Assertions.assertEquals("There is no open order to be cancelled",((DomainException) e).getUseCaseMessageType().getMessage());
         }
 
     }
@@ -531,7 +530,7 @@ class OrderTest {
             Assertions.fail();
         }catch (Exception e){
             Assertions.assertEquals(DomainException.class,e.getClass());
-            Assertions.assertEquals("There is no order to be cancelled",((DomainException) e).getUseCaseMessageType().getMessage());
+            Assertions.assertEquals("There is no open order to be cancelled",((DomainException) e).getUseCaseMessageType().getMessage());
         }
 
     }
@@ -559,6 +558,44 @@ class OrderTest {
 
 
         var response = order.cancel(new CancelOrderCommand("1233","employee-id","reason","2025-01-01 11:09:55"), List.of(order,backOrder));
+
+        Assertions.assertNotNull(response.getCancelDate());
+        Assertions.assertEquals("reason",response.getCancelReason());
+        Assertions.assertEquals("employee-id",response.getCancelEmployeeId());
+        Assertions.assertTrue(response.isBackOrder());
+        Assertions.assertEquals("CANCELLED",response.getOrderStatus().getOrderStatus());
+
+    }
+
+    @Test
+    void shouldCancelWhenMultipleOrderBackOrder(){
+
+        Mockito.when(lookupService.findAllByType(Mockito.anyString())).thenReturn(Flux.just(new Lookup(new LookupId("OPEN","OPEN"),"description",1,true)
+            , new Lookup(new LookupId("COMPLETED","COMPLETED"),"description",2,true)));
+
+        Mockito.when(orderConfigService.findBackOrderConfiguration()).thenReturn(Mono.just(TRUE));
+
+        var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
+            , "OPEN", "OPEN", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
+            , null, null, "COMPLETED", null, "COMPLETED", "OPEN", "CREATE_EMPLOYEE"
+            , null, null, null);
+
+
+        var backOrder1 = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
+            , "OPEN", "OPEN", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
+            , null, null, "COMPLETED", null, "COMPLETED", "OPEN", "CREATE_EMPLOYEE"
+            , null, null, null);
+
+        var backOrder2 = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
+            , "OPEN", "OPEN", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
+            , null, null, "COMPLETED", null, "OPEN", "OPEN", "CREATE_EMPLOYEE"
+            , null, null, null);
+
+        backOrder1.setBackOrder(TRUE);
+        backOrder2.setBackOrder(TRUE);
+
+
+        var response = order.cancel(new CancelOrderCommand("1233","employee-id","reason","2025-01-01 11:09:55"), List.of(order,backOrder1, backOrder2));
 
         Assertions.assertNotNull(response.getCancelDate());
         Assertions.assertEquals("reason",response.getCancelReason());

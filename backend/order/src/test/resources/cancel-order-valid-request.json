@@ -4,7 +4,7 @@
   "eventVersion": "1.0",
   "occurredOn": "2024-10-07T20:59:16.925110827Z",
   "payload": {
-    "cancelDate": "2025-01-01 11:09:55",
+    "cancelDate": "{CANCEL_DATE}",
     "cancelEmployeeCode": "ee1bf88e-2137-4a17-835a-d43e7b738374",
     "cancelReason": "Customer no longer need",
     "externalId": "{EXTERNAL_ID}"

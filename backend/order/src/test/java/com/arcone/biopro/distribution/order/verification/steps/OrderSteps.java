@@ -843,6 +843,16 @@ public class OrderSteps {
         Assert.assertEquals(Integer.parseInt(expectedQuantity), orderList.size());
     }
 
+    @Then("I should receive the search results containing {string} order(s) with status(es) {string}.")
+    public void iShouldReceiveTheSearchResultsContainingOrderAndStatuses(String expectedQuantity, String statuses) {
+        var orderList = context.getOrderList();
+        Assert.assertEquals(Integer.parseInt(expectedQuantity), orderList.size());
+        var statusesList = testUtils.getCommaSeparatedList(statuses);
+        Arrays.stream(statusesList).toList().forEach(status -> {
+            Assert.assertTrue(orderList.stream().anyMatch(order -> order.get("orderStatus").toString().equals(status)));
+        });
+    }
+
     @Given("I have an order with external ID {string}, status {string} and backorder flag {string}.")
     public void iHaveAnOrderWithExternalIDStatusAndBackorderFlag(String externalId, String status, String backOrderFlag) {
         context.setExternalId(externalId);
@@ -857,9 +867,9 @@ public class OrderSteps {
         createOrderItem("PLASMA_TRANSFUSABLE", "A", 10, "Comments");
     }
 
-    @And("I have received a cancel order request with externalId {string} and content {string}.")
-    public void iHaveReceivedACancelOrderRequestWithExternalIdAndContent(String externalId, String jsonFileName) throws Exception {
-        orderController.cancelOrder(externalId, jsonFileName);
+    @And("I have received a cancel order request with externalId {string}, cancel date {string} and content {string}.")
+    public void iHaveReceivedACancelOrderRequestWithExternalIdAndContent(String externalId, String cancelDate, String jsonFileName) throws Exception {
+        orderController.cancelOrder(externalId, cancelDate, jsonFileName);
     }
 
     @When("The system processes the cancel order request.")

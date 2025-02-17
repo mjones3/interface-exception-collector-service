@@ -30,7 +30,7 @@ public class CancelOrderUseCase implements CancelOrderService {
             .collectList()
             .flatMap(orderList -> {
                 var cancelCommand = new CancelOrderCommand(cancelOrderReceivedDTO.payload().externalId()
-                    ,cancelOrderReceivedDTO.payload().cancelDate()
+                    ,cancelOrderReceivedDTO.payload().cancelEmployeeCode()
                     , cancelOrderReceivedDTO.payload().cancelReason(), cancelOrderReceivedDTO.payload().cancelDate());
                 var orderCancelled = orderList.getFirst().cancel(cancelCommand,orderList);
                 return this.orderRepository.update(orderCancelled)
