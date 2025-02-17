@@ -1,0 +1,10 @@
+package com.arcone.biopro.distribution.shipping.domain.service;
+
+import com.arcone.biopro.distribution.shipping.infrastructure.service.dto.CustomerDTO;
+import reactor.core.publisher.Mono;
+
+public interface CustomerService {
+
+    Mono<CustomerDTO> getCustomerByCode(final String code);
+
+}
