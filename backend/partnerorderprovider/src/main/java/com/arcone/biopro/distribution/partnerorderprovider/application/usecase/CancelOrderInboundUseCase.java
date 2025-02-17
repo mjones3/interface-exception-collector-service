@@ -24,8 +24,9 @@ public class CancelOrderInboundUseCase implements CancelOrderInboundService {
 
         var cancelOrder = new CancelOrder(cancelOrderInboundDTO.getExternalId()
             , cancelOrderInboundDTO.getCancelDate()
+            , cancelOrderInboundDTO.getCancelEmployeeCode()
             , cancelOrderInboundDTO.getCancelReason()
-            , cancelOrderInboundDTO.getCancelEmployeeCode());
+        );
 
         applicationEventPublisher.publishEvent(new CancelOrderInboundReceived(cancelOrder));
         return ValidationResponseDTO
