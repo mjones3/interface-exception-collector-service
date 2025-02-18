@@ -3,13 +3,17 @@ package com.arcone.biopro.distribution.order.domain.model;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Getter
 @EqualsAndHashCode
 @ToString
+@Slf4j
 public class CancelOrderCommand implements Validatable {
 
     private String externalId;
@@ -45,6 +49,14 @@ public class CancelOrderCommand implements Validatable {
             LocalDateTime.parse(this.cancelDate,DateTimeFormatter.ofPattern(CANCEL_DATE_FORMAT));
         }catch (Exception e){
             throw new IllegalArgumentException("Cancel Date is not a valid date");
+        }
+
+        var currentDateTimeUtc = ZonedDateTime.now(ZoneId.of("UTC"));
+        var cancelDateTimeUtc = LocalDateTime.parse(this.cancelDate,DateTimeFormatter.ofPattern(CANCEL_DATE_FORMAT)).atZone(ZoneId.of("UTC"));
+
+        if(cancelDateTimeUtc.isAfter(currentDateTimeUtc)){
+            log.debug("Current Date Time {} , Cancel Date Time {}", currentDateTimeUtc, cancelDateTimeUtc);
+            throw new IllegalArgumentException("Cancel Date cannot be in the future");
         }
 
     }
