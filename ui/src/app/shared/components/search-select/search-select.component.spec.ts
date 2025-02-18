@@ -29,8 +29,8 @@ describe('SearchSelectComponent', () => {
         });
         component.controlName = 'controlForm';
         component.items = [
-            { optionKey: 'A12', optionDescription: 'Random' },
-            { optionKey: 'A13', optionDescription: 'Hospital' },
+            { code: 'A12', name: 'Random' },
+            { code: 'A13', name: 'Hospital' },
         ];
         fixture.detectChanges();
     });

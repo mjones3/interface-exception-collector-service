@@ -15,7 +15,6 @@
                     formControlName="unitNumber"
                     autocomplete="off"
                     validateOn="touchedState"
-                    (keyup)="enableProductCode()"
                     placeholder="Enter Unit Number"
                 />
                 @if (productGroup.get('unitNumber').hasError('required')) {

@@ -39,16 +39,13 @@
 
         @for (option of itemList; track option) {
             <mat-option
-                [id]="option.optionKey"
-                [value]="option.optionKey"
+                [id]="option.code"
+                [value]="option.code"
                 [ngClass]="{
-                    hidden: isNotAMatch(
-                        option.optionDescription,
-                        controlInput.value
-                    ),
+                    hidden: isNotAMatch(option.name, controlInput.value),
                 }"
             >
-                {{ option.optionDescription }}
+                {{ option.name }}
             </mat-option>
         }
     </mat-select>

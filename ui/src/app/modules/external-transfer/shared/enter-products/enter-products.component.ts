@@ -1,13 +1,13 @@
 import { CommonModule } from '@angular/common';
 import {
-    AfterContentChecked,
     AfterViewInit,
     ChangeDetectorRef,
     Component,
     ElementRef,
     EventEmitter,
+    OnDestroy,
     Output,
-    ViewChild, OnDestroy,
+    ViewChild,
 } from '@angular/core';
 import {
     FormBuilder,
@@ -33,9 +33,7 @@ import { Subscription, combineLatestWith, debounceTime, filter } from 'rxjs';
     ],
     templateUrl: './enter-products.component.html',
 })
-export class EnterProductsComponent
-    implements AfterViewInit, AfterContentChecked, OnDestroy
-{
+export class EnterProductsComponent implements OnDestroy, AfterViewInit {
     productGroup: FormGroup;
     formValueChange: Subscription;
     @Output() validate: EventEmitter<{
@@ -65,7 +63,7 @@ export class EnterProductsComponent
                 ],
             ],
             productCode: [
-                { value: '', disabled: true },
+                '',
                 [
                     Validators.required,
                     Validators.pattern(commonRegex.productCode),
@@ -97,30 +95,12 @@ export class EnterProductsComponent
         this.formValueChange?.unsubscribe();
     }
 
-    ngAfterContentChecked(): void {
-        this.cd.detectChanges();
-    }
-
     get controlUnitNumber() {
         return this.productGroup.controls['unitNumber'];
     }
 
     get controlProductCode() {
         return this.productGroup.controls['productCode'];
-    }
-
-    enableProductCode(): void {
-        if (this.productGroup.controls.unitNumber.valid) {
-            this.productGroup.controls.productCode.enable();
-            this.focusProductCode();
-        } else {
-            this.productGroup.controls.productCode.disable();
-            this.productGroup.controls.productCode.reset();
-        }
-    }
-
-    focusProductCode() {
-        this.inputProductCode?.nativeElement.focus();
     }
 
     focusOnUnitNumber() {
@@ -138,6 +118,5 @@ export class EnterProductsComponent
     resetProductGroup(): void {
         this.productGroup.reset();
         this.productGroup.enable();
-        this.enableProductCode();
     }
 }

@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { SelectOptionDto } from 'app/shared/models';
+import { customerOptionDto } from 'app/modules/external-transfer/models/external-transfer.dto';
 
 @Component({
     selector: 'biopro-search-select',
@@ -27,7 +27,7 @@ export class SearchSelectComponent {
     @Input() formGroup!: FormGroup;
     @Input() matSelectId: string;
     @Input() control!: FormControl;
-    @Input() items: SelectOptionDto[];
+    @Input() items: customerOptionDto[];
     @Input() disabled = false;
     @Input() required = false;
 
@@ -36,18 +36,15 @@ export class SearchSelectComponent {
     }
 
     get fieldErrorMessage() {
-        return `${this.title} Required`;
+        return `${this.title} is Required`;
     }
 
-    get itemList(): SelectOptionDto[] {
+    get itemList(): customerOptionDto[] {
         return this.items ?? [];
     }
 
-    isNotAMatch(
-        optionDescription: string,
-        valueToFilter = ''
-    ): boolean {
-        return !optionDescription
+    isNotAMatch(name: string, valueToFilter = ''): boolean {
+        return !name
             .toLowerCase()
             .includes(valueToFilter?.toLowerCase().trim());
     }

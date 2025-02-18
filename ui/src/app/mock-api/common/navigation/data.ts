@@ -98,6 +98,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
         id: 11,
         title: 'External Transfer',
         type: 'basic',
+        icon: 'compare_arrows',
         link: 'external-transfer',
         disabled: false,
     },
