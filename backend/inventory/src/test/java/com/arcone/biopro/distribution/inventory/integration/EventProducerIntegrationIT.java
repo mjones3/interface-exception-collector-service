@@ -97,17 +97,24 @@ public class EventProducerIntegrationIT {
     }
 
     @Test
-    @DisplayName("Should receive label applied event, map, call usecase and produce the event with the correct information")
+    @DisplayName("Should receive label applied event (licensed inventory), map, call usecase and produce the event with the correct information (including the LICENSED property)")
     public void test1() throws InterruptedException, IOException {
         publishCreatedEvent("json/label_applied.json", LABEL_APPLIED_TOPIC);
-        assertProducedMessageValues("W123456789012", "E0869V00", "LABEL_APPLIED");
+        assertProducedMessageValues("W123456789012", "E0869V00", "LABEL_APPLIED", "LICENSED");
+    }
+
+    @Test
+    @DisplayName("Should receive label applied event (unlicensed inventory), map, call usecase and produce the event with the correct information (including the UNLICENSED property)")
+    public void test2() throws InterruptedException, IOException {
+        publishCreatedEvent("json/label_applied_unlicensed.json", LABEL_APPLIED_TOPIC);
+        assertProducedMessageValues("W123456789012", "E0869V00", "LABEL_APPLIED", "LICENSED");
     }
 
     @Test
     @DisplayName("Should receive shipment completed event, map, call usecase and produce the event with the correct information")
-    public void test2() throws InterruptedException, IOException {
+    public void test3() throws InterruptedException, IOException {
         publishCreatedEvent("json/shipment_completed.json", SHIPMENT_COMPLETED_TOPIC);
-        assertProducedMessageValues("W123456789012", "E123412", "SHIPMENT_COMPLETED");
+        assertProducedMessageValues("W123456789012", "E123412", "SHIPPED", "UNLICENSED");
     }
 
     private JsonNode publishCreatedEvent(String path, String topic) throws IOException, InterruptedException {
@@ -124,7 +131,7 @@ public class EventProducerIntegrationIT {
         log.info("Inventory Updated listener received: {}", record);
     }
 
-    private void assertProducedMessageValues(String unitNumber, String productCode, String updateType) throws InterruptedException, JsonProcessingException {
+    private void assertProducedMessageValues(String unitNumber, String productCode, String updateType, String expectedLicensure) throws InterruptedException, JsonProcessingException {
         var receivedMessage = receivedRecords.poll(5, TimeUnit.SECONDS);
 
         assertThat(receivedMessage).isNotNull();
@@ -133,5 +140,6 @@ public class EventProducerIntegrationIT {
         assertThat(payload.path(UNIT_NUMBER).asText()).isEqualTo(unitNumber);
         assertThat(payload.path(PRODUCT_CODE).asText()).isEqualTo(productCode);
         assertThat(payload.path(UPDATE_TYPE).asText()).isEqualTo(updateType);
+        assertThat(payload.path(PROPERTIES).path(LICENSURE).asText()).isEqualTo(expectedLicensure);
     }
 }

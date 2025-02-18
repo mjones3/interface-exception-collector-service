@@ -1,7 +1,6 @@
 package com.arcone.biopro.distribution.inventory.adapter.output.producer;
 
 import com.arcone.biopro.distribution.inventory.adapter.output.producer.event.InventoryUpdatedEvent;
-import com.arcone.biopro.distribution.inventory.domain.event.InventoryUpdatedApplicationEvent;
 import com.arcone.biopro.distribution.inventory.domain.model.Inventory;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryUpdateType;
 import org.mapstruct.Mapper;
@@ -12,6 +11,8 @@ import java.util.List;
 
 import java.util.Map;
 import java.util.Optional;
+
+import static com.arcone.biopro.distribution.inventory.BioProConstants.LICENSURE;
 
 @Mapper(componentModel = "spring")
 public interface InventoryUpdatedMapper {
@@ -52,7 +53,7 @@ public interface InventoryUpdatedMapper {
 
     default Map<String, Object> getInventoryProperties(Inventory inventory) {
         var properties = new LinkedHashMap<String, Object>();
-        properties.put("LICENSURE", inventory.getIsLicensed() ? "LICENSED":"UNLICENSED" );
+        properties.put(LICENSURE, (inventory != null && Boolean.TRUE.equals(inventory.getIsLicensed())) ? "LICENSED" : "UNLICENSED");
         return properties;
     }
 

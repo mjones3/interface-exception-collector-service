@@ -16,5 +16,9 @@ public interface BioProConstants {
     String UNIT_NUMBER = "unitNumber";
     String PRODUCT_CODE = "productCode";
     String UPDATE_TYPE = "updateType";
+    String PROPERTIES = "properties";
+    String LICENSURE = "LICENSURE";
+    String LICENSED = "LICENSED";
+    String UNLICENSED = "UNLICENSED";
 
 }
