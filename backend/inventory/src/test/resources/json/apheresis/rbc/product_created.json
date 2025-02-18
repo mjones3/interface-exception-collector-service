@@ -1,0 +1,55 @@
+{
+  "eventId": "7eaefe46-e6cf-4434-93c4-a4b1e7d44285",
+  "occurredOn": "2024-08-22T12:34:32.270657005Z",
+  "eventType":"ApheresisRBCProductCreated",
+  "eventVersion":"1.0",
+  "payload":{
+    "unitNumber":"W036824009001",
+    "productCode":"E067800",
+    "productDescription":"APH AS3 LR",
+    "productFamily":"RED_BLOOD_CELLS_LEUKOREDUCED",
+    "completionStage":"INTERMEDIATE",
+    "bagType": "0832F-00",
+    "weight":{
+      "value":200,
+      "unit":"GRAMS"
+    },
+    "volume":{
+      "value":200,
+      "unit":"MILLILITERS"
+    },
+    "anticoagulantVolume":{
+      "value":4,
+      "unit":"MILLILITERS"
+    },
+    "expirationDate":"01/08/2024",
+    "expirationTime":"23:59",
+    "drawTime":"2024-01-08T02:05:45.231Z",
+    "donationType":"ALLOGENEIC",
+    "procedureType":"APHERESIS_RBC",
+    "collectionLocation":"COLLECTION_LOCATION",
+    "manufacturingLocation":"MANUFACTURING_LOCATION",
+    "aboRh":"AP",
+    "performedBy":"USER_ID",
+    "createDate":"2024-01-08T02:05:45.231Z",
+    "inputProducts":[
+      {
+        "unitNumber":"W123456748998",
+        "productCode":"RBCAPH1",
+        "completionStage":"GENERIC"
+      }
+    ],
+    "additionalSteps":[
+      {
+        "stepType":"DONOR_ELIGIBILITY_SCREENING",
+        "status":"PENDING",
+        "lastUpdated":null
+      },
+      {
+        "stepType":"STANDARD_TEST_RESULTS",
+        "status":"PENDING",
+        "lastUpdated":null
+      }
+    ]
+  }
+}

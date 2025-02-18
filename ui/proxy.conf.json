@@ -1,29 +1,57 @@
 [
-  {
-    "context": ["/v1"],
-    "target": "http://api.local.gd/v1",
-    "secure": true,
-    "changeOrigin": true,
-    "pathRewrite": {
-      "^/v1": ""
+    {
+        "context": ["/v1"],
+        "target": "http://api.local.gd/v1",
+        "secure": true,
+        "changeOrigin": true,
+        "pathRewrite": {
+            "^/v1": ""
+        }
+    },
+    {
+        "context": ["/request-token"],
+        "target": "http://api.local.gd/request-token",
+        "secure": true,
+        "changeOrigin": true,
+        "pathRewrite": {
+            "^/request-token": ""
+        }
+    },
+    {
+        "context": ["/graphql"],
+        "target": "http://api.local.gd/graphql",
+        "secure": true,
+        "changeOrigin": true,
+        "pathRewrite": {
+            "^/graphql": ""
+        }
+    },
+    {
+        "context": ["/order/graphql"],
+        "target": "http://api.local.gd/order/graphql",
+        "secure": true,
+        "changeOrigin": true,
+        "pathRewrite": {
+            "^/order/graphql": ""
+        }
+    },
+
+    {
+        "context": ["/shipping/graphql"],
+        "target": "http://api.local.gd/shipping/graphql",
+        "secure": true,
+        "changeOrigin": true,
+        "pathRewrite": {
+            "^/shipping/graphql": ""
+        }
+    },
+    {
+        "context": ["/discard/graphql"],
+        "target": "http://api.local.gd/discard/graphql",
+        "secure": true,
+        "changeOrigin": true,
+        "pathRewrite": {
+            "^/discard/graphql": ""
+        }
     }
-  },
-  {
-    "context": ["/graphql"],
-    "target": "http://api.local.gd/graphql",
-    "secure": true,
-    "changeOrigin": true,
-    "pathRewrite": {
-      "^/graphql": ""
-    }
-  },
-  {
-    "context": ["/request-token"],
-    "target": "https://api.dev01.ao.arc-one.com/request-token",
-    "secure": true,
-    "changeOrigin": true,
-    "pathRewrite": {
-      "^/request-token": ""
-    }
-  }
 ]

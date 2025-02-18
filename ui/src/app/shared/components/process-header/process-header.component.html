@@ -1,0 +1,30 @@
+<!-- Process Header -->
+<div
+  class="content-layout fullwidth-standard-normal-scroll flex-0"
+  [ngClass]="{ 'fixed z-10 mt-0': stickyHeader, 'w-full': !stickyHeader }"
+  [ngStyle]="{ width: leftNavigationComponentOpened && stickyHeader ? calcContentWidth : '100%' }"
+>
+  <div class="header">
+    <div class="container flex w-full justify-start items-left">
+      <div class="flex items-start title-section">
+        @if(_title || _titleTpl){
+          <h1 class="m-0 font-bold"> 
+          @if(_title) {
+            <ng-container>{{ _title }}</ng-container>
+        }
+          @else(){
+            <ng-container>{{ _titleTpl }}</ng-container>
+          }
+        </h1>
+        }
+        @if(subTitle){<h3 class="m-0">
+          <span class="font-bold mr-3">{{ subTitle }}</span> {{ mainSubTitle  }}
+        </h3>
+        }
+      </div>
+      <div class="flex flex-auto justify-end items-end space-x-2">
+        <ng-container *ngTemplateOutlet="buttons"></ng-container>
+      </div>
+    </div>
+  </div>
+</div>

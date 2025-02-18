@@ -1,0 +1,95 @@
+<div id="fillProductForm" class="flex flex-col" [formGroup]="productGroup">
+    <div class="flex w-full flex-row space-x-6 px-8 pb-4 pt-4">
+        <div class="flex w-3/4 flex-col space-y-1">
+            <rsa-scan-unit-number-check-digit
+                id="scanOrEnterUnitNumberId"
+                [showCheckDigit]="showCheckDigit"
+                (validate)="verifyUnit($event)"
+                #unitnumber
+            >
+            </rsa-scan-unit-number-check-digit>
+        </div>
+
+        <div class="flex w-full flex-row space-x-6">
+            <div class="w-2/3 space-y-1">
+                <div class="mt-0 flex flex-auto flex-col">
+                    <mat-form-field class="block w-full">
+                        <mat-label class="font-bold">Product Code</mat-label>
+                        <input
+                            id="productCodeId"
+                            #inputProductCode
+                            matInput
+                            formControlName="productCode"
+                            autocomplete="off"
+                            validateOn="touchedState"
+                            (keyup)="enableVisualInspection()"
+                            [placeholder]="'Scan or Enter Product Code'"
+                        />
+                        @if (
+                            productGroup.get('productCode').hasError('required')
+                        ) {
+                            <mat-error>Product Code is Required</mat-error>
+                        }
+
+                        @if (
+                            productGroup
+                                .get('productCode')
+                                .hasError('invalidProductCode')
+                        ) {
+                            <mat-error>Product Code is Invalid</mat-error>
+                        }
+                    </mat-form-field>
+                </div>
+            </div>
+            @if (showVisualInspection) {
+                <div class="flex w-2/3 flex-col space-y-1">
+                    <span class="flex pl-2">
+                        <label
+                            [ngClass]="{
+                                'opacity-70': visualInspectionDisabled,
+                            }"
+                            for="visualInspectionId"
+                            class="block font-bold"
+                            >Visual Inspection
+                        </label>
+                        <span
+                            class="custom-required"
+                            [ngClass]="{
+                                'opacity-70': visualInspectionDisabled,
+                            }"
+                            >*</span
+                        >
+                    </span>
+                    <div
+                        class="align-start mb-5 flex flex-col items-start justify-start"
+                    >
+                        <mat-button-toggle-group
+                            id="visualInspectionId"
+                            formControlName="visualInspection"
+                        >
+                            <mat-button-toggle
+                                id="inspection-satisfactory"
+                                [value]="'satisfactory'"
+                                >Satisfactory
+                            </mat-button-toggle>
+                            <mat-button-toggle
+                                id="inspection-unsatisfactory"
+                                [value]="'unsatisfactory'"
+                                >Unsatisfactory
+                            </mat-button-toggle>
+                        </mat-button-toggle-group>
+                    </div>
+                    @if (
+                        productGroup
+                            .get('visualInspection')
+                            .hasError('required')
+                    ) {
+                        <span class="custom-error-message"
+                            >Visual Inspection is Required</span
+                        >
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>

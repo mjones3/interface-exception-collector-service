@@ -1,0 +1,29 @@
+package com.arcone.biopro.distribution.order.infrastructure.mapper;
+
+import com.arcone.biopro.distribution.order.domain.model.OrderItem;
+import com.arcone.biopro.distribution.order.domain.model.vo.OrderItemOrderId;
+import com.arcone.biopro.distribution.order.infrastructure.persistence.OrderItemEntity;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+
+import static java.util.Optional.ofNullable;
+
+@Component
+@RequiredArgsConstructor
+public class OrderItemEntityMapper {
+
+    public OrderItemEntity mapToEntity(final OrderItem orderItem) {
+        return OrderItemEntity.builder()
+            .id(orderItem.getId())
+            .orderId(ofNullable(orderItem.getOrderId()).map(OrderItemOrderId::getOrderId).orElse(null))
+            .productFamily(orderItem.getProductFamily().getProductFamily())
+            .bloodType(orderItem.getBloodType().getBloodType())
+            .quantity(orderItem.getQuantity())
+            .comments(orderItem.getComments())
+            .createDate(orderItem.getCreateDate())
+            .modificationDate(orderItem.getModificationDate())
+            .quantityShipped(orderItem.getQuantityShipped())
+            .build();
+    }
+
+}

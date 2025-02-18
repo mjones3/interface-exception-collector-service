@@ -1,0 +1,73 @@
+<app-filters
+    [disabled]="!enableSubmit"
+    [resetDisabled]="!enableReset"
+    [appliedTotalFilterCount]="totalFieldsApplied"
+    (search)="applyFilterSearch()"
+    (resetSearchFilter)="resetFilters()"
+    (showFilterControl)="toggleFilter($event)"
+    [showFilters]="showFilters"
+>
+    <form
+        [formGroup]="searchForm"
+        class="inline-form flex w-full flex-col"
+        id="searchFormId"
+    >
+        <div class="w-full pt-2">
+            <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
+                <mat-form-field class="block w-full" id="orderNumber">
+                    <mat-label id="orderNumberLabel"> Order Number </mat-label>
+                    <input
+                        id="orderNumberInput"
+                        matInput
+                        formControlName="orderNumber"
+                        placeholder="Enter External Order ID or BioPro Order ID"
+                        maxlength="50"
+                        autocomplete="off"
+                        #orderNumber
+                    />
+                </mat-form-field>
+
+                <app-multiple-select
+                    [formGroup]="searchForm"
+                    controlName="orderStatus"
+                    title="Order Status"
+                    [items]="statusOptions"
+                    matSelectId="orderStatus"
+                ></app-multiple-select>
+
+                <app-multiple-select
+                    [formGroup]="searchForm"
+                    controlName="deliveryTypes"
+                    title="Order Priority"
+                    [items]="priorityOptions"
+                    matSelectId="deliveryTypes"
+                ></app-multiple-select>
+
+                <app-multiple-select
+                    [formGroup]="searchForm"
+                    controlName="customers"
+                    title="Ship to Customer"
+                    [items]="customers"
+                    matSelectId="customers"
+                ></app-multiple-select>
+
+                <app-date-range-picker
+                    [formGroup]="getDateRangeFormGroup('createDate')"
+                    [minDate]="minCreateDateCriteria"
+                    matDatepickerMinErrorMessage="Date range exceeds two years"
+                    matEndDateInvalidMessage="Initial date should not be greater than final date"
+                    matDatepickerMaxMessage="Final date should not be greater than today"
+                    title="Create Date"
+                    dateRangeId="createDate"
+                    [maxDate]="today"
+                ></app-date-range-picker>
+
+                <app-date-range-picker
+                    [formGroup]="getDateRangeFormGroup('desiredShipDate')"
+                    title="Desired Shipment Date"
+                    dateRangeId="desiredShipmentDate"
+                ></app-date-range-picker>
+            </div>
+        </div>
+    </form>
+</app-filters>

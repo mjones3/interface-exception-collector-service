@@ -1,0 +1,269 @@
+scalar DateTime
+scalar Date
+
+type Query {
+    # Searches over all Lookup records by a grouping type criteria
+    findAllLookupsByType(type: String!): [Lookup]!
+
+    # Searches over all Customers
+    findAllCustomers: [Customer]!
+    # Finds a Customer by its code
+    findCustomerByCode(code: String!): Customer
+
+    # Searches over all orders
+    findOrderById(orderId:ID!):OrderResponseDTO!
+    searchOrders(orderQueryCommandDTO:OrderQueryCommandDTO!):[OrderReportDTO]
+    findOrderShipmentByOrderId(orderId:ID!):OrderShipmentDTO
+    searchOrderCriteria: SearchOrderCriteriaDTO
+}
+
+type Mutation {
+    insertLookup(lookup: LookupInput!): Lookup!
+    updateLookup(lookup: LookupInput!): Lookup!
+    deleteLookup(lookup: LookupInput!): Lookup!
+    generatePickList(orderId: ID! , skipInventoryUnavailable:Boolean!):PickListResponseDTO!
+    completeOrder(completeOrderCommandDTO:CompleteOrderCommandDTO!): OrderResponseDTO!
+}
+
+input LookupIdInput {
+    type: String!
+    optionValue: String!
+}
+
+input LookupInput {
+    type: String!
+    optionValue: String!
+    descriptionKey: String!
+    orderNumber: Int!
+    active: Boolean!
+}
+
+input OrderItemInput {
+    productFamily: String!
+    bloodType: String!
+    quantity: Int!
+    comments: String
+    createDate: DateTime
+    modificationDate: DateTime
+}
+
+input OrderInput {
+    orderNumber: Int!
+    externalId: String
+    locationCode: String!
+    shipmentType: String!
+    shippingMethod: String!
+    shippingCustomerName: String
+    shippingCustomerCode: String!
+    billingCustomerName: String
+    billingCustomerCode: String!
+    desiredShippingDate: Date
+    willCallPickup: Boolean
+    phoneNumber: String
+    productCategory: String!
+    comments: String
+    status: String!
+    priority: String!
+    createEmployeeId: String!
+    createDate: DateTime
+    modificationDate: DateTime
+    deleteDate: DateTime
+    orderItems: [OrderItemInput]!
+}
+
+type Lookup {
+    type: String!
+    optionValue: String!
+    descriptionKey: String!
+    orderNumber: Int!
+    active: Boolean!
+}
+
+type CustomerAddress {
+    contactName: String!
+    addressType: String!
+    state: String!
+    postalCode: String!
+    countryCode: String!
+    city: String!
+    district: String!
+    addressLine1: String!
+    addressLine2: String!
+    active: String!
+}
+
+type Customer {
+    externalId: String!
+    name: String!
+    code: String!
+    departmentCode: String!
+    departmentName: String!
+    phoneNumber: String!
+    active: String!
+    addresses: [CustomerAddress]
+}
+
+type OrderItem {
+    id: Int!
+    orderId: Int!
+    productFamily: String!
+    bloodType: String!
+    quantity: Int!
+    comments: String
+    createDate: DateTime!
+    modificationDate: DateTime!
+    quantityAvailable:Int
+    quantityShipped:Int!
+    quantityRemaining:Int!
+}
+
+type OrderResponseDTO {
+    notifications:[NotificationDTO]
+    data:Order
+}
+
+type Order {
+    id: Int!
+    orderNumber: Int!
+    externalId: String
+    locationCode: String!
+    shipmentType: String!
+    shippingMethod: String!
+    shippingCustomerName: String!
+    shippingCustomerCode: String!
+    billingCustomerName: String!
+    billingCustomerCode: String!
+    desiredShippingDate: Date
+    willCallPickup: Boolean
+    phoneNumber: String
+    productCategory: String!
+    comments: String
+    status: String!
+    priority: String!
+    createEmployeeId: String!
+    createDate: DateTime!
+    modificationDate: DateTime!
+    deleteDate: DateTime
+    orderItems: [OrderItem]!
+    totalShipped: Int!
+    totalRemaining: Int!
+    totalProducts: Int!
+    canBeCompleted: Boolean
+    completeEmployeeId: String
+    completeDate: DateTime
+    completeComments: String
+    backOrderCreationActive: Boolean!
+}
+
+type OrderReportDTO {
+    orderId: Int!
+    orderNumber:Int!
+    externalId: String
+    orderStatus: String
+    orderCustomerReport:OrderCustomerReportDTO
+    orderPriorityReport:OrderPriorityReportDTO
+    createDate: DateTime
+    desireShipDate: Date
+}
+
+type OrderCustomerReportDTO {
+    code:String
+    name:String
+}
+
+type OrderPriorityReportDTO {
+
+    priority:String
+    priorityColor:String
+}
+
+input OrderQueryCommandDTO {
+    locationCode:String!
+    orderUniqueIdentifier:String
+    orderStatus:[String]
+    deliveryTypes:[String]
+    customers:[String]
+    createDateFrom:Date
+    createDateTo:Date
+    desireShipDateFrom:Date
+    desireShipDateTo:Date
+    querySort:QuerySortDTO
+    limit:Int
+}
+
+input QuerySortDTO {
+    orderByList:[QueryOrderByDTO]
+}
+
+input QueryOrderByDTO {
+    property:String
+    direction:String
+}
+
+input CompleteOrderCommandDTO {
+    orderId:ID!
+    employeeId:String!
+    createBackOrder:Boolean!
+    comments:String
+}
+
+type PickListResponseDTO {
+    notifications:[NotificationDTO]
+    data:PickListDTO
+}
+
+type PickListDTO {
+    orderNumber:Int
+    customer:PickListCustomerDTO
+    pickListItems:[PickListItemDTO]
+    orderComments:String
+}
+
+type NotificationDTO {
+    name: String
+    notificationType: String
+    notificationMessage: String
+}
+
+type PickListCustomerDTO {
+    code:String
+    name:String
+}
+
+type PickListItemDTO {
+    productFamily:String
+    bloodType:String
+    quantity:Int
+    comments:String
+    shortDateList:[PickListItemShortDateDTO]
+}
+
+type PickListItemShortDateDTO {
+    unitNumber:String
+    productCode:String
+    aboRh:String
+    storageLocation:String
+}
+
+type OrderShipmentDTO {
+    id: ID!
+    orderId:Int
+    shipmentId:Int
+    shipmentStatus:String
+    createDate:DateTime
+}
+
+type LookupDTO {
+    type: String!
+    optionValue: String!
+    descriptionKey: String!
+    orderNumber: Int!
+    active: Boolean!
+}
+
+type SearchOrderCriteriaDTO {
+    orderStatus:[LookupDTO]
+    orderPriorities:[LookupDTO]
+    customers:[OrderCustomerReportDTO]
+}
+
