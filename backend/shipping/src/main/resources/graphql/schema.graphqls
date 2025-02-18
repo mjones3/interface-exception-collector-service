@@ -12,6 +12,9 @@ type Query {
 
     # Unit Number with Check Digit Verification
     verifyCheckDigit(unitNumber: String!, checkDigit: String!): RuleResponseDTO!
+
+    # Searches over all Customers
+    findAllCustomers: [CustomerDTO]!
 }
 
 type Mutation {

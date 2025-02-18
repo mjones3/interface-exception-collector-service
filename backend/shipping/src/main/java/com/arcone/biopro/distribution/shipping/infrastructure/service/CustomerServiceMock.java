@@ -7,6 +7,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
@@ -31,6 +32,11 @@ public class CustomerServiceMock implements CustomerService {
             CUSTOMERS.addAll(Arrays.asList(data));
         }
     }
+
+    public Flux<CustomerDTO> getCustomers() {
+        return Flux.fromIterable(CUSTOMERS);
+    }
+
 
     public Mono<CustomerDTO> getCustomerByCode(final String code) {
         return CUSTOMERS.stream()
