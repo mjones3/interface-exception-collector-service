@@ -20,7 +20,8 @@ public record InventoryUpdatedEvent(
     LocalDate expirationDate,
     String locationCode,
     String storageLocation,
-    List<String> inventoryStatus
+    List<String> inventoryStatus,
+    Map<String, Object> properties
     // TODO: Input products and properties
 
 ) implements Serializable {

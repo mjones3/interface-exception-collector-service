@@ -7,8 +7,10 @@ import com.arcone.biopro.distribution.inventory.domain.model.enumeration.Invento
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 
+import java.util.Map;
 import java.util.Optional;
 
 @Mapper(componentModel = "spring")
@@ -29,6 +31,7 @@ public interface InventoryUpdatedMapper {
         expression = "java(getInventoryStatus(inventory))"
     )
 @Mapping(target = "updateType", source = "updateType")
+    @Mapping(target = "properties", expression = "java(getInventoryProperties(inventory))")
     InventoryUpdatedEvent toEvent(Inventory inventory, InventoryUpdateType updateType);
 
     default String getStorageLocation(Inventory inventory) {
@@ -45,6 +48,12 @@ public interface InventoryUpdatedMapper {
 
     default List<String> getInventoryStatus(Inventory inventory) {
         return List.of(inventory.getInventoryStatus().name());
+    }
+
+    default Map<String, Object> getInventoryProperties(Inventory inventory) {
+        var properties = new LinkedHashMap<String, Object>();
+        properties.put("LICENSURE", inventory.getIsLicensed() ? "LICENSED":"UNLICENSED" );
+        return properties;
     }
 
 }
