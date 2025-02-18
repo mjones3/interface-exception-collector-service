@@ -151,6 +151,7 @@ Desktop.ini
 # Angular
 ######################
 .angular
+/package-lock.json
 # misc
 /.angular/cache
 /.sass-cache

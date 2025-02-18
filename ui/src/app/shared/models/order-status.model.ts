@@ -5,6 +5,7 @@ export enum OrderStatus {
     SHIPPED,
     IN_PROGRESS,
     COMPLETED,
+    CANCELLED,
 }
 
 export const OrderStatusMap: Record<keyof typeof OrderStatus, string> = {
@@ -14,4 +15,5 @@ export const OrderStatusMap: Record<keyof typeof OrderStatus, string> = {
     SHIPPED: 'Shipped',
     IN_PROGRESS: 'In Progress',
     COMPLETED: 'Completed',
+    CANCELLED: 'Cancelled',
 };
