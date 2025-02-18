@@ -57,9 +57,9 @@
                     externalId: orderDetails?.externalId,
                     priority: orderDetails?.priority,
                     status: orderDetails?.status,
-                    cancelEmployeeId: orderDetails.cancelEmployeeId,
-                    cancelDate: orderDetails.cancelDate,
-                    cancelReason: orderDetails.cancelReason,
+                    cancelEmployeeId: orderDetails?.cancelEmployeeId,
+                    cancelDate: orderDetails?.cancelDate,
+                    cancelReason: orderDetails?.cancelReason,
                 }"
                 [comments]="orderDetails?.comments"
                 [shippingInput]="{
@@ -114,15 +114,15 @@
 
                 <div class="flex flex-row space-x-2">
                     @if (orderDetails.status !== 'CANCELLED') {
-                    <button
-                        id="generatePickListButton"
-                        class="bg-purple-light px-4 text-white"
-                        mat-flat-button
-                        (click)="viewPickList(orderDetails.id)"
-                        [disabled]="loadingPickList"
-                    >
-                        View/Print Pick List
-                    </button>
+                        <button
+                            id="generatePickListButton"
+                            class="bg-purple-light px-4 text-white"
+                            mat-flat-button
+                            (click)="viewPickList(orderDetails.id)"
+                            [disabled]="loadingPickList"
+                        >
+                            View/Print Pick List
+                        </button>
                     }
                 </div>
             </div>

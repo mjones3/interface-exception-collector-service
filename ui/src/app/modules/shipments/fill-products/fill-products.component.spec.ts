@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { By } from '@angular/platform-browser';
@@ -25,6 +26,7 @@ describe('FillProductsComponent', () => {
     let toaster: ToastrImplService;
     let confirmationAcknowledgmentService: ConfirmationAcknowledgmentService;
     let controller: ApolloTestingController;
+    let datePipe: DatePipe;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
@@ -37,6 +39,7 @@ describe('FillProductsComponent', () => {
                 TranslateModule.forRoot(),
             ],
             providers: [
+                DatePipe,
                 {
                     provide: ActivatedRoute,
                     useValue: {
@@ -62,6 +65,7 @@ describe('FillProductsComponent', () => {
             ConfirmationAcknowledgmentService
         );
         controller = TestBed.inject(ApolloTestingController);
+        datePipe = TestBed.inject(DatePipe);
 
         jest.spyOn(service, 'getShipmentById').mockReturnValue(of());
         jest.spyOn(service, 'verifyShipmentProduct').mockReturnValue(of());

@@ -54,6 +54,11 @@
                                             description?.valueType !== 'badge'
                                         ) {
                                             <span
+                                                id="informationDetails-{{
+                                                    description.label
+                                                        .split(' ')
+                                                        .join('-')
+                                                }}-value"
                                                 class="fuse-mat-no-subscript mr-4 flex-auto text-left"
                                                 [ngClass]="valueClasses"
                                                 [ngStyle]="

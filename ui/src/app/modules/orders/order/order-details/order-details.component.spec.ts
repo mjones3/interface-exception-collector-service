@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
@@ -18,6 +19,7 @@ describe('OrderDetailsComponent', () => {
     let router: Router;
     let orderService: OrderService;
     let productIconService: ProductIconsService;
+    let datePipe: DatePipe;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
@@ -32,6 +34,7 @@ describe('OrderDetailsComponent', () => {
             providers: [
                 provideHttpClient(),
                 provideMockStore({}),
+                DatePipe,
                 {
                     provide: ActivatedRoute,
                     useValue: {
@@ -50,6 +53,7 @@ describe('OrderDetailsComponent', () => {
         router = TestBed.inject(Router);
         productIconService = TestBed.inject(ProductIconsService);
         orderService = TestBed.inject(OrderService);
+        datePipe = TestBed.inject(DatePipe);
         jest.spyOn(orderService, 'getOrderById').mockReturnValue(of());
         fixture.detectChanges();
     });
