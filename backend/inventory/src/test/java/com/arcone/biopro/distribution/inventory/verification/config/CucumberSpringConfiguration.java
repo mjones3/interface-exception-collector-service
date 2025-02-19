@@ -15,7 +15,6 @@ import org.springframework.test.context.TestPropertySource;
 @CucumberContextConfiguration
 @SpringBootTest(classes = BioProApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(locations="classpath:application-test.properties")
-@EmbeddedKafka(partitions = 1, brokerProperties = {"listeners=PLAINTEXT://localhost:9095", "port=9095"})
 @ActiveProfiles("test")
 public class CucumberSpringConfiguration {
 
