@@ -34,12 +34,15 @@ describe('OrderWidgetsSidebarComponent', () => {
     it('should render Order Cancelation Card', () => {
         // Arrange/Act
         const cancelEmployeeId = 'Employee ID';
-        const cancelDate = new Date();
+        const cancelDate = new Date().toISOString();
         const cancelReason =
-            'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent vel metus sem. Vivamus tristique interdum nisl, vel accumsan quam suscipit non. Mauris purus nulla, pellentesque ac turpis id, viverra rutrum lorem. Phasellus dolor nisi est.';
+            'Lorem ipsum dolor sit amet, consectetur adipiscing ' +
+            'elit. Praesent vel metus sem. Vivamus tristique interdum nisl, vel ' +
+            'accumsan quam suscipit non. Mauris purus nulla, pellentesque ac turpis ' +
+            'id, viverra rutrum lorem. Phasellus dolor nisi est.';
         componentRef.setInput('orderInput', {
             cancelEmployeeId: cancelEmployeeId,
-            cancelDate: cancelDate.toISOString(),
+            cancelDate: cancelDate,
             cancelReason: cancelReason,
         });
         fixture.detectChanges();
