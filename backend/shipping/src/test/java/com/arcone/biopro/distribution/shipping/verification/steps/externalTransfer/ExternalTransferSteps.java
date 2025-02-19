@@ -1,10 +1,12 @@
 package com.arcone.biopro.distribution.shipping.verification.steps.externalTransfer;
 
+import com.arcone.biopro.distribution.shipping.verification.pages.distribution.ExternalTransferPage;
 import com.arcone.biopro.distribution.shipping.verification.support.ApiHelper;
 import com.arcone.biopro.distribution.shipping.verification.support.SharedContext;
 import com.arcone.biopro.distribution.shipping.verification.support.controllers.ExternalTransferController;
 import com.arcone.biopro.distribution.shipping.verification.support.graphql.GraphQLMutationMapper;
 import io.cucumber.datatable.DataTable;
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -27,7 +29,13 @@ public class ExternalTransferSteps {
     @Autowired
     private SharedContext context;
 
+    @Autowired
+    private ExternalTransferPage page;
+
     private Map response;
+
+    private static final String NULL_VALUE = "NULL_VALUE";
+    private static final String SHOULD = "should";
 
 
     @Given("I have shipped the following products.")
@@ -45,7 +53,7 @@ public class ExternalTransferSteps {
 
     @When("I create an external transfer request to the customer {string}, hospital transfer id {string} and transfer date {string}.")
     public void createExternalTransferRequest(String customerCode, String hospitalTransferId ,String transferDate) {
-        String hospitalTransferIdParam = "NULL_VALUE".equals(hospitalTransferId) ? "" : hospitalTransferId;
+        String hospitalTransferIdParam = NULL_VALUE.equals(hospitalTransferId) ? "" : hospitalTransferId;
         String createExternalTransferMutation = GraphQLMutationMapper.createExternalTransferInformationMutation(customerCode,transferDate , hospitalTransferIdParam ,context.getEmployeeId());
         this.response = apiHelper.graphQlRequest(createExternalTransferMutation, "createExternalTransfer");
         log.debug("Response: {}", response);
@@ -59,9 +67,30 @@ public class ExternalTransferSteps {
         Assertions.assertNotNull(context.getApiMessageResponse());
         var message = context.getApiMessageResponse().getFirst();
         Assertions.assertEquals("SUCCESS", message.get("notificationType"));
-
-
     }
 
+    @And("I navigate to the external transfer page.")
+    public void iNavigateToTheExternalTransferPage() throws InterruptedException {
+        page.goTo();
+    }
 
+    @When("I choose customer name {string}.")
+    public void iChooseCustomerName(String customerName) throws InterruptedException {
+        page.selectCustomer(customerName);
+    }
+
+    @And("I fill hospital transfer Id {string} and transfer Date {string}.")
+    public void fillHospitalTransferIdAndTransferDate(String hospitalTransferId, String transferDate) throws InterruptedException {
+        var hospitalTransferIdValue = NULL_VALUE.equals(hospitalTransferId) ? "" : hospitalTransferId;
+        page.defineHospitalTransferIdAndTransferDate(hospitalTransferIdValue,transferDate);
+    }
+
+    @Then("I {string} be able to add products to the external transfer request.")
+    public void iBeAbleToAddProductsToTheExternalTransferRequest(String shouldFlag) {
+        if(SHOULD.equals(shouldFlag)){
+            page.checkUnitNumberProductCodeFieldVisible();
+        }else{
+            page.checkUnitNumberProductCodeFieldNotVisible();
+        }
+    }
 }

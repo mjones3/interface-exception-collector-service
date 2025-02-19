@@ -50,13 +50,13 @@ Feature: External Transfers
                 | W036810946302 | E0269V00     | A1235         | Creative Testing Solutions | 2025-02-01 00:00:00 |
 
             And I navigate to the external transfer page.
-            When I choose customer name "<Customer Name>",
-            When I fill hospital transfer Id "<Hospital Order Reference ID>" and transfer Date "<Transfer Date>".
+            When I choose customer name "<Customer Name>".
+            And  I fill hospital transfer Id "<Hospital Order Reference ID>" and transfer Date "<Transfer Date>".
             Then I "should" be able to add products to the external transfer request.
             Examples:
-                | Transfer Date | Customer Name        | Hospital Order Reference ID |
-                | 01/03/2024    | Random Hospital Inc. | XYZ123                      |
-                | 01/03/2024    | Hospital Inc.        | NULL_VALUE                  |
+                | Transfer Date | Customer Name              | Hospital Order Reference ID |
+                | 01/03/2024    | Creative Testing Solutions | XYZ123                      |
+                | 01/03/2024    | Pioneer Health Services    | NULL_VALUE                  |
 
 
 
