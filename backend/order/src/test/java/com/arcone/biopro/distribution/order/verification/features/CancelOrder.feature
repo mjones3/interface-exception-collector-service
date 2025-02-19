@@ -22,7 +22,7 @@ Feature: Cancel Order
                 | EXTDIS3150004      | EXTDIS3150004      | COMPLETED      | COMPLETED    | 2025-01-01 11:09:55 | should not                               |
                 | EXTDIS3150005      | EXTDIS3150005      | CANCELLED      | CANCELLED    | 2025-01-01 11:09:55 | should not                               |
                 | EXTDIS3150006      | EXTDIS315NULL      | OPEN           | OPEN         | 2025-01-01 11:09:55 | should not                               |
-#                | EXTDIS3150007      | EXTDIS3150007      | OPEN           | OPEN         | 2028-01-01 11:09:55 | should not                               |
+                | EXTDIS3150007      | EXTDIS3150007      | OPEN           | OPEN         | 2050-01-01 11:09:55 | should not                               |
                 | EXTDIS3150008      | EXTDIS3150008      | OPEN           | OPEN         | 9999-35-44 11:09:55 | should not                               |
 
         Rule: I should be able to cancel an open backorder when we receive a cancelled order through the order inbound interface.

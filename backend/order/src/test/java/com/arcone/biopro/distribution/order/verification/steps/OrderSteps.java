@@ -8,13 +8,7 @@ import com.arcone.biopro.distribution.order.verification.pages.SharedActions;
 import com.arcone.biopro.distribution.order.verification.pages.order.HomePage;
 import com.arcone.biopro.distribution.order.verification.pages.order.OrderDetailsPage;
 import com.arcone.biopro.distribution.order.verification.pages.order.SearchOrderPage;
-import com.arcone.biopro.distribution.order.verification.support.ApiHelper;
-import com.arcone.biopro.distribution.order.verification.support.DatabaseQueries;
-import com.arcone.biopro.distribution.order.verification.support.DatabaseService;
-import com.arcone.biopro.distribution.order.verification.support.KafkaHelper;
-import com.arcone.biopro.distribution.order.verification.support.SharedContext;
-import com.arcone.biopro.distribution.order.verification.support.TestUtils;
-import com.arcone.biopro.distribution.order.verification.support.Topics;
+import com.arcone.biopro.distribution.order.verification.support.*;
 import com.arcone.biopro.distribution.order.verification.support.graphql.GraphQLQueryMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.datatable.DataTable;
@@ -32,12 +26,7 @@ import org.springframework.beans.factory.annotation.Value;
 import java.time.LocalDate;
 import java.time.Year;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -879,11 +868,8 @@ public class OrderSteps {
 
     @Then("The Biopro Order must have status {string}.")
     public void theBioproOrderMustHaveStatus(String expectedStatus) {
-        var query = DatabaseQueries.getOrderStatus(context.getExternalId());
-        var data = databaseService.fetchData(query);
-        var records = data.first().block();
-        Assert.assertNotNull(records);
-        Assert.assertEquals(expectedStatus, records.get("status"));
+        orderController.getOrderDetails(context.getOrderId());
+        Assert.assertEquals(expectedStatus, context.getOrderDetails().get("status"));
     }
 
     @And("I {string} be able to receive the cancel details.")
