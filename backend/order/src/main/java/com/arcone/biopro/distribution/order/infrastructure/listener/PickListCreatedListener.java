@@ -7,6 +7,10 @@ import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.infrastructure.config.KafkaConfiguration;
 import com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledEventDTO;
 import com.arcone.biopro.distribution.order.infrastructure.mapper.OrderFulfilledMapper;
+import io.github.springwolf.bindings.kafka.annotations.KafkaAsyncOperationBinding;
+import io.github.springwolf.core.asyncapi.annotations.AsyncMessage;
+import io.github.springwolf.core.asyncapi.annotations.AsyncOperation;
+import io.github.springwolf.core.asyncapi.annotations.AsyncPublisher;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -15,6 +19,8 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.EventListener;
 import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
 import org.springframework.stereotype.Component;
+
+import static org.springframework.kafka.support.mapping.AbstractJavaTypeMapper.DEFAULT_CLASSID_FIELD_NAME;
 
 @Component
 @Slf4j
@@ -41,6 +47,21 @@ public class PickListCreatedListener {
     }
 
 
+    @AsyncPublisher(operation = @AsyncOperation(
+        channelName = "OrderFulfilled",
+        description = "Order Fulfilled Event",
+        headers = @AsyncOperation.Headers(values = @AsyncOperation.Headers.Header(
+            name = DEFAULT_CLASSID_FIELD_NAME,
+            description = "Spring Type Id Header",
+            value = "com.arcone.biopro.distribution.order.infrastructure.dto.OrderCompletedDTO"
+        )),
+        message = @AsyncMessage(
+            name = "OrderFulfilled",
+            title = "OrderFulfilled",
+            description = "Order Fulfilled Event Payload"
+        ),payloadType = OrderFulfilledEventDTO.class
+    ))
+    @KafkaAsyncOperationBinding
     @EventListener
     public void handlePickListCreatedEvent(PickListCreatedEvent event) {
         log.info("Pick List Created event trigger Event ID {}", event.getEventId());

@@ -4,6 +4,10 @@ import com.arcone.biopro.distribution.order.domain.event.OrderCompletedEvent;
 import com.arcone.biopro.distribution.order.infrastructure.config.KafkaConfiguration;
 import com.arcone.biopro.distribution.order.infrastructure.dto.OrderCompletedDTO;
 import com.arcone.biopro.distribution.order.infrastructure.dto.OrderItemCompletedDTO;
+import io.github.springwolf.bindings.kafka.annotations.KafkaAsyncOperationBinding;
+import io.github.springwolf.core.asyncapi.annotations.AsyncMessage;
+import io.github.springwolf.core.asyncapi.annotations.AsyncOperation;
+import io.github.springwolf.core.asyncapi.annotations.AsyncPublisher;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -12,6 +16,8 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.EventListener;
 import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
 import org.springframework.stereotype.Component;
+
+import static org.springframework.kafka.support.mapping.AbstractJavaTypeMapper.DEFAULT_CLASSID_FIELD_NAME;
 
 @Component
 @Slf4j
@@ -27,6 +33,21 @@ public class OrderCompletedListener {
         this.topicName = topicName;
     }
 
+    @AsyncPublisher(operation = @AsyncOperation(
+        channelName = "OrderCompleted",
+        description = "Order Completed Event",
+        headers = @AsyncOperation.Headers(values = @AsyncOperation.Headers.Header(
+            name = DEFAULT_CLASSID_FIELD_NAME,
+            description = "Spring Type Id Header",
+            value = "com.arcone.biopro.distribution.order.infrastructure.dto.OrderCompletedDTO"
+        )),
+        message = @AsyncMessage(
+            name = "OrderCompleted",
+            title = "OrderCompleted",
+            description = "Order Completed Event Payload"
+        ),payloadType = OrderCompletedDTO.class
+    ))
+    @KafkaAsyncOperationBinding
     @EventListener
     public void handleOrderCompletedEvent(OrderCompletedEvent event) {
         log.debug("Order Completed event trigger Event ID {}", event.getEventId());

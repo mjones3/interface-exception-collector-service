@@ -6,6 +6,9 @@ import com.arcone.biopro.distribution.order.domain.service.OrderService;
 import com.arcone.biopro.distribution.order.infrastructure.config.KafkaConfiguration;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.springwolf.bindings.kafka.annotations.KafkaAsyncOperationBinding;
+import io.github.springwolf.core.asyncapi.annotations.AsyncListener;
+import io.github.springwolf.core.asyncapi.annotations.AsyncOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -76,6 +79,12 @@ public class OrderReceivedListener implements CommandLineRunner {
 
     }
 
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "OrderReceived",
+        description = "Partner Order received Events", // Optional
+        payloadType = OrderReceivedEventDTO.class
+    ))
+    @KafkaAsyncOperationBinding
     private Mono<ReceiverRecord<String, String>> handleMessage(ReceiverRecord<String, String> event) {
         try {
 

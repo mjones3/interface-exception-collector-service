@@ -1,5 +1,6 @@
-import { CommonModule } from '@angular/common';
-import { Component, computed, input } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
+import { Component, computed, inject, input } from '@angular/core';
+import { MatDivider } from '@angular/material/divider';
 import { MatExpansionModule } from '@angular/material/expansion';
 import {
     Description,
@@ -19,10 +20,13 @@ import { OrderStatusMap } from '../../../../shared/models/order-status.model';
         WidgetComponent,
         DescriptionCardComponent,
         MatExpansionModule,
+        MatDivider,
     ],
 })
 export class OrderWidgetsSidebarComponent {
-    protected productInput = input<
+    datePipe = inject(DatePipe);
+
+    productInput = input<
         Partial<{
             id: number;
             productFamily: string;
@@ -31,13 +35,16 @@ export class OrderWidgetsSidebarComponent {
         }>
     >();
 
-    protected orderInput = input<
+    orderInput = input<
         Partial<{
             id: number;
             externalId: string;
             priority: string;
             status: string;
             labelingProductCategory: string;
+            cancelEmployeeId: string;
+            cancelDate: string;
+            cancelReason: string;
         }>
     >();
 
@@ -106,6 +113,32 @@ export class OrderWidgetsSidebarComponent {
               ]
             : []),
     ]);
+
+    protected orderCancellation = computed<Description[]>(() => [
+        ...(this.orderInput()?.cancelEmployeeId
+            ? [
+                  {
+                      label: 'Canceled by',
+                      value: this.orderInput()?.cancelEmployeeId,
+                  },
+              ]
+            : []),
+        ...(this.orderInput()?.cancelDate
+            ? [
+                  {
+                      label: 'Canceled Date and Time',
+                      value: this.datePipe.transform(
+                          this.orderInput()?.cancelDate,
+                          'MM/dd/yyyy HH:mm'
+                      ),
+                  },
+              ]
+            : []),
+    ]);
+
+    protected orderCancellationReason = computed<string>(() =>
+        this.orderInput()?.cancelReason?.trim()
+    );
 
     protected shipping = computed<Description[]>(() => [
         ...(this.shippingInput()?.id

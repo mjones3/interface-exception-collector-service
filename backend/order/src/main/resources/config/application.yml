@@ -102,6 +102,7 @@ logging:
     org.apache.kafka.clients.consumer.ConsumerConfig: WARN
     org.apache.kafka: WARN
     com.arcone.biopro: DEBUG
+    io.github.springwolf: DEBUG
 
 spring:
   autoconfigure:
@@ -241,6 +242,7 @@ springwolf:
       kafka:
         protocol: kafka
         host: ${kafka.bootstrap.servers:localhost:29092}
+  enabled: true
 
 # ===================================================================
 # BioPro specific properties
@@ -312,6 +314,14 @@ topics:
       partitions: 1
       replicas: 1
       topic-name: OrderCompleted
+    cancel-order-received:
+      partitions: 1
+      replicas: 1
+      topic-name: CancelOrderReceived
+    order-cancelled:
+      partitions: 1
+      replicas: 1
+      topic-name: OrderCancelled
   shipment:
     shipment-created:
       partitions: 1
