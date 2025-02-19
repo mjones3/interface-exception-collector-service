@@ -2,6 +2,7 @@ package com.arcone.biopro.distribution.inventory.verification.steps;
 
 import com.arcone.biopro.distribution.inventory.domain.event.InventoryEventPublisher;
 import com.arcone.biopro.distribution.inventory.domain.event.InventoryUpdatedApplicationEvent;
+import com.arcone.biopro.distribution.inventory.verification.utils.LogMonitor;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Then;
 import lombok.RequiredArgsConstructor;
@@ -24,18 +25,16 @@ public class EventPublisherSteps {
 
     private final InventoryEventPublisher inventoryEventPublisher;
 
+    private final LogMonitor logMonitor;
+
     @Then("the inventory updated event should be produced with the {string} value in the payload for the following units:")
     public void theInventoryUpdatedEventShouldProduceTheUpdateTypeInThePayloadForTheFollowingUnits(String updateType, DataTable dataTable) throws InterruptedException {
-        var eventCaptor = ArgumentCaptor.forClass(InventoryUpdatedApplicationEvent.class);
-        var numberOfInvocations = updateType.equalsIgnoreCase("QUARANTINE_REMOVED") ? 2 : 1; //For ‘quarantine removed’ scenarios, it must check the second event call (the first one is for discarding the tested product).
-        verify(inventoryEventPublisher, times(numberOfInvocations)).publish(eventCaptor.capture());
-        var capturedEvent = eventCaptor.getValue();
-        assertEquals(capturedEvent.inventoryUpdateType().toString(), updateType);
+
         List<Map<String, String>> products = dataTable.asMaps(String.class, String.class);
-        assertEquals(1, products.size());
         String expectedUnitNumber = products.getFirst().get("Unit Number");
         String expectedProductCode = products.getFirst().get("Final Product Code");
-        assertEquals(expectedUnitNumber, capturedEvent.inventory().getUnitNumber().value());
-        assertEquals(expectedProductCode, capturedEvent.inventory().getProductCode().value());
+        logMonitor.await("Inventory Updated Message .*" + expectedUnitNumber + ".*" + expectedProductCode + ".*" + updateType);
+
+
     }
 }

@@ -20,9 +20,6 @@ public class CucumberSpringConfiguration {
     @Autowired
     private TestRestTemplate testRestTemplate;
 
-    @MockBean
-    private InventoryEventPublisher inventoryEventPublisher;
-
     @BeforeEach
     public void setUp() {
     }

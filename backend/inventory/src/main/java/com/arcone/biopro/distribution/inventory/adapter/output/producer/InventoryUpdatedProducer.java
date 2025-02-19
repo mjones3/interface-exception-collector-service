@@ -30,9 +30,10 @@ public class InventoryUpdatedProducer {
         var message = new EventMessage<>("InventoryUpdated","1.0", mapper.toEvent(event.inventory(), event.inventoryUpdateType()));
         producerInventoryUpdatedTemplate.send(topicName, message)
             .doOnError(e-> log.error("Send failed", e))
-            .doOnNext(senderResult -> log.info("Inventory Updated Message {}-{} event produced: {}",
+            .doOnNext(senderResult -> log.info("Inventory Updated Message {}-{} (updateType {}). Event produced: {}",
                 event.inventory().getUnitNumber().value(),
                 event.inventory().getProductCode().value(),
+                event.inventoryUpdateType().name(),
                 senderResult.recordMetadata()))
             .subscribe();
 
