@@ -15,13 +15,10 @@ import io.cucumber.java.en.When;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.kafka.test.context.EmbeddedKafka;
-import org.springframework.web.client.HttpServerErrorException;
+
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -29,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
 
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -58,8 +54,6 @@ public class UseCaseSteps {
     private final InventoryUtil inventoryUtil;
 
     private final LogMonitor logMonitor;
-
-
 
     @Value("${default.location}")
     private String defaultLocation;
