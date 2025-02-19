@@ -76,9 +76,10 @@
                             formControlName="transferDate"
                             placeholder="MM/DD/YYYY"
                             autocomplete="off"
-                            validateOn="touchedState"
                             [matDatepicker]="transferDatePicker"
                             [max]="maxDate"
+                            (input)="onDateInput($event)"
+                            (dateChange)="onDateChange($event)"
                         />
                         <mat-datepicker-toggle
                             matIconSuffix

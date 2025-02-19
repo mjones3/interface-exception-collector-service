@@ -15,7 +15,11 @@ import {
     ReactiveFormsModule,
     Validators,
 } from '@angular/forms';
-import { MatDatepickerModule } from '@angular/material/datepicker';
+import {
+    MatDatepickerInputEvent,
+    MatDatepickerModule,
+} from '@angular/material/datepicker';
+import { MatDivider } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { ApolloError } from '@apollo/client';
@@ -34,17 +38,13 @@ import { OrderService } from 'app/modules/orders/services/order.service';
 import { ActionButtonComponent } from 'app/shared/components/buttons/action-button.component';
 import { BasicButtonComponent } from 'app/shared/components/buttons/basic-button.component';
 import { SearchSelectComponent } from 'app/shared/components/search-select/search-select.component';
-import {
-    Subscription,
-    catchError,
-    combineLatestWith,
-    debounceTime,
-    filter,
-    take,
-} from 'rxjs';
+import { DateTime } from 'luxon';
+import { Subscription, catchError, take } from 'rxjs';
+import { commonRegex } from '../../../../shared/utils/utils';
 import { customerOptionDto } from '../../models/external-transfer.dto';
 import { ExternalTransferService } from '../../services/external-transfer.service';
 import { EnterProductsComponent } from '../../shared/enter-products/enter-products.component';
+
 @Component({
     selector: 'biopro-external-transfers',
     standalone: true,
@@ -61,12 +61,18 @@ import { EnterProductsComponent } from '../../shared/enter-products/enter-produc
         MatDatepickerModule,
         SearchSelectComponent,
         BasicButtonComponent,
+        MatDivider,
     ],
     templateUrl: './external-transfers.component.html',
 })
 export class ExternalTransfersComponent
     implements OnInit, AfterViewChecked, OnDestroy
 {
+    static readonly DATE_WITH_SLASHES = 'MM/dd/yyyy';
+    static readonly DATE_WITH_SLASHES_REGEX = RegExp(
+        commonRegex.dateWithSlashes
+    );
+
     @ViewChild('enterProducts') protected enterProducts: EnterProductsComponent;
     formValueChange: Subscription;
     externalTransfer: FormGroup;
@@ -75,6 +81,8 @@ export class ExternalTransfersComponent
     isShippedLocation = false;
     customerOptions: customerOptionDto[];
     maxDate = new Date();
+    transferDate: string;
+
     loggedUserId: string;
 
     constructor(
@@ -97,7 +105,7 @@ export class ExternalTransfersComponent
     }
 
     buildFormGroup() {
-        const formGroup = this.fb.group({
+        this.externalTransfer = this.fb.group({
             transferCustomer: ['', [Validators.required]],
             hospitalTransferId: [''],
             transferDate: [
@@ -105,19 +113,6 @@ export class ExternalTransfersComponent
                 [Validators.required, RsaValidators.futureDateValidator],
             ],
         });
-        this.formValueChange = formGroup.statusChanges
-            .pipe(
-                combineLatestWith(formGroup.valueChanges),
-                filter(
-                    ([status, value]) =>
-                        !!value.transferCustomer &&
-                        !!value.transferDate &&
-                        status === 'VALID'
-                ),
-                debounceTime(300)
-            )
-            .subscribe(() => this.createExternalTransfer());
-        this.externalTransfer = formGroup;
     }
 
     ngOnInit(): void {
@@ -148,10 +143,10 @@ export class ExternalTransfersComponent
     }
 
     getHospitalTransferIdDisable() {
-        const hostitalTransferId =
+        const hospitalTransferId =
             this.externalTransfer.controls.hospitalTransferId;
-        if (hostitalTransferId.value < 0 || hostitalTransferId.value !== '') {
-            return hostitalTransferId.disable();
+        if (hospitalTransferId.value < 0 || hospitalTransferId.value !== '') {
+            return hospitalTransferId.disable();
         }
     }
 
@@ -199,6 +194,33 @@ export class ExternalTransfersComponent
                     }
                 },
             });
+    }
+
+    onDateInput(event?: Event): void {
+        const inputEvent = event as InputEvent;
+        const htmlInputElement = inputEvent?.currentTarget as HTMLInputElement;
+        this.transferDate = htmlInputElement?.value ?? '';
+        this.onDateChange();
+    }
+
+    onDateChange(event?: MatDatepickerInputEvent<DateTime>) {
+        if (event?.value) {
+            const transferDateValue = event.value;
+            this.transferDate = formatDate(
+                transferDateValue.toISODate(),
+                ExternalTransfersComponent.DATE_WITH_SLASHES,
+                this.locale
+            );
+        }
+
+        if (
+            this.externalTransfer.valid &&
+            ExternalTransfersComponent.DATE_WITH_SLASHES_REGEX.test(
+                this.transferDate
+            )
+        ) {
+            this.createExternalTransfer();
+        }
     }
 
     enterProduct() {
