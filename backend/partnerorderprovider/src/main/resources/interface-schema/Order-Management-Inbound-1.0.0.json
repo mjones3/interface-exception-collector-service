@@ -77,19 +77,13 @@
       "type": "string",
       "title": "ExternalId of the order",
       "minLength": 1,
-      "maxLength": 255,
-      "examples": [
-        "11411792"
-      ]
+      "maxLength": 255
     },
     "locationCode": {
       "type": "string",
       "title": "location code",
       "minLength": 1,
-      "maxLength": 255,
-      "examples": [
-        "2265"
-      ]
+      "maxLength": 255
     },
     "datePattern": {
       "type": ["string","null"],
@@ -121,18 +115,13 @@
     "productCategory": {
       "type": "string",
       "minLength": 1,
-      "title": "Ordered product category",
-      "examples": [
-        "FROZEN",
-        "REFRIGERATED"
-      ]
+      "title": "Ordered product category"
+
     },
     "shippingMethod": {
       "type": "string",
-      "title": "Shipping method used for shipment",
-      "examples": [
-        "FEDEX"
-      ]
+      "title": "Shipping method used for shipment"
+
     },
     "shippingCustomerCode": {
       "type": "string",
@@ -177,13 +166,6 @@
     },
     "orderItems.productFamily": {
       "type": "string",
-      "examples": [
-        "RED_BLOOD_CELLS_LEUKOREDUCED",
-        "PLASMA_TRANSFUSABLE",
-        "RED_BLOOD_CELLS",
-        "WHOLE_BLOOD_LEUKOREDUCED",
-        "WHOLE_BLOOD"
-      ],
 	  "minLength": 1,
       "title": "Ordered product family"
     },
