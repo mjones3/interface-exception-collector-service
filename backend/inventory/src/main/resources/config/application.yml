@@ -301,3 +301,5 @@ topic:
     name: QuarantineUpdated
   product-recovered:
     name: ProductRecovered
+  inventory-updated:
+    name: InventoryUpdated

@@ -3,8 +3,11 @@ package com.arcone.biopro.distribution.inventory.application.usecase;
 import com.arcone.biopro.distribution.inventory.application.dto.InventoryOutput;
 import com.arcone.biopro.distribution.inventory.application.dto.ProductDiscardedInput;
 import com.arcone.biopro.distribution.inventory.application.mapper.InventoryOutputMapper;
+import com.arcone.biopro.distribution.inventory.domain.event.InventoryEventPublisher;
+import com.arcone.biopro.distribution.inventory.domain.event.InventoryUpdatedApplicationEvent;
 import com.arcone.biopro.distribution.inventory.domain.exception.InventoryNotFoundException;
 import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryUpdateType;
 import com.arcone.biopro.distribution.inventory.domain.repository.InventoryAggregateRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -23,12 +26,15 @@ public class ProductDiscardedUseCase implements UseCase<Mono<InventoryOutput>, P
 
     InventoryOutputMapper inventoryOutputMapper;
 
+    InventoryEventPublisher inventoryEventPublisher;
+
     @Override
     public Mono<InventoryOutput> execute(ProductDiscardedInput input) {
         return inventoryAggregateRepository.findByUnitNumberAndProductCode(input.unitNumber(), input.productCode())
             .switchIfEmpty(Mono.error(InventoryNotFoundException::new))
             .flatMap(inventoryAggregate -> inventoryAggregateRepository.saveInventory(inventoryAggregate.discardProduct(input.reason(), input.comments()))
                 .map(InventoryAggregate::getInventory)
+                .doOnSuccess(inventory -> inventoryEventPublisher.publish(new InventoryUpdatedApplicationEvent(inventory, InventoryUpdateType.DISCARDED)))
                 .map(inventoryOutputMapper::toOutput));
     }
 }
