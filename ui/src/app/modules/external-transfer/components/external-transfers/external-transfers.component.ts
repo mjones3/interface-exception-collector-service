@@ -17,10 +17,7 @@ import {
     ReactiveFormsModule,
     Validators,
 } from '@angular/forms';
-import {
-    MatDatepickerInputEvent,
-    MatDatepickerModule,
-} from '@angular/material/datepicker';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDivider } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -40,8 +37,14 @@ import { OrderService } from 'app/modules/orders/services/order.service';
 import { ActionButtonComponent } from 'app/shared/components/buttons/action-button.component';
 import { BasicButtonComponent } from 'app/shared/components/buttons/basic-button.component';
 import { SearchSelectComponent } from 'app/shared/components/search-select/search-select.component';
-import { DateTime } from 'luxon';
-import { Subscription, catchError, take } from 'rxjs';
+import {
+    Subscription,
+    catchError,
+    combineLatestWith,
+    debounceTime,
+    filter,
+    take,
+} from 'rxjs';
 import { commonRegex } from '../../../../shared/utils/utils';
 import { customerOptionDto } from '../../models/external-transfer.dto';
 import { ExternalTransferService } from '../../services/external-transfer.service';
@@ -112,7 +115,7 @@ export class ExternalTransfersComponent
     }
 
     buildFormGroup() {
-        this.externalTransfer = this.fb.group({
+        const formGroup = this.fb.group({
             transferCustomer: ['', [Validators.required]],
             hospitalTransferId: ['', [Validators.maxLength(250)]],
             transferDate: [
@@ -120,6 +123,19 @@ export class ExternalTransfersComponent
                 [Validators.required, RsaValidators.futureDateValidator],
             ],
         });
+        this.formValueChange = formGroup.statusChanges
+            .pipe(
+                combineLatestWith(formGroup.valueChanges),
+                filter(
+                    ([status, value]) =>
+                        !!value.transferCustomer &&
+                        !!value.transferDate &&
+                        status === 'VALID'
+                ),
+                debounceTime(300)
+            )
+            .subscribe(() => this.createExternalTransfer());
+        this.externalTransfer = formGroup;
     }
 
     ngOnInit(): void {
@@ -201,38 +217,6 @@ export class ExternalTransfersComponent
                     }
                 },
             });
-    }
-
-    onDateInput(event?: Event): void {
-        const inputEvent = event as InputEvent;
-        const htmlInputElement = inputEvent?.currentTarget as HTMLInputElement;
-        this.transferDate.set(htmlInputElement?.value ?? '');
-        this.checkeValidation();
-    }
-
-    checkeValidation(event?: MatDatepickerInputEvent<DateTime>) {
-        if (event?.value) {
-            const transferDateValue = event.value;
-            this.transferDate.set(
-                formatDate(
-                    transferDateValue.toISODate(),
-                    ExternalTransfersComponent.DATE_WITH_SLASHES,
-                    this.locale
-                )
-            );
-        }
-        if (this.externalTransfer.valid && this.transferDateValidation()) {
-            this.checkExternalFormValidation();
-        }
-    }
-
-    checkExternalFormValidation() {
-        if (
-            this.externalTransfer.controls.transferDate.valid &&
-            this.externalTransfer.controls.transferCustomer.valid
-        ) {
-            this.createExternalTransfer();
-        }
     }
 
     enterProduct() {
