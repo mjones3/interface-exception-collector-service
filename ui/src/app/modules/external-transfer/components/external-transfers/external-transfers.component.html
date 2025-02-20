@@ -59,7 +59,7 @@
                         <biopro-search-select
                             id="transferCustomerId"
                             [formGroup]="externalTransfer"
-                            (selectionChange)="checkeValidation()"
+                            (selectionChange)="checkExternalFormValidation()"
                             controlName="transferCustomer"
                             title="Transfer To Customer"
                             required="true"
@@ -79,27 +79,21 @@
                             [matDatepicker]="transferDatePicker"
                             [max]="maxDate"
                             (input)="onDateInput($event)"
-                            (dateChange)="checkeValidation()"
+                            (dateChange)="checkeValidation($event)"
                         />
                         <mat-datepicker-toggle
                             matIconSuffix
                             [for]="transferDatePicker"
                         ></mat-datepicker-toggle>
                         <mat-datepicker #transferDatePicker></mat-datepicker>
-                        @if (
+                        @if (transferDateValidation()) {
+                            <mat-error>Transfer Date is Invalid</mat-error>
+                        } @else if (
                             externalTransfer
                                 .get('transferDate')
                                 .hasError('required')
                         ) {
                             <mat-error>Transfer Date is Required</mat-error>
-                        }
-
-                        @if (
-                            externalTransfer
-                                .get('transferDate')
-                                .hasError('matDatepickerMax')
-                        ) {
-                            <mat-error>Transfer Date is Invalid</mat-error>
                         }
                     </mat-form-field>
                 </div>

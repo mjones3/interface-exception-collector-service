@@ -8,6 +8,8 @@ import {
     OnDestroy,
     OnInit,
     ViewChild,
+    computed,
+    signal,
 } from '@angular/core';
 import {
     FormBuilder,
@@ -15,7 +17,10 @@ import {
     ReactiveFormsModule,
     Validators,
 } from '@angular/forms';
-import { MatDatepickerModule } from '@angular/material/datepicker';
+import {
+    MatDatepickerInputEvent,
+    MatDatepickerModule,
+} from '@angular/material/datepicker';
 import { MatDivider } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -35,6 +40,7 @@ import { OrderService } from 'app/modules/orders/services/order.service';
 import { ActionButtonComponent } from 'app/shared/components/buttons/action-button.component';
 import { BasicButtonComponent } from 'app/shared/components/buttons/basic-button.component';
 import { SearchSelectComponent } from 'app/shared/components/search-select/search-select.component';
+import { DateTime } from 'luxon';
 import { Subscription, catchError, take } from 'rxjs';
 import { commonRegex } from '../../../../shared/utils/utils';
 import { customerOptionDto } from '../../models/external-transfer.dto';
@@ -77,7 +83,12 @@ export class ExternalTransfersComponent
     isShippedLocation = false;
     customerOptions: customerOptionDto[];
     maxDate = new Date();
-    transferDate: string;
+    transferDate = signal(null);
+    transferDateValidation = computed(() =>
+        ExternalTransfersComponent.DATE_WITH_SLASHES_REGEX.test(
+            this.transferDate()
+        )
+    );
 
     loggedUserId: string;
 
@@ -103,7 +114,7 @@ export class ExternalTransfersComponent
     buildFormGroup() {
         this.externalTransfer = this.fb.group({
             transferCustomer: ['', [Validators.required]],
-            hospitalTransferId: [''],
+            hospitalTransferId: ['', [Validators.maxLength(250)]],
             transferDate: [
                 '',
                 [Validators.required, RsaValidators.futureDateValidator],
@@ -195,29 +206,30 @@ export class ExternalTransfersComponent
     onDateInput(event?: Event): void {
         const inputEvent = event as InputEvent;
         const htmlInputElement = inputEvent?.currentTarget as HTMLInputElement;
-        this.transferDate = htmlInputElement?.value ?? '';
+        this.transferDate.set(htmlInputElement?.value ?? '');
         this.checkeValidation();
     }
 
-    checkeValidation() {
+    checkeValidation(event?: MatDatepickerInputEvent<DateTime>) {
+        if (event?.value) {
+            const transferDateValue = event.value;
+            this.transferDate.set(
+                formatDate(
+                    transferDateValue.toISODate(),
+                    ExternalTransfersComponent.DATE_WITH_SLASHES,
+                    this.locale
+                )
+            );
+        }
+        if (this.externalTransfer.valid && this.transferDateValidation()) {
+            this.checkExternalFormValidation();
+        }
+    }
+
+    checkExternalFormValidation() {
         if (
             this.externalTransfer.controls.transferDate.valid &&
             this.externalTransfer.controls.transferCustomer.valid
-        ) {
-            const transferDateValue =
-                this.externalTransfer.controls.transferDate.value;
-            this.transferDate = formatDate(
-                transferDateValue.toISODate(),
-                ExternalTransfersComponent.DATE_WITH_SLASHES,
-                this.locale
-            );
-        }
-
-        if (
-            this.externalTransfer.valid &&
-            ExternalTransfersComponent.DATE_WITH_SLASHES_REGEX.test(
-                this.transferDate
-            )
         ) {
             this.createExternalTransfer();
         }
