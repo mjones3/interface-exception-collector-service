@@ -1,5 +1,6 @@
 import {
     AbstractControl,
+    FormControl,
     FormGroup,
     ValidationErrors,
     ValidatorFn,
@@ -205,5 +206,14 @@ export class RsaValidators {
                 return { manualEntryProductCode: { value: control.value } };
             }
         };
+    }
+
+    static futureDateValidator(control: FormControl): ValidationErrors | null {
+        if (!control.value) {
+            return null;
+        }
+        const inputDate = new Date(control.value);
+        const today = new Date();
+        return inputDate > today ? { futureDate: true } : null;
     }
 }
