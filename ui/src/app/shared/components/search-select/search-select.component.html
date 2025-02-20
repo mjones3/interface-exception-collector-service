@@ -13,6 +13,7 @@
         [id]="matSelectId + 'Select'"
         [formControlName]="controlName"
         (closed)="controlInput.value = ''"
+        (selectionChange)="onSelectionChange()"
         [disabled]="disabled"
         (opened)="controlInput.focus(); controlInput.value = ''"
     >

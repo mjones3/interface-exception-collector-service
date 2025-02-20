@@ -59,6 +59,7 @@
                         <biopro-search-select
                             id="transferCustomerId"
                             [formGroup]="externalTransfer"
+                            (selectionChange)="checkeValidation()"
                             controlName="transferCustomer"
                             title="Transfer To Customer"
                             required="true"
@@ -74,12 +75,11 @@
                             matInput
                             required
                             formControlName="transferDate"
-                            placeholder="MM/DD/YYYY"
                             autocomplete="off"
                             [matDatepicker]="transferDatePicker"
                             [max]="maxDate"
                             (input)="onDateInput($event)"
-                            (dateChange)="onDateChange($event)"
+                            (dateChange)="checkeValidation()"
                         />
                         <mat-datepicker-toggle
                             matIconSuffix

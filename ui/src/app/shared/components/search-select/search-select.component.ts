@@ -1,5 +1,5 @@
 import { CommonModule, NgTemplateOutlet } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -27,6 +27,7 @@ export class SearchSelectComponent {
     @Input() formGroup!: FormGroup;
     @Input() matSelectId: string;
     @Input() control!: FormControl;
+    @Output() selectionChange: EventEmitter<void> = new EventEmitter<void>();
     @Input() items: customerOptionDto[];
     @Input() disabled = false;
     @Input() required = false;
@@ -47,5 +48,9 @@ export class SearchSelectComponent {
         return !name
             .toLowerCase()
             .includes(valueToFilter?.toLowerCase().trim());
+    }
+
+    onSelectionChange() {
+        this.selectionChange.emit();
     }
 }
