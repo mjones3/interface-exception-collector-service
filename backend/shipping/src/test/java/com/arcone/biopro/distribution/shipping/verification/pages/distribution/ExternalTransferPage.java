@@ -27,21 +27,21 @@ public class ExternalTransferPage extends CommonPageFactory {
     private HomePage homePage;
 
 
-    private static final String externalTransferHeaderLocator = "//h3[normalize-space()='Product Selection and Transfer Information']";
-    private static final String hospitalTransferIdInput = "hospitalTransferId";
-    private static final String transferDateInput = "TransferdateId";
-    private static final String CUSTOMER_SELECT_ID = "transferCustomerSelectId";
-    private static final String CUSTOMER_PANEL_ID = "transferCustomerSelectIdSelect-panel";
-    private static final String unitNumberInput = "unitNumberId";
-    private static final String productCodeInput = "productCodeId";
+    private static final By externalTransferHeaderLocator = By.xpath("//h3[normalize-space()='Product Selection and Transfer Information']");
+    private static final By hospitalTransferIdInput = By.id("hospitalTransferId");
+    private static final By transferDateInput = By.id("TransferdateId");
+    private static final By CUSTOMER_SELECT_ID = By.id("transferCustomerSelectId");
+    private static final By CUSTOMER_PANEL_ID = By.id("transferCustomerSelectIdSelect-panel");
+    private static final By unitNumberInput = By.id("unitNumberId");
+    private static final By productCodeInput = By.id("productCodeId");
 
     @Override
     public boolean isLoaded() {
-        return sharedActions.isElementVisible(By.xpath(externalTransferHeaderLocator));
+        return sharedActions.isElementVisible(externalTransferHeaderLocator);
     }
 
     public void waitForLoad() {
-        sharedActions.waitForVisible(By.xpath(externalTransferHeaderLocator));
+        sharedActions.waitForVisible(externalTransferHeaderLocator);
     }
 
     public void goTo() throws InterruptedException {
@@ -54,22 +54,23 @@ public class ExternalTransferPage extends CommonPageFactory {
     }
 
     public void selectCustomer(String customerName) throws InterruptedException {
-        sharedActions.selectValuesFromDropdown(this.driver,CUSTOMER_SELECT_ID, CUSTOMER_PANEL_ID, List.of(customerName) );
+        sharedActions.selectValuesFromDropdown(this.driver, CUSTOMER_SELECT_ID, CUSTOMER_PANEL_ID, List.of(customerName));
     }
 
     public void defineHospitalTransferIdAndTransferDate(String hospitalTransferId, String transferDate) throws InterruptedException {
         log.debug("Adding hospital Transfer ID {} with Transfer Date {}.", hospitalTransferId, transferDate);
-        sharedActions.sendKeys(this.driver, By.id(hospitalTransferIdInput), hospitalTransferId);
-        sharedActions.sendKeys(this.driver, By.id(transferDateInput), transferDate);
+        sharedActions.sendKeys(this.driver, hospitalTransferIdInput, hospitalTransferId);
+        sharedActions.sendKeys(this.driver, transferDateInput, transferDate);
         sharedActions.waitLoadingAnimation();
     }
 
-    public void checkUnitNumberProductCodeFieldVisible(){
-        assertTrue(sharedActions.isElementVisible(By.id(unitNumberInput)));
-        assertTrue(sharedActions.isElementVisible(By.id(productCodeInput)));
-    }
-    public void checkUnitNumberProductCodeFieldNotVisible(){
-        assertFalse(sharedActions.isElementVisible(By.id(unitNumberInput)));
-        assertFalse(sharedActions.isElementVisible(By.id(productCodeInput)));
+    public void checkUnitNumberProductCodeFieldVisibilityIs(boolean visible) {
+        if (visible) {
+            assertTrue(sharedActions.isElementVisible(unitNumberInput));
+            assertTrue(sharedActions.isElementVisible(productCodeInput));
+        } else {
+            assertFalse(sharedActions.isElementVisible(unitNumberInput));
+            assertFalse(sharedActions.isElementVisible(productCodeInput));
+        }
     }
 }

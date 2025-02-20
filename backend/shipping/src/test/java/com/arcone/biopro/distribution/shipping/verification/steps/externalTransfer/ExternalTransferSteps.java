@@ -87,10 +87,6 @@ public class ExternalTransferSteps {
 
     @Then("I {string} be able to add products to the external transfer request.")
     public void iBeAbleToAddProductsToTheExternalTransferRequest(String shouldFlag) {
-        if(SHOULD.equals(shouldFlag)){
-            page.checkUnitNumberProductCodeFieldVisible();
-        }else{
-            page.checkUnitNumberProductCodeFieldNotVisible();
-        }
+        page.checkUnitNumberProductCodeFieldVisibilityIs(SHOULD.equals(shouldFlag));
     }
 }

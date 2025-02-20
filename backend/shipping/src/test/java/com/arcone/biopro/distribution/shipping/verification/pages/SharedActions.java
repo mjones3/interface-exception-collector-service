@@ -8,7 +8,6 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -415,13 +414,13 @@ public class SharedActions {
         click(By.xpath(closeButtonLocator));
     }
 
-    public void selectValuesFromDropdown(WebDriver driver , String dropdownId, String panelId, List<String> valuesToSelect) throws InterruptedException {
+    public void selectValuesFromDropdown(WebDriver driver , By dropdownId, By panelId, List<String> valuesToSelect) throws InterruptedException {
 
-        WebElement dropdown = driver.findElement(By.id(dropdownId));
+        WebElement dropdown = driver.findElement(dropdownId);
 
         openDropDownIfClosed(dropdown);
 
-        WebElement dropdownPanel = driver.findElement(By.id(panelId));
+        WebElement dropdownPanel = driver.findElement(panelId);
 
         waitForVisible(dropdownPanel);
 
@@ -456,12 +455,6 @@ public class SharedActions {
         if (!Boolean.parseBoolean(dropdown.getDomAttribute("aria-expanded"))) {
             click(dropdown);
         }
-        waitForAttribute(dropdown, "aria-expanded","true");
-    }
-
-    public void waitForAttribute(WebElement element, String attribute, String value) {
-        waitForVisible(element);
-        //wait.until(ExpectedConditions.attributeContains(element, attribute, value));
     }
 
     private void closeDropdownIfOpen(WebElement dropdown) {
