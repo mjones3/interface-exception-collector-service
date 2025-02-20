@@ -275,10 +275,12 @@ class KafkaConfiguration {
     @Bean
     SenderOptions<String, String> senderOptions(
         KafkaProperties kafkaProperties,
+        ObjectMapper objectMapper,
         MeterRegistry meterRegistry) {
         var props = kafkaProperties.buildProducerProperties(null);
         props.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, TracingProducerInterceptor.class.getName());
         return SenderOptions.<String, String>create(props)
+            .withValueSerializer(new JsonSerializer<>(objectMapper))
             .maxInFlight(1) // to keep ordering, prevent duplicate messages (and avoid data loss)
             .producerListener(new MicrometerProducerListener(meterRegistry)); // we want standard Kafka metrics
     }

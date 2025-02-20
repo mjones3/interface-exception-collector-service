@@ -8,11 +8,11 @@ import org.mapstruct.Mapping;
 
 import java.util.LinkedHashMap;
 import java.util.List;
-
 import java.util.Map;
 import java.util.Optional;
 
 import static com.arcone.biopro.distribution.inventory.BioProConstants.LICENSURE;
+
 
 @Mapper(componentModel = "spring")
 public interface InventoryUpdatedMapper {
@@ -31,7 +31,7 @@ public interface InventoryUpdatedMapper {
         target = "inventoryStatus",
         expression = "java(getInventoryStatus(inventory))"
     )
-@Mapping(target = "updateType", source = "updateType")
+    @Mapping(target = "updateType", source = "updateType")
     @Mapping(target = "properties", expression = "java(getInventoryProperties(inventory))")
     InventoryUpdatedEvent toEvent(Inventory inventory, InventoryUpdateType updateType);
 

@@ -46,13 +46,14 @@ import static org.mockito.Mockito.*;
 @Slf4j
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(
-    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-    properties = {
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
+    ,properties = {
         "spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}",
         "spring.kafka.consumer.auto-offset-reset=earliest",
         "spring.kafka.consumer.group-id=inventory-updated-test-group",
         "default.location=TestLocation"
-    })
+    }
+    )
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @EmbeddedKafka(partitions = 1, brokerProperties = {"listeners=PLAINTEXT://localhost:9094", "port=9094"})
 public class EventProducerIntegrationIT {
