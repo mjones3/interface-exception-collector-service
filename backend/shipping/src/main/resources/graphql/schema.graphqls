@@ -177,7 +177,7 @@ input CompleteShipmentRequest {
 
 input CreateExternalTransferRequestDTO {
     customerCode:String!
-    hospitalTransferId:String!
+    hospitalTransferId:String
     transferDate:Date!
     createEmployeeId:String!
 }
