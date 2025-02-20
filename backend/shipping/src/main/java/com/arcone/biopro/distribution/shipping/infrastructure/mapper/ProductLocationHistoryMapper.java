@@ -22,7 +22,7 @@ public class ProductLocationHistoryMapper {
             , productLocationHistoryEntity.getCustomerNameTo(), productLocationHistoryEntity.getCustomerCodeFrom()
             , productLocationHistoryEntity.getCustomerNameFrom(), productLocationHistoryEntity.getType()
             , productLocationHistoryEntity.getUnitNumber(), productLocationHistoryEntity.getProductCode()
-            , productLocationHistoryEntity.getCreatedByEmployeeId() , customerService);
+            , productLocationHistoryEntity.getCreatedByEmployeeId(),productLocationHistoryEntity.getCreateDate() , customerService);
     }
 
     public ProductLocationHistoryEntity toEntity(ProductLocationHistory productLocationHistory) {

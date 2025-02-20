@@ -8,6 +8,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.time.ZonedDateTime;
+
 @Getter
 @EqualsAndHashCode
 @ToString
@@ -19,11 +21,11 @@ public class ProductLocationHistory implements Validatable {
     private final String type;
     private final Product product;
     private final String createdByEmployeeId;
+    private ZonedDateTime createdDate;
     private final CustomerService customerService;
 
-
     public ProductLocationHistory(Long id, String customerCodeTo , String customerNameTo
-        , String customerCodeFrom ,  String customerNameFrom, String type, String unitNumber , String productCode, String createdByEmployeeId , CustomerService customerService) {
+        , String customerCodeFrom ,  String customerNameFrom, String type, String unitNumber , String productCode, String createdByEmployeeId , ZonedDateTime createdDate , CustomerService customerService) {
         this.id = id;
         this.customerService = customerService;
 
@@ -37,6 +39,7 @@ public class ProductLocationHistory implements Validatable {
         this.type = type;
         this.product = new Product(unitNumber, productCode);
         this.createdByEmployeeId = createdByEmployeeId;
+        this.createdDate = createdDate;
 
         checkValid();
     }

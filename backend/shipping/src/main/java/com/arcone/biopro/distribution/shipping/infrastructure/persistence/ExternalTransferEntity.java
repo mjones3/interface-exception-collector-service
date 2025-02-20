@@ -9,6 +9,7 @@ import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.domain.Persistable;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.InsertOnlyProperty;
@@ -16,6 +17,7 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.util.List;
 
 @Data
 @Builder(toBuilder = true)
@@ -72,6 +74,9 @@ public class ExternalTransferEntity implements Persistable<Long> {
 
     @Column("created_by_employee_id")
     private String createdByEmployeeId;
+
+    @Transient
+    private List<ExternalTransferItemEntity> externalTransferItems;
 
     @Override
     public boolean isNew() {

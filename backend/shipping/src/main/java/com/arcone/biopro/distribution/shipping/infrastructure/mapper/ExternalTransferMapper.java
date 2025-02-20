@@ -9,7 +9,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.Optional;
+
+import static java.util.Optional.ofNullable;
 
 @Component
 @Slf4j
@@ -24,7 +27,6 @@ public class ExternalTransferMapper {
             , externalTransferEntity.getCustomerCodeFrom(), externalTransferEntity.getHospitalTransferId()
             , externalTransferEntity.getTransferDate() , externalTransferEntity.getCreatedByEmployeeId()
             , ExternalTransferStatus.valueOf(externalTransferEntity.getStatus()), customerService );
-
     }
 
     public ExternalTransferEntity toEntity(ExternalTransfer externalTransfer) {
