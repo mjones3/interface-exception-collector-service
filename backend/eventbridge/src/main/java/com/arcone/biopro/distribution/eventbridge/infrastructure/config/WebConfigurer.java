@@ -11,8 +11,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
-import org.springframework.data.web.ReactivePageableHandlerMethodArgumentResolver;
-import org.springframework.data.web.ReactiveSortHandlerMethodArgumentResolver;
 import org.springframework.http.codec.ServerCodecConfigurer;
 import org.springframework.http.codec.json.Jackson2JsonDecoder;
 import org.springframework.http.codec.json.Jackson2JsonEncoder;
@@ -22,7 +20,6 @@ import org.springframework.web.cors.reactive.CorsConfigurationSource;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 import org.springframework.web.reactive.config.ResourceHandlerRegistry;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
-import org.springframework.web.reactive.result.method.HandlerMethodArgumentResolver;
 import org.springframework.web.server.WebExceptionHandler;
 
 import java.util.concurrent.TimeUnit;
@@ -79,17 +76,6 @@ public class WebConfigurer implements WebFluxConfigurer {
         return new ReactiveWebExceptionHandler(problemHandling, mapper);
     }
 
-    // TODO: remove when this is supported in spring-boot
-    @Bean
-    HandlerMethodArgumentResolver reactivePageableHandlerMethodArgumentResolver() {
-        return new ReactivePageableHandlerMethodArgumentResolver();
-    }
-
-    // TODO: remove when this is supported in spring-boot
-    @Bean
-    HandlerMethodArgumentResolver reactiveSortHandlerMethodArgumentResolver() {
-        return new ReactiveSortHandlerMethodArgumentResolver();
-    }
 
     @Bean
     ResourceHandlerRegistrationCustomizer registrationCustomizer() {
