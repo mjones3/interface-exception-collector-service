@@ -37,7 +37,7 @@ export class SearchSelectComponent {
     }
 
     get fieldErrorMessage() {
-        return `${this.title} is Required`;
+        return `${this.title} is required`;
     }
 
     get itemList(): customerOptionDto[] {
