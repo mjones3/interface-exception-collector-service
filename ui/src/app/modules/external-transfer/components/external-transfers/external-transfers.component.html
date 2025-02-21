@@ -75,6 +75,8 @@
                             required
                             readonly
                             formControlName="transferDate"
+                            (focus)="transferDatePicker.open()"
+                            (click)="transferDatePicker.open()"
                             placeholder="Select Transfer Date"
                             autocomplete="off"
                             [matDatepicker]="transferDatePicker"
