@@ -1,6 +1,7 @@
 import { AsyncPipe, CommonModule, formatDate } from '@angular/common';
 import {
     AfterViewChecked,
+    ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
     Inject,
@@ -8,8 +9,6 @@ import {
     OnDestroy,
     OnInit,
     ViewChild,
-    computed,
-    signal,
 } from '@angular/core';
 import {
     FormBuilder,
@@ -45,7 +44,6 @@ import {
     filter,
     take,
 } from 'rxjs';
-import { commonRegex } from '../../../../shared/utils/utils';
 import { customerOptionDto } from '../../models/external-transfer.dto';
 import { ExternalTransferService } from '../../services/external-transfer.service';
 import { EnterProductsComponent } from '../../shared/enter-products/enter-products.component';
@@ -69,15 +67,11 @@ import { EnterProductsComponent } from '../../shared/enter-products/enter-produc
         MatDivider,
     ],
     templateUrl: './external-transfers.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExternalTransfersComponent
     implements OnInit, AfterViewChecked, OnDestroy
 {
-    static readonly DATE_WITH_SLASHES = 'MM/dd/yyyy';
-    static readonly DATE_WITH_SLASHES_REGEX = RegExp(
-        commonRegex.dateWithSlashes
-    );
-
     @ViewChild('enterProducts') protected enterProducts: EnterProductsComponent;
     formValueChange: Subscription;
     externalTransfer: FormGroup;
@@ -86,13 +80,6 @@ export class ExternalTransfersComponent
     isShippedLocation = false;
     customerOptions: customerOptionDto[];
     maxDate = new Date();
-    transferDate = signal(null);
-    transferDateValidation = computed(() =>
-        ExternalTransfersComponent.DATE_WITH_SLASHES_REGEX.test(
-            this.transferDate()
-        )
-    );
-
     loggedUserId: string;
 
     constructor(
