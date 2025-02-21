@@ -30,7 +30,7 @@ public class ExternalTransferPage extends CommonPageFactory {
 
     private static final By externalTransferHeaderLocator = By.xpath("//h3[normalize-space()='Transfer Product Information']");
     private static final By hospitalTransferIdInput = By.id("hospitalTransferId");
-    private static final By transferDateSelect = By.id("TransferDateId");
+    private static final By hospitalTransferDateInput = By.id("TransferDateId");
     private static final By CUSTOMER_SELECT_ID = By.id("transferCustomerSelectId");
     private static final By CUSTOMER_PANEL_ID = By.id("transferCustomerSelectIdSelect-panel");
     private static final By unitNumberInput = By.id("unitNumberId");
@@ -63,7 +63,7 @@ public class ExternalTransferPage extends CommonPageFactory {
     public void defineHospitalTransferIdAndTransferDate(String hospitalTransferId, String transferDate) throws InterruptedException {
         log.debug("Adding hospital Transfer ID {} with Transfer Date {}.", hospitalTransferId, transferDate);
         sharedActions.sendKeys(this.driver, hospitalTransferIdInput, hospitalTransferId);
-        this.selectTransferDate(transferDate);
+        sharedActions.sendKeys(this.driver, hospitalTransferDateInput, transferDate);
         sharedActions.waitLoadingAnimation();
     }
 
@@ -76,16 +76,6 @@ public class ExternalTransferPage extends CommonPageFactory {
             assertFalse(sharedActions.isElementVisible(enterProducts));
             assertFalse(sharedActions.isElementVisible(unitNumberInput));
             assertFalse(sharedActions.isElementVisible(productCodeInput));
-        }
-    }
-
-    public void selectTransferDate(String transferDate) throws InterruptedException {
-        if (transferDate.equalsIgnoreCase("CURRENT_DATE")) {
-            sharedActions.click(this.driver, transferDateSelect);
-            sharedActions.click(this.driver, lastAvailableDate);
-            sharedActions.waitLoadingAnimation();
-        } else {
-            Assert.fail("Transfer Date option not implemented: " + transferDate);
         }
     }
 }
