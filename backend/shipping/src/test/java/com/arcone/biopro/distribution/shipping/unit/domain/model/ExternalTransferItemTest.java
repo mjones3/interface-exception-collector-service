@@ -9,17 +9,17 @@ class ExternalTransferItemTest {
     @Test
     void shouldCreate() {
 
-        var response = new ExternalTransferItem(1L, 1L, "unitNumber", "productCode", "employee-id");
+        var response = new ExternalTransferItem(1L, 1L, "unitNumber", "productCode","FAMILY", "employee-id");
         Assertions.assertNotNull(response);
     }
 
     @Test
     void shouldNotCreate() {
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new ExternalTransferItem(1L, null, "unitNumber", "productCode", "employee-id"), "External Transfer ID cannot be null");
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new ExternalTransferItem(1L, 1L, null, "productCode", "employee-id"), "Unit Number cannot be null");
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new ExternalTransferItem(1L, 1L, "unitNumber", null, "employee-id"), "Product Code cannot be null");
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new ExternalTransferItem(1L, 1L, "unitNumber", "productCode", null), "Employee ID cannot be null");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new ExternalTransferItem(1L, null, "unitNumber", "productCode","", "employee-id"), "External Transfer ID cannot be null");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new ExternalTransferItem(1L, 1L, null, "productCode", "","employee-id"), "Unit Number cannot be null");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new ExternalTransferItem(1L, 1L, "unitNumber", null,"", "employee-id"), "Product Code cannot be null");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new ExternalTransferItem(1L, 1L, "unitNumber", "productCode","", null), "Employee ID cannot be null");
 
     }
 

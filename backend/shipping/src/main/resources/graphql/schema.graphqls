@@ -26,7 +26,15 @@ type Mutation {
     confirmCancelSecondVerification(confirmCancelSecondVerificationRequest:CancelSecondVerificationRequest!):RuleResponseDTO!
     unpackItems(unpackItemsRequest:UnpackItemsRequest!):RuleResponseDTO!
     createExternalTransfer(createExternalTransferRequest:CreateExternalTransferRequestDTO):RuleResponseDTO!
+    addExternalTransferProduct(addProductTransferRequestDTO:AddProductTransferRequestDTO):RuleResponseDTO!
 
+}
+
+input AddProductTransferRequestDTO {
+    externalTransferId:Int!
+    unitNumber:String!
+    productCode:String!
+    employeeId:String!
 }
 
 type PackingListLabelDTO {

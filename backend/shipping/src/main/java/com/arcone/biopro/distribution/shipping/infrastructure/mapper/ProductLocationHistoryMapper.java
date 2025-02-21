@@ -21,7 +21,7 @@ public class ProductLocationHistoryMapper {
         return new ProductLocationHistory(productLocationHistoryEntity.getId(), productLocationHistoryEntity.getCustomerCodeTo()
             , productLocationHistoryEntity.getCustomerNameTo(), productLocationHistoryEntity.getCustomerCodeFrom()
             , productLocationHistoryEntity.getCustomerNameFrom(), productLocationHistoryEntity.getType()
-            , productLocationHistoryEntity.getUnitNumber(), productLocationHistoryEntity.getProductCode()
+            , productLocationHistoryEntity.getUnitNumber(), productLocationHistoryEntity.getProductCode() , productLocationHistoryEntity.getProductFamily()
             , productLocationHistoryEntity.getCreatedByEmployeeId(),productLocationHistoryEntity.getCreateDate() , customerService);
     }
 
@@ -35,6 +35,7 @@ public class ProductLocationHistoryMapper {
             .customerNameFrom(productLocationHistory.getCustomerFrom().getName())
             .unitNumber(productLocationHistory.getProduct().getUnitNumber())
             .productCode(productLocationHistory.getProduct().getProductCode())
+            .productFamily(productLocationHistory.getProduct().getProductFamily())
             .build();
     }
 
@@ -46,6 +47,7 @@ public class ProductLocationHistoryMapper {
             .customerNameTo(shipmentCompletedPayloadDTO.customerName())
             .unitNumber(shipmentCompletedItemProductPayloadDTO.unitNumber())
             .productCode(shipmentCompletedItemProductPayloadDTO.productCode())
+            .productFamily(shipmentCompletedItemProductPayloadDTO.productFamily())
             .build();
     }
 }

@@ -16,10 +16,10 @@ public class ExternalTransferItem implements Validatable {
     private final Product product;
     private final String createdByEmployeeId;
 
-    public ExternalTransferItem(Long id, Long externalTransferId, String unitNumber , String productCode, String createdByEmployeeId) {
+    public ExternalTransferItem(Long id, Long externalTransferId, String unitNumber , String productCode , String productFamily, String createdByEmployeeId) {
         this.id = id;
         this.externalTransferId = externalTransferId;
-        this.product = new Product(unitNumber, productCode);
+        this.product = new Product(unitNumber, productCode,productFamily);
         this.createdByEmployeeId = createdByEmployeeId;
 
         checkValid();

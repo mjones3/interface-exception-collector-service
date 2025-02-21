@@ -1,9 +1,11 @@
 package com.arcone.biopro.distribution.shipping.unit.domain.model;
 
+import com.arcone.biopro.distribution.shipping.application.exception.DomainException;
 import com.arcone.biopro.distribution.shipping.domain.model.ExternalTransfer;
 import com.arcone.biopro.distribution.shipping.domain.model.ProductLocationHistory;
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.ExternalTransferStatus;
 import com.arcone.biopro.distribution.shipping.domain.model.vo.Customer;
+import com.arcone.biopro.distribution.shipping.domain.model.vo.Product;
 import com.arcone.biopro.distribution.shipping.domain.repository.ProductLocationHistoryRepository;
 import com.arcone.biopro.distribution.shipping.domain.service.CustomerService;
 import com.arcone.biopro.distribution.shipping.infrastructure.service.dto.CustomerDTO;
@@ -68,8 +70,8 @@ class ExternalTransferTest {
         try {
             externalTransfer.addItem(null,"unitNumber","productCode","employee-id",productLocationHistoryRepository);
             Assertions.fail();
-        }catch (IllegalArgumentException e) {
-            Assertions.assertEquals("The transfer date is before the last shipped date",e.getMessage());
+        }catch (DomainException e) {
+            Assertions.assertEquals("The transfer date is before the last shipped date",e.getUseCaseMessageType().getMessage());
         }
 
 
@@ -94,8 +96,8 @@ class ExternalTransferTest {
         try {
             externalTransfer.addItem(null,"unitNumber","productCode","employee-id",productLocationHistoryRepository);
             Assertions.fail();
-        }catch (IllegalArgumentException e) {
-            Assertions.assertEquals("The product location doesn't match the last shipped location",e.getMessage());
+        }catch (DomainException e) {
+            Assertions.assertEquals("The product location doesn't match the last shipped location",e.getUseCaseMessageType().getMessage());
         }
 
 
@@ -111,8 +113,8 @@ class ExternalTransferTest {
         try {
             externalTransfer.addItem(null,"unitNumber","productCode","employee-id",productLocationHistoryRepository);
             Assertions.fail();
-        }catch (IllegalArgumentException e) {
-            Assertions.assertEquals("This product has not been shipped",e.getMessage());
+        }catch (DomainException e) {
+            Assertions.assertEquals("This product has not been shipped",e.getUseCaseMessageType().getMessage());
         }
     }
 
@@ -131,6 +133,11 @@ class ExternalTransferTest {
         Mockito.when(customerTo.getCode()).thenReturn("123");
 
         Mockito.when(locationHistory.getCustomerTo()).thenReturn(customerTo);
+
+        var product = Mockito.mock(Product.class);
+        Mockito.when(product.getProductFamily()).thenReturn("productFamily");
+
+        Mockito.when(locationHistory.getProduct()).thenReturn(product);
 
         Mockito.when(productLocationHistoryRepository.findCurrentLocation(Mockito.any())).thenReturn(Mono.just(locationHistory));
 

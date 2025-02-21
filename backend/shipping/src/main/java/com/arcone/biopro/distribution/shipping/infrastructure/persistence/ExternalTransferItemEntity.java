@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.shipping.infrastructure.persistence;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -37,6 +38,10 @@ public class ExternalTransferItemEntity implements Persistable<Long> {
     @NotNull
     @Column("product_code")
     private String productCode;
+
+    @Size(max = 255)
+    @Column("product_family")
+    private String productFamily;
 
     @NotNull
     @Column("create_date")

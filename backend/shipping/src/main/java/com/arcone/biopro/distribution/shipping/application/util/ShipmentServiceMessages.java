@@ -40,6 +40,7 @@ public class ShipmentServiceMessages {
     public static final String SECOND_VERIFICATION_CANCEL_SUCCESS = "Second verification cancellation completed";
     public static final String UNPACK_ITEM_SUCCESS = "Product(s) successfully removed";
     public static final String EXTERNAL_TRANSFER_CREATED_SUCCESS = "External Transfer created";
+    public static final String EXTERNAL_TRANSFER_PRODUCT_ADD_SUCCESS = "Product added successfully";
 
 
 }

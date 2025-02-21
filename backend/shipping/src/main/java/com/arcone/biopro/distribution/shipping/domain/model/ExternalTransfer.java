@@ -1,5 +1,7 @@
 package com.arcone.biopro.distribution.shipping.domain.model;
 
+import com.arcone.biopro.distribution.shipping.application.dto.UseCaseMessageType;
+import com.arcone.biopro.distribution.shipping.application.exception.DomainException;
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.ExternalTransferStatus;
 import com.arcone.biopro.distribution.shipping.domain.model.vo.Customer;
 import com.arcone.biopro.distribution.shipping.domain.model.vo.Product;
@@ -44,33 +46,38 @@ public class ExternalTransfer implements Validatable{
         checkValid();
     }
 
+    public ExternalTransfer(Long id , String customerCodeTo, String customerCodeFrom, String hospitalTransferId, LocalDate transferDate, String createEmployeeId, ExternalTransferStatus status , List<ExternalTransferItem> externalTransferItems , CustomerService customerService) {
+        this(id , customerCodeTo, customerCodeFrom, hospitalTransferId, transferDate, createEmployeeId, status ,customerService);
+        this.externalTransferItems = externalTransferItems;
+    }
+
     public void addItem(Long itemId, String unitNumber, String productCode, String createEmployeeId , ProductLocationHistoryRepository productLocationHistoryRepository){
         if(externalTransferItems == null) {
             externalTransferItems = new ArrayList<>();
         }
 
-        var product = new Product(productCode,unitNumber);
+        var product = new Product(unitNumber,productCode,null);
 
         var currentProductLocation = productLocationHistoryRepository.findCurrentLocation(product).blockOptional();
         if(currentProductLocation.isPresent()) {
             var productLocation = currentProductLocation.get();
 
             if(productLocation.getCreatedDate().toLocalDate().isAfter(this.transferDate)){
-                throw new IllegalArgumentException("The transfer date is before the last shipped date");
+                throw new DomainException(UseCaseMessageType.EXTERNAL_TRANSFER_DATE_BEFORE_SHIP_DATE);
             }
 
             if(this.customerFrom != null && !productLocation.getCustomerTo().getCode().equals(this.customerFrom.getCode())){
-                throw new IllegalArgumentException("The product location doesn't match the last shipped location");
+                throw new DomainException(UseCaseMessageType.EXTERNAL_TRANSFER_LOCATION_DOES_NOT_MATCH);
             }
 
-            this.externalTransferItems.add(new ExternalTransferItem(itemId,this.id,unitNumber,productCode,createEmployeeId));
+            this.externalTransferItems.add(new ExternalTransferItem(itemId,this.id,unitNumber,productCode,productLocation.getProduct().getProductFamily(),createEmployeeId));
 
             if(this.customerFrom == null){
                 this.customerFrom = productLocation.getCustomerTo();
             }
 
         }else{
-            throw new IllegalArgumentException("This product has not been shipped");
+            throw new DomainException(UseCaseMessageType.EXTERNAL_TRANSFER_PRODUCT_NOT_SHIPPED );
         }
     }
 
