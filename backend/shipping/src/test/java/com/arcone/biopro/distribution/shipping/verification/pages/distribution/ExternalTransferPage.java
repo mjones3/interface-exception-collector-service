@@ -27,12 +27,13 @@ public class ExternalTransferPage extends CommonPageFactory {
     private HomePage homePage;
 
 
-    private static final By externalTransferHeaderLocator = By.xpath("//h3[normalize-space()='Product Selection and Transfer Information']");
+    private static final By externalTransferHeaderLocator = By.xpath("//h3[normalize-space()='Transfer Product Information']");
     private static final By hospitalTransferIdInput = By.id("hospitalTransferId");
-    private static final By transferDateInput = By.id("TransferdateId");
+    private static final By transferDateSelect = By.id("TransferDateId");
     private static final By CUSTOMER_SELECT_ID = By.id("transferCustomerSelectId");
     private static final By CUSTOMER_PANEL_ID = By.id("transferCustomerSelectIdSelect-panel");
     private static final By unitNumberInput = By.id("unitNumberId");
+    private static final By enterProducts = By.id("enterProductsId");
     private static final By productCodeInput = By.id("productCodeId");
 
     @Override
@@ -66,9 +67,11 @@ public class ExternalTransferPage extends CommonPageFactory {
 
     public void checkUnitNumberProductCodeFieldVisibilityIs(boolean visible) {
         if (visible) {
+            assertTrue(sharedActions.isElementVisible(enterProducts));
             assertTrue(sharedActions.isElementVisible(unitNumberInput));
             assertTrue(sharedActions.isElementVisible(productCodeInput));
         } else {
+            assertFalse(sharedActions.isElementVisible(enterProducts));
             assertFalse(sharedActions.isElementVisible(unitNumberInput));
             assertFalse(sharedActions.isElementVisible(productCodeInput));
         }
