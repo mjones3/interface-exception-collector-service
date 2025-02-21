@@ -14,7 +14,7 @@ export default [
                 path: '',
                 component: ExternalTransfersComponent,
                 data: {
-                    subTitle: 'Product Selection and Transfer Information',
+                    subTitle: 'Transfer Product Information',
                 },
             },
         ],

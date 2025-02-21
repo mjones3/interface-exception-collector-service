@@ -59,7 +59,6 @@
                         <biopro-search-select
                             id="transferCustomerId"
                             [formGroup]="externalTransfer"
-                            (selectionChange)="checkExternalFormValidation()"
                             controlName="transferCustomer"
                             title="Transfer To Customer"
                             required="true"
@@ -71,29 +70,33 @@
                     <mat-form-field class="block w-full" appearance="outline">
                         <mat-label class="font-bold">Transfer Date</mat-label>
                         <input
-                            id="TransferdateId"
+                            id="TransferDateId"
                             matInput
                             required
                             formControlName="transferDate"
+                            placeholder="Select Transfer Date"
                             autocomplete="off"
                             [matDatepicker]="transferDatePicker"
                             [max]="maxDate"
-                            (input)="onDateInput($event)"
-                            (dateChange)="checkeValidation($event)"
                         />
                         <mat-datepicker-toggle
                             matIconSuffix
                             [for]="transferDatePicker"
                         ></mat-datepicker-toggle>
                         <mat-datepicker #transferDatePicker></mat-datepicker>
-                        @if (transferDateValidation()) {
-                            <mat-error>Transfer Date is Invalid</mat-error>
-                        } @else if (
+                        @if (
                             externalTransfer
                                 .get('transferDate')
                                 .hasError('required')
                         ) {
                             <mat-error>Transfer Date is Required</mat-error>
+                        }
+                        @if (
+                            externalTransfer
+                                .get('transferDate')
+                                .hasError('matDatepickerMax')
+                        ) {
+                            <mat-error>Transfer Date is Invalid</mat-error>
                         }
                     </mat-form-field>
                 </div>
@@ -108,6 +111,7 @@
                         <div class="flex w-full flex-row gap-4 pb-4 pt-4">
                             <div class="flex w-3/4 flex-col space-y-1">
                                 <biopro-enter-products
+                                    id="enterProductsId"
                                     #enterProducts
                                     (validate)="enterProduct($event)"
                                 >

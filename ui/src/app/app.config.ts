@@ -1,7 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { HttpClient, provideHttpClient } from '@angular/common/http';
 import { ApplicationConfig, importProvidersFrom } from '@angular/core';
-import { LuxonDateAdapter } from '@angular/material-luxon-adapter';
 import { DateAdapter, MAT_DATE_FORMATS } from '@angular/material/core';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import {
@@ -29,6 +28,7 @@ import {
 } from './core/state/configuration/configuration.reducer';
 import { mockApiServices } from './mock-api';
 import { toasterDefaultConfig } from './shared/components/toaster/toaster-default.config';
+import { CustomLuxonAdapterModule } from './shared/utils/custom-date-adapter';
 
 export function createTranslateLoader(http: HttpClient) {
     return new TranslateHttpLoader(http, './i18n/', '.json');
@@ -62,13 +62,13 @@ export const appConfig: ApplicationConfig = {
         // Material Date Adapter
         {
             provide: DateAdapter,
-            useClass: LuxonDateAdapter,
+            useClass: CustomLuxonAdapterModule,
         },
         {
             provide: MAT_DATE_FORMATS,
             useValue: {
                 parse: {
-                    dateInput: 'D',
+                    dateInput: 'MM/dd/yyyy',
                 },
                 display: {
                     dateInput: 'MM/dd/yyyy',
