@@ -79,10 +79,10 @@ public class ExternalTransferSteps {
         page.selectCustomer(customerName);
     }
 
-    @And("I fill hospital transfer Id {string} and transfer Date {string}.")
-    public void fillHospitalTransferIdAndTransferDate(String hospitalTransferId, String transferDate) throws InterruptedException {
+    @And("I fill hospital transfer Id {string} and select the current date as transfer Date.")
+    public void fillHospitalTransferIdAndTransferDate(String hospitalTransferId) throws InterruptedException {
         var hospitalTransferIdValue = NULL_VALUE.equals(hospitalTransferId) ? "" : hospitalTransferId;
-        page.defineHospitalTransferIdAndTransferDate(hospitalTransferIdValue,transferDate);
+        page.defineHospitalTransferIdAndTransferDate(hospitalTransferIdValue, "CURRENT_DATE");
     }
 
     @Then("I {string} be able to add products to the external transfer request.")

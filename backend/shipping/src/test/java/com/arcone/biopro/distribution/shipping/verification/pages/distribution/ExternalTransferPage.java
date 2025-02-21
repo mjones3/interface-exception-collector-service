@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.shipping.verification.pages.distribution;
 import com.arcone.biopro.distribution.shipping.verification.pages.CommonPageFactory;
 import com.arcone.biopro.distribution.shipping.verification.pages.SharedActions;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,6 +36,7 @@ public class ExternalTransferPage extends CommonPageFactory {
     private static final By unitNumberInput = By.id("unitNumberId");
     private static final By enterProducts = By.id("enterProductsId");
     private static final By productCodeInput = By.id("productCodeId");
+    private static final By lastAvailableDate = By.xpath("(//mat-calendar//tbody//button[not(contains(@class, 'mat-calendar-body-disabled'))])[last()]");
 
     @Override
     public boolean isLoaded() {
@@ -61,7 +63,7 @@ public class ExternalTransferPage extends CommonPageFactory {
     public void defineHospitalTransferIdAndTransferDate(String hospitalTransferId, String transferDate) throws InterruptedException {
         log.debug("Adding hospital Transfer ID {} with Transfer Date {}.", hospitalTransferId, transferDate);
         sharedActions.sendKeys(this.driver, hospitalTransferIdInput, hospitalTransferId);
-        sharedActions.sendKeys(this.driver, transferDateInput, transferDate);
+        this.selectTransferDate(transferDate);
         sharedActions.waitLoadingAnimation();
     }
 
@@ -74,6 +76,16 @@ public class ExternalTransferPage extends CommonPageFactory {
             assertFalse(sharedActions.isElementVisible(enterProducts));
             assertFalse(sharedActions.isElementVisible(unitNumberInput));
             assertFalse(sharedActions.isElementVisible(productCodeInput));
+        }
+    }
+
+    public void selectTransferDate(String transferDate) throws InterruptedException {
+        if (transferDate.equalsIgnoreCase("CURRENT_DATE")) {
+            sharedActions.click(this.driver, transferDateSelect);
+            sharedActions.click(this.driver, lastAvailableDate);
+            sharedActions.waitLoadingAnimation();
+        } else {
+            Assert.fail("Transfer Date option not implemented: " + transferDate);
         }
     }
 }
