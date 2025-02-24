@@ -11,10 +11,18 @@ public class InventoryUpdatedMapper {
 
     public InventoryUpdatedOutbound toDomain(InventoryUpdatedPayload inventoryUpdatedPayload){
 
-        return new InventoryUpdatedOutbound(inventoryUpdatedPayload.updateType(), inventoryUpdatedPayload.unitNumber(), inventoryUpdatedPayload.productCode(),
-            inventoryUpdatedPayload.productDescription() , inventoryUpdatedPayload.productFamily(),inventoryUpdatedPayload.bloodType(),
-            inventoryUpdatedPayload.expirationDate(), inventoryUpdatedPayload.locationCode(), inventoryUpdatedPayload.storageLocation(),
-            inventoryUpdatedPayload.inventoryStatus(), inventoryUpdatedPayload.properties()
+        return new InventoryUpdatedOutbound(
+            inventoryUpdatedPayload.updateType(),
+            inventoryUpdatedPayload.unitNumber(),
+            inventoryUpdatedPayload.productCode(),
+            inventoryUpdatedPayload.productDescription() ,
+            inventoryUpdatedPayload.productFamily(),
+            inventoryUpdatedPayload.bloodType(),
+            inventoryUpdatedPayload.expirationDate(),
+            inventoryUpdatedPayload.locationCode(),
+            inventoryUpdatedPayload.storageLocation(),
+            inventoryUpdatedPayload.inventoryStatus(),
+            inventoryUpdatedPayload.properties()
         );
     }
 }

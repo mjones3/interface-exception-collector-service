@@ -82,7 +82,7 @@ public class KafkaConfiguration {
 
     @Bean
     ReceiverOptions<String, String> inventoryUpdatedReceiverOptions(KafkaProperties kafkaProperties
-        , @Value("${topics.inventory.inventory-updated.topic-name}") String inventoryUpdatedTopicName) {
+        , @Value("${topics.inventory.inventory-updated.topic-name:InventoryUpdated}") String inventoryUpdatedTopicName) {
         return buildReceiverOptions(kafkaProperties, inventoryUpdatedTopicName);
     }
 
@@ -135,7 +135,6 @@ public class KafkaConfiguration {
         KafkaProperties kafkaProperties,
         ObjectMapper objectMapper) {
         var props = kafkaProperties.buildProducerProperties(null);
-        props.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, TracingProducerInterceptor.class.getName());
         return SenderOptions.<String, InventoryUpdatedOutboundPayload>create(props)
             .withValueSerializer(new JsonSerializer<>(objectMapper))
             .maxInFlight(1); // to keep ordering, prevent duplicate messages (and avoid data loss)
