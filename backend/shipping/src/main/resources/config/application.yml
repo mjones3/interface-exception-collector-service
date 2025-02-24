@@ -92,7 +92,7 @@ logging:
   level:
     ROOT: INFO
     # for debugging R2DBC
-    # org.springframework.data.r2dbc: DEBUG
+    #org.springframework.data: DEBUG
     # io.r2dbc.postgresql.QUERY: DEBUG # includes BEGIN/COMMIT/ROLLBACK, DDL
     # set the 4 lines to warn to suppress large config list output on startup
     org.apache.kafka.common.config.AbstractConfig: WARN

@@ -1,0 +1,12 @@
+{
+  "eventId": "ae94cf69-6863-4c26-ad34-99347a9a4c8a",
+  "eventType": "CancelOrderReceived",
+  "eventVersion": "1.0",
+  "occurredOn": "2024-10-07T20:59:16.925110827Z",
+  "payload": {
+    "cancelDate": "2025-01-01 11:09:55",
+    "cancelEmployeeCode": "ee1bf88e-2137-4a17-835a-d43e7b738374",
+    "cancelReason": "Customer no longer need",
+    "externalId": "ABC56865"
+  }
+}

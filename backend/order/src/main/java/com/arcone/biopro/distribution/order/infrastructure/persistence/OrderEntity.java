@@ -117,4 +117,13 @@ public class OrderEntity {
 
     @Column("back_order")
     private Boolean backOrder;
+
+    @Column("cancel_employee_id")
+    private String cancelEmployeeId;
+
+    @Column("cancel_date")
+    private ZonedDateTime cancelDate;
+
+    @Column("cancel_reason")
+    private String cancelReason;
 }

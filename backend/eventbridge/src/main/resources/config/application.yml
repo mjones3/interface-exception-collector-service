@@ -83,17 +83,10 @@ management:
         all: true
       percentiles:
         all: 0, 0.5, 0.75, 0.95, 0.99, 1.0
-    data:
-      repository:
-        autotime:
-          enabled: true
 
 logging:
   level:
     ROOT: INFO
-    # for debugging R2DBC
-    # org.springframework.data.r2dbc: DEBUG
-    # io.r2dbc.postgresql.QUERY: DEBUG # includes BEGIN/COMMIT/ROLLBACK, DDL
     # set the 4 lines to warn to suppress large config list output on startup
     org.springframework.messaging: DEBUG
     org.apache.kafka.common.config.AbstractConfig: DEBUG
@@ -105,7 +98,16 @@ logging:
 
 spring:
   autoconfigure:
-    exclude: org.springframework.boot.actuate.autoconfigure.metrics.jdbc.DataSourcePoolMetricsAutoConfiguration
+    exclude:
+      - org.springframework.boot.actuate.autoconfigure.metrics.jdbc.DataSourcePoolMetricsAutoConfiguration
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.r2dbc.R2dbcAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.r2dbc.R2dbcDataAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.r2dbc.R2dbcRepositoriesAutoConfiguration
+      - org.springframework.boot.autoconfigure.r2dbc.R2dbcTransactionManagerAutoConfiguration
   application:
     name: eventbridge-service
   profiles:
@@ -128,17 +130,6 @@ spring:
     enabled: false
   messages:
     basename: i18n/messages
-  r2dbc:
-    url: r2dbc:postgresql://localhost:5432/biopro?initialSize=20&maxSize=50&poolName=pool&registerJmx=true
-    username: biopro
-    password:
-    properties:
-      # Postgres properties
-      lock_timeout: 30000
-      statement_timeout: 30000
-      idle_in_transaction_session_timeout: 30000
-      # R2DBC properties
-      connectTimeout: PT60S
   main:
     allow-bean-definition-overriding: true
     web-application-type: REACTIVE
@@ -187,9 +178,6 @@ spring:
             client-id: web_app
             client-secret: web_app
             scope: openid, profile, email, offline_access # last one for refresh tokens
-  sql:
-    init:
-      mode: always
 
 otel:
   service:

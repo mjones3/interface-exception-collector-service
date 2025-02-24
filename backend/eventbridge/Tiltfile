@@ -127,45 +127,6 @@ def keycloak_service():
         ,trigger_mode=TRIGGER_MODE_MANUAL
     )
 
-
-# Function to build and deploy: postgres service
-def postgresql_service():
-    # Specify the Kubernetes manifest for the deployment
-    k8s_yaml([
-        './src/main/k8s/db-namespace.yaml',
-        './src/main/k8s/postgresql-service.yaml',
-        './src/main/k8s/postgresql-deployment.yaml',
-        './src/main/k8s/postgresql-secret.yaml'
-    ])
-    k8s_resource(
-        'postgresql-deployment',
-        port_forwards=5432,
-        resource_deps=['cert-manager']
-        ,trigger_mode=TRIGGER_MODE_MANUAL
-    )
-
-
-# Function to build and deploy: atlas operator
-def atlas_operator():
-    # Specify the Kubernetes manifest for the deployment
-    helm_remote(
-        'atlas-operator',
-        repo_name='oci://ghcr.io/ariga/charts',
-        version='0.4.4'
-    )
-    k8s_resource(
-        'atlas-operator',
-        resource_deps=['postgresql-deployment']
-        ,trigger_mode=TRIGGER_MODE_MANUAL
-    )
-    configmap_create(
-        'biopro-migration',
-        namespace='db',
-        from_file=['schema.sql=./src/main/db/schema.sql']
-    )
-    k8s_yaml('./src/main/k8s/atlas-operator-migration.yaml')
-
-
 def biopro_service():
     # Specify the Kubernetes manifest for the deployment
     nerdctl_build(
@@ -200,6 +161,4 @@ zookeeper_service()
 kafka_service()
 kafka_external_service()
 redpanda_console_service()
-postgresql_service()
-atlas_operator()
 biopro_service()

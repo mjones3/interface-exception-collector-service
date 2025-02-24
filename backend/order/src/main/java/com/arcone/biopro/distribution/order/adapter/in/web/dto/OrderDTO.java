@@ -37,5 +37,8 @@ public record OrderDTO(
     String completeEmployeeId,
     ZonedDateTime completeDate,
     String completeComments,
-    boolean backOrderCreationActive
+    boolean backOrderCreationActive,
+    String cancelEmployeeId,
+    ZonedDateTime cancelDate,
+    String cancelReason
 ) {}

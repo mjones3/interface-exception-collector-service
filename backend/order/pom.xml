@@ -72,7 +72,7 @@
         <spotless-maven-plugin.version>2.43.0</spotless-maven-plugin.version>
         <spring-cloud-dependencies.version>2023.0.1</spring-cloud-dependencies.version>
         <springdoc-openapi-starter-webflux-ui.version>2.5.0</springdoc-openapi-starter-webflux-ui.version>
-        <springwolf.version>1.2.0</springwolf.version>
+        <springwolf.version>1.7.0</springwolf.version>
         <testng.version>7.10.0</testng.version>
         <tsid-creator.version>5.2.6</tsid-creator.version>
     </properties>
