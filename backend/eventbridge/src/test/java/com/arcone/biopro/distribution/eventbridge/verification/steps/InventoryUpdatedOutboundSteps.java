@@ -46,14 +46,14 @@ public class InventoryUpdatedOutboundSteps {
         inventoryUpdatedOutboundContext.setUpdateType("CREATED");
 
         var JSON = TestUtil.resource("inventory-updated-event-automation.json")
-            .replace("\"{unit-number}\"", inventoryUpdatedOutboundContext.getUnitNumber())
-            .replace("\"{product-code}\"", inventoryUpdatedOutboundContext.getProductCode())
+            .replace("{unit-number}", inventoryUpdatedOutboundContext.getUnitNumber())
+            .replace("{product-code}", inventoryUpdatedOutboundContext.getProductCode())
             .replace("{update-type}", inventoryUpdatedOutboundContext.getUpdateType());
 
         inventoryUpdatedOutboundContext.setInventoryUpdated(new JSONObject(JSON));
         log.info("JSON PAYLOAD :{}", inventoryUpdatedOutboundContext.getInventoryUpdated());
         Assert.assertNotNull(inventoryUpdatedOutboundContext.getInventoryUpdated());
-        var event = kafkaHelper.sendEvent(inventoryUpdatedOutboundContext.getInventoryUpdated().getString("eventId"), objectMapper.readTree(JSON), Topics.SHIPMENT_COMPLETED).block();
+        var event = kafkaHelper.sendEvent(inventoryUpdatedOutboundContext.getInventoryUpdated().getString("eventId"), objectMapper.readTree(JSON), Topics.INVENTORY_UPDATED).block();
         Assert.assertNotNull(event);
     }
 
