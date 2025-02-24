@@ -41,7 +41,7 @@ public class InventoryUpdatedOutboundContext {
         latchInventoryUpdated.countDown();
     }
 
-    @KafkaListener(topics = "${topics.inventory.inventory-updated-outbound.topic-name}", groupId = "automation-group")
+    @KafkaListener(topics = "${topics.inventory.inventory-updated-outbound.topic-name:InventoryUpdatedOutbound}", groupId = "automation-group")
     public void receiveInventoryUpdatedOutbound(ConsumerRecord<?, ?> consumerRecord) throws JSONException {
         log.info("received inventory updated outbound payload='{}'", consumerRecord.toString());
         inventoryUpdatedOutboundPayload = consumerRecord.value().toString();
