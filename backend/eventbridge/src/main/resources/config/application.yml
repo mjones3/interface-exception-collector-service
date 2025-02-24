@@ -282,3 +282,12 @@ topics:
       partitions: 1
       replicas: 1
       topic-name: ShipmentCompletedOutbound
+  inventory:
+    inventory-updated:
+      partitions: 1
+      replicas: 1
+      topic-name: InventoryUpdated
+    inventory-updated-outbound:
+      partitions: 1
+      replicas: 1
+      topic-name: InventoryUpdatedOutbound

@@ -1,11 +1,14 @@
 package com.arcone.biopro.distribution.eventbridge.infrastructure.config;
 
+import com.arcone.biopro.distribution.eventbridge.infrastructure.dto.InventoryUpdatedOutboundPayload;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.dto.ShipmentCompletedOutboundPayload;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.opentelemetry.instrumentation.kafkaclients.v2_6.TracingProducerInterceptor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
@@ -27,8 +30,10 @@ import java.util.List;
 @Slf4j
 public class KafkaConfiguration {
     public static final String SHIPMENT_COMPLETED_CONSUMER = "shipment-completed";
+    public static final String INVENTORY_UPDATED_CONSUMER = "inventory-updated";
     public static final String DLQ_PRODUCER = "dlq-producer";
     public static final String SHIPMENT_COMPLETED_OUTBOUND_PRODUCER = "shipment-completed-outbound";
+    public static final String INVENTORY_UPDATED_OUTBOUND_PRODUCER = "inventory-updated-outbound";
 
 
     @Bean
@@ -56,6 +61,31 @@ public class KafkaConfiguration {
         return buildReceiverOptions(kafkaProperties, shipmentCompletedTopicName);
     }
 
+    @Bean
+    NewTopic inventoryUpdatedTopic(
+        @Value("${topics.inventory.inventory-updated.partitions:1}") Integer partitions,
+        @Value("${topics.inventory.inventory-updated.replicas:1}") Integer replicas,
+        @Value("${topics.inventory.inventory-updated.topic-name:InventoryUpdated}") String topicName
+    ) {
+        return TopicBuilder.name(topicName).partitions(partitions).replicas(replicas).build();
+    }
+
+    @Bean
+    NewTopic inventoryUpdatedOutboundTopic(
+        @Value("${topics.inventory.inventory-updated-outbound.partitions:1}") Integer partitions,
+        @Value("${topics.inventory.inventory-updated-outbound.replicas:1}") Integer replicas ,
+        @Value("${topics.inventory.inventory-updated-outbound.topic-name:InventoryUpdatedOutbound}") String topicName
+    ) {
+        return TopicBuilder.name(topicName).partitions(partitions).replicas(replicas).build();
+    }
+
+
+    @Bean
+    ReceiverOptions<String, String> inventoryUpdatedReceiverOptions(KafkaProperties kafkaProperties
+        , @Value("${topics.inventory.inventory-updated.topic-name}") String inventoryUpdatedTopicName) {
+        return buildReceiverOptions(kafkaProperties, inventoryUpdatedTopicName);
+    }
+
 
     private ReceiverOptions<String, String> buildReceiverOptions(KafkaProperties kafkaProperties , String topicName){
         var props = kafkaProperties.buildConsumerProperties(null);
@@ -71,6 +101,13 @@ public class KafkaConfiguration {
         ReceiverOptions<String, String> shipmentCompletedReceiverOptions
     ) {
         return new ReactiveKafkaConsumerTemplate<>(shipmentCompletedReceiverOptions);
+    }
+
+    @Bean(INVENTORY_UPDATED_CONSUMER)
+    ReactiveKafkaConsumerTemplate<String, String> inventoryUpdatedConsumerTemplate(
+        ReceiverOptions<String, String> inventoryUpdatedReceiverOptions
+    ) {
+        return new ReactiveKafkaConsumerTemplate<>(inventoryUpdatedReceiverOptions);
     }
 
     @Bean
@@ -93,6 +130,17 @@ public class KafkaConfiguration {
             .maxInFlight(1); // to keep ordering, prevent duplicate messages (and avoid data loss)
     }
 
+    @Bean
+    SenderOptions<String, InventoryUpdatedOutboundPayload> senderOptionsInventoryUpdatedOutbound(
+        KafkaProperties kafkaProperties,
+        ObjectMapper objectMapper) {
+        var props = kafkaProperties.buildProducerProperties(null);
+        props.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, TracingProducerInterceptor.class.getName());
+        return SenderOptions.<String, InventoryUpdatedOutboundPayload>create(props)
+            .withValueSerializer(new JsonSerializer<>(objectMapper))
+            .maxInFlight(1); // to keep ordering, prevent duplicate messages (and avoid data loss)
+    }
+
     @Bean(name = DLQ_PRODUCER )
     ReactiveKafkaProducerTemplate<String, String> dlqProducerTemplate(
             SenderOptions<String, String> senderOptions) {
@@ -103,5 +151,11 @@ public class KafkaConfiguration {
     ReactiveKafkaProducerTemplate<String, ShipmentCompletedOutboundPayload> shipmentCompletedOutboundProducerTemplate(
         SenderOptions<String, ShipmentCompletedOutboundPayload> senderOptionsShipmentCompletedOutbound) {
         return new ReactiveKafkaProducerTemplate<>(senderOptionsShipmentCompletedOutbound);
+    }
+
+    @Bean(name = INVENTORY_UPDATED_OUTBOUND_PRODUCER )
+    ReactiveKafkaProducerTemplate<String, InventoryUpdatedOutboundPayload> inventoryUpdatedOutboundProducerTemplate(
+        SenderOptions<String, InventoryUpdatedOutboundPayload> senderOptionsInventoryUpdatedOutbound) {
+        return new ReactiveKafkaProducerTemplate<>(senderOptionsInventoryUpdatedOutbound);
     }
 }
