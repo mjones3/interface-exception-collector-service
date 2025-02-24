@@ -93,5 +93,13 @@ export const defaultNavigation: FuseNavigationItem[] = [
         icon: 'shopping_cart',
         link: 'orders/search',
         disabled: false,
-    }
+    },
+    {
+        id: 11,
+        title: 'External Transfer',
+        type: 'basic',
+        icon: 'compare_arrows',
+        link: 'external-transfer',
+        disabled: false,
+    },
 ];

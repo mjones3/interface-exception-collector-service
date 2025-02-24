@@ -34,10 +34,7 @@
       "type": "string",
       "title": "ExternalId of the order",
       "minLength": 1,
-      "maxLength": 50,
-      "examples": [
-        "11411792"
-      ]
+      "maxLength": 50
     },
     "dateTimePattern": {
       "type": "string",

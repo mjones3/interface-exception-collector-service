@@ -32,6 +32,14 @@ export const appRoutes: Route[] = [
                 loadChildren: () =>
                     import('app/modules/shipments/shipment.routes'),
             },
+            {
+                path: 'external-transfer',
+                canActivate: [AuthGuard],
+                loadChildren: () =>
+                    import(
+                        'app/modules/external-transfer/external-transfer.routes'
+                    ),
+            },
 
             // 404 & Catch all
             { path: '**', redirectTo: 'errors/404' },

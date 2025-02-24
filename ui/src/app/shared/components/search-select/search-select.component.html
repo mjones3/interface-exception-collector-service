@@ -1,0 +1,56 @@
+<mat-form-field
+    id="searchAndSelectField"
+    class="block w-full"
+    [formGroup]="formGroup"
+    [id]="matSelectId"
+    appearance="outline"
+>
+    <mat-label id="searchSelectLabel">
+        {{ title }}
+    </mat-label>
+    <mat-select
+        [required]="required"
+        [id]="matSelectId + 'Select'"
+        [formControlName]="controlName"
+        (closed)="controlInput.value = ''"
+        (selectionChange)="onSelectionChange()"
+        [disabled]="disabled"
+        (opened)="controlInput.focus(); controlInput.value = ''"
+    >
+        <mat-form-field class="block w-full">
+            <input
+                matInput
+                [placeholder]="placeholderText"
+                value=""
+                #controlInput
+                (keydown)="$event.stopPropagation()"
+            />
+            @if (controlInput.value) {
+                <button
+                    matSuffix
+                    mat-icon-button
+                    aria-label="Clear"
+                    class="p-4"
+                    (click)="controlInput.value = ''"
+                >
+                    <mat-icon>close</mat-icon>
+                </button>
+            }
+        </mat-form-field>
+
+        @for (option of itemList; track option) {
+            <mat-option
+                [id]="option.code"
+                [value]="option.code"
+                [ngClass]="{
+                    hidden: isNotAMatch(option.name, controlInput.value),
+                }"
+            >
+                {{ option.name }}
+            </mat-option>
+        }
+    </mat-select>
+    @if (formGroup.get(controlName)?.hasError('required')) {
+        <mat-error>{{ fieldErrorMessage }}</mat-error>
+    }
+</mat-form-field>

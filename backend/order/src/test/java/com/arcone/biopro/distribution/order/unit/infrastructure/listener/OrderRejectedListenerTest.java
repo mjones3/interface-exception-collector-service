@@ -1,7 +1,7 @@
 package com.arcone.biopro.distribution.order.unit.infrastructure.listener;
 
 import com.arcone.biopro.distribution.order.domain.event.OrderRejectedEvent;
-import com.arcone.biopro.distribution.order.infrastructure.dto.OrderRejectedDTO;
+import com.arcone.biopro.distribution.order.infrastructure.event.OrderRejectedOutputEvent;
 import com.arcone.biopro.distribution.order.infrastructure.listener.OrderRejectedListener;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
@@ -17,7 +17,7 @@ class OrderRejectedListenerTest {
 
     private OrderRejectedListener target;
 
-    private ReactiveKafkaProducerTemplate<String, OrderRejectedDTO> producerTemplate;
+    private ReactiveKafkaProducerTemplate<String, OrderRejectedOutputEvent> producerTemplate;
 
 
     @BeforeEach

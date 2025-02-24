@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
@@ -21,6 +22,7 @@ describe('ShipmentDetailsComponent', () => {
     let shipmentService: ShipmentService;
     let productIconService: ProductIconsService;
     let router: Router;
+    let datePipe: DatePipe;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
@@ -36,6 +38,7 @@ describe('ShipmentDetailsComponent', () => {
             providers: [
                 provideHttpClientTesting(),
                 provideMockStore({}),
+                DatePipe,
                 {
                     provide: ActivatedRoute,
                     useValue: {
@@ -60,6 +63,7 @@ describe('ShipmentDetailsComponent', () => {
         shipmentService = TestBed.inject(ShipmentService);
         productIconService = TestBed.inject(ProductIconsService);
         router = TestBed.inject(Router);
+        datePipe = TestBed.inject(DatePipe);
         jest.spyOn(shipmentService, 'getShipmentById').mockReturnValue(of());
         jest.spyOn(router, 'navigateByUrl');
         jest.spyOn(shipmentService, 'completeShipment').mockReturnValue(of());

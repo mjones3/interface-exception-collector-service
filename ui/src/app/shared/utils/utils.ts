@@ -33,7 +33,7 @@ export const commonRegex = {
     unitNumberWithZerosTail: '^=W[0-9]{12}00$',
     extractUnitNumber: '(^[=])(W[\\d]{12})(00)',
     bagLetter: '[A-Z]{1}',
-    productCode: '^E\\w{6}$',
+    productCode: '^E\\w{7}$',
     fullProductCode: '^E\\w{7}$',
     scannedProductCode: '\\=\\<\\w{8}',
     extractProductCode: '(^=<)(E[\\d]{4})([^\\d])([\\d]{2})\\S*',
@@ -41,6 +41,7 @@ export const commonRegex = {
     codabarUnitNumber: '^d[0-9]{7}d$',
     codabarProductCode: '^a0[0-9]{5}3b$',
     aboRh: '^([A-Z]|=%[a-zA-Z]{1}[0-9]{3}|=%[a-zA-Z]{2}[0-9]{2}|=%[0-9]{4})',
+    dateWithSlashes: '^(0[1-9]|1[0-2])\\/(0[1-9]|1\\d|2\\d|3[01])\\/\\d{4}$',
 };
 
 export const getLocalTimeZone = (dateInput: Date | string): string => {

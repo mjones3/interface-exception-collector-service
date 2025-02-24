@@ -401,3 +401,19 @@ biopro-process-header {
 }
 
 
+.mat-mdc-form-field.mat-form-field-appearance-outline {
+     &.mat-form-field-disabled {
+        color: rgba(var(--fuse-accent-rgb), 0.6) !important;
+    } 
+
+    .mat-mdc-text-field-wrapper {
+        .mat-mdc-form-field-flex {
+            .mdc-notched-outline {
+                .mdc-notched-outline__notch {
+                    border-left-style: none !important;
+                }
+            }
+        }
+    }
+}
+

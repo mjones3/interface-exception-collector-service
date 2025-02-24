@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.order.domain.repository;
 
 import com.arcone.biopro.distribution.order.domain.model.Order;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface OrderRepository {
@@ -14,6 +15,8 @@ public interface OrderRepository {
     Mono<Order> findOneByOrderNumber(final Long number);
 
     Mono<Order> update(final Order order);
+
+    Flux<Order> findByExternalId(final String externalId);
 
 
 }

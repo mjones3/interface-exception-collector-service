@@ -54,6 +54,11 @@
                                             description?.valueType !== 'badge'
                                         ) {
                                             <span
+                                                id="informationDetails-{{
+                                                    description.label
+                                                        .split(' ')
+                                                        .join('-')
+                                                }}-value"
                                                 class="fuse-mat-no-subscript mr-4 flex-auto text-left"
                                                 [ngClass]="valueClasses"
                                                 [ngStyle]="
@@ -104,6 +109,7 @@
                     </ng-container>
                 }
             </div>
+            <ng-content select="[data-role=footer]"></ng-content>
         </div>
     </div>
 </fuse-card>

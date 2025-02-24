@@ -120,6 +120,9 @@ public class GraphQLQueryMapper {
                            completeDate
                            completeComments
                            backOrderCreationActive
+                           cancelEmployeeId
+                               cancelDate
+                               cancelReason
                        }
                        notifications{
                            notificationType

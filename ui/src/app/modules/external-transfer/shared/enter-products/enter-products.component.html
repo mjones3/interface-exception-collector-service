@@ -1,0 +1,56 @@
+<div id="enterProductForm" class="flex flex-row" [formGroup]="productGroup">
+    <div class="flex w-full flex-row gap-4 px-8 pb-4 pt-4">
+        <div class="flex w-full flex-col space-y-1">
+            <mat-form-field
+                class="block"
+                appearance="outline"
+                hideRequiredMarker
+            >
+                <mat-label class="font-bold">Unit Number</mat-label>
+                <input
+                    id="unitNumberId"
+                    #inputUnitNumber
+                    appUppercase
+                    matInput
+                    formControlName="unitNumber"
+                    autocomplete="off"
+                    validateOn="touchedState"
+                    placeholder="Enter Unit Number"
+                />
+                @if (productGroup.get('unitNumber').hasError('required')) {
+                    <mat-error>Unit Number is Required</mat-error>
+                }
+
+                @if (productGroup.get('unitNumber').hasError('pattern')) {
+                    <mat-error>Unit Number is Invalid</mat-error>
+                }
+            </mat-form-field>
+        </div>
+
+        <div class="w-full gap-4">
+            <mat-form-field
+                class="block"
+                appearance="outline"
+                hideRequiredMarker
+            >
+                <mat-label class="font-bold">Product Code</mat-label>
+                <input
+                    id="productCodeId"
+                    #inputProductCode
+                    appUppercase
+                    matInput
+                    formControlName="productCode"
+                    autocomplete="off"
+                    validateOn="touchedState"
+                    placeholder="Enter Product Code"
+                />
+                @if (productGroup.get('productCode').hasError('required')) {
+                    <mat-error>Product Code is Required</mat-error>
+                }
+                @if (productGroup.get('productCode').hasError('pattern')) {
+                    <mat-error>Product Code is Invalid</mat-error>
+                }
+            </mat-form-field>
+        </div>
+    </div>
+</div>

@@ -128,6 +128,31 @@ public class GraphQLMutationMapper {
                 """
             , shipmentItemId, locationCode, employeeId, unitNumber, productCode);
     }
+
+    public static String createExternalTransferInformationMutation(String customerCode, String transferDate, String hospitalTransferId, String employeeId) {
+        return (String.format(
+            """
+                mutation {
+                    createExternalTransfer(createExternalTransferRequest:{
+                        customerCode:"%s"
+                        , transferDate:"%s"
+                        , hospitalTransferId:"%s"
+                        , createEmployeeId:"%s"
+                    }){
+                        ruleCode
+                        results
+                        notifications{
+                            statusCode
+                            notificationType
+                            message
+
+                        }
+                        _links
+                    }
+                }
+                """
+            , customerCode, transferDate, hospitalTransferId, employeeId));
+    }
 }
 
 

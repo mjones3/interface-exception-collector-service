@@ -8,13 +8,7 @@ import com.arcone.biopro.distribution.order.verification.pages.SharedActions;
 import com.arcone.biopro.distribution.order.verification.pages.order.HomePage;
 import com.arcone.biopro.distribution.order.verification.pages.order.OrderDetailsPage;
 import com.arcone.biopro.distribution.order.verification.pages.order.SearchOrderPage;
-import com.arcone.biopro.distribution.order.verification.support.ApiHelper;
-import com.arcone.biopro.distribution.order.verification.support.DatabaseQueries;
-import com.arcone.biopro.distribution.order.verification.support.DatabaseService;
-import com.arcone.biopro.distribution.order.verification.support.KafkaHelper;
-import com.arcone.biopro.distribution.order.verification.support.SharedContext;
-import com.arcone.biopro.distribution.order.verification.support.TestUtils;
-import com.arcone.biopro.distribution.order.verification.support.Topics;
+import com.arcone.biopro.distribution.order.verification.support.*;
 import com.arcone.biopro.distribution.order.verification.support.graphql.GraphQLQueryMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.datatable.DataTable;
@@ -32,12 +26,7 @@ import org.springframework.beans.factory.annotation.Value;
 import java.time.LocalDate;
 import java.time.Year;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -841,5 +830,62 @@ public class OrderSteps {
     public void iShouldReceiveTheSearchResultsContainingOrder(String expectedQuantity) {
         var orderList = context.getOrderList();
         Assert.assertEquals(Integer.parseInt(expectedQuantity), orderList.size());
+    }
+
+    @Then("I should receive the search results containing {string} order(s) with status(es) {string}.")
+    public void iShouldReceiveTheSearchResultsContainingOrderAndStatuses(String expectedQuantity, String statuses) {
+        var orderList = context.getOrderList();
+        Assert.assertEquals(Integer.parseInt(expectedQuantity), orderList.size());
+        var statusesList = testUtils.getCommaSeparatedList(statuses);
+        Arrays.stream(statusesList).toList().forEach(status -> {
+            Assert.assertTrue(orderList.stream().anyMatch(order -> order.get("orderStatus").toString().equals(status)));
+        });
+    }
+
+    @Given("I have an order with external ID {string}, status {string} and backorder flag {string}.")
+    public void iHaveAnOrderWithExternalIDStatusAndBackorderFlag(String externalId, String status, String backOrderFlag) {
+        context.setExternalId(externalId);
+        context.setOrderStatus(status);
+
+        var priority = orderController.getRandomPriority();
+        var query = DatabaseQueries.insertBioProOrder(externalId, context.getLocationCode(), priority.getValue(), priority.getKey(), status, Boolean.parseBoolean(backOrderFlag));
+        databaseService.executeSql(query).block();
+
+        context.setOrderId(Integer.valueOf(databaseService.fetchData(DatabaseQueries.getOrderId(externalId)).first().block().get("id").toString()));
+
+        createOrderItem("PLASMA_TRANSFUSABLE", "A", 10, "Comments");
+    }
+
+    @And("I have received a cancel order request with externalId {string}, cancel date {string} and content {string}.")
+    public void iHaveReceivedACancelOrderRequestWithExternalIdAndContent(String externalId, String cancelDate, String jsonFileName) throws Exception {
+        orderController.cancelOrder(externalId, cancelDate, jsonFileName);
+    }
+
+    @When("The system processes the cancel order request.")
+    public void theSystemProcessesTheCancelOrderRequest() throws InterruptedException {
+        Thread.sleep(kafkaWaitingTime);
+    }
+
+    @Then("The Biopro Order must have status {string}.")
+    public void theBioproOrderMustHaveStatus(String expectedStatus) {
+        orderController.getOrderDetails(context.getOrderId());
+        Assert.assertEquals(expectedStatus, context.getOrderDetails().get("status"));
+    }
+
+    @And("I {string} be able to receive the cancel details.")
+    public void iBeAbleToReceiveTheCancelDetails(String isShould) {
+        orderController.getOrderDetails(context.getOrderId());
+
+        if (isShould.equalsIgnoreCase("should")) {
+            Assert.assertNotNull(context.getOrderDetails().get("cancelEmployeeId"));
+            Assert.assertNotNull(context.getOrderDetails().get("cancelReason"));
+            Assert.assertNotNull(context.getOrderDetails().get("cancelDate"));
+        } else if (isShould.equalsIgnoreCase("should not")) {
+            Assert.assertNull(context.getOrderDetails().get("cancelEmployeeId"));
+            Assert.assertNull(context.getOrderDetails().get("cancelReason"));
+            Assert.assertNull(context.getOrderDetails().get("cancelDate"));
+        } else {
+            Assert.fail("Invalid option for cancel details.");
+        }
     }
 }
