@@ -34,7 +34,7 @@ public class InventoryUpdatedListener extends AbstractKafkaListener {
             , ObjectMapper objectMapper
             , InventoryUpdatedService inventoryUpdatedService
             , @Qualifier(KafkaConfiguration.DLQ_PRODUCER) ReactiveKafkaProducerTemplate<String, String> producerTemplate
-            , @Value("${topics.inventory.inventory-updated.topic-name:InventoryUpdated}") String topicName , SchemaValidationService schemaValidationService) {
+            , @Value("${topics.inventory.inventory-updated.topic-name}") String topicName , SchemaValidationService schemaValidationService) {
 
         super(consumer, objectMapper, producerTemplate, topicName);
         this.objectMapper = objectMapper;

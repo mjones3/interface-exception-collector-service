@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 public class InventoryUpdatedMapper {
 
     public InventoryUpdatedOutbound toDomain(InventoryUpdatedPayload inventoryUpdatedPayload){
-
         return new InventoryUpdatedOutbound(
             inventoryUpdatedPayload.updateType(),
             inventoryUpdatedPayload.unitNumber(),
