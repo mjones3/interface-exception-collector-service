@@ -208,12 +208,15 @@ export class RsaValidators {
         };
     }
 
-    static futureDateValidator(control: FormControl): ValidationErrors | null {
-        if (!control.value) {
-            return null;
-        }
-        const inputDate = new Date(control.value);
-        const today = new Date();
-        return inputDate > today ? { futureDate: true } : null;
+    static futureDateValidator(control: FormControl): ValidatorFn {
+        return (
+            control: AbstractControl
+        ): Record<string, any> | null => {
+            const inputDate = new Date(control.value);
+            const today = new Date();
+            return inputDate > today
+                ? { futureDate: { value: control.value } }
+                : null;
+        };
     }
 }

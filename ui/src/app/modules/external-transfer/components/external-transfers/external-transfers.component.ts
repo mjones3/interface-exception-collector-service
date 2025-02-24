@@ -60,9 +60,9 @@ import { EnterProductsComponent } from '../../shared/enter-products/enter-produc
         EnterProductsComponent,
         ReactiveFormsModule,
         MatInputModule,
-        MatFormFieldModule,
         MatDatepickerModule,
         SearchSelectComponent,
+        MatFormFieldModule,
         BasicButtonComponent,
         MatDivider,
     ],
@@ -113,13 +113,13 @@ export class ExternalTransfersComponent
         this.formValueChange = formGroup.statusChanges
             .pipe(
                 combineLatestWith(formGroup.valueChanges),
+                debounceTime(300),
                 filter(
                     ([status, value]) =>
                         !!value.transferCustomer &&
                         !!value.transferDate &&
                         status === 'VALID'
-                ),
-                debounceTime(300)
+                )
             )
             .subscribe(() => this.createExternalTransfer());
         this.externalTransfer = formGroup;
@@ -160,7 +160,23 @@ export class ExternalTransfersComponent
         }
     }
 
+    disableExternalTransferForm() {
+        this.externalTransfer.controls.transferCustomer.disable();
+        this.externalTransfer.controls.transferDate.disable();
+        this.getHospitalTransferIdDisable();
+    }
+
+    enableExternalTransferForm() {
+        this.externalTransfer.controls.transferCustomer.enable();
+        this.externalTransfer.controls.transferDate.enable();
+        this.externalTransfer.controls.hospitalTransferId.enable();
+    }
+
     createExternalTransfer() {
+        if (!this.externalTransfer.valid) {
+            return;
+        }
+        this.disableExternalTransferForm();
         const transferDateValue =
             this.externalTransfer.controls.transferDate?.value;
         const formattedTransferDate = formatDate(
@@ -189,10 +205,9 @@ export class ExternalTransfersComponent
                     const ruleResult = response.data?.createExternalTransfer;
                     if (ruleResult.ruleCode === '200 OK') {
                         this.isTransferInfoValid = true;
-                        this.externalTransfer.controls.transferCustomer.disable();
-                        this.externalTransfer.controls.transferDate.disable();
-                        this.getHospitalTransferIdDisable();
+                        this.disableExternalTransferForm();
                     } else {
+                        this.enableExternalTransferForm();
                         const notification = ruleResult.notifications[0];
                         this.toaster.show(
                             notification?.message,
