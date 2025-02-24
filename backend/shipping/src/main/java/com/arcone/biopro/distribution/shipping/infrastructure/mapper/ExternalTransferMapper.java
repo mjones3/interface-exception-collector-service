@@ -1,6 +1,5 @@
 package com.arcone.biopro.distribution.shipping.infrastructure.mapper;
 
-import com.arcone.biopro.distribution.shipping.application.dto.ExternalTransferItemDTO;
 import com.arcone.biopro.distribution.shipping.domain.model.ExternalTransfer;
 import com.arcone.biopro.distribution.shipping.domain.model.ExternalTransferItem;
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.ExternalTransferStatus;
@@ -15,8 +14,6 @@ import org.springframework.stereotype.Component;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
-import static java.util.Optional.ofNullable;
 
 @Component
 @Slf4j

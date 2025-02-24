@@ -1,8 +1,10 @@
 package com.arcone.biopro.distribution.shipping.application.mapper;
 
 import com.arcone.biopro.distribution.shipping.adapter.in.web.dto.AddProductTransferRequestDTO;
+import com.arcone.biopro.distribution.shipping.adapter.in.web.dto.CompleteExternalTransferRequestDTO;
 import com.arcone.biopro.distribution.shipping.adapter.in.web.dto.CreateExternalTransferRequestDTO;
 import com.arcone.biopro.distribution.shipping.application.dto.AddProductTransferCommandDTO;
+import com.arcone.biopro.distribution.shipping.application.dto.CompleteExternalTransferCommandDTO;
 import com.arcone.biopro.distribution.shipping.application.dto.CustomerDTO;
 import com.arcone.biopro.distribution.shipping.application.dto.ExternalTransferDTO;
 import com.arcone.biopro.distribution.shipping.application.dto.ExternalTransferItemDTO;
@@ -90,6 +92,14 @@ public class ExternalTransferDomainMapper {
             .unitNumber(addProductTransferRequestDTO.unitNumber())
             .productCode(addProductTransferRequestDTO.productCode())
             .employeeId(addProductTransferRequestDTO.employeeId())
+            .build();
+    }
+
+    public CompleteExternalTransferCommandDTO toCommand(CompleteExternalTransferRequestDTO completeExternalTransferRequestDTO) {
+        return CompleteExternalTransferCommandDTO.builder()
+            .externalTransferId(completeExternalTransferRequestDTO.externalTransferId())
+            .hospitalTransferId(completeExternalTransferRequestDTO.hospitalTransferId())
+            .employeeId(completeExternalTransferRequestDTO.employeeId())
             .build();
     }
 }

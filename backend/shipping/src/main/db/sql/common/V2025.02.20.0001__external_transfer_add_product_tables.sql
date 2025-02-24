@@ -3,7 +3,7 @@ CREATE TABLE shipping.bld_external_transfer_item (
     id                         BIGSERIAL NOT NULL
        CONSTRAINT pk_bld_external_transfer_item PRIMARY KEY,
     external_transfer_id BIGINT NOT NULL
-        CONSTRAINT fk_shipment_shipment_item REFERENCES shipping.bld_external_transfer,
+        CONSTRAINT fk_external_transfer_item REFERENCES shipping.bld_external_transfer,
     unit_number               VARCHAR(255) NOT NULL,
     product_code              VARCHAR(255) NOT NULL,
     product_family            VARCHAR(255) NOT NULL,

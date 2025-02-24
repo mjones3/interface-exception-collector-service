@@ -14,6 +14,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -46,7 +50,9 @@ public class ExternalTransferSteps {
             //| Unit Number   | Product Code | Customer Code | Customer Name              | Shipped Date |
             var result = externalTransferController.createProductLocationHistory(row.get(headers.indexOf("Customer Code"))
                 , row.get(headers.indexOf("Customer Name")), row.get(headers.indexOf("Unit Number"))
-                , row.get(headers.indexOf("Product Code")), row.get(headers.indexOf("Shipped Date")));
+                , row.get(headers.indexOf("Product Code"))
+                , row.get(headers.indexOf("Product Family"))
+                , row.get(headers.indexOf("Shipped Date")));
             Assertions.assertNotNull(result);
         }
     }
@@ -89,4 +95,54 @@ public class ExternalTransferSteps {
     public void iBeAbleToAddProductsToTheExternalTransferRequest(String shouldFlag) {
         page.checkUnitNumberProductCodeFieldVisibilityIs(SHOULD.equals(shouldFlag));
     }
+
+    @And("I have entered the external transfer information for the customer {string} , transfer date {string} successfully.")
+    public void iHaveEnteredTheExternalTransferInformationSuccessfully(String customerCode, String transferDate) {
+        String createExternalTransferMutation = GraphQLMutationMapper.createExternalTransferInformationMutation(customerCode,transferDate , "" ,context.getEmployeeId());
+        this.response = apiHelper.graphQlRequest(createExternalTransferMutation, "createExternalTransfer");
+        log.debug("Response: {}", response);
+
+        Assertions.assertNotNull(context.getApiMessageResponse());
+
+        var message = context.getApiMessageResponse().getFirst();
+        Assertions.assertEquals("SUCCESS", message.get("notificationType"));
+
+        var results = (List<Map>) ((LinkedHashMap) this.response.get("results")).get("results");
+        Assertions.assertNotNull(results);
+        context.setExternalTransferId(Long.parseLong(results.getFirst().get("id").toString()));
+
+    }
+
+    @When("I add the product with {string} and {string}.")
+    public void iAddTheProductWithAnd(String unitNumber, String productCode) {
+        String addProductToExternalTransferMutation = GraphQLMutationMapper.addProductToExternalTransferInformationMutation(context.getExternalTransferId(), unitNumber,productCode , context.getEmployeeId());
+        this.response = apiHelper.graphQlRequest(addProductToExternalTransferMutation, "addExternalTransferProduct");
+        log.debug("Response: {}", response);
+        context.setProductCode(productCode);
+        context.setUnitNumber(unitNumber);
+        Assertions.assertNotNull(response);
+
+    }
+
+    @Then("The product {string} be added in the list of products to be transferred.")
+    public void theProductShouldBeAddedInTheListOfProductsToBeTransferred(String shouldFlag) {
+        Assertions.assertNotNull(response);
+        if(SHOULD.equals(shouldFlag)){
+            var results = (List<Map>) ((LinkedHashMap) this.response.get("results")).get("results");
+            var items = (List<Map>) results.getFirst().get("externalTransferItems");
+            Assertions.assertFalse(items.isEmpty());
+            Assertions.assertTrue(items.stream().anyMatch(item -> item.get("productCode").toString().equals(context.getProductCode())
+                && item.get("unitNumber").toString().equals(context.getUnitNumber())));
+        }else{
+            Assertions.assertNull(this.response.get("results"));
+        }
+    }
+
+    @When("I submit the external transfer process.")
+    public void iSubmitTheExternalTransferProcess() {
+        String mutation = GraphQLMutationMapper.completeExternalTransferInformationMutation(context.getExternalTransferId(), "",context.getEmployeeId());
+        this.response = apiHelper.graphQlRequest(mutation, "completeExternalTransfer");
+        log.debug("Response Submit {}",response);
+    }
+
 }

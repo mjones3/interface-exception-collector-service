@@ -15,6 +15,7 @@ public enum UseCaseMessageType {
     EXTERNAL_TRANSFER_PRODUCT_NOT_SHIPPED(3,  NotificationType.CAUTION,"This product has not been shipped"),
     EXTERNAL_TRANSFER_NOT_FOUND(4,  NotificationType.WARN,"External transfer not found"),
     EXTERNAL_TRANSFER_DUPLICATED_PRODUCT(5,  NotificationType.WARN,"Product already added"),
+    EXTERNAL_TRANSFER_CANNOT_BE_COMPLETED(6,  NotificationType.WARN,"External Transfer product list should have at least one product"),
     ;
 
     Integer code;

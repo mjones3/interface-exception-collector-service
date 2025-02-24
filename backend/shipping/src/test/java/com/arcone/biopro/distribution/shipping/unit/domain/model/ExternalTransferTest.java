@@ -120,7 +120,7 @@ class ExternalTransferTest {
 
 
     @Test
-    public void shouldNotAddItem() {
+    public void shouldAddItem() {
 
         var externalTransfer = new ExternalTransfer(1L, "123", null, "A123", LocalDate.now(), "employee-id", ExternalTransferStatus.PENDING,customerService);
 
@@ -149,6 +149,50 @@ class ExternalTransferTest {
         externalTransfer.addItem(null,"unitNumber2","productCode2","employee-id",productLocationHistoryRepository);
         Assertions.assertEquals(2, externalTransfer.getExternalTransferItems().size());
         Assertions.assertNotNull(externalTransfer.getCustomerFrom());
+
+    }
+
+    @Test
+    public void shouldNotCompleteWhenNoProductsAdded(){
+
+        var externalTransfer = new ExternalTransfer(1L, "123", null, "A123", LocalDate.now(), "employee-id", ExternalTransferStatus.PENDING,customerService);
+
+        try {
+            externalTransfer.complete("transfer-id","employee-id");
+            Assertions.fail();
+        }catch (DomainException e) {
+            Assertions.assertEquals("External Transfer product list should have at least one product",e.getUseCaseMessageType().getMessage());
+        }
+
+    }
+
+    @Test
+    public void shouldCompleteTransfer(){
+
+        var externalTransfer = new ExternalTransfer(1L, "123", null, "A123", LocalDate.now(), "employee-id", ExternalTransferStatus.PENDING,customerService);
+
+        var product = Mockito.mock(Product.class);
+        Mockito.when(product.getProductFamily()).thenReturn("productFamily");
+
+        var locationHistory = Mockito.mock(ProductLocationHistory.class);
+        Mockito.when(locationHistory.getCreatedDate()).thenReturn(ZonedDateTime.now().minusDays(2));
+
+        var customerTo = Mockito.mock(Customer.class);
+        Mockito.when(customerTo.getCode()).thenReturn("123");
+
+        Mockito.when(locationHistory.getCustomerTo()).thenReturn(customerTo);
+
+        Mockito.when(locationHistory.getProduct()).thenReturn(product);
+
+        Mockito.when(productLocationHistoryRepository.findCurrentLocation(Mockito.any())).thenReturn(Mono.just(locationHistory));
+
+        externalTransfer.addItem(null,"unitNumber","productCode","employee-id",productLocationHistoryRepository);
+
+        externalTransfer.complete("transferId","employee-id");
+
+        Assertions.assertEquals("transferId",externalTransfer.getHospitalTransferId());
+        Assertions.assertEquals("COMPLETE",externalTransfer.getStatus().name());
+        Assertions.assertFalse(externalTransfer.getProductLocationHistories().isEmpty());
 
     }
 

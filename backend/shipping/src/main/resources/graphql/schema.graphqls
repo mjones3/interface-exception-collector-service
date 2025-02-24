@@ -27,7 +27,14 @@ type Mutation {
     unpackItems(unpackItemsRequest:UnpackItemsRequest!):RuleResponseDTO!
     createExternalTransfer(createExternalTransferRequest:CreateExternalTransferRequestDTO):RuleResponseDTO!
     addExternalTransferProduct(addProductTransferRequestDTO:AddProductTransferRequestDTO):RuleResponseDTO!
+    completeExternalTransfer(completeExternalTransferRequestDTO:CompleteExternalTransferRequestDTO):RuleResponseDTO!
 
+}
+
+input CompleteExternalTransferRequestDTO {
+    externalTransferId:Int!
+    hospitalTransferId:String
+    employeeId:String!
 }
 
 input AddProductTransferRequestDTO {

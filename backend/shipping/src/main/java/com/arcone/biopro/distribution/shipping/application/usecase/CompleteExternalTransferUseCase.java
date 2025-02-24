@@ -1,6 +1,6 @@
 package com.arcone.biopro.distribution.shipping.application.usecase;
 
-import com.arcone.biopro.distribution.shipping.application.dto.AddProductTransferCommandDTO;
+import com.arcone.biopro.distribution.shipping.application.dto.CompleteExternalTransferCommandDTO;
 import com.arcone.biopro.distribution.shipping.application.dto.NotificationDTO;
 import com.arcone.biopro.distribution.shipping.application.dto.NotificationType;
 import com.arcone.biopro.distribution.shipping.application.dto.RuleResponseDTO;
@@ -9,11 +9,9 @@ import com.arcone.biopro.distribution.shipping.application.exception.DomainExcep
 import com.arcone.biopro.distribution.shipping.application.mapper.ExternalTransferDomainMapper;
 import com.arcone.biopro.distribution.shipping.application.util.ShipmentServiceMessages;
 import com.arcone.biopro.distribution.shipping.domain.repository.ExternalTransferRepository;
-import com.arcone.biopro.distribution.shipping.domain.repository.ProductLocationHistoryRepository;
-import com.arcone.biopro.distribution.shipping.domain.service.AddProductTransferService;
+import com.arcone.biopro.distribution.shipping.domain.service.CompleteExternalTransferService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -25,20 +23,20 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class AddProductTransferUseCase extends AbstractUseCase implements AddProductTransferService {
+public class CompleteExternalTransferUseCase extends AbstractUseCase implements CompleteExternalTransferService {
 
     private final ExternalTransferRepository externalTransferRepository;
-    private final ProductLocationHistoryRepository productLocationHistoryRepository;
     private final ExternalTransferDomainMapper externalTransferDomainMapper;
+    private final static String EXTERNAL_TRANSFER_URL  = "/external-transfer";
+
 
     @Override
-    public Mono<RuleResponseDTO> addProductTransfer(AddProductTransferCommandDTO addProductTransferCommandDTO) {
-        return externalTransferRepository.findOneById(addProductTransferCommandDTO.externalTransferId())
+    public Mono<RuleResponseDTO> completeExternalTransfer(CompleteExternalTransferCommandDTO completeExternalTransferCommandDTO) {
+        return externalTransferRepository.findOneById(completeExternalTransferCommandDTO.externalTransferId())
             .switchIfEmpty(Mono.error(new DomainException(UseCaseMessageType.EXTERNAL_TRANSFER_NOT_FOUND)))
             .publishOn(Schedulers.boundedElastic())
             .flatMap(externalTransfer -> {
-                externalTransfer.addItem(null, addProductTransferCommandDTO.unitNumber()
-                    , addProductTransferCommandDTO.productCode(), addProductTransferCommandDTO.employeeId(), productLocationHistoryRepository);
+                externalTransfer.complete(completeExternalTransferCommandDTO.hospitalTransferId(), completeExternalTransferCommandDTO.employeeId());
                 return externalTransferRepository.update(externalTransfer);
             })
             .flatMap(externalTransfer -> {
@@ -46,15 +44,19 @@ public class AddProductTransferUseCase extends AbstractUseCase implements AddPro
                     .ruleCode(HttpStatus.OK)
                     .results(Map.of("results", List.of(externalTransferDomainMapper.toDTO(externalTransfer))))
                     .notifications(List.of(NotificationDTO.builder()
-                        .message(ShipmentServiceMessages.EXTERNAL_TRANSFER_PRODUCT_ADD_SUCCESS)
+                        .message(ShipmentServiceMessages.EXTERNAL_TRANSFER_COMPLETED_SUCCESS)
                         .statusCode(HttpStatus.OK.value())
                         .notificationType(NotificationType.SUCCESS.name())
                         .build()))
+                    ._links(Map.of("next",EXTERNAL_TRANSFER_URL))
                     .build());
             })
             .onErrorResume(error -> {
-                log.error("Not able to add a product {} error {}", addProductTransferCommandDTO,error.getMessage());
+                log.error("Not able to complete external Transfer {} error {}", completeExternalTransferCommandDTO,error.getMessage());
                 return buildErrorResponse(error);
             });
     }
+
+
+
 }
