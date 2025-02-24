@@ -49,6 +49,7 @@
                             id="hospitalTransferId"
                             matInput
                             formControlName="hospitalTransferId"
+                            placeholder="Enter Hospital Transfer ID"
                             autocomplete="off"
                             validateOn="touchedState"
                         />
@@ -58,6 +59,7 @@
                             id="transferCustomerId"
                             [formGroup]="externalTransfer"
                             controlName="transferCustomer"
+                            [placeholder]="'Select Transfer To Customer'"
                             title="Transfer To Customer"
                             required="true"
                             [items]="customerOptions"
@@ -72,7 +74,7 @@
                             matInput
                             required
                             formControlName="transferDate"
-                            placeholder="Enter Transfer Date"
+                            placeholder="Enter Transfer Date MM/DD/YYYY"
                             autocomplete="off"
                             [matDatepicker]="transferDatePicker"
                             [max]="maxDate"
