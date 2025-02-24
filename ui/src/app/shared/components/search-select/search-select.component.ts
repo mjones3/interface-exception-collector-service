@@ -24,6 +24,7 @@ import { customerOptionDto } from 'app/modules/external-transfer/models/external
 export class SearchSelectComponent {
     @Input() title!: string;
     @Input() controlName!: string;
+    @Input() placeholder: string;
     @Input() formGroup!: FormGroup;
     @Input() matSelectId: string;
     @Input() control!: FormControl;

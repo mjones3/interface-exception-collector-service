@@ -1,10 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ReactiveFormsModule } from '@angular/forms';
 import {
     MAT_DATE_FORMATS,
     MAT_NATIVE_DATE_FORMATS,
     MatNativeDateModule,
 } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { provideMockStore } from '@ngrx/store/testing';
@@ -29,7 +33,11 @@ describe('ExternalTransfersComponent', () => {
                 ApolloTestingModule,
                 MatDatepickerModule,
                 MatNativeDateModule,
+                MatInputModule,
+                MatFormFieldModule,
+                ReactiveFormsModule,
                 NoopAnimationsModule,
+                MatSnackBarModule,
                 ToastrModule.forRoot(),
             ],
             providers: [
@@ -50,6 +58,11 @@ describe('ExternalTransfersComponent', () => {
         fixture.detectChanges();
         dateInput = fixture.debugElement.query(By.css('input')).nativeElement;
     });
+
+    function getMatErrorText() {
+        const error = fixture.debugElement.query(By.css('mat-error'));
+        return error ? error.nativeElement.textContent.trim() : null;
+    }
 
     it('should create', () => {
         expect(component).toBeTruthy();
@@ -80,5 +93,34 @@ describe('ExternalTransfersComponent', () => {
             By.css('#submitBtnId')
         ).nativeElement;
         expect(submitBtn.disabled).toBeTruthy();
+    });
+
+    it('should display required form validation error if date field is empty', () => {
+        const error = fixture.debugElement.query(By.css('mat-error'));
+        const dateFormControl = component.externalTransfer.get('transferDate');
+        dateFormControl.setValue('');
+        dateFormControl.markAsTouched();
+        fixture.detectChanges();
+        expect(getMatErrorText()).toBe('Transfer Date is required');
+    });
+
+    it('should display invalid date form validation error if invalid date entered', () => {
+        const dateFormControl = component.externalTransfer.get('transferDate');
+        dateFormControl.patchValue('12343434');
+        dateFormControl.markAsTouched();
+        fixture.detectChanges();
+        expect(getMatErrorText()).toBe('Transfer Date is invalid');
+    });
+
+    it('should display max date form validation error if future date entered', () => {
+        const futureDate = new Date();
+        futureDate.setDate(futureDate.getDate() + 1);
+        const maxDateFormControl =
+            component.externalTransfer.get('transferDate');
+        maxDateFormControl.patchValue(futureDate.toISOString());
+        maxDateFormControl.markAsTouched();
+        maxDateFormControl.updateValueAndValidity();
+        fixture.detectChanges();
+        expect(getMatErrorText()).toBe('Transfer Date cannot be in the future');
     });
 });
