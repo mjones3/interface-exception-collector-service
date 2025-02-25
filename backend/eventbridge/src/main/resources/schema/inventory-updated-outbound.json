@@ -38,7 +38,7 @@
       ]
     },
     "properties": {
-      "type": "array",
+      "type": "object",
       "items": {
         "properties": {
           "key": {
