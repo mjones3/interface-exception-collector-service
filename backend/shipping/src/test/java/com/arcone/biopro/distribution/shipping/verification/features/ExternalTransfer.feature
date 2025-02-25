@@ -59,8 +59,6 @@ Feature: External Transfers
                  | 01/25/2024    | Pioneer Health Services    | NULL_VALUE                  |
 
 
-
-
     Rule: I should be able to manually enter the unit number and product code without the check digit.
     Rule: I should be able to complete the process if at least one valid product is entered.
     Rule: I should receive a success message after the external transfer process has been completed.
@@ -127,15 +125,15 @@ Feature: External Transfers
             And I navigate to the external transfer page.
             When I choose customer name "<Customer Name>".
             And  I fill hospital transfer Id "<Hospital Order Reference ID>" and "<Transfer Date>" as transfer Date.
-            Then The submit option should be "disabled".
+            Then The submit external transfer option should be "disabled".
             When I add the following products to the external transfer request.
                 | Unit Number    | Product Code   |
-                | W036810946300  | E0869V00       |
-            Then The submit option should be "enabled".
+                | W812530106085  | E0685V00       |
+            Then The submit external transfer option should be "enabled".
             And The product should be added to the list of products to be transferred.
             When I choose to submit the external transfer.
-            Then I should receive a success message "<Success Message>".
+            Then I should see a "success" message: "<Success Message>".
             And The External transfer process should be restarted.
             Examples:
-                | Customer Name        | Hospital Order Reference ID | Transfer Date | Success Message                           |
-                | Random Hospital Inc. | XYZ123                      | 01/03/2024    | External transfer completed successfully. |
+                | Customer Name              | Hospital Order Reference ID | Transfer Date | Success Message                           |
+                | Creative Testing Solutions | XYZ123                      | 02/20/2025    | External transfer completed successfully. |

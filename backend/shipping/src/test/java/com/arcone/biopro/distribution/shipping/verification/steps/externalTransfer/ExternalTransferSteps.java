@@ -38,8 +38,11 @@ public class ExternalTransferSteps {
 
     private Map response;
 
+    private DataTable productTable;
+
     private static final String NULL_VALUE = "NULL_VALUE";
     private static final String SHOULD = "should";
+    private static final String DISABLED = "disabled";
 
 
     @Given("I have shipped the following products.")
@@ -145,4 +148,32 @@ public class ExternalTransferSteps {
         log.debug("Response Submit {}",response);
     }
 
+    @Then("The submit external transfer option should be {string}.")
+    public void theSubmitExternalTransferOptionShouldBe(String disableEnableFlag) {
+        page.checkSubmitButtonVisibilityIs(DISABLED.equals(disableEnableFlag));
+    }
+
+    @When("I add the following products to the external transfer request.")
+    public void iAddTheFollowingProductsToTheExternalTransferRequest(DataTable table) throws InterruptedException {
+        this.productTable = table;
+        var headers = table.row(0);
+        for (var i = 1; i < table.height(); i++) {
+            var row = table.row(i);
+            page.addUnitWithProductCode(row.get(headers.indexOf("Unit Number")),row.get(headers.indexOf("Product Code")));
+        }
+    }
+
+    @And("The product should be added to the list of products to be transferred.")
+    public void theProductShouldBeAddedToTheListOfProductsToBeTransferred() {
+        var headers = this.productTable.row(0);
+        for (var i = 1; i < this.productTable.height(); i++) {
+            var row = this.productTable.row(i);
+            page.ensureProductIsAdded(row.get(headers.indexOf("Unit Number")),row.get(headers.indexOf("Product Code")));
+        }
+    }
+
+    @When("I choose to submit the external transfer.")
+    public void iChooseToSubmitTheExternalTransfer() {
+        page.submitPage();
+    }
 }

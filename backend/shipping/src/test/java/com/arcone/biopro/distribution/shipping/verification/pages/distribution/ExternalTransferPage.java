@@ -2,6 +2,7 @@ package com.arcone.biopro.distribution.shipping.verification.pages.distribution;
 
 import com.arcone.biopro.distribution.shipping.verification.pages.CommonPageFactory;
 import com.arcone.biopro.distribution.shipping.verification.pages.SharedActions;
+import com.arcone.biopro.distribution.shipping.verification.support.TestUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.openqa.selenium.By;
@@ -37,6 +38,12 @@ public class ExternalTransferPage extends CommonPageFactory {
     private static final By enterProducts = By.id("enterProductsId");
     private static final By productCodeInput = By.id("productCodeId");
     private static final By lastAvailableDate = By.xpath("(//mat-calendar//tbody//button[not(contains(@class, 'mat-calendar-body-disabled'))])[last()]");
+    private static final By submitButton = By.id("submitActionBtn");
+
+    private String productButtonLocator(String unitNumber, String productCode) {
+        return String.format("//biopro-unit-number-card//*[contains(text(),'%s')]/..//*[contains(text(),'%s')]", unitNumber, productCode);
+    }
+
 
     @Override
     public boolean isLoaded() {
@@ -77,5 +84,29 @@ public class ExternalTransferPage extends CommonPageFactory {
             assertFalse(sharedActions.isElementVisible(unitNumberInput));
             assertFalse(sharedActions.isElementVisible(productCodeInput));
         }
+    }
+
+    public void checkSubmitButtonVisibilityIs(boolean visible) {
+        if (visible) {
+            assertTrue(sharedActions.isElementVisible(submitButton));
+        }else {
+            assertFalse(sharedActions.isElementVisible(submitButton));
+        }
+    }
+
+    public void addUnitWithProductCode(String unit, String productCode) throws InterruptedException {
+        log.debug("Adding unit {} with product code {}.", unit, productCode);
+        sharedActions.sendKeys(this.driver, unitNumberInput, unit);
+        sharedActions.sendKeys(this.driver, productCodeInput, productCode);
+        sharedActions.waitLoadingAnimation();
+    }
+
+    public void ensureProductIsAdded(String unit, String productCode) {
+        log.debug("Ensuring product with unit {} and product code {} is added.", unit, productCode);
+        sharedActions.waitForVisible(By.xpath(productButtonLocator(unit, productCode)));
+    }
+
+    public void submitPage(){
+        sharedActions.click(submitButton);
     }
 }
