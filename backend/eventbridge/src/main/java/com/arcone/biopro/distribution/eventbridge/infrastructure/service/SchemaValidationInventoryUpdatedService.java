@@ -17,15 +17,15 @@ import java.util.Set;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class SchemaValidationService {
+public class SchemaValidationInventoryUpdatedService {
 
-    private static final String SHIPMENT_COMPLETED_SCHEMA = "schema/shipment-completed.json";
+    private static final String INVENTORY_UPDATED_SCHEMA = "schema/inventory-updated.json";
     private final ObjectMapper objectMapper;
 
-    public Mono<Void> validateShipmentCompletedSchema(String payload) {
+    public Mono<Void> validateInventoryUpdatedSchema(String payload) {
         try {
 
-            var fileInputStream = new ClassPathResource(SHIPMENT_COMPLETED_SCHEMA).getInputStream();
+            var fileInputStream = new ClassPathResource(INVENTORY_UPDATED_SCHEMA).getInputStream();
 
             JsonSchema jsonSchema  = JsonSchemaFactory.getInstance( SpecVersion.VersionFlag.V7 )
                 .getSchema( fileInputStream);
@@ -33,11 +33,11 @@ public class SchemaValidationService {
             Set<ValidationMessage> errors = jsonSchema.validate(objectMapper.readTree(payload));
             if(!errors.isEmpty()){
                 log.error("JSON Invalid {}",errors);
-                return Mono.error(new RuntimeException("Invalid Shipment Completed schema"));
+                return Mono.error(new RuntimeException("Invalid Inventory Updated schema"));
             }
             return Mono.empty();
         } catch (IOException e) {
-            log.error("Error while validating shipment completed schema {}", e.getMessage());
+            log.error("Error while validating inventory updated schema {}", e.getMessage());
             return Mono.error(new RuntimeException("Not Able to parse JSON Schema"));
         }
     }
