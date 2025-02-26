@@ -11,8 +11,10 @@ Feature: Modify order through the third-party application
         Then The response status code should be <responseCode>.
         And The response status should be "<status>".
         Examples:
-            | External ID | JsonPayloadName                                                  | responseCode | status   |
-            | EXT123      | inbound-test-files/modify-order-inbound-scenario-happy-path.json | 202          | ACCEPTED |
+            | External ID | JsonPayloadName                                                        | responseCode | status   |
+            | EXT123      | inbound-test-files/modify-order-inbound-scenario-happy-path.json       | 202          | ACCEPTED |
+            | EXT124      | inbound-test-files/modify-order-inbound-scenario-no-employee-code.json | 202          | ACCEPTED |
+            | EXT125      | inbound-test-files/modify-order-inbound-scenario-no-modify-date.json   | 202          | ACCEPTED |
 
 
     Rule: The modified order request must be rejected if the schema validations fail.
@@ -23,7 +25,8 @@ Feature: Modify order through the third-party application
         Then The response status code should be <responseCode>.
         And The error message should be "<errorMessage>".
         Examples:
-            | External ID | JsonPayloadName                                     | responseCode | errorMessage                                                                                         |
-            | EXT123      | inbound-test-files/order-inbound-scenario-0002.json | 400          | $.deliveryType: does not have a value in the enumeration [DATE_TIME, SCHEDULED, STAT, ROUTINE, ASAP] |
-            | EXT123      | inbound-test-files/order-inbound-scenario-0003.json | 400          | $.orderItems[0].quantity: string found, integer expected                                             |
-            | EXT123      | inbound-test-files/order-inbound-scenario-0004.json | 400          | $.desiredShippingDate: does not match the regex pattern ^(\\d{4}-\\d{2}-\\d{2})$                     |
+            | External ID | JsonPayloadName                                            | responseCode | errorMessage                                                                                         |
+            | EXT123      | inbound-test-files/modify-order-inbound-scenario-0002.json | 400          | $.deliveryType: does not have a value in the enumeration [DATE_TIME, SCHEDULED, STAT, ROUTINE, ASAP] |
+            | EXT123      | inbound-test-files/modify-order-inbound-scenario-0003.json | 400          | $.orderItems[0].quantity: string found, integer expected                                             |
+            | EXT123      | inbound-test-files/modify-order-inbound-scenario-0004.json | 400          | $.desiredShippingDate: does not match the regex pattern ^(\\d{4}-\\d{2}-\\d{2})$                     |
+            | EXT123      | inbound-test-files/modify-order-inbound-scenario-0005.json | 400          | $.modifyDate: does not match the regex pattern ^(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2})$         |
