@@ -1,20 +1,9 @@
 @api @AOA-152
-Feature: As a BioPro system,
-    I want to receive a modified order through the third-party application,
-    so that I can process the modified order request in the BioPro application.
+Feature: Modify order through the third-party application
 
     Rule: The following order elements can be modified via third-party application
-    Delivery Type
-    Will Call
-    Products (add/remove/update)
-    Product family
-    Quantity
-    Blood Type
-    Comments
-    Ship from Location
-    Product Category
-    Shipping Method
-    Order Comments.
+    Delivery Type, Will Call, Products (add/remove/update), Product family, Quantity
+    Blood Type, Comments, Ship from Location, Product Category, Shipping Method, Order Comments.
     @DIS-262
     Scenario Outline: Receive a Partner modify order request
         Given I have a Partner modify order payload "<JsonPayloadName>".
@@ -32,7 +21,7 @@ Feature: As a BioPro system,
         Given I have a Partner modify order payload "<JsonPayloadName>".
         When I send a request to the Partner modify order interface to modify the order "<External ID>".
         Then The response status code should be <responseCode>.
-        And The response error message should be "<errorMessage>".
+        And The error message should be "<errorMessage>".
         Examples:
             | External ID | JsonPayloadName                                     | responseCode | errorMessage                                                                                         |
             | EXT123      | inbound-test-files/order-inbound-scenario-0002.json | 400          | $.deliveryType: does not have a value in the enumeration [DATE_TIME, SCHEDULED, STAT, ROUTINE, ASAP] |

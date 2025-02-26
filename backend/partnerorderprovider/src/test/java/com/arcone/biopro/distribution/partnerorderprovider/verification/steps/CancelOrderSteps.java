@@ -44,19 +44,4 @@ public class CancelOrderSteps {
         Assert.assertNotNull(orderInboundResponse);
     }
 
-    @Then("The response status code should be {int}.")
-    public void validateResponse(int responseCode){
-        Assert.assertEquals(responseCode, orderInboundResponse.getStatusCode().value());
-    }
-
-    @And("The response status should be {string}.")
-    public void checkResponseStatus(String status){
-        var statusResponse  = HttpStatus.valueOf(status);
-        Assert.assertEquals(statusResponse, orderInboundResponse.getStatusCode());
-    }
-
-    @And("The cancel error message should be {string}.")
-    public void checkErrorMessage(String message) throws JSONException {
-        testUtils.checkErrorMessage(message,cancelOrderResponse);
-    }
 }
