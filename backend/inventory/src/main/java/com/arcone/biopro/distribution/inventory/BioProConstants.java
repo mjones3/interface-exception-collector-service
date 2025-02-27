@@ -6,6 +6,8 @@ public interface BioProConstants {
     String EXPIRED = "EXPIRED";
     String TEXT_CONFIG_DELIMITER = "; ";
 
+    String UNIT_UNSUITABLE_TOPIC = "UnitUnsuitable";
+    String PRODUCT_UNSUITABLE_TOPIC = "ProductUnsuitable";
     String SHIPMENT_COMPLETED_TOPIC = "ShipmentCompleted";
     String LABEL_APPLIED_TOPIC = "LabelApplied";
     String CHECK_IN_COMPLETED_TOPIC = "CheckInCompleted";

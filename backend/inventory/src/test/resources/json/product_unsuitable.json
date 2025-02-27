@@ -1,0 +1,14 @@
+{
+  "eventId": "844ec967-39cd-4afa-abc6-6801824e1765",
+  "occurredOn": "2025-01-02T14:30:00Z",
+  "eventVersion": "1.0",
+  "eventType": "ProductUnsuitable",
+  "payload": {
+    "unitNumber": "W123456789012",
+    "productCode": "RBCAPH1",
+    "reasonKey": "TEST_RESULT_EXCEPTION",
+    "triggeredBy": "APHERESIS_PLASMA",
+    "performedBy": "ee1bf88e-2137-4a17-835a-d43e7b738374",
+    "createDate": "2025-01-02T02:05:45.231Z"
+  }
+}

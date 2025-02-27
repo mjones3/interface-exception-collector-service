@@ -7,6 +7,8 @@ import reactor.core.publisher.Mono;
 
 public interface InventoryAggregateRepository {
 
+    Flux<InventoryAggregate> findByUnitNumber(String unitNumber);
+
     Mono<InventoryAggregate> findByUnitNumberAndProductCode(String unitNumber, String productCode);
 
     Mono<InventoryAggregate> saveInventory(InventoryAggregate inventoryAggregate);

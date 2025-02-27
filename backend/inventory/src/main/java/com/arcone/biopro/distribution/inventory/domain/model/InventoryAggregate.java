@@ -175,4 +175,9 @@ public class InventoryAggregate {
         inventory.setProductCode(new ProductCode(finalProductCode));
         return this;
     }
+
+    public InventoryAggregate unsuit(String reason) {
+        transitionStatus(InventoryStatus.UNSUITABLE, reason);
+        return this;
+    }
 }
