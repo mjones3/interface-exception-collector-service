@@ -35,6 +35,7 @@ public class InventoryUpdatedOutbound {
         Assert.notNull(productCode, "productCode must not be null");
         Assert.notNull(productFamily, "productFamily must not be null");
         Assert.notNull(expirationDate, "expirationDate must not be null");
+        Assert.notNull(bloodType, "bloodType must not be null");
 
         this.updateType = updateType;
         this.unitNumber = unitNumber;

@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
 
-class SchemaValidationServiceTest {
+class SchemaValidationShipmentCompletedServiceTest {
 
     @Test
     public void shouldBeValidShipmentCompletedSchema() throws Exception {

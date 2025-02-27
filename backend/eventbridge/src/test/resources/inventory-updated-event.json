@@ -5,12 +5,12 @@
   "eventType": "InventoryUpdated",
   "payload": {
     "updateType": "{update-type}",
-    "unitNumber":"{unit-number}",
-    "productCode":"{product-code}",
-    "productDescription":"APH AS3 LR",
-    "productFamily":"RED_BLOOD_CELLS_LEUKOREDUCED",
+    "unitNumber": "{unit-number}",
+    "productCode": "{product-code}",
+    "productDescription": "APH AS3 LR",
+    "productFamily": "RED_BLOOD_CELLS_LEUKOREDUCED",
     "bloodType": "OP",
-    "expirationDate":"2025-08-01",
+    "expirationDate": "2025-08-01",
     "locationCode": "MIAMI",
     "storageLocation": "REFRIG 1",
     "inventoryStatus": [
