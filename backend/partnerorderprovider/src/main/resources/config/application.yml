@@ -218,7 +218,7 @@ springwolf:
     base-package: com.arcone.biopro
     info:
       title: ${spring.application.name}
-      version: 0.0.1
+      version: "PI4.6"
     servers:
       kafka-server:
         protocol: kafka

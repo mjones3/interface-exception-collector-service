@@ -2,7 +2,7 @@
   "asyncapi": "3.0.0",
   "info": {
     "title": "partner-order-provider-service",
-    "version": "0.0.1",
+    "version": "PI4.6",
     "x-generator": "springwolf"
   },
   "defaultContentType": "application/json",
@@ -220,6 +220,141 @@
           }
         ]
       },
+      "ModifyOrderPayload": {
+        "title": "ModifyOrderPayload",
+        "type": "object",
+        "properties": {
+          "comments": {
+            "title": "Comments",
+            "type": "string",
+            "description": "The order comments",
+            "examples": [
+              "Comments"
+            ]
+          },
+          "deliveryType": {
+            "title": "Delivery Type",
+            "type": "string",
+            "description": "The delivery type",
+            "examples": [
+              "SCHEDULED"
+            ]
+          },
+          "desiredShippingDate": {
+            "title": "Desire Shipping Date",
+            "type": "string",
+            "description": "The desire shipping date",
+            "examples": [
+              "2020-04-25"
+            ]
+          },
+          "externalId": {
+            "title": "External Order ID",
+            "type": "string",
+            "description": "The external order ID",
+            "examples": [
+              "ABC56865"
+            ]
+          },
+          "locationCode": {
+            "title": "Location Code",
+            "type": "string",
+            "description": "The location code",
+            "examples": [
+              "565"
+            ]
+          },
+          "modifyDate": {
+            "title": "Modify Date",
+            "type": "string",
+            "description": "The modify date",
+            "examples": [
+              "2023-04-25 20:09:01"
+            ]
+          },
+          "modifyEmployeeCode": {
+            "title": "Modify Employee Code",
+            "type": "string",
+            "description": "The modify employee code",
+            "examples": [
+              "ee1bf88e-2137-4a17-835a-d43e7b738374"
+            ]
+          },
+          "orderItems": {
+            "title": "Order Items",
+            "type": "array",
+            "description": "The order items",
+            "items": {
+              "$ref": "#/components/schemas/com.arcone.biopro.distribution.partnerorderprovider.infrastructure.listener.dto.OrderItemDTO"
+            }
+          },
+          "productCategory": {
+            "title": "Product Category",
+            "type": "string",
+            "description": "The product category",
+            "examples": [
+              "FROZEN"
+            ]
+          },
+          "shippingMethod": {
+            "title": "Shipping Method",
+            "type": "string",
+            "description": "The shipping method",
+            "examples": [
+              "FEDEX"
+            ]
+          },
+          "willPickUp": {
+            "title": "Will Pick Up",
+            "type": "boolean",
+            "description": "The will pick up",
+            "examples": [
+              true
+            ]
+          },
+          "willPickUpPhoneNumber": {
+            "title": "Will Pick Up Phone Number",
+            "type": "string",
+            "description": "The phone number from will pick up",
+            "examples": [
+              "12333333"
+            ]
+          }
+        },
+        "description": "Modify Order Received Event Payload",
+        "examples": [
+          {
+            "comments": "Comments",
+            "deliveryType": "SCHEDULED",
+            "desiredShippingDate": "2020-04-25",
+            "externalId": "ABC56865",
+            "locationCode": "565",
+            "modifyDate": "2023-04-25 20:09:01",
+            "modifyEmployeeCode": "ee1bf88e-2137-4a17-835a-d43e7b738374",
+            "orderItems": [
+              {
+                "bloodType": "AP",
+                "comments": "Item Comments",
+                "productFamily": "PLASMA_TRANSFUSABLE",
+                "quantity": 10
+              }
+            ],
+            "productCategory": "FROZEN",
+            "shippingMethod": "FEDEX",
+            "willPickUp": true,
+            "willPickUpPhoneNumber": "12333333"
+          }
+        ],
+        "required": [
+          "deliveryType",
+          "externalId",
+          "locationCode",
+          "orderItems",
+          "productCategory",
+          "shippingMethod",
+          "willPickUp"
+        ]
+      },
       "ModifyOrderReceived": {
         "title": "ModifyOrderReceived",
         "type": "object",
@@ -259,7 +394,7 @@
             ]
           },
           "payload": {
-            "$ref": "#/components/schemas/com.arcone.biopro.distribution.partnerorderprovider.infrastructure.listener.dto.ModifyOrderDTO"
+            "$ref": "#/components/schemas/ModifyOrderPayload"
           }
         },
         "description": "Modify Order Received Event",
@@ -270,26 +405,25 @@
             "eventVersion": "1.0",
             "occurredOn": "2024-10-07T20:59:16.925110827Z",
             "payload": {
-              "comments": "string",
-              "deliveryType": "string",
-              "desiredShippingDate": "string",
-              "externalId": "string",
-              "locationCode": "string",
-              "modifyDate": "string",
-              "modifyEmployeeCode": "string",
+              "comments": "Comments",
+              "deliveryType": "SCHEDULED",
+              "desiredShippingDate": "2020-04-25",
+              "externalId": "ABC56865",
+              "locationCode": "565",
+              "modifyDate": "2023-04-25 20:09:01",
+              "modifyEmployeeCode": "ee1bf88e-2137-4a17-835a-d43e7b738374",
               "orderItems": [
                 {
-                  "bloodType": "string",
-                  "comments": "string",
-                  "productFamily": "string",
-                  "quantity": 0
+                  "bloodType": "AP",
+                  "comments": "Item Comments",
+                  "productFamily": "PLASMA_TRANSFUSABLE",
+                  "quantity": 10
                 }
               ],
-              "productCategory": "string",
-              "shipmentType": "string",
-              "shippingMethod": "string",
+              "productCategory": "FROZEN",
+              "shippingMethod": "FEDEX",
               "willPickUp": true,
-              "willPickUpPhoneNumber": "string"
+              "willPickUpPhoneNumber": "12333333"
             }
           }
         ],
@@ -340,7 +474,7 @@
             ]
           },
           "payload": {
-            "$ref": "#/components/schemas/com.arcone.biopro.distribution.partnerorderprovider.infrastructure.listener.dto.OrderDTO"
+            "$ref": "#/components/schemas/OrderReceivedPayload"
           }
         },
         "description": "Order Received Event",
@@ -351,29 +485,29 @@
             "eventVersion": "1.0",
             "occurredOn": "2024-10-07T20:59:16.925110827Z",
             "payload": {
-              "billingCustomerCode": "string",
-              "comments": "string",
-              "createDate": "string",
-              "createEmployeeCode": "string",
-              "deliveryType": "string",
-              "desiredShippingDate": "string",
-              "externalId": "string",
-              "locationCode": "string",
+              "billingCustomerCode": "A1235",
+              "comments": "Comments",
+              "createDate": "2023-04-25 20:09:01",
+              "createEmployeeCode": "ee1bf88e-2137-4a17-835a-d43e7b738374",
+              "deliveryType": "SCHEDULED",
+              "desiredShippingDate": "2020-04-25",
+              "externalId": "ABC56865",
+              "locationCode": "565",
               "orderItems": [
                 {
-                  "bloodType": "string",
-                  "comments": "string",
-                  "productFamily": "string",
-                  "quantity": 0
+                  "bloodType": "AP",
+                  "comments": "Item Comments",
+                  "productFamily": "PLASMA_TRANSFUSABLE",
+                  "quantity": 10
                 }
               ],
-              "orderStatus": "string",
-              "productCategory": "string",
-              "shipmentType": "string",
-              "shippingCustomerCode": "string",
-              "shippingMethod": "string",
+              "orderStatus": "OPEN",
+              "productCategory": "FROZEN",
+              "shipmentType": "CUSTOMER",
+              "shippingCustomerCode": "A1235",
+              "shippingMethod": "FEDEX",
               "willPickUp": true,
-              "willPickUpPhoneNumber": "string"
+              "willPickUpPhoneNumber": "12333333"
             }
           }
         ],
@@ -385,189 +519,234 @@
           "payload"
         ]
       },
-      "com.arcone.biopro.distribution.partnerorderprovider.infrastructure.listener.dto.ModifyOrderDTO": {
-        "title": "Payload",
-        "type": "object",
-        "properties": {
-          "comments": {
-            "type": "string"
-          },
-          "deliveryType": {
-            "type": "string"
-          },
-          "desiredShippingDate": {
-            "type": "string"
-          },
-          "externalId": {
-            "type": "string"
-          },
-          "locationCode": {
-            "type": "string"
-          },
-          "modifyDate": {
-            "type": "string"
-          },
-          "modifyEmployeeCode": {
-            "type": "string"
-          },
-          "orderItems": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/com.arcone.biopro.distribution.partnerorderprovider.infrastructure.listener.dto.OrderItemDTO"
-            }
-          },
-          "productCategory": {
-            "type": "string"
-          },
-          "shipmentType": {
-            "type": "string"
-          },
-          "shippingMethod": {
-            "type": "string"
-          },
-          "willPickUp": {
-            "type": "boolean"
-          },
-          "willPickUpPhoneNumber": {
-            "type": "string"
-          }
-        },
-        "description": "The event payload",
-        "examples": [
-          {
-            "comments": "string",
-            "deliveryType": "string",
-            "desiredShippingDate": "string",
-            "externalId": "string",
-            "locationCode": "string",
-            "modifyDate": "string",
-            "modifyEmployeeCode": "string",
-            "orderItems": [
-              {
-                "bloodType": "string",
-                "comments": "string",
-                "productFamily": "string",
-                "quantity": 0
-              }
-            ],
-            "productCategory": "string",
-            "shipmentType": "string",
-            "shippingMethod": "string",
-            "willPickUp": true,
-            "willPickUpPhoneNumber": "string"
-          }
-        ]
-      },
-      "com.arcone.biopro.distribution.partnerorderprovider.infrastructure.listener.dto.OrderDTO": {
-        "title": "Payload",
+      "OrderReceivedPayload": {
+        "title": "OrderReceivedPayload",
         "type": "object",
         "properties": {
           "billingCustomerCode": {
-            "type": "string"
+            "title": "Billing Customer Code",
+            "type": "string",
+            "description": "The billing customer code",
+            "examples": [
+              "A1235"
+            ]
           },
           "comments": {
-            "type": "string"
+            "title": "Comments",
+            "type": "string",
+            "description": "The order comments",
+            "examples": [
+              "Comments"
+            ]
           },
           "createDate": {
-            "type": "string"
+            "title": "Create Date",
+            "type": "string",
+            "description": "The create date",
+            "examples": [
+              "2023-04-25 20:09:01"
+            ]
           },
           "createEmployeeCode": {
-            "type": "string"
+            "title": "Create Employee Code",
+            "type": "string",
+            "description": "The create employee code",
+            "examples": [
+              "ee1bf88e-2137-4a17-835a-d43e7b738374"
+            ]
           },
           "deliveryType": {
-            "type": "string"
+            "title": "Delivery Type",
+            "type": "string",
+            "description": "The delivery type",
+            "examples": [
+              "SCHEDULED"
+            ]
           },
           "desiredShippingDate": {
-            "type": "string"
+            "title": "Desire Shipping Date",
+            "type": "string",
+            "description": "The desire shipping date",
+            "examples": [
+              "2020-04-25"
+            ]
           },
           "externalId": {
-            "type": "string"
+            "title": "External Order ID",
+            "type": "string",
+            "description": "The external order ID",
+            "examples": [
+              "ABC56865"
+            ]
           },
           "locationCode": {
-            "type": "string"
+            "title": "Location Code",
+            "type": "string",
+            "description": "The location code",
+            "examples": [
+              "565"
+            ]
           },
           "orderItems": {
+            "title": "Order Items",
             "type": "array",
+            "description": "The order items",
             "items": {
               "$ref": "#/components/schemas/com.arcone.biopro.distribution.partnerorderprovider.infrastructure.listener.dto.OrderItemDTO"
             }
           },
           "orderStatus": {
-            "type": "string"
+            "title": "Order Status",
+            "type": "string",
+            "description": "The order status",
+            "examples": [
+              "OPEN"
+            ]
           },
           "productCategory": {
-            "type": "string"
+            "title": "Product Category",
+            "type": "string",
+            "description": "The product category",
+            "examples": [
+              "FROZEN"
+            ]
           },
           "shipmentType": {
-            "type": "string"
+            "title": "Shipment Type",
+            "type": "string",
+            "description": "The shipment type",
+            "examples": [
+              "CUSTOMER"
+            ]
           },
           "shippingCustomerCode": {
-            "type": "string"
+            "title": "Shipping Customer Code",
+            "type": "string",
+            "description": "The shipping customer code",
+            "examples": [
+              "A1235"
+            ]
           },
           "shippingMethod": {
-            "type": "string"
+            "title": "Shipping Method",
+            "type": "string",
+            "description": "The shipping method",
+            "examples": [
+              "FEDEX"
+            ]
           },
           "willPickUp": {
-            "type": "boolean"
+            "title": "Will Pick Up",
+            "type": "boolean",
+            "description": "The will pick up",
+            "examples": [
+              true
+            ]
           },
           "willPickUpPhoneNumber": {
-            "type": "string"
+            "title": "Will Pick Up Phone Number",
+            "type": "string",
+            "description": "The phone number from will pick up",
+            "examples": [
+              "12333333"
+            ]
           }
         },
-        "description": "The event payload",
+        "description": "Order Received Event Payload",
         "examples": [
           {
-            "billingCustomerCode": "string",
-            "comments": "string",
-            "createDate": "string",
-            "createEmployeeCode": "string",
-            "deliveryType": "string",
-            "desiredShippingDate": "string",
-            "externalId": "string",
-            "locationCode": "string",
+            "billingCustomerCode": "A1235",
+            "comments": "Comments",
+            "createDate": "2023-04-25 20:09:01",
+            "createEmployeeCode": "ee1bf88e-2137-4a17-835a-d43e7b738374",
+            "deliveryType": "SCHEDULED",
+            "desiredShippingDate": "2020-04-25",
+            "externalId": "ABC56865",
+            "locationCode": "565",
             "orderItems": [
               {
-                "bloodType": "string",
-                "comments": "string",
-                "productFamily": "string",
-                "quantity": 0
+                "bloodType": "AP",
+                "comments": "Item Comments",
+                "productFamily": "PLASMA_TRANSFUSABLE",
+                "quantity": 10
               }
             ],
-            "orderStatus": "string",
-            "productCategory": "string",
-            "shipmentType": "string",
-            "shippingCustomerCode": "string",
-            "shippingMethod": "string",
+            "orderStatus": "OPEN",
+            "productCategory": "FROZEN",
+            "shipmentType": "CUSTOMER",
+            "shippingCustomerCode": "A1235",
+            "shippingMethod": "FEDEX",
             "willPickUp": true,
-            "willPickUpPhoneNumber": "string"
+            "willPickUpPhoneNumber": "12333333"
           }
+        ],
+        "required": [
+          "billingCustomerCode",
+          "createDate",
+          "createEmployeeCode",
+          "deliveryType",
+          "externalId",
+          "locationCode",
+          "orderItems",
+          "orderStatus",
+          "productCategory",
+          "shipmentType",
+          "shippingCustomerCode",
+          "shippingMethod",
+          "willPickUp"
         ]
       },
       "com.arcone.biopro.distribution.partnerorderprovider.infrastructure.listener.dto.OrderItemDTO": {
-        "title": "OrderItemDTO",
+        "title": "Order Items",
         "type": "object",
         "properties": {
           "bloodType": {
-            "type": "string"
+            "title": "Blood Type",
+            "type": "string",
+            "description": "The blood type",
+            "examples": [
+              "AP"
+            ]
           },
           "comments": {
-            "type": "string"
+            "title": "Comments",
+            "type": "string",
+            "description": "The comments",
+            "examples": [
+              "Item Comments"
+            ]
           },
           "productFamily": {
-            "type": "string"
+            "title": "Product Family",
+            "type": "string",
+            "description": "The product family",
+            "examples": [
+              "PLASMA_TRANSFUSABLE"
+            ]
           },
           "quantity": {
+            "title": "Quantity",
             "type": "integer",
-            "format": "int32"
+            "description": "The quantity",
+            "format": "int32",
+            "examples": [
+              10
+            ]
           }
         },
+        "description": "The order items",
         "examples": [
           {
-            "bloodType": "string",
-            "comments": "string",
-            "productFamily": "string",
-            "quantity": 0
+            "bloodType": "AP",
+            "comments": "Item Comments",
+            "productFamily": "PLASMA_TRANSFUSABLE",
+            "quantity": 10
           }
+        ],
+        "required": [
+          "bloodType",
+          "productFamily",
+          "quantity"
         ]
       }
     },
