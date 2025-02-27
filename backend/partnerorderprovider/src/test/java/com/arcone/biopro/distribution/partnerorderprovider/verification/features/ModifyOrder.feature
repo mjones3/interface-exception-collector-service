@@ -30,3 +30,4 @@ Feature: Modify order through the third-party application
             | EXT123      | inbound-test-files/modify-order-inbound-scenario-0003.json | 400          | $.orderItems[0].quantity: string found, integer expected                                             |
             | EXT123      | inbound-test-files/modify-order-inbound-scenario-0004.json | 400          | $.desiredShippingDate: does not match the regex pattern ^(\\d{4}-\\d{2}-\\d{2})$                     |
             | EXT123      | inbound-test-files/modify-order-inbound-scenario-0005.json | 400          | $.modifyDate: does not match the regex pattern ^(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2})$         |
+            | EXT123      | inbound-test-files/modify-order-inbound-scenario-0006.json | 400          | $.locationCode: is missing but it is required                                                        |

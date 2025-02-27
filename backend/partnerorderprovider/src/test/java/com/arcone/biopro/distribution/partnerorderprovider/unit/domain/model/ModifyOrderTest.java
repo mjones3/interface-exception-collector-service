@@ -48,10 +48,6 @@ class ModifyOrderTest {
             ,"deliveryType","shippingMethod","productCategory","desiredShippingDate"
             ,"comments",new PartnerOrderPickUpType(true,"phoneNumber")),"Location code cannot be null");
 
-        assertThrows(NullPointerException.class, () -> new ModifyOrder(UUID.randomUUID(),"null", "null","modifyDate", null
-            ,"deliveryType","shippingMethod","productCategory","desiredShippingDate"
-            ,"comments",new PartnerOrderPickUpType(true,"phoneNumber")),"Modify Employee Code cannot be null");
-
 
         assertThrows(NullPointerException.class, () -> new ModifyOrder(UUID.randomUUID(),"null", "null", "modifyDate","null"
             ,null,"shippingMethod","productCategory","desiredShippingDate"

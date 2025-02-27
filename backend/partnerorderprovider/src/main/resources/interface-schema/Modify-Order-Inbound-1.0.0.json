@@ -8,7 +8,9 @@
       "$ref": "#/definitions/locationCode"
     },
     "modifyEmployeeCode": {
-      "$ref": "#/definitions/modifyEmployeeCode"
+      "type": ["string","null"],
+      "title": "Modify Employee Code",
+      "maxLength": 50
     },
     "modifyDate": {
       "$ref": "#/definitions/dateTimePattern"
@@ -62,7 +64,7 @@
       "maxLength": 255
     },
     "modifyEmployeeCode": {
-      "type": ["null","string"],
+      "type": ["string","null"],
       "title": "Modify Employee Code",
       "maxLength": 50
     },
