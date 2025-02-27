@@ -9,7 +9,6 @@ import java.util.UUID;
 
 @Builder
 public record OrderDTO(
-    UUID id,
     String externalId,
     String orderStatus,
     String locationCode,

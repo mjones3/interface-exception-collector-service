@@ -1,10 +1,12 @@
 package com.arcone.biopro.distribution.partnerorderprovider.domain.event;
 
 import com.arcone.biopro.distribution.partnerorderprovider.domain.model.PartnerOrder;
+import lombok.ToString;
 
 import java.time.Instant;
 import java.util.UUID;
 
+@ToString
 public class PartnerOrderInboundReceived implements DomainEvent {
 
     private final UUID eventId;

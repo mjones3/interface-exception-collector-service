@@ -6,6 +6,7 @@ import com.arcone.biopro.distribution.partnerorderprovider.infrastructure.event.
 import com.arcone.biopro.distribution.partnerorderprovider.infrastructure.listener.dto.ModifyOrderDTO;
 import com.arcone.biopro.distribution.partnerorderprovider.infrastructure.listener.dto.OrderItemDTO;
 import com.arcone.biopro.distribution.partnerorderprovider.infrastructure.service.FacilityServiceMock;
+import io.github.springwolf.bindings.kafka.annotations.KafkaAsyncOperationBinding;
 import io.github.springwolf.core.asyncapi.annotations.AsyncMessage;
 import io.github.springwolf.core.asyncapi.annotations.AsyncOperation;
 import io.github.springwolf.core.asyncapi.annotations.AsyncPublisher;
@@ -52,6 +53,7 @@ public class ModifyOrderInboundReceivedListener {
             description = "Modify Order Received Event"
         ),payloadType = ModifyOrderReceivedEvent.class
     ))
+    @KafkaAsyncOperationBinding
     @EventListener
     public void handleModifyOrderReceivedEvent(ModifyOrderInboundReceived event) {
         log.debug("Modify Order Received event trigger {}", event);
