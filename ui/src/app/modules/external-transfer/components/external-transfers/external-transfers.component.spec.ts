@@ -54,6 +54,8 @@ describe('ExternalTransfersComponent', () => {
         component = fixture.componentInstance;
         service = TestBed.inject(ExternalTransferService);
         jest.spyOn(service, 'customerInfo').mockReturnValue(of());
+        jest.spyOn(service, 'verifyExternalTransferItem').mockReturnValue(of());
+        jest.spyOn(service, 'completeExternalTransfer').mockReturnValue(of());
         toastr = TestBed.inject(ToastrImplService);
         fixture.detectChanges();
         dateInput = fixture.debugElement.query(By.css('input')).nativeElement;
@@ -96,7 +98,6 @@ describe('ExternalTransfersComponent', () => {
     });
 
     it('should display required form validation error if date field is empty', () => {
-        const error = fixture.debugElement.query(By.css('mat-error'));
         const dateFormControl = component.externalTransfer.get('transferDate');
         dateFormControl.setValue('');
         dateFormControl.markAsTouched();
