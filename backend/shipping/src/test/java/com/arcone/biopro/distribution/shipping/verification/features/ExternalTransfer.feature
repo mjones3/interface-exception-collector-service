@@ -133,8 +133,8 @@ Feature: External Transfers
             And The product should be added to the list of products to be transferred.
             When I choose to submit the external transfer.
             Then I should see a "success" message: "<Success Message>".
-            #And The External transfer process should be restarted.
-            #And The submit external transfer option should be "disabled".
+            And The External transfer process should be restarted.
+            And The submit external transfer option should be "disabled".
             Examples:
                 | Customer Name              | Hospital Order Reference ID | Transfer Date | Success Message                           |
                 | Creative Testing Solutions | XYZ123                      | 02/20/2025    | External transfer completed successfully. |

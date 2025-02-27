@@ -14,8 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -175,5 +173,10 @@ public class ExternalTransferSteps {
     @When("I choose to submit the external transfer.")
     public void iChooseToSubmitTheExternalTransfer() {
         page.submitPage();
+    }
+
+    @And("The External transfer process should be restarted.")
+    public void theExternalTransferProcessShouldBeRestarted() {
+        page.ensureNoProductsAreAdded();
     }
 }

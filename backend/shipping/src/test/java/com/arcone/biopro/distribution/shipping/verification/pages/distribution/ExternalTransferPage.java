@@ -2,9 +2,7 @@ package com.arcone.biopro.distribution.shipping.verification.pages.distribution;
 
 import com.arcone.biopro.distribution.shipping.verification.pages.CommonPageFactory;
 import com.arcone.biopro.distribution.shipping.verification.pages.SharedActions;
-import com.arcone.biopro.distribution.shipping.verification.support.TestUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,6 +37,7 @@ public class ExternalTransferPage extends CommonPageFactory {
     private static final By productCodeInput = By.id("productCodeId");
     private static final By lastAvailableDate = By.xpath("(//mat-calendar//tbody//button[not(contains(@class, 'mat-calendar-body-disabled'))])[last()]");
     private static final By submitButton = By.id("submitBtnId");
+    private static final By unitNumberCardsLocator = By.xpath("//biopro-unit-number-card");
 
     private String productButtonLocator(String unitNumber, String productCode) {
         return String.format("//biopro-unit-number-card//*[contains(text(),'%s')]/..//*[contains(text(),'%s')]", unitNumber, productCode);
@@ -87,6 +86,7 @@ public class ExternalTransferPage extends CommonPageFactory {
     }
 
     public void checkSubmitButtonVisibilityIs(boolean visible) {
+        sharedActions.waitForVisible(submitButton);
         if (visible) {
             assertTrue(sharedActions.isElementEnabled(driver, submitButton));
         }else {
@@ -108,5 +108,9 @@ public class ExternalTransferPage extends CommonPageFactory {
 
     public void submitPage(){
         sharedActions.click(submitButton);
+    }
+
+    public void ensureNoProductsAreAdded() {
+        sharedActions.waitForNotVisible(unitNumberCardsLocator);
     }
 }
