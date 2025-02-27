@@ -69,7 +69,7 @@ public class UseCaseSteps {
         "Under Investigation", "UNDER_INVESTIGATION"
     );
 
-    @When("I received an Apply Quarantine event for unit {string} and product {string} with reasonKey {string} and id {string}")
+    @When("I received an Apply Quarantine event for unit {string} and product {string} with reason {string} and id {string}")
     public void iReceiveApplyQuarantineWithReasonToTheUnitAndTheProduct(String unitNumber, String productCode, String quarantineReason, String quarantineReasonId) {
 
         Product product = Product.builder()
@@ -80,7 +80,7 @@ public class UseCaseSteps {
         addQuarantinedUseCase.execute(new AddQuarantineInput(product, Long.parseLong(quarantineReasonId), quarantineReasonMap.get(quarantineReason), null)).block();
     }
 
-    @When("I received a Remove Quarantine event for unit {string} and product {string} with reasonKey {string} and id {string}")
+    @When("I received a Remove Quarantine event for unit {string} and product {string} with reason {string} and id {string}")
     public void iReceivedARemoveQuarantineEventForUnitAndProductWithReason(String unitNumber, String productCode, String quarantineReason, String quarantineReasonId) {
         Product product = Product.builder()
             .unitNumber(unitNumber)
