@@ -8,6 +8,7 @@ import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.A
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.RemoveQuarantinedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.UpdateQuarantinedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.ProductRecoveredMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.unsuitable.UnsuitableMessage;
 import com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput;
 import io.github.springwolf.core.asyncapi.annotations.AsyncListener;
 import io.github.springwolf.core.asyncapi.annotations.AsyncOperation;
@@ -35,6 +36,12 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 class KafkaConfiguration {
+
+    @Value("${topic.product-unsuitable.name}")
+    private String productUnsuitableTopic;
+
+    @Value("${topic.unit-unsuitable.name}")
+    private String unitUnsuitableTopic;
 
     @Value("${topic.check-in.completed.name}")
     private String checkInCompletedTopic;
@@ -71,6 +78,13 @@ class KafkaConfiguration {
 
     @Value("${topic.product-quarantined.name}")
     private String addQuarantinedTopic;
+
+    @Bean
+    @Qualifier("UNSUITABLE")
+    ReceiverOptions<String, String> unsuitableReceiverOptions(KafkaProperties kafkaProperties) {
+        return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
+            .subscription(List.of(productUnsuitableTopic, unitUnsuitableTopic));
+    }
 
     @Bean
     @Qualifier("CHECK_IN_COMPLETED")
@@ -119,6 +133,23 @@ class KafkaConfiguration {
     ReceiverOptions<String, String> shipmentCompletedReceiverOptions(KafkaProperties kafkaProperties) {
         return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
             .subscription(List.of(shipmentCompletedTopic));
+    }
+
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "ProductUnsuitable",
+        description = "Product Unsuitable event to change inventory status to UNSUITABLE",
+        payloadType = UnsuitableMessage.class
+    ))
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "UnitUnsuitable",
+        description = "Unit Unsuitable event to change inventories statuses to UNSUITABLE",
+        payloadType = UnsuitableMessage.class
+    ))
+    @Bean(name = "UNSUITABLE_CONSUMER")
+    ReactiveKafkaConsumerTemplate<String, String> unsuitableConsumerTemplate(
+        @Qualifier("UNSUITABLE") ReceiverOptions<String, String> receiverOptions
+    ) {
+        return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
     }
 
     @AsyncListener(operation = @AsyncOperation(
