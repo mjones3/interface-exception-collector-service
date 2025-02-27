@@ -97,7 +97,6 @@ export class ExternalTransfersComponent
     externalTransfer: FormGroup;
     productDetails: ExternalTransferItemDTO;
     selectedProducts: ExternalTransferItemDTO[] = [];
-    isTransferInfoValid = false;
     customerOptions: CustomerOptionDTO[];
     maxDate = new Date();
     loggedUserId: string;
@@ -232,7 +231,6 @@ export class ExternalTransfersComponent
                         this.createExternalTransferResponse.set(
                             ruleResult.results.results[0]
                         );
-                        this.isTransferInfoValid = true;
                         this.disableExternalTransferForm();
                     } else {
                         this.enableExternalTransferForm();
@@ -263,9 +261,14 @@ export class ExternalTransfersComponent
     }
 
     getIcon() {
-        return this.productIconService.getIconByProductFamily(
-            this.productDetails?.productFamily
-        );
+        const externalTransferItemsList =
+            this.createExternalTransferResponse()?.externalTransferItems;
+        const productFamily =
+            Array.isArray(externalTransferItemsList) &&
+            externalTransferItemsList.length > 0
+                ? externalTransferItemsList[0].productFamily
+                : null;
+        return this.productIconService.getIconByProductFamily(productFamily);
     }
 
     enterProduct(item: ExternalTransferItemDTO) {
