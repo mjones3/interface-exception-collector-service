@@ -38,7 +38,7 @@ public class ExternalTransferPage extends CommonPageFactory {
     private static final By enterProducts = By.id("enterProductsId");
     private static final By productCodeInput = By.id("productCodeId");
     private static final By lastAvailableDate = By.xpath("(//mat-calendar//tbody//button[not(contains(@class, 'mat-calendar-body-disabled'))])[last()]");
-    private static final By submitButton = By.id("submitActionBtn");
+    private static final By submitButton = By.id("submitBtnId");
 
     private String productButtonLocator(String unitNumber, String productCode) {
         return String.format("//biopro-unit-number-card//*[contains(text(),'%s')]/..//*[contains(text(),'%s')]", unitNumber, productCode);
@@ -88,9 +88,9 @@ public class ExternalTransferPage extends CommonPageFactory {
 
     public void checkSubmitButtonVisibilityIs(boolean visible) {
         if (visible) {
-            assertTrue(sharedActions.isElementVisible(submitButton));
+            assertTrue(sharedActions.isElementEnabled(driver, submitButton));
         }else {
-            assertFalse(sharedActions.isElementVisible(submitButton));
+            assertFalse(sharedActions.isElementEnabled(driver, submitButton));
         }
     }
 
