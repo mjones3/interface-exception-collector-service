@@ -153,6 +153,55 @@ public class GraphQLMutationMapper {
                 """
             , customerCode, transferDate, hospitalTransferId, employeeId));
     }
+
+    public static String addProductToExternalTransferInformationMutation(Long externalTransferId , String unitNumber , String productCode , String employeeId) {
+        return (String.format(
+            """
+                mutation {
+                    addExternalTransferProduct(addProductTransferRequestDTO:{
+                        externalTransferId:%s
+                        , unitNumber:"%s"
+                        , productCode:"%s"
+                        , employeeId:"%s"
+                    }){
+                        ruleCode
+                        results
+                        notifications{
+                            statusCode
+                            notificationType
+                            message
+
+                        }
+                        _links
+                    }
+                }
+                """
+            , externalTransferId, unitNumber, productCode, employeeId));
+    }
+
+    public static String completeExternalTransferInformationMutation(Long externalTransferId , String hospitalTransferId , String employeeId) {
+        return (String.format(
+            """
+                mutation {
+                    completeExternalTransfer(completeExternalTransferRequestDTO:{
+                        externalTransferId:%s
+                        , hospitalTransferId:"%s"
+                        , employeeId:"%s"
+                    }){
+                        ruleCode
+                        results
+                        notifications{
+                            statusCode
+                            notificationType
+                            message
+
+                        }
+                        _links
+                    }
+                }
+                """
+            , externalTransferId, hospitalTransferId, employeeId));
+    }
 }
 
 

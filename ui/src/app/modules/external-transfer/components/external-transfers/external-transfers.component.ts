@@ -1,13 +1,14 @@
 import { AsyncPipe, CommonModule, formatDate } from '@angular/common';
 import {
     AfterViewChecked,
-    ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
+    computed,
     Inject,
     LOCALE_ID,
     OnDestroy,
     OnInit,
+    signal,
     ViewChild,
 } from '@angular/core';
 import {
@@ -17,9 +18,10 @@ import {
     Validators,
 } from '@angular/forms';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatDivider } from '@angular/material/divider';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { Router } from '@angular/router';
 import { ApolloError } from '@apollo/client';
 import { FuseCardComponent } from '@fuse/components/card/public-api';
 import { Store } from '@ngrx/store';
@@ -32,22 +34,27 @@ import {
 } from '@shared';
 import { ERROR_MESSAGE } from 'app/core/data/common-labels';
 import { getAuthState } from 'app/core/state/auth/auth.selectors';
-import { OrderService } from 'app/modules/orders/services/order.service';
 import { ActionButtonComponent } from 'app/shared/components/buttons/action-button.component';
 import { BasicButtonComponent } from 'app/shared/components/buttons/basic-button.component';
 import { SearchSelectComponent } from 'app/shared/components/search-select/search-select.component';
+import { UnitNumberCardComponent } from 'app/shared/components/unit-number-card/unit-number-card.component';
+import { ProductIconsService } from 'app/shared/services/product-icon.service';
+import { consumeNotifications } from 'app/shared/utils/notification.handling';
 import {
-    Subscription,
     catchError,
     combineLatestWith,
     debounceTime,
     filter,
+    Subscription,
     take,
 } from 'rxjs';
-import { customerOptionDto } from '../../models/external-transfer.dto';
+import {
+    CustomerOptionDTO,
+    ExternalTransferItemDTO,
+    ExternalTransferResponseDTO,
+} from '../../models/external-transfer.dto';
 import { ExternalTransferService } from '../../services/external-transfer.service';
 import { EnterProductsComponent } from '../../shared/enter-products/enter-products.component';
-
 @Component({
     selector: 'biopro-external-transfers',
     standalone: true,
@@ -60,35 +67,42 @@ import { EnterProductsComponent } from '../../shared/enter-products/enter-produc
         EnterProductsComponent,
         ReactiveFormsModule,
         MatInputModule,
+        MatDividerModule,
         MatDatepickerModule,
         SearchSelectComponent,
         MatFormFieldModule,
         BasicButtonComponent,
-        MatDivider,
+        UnitNumberCardComponent,
     ],
     templateUrl: './external-transfers.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExternalTransfersComponent
     implements OnInit, AfterViewChecked, OnDestroy
 {
-    @ViewChild('enterProducts') protected enterProducts: EnterProductsComponent;
+    @ViewChild('enterProductsComponent')
+    protected enterProductsComponent: EnterProductsComponent;
     formValueChange: Subscription;
+    createExternalTransferResponse = signal<ExternalTransferResponseDTO>(null);
+    protected addedProductsComputed = computed(
+        () => this.createExternalTransferResponse()?.externalTransferItems ?? []
+    );
+
     externalTransfer: FormGroup;
-    isExternalTransferInfoValid = false;
-    isTransferInfoValid = false;
-    isShippedLocation = false;
-    customerOptions: customerOptionDto[];
+    productDetails: ExternalTransferItemDTO;
+    selectedProducts: ExternalTransferItemDTO[] = [];
+    customerOptions: CustomerOptionDTO[];
     maxDate = new Date();
     loggedUserId: string;
 
     constructor(
         public header: ProcessHeaderService,
-        public orderService: OrderService,
+        private _router: Router,
         private toaster: ToastrImplService,
         private externalTransferService: ExternalTransferService,
         protected fb: FormBuilder,
         private readonly changeDetectorRef: ChangeDetectorRef,
+        private productIconService: ProductIconsService,
+
         private store: Store,
         @Inject(LOCALE_ID) public locale: string
     ) {
@@ -204,7 +218,9 @@ export class ExternalTransfersComponent
                 next: (response) => {
                     const ruleResult = response.data?.createExternalTransfer;
                     if (ruleResult.ruleCode === '200 OK') {
-                        this.isTransferInfoValid = true;
+                        this.createExternalTransferResponse.set(
+                            ruleResult.results.results[0]
+                        );
                         this.disableExternalTransferForm();
                     } else {
                         this.enableExternalTransferForm();
@@ -221,7 +237,136 @@ export class ExternalTransfersComponent
             });
     }
 
-    enterProduct() {
-        // TODO Implement
+    toggleProduct(product: ExternalTransferItemDTO) {
+        if (this.selectedProducts.includes(product)) {
+            const index = this.selectedProducts.findIndex(
+                (filterProduct) =>
+                    filterProduct.unitNumber === product.unitNumber &&
+                    filterProduct.productCode === product.productCode
+            );
+            this.selectedProducts.splice(index, 1);
+        } else {
+            this.selectedProducts.push(product);
+        }
+    }
+
+    getIcon() {
+        const externalTransferItemsList =
+            this.createExternalTransferResponse()?.externalTransferItems;
+        const productFamily =
+            Array.isArray(externalTransferItemsList) &&
+            externalTransferItemsList.length > 0
+                ? externalTransferItemsList[0].productFamily
+                : null;
+        return this.productIconService.getIconByProductFamily(productFamily);
+    }
+
+    enterProduct(item: ExternalTransferItemDTO) {
+        if (document.activeElement instanceof HTMLElement) {
+            document.activeElement.blur();
+        }
+        return this.externalTransferService
+            .verifyExternalTransferItem(this.getTransferProductDetail(item))
+            .pipe(
+                catchError((err) => {
+                    this.toaster.error(ERROR_MESSAGE);
+                    throw err;
+                })
+            )
+            .subscribe((response) => {
+                const ruleResult = response?.data?.addExternalTransferProduct;
+                if (ruleResult) {
+                    if (ruleResult.ruleCode === '200 OK') {
+                        const result = ruleResult?.results?.results[0];
+                        if (result) {
+                            this.createExternalTransferResponse.set(result);
+                            this.enterProductsComponent.resetProductGroup();
+                        }
+                    } else {
+                        const notification = ruleResult.notifications[0];
+                        this.toaster.show(
+                            notification?.message,
+                            null,
+                            null,
+                            NotificationTypeMap[notification?.notificationType]
+                                .type
+                        );
+                    }
+                }
+            });
+    }
+
+    private getTransferProductDetail(
+        item: ExternalTransferItemDTO
+    ): ExternalTransferItemDTO {
+        return {
+            externalTransferId: this.externalTransferId(),
+            unitNumber: item.unitNumber,
+            productCode: item.productCode,
+            employeeId: this.loggedUserId,
+        };
+    }
+
+    submitExternalTransfer() {
+        this.externalTransferService
+            .completeExternalTransfer(this.getValidateRuleDto())
+            .pipe(
+                catchError((err) => {
+                    this.toaster.error(ERROR_MESSAGE);
+                    throw err;
+                })
+            )
+            .subscribe({
+                next: (response) => {
+                    const ruleResult = response?.data?.completeExternalTransfer;
+                    const notifications = ruleResult.notifications;
+                    const url = ruleResult._links?.next;
+                    if (notifications?.length) {
+                        consumeNotifications(this.toaster, notifications);
+                        if (url) {
+                            this._router
+                                .navigateByUrl('/', {
+                                    skipLocationChange: true,
+                                })
+                                .then(() => {
+                                    this._router.navigate([url]);
+                                });
+                        }
+                    }
+                },
+            });
+    }
+
+    protected numberOfProducts = computed(
+        () =>
+            this.createExternalTransferResponse()?.externalTransferItems?.length
+    );
+
+    get numberOfSelectedProducts() {
+        return this.selectedProducts.length;
+    }
+
+    protected addedProducts = computed(
+        () => this.createExternalTransferResponse()?.externalTransferItems
+    );
+
+    get hospitalTransferId() {
+        return this.externalTransfer.controls.hospitalTransferId.value;
+    }
+
+    protected lastShippedLocationComputed = computed(
+        () => this.createExternalTransferResponse()?.customerFrom?.name
+    );
+
+    protected externalTransferId = computed(
+        () => this.createExternalTransferResponse()?.id
+    );
+
+    private getValidateRuleDto() {
+        return {
+            externalTransferId: this.externalTransferId(),
+            hospitalTransferId: this.hospitalTransferId,
+            employeeId: this.loggedUserId,
+        };
     }
 }

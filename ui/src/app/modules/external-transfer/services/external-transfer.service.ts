@@ -5,10 +5,15 @@ import { DynamicGraphqlPathService } from 'app/core/services/dynamic-graphql-pat
 import { ALL_CUSTOMER_LIST_INFO } from 'app/shared/graphql/discard/mutation-definitions/customer-list.graphql';
 import { RuleResponseDTO } from 'app/shared/models/rule.model';
 import { Observable } from 'rxjs';
+import {
+    COMPLETE_EXTERNAL_TRANSFER,
+    EXTERNAL_TRANSFER_ITEM,
+} from '../graphql/external-transfer-item.graphql';
 import { VERIFY_TRANSFER_INFO } from '../graphql/external-transfer.graphql';
 import {
-    CreateTransferInfoDTO,
-    customerOptionDto,
+    CreateExternalTransferRequestDTO,
+    CustomerOptionDTO,
+    ExternalTransferItemDTO,
 } from '../models/external-transfer.dto';
 
 @Injectable({
@@ -20,7 +25,7 @@ export class ExternalTransferService {
     constructor(private dynamicGraphqlPathService: DynamicGraphqlPathService) {}
 
     public createExternalTransferInfo(
-        VerifyTransferInfo: CreateTransferInfoDTO
+        VerifyTransferInfo: CreateExternalTransferRequestDTO
     ): Observable<MutationResult<{ createExternalTransfer: RuleResponseDTO }>> {
         return this.dynamicGraphqlPathService.executeMutation(
             this.servicePath,
@@ -30,11 +35,37 @@ export class ExternalTransferService {
     }
 
     public customerInfo(): Observable<
-        ApolloQueryResult<{ findAllCustomers: customerOptionDto }>
+        ApolloQueryResult<{ findAllCustomers: CustomerOptionDTO }>
     > {
         return this.dynamicGraphqlPathService.executeQuery(
             this.servicePath,
             ALL_CUSTOMER_LIST_INFO
+        );
+    }
+
+    public verifyExternalTransferItem(
+        verifyExternalTransferProduct: ExternalTransferItemDTO
+    ): Observable<
+        MutationResult<{ addExternalTransferProduct: RuleResponseDTO }>
+    > {
+        return this.dynamicGraphqlPathService.executeMutation(
+            this.servicePath,
+            EXTERNAL_TRANSFER_ITEM,
+            verifyExternalTransferProduct
+        );
+    }
+
+    public completeExternalTransfer(inputs: {
+        externalTransferId: number;
+        hospitalTransferId: string;
+        employeeId: string;
+    }): Observable<
+        MutationResult<{ completeExternalTransfer: RuleResponseDTO }>
+    > {
+        return this.dynamicGraphqlPathService.executeMutation(
+            this.servicePath,
+            COMPLETE_EXTERNAL_TRANSFER,
+            inputs
         );
     }
 }

@@ -4,6 +4,7 @@ import lombok.Builder;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.List;
 
 @Builder
 public record ExternalTransferDTO(
@@ -14,7 +15,8 @@ public record ExternalTransferDTO(
     String hospitalTransferId,
     LocalDate transferDate,
     String createEmployeeId,
-    String status
+    String status,
+    List<ExternalTransferItemDTO> externalTransferItems
 ) implements Serializable {
 
 }

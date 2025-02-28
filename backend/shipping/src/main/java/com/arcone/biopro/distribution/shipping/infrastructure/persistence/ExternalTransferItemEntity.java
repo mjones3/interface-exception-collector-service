@@ -8,7 +8,6 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.domain.Persistable;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.InsertOnlyProperty;
@@ -18,35 +17,19 @@ import java.time.ZonedDateTime;
 
 @Data
 @Builder(toBuilder = true)
-@Table(name = "bld_product_location_history")
+@Table(name = "bld_external_transfer_item")
 @ToString
 @EqualsAndHashCode
-public class ProductLocationHistoryEntity implements Persistable<Long> {
+public class ExternalTransferItemEntity implements Persistable<Long> {
 
     @Id
     @Column("id")
     @InsertOnlyProperty
     private Long id;
 
+    @Column("external_transfer_id")
     @NotNull
-    @Column("customer_code_to")
-    private String customerCodeTo;
-
-    @NotNull
-    @Column("customer_name_to")
-    @Size(max = 255)
-    private String customerNameTo;
-
-    @Column("customer_code_from")
-    private String customerCodeFrom;
-
-    @Column("customer_name_from")
-    @Size(max = 255)
-    private String customerNameFrom;
-
-    @NotNull
-    @Column("history_type")
-    private String type;
+    private Long externalTransferId;
 
     @NotNull
     @Column("unit_number")
@@ -66,14 +49,6 @@ public class ProductLocationHistoryEntity implements Persistable<Long> {
     @InsertOnlyProperty
     private ZonedDateTime createDate;
 
-    @NotNull
-    @Column("modification_date")
-    @LastModifiedDate
-    private ZonedDateTime modificationDate;
-
-    @Column("delete_date")
-    private ZonedDateTime deleteDate;
-
     @Column("created_by_employee_id")
     private String createdByEmployeeId;
 
@@ -81,4 +56,5 @@ public class ProductLocationHistoryEntity implements Persistable<Long> {
     public boolean isNew() {
         return this.id == null;
     }
+
 }

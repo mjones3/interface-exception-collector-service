@@ -117,6 +117,7 @@ export class EnterProductsComponent implements OnDestroy, AfterViewInit {
 
     resetProductGroup(): void {
         this.productGroup.reset();
-        this.productGroup.enable();
+        this.productGroup.markAsUntouched();
+        this.productGroup.markAsPristine();
     }
 }
