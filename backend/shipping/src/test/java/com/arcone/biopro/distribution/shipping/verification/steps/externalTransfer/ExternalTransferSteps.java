@@ -148,7 +148,7 @@ public class ExternalTransferSteps {
 
     @Then("The submit external transfer option should be {string}.")
     public void theSubmitExternalTransferOptionShouldBe(String disableEnableFlag) {
-        page.checkSubmitButtonVisibilityIs(!DISABLED.equals(disableEnableFlag));
+        page.checkSubmitButtonEnableDisable(!DISABLED.equals(disableEnableFlag));
     }
 
     @When("I add the following products to the external transfer request.")

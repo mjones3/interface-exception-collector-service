@@ -39,8 +39,8 @@ public class ExternalTransferPage extends CommonPageFactory {
     private static final By submitButton = By.id("submitBtnId");
     private static final By unitNumberCardsLocator = By.xpath("//biopro-unit-number-card");
 
-    private String productButtonLocator(String unitNumber, String productCode) {
-        return String.format("//biopro-unit-number-card//*[contains(text(),'%s')]/..//*[contains(text(),'%s')]", unitNumber, productCode);
+    private By productButtonLocator(String unitNumber, String productCode) {
+        return By.xpath(String.format("//biopro-unit-number-card//*[contains(text(),'%s')]/..//*[contains(text(),'%s')]", unitNumber, productCode));
     }
 
 
@@ -85,9 +85,9 @@ public class ExternalTransferPage extends CommonPageFactory {
         }
     }
 
-    public void checkSubmitButtonVisibilityIs(boolean visible) {
+    public void checkSubmitButtonEnableDisable(boolean enable) {
         sharedActions.waitForVisible(submitButton);
-        if (visible) {
+        if (enable) {
             assertTrue(sharedActions.isElementEnabled(driver, submitButton));
         }else {
             assertFalse(sharedActions.isElementEnabled(driver, submitButton));
@@ -103,7 +103,7 @@ public class ExternalTransferPage extends CommonPageFactory {
 
     public void ensureProductIsAdded(String unit, String productCode) {
         log.debug("Ensuring product with unit {} and product code {} is added.", unit, productCode);
-        sharedActions.waitForVisible(By.xpath(productButtonLocator(unit, productCode)));
+        sharedActions.waitForVisible(productButtonLocator(unit, productCode));
     }
 
     public void submitPage(){
