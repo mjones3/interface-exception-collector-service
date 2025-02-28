@@ -2,6 +2,7 @@
   "modifyDate": "2023-04-25 20:09:01",
   "modifyEmployeeCode": "ee1bf88e-2137-4a17-835a-d43e7b738374",
   "deliveryType": "SCHEDULED",
+  "modifyReason":"Missing Product details.",
   "orderPickType": {
     "willCallPickUp": true,
     "phoneNumber": "12333333"

@@ -15,7 +15,7 @@ class ModifyOrderTest {
     @Test
     public void shouldCreate(){
 
-        var response = new ModifyOrder(UUID.randomUUID(),"externalId", "locationCode","modifyDate", "modifyEmployeeCode"
+        var response = new ModifyOrder(UUID.randomUUID(),"externalId", "locationCode","modifyReason","modifyDate", "modifyEmployeeCode"
             ,"deliveryType","shippingMethod","productCategory","desiredShippingDate"
             ,"comments",new PartnerOrderPickUpType(true,"phoneNumber"));
         Assertions.assertNotNull(response.getId());
@@ -26,6 +26,7 @@ class ModifyOrderTest {
         Assertions.assertEquals("productCategory",response.getProductCategory());
         Assertions.assertEquals("desiredShippingDate",response.getDesiredShippingDate());
         Assertions.assertEquals("comments",response.getComments());
+        Assertions.assertEquals("modifyReason",response.getModifyReason());
         Assertions.assertTrue(response.getPartnerOrderPickUpType().isWillCallPickUp());
         Assertions.assertEquals("phoneNumber",response.getPartnerOrderPickUpType().getPhoneNumber());
 
@@ -36,36 +37,40 @@ class ModifyOrderTest {
     @Test
     public void shouldNotCreate(){
 
-        assertThrows(NullPointerException.class, () -> new ModifyOrder(null,"externalId", "locationCode", "modifyDate","modifyEmployeeCode"
+        assertThrows(NullPointerException.class, () -> new ModifyOrder(null,"externalId", "locationCode", "modifyReason","modifyDate","modifyEmployeeCode"
             ,"deliveryType","shippingMethod","productCategory","desiredShippingDate"
             ,"comments",new PartnerOrderPickUpType(true,"phoneNumber")),"Id cannot be null");
 
-        assertThrows(NullPointerException.class, () -> new ModifyOrder(UUID.randomUUID(),null, "locationCode","modifyDate", "modifyEmployeeCode"
+        assertThrows(NullPointerException.class, () -> new ModifyOrder(UUID.randomUUID(),null, "locationCode","modifyReason","modifyDate", "modifyEmployeeCode"
             ,"deliveryType","shippingMethod","productCategory","desiredShippingDate"
             ,"comments",new PartnerOrderPickUpType(true,"phoneNumber")),"External id cannot be null");
 
-        assertThrows(NullPointerException.class, () -> new ModifyOrder(UUID.randomUUID(),"null", null, "modifyDate","modifyEmployeeCode"
+        assertThrows(NullPointerException.class, () -> new ModifyOrder(UUID.randomUUID(),"null", null, "modifyReason","modifyDate","modifyEmployeeCode"
             ,"deliveryType","shippingMethod","productCategory","desiredShippingDate"
             ,"comments",new PartnerOrderPickUpType(true,"phoneNumber")),"Location code cannot be null");
 
 
-        assertThrows(NullPointerException.class, () -> new ModifyOrder(UUID.randomUUID(),"null", "null", "modifyDate","null"
+        assertThrows(NullPointerException.class, () -> new ModifyOrder(UUID.randomUUID(),"null", "null", "modifyReason","modifyDate","null"
             ,null,"shippingMethod","productCategory","desiredShippingDate"
             ,"comments",new PartnerOrderPickUpType(true,"phoneNumber")),"Delivery Type cannot be null");
 
-        assertThrows(NullPointerException.class, () -> new ModifyOrder(UUID.randomUUID(),"null", "null", "modifyDate","null"
+        assertThrows(NullPointerException.class, () -> new ModifyOrder(UUID.randomUUID(),"null", "null", "modifyReason","modifyDate","null"
             ,"null",null,"productCategory","desiredShippingDate"
             ,"comments",new PartnerOrderPickUpType(true,"phoneNumber")),"Shipping Method cannot be null");
 
 
-        assertThrows(NullPointerException.class, () -> new ModifyOrder(UUID.randomUUID(),"null", "null", null,"null"
+        assertThrows(NullPointerException.class, () -> new ModifyOrder(UUID.randomUUID(),"null", "null", "modifyReason",null,"null"
             ,"null",null,"productCategory","desiredShippingDate"
             ,"comments",new PartnerOrderPickUpType(true,"phoneNumber")),"Modify Date cannot be null");
 
 
-        assertThrows(NullPointerException.class, () -> new ModifyOrder(UUID.randomUUID(),"null", "null", "modifyDate",null
+        assertThrows(NullPointerException.class, () -> new ModifyOrder(UUID.randomUUID(),"null", "null", "modifyReason","modifyDate",null
             ,"null",null,"productCategory","desiredShippingDate"
             ,"comments",new PartnerOrderPickUpType(true,"phoneNumber")),"Modify Employee code cannot be null");
+
+        assertThrows(NullPointerException.class, () -> new ModifyOrder(UUID.randomUUID(),"null", "null", null,"modifyDate",null
+            ,"null",null,"productCategory","desiredShippingDate"
+            ,"comments",new PartnerOrderPickUpType(true,"phoneNumber")),"Modify Reason cannot be null");
 
     }
 

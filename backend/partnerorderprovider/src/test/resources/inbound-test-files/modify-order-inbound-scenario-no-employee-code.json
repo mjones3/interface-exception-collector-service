@@ -1,6 +1,7 @@
 {
   "locationCode": "123456789",
   "modifyDate": "2023-04-25 20:09:01",
+  "modifyReason":"Missing Product details.",
   "deliveryType": "SCHEDULED",
   "orderPickType": {
     "willCallPickUp": true,

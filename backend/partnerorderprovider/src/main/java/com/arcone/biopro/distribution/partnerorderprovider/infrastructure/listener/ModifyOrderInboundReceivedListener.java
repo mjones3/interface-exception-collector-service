@@ -65,6 +65,7 @@ public class ModifyOrderInboundReceivedListener {
             .builder()
                 .externalId(eventPayload.getExternalId())
                 .locationCode(facility.code())
+                .modifyReason(eventPayload.getModifyReason())
                 .modifyDate(eventPayload.getModifyDate())
                 .modifyEmployeeCode(eventPayload.getModifyEmployeeCode())
                 .productCategory(eventPayload.getProductCategory())

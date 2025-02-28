@@ -14,6 +14,7 @@ public class ModifyOrderInboundDTO implements Serializable {
 
     private String externalId;
     private String locationCode;
+    private String modifyReason;
     private String modifyDate;
     private String modifyEmployeeCode;
     private String shipToLocation;
