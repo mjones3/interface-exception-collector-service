@@ -32,3 +32,5 @@ Feature: Modify order through the third-party application
             | EXT124      | inbound-test-files/modify-order-inbound-scenario-no-employee-code.json   | 400          | $.modifyEmployeeCode: is missing but it is required                                                  |
             | EXT125      | inbound-test-files/modify-order-inbound-scenario-no-modify-date.json     | 400          | $.modifyDate: is missing but it is required                                                          |
             | EXT125      | inbound-test-files/modify-order-inbound-scenario-employee-code-null.json | 400          | $.modifyEmployeeCode: null found, string expected                                                    |
+            | EXT124      | inbound-test-files/modify-order-inbound-scenario-no-modify-reason.json   | 400          | $.modifyReason: is missing but it is required                                                        |
+

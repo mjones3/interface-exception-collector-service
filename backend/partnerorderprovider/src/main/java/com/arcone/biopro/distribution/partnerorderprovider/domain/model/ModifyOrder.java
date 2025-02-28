@@ -16,6 +16,7 @@ public class ModifyOrder {
     private UUID id;
     private String externalId;
     private String locationCode;
+    private String modifyReason;
     private String modifyDate;
     private String modifyEmployeeCode;
     private String deliveryType;
@@ -26,13 +27,14 @@ public class ModifyOrder {
     private PartnerOrderPickUpType partnerOrderPickUpType;
     private List<PartnerOrderItem> orderItems;
 
-    public ModifyOrder(UUID id , String externalId, String locationCode , String modifyDate, String modifyEmployeeCode, String deliveryType, String shippingMethod
+    public ModifyOrder(UUID id , String externalId, String locationCode , String modifyReason , String modifyDate, String modifyEmployeeCode, String deliveryType, String shippingMethod
         , String productCategory, String desiredShippingDate, String comments , PartnerOrderPickUpType partnerOrderPickUpType) {
         this.id = Objects.requireNonNull(id,"ID cannot be null");
         this.externalId = Objects.requireNonNull(externalId,"External ID cannot be null");
         this.locationCode = Objects.requireNonNull(locationCode,"Location Code cannot be null");
         this.modifyDate = Objects.requireNonNull(modifyDate,"Modify Date cannot be null");
         this.modifyEmployeeCode = Objects.requireNonNull(modifyEmployeeCode,"Modify Employee code cannot be null");;
+        this.modifyReason = Objects.requireNonNull(modifyReason,"Modify Reason cannot be null");;
         this.deliveryType = Objects.requireNonNull(deliveryType,"Delivery Type cannot be null");
         this.shippingMethod = Objects.requireNonNull(shippingMethod,"Shipping Method cannot be null");
         this.productCategory = Objects.requireNonNull(productCategory,"Product Category cannot be null");

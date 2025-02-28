@@ -177,11 +177,16 @@ components:
         - "modifyEmployeeCode"
         - "modifyDate"
         - "orderItems"
+        - "modifyReason"
       properties:
         locationCode:
           type: "string"
           maxLength: 50
           minLength: 1
+        modifyReason:
+          type: string
+          minLength: 1
+          maxLength: 250
         modifyDate:
           $ref: "#/components/schemas/dateTimePattern"
         modifyEmployeeCode:

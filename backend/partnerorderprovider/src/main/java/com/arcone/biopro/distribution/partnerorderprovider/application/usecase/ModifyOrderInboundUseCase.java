@@ -32,6 +32,7 @@ public class ModifyOrderInboundUseCase implements ModifyOrderInboundService {
             uuid
             ,modifyOrderInboundDTO.getExternalId()
             , modifyOrderInboundDTO.getLocationCode()
+            , modifyOrderInboundDTO.getModifyReason()
             , modifyOrderInboundDTO.getModifyDate()
             , modifyOrderInboundDTO.getModifyEmployeeCode()
             , modifyOrderInboundDTO.getDeliveryType()

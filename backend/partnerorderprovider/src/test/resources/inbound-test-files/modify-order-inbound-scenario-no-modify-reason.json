@@ -1,8 +1,6 @@
 {
   "locationCode": "123456789",
   "modifyEmployeeCode": "ee1bf88e-2137-4a17-835a-d43e7b738374",
-  "modifyDate": "2023-04-25 20:09:01",
-  "modifyReason":"Missing Product details.",
   "deliveryType": "SCHEDULED",
   "orderPickType": {
     "willCallPickUp": true,
@@ -10,7 +8,7 @@
   },
   "shippingMethod": "FEDEX",
   "productCategory": "FROZEN",
-  "desiredShippingDate": "30/06/2024",
+  "desiredShippingDate": "2020-04-25",
   "comments": "string",
   "orderItems": [
     {

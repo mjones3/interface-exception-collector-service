@@ -29,6 +29,13 @@ public record ModifyOrderDTO(
     )
     String locationCode,
     @Schema(
+        title = "Modify Reason",
+        description = "The modify reason",
+        example = "Missing product details.",
+        requiredMode = Schema.RequiredMode.REQUIRED
+    )
+    String modifyReason,
+    @Schema(
         title = "Modify Date",
         description = "The modify date",
         example = "2023-04-25 20:09:01",

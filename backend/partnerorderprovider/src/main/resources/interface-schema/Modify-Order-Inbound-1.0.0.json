@@ -7,6 +7,12 @@
     "locationCode": {
       "$ref": "#/definitions/locationCode"
     },
+    "modifyReason": {
+      "type": "string",
+      "title": "Modification Reason",
+      "minLength": 1,
+      "maxLength": 250
+    },
     "modifyEmployeeCode": {
       "type": "string",
       "title": "Modify Employee Code",
@@ -53,6 +59,7 @@
   "required": [
     "locationCode",
     "modifyEmployeeCode",
+    "modifyReason",
     "productCategory",
     "modifyDate",
     "orderItems"

@@ -35,6 +35,7 @@ class ModifyOrderInboundUseCaseTest {
         Mockito.when(modifyInboundDto.getExternalId()).thenReturn("123");
         Mockito.when(modifyInboundDto.getLocationCode()).thenReturn("123");
         Mockito.when(modifyInboundDto.getModifyEmployeeCode()).thenReturn("emp-test");
+        Mockito.when(modifyInboundDto.getModifyReason()).thenReturn("reason");
         Mockito.when(modifyInboundDto.getModifyDate()).thenReturn("date");
         Mockito.when(modifyInboundDto.getDeliveryType()).thenReturn("DeliveryType");
         Mockito.when(modifyInboundDto.getShippingMethod()).thenReturn("ShippingMethod");
