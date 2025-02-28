@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   description: "Order Management API to accept a create of an order from a customer"
-  version: "BioPro PI4.5"
+  version: "BioPro PI4.6"
   title: "Order Management Interface API"
 tags:
 - name: "order"
@@ -77,6 +77,42 @@ paths:
                 $ref: "#/components/schemas/Unauthorized"
       security:
         - bearerAuth: [ ]
+  /orders/{externalId}/update:
+    patch:
+      tags:
+        - "order"
+      summary: "Receives a modify order request data to be modified"
+      description: <p>Modify an order.</p>
+      operationId: "modifyOrder"
+      parameters:
+        - in: path
+          name: externalId
+          description: "External ID of the order to modify it."
+      requestBody:
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/ModifyOrder"
+        required: true
+      responses:
+        "202":
+          description: "ACCEPTED"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ResponseStatus"
+        "405":
+          description: "Method Not Allowed"
+        "400":
+          description: "Bad Request"
+        "401":
+          description: "Unauthorized"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Unauthorized"
+      security:
+        - bearerAuth: [ ]
 components:
   schemas:
     Order:
@@ -84,6 +120,9 @@ components:
       required:
       - "externalId"
       - "locationCode"
+      - "shipmentType"
+      - "productCategory"
+      - "orderItems"
       properties:
         externalId:
           type: "string"
@@ -130,6 +169,45 @@ components:
             $ref: "#/components/schemas/OrderItem"
       xml:
         name: "Order"
+    ModifyOrder:
+      type: "object"
+      required:
+        - "locationCode"
+        - "productCategory"
+        - "modifyEmployeeCode"
+        - "modifyDate"
+        - "orderItems"
+      properties:
+        locationCode:
+          type: "string"
+          maxLength: 50
+          minLength: 1
+        modifyDate:
+          $ref: "#/components/schemas/dateTimePattern"
+        modifyEmployeeCode:
+          type: string
+          maxLength: 50
+        deliveryType:
+          type: string
+        orderPickType:
+          $ref: "#/components/schemas/OrderPickType"
+        shippingMethod:
+          type: "string"
+        productCategory:
+          type: "string"
+        desiredShippingDate:
+          $ref: '#/components/schemas/datePattern'
+        comments:
+          type: "string"
+          maxLength: 1000
+          minLength: 0
+        orderItems:
+          type: "array"
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/OrderItem"
+      xml:
+        name: "ModifyOrder"
     datePattern:
       type: string
       pattern: "^(\\d{4}-\\d{2}-\\d{2})$"
@@ -156,6 +234,7 @@ components:
           type: "integer"
         comments:
           type: "string"
+          maxLength: 1000
     ResponseStatus:
       type: "object"
       properties:

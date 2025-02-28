@@ -6,15 +6,14 @@ import lombok.Builder;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.UUID;
 
 @Schema(
-    name = "OrderReceivedPayload",
-    title = "OrderReceivedPayload",
-    description = "Order Received Event Payload"
+    name = "ModifyOrderPayload",
+    title = "ModifyOrderPayload",
+    description = "Modify Order Received Event Payload"
 )
 @Builder
-public record OrderDTO(
+public record ModifyOrderDTO(
     @Schema(
         title = "External Order ID",
         description = "The external order ID",
@@ -23,13 +22,6 @@ public record OrderDTO(
     )
     String externalId,
     @Schema(
-        title = "Order Status",
-        description = "The order status",
-        example = "OPEN",
-        requiredMode = Schema.RequiredMode.REQUIRED
-    )
-    String orderStatus,
-    @Schema(
         title = "Location Code",
         description = "The location code",
         example = "565",
@@ -37,26 +29,19 @@ public record OrderDTO(
     )
     String locationCode,
     @Schema(
-        title = "Create Date",
-        description = "The create date",
+        title = "Modify Date",
+        description = "The modify date",
         example = "2023-04-25 20:09:01",
-        requiredMode = Schema.RequiredMode.REQUIRED
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    String createDate,
+    String modifyDate,
     @Schema(
-        title = "Create Employee Code",
-        description = "The create employee code",
+        title = "Modify Employee Code",
+        description = "The modify employee code",
         example = "ee1bf88e-2137-4a17-835a-d43e7b738374",
-        requiredMode = Schema.RequiredMode.REQUIRED
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    String createEmployeeCode,
-    @Schema(
-        title = "Shipment Type",
-        description = "The shipment type",
-        example = "CUSTOMER",
-        requiredMode = Schema.RequiredMode.REQUIRED
-    )
-    String shipmentType,
+    String modifyEmployeeCode,
     @Schema(
         title = "Delivery Type",
         description = "The delivery type",
@@ -85,20 +70,6 @@ public record OrderDTO(
         requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
     String desiredShippingDate,
-    @Schema(
-        title = "Shipping Customer Code",
-        description = "The shipping customer code",
-        example = "A1235",
-        requiredMode = Schema.RequiredMode.REQUIRED
-    )
-    String shippingCustomerCode,
-    @Schema(
-        title = "Billing Customer Code",
-        description = "The billing customer code",
-        example = "A1235",
-        requiredMode = Schema.RequiredMode.REQUIRED
-    )
-    String billingCustomerCode,
     @Schema(
         title = "Will Pick Up",
         description = "The will pick up",

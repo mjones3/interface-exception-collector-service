@@ -1,22 +1,24 @@
 package com.arcone.biopro.distribution.partnerorderprovider.domain.event;
 
-import com.arcone.biopro.distribution.partnerorderprovider.domain.model.PartnerOrder;
+import com.arcone.biopro.distribution.partnerorderprovider.domain.model.ModifyOrder;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import java.time.Instant;
 import java.util.UUID;
 
 @ToString
-public class PartnerOrderInboundReceived implements DomainEvent {
+@EqualsAndHashCode
+public class ModifyOrderInboundReceived implements DomainEvent {
 
     private final UUID eventId;
     private final Instant occurredOn;
     private final static String eventVersion = "1.0";
-    private final static String eventType = "OrderReceived";
-    private PartnerOrder payload;
+    private final static String eventType = "ModifyOrderReceived";
+    private ModifyOrder payload;
 
 
-    public PartnerOrderInboundReceived (PartnerOrder payload){
+    public ModifyOrderInboundReceived(ModifyOrder payload){
         this.eventId = UUID.randomUUID();
         this.occurredOn = Instant.now();
         this.payload = payload;
@@ -44,7 +46,7 @@ public class PartnerOrderInboundReceived implements DomainEvent {
     }
 
     @Override
-    public PartnerOrder getPayload() {
+    public ModifyOrder getPayload() {
         return payload;
     }
 }
