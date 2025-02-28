@@ -250,10 +250,7 @@ export class ExternalTransfersComponent
         }
     }
 
-    getIcon(index) {
-        const externalTransferItemsList =
-            this.createExternalTransferResponse()?.externalTransferItems;
-        const productFamily = externalTransferItemsList[index].productFamily;
+    getIcon(productFamily) {
         return this.productIconService.getIconByProductFamily(productFamily);
     }
 

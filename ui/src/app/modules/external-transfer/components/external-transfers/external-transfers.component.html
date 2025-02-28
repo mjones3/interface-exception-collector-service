@@ -176,7 +176,7 @@
                                 class="max-h-24"
                                 [unitNumber]="option.unitNumber"
                                 [productName]="option.productCode"
-                                [iconName]="getIcon($index)"
+                                [iconName]="getIcon(option.productFamily)"
                                 [active]="selectedProducts.includes(option)"
                                 (clickEvent)="toggleProduct(option)"
                             ></biopro-unit-number-card>
