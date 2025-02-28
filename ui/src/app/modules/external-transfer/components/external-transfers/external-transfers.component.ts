@@ -1,18 +1,15 @@
-import { AsyncPipe, CommonModule, formatDate, NgStyle } from '@angular/common';
+import { AsyncPipe, CommonModule, formatDate } from '@angular/common';
 import {
     AfterViewChecked,
-    ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
     computed,
-    ElementRef,
     Inject,
     LOCALE_ID,
     OnDestroy,
     OnInit,
     signal,
     ViewChild,
-    ViewEncapsulation,
 } from '@angular/core';
 import {
     FormBuilder,
@@ -43,7 +40,6 @@ import { SearchSelectComponent } from 'app/shared/components/search-select/searc
 import { UnitNumberCardComponent } from 'app/shared/components/unit-number-card/unit-number-card.component';
 import { ProductIconsService } from 'app/shared/services/product-icon.service';
 import { consumeNotifications } from 'app/shared/utils/notification.handling';
-import { CookieService } from 'ngx-cookie-service';
 import {
     catchError,
     combineLatestWith,
@@ -77,11 +73,8 @@ import { EnterProductsComponent } from '../../shared/enter-products/enter-produc
         MatFormFieldModule,
         BasicButtonComponent,
         UnitNumberCardComponent,
-        NgStyle,
     ],
     templateUrl: './external-transfers.component.html',
-    encapsulation: ViewEncapsulation.None,
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExternalTransfersComponent
     implements OnInit, AfterViewChecked, OnDestroy
@@ -107,9 +100,6 @@ export class ExternalTransfersComponent
         private toaster: ToastrImplService,
         private externalTransferService: ExternalTransferService,
         protected fb: FormBuilder,
-        private cdr: ChangeDetectorRef,
-        private cookieService: CookieService,
-        private el: ElementRef,
         private readonly changeDetectorRef: ChangeDetectorRef,
         private productIconService: ProductIconsService,
 
