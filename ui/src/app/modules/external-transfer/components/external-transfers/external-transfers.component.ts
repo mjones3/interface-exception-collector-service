@@ -3,13 +3,13 @@ import {
     AfterViewChecked,
     ChangeDetectorRef,
     Component,
-    computed,
     Inject,
     LOCALE_ID,
     OnDestroy,
     OnInit,
-    signal,
     ViewChild,
+    computed,
+    signal,
 } from '@angular/core';
 import {
     FormBuilder,
@@ -41,11 +41,11 @@ import { UnitNumberCardComponent } from 'app/shared/components/unit-number-card/
 import { ProductIconsService } from 'app/shared/services/product-icon.service';
 import { consumeNotifications } from 'app/shared/utils/notification.handling';
 import {
+    Subscription,
     catchError,
     combineLatestWith,
     debounceTime,
     filter,
-    Subscription,
     take,
 } from 'rxjs';
 import {
@@ -250,14 +250,10 @@ export class ExternalTransfersComponent
         }
     }
 
-    getIcon() {
+    getIcon(index) {
         const externalTransferItemsList =
             this.createExternalTransferResponse()?.externalTransferItems;
-        const productFamily =
-            Array.isArray(externalTransferItemsList) &&
-            externalTransferItemsList.length > 0
-                ? externalTransferItemsList[0].productFamily
-                : null;
+        const productFamily = externalTransferItemsList[index].productFamily;
         return this.productIconService.getIconByProductFamily(productFamily);
     }
 
