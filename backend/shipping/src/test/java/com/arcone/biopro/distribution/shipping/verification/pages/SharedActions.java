@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 import static org.openqa.selenium.support.ui.ExpectedConditions.numberOfWindowsToBe;
 
 
@@ -410,5 +412,56 @@ public class SharedActions {
         String closeButtonLocator = "//rsa-toaster//button";
         waitForVisible(By.xpath(closeButtonLocator));
         click(By.xpath(closeButtonLocator));
+    }
+
+    public void selectValuesFromDropdown(WebDriver driver , By dropdownId, By panelId, List<String> valuesToSelect) throws InterruptedException {
+
+        WebElement dropdown = driver.findElement(dropdownId);
+
+        openDropDownIfClosed(dropdown);
+
+        WebElement dropdownPanel = driver.findElement(panelId);
+
+        waitForVisible(dropdownPanel);
+
+        List<WebElement> options = dropdownPanel.findElements(By.xpath(".//mat-option"));
+        for (var option: options)
+        {
+            waitForVisible(option);
+        }
+        for (String value : valuesToSelect) {
+
+
+            options.stream()
+                .filter(option -> option.getText().trim().equalsIgnoreCase(value))
+                .findFirst()
+                .ifPresent(element -> {
+                    try {
+                        click(element);
+                        //waitForAttribute(element, "aria-selected", "true");
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+
+            log.debug("Selected value: {}", value);
+        }
+        // Only for multiple selection
+        //sendKeys(dropdown, Keys.ESCAPE.toString());
+        closeDropdownIfOpen(dropdown);
+    }
+
+    private void openDropDownIfClosed(WebElement dropdown) throws InterruptedException {
+        if (!Boolean.parseBoolean(dropdown.getDomAttribute("aria-expanded"))) {
+            click(dropdown);
+        }
+    }
+
+    private void closeDropdownIfOpen(WebElement dropdown) {
+        try {
+            if (dropdown.isDisplayed() && Boolean.parseBoolean(dropdown.getDomAttribute("aria-expanded"))) {
+                click(dropdown);
+            }
+        } catch (Exception ignored) {}
     }
 }

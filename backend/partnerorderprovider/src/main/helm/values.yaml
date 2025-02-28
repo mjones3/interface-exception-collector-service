@@ -20,12 +20,6 @@ environment: "dev"
 # Add default domain for the service
 domain: "api.local.gd"
 
-# Disable Atlas as default
-atlas:
-  enabled: false
-  blockDropSchema: true
-  blockDestructiveChanges: true
-
 # Enable Istio as default
 istio:
   enabled: true

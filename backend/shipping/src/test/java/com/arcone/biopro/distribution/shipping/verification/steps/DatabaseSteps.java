@@ -83,4 +83,20 @@ public class DatabaseSteps {
         var query = "UPDATE bld_shipment SET status = '" + status + "' WHERE ID = " + context.getShipmentId();
         databaseService.executeSql(query).block();
     }
+
+    @Given("I cleaned up from the database the product locations history that used the unit number {string}.")
+    public void cleanProductLocationHistory(String unitNumber) {
+        unitNumber = unitNumber.replace(",", "','");
+        var query = String.format("DELETE FROM bld_product_location_history WHERE unit_number in ('%s')", unitNumber);
+        databaseService.executeSql(query).block();
+    }
+
+    @Given("I cleaned up from the database the external transfer information that used the customer code {string}.")
+    public void cleanExternalTransfer(String unitNumber) {
+        unitNumber = unitNumber.replace(",", "','");
+
+        var query = String.format("DELETE FROM bld_external_transfer WHERE customer_code_to in ('%s')", unitNumber);
+        databaseService.executeSql(query).block();
+
+    }
 }

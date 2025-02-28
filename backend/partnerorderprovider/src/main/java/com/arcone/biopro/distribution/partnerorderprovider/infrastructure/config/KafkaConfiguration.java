@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.partnerorderprovider.infrastructure.config;
 
+import com.arcone.biopro.distribution.partnerorderprovider.infrastructure.event.CancelOrderReceivedEvent;
 import com.arcone.biopro.distribution.partnerorderprovider.infrastructure.event.OrderReceivedEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -29,10 +30,16 @@ import java.util.List;
 @Configuration
 @RequiredArgsConstructor
 @Slf4j
-class KafkaConfiguration {
+public class KafkaConfiguration {
+
+    public static final String ORDER_RECEIVED_PRODUCER = "order-received";
+    public static final String ORDER_CANCEL_PRODUCER = "order-cancel-received";
 
     @Value("${topics.order-received.name}")
     private String orderReceivedTopicName;
+
+    @Value("${topics.cancel-order-received.name}")
+    private String cancelOrderReceivedTopicName;
 
     @Bean
     NewTopic orderReceivedTopic(
@@ -43,13 +50,21 @@ class KafkaConfiguration {
     }
 
     @Bean
+    NewTopic cancelOrderReceivedTopic(
+        @Value("${topics.cancel-order-received.partitions:1}") Integer partitions,
+        @Value("${topics.cancel-order-received.replicas:1}") Integer replicas
+    ) {
+        return TopicBuilder.name(cancelOrderReceivedTopicName).partitions(partitions).replicas(replicas).build();
+    }
+
+    @Bean
     ReceiverOptions<String, String> partnerOrderProviderServiceReceiverOptions(KafkaProperties kafkaProperties) {
         var props = kafkaProperties.buildConsumerProperties(null);
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
         return ReceiverOptions.<String, String>create(props)
             .commitInterval(Duration.ofSeconds(5))
             .commitBatchSize(1)
-            .subscription(List.of(orderReceivedTopicName));
+            .subscription(List.of(orderReceivedTopicName, cancelOrderReceivedTopicName));
     }
 
 
@@ -62,7 +77,7 @@ class KafkaConfiguration {
     }
 
     @Bean
-    SenderOptions<String, OrderReceivedEvent> senderOptions(
+    SenderOptions<String, OrderReceivedEvent> orderReceivedEventSenderOptions(
         KafkaProperties kafkaProperties,
         ObjectMapper objectMapper,
         MeterRegistry meterRegistry) {
@@ -75,9 +90,28 @@ class KafkaConfiguration {
     }
 
     @Bean
-    ReactiveKafkaProducerTemplate<String, OrderReceivedEvent> producerTemplate(
+    SenderOptions<String, CancelOrderReceivedEvent> cancelOrderReceivedEventSenderOptions(
+        KafkaProperties kafkaProperties,
+        ObjectMapper objectMapper,
+        MeterRegistry meterRegistry) {
+        var props = kafkaProperties.buildProducerProperties(null);
+        props.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, TracingProducerInterceptor.class.getName());
+        return SenderOptions.<String, CancelOrderReceivedEvent>create(props)
+            .withValueSerializer(new JsonSerializer<>(objectMapper))
+            .maxInFlight(1) // to keep ordering, prevent duplicate messages (and avoid data loss)
+            .producerListener(new MicrometerProducerListener(meterRegistry)); // we want standard Kafka metrics
+    }
+
+    @Bean(name = ORDER_RECEIVED_PRODUCER )
+    ReactiveKafkaProducerTemplate<String, OrderReceivedEvent> orderReceivedEventReactiveKafkaProducerTemplate(
         SenderOptions<String, OrderReceivedEvent> kafkaSenderOptions) {
         return new ReactiveKafkaProducerTemplate<>(kafkaSenderOptions);
+    }
+
+    @Bean(name = ORDER_CANCEL_PRODUCER )
+    ReactiveKafkaProducerTemplate<String, CancelOrderReceivedEvent> cancelOrderReceivedProducerTemplate(
+        SenderOptions<String, CancelOrderReceivedEvent> cancelOrderReceivedEventSenderOptions) {
+        return new ReactiveKafkaProducerTemplate<>(cancelOrderReceivedEventSenderOptions);
     }
 
 }
