@@ -8,7 +8,7 @@
       "$ref": "#/definitions/locationCode"
     },
     "modifyEmployeeCode": {
-      "type": ["string","null"],
+      "type": "string",
       "title": "Modify Employee Code",
       "maxLength": 50
     },
@@ -52,7 +52,9 @@
   },
   "required": [
     "locationCode",
+    "modifyEmployeeCode",
     "productCategory",
+    "modifyDate",
     "orderItems"
   ],
   "additionalProperties": false,
@@ -64,8 +66,9 @@
       "maxLength": 255
     },
     "modifyEmployeeCode": {
-      "type": ["string","null"],
+      "type": "string",
       "title": "Modify Employee Code",
+      "minLength": 1,
       "maxLength": 50
     },
     "datePattern": {
@@ -73,7 +76,7 @@
       "pattern": "^(\\d{4}-\\d{2}-\\d{2})$"
     },
     "dateTimePattern": {
-      "type": ["string","null"],
+      "type": "string",
       "pattern": "^(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2})$"
     },
     "orderPickType": {

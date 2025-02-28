@@ -57,6 +57,16 @@ class ModifyOrderTest {
             ,"null",null,"productCategory","desiredShippingDate"
             ,"comments",new PartnerOrderPickUpType(true,"phoneNumber")),"Shipping Method cannot be null");
 
+
+        assertThrows(NullPointerException.class, () -> new ModifyOrder(UUID.randomUUID(),"null", "null", null,"null"
+            ,"null",null,"productCategory","desiredShippingDate"
+            ,"comments",new PartnerOrderPickUpType(true,"phoneNumber")),"Modify Date cannot be null");
+
+
+        assertThrows(NullPointerException.class, () -> new ModifyOrder(UUID.randomUUID(),"null", "null", "modifyDate",null
+            ,"null",null,"productCategory","desiredShippingDate"
+            ,"comments",new PartnerOrderPickUpType(true,"phoneNumber")),"Modify Employee code cannot be null");
+
     }
 
 }
