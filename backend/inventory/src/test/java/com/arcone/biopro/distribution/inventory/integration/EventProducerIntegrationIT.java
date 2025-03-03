@@ -112,10 +112,10 @@ public class EventProducerIntegrationIT {
     }
 
     @Test
-    @DisplayName("Should receive shipment completed event, map, call usecase and produce the event with the correct information")
+    @DisplayName("Should receive shipment completed event, map, call usecase and not generate kafka event since the product is not labeled")
     public void test3() throws InterruptedException, IOException {
         publishCreatedEvent("json/shipment_completed.json", SHIPMENT_COMPLETED_TOPIC);
-        assertProducedMessageValues("W123456789012", "E123412", "SHIPPED", "UNLICENSED");
+        assertNoMessageProduced();
     }
 
     private JsonNode publishCreatedEvent(String path, String topic) throws IOException, InterruptedException {
@@ -143,4 +143,11 @@ public class EventProducerIntegrationIT {
         assertThat(payload.path(UPDATE_TYPE).asText()).isEqualTo(updateType);
         assertThat(payload.path(PROPERTIES).path(LICENSURE).asText()).isEqualTo(expectedLicensure);
     }
+
+    private void assertNoMessageProduced() throws InterruptedException {
+        var receivedMessage = receivedRecords.poll(5, TimeUnit.SECONDS);
+
+        assertThat(receivedMessage).isNull();
+    }
+
 }
