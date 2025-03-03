@@ -218,7 +218,8 @@ class InventoryAggregateTest {
 
         InventoryAggregate result = inventoryAggregate.unsuit(reason);
 
-        verify(inventoryMock).transitionStatus(InventoryStatus.UNSUITABLE, reason);
+        verify(inventoryMock).isConverted();
+        verify(inventoryMock).setUnsuitableReason(reason);
         assertSame(inventoryAggregate, result, "Should return the same instance");
     }
 

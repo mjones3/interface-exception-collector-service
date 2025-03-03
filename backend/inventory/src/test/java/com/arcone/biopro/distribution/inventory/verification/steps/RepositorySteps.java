@@ -24,6 +24,7 @@ import java.util.Map;
 import static com.arcone.biopro.distribution.inventory.verification.steps.KafkaListenersSteps.*;
 import static com.arcone.biopro.distribution.inventory.verification.steps.UseCaseSteps.quarantineReasonMap;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -197,12 +198,20 @@ public class RepositorySteps {
                         inventoryEntity.setIsLicensed(false);
                 }
             }
+            if (headers.contains("Unsuitable reason")) {
+                if (inventory.get("Unsuitable reason").equalsIgnoreCase("Empty")) {
+                    inventoryEntity.setUnsuitableReason(null);
+                } else {
+                    inventoryEntity.setUnsuitableReason(inventory.get("Unsuitable reason"));
+                }
+            }
             inventoryUtil.saveInventory(inventoryEntity);
         }
     }
 
     @Then("the parent inventory statuses should be updated as follows:")
     @Then("the inventory statuses should be updated as follows:")
+    @Then("the inventories should be:")
     public void theInventoryStatusesShouldBeUpdatedAsFollows(DataTable dataTable) throws InterruptedException {
         List<Map<String, String>> inventories = dataTable.asMaps(String.class, String.class);
         for (Map<String, String> inventory : inventories) {
@@ -215,6 +224,13 @@ public class RepositorySteps {
             }
             if (inventory.containsKey("Is licensed")) {
                 assertEquals(Boolean.valueOf(inventory.get("Is licensed")), inventoryEntity.getIsLicensed());
+            }
+            if (inventory.containsKey("Unsuitable reason")) {
+                if (inventory.get("Unsuitable reason").equalsIgnoreCase("Empty")) {
+                    assertNull(inventoryEntity.getUnsuitableReason());
+                } else {
+                    assertEquals(inventory.get("Unsuitable reason"), inventoryEntity.getUnsuitableReason());
+                }
             }
             assertEquals(expectedStatus, inventoryEntity.getInventoryStatus().name());
         }

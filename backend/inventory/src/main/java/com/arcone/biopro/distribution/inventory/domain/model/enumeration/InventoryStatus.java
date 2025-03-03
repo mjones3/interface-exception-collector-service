@@ -4,7 +4,6 @@ public enum InventoryStatus {
 
     AVAILABLE,
     DISCARDED,
-    UNSUITABLE,
     SHIPPED,
     IN_TRANSIT,
     CONVERTED
