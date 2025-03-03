@@ -45,6 +45,8 @@ public class UseCaseSteps {
 
     private final ProductDiscardedUseCase productDiscardedUseCase;
 
+    private final UnsuitableUseCase unsuitableUseCase;
+
     private final ScenarioContext scenarioContext;
 
     private final InventoryUtil inventoryUtil;
@@ -167,5 +169,16 @@ public class UseCaseSteps {
             }
             productDiscardedUseCase.execute(inventoryUtil.newProductDiscardedInput(unitNumber, productCode, reason, comments)).block();
         }
+    }
+
+
+    @When("I received a Unit Unsuitable event with unit number {string} and reason {string}")
+    public void iReceivedAUnitUnsuitableEventWithUnitNumberAndReason(String unitNumber, String reason) {
+        unsuitableUseCase.execute(new UnsuitableInput(unitNumber, null, reason)).block();
+    }
+
+    @When("I received a Product Unsuitable event with unit number {string}, product code {string} and reason {string}")
+    public void iReceivedAProductUnsuitableEventWithUnitNumberProductCodeAndReason(String unitNumber, String productCode, String reason) {
+        unsuitableUseCase.execute(new UnsuitableInput(unitNumber, productCode, reason)).block();
     }
 }
