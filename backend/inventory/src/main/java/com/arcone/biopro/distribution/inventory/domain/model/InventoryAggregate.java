@@ -69,7 +69,7 @@ public class InventoryAggregate {
             messageType.getCode(),
             inventory.getUnsuitableReason(),
             messageType.getType().name(), messageType.getAction().name(),
-            null,
+            inventory.getUnsuitableReason(),
             List.of()));
     }
 

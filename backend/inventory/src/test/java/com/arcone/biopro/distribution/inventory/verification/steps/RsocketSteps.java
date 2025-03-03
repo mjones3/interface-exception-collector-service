@@ -192,6 +192,9 @@ public class RsocketSteps {
                 if (MessageType.INVENTORY_IS_EXPIRED.getCode().equals(errorCode)) {
                     assertThat(message.inventoryNotificationsDTO().getFirst().reason()).isEqualTo(reason);
                 }
+                if (MessageType.INVENTORY_IS_UNSUITABLE.getCode().equals(errorCode)) {
+                    assertThat(message.inventoryNotificationsDTO().getFirst().reason()).isEqualTo(reason);
+                }
                 log.debug("Received message from validate inventory {}", message);
             })
             .verifyComplete();
