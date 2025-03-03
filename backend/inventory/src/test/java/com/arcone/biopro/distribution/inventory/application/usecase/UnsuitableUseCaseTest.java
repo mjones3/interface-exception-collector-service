@@ -50,7 +50,7 @@ class UnsuitableUseCaseTest {
             .thenReturn(Mono.just(createInventoryAggregate(InventoryStatus.AVAILABLE, LocalDateTime.now().plusDays(1))));
 
         when(inventoryAggregateRepository.saveInventory(any()))
-            .thenReturn(Mono.just(createInventoryAggregate(InventoryStatus.UNSUITABLE, LocalDateTime.now().plusDays(1))));
+            .thenReturn(Mono.just(createInventoryAggregate(InventoryStatus.AVAILABLE, LocalDateTime.now().plusDays(1))));
 
         Mono<Void> result = useCase.execute(input);
 
@@ -61,8 +61,8 @@ class UnsuitableUseCaseTest {
         verify(inventoryAggregateRepository).saveInventory(inventoryCaptor.capture());
         InventoryAggregate updatedInventory = inventoryCaptor.getValue();
 
-        assertEquals(InventoryStatus.UNSUITABLE, updatedInventory.getInventory().getInventoryStatus());
-        assertEquals(REASON, updatedInventory.getInventory().getStatusReason());
+        assertEquals(InventoryStatus.AVAILABLE, updatedInventory.getInventory().getInventoryStatus());
+        assertEquals(REASON, updatedInventory.getInventory().getUnsuitableReason());
     }
 
     @Test
@@ -73,7 +73,7 @@ class UnsuitableUseCaseTest {
             .thenReturn(Flux.just(createInventoryAggregate(InventoryStatus.AVAILABLE, LocalDateTime.now().plusDays(1))));
 
         when(inventoryAggregateRepository.saveInventory(any()))
-            .thenReturn(Mono.just(createInventoryAggregate(InventoryStatus.UNSUITABLE, LocalDateTime.now().plusDays(1))));
+            .thenReturn(Mono.just(createInventoryAggregate(InventoryStatus.AVAILABLE, LocalDateTime.now().plusDays(1))));
 
         Mono<Void> result = useCase.execute(input);
 

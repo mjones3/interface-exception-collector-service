@@ -83,7 +83,6 @@ Feature: Get all available inventories
             | W036824200014 | E1624V00     | DISCARDED  |
             | W036824200015 | E1624V00     | SHIPPED    |
             | W036824200016 | E1624V00     | IN_TRANSIT |
-            | W036824200017 | E1624V00     | UNSUITABLE |
         When I select "PLASMA_TRANSFUSABLE" of the blood type "OP"
         And I request available inventories in location "123456789"
         Then I receive "1" groups

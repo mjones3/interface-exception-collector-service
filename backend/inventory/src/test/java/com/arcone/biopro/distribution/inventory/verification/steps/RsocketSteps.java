@@ -269,4 +269,15 @@ public class RsocketSteps {
             inventoryUtil.saveInventory(inventory);
         }
     }
+
+    @And("I have one product with {string}, {string} and {string} in {string} status with unsuitable reason {string}")
+    public void iHaveOneProductWithAndInStatusWithUnsuitableReason(String unitNumber, String productCode, String location, String status, String reason) {
+        var inventory = inventoryUtil.newInventoryEntity(unitNumber, productCode, InventoryStatus.valueOf(status));
+        inventory.setExpirationDate(LocalDateTime.now().plusDays(1));
+        inventory.setLocation(location);
+        inventory.setUnsuitableReason(reason);
+        inventory.setComments(null);
+        inventory.setIsLabeled(true);
+        inventoryUtil.saveInventory(inventory);
+    }
 }
