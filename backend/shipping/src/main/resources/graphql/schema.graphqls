@@ -12,6 +12,9 @@ type Query {
 
     # Unit Number with Check Digit Verification
     verifyCheckDigit(unitNumber: String!, checkDigit: String!): RuleResponseDTO!
+
+    # Searches over all Customers
+    findAllCustomers: [CustomerDTO]!
 }
 
 type Mutation {
@@ -22,6 +25,8 @@ type Mutation {
     cancelSecondVerification(cancelSecondVerificationRequest:CancelSecondVerificationRequest!):RuleResponseDTO!
     confirmCancelSecondVerification(confirmCancelSecondVerificationRequest:CancelSecondVerificationRequest!):RuleResponseDTO!
     unpackItems(unpackItemsRequest:UnpackItemsRequest!):RuleResponseDTO!
+    createExternalTransfer(createExternalTransferRequest:CreateExternalTransferRequestDTO):RuleResponseDTO!
+
 }
 
 type PackingListLabelDTO {
@@ -170,6 +175,13 @@ input CompleteShipmentRequest {
     employeeId:String!
 }
 
+input CreateExternalTransferRequestDTO {
+    customerCode:String!
+    hospitalTransferId:String
+    transferDate:Date!
+    createEmployeeId:String!
+}
+
 type RuleResponseDTO {
     ruleCode: String
     notifications: [NotificationDTO]
@@ -283,4 +295,19 @@ input UnpackItemsRequest {
 input UnpackItemRequest {
     unitNumber: String!
     productCode: String!
+}
+
+type ExternalTransferDTO {
+    id:ID
+    customerTo:CustomerDTO
+    customerFrom:CustomerDTO
+    hospitalTransferId:String
+    transferDate:Date
+    createEmployeeId:String
+    status:String
+}
+
+type CustomerDTO {
+    code:String
+    name:String
 }

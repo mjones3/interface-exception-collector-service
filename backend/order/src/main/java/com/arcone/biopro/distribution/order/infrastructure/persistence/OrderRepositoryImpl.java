@@ -130,5 +130,21 @@ public class OrderRepositoryImpl implements OrderRepository {
             );
     }
 
-
+    @Override
+    public Flux<Order> findByExternalId(String externalId) {
+        return this.entityTemplate
+            .select(OrderEntity.class)
+            .matching(query(
+                where("externalId").is(externalId)
+                    .and("deleteDate").isNull()
+            ))
+            .all()
+            .flatMap(orderEntity ->
+                findAllOrderItemEntitiesByOrderId(orderEntity.getId())
+                    .collect(Collectors.toList())
+                    .flatMap(orderItemEntities -> Mono.fromCallable(()-> orderEntityMapper
+                            .mapToDomain(orderEntity, orderItemEntities))
+                        .publishOn(Schedulers.boundedElastic()) )
+            );
+    }
 }

@@ -7,9 +7,9 @@ Feature: Search Orders
 
 
     Rule: I should be able to filter the order lists by specific criteria.
-        Rule: I should be able to apply filter criteria.
+    Rule: I should be able to apply filter criteria.
     Rule: I should be able to search the order by BioPro order number or External Order ID.
-        Rule: I should be prevented from selecting other filters when BioPro Order number or External ID is selected.
+    Rule: I should be prevented from selecting other filters when BioPro Order number or External ID is selected.
     Rule: I should be able to see the other filter options disabled when filtering by either the BioPro Order number or External Order ID.
         @R20-227 @R20-228
         Scenario Outline: Search orders by Order Number
@@ -25,10 +25,10 @@ Feature: Search Orders
             Then I should see 2 orders in the search results.
 
             Examples:
-                | External ID   | Order LocationCode | User LocationCode | Priority | Status | Search Key |
-                | EXTSEARCH1979 | 123456789          | 123456789         | STAT     | OPEN   | orderId    |
-                | EXTSEARCH1984 | 123456789          | 123456789         | STAT     | OPEN   | orderId    |
-
+                | External ID   | Order LocationCode | User LocationCode | Priority | Status      | Search Key |
+                | EXTSEARCH1979 | 123456789          | 123456789         | STAT     | OPEN        | orderId    |
+                | EXTSEARCH1984 | 123456789          | 123456789         | STAT     | OPEN        | orderId    |
+                | EXTSEARCH1985 | 123456789          | 123456789         | STAT     | CANCELLED   | orderId    |
 
 
     Rule: I should not be able to see the orders from a different location.

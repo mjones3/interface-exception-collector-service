@@ -2,9 +2,12 @@ package com.arcone.biopro.distribution.partnerorderprovider.verification.support
 
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -98,6 +101,29 @@ public class ApiHelper {
         }
     }
 
+    public ResponseEntity<String> patchRequest(String endpoint, String body, String customBaseUrl) {
+        String url = (customBaseUrl == null ? baseUrl : customBaseUrl) + endpoint;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> request = new HttpEntity<>(body, headers);
+
+        try {
+            // Attempt to send the request
+            ResponseEntity<String> response = restTemplate.exchange(url,HttpMethod.PATCH, request, String.class);
+            log.info("PATCH request to {} with body {} returned: {}", url, body, response.getBody());
+            return response;
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            // Handle client and server errors
+            log.error("Request to {} failed with status code {}: {}", url, e.getStatusCode(), e.getResponseBodyAsString());
+            return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsString());
+        } catch (ResourceAccessException e) {
+            // Handle I/O errors
+            log.error("Request to {} failed: {}", url, e.getMessage());
+            return ResponseEntity.badRequest().body("Failed to access resource");
+        }
+    }
+
     /**
      * This method is a convenience method that sends a POST request to a specified endpoint with a given body using the default base URL.
      * It simply calls the postRequest method with the endpoint, body, and null as the custom base URL.
@@ -110,12 +136,19 @@ public class ApiHelper {
         return postRequest(endpoint, body, null);
     }
 
+    public ResponseEntity<String> patchRequest(String endpoint, String body) {
+        return patchRequest(endpoint, body, null);
+    }
+
     @PostConstruct
     public void setupWebClient() {
         webTestClient = webTestClient.mutate()
             .responseTimeout(Duration.ofMillis(30000))
             .build();
-        restTemplate = new RestTemplate();
-    }
 
+        restTemplate = new RestTemplate();
+        HttpClient httpClient = HttpClientBuilder.create().build();
+        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
+        restTemplate.setRequestFactory(requestFactory);
+    }
 }

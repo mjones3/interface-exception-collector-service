@@ -51,6 +51,9 @@ public class OrderEntityMapper {
             .completeEmployeeId(order.getCompleteEmployeeId())
             .completeDate(order.getCompleteDate())
             .backOrder(order.isBackOrder())
+            .cancelDate(order.getCancelDate())
+            .cancelEmployeeId(order.getCancelEmployeeId())
+            .cancelReason(order.getCancelReason())
             .build();
     }
 
@@ -94,6 +97,9 @@ public class OrderEntityMapper {
         order.setCompleteEmployeeId(orderEntity.getCompleteEmployeeId());
         order.setCompleteDate(orderEntity.getCompleteDate());
         order.setBackOrder(orderEntity.getBackOrder());
+        order.setCancelDate(orderEntity.getCancelDate());
+        order.setCancelReason(orderEntity.getCancelReason());
+        order.setCancelEmployeeId(orderEntity.getCancelEmployeeId());
 
         return order;
     }
