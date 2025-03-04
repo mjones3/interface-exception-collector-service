@@ -20,6 +20,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.ClassPathResource;
@@ -30,6 +31,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -71,6 +73,9 @@ public class EventProducerIntegrationIT {
     private LogMonitor logMonitor;
 
     private static final BlockingQueue<ConsumerRecord<String, String>> receivedRecords = new LinkedBlockingQueue<>();
+    @Qualifier("InventoryOutputMapper")
+    @Autowired
+    private Object object;
 
     @BeforeEach
     void setUp() {
@@ -118,9 +123,26 @@ public class EventProducerIntegrationIT {
         assertNoMessageProduced();
     }
 
+    @Test
+    @DisplayName("Should receive shipment completed event, receive a label applied event, and produce one event with the correct information about the labeling event")
+    public void test4() throws InterruptedException, IOException {
+        publishCreatedEventWithTemplate("W123456789012", "E123412", "json/shipment_completed_template.json", SHIPMENT_COMPLETED_TOPIC);
+        assertNoMessageProduced();
+        publishCreatedEventWithTemplate("W123456789012", "E0869V00", "json/label_applied_template.json", LABEL_APPLIED_TOPIC);
+        assertProducedMessageValues("W123456789012", "E0869V00", "LABEL_APPLIED", "LICENSED");
+    }
+
     private JsonNode publishCreatedEvent(String path, String topic) throws IOException, InterruptedException {
+        return publishCreatedEventWithTemplate("", "", path, topic);
+    }
+
+    private JsonNode publishCreatedEventWithTemplate(String unitNumber, String productCode, String path, String topic) throws IOException, InterruptedException {
         var resource = new ClassPathResource(path).getFile().toPath();
-        var payloadJson = objectMapper.readTree(Files.newInputStream(resource));
+        var inputStream = Files.newInputStream(resource);
+        var payload = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+        payload = payload.replaceAll("UNIT_NUMBER", unitNumber).replaceAll("PRODUCT_CODE", productCode);
+        var payloadJson = objectMapper.readTree(payload);
+
         kafkaHelper.sendEvent(topic, topic + "test-key", payloadJson).block();
         logMonitor.await("Processed message.*");
         return payloadJson;
