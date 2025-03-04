@@ -11,17 +11,19 @@ import org.springframework.util.Assert;
 @ToString
 public class OrderPriorityReport implements Validatable {
 
-    private String priority;
-    private String priorityColor;
+    private final String priority;
+    private final String priorityColor;
 
-    public OrderPriorityReport(String status, String priorityColor) {
-        this.priority = status;
+    public OrderPriorityReport(String priority, String priorityColor) {
+        this.priority = priority;
         this.priorityColor = priorityColor;
+        this.checkValid();
     }
 
     @Override
     public void checkValid() {
-        Assert.notNull(priority, "Status must not be null");
+        Assert.notNull(priority, "Priority must not be null");
         Assert.notNull(priorityColor, "PriorityColor must not be null");
     }
+
 }

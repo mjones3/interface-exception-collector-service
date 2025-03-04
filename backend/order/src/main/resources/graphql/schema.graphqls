@@ -1,5 +1,6 @@
 scalar DateTime
 scalar Date
+scalar JSON
 
 type Query {
     # Searches over all Lookup records by a grouping type criteria
@@ -12,7 +13,7 @@ type Query {
 
     # Searches over all orders
     findOrderById(orderId:ID!):OrderResponseDTO!
-    searchOrders(orderQueryCommandDTO:OrderQueryCommandDTO!):[OrderReportDTO]
+    searchOrders(orderQueryCommandDTO: OrderQueryCommandDTO!): PageDTO
     findOrderShipmentByOrderId(orderId:ID!):OrderShipmentDTO
     searchOrderCriteria: SearchOrderCriteriaDTO
 }
@@ -190,15 +191,25 @@ input OrderQueryCommandDTO {
     createDateTo:Date
     desireShipDateFrom:Date
     desireShipDateTo:Date
-    querySort:QuerySortDTO
+    querySort: InputQuerySortDTO
     limit:Int
+    page:Int
 }
 
-input QuerySortDTO {
-    orderByList:[QueryOrderByDTO]
+input InputQuerySortDTO {
+    orderByList: [InputQueryOrderByDTO]
 }
 
-input QueryOrderByDTO {
+type OutputQuerySortDTO {
+    orderByList: [OutputQueryOrderByDTO]
+}
+
+input InputQueryOrderByDTO {
+    property:String
+    direction:String
+}
+
+type OutputQueryOrderByDTO {
     property:String
     direction:String
 }
@@ -208,6 +219,15 @@ input CompleteOrderCommandDTO {
     employeeId:String!
     createBackOrder:Boolean!
     comments:String
+}
+
+type PageDTO {
+    content: JSON
+    pageNumber: Int!
+    pageSize: Int!
+    totalRecords: Int!
+    totalPages: Int!
+    querySort: OutputQuerySortDTO!
 }
 
 type PickListResponseDTO {

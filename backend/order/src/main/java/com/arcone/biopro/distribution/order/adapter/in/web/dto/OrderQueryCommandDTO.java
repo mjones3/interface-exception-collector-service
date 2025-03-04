@@ -4,7 +4,6 @@ import lombok.Builder;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 
 @Builder
@@ -19,8 +18,8 @@ public record OrderQueryCommandDTO (
     LocalDate desireShipDateFrom,
     LocalDate desireShipDateTo,
     QuerySortDTO querySort,
-    Integer limit
-
+    Integer pageSize,
+    Integer pageNumber
 ) implements Serializable {
 
 }
