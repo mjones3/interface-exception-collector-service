@@ -124,11 +124,15 @@ public class EventProducerIntegrationIT {
     }
 
     @Test
-    @DisplayName("Should receive shipment completed event, receive a label applied event, and produce one event with the correct information about the labeling event")
+    @DisplayName("Should label a product, then received a shipment completed event, map, call usecase and produce the event with the correct shipment information")
     public void test4() throws InterruptedException, IOException {
-        publishCreatedEventWithTemplate("W123456789012", "E123412", "json/shipment_completed_template.json", SHIPMENT_COMPLETED_TOPIC);
-        assertNoMessageProduced();
-        publishCreatedEventWithTemplate("W123456789012", "E0869V00", "json/label_applied_template.json", LABEL_APPLIED_TOPIC);
+        labelAndAssertProducedMessageValues("W123456789012", "E0869V00");
+        publishCreatedEventWithTemplate("W123456789012", "E0869V00", "json/shipment_completed_template.json", SHIPMENT_COMPLETED_TOPIC);
+        assertProducedMessageValues("W123456789012", "E0869V00", "SHIPPED", "LICENSED");
+    }
+
+    private void labelAndAssertProducedMessageValues(String unitNumber, String productCode) throws IOException, InterruptedException {
+        publishCreatedEventWithTemplate(unitNumber, productCode, "json/label_applied_template.json", LABEL_APPLIED_TOPIC);
         assertProducedMessageValues("W123456789012", "E0869V00", "LABEL_APPLIED", "LICENSED");
     }
 
