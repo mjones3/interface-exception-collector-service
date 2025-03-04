@@ -20,6 +20,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.ClassPathResource;
@@ -30,6 +31,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -71,6 +73,9 @@ public class EventProducerIntegrationIT {
     private LogMonitor logMonitor;
 
     private static final BlockingQueue<ConsumerRecord<String, String>> receivedRecords = new LinkedBlockingQueue<>();
+    @Qualifier("InventoryOutputMapper")
+    @Autowired
+    private Object object;
 
     @BeforeEach
     void setUp() {
@@ -112,15 +117,36 @@ public class EventProducerIntegrationIT {
     }
 
     @Test
-    @DisplayName("Should receive shipment completed event, map, call usecase and produce the event with the correct information")
+    @DisplayName("Should receive shipment completed event, map, call usecase and not generate kafka event since the product is not labeled")
     public void test3() throws InterruptedException, IOException {
         publishCreatedEvent("json/shipment_completed.json", SHIPMENT_COMPLETED_TOPIC);
-        assertProducedMessageValues("W123456789012", "E123412", "SHIPPED", "UNLICENSED");
+        assertNoMessageProduced();
+    }
+
+    @Test
+    @DisplayName("Should label a product, then received a shipment completed event, map, call usecase and produce the event with the correct shipment information")
+    public void test4() throws InterruptedException, IOException {
+        labelAndAssertProducedMessageValues("W123456789012", "E0869V00");
+        publishCreatedEventWithTemplate("W123456789012", "E0869V00", "json/shipment_completed_template.json", SHIPMENT_COMPLETED_TOPIC);
+        assertProducedMessageValues("W123456789012", "E0869V00", "SHIPPED", "LICENSED");
+    }
+
+    private void labelAndAssertProducedMessageValues(String unitNumber, String productCode) throws IOException, InterruptedException {
+        publishCreatedEventWithTemplate(unitNumber, productCode, "json/label_applied_template.json", LABEL_APPLIED_TOPIC);
+        assertProducedMessageValues("W123456789012", "E0869V00", "LABEL_APPLIED", "LICENSED");
     }
 
     private JsonNode publishCreatedEvent(String path, String topic) throws IOException, InterruptedException {
+        return publishCreatedEventWithTemplate("", "", path, topic);
+    }
+
+    private JsonNode publishCreatedEventWithTemplate(String unitNumber, String productCode, String path, String topic) throws IOException, InterruptedException {
         var resource = new ClassPathResource(path).getFile().toPath();
-        var payloadJson = objectMapper.readTree(Files.newInputStream(resource));
+        var inputStream = Files.newInputStream(resource);
+        var payload = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+        payload = payload.replaceAll("UNIT_NUMBER", unitNumber).replaceAll("PRODUCT_CODE", productCode);
+        var payloadJson = objectMapper.readTree(payload);
+
         kafkaHelper.sendEvent(topic, topic + "test-key", payloadJson).block();
         logMonitor.await("Processed message.*");
         return payloadJson;
@@ -143,4 +169,11 @@ public class EventProducerIntegrationIT {
         assertThat(payload.path(UPDATE_TYPE).asText()).isEqualTo(updateType);
         assertThat(payload.path(PROPERTIES).path(LICENSURE).asText()).isEqualTo(expectedLicensure);
     }
+
+    private void assertNoMessageProduced() throws InterruptedException {
+        var receivedMessage = receivedRecords.poll(5, TimeUnit.SECONDS);
+
+        assertThat(receivedMessage).isNull();
+    }
+
 }
