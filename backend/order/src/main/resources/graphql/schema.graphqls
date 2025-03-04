@@ -226,8 +226,12 @@ type PageDTO {
     pageNumber: Int!
     pageSize: Int!
     totalRecords: Int!
-    totalPages: Int!
     querySort: OutputQuerySortDTO!
+    hasPrevious: Boolean!
+    hasNext: Boolean!
+    isFirst: Boolean!
+    isLast: Boolean!
+    totalPages: Int!
 }
 
 type PickListResponseDTO {
