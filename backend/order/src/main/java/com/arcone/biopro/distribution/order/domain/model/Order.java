@@ -31,7 +31,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.arcone.biopro.distribution.order.application.dto.UseCaseMessageType.BACK_ORDER_CANNOT_BE_MODIFIED;
 import static com.arcone.biopro.distribution.order.application.dto.UseCaseMessageType.NO_ORDER_TO_BE_CANCELLED;
+import static com.arcone.biopro.distribution.order.application.dto.UseCaseMessageType.NO_ORDER_TO_BE_MODIFIED;
 import static com.arcone.biopro.distribution.order.application.dto.UseCaseMessageType.ORDER_HAS_AN_OPEN_SHIPMENT;
 import static com.arcone.biopro.distribution.order.application.dto.UseCaseMessageType.ORDER_IS_ALREADY_CANCELLED;
 import static com.arcone.biopro.distribution.order.application.dto.UseCaseMessageType.ORDER_IS_ALREADY_COMPLETED;
@@ -98,6 +100,13 @@ public class Order implements Validatable {
     private ZonedDateTime cancelDate;
     @Setter
     private String cancelReason;
+
+    @Setter
+    private String modifyEmployeeId;
+    @Setter
+    private String modifiedByProcess;
+    @Setter
+    private String modifyReason;
 
     public Order(
         CustomerService customerService,
@@ -356,6 +365,49 @@ public class Order implements Validatable {
         });
 
         return backOrder;
+
+    }
+
+    public Order modify(ModifyOrderCommand modifyOrderCommand,List<Order> orderList, CustomerService customerService , LookupService lookupService){
+
+        if(orderList == null || orderList.isEmpty()){
+            throw new DomainException(NO_ORDER_TO_BE_MODIFIED);
+        }
+
+        if(orderList.size() > 1 ){
+            throw new DomainException(BACK_ORDER_CANNOT_BE_MODIFIED);
+        }
+
+        var orderToBeUpdated = orderList.getFirst();
+
+        //public Order(
+        //        CustomerService customerService,
+        //        LookupService lookupService,
+        //        Long id, -- cannot update
+        //        Long orderNumber, -- cannot update
+        //        String externalId, -- cannot update
+        //        String locationCode,
+        //        String shipmentType, -- cannot update
+        //        String shippingMethod,
+        //        String shippingCustomerCode, -- cannot update
+        //        String billingCustomerCode, -- cannot update
+        //        String desiredShippingDate,
+        //        Boolean willCallPickup,
+        //        String phoneNumber,
+        //        String productCategory,
+        //        String comments,
+        //        String orderStatus, -- cannot update
+        //        String orderPriority, -- cannot update
+        //        String createEmployeeId, -- cannot update
+        //        ZonedDateTime createDate, -- cannot update
+        //        ZonedDateTime modificationDate,
+        //        ZonedDateTime deleteDate
+        //    ) {
+        var updatedOrder = this(customerService,lookupService,orderToBeUpdated.getId(), orderToBeUpdated.getOrderNumber(), orderToBeUpdated.getOrderExternalId().getOrderExternalId(),
+
+        );
+
+        return updatedOrder;
 
     }
 
