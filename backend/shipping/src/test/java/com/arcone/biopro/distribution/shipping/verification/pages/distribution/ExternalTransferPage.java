@@ -63,6 +63,7 @@ public class ExternalTransferPage extends CommonPageFactory {
     }
 
     public void selectCustomer(String customerName) throws InterruptedException {
+        sharedActions.waitForVisible(CUSTOMER_SELECT_ID);
         sharedActions.selectValuesFromDropdown(this.driver, CUSTOMER_SELECT_ID, CUSTOMER_PANEL_ID, List.of(customerName));
     }
 

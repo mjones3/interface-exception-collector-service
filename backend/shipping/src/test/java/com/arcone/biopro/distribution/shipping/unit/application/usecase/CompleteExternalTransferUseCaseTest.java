@@ -107,7 +107,7 @@ class CompleteExternalTransferUseCaseTest {
                 Assertions.assertEquals(HttpStatus.OK, detail.ruleCode());
                 Assertions.assertEquals(HttpStatus.OK.value(), firstNotification.statusCode());
                 Assertions.assertEquals("SUCCESS", firstNotification.notificationType());
-                Assertions.assertEquals("External transfer completed successfully.", firstNotification.message());
+                Assertions.assertEquals("External transfer completed successfully", firstNotification.message());
                 Assertions.assertEquals("/external-transfer", detail._links().get("next"));
 
             })

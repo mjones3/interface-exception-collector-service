@@ -237,27 +237,11 @@ export class ExternalTransfersComponent
             });
     }
 
-    toggleProduct(product: ExternalTransferItemDTO) {
-        if (this.selectedProducts.includes(product)) {
-            const index = this.selectedProducts.findIndex(
-                (filterProduct) =>
-                    filterProduct.unitNumber === product.unitNumber &&
-                    filterProduct.productCode === product.productCode
-            );
-            this.selectedProducts.splice(index, 1);
-        } else {
-            this.selectedProducts.push(product);
-        }
-    }
-
     getIcon(productFamily) {
         return this.productIconService.getIconByProductFamily(productFamily);
     }
 
     enterProduct(item: ExternalTransferItemDTO) {
-        if (document.activeElement instanceof HTMLElement) {
-            document.activeElement.blur();
-        }
         return this.externalTransferService
             .verifyExternalTransferItem(this.getTransferProductDetail(item))
             .pipe(
@@ -277,13 +261,19 @@ export class ExternalTransfersComponent
                         }
                     } else {
                         const notification = ruleResult.notifications[0];
-                        this.toaster.show(
-                            notification?.message,
-                            null,
-                            null,
-                            NotificationTypeMap[notification?.notificationType]
-                                .type
-                        );
+                        this.toaster
+                            .show(
+                                notification?.message,
+                                null,
+                                null,
+                                NotificationTypeMap[
+                                    notification?.notificationType
+                                ].type
+                            )
+                            .onTap.subscribe(() => {
+                                this.enterProductsComponent.resetProductGroup();
+                                this.enterProductsComponent.focusOnUnitNumber();
+                            });
                     }
                 }
             });

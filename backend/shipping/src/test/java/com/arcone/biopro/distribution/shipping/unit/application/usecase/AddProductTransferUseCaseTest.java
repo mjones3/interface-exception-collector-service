@@ -116,7 +116,7 @@ class AddProductTransferUseCaseTest {
 
                 assertEquals(HttpStatus.BAD_REQUEST, detail.ruleCode());
                 assertEquals(HttpStatus.BAD_REQUEST.value(), firstNotification.statusCode());
-                assertEquals("CAUTION", firstNotification.notificationType());
+                assertEquals("WARN", firstNotification.notificationType());
                 assertEquals("The transfer date is before the last shipped date", firstNotification.message());
             })
             .verifyComplete();

@@ -59,11 +59,16 @@ class ExternalTransferTest {
     @Test
     public void shouldNotAddItemWhenLastShipDateIsAfterTransferDate() {
 
-        var externalTransfer = new ExternalTransfer(1L, "123", null, "A123", LocalDate.now(), "employee-id", ExternalTransferStatus.PENDING,customerService);
+        var externalTransfer = new ExternalTransfer(1L, "456", null, "A123", LocalDate.now(), "employee-id", ExternalTransferStatus.PENDING,customerService);
 
 
         var locationHistory = Mockito.mock(ProductLocationHistory.class);
         Mockito.when(locationHistory.getCreatedDate()).thenReturn(ZonedDateTime.now().plusDays(2));
+
+        var customerTo = Mockito.mock(Customer.class);
+        Mockito.when(customerTo.getCode()).thenReturn("123");
+
+        Mockito.when(locationHistory.getCustomerTo()).thenReturn(customerTo);
 
         Mockito.when(productLocationHistoryRepository.findCurrentLocation(Mockito.any())).thenReturn(Mono.just(locationHistory));
 
@@ -80,7 +85,7 @@ class ExternalTransferTest {
     @Test
     public void shouldNotAddItemWhenLastShipLocationDoesNotMatch() {
 
-        var externalTransfer = new ExternalTransfer(1L, "123", "567", "A123", LocalDate.now(), "employee-id", ExternalTransferStatus.PENDING,customerService);
+        var externalTransfer = new ExternalTransfer(1L, "567", "567", "A123", LocalDate.now(), "employee-id", ExternalTransferStatus.PENDING,customerService);
 
 
         var locationHistory = Mockito.mock(ProductLocationHistory.class);
@@ -118,11 +123,36 @@ class ExternalTransferTest {
         }
     }
 
+    @Test
+    public void shouldNotAddItemWhenCurrentLocationIsSameAsTransferToLocation() {
+
+        var externalTransfer = new ExternalTransfer(1L, "123", "567", "A123", LocalDate.now().minusDays(1), "employee-id", ExternalTransferStatus.PENDING,customerService);
+
+
+        var locationHistory = Mockito.mock(ProductLocationHistory.class);
+        Mockito.when(locationHistory.getCreatedDate()).thenReturn(ZonedDateTime.now().minusDays(2));
+
+        var customerTo = Mockito.mock(Customer.class);
+        Mockito.when(customerTo.getCode()).thenReturn("123");
+
+        Mockito.when(locationHistory.getCustomerTo()).thenReturn(customerTo);
+
+        Mockito.when(productLocationHistoryRepository.findCurrentLocation(Mockito.any())).thenReturn(Mono.just(locationHistory));
+
+        try {
+            externalTransfer.addItem(null,"unitNumber","productCode","employee-id",productLocationHistoryRepository);
+            Assertions.fail();
+        }catch (DomainException e) {
+            Assertions.assertEquals("Last Shipped Location cannot be same as the Transfer to Customer location",e.getUseCaseMessageType().getMessage());
+        }
+
+    }
+
 
     @Test
     public void shouldAddItem() {
 
-        var externalTransfer = new ExternalTransfer(1L, "123", null, "A123", LocalDate.now(), "employee-id", ExternalTransferStatus.PENDING,customerService);
+        var externalTransfer = new ExternalTransfer(1L, "456", null, "A123", LocalDate.now(), "employee-id", ExternalTransferStatus.PENDING,customerService);
 
         Assertions.assertNull(externalTransfer.getCustomerFrom());
 
@@ -169,7 +199,7 @@ class ExternalTransferTest {
     @Test
     public void shouldCompleteTransfer(){
 
-        var externalTransfer = new ExternalTransfer(1L, "123", null, "A123", LocalDate.now(), "employee-id", ExternalTransferStatus.PENDING,customerService);
+        var externalTransfer = new ExternalTransfer(1L, "456", null, "A123", LocalDate.now(), "employee-id", ExternalTransferStatus.PENDING,customerService);
 
         var product = Mockito.mock(Product.class);
         Mockito.when(product.getProductFamily()).thenReturn("productFamily");
