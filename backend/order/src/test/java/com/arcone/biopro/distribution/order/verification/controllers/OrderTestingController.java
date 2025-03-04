@@ -1,11 +1,7 @@
 package com.arcone.biopro.distribution.order.verification.controllers;
 
 import com.arcone.biopro.distribution.order.application.dto.CancelOrderReceivedDTO;
-import com.arcone.biopro.distribution.order.verification.support.ApiHelper;
-import com.arcone.biopro.distribution.order.verification.support.KafkaHelper;
-import com.arcone.biopro.distribution.order.verification.support.SharedContext;
-import com.arcone.biopro.distribution.order.verification.support.TestUtils;
-import com.arcone.biopro.distribution.order.verification.support.Topics;
+import com.arcone.biopro.distribution.order.verification.support.*;
 import com.arcone.biopro.distribution.order.verification.support.graphql.GraphQLMutationMapper;
 import com.arcone.biopro.distribution.order.verification.support.graphql.GraphQLQueryMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,12 +13,7 @@ import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -97,13 +88,13 @@ public class OrderTestingController {
     }
 
     public void listOrdersByExternalId() {
-        var response = apiHelper.graphQlListRequest(GraphQLQueryMapper.listOrdersByUniqueIdentifier(context.getLocationCode(),context.getExternalId()), "searchOrders");
-        context.setOrderList(response);
+        var response = apiHelper.graphQlPageRequest(GraphQLQueryMapper.listOrdersByUniqueIdentifier(context.getLocationCode(),context.getExternalId()), "searchOrders");
+        context.setOrdersPage(response);
     }
 
     public void listOrdersByOrderId() {
-        var response = apiHelper.graphQlListRequest(GraphQLQueryMapper.listOrdersByUniqueIdentifier(context.getLocationCode(),context.getOrderId().toString()), "searchOrders");
-        context.setOrderList(response);
+        var response = apiHelper.graphQlPageRequest(GraphQLQueryMapper.listOrdersByUniqueIdentifier(context.getLocationCode(),context.getOrderId().toString()), "searchOrders");
+        context.setOrdersPage(response);
     }
 
     public void cancelOrder(String externalId, String cancelDate, String payload) throws Exception {

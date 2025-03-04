@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.order.verification.steps;
 
+import com.arcone.biopro.distribution.order.adapter.in.web.dto.PageDTO;
 import com.arcone.biopro.distribution.order.application.dto.OrderReceivedEventDTO;
 import com.arcone.biopro.distribution.order.application.dto.ShipmentCompletedEventDTO;
 import com.arcone.biopro.distribution.order.application.dto.ShipmentCreatedEventDTO;
@@ -10,6 +11,7 @@ import com.arcone.biopro.distribution.order.verification.pages.order.OrderDetail
 import com.arcone.biopro.distribution.order.verification.pages.order.SearchOrderPage;
 import com.arcone.biopro.distribution.order.verification.support.*;
 import com.arcone.biopro.distribution.order.verification.support.graphql.GraphQLQueryMapper;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.And;
@@ -49,7 +51,6 @@ public class OrderSteps {
     private String[] bloodTypes;
     private String[] quantityList;
     private String[] commentsList;
-
 
     private JSONObject partnerOrder;
     private boolean isLoggedIn = false;
@@ -91,7 +92,7 @@ public class OrderSteps {
     @Value("${kafka.waiting.time}")
     private long kafkaWaitingTime;
 
-    private Object[] response;
+    private PageDTO<JsonNode> response;
 
     private void createOrderInboundRequest(String jsonContent, OrderReceivedEventDTO eventPayload) throws JSONException {
         partnerOrder = new JSONObject(jsonContent);
@@ -104,23 +105,15 @@ public class OrderSteps {
 
     @When("I want to list orders for location {string}.")
     public void searchOrders(String locationCode) {
-        response = apiHelper.graphQlRequestObjectList(GraphQLQueryMapper.listOrdersByLocation(locationCode), "searchOrders");
+        response = apiHelper.graphQlPageRequest(GraphQLQueryMapper.listOrdersByLocation(locationCode), "searchOrders");
     }
 
     @Then("I should have orders listed in the following order.")
     public void iShouldHaveOrdersListedInTheFollowingOrder(DataTable table) {
         var headers = table.row(0);
 
-
-        var responseIds = Arrays.stream(response)
-            .map(r ->
-            {
-                if (r instanceof LinkedHashMap) {
-                    return ((LinkedHashMap<?, ?>) r).get("externalId").toString();
-                } else {
-                    throw new IllegalArgumentException("Unexpected response type: " + r.getClass().getName());
-                }
-            })
+        var responseIds = response.content().stream()
+            .map(r -> r.get("externalId").asText())
             .collect(Collectors.joining(","));
 
         var expectedIds = new ArrayList<String>();
@@ -792,13 +785,13 @@ public class OrderSteps {
     public void iHaveRemainingProductsAsPartOfTheBackOrderCreated(String choice, Integer quantity) throws InterruptedException {
         Thread.sleep(kafkaWaitingTime);
         orderController.listOrdersByExternalId();
-        var originalOrder = context.getOrderList().stream().filter(order -> order.get("orderStatus").equals("COMPLETED")).findFirst().orElse(null);
+        var originalOrder = context.getOrdersPage().content().stream().filter(order -> order.get("orderStatus").asText().equals("COMPLETED")).findFirst().orElse(null);
         Assert.assertNotNull(originalOrder);
 
         if (choice.equalsIgnoreCase("should")) { // Back order configured
-            Assert.assertEquals(2, context.getOrderList().size());
+            Assert.assertEquals(2, context.getOrdersPage().content().size());
 
-            var backOrder = context.getOrderList().stream().filter(order -> order.get("orderStatus").equals("OPEN")).findFirst().orElse(null);
+            var backOrder = context.getOrdersPage().content().stream().filter(order -> order.get("orderStatus").asText().equals("OPEN")).findFirst().orElse(null);
             Assert.assertNotNull(backOrder);
 
             // Get by id backOrder
@@ -809,7 +802,7 @@ public class OrderSteps {
             Assert.assertEquals(quantity, Integer.valueOf(backOrderDetails.get("totalProducts").toString()));
 
         } else if (choice.equalsIgnoreCase("should not")) { // Back order not configured
-            Assert.assertEquals(1, context.getOrderList().size());
+            Assert.assertEquals(1, context.getOrdersPage().content().size());
         } else {
             Assert.fail("Invalid option for back order configuration.");
         }
@@ -828,17 +821,17 @@ public class OrderSteps {
 
     @Then("I should receive the search results containing {string} order(s).")
     public void iShouldReceiveTheSearchResultsContainingOrder(String expectedQuantity) {
-        var orderList = context.getOrderList();
-        Assert.assertEquals(Integer.parseInt(expectedQuantity), orderList.size());
+        var ordersPage = context.getOrdersPage();
+        Assert.assertEquals(Integer.parseInt(expectedQuantity), ordersPage.content().size());
     }
 
     @Then("I should receive the search results containing {string} order(s) with status(es) {string}.")
     public void iShouldReceiveTheSearchResultsContainingOrderAndStatuses(String expectedQuantity, String statuses) {
-        var orderList = context.getOrderList();
-        Assert.assertEquals(Integer.parseInt(expectedQuantity), orderList.size());
+        var ordersPage = context.getOrdersPage();
+        Assert.assertEquals(Integer.parseInt(expectedQuantity), ordersPage.content().size());
         var statusesList = testUtils.getCommaSeparatedList(statuses);
         Arrays.stream(statusesList).toList().forEach(status -> {
-            Assert.assertTrue(orderList.stream().anyMatch(order -> order.get("orderStatus").toString().equals(status)));
+            Assert.assertTrue(ordersPage.content().stream().anyMatch(order -> order.get("orderStatus").asText().equals(status)));
         });
     }
 

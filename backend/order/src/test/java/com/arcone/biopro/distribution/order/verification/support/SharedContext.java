@@ -1,5 +1,7 @@
 package com.arcone.biopro.distribution.order.verification.support;
 
+import com.arcone.biopro.distribution.order.adapter.in.web.dto.PageDTO;
+import com.fasterxml.jackson.databind.JsonNode;
 import io.cucumber.spring.ScenarioScope;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -35,7 +37,7 @@ public class SharedContext {
     private Integer orderId;
     private String orderStatus;
     private Map orderDetails;
-    private List<Map> orderList;
+    private PageDTO<JsonNode> ordersPage;
 
     // LK configurations
     private boolean backOrderConfig;
