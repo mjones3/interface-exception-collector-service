@@ -1,8 +1,8 @@
 package com.arcone.biopro.distribution.eventbridge.infrastructure.listener;
 
-import com.arcone.biopro.distribution.eventbridge.application.dto.ShipmentCompletedEventDTO;
-import com.arcone.biopro.distribution.eventbridge.application.dto.ShipmentCompletedPayload;
-import com.arcone.biopro.distribution.eventbridge.domain.service.ShipmentCompletedService;
+import com.arcone.biopro.distribution.eventbridge.application.dto.InventoryUpdatedEventDTO;
+import com.arcone.biopro.distribution.eventbridge.application.dto.InventoryUpdatedPayload;
+import com.arcone.biopro.distribution.eventbridge.domain.service.InventoryUpdatedService;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.config.KafkaConfiguration;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.service.SchemaValidationService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -26,40 +26,40 @@ import java.time.Duration;
 @Service
 @Slf4j
 @Profile("prod")
-public class ShipmentCompletedListener extends AbstractKafkaListener {
+public class InventoryUpdatedListener extends AbstractKafkaListener {
 
-    private static final String SHIPMENT_COMPLETED_SCHEMA = "schema/shipment-completed.json";
+    private static final String INVENTORY_UPDATED_SCHEMA = "schema/inventory-updated.json";
     private final ObjectMapper objectMapper;
-    private final ShipmentCompletedService shipmentCompletedService;
+    private final InventoryUpdatedService inventoryUpdatedService;
     private final SchemaValidationService schemaValidationService;
 
-    public ShipmentCompletedListener(
-            @Qualifier(KafkaConfiguration.SHIPMENT_COMPLETED_CONSUMER) ReactiveKafkaConsumerTemplate<String, String> consumer
+    public InventoryUpdatedListener(
+            @Qualifier(KafkaConfiguration.INVENTORY_UPDATED_CONSUMER) ReactiveKafkaConsumerTemplate<String, String> consumer
             , ObjectMapper objectMapper
-            , ShipmentCompletedService shipmentCompletedService
+            , InventoryUpdatedService inventoryUpdatedService
             , @Qualifier(KafkaConfiguration.DLQ_PRODUCER) ReactiveKafkaProducerTemplate<String, String> producerTemplate
-            , @Value("${topics.shipment.shipment-completed.topic-name:ShipmentCompleted}") String topicName , SchemaValidationService schemaValidationService) {
+            , @Value("${topics.inventory.inventory-updated.topic-name:InventoryUpdated}") String topicName , SchemaValidationService schemaValidationService) {
 
         super(consumer, objectMapper, producerTemplate, topicName);
         this.objectMapper = objectMapper;
-        this.shipmentCompletedService = shipmentCompletedService;
+        this.inventoryUpdatedService = inventoryUpdatedService;
         this.schemaValidationService = schemaValidationService;
 
     }
 
     @AsyncListener(operation = @AsyncOperation(
-        channelName = "ShipmentCompleted",
-       description = "Shipment Completed received event",
-       payloadType = ShipmentCompletedEventDTO.class
+        channelName = "InventoryUpdated",
+        description = "Inventory Updated received event",
+        payloadType = InventoryUpdatedEventDTO.class
     ))
     @KafkaAsyncOperationBinding
     @Override
     protected Mono<ReceiverRecord<String, String>> handleMessage(ReceiverRecord<String, String> event) {
         try {
-            var message = objectMapper.readValue(event.value(), ShipmentCompletedEventDTO.class);
-            return schemaValidationService.validateSchema(event.value(), SHIPMENT_COMPLETED_SCHEMA)
-                .then(Mono.defer(() -> shipmentCompletedService
-                            .processCompletedShipmentEvent(message.payload())))
+            var message = objectMapper.readValue(event.value(), InventoryUpdatedEventDTO.class);
+            return schemaValidationService.validateSchema(event.value(), INVENTORY_UPDATED_SCHEMA)
+                .then(Mono.defer(() -> inventoryUpdatedService
+                            .processInventoryUpdatedEvent(message.payload())))
                 .then(Mono.just(event))
                     .retryWhen(Retry
                             .fixedDelay(3, Duration.ofSeconds(60))
@@ -76,7 +76,7 @@ public class ShipmentCompletedListener extends AbstractKafkaListener {
 
         } catch (JsonProcessingException e) {
             log.error(String.format("Problem deserializing an instance of [%s] " +
-                    "with the following json: %s ", ShipmentCompletedPayload.class.getSimpleName(), event), e);
+                    "with the following json: %s ", InventoryUpdatedPayload.class.getSimpleName(), event), e);
             sendToDlq(event.value(), e.getMessage());
             return Mono.error(new RuntimeException(e));
         }

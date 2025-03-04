@@ -10,12 +10,12 @@ import java.util.UUID;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 @Schema(
-    name = "ShipmentCompleted",
-    title = "ShipmentCompleted",
-    description = "Shipment Completed Event"
+    name = "InventoryUpdated",
+    title = "InventoryUpdated",
+    description = "Inventory Updated Event"
 )
 @Builder
-public record ShipmentCompletedEventDTO(
+public record InventoryUpdatedEventDTO(
     @Schema(
         name = "eventId",
         title = "Event Id",
@@ -47,17 +47,17 @@ public record ShipmentCompletedEventDTO(
         name = "eventType",
         title = "Event Type",
         description = "The event type",
-        example = "ShipmentCompleted",
+        example = "InventoryUpdated",
         requiredMode = REQUIRED
     )
     String eventType,
 
     @Schema(
         name = "payload",
-        title = "payload",
+        title = "Payload",
         description = "The event payload",
         requiredMode = REQUIRED
     )
-    ShipmentCompletedPayload payload
+    InventoryUpdatedPayload payload
 ) implements Serializable {
 }

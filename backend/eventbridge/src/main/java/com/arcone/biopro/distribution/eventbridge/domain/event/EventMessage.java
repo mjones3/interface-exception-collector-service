@@ -1,21 +1,20 @@
-package com.arcone.biopro.distribution.eventbridge.application.dto;
+package com.arcone.biopro.distribution.eventbridge.domain.event;
+
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
 
-import java.io.Serializable;
-import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 @Schema(
-    name = "ShipmentCompleted",
-    title = "ShipmentCompleted",
-    description = "Shipment Completed Event"
+    name = "EventMessage",
+    title = "Event message",
+    description = "Produced event message",
+    example = "InventoryUpdatedOutbound"
 )
-@Builder
-public record ShipmentCompletedEventDTO(
+public record EventMessage<T>(
     @Schema(
         name = "eventId",
         title = "Event Id",
@@ -32,7 +31,16 @@ public record ShipmentCompletedEventDTO(
         example = "2024-10-03T15:44:42.328353258Z",
         requiredMode = REQUIRED
     )
-    Instant occurredOn,
+    ZonedDateTime occurredOn,
+
+    @Schema(
+        name = "eventType",
+        title = "Event Type",
+        description = "The event type",
+        example = "InventoryUpdatedOutbound",
+        requiredMode = REQUIRED
+    )
+    String eventType,
 
     @Schema(
         name = "eventVersion",
@@ -44,20 +52,14 @@ public record ShipmentCompletedEventDTO(
     String eventVersion,
 
     @Schema(
-        name = "eventType",
-        title = "Event Type",
-        description = "The event type",
-        example = "ShipmentCompleted",
-        requiredMode = REQUIRED
-    )
-    String eventType,
-
-    @Schema(
         name = "payload",
-        title = "payload",
+        title = "Payload",
         description = "The event payload",
         requiredMode = REQUIRED
     )
-    ShipmentCompletedPayload payload
-) implements Serializable {
+    T payload
+) {
+    public EventMessage(String eventType, String eventVersion, T payload) {
+        this(UUID.randomUUID(), ZonedDateTime.now(), eventType, eventVersion, payload);
+    }
 }
