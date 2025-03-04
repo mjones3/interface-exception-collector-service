@@ -193,6 +193,18 @@ export class RsaValidators {
         };
     }
 
+    static scannedValidator(): ValidatorFn {
+        return (control: AbstractControl): ValidationErrors | null => {
+            if (!control.value) {
+                return null;
+            }
+            const scannedValue = control.value && control.value.startsWith('=');
+            if (scannedValue) {
+                return { scannedValue: { value: control.value } };
+            }
+        };
+    }
+
     static manualEntryValidatorForProductCode(): ValidatorFn {
         return (control: AbstractControl): ValidationErrors | null => {
             if (!control.value) {
@@ -209,9 +221,7 @@ export class RsaValidators {
     }
 
     static futureDateValidator(control: FormControl): ValidatorFn {
-        return (
-            control: AbstractControl
-        ): Record<string, any> | null => {
+        return (control: AbstractControl): Record<string, any> | null => {
             const inputDate = new Date(control.value);
             const today = new Date();
             return inputDate > today

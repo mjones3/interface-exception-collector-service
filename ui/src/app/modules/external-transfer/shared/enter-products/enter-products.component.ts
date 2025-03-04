@@ -17,6 +17,7 @@ import {
     Validators,
 } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
+import { RsaValidators } from '@shared';
 import { UppercaseDirective } from 'app/shared/directive/uppercase/uppercase.directive';
 import { commonRegex } from 'app/shared/utils/utils';
 import { Subscription, combineLatestWith, debounceTime, filter } from 'rxjs';
@@ -60,6 +61,7 @@ export class EnterProductsComponent implements OnDestroy, AfterViewInit {
                 [
                     Validators.required,
                     Validators.pattern(commonRegex.unitNumber),
+                    RsaValidators.scannedValidator(),
                 ],
             ],
             productCode: [
@@ -67,6 +69,7 @@ export class EnterProductsComponent implements OnDestroy, AfterViewInit {
                 [
                     Validators.required,
                     Validators.pattern(commonRegex.productCode),
+                    RsaValidators.scannedValidator(),
                 ],
             ],
         });
@@ -116,8 +119,9 @@ export class EnterProductsComponent implements OnDestroy, AfterViewInit {
     }
 
     resetProductGroup(): void {
+        if (document.activeElement instanceof HTMLElement) {
+            document.activeElement.blur();
+        }
         this.productGroup.reset();
-        this.productGroup.markAsUntouched();
-        this.productGroup.markAsPristine();
     }
 }

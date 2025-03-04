@@ -155,14 +155,6 @@
                                     >{{ addedProductsComputed().length }}</span
                                 >)
                             </div>
-                            <div>
-                                @if (selectedProducts.length > 0) {
-                                    <span class="text-lg text-gray-400"
-                                        >{{ selectedProducts.length }}
-                                        selected
-                                    </span>
-                                }
-                            </div>
                         </div>
                     </div>
                     <mat-divider></mat-divider>
@@ -177,8 +169,7 @@
                                 [unitNumber]="option.unitNumber"
                                 [productName]="option.productCode"
                                 [iconName]="getIcon(option.productFamily)"
-                                [active]="selectedProducts.includes(option)"
-                                (clickEvent)="toggleProduct(option)"
+                                [disableActive]="false"
                             ></biopro-unit-number-card>
                         }
                     </div>

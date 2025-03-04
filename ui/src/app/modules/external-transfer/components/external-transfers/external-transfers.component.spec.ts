@@ -182,23 +182,6 @@ describe('ExternalTransfersComponent', () => {
         expect(service.verifyExternalTransferItem).toHaveBeenCalled();
     });
 
-    it('should increment selected product card length', () => {
-        component.selectedProducts = [];
-        component.toggleProduct(addedProductsMockData);
-        fixture.detectChanges();
-        expect(component.selectedProducts.length).toBe(1);
-    });
-
-    it('should decrement selected units card length from selectedProducts', () => {
-        component.selectedProducts = [];
-        component.toggleProduct(addedProductsMockData);
-        fixture.detectChanges();
-        expect(component.selectedProducts.length).toBe(1);
-        component.toggleProduct(addedProductsMockData);
-        fixture.detectChanges();
-        expect(component.selectedProducts.length).toBe(0);
-    });
-
     it('should display toaster with caution if the product has not been shipped', () => {
         jest.spyOn(service, 'verifyExternalTransferItem').mockReturnValue(
             of<
