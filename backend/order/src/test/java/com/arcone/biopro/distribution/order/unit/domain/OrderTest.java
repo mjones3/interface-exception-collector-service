@@ -4,9 +4,13 @@ import com.arcone.biopro.distribution.order.domain.exception.DomainException;
 import com.arcone.biopro.distribution.order.domain.model.CancelOrderCommand;
 import com.arcone.biopro.distribution.order.domain.model.CompleteOrderCommand;
 import com.arcone.biopro.distribution.order.domain.model.Lookup;
+import com.arcone.biopro.distribution.order.domain.model.ModifyOrderCommand;
+import com.arcone.biopro.distribution.order.domain.model.ModifyOrderItem;
 import com.arcone.biopro.distribution.order.domain.model.Order;
 import com.arcone.biopro.distribution.order.domain.model.OrderShipment;
 import com.arcone.biopro.distribution.order.domain.model.vo.LookupId;
+import com.arcone.biopro.distribution.order.domain.model.vo.ModifyByProcess;
+import com.arcone.biopro.distribution.order.domain.model.vo.OrderStatus;
 import com.arcone.biopro.distribution.order.domain.repository.OrderRepository;
 import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
@@ -24,10 +28,14 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import static java.lang.Boolean.TRUE;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -602,6 +610,262 @@ class OrderTest {
         Assertions.assertEquals("employee-id",response.getCancelEmployeeId());
         Assertions.assertTrue(response.isBackOrder());
         Assertions.assertEquals("CANCELLED",response.getOrderStatus().getOrderStatus());
+
+    }
+
+    @Test
+    public void shouldNotModifyWhenModifyReasonIsMissing(){
+
+        Mockito.when(lookupService.findAllByType(Mockito.anyString())).thenReturn(Flux.just(new Lookup(new LookupId("OPEN","OPEN"),"description",1,true)
+            , new Lookup(new LookupId("COMPLETED","COMPLETED"),"description",2,true)));
+
+        Mockito.when(orderConfigService.findBackOrderConfiguration()).thenReturn(Mono.just(TRUE));
+
+        var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
+            , "OPEN", "OPEN", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
+            , null, null, "COMPLETED", null, "COMPLETED", "OPEN", "CREATE_EMPLOYEE"
+            , null, null, null);
+
+
+        try{
+            order.modify(ModifyOrderCommand.builder()
+                .build(), Collections.emptyList() , customerService , lookupService , orderConfigService );
+            Assertions.fail();
+        }catch (IllegalArgumentException e){
+            Assertions.assertEquals("Modify Reason cannot be null or empty",e.getMessage());
+        }
+
+    }
+
+    @Test
+    public void shouldNotModifyWhenModifyDateIsMissing(){
+
+        Mockito.when(lookupService.findAllByType(Mockito.anyString())).thenReturn(Flux.just(new Lookup(new LookupId("OPEN","OPEN"),"description",1,true)
+            , new Lookup(new LookupId("COMPLETED","COMPLETED"),"description",2,true)));
+
+        Mockito.when(orderConfigService.findBackOrderConfiguration()).thenReturn(Mono.just(TRUE));
+
+        var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
+            , "OPEN", "OPEN", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
+            , null, null, "COMPLETED", null, "COMPLETED", "OPEN", "CREATE_EMPLOYEE"
+            , null, null, null);
+
+
+        try{
+            order.modify(ModifyOrderCommand.builder()
+                    .modifyReason("Reason")
+                .build(), Collections.emptyList() , customerService , lookupService , orderConfigService );
+            Assertions.fail();
+        }catch (IllegalArgumentException e){
+            Assertions.assertEquals("Modify Date cannot be null or empty",e.getMessage());
+        }
+
+    }
+
+    @Test
+    public void shouldNotModifyWhenModifyDateIsInvalid(){
+
+        Mockito.when(lookupService.findAllByType(Mockito.anyString())).thenReturn(Flux.just(new Lookup(new LookupId("OPEN","OPEN"),"description",1,true)
+            , new Lookup(new LookupId("COMPLETED","COMPLETED"),"description",2,true)));
+
+        Mockito.when(orderConfigService.findBackOrderConfiguration()).thenReturn(Mono.just(TRUE));
+
+        var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
+            , "OPEN", "OPEN", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
+            , null, null, "COMPLETED", null, "COMPLETED", "OPEN", "CREATE_EMPLOYEE"
+            , null, null, null);
+
+
+        try{
+            order.modify(ModifyOrderCommand.builder()
+                .modifyReason("Reason")
+                    .modifyDate("INVALID_DATE")
+                .build(), Collections.emptyList() , customerService , lookupService , orderConfigService );
+            Assertions.fail();
+        }catch (IllegalArgumentException e){
+            Assertions.assertEquals("Modify Date is not a valid date",e.getMessage());
+        }
+
+    }
+
+    @Test
+    public void shouldNotModifyWhenModifyDateIsInFuture(){
+
+        Mockito.when(lookupService.findAllByType(Mockito.anyString())).thenReturn(Flux.just(new Lookup(new LookupId("OPEN","OPEN"),"description",1,true)
+            , new Lookup(new LookupId("COMPLETED","COMPLETED"),"description",2,true)));
+
+        Mockito.when(orderConfigService.findBackOrderConfiguration()).thenReturn(Mono.just(TRUE));
+
+        var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
+            , "OPEN", "OPEN", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
+            , null, null, "COMPLETED", null, "COMPLETED", "OPEN", "CREATE_EMPLOYEE"
+            , null, null, null);
+
+
+        try{
+            order.modify(ModifyOrderCommand.builder()
+                .modifyReason("Reason")
+                .modifyDate(LocalDateTime.now().plusDays(2).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                .build(), Collections.emptyList() , customerService , lookupService , orderConfigService );
+            Assertions.fail();
+        }catch (IllegalArgumentException e){
+            Assertions.assertEquals("Modify Date cannot be in the future",e.getMessage());
+        }
+
+    }
+
+    @Test
+    public void shouldNotModifyWhenThereIsNoOrderTobeModify(){
+
+        Mockito.when(lookupService.findAllByType(Mockito.anyString())).thenReturn(Flux.just(new Lookup(new LookupId("OPEN","OPEN"),"description",1,true)
+            , new Lookup(new LookupId("COMPLETED","COMPLETED"),"description",2,true)));
+
+        Mockito.when(orderConfigService.findBackOrderConfiguration()).thenReturn(Mono.just(TRUE));
+
+        var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
+            , "OPEN", "OPEN", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
+            , null, null, "COMPLETED", null, "COMPLETED", "OPEN", "CREATE_EMPLOYEE"
+            , null, null, null);
+
+
+        try{
+            order.modify(ModifyOrderCommand.builder()
+                .modifyReason("Reason")
+                .modifyDate(LocalDateTime.now().minusDays(2).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                .build(), Collections.emptyList() , customerService , lookupService , orderConfigService );
+            Assertions.fail();
+        }catch (Exception e){
+            Assertions.assertEquals(DomainException.class,e.getClass());
+            Assertions.assertEquals("There is no open order to be updated",((DomainException) e).getUseCaseMessageType().getMessage());
+        }
+    }
+
+    @Test
+    public void shouldNotModifyWhenBackOrder(){
+
+        Mockito.when(lookupService.findAllByType(Mockito.anyString())).thenReturn(Flux.just(new Lookup(new LookupId("OPEN","OPEN"),"description",1,true)
+            , new Lookup(new LookupId("COMPLETED","COMPLETED"),"description",2,true)));
+
+        Mockito.when(orderConfigService.findBackOrderConfiguration()).thenReturn(Mono.just(TRUE));
+
+        var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
+            , "OPEN", "OPEN", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
+            , null, null, "COMPLETED", null, "COMPLETED", "OPEN", "CREATE_EMPLOYEE"
+            , null, null, null);
+
+
+        try{
+            order.modify(ModifyOrderCommand.builder()
+                .modifyReason("Reason")
+                .modifyDate(LocalDateTime.now().minusDays(2).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                .build(), List.of(Mockito.mock(Order.class),Mockito.mock(Order.class)) , customerService , lookupService , orderConfigService );
+            Assertions.fail();
+        }catch (Exception e){
+            Assertions.assertEquals(DomainException.class,e.getClass());
+            Assertions.assertEquals("Back Orders cannot be updated",((DomainException) e).getUseCaseMessageType().getMessage());
+        }
+    }
+
+    @Test
+    public void shouldNotModifyWhenOrderItemsEmpty(){
+
+        Mockito.when(lookupService.findAllByType(Mockito.anyString())).thenReturn(Flux.just(new Lookup(new LookupId("OPEN","OPEN"),"description",1,true)
+            , new Lookup(new LookupId("COMPLETED","COMPLETED"),"description",2,true)));
+
+        Mockito.when(orderConfigService.findBackOrderConfiguration()).thenReturn(Mono.just(TRUE));
+
+        var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
+            , "OPEN", "OPEN", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
+            , null, null, "COMPLETED", null, "COMPLETED", "OPEN", "CREATE_EMPLOYEE"
+            , null, null, null);
+
+        try{
+            order.modify(ModifyOrderCommand.builder()
+                .modifyReason("Reason")
+                .modifyDate(LocalDateTime.now().minusDays(2).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                .build(), List.of(Mockito.mock(Order.class)) , customerService , lookupService , orderConfigService );
+            Assertions.fail();
+        }catch (IllegalArgumentException e){
+            Assertions.assertEquals("Order Items cannot be null or empty",e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldNotModifyWhenOrderIsNotOpen(){
+
+        Mockito.when(lookupService.findAllByType(Mockito.anyString())).thenReturn(Flux.just(new Lookup(new LookupId("OPEN","OPEN"),"description",1,true)
+            , new Lookup(new LookupId("COMPLETED","COMPLETED"),"description",2,true)));
+
+        Mockito.when(orderConfigService.findBackOrderConfiguration()).thenReturn(Mono.just(TRUE));
+
+        var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
+            , "OPEN", "OPEN", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
+            , null, null, "COMPLETED", null, "COMPLETED", "OPEN", "CREATE_EMPLOYEE"
+            , null, null, null);
+
+
+        var orderMock = Mockito.mock(Order.class);
+        var orderStatus = Mockito.mock(OrderStatus.class);
+
+        Mockito.when(orderStatus.getOrderStatus()).thenReturn("IN_PROGRESS");
+
+        Mockito.when(orderMock.getOrderStatus()).thenReturn(orderStatus);
+
+        try{
+            order.modify(ModifyOrderCommand.builder()
+                .modifyReason("Reason")
+                    .orderItems(List.of(ModifyOrderItem.builder().build()))
+                .modifyDate(LocalDateTime.now().minusDays(2).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                .build(), List.of(orderMock) , customerService , lookupService , orderConfigService );
+            Assertions.fail();
+        }catch (IllegalArgumentException e){
+            Assertions.assertEquals("Order is not open and cannot be modified",e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldModifyOrder(){
+
+        Mockito.when(lookupService.findAllByType(Mockito.anyString())).thenReturn(Flux.just(new Lookup(new LookupId("OPEN","OPEN"),"description",1,true)
+            , new Lookup(new LookupId("COMPLETED","COMPLETED"),"description",2,true)
+            , new Lookup(new LookupId("FAMILY","FAMILY"),"description",3,true)
+            , new Lookup(new LookupId("CATEGORY","CATEGORY"),"description",3,true)
+        ));
+
+        Mockito.when(orderConfigService.findBackOrderConfiguration()).thenReturn(Mono.just(TRUE));
+
+        Mockito.when(orderConfigService.findProductFamilyByCategory(Mockito.eq("CATEGORY"),Mockito.eq("FAMILY"))).thenReturn(Mono.just("TYPE"));
+        Mockito.when(orderConfigService.findBloodTypeByFamilyAndType(Mockito.eq("FAMILY"),Mockito.eq("TYPE"))).thenReturn(Mono.just("TYPE"));
+
+        var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
+            , "OPEN", "OPEN", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
+            , null, null, "COMPLETED", null, "OPEN", "OPEN", "CREATE_EMPLOYEE"
+            , null, null, null);
+
+
+        var orderModified =     order.modify(ModifyOrderCommand.builder()
+                .modifyReason("Reason")
+                .modifyEmployeeCode("EMPLOYEE_CODE")
+                .shippingMethod("OPEN")
+                .productCategory("CATEGORY")
+                .locationCode("new_location")
+                .modifyByProcess(ModifyByProcess.INTERFACE)
+                .orderItems(List.of(ModifyOrderItem
+                    .builder()
+                        .bloodType("TYPE")
+                        .comment("comment")
+                        .quantity(1)
+                        .productFamily("FAMILY")
+                    .build()))
+                .modifyDate(LocalDateTime.now().minusDays(2).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                .build(), List.of(order) , customerService , lookupService , orderConfigService );
+
+        Assertions.assertNotNull(orderModified);
+        Assertions.assertEquals("Reason",orderModified.getModifyReason());
+        Assertions.assertEquals("EMPLOYEE_CODE",orderModified.getModifyEmployeeId());
+        Assertions.assertEquals("INTERFACE",orderModified.getModifiedByProcess());
+        Assertions.assertNotNull(orderModified.getModificationDate());
+        Assertions.assertEquals(1,orderModified.getOrderItems().size());
 
     }
 }

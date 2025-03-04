@@ -25,6 +25,6 @@ public class ModifyOrderCommand {
     private boolean willPickUp;
     private String willPickUpPhoneNumber;
     private String comments;
-    private List<ModifyOrderItem> orderItem;
+    private List<ModifyOrderItem> orderItems;
 
 }

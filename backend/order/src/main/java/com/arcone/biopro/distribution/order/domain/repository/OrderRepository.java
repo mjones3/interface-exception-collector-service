@@ -19,6 +19,8 @@ public interface OrderRepository {
 
     Mono<Order> update(final Order order);
 
+    Mono<Order> reset(final Order order);
+
     Flux<Order> findByExternalId(final String externalId);
 
     Mono<Page<OrderReport>> search(OrderQueryCommand orderQueryCommand);

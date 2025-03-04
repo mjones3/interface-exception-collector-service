@@ -15,6 +15,7 @@ import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.domain.service.LookupService;
 import com.arcone.biopro.distribution.order.domain.service.OrderConfigService;
 import com.arcone.biopro.distribution.order.domain.service.OrderShipmentService;
+import com.nimbusds.openid.connect.sdk.op.OIDCProviderEndpointMetadata;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -24,6 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -93,6 +96,7 @@ public class Order implements Validatable {
     private static final String ORDER_SHIPMENT_OPEN_STATUS = "OPEN";
     private static final String ORDER_OPEN_STATUS = "OPEN";
     private static final String ORDER_CANCELLED_STATUS = "CANCELLED";
+    private static final String MODIFY_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     @Setter
     private String cancelEmployeeId;
@@ -368,7 +372,30 @@ public class Order implements Validatable {
 
     }
 
-    public Order modify(ModifyOrderCommand modifyOrderCommand,List<Order> orderList, CustomerService customerService , LookupService lookupService){
+    public Order modify(ModifyOrderCommand modifyOrderCommand,List<Order> orderList, CustomerService customerService , LookupService lookupService , OrderConfigService orderConfigService){
+
+        if (modifyOrderCommand.getModifyReason() == null || modifyOrderCommand.getModifyReason().isEmpty()) {
+            throw new IllegalArgumentException("Modify Reason cannot be null or empty");
+        }
+
+        if (modifyOrderCommand.getModifyDate() == null || modifyOrderCommand.getModifyDate().isEmpty()) {
+            throw new IllegalArgumentException("Modify Date cannot be null or empty");
+        }
+
+        try{
+            LocalDateTime.parse(modifyOrderCommand.getModifyDate(),DateTimeFormatter.ofPattern(MODIFY_DATE_FORMAT));
+        }catch (Exception e){
+            throw new IllegalArgumentException("Modify Date is not a valid date");
+        }
+
+        var currentDateTimeUtc = ZonedDateTime.now(ZoneId.of("UTC"));
+        var modifyDateTimeUtc = LocalDateTime.parse(modifyOrderCommand.getModifyDate(),DateTimeFormatter.ofPattern(MODIFY_DATE_FORMAT)).atZone(ZoneId.of("UTC"));
+
+        if(modifyDateTimeUtc.isAfter(currentDateTimeUtc)){
+            log.debug("Current Date Time {} , Modify Date Time {}", currentDateTimeUtc, modifyDateTimeUtc);
+            throw new IllegalArgumentException("Modify Date cannot be in the future");
+        }
+
 
         if(orderList == null || orderList.isEmpty()){
             throw new DomainException(NO_ORDER_TO_BE_MODIFIED);
@@ -378,34 +405,39 @@ public class Order implements Validatable {
             throw new DomainException(BACK_ORDER_CANNOT_BE_MODIFIED);
         }
 
+        if(modifyOrderCommand.getOrderItems() == null || modifyOrderCommand.getOrderItems().isEmpty()){
+            throw new IllegalArgumentException("Order Items cannot be null or empty");
+        }
+
         var orderToBeUpdated = orderList.getFirst();
 
-        //public Order(
-        //        CustomerService customerService,
-        //        LookupService lookupService,
-        //        Long id, -- cannot update
-        //        Long orderNumber, -- cannot update
-        //        String externalId, -- cannot update
-        //        String locationCode,
-        //        String shipmentType, -- cannot update
-        //        String shippingMethod,
-        //        String shippingCustomerCode, -- cannot update
-        //        String billingCustomerCode, -- cannot update
-        //        String desiredShippingDate,
-        //        Boolean willCallPickup,
-        //        String phoneNumber,
-        //        String productCategory,
-        //        String comments,
-        //        String orderStatus, -- cannot update
-        //        String orderPriority, -- cannot update
-        //        String createEmployeeId, -- cannot update
-        //        ZonedDateTime createDate, -- cannot update
-        //        ZonedDateTime modificationDate,
-        //        ZonedDateTime deleteDate
-        //    ) {
-        var updatedOrder = this(customerService,lookupService,orderToBeUpdated.getId(), orderToBeUpdated.getOrderNumber(), orderToBeUpdated.getOrderExternalId().getOrderExternalId(),
+
+        if(!ORDER_OPEN_STATUS.equals(orderToBeUpdated.getOrderStatus().getOrderStatus())){
+            throw new IllegalArgumentException("Order is not open and cannot be modified");
+        }
+
+        var updatedOrder = new Order(customerService,lookupService,orderToBeUpdated.getId(), orderToBeUpdated.getOrderNumber().getOrderNumber(), orderToBeUpdated.getOrderExternalId().getOrderExternalId()
+            , modifyOrderCommand.getLocationCode() , orderToBeUpdated.getShipmentType().getShipmentType() , modifyOrderCommand.getShippingMethod()
+            , orderToBeUpdated.getShippingCustomer().getCode() , orderToBeUpdated.getBillingCustomer().getCode() , modifyOrderCommand.getDesiredShippingDate()
+            , modifyOrderCommand.isWillPickUp() , modifyOrderCommand.getWillPickUpPhoneNumber() , modifyOrderCommand.getProductCategory() , modifyOrderCommand.getComments()
+            , orderToBeUpdated.getOrderStatus().getOrderStatus() , orderToBeUpdated.getOrderPriority().getDeliveryType(),  orderToBeUpdated.getCreateEmployeeId()
+            , orderToBeUpdated.getCreateDate() , ZonedDateTime.now(), null
 
         );
+
+        updatedOrder.setModifyReason(modifyOrderCommand.getModifyReason());
+        updatedOrder.setModifiedByProcess(modifyOrderCommand.getModifyByProcess().name());
+        updatedOrder.setModifyEmployeeId(modifyOrderCommand.getModifyEmployeeCode());
+
+        ofNullable(modifyOrderCommand.getOrderItems())
+            .filter(orderItems -> !orderItems.isEmpty())
+            .orElseGet(Collections::emptyList)
+            .forEach(orderItemEntity -> updatedOrder.addItem(null
+                    , orderItemEntity.getProductFamily(), orderItemEntity.getBloodType()
+                    , orderItemEntity.getQuantity(),0, orderItemEntity.getComment(), ZonedDateTime.now()
+                    , ZonedDateTime.now(), orderConfigService
+                )
+            );
 
         return updatedOrder;
 
