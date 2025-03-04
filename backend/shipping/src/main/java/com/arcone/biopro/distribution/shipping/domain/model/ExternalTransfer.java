@@ -65,6 +65,10 @@ public class ExternalTransfer implements Validatable{
         if(currentProductLocation.isPresent()) {
             var productLocation = currentProductLocation.get();
 
+            if(productLocation.getCustomerTo().getCode().equals(this.customerTo.getCode())){
+                throw new DomainException(UseCaseMessageType.EXTERNAL_TRANSFER_LAST_SHIP_LOCATION__MATCHES_TRANSFER_TO_LOCATION);
+            }
+
             if(productLocation.getCreatedDate().toLocalDate().isAfter(this.transferDate)){
                 throw new DomainException(UseCaseMessageType.EXTERNAL_TRANSFER_DATE_BEFORE_SHIP_DATE);
             }
