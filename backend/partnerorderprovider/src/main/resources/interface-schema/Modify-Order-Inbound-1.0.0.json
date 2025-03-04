@@ -14,7 +14,7 @@
       "maxLength": 250
     },
     "modifyEmployeeCode": {
-      "type": "string",
+      "type": ["string","null"],
       "title": "Modify Employee Code",
       "maxLength": 50
     },
@@ -58,7 +58,6 @@
   },
   "required": [
     "locationCode",
-    "modifyEmployeeCode",
     "modifyReason",
     "productCategory",
     "modifyDate",

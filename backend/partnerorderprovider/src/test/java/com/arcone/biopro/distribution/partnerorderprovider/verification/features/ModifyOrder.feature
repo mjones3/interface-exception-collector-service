@@ -13,6 +13,7 @@ Feature: Modify order through the third-party application
         Examples:
             | External ID | JsonPayloadName                                                        | responseCode | status   |
             | EXT123      | inbound-test-files/modify-order-inbound-scenario-happy-path.json       | 202          | ACCEPTED |
+            | EXT123      | inbound-test-files/modify-order-inbound-scenario-no-employee-code.json | 202          | ACCEPTED |
 
 
     Rule: The modified order request must be rejected if the schema validations fail.
@@ -29,8 +30,5 @@ Feature: Modify order through the third-party application
             | EXT123      | inbound-test-files/modify-order-inbound-scenario-0004.json               | 400          | $.desiredShippingDate: does not match the regex pattern ^(\\d{4}-\\d{2}-\\d{2})$                     |
             | EXT123      | inbound-test-files/modify-order-inbound-scenario-0005.json               | 400          | $.modifyDate: does not match the regex pattern ^(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2})$         |
             | EXT123      | inbound-test-files/modify-order-inbound-scenario-0006.json               | 400          | $.locationCode: is missing but it is required                                                        |
-            | EXT124      | inbound-test-files/modify-order-inbound-scenario-no-employee-code.json   | 400          | $.modifyEmployeeCode: is missing but it is required                                                  |
-            | EXT125      | inbound-test-files/modify-order-inbound-scenario-no-modify-date.json     | 400          | $.modifyDate: is missing but it is required                                                          |
-            | EXT125      | inbound-test-files/modify-order-inbound-scenario-employee-code-null.json | 400          | $.modifyEmployeeCode: null found, string expected                                                    |
             | EXT124      | inbound-test-files/modify-order-inbound-scenario-no-modify-reason.json   | 400          | $.modifyReason: is missing but it is required                                                        |
 

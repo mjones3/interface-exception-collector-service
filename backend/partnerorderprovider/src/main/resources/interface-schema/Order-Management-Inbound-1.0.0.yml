@@ -174,7 +174,6 @@ components:
       required:
         - "locationCode"
         - "productCategory"
-        - "modifyEmployeeCode"
         - "modifyDate"
         - "orderItems"
         - "modifyReason"

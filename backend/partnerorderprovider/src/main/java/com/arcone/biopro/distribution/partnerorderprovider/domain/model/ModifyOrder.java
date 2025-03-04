@@ -33,7 +33,7 @@ public class ModifyOrder {
         this.externalId = Objects.requireNonNull(externalId,"External ID cannot be null");
         this.locationCode = Objects.requireNonNull(locationCode,"Location Code cannot be null");
         this.modifyDate = Objects.requireNonNull(modifyDate,"Modify Date cannot be null");
-        this.modifyEmployeeCode = Objects.requireNonNull(modifyEmployeeCode,"Modify Employee code cannot be null");;
+        this.modifyEmployeeCode = modifyEmployeeCode;
         this.modifyReason = Objects.requireNonNull(modifyReason,"Modify Reason cannot be null");;
         this.deliveryType = Objects.requireNonNull(deliveryType,"Delivery Type cannot be null");
         this.shippingMethod = Objects.requireNonNull(shippingMethod,"Shipping Method cannot be null");
