@@ -4,7 +4,7 @@ import com.arcone.biopro.distribution.eventbridge.application.dto.ShipmentComple
 import com.arcone.biopro.distribution.eventbridge.application.dto.ShipmentCompletedPayload;
 import com.arcone.biopro.distribution.eventbridge.domain.service.ShipmentCompletedService;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.listener.ShipmentCompletedListener;
-import com.arcone.biopro.distribution.eventbridge.infrastructure.service.SchemaValidationShipmentCompletedService;
+import com.arcone.biopro.distribution.eventbridge.infrastructure.service.SchemaValidationService;
 import com.arcone.biopro.distribution.eventbridge.unit.util.TestUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -26,7 +26,7 @@ class ShipmentCompletedListenerTest {
 
     private ReactiveKafkaConsumerTemplate<String, String> consumer;
     private ReactiveKafkaProducerTemplate<String, String> producerTemplate;
-    private SchemaValidationShipmentCompletedService schemaValidationService;
+    private SchemaValidationService schemaValidationService;
     private ObjectMapper objectMapper;
     private ReceiverRecord<String, String> receiverRecord;
     private ShipmentCompletedService shipmentCompletedService;
@@ -37,7 +37,7 @@ class ShipmentCompletedListenerTest {
         consumer = Mockito.mock(ReactiveKafkaConsumerTemplate.class);
         producerTemplate = Mockito.mock(ReactiveKafkaProducerTemplate.class);
         objectMapper = new ObjectMapper();
-        schemaValidationService = new SchemaValidationShipmentCompletedService(objectMapper);
+        schemaValidationService = new SchemaValidationService(objectMapper);
         objectMapper.registerModule(new JavaTimeModule());
         receiverRecord = Mockito.mock(ReceiverRecord.class);
         shipmentCompletedService = Mockito.mock(ShipmentCompletedService.class);

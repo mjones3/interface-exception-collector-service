@@ -1,16 +1,10 @@
 package com.arcone.biopro.distribution.eventbridge.unit.domain.model;
 
 import com.arcone.biopro.distribution.eventbridge.domain.model.InventoryUpdatedOutbound;
-import com.arcone.biopro.distribution.eventbridge.domain.model.ShipmentCompletedOutbound;
-import com.arcone.biopro.distribution.eventbridge.domain.model.ShipmentLineItem;
-import com.arcone.biopro.distribution.eventbridge.domain.model.vo.ShipmentCustomer;
-import com.arcone.biopro.distribution.eventbridge.domain.model.vo.ShipmentLocation;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 

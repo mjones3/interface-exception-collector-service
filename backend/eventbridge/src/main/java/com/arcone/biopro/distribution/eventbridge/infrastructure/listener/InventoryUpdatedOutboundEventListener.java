@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.eventbridge.infrastructure.listener;
 
+import com.arcone.biopro.distribution.eventbridge.domain.event.EventMessage;
 import com.arcone.biopro.distribution.eventbridge.domain.event.InventoryUpdatedOutboundEvent;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.config.KafkaConfiguration;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.dto.InventoryUpdatedOutboundPayload;
@@ -18,12 +19,12 @@ import org.springframework.stereotype.Service;
 @Profile("prod")
 public class InventoryUpdatedOutboundEventListener {
 
-    private final ReactiveKafkaProducerTemplate<String, InventoryUpdatedOutboundPayload> producerTemplate;
+    private final ReactiveKafkaProducerTemplate<String, EventMessage<InventoryUpdatedOutboundPayload>> producerTemplate;
     private final String topicName;
     private final InventoryUpdatedOutboundMapper inventoryUpdatedOutboundMapper;
 
     public InventoryUpdatedOutboundEventListener(@Qualifier(KafkaConfiguration.INVENTORY_UPDATED_OUTBOUND_PRODUCER)
-                                     ReactiveKafkaProducerTemplate<String, InventoryUpdatedOutboundPayload> producerTemplate,
+                                     ReactiveKafkaProducerTemplate<String, EventMessage<InventoryUpdatedOutboundPayload>> producerTemplate,
                                                  @Value("${topics.inventory.inventory-updated-outbound.topic-name:InventoryUpdatedOutbound}") String topicName
     , InventoryUpdatedOutboundMapper inventoryUpdatedOutboundMapper) {
         this.producerTemplate = producerTemplate;
@@ -31,17 +32,21 @@ public class InventoryUpdatedOutboundEventListener {
         this.inventoryUpdatedOutboundMapper = inventoryUpdatedOutboundMapper;
     }
 
-
     @EventListener
     public void handleInventoryUpdatedOutboundEvent(InventoryUpdatedOutboundEvent event) {
         log.debug("Inventory Updated Outbound event trigger Event ID {}", event.getEventId());
 
-        var message = inventoryUpdatedOutboundMapper.toDto(event.getPayload());
+        var message = new EventMessage<>("InventoryUpdatedOutbound","1.0",inventoryUpdatedOutboundMapper.toDto(event.getPayload()));
 
         var producerRecord = new ProducerRecord<>(topicName, String.format("%s", event.getEventId()), message);
         producerTemplate.send(producerRecord)
-            .log()
-            .subscribe();
+                .doOnError(e-> log.error("Send failed", e))
+                .doOnNext(senderResult -> log.info("Inventory Updated Outbound Message {}-{} (updateType {}). Event produced: {}",
+                        event.getPayload().getUnitNumber(),
+                        event.getPayload().getProductCode(),
+                        event.getPayload().getUpdateType(),
+                        senderResult.recordMetadata()))
+                .subscribe();
     }
 
 }

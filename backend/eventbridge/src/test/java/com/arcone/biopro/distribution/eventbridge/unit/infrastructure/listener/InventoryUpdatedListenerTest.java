@@ -4,7 +4,7 @@ import com.arcone.biopro.distribution.eventbridge.application.dto.InventoryUpdat
 import com.arcone.biopro.distribution.eventbridge.application.dto.InventoryUpdatedPayload;
 import com.arcone.biopro.distribution.eventbridge.domain.service.InventoryUpdatedService;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.listener.InventoryUpdatedListener;
-import com.arcone.biopro.distribution.eventbridge.infrastructure.service.SchemaValidationInventoryUpdatedService;
+import com.arcone.biopro.distribution.eventbridge.infrastructure.service.SchemaValidationService;
 import com.arcone.biopro.distribution.eventbridge.unit.util.TestUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -26,7 +26,7 @@ class InventoryUpdatedListenerTest {
 
     private ReactiveKafkaConsumerTemplate<String, String> consumer;
     private ReactiveKafkaProducerTemplate<String, String> producerTemplate;
-    private SchemaValidationInventoryUpdatedService schemaValidationService;
+    private SchemaValidationService schemaValidationService;
     private ObjectMapper objectMapper;
     private ReceiverRecord<String, String> receiverRecord;
     private InventoryUpdatedService inventoryUpdatedService;
@@ -37,7 +37,7 @@ class InventoryUpdatedListenerTest {
         consumer = Mockito.mock(ReactiveKafkaConsumerTemplate.class);
         producerTemplate = Mockito.mock(ReactiveKafkaProducerTemplate.class);
         objectMapper = new ObjectMapper();
-        schemaValidationService = new SchemaValidationInventoryUpdatedService(objectMapper);
+        schemaValidationService = new SchemaValidationService(objectMapper);
         objectMapper.registerModule(new JavaTimeModule());
         receiverRecord = Mockito.mock(ReceiverRecord.class);
         inventoryUpdatedService = Mockito.mock(InventoryUpdatedService.class);

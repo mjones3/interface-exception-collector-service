@@ -79,9 +79,8 @@
         "productCode",
         "productDescription",
         "productFamily",
-        "bloodType",
+        "expirationDate",
         "locationCode",
-        "storageLocation",
         "inventoryStatus"
       ]
     }

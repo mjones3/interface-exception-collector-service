@@ -82,8 +82,7 @@ public class InventoryUpdatedOutboundSteps {
 
         log.debug("Schema Errors {}",errors.toString());
         Assert.assertTrue(errors.isEmpty());
-
-        Assert.assertEquals(inventoryUpdatedOutboundContext.getUnitNumber(),inventoryUpdatedOutboundContext.getInventoryUpdatedOutbound().getString("unitNumber"));
-        Assert.assertEquals(inventoryUpdatedOutboundContext.getProductCode(),inventoryUpdatedOutboundContext.getInventoryUpdatedOutbound().getString("productCode"));
+        Assert.assertEquals(inventoryUpdatedOutboundContext.getUnitNumber(),new JSONObject(inventoryUpdatedOutboundContext.getInventoryUpdatedOutbound().getString("payload")).getString("unitNumber"));
+        Assert.assertEquals(inventoryUpdatedOutboundContext.getProductCode(),new JSONObject(inventoryUpdatedOutboundContext.getInventoryUpdatedOutbound().getString("payload")).getString("productCode"));
     }
 }

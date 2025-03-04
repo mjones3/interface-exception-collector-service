@@ -4,7 +4,7 @@ import com.arcone.biopro.distribution.eventbridge.application.dto.InventoryUpdat
 import com.arcone.biopro.distribution.eventbridge.application.dto.InventoryUpdatedPayload;
 import com.arcone.biopro.distribution.eventbridge.domain.service.InventoryUpdatedService;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.config.KafkaConfiguration;
-import com.arcone.biopro.distribution.eventbridge.infrastructure.service.SchemaValidationInventoryUpdatedService;
+import com.arcone.biopro.distribution.eventbridge.infrastructure.service.SchemaValidationService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -25,16 +25,17 @@ import java.time.Duration;
 @Profile("prod")
 public class InventoryUpdatedListener extends AbstractKafkaListener {
 
+    private static final String INVENTORY_UPDATED_SCHEMA = "schema/inventory-updated.json";
     private final ObjectMapper objectMapper;
     private final InventoryUpdatedService inventoryUpdatedService;
-    private final SchemaValidationInventoryUpdatedService schemaValidationService;
+    private final SchemaValidationService schemaValidationService;
 
     public InventoryUpdatedListener(
             @Qualifier(KafkaConfiguration.INVENTORY_UPDATED_CONSUMER) ReactiveKafkaConsumerTemplate<String, String> consumer
             , ObjectMapper objectMapper
             , InventoryUpdatedService inventoryUpdatedService
             , @Qualifier(KafkaConfiguration.DLQ_PRODUCER) ReactiveKafkaProducerTemplate<String, String> producerTemplate
-            , @Value("${topics.inventory.inventory-updated.topic-name:InventoryUpdated}") String topicName , SchemaValidationInventoryUpdatedService schemaValidationService) {
+            , @Value("${topics.inventory.inventory-updated.topic-name:InventoryUpdated}") String topicName , SchemaValidationService schemaValidationService) {
 
         super(consumer, objectMapper, producerTemplate, topicName);
         this.objectMapper = objectMapper;
@@ -47,7 +48,7 @@ public class InventoryUpdatedListener extends AbstractKafkaListener {
     protected Mono<ReceiverRecord<String, String>> handleMessage(ReceiverRecord<String, String> event) {
         try {
             var message = objectMapper.readValue(event.value(), InventoryUpdatedEventDTO.class);
-            return schemaValidationService.validateInventoryUpdatedSchema(event.value())
+            return schemaValidationService.validateSchema(event.value(), INVENTORY_UPDATED_SCHEMA)
                 .then(Mono.defer(() -> inventoryUpdatedService
                             .processInventoryUpdatedEvent(message.payload())))
                 .then(Mono.just(event))

@@ -1,21 +1,12 @@
 package com.arcone.biopro.distribution.eventbridge.unit.infrastructure.mapper;
 
 import com.arcone.biopro.distribution.eventbridge.domain.model.InventoryUpdatedOutbound;
-import com.arcone.biopro.distribution.eventbridge.domain.model.ShipmentCompletedOutbound;
-import com.arcone.biopro.distribution.eventbridge.domain.model.ShipmentLineItem;
-import com.arcone.biopro.distribution.eventbridge.domain.model.ShipmentLineItemProduct;
-import com.arcone.biopro.distribution.eventbridge.domain.model.vo.ShipmentCustomer;
-import com.arcone.biopro.distribution.eventbridge.domain.model.vo.ShipmentLocation;
-import com.arcone.biopro.distribution.eventbridge.domain.model.vo.ShipmentService;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.mapper.InventoryUpdatedOutboundMapper;
-import com.arcone.biopro.distribution.eventbridge.infrastructure.mapper.ShipmentCompletedOutboundMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 

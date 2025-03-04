@@ -1,14 +1,13 @@
 package com.arcone.biopro.distribution.eventbridge.infrastructure.config;
 
+import com.arcone.biopro.distribution.eventbridge.domain.event.EventMessage;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.dto.InventoryUpdatedOutboundPayload;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.dto.ShipmentCompletedOutboundPayload;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.opentelemetry.instrumentation.kafkaclients.v2_6.TracingProducerInterceptor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.producer.ProducerConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
@@ -131,11 +130,11 @@ public class KafkaConfiguration {
     }
 
     @Bean
-    SenderOptions<String, InventoryUpdatedOutboundPayload> senderOptionsInventoryUpdatedOutbound(
+    SenderOptions<String, EventMessage<InventoryUpdatedOutboundPayload>> senderOptionsInventoryUpdatedOutbound(
         KafkaProperties kafkaProperties,
         ObjectMapper objectMapper) {
         var props = kafkaProperties.buildProducerProperties(null);
-        return SenderOptions.<String, InventoryUpdatedOutboundPayload>create(props)
+        return SenderOptions.<String, EventMessage<InventoryUpdatedOutboundPayload>>create(props)
             .withValueSerializer(new JsonSerializer<>(objectMapper))
             .maxInFlight(1); // to keep ordering, prevent duplicate messages (and avoid data loss)
     }
@@ -153,8 +152,8 @@ public class KafkaConfiguration {
     }
 
     @Bean(name = INVENTORY_UPDATED_OUTBOUND_PRODUCER )
-    ReactiveKafkaProducerTemplate<String, InventoryUpdatedOutboundPayload> inventoryUpdatedOutboundProducerTemplate(
-        SenderOptions<String, InventoryUpdatedOutboundPayload> senderOptionsInventoryUpdatedOutbound) {
+    ReactiveKafkaProducerTemplate<String, EventMessage<InventoryUpdatedOutboundPayload>> inventoryUpdatedOutboundProducerTemplate(
+        SenderOptions<String, EventMessage<InventoryUpdatedOutboundPayload>> senderOptionsInventoryUpdatedOutbound) {
         return new ReactiveKafkaProducerTemplate<>(senderOptionsInventoryUpdatedOutbound);
     }
 }

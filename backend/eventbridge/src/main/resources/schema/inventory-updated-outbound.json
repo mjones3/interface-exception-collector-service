@@ -2,71 +2,93 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
-    "updateType": {
+    "eventId": {
       "type": "string"
     },
-    "unitNumber": {
+    "occurredOn": {
       "type": "string"
     },
-    "productCode": {
+    "eventVersion": {
       "type": "string"
     },
-    "productDescription": {
+    "eventType": {
       "type": "string"
     },
-    "productFamily": {
-      "type": "string"
-    },
-    "bloodType": {
-      "type": "string"
-    },
-    "expirationDate": {
-      "type": "string"
-    },
-    "locationCode": {
-      "type": "string"
-    },
-    "storageLocation": {
-      "type": "string"
-    },
-    "inventoryStatus": {
-      "type": "array",
-      "items": [
-        {
-          "type": "string"
-        }
-      ]
-    },
-    "properties": {
+    "payload": {
       "type": "object",
-      "items": {
-        "properties": {
-          "key": {
-            "type": "string",
-            "minLength": 1
-          },
-          "value": {
-            "type": "object",
-            "minLength": 1
-          }
+      "properties": {
+        "updateType": {
+          "type": "string"
         },
-        "additionalProperties": false,
-        "required": [
-          "key",
-          "value"
-        ]
-      }
+        "unitNumber": {
+          "type": "string"
+        },
+        "productCode": {
+          "type": "string"
+        },
+        "productDescription": {
+          "type": "string"
+        },
+        "productFamily": {
+          "type": "string"
+        },
+        "bloodType": {
+          "type": "string"
+        },
+        "expirationDate": {
+          "type": "string"
+        },
+        "locationCode": {
+          "type": "string"
+        },
+        "storageLocation": {
+          "type": "string"
+        },
+        "inventoryStatus": {
+          "type": "array",
+          "items": [
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "properties": {
+          "type": "object",
+          "items": {
+            "properties": {
+              "key": {
+                "type": "string",
+                "minLength": 1
+              },
+              "value": {
+                "type": "object",
+                "minLength": 1
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "key",
+              "value"
+            ]
+          }
+        }
+      },
+      "required": [
+        "updateType",
+        "unitNumber",
+        "productCode",
+        "productDescription",
+        "productFamily",
+        "expirationDate",
+        "locationCode",
+        "inventoryStatus"
+      ]
     }
   },
   "required": [
-    "updateType",
-    "unitNumber",
-    "productCode",
-    "productDescription",
-    "productFamily",
-    "bloodType",
-    "locationCode",
-    "storageLocation",
-    "inventoryStatus"
+    "eventId",
+    "occurredOn",
+    "eventVersion",
+    "eventType"
   ]
 }

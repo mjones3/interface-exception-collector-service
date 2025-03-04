@@ -4,7 +4,7 @@ import com.arcone.biopro.distribution.eventbridge.application.dto.ShipmentComple
 import com.arcone.biopro.distribution.eventbridge.application.dto.ShipmentCompletedPayload;
 import com.arcone.biopro.distribution.eventbridge.domain.service.ShipmentCompletedService;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.config.KafkaConfiguration;
-import com.arcone.biopro.distribution.eventbridge.infrastructure.service.SchemaValidationShipmentCompletedService;
+import com.arcone.biopro.distribution.eventbridge.infrastructure.service.SchemaValidationService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -25,16 +25,17 @@ import java.time.Duration;
 @Profile("prod")
 public class ShipmentCompletedListener extends AbstractKafkaListener {
 
+    private static final String SHIPMENT_COMPLETED_SCHEMA = "schema/shipment-completed.json";
     private final ObjectMapper objectMapper;
     private final ShipmentCompletedService shipmentCompletedService;
-    private final SchemaValidationShipmentCompletedService schemaValidationService;
+    private final SchemaValidationService schemaValidationService;
 
     public ShipmentCompletedListener(
             @Qualifier(KafkaConfiguration.SHIPMENT_COMPLETED_CONSUMER) ReactiveKafkaConsumerTemplate<String, String> consumer
             , ObjectMapper objectMapper
             , ShipmentCompletedService shipmentCompletedService
             , @Qualifier(KafkaConfiguration.DLQ_PRODUCER) ReactiveKafkaProducerTemplate<String, String> producerTemplate
-            , @Value("${topics.shipment.shipment-completed.topic-name:ShipmentCompleted}") String topicName , SchemaValidationShipmentCompletedService schemaValidationService) {
+            , @Value("${topics.shipment.shipment-completed.topic-name:ShipmentCompleted}") String topicName , SchemaValidationService schemaValidationService) {
 
         super(consumer, objectMapper, producerTemplate, topicName);
         this.objectMapper = objectMapper;
@@ -47,7 +48,7 @@ public class ShipmentCompletedListener extends AbstractKafkaListener {
     protected Mono<ReceiverRecord<String, String>> handleMessage(ReceiverRecord<String, String> event) {
         try {
             var message = objectMapper.readValue(event.value(), ShipmentCompletedEventDTO.class);
-            return schemaValidationService.validateShipmentCompletedSchema(event.value())
+            return schemaValidationService.validateSchema(event.value(), SHIPMENT_COMPLETED_SCHEMA)
                 .then(Mono.defer(() -> shipmentCompletedService
                             .processCompletedShipmentEvent(message.payload())))
                 .then(Mono.just(event))

@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.eventbridge.unit.infrastructure.listener;
 
+import com.arcone.biopro.distribution.eventbridge.domain.event.EventMessage;
 import com.arcone.biopro.distribution.eventbridge.domain.event.InventoryUpdatedOutboundEvent;
 import com.arcone.biopro.distribution.eventbridge.domain.model.InventoryUpdatedOutbound;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.dto.InventoryUpdatedOutboundPayload;
@@ -20,7 +21,7 @@ class InventoryUpdatedOutboundEventListenerTest {
     @Test
     public void shouldHandleInventoryUpdatedOutboundEvents(){
 
-        ReactiveKafkaProducerTemplate<String, InventoryUpdatedOutboundPayload> producerTemplate = Mockito.mock(ReactiveKafkaProducerTemplate.class);
+        ReactiveKafkaProducerTemplate<String, EventMessage<InventoryUpdatedOutboundPayload>> producerTemplate = Mockito.mock(ReactiveKafkaProducerTemplate.class);
 
         var mapper = new InventoryUpdatedOutboundMapper();
 
@@ -30,9 +31,8 @@ class InventoryUpdatedOutboundEventListenerTest {
         Mockito.when(model.getProductCode()).thenReturn("PRODUCT_CODE");
         var target = new InventoryUpdatedOutboundEventListener(producerTemplate, "TestTopic",mapper);
 
-
         RecordMetadata meta = new RecordMetadata(new TopicPartition("TestTopic", 0), 0L, 0L, 0L, 0L, 0, 2);
-        SenderResult senderResult = Mockito.mock(SenderResult.class);
+        SenderResult  senderResult = Mockito.mock(SenderResult.class);
         Mockito.when(senderResult.recordMetadata()).thenReturn(meta);
         Mockito.when(producerTemplate.send(Mockito.any(ProducerRecord.class))).thenReturn(Mono.just(senderResult));
 
