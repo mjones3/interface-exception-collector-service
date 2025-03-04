@@ -28,15 +28,17 @@ public class InventoryUpdatedProducer {
     @EventListener
     public void send(InventoryUpdatedApplicationEvent event) {
         var message = new EventMessage<>("InventoryUpdated","1.0", mapper.toEvent(event.inventory(), event.inventoryUpdateType()));
-        producerInventoryUpdatedTemplate.send(topicName, message)
-            .doOnError(e-> log.error("Send failed", e))
-            .doOnNext(senderResult -> log.info("Inventory Updated Message {}-{} (updateType {}). Event produced: {}",
-                event.inventory().getUnitNumber().value(),
-                event.inventory().getProductCode().value(),
-                event.inventoryUpdateType().name(),
-                senderResult.recordMetadata()))
-            .subscribe();
-
+        // (Enabler: R20-591) - Only send labeled inventory updates to customers
+        if (event.inventory().getIsLabeled()) {
+            producerInventoryUpdatedTemplate.send(topicName, message)
+                .doOnError(e-> log.error("Send failed", e))
+                .doOnNext(senderResult -> log.info("Inventory Updated Message {}-{} (updateType {}). Event produced: {}",
+                    event.inventory().getUnitNumber().value(),
+                    event.inventory().getProductCode().value(),
+                    event.inventoryUpdateType().name(),
+                    senderResult.recordMetadata()))
+                .subscribe();
+        }
     }
 
 }
