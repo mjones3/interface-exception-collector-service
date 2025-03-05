@@ -2,6 +2,7 @@ package com.arcone.biopro.distribution.order.domain.model;
 
 
 import com.arcone.biopro.distribution.order.domain.exception.DomainException;
+import com.arcone.biopro.distribution.order.domain.model.vo.ModifyByProcess;
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderCustomer;
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderExternalId;
 import com.arcone.biopro.distribution.order.domain.model.vo.OrderNumber;
@@ -270,10 +271,13 @@ public class Order implements Validatable {
         this.completeDate = ZonedDateTime.now();
         this.completeComments = completeOrderCommand.getComments();
         this.completeEmployeeId = completeOrderCommand.getEmployeeId();
+        this.setModifiedByProcess(ModifyByProcess.USER.name());
+        this.modifyEmployeeId = completeOrderCommand.getEmployeeId();
     }
 
     public void completeOrderAutomatic(){
         this.orderStatus.setStatus(ORDER_COMPLETED_STATUS);
+        this.setModifiedByProcess(ModifyByProcess.USER.name());
         this.completeDate = ZonedDateTime.now();
     }
 
@@ -322,6 +326,8 @@ public class Order implements Validatable {
         order.setCancelDate(ZonedDateTime.now());
         order.setCancelEmployeeId(cancelOrderCommand.getEmployeeId());
         order.setCancelReason(cancelOrderCommand.getReason());
+        order.setModifiedByProcess(ModifyByProcess.USER.name());
+        order.setModifyEmployeeId(cancelOrderCommand.getEmployeeId());
     }
 
     public Order createBackOrder(String createEmployeeId,CustomerService customerService , LookupService lookupService , OrderConfigService orderConfigService){
@@ -443,4 +449,7 @@ public class Order implements Validatable {
 
     }
 
+    public boolean isModifiedByInterface(){
+        return ModifyByProcess.INTERFACE.name().equals(this.modifiedByProcess) && ORDER_OPEN_STATUS.equals(this.getOrderStatus().getOrderStatus());
+    }
 }

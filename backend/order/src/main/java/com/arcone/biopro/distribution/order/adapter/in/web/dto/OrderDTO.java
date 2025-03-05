@@ -40,5 +40,9 @@ public record OrderDTO(
     boolean backOrderCreationActive,
     String cancelEmployeeId,
     ZonedDateTime cancelDate,
-    String cancelReason
+    String cancelReason,
+    String modifyEmployeeId,
+    String modifyReason,
+    String modifyByProcess,
+    boolean displayModificationDetails
 ) {}
