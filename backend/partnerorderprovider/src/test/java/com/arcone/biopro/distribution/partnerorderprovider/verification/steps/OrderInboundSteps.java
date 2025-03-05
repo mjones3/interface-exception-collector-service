@@ -43,19 +43,9 @@ public class OrderInboundSteps {
         Assert.assertNotNull(orderInboundResponse);
     }
 
-    @Then("The response status should be {int}.")
-    public void validateResponse(int responseCode) {
-        Assert.assertEquals(responseCode, orderInboundResponse.getStatusCode().value());
-    }
-
     @And("The Order status should be {string}.")
     public void checkOrderStatus(String status) throws JSONException {
         Assert.assertEquals(status, partnerOrderResponse.getString("status"));
-    }
-
-    @And("The error message should be {string}.")
-    public void checkErrorMessage(String message) throws JSONException {
-        testUtils.checkErrorMessage(message,partnerOrderResponse);
     }
 
 }

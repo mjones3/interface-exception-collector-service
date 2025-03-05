@@ -9,7 +9,7 @@ Feature: Partner Order Inbound Interface
     Scenario Outline: Receive a Partner order inbound request
         Given I have a Partner order "<JsonPayloadName>".
         When I send a request to the Partner Order Inbound Interface.
-        Then The response status should be <responseCode>.
+        Then The response status code should be <responseCode>.
         And The Order status should be "<status>".
         Examples:
             | JsonPayloadName                                                                  | responseCode | status  |
@@ -26,7 +26,7 @@ Feature: Partner Order Inbound Interface
     Scenario Outline: Validate Partner order inbound request
         Given I have a Partner order "<JsonPayloadName>".
         When I send a request to the Partner Order Inbound Interface.
-        Then The response status should be <responseCode>.
+        Then The response status code should be <responseCode>.
         And The error message should be "<errorMessage>".
         Examples:
             | JsonPayloadName                                     | responseCode | errorMessage                                                                                         |

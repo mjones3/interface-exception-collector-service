@@ -94,6 +94,7 @@ logging:
     # for debugging R2DBC
     # org.springframework.data.r2dbc: DEBUG
     # io.r2dbc.postgresql.QUERY: DEBUG # includes BEGIN/COMMIT/ROLLBACK, DDL
+    #io.github.springwolf: DEBUG
     # set the 4 lines to warn to suppress large config list output on startup
     org.apache.kafka.common.config.AbstractConfig: WARN
     org.apache.kafka.clients.admin.AdminClientConfig: WARN
@@ -101,7 +102,6 @@ logging:
     org.apache.kafka.clients.consumer.ConsumerConfig: WARN
     org.apache.kafka: DEBUG
     com.arcone.biopro: DEBUG
-    io.github.springwolf: DEBUG
 
 spring:
   autoconfigure:
@@ -218,7 +218,7 @@ springwolf:
     base-package: com.arcone.biopro
     info:
       title: ${spring.application.name}
-      version: 0.0.1
+      version: "PI4.6"
     servers:
       kafka-server:
         protocol: kafka
@@ -234,6 +234,10 @@ topics:
     partitions: 1
     replicas: 1
     name: CancelOrderReceived
+  modify-order-received:
+    partitions: 1
+    replicas: 1
+    name: ModifyOrderReceived
 
 # ===================================================================
 # BioPro specific properties

@@ -25,6 +25,7 @@ public class CommonSteps {
     public void iShouldSeeAMessage(String header, String message) throws InterruptedException {
         log.info("I should see a message: {}", message);
         sharedActions.verifyMessage(header, message);
+        sharedActions.closeAcknowledgment();
     }
 
     @When("I confirm the acknowledgment message.")

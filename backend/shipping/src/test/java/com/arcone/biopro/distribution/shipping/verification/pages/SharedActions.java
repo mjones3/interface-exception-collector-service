@@ -420,6 +420,8 @@ public class SharedActions {
 
         openDropDownIfClosed(dropdown);
 
+        waitForVisible(panelId);
+
         WebElement dropdownPanel = driver.findElement(panelId);
 
         waitForVisible(dropdownPanel);
