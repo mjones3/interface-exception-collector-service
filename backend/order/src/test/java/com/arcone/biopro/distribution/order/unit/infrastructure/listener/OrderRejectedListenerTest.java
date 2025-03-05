@@ -34,7 +34,7 @@ class OrderRejectedListenerTest {
         Mockito.when(senderResult.recordMetadata()).thenReturn(meta);
         Mockito.when(producerTemplate.send(Mockito.any(ProducerRecord.class))).thenReturn(Mono.just(senderResult));
 
-        target.handleOrderRejectedEvent(new OrderRejectedEvent("TEST_ID","ERROR_MSG"));
+        target.handleOrderRejectedEvent(new OrderRejectedEvent("TEST_ID","ERROR_MSG","CREATE_ORDER"));
 
         Mockito.verify(producerTemplate).send(Mockito.any(ProducerRecord.class));
     }

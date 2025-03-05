@@ -1,0 +1,28 @@
+{
+  "eventId": "ae94cf69-6863-4c26-ad34-99347a9a4c8a",
+  "eventType": "ModifyOrderReceived",
+  "eventVersion": "1.0",
+  "occurredOn": "2024-10-07T20:59:16.925110827Z",
+  "payload": {
+    "externalId": "{EXTERNAL_ID}",
+    "locationCode": "123456789",
+    "modifyEmployeeCode": "ee1bf88e-2137-4a17-835a-d43e7b738374",
+    "deliveryType": "SCHEDULED",
+    "willPickUp": true,
+    "willPickUpPhoneNumber": "12333333",
+    "shippingMethod": "FEDEX",
+    "productCategory": "FROZEN",
+    "desiredShippingDate": null,
+    "comments": "string",
+    "modifyReason": "Reason",
+    "modifyDate": "{MODIFY_DATE}",
+    "orderItems": [
+      {
+        "productFamily": "PLASMA_TRANSFUSABLE",
+        "bloodType": "AB",
+        "quantity": 1,
+        "comments": "Comments"
+      }
+    ]
+  }
+}

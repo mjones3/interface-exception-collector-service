@@ -28,14 +28,12 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
 import static java.lang.Boolean.TRUE;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -829,7 +827,8 @@ class OrderTest {
         Mockito.when(lookupService.findAllByType(Mockito.anyString())).thenReturn(Flux.just(new Lookup(new LookupId("OPEN","OPEN"),"description",1,true)
             , new Lookup(new LookupId("COMPLETED","COMPLETED"),"description",2,true)
             , new Lookup(new LookupId("FAMILY","FAMILY"),"description",3,true)
-            , new Lookup(new LookupId("CATEGORY","CATEGORY"),"description",3,true)
+            , new Lookup(new LookupId("ASAP","ASAP"),"description",4,true)
+            , new Lookup(new LookupId("CATEGORY","CATEGORY"),"description",5,true)
         ));
 
         Mockito.when(orderConfigService.findBackOrderConfiguration()).thenReturn(Mono.just(TRUE));
@@ -849,6 +848,7 @@ class OrderTest {
                 .shippingMethod("OPEN")
                 .productCategory("CATEGORY")
                 .locationCode("new_location")
+                .deliveryType("ASAP")
                 .modifyByProcess(ModifyByProcess.INTERFACE)
                 .orderItems(List.of(ModifyOrderItem
                     .builder()

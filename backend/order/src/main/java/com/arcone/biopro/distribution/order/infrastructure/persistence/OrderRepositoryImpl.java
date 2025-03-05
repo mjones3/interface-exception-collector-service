@@ -127,7 +127,6 @@ public class OrderRepositoryImpl implements OrderRepository, FilterAndSortReposi
 
     @Override
     public Mono<Order> update(Order order) {
-        return
         return this.entityTemplate
             .update(orderEntityMapper.mapToEntity(order))
             .flatMap(orderEntity ->
@@ -144,18 +143,18 @@ public class OrderRepositoryImpl implements OrderRepository, FilterAndSortReposi
 
     @Override
     public Mono<Order> reset(Order order) {
-        return this.entityTemplate
-            .update(orderEntityMapper.mapToEntity(order))
-            .flatMap(orderEntity ->
-                Flux.fromIterable(order.getOrderItems())
+        return this.findAllOrderItemEntitiesByOrderId(order.getId())
+            .flatMap(this.entityTemplate::delete)
+            .collectList()
+            .flatMap(removedList -> this.entityTemplate.update(orderEntityMapper.mapToEntity(order))
+                .flatMap(orderEntity -> Flux.fromIterable(order.getOrderItems())
                     .map(orderItemEntityMapper::mapToEntity)
                     .map(orderItem -> orderItem.withOrderId(orderEntity.getId()))
-                    .flatMap(this.entityTemplate::update)
+                    .flatMap(this.entityTemplate::insert)
                     .collect(Collectors.toList())
                     .flatMap(orderItemEntities -> Mono.fromCallable(()-> orderEntityMapper
                             .mapToDomain(orderEntity, orderItemEntities))
-                        .publishOn(Schedulers.boundedElastic()) )
-            );
+                        .publishOn(Schedulers.boundedElastic()))));
     }
 
     @Override

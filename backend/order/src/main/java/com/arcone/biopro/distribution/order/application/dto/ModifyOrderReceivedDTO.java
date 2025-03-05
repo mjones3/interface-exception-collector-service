@@ -8,16 +8,16 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Schema(
-    name = "CancelOrderReceived",
-    title = "CancelOrderReceived",
-    description = "Cancel Order Received Event"
+    name = "ModifyOrderReceived",
+    title = "ModifyOrderReceived",
+    description = "Modify Order Received Event"
 )
 @Builder
-public record CancelOrderReceivedDTO(
+public record ModifyOrderReceivedDTO(
     UUID eventId,
     Instant occurredOn,
     String eventType,
     String eventVersion,
-    CancelOrderReceivedPayloadDTO payload
+    ModifyOrderReceivedPayloadDTO payload
 ) implements Serializable {
 }

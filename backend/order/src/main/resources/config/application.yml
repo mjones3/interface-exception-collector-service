@@ -102,7 +102,7 @@ logging:
     org.apache.kafka.clients.consumer.ConsumerConfig: WARN
     org.apache.kafka: WARN
     com.arcone.biopro: DEBUG
-    io.github.springwolf: DEBUG
+    #io.github.springwolf: DEBUG
 
 spring:
   autoconfigure:
@@ -322,6 +322,14 @@ topics:
       partitions: 1
       replicas: 1
       topic-name: OrderCancelled
+    modify-order-received:
+      partitions: 1
+      replicas: 1
+      topic-name: ModifyOrderReceived
+    order-modified:
+      partitions: 1
+      replicas: 1
+      topic-name: OrderModified
   shipment:
     shipment-created:
       partitions: 1

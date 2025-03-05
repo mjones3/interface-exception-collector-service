@@ -420,7 +420,7 @@ public class Order implements Validatable {
             , modifyOrderCommand.getLocationCode() , orderToBeUpdated.getShipmentType().getShipmentType() , modifyOrderCommand.getShippingMethod()
             , orderToBeUpdated.getShippingCustomer().getCode() , orderToBeUpdated.getBillingCustomer().getCode() , modifyOrderCommand.getDesiredShippingDate()
             , modifyOrderCommand.isWillPickUp() , modifyOrderCommand.getWillPickUpPhoneNumber() , modifyOrderCommand.getProductCategory() , modifyOrderCommand.getComments()
-            , orderToBeUpdated.getOrderStatus().getOrderStatus() , orderToBeUpdated.getOrderPriority().getDeliveryType(),  orderToBeUpdated.getCreateEmployeeId()
+            , orderToBeUpdated.getOrderStatus().getOrderStatus() , modifyOrderCommand.getDeliveryType(),  orderToBeUpdated.getCreateEmployeeId()
             , orderToBeUpdated.getCreateDate() , ZonedDateTime.now(), null
 
         );
