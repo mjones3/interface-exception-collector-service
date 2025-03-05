@@ -5,9 +5,9 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { Router, RouterModule } from '@angular/router';
 import { ApolloQueryResult } from '@apollo/client';
 import { TranslateModule } from '@ngx-translate/core';
-import { ApolloModule } from 'apollo-angular';
 import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { of } from 'rxjs';
+import { PageDTO } from '../../models/page.model';
 import { OrderReportDTO } from '../../models/search-order.model';
 import { OrderService } from '../../services/order.service';
 import { SearchOrdersComponent } from './search-orders.component';
@@ -19,7 +19,7 @@ describe('SearchOrdersComponent', () => {
     let orderService: jest.Mocked<OrderService>;
     let toaster: jest.Mocked<ToastrService>;
 
-    const mockResponse: OrderReportDTO[] = [
+    const content: OrderReportDTO[] = [
         {
             orderId: 103,
             orderNumber: 69,
@@ -53,6 +53,18 @@ describe('SearchOrdersComponent', () => {
             },
         },
     ];
+    const page: PageDTO<OrderReportDTO> = {
+        content,
+        pageNumber: 0,
+        pageSize: 20,
+        totalRecords: 2,
+        querySort: null,
+        hasPrevious: false,
+        hasNext: false,
+        isFirst: true,
+        isLast: true,
+        totalPages: 1,
+    };
 
     beforeEach(waitForAsync(() => {
         const orderServiceSpy = {
@@ -65,7 +77,6 @@ describe('SearchOrdersComponent', () => {
         TestBed.configureTestingModule({
             imports: [
                 SearchOrdersComponent,
-                ApolloModule,
                 ToastrModule.forRoot(),
                 MatIconTestingModule,
                 RouterModule.forRoot([]),
@@ -102,12 +113,13 @@ describe('SearchOrdersComponent', () => {
     });
 
     it('should fetch search orders successfully', () => {
-        const response: ApolloQueryResult<{ searchOrders: OrderReportDTO[] }> =
-            {
-                data: { searchOrders: mockResponse },
-                loading: false,
-                networkStatus: 7,
-            };
+        const response: ApolloQueryResult<{
+            searchOrders: PageDTO<OrderReportDTO>;
+        }> = {
+            data: { searchOrders: page },
+            loading: false,
+            networkStatus: 7,
+        };
 
         orderService.searchOrders.mockReturnValue(of(response));
 
@@ -117,27 +129,39 @@ describe('SearchOrdersComponent', () => {
         component.searchOrders();
 
         expect(component.loading).toBe(false);
-        expect(component.dataSource).toEqual(mockResponse);
+        expect(component.page()).toEqual(page);
         expect(toaster.warning).not.toHaveBeenCalled();
         expect(toaster.error).not.toHaveBeenCalled();
     });
 
     it('should handle search orders with empty response', () => {
         const emptyResponse: OrderReportDTO[] = [];
-        const response: ApolloQueryResult<{ searchOrders: OrderReportDTO[] }> =
-            {
-                data: {
-                    searchOrders: emptyResponse,
+        const response: ApolloQueryResult<{
+            searchOrders: PageDTO<OrderReportDTO>;
+        }> = {
+            data: {
+                searchOrders: {
+                    content: emptyResponse,
+                    pageNumber: 0,
+                    pageSize: 20,
+                    totalRecords: 2,
+                    querySort: null,
+                    hasPrevious: false,
+                    hasNext: false,
+                    isFirst: true,
+                    isLast: true,
+                    totalPages: 1,
                 },
-                loading: false,
-                networkStatus: 7,
-            };
+            },
+            loading: false,
+            networkStatus: 7,
+        };
         orderService.searchOrders.mockReturnValue(of(response));
         jest.spyOn(component, 'details').mockImplementation();
         jest.spyOn(component, 'isFilterApplied').mockReturnValue(true);
         component.searchOrders();
         expect(component.loading).toBe(false);
-        expect(component.dataSource).toEqual(emptyResponse);
+        expect(component.page().content).toEqual(emptyResponse);
         expect(component.details).not.toHaveBeenCalled();
         expect(toaster.warning).not.toHaveBeenCalled();
         expect(toaster.error).not.toHaveBeenCalled();

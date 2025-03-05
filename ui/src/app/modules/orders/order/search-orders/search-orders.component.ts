@@ -7,13 +7,14 @@ import {
     TemplateRef,
     ViewChild,
     computed,
+    signal,
     viewChild,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
+import { PageEvent } from '@angular/material/paginator';
 import { Router } from '@angular/router';
 import { ApolloError, ApolloQueryResult } from '@apollo/client';
-import { FuseCardComponent } from '@fuse/components/card/public-api';
 import {
     Column,
     ProcessHeaderComponent,
@@ -24,13 +25,13 @@ import {
 import { ERROR_MESSAGE } from 'app/core/data/common-labels';
 import { TableComponent } from 'app/shared/components/table/table.component';
 import { OrderStatusMap } from 'app/shared/models/order-status.model';
-import { PriorityMap } from 'app/shared/models/product-family.model';
 import { CookieService } from 'ngx-cookie-service';
 import { ToastrService } from 'ngx-toastr';
 import { Table, TableModule } from 'primeng/table';
 import { OrderPriorityMap } from '../../../../shared/models/order-priority.model';
 import { Cookie } from '../../../../shared/types/cookie.enum';
 import { SearchOrderFilterDTO } from '../../models/order.dto';
+import { PageDTO } from '../../models/page.model';
 import {
     OrderQueryCommandDTO,
     OrderReportDTO,
@@ -45,7 +46,6 @@ import { SearchOrderFilterComponent } from './search-filter/search-order-filter.
         CommonModule,
         TableModule,
         MatDividerModule,
-        FuseCardComponent,
         AsyncPipe,
         ProcessHeaderComponent,
         MatButtonModule,
@@ -56,8 +56,8 @@ import { SearchOrderFilterComponent } from './search-filter/search-order-filter.
     styleUrls: ['./search-orders.component.scss'],
 })
 export class SearchOrdersComponent implements OnInit {
-    protected readonly OrderStatusMap = OrderStatusMap;
-    readonly PriorityMap = PriorityMap;
+    readonly OrderPriorityMap = OrderPriorityMap;
+    readonly OrderStatusMap = OrderStatusMap;
 
     readonly hiddenColumns: Column[] = [
         {
@@ -162,7 +162,8 @@ export class SearchOrdersComponent implements OnInit {
         this.searchOrders();
     }
 
-    dataSource: OrderReportDTO[] = [];
+    page = signal<PageDTO<OrderReportDTO>>(null);
+
     priorityTemplateRef = viewChild<TemplateRef<Element>>(
         'priorityTemplateRef'
     );
@@ -185,47 +186,40 @@ export class SearchOrdersComponent implements OnInit {
             id: 'orderNumber',
             header: 'BioPro Order ID',
             sort: false,
-            icon: false,
         },
         {
             id: 'externalId',
             header: 'External Order ID',
             sort: false,
-            icon: false,
         },
         {
             id: 'orderPriorityReport.priority',
             header: 'Priority',
             sort: false,
-            icon: false,
             columnTempRef: this.priorityTemplateRef(),
         },
         {
             id: 'orderStatus',
             header: 'Status',
             sort: false,
-            icon: false,
             columnTempRef: this.statusTemplateRef(),
         },
         {
             id: 'orderCustomerReport.name',
             header: 'Ship to Customer Name',
             sort: false,
-            icon: false,
             columnTempRef: this.customerNameTemplateRef(),
         },
         {
             id: 'createDate',
             header: 'Create Date and Time',
             sort: false,
-            icon: false,
             columnTempRef: this.createDateTemplateRef(),
         },
         {
             id: 'desireShipDate',
             header: 'Desired Ship Date',
             sort: false,
-            icon: false,
             columnTempRef: this.desireShipDateTemplateRef(),
         },
         {
@@ -238,22 +232,23 @@ export class SearchOrdersComponent implements OnInit {
         return {
             title: 'Results',
             columns: this.columns(),
-            pageSize: 10,
-            showPagination: false,
+            pageSize: 20,
+            showPagination: true,
         };
     });
 
     searchOrders() {
         this.loading = true;
-        this.dataSource = [];
+        this.page.set(null);
         this.orderService.searchOrders(this.getCriteria()).subscribe({
             next: (response) => {
-                (this.loading = false), this.doOnSuccess(response);
+                this.loading = false;
+                this.doOnSuccess(response);
             },
             error: (e: ApolloError) => {
                 this.loading = false;
                 if (e?.cause?.message) {
-                    this.dataSource = [];
+                    this.page.set(null);
                     this.toaster.warning(e?.cause?.message);
                     return;
                 }
@@ -272,6 +267,11 @@ export class SearchOrdersComponent implements OnInit {
             locationCode: this.cookieService.get(Cookie.XFacility),
         };
         if (this.currentFilter) {
+            if (this.currentFilter.page >= 0) {
+                criteria.pageNumber = this.currentFilter.page;
+            }
+            criteria.pageSize =
+                this.currentFilter.limit ?? this.tableConfig()?.pageSize;
             if (this.currentFilter.orderNumber !== '') {
                 criteria.orderUniqueIdentifier = this.currentFilter.orderNumber;
             }
@@ -330,12 +330,15 @@ export class SearchOrdersComponent implements OnInit {
         return criteria;
     }
     private doOnSuccess(
-        response: ApolloQueryResult<{ searchOrders: OrderReportDTO[] }>
+        response: ApolloQueryResult<{ searchOrders: PageDTO<OrderReportDTO> }>
     ): void {
-        if (response.data.searchOrders.length === 1 && this.isFilterApplied()) {
-            this.details(response.data.searchOrders[0].orderId);
+        if (
+            response.data.searchOrders.content.length === 1 &&
+            this.isFilterApplied()
+        ) {
+            this.details(response.data.searchOrders.content[0].orderId);
         } else {
-            this.dataSource = response?.data?.searchOrders;
+            this.page.set(response?.data?.searchOrders);
         }
     }
 
@@ -363,5 +366,11 @@ export class SearchOrdersComponent implements OnInit {
         );
     }
 
-    protected readonly OrderPriorityMap = OrderPriorityMap;
+    handlePagination(event: PageEvent): void {
+        this.currentFilter = {
+            ...this.currentFilter,
+            page: event.pageIndex,
+        };
+        this.applyFilterSearch(this.currentFilter);
+    }
 }

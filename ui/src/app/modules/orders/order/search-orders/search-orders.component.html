@@ -15,8 +15,12 @@
                 <div class="w-full">
                     <biopro-table
                         tableId="ordersTableId"
-                        [dataSource]="dataSource"
+                        [dataSource]="page()?.content ?? []"
                         [configuration]="tableConfig()"
+                        [totalElements]="page()?.totalRecords ?? 0"
+                        [pageIndex]="page()?.pageNumber ?? 0"
+                        [serverPagination]="true"
+                        (paginate)="handlePagination($event)"
                     >
                     </biopro-table>
                     <ng-template #customerNameTemplateRef let-element="element">
@@ -44,15 +48,15 @@
 
                     <ng-template #priorityTemplateRef let-element="element">
                         <span
-                            class="badge rounded-pill"
+                            class="badge rounded-pill !text-white"
                             [ngStyle]="{
                                 'background-color':
                                     element?.orderPriorityReport
-                                        ?.priorityColor ?? '#222222',
+                                        ?.priorityColor ?? '#000',
                             }"
                         >
                             {{
-                                PriorityMap[
+                                OrderPriorityMap[
                                     element.orderPriorityReport?.priority
                                 ]
                             }}

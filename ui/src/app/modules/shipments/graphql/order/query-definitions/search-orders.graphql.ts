@@ -1,25 +1,26 @@
 import { gql } from 'apollo-angular';
-import { OrderQueryCommandDTO, OrderReportDTO } from 'app/modules/orders/models/search-order.model';
+import {
+    OrderQueryCommandDTO,
+    OrderReportDTO,
+} from 'app/modules/orders/models/search-order.model';
+import { PageDTO } from '../../../../orders/models/page.model';
 
 export const SEARCH_ORDERS = gql<
-    { searchOrders: OrderReportDTO[] },
+    { searchOrders: PageDTO<OrderReportDTO> },
     { orderQueryCommandDTO: OrderQueryCommandDTO }
 >`
     query ($orderQueryCommandDTO: OrderQueryCommandDTO!) {
         searchOrders(orderQueryCommandDTO: $orderQueryCommandDTO) {
-            orderId
-            orderNumber
-            externalId
-            orderStatus
-            createDate
-            desireShipDate
-            orderPriorityReport {
-                priority
-                priorityColor
-            }
-            orderCustomerReport {
-                code
-                name
+            content
+            pageNumber
+            pageSize
+            totalRecords
+            totalPages
+            querySort {
+                orderByList {
+                    property
+                    direction
+                }
             }
         }
     }
