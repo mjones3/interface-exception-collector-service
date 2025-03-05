@@ -182,18 +182,18 @@ type OrderPriorityReportDTO {
 }
 
 input OrderQueryCommandDTO {
-    locationCode:String!
-    orderUniqueIdentifier:String
-    orderStatus:[String]
-    deliveryTypes:[String]
-    customers:[String]
-    createDateFrom:Date
-    createDateTo:Date
-    desireShipDateFrom:Date
-    desireShipDateTo:Date
+    locationCode: String!
+    orderUniqueIdentifier: String
+    orderStatus: [String]
+    deliveryTypes: [String]
+    customers: [String]
+    createDateFrom: Date
+    createDateTo: Date
+    desireShipDateFrom: Date
+    desireShipDateTo: Date
     querySort: InputQuerySortDTO
-    limit:Int
-    page:Int
+    pageSize: Int
+    pageNumber: Int
 }
 
 input InputQuerySortDTO {
