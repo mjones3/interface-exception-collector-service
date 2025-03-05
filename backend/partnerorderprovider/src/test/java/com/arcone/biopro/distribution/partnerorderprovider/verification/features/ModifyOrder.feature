@@ -4,6 +4,8 @@ Feature: Modify order through the third-party application
     Rule: The following order elements can be modified via third-party application
     Delivery Type, Will Call, Products (add/remove/update), Product family, Quantity
     Blood Type, Comments, Ship from Location, Product Category, Shipping Method, Order Comments.
+    Rule: The interface message must include the order modification reason, date, and time.
+    Rule: The interface message should include the employee who modified the order if it is available.
     @DIS-262
     Scenario Outline: Receive a Partner modify order request
         Given I have a Partner modify order payload "<JsonPayloadName>".
