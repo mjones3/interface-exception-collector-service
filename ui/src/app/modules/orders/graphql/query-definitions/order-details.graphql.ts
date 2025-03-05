@@ -64,6 +64,10 @@ export const GET_ORDER_BY_ID = gql<
                 cancelEmployeeId
                 cancelDate
                 cancelReason
+                modifyEmployeeId
+                modifyReason
+                modifyByProcess
+                displayModificationDetails
             }
         }
     }

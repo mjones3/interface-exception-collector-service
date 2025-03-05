@@ -53,7 +53,9 @@
                     <mat-accordion id="orderInfoComment" data-role="footer">
                         <mat-expansion-panel [disabled]="!comments()">
                             <mat-expansion-panel-header>
-                                <mat-panel-title class="font-bold">Comments</mat-panel-title>
+                                <mat-panel-title class="font-bold"
+                                    >Comments</mat-panel-title
+                                >
                             </mat-expansion-panel-header>
                             <div>{{ comments() | uppercase }}</div>
                         </mat-expansion-panel>
@@ -64,36 +66,86 @@
     </rsa-common-widget>
 
     @if (orderCancellation()?.length) {
-    <rsa-common-widget
-        svgIcon="hi_outline:archive-box-x-mark"
-        svgIconCls="text-orange-light"
-        [title]="'Cancelation Information'"
-        [subtitle]="'General Information'"
-        [templateRef]="orderCancelationInfoTpl"
-    >
-        <ng-template #orderCancelationInfoTpl>
-            <div class="flex flex-col gap-4">
-                <rsa-description-card
-                    id="orderCancelInfoDescriptions"
-                    [descriptions]="orderCancellation()"
-                    [showColon]="false"
-                    [embedded]="true"
-                    [maxCols]="1"
-                    [valueClasses]="'align-card-info'"
-                    [labelClasses]="'align-card-info'"
-                >
-                    <mat-accordion id="orderCancelInfoReason" data-role="footer">
-                        <mat-expansion-panel [disabled]="!orderCancellationReason()">
-                            <mat-expansion-panel-header>
-                                <mat-panel-title class="font-bold">Canceled Reason</mat-panel-title>
-                            </mat-expansion-panel-header>
-                            <div>{{ orderCancellationReason() | uppercase }}</div>
-                        </mat-expansion-panel>
-                    </mat-accordion>
-                </rsa-description-card>
-            </div>
-        </ng-template>
-    </rsa-common-widget>
+        <rsa-common-widget
+            svgIcon="hi_outline:archive-box-x-mark"
+            svgIconCls="text-orange-light"
+            [title]="'Cancelation Information'"
+            [subtitle]="'General Information'"
+            [templateRef]="orderCancelationInfoTpl"
+        >
+            <ng-template #orderCancelationInfoTpl>
+                <div class="flex flex-col gap-4">
+                    <rsa-description-card
+                        id="orderCancelInfoDescriptions"
+                        [descriptions]="orderCancellation()"
+                        [showColon]="false"
+                        [embedded]="true"
+                        [maxCols]="1"
+                        [valueClasses]="'align-card-info'"
+                        [labelClasses]="'align-card-info'"
+                    >
+                        <mat-accordion
+                            id="orderCancelInfoReason"
+                            data-role="footer"
+                        >
+                            <mat-expansion-panel
+                                [disabled]="!orderCancellationReason()"
+                            >
+                                <mat-expansion-panel-header>
+                                    <mat-panel-title class="font-bold"
+                                        >Canceled Reason</mat-panel-title
+                                    >
+                                </mat-expansion-panel-header>
+                                <div>
+                                    {{ orderCancellationReason() | uppercase }}
+                                </div>
+                            </mat-expansion-panel>
+                        </mat-accordion>
+                    </rsa-description-card>
+                </div>
+            </ng-template>
+        </rsa-common-widget>
+    }
+    @if (orderInput()?.displayModificationDetails) {
+        <rsa-common-widget
+            svgIcon="hi_outline:archive-box-x-mark"
+            svgIconCls="text-orange-light"
+            [title]="'Modification Information'"
+            [subtitle]="'General Information'"
+            [templateRef]="orderModificationInfoTpl"
+        >
+            <ng-template #orderModificationInfoTpl>
+                <div class="flex flex-col gap-4">
+                    <rsa-description-card
+                        id="orderModificationInfoDescriptions"
+                        [descriptions]="orderModification()"
+                        [showColon]="false"
+                        [embedded]="true"
+                        [maxCols]="1"
+                        [valueClasses]="'align-card-info'"
+                        [labelClasses]="'align-card-info'"
+                    >
+                        <mat-accordion
+                            id="orderModificationReason"
+                            data-role="footer"
+                        >
+                            <mat-expansion-panel
+                                [disabled]="!orderModificationReason()"
+                            >
+                                <mat-expansion-panel-header>
+                                    <mat-panel-title class="font-bold"
+                                        >Modification Reason</mat-panel-title
+                                    >
+                                </mat-expansion-panel-header>
+                                <div>
+                                    {{ orderModificationReason() | uppercase }}
+                                </div>
+                            </mat-expansion-panel>
+                        </mat-accordion>
+                    </rsa-description-card>
+                </div>
+            </ng-template>
+        </rsa-common-widget>
     }
 
     @if (shipping()?.length) {
