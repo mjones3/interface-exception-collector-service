@@ -79,7 +79,8 @@ Feature: External Transfers
                |   B2346      | 2025-02-03    | W036898786807 | E0869V00     | External transfer completed successfully |
 
     Rule: I should be alerted if the current external transfer date is before the last shipped date.
-        Rule: I should be alerted if the product entered is not shipped.
+    Rule: I should be alerted if the product entered is not shipped.
+    Rule: I should be alerted if the last shipped location is the same as transfer to location.
         @api @DIS-303
         Scenario Outline: Enter the unacceptable product information.
             Given I have shipped the following products.
@@ -115,7 +116,8 @@ Feature: External Transfers
             |Customer Code |Transfer Date| First Unit Number | First Product Code | Second Unit Number  | Second Product Code | Message                                                        |
             |C3457         |  2025-02-01 | W036898786807     | E0869V00           | W812530106085       | E0685V00            | The product location doesn't match the last shipped location   |
 
-    Rule: External Transfer Process Should be Completed Successfully
+    Rule: External Transfer Process Should be Completed Successfully.
+    Rule: I should be able to transfer different product families in the batch.
         @ui @DIS-303
         Scenario Outline: Successfully Enter External Transfer Information and Complete Transfer
             Given I have shipped the following products.
@@ -128,8 +130,9 @@ Feature: External Transfers
             And  I fill hospital transfer Id "<Hospital Order Reference ID>" and "<Transfer Date>" as transfer Date.
             Then The submit external transfer option should be "disabled".
             When I add the following products to the external transfer request.
-                | Unit Number    | Product Code   |
-                | W812530106085  | E0685V00       |
+                | Unit Number   | Product Code |
+                | W812530106085 | E0685V00     |
+                | W036898786807 | E0869V00     |
             Then The submit external transfer option should be "enabled".
             And The product should be added to the list of products to be transferred.
             When I choose to submit the external transfer.
