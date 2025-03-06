@@ -116,7 +116,9 @@ public class OrderQueryCommand implements Validatable, FilterAndSortCommand {
             throw new IllegalArgumentException("Date range exceeds two years");
         }
 
-        Objects.requireNonNull(this.querySort, "Sort must not be null");
+        if (Objects.isNull(this.querySort)) {
+            throw new IllegalArgumentException("Sort must not be null");
+        }
 
         if (this.pageSize <= 0) {
             throw new IllegalArgumentException("pageSize must be greater than 0");
