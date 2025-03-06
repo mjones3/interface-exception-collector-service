@@ -1,4 +1,4 @@
-import { QuerySortDTO } from './search-order.model';
+import { QuerySortDTO } from './query-order.model';
 
 export interface PageDTO<T> {
     content: T[];

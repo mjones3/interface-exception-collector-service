@@ -1,3 +1,5 @@
+import { QuerySortDTO } from 'app/shared/models/query-order.model';
+
 export interface OrderCustomerReportDTO {
     code: string;
     name: string;
@@ -28,16 +30,6 @@ export interface OrderResponsePageDTO {
 export interface PageableDTO {
     pageNumber: number;
     pageSize: number;
-}
-
-// Generic
-export interface QueryOrderByDTO {
-    property: string;
-    direction: string;
-}
-
-export interface QuerySortDTO {
-    orderByList: QueryOrderByDTO[];
 }
 
 export interface OrderQueryCommandDTO {

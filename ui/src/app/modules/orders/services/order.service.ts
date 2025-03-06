@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ApolloQueryResult } from '@apollo/client';
 import { MutationResult } from 'apollo-angular';
+import { PageDTO } from 'app/shared/models/page.model';
 import { Observable } from 'rxjs';
 import { DynamicGraphqlPathService } from '../../../core/services/dynamic-graphql-path.service';
 import { SEARCH_ORDER_CRITERIA } from '../../shipments/graphql/order/query-definitions/search-order-criteria.graphsql';
@@ -21,7 +22,6 @@ import {
 import { Notification } from '../models/notification.dto';
 import { OrderCriteriaDTO } from '../models/order-criteria.model';
 import { OrderDetailsDTO } from '../models/order-details.dto';
-import { PageDTO } from '../models/page.model';
 import {
     OrderQueryCommandDTO,
     OrderReportDTO,

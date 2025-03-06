@@ -25,13 +25,13 @@ import {
 import { ERROR_MESSAGE } from 'app/core/data/common-labels';
 import { TableComponent } from 'app/shared/components/table/table.component';
 import { OrderStatusMap } from 'app/shared/models/order-status.model';
+import { PageDTO } from 'app/shared/models/page.model';
 import { CookieService } from 'ngx-cookie-service';
 import { ToastrService } from 'ngx-toastr';
 import { Table, TableModule } from 'primeng/table';
 import { OrderPriorityMap } from '../../../../shared/models/order-priority.model';
 import { Cookie } from '../../../../shared/types/cookie.enum';
 import { SearchOrderFilterDTO } from '../../models/order.dto';
-import { PageDTO } from '../../models/page.model';
 import {
     OrderQueryCommandDTO,
     OrderReportDTO,

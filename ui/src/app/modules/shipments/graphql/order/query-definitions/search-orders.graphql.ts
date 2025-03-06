@@ -3,7 +3,7 @@ import {
     OrderQueryCommandDTO,
     OrderReportDTO,
 } from 'app/modules/orders/models/search-order.model';
-import { PageDTO } from '../../../../orders/models/page.model';
+import { PageDTO } from 'app/shared/models/page.model';
 
 export const SEARCH_ORDERS = gql<
     { searchOrders: PageDTO<OrderReportDTO> },
