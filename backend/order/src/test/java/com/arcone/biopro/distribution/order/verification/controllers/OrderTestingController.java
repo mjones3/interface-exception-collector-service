@@ -1,6 +1,8 @@
 package com.arcone.biopro.distribution.order.verification.controllers;
 
 import com.arcone.biopro.distribution.order.application.dto.CancelOrderReceivedDTO;
+import com.arcone.biopro.distribution.order.application.dto.ModifyOrderReceivedDTO;
+import com.arcone.biopro.distribution.order.application.dto.OrderReceivedEventDTO;
 import com.arcone.biopro.distribution.order.verification.support.ApiHelper;
 import com.arcone.biopro.distribution.order.verification.support.KafkaHelper;
 import com.arcone.biopro.distribution.order.verification.support.SharedContext;
@@ -13,6 +15,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -85,7 +89,7 @@ public class OrderTestingController {
         var lastPriorityIndex = 1;
         for (int i = 0; i < priorityList.size(); i++) {
             var priority = priorityList.toArray()[i].toString().replace("-", "_");
-            log.info("Priority: {} found at position: {}", priority, i+1);
+            log.info("Priority: {} found at position: {}", priority, i + 1);
 
 
             if (this.priorities.get(priority) < lastPriorityIndex) {
@@ -136,15 +140,74 @@ public class OrderTestingController {
 
     public Map completeOrder(Integer orderId, boolean createBackOrder) {
         String employeeId = context.getEmployeeId();
-        var response =  apiHelper.graphQlRequest(GraphQLMutationMapper.completeOrderMutation(orderId, employeeId, "Order completed comment", createBackOrder), "completeOrder");
+        var response = apiHelper.graphQlRequest(GraphQLMutationMapper.completeOrderMutation(orderId, employeeId, "Order completed comment", createBackOrder), "completeOrder");
         log.debug("Order completed response: {}", response);
         return response;
     }
 
     public void getOrderDetails(Integer orderId) {
-        var response =  apiHelper.graphQlRequest(GraphQLQueryMapper.findOrderById(orderId), "findOrderById");
+        var response = apiHelper.graphQlRequest(GraphQLQueryMapper.findOrderById(orderId), "findOrderById");
         context.setOrderDetails((Map) response.get("data"));
         log.debug("Order details: {}", context.getOrderDetails());
+    }
+
+    public void createOrderInboundRequest(String jsonContent, OrderReceivedEventDTO eventPayload) throws JSONException {
+        context.setPartnerCreateOrder(new JSONObject(jsonContent));
+        log.info("JSON PAYLOAD :{}", context.getPartnerCreateOrder());
+        Assert.assertNotNull(context.getExternalId());
+        Assert.assertNotNull(context.getPartnerCreateOrder());
+        var event = kafkaHelper.sendEvent(eventPayload.payload().id().toString(), eventPayload, Topics.ORDER_RECEIVED).block();
+        Assert.assertNotNull(event);
+    }
+
+    public void modifyOrderRequest(
+        String externalId,
+        String locationCode,
+        String employeeModificationCode,
+        String deliveryType,
+        String shippingMethod,
+        String productCategory,
+        String modifyReason,
+        String modifyDate,
+        String[] productFamilyList,
+        String[] bloodTypeList,
+        String[] quantityList,
+        String modifyPayload,
+        String modifyItemsPayload) throws Exception {
+
+        // Prepare items string object
+        StringBuilder orderItems = new StringBuilder();
+        for (var j = 0; j < productFamilyList.length; j++) {
+            if (j > 0) {
+                orderItems.append(",");
+            }
+            var ordeItemJson = testUtils.getResource(modifyItemsPayload);
+            ordeItemJson = ordeItemJson.replace("{PRODUCT_FAMILY}", productFamilyList[j])
+                .replace("{BLOOD_TYPE}", bloodTypeList[j])
+                .replace("{QUANTITY}", quantityList[j])
+                .replace("{COMMENTS}", "Comments");
+            orderItems.append(ordeItemJson);
+        }
+
+        // Prepare request JSON
+        var jsonContent = testUtils.getResource(modifyPayload);
+        jsonContent = jsonContent.replace("{EXTERNAL_ID}", externalId)
+            .replace("{LOCATION_CODE}", locationCode)
+            .replace("{MODIFY_EMPLOYEE_CODE}", employeeModificationCode)
+            .replace("{DELIVERY_TYPE}", deliveryType)
+            .replace("{SHIPPING_METHOD}", shippingMethod)
+            .replace("{PRODUCT_CATEGORY}", productCategory)
+            .replace("{MODIFY_REASON}", modifyReason)
+            .replace("{MODIFY_DATE}", modifyDate)
+            .replace("{ORDER_ITEMS}", orderItems.toString())
+            .replace("{EVENT_ID}", UUID.randomUUID().toString());
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        var eventPayload = objectMapper.readValue(jsonContent, ModifyOrderReceivedDTO.class);
+
+        var event = kafkaHelper.sendEvent(eventPayload.eventId().toString(), eventPayload, Topics.MODIFY_ORDER_RECEIVED).block();
+        Assert.assertNotNull(event);
     }
 
 }

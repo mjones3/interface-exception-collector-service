@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -38,6 +39,10 @@ public class SharedContext {
     private String orderStatus;
     private Map orderDetails;
     private PageDTO<JsonNode> ordersPage;
+
+    // Kafka payloads
+    private JSONObject partnerCreateOrder;
+    private JSONObject partnerModifyOrder;
 
     // LK configurations
     private boolean backOrderConfig;
