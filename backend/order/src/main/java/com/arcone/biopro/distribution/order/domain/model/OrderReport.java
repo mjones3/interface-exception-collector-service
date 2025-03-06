@@ -15,18 +15,16 @@ import java.time.ZonedDateTime;
 @ToString
 public class OrderReport implements Validatable {
 
-    private Long orderId;
-    private Long orderNumber;
-    private String externalId;
-    private String orderStatus;
-    private OrderCustomerReport orderCustomerReport;
-    private OrderPriorityReport orderPriorityReport;
-    private ZonedDateTime createDate;
-    private LocalDate desireShipDate;
+    private final Long orderId;
+    private final Long orderNumber;
+    private final String externalId;
+    private final String orderStatus;
+    private final OrderCustomerReport orderCustomerReport;
+    private final OrderPriorityReport orderPriorityReport;
+    private final ZonedDateTime createDate;
+    private final LocalDate desireShipDate;
 
-
-    public OrderReport(Long orderId, Long orderNumber, String externalId, OrderCustomerReport orderCustomerReport, OrderPriorityReport orderPriorityReport
-        ,String orderStatus, ZonedDateTime createDate, LocalDate desireShipDate) {
+    public OrderReport(Long orderId, Long orderNumber, String externalId, String orderStatus, OrderCustomerReport orderCustomerReport, OrderPriorityReport orderPriorityReport, ZonedDateTime createDate, LocalDate desireShipDate) {
         this.orderId = orderId;
         this.orderNumber = orderNumber;
         this.externalId = externalId;
@@ -39,7 +37,6 @@ public class OrderReport implements Validatable {
         checkValid();
     }
 
-
     @Override
     public void checkValid() {
         Assert.notNull(orderId, "orderId must not be null");
@@ -50,4 +47,5 @@ public class OrderReport implements Validatable {
         Assert.notNull(createDate, "createDate must not be null");
         Assert.notNull(orderStatus, "orderStatus must not be null");
     }
+
 }

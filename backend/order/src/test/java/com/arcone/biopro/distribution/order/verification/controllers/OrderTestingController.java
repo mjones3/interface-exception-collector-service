@@ -97,13 +97,18 @@ public class OrderTestingController {
     }
 
     public void listOrdersByExternalId() {
-        var response = apiHelper.graphQlListRequest(GraphQLQueryMapper.listOrdersByUniqueIdentifier(context.getLocationCode(),context.getExternalId()), "searchOrders");
-        context.setOrderList(response);
+        var response = apiHelper.graphQlPageRequest(GraphQLQueryMapper.listOrdersByUniqueIdentifier(context.getLocationCode(),context.getExternalId()), "searchOrders");
+        context.setOrdersPage(response);
     }
 
     public void listOrdersByOrderId() {
-        var response = apiHelper.graphQlListRequest(GraphQLQueryMapper.listOrdersByUniqueIdentifier(context.getLocationCode(),context.getOrderId().toString()), "searchOrders");
-        context.setOrderList(response);
+        var response = apiHelper.graphQlPageRequest(GraphQLQueryMapper.listOrdersByUniqueIdentifier(context.getLocationCode(),context.getOrderId().toString()), "searchOrders");
+        context.setOrdersPage(response);
+    }
+
+    public void listOrdersByPage(Integer page) {
+        var response = apiHelper.graphQlPageRequest(GraphQLQueryMapper.listOrdersByPage(context.getLocationCode(),page), "searchOrders");
+        context.setOrdersPage(response);
     }
 
     public void cancelOrder(String externalId, String cancelDate, String payload) throws Exception {

@@ -3,6 +3,8 @@ Feature: List of all orders in Search Order
 
     Background:
         Given I cleaned up from the database the orders with external ID starting with "EXT1141179".
+        And I cleaned up from the database the orders with external ID starting with "EXTDIS220".
+        And I cleaned up from the database the orders with external ID starting with "EXT20RECORDS".
         And I have restored the default configuration for the order priority colors.
 
     Rule: I should be able to see the list of orders by priority and status where the user logged in.
@@ -119,4 +121,28 @@ Feature: List of all orders in Search Order
             Then I cleaned up from the database the orders with external ID starting with "EXT20RECORDS".
 
 
+    Rule: I should be able to navigate across pages.
+    Rule: I should be able to know the total number of records and pages.
+    Rule: I should be able to know the total number of items per page.
+    Rule: I should be able to know the current page number.
+    @api @DIS-220
+    Scenario Outline: List orders and navigate through multiple pages.
+        Given I cleaned up from the database the orders with external ID starting with "EXTDIS220".
+        And I have <Total Records> Biopro Order(s).
+        # Request without specifying a page (expected to get the first page by default)
+        When I request to list the Orders.
+        Then I should receive <Total Records> order(s) splitted in <Total Pages> page(s).
+        And I confirm that the page 1 "has" <Total Items per Page> orders.
+        And I confirm that the page 1 "has no" previous page and "has" next page.
+        # Navigate to next page (page 2 out of 3)
+        When I request to list the Orders at page 2.
+        Then I confirm that the page 2 "has" <Total Items per Page> orders.
+        And I confirm that the page 2 "has" previous page and "has" next page.
+        # Navigate to last page (page 3 out of 3)
+        When I request to list the Orders at page 3.
+        Then I confirm that the page 3 "has" <Last Page Total Items> orders.
+        And I confirm that the page 3 "has" previous page and "has no" next page.
+        Examples:
+            | Total Records | Total Pages | Total Items per Page | Last Page Total Items |
+            | 50            | 3           | 20                   | 10                    |
 

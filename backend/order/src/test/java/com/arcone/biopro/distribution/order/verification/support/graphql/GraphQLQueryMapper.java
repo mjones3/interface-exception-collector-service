@@ -1,5 +1,7 @@
 package com.arcone.biopro.distribution.order.verification.support.graphql;
 
+import java.util.Optional;
+
 public class GraphQLQueryMapper {
     public static String findCustomerByCode(String code) {
         return (String.format("""
@@ -31,51 +33,87 @@ public class GraphQLQueryMapper {
 
     public static String listOrdersByLocation(String locationCode) {
         return String.format("""
-            query  {
-              searchOrders(orderQueryCommandDTO:{
-                locationCode:"%s"
-              }) {
-                orderId
-                orderNumber
-                externalId
-                orderStatus
-                createDate
-                desireShipDate
-                orderPriorityReport {
-                  priority
-                  priorityColor
+            query {
+                searchOrders(
+                    orderQueryCommandDTO: {
+                        locationCode:"%s"
+                    }
+                ) {
+                    content
+                    pageNumber
+                    pageSize
+                    totalRecords
+                    hasPrevious
+                    hasNext
+                    isFirst
+                    isLast
+                    totalPages
+                    querySort {
+                        orderByList {
+                            property
+                            direction
+                        }
+                    }
                 }
-                orderCustomerReport {
-                  code
-                  name
-                }
-              }
             }
             """, locationCode);
     }
 
+    public static String listOrdersByPage(String locationCode , Integer page) {
+        var pageNumber = page != null ? page : 0;
+        return String.format("""
+            query {
+                searchOrders(
+                    orderQueryCommandDTO: {
+                        locationCode:"%s",
+                        pageNumber:%s
+                    }
+                ) {
+                    content
+                    pageNumber
+                    pageSize
+                    totalRecords
+                    hasPrevious
+                    hasNext
+                    isFirst
+                    isLast
+                    totalPages
+                    querySort {
+                        orderByList {
+                            property
+                            direction
+                        }
+                    }
+                }
+            }
+            """, locationCode , pageNumber);
+    }
+
     public static String listOrdersByUniqueIdentifier(String locationCode, String externalId) {
         return String.format("""
-            query  {
-              searchOrders(orderQueryCommandDTO:{
-                locationCode:"%s",
-                orderUniqueIdentifier:"%s"
-              }) {
-                orderId
-                orderNumber
-                externalId
-                orderStatus
-                createDate
-                desireShipDate
-                orderPriorityReport {
-                  priority
-                  priorityColor
+            query {
+                searchOrders(
+                    orderQueryCommandDTO: {
+                        locationCode:"%s",
+                        orderUniqueIdentifier:"%s"
+                    }
+                ) {
+                    content
+                    pageNumber
+                    pageSize
+                    totalRecords
+                    hasPrevious
+                    hasNext
+                    isFirst
+                    isLast
+                    totalPages
+                    querySort {
+                        orderByList {
+                            property
+                            direction
+                        }
+                    }
                 }
-                orderCustomerReport {
-                  code
-                  name
-                }
-              }
             }
             """, locationCode, externalId);
     }

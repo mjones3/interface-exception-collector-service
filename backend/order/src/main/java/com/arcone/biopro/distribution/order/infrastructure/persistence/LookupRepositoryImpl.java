@@ -12,8 +12,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import static java.lang.Boolean.TRUE;
-import static org.springframework.data.domain.Sort.Direction.ASC;
-import static org.springframework.data.domain.Sort.by;
 import static org.springframework.data.relational.core.query.Criteria.where;
 import static org.springframework.data.relational.core.query.Query.query;
 
@@ -22,6 +20,7 @@ import static org.springframework.data.relational.core.query.Query.query;
 public class LookupRepositoryImpl implements LookupRepository {
 
     private final R2dbcEntityTemplate entityTemplate;
+    private final LookupEntityRepository lookupEntityRepository;
     private final LookupEntityMapper lookupEntityMapper;
 
     private Query queryByUniqueKey(final LookupId id, final Boolean active) {
@@ -63,16 +62,8 @@ public class LookupRepositoryImpl implements LookupRepository {
 
     @Override
     public Flux<Lookup> findAllByType(final String type) {
-        return this.entityTemplate
-            .select(LookupEntity.class)
-            .matching(
-                query(
-                    where("active").isTrue()
-                        .and("type").is(type)
-                )
-                .sort(by(ASC, "order_number"))
-            )
-            .all()
+        return this.lookupEntityRepository
+            .findAllByTypeAndActiveIsTrueOrderByOrderNumberAsc(type)
             .flatMap(lookupEntityMapper::flatMapToDomain);
     }
 

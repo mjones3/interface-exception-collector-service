@@ -18,12 +18,8 @@ biopro-table {
             }
         }
 
-        span {
+        span:not(.mdc-button__label) {
             @apply text-gray-800 opacity-85;
         }
-    }
-
-    .mdc-button__label{
-        color:#fff !important;
     }
 }
