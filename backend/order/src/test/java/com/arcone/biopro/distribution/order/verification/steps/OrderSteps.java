@@ -916,9 +916,11 @@ public class OrderSteps {
         if(HAS.equals(hasHasNot)){
             Assertions.assertFalse(currentPage.content().isEmpty());
             Assert.assertEquals(totalElements, currentPage.content().size());
-        }else{
+        }else if(HAS_NOT.equals(hasHasNot)){
             Assertions.assertTrue(currentPage.content().isEmpty());
             Assert.assertEquals(totalElements, 0);
+        }else{
+            Assert.fail("Invalid Option of has / has not");
         }
     }
 
@@ -931,14 +933,18 @@ public class OrderSteps {
 
         if(HAS.equals(hasHasNotPreviousPage)){
             Assert.assertTrue(currentPage.hasPrevious());
-        }else{
+        }else if(HAS_NOT.equals(hasHasNotPreviousPage)){
             Assert.assertFalse(currentPage.hasPrevious());
+        }else{
+            Assert.fail("Invalid Option of has / has not");
         }
 
         if(HAS.equals(hasHasNotNextPage)){
             Assert.assertTrue(currentPage.hasNext());
-        }else{
+        }else if(HAS_NOT.equals(hasHasNotNextPage)){
             Assert.assertFalse(currentPage.hasNext());
+        }else{
+            Assert.fail("Invalid Option of has / has not");
         }
 
     }
