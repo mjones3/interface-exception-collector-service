@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -93,6 +94,9 @@ public class OrderSteps {
     private long kafkaWaitingTime;
 
     private PageDTO<JsonNode> response;
+
+    private static final String HAS = "has";
+    private static final String HAS_NOT = "has no";
 
     private void createOrderInboundRequest(String jsonContent, OrderReceivedEventDTO eventPayload) throws JSONException {
         partnerOrder = new JSONObject(jsonContent);
@@ -285,9 +289,13 @@ public class OrderSteps {
 
     @Given("I have more than {int} Biopro Orders.")
     public void createMultipleBioproOrders(int quantity) {
+        createMultipleBioproOrders(quantity,"EXT20RECORDS");
+    }
+
+    private void createMultipleBioproOrders(int quantity, String externalIdPrefix) {
         for (int i = 0; i <= quantity; i++) {
             var priority = orderController.getRandomPriority();
-            var externalId = "EXT20RECORDS" + i;
+            var externalId = externalIdPrefix + i;
             var query = DatabaseQueries.insertBioProOrder(externalId, "123456789", priority.getValue(), priority.getKey(), "OPEN");
             databaseService.executeSql(query).block();
         }
@@ -881,4 +889,66 @@ public class OrderSteps {
             Assert.fail("Invalid option for cancel details.");
         }
     }
+
+    @Given("I have {int} Biopro Order\\(s).")
+    public void iHaveBioproOrderS(int totalRecords) {
+        this.createMultipleBioproOrders(totalRecords-1,"EXTDIS220");
+    }
+
+    @When("I request to list the Orders.")
+    public void iRequestToListTheOrders() {
+        orderController.listOrdersByPage(null);
+    }
+
+    @Then("I should receive {int} order\\(s) splitted in {int} page\\(s).")
+    public void iShouldReceiveOrderSSplittedInPageS(int totalRecords, int totalPages) {
+        var page = context.getOrdersPage();
+        Assert.assertEquals(totalRecords, page.totalRecords());
+        Assert.assertEquals(totalPages, page.totalPages());
+    }
+
+    @And("I confirm that the page {int} {string} {int} orders.")
+    public void iConfirmThatThePageOrders(int page, String hasHasNot, int totalElements) {
+        var pageIndex = page - 1;
+        orderController.listOrdersByPage(pageIndex);
+        var currentPage = context.getOrdersPage();
+        Assert.assertEquals(pageIndex, currentPage.pageNumber());
+        if(HAS.equals(hasHasNot)){
+            Assertions.assertFalse(currentPage.content().isEmpty());
+            Assert.assertEquals(totalElements, currentPage.content().size());
+        }else{
+            Assertions.assertTrue(currentPage.content().isEmpty());
+            Assert.assertEquals(totalElements, 0);
+        }
+    }
+
+    @And("I confirm that the page {int} {string} previous page and {string} next page.")
+    public void iConfirmThatThePagePreviousPageAndNextPage(int page, String hasHasNotPreviousPage, String hasHasNotNextPage) {
+        var pageIndex = page - 1;
+        orderController.listOrdersByPage(pageIndex);
+        var currentPage = context.getOrdersPage();
+        Assert.assertEquals(pageIndex, currentPage.pageNumber());
+
+        if(HAS.equals(hasHasNotPreviousPage)){
+            Assert.assertTrue(currentPage.hasPrevious());
+        }else{
+            Assert.assertFalse(currentPage.hasPrevious());
+        }
+
+        if(HAS.equals(hasHasNotNextPage)){
+            Assert.assertTrue(currentPage.hasNext());
+        }else{
+            Assert.assertFalse(currentPage.hasNext());
+        }
+
+    }
+
+    @When("I request to list the Orders at page {int}.")
+    public void iRequestToListTheOrdersAtPage(int page) {
+        orderController.listOrdersByPage(page);
+        Assertions.assertNotNull(context.getOrdersPage());
+    }
+
+
+
 }

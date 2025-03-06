@@ -97,6 +97,11 @@ public class OrderTestingController {
         context.setOrdersPage(response);
     }
 
+    public void listOrdersByPage(Integer page) {
+        var response = apiHelper.graphQlPageRequest(GraphQLQueryMapper.listOrdersByPage(context.getLocationCode(),page), "searchOrders");
+        context.setOrdersPage(response);
+    }
+
     public void cancelOrder(String externalId, String cancelDate, String payload) throws Exception {
         var jsonContent = testUtils.getResource(payload).replace("{EXTERNAL_ID}", externalId).replace("{EVENT_ID}", UUID.randomUUID().toString()).replace("{CANCEL_DATE}", cancelDate);
         ObjectMapper objectMapper = new ObjectMapper();
