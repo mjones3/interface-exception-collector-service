@@ -23,6 +23,7 @@
         mat-table
         multiTemplateDataRows
         matSort
+        [matSortDisableClear]="true"
         [dataSource]="tableDataSource"
         [matSortActive]="defaultSort()?.id"
         [matSortDirection]="defaultSort()?.start"
@@ -61,7 +62,7 @@
                             [ngTemplateOutlet]="column.columnTempRef"
                             [ngTemplateOutletContext]="{
                                 element,
-                                column: column.id,
+                                columnId: column.id,
                                 index: i,
                             }"
                         >
