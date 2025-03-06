@@ -21,12 +21,6 @@
     "modifyDate": {
       "$ref": "#/definitions/dateTimePattern"
     },
-    "shipmentType": {
-      "type": "string",
-      "enum": [
-        "CUSTOMER"
-      ]
-    },
     "deliveryType": {
       "type": "string" ,
       "enum": [

@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  description: "Order Management API to accept a create of an order from a customer"
+  description: "Order Management API to accept inbound requests for creation, modification and cancellation of an order from a customers."
   version: "BioPro PI4.6"
   title: "Order Management Interface API"
 tags:
