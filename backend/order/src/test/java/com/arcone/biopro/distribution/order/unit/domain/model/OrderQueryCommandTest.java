@@ -19,12 +19,15 @@ class OrderQueryCommandTest {
         Assertions.assertNotNull(orderQueryCommand);
         Assertions.assertNotNull(orderQueryCommand.getQuerySort());
         Assertions.assertNotNull(orderQueryCommand.getQuerySort().getQueryOrderByList());
-        Assertions.assertEquals("ASC",orderQueryCommand.getQuerySort().getQueryOrderByList().get(0).getDirection());
         Assertions.assertEquals("priority",orderQueryCommand.getQuerySort().getQueryOrderByList().get(0).getProperty());
-        Assertions.assertEquals("DESC",orderQueryCommand.getQuerySort().getQueryOrderByList().get(1).getDirection());
+        Assertions.assertEquals("ASC",orderQueryCommand.getQuerySort().getQueryOrderByList().get(0).getDirection());
         Assertions.assertEquals("status",orderQueryCommand.getQuerySort().getQueryOrderByList().get(1).getProperty());
+        Assertions.assertEquals("DESC",orderQueryCommand.getQuerySort().getQueryOrderByList().get(1).getDirection());
         Assertions.assertEquals("desired_shipping_date", orderQueryCommand.getQuerySort().getQueryOrderByList().get(2).getProperty());
         Assertions.assertEquals("ASC",orderQueryCommand.getQuerySort().getQueryOrderByList().get(2).getDirection());
+        Assertions.assertEquals("id", orderQueryCommand.getQuerySort().getQueryOrderByList().get(3).getProperty());
+        Assertions.assertEquals("DESC",orderQueryCommand.getQuerySort().getQueryOrderByList().get(3).getDirection());
+        Assertions.assertEquals(4,orderQueryCommand.getQuerySort().getQueryOrderByList().size());
         Assertions.assertTrue(orderQueryCommand.getOrderStatus().contains("IN_PROGRESS"));
         Assertions.assertTrue(orderQueryCommand.getOrderStatus().contains("OPEN"));
         Assertions.assertFalse(orderQueryCommand.getOrderStatus().contains("COMPLETED"));

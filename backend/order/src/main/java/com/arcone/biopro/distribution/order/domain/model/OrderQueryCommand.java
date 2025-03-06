@@ -23,7 +23,8 @@ public class OrderQueryCommand implements Validatable, FilterAndSortCommand {
     private static final List<QueryOrderBy> DEFAULT_SORTING = List.of(
         new QueryOrderBy("priority", "ASC"),
         new QueryOrderBy("status", "DESC"),
-        new QueryOrderBy("desired_shipping_date", "ASC")
+        new QueryOrderBy("desired_shipping_date", "ASC"),
+        new QueryOrderBy("id", "DESC")
     );
 
     private final String locationCode;
