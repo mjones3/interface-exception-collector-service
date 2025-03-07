@@ -38,6 +38,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
@@ -1093,22 +1094,42 @@ public class OrderSteps {
             orderController.getOrderDetails(orderIdMap.get(externalId));
             if (shouldBeFound.equalsIgnoreCase("yes")) {
                 Assert.assertNotNull(context.getOrderDetails());
+                List<Map> orderItems = (List<Map>) context.getOrderDetails().get("orderItems");
                 if (shouldBeUpdated.equalsIgnoreCase("yes")) {
+                    // Validate order data
                     Assert.assertEquals(context.getOrderDetails().get("locationCode"), locationCode);
                     Assert.assertEquals(context.getOrderDetails().get("priority"), modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Delivery Type")));
                     Assert.assertEquals(context.getOrderDetails().get("productCategory"), modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Product Category")));
                     Assert.assertEquals(context.getOrderDetails().get("modifyReason"), modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Modify Reason")));
+                    // Validate order items data
+                    var productFamilyList = testUtils.getCommaSeparatedList(modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Product Family")));
+                    var bloodTypeList = testUtils.getCommaSeparatedList(modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Blood Type")));
+                    var quantityList = testUtils.getCommaSeparatedList(modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Quantity")));
+                    for (var j = 0; j < orderItems.size(); j++) {
+                        Assert.assertEquals(productFamilyList[j], orderItems.get(j).get("productFamily"));
+                        Assert.assertEquals(bloodTypeList[j], orderItems.get(j).get("bloodType"));
+                        Assert.assertEquals(Integer.parseInt(quantityList[j]), Integer.parseInt(orderItems.get(j).get("quantity").toString()));
+                    }
                 } else if (shouldBeUpdated.equalsIgnoreCase("no")) {
+                    // Validate order data
                     Assert.assertEquals(context.getOrderDetails().get("locationCode"), originalOrderTable.row(i).get(originalOrderTable.row(0).indexOf("Location Code")));
                     Assert.assertEquals(context.getOrderDetails().get("priority"), originalOrderTable.row(i).get(originalOrderTable.row(0).indexOf("Delivery Type")));
                     Assert.assertEquals(context.getOrderDetails().get("productCategory"), originalOrderTable.row(i).get(originalOrderTable.row(0).indexOf("Product Category")));
+                    // Validate order items data
+                    var productFamilyList = testUtils.getCommaSeparatedList(originalOrderTable.row(i).get(originalOrderTable.row(0).indexOf("Product Family")));
+                    var bloodTypeList = testUtils.getCommaSeparatedList(originalOrderTable.row(i).get(originalOrderTable.row(0).indexOf("Blood Type")));
+                    var quantityList = testUtils.getCommaSeparatedList(originalOrderTable.row(i).get(originalOrderTable.row(0).indexOf("Quantity")));
+                    for (var j = 0; j < orderItems.size(); j++) {
+                        Assert.assertEquals(productFamilyList[j], orderItems.get(j).get("productFamily"));
+                        Assert.assertEquals(bloodTypeList[j], orderItems.get(j).get("bloodType"));
+                        Assert.assertEquals(Integer.parseInt(quantityList[j]), Integer.parseInt(orderItems.get(j).get("quantity").toString()));
+                    }
                 } else {
                     Assert.fail("Invalid option for should be updated.");
                 }
             } else if (shouldBeFound.equalsIgnoreCase("no")) {
                 Assert.assertNull(context.getOrderDetails());
-            }
-            else {
+            } else {
                 Assert.fail("Invalid option for should be found.");
             }
         }
