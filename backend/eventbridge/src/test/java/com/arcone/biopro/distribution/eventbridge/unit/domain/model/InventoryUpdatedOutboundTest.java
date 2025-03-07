@@ -13,7 +13,7 @@ class InventoryUpdatedOutboundTest {
     @Test
     public void shouldCreateDomain(){
         var target = new InventoryUpdatedOutbound(
-            "CREATED",
+            "LABEL_APPLIED",
             "W035625205983",
             "E067800",
             "APH AS3 LR",
@@ -22,8 +22,9 @@ class InventoryUpdatedOutboundTest {
             LocalDate.now(),
             "MIAMI",
             "REFRIG 1",
-            List.of("AVAILABLE"),
-            Map.of("HGBS","N"));
+            List.of("AVAILABLE","LABELED"),
+            Map.of("LICENSURE", "LICENSED"),
+            List.of());
         Assertions.assertNotNull(target);
     }
 
@@ -40,11 +41,11 @@ class InventoryUpdatedOutboundTest {
                 LocalDate.now(),
                 "MIAMI",
                 "REFRIG 1",
-                List.of("AVAILABLE"),
-                Map.of("HGBS","N")));
+                List.of("AVAILABLE","LABELED"),
+                Map.of("LICENSURE", "LICENSED"), List.of()));
         Assertions.assertThrows(IllegalArgumentException.class, () ->
             new InventoryUpdatedOutbound(
-                "CREATED",
+                "LABEL_APPLIED",
                 null,
                 "E067800",
                 "APH AS3 LR",
@@ -53,11 +54,11 @@ class InventoryUpdatedOutboundTest {
                 LocalDate.now(),
                 "MIAMI",
                 "REFRIG 1",
-                List.of("AVAILABLE"),
-                Map.of("HGBS","N")));
+                List.of("AVAILABLE","LABELED"),
+                Map.of("LICENSURE", "LICENSED"), List.of()));
         Assertions.assertThrows(IllegalArgumentException.class, () ->
             new InventoryUpdatedOutbound(
-                "CREATED",
+                "LABEL_APPLIED",
                 "W035625205983",
                 null,
                 "APH AS3 LR",
@@ -66,11 +67,11 @@ class InventoryUpdatedOutboundTest {
                 LocalDate.now(),
                 "MIAMI",
                 "REFRIG 1",
-                List.of("AVAILABLE"),
-                Map.of("HGBS","N")));
+                List.of("AVAILABLE","LABELED"),
+                Map.of("LICENSURE", "LICENSED"), List.of()));
         Assertions.assertThrows(IllegalArgumentException.class, () ->
             new InventoryUpdatedOutbound(
-                "CREATED",
+                "LABEL_APPLIED",
                 "W035625205983",
                 "E067800",
                 "APH AS3 LR",
@@ -79,11 +80,11 @@ class InventoryUpdatedOutboundTest {
                 LocalDate.now(),
                 "MIAMI",
                 "REFRIG 1",
-                List.of("AVAILABLE"),
-                Map.of("HGBS","N")));
+                List.of("AVAILABLE","LABELED"),
+                Map.of("LICENSURE", "LICENSED"), List.of()));
         Assertions.assertThrows(IllegalArgumentException.class, () ->
             new InventoryUpdatedOutbound(
-                "CREATED",
+                "LABEL_APPLIED",
                 "W035625205983",
                 "E067800",
                 "APH AS3 LR",
@@ -92,8 +93,8 @@ class InventoryUpdatedOutboundTest {
                 null,
                 "MIAMI",
                 "REFRIG 1",
-                List.of("AVAILABLE"),
-                Map.of("HGBS","N")));
+                List.of("AVAILABLE", "LABELED"),
+                Map.of("LICENSURE", "LICENSED"), List.of()));
     }
 
 

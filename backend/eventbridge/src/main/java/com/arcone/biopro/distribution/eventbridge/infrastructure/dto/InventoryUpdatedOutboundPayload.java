@@ -22,7 +22,7 @@ public record InventoryUpdatedOutboundPayload(
         name = "updateType",
         title = "Update type",
         description = "The inventory update type",
-        example = "SHIPPED",
+        example = "LABEL_APPLIED",
         requiredMode = REQUIRED
     )
     String updateType,
@@ -103,7 +103,7 @@ public record InventoryUpdatedOutboundPayload(
         name = "inventoryStatus",
         title = "Inventory Statuses",
         description = "The inventory statuses",
-        example = "[SHIPPED,IN_TRANSIT,CONVERTED]",
+        example = "[\"AVAILABLE\",\"LABELED\"]",
         requiredMode = REQUIRED
     )
     List<String> inventoryStatus,
@@ -112,10 +112,24 @@ public record InventoryUpdatedOutboundPayload(
         name = "properties",
         title = "Inventory properties",
         description = "The inventory properties",
-        example = "LICENSURE: LICENSED/UNLICENSED",
+        example = "\"LICENSURE\": \"LICENSED\"",
         requiredMode = REQUIRED
     )
-    Map<String, Object> properties
+    Map<String, Object> properties,
+
+    @Schema(
+        name = "inputProducts",
+        title = "Input Products",
+        description = "List of the parent product information",
+        example = "[\n" +
+            "    {\n" +
+            "      \"unitNumber\": \"W123456748998\",\n" +
+            "      \"productCode\": \"E468899\"\n" +
+            "    }\n" +
+            "  ]",
+        requiredMode = REQUIRED
+    )
+    List<Object> inputProducts
 
 ) implements Serializable {
 

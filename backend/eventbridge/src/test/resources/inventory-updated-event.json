@@ -14,10 +14,12 @@
     "locationCode": "MIAMI",
     "storageLocation": "REFRIG 1",
     "inventoryStatus": [
-      "AVAILABLE"
+      "AVAILABLE",
+      "LABELED"
     ],
     "properties": {
-      "HGBS": "N"
-    }
+      "LICENSURE": "LICENSED"
+    },
+    "inputProducts": []
   }
 }

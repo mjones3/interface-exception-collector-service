@@ -43,7 +43,7 @@ public class InventoryUpdatedOutboundSteps {
 
         inventoryUpdatedOutboundContext.setUnitNumber("W035625205983");
         inventoryUpdatedOutboundContext.setProductCode("E067800");
-        inventoryUpdatedOutboundContext.setUpdateType("CREATED");
+        inventoryUpdatedOutboundContext.setUpdateType("LABEL_APPLIED");
 
         var JSON = TestUtil.resource("inventory-updated-event-automation.json")
             .replace("{unit-number}", inventoryUpdatedOutboundContext.getUnitNumber())

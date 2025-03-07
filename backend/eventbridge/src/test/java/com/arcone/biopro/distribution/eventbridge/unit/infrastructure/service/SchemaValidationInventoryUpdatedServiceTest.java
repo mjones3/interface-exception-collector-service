@@ -18,7 +18,7 @@ class SchemaValidationInventoryUpdatedServiceTest {
         var json = TestUtil.resource("inventory-updated-event.json")
             .replace("{unit-number}", "W035625205983")
             .replace("{product-code}", "E067800")
-            .replace("{update-type}", "CREATED");
+            .replace("{update-type}", "LABEL_APPLIED");
 
         StepVerifier
             .create(service.validateSchema(json, INVENTORY_UPDATED_SCHEMA))
