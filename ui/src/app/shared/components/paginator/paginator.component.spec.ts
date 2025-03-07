@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-
 import { PageEvent } from '@angular/material/paginator';
 import { createTestContext } from '@testing';
 import { PaginatorComponent } from './paginator.component';
@@ -19,6 +18,8 @@ describe('PaginatorComponent', () => {
             createTestContext<PaginatorComponent>(PaginatorComponent);
         fixture = testContext.fixture;
         component = testContext.component;
+        fixture.componentRef.setInput('total', '20');
+        fixture.componentRef.setInput('size', '10');
         fixture.detectChanges();
     });
 
@@ -27,11 +28,10 @@ describe('PaginatorComponent', () => {
     });
 
     it('should emit paginate event', () => {
-        const event: PageEvent = {
-            length: 10,
+        const event = {
             pageIndex: 0,
             pageSize: 10,
-        };
+        } as PageEvent;
 
         jest.spyOn(component.paginate, 'emit');
 

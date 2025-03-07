@@ -59,7 +59,6 @@ public class OrderEntity {
     @Column("billing_customer_code")
     private String billingCustomerCode;
 
-    @NotNull
     @Column("desired_shipping_date")
     private LocalDate desiredShippingDate;
 
