@@ -30,6 +30,7 @@ class InventoryUpdatedOutboundMapperTest {
         Mockito.when(mockPayload.getStorageLocation()).thenReturn("STORAGE_LOCATION");
         Mockito.when(mockPayload.getInventoryStatus()).thenReturn(List.of("INVENTORY_STATUS"));
         Mockito.when(mockPayload.getProperties()).thenReturn(Map.of());
+        Mockito.when(mockPayload.getInputProducts()).thenReturn(List.of());
 
         var dto = target.toDto(mockPayload);
 

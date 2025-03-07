@@ -38,6 +38,7 @@ class InventoryUpdatedUseCaseTest {
         Mockito.when(mockPayload.storageLocation()).thenReturn("STORAGE_LOCATION");
         Mockito.when(mockPayload.inventoryStatus()).thenReturn(List.of("INVENTORY_STATUS"));
         Mockito.when(mockPayload.properties()).thenReturn(Map.of());
+        Mockito.when(mockPayload.inputProducts()).thenReturn(List.of());
 
         var target = new InventoryUpdatedUseCase(applicationEventPublisher, inventoryUpdatedMapper);
 

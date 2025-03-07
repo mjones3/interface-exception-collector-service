@@ -24,6 +24,7 @@ public class InventoryUpdatedOutboundMapper {
             .storageLocation(inventoryUpdatedOutbound.getStorageLocation())
             .inventoryStatus(inventoryUpdatedOutbound.getInventoryStatus())
             .properties(inventoryUpdatedOutbound.getProperties())
+            .inputProducts(inventoryUpdatedOutbound.getInputProducts())
             .build();
 
     }

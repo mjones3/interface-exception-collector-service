@@ -71,6 +71,14 @@
               "value"
             ]
           }
+        },
+        "inputProducts": {
+          "type": "array",
+          "items": [
+            {
+              "type": "object"
+            }
+          ]
         }
       },
       "required": [
@@ -81,7 +89,9 @@
         "productFamily",
         "expirationDate",
         "locationCode",
-        "inventoryStatus"
+        "inventoryStatus",
+        "properties",
+        "inputProducts"
       ]
     }
   },

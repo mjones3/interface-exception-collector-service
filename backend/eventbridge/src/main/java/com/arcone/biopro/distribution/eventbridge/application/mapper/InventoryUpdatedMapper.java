@@ -21,7 +21,8 @@ public class InventoryUpdatedMapper {
             inventoryUpdatedPayload.locationCode(),
             inventoryUpdatedPayload.storageLocation(),
             inventoryUpdatedPayload.inventoryStatus(),
-            inventoryUpdatedPayload.properties()
+            inventoryUpdatedPayload.properties(),
+            inventoryUpdatedPayload.inputProducts()
         );
     }
 }
