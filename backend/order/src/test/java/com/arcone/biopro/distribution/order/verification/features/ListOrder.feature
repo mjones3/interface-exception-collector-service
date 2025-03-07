@@ -5,6 +5,7 @@ Feature: List of all orders in Search Order
         Given I cleaned up from the database the orders with external ID starting with "EXT1141179".
         And I cleaned up from the database the orders with external ID starting with "EXTDIS220".
         And I cleaned up from the database the orders with external ID starting with "EXT20RECORDS".
+        And I cleaned up from the database the orders with external ID starting with "EXTDIS237".
         And I have restored the default configuration for the order priority colors.
 
     Rule: I should be able to see the list of orders by priority and status where the user logged in.
@@ -65,17 +66,17 @@ Feature: List of all orders in Search Order
         @R20-274 @api @bug @DIS-285
         Scenario: List Biopro Orders in the specified order by default
             Given I have these BioPro Orders.
-                | External ID      | Location Code | Priority | Status      | Desired Shipment Date |
-                | EXT1141179223321 | 1979          | STAT     | IN_PROGRESS | 2025-01-01            |
-                | EXT1141179320123 | 1979          | STAT     | IN_PROGRESS | 2025-01-02            |
-                | EXT1141179225123 | 1979          | STAT     | OPEN        | 2025-01-01            |
-                | EXT1141179114123 | 1979          | ROUTINE  | IN_PROGRESS | 2025-01-02            |
-                | EXT1141179123123 | 1979          | ASAP     | IN_PROGRESS | 2025-01-01            |
-                | EXT1141179179123 | 1979          | ROUTINE  | OPEN        | 2025-01-01            |
-                | EXT1141179443123 | 1979          | ASAP     | IN_PROGRESS | 2025-01-02            |
-                | EXT1141179915123 | 1979          | ASAP     | OPEN        | 2025-01-01            |
-                | EXT1141179541123 | 1979          | ROUTINE  | IN_PROGRESS | 2025-01-01            |
-                | EXT1141179DIS2951| 1979          | ROUTINE  | IN_PROGRESS | NULL_VALUE            |
+                | External ID      | Location Code | Priority | Status      | Desired Shipment Date | Customer Code | Ship To Customer Name      | Create Date         |
+                | EXT1141179223321 | 1979          | STAT     | IN_PROGRESS | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T20:59:16 |
+                | EXT1141179320123 | 1979          | STAT     | IN_PROGRESS | 2025-01-02            | B2346         | Advanced Medical Center    | 2025-01-01T20:59:16 |
+                | EXT1141179225123 | 1979          | STAT     | OPEN        | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T20:59:16 |
+                | EXT1141179114123 | 1979          | ROUTINE  | IN_PROGRESS | 2025-01-02            | A1235         | Creative Testing Solutions | 2025-01-01T20:59:16 |
+                | EXT1141179123123 | 1979          | ASAP     | IN_PROGRESS | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T20:59:16 |
+                | EXT1141179179123 | 1979          | ROUTINE  | OPEN        | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T20:59:16 |
+                | EXT1141179443123 | 1979          | ASAP     | IN_PROGRESS | 2025-01-02            | B2346         | Advanced Medical Center    | 2025-01-01T20:59:16 |
+                | EXT1141179915123 | 1979          | ASAP     | OPEN        | 2025-01-01            | B2346         | Advanced Medical Center    | 2025-01-01T20:59:16 |
+                | EXT1141179541123 | 1979          | ROUTINE  | IN_PROGRESS | 2025-01-01            | C3457         | Pioneer Health Services    | 2025-01-01T20:59:16 |
+                | EXT1141179DIS2951| 1979          | ROUTINE  | IN_PROGRESS | NULL_VALUE            | C3457         | Pioneer Health Services    | 2025-01-01T20:59:16 |
             When I want to list orders for location "1979".
             Then I should have orders listed in the following order.
                 | External ID      | Location Code | Priority | Status      | Desired Shipment Date |
@@ -97,11 +98,11 @@ Feature: List of all orders in Search Order
         @R20-274 @api
         Scenario: List Biopro Orders in OPEN or IN_PROGRESS status
             Given I have these BioPro Orders.
-                | External ID      | Location Code | Priority | Status      | Desired Shipment Date |
-                | EXT1141179223322 | 1979          | STAT     | OPEN        | 2025-01-02            |
-                | EXT1141179223321 | 1979          | STAT     | IN_PROGRESS | 2025-01-01            |
-                | EXT1141179320123 | 1979          | STAT     | IN_PROGRESS | 2025-01-02            |
-                | EXT1141179225123 | 1979          | STAT     | COMPLETED   | 2025-01-01            |
+                | External ID      | Location Code | Priority | Status      | Desired Shipment Date | Customer Code | Ship To Customer Name      | Create Date         |
+                | EXT1141179223322 | 1979          | STAT     | OPEN        | 2025-01-02            | A1235         | Creative Testing Solutions | 2025-01-01T00:00:00 |
+                | EXT1141179223321 | 1979          | STAT     | IN_PROGRESS | 2025-01-01            | B2346         | Advanced Medical Center    | 2025-01-01T01:00:00 |
+                | EXT1141179320123 | 1979          | STAT     | IN_PROGRESS | 2025-01-02            | A1235         | Creative Testing Solutions | 2025-01-01T02:00:00 |
+                | EXT1141179225123 | 1979          | STAT     | COMPLETED   | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T03:00:00 |
             When I want to list orders for location "1979".
             Then I should have orders listed in the following order.
                 | External ID      | Location Code | Priority | Status      | Desired Shipment Date |
@@ -145,4 +146,207 @@ Feature: List of all orders in Search Order
         Examples:
             | Total Records | Total Pages | Total Items per Page | Last Page Total Items |
             | 50            | 3           | 20                   | 10                    |
+
+
+        Rule: I should be able to sort the information in ascending order.
+        Rule: I should be able to sort the information in descending order.
+        Rule: I should be able to sort all the following fields -BioPro Order ID, External Order ID, Priority, Status
+        , Ship to Customer Name, Create Date and Time (MM/DD/YYYY HR: MINS), Desired Ship Date
+        Rule: I should be able to sort one column at a time.
+        @api @DIS-237
+        Scenario: Sorting Biopro Orders by properties
+            Given I have these BioPro Orders.
+                | External ID  | Location Code | Priority | Status      | Desired Shipment Date | Customer Code | Ship To Customer Name      | Create Date         |
+                | EXTDIS237001 | 123456789     | STAT     | IN_PROGRESS | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T00:00:00 |
+                | EXTDIS237002 | 123456789     | STAT     | IN_PROGRESS | 2025-01-02            | B2346         | Advanced Medical Center    | 2025-01-01T01:00:00 |
+                | EXTDIS237003 | 123456789     | STAT     | OPEN        | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T02:00:00 |
+                | EXTDIS237004 | 123456789     | ROUTINE  | IN_PROGRESS | 2025-01-02            | A1235         | Creative Testing Solutions | 2025-01-01T03:00:00 |
+                | EXTDIS237005 | 123456789     | ASAP     | IN_PROGRESS | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T04:00:00 |
+                | EXTDIS237006 | 123456789     | ROUTINE  | OPEN        | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T05:00:00 |
+                | EXTDIS237007 | 123456789     | ASAP     | IN_PROGRESS | 2025-01-02            | B2346         | Advanced Medical Center    | 2025-01-01T06:00:00 |
+                | EXTDIS237008 | 123456789     | ASAP     | OPEN        | 2025-01-01            | B2346         | Advanced Medical Center    | 2025-01-01T07:00:00 |
+                | EXTDIS237009 | 123456789     | ROUTINE  | IN_PROGRESS | 2025-01-01            | C3457         | Pioneer Health Services    | 2025-01-01T13:00:00 |
+                | EXTDIS2370010| 123456789     | ROUTINE  | IN_PROGRESS | NULL_VALUE            | C3457         | Pioneer Health Services    | 2025-01-01T15:00:00 |
+                | EXTDIS2370011| 123456789     | STAT     | OPEN        | 2025-01-01            | C3457         | Pioneer Health Services    | 2025-01-01T10:00:00 |
+                | EXTDIS2370012| 123456789     | ROUTINE  | OPEN        | 2025-01-01            | B2346         | Advanced Medical Center    | 2025-01-01T11:30:00 |
+            When I request to list the Orders.
+            Then I should receive the orders listed in the following order.
+                | External ID  | Location Code | Priority | Status      | Desired Shipment Date | Customer Code | Ship To Customer Name      | Create Date         |
+                | EXTDIS237003 | 123456789     | STAT     | OPEN        | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T02:00:00 |
+                | EXTDIS2370011| 123456789     | STAT     | OPEN        | 2025-01-01            | C3457         | Pioneer Health Services    | 2025-01-01T10:00:00 |
+                | EXTDIS237001 | 123456789     | STAT     | IN_PROGRESS | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T00:00:00 |
+                | EXTDIS237002 | 123456789     | STAT     | IN_PROGRESS | 2025-01-02            | B2346         | Advanced Medical Center    | 2025-01-01T01:00:00 |
+                | EXTDIS237008 | 123456789     | ASAP     | OPEN        | 2025-01-01            | B2346         | Advanced Medical Center    | 2025-01-01T07:00:00 |
+                | EXTDIS237005 | 123456789     | ASAP     | IN_PROGRESS | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T04:00:00 |
+                | EXTDIS237007 | 123456789     | ASAP     | IN_PROGRESS | 2025-01-02            | B2346         | Advanced Medical Center    | 2025-01-01T06:00:00 |
+                | EXTDIS237006 | 123456789     | ROUTINE  | OPEN        | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T05:00:00 |
+                | EXTDIS2370012| 123456789     | ROUTINE  | OPEN        | 2025-01-01            | B2346         | Advanced Medical Center    | 2025-01-01T11:30:00 |
+                | EXTDIS237009 | 123456789     | ROUTINE  | IN_PROGRESS | 2025-01-01            | C3457         | Pioneer Health Services    | 2025-01-01T13:00:00 |
+                | EXTDIS237004 | 123456789     | ROUTINE  | IN_PROGRESS | 2025-01-02            | A1235         | Creative Testing Solutions | 2025-01-01T03:00:00 |
+                | EXTDIS2370010| 123456789     | ROUTINE  | IN_PROGRESS | NULL_VALUE            | C3457         | Pioneer Health Services    | 2025-01-01T15:00:00 |
+           When I request to list the Orders sorted by "priority" in "ascending" order.
+           Then I should receive the orders listed in the following order.
+               | External ID  | Location Code | Priority | Status      | Desired Shipment Date | Customer Code | Ship To Customer Name      | Create Date         |
+               | EXTDIS237002 | 123456789     | STAT     | IN_PROGRESS | 2025-01-02            | B2346         | Advanced Medical Center    | 2025-01-01T01:00:00 |
+               | EXTDIS237001 | 123456789     | STAT     | IN_PROGRESS | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T00:00:00 |
+               | EXTDIS237003 | 123456789     | STAT     | OPEN        | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T02:00:00 |
+               | EXTDIS2370011| 123456789     | STAT     | OPEN        | 2025-01-01            | C3457         | Pioneer Health Services    | 2025-01-01T10:00:00 |
+               | EXTDIS237007 | 123456789     | ASAP     | IN_PROGRESS | 2025-01-02            | B2346         | Advanced Medical Center    | 2025-01-01T06:00:00 |
+               | EXTDIS237005 | 123456789     | ASAP     | IN_PROGRESS | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T04:00:00 |
+               | EXTDIS237008 | 123456789     | ASAP     | OPEN        | 2025-01-01            | B2346         | Advanced Medical Center    | 2025-01-01T07:00:00 |
+               | EXTDIS2370012| 123456789     | ROUTINE  | OPEN        | 2025-01-01            | B2346         | Advanced Medical Center    | 2025-01-01T11:30:00 |
+               | EXTDIS237009 | 123456789     | ROUTINE  | IN_PROGRESS | 2025-01-01            | C3457         | Pioneer Health Services    | 2025-01-01T13:00:00 |
+               | EXTDIS2370010| 123456789     | ROUTINE  | IN_PROGRESS | NULL_VALUE            | C3457         | Pioneer Health Services    | 2025-01-01T15:00:00 |
+               | EXTDIS237004 | 123456789     | ROUTINE  | IN_PROGRESS | 2025-01-02            | A1235         | Creative Testing Solutions | 2025-01-01T03:00:00 |
+               | EXTDIS237006 | 123456789     | ROUTINE  | OPEN        | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T05:00:00 |
+           And  The sorting indicator should be at "priority" property in "ascending" order.
+           When I request to list the Orders sorted by "priority" in "descending" order.
+           Then I should receive the orders listed in the following order.
+               | External ID  | Location Code | Priority | Status      | Desired Shipment Date | Customer Code | Ship To Customer Name      | Create Date         |
+               | EXTDIS237006 | 123456789     | ROUTINE  | OPEN        | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T05:00:00 |
+               | EXTDIS237009 | 123456789     | ROUTINE  | IN_PROGRESS | 2025-01-01            | C3457         | Pioneer Health Services    | 2025-01-01T13:00:00 |
+               | EXTDIS2370010| 123456789     | ROUTINE  | IN_PROGRESS | NULL_VALUE            | C3457         | Pioneer Health Services    | 2025-01-01T15:00:00 |
+               | EXTDIS237004 | 123456789     | ROUTINE  | IN_PROGRESS | 2025-01-02            | A1235         | Creative Testing Solutions | 2025-01-01T03:00:00 |
+               | EXTDIS2370012| 123456789     | ROUTINE  | OPEN        | 2025-01-01            | B2346         | Advanced Medical Center    | 2025-01-01T11:30:00 |
+               | EXTDIS237007 | 123456789     | ASAP     | IN_PROGRESS | 2025-01-02            | B2346         | Advanced Medical Center    | 2025-01-01T06:00:00 |
+               | EXTDIS237005 | 123456789     | ASAP     | IN_PROGRESS | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T04:00:00 |
+               | EXTDIS237008 | 123456789     | ASAP     | OPEN        | 2025-01-01            | B2346         | Advanced Medical Center    | 2025-01-01T07:00:00 |
+               | EXTDIS237001 | 123456789     | STAT     | IN_PROGRESS | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T00:00:00 |
+               | EXTDIS237003 | 123456789     | STAT     | OPEN        | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T02:00:00 |
+               | EXTDIS2370011| 123456789     | STAT     | OPEN        | 2025-01-01            | C3457         | Pioneer Health Services    | 2025-01-01T10:00:00 |
+               | EXTDIS237002 | 123456789     | STAT     | IN_PROGRESS | 2025-01-02            | B2346         | Advanced Medical Center    | 2025-01-01T01:00:00 |
+           And  The sorting indicator should be at "priority" property in "descending" order.
+           When I request to list the Orders sorted by "externalId" in "ascending" order.
+           Then I should receive the orders listed in the following order.
+               | External ID  | Location Code | Priority | Status      | Desired Shipment Date | Customer Code | Ship To Customer Name      | Create Date         |
+               | EXTDIS237001 | 123456789     | STAT     | IN_PROGRESS | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T00:00:00 |
+               | EXTDIS2370010| 123456789     | ROUTINE  | IN_PROGRESS | NULL_VALUE            | C3457         | Pioneer Health Services    | 2025-01-01T15:00:00 |
+               | EXTDIS2370011| 123456789     | STAT     | OPEN        | 2025-01-01            | C3457         | Pioneer Health Services    | 2025-01-01T10:00:00 |
+               | EXTDIS2370012| 123456789     | ROUTINE  | OPEN        | 2025-01-01            | B2346         | Advanced Medical Center    | 2025-01-01T11:30:00 |
+               | EXTDIS237002 | 123456789     | STAT     | IN_PROGRESS | 2025-01-02            | B2346         | Advanced Medical Center    | 2025-01-01T01:00:00 |
+               | EXTDIS237003 | 123456789     | STAT     | OPEN        | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T02:00:00 |
+               | EXTDIS237004 | 123456789     | ROUTINE  | IN_PROGRESS | 2025-01-02            | A1235         | Creative Testing Solutions | 2025-01-01T03:00:00 |
+               | EXTDIS237005 | 123456789     | ASAP     | IN_PROGRESS | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T04:00:00 |
+               | EXTDIS237006 | 123456789     | ROUTINE  | OPEN        | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T05:00:00 |
+               | EXTDIS237007 | 123456789     | ASAP     | IN_PROGRESS | 2025-01-02            | B2346         | Advanced Medical Center    | 2025-01-01T06:00:00 |
+               | EXTDIS237008 | 123456789     | ASAP     | OPEN        | 2025-01-01            | B2346         | Advanced Medical Center    | 2025-01-01T07:00:00 |
+               | EXTDIS237009 | 123456789     | ROUTINE  | IN_PROGRESS | 2025-01-01            | C3457         | Pioneer Health Services    | 2025-01-01T13:00:00 |
+           And  The sorting indicator should be at "externalId" property in "ascending" order.
+           When I request to list the Orders sorted by "externalId" in "descending" order.
+           Then I should receive the orders listed in the following order.
+               | External ID  | Location Code | Priority | Status      | Desired Shipment Date | Customer Code | Ship To Customer Name      | Create Date         |
+               | EXTDIS237009 | 123456789     | ROUTINE  | IN_PROGRESS | 2025-01-01            | C3457         | Pioneer Health Services    | 2025-01-01T13:00:00 |
+               | EXTDIS237008 | 123456789     | ASAP     | OPEN        | 2025-01-01            | B2346         | Advanced Medical Center    | 2025-01-01T07:00:00 |
+               | EXTDIS237007 | 123456789     | ASAP     | IN_PROGRESS | 2025-01-02            | B2346         | Advanced Medical Center    | 2025-01-01T06:00:00 |
+               | EXTDIS237006 | 123456789     | ROUTINE  | OPEN        | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T05:00:00 |
+               | EXTDIS237005 | 123456789     | ASAP     | IN_PROGRESS | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T04:00:00 |
+               | EXTDIS237004 | 123456789     | ROUTINE  | IN_PROGRESS | 2025-01-02            | A1235         | Creative Testing Solutions | 2025-01-01T03:00:00 |
+               | EXTDIS237003 | 123456789     | STAT     | OPEN        | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T02:00:00 |
+               | EXTDIS237002 | 123456789     | STAT     | IN_PROGRESS | 2025-01-02            | B2346         | Advanced Medical Center    | 2025-01-01T01:00:00 |
+               | EXTDIS2370012| 123456789     | ROUTINE  | OPEN        | 2025-01-01            | B2346         | Advanced Medical Center    | 2025-01-01T11:30:00 |
+               | EXTDIS2370011| 123456789     | STAT     | OPEN        | 2025-01-01            | C3457         | Pioneer Health Services    | 2025-01-01T10:00:00 |
+               | EXTDIS2370010| 123456789     | ROUTINE  | IN_PROGRESS | NULL_VALUE            | C3457         | Pioneer Health Services    | 2025-01-01T15:00:00 |
+               | EXTDIS237001 | 123456789     | STAT     | IN_PROGRESS | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T00:00:00 |
+            And  The sorting indicator should be at "externalId" property in "descending" order.
+            When I request to list the Orders sorted by "status" in "ascending" order.
+            Then I should receive the orders listed in the following order.
+                | External ID  | Location Code | Priority | Status      | Desired Shipment Date | Customer Code | Ship To Customer Name      | Create Date         |
+                | EXTDIS237001 | 123456789     | STAT     | IN_PROGRESS | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T00:00:00 |
+                | EXTDIS237002 | 123456789     | STAT     | IN_PROGRESS | 2025-01-02            | B2346         | Advanced Medical Center    | 2025-01-01T01:00:00 |
+                | EXTDIS237004 | 123456789     | ROUTINE  | IN_PROGRESS | 2025-01-02            | A1235         | Creative Testing Solutions | 2025-01-01T03:00:00 |
+                | EXTDIS237005 | 123456789     | ASAP     | IN_PROGRESS | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T04:00:00 |
+                | EXTDIS237007 | 123456789     | ASAP     | IN_PROGRESS | 2025-01-02            | B2346         | Advanced Medical Center    | 2025-01-01T06:00:00 |
+                | EXTDIS237009 | 123456789     | ROUTINE  | IN_PROGRESS | 2025-01-01            | C3457         | Pioneer Health Services    | 2025-01-01T13:00:00 |
+                | EXTDIS2370010| 123456789     | ROUTINE  | IN_PROGRESS | NULL_VALUE            | C3457         | Pioneer Health Services    | 2025-01-01T15:00:00 |
+                | EXTDIS237003 | 123456789     | STAT     | OPEN        | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T02:00:00 |
+                | EXTDIS237008 | 123456789     | ASAP     | OPEN        | 2025-01-01            | B2346         | Advanced Medical Center    | 2025-01-01T07:00:00 |
+                | EXTDIS2370011| 123456789     | STAT     | OPEN        | 2025-01-01            | C3457         | Pioneer Health Services    | 2025-01-01T10:00:00 |
+                | EXTDIS237006 | 123456789     | ROUTINE  | OPEN        | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T05:00:00 |
+                | EXTDIS2370012| 123456789     | ROUTINE  | OPEN        | 2025-01-01            | B2346         | Advanced Medical Center    | 2025-01-01T11:30:00 |
+            And  The sorting indicator should be at "status" property in "ascending" order.
+            When I request to list the Orders sorted by "status" in "descending" order.
+            Then I should receive the orders listed in the following order.
+                | External ID  | Location Code | Priority | Status      | Desired Shipment Date | Customer Code | Ship To Customer Name      | Create Date         |
+                | EXTDIS237008 | 123456789     | ASAP     | OPEN        | 2025-01-01            | B2346         | Advanced Medical Center    | 2025-01-01T07:00:00 |
+                | EXTDIS237006 | 123456789     | ROUTINE  | OPEN        | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T05:00:00 |
+                | EXTDIS237003 | 123456789     | STAT     | OPEN        | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T02:00:00 |
+                | EXTDIS2370011| 123456789     | STAT     | OPEN        | 2025-01-01            | C3457         | Pioneer Health Services    | 2025-01-01T10:00:00 |
+                | EXTDIS2370012| 123456789     | ROUTINE  | OPEN        | 2025-01-01            | B2346         | Advanced Medical Center    | 2025-01-01T11:30:00 |
+                | EXTDIS237009 | 123456789     | ROUTINE  | IN_PROGRESS | 2025-01-01            | C3457         | Pioneer Health Services    | 2025-01-01T13:00:00 |
+                | EXTDIS2370010| 123456789     | ROUTINE  | IN_PROGRESS | NULL_VALUE            | C3457         | Pioneer Health Services    | 2025-01-01T15:00:00 |
+                | EXTDIS237007 | 123456789     | ASAP     | IN_PROGRESS | 2025-01-02            | B2346         | Advanced Medical Center    | 2025-01-01T06:00:00 |
+                | EXTDIS237002 | 123456789     | STAT     | IN_PROGRESS | 2025-01-02            | B2346         | Advanced Medical Center    | 2025-01-01T01:00:00 |
+                | EXTDIS237004 | 123456789     | ROUTINE  | IN_PROGRESS | 2025-01-02            | A1235         | Creative Testing Solutions | 2025-01-01T03:00:00 |
+                | EXTDIS237005 | 123456789     | ASAP     | IN_PROGRESS | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T04:00:00 |
+                | EXTDIS237001 | 123456789     | STAT     | IN_PROGRESS | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T00:00:00 |
+            And  The sorting indicator should be at "status" property in "descending" order.
+            When I request to list the Orders sorted by "shippingCustomerName" in "ascending" order.
+            Then I should receive the orders listed in the following order.
+                | External ID  | Location Code | Priority | Status      | Desired Shipment Date | Customer Code | Ship To Customer Name      | Create Date         |
+                | EXTDIS2370012| 123456789     | ROUTINE  | OPEN        | 2025-01-01            | B2346         | Advanced Medical Center    | 2025-01-01T11:30:00 |
+                | EXTDIS237002 | 123456789     | STAT     | IN_PROGRESS | 2025-01-02            | B2346         | Advanced Medical Center    | 2025-01-01T01:00:00 |
+                | EXTDIS237007 | 123456789     | ASAP     | IN_PROGRESS | 2025-01-02            | B2346         | Advanced Medical Center    | 2025-01-01T06:00:00 |
+                | EXTDIS237008 | 123456789     | ASAP     | OPEN        | 2025-01-01            | B2346         | Advanced Medical Center    | 2025-01-01T07:00:00 |
+                | EXTDIS237005 | 123456789     | ASAP     | IN_PROGRESS | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T04:00:00 |
+                | EXTDIS237006 | 123456789     | ROUTINE  | OPEN        | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T05:00:00 |
+                | EXTDIS237001 | 123456789     | STAT     | IN_PROGRESS | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T00:00:00 |
+                | EXTDIS237003 | 123456789     | STAT     | OPEN        | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T02:00:00 |
+                | EXTDIS237004 | 123456789     | ROUTINE  | IN_PROGRESS | 2025-01-02            | A1235         | Creative Testing Solutions | 2025-01-01T03:00:00 |
+                | EXTDIS2370011| 123456789     | STAT     | OPEN        | 2025-01-01            | C3457         | Pioneer Health Services    | 2025-01-01T10:00:00 |
+                | EXTDIS2370010| 123456789     | ROUTINE  | IN_PROGRESS | NULL_VALUE            | C3457         | Pioneer Health Services    | 2025-01-01T15:00:00 |
+                | EXTDIS237009 | 123456789     | ROUTINE  | IN_PROGRESS | 2025-01-01            | C3457         | Pioneer Health Services    | 2025-01-01T13:00:00 |
+            And  The sorting indicator should be at "shippingCustomerName" property in "ascending" order.
+            When I request to list the Orders sorted by "shippingCustomerName" in "descending" order.
+            Then I should receive the orders listed in the following order.
+                | External ID  | Location Code | Priority | Status      | Desired Shipment Date | Customer Code | Ship To Customer Name      | Create Date         |
+                | EXTDIS237009 | 123456789     | ROUTINE  | IN_PROGRESS | 2025-01-01            | C3457         | Pioneer Health Services    | 2025-01-01T13:00:00 |
+                | EXTDIS2370010| 123456789     | ROUTINE  | IN_PROGRESS | NULL_VALUE            | C3457         | Pioneer Health Services    | 2025-01-01T15:00:00 |
+                | EXTDIS2370011| 123456789     | STAT     | OPEN        | 2025-01-01            | C3457         | Pioneer Health Services    | 2025-01-01T10:00:00 |
+                | EXTDIS237001 | 123456789     | STAT     | IN_PROGRESS | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T00:00:00 |
+                | EXTDIS237005 | 123456789     | ASAP     | IN_PROGRESS | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T04:00:00 |
+                | EXTDIS237006 | 123456789     | ROUTINE  | OPEN        | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T05:00:00 |
+                | EXTDIS237003 | 123456789     | STAT     | OPEN        | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T02:00:00 |
+                | EXTDIS237004 | 123456789     | ROUTINE  | IN_PROGRESS | 2025-01-02            | A1235         | Creative Testing Solutions | 2025-01-01T03:00:00 |
+                | EXTDIS2370012| 123456789     | ROUTINE  | OPEN        | 2025-01-01            | B2346         | Advanced Medical Center    | 2025-01-01T11:30:00 |
+                | EXTDIS237002 | 123456789     | STAT     | IN_PROGRESS | 2025-01-02            | B2346         | Advanced Medical Center    | 2025-01-01T01:00:00 |
+                | EXTDIS237007 | 123456789     | ASAP     | IN_PROGRESS | 2025-01-02            | B2346         | Advanced Medical Center    | 2025-01-01T06:00:00 |
+                | EXTDIS237008 | 123456789     | ASAP     | OPEN        | 2025-01-01            | B2346         | Advanced Medical Center    | 2025-01-01T07:00:00 |
+            And  The sorting indicator should be at "shippingCustomerName" property in "descending" order.
+            When I request to list the Orders sorted by "desiredShippingDate" in "ascending" order.
+            Then I should receive the orders listed in the following order.
+                | External ID  | Location Code | Priority | Status      | Desired Shipment Date | Customer Code | Ship To Customer Name      | Create Date         |
+                | EXTDIS237001 | 123456789     | STAT     | IN_PROGRESS | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T00:00:00 |
+                | EXTDIS237008 | 123456789     | ASAP     | OPEN        | 2025-01-01            | B2346         | Advanced Medical Center    | 2025-01-01T07:00:00 |
+                | EXTDIS237009 | 123456789     | ROUTINE  | IN_PROGRESS | 2025-01-01            | C3457         | Pioneer Health Services    | 2025-01-01T13:00:00 |
+                | EXTDIS2370011| 123456789     | STAT     | OPEN        | 2025-01-01            | C3457         | Pioneer Health Services    | 2025-01-01T10:00:00 |
+                | EXTDIS2370012| 123456789     | ROUTINE  | OPEN        | 2025-01-01            | B2346         | Advanced Medical Center    | 2025-01-01T11:30:00 |
+                | EXTDIS237003 | 123456789     | STAT     | OPEN        | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T02:00:00 |
+                | EXTDIS237005 | 123456789     | ASAP     | IN_PROGRESS | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T04:00:00 |
+                | EXTDIS237006 | 123456789     | ROUTINE  | OPEN        | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T05:00:00 |
+                | EXTDIS237002 | 123456789     | STAT     | IN_PROGRESS | 2025-01-02            | B2346         | Advanced Medical Center    | 2025-01-01T01:00:00 |
+                | EXTDIS237004 | 123456789     | ROUTINE  | IN_PROGRESS | 2025-01-02            | A1235         | Creative Testing Solutions | 2025-01-01T03:00:00 |
+                | EXTDIS237007 | 123456789     | ASAP     | IN_PROGRESS | 2025-01-02            | B2346         | Advanced Medical Center    | 2025-01-01T06:00:00 |
+                | EXTDIS2370010| 123456789     | ROUTINE  | IN_PROGRESS | NULL_VALUE            | C3457         | Pioneer Health Services    | 2025-01-01T15:00:00 |
+            And  The sorting indicator should be at "desiredShippingDate" property in "ascending" order.
+            When I request to list the Orders sorted by "createDate" in "ascending" order.
+            Then I should receive the orders listed in the following order.
+                | External ID  | Location Code | Priority | Status      | Desired Shipment Date | Customer Code | Ship To Customer Name      | Create Date         |
+                | EXTDIS237001 | 123456789     | STAT     | IN_PROGRESS | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T00:00:00 |
+                | EXTDIS237002 | 123456789     | STAT     | IN_PROGRESS | 2025-01-02            | B2346         | Advanced Medical Center    | 2025-01-01T01:00:00 |
+                | EXTDIS237003 | 123456789     | STAT     | OPEN        | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T02:00:00 |
+                | EXTDIS237004 | 123456789     | ROUTINE  | IN_PROGRESS | 2025-01-02            | A1235         | Creative Testing Solutions | 2025-01-01T03:00:00 |
+                | EXTDIS237005 | 123456789     | ASAP     | IN_PROGRESS | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T04:00:00 |
+                | EXTDIS237006 | 123456789     | ROUTINE  | OPEN        | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T05:00:00 |
+                | EXTDIS237007 | 123456789     | ASAP     | IN_PROGRESS | 2025-01-02            | B2346         | Advanced Medical Center    | 2025-01-01T06:00:00 |
+                | EXTDIS237008 | 123456789     | ASAP     | OPEN        | 2025-01-01            | B2346         | Advanced Medical Center    | 2025-01-01T07:00:00 |
+                | EXTDIS2370011| 123456789     | STAT     | OPEN        | 2025-01-01            | C3457         | Pioneer Health Services    | 2025-01-01T10:00:00 |
+                | EXTDIS2370012| 123456789     | ROUTINE  | OPEN        | 2025-01-01            | B2346         | Advanced Medical Center    | 2025-01-01T11:30:00 |
+                | EXTDIS237009 | 123456789     | ROUTINE  | IN_PROGRESS | 2025-01-01            | C3457         | Pioneer Health Services    | 2025-01-01T13:00:00 |
+                | EXTDIS2370010| 123456789     | ROUTINE  | IN_PROGRESS | NULL_VALUE            | C3457         | Pioneer Health Services    | 2025-01-01T15:00:00 |
+            And  The sorting indicator should be at "createDate" property in "ascending" order.
+
+
+
+
+
 

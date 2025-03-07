@@ -55,7 +55,8 @@
     "modifyReason",
     "productCategory",
     "modifyDate",
-    "orderItems"
+    "orderItems",
+    "shippingMethod"
   ],
   "additionalProperties": false,
   "definitions": {

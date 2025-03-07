@@ -64,7 +64,8 @@ public class GraphQLQueryMapper {
                 searchOrders(
                     orderQueryCommandDTO: {
                         locationCode:"%s",
-                        pageNumber:%s
+                        pageNumber:%s,
+                        pageSize:20
                     }
                 ) {
                     content
@@ -85,6 +86,45 @@ public class GraphQLQueryMapper {
                 }
             }
             """, locationCode , pageNumber);
+    }
+
+    public static String sortOrdersByPage(String locationCode , Integer page , String sortingColumn , String sortingOrder) {
+        var pageNumber = page != null ? page : 0;
+        var sortOrder = sortingOrder != null ? sortingOrder : "ASC";
+        return String.format("""
+            query {
+                searchOrders(
+                    orderQueryCommandDTO: {
+                        locationCode:"%s",
+                        pageNumber:%s,
+                        querySort:{
+                           orderByList:[
+                            {
+                                property:"%s",
+                                direction:"%s"
+                            }
+                            ]
+                        }
+                    }
+                ) {
+                    content
+                    pageNumber
+                    pageSize
+                    totalRecords
+                    hasPrevious
+                    hasNext
+                    isFirst
+                    isLast
+                    totalPages
+                    querySort {
+                        orderByList {
+                            property
+                            direction
+                        }
+                    }
+                }
+            }
+            """, locationCode , pageNumber, sortingColumn , sortOrder);
     }
 
     public static String listOrdersByUniqueIdentifier(String locationCode, String externalId) {
