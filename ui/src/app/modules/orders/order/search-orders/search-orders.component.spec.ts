@@ -6,6 +6,7 @@ import { Router, RouterModule } from '@angular/router';
 import { ApolloQueryResult } from '@apollo/client';
 import { TranslateModule } from '@ngx-translate/core';
 import { PageDTO } from 'app/shared/models/page.model';
+import { CookieService } from 'ngx-cookie-service';
 import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { of } from 'rxjs';
 import { OrderReportDTO } from '../../models/search-order.model';
@@ -18,6 +19,7 @@ describe('SearchOrdersComponent', () => {
     let router: Router;
     let orderService: jest.Mocked<OrderService>;
     let toaster: jest.Mocked<ToastrService>;
+    let cookieService: jest.Mocked<CookieService>;
 
     const content: OrderReportDTO[] = [
         {
@@ -74,6 +76,9 @@ describe('SearchOrdersComponent', () => {
             warning: jest.fn(),
             error: jest.fn(),
         };
+        const cookieServiceSpy = {
+            get: jest.fn(),
+        };
         TestBed.configureTestingModule({
             imports: [
                 SearchOrdersComponent,
@@ -88,6 +93,7 @@ describe('SearchOrdersComponent', () => {
                 OrderService,
                 { provide: OrderService, useValue: orderServiceSpy },
                 { provide: ToastrService, useValue: toasterSpy },
+                { provide: CookieService, useValue: cookieServiceSpy },
             ],
         });
         fixture = TestBed.createComponent(SearchOrdersComponent);
@@ -96,6 +102,9 @@ describe('SearchOrdersComponent', () => {
             OrderService
         ) as jest.Mocked<OrderService>;
         toaster = TestBed.inject(ToastrService) as jest.Mocked<ToastrService>;
+        cookieService = TestBed.inject(
+            CookieService
+        ) as jest.Mocked<CookieService>;
         component = fixture.componentInstance;
     }));
 
@@ -128,7 +137,7 @@ describe('SearchOrdersComponent', () => {
 
         component.searchOrders();
 
-        expect(component.loading).toBe(false);
+        expect(component.loading()).toBe(false);
         expect(component.page()).toEqual(page);
         expect(toaster.warning).not.toHaveBeenCalled();
         expect(toaster.error).not.toHaveBeenCalled();
@@ -160,10 +169,111 @@ describe('SearchOrdersComponent', () => {
         jest.spyOn(component, 'details').mockImplementation();
         jest.spyOn(component, 'isFilterApplied').mockReturnValue(true);
         component.searchOrders();
-        expect(component.loading).toBe(false);
+        expect(component.loading()).toBe(false);
         expect(component.page().content).toEqual(emptyResponse);
         expect(component.details).not.toHaveBeenCalled();
         expect(toaster.warning).not.toHaveBeenCalled();
         expect(toaster.error).not.toHaveBeenCalled();
+    });
+
+    it('should keep search criterias throughout pagination', () => {
+        const response: ApolloQueryResult<{
+            searchOrders: PageDTO<OrderReportDTO>;
+        }> = {
+            data: {
+                searchOrders: page,
+            },
+            loading: false,
+            networkStatus: 7,
+        };
+        component.currentFilter = {
+            customers: ['Customer A', 'Customer B'],
+        };
+
+        orderService.searchOrders.mockReturnValue(of(response));
+        cookieService.get.mockReturnValue('123456789');
+
+        // Page 0 navigation
+        component.handlePagination({
+            pageIndex: 0,
+            pageSize: 20,
+            length: 100,
+        });
+        expect(orderService.searchOrders).toBeCalledWith({
+            locationCode: '123456789',
+            customers: ['Customer A', 'Customer B'], // Original criteria
+            pageNumber: 0,
+            pageSize: 20,
+        });
+
+        // Page 1 navigation
+        component.handlePagination({
+            previousPageIndex: 0,
+            pageIndex: 1,
+            pageSize: 20,
+            length: 100,
+        });
+        expect(orderService.searchOrders).toBeCalledWith({
+            locationCode: '123456789',
+            customers: ['Customer A', 'Customer B'], // Should keep original criteria
+            pageNumber: 1,
+            pageSize: 20,
+        });
+    });
+
+    it('should keep search criterias throughout sorting', () => {
+        const response: ApolloQueryResult<{
+            searchOrders: PageDTO<OrderReportDTO>;
+        }> = {
+            data: {
+                searchOrders: page,
+            },
+            loading: false,
+            networkStatus: 7,
+        };
+        component.currentFilter = {
+            customers: ['Customer A', 'Customer B'],
+        };
+
+        orderService.searchOrders.mockReturnValue(of(response));
+        cookieService.get.mockReturnValue('123456789');
+
+        // Sorting ASC
+        component.handleSorting({
+            active: 'activeProperty',
+            direction: 'asc',
+        });
+        expect(orderService.searchOrders).toBeCalledWith({
+            locationCode: '123456789',
+            customers: ['Customer A', 'Customer B'], // Original criteria
+            pageSize: 20,
+            querySort: {
+                orderByList: [
+                    {
+                        property: 'activeProperty',
+                        direction: 'ASC',
+                    },
+                ],
+            },
+        });
+
+        // Sorting DESC
+        component.handleSorting({
+            active: 'activeProperty',
+            direction: 'desc',
+        });
+        expect(orderService.searchOrders).toBeCalledWith({
+            locationCode: '123456789',
+            customers: ['Customer A', 'Customer B'], // Original criteria
+            pageSize: 20,
+            querySort: {
+                orderByList: [
+                    {
+                        property: 'activeProperty',
+                        direction: 'DESC',
+                    },
+                ],
+            },
+        });
     });
 });

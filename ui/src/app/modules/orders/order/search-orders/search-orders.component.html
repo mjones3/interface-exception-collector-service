@@ -4,77 +4,74 @@
         [title]="header.title | async"
     ></biopro-process-header>
     <app-search-order-filter
-        (applySearchFilters)="applyFilterSearch($event)"
+        (onApplySearchFilters)="applyFilterSearch($event)"
+        (onResetFilters)="resetFilterSearch()"
         (toggleFilters)="toggleFilter($event)"
         [showFilters]="isFilterToggled"
     >
     </app-search-order-filter>
     <div class="flex flex-col">
-        @if (!loading) {
-            <div class="flex w-full flex-row space-x-4 p-4">
-                <div class="w-full">
-                    <biopro-table
-                        tableId="ordersTableId"
-                        [dataSource]="page()?.content ?? []"
-                        [configuration]="tableConfig()"
-                        [totalElements]="page()?.totalRecords ?? 0"
-                        [pageIndex]="page()?.pageNumber ?? 0"
-                        [serverPagination]="true"
-                        (paginate)="handlePagination($event)"
+        <div class="flex w-full flex-row space-x-4 p-4">
+            <div class="w-full">
+                <biopro-table
+                    #ordersTable
+                    tableId="ordersTableId"
+                    [dataSource]="page()?.content ?? []"
+                    [configuration]="tableConfig()"
+                    [totalElements]="page()?.totalRecords ?? 0"
+                    [pageIndex]="page()?.pageNumber ?? 0"
+                    [serverPagination]="true"
+                    (paginate)="handlePagination($event)"
+                    (sort)="handleSorting($event)"
+                    [class.!pointer-events-none]="loading()"
+                >
+                </biopro-table>
+                <ng-template #customerNameTemplateRef let-element="element">
+                    {{ element.orderCustomerReport?.name }}
+                </ng-template>
+
+                <ng-template #createDateTemplateRef let-element="element">
+                    {{ element?.createDate | date: 'MM/dd/yyyy HH:mm' }}
+                </ng-template>
+
+                <ng-template #desireShipDateTemplateRef let-element="element">
+                    {{ element?.desireShipDate | date: 'MM/dd/yyyy' }}
+                </ng-template>
+
+                <ng-template #statusTemplateRef let-element="element">
+                    <span>
+                        {{ OrderStatusMap[element.orderStatus] | uppercase }}
+                    </span>
+                </ng-template>
+
+                <ng-template #priorityTemplateRef let-element="element">
+                    <span
+                        class="badge rounded-pill text-white"
+                        [ngStyle]="{
+                            'background-color':
+                                element?.orderPriorityReport?.priorityColor ??
+                                '#000',
+                        }"
                     >
-                    </biopro-table>
-                    <ng-template #customerNameTemplateRef let-element="element">
-                        {{ element.orderCustomerReport?.name }}
-                    </ng-template>
+                        {{
+                            OrderPriorityMap[
+                                element.orderPriorityReport?.priority
+                            ]
+                        }}
+                    </span>
+                </ng-template>
 
-                    <ng-template #createDateTemplateRef let-element="element">
-                        {{ element?.createDate | date: 'MM/dd/yyyy HH:mm' }}
-                    </ng-template>
-
-                    <ng-template
-                        #desireShipDateTemplateRef
-                        let-element="element"
+                <ng-template #detailBtnTemplateRef let-element="element">
+                    <button
+                        id="detailsBtn"
+                        class="bg-custom-red justify-center text-white"
+                        mat-flat-button
+                        (click)="details(element?.orderId)"
                     >
-                        {{ element?.desireShipDate | date: 'MM/dd/yyyy' }}
-                    </ng-template>
-
-                    <ng-template #statusTemplateRef let-element="element">
-                        <span>
-                            {{
-                                OrderStatusMap[element.orderStatus] | uppercase
-                            }}
-                        </span>
-                    </ng-template>
-
-                    <ng-template #priorityTemplateRef let-element="element">
-                        <span
-                            class="badge rounded-pill text-white"
-                            [ngStyle]="{
-                                'background-color':
-                                    element?.orderPriorityReport
-                                        ?.priorityColor ?? '#000',
-                            }"
-                        >
-                            {{
-                                OrderPriorityMap[
-                                    element.orderPriorityReport?.priority
-                                ]
-                            }}
-                        </span>
-                    </ng-template>
-
-                    <ng-template #detialBtnTemplateRef let-element="element">
-                        <button
-                            id="detailsBtn"
-                            class="bg-custom-red justify-center text-white"
-                            mat-flat-button
-                            (click)="details(element?.orderId)"
-                        >
-                            Details
-                        </button>
-                    </ng-template>
-                </div>
+                        Details
+                    </button>
+                </ng-template>
             </div>
-        }
+        </div>
     </div>
 </div>

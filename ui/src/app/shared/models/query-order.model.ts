@@ -1,6 +1,6 @@
 export interface QueryOrderByDTO {
     property: string;
-    direction: string;
+    direction: 'ASC' | 'DESC';
 }
 
 export interface QuerySortDTO {
