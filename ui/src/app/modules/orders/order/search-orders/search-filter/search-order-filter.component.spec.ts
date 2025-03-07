@@ -131,7 +131,7 @@ describe('SearchOrderFilterComponent', () => {
 
     it('should apply filters', () => {
         const applySearchFiltersEvent = jest.spyOn(
-            component.applySearchFilters,
+            component.onApplySearchFilters,
             'emit'
         );
         const expectedValue = {
