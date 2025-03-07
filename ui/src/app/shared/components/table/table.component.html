@@ -18,207 +18,217 @@
         </div>
     }
 
-    <table
-        [id]="tableId()"
-        mat-table
-        multiTemplateDataRows
-        matSort
-        [matSortDisableClear]="true"
-        [dataSource]="tableDataSource"
-        [matSortActive]="defaultSort()?.id"
-        [matSortDirection]="defaultSort()?.start"
-        (matSortChange)="onSort($event)"
-    >
-        @for (column of configuration().columns; track column.id || $index) {
-            <ng-container [matColumnDef]="column.id">
-                <th
-                    [id]="column.id + 'Header'"
-                    mat-header-cell
-                    *matHeaderCellDef
-                    [mat-sort-header]="column.sort ? column.id : null"
-                    [disabled]="
-                        !tableDataSource?.data?.length ||
-                        !configuration().showSorting ||
-                        !column.sort
-                    "
-                >
-                    @if (column.headerTempRef) {
-                        <ng-template [ngTemplateOutlet]="column.headerTempRef">
-                        </ng-template>
-                    } @else {
-                        <span>{{ column.header }}</span>
+    <section class="h-[calc(100vh-470px)] min-h-[300px] overflow-y-auto">
+        <table
+            [id]="tableId()"
+            mat-table
+            multiTemplateDataRows
+            matSort
+            [dataSource]="tableDataSource"
+            [matSortActive]="defaultSort()?.id"
+            [matSortDirection]="defaultSort()?.start"
+            (matSortChange)="onSort($event)"
+        >
+            @for (
+                column of configuration().columns;
+                track column.id || $index
+            ) {
+                <ng-container [matColumnDef]="column.id">
+                    <th
+                        [id]="column.id + 'Header'"
+                        mat-header-cell
+                        *matHeaderCellDef
+                        [mat-sort-header]="column.sort ? column.id : null"
+                        [disabled]="
+                            !tableDataSource?.data?.length ||
+                            !configuration().showSorting ||
+                            !column.sort
+                        "
+                    >
+                        @if (column.headerTempRef) {
+                            <ng-template
+                                [ngTemplateOutlet]="column.headerTempRef"
+                            >
+                            </ng-template>
+                        } @else {
+                            <span>{{ column.header }}</span>
+                        }
+                    </th>
+                    <td
+                        [id]="column.id + 'Row' + i"
+                        mat-cell
+                        *matCellDef="let element; let i = dataIndex"
+                        [ngClass]="{
+                            'border-b-0': isExpanded(element, expandedElement),
+                        }"
+                    >
+                        @if (column.columnTempRef) {
+                            <ng-template
+                                [ngTemplateOutlet]="column.columnTempRef"
+                                [ngTemplateOutletContext]="{
+                                    element,
+                                    columnId: column.id,
+                                    index: i,
+                                }"
+                            >
+                            </ng-template>
+                        } @else {
+                            <span>{{ element[column.id] }}</span>
+                        }
+                    </td>
+                </ng-container>
+            }
+
+            <!-- Row Expand Section -->
+            <ng-container matColumnDef="expand">
+                <th mat-header-cell *matHeaderCellDef aria-label="expand row">
+                    @if (showExpandAll()) {
+                        <button
+                            id="expandCollapseAllBtn"
+                            mat-icon-button
+                            aria-label="expand all elements"
+                            (click)="expandCollapseAllRows()"
+                        >
+                            @if (expandedAll) {
+                                <span>-</span>
+                            } @else {
+                                <span>+</span>
+                            }
+                        </button>
                     }
                 </th>
                 <td
-                    [id]="column.id + 'Row' + i"
                     mat-cell
                     *matCellDef="let element; let i = dataIndex"
                     [ngClass]="{
                         'border-b-0': isExpanded(element, expandedElement),
                     }"
                 >
-                    @if (column.columnTempRef) {
-                        <ng-template
-                            [ngTemplateOutlet]="column.columnTempRef"
-                            [ngTemplateOutletContext]="{
-                                element,
-                                columnId: column.id,
-                                index: i,
-                            }"
+                    @if (hasExpandableContent(element)) {
+                        <button
+                            [id]="'row' + i + 'ExpandBtn'"
+                            mat-icon-button
+                            aria-label="expand element"
+                            (click)="
+                                expandCollapseRow(element);
+                                $event.stopPropagation()
+                            "
                         >
-                        </ng-template>
-                    } @else {
-                        <span>{{ element[column.id] }}</span>
+                            @if (isExpanded(element, expandedElement)) {
+                                <mat-icon>keyboard_arrow_up</mat-icon>
+                            } @else {
+                                <mat-icon>keyboard_arrow_right</mat-icon>
+                            }
+                        </button>
                     }
                 </td>
             </ng-container>
-        }
 
-        <!-- Row Expand Section -->
-        <ng-container matColumnDef="expand">
-            <th mat-header-cell *matHeaderCellDef aria-label="expand row">
-                @if (showExpandAll()) {
-                    <button
-                        id="expandCollapseAllBtn"
-                        mat-icon-button
-                        aria-label="expand all elements"
-                        (click)="expandCollapseAllRows()"
-                    >
-                        @if (expandedAll) {
-                            <span>-</span>
-                        } @else {
-                            <span>+</span>
-                        }
-                    </button>
-                }
-            </th>
-            <td
-                mat-cell
-                *matCellDef="let element; let i = dataIndex"
-                [ngClass]="{
-                    'border-b-0': isExpanded(element, expandedElement),
-                }"
-            >
-                @if (hasExpandableContent(element)) {
-                    <button
-                        [id]="'row' + i + 'ExpandBtn'"
-                        mat-icon-button
-                        aria-label="expand element"
-                        (click)="
-                            expandCollapseRow(element); $event.stopPropagation()
+            <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
+            <ng-container matColumnDef="expandedDetail">
+                <td
+                    mat-cell
+                    *matCellDef="let element"
+                    [attr.colspan]="columnsId().length"
+                    [ngClass]="{
+                        'p-4': isExpanded(element, expandedElement),
+                        'border-b-0': !isExpanded(element, expandedElement),
+                    }"
+                >
+                    <fuse-card
+                        class="overflow-hidden rounded-lg shadow"
+                        [@detailExpand]="
+                            isExpanded(element, expandedElement)
+                                ? 'expanded'
+                                : 'collapsed'
                         "
                     >
-                        @if (isExpanded(element, expandedElement)) {
-                            <mat-icon>keyboard_arrow_up</mat-icon>
-                        } @else {
-                            <mat-icon>keyboard_arrow_right</mat-icon>
-                        }
-                    </button>
-                }
-            </td>
-        </ng-container>
+                        <ng-template
+                            [ngTemplateOutlet]="expandTemplateRef()"
+                            [ngTemplateOutletContext]="{
+                                element: element,
+                            }"
+                        >
+                        </ng-template>
+                    </fuse-card>
+                </td>
+            </ng-container>
 
-        <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
-        <ng-container matColumnDef="expandedDetail">
-            <td
-                mat-cell
-                *matCellDef="let element"
-                [attr.colspan]="columnsId().length"
-                [ngClass]="{
-                    'p-4': isExpanded(element, expandedElement),
-                    'border-b-0': !isExpanded(element, expandedElement),
-                }"
-            >
-                <fuse-card
-                    class="overflow-hidden rounded-lg shadow"
-                    [@detailExpand]="
-                        isExpanded(element, expandedElement)
-                            ? 'expanded'
-                            : 'collapsed'
-                    "
+            <!-- Selection Section -->
+            <ng-container matColumnDef="select">
+                <th mat-header-cell *matHeaderCellDef="let i = dataIndex">
+                    <mat-checkbox
+                        id="checkAll"
+                        [checked]="selection.hasValue() && isAllSelected()"
+                        [aria-label]="checkboxLabel()"
+                        (change)="$event ? toggleAllRows() : null"
+                    >
+                    </mat-checkbox>
+                </th>
+                <td mat-cell *matCellDef="let element; let i = dataIndex">
+                    <mat-checkbox
+                        [id]="'row' + i + 'Check'"
+                        [checked]="selection.isSelected(element)"
+                        [aria-label]="checkboxLabel(element, i)"
+                        (click)="$event.stopPropagation()"
+                        (change)="$event ? selection.toggle(element) : null"
+                    >
+                    </mat-checkbox>
+                </td>
+            </ng-container>
+
+            <!-- Table Footer Section -->
+            <ng-container matColumnDef="footer">
+                <td
+                    id="tableFooter"
+                    mat-footer-cell
+                    *matFooterCellDef="let element"
+                    [attr.colspan]="columnsId().length"
                 >
                     <ng-template
-                        [ngTemplateOutlet]="expandTemplateRef()"
+                        [ngTemplateOutlet]="footerTemplateRef()"
                         [ngTemplateOutletContext]="{
                             element: element,
                         }"
                     >
                     </ng-template>
-                </fuse-card>
-            </td>
-        </ng-container>
+                </td>
+            </ng-container>
 
-        <!-- Selection Section -->
-        <ng-container matColumnDef="select">
-            <th mat-header-cell *matHeaderCellDef="let i = dataIndex">
-                <mat-checkbox
-                    id="checkAll"
-                    [checked]="selection.hasValue() && isAllSelected()"
-                    [aria-label]="checkboxLabel()"
-                    (change)="$event ? toggleAllRows() : null"
-                >
-                </mat-checkbox>
-            </th>
-            <td mat-cell *matCellDef="let element; let i = dataIndex">
-                <mat-checkbox
-                    [id]="'row' + i + 'Check'"
-                    [checked]="selection.isSelected(element)"
-                    [aria-label]="checkboxLabel(element, i)"
-                    (click)="$event.stopPropagation()"
-                    (change)="$event ? selection.toggle(element) : null"
-                >
-                </mat-checkbox>
-            </td>
-        </ng-container>
-
-        <!-- Table Footer Section -->
-        <ng-container matColumnDef="footer">
-            <td
-                id="tableFooter"
-                mat-footer-cell
-                *matFooterCellDef="let element"
-                [attr.colspan]="columnsId().length"
-            >
-                <ng-template
-                    [ngTemplateOutlet]="footerTemplateRef()"
-                    [ngTemplateOutletContext]="{
-                        element: element,
-                    }"
-                >
-                </ng-template>
-            </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="columnsId()"></tr>
-        <tr
-            mat-row
-            *matRowDef="let element; columns: columnsId()"
-            [class.expanded-row]="expandedElement === element"
-            (click)="expandCollapseRow(element)"
-        ></tr>
-
-        <!-- Row shown when there is no results -->
-        <tr class="mat-row" *matNoDataRow>
-            <td
-                class="mat-cell text-center"
-                [attr.colspan]="columnsId().length"
-            >
-                {{ tableNoResultsMessage() }}
-            </td>
-        </tr>
-
-        @if (configuration().expandableKey) {
+            <tr
+                mat-header-row
+                *matHeaderRowDef="columnsId(); sticky: stickyHeader()"
+            ></tr>
             <tr
                 mat-row
-                *matRowDef="let row; columns: ['expandedDetail']"
-                class="h-0"
+                *matRowDef="let element; columns: columnsId()"
+                [class.expanded-row]="expandedElement === element"
+                (click)="expandCollapseRow(element)"
             ></tr>
-        }
 
-        @if (footerTemplateRef()) {
-            <tr mat-footer-row *matFooterRowDef="['footer']"></tr>
-        }
-    </table>
+            <!-- Row shown when there is no results -->
+            <tr class="mat-row" *matNoDataRow>
+                <td
+                    class="mat-cell text-center"
+                    [attr.colspan]="columnsId().length"
+                >
+                    {{ tableNoResultsMessage() }}
+                </td>
+            </tr>
+
+            @if (configuration().expandableKey) {
+                <tr
+                    mat-row
+                    *matRowDef="let row; columns: ['expandedDetail']"
+                    class="h-0"
+                ></tr>
+            }
+
+            @if (footerTemplateRef()) {
+                <tr mat-footer-row *matFooterRowDef="['footer']"></tr>
+            }
+        </table>
+    </section>
     @if (configuration().showPagination) {
         <biopro-paginator
             [total]="totalElements()"
