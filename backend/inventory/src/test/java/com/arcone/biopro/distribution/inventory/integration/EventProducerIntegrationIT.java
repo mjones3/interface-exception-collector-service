@@ -35,6 +35,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -106,14 +107,14 @@ public class EventProducerIntegrationIT {
     @DisplayName("Should receive label applied event (licensed inventory), map, call usecase and produce the event with the correct information (including the LICENSED property)")
     public void test1() throws InterruptedException, IOException {
         publishCreatedEvent("json/label_applied.json", LABEL_APPLIED_TOPIC);
-        assertProducedMessageValues("W123456789012", "E0869V00", "LABEL_APPLIED", "LICENSED");
+        assertProducedMessageValues("W123456789012", "E0869V00", "LABEL_APPLIED", "LICENSED", List.of("AVAILABLE", "LABELED"));
     }
 
     @Test
     @DisplayName("Should receive label applied event (unlicensed inventory), map, call usecase and produce the event with the correct information (including the UNLICENSED property)")
     public void test2() throws InterruptedException, IOException {
         publishCreatedEvent("json/label_applied_unlicensed.json", LABEL_APPLIED_TOPIC);
-        assertProducedMessageValues("W123456789012", "E0869V00", "LABEL_APPLIED", "LICENSED");
+        assertProducedMessageValues("W123456789012", "E0869V00", "LABEL_APPLIED", "LICENSED", List.of("AVAILABLE", "LABELED"));
     }
 
     @Test
@@ -126,14 +127,14 @@ public class EventProducerIntegrationIT {
     @Test
     @DisplayName("Should label a product, then received a shipment completed event, map, call usecase and produce the event with the correct shipment information")
     public void test4() throws InterruptedException, IOException {
-        labelAndAssertProducedMessageValues("W123456789012", "E0869V00");
+        labelAndAssertProducedMessageValues("W123456789012", "E0869V00", List.of("AVAILABLE", "LABELED"));
         publishCreatedEventWithTemplate("W123456789012", "E0869V00", "json/shipment_completed_template.json", SHIPMENT_COMPLETED_TOPIC);
-        assertProducedMessageValues("W123456789012", "E0869V00", "SHIPPED", "LICENSED");
+        assertProducedMessageValues("W123456789012", "E0869V00", "SHIPPED", "LICENSED", List.of("SHIPPED", "LABELED"));
     }
 
-    private void labelAndAssertProducedMessageValues(String unitNumber, String productCode) throws IOException, InterruptedException {
+    private void labelAndAssertProducedMessageValues(String unitNumber, String productCode, List<String> expectedStatuses) throws IOException, InterruptedException {
         publishCreatedEventWithTemplate(unitNumber, productCode, "json/label_applied_template.json", LABEL_APPLIED_TOPIC);
-        assertProducedMessageValues("W123456789012", "E0869V00", "LABEL_APPLIED", "LICENSED");
+        assertProducedMessageValues("W123456789012", "E0869V00", "LABEL_APPLIED", "LICENSED", expectedStatuses);
     }
 
     private JsonNode publishCreatedEvent(String path, String topic) throws IOException, InterruptedException {
@@ -158,7 +159,7 @@ public class EventProducerIntegrationIT {
         log.info("Inventory Updated listener received: {}", record);
     }
 
-    private void assertProducedMessageValues(String unitNumber, String productCode, String updateType, String expectedLicensure) throws InterruptedException, JsonProcessingException {
+    private void assertProducedMessageValues(String unitNumber, String productCode, String updateType, String expectedLicensure, List<String> expectedStatuses) throws InterruptedException, JsonProcessingException {
         var receivedMessage = receivedRecords.poll(5, TimeUnit.SECONDS);
 
         assertThat(receivedMessage).isNotNull();
@@ -168,6 +169,12 @@ public class EventProducerIntegrationIT {
         assertThat(payload.path(PRODUCT_CODE).asText()).isEqualTo(productCode);
         assertThat(payload.path(UPDATE_TYPE).asText()).isEqualTo(updateType);
         assertThat(payload.path(PROPERTIES).path(LICENSURE).asText()).isEqualTo(expectedLicensure);
+        assertThat(payload.path(INPUT_PRODUCTS)).hasSize(0);
+        assertThat(payload.path(INVENTORY_STATUS)).hasSize(expectedStatuses.size());
+        for (int i = 0; i < expectedStatuses.size(); i++) {
+            assertThat(payload.path(INVENTORY_STATUS).get(i).asText()).isEqualTo(expectedStatuses.get(i));
+        }
+
     }
 
     private void assertNoMessageProduced() throws InterruptedException {
