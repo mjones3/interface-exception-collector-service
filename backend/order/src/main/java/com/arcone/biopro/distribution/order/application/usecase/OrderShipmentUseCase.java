@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.order.application.usecase;
 import com.arcone.biopro.distribution.order.application.dto.ShipmentCreatedEvenPayloadDTO;
 import com.arcone.biopro.distribution.order.application.mapper.OrderShipmentMapper;
 import com.arcone.biopro.distribution.order.domain.model.OrderShipment;
+import com.arcone.biopro.distribution.order.domain.model.vo.ModifyByProcess;
 import com.arcone.biopro.distribution.order.domain.repository.OrderRepository;
 import com.arcone.biopro.distribution.order.domain.repository.OrderShipmentRepository;
 import com.arcone.biopro.distribution.order.domain.service.OrderShipmentService;
@@ -30,6 +31,7 @@ public class OrderShipmentUseCase implements OrderShipmentService {
             .switchIfEmpty(Mono.error(new RuntimeException("Not able to find order by order number")))
             .map(order -> {
                     order.getOrderStatus().setStatus(ORDER_IN_PROGRESS_STATUS);
+                    order.setModifiedByProcess(ModifyByProcess.SYSTEM.name());
                     return order;
                 })
             .publishOn(Schedulers.boundedElastic())

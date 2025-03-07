@@ -60,6 +60,10 @@
                     cancelEmployeeId: orderDetails?.cancelEmployeeId,
                     cancelDate: orderDetails?.cancelDate,
                     cancelReason: orderDetails?.cancelReason,
+                    modifyEmployeeId: orderDetails?.modifyEmployeeId,
+                    modifyDate: orderDetails?.modificationDate,
+                    modifyReason: orderDetails?.modifyReason,
+                    displayModificationDetails:orderDetails?.displayModificationDetails,
                 }"
                 [comments]="orderDetails?.comments"
                 [shippingInput]="{
@@ -396,7 +400,7 @@
                                     <td>
                                         {{
                                             shipment.createDate
-                                                | date: 'MM/dd/yyyy HH:mm'
+                                                | date: 'MM/dd/yyyy HH:mm:ss'
                                         }}
                                     </td>
                                     <td>

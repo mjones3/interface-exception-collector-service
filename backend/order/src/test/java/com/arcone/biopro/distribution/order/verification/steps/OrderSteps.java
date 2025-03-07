@@ -9,7 +9,13 @@ import com.arcone.biopro.distribution.order.verification.pages.SharedActions;
 import com.arcone.biopro.distribution.order.verification.pages.order.HomePage;
 import com.arcone.biopro.distribution.order.verification.pages.order.OrderDetailsPage;
 import com.arcone.biopro.distribution.order.verification.pages.order.SearchOrderPage;
-import com.arcone.biopro.distribution.order.verification.support.*;
+import com.arcone.biopro.distribution.order.verification.support.ApiHelper;
+import com.arcone.biopro.distribution.order.verification.support.DatabaseQueries;
+import com.arcone.biopro.distribution.order.verification.support.DatabaseService;
+import com.arcone.biopro.distribution.order.verification.support.KafkaHelper;
+import com.arcone.biopro.distribution.order.verification.support.SharedContext;
+import com.arcone.biopro.distribution.order.verification.support.TestUtils;
+import com.arcone.biopro.distribution.order.verification.support.Topics;
 import com.arcone.biopro.distribution.order.verification.support.graphql.GraphQLQueryMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,7 +35,13 @@ import org.springframework.beans.factory.annotation.Value;
 import java.time.LocalDate;
 import java.time.Year;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -54,6 +66,8 @@ public class OrderSteps {
     private String[] commentsList;
 
     private JSONObject partnerOrder;
+
+    private JSONObject partnerModifyOrder;
     private boolean isLoggedIn = false;
     private JSONObject orderShipment;
 
@@ -98,14 +112,10 @@ public class OrderSteps {
     private static final String HAS = "has";
     private static final String HAS_NOT = "has no";
 
-    private void createOrderInboundRequest(String jsonContent, OrderReceivedEventDTO eventPayload) throws JSONException {
-        partnerOrder = new JSONObject(jsonContent);
-        log.info("JSON PAYLOAD :{}", partnerOrder);
-        Assert.assertNotNull(context.getExternalId());
-        Assert.assertNotNull(partnerOrder);
-        var event = kafkaHelper.sendEvent(eventPayload.payload().id().toString(), eventPayload, Topics.ORDER_RECEIVED).block();
-        Assert.assertNotNull(event);
-    }
+    // Modify request tables
+    private DataTable originalOrderTable;
+    private DataTable modifiedOrderTable;
+    private Map<String, Integer> orderIdMap;
 
     @When("I want to list orders for location {string}.")
     public void searchOrders(String locationCode) {
@@ -140,7 +150,7 @@ public class OrderSteps {
         jsonContent = jsonContent.replace("\"DESIRED_DATE\"", "\"" + newDesiredShippingDate + "\"")
             .replace("{EXTERNAL_ID}", externalId);
         var eventPayload = objectMapper.readValue(jsonContent, OrderReceivedEventDTO.class);
-        createOrderInboundRequest(jsonContent, eventPayload);
+        orderController.createOrderInboundRequest(jsonContent, eventPayload);
     }
 
     @Given("I have received an order inbound request with externalId {string}, content {string}, and desired shipping date {string}.")
@@ -159,7 +169,7 @@ public class OrderSteps {
         jsonContent = jsonContent.replace("\"DESIRED_DATE\"", dateValue)
             .replace("{EXTERNAL_ID}", externalId);
         var eventPayload = objectMapper.readValue(jsonContent, OrderReceivedEventDTO.class);
-        createOrderInboundRequest(jsonContent, eventPayload);
+        orderController.createOrderInboundRequest(jsonContent, eventPayload);
     }
 
 
@@ -289,7 +299,7 @@ public class OrderSteps {
 
     @Given("I have more than {int} Biopro Orders.")
     public void createMultipleBioproOrders(int quantity) {
-        createMultipleBioproOrders(quantity,"EXT20RECORDS");
+        createMultipleBioproOrders(quantity, "EXT20RECORDS");
     }
 
     private void createMultipleBioproOrders(int quantity, String externalIdPrefix) {
@@ -892,7 +902,7 @@ public class OrderSteps {
 
     @Given("I have {int} Biopro Order\\(s).")
     public void iHaveBioproOrderS(int totalRecords) {
-        this.createMultipleBioproOrders(totalRecords-1,"EXTDIS220");
+        this.createMultipleBioproOrders(totalRecords - 1, "EXTDIS220");
     }
 
     @When("I request to list the Orders.")
@@ -913,13 +923,13 @@ public class OrderSteps {
         orderController.listOrdersByPage(pageIndex);
         var currentPage = context.getOrdersPage();
         Assert.assertEquals(pageIndex, currentPage.pageNumber());
-        if(HAS.equals(hasHasNot)){
+        if (HAS.equals(hasHasNot)) {
             Assertions.assertFalse(currentPage.content().isEmpty());
             Assert.assertEquals(totalElements, currentPage.content().size());
-        }else if(HAS_NOT.equals(hasHasNot)){
+        } else if (HAS_NOT.equals(hasHasNot)) {
             Assertions.assertTrue(currentPage.content().isEmpty());
             Assert.assertEquals(totalElements, 0);
-        }else{
+        } else {
             Assert.fail("Invalid Option of has / has not");
         }
     }
@@ -931,19 +941,19 @@ public class OrderSteps {
         var currentPage = context.getOrdersPage();
         Assert.assertEquals(pageIndex, currentPage.pageNumber());
 
-        if(HAS.equals(hasHasNotPreviousPage)){
+        if (HAS.equals(hasHasNotPreviousPage)) {
             Assert.assertTrue(currentPage.hasPrevious());
-        }else if(HAS_NOT.equals(hasHasNotPreviousPage)){
+        } else if (HAS_NOT.equals(hasHasNotPreviousPage)) {
             Assert.assertFalse(currentPage.hasPrevious());
-        }else{
+        } else {
             Assert.fail("Invalid Option of has / has not");
         }
 
-        if(HAS.equals(hasHasNotNextPage)){
+        if (HAS.equals(hasHasNotNextPage)) {
             Assert.assertTrue(currentPage.hasNext());
-        }else if(HAS_NOT.equals(hasHasNotNextPage)){
+        } else if (HAS_NOT.equals(hasHasNotNextPage)) {
             Assert.assertFalse(currentPage.hasNext());
-        }else{
+        } else {
             Assert.fail("Invalid Option of has / has not");
         }
 
@@ -956,5 +966,172 @@ public class OrderSteps {
     }
 
 
+    @Given("I have orders with the following details.")
+    public void iHaveOrdersWithTheFollowingDetails(DataTable table) {
+        originalOrderTable = table;
+        orderIdMap = new HashMap<>();
 
+        // Headers -> | External ID | Status | Location Code | Delivery Type | Shipping Method | Product Category | Product Family | Blood Type | Quantity | Back Order |
+        var headers = table.row(0);
+
+        for (var i = 1; i < table.height(); i++) {
+            var row = table.row(i);
+
+            var externalId = row.get(headers.indexOf("External ID"));
+            var priority = orderController.getRandomPriority();
+
+            // Order
+            var query = DatabaseQueries.insertBioProOrder(
+                externalId,
+                row.get(headers.indexOf("Location Code")),
+                priority.getValue(),
+                row.get(headers.indexOf("Delivery Type")),
+                Boolean.parseBoolean(row.get(headers.indexOf("Back Order")))
+                    ? "COMPLETED"
+                    : row.get(headers.indexOf("Status")),
+                row.get(headers.indexOf("Product Category")),
+                false);
+            databaseService.executeSql(query).block();
+
+            var orderId = Integer.valueOf(databaseService.fetchData(DatabaseQueries.getOrderId(externalId)).first().block().get("id").toString());
+            orderIdMap.put(externalId, orderId);
+
+            // Order Item
+            var productFamilyList = testUtils.getCommaSeparatedList(row.get(headers.indexOf("Product Family")));
+            var bloodTypeList = testUtils.getCommaSeparatedList(row.get(headers.indexOf("Blood Type")));
+            var quantityList = testUtils.getCommaSeparatedList(row.get(headers.indexOf("Quantity")));
+            for (var j = 0; j < productFamilyList.length; j++) {
+                var queryItem = DatabaseQueries.insertBioProOrderItem(
+                    externalId,
+                    productFamilyList[j],
+                    bloodTypeList[j],
+                    Integer.parseInt(quantityList[j]),
+                    "Comments");
+                databaseService.executeSql(queryItem).block();
+            }
+
+            // Back Order
+            if (Boolean.parseBoolean(row.get(headers.indexOf("Back Order")))) {
+                var queryBack = DatabaseQueries.insertBioProOrder(
+                    externalId,
+                    row.get(headers.indexOf("Location Code")),
+                    priority.getValue(),
+                    row.get(headers.indexOf("Delivery Type")),
+                    row.get(headers.indexOf("Status")),
+                    row.get(headers.indexOf("Product Category")),
+                    true);
+                databaseService.executeSql(queryBack).block();
+                var backOrderId = Integer.valueOf(databaseService.fetchData(DatabaseQueries.getOrderId(externalId)).first().block().get("id").toString());
+                orderIdMap.replace(externalId, backOrderId);
+
+                // Order Item
+                for (var j = 0; j < productFamilyList.length; j++) {
+                    var queryItem = DatabaseQueries.insertBioProOrderItem(
+                        externalId,
+                        productFamilyList[j],
+                        bloodTypeList[j],
+                        Integer.parseInt(quantityList[j]),
+                        "Comments");
+                    databaseService.executeSql(queryItem).block();
+                }
+            }
+
+        }
+    }
+
+    @And("I have received modify order requests with the following details externalId.")
+    public void iHaveReceivedModifyOrderRequestsWithTheFollowingDetailsExternalId(DataTable table) throws Exception {
+        modifiedOrderTable = table;
+
+        // Headers -> | Modify External ID | Modify Date | Location Code | Delivery Type | Shipping Method | Product Category | Product Family | Blood Type | Quantity | Modify Reason | Modify Employee Code |
+        var headers = table.row(0);
+
+        for (var i = 1; i < table.height(); i++) {
+
+            var productFamilyList = testUtils.getCommaSeparatedList(table.row(i).get(headers.indexOf("Product Family")));
+            var bloodTypeList = testUtils.getCommaSeparatedList(table.row(i).get(headers.indexOf("Blood Type")));
+            var quantityList = testUtils.getCommaSeparatedList(table.row(i).get(headers.indexOf("Quantity")));
+
+            orderController.modifyOrderRequest(
+                table.row(i).get(headers.indexOf("Modify External ID")),
+                table.row(i).get(headers.indexOf("Location Code")),
+                table.row(i).get(headers.indexOf("Modify Employee Code")),
+                table.row(i).get(headers.indexOf("Delivery Type")),
+                table.row(i).get(headers.indexOf("Shipping Method")),
+                table.row(i).get(headers.indexOf("Product Category")),
+                table.row(i).get(headers.indexOf("Modify Reason")),
+                table.row(i).get(headers.indexOf("Modify Date")),
+                productFamilyList,
+                bloodTypeList,
+                quantityList,
+                "modify-order-valid-request.json",
+                "modify-order-item.json"
+            );
+        }
+    }
+
+    @When("The system processes the modify order requests.")
+    public void theSystemProcessesTheModifyOrderRequests() {
+        try {
+            Thread.sleep(kafkaWaitingTime);
+        } catch (InterruptedException e) {
+            log.error("Error waiting for Kafka to process the modify order requests: {}", e.getMessage());
+        }
+    }
+
+    @Then("The Modify order request should be processed as.")
+    public void theModifyOrderRequestShouldBeProcessedAs(DataTable table) {
+        // Headers -> | Modify External ID | Location Code | Should be Found? | Should be Updated? |
+        var headers = table.row(0);
+
+        for (var i = 1; i < table.height(); i++) {
+            var row = table.row(i);
+            var externalId = row.get(headers.indexOf("Modify External ID"));
+            var locationCode = row.get(headers.indexOf("Location Code"));
+            var shouldBeFound = row.get(headers.indexOf("Should be Found?"));
+            var shouldBeUpdated = row.get(headers.indexOf("Should be Updated?"));
+
+            orderController.getOrderDetails(orderIdMap.get(externalId));
+            if (shouldBeFound.equalsIgnoreCase("yes")) {
+                Assert.assertNotNull(context.getOrderDetails());
+                List<Map> orderItems = (List<Map>) context.getOrderDetails().get("orderItems");
+                if (shouldBeUpdated.equalsIgnoreCase("yes")) {
+                    // Validate order data
+                    Assert.assertEquals(context.getOrderDetails().get("locationCode"), locationCode);
+                    Assert.assertEquals(context.getOrderDetails().get("priority"), modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Delivery Type")));
+                    Assert.assertEquals(context.getOrderDetails().get("productCategory"), modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Product Category")));
+                    Assert.assertEquals(context.getOrderDetails().get("modifyReason"), modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Modify Reason")));
+                    // Validate order items data
+                    var productFamilyList = testUtils.getCommaSeparatedList(modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Product Family")));
+                    var bloodTypeList = testUtils.getCommaSeparatedList(modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Blood Type")));
+                    var quantityList = testUtils.getCommaSeparatedList(modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Quantity")));
+                    for (var j = 0; j < orderItems.size(); j++) {
+                        Assert.assertEquals(productFamilyList[j], orderItems.get(j).get("productFamily"));
+                        Assert.assertEquals(bloodTypeList[j], orderItems.get(j).get("bloodType"));
+                        Assert.assertEquals(Integer.parseInt(quantityList[j]), Integer.parseInt(orderItems.get(j).get("quantity").toString()));
+                    }
+                } else if (shouldBeUpdated.equalsIgnoreCase("no")) {
+                    // Validate order data
+                    Assert.assertEquals(context.getOrderDetails().get("locationCode"), originalOrderTable.row(i).get(originalOrderTable.row(0).indexOf("Location Code")));
+                    Assert.assertEquals(context.getOrderDetails().get("priority"), originalOrderTable.row(i).get(originalOrderTable.row(0).indexOf("Delivery Type")));
+                    Assert.assertEquals(context.getOrderDetails().get("productCategory"), originalOrderTable.row(i).get(originalOrderTable.row(0).indexOf("Product Category")));
+                    // Validate order items data
+                    var productFamilyList = testUtils.getCommaSeparatedList(originalOrderTable.row(i).get(originalOrderTable.row(0).indexOf("Product Family")));
+                    var bloodTypeList = testUtils.getCommaSeparatedList(originalOrderTable.row(i).get(originalOrderTable.row(0).indexOf("Blood Type")));
+                    var quantityList = testUtils.getCommaSeparatedList(originalOrderTable.row(i).get(originalOrderTable.row(0).indexOf("Quantity")));
+                    for (var j = 0; j < orderItems.size(); j++) {
+                        Assert.assertEquals(productFamilyList[j], orderItems.get(j).get("productFamily"));
+                        Assert.assertEquals(bloodTypeList[j], orderItems.get(j).get("bloodType"));
+                        Assert.assertEquals(Integer.parseInt(quantityList[j]), Integer.parseInt(orderItems.get(j).get("quantity").toString()));
+                    }
+                } else {
+                    Assert.fail("Invalid option for should be updated.");
+                }
+            } else if (shouldBeFound.equalsIgnoreCase("no")) {
+                Assert.assertNull(context.getOrderDetails());
+            } else {
+                Assert.fail("Invalid option for should be found.");
+            }
+        }
+    }
 }

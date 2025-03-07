@@ -87,6 +87,10 @@ public class OrderMapper {
             .cancelDate(order.getCancelDate())
             .cancelEmployeeId(order.getCancelEmployeeId())
             .cancelReason(order.getCancelReason())
+            .modifyReason(order.getModifyReason())
+            .modifyByProcess(order.getModifiedByProcess())
+            .modifyEmployeeId(order.getModifyEmployeeId())
+            .displayModificationDetails(order.isModifiedByInterface())
             .build();
     }
 

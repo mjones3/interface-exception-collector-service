@@ -3,7 +3,6 @@ package com.arcone.biopro.distribution.order.application.usecase;
 import com.arcone.biopro.distribution.order.application.dto.OrderReceivedEventPayloadDTO;
 import com.arcone.biopro.distribution.order.application.dto.UseCaseMessageType;
 import com.arcone.biopro.distribution.order.application.dto.UseCaseNotificationDTO;
-import com.arcone.biopro.distribution.order.application.dto.UseCaseNotificationType;
 import com.arcone.biopro.distribution.order.application.dto.UseCaseResponseDTO;
 import com.arcone.biopro.distribution.order.application.exception.DomainNotFoundForKeyException;
 import com.arcone.biopro.distribution.order.application.mapper.OrderReceivedEventMapper;
@@ -25,18 +24,18 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class OrderUseCase implements OrderService {
+public class OrderUseCase extends AbstractProcessOrderUseCase implements OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderReceivedEventMapper orderReceivedEventMapper;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final InventoryService inventoryService;
     private final PickListCommandMapper pickListCommandMapper;
+    private final static String USE_CASE_OPERATION = "CREATE_ORDER";
 
     @Override
     public Mono<UseCaseResponseDTO<Order>> findUseCaseResponseById(Long id) {
@@ -64,7 +63,7 @@ public class OrderUseCase implements OrderService {
                 .doOnNext(order -> {
                         log.info("Result orderReceivedEventMapper.mapToDomain {} , ID {}", order, order.getId());
                         this.orderRepository.insert(order)
-                            .doOnSuccess(this::publishOrderCreatedEvent)
+                            .doOnSuccess(this::publishOrderProcessedEvent)
                             .doOnError(error -> {
                                 if(error instanceof DuplicateKeyException) {
                                     publishOrderRejectedEvent(eventDTO.externalId(),"Order already exists");
@@ -89,14 +88,9 @@ public class OrderUseCase implements OrderService {
         }
     }
 
-    private void publishOrderCreatedEvent(Order order) {
-        log.debug("Publishing OrderCreatedEvent {} , ID {}", order, order.getId());
-        applicationEventPublisher.publishEvent(new OrderCreatedEvent(order));
-    }
-
     private void publishOrderRejectedEvent(String externalId,String errorMessage) {
         log.debug("Publishing OrderRejected {} , ID {}", externalId, errorMessage);
-        applicationEventPublisher.publishEvent(new OrderRejectedEvent(externalId,errorMessage));
+        applicationEventPublisher.publishEvent(new OrderRejectedEvent(externalId,errorMessage,USE_CASE_OPERATION));
     }
 
     private void setAvailableInventories(UseCaseResponseDTO<Order> useCaseResponseDTO){
@@ -116,5 +110,11 @@ public class OrderUseCase implements OrderService {
                     return Mono.just(availableInventory);
                 }
             ).blockLast();
+    }
+
+    @Override
+    void publishOrderProcessedEvent(Order order) {
+        log.debug("Publishing OrderCreatedEvent {} , ID {}", order, order.getId());
+        applicationEventPublisher.publishEvent(new OrderCreatedEvent(order));
     }
 }

@@ -1,31 +1,37 @@
 package com.arcone.biopro.distribution.order.domain.event;
 
-import java.io.Serializable;
+import com.arcone.biopro.distribution.order.domain.model.Order;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
 import java.time.Instant;
 import java.util.UUID;
 
-public class OrderRejectedEvent implements DomainEvent {
+@ToString
+@EqualsAndHashCode
+public class OrderModifiedEvent implements DomainEvent<Order> {
 
     private final UUID eventId;
     private final Instant occurredOn;
     private final static String eventVersion = "1.0";
-    private final static String eventType = "OrderRejected";
-    private OrderRejectedPayload payload;
+    private final static String eventType = "OrderModified";
+    private Order payload;
 
-    public OrderRejectedEvent (String externalId, String errorMessage , String operation){
+    public OrderModifiedEvent(Order order){
         this.eventId = UUID.randomUUID();
         this.occurredOn = Instant.now();
-        this.payload = new OrderRejectedPayload(errorMessage,externalId,operation);
+        this.payload = order;
     }
+
 
     @Override
     public UUID getEventId() {
-        return this.eventId;
+        return eventId;
     }
 
     @Override
     public Instant getOccurredOn() {
-        return this.occurredOn;
+        return occurredOn;
     }
 
     @Override
@@ -39,15 +45,7 @@ public class OrderRejectedEvent implements DomainEvent {
     }
 
     @Override
-    public OrderRejectedPayload getPayload() {
+    public Order getPayload() {
         return payload;
-    }
-
-    public record OrderRejectedPayload(
-        String errorMessage,
-        String externalId,
-        String operation
-    ) implements Serializable {
-
     }
 }

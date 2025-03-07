@@ -19,6 +19,10 @@ public class DatabaseQueries {
         return String.format("INSERT INTO bld_order (external_id, location_code, priority, delivery_type, status, shipping_method, billing_customer_code, billing_customer_name, shipping_customer_code, shipping_customer_name, create_date, modification_date, product_category, create_employee_id, back_order) " +
             "VALUES ('%s', '%s', '%s', '%s', '%s', 'FEDEX', 'A1235', 'BILLING NAME', 'A1235', 'Creative Testing Solutions', CURRENT_DATE, CURRENT_DATE, 'FROZEN', 'ee1bf88e-2137-4a17-835a-d43e7b738374', %s)", externalId, locationCode, priority, deliveryType, status, backOrderFlag);
     }
+    public static String insertBioProOrder(String externalId, String locationCode, Integer priority, String deliveryType, String status, String productCategory, boolean backOrderFlag) {
+        return String.format("INSERT INTO bld_order (external_id, location_code, priority, delivery_type, status, shipping_method, billing_customer_code, billing_customer_name, shipping_customer_code, shipping_customer_name, create_date, modification_date, product_category, create_employee_id, back_order) " +
+            "VALUES ('%s', '%s', '%s', '%s', '%s', 'FEDEX', 'A1235', 'BILLING NAME', 'A1235', 'Creative Testing Solutions', CURRENT_DATE, CURRENT_DATE, '%s', 'ee1bf88e-2137-4a17-835a-d43e7b738374', %s)", externalId, locationCode, priority, deliveryType, status, productCategory, backOrderFlag);
+    }
 
     public static String insertBioProOrderWithDetails(String externalId, String locationCode, Integer priority, String deliveryType, String status, String shipmentType, String shippingMethod, String productCategory, String desiredShipDate, String shippingCustomerCode, String shippingCustomerName, String billingCustomerCode, String billingCustomerName, String comments) {
         return String.format("INSERT INTO bld_order (external_id, location_code, priority, delivery_type, status, shipment_type, shipping_method, product_category, desired_shipping_date, shipping_customer_code, shipping_customer_name, billing_customer_code, billing_customer_name, comments, create_employee_id, create_date, modification_date) " +
@@ -27,7 +31,7 @@ public class DatabaseQueries {
 
     public static String insertBioProOrderItem(String externalId, String productFamily, String bloodType, Integer quantity, String comments) {
         return String.format("INSERT INTO bld_order_item (order_id, product_family, blood_type, quantity, comments, create_date, modification_date) " +
-            "VALUES ((SELECT id FROM bld_order WHERE external_id = '%s'), '%s', '%s', %s, '%s',current_date ,current_date)", externalId, productFamily, bloodType, quantity, comments);
+            "VALUES ((SELECT MAX(id) FROM bld_order WHERE external_id = '%s'), '%s', '%s', %s, '%s',current_date ,current_date)", externalId, productFamily, bloodType, quantity, comments);
     }
 
     public static String countOrdersByExternalId(String externalId) {
@@ -70,7 +74,7 @@ public class DatabaseQueries {
     }
 
     public static String getOrderId(String externalId) {
-        return String.format("SELECT id FROM bld_order WHERE external_id = '%s'", externalId);
+        return String.format("SELECT max(id) as id FROM bld_order WHERE external_id = '%s'", externalId);
     }
 
     public static String getOrderNumber(String orderId) {

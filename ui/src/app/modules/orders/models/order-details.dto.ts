@@ -18,7 +18,7 @@ export interface OrderDetailsDTO {
     priority: string;
     createEmployeeId: string;
     createDate: Date;
-    modificationDate: Date;
+    modificationDate: string;
     deleteDate: Date;
     orderItems: OrderItemDetailsDto[];
     totalShipped: number;
@@ -32,6 +32,10 @@ export interface OrderDetailsDTO {
     cancelEmployeeId: string;
     cancelDate: string;
     cancelReason: string;
+    modifyEmployeeId?: string;
+    modifyReason?: string;
+    modifyByProcess?: string;
+    displayModificationDetails: boolean;
 }
 
 export interface OrderItemDetailsDto {

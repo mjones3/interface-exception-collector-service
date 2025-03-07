@@ -142,6 +142,22 @@ public class OrderRepositoryImpl implements OrderRepository, FilterAndSortReposi
     }
 
     @Override
+    public Mono<Order> reset(Order order) {
+        return this.findAllOrderItemEntitiesByOrderId(order.getId())
+            .flatMap(this.entityTemplate::delete)
+            .collectList()
+            .flatMap(removedList -> this.entityTemplate.update(orderEntityMapper.mapToEntity(order))
+                .flatMap(orderEntity -> Flux.fromIterable(order.getOrderItems())
+                    .map(orderItemEntityMapper::mapToEntity)
+                    .map(orderItem -> orderItem.withOrderId(orderEntity.getId()))
+                    .flatMap(this.entityTemplate::insert)
+                    .collect(Collectors.toList())
+                    .flatMap(orderItemEntities -> Mono.fromCallable(()-> orderEntityMapper
+                            .mapToDomain(orderEntity, orderItemEntities))
+                        .publishOn(Schedulers.boundedElastic()))));
+    }
+
+    @Override
     public Flux<Order> findByExternalId(String externalId) {
         return this.entityTemplate
             .select(OrderEntity.class)

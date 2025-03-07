@@ -5,6 +5,7 @@ import com.arcone.biopro.distribution.order.infrastructure.dto.OrderCreatedDTO;
 import com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledEventDTO;
 import com.arcone.biopro.distribution.order.infrastructure.dto.OrderRejectedDTO;
 import com.arcone.biopro.distribution.order.infrastructure.event.OrderCancelledOutputEvent;
+import com.arcone.biopro.distribution.order.infrastructure.event.OrderModifiedOutputEvent;
 import com.arcone.biopro.distribution.order.infrastructure.event.OrderRejectedOutputEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -46,6 +47,8 @@ public class KafkaConfiguration {
     public static final String CANCEL_ORDER_RECEIVED_CONSUMER = "cancel-order-received";
     public static final String DLQ_PRODUCER = "dlq-producer";
     public static final String ORDER_CANCELLED_PRODUCER = "order-cancelled";
+    public static final String MODIFY_ORDER_RECEIVED_CONSUMER = "modify-order-received";
+    public static final String ORDER_MODIFIED_PRODUCER = "order-modified";
 
     @Bean
     NewTopic orderReceivedTopic(
@@ -128,6 +131,24 @@ public class KafkaConfiguration {
         return TopicBuilder.name(topicName).partitions(partitions).replicas(replicas).build();
     }
 
+    @Bean
+    NewTopic modifyOrderReceivedTopic(
+        @Value("${topics.order.modify-order-received.partitions:1}") Integer partitions,
+        @Value("${topics.order.modify-order-received.replicas:1}") Integer replicas,
+        @Value("${topics.order.modify-order-received.topic-name:ModifyOrderReceived}") String topicName
+    ) {
+        return TopicBuilder.name(topicName).partitions(partitions).replicas(replicas).build();
+    }
+
+    @Bean
+    NewTopic orderModifiedTopic(
+        @Value("${topics.order.order-modified.partitions:1}") Integer partitions,
+        @Value("${topics.order.order-modified.replicas:1}") Integer replicas,
+        @Value("${topics.order.order-modified.topic-name:OrderModified}") String topicName
+    ) {
+        return TopicBuilder.name(topicName).partitions(partitions).replicas(replicas).build();
+    }
+
 
     @Bean
     ReceiverOptions<String, String> orderServiceReceiverOptions(KafkaProperties kafkaProperties
@@ -151,6 +172,12 @@ public class KafkaConfiguration {
     ReceiverOptions<String, String> cancelOrderReceiverOptions(KafkaProperties kafkaProperties
         , @Value("${topics.order.cancel-order-received.topic-name:CancelOrderReceived}") String cancelOrderReceivedTopicName) {
         return buildReceiverOptions(kafkaProperties, cancelOrderReceivedTopicName);
+    }
+
+    @Bean
+    ReceiverOptions<String, String> modifyOrderReceiverOptions(KafkaProperties kafkaProperties
+        , @Value("${topics.order.modify-order-received.topic-name:ModifyOrderReceived}") String modifyOrderReceivedTopicName) {
+        return buildReceiverOptions(kafkaProperties, modifyOrderReceivedTopicName);
     }
 
 
@@ -191,6 +218,13 @@ public class KafkaConfiguration {
         return new ReactiveKafkaConsumerTemplate<>(cancelOrderReceiverOptions);
     }
 
+    @Bean(MODIFY_ORDER_RECEIVED_CONSUMER)
+    ReactiveKafkaConsumerTemplate<String, String> modifyOrderReceivedConsumerTemplate(
+        ReceiverOptions<String, String> modifyOrderReceiverOptions
+    ) {
+        return new ReactiveKafkaConsumerTemplate<>(modifyOrderReceiverOptions);
+    }
+
     @Bean
     SenderOptions<String, OrderCreatedDTO> createdSenderOptions(
         KafkaProperties kafkaProperties,
@@ -225,6 +259,19 @@ public class KafkaConfiguration {
         var props = kafkaProperties.buildProducerProperties(null);
         props.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, TracingProducerInterceptor.class.getName());
         return SenderOptions.<String, OrderCancelledOutputEvent>create(props)
+            .withValueSerializer(new JsonSerializer<>(objectMapper))
+            .maxInFlight(1) // to keep ordering, prevent duplicate messages (and avoid data loss)
+            .producerListener(new MicrometerProducerListener(meterRegistry)); // we want standard Kafka metrics
+    }
+
+    @Bean
+    SenderOptions<String, OrderModifiedOutputEvent> modifiedSenderOptions(
+        KafkaProperties kafkaProperties,
+        ObjectMapper objectMapper,
+        MeterRegistry meterRegistry) {
+        var props = kafkaProperties.buildProducerProperties(null);
+        props.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, TracingProducerInterceptor.class.getName());
+        return SenderOptions.<String, OrderModifiedOutputEvent>create(props)
             .withValueSerializer(new JsonSerializer<>(objectMapper))
             .maxInFlight(1) // to keep ordering, prevent duplicate messages (and avoid data loss)
             .producerListener(new MicrometerProducerListener(meterRegistry)); // we want standard Kafka metrics
@@ -301,6 +348,12 @@ public class KafkaConfiguration {
     ReactiveKafkaProducerTemplate<String, OrderCancelledOutputEvent> orderCancelledProducerTemplate(
         SenderOptions<String, OrderCancelledOutputEvent> cancelledSenderOptions) {
         return new ReactiveKafkaProducerTemplate<>(cancelledSenderOptions);
+    }
+
+    @Bean(name = ORDER_MODIFIED_PRODUCER )
+    ReactiveKafkaProducerTemplate<String, OrderModifiedOutputEvent> orderModifiedProducerTemplate(
+        SenderOptions<String, OrderModifiedOutputEvent> modifiedSenderOptions) {
+        return new ReactiveKafkaProducerTemplate<>(modifiedSenderOptions);
     }
 
 }

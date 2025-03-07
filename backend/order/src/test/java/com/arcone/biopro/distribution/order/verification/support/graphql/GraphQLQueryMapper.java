@@ -1,7 +1,5 @@
 package com.arcone.biopro.distribution.order.verification.support.graphql;
 
-import java.util.Optional;
-
 public class GraphQLQueryMapper {
     public static String findCustomerByCode(String code) {
         return (String.format("""
@@ -159,8 +157,12 @@ public class GraphQLQueryMapper {
                            completeComments
                            backOrderCreationActive
                            cancelEmployeeId
-                               cancelDate
-                               cancelReason
+                           cancelDate
+                           cancelReason
+                           modifyEmployeeId
+                           modifyReason
+                           modifyByProcess
+                           displayModificationDetails
                        }
                        notifications{
                            notificationType

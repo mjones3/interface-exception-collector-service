@@ -157,6 +157,10 @@ type Order {
     cancelEmployeeId:String
     cancelDate:DateTime
     cancelReason:String
+    modifyEmployeeId:String
+    modifyReason:String
+    modifyByProcess:String
+    displayModificationDetails:Boolean
 }
 
 type OrderReportDTO {
