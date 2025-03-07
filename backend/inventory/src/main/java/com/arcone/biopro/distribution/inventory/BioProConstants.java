@@ -18,7 +18,10 @@ public interface BioProConstants {
     String UPDATE_TYPE = "updateType";
     String PROPERTIES = "properties";
     String LICENSURE = "LICENSURE";
+    String LABELED = "LABELED";
     String LICENSED = "LICENSED";
     String UNLICENSED = "UNLICENSED";
+    String INVENTORY_STATUS = "inventoryStatus";
+    String INPUT_PRODUCTS = "inputProducts";
 
 }

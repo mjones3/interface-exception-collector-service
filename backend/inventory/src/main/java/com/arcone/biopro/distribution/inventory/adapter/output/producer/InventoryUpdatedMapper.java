@@ -6,12 +6,9 @@ import com.arcone.biopro.distribution.inventory.domain.model.enumeration.Invento
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
-import static com.arcone.biopro.distribution.inventory.BioProConstants.LICENSURE;
+import static com.arcone.biopro.distribution.inventory.BioProConstants.*;
 
 
 @Mapper(componentModel = "spring")
@@ -33,6 +30,7 @@ public interface InventoryUpdatedMapper {
     )
     @Mapping(target = "updateType", source = "updateType")
     @Mapping(target = "properties", expression = "java(getInventoryProperties(inventory))")
+    @Mapping(target = "inputProducts", expression = "java(getInputProducts())")
     InventoryUpdatedEvent toEvent(Inventory inventory, InventoryUpdateType updateType);
 
     default String getStorageLocation(Inventory inventory) {
@@ -48,7 +46,12 @@ public interface InventoryUpdatedMapper {
 
 
     default List<String> getInventoryStatus(Inventory inventory) {
-        return List.of(inventory.getInventoryStatus().name());
+        var statusList = new ArrayList<String>();
+        statusList.add(inventory.getInventoryStatus().name());
+        if (inventory.getIsLabeled()) {
+            statusList.add(LABELED);
+        }
+        return statusList;
     }
 
     default Map<String, Object> getInventoryProperties(Inventory inventory) {
@@ -56,5 +59,7 @@ public interface InventoryUpdatedMapper {
         properties.put(LICENSURE, (inventory != null && Boolean.TRUE.equals(inventory.getIsLicensed())) ? "LICENSED" : "UNLICENSED");
         return properties;
     }
+
+    default List<Object> getInputProducts() {return List.of();}
 
 }
