@@ -868,4 +868,60 @@ class OrderTest {
         Assertions.assertEquals(1,orderModified.getOrderItems().size());
 
     }
+
+    @Test
+    public void shouldNotModifyWhenDesireShippingDateIsInvalid(){
+
+
+        Mockito.when(lookupService.findAllByType(Mockito.anyString())).thenReturn(Flux.just(new Lookup(new LookupId("OPEN","OPEN"),"description",1,true)
+            , new Lookup(new LookupId("COMPLETED","COMPLETED"),"description",2,true)));
+
+        Mockito.when(orderConfigService.findBackOrderConfiguration()).thenReturn(Mono.just(TRUE));
+
+        var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
+            , "OPEN", "OPEN", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
+            , null, null, "COMPLETED", null, "COMPLETED", "OPEN", "CREATE_EMPLOYEE"
+            , null, null, null);
+
+
+        try{
+            order.modify(ModifyOrderCommand.builder()
+                .modifyReason("Reason")
+                    .desiredShippingDate("INVALID_DATE")
+                .modifyDate(LocalDateTime.now().minusDays(2).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                .build(), Collections.emptyList() , customerService , lookupService , orderConfigService );
+            Assertions.fail();
+        }catch (IllegalArgumentException e){
+            Assertions.assertEquals("Desired Shipping Date is invalid",e.getMessage());
+        }
+
+    }
+
+    @Test
+    public void shouldNotModifyWhenDesireShippingDateIsInPast(){
+
+
+        Mockito.when(lookupService.findAllByType(Mockito.anyString())).thenReturn(Flux.just(new Lookup(new LookupId("OPEN","OPEN"),"description",1,true)
+            , new Lookup(new LookupId("COMPLETED","COMPLETED"),"description",2,true)));
+
+        Mockito.when(orderConfigService.findBackOrderConfiguration()).thenReturn(Mono.just(TRUE));
+
+        var order = new Order(customerService, lookupService, 1L, 123L, "EXT", "123"
+            , "OPEN", "OPEN", "123", "123",LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE)
+            , null, null, "COMPLETED", null, "COMPLETED", "OPEN", "CREATE_EMPLOYEE"
+            , null, null, null);
+
+
+        try{
+            order.modify(ModifyOrderCommand.builder()
+                .modifyReason("Reason")
+                .desiredShippingDate(LocalDate.now().minusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE))
+                .modifyDate(LocalDateTime.now().minusDays(2).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                .build(), Collections.emptyList() , customerService , lookupService , orderConfigService );
+            Assertions.fail();
+        }catch (IllegalArgumentException e){
+            Assertions.assertEquals("Desired Shipping cannot be in the past",e.getMessage());
+        }
+
+    }
 }
