@@ -172,15 +172,15 @@ Feature: List of all orders in Search Order
             When I request to list the Orders.
             Then I should receive the orders listed in the following order.
                 | External ID  | Location Code | Priority | Status      | Desired Shipment Date | Customer Code | Ship To Customer Name      | Create Date         |
-                | EXTDIS237003 | 123456789     | STAT     | OPEN        | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T02:00:00 |
                 | EXTDIS2370011| 123456789     | STAT     | OPEN        | 2025-01-01            | C3457         | Pioneer Health Services    | 2025-01-01T10:00:00 |
+                | EXTDIS237003 | 123456789     | STAT     | OPEN        | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T02:00:00 |
                 | EXTDIS237001 | 123456789     | STAT     | IN_PROGRESS | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T00:00:00 |
                 | EXTDIS237002 | 123456789     | STAT     | IN_PROGRESS | 2025-01-02            | B2346         | Advanced Medical Center    | 2025-01-01T01:00:00 |
                 | EXTDIS237008 | 123456789     | ASAP     | OPEN        | 2025-01-01            | B2346         | Advanced Medical Center    | 2025-01-01T07:00:00 |
                 | EXTDIS237005 | 123456789     | ASAP     | IN_PROGRESS | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T04:00:00 |
                 | EXTDIS237007 | 123456789     | ASAP     | IN_PROGRESS | 2025-01-02            | B2346         | Advanced Medical Center    | 2025-01-01T06:00:00 |
-                | EXTDIS237006 | 123456789     | ROUTINE  | OPEN        | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T05:00:00 |
                 | EXTDIS2370012| 123456789     | ROUTINE  | OPEN        | 2025-01-01            | B2346         | Advanced Medical Center    | 2025-01-01T11:30:00 |
+                | EXTDIS237006 | 123456789     | ROUTINE  | OPEN        | 2025-01-01            | A1235         | Creative Testing Solutions | 2025-01-01T05:00:00 |
                 | EXTDIS237009 | 123456789     | ROUTINE  | IN_PROGRESS | 2025-01-01            | C3457         | Pioneer Health Services    | 2025-01-01T13:00:00 |
                 | EXTDIS237004 | 123456789     | ROUTINE  | IN_PROGRESS | 2025-01-02            | A1235         | Creative Testing Solutions | 2025-01-01T03:00:00 |
                 | EXTDIS2370010| 123456789     | ROUTINE  | IN_PROGRESS | NULL_VALUE            | C3457         | Pioneer Health Services    | 2025-01-01T15:00:00 |

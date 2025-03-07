@@ -95,7 +95,7 @@ public class SearchOrderPage extends CommonPageFactory {
     private static final String tableRows = "//biopro-table//tbody/tr";
 
     @FindAll({
-        @FindBy(xpath = "//td[starts-with(@id,'orderPriorityReport.priorityRow')]")
+        @FindBy(xpath = "//td[starts-with(@id,'priorityRow')]")
     })
     private List<WebElement> orderPriorityList;
 
