@@ -12,11 +12,14 @@ public abstract class AbstractProcessOrderUseCase {
     public void publishOrderRejectedEvent(ApplicationEventPublisher applicationEventPublisher, String externalId, Throwable error , String operation) {
         log.debug("Publishing OrderRejected {} , ID {}", externalId, error.getMessage());
         var errorMessage = "";
-        if(error instanceof DomainException){
-            errorMessage = ((DomainException) error).getUseCaseMessageType().getMessage();
+        if(error instanceof DomainException de){
+            errorMessage = de.getUseCaseMessageType().getMessage();
         }else{
             errorMessage = error.getMessage();
         }
+
+        log.debug("Rejected Reason : {}",errorMessage);
+
         applicationEventPublisher.publishEvent(new OrderRejectedEvent(externalId, errorMessage,operation));
     }
 

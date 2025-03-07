@@ -144,14 +144,7 @@ public class Order implements Validatable {
         this.shippingMethod = new ShippingMethod(shippingMethod, lookupService);
         this.shippingCustomer = new OrderCustomer(shippingCustomerCode, customerService);
         this.billingCustomer = new OrderCustomer(billingCustomerCode, customerService);
-        if(desiredShippingDate != null){
-            try {
-                this.desiredShippingDate = LocalDate.parse(desiredShippingDate);
-            } catch (DateTimeParseException e) {
-                throw new IllegalArgumentException("desiredShippingDate is invalid");
-            }
-        }
-
+        this.desiredShippingDate = checkDateIsValid(desiredShippingDate);
         this.willCallPickup = willCallPickup;
         this.phoneNumber = phoneNumber;
         this.productCategory = new ProductCategory(productCategory, lookupService);
@@ -187,8 +180,8 @@ public class Order implements Validatable {
         if (this.billingCustomer == null) {
             throw new IllegalArgumentException("billingCustomer could not be found or it is null");
         }
-        if (this.desiredShippingDate != null && this.desiredShippingDate.isBefore(LocalDate.now()) && this.id == null) {
-            throw new IllegalArgumentException("desiredShippingDate cannot be in the past");
+        if (this.desiredShippingDate != null && this.id == null) {
+            this.checkDateIsInPast(this.desiredShippingDate);
         }
         if (this.productCategory == null) {
             throw new IllegalArgumentException("productCategory cannot be null");
@@ -388,6 +381,12 @@ public class Order implements Validatable {
             throw new IllegalArgumentException("Modify Date cannot be null or empty");
         }
 
+        var desireShippingDate = this.checkDateIsValid(modifyOrderCommand.getDesiredShippingDate());
+
+        if(desireShippingDate != null){
+            this.checkDateIsInPast(desireShippingDate);
+        }
+
         try{
             LocalDateTime.parse(modifyOrderCommand.getModifyDate(),DateTimeFormatter.ofPattern(MODIFY_DATE_FORMAT));
         }catch (Exception e){
@@ -422,6 +421,8 @@ public class Order implements Validatable {
             throw new IllegalArgumentException("Order is not open and cannot be modified");
         }
 
+
+
         var updatedOrder = new Order(customerService,lookupService,orderToBeUpdated.getId(), orderToBeUpdated.getOrderNumber().getOrderNumber(), orderToBeUpdated.getOrderExternalId().getOrderExternalId()
             , modifyOrderCommand.getLocationCode() , orderToBeUpdated.getShipmentType().getShipmentType() , modifyOrderCommand.getShippingMethod()
             , orderToBeUpdated.getShippingCustomer().getCode() , orderToBeUpdated.getBillingCustomer().getCode() , modifyOrderCommand.getDesiredShippingDate()
@@ -451,5 +452,25 @@ public class Order implements Validatable {
 
     public boolean isModifiedByInterface(){
         return ModifyByProcess.INTERFACE.name().equals(this.modifiedByProcess) && ORDER_OPEN_STATUS.equals(this.getOrderStatus().getOrderStatus());
+    }
+
+
+    private LocalDate checkDateIsValid(String date){
+
+        if(date != null){
+            try {
+                return  LocalDate.parse(date);
+            } catch (DateTimeParseException e) {
+                throw new IllegalArgumentException("Desired Shipping Date is invalid");
+            }
+        }
+
+        return null;
+    }
+
+    private void checkDateIsInPast(LocalDate localDate){
+        if (localDate != null && localDate.isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("Desired Shipping cannot be in the past");
+        }
     }
 }
