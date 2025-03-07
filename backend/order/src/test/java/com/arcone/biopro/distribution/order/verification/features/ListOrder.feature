@@ -1,4 +1,4 @@
-@AOA-39
+@AOA-39 @AO-152
 Feature: List of all orders in Search Order
 
     Background:
@@ -344,6 +344,12 @@ Feature: List of all orders in Search Order
                 | EXTDIS237009 | 123456789     | ROUTINE  | IN_PROGRESS | 2025-01-01            | C3457         | Pioneer Health Services    | 2025-01-01T13:00:00 |
                 | EXTDIS2370010| 123456789     | ROUTINE  | IN_PROGRESS | NULL_VALUE            | C3457         | Pioneer Health Services    | 2025-01-01T15:00:00 |
             And  The sorting indicator should be at "createDate" property in "ascending" order.
+            When I request to list the Orders sorted by "orderNumber" in "ascending" order.
+            Then I should receive the orders listed by "orderNumber" in "ascending" order.
+            And  The sorting indicator should be at "orderNumber" property in "ascending" order.
+            When I request to list the Orders sorted by "orderNumber" in "descending" order.
+            Then I should receive the orders listed by "orderNumber" in "descending" order.
+            And  The sorting indicator should be at "orderNumber" property in "descending" order.
 
 
 
