@@ -37,6 +37,7 @@ import java.time.Year;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -226,6 +227,8 @@ public class OrderSteps {
 
     @Given("I have this/these BioPro Order(s).")
     public void createBioproOrder(DataTable table) {
+        originalOrderTable = table;
+        orderIdMap = new HashMap<>();
         var headers = table.row(0);
         for (var i = 1; i < table.height(); i++) {
             var row = table.row(i);
@@ -239,8 +242,11 @@ public class OrderSteps {
                 ,row.get(headers.indexOf("Customer Code")),row.get(headers.indexOf("Ship To Customer Name")),row.get(headers.indexOf("Create Date")) );
             databaseService.executeSql(query).block();
 
+            var orderId = Integer.valueOf(databaseService.fetchData(DatabaseQueries.getOrderId(context.getExternalId())).first().block().get("id").toString());
+            orderIdMap.put(context.getExternalId(),orderId);
+
             // Will keep the last order id
-            context.setOrderId(Integer.valueOf(databaseService.fetchData(DatabaseQueries.getOrderId(context.getExternalId())).first().block().get("id").toString()));
+            context.setOrderId(orderId);
         }
 
     }
@@ -1181,5 +1187,33 @@ public class OrderSteps {
         }else{
             Assert.fail("Invalid Sorting Order");
         }
+    }
+
+    @Then("I should receive the orders listed by {string} in {string} order.")
+    public void iShouldReceiveTheOrdersListedByInOrder(String property, String sortingOrder) {
+
+        var expectedIds = new ArrayList<String>();
+        for (var i = 1; i < originalOrderTable.height(); i++) {
+            var row = originalOrderTable.row(i);
+            expectedIds.add(orderIdMap.get(row.get(originalOrderTable.row(0).indexOf("External ID"))).toString());
+        }
+
+        Assert.assertEquals(property,context.getOrdersPage().querySort().orderByList().getFirst().property());
+
+        var responseIds = context.getOrdersPage().content().stream()
+            .map(r -> r.get("orderNumber").asText())
+            .collect(Collectors.joining(","));
+
+        if(ASCENDING.equals(sortingOrder)){
+            Assert.assertEquals("ASC",context.getOrdersPage().querySort().orderByList().getFirst().direction());
+            Collections.sort(expectedIds);
+        } else if (DESCENDING.equals(sortingOrder)) {
+            Assert.assertEquals("DESC",context.getOrdersPage().querySort().orderByList().getFirst().direction());
+            Collections.reverse(expectedIds);
+        }else{
+            Assert.fail("Invalid Sorting Order");
+        }
+
+        Assert.assertEquals(String.join(",", expectedIds), responseIds);
     }
 }
