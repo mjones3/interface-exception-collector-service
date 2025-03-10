@@ -12,7 +12,7 @@ public class ExternalTransferCompletedEvent implements DomainEvent {
     private final Instant occurredOn;
     private final static String eventVersion = "1.0";
     private final static String eventType = "ExternalTransferCompleted";
-    private ExternalTransfer payload;
+    private final ExternalTransfer payload;
 
     public ExternalTransferCompletedEvent (ExternalTransfer externalTransfer){
         this.eventId = UUID.randomUUID();

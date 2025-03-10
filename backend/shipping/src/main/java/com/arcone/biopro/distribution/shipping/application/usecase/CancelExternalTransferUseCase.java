@@ -58,6 +58,7 @@ public class CancelExternalTransferUseCase extends AbstractUseCase implements Ca
                 .notifications(List.of(NotificationDTO.builder()
                         .message(ShipmentServiceMessages.EXTERNAL_TRANSFER_CANCELLED_SUCCESS)
                         .statusCode(HttpStatus.OK.value())
+                        .code(HttpStatus.OK.value())
                         .notificationType(NotificationType.SUCCESS.name())
                         .build()))
                     ._links(Map.of("next",EXTERNAL_TRANSFER_URL))
