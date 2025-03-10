@@ -32,8 +32,9 @@ public class ExternalTransfer implements Validatable{
     private final CustomerService customerService;
     private List<ExternalTransferItem> externalTransferItems;
     private List<ProductLocationHistory> productLocationHistories;
+    private ZonedDateTime createDate;
 
-    public ExternalTransfer(Long id , String customerCodeTo, String customerCodeFrom, String hospitalTransferId, LocalDate transferDate, String createEmployeeId, ExternalTransferStatus status , CustomerService customerService) {
+    public ExternalTransfer(Long id , String customerCodeTo, String customerCodeFrom, String hospitalTransferId, LocalDate transferDate, String createEmployeeId, ExternalTransferStatus status , ZonedDateTime createDate , CustomerService customerService) {
         this.id = id;
         this.hospitalTransferId = hospitalTransferId;
         this.transferDate = transferDate;
@@ -45,12 +46,13 @@ public class ExternalTransfer implements Validatable{
         }
 
         this.customerService = customerService;
+        this.createDate = createDate;
 
         checkValid();
     }
 
-    public ExternalTransfer(Long id , String customerCodeTo, String customerCodeFrom, String hospitalTransferId, LocalDate transferDate, String createEmployeeId, ExternalTransferStatus status , List<ExternalTransferItem> externalTransferItems , CustomerService customerService) {
-        this(id , customerCodeTo, customerCodeFrom, hospitalTransferId, transferDate, createEmployeeId, status ,customerService);
+    public ExternalTransfer(Long id , String customerCodeTo, String customerCodeFrom, String hospitalTransferId, LocalDate transferDate, String createEmployeeId, ExternalTransferStatus status , ZonedDateTime createDate , List<ExternalTransferItem> externalTransferItems , CustomerService customerService) {
+        this(id , customerCodeTo, customerCodeFrom, hospitalTransferId, transferDate, createEmployeeId, status , createDate ,customerService);
         this.externalTransferItems = new ArrayList<>(externalTransferItems);
     }
 

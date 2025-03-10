@@ -102,4 +102,11 @@ public class DatabaseSteps {
         databaseService.executeSql(queryParent).block();
 
     }
+
+    @And("The data entered must not be saved after canceling the process.")
+    public void theDataEnteredMustNotBeSavedAfterCancelingTheProcess() {
+        var query = String.format("SELECT id FROM bld_external_transfer WHERE id = %s", context.getExternalTransferId());
+        var result = databaseService.executeSql(query).block();
+        assert result == null;
+    }
 }

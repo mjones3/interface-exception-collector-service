@@ -33,6 +33,7 @@ public class ShipmentServiceMessages {
     public static final String UNPACK_SHIPMENT_ITEM_NOT_FOUND_ERROR = "Product cannot be removed because line item does not exist";
     public static final String UNPACK_SHIPMENT_NOT_FOUND_ERROR = "Product cannot be removed because shipment does not exist";
     public static final String UNPACK_SHIPMENT_COMPLETED_ERROR = "Product cannot be removed because shipment is completed";
+    public static final String EXTERNAL_TRANSFER_CANCEL_CONFIRMATION = "When cancelling, all external transfer information will be removed. Are you sure you want to cancel?";
 
 
     //    Success messages
@@ -42,6 +43,7 @@ public class ShipmentServiceMessages {
     public static final String EXTERNAL_TRANSFER_CREATED_SUCCESS = "External Transfer created";
     public static final String EXTERNAL_TRANSFER_PRODUCT_ADD_SUCCESS = "Product added successfully";
     public static final String EXTERNAL_TRANSFER_COMPLETED_SUCCESS = "External transfer completed successfully";
+    public static final String EXTERNAL_TRANSFER_CANCELLED_SUCCESS = "External transfer cancellation completed";
 
 
 }

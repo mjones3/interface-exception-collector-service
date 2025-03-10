@@ -123,6 +123,7 @@ public class ApiHelper {
     public Map graphQlRequest(String document, String path) {
         HttpGraphQlClient qlClient = HttpGraphQlClient.create(webTestClientGraphQl);
         var response = qlClient.document(document).retrieveSync(path).toEntity(Map.class);
+        log.debug("GRAPHQL RESPONSE: {}", response);
 
         // Set the API response to the context so that it can be used in other steps.
         context.setApiMessageResponse((List<Map>)response.get("notifications"));

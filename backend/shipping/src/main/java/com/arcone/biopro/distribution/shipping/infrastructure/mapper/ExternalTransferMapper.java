@@ -27,7 +27,7 @@ public class ExternalTransferMapper {
         return new ExternalTransfer(externalTransferEntity.getId(), externalTransferEntity.getCustomerCodeTo()
             , externalTransferEntity.getCustomerCodeFrom(), externalTransferEntity.getHospitalTransferId()
             , externalTransferEntity.getTransferDate() , externalTransferEntity.getCreatedByEmployeeId()
-            , ExternalTransferStatus.valueOf(externalTransferEntity.getStatus()), customerService );
+            , ExternalTransferStatus.valueOf(externalTransferEntity.getStatus()), externalTransferEntity.getCreateDate(), customerService );
     }
 
     public ExternalTransfer toDomain(ExternalTransferEntity externalTransferEntity , List<ExternalTransferItemEntity> externalTransferItemEntities) {
@@ -35,7 +35,7 @@ public class ExternalTransferMapper {
         return new ExternalTransfer(externalTransferEntity.getId(), externalTransferEntity.getCustomerCodeTo()
             , externalTransferEntity.getCustomerCodeFrom(), externalTransferEntity.getHospitalTransferId()
             , externalTransferEntity.getTransferDate() , externalTransferEntity.getCreatedByEmployeeId()
-            , ExternalTransferStatus.valueOf(externalTransferEntity.getStatus()) , Optional.ofNullable(externalTransferItemEntities)
+            , ExternalTransferStatus.valueOf(externalTransferEntity.getStatus()), externalTransferEntity.getCreateDate() , Optional.ofNullable(externalTransferItemEntities)
             .filter(list -> !list.isEmpty())
             .orElseGet(Collections::emptyList)
             .stream()
@@ -56,6 +56,7 @@ public class ExternalTransferMapper {
             .createdByEmployeeId(externalTransfer.getCreateEmployeeId())
             .hospitalTransferId(externalTransfer.getHospitalTransferId())
             .status(externalTransfer.getStatus().name())
+            .createDate(externalTransfer.getCreateDate())
             .transferDate(externalTransfer.getTransferDate())
             .build();
 
