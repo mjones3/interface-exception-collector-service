@@ -81,7 +81,6 @@ export class TableComponent<T extends TableDataSource = TableDataSource>
     };
 
     dataSource = input.required<T[]>();
-
     configuration = input<TableConfiguration, unknown>(this._defaultConfig, {
         transform: (config: TableConfiguration) =>
             merge({}, this._defaultConfig, config),
@@ -91,6 +90,7 @@ export class TableComponent<T extends TableDataSource = TableDataSource>
     expandTemplateRef = input<TemplateRef<Element>>();
     footerTemplateRef = input<TemplateRef<Element>>();
     tableId = input.required<string>();
+    stickyHeader = input(true, { transform: booleanAttribute });
     tableNoResultsMessage = input('No Results Found');
     pageIndex = input(0);
     defaultSort = input<MatSortable>();
