@@ -6,7 +6,6 @@ import com.arcone.biopro.distribution.eventbridge.domain.service.ShipmentComplet
 import com.arcone.biopro.distribution.eventbridge.infrastructure.listener.ShipmentCompletedListener;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.service.SchemaValidationService;
 import com.arcone.biopro.distribution.eventbridge.unit.util.TestUtil;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
