@@ -8,7 +8,7 @@ Feature: Modify Order
         Rule: The modified order request must be rejected if the order doesn't exist.
         Rule: The modified order request must be rejected if the content of the request doesn't match the acceptable values configured in the system.
         Rule: The modified order request must be rejected for a backorder.
-        Rule: The modified order date and time and the employee who modified the order must be displayed on the BioPro application.
+        Rule: The modified order date and time and the modified reason are required for the modified order request.
         Rule: The modified order request details must be available in the BioPro application.
         @DIS-316
         Scenario: Modify a Biopro order from a Modify Order request event.
