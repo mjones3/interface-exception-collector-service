@@ -211,7 +211,7 @@ Feature: External Transfers
             And I should see a "Success" message: "External transfer cancellation completed".
             And The External transfer process should be restarted.
             And The submit external transfer option should be "disabled".
-            And The cancel external transfer option should be "disable".
+            And The cancel external transfer option should be "disabled".
             Examples:
                 | Transfer Date | Customer Name           | Hospital Order Reference ID |
                 | 01/25/2024    | Pioneer Health Services | NULL_VALUE                  |

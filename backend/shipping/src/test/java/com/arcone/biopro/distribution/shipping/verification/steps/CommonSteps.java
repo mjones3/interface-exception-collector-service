@@ -21,11 +21,17 @@ public class CommonSteps {
     @Autowired
     SharedContext context;
 
+    @Then("I should see a {string} message: {string}.deprecated")
+    public void iShouldSeeAMessageAndClose(String header, String message) throws InterruptedException {
+        log.info("I should see a message: {}", message);
+        sharedActions.verifyMessage(header, message);
+        sharedActions.closeAcknowledgment();
+    }
+
     @Then("I should see a {string} message: {string}.")
     public void iShouldSeeAMessage(String header, String message) throws InterruptedException {
         log.info("I should see a message: {}", message);
         sharedActions.verifyMessage(header, message);
-        sharedActions.closeAcknowledgment();
     }
 
     @When("I confirm the acknowledgment message.")
