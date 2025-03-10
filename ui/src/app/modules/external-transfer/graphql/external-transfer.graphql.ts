@@ -1,10 +1,10 @@
 import { gql } from 'apollo-angular';
 import { RuleResponseDTO } from 'app/shared/models/rule.model';
-import { CreateTransferInfoDTO } from '../models/external-transfer.dto';
+import { CreateExternalTransferRequestDTO } from '../models/external-transfer.dto';
 
 const VERIFY_TRANSFER_INFO = gql<
     { createExternalTransfer: RuleResponseDTO },
-    CreateTransferInfoDTO
+    CreateExternalTransferRequestDTO
 >`
     mutation createExternalTransfer(
         $customerCode: String!

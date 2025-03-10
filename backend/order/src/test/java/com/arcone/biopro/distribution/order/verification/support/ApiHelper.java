@@ -1,9 +1,12 @@
 package com.arcone.biopro.distribution.order.verification.support;
 
+import com.arcone.biopro.distribution.order.adapter.in.web.dto.PageDTO;
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.graphql.client.FieldAccessException;
 import org.springframework.graphql.client.HttpGraphQlClient;
 import org.springframework.stereotype.Component;
@@ -144,6 +147,23 @@ public class ApiHelper {
             return qlClient.document(document).retrieveSync(path).toEntityList(Map.class);
         } catch (FieldAccessException e) {
             return Collections.emptyList();
+        }
+    }
+
+    public PageDTO<JsonNode> graphQlPageRequest(String document, String path) {
+        return this.graphQlPageRequest(null, document, path);
+    }
+
+    public <T> PageDTO<T> graphQlPageRequest(Class<T> contentType, String document, String path) {
+        var contentTypeClass = contentType == null
+            ? new ParameterizedTypeReference<PageDTO<JsonNode>>() {} // Use Page of dynamic JsonNode type
+            : new ParameterizedTypeReference<PageDTO<T>>() {}; // Use Page of specified Java type class
+
+        var qlClient = HttpGraphQlClient.create(webTestClientGraphQl);
+        try {
+            return (PageDTO<T>) qlClient.document(document).retrieveSync(path).toEntity(contentTypeClass);
+        } catch (FieldAccessException e) {
+            return new PageDTO<>(Collections.emptyList(), 0, 0, 0, null);
         }
     }
 

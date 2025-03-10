@@ -25,6 +25,12 @@ public class InventoryAggregateRepositoryImpl implements InventoryAggregateRepos
     ProductFamilyEntityRepository productFamilyEntityRepository;
 
     @Override
+    public Flux<InventoryAggregate> findByUnitNumber(String unitNumber) {
+        return inventoryEntityRepository.findByUnitNumber(unitNumber)
+            .map(inventoryEntityMapper::toAggregate);
+    }
+
+    @Override
     public Mono<InventoryAggregate> findByUnitNumberAndProductCode(String unitNumber, String productCode) {
         return inventoryEntityRepository.findByUnitNumberAndProductCodeLike(unitNumber, createProductCodePattern(productCode))
             .map(inventoryEntityMapper::toDomain)

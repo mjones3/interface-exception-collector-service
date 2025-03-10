@@ -9,10 +9,9 @@ import { CommonModule } from '@angular/common';
 import {
     ChangeDetectionStrategy,
     Component,
-    EventEmitter,
-    Input,
     OnInit,
-    Output,
+    input,
+    output,
 } from '@angular/core';
 import {
     FormBuilder,
@@ -75,11 +74,10 @@ export class SearchOrderFilterComponent implements OnInit {
     readonly OrderStatusMap = OrderStatusMap;
     readonly OrderPriorityMap = OrderPriorityMap;
 
-    @Input() showFilters = false;
-    @Output() applySearchFilters: EventEmitter<SearchOrderFilterDTO> =
-        new EventEmitter<SearchOrderFilterDTO>();
-    @Output() toggleFilters: EventEmitter<boolean> =
-        new EventEmitter<boolean>();
+    showFilters = input(false);
+    onApplySearchFilters = output<SearchOrderFilterDTO>();
+    onResetFilters = output<SearchOrderFilterDTO>();
+    toggleFilters = output<boolean>();
 
     searchForm: FormGroup;
 
@@ -287,7 +285,7 @@ export class SearchOrderFilterComponent implements OnInit {
         Object.keys(this.searchForm.controls).forEach((filterKey) => {
             this.searchForm.controls[filterKey].enable();
         });
-        this.emitResults({});
+        this.emitNoResults();
     }
 
     // Apply Filters
@@ -301,8 +299,11 @@ export class SearchOrderFilterComponent implements OnInit {
 
     emitResults(value?: SearchOrderFilterDTO) {
         this.totalFieldsApplied = this.totalFieldsInformed();
-        this.applySearchFilters.emit(value);
+        this.onApplySearchFilters.emit(value);
     }
 
-    protected readonly FormGroup = FormGroup;
+    emitNoResults() {
+        this.totalFieldsApplied = this.totalFieldsInformed();
+        this.onResetFilters.emit(null);
+    }
 }

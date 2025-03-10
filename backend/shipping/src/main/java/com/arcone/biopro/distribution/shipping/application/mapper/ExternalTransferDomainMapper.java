@@ -1,8 +1,13 @@
 package com.arcone.biopro.distribution.shipping.application.mapper;
 
+import com.arcone.biopro.distribution.shipping.adapter.in.web.dto.AddProductTransferRequestDTO;
+import com.arcone.biopro.distribution.shipping.adapter.in.web.dto.CompleteExternalTransferRequestDTO;
 import com.arcone.biopro.distribution.shipping.adapter.in.web.dto.CreateExternalTransferRequestDTO;
+import com.arcone.biopro.distribution.shipping.application.dto.AddProductTransferCommandDTO;
+import com.arcone.biopro.distribution.shipping.application.dto.CompleteExternalTransferCommandDTO;
 import com.arcone.biopro.distribution.shipping.application.dto.CustomerDTO;
 import com.arcone.biopro.distribution.shipping.application.dto.ExternalTransferDTO;
+import com.arcone.biopro.distribution.shipping.application.dto.ExternalTransferItemDTO;
 import com.arcone.biopro.distribution.shipping.domain.model.CreateExternalTransferCommand;
 import com.arcone.biopro.distribution.shipping.domain.model.ExternalTransfer;
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.ExternalTransferStatus;
@@ -12,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import java.util.Collections;
 import java.util.Optional;
 
 @Component
@@ -51,6 +57,20 @@ public class ExternalTransferDomainMapper {
             .hospitalTransferId(externalTransfer.getHospitalTransferId())
             .createEmployeeId(externalTransfer.getCreateEmployeeId())
             .status(externalTransfer.getStatus().name())
+            .externalTransferItems(Optional.ofNullable(externalTransfer.getExternalTransferItems())
+                .filter(list -> !list.isEmpty())
+                .orElseGet(Collections::emptyList)
+                .stream()
+                .map(item -> ExternalTransferItemDTO
+                    .builder()
+                    .id(item.getId())
+                    .externalTransferId(item.getExternalTransferId())
+                    .productCode(item.getProduct().getProductCode())
+                    .unitNumber(item.getProduct().getUnitNumber())
+                    .productFamily(item.getProduct().getProductFamily())
+                    .createdByEmployeeId(item.getCreatedByEmployeeId())
+                    .build())
+                .toList())
             .build();
     }
 
@@ -64,5 +84,22 @@ public class ExternalTransferDomainMapper {
             .transferDate(createExternalTransferRequestDTO.transferDate())
             .build();
 
+    }
+
+    public AddProductTransferCommandDTO toCommand(AddProductTransferRequestDTO addProductTransferRequestDTO) {
+        return AddProductTransferCommandDTO.builder()
+            .externalTransferId(addProductTransferRequestDTO.externalTransferId())
+            .unitNumber(addProductTransferRequestDTO.unitNumber())
+            .productCode(addProductTransferRequestDTO.productCode())
+            .employeeId(addProductTransferRequestDTO.employeeId())
+            .build();
+    }
+
+    public CompleteExternalTransferCommandDTO toCommand(CompleteExternalTransferRequestDTO completeExternalTransferRequestDTO) {
+        return CompleteExternalTransferCommandDTO.builder()
+            .externalTransferId(completeExternalTransferRequestDTO.externalTransferId())
+            .hospitalTransferId(completeExternalTransferRequestDTO.hospitalTransferId())
+            .employeeId(completeExternalTransferRequestDTO.employeeId())
+            .build();
     }
 }

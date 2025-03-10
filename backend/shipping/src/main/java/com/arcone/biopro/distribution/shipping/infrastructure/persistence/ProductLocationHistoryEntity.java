@@ -56,6 +56,10 @@ public class ProductLocationHistoryEntity implements Persistable<Long> {
     @Column("product_code")
     private String productCode;
 
+    @Size(max = 255)
+    @Column("product_family")
+    private String productFamily;
+
     @NotNull
     @Column("create_date")
     @CreatedDate

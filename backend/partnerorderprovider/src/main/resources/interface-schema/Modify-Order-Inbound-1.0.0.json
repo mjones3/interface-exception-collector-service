@@ -1,0 +1,167 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "title": "Modify Order inbound",
+  "description": "Modify a customer order",
+  "type": "object",
+  "properties": {
+    "locationCode": {
+      "$ref": "#/definitions/locationCode"
+    },
+    "modifyReason": {
+      "type": "string",
+      "title": "Modification Reason",
+      "minLength": 1,
+      "maxLength": 250
+    },
+    "modifyEmployeeCode": {
+      "type": ["string","null"],
+      "title": "Modify Employee Code",
+      "maxLength": 50
+    },
+    "modifyDate": {
+      "$ref": "#/definitions/dateTimePattern"
+    },
+    "deliveryType": {
+      "type": "string" ,
+      "enum": [
+        "DATE_TIME",
+        "SCHEDULED",
+        "STAT",
+        "ROUTINE",
+        "ASAP"
+      ]
+    },
+    "orderPickType": {
+      "$ref": "#/definitions/orderPickType"
+    },
+    "shippingMethod": {
+      "$ref": "#/definitions/shippingMethod"
+    },
+    "productCategory": {
+      "$ref": "#/definitions/productCategory"
+    },
+    "desiredShippingDate": {
+      "$ref": "#/definitions/datePattern"
+    },
+    "comments": {
+      "$ref": "#/definitions/comments"
+    },
+    "orderItems": {
+      "$ref": "#/definitions/orderItems"
+    }
+  },
+  "required": [
+    "locationCode",
+    "modifyReason",
+    "productCategory",
+    "modifyDate",
+    "orderItems",
+    "shippingMethod"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "locationCode": {
+      "type": "string",
+      "title": "location code",
+      "minLength": 1,
+      "maxLength": 255
+    },
+    "modifyEmployeeCode": {
+      "type": "string",
+      "title": "Modify Employee Code",
+      "minLength": 1,
+      "maxLength": 50
+    },
+    "datePattern": {
+      "type": ["string","null"],
+      "pattern": "^(\\d{4}-\\d{2}-\\d{2})$"
+    },
+    "dateTimePattern": {
+      "type": "string",
+      "pattern": "^(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2})$"
+    },
+    "orderPickType": {
+      "type": "object",
+      "title": "Order pickup type",
+      "properties": {
+        "willCallPickUp": {
+          "$ref": "#/definitions/orderPickType.willCallPickUp"
+        },
+        "phoneNumber": {
+          "$ref": "#/definitions/orderPickType.phoneNumber"
+        }
+      },
+      "additionalProperties": false
+    },
+    "orderPickType.willCallPickUp": {
+      "type": "boolean"
+    },
+    "orderPickType.phoneNumber": {
+      "type": "string"
+    },
+    "productCategory": {
+      "type": "string",
+      "minLength": 1,
+      "title": "Ordered product category"
+
+    },
+    "shippingMethod": {
+      "type": "string",
+      "title": "Shipping method used for shipment"
+
+    },
+    "comments": {
+      "type": "string",
+      "title": "Comment associated to the order",
+      "maxLength": 1000
+    },
+    "orderItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/orderItems.item"
+      }
+    },
+    "orderItems.item": {
+      "type": "object",
+      "properties": {
+        "productFamily": {
+          "$ref": "#/definitions/orderItems.productFamily"
+        },
+        "bloodType": {
+          "$ref": "#/definitions/orderItems.bloodType"
+        },
+        "quantity": {
+          "$ref": "#/definitions/orderItems.quantity"
+        },
+        "comments": {
+          "$ref": "#/definitions/orderItems.comments"
+        }
+      },
+      "required": [
+        "productFamily",
+		    "bloodType",
+        "quantity"
+      ],
+      "additionalProperties": false
+    },
+    "orderItems.productFamily": {
+      "type": "string",
+	  "minLength": 1,
+      "title": "Ordered product family"
+    },
+    "orderItems.bloodType": {
+      "type": "string",
+	  "minLength": 1,
+      "title": "Ordered product blood group description"
+    },
+    "orderItems.quantity": {
+      "type": "integer",
+      "title": "Ordered product quantity"
+    },
+    "orderItems.comments": {
+      "type": "string",
+      "title": "Comments associated with the ordered product, if any",
+      "maxLength": 1000
+    }
+  }
+}

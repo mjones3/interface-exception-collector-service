@@ -33,5 +33,5 @@ public interface InventoryEntityRepository extends ReactiveCrudRepository<Invent
 
     Flux<InventoryEntity> findAllByLocationAndProductFamilyAndAboRhInAndInventoryStatusAndIsLabeledTrueAndExpirationDateBetweenOrderByExpirationDateAsc(String location, String productFamily, List<AboRhType> aboRh, InventoryStatus inventoryStatus, LocalDateTime initialDate, LocalDateTime finalDate);
 
-    Mono<InventoryEntity> findByUnitNumber(String unitNumber);
+    Flux<InventoryEntity> findByUnitNumber(String unitNumber);
 }

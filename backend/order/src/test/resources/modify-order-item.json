@@ -1,0 +1,6 @@
+{
+  "productFamily": "{PRODUCT_FAMILY}",
+  "bloodType": "{BLOOD_TYPE}",
+  "quantity": {QUANTITY},
+  "comments": "{COMMENTS}"
+}

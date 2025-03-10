@@ -4,6 +4,7 @@ import com.arcone.biopro.distribution.partnerorderprovider.domain.event.CancelOr
 import com.arcone.biopro.distribution.partnerorderprovider.infrastructure.config.KafkaConfiguration;
 import com.arcone.biopro.distribution.partnerorderprovider.infrastructure.event.CancelOrderReceivedEvent;
 import com.arcone.biopro.distribution.partnerorderprovider.infrastructure.listener.dto.CancelOrderDTO;
+import io.github.springwolf.bindings.kafka.annotations.KafkaAsyncOperationBinding;
 import io.github.springwolf.core.asyncapi.annotations.AsyncMessage;
 import io.github.springwolf.core.asyncapi.annotations.AsyncOperation;
 import io.github.springwolf.core.asyncapi.annotations.AsyncPublisher;
@@ -45,6 +46,7 @@ public class CancelOrderInboundReceivedListener {
             description = "Cancel Order Received Event"
         ),payloadType = com.arcone.biopro.distribution.partnerorderprovider.infrastructure.event.CancelOrderReceivedEvent.class
     ))
+    @KafkaAsyncOperationBinding
     @EventListener
     public void handleUserCancelOrderReceivedEvent(CancelOrderInboundReceived event) {
         log.debug("Cancel Order Received event trigger {}", event);

@@ -1,8 +1,5 @@
 fuse-alert {
     display: block;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    width: 400px;
-    max-width: 400px;
 
     /* Common */
     .fuse-alert-container {
@@ -14,7 +11,7 @@ fuse-alert {
 
         /* All icons */
         .mat-icon {
-            color: currentColor !important;
+            color: currentcolor !important;
         }
 
         /* Icon */
@@ -103,6 +100,7 @@ fuse-alert {
 
             .mat-icon {
                 @apply icon-size-4;
+
                 color:  #64748b !important;
             }
         }
@@ -131,6 +129,7 @@ fuse-alert {
             position: relative;
             overflow: hidden;
             border-radius: 6px;
+
             @apply bg-card shadow-md;
 
             .fuse-alert-border {

@@ -192,6 +192,9 @@ public class RsocketSteps {
                 if (MessageType.INVENTORY_IS_EXPIRED.getCode().equals(errorCode)) {
                     assertThat(message.inventoryNotificationsDTO().getFirst().reason()).isEqualTo(reason);
                 }
+                if (MessageType.INVENTORY_IS_UNSUITABLE.getCode().equals(errorCode)) {
+                    assertThat(message.inventoryNotificationsDTO().getFirst().reason()).isEqualTo(reason);
+                }
                 log.debug("Received message from validate inventory {}", message);
             })
             .verifyComplete();
@@ -268,5 +271,16 @@ public class RsocketSteps {
             inventory.setIsLabeled(true);
             inventoryUtil.saveInventory(inventory);
         }
+    }
+
+    @And("I have one product with {string}, {string} and {string} in {string} status with unsuitable reason {string}")
+    public void iHaveOneProductWithAndInStatusWithUnsuitableReason(String unitNumber, String productCode, String location, String status, String reason) {
+        var inventory = inventoryUtil.newInventoryEntity(unitNumber, productCode, InventoryStatus.valueOf(status));
+        inventory.setExpirationDate(LocalDateTime.now().plusDays(1));
+        inventory.setLocation(location);
+        inventory.setUnsuitableReason(reason);
+        inventory.setComments(null);
+        inventory.setIsLabeled(true);
+        inventoryUtil.saveInventory(inventory);
     }
 }

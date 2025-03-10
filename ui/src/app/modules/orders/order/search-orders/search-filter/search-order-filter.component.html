@@ -5,7 +5,7 @@
     (search)="applyFilterSearch()"
     (resetSearchFilter)="resetFilters()"
     (showFilterControl)="toggleFilter($event)"
-    [showFilters]="showFilters"
+    [showFilters]="showFilters()"
 >
     <form
         [formGroup]="searchForm"

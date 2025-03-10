@@ -8,4 +8,6 @@ public interface ExternalTransferRepository {
     Mono<ExternalTransfer> create(ExternalTransfer externalTransfer);
 
     Mono<ExternalTransfer> update(ExternalTransfer externalTransfer);
+
+    Mono<ExternalTransfer> findOneById(final Long id);
 }
