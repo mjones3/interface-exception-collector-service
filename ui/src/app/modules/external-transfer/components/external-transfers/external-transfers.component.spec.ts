@@ -11,6 +11,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { Router } from '@angular/router';
 import { MutationResult } from '@apollo/client';
 import { provideMockStore } from '@ngrx/store/testing';
 import { NotificationDto, ToastrImplService } from '@shared';
@@ -57,6 +58,12 @@ describe('ExternalTransfersComponent', () => {
                 {
                     provide: MAT_DATE_FORMATS,
                     useValue: MAT_NATIVE_DATE_FORMATS,
+                },
+                {
+                    provide: Router,
+                    useValue: {
+                        navigateByUrl: jest.fn(),
+                    },
                 },
             ],
         }).compileComponents();

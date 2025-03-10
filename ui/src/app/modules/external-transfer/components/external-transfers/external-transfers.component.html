@@ -10,10 +10,11 @@
             <biopro-action-button
                 id="cancelActionBtn"
                 btnId="cancelBtnId"
-                [disabled]="!externalTransfer.dirty"
+                [disabled]="!externalTransferId()"
                 label="Cancel"
                 color="secondary"
                 icon="heroicons_outline:x-circle"
+                (clickEvent)="cancelExternalTransfer()"
             />
             <biopro-action-button
                 id="submitActionBtn"

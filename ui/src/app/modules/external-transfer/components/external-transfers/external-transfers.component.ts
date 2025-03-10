@@ -24,6 +24,7 @@ import { MatInputModule } from '@angular/material/input';
 import { Router } from '@angular/router';
 import { ApolloError } from '@apollo/client';
 import { FuseCardComponent } from '@fuse/components/card/public-api';
+import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { Store } from '@ngrx/store';
 import {
     NotificationTypeMap,
@@ -39,6 +40,7 @@ import { BasicButtonComponent } from 'app/shared/components/buttons/basic-button
 import { SearchSelectComponent } from 'app/shared/components/search-select/search-select.component';
 import { UnitNumberCardComponent } from 'app/shared/components/unit-number-card/unit-number-card.component';
 import { ProductIconsService } from 'app/shared/services/product-icon.service';
+import handleApolloError from 'app/shared/utils/apollo-error-handling';
 import { consumeNotifications } from 'app/shared/utils/notification.handling';
 import {
     Subscription,
@@ -47,7 +49,9 @@ import {
     debounceTime,
     filter,
     take,
+    tap,
 } from 'rxjs';
+import { CancelExternalTransferRequest } from '../../graphql/external-transfer.graphql';
 import {
     CustomerOptionDTO,
     ExternalTransferItemDTO,
@@ -102,7 +106,7 @@ export class ExternalTransfersComponent
         protected fb: FormBuilder,
         private readonly changeDetectorRef: ChangeDetectorRef,
         private productIconService: ProductIconsService,
-
+        protected fuseConfirmationService: FuseConfirmationService,
         private store: Store,
         @Inject(LOCALE_ID) public locale: string
     ) {
@@ -162,6 +166,7 @@ export class ExternalTransfersComponent
             },
             error: (error: ApolloError) => {
                 this.toaster.error(ERROR_MESSAGE);
+                throw error;
             },
         });
     }
@@ -307,13 +312,7 @@ export class ExternalTransfersComponent
                     if (notifications?.length) {
                         consumeNotifications(this.toaster, notifications);
                         if (url) {
-                            this._router
-                                .navigateByUrl('/', {
-                                    skipLocationChange: true,
-                                })
-                                .then(() => {
-                                    this._router.navigate([url]);
-                                });
+                            this.handleNavigation(url);
                         }
                     }
                 },
@@ -351,5 +350,84 @@ export class ExternalTransfersComponent
             hospitalTransferId: this.hospitalTransferId,
             employeeId: this.loggedUserId,
         };
+    }
+
+    cancelExternalTransfer(): void {
+        const request: CancelExternalTransferRequest = {
+            externalTransferId: this.externalTransferId(),
+            employeeId: this.loggedUserId,
+        };
+        this.externalTransferService
+            .cancelExternalTransferProcess(request)
+            .pipe(catchError((e) => handleApolloError(this.toaster, e)))
+            .subscribe((result) => {
+                const confirmationNotification =
+                    result.data?.cancelExternalTransfer?.notifications?.find(
+                        (n) => n.notificationType === 'CONFIRMATION'
+                    );
+                if (confirmationNotification) {
+                    return this.fuseConfirmationService
+                        .open({
+                            title: 'Cancel Confirmation',
+                            message: confirmationNotification.message,
+                            dismissible: false,
+                            icon: {
+                                show: false,
+                            },
+                            actions: {
+                                confirm: {
+                                    label: 'Yes',
+                                    class: 'bg-red-700 text-white font-bold',
+                                },
+                                cancel: {
+                                    class: 'font-bold',
+                                },
+                            },
+                        })
+                        .afterClosed()
+                        .subscribe((result) => {
+                            if (result === 'confirmed') {
+                                this.confirmCancel();
+                            }
+                        });
+                }
+            });
+    }
+
+    confirmCancel(): void {
+        const request: CancelExternalTransferRequest = {
+            externalTransferId: this.externalTransferId(),
+            employeeId: this.loggedUserId,
+        };
+        this.externalTransferService
+            .confirmCancelExternalTransferProcess(request)
+            .pipe(
+                catchError((e) => handleApolloError(this.toaster, e)),
+                tap((result) =>
+                    consumeNotifications(
+                        this.toaster,
+                        result?.data?.confirmCancelExternalTransfer
+                            ?.notifications
+                    )
+                )
+            )
+            .subscribe((result) => {
+                const ruleResult = result?.data?.confirmCancelExternalTransfer;
+                const url = ruleResult._links?.next;
+                if (
+                    result.data?.confirmCancelExternalTransfer?.ruleCode ===
+                    '200 OK'
+                ) {
+                    this.handleNavigation(url);
+                }
+            });
+    }
+
+    handleNavigation(url: string) {
+        return this._router
+            .navigateByUrl('/', { skipLocationChange: true })
+            .then(() => {
+                this._router.navigate([url]);
+            });
     }
 }
