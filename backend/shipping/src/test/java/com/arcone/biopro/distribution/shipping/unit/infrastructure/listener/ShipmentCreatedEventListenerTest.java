@@ -3,8 +3,8 @@ package com.arcone.biopro.distribution.shipping.unit.infrastructure.listener;
 import com.arcone.biopro.distribution.shipping.domain.event.ShipmentCreatedEvent;
 import com.arcone.biopro.distribution.shipping.domain.model.Shipment;
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.ShipmentStatus;
+import com.arcone.biopro.distribution.shipping.infrastructure.event.ShipmentCreatedOutputEvent;
 import com.arcone.biopro.distribution.shipping.infrastructure.listener.ShipmentCreatedEventListener;
-import com.arcone.biopro.distribution.shipping.infrastructure.listener.dto.ShipmentCreatedEventDTO;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.TopicPartition;
@@ -20,7 +20,7 @@ class ShipmentCreatedEventListenerTest {
     @Test
     public void shouldHandleShipmentCreatedEvents(){
 
-        ReactiveKafkaProducerTemplate<String, ShipmentCreatedEventDTO> producerTemplate = Mockito.mock(ReactiveKafkaProducerTemplate.class);
+        ReactiveKafkaProducerTemplate<String, ShipmentCreatedOutputEvent> producerTemplate = Mockito.mock(ReactiveKafkaProducerTemplate.class);
 
         var shipment = Mockito.mock(Shipment.class);
 

@@ -20,6 +20,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsConfigurationSource;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
+import org.springframework.web.reactive.config.ResourceHandlerRegistry;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
 import org.springframework.web.reactive.result.method.HandlerMethodArgumentResolver;
 import org.springframework.web.server.WebExceptionHandler;
@@ -42,6 +43,12 @@ public class WebConfigurer implements WebFluxConfigurer {
     public CachingHttpHeadersFilter cachingHttpHeadersFilter() {
         // Use a cache filter that only match selected paths
         return new CachingHttpHeadersFilter(TimeUnit.DAYS.toMillis(applicationProperties.getHttp().getCache().getTimeToLiveInDays()));
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/**")
+            .addResourceLocations("classpath:/META-INF/resources/");
     }
 
     @Override

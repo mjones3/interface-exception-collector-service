@@ -156,9 +156,9 @@ Feature: External Transfers
                 | W812530106095 | E0033V00     | WHOLE_BLOOD_LEUKOREDUCED     | B2346         | Advanced Medical Center    | 2025-02-01 00:00:00 |
             And I have entered the external transfer information for the customer "<Customer Code>" , transfer date "<Transfer Date>" successfully.
             When I request to cancel the external transfer process.
-            Then I should receive status "200 OK" with type "CONFIRMATION" and message "When cancelling, all external transfer information will be removed. Are you sure you want to cancel?".
-            When I confirm the cancelation of external transfer.
-            Then I should receive a "Success" message: "External transfer cancelation completed".
+            Then I should receive a "CONFIRMATION" message response "When cancelling, all external transfer information will be removed. Are you sure you want to cancel?".
+            When I confirm the cancellation of external transfer.
+            Then I should receive a "SUCCESS" message response "External transfer cancellation completed".
             And The data entered must not be saved after canceling the process.
             Examples:
                 | Customer Code | Transfer Date |
@@ -179,9 +179,9 @@ Feature: External Transfers
             And I add the product with "<Unit Number>" and "<Product Code>".
             Then The product "should" be added in the list of products to be transferred.
             When I request to cancel the external transfer process.
-            Then I should receive status "200 OK" with type "CONFIRMATION" and message "When cancelling, all external transfer information will be removed. Are you sure you want to cancel?".
+            Then I should receive a "CONFIRMATION" message response "When cancelling, all external transfer information will be removed. Are you sure you want to cancel?".
             When I confirm the cancellation of external transfer.
-            Then I should receive a "Success" message: "External transfer cancellation completed".
+            Then I should receive a "SUCCESS" message response "External transfer cancellation completed".
             And The data entered must not be saved after canceling the process.
             Examples:
                 | Customer Code | Transfer Date | Unit Number   | Product Code |
@@ -211,7 +211,7 @@ Feature: External Transfers
             And I should see a "Success" message: "External transfer cancellation completed".
             And The External transfer process should be restarted.
             And The submit external transfer option should be "disabled".
-            And The cancel external transfer option should be "disabled"
+            And The cancel external transfer option should be "disable".
             Examples:
                 | Transfer Date | Customer Name           | Hospital Order Reference ID |
                 | 01/25/2024    | Pioneer Health Services | NULL_VALUE                  |

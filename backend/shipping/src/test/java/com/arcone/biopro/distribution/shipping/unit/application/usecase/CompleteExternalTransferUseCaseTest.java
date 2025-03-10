@@ -6,12 +6,14 @@ import com.arcone.biopro.distribution.shipping.application.dto.UseCaseMessageTyp
 import com.arcone.biopro.distribution.shipping.application.exception.DomainException;
 import com.arcone.biopro.distribution.shipping.application.mapper.ExternalTransferDomainMapper;
 import com.arcone.biopro.distribution.shipping.application.usecase.CompleteExternalTransferUseCase;
+import com.arcone.biopro.distribution.shipping.domain.event.ExternalTransferCompletedEvent;
 import com.arcone.biopro.distribution.shipping.domain.model.ExternalTransfer;
 import com.arcone.biopro.distribution.shipping.domain.repository.ExternalTransferRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -21,12 +23,14 @@ class CompleteExternalTransferUseCaseTest {
     private CompleteExternalTransferUseCase completeExternalTransferUseCase;
     private ExternalTransferRepository externalTransferRepository;
     private ExternalTransferDomainMapper externalTransferDomainMapper;
+    private ApplicationEventPublisher applicationEventPublisher;
 
     @BeforeEach
     void setUp() {
         externalTransferRepository = Mockito.mock(ExternalTransferRepository.class);
         externalTransferDomainMapper = Mockito.mock(ExternalTransferDomainMapper.class);
-        completeExternalTransferUseCase = new CompleteExternalTransferUseCase(externalTransferRepository, externalTransferDomainMapper);
+        applicationEventPublisher = Mockito.mock(ApplicationEventPublisher.class);
+        completeExternalTransferUseCase = new CompleteExternalTransferUseCase(externalTransferRepository, externalTransferDomainMapper,applicationEventPublisher);
 
     }
 
@@ -51,6 +55,8 @@ class CompleteExternalTransferUseCaseTest {
                 Assertions.assertEquals("External transfer not found", firstNotification.message());
             })
             .verifyComplete();
+
+        Mockito.verifyNoInteractions(applicationEventPublisher);
 
     }
 
@@ -80,6 +86,8 @@ class CompleteExternalTransferUseCaseTest {
                 Assertions.assertEquals("External Transfer product list should have at least one product", firstNotification.message());
             })
             .verifyComplete();
+
+        Mockito.verifyNoInteractions(applicationEventPublisher);
 
     }
 
@@ -112,6 +120,8 @@ class CompleteExternalTransferUseCaseTest {
 
             })
             .verifyComplete();
+
+        Mockito.verify(applicationEventPublisher).publishEvent(Mockito.any(ExternalTransferCompletedEvent.class));
 
     }
 

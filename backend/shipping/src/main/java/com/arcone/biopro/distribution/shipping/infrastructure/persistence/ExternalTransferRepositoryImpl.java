@@ -66,4 +66,11 @@ public class ExternalTransferRepositoryImpl implements ExternalTransferRepositor
             });
     }
 
+    @Override
+    public Mono<Void> deleteOneById(Long id) {
+        return externalTransferItemEntityRepository.findAllByExternalTransferId(id)
+            .collectList()
+            .flatMap(externalTransferItemEntityRepository::deleteAll)
+            .then(externalTransferEntityRepository.deleteById(id));
+    }
 }

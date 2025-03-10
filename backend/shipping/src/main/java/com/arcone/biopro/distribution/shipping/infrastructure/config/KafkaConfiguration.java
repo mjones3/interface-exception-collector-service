@@ -1,8 +1,8 @@
 package com.arcone.biopro.distribution.shipping.infrastructure.config;
 
-import com.arcone.biopro.distribution.shipping.domain.event.ShipmentCompletedEvent;
-import com.arcone.biopro.distribution.shipping.infrastructure.listener.dto.ShipmentCompletedDTO;
-import com.arcone.biopro.distribution.shipping.infrastructure.listener.dto.ShipmentCreatedEventDTO;
+import com.arcone.biopro.distribution.shipping.infrastructure.event.ExternalTransferCompletedOutputEvent;
+import com.arcone.biopro.distribution.shipping.infrastructure.event.ShipmentCompletedOutputEvent;
+import com.arcone.biopro.distribution.shipping.infrastructure.event.ShipmentCreatedOutputEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.opentelemetry.instrumentation.kafkaclients.v2_6.TracingProducerInterceptor;
@@ -35,6 +35,7 @@ public class KafkaConfiguration {
 
     public static final String SHIPMENT_COMPLETED_PRODUCER = "shipment-completed";
     public static final String SHIPMENT_CREATED_PRODUCER = "shipment-created";
+    public static final String EXTERNAL_TRANSFER_COMPLETED_PRODUCER = "external-transfer-completed";
 
     @Bean
     NewTopic orderFulfilledTopic(
@@ -64,6 +65,15 @@ public class KafkaConfiguration {
     }
 
     @Bean
+    NewTopic externalTransferCompletedTopic(
+        @Value("${topics.external-transfer.external-transfer-completed.partitions:1}") Integer partitions,
+        @Value("${topics.external-transfer.external-transfer-completed.replicas:1}") Integer replicas ,
+        @Value("${topics.external-transfer.external-transfer-completed.topic-name:ExternalTransferCompleted}") String topicName
+    ) {
+        return TopicBuilder.name(topicName).partitions(partitions).replicas(replicas).build();
+    }
+
+    @Bean
     ReceiverOptions<String, String> shippingServiceReceiverOptions(KafkaProperties kafkaProperties
         , @Value("${topics.order.order-fulfilled.topic-name:OrderFulfilled}") String topicName) {
         var props = kafkaProperties.buildConsumerProperties(null);
@@ -84,26 +94,39 @@ public class KafkaConfiguration {
     }
 
     @Bean
-    SenderOptions<String, ShipmentCompletedDTO> senderOptions(
+    SenderOptions<String, ShipmentCompletedOutputEvent> senderOptions(
         KafkaProperties kafkaProperties,
         ObjectMapper objectMapper,
         MeterRegistry meterRegistry) {
         var props = kafkaProperties.buildProducerProperties(null);
         props.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, TracingProducerInterceptor.class.getName());
-        return SenderOptions.<String, ShipmentCompletedDTO>create(props)
+        return SenderOptions.<String, ShipmentCompletedOutputEvent>create(props)
             .withValueSerializer(new JsonSerializer<>(objectMapper))
             .maxInFlight(1) // to keep ordering, prevent duplicate messages (and avoid data loss)
             .producerListener(new MicrometerProducerListener(meterRegistry)); // we want standard Kafka metrics
     }
 
     @Bean
-    SenderOptions<String, ShipmentCreatedEventDTO> shipmentCreatedSenderOptions(
+    SenderOptions<String, ShipmentCreatedOutputEvent> shipmentCreatedSenderOptions(
         KafkaProperties kafkaProperties,
         ObjectMapper objectMapper,
         MeterRegistry meterRegistry) {
         var props = kafkaProperties.buildProducerProperties(null);
         props.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, TracingProducerInterceptor.class.getName());
-        return SenderOptions.<String, ShipmentCreatedEventDTO>create(props)
+        return SenderOptions.<String, ShipmentCreatedOutputEvent>create(props)
+            .withValueSerializer(new JsonSerializer<>(objectMapper))
+            .maxInFlight(1) // to keep ordering, prevent duplicate messages (and avoid data loss)
+            .producerListener(new MicrometerProducerListener(meterRegistry)); // we want standard Kafka metrics
+    }
+
+    @Bean
+    SenderOptions<String, ExternalTransferCompletedOutputEvent> externalTransferCompletedSenderOptions(
+        KafkaProperties kafkaProperties,
+        ObjectMapper objectMapper,
+        MeterRegistry meterRegistry) {
+        var props = kafkaProperties.buildProducerProperties(null);
+        props.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, TracingProducerInterceptor.class.getName());
+        return SenderOptions.<String, ExternalTransferCompletedOutputEvent>create(props)
             .withValueSerializer(new JsonSerializer<>(objectMapper))
             .maxInFlight(1) // to keep ordering, prevent duplicate messages (and avoid data loss)
             .producerListener(new MicrometerProducerListener(meterRegistry)); // we want standard Kafka metrics
@@ -111,15 +134,21 @@ public class KafkaConfiguration {
 
 
     @Bean(name = SHIPMENT_COMPLETED_PRODUCER )
-    ReactiveKafkaProducerTemplate<String, ShipmentCompletedDTO> producerTemplate(
-        SenderOptions<String, ShipmentCompletedDTO> kafkaSenderOptions) {
+    ReactiveKafkaProducerTemplate<String, ShipmentCompletedOutputEvent> producerTemplate(
+        SenderOptions<String, ShipmentCompletedOutputEvent> kafkaSenderOptions) {
         return new ReactiveKafkaProducerTemplate<>(kafkaSenderOptions);
     }
 
     @Bean(name = SHIPMENT_CREATED_PRODUCER )
-    ReactiveKafkaProducerTemplate<String, ShipmentCreatedEventDTO> shipmentCreatedProducerTemplate(
-        SenderOptions<String, ShipmentCreatedEventDTO> shipmentCreatedSenderOptions) {
+    ReactiveKafkaProducerTemplate<String, ShipmentCreatedOutputEvent> shipmentCreatedProducerTemplate(
+        SenderOptions<String, ShipmentCreatedOutputEvent> shipmentCreatedSenderOptions) {
         return new ReactiveKafkaProducerTemplate<>(shipmentCreatedSenderOptions);
+    }
+
+    @Bean(name = EXTERNAL_TRANSFER_COMPLETED_PRODUCER )
+    ReactiveKafkaProducerTemplate<String, ExternalTransferCompletedOutputEvent> externalTransferCompletedProducerTemplate(
+        SenderOptions<String, ExternalTransferCompletedOutputEvent> externalTransferCompletedSenderOptions) {
+        return new ReactiveKafkaProducerTemplate<>(externalTransferCompletedSenderOptions);
     }
 
 }

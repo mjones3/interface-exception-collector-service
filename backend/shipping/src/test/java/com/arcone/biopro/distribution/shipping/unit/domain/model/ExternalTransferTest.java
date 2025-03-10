@@ -37,7 +37,7 @@ class ExternalTransferTest {
     @Test
     void shouldCreate() {
 
-        var response = new ExternalTransfer(1L, "123", null, "A123", LocalDate.now().minusDays(2), "employee-id", ExternalTransferStatus.PENDING,customerService);
+        var response = new ExternalTransfer(1L, "123", null, "A123", LocalDate.now().minusDays(2), "employee-id", ExternalTransferStatus.PENDING, ZonedDateTime.now(),customerService);
 
         Assertions.assertNotNull(response);
     }
@@ -45,21 +45,21 @@ class ExternalTransferTest {
     @Test
     void shouldNotCreate() {
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new ExternalTransfer(1L, null, null, "A123", LocalDate.now(), "employee-id", ExternalTransferStatus.PENDING,customerService), "Customer cannot be null");
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new ExternalTransfer(1L, "A123", "123", "A123", null, "employee-id", ExternalTransferStatus.PENDING,customerService), "Transfer date cannot be null");
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new ExternalTransfer(1L, "A123", "123", "A123", LocalDate.now().plusDays(2), "employee-id", ExternalTransferStatus.PENDING,customerService), "Transfer date cannot be in the future");
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new ExternalTransfer(1L, "123", null, "A123", LocalDate.now().minusDays(2), null, ExternalTransferStatus.PENDING,customerService), "Employee ID cannot be null");
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new ExternalTransfer(1L, "123", null, "A123", LocalDate.now(), "employee-id", null,customerService),"Status cannot be null");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new ExternalTransfer(1L, null, null, "A123", LocalDate.now(), "employee-id", ExternalTransferStatus.PENDING , ZonedDateTime.now(),customerService), "Customer cannot be null");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new ExternalTransfer(1L, "A123", "123", "A123", null, "employee-id", ExternalTransferStatus.PENDING, ZonedDateTime.now(),customerService), "Transfer date cannot be null");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new ExternalTransfer(1L, "A123", "123", "A123", LocalDate.now().plusDays(2), "employee-id", ExternalTransferStatus.PENDING, ZonedDateTime.now(),customerService), "Transfer date cannot be in the future");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new ExternalTransfer(1L, "123", null, "A123", LocalDate.now().minusDays(2), null, ExternalTransferStatus.PENDING, ZonedDateTime.now(),customerService), "Employee ID cannot be null");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new ExternalTransfer(1L, "123", null, "A123", LocalDate.now(), "employee-id", null, ZonedDateTime.now(),customerService),"Status cannot be null");
 
         Mockito.when(customerService.getCustomerByCode(Mockito.anyString())).thenReturn(Mono.empty());
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new ExternalTransfer(1L, "123", null, "A123", LocalDate.now(), "employee-id",  ExternalTransferStatus.PENDING,customerService),"Customer To should be valid");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new ExternalTransfer(1L, "123", null, "A123", LocalDate.now(), "employee-id",  ExternalTransferStatus.PENDING, ZonedDateTime.now(),customerService),"Customer To should be valid");
 
     }
 
     @Test
     public void shouldNotAddItemWhenLastShipDateIsAfterTransferDate() {
 
-        var externalTransfer = new ExternalTransfer(1L, "456", null, "A123", LocalDate.now(), "employee-id", ExternalTransferStatus.PENDING,customerService);
+        var externalTransfer = new ExternalTransfer(1L, "456", null, "A123", LocalDate.now(), "employee-id", ExternalTransferStatus.PENDING, ZonedDateTime.now(),customerService);
 
 
         var locationHistory = Mockito.mock(ProductLocationHistory.class);
@@ -85,7 +85,7 @@ class ExternalTransferTest {
     @Test
     public void shouldNotAddItemWhenLastShipLocationDoesNotMatch() {
 
-        var externalTransfer = new ExternalTransfer(1L, "567", "567", "A123", LocalDate.now(), "employee-id", ExternalTransferStatus.PENDING,customerService);
+        var externalTransfer = new ExternalTransfer(1L, "567", "567", "A123", LocalDate.now(), "employee-id", ExternalTransferStatus.PENDING, ZonedDateTime.now(),customerService);
 
 
         var locationHistory = Mockito.mock(ProductLocationHistory.class);
@@ -111,7 +111,7 @@ class ExternalTransferTest {
     @Test
     public void shouldNotAddItemWhenProductIsNotShipped() {
 
-        var externalTransfer = new ExternalTransfer(1L, "123", "567", "A123", LocalDate.now(), "employee-id", ExternalTransferStatus.PENDING,customerService);
+        var externalTransfer = new ExternalTransfer(1L, "123", "567", "A123", LocalDate.now(), "employee-id", ExternalTransferStatus.PENDING, ZonedDateTime.now(),customerService);
 
         Mockito.when(productLocationHistoryRepository.findCurrentLocation(Mockito.any())).thenReturn(Mono.empty());
 
@@ -126,7 +126,7 @@ class ExternalTransferTest {
     @Test
     public void shouldNotAddItemWhenCurrentLocationIsSameAsTransferToLocation() {
 
-        var externalTransfer = new ExternalTransfer(1L, "123", "567", "A123", LocalDate.now().minusDays(1), "employee-id", ExternalTransferStatus.PENDING,customerService);
+        var externalTransfer = new ExternalTransfer(1L, "123", "567", "A123", LocalDate.now().minusDays(1), "employee-id", ExternalTransferStatus.PENDING, ZonedDateTime.now(),customerService);
 
 
         var locationHistory = Mockito.mock(ProductLocationHistory.class);
@@ -152,7 +152,7 @@ class ExternalTransferTest {
     @Test
     public void shouldAddItem() {
 
-        var externalTransfer = new ExternalTransfer(1L, "456", null, "A123", LocalDate.now(), "employee-id", ExternalTransferStatus.PENDING,customerService);
+        var externalTransfer = new ExternalTransfer(1L, "456", null, "A123", LocalDate.now(), "employee-id", ExternalTransferStatus.PENDING, ZonedDateTime.now(),customerService);
 
         Assertions.assertNull(externalTransfer.getCustomerFrom());
 
@@ -185,7 +185,7 @@ class ExternalTransferTest {
     @Test
     public void shouldNotCompleteWhenNoProductsAdded(){
 
-        var externalTransfer = new ExternalTransfer(1L, "123", null, "A123", LocalDate.now(), "employee-id", ExternalTransferStatus.PENDING,customerService);
+        var externalTransfer = new ExternalTransfer(1L, "123", null, "A123", LocalDate.now(), "employee-id", ExternalTransferStatus.PENDING, ZonedDateTime.now(),customerService);
 
         try {
             externalTransfer.complete("transfer-id","employee-id");
@@ -199,7 +199,7 @@ class ExternalTransferTest {
     @Test
     public void shouldCompleteTransfer(){
 
-        var externalTransfer = new ExternalTransfer(1L, "456", null, "A123", LocalDate.now(), "employee-id", ExternalTransferStatus.PENDING,customerService);
+        var externalTransfer = new ExternalTransfer(1L, "456", null, "A123", LocalDate.now(), "employee-id", ExternalTransferStatus.PENDING, ZonedDateTime.now(),customerService);
 
         var product = Mockito.mock(Product.class);
         Mockito.when(product.getProductFamily()).thenReturn("productFamily");
