@@ -37,12 +37,8 @@ export interface CancelExternalTransferRequest {
     employeeId: string;
 }
 
-export interface ExternalTransferDTO {
-    id: number;
-}
-
 export const CANCEL_EXTERNAL_TRANSFER_PROCESS = gql<
-    { cancelExternalTransfer: RuleResponseDTO<{ results: never }> },
+    { cancelExternalTransfer: RuleResponseDTO },
     CancelExternalTransferRequest
 >`
     mutation cancelExternalTransfer(
@@ -72,7 +68,7 @@ export const CANCEL_EXTERNAL_TRANSFER_PROCESS = gql<
 `;
 
 export const CONFIRM_CANCEL_EXTERNAL_TRANSFER_PROCESS = gql<
-    { confirmCancelExternalTransfer: RuleResponseDTO<{ results: never }> },
+    { confirmCancelExternalTransfer: RuleResponseDTO },
     CancelExternalTransferRequest
 >`
     mutation confirmCancelExternalTransfer(

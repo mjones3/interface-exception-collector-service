@@ -412,8 +412,8 @@ export class ExternalTransfersComponent
                 )
             )
             .subscribe((result) => {
-                const ruleResult = result?.data?.confirmCancelExternalTransfer;
-                const url = ruleResult._links?.next;
+                const url =
+                    result?.data?.confirmCancelExternalTransfer?._links?.next;
                 if (
                     result.data?.confirmCancelExternalTransfer?.ruleCode ===
                     '200 OK'
@@ -424,10 +424,11 @@ export class ExternalTransfersComponent
     }
 
     handleNavigation(url: string) {
-        return this._router
-            .navigateByUrl('/', { skipLocationChange: true })
-            .then(() => {
-                this._router.navigate([url]);
-            });
+        const currUrl = this._router.url;
+        let finalUrl = url + '/new';
+        if (currUrl === finalUrl) {
+            finalUrl = url;
+        }
+        return this._router.navigateByUrl(finalUrl);
     }
 }
