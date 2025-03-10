@@ -54,6 +54,9 @@ public class OrderEntityMapper {
             .cancelDate(order.getCancelDate())
             .cancelEmployeeId(order.getCancelEmployeeId())
             .cancelReason(order.getCancelReason())
+            .modifyByProcess(order.getModifiedByProcess())
+            .modifyEmployeeId(order.getModifyEmployeeId())
+            .modifyReason(order.getModifyReason())
             .build();
     }
 
@@ -100,6 +103,9 @@ public class OrderEntityMapper {
         order.setCancelDate(orderEntity.getCancelDate());
         order.setCancelReason(orderEntity.getCancelReason());
         order.setCancelEmployeeId(orderEntity.getCancelEmployeeId());
+        order.setModifyEmployeeId(orderEntity.getModifyEmployeeId());
+        order.setModifyReason(orderEntity.getModifyReason());
+        order.setModifiedByProcess(orderEntity.getModifyByProcess());
 
         return order;
     }

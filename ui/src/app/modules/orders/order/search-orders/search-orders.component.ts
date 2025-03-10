@@ -5,7 +5,6 @@ import {
     LOCALE_ID,
     OnInit,
     TemplateRef,
-    ViewChild,
     computed,
     signal,
     viewChild,
@@ -13,10 +12,10 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { PageEvent } from '@angular/material/paginator';
+import { Sort } from '@angular/material/sort';
 import { Router } from '@angular/router';
 import { ApolloError, ApolloQueryResult } from '@apollo/client';
 import {
-    Column,
     ProcessHeaderComponent,
     ProcessHeaderService,
     TableColumn,
@@ -28,7 +27,6 @@ import { OrderStatusMap } from 'app/shared/models/order-status.model';
 import { PageDTO } from 'app/shared/models/page.model';
 import { CookieService } from 'ngx-cookie-service';
 import { ToastrService } from 'ngx-toastr';
-import { Table, TableModule } from 'primeng/table';
 import { OrderPriorityMap } from '../../../../shared/models/order-priority.model';
 import { Cookie } from '../../../../shared/types/cookie.enum';
 import { SearchOrderFilterDTO } from '../../models/order.dto';
@@ -44,7 +42,6 @@ import { SearchOrderFilterComponent } from './search-filter/search-order-filter.
     standalone: true,
     imports: [
         CommonModule,
-        TableModule,
         MatDividerModule,
         AsyncPipe,
         ProcessHeaderComponent,
@@ -59,95 +56,9 @@ export class SearchOrdersComponent implements OnInit {
     readonly OrderPriorityMap = OrderPriorityMap;
     readonly OrderStatusMap = OrderStatusMap;
 
-    readonly hiddenColumns: Column[] = [
-        {
-            field: 'shippingCustomerCode',
-            header: 'Ship to Customer Code',
-            sortable: false,
-            hidden: true,
-        },
-        {
-            field: 'billingCustomerName',
-            header: 'Bill to Customer Name',
-            sortable: false,
-            hidden: true,
-        },
-        {
-            field: 'billingCustomerCode',
-            header: 'Bill to Customer Code',
-            sortable: false,
-            hidden: true,
-        },
-    ];
-    readonly filterColumns: Column[] = [
-        {
-            field: 'orderNumber',
-            header: 'BioPro Order ID',
-            sortable: false,
-            default: true,
-        },
-        {
-            field: 'externalId',
-            header: 'External Order ID',
-            sortable: false,
-            default: true,
-        },
-        {
-            field: 'priority',
-            header: 'Priority',
-            templateRef: 'priorityTpl',
-            sortable: false,
-            sortFieldName: 'priority',
-            default: true,
-        },
-        {
-            field: 'orderStatus',
-            header: 'Status',
-            templateRef: 'statusTpl',
-            sortable: false,
-            sortFieldName: 'status',
-            default: true,
-        },
-        {
-            field: 'orderCustomerReport.name',
-            header: 'Ship to Customer Name',
-            templateRef: 'shipToCustomerTpl',
-            sortable: false,
-            default: true,
-        },
-        {
-            field: 'createDate',
-            header: 'Create Date and Time',
-            sortable: false,
-            templateRef: 'dateTimeTpl',
-            sortFieldName: 'createDate',
-            default: true,
-        },
-        {
-            field: 'desireShipDate',
-            header: 'Desired Ship Date',
-            templateRef: 'dateTpl',
-            sortable: false,
-            default: true,
-        },
-        ...this.hiddenColumns,
-        {
-            field: '',
-            header: 'Actions',
-            templateRef: 'actionTpl',
-            hideHeader: true,
-            default: true,
-        },
-    ];
     isFilterToggled = false;
     currentFilter: SearchOrderFilterDTO;
-    loading = true;
-
-    @ViewChild('orderTable', { static: false }) orderTable: Table;
-
-    private _selectedColumns: Column[] = this.filterColumns.filter(
-        (col) => !col.hidden
-    );
+    loading = signal<boolean>(true);
 
     constructor(
         public header: ProcessHeaderService,
@@ -163,15 +74,14 @@ export class SearchOrdersComponent implements OnInit {
     }
 
     page = signal<PageDTO<OrderReportDTO>>(null);
-
     priorityTemplateRef = viewChild<TemplateRef<Element>>(
         'priorityTemplateRef'
     );
     customerNameTemplateRef = viewChild<TemplateRef<Element>>(
         'customerNameTemplateRef'
     );
-    detialBtnTemplateRef = viewChild<TemplateRef<Element>>(
-        'detialBtnTemplateRef'
+    detailBtnTemplateRef = viewChild<TemplateRef<Element>>(
+        'detailBtnTemplateRef'
     );
     createDateTemplateRef = viewChild<TemplateRef<Element>>(
         'createDateTemplateRef'
@@ -179,74 +89,73 @@ export class SearchOrdersComponent implements OnInit {
     desireShipDateTemplateRef = viewChild<TemplateRef<Element>>(
         'desireShipDateTemplateRef'
     );
-
     statusTemplateRef = viewChild<TemplateRef<Element>>('statusTemplateRef');
+
+    table = viewChild<TableComponent>('ordersTable');
     columns = computed<TableColumn[]>(() => [
         {
             id: 'orderNumber',
             header: 'BioPro Order ID',
-            sort: false,
+            sort: true,
         },
         {
             id: 'externalId',
             header: 'External Order ID',
-            sort: false,
+            sort: true,
         },
         {
-            id: 'orderPriorityReport.priority',
+            id: 'priority',
             header: 'Priority',
-            sort: false,
+            sort: true,
             columnTempRef: this.priorityTemplateRef(),
         },
         {
-            id: 'orderStatus',
+            id: 'status',
             header: 'Status',
-            sort: false,
+            sort: true,
             columnTempRef: this.statusTemplateRef(),
         },
         {
-            id: 'orderCustomerReport.name',
+            id: 'shippingCustomerName',
             header: 'Ship to Customer Name',
-            sort: false,
+            sort: true,
             columnTempRef: this.customerNameTemplateRef(),
         },
         {
             id: 'createDate',
             header: 'Create Date and Time',
-            sort: false,
+            sort: true,
             columnTempRef: this.createDateTemplateRef(),
         },
         {
-            id: 'desireShipDate',
+            id: 'desiredShippingDate',
             header: 'Desired Ship Date',
-            sort: false,
+            sort: true,
             columnTempRef: this.desireShipDateTemplateRef(),
         },
         {
             id: 'action',
             header: '',
-            columnTempRef: this.detialBtnTemplateRef(),
+            columnTempRef: this.detailBtnTemplateRef(),
         },
     ]);
-    tableConfig = computed<TableConfiguration>(() => {
-        return {
-            title: 'Results',
-            columns: this.columns(),
-            pageSize: 20,
-            showPagination: true,
-        };
-    });
+    tableConfig = computed<TableConfiguration>(() => ({
+        title: 'Results',
+        columns: this.columns(),
+        pageSize: 20,
+        showPagination: true,
+    }));
 
     searchOrders() {
-        this.loading = true;
+        this.loading.set(true);
         this.page.set(null);
         this.orderService.searchOrders(this.getCriteria()).subscribe({
             next: (response) => {
-                this.loading = false;
+                this.loading.set(false);
                 this.doOnSuccess(response);
             },
             error: (e: ApolloError) => {
-                this.loading = false;
+                this.loading.set(false);
                 if (e?.cause?.message) {
                     this.page.set(null);
                     this.toaster.warning(e?.cause?.message);
@@ -266,67 +175,66 @@ export class SearchOrdersComponent implements OnInit {
         const criteria: OrderQueryCommandDTO = {
             locationCode: this.cookieService.get(Cookie.XFacility),
         };
-        if (this.currentFilter) {
-            if (this.currentFilter.page >= 0) {
-                criteria.pageNumber = this.currentFilter.page;
-            }
-            criteria.pageSize =
-                this.currentFilter.limit ?? this.tableConfig()?.pageSize;
-            if (this.currentFilter.orderNumber !== '') {
-                criteria.orderUniqueIdentifier = this.currentFilter.orderNumber;
-            }
-            if (
-                this.currentFilter.orderStatus &&
-                this.currentFilter.orderStatus.length > 0
-            ) {
-                criteria.orderStatus = this.currentFilter.orderStatus;
-            }
-            if (
-                this.currentFilter.deliveryTypes &&
-                this.currentFilter.deliveryTypes.length > 0
-            ) {
-                criteria.deliveryTypes = this.currentFilter.deliveryTypes;
-            }
-            if (
-                this.currentFilter.customers &&
-                this.currentFilter.customers.length > 0
-            ) {
-                criteria.customers = this.currentFilter.customers;
-            }
-            if (
-                this.currentFilter.createDate?.start != null &&
-                this.currentFilter.createDate?.end != null
-            ) {
-                criteria.createDateFrom = formatDate(
-                    this.currentFilter.createDate?.start,
-                    'yyyy-MM-dd',
-                    this.locale
-                );
-
-                criteria.createDateTo = formatDate(
-                    this.currentFilter.createDate?.end,
-                    'yyyy-MM-dd',
-                    this.locale
-                );
-            }
-            if (
-                this.currentFilter.desiredShipDate?.start != null &&
-                this.currentFilter.desiredShipDate?.end != null
-            ) {
-                criteria.desireShipDateFrom = formatDate(
-                    this.currentFilter.desiredShipDate?.start,
-                    'yyyy-MM-dd',
-                    this.locale
-                );
-
-                criteria.desireShipDateTo = formatDate(
-                    this.currentFilter.desiredShipDate?.end,
-                    'yyyy-MM-dd',
-                    this.locale
-                );
-            }
+        if (!this.currentFilter) {
+            return criteria;
         }
 
+        if (this.currentFilter.page >= 0) {
+            criteria.pageNumber = this.currentFilter.page;
+        }
+        criteria.pageSize =
+            this.currentFilter.limit ?? this.tableConfig()?.pageSize;
+        if (this.currentFilter.orderNumber) {
+            criteria.orderUniqueIdentifier = this.currentFilter.orderNumber;
+        }
+        if (this.currentFilter.orderStatus?.length) {
+            criteria.orderStatus = this.currentFilter.orderStatus;
+        }
+        if (this.currentFilter.deliveryTypes?.length) {
+            criteria.deliveryTypes = this.currentFilter.deliveryTypes;
+        }
+        if (this.currentFilter.customers?.length) {
+            criteria.customers = this.currentFilter.customers;
+        }
+        if (
+            this.currentFilter.createDate?.start != null &&
+            this.currentFilter.createDate?.end != null
+        ) {
+            criteria.createDateFrom = formatDate(
+                this.currentFilter.createDate?.start,
+                'yyyy-MM-dd',
+                this.locale
+            );
+
+            criteria.createDateTo = formatDate(
+                this.currentFilter.createDate?.end,
+                'yyyy-MM-dd',
+                this.locale
+            );
+        }
+        if (
+            this.currentFilter.desiredShipDate?.start != null &&
+            this.currentFilter.desiredShipDate?.end != null
+        ) {
+            criteria.desireShipDateFrom = formatDate(
+                this.currentFilter.desiredShipDate?.start,
+                'yyyy-MM-dd',
+                this.locale
+            );
+
+            criteria.desireShipDateTo = formatDate(
+                this.currentFilter.desiredShipDate?.end,
+                'yyyy-MM-dd',
+                this.locale
+            );
+        }
+        if (this.currentFilter?.sortBy && this.currentFilter?.order) {
+            const property = this.currentFilter.sortBy;
+            const direction = this.currentFilter.order.toUpperCase() as
+                | 'ASC'
+                | 'DESC';
+            criteria.querySort = { orderByList: [{ property, direction }] };
+        }
         return criteria;
     }
     private doOnSuccess(
@@ -348,6 +256,13 @@ export class SearchOrdersComponent implements OnInit {
         this.searchOrders();
     }
 
+    resetFilterSearch() {
+        this.currentFilter = {};
+        this.table()
+            .matSortRef()
+            .sort({ id: '', start: '', disableClear: false });
+    }
+
     isFilterApplied() {
         return this.getCriteria()?.orderUniqueIdentifier != null;
     }
@@ -356,20 +271,19 @@ export class SearchOrdersComponent implements OnInit {
         this.router.navigateByUrl(`/orders/${id}/order-details`);
     }
 
-    get selectedColumns(): Column[] {
-        return this._selectedColumns;
-    }
-
-    set selectedColumns(val: Column[]) {
-        this._selectedColumns = this.filterColumns.filter((col) =>
-            val.includes(col)
-        );
-    }
-
     handlePagination(event: PageEvent): void {
         this.currentFilter = {
             ...this.currentFilter,
             page: event.pageIndex,
+        };
+        this.applyFilterSearch(this.currentFilter);
+    }
+
+    handleSorting(sort: Sort): void {
+        this.currentFilter = {
+            ...this.currentFilter,
+            sortBy: sort.active,
+            order: sort.direction,
         };
         this.applyFilterSearch(this.currentFilter);
     }

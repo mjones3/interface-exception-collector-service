@@ -1,7 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { DatePipe } from '@angular/common';
 import { ComponentRef } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { provideIcons } from '../../../../core/icons/icons.provider';
 import { OrderWidgetsSidebarComponent } from './order-widgets-sidebar.component';
@@ -64,7 +63,7 @@ describe('OrderWidgetsSidebarComponent', () => {
             '#informationDetails-Canceled-Date-and-Time-value'
         ) as HTMLSpanElement;
         expect(canceledDateAndTime.textContent).toContain(
-            datePipe.transform(cancelDate, 'MM/dd/yyyy HH:mm')
+            datePipe.transform(cancelDate, 'MM/dd/yyyy HH:mm:ss')
         );
 
         const cancelReasonValue = orderCancelInfoDescriptions.querySelector(
@@ -73,5 +72,61 @@ describe('OrderWidgetsSidebarComponent', () => {
         expect(cancelReasonValue.textContent).toContain(
             cancelReason.toUpperCase()
         );
+    });
+
+    it('should render Order modification Card', () => {
+        const modifyEmployeeId = 'Employee ID';
+        const modifyDate = new Date().toISOString();
+        const modifyReason = 'Modification Reason';
+        const displayModificationDetails = true;
+        componentRef.setInput('orderInput', {
+            modifyEmployeeId: modifyEmployeeId,
+            modifyDate: modifyDate,
+            modifyReason: modifyReason,
+            displayModificationDetails: displayModificationDetails,
+        });
+        fixture.detectChanges();
+
+        const orderModificationInfoDescriptions =
+            fixture.debugElement.nativeElement.querySelector(
+                '#orderModificationInfoDescriptions'
+            ) as HTMLElement;
+
+        const modifyByValue = orderModificationInfoDescriptions.querySelector(
+            '#informationDetails-Modified-by-value'
+        ) as HTMLSpanElement;
+        expect(modifyByValue.textContent).toContain(
+            modifyEmployeeId.toUpperCase()
+        );
+
+        const modifyDateAndTime =
+            orderModificationInfoDescriptions.querySelector(
+                '#informationDetails-Modify-Date-and-Time-value'
+            ) as HTMLSpanElement;
+        expect(modifyDateAndTime.textContent).toContain(
+            datePipe.transform(modifyDate, 'MM/dd/yyyy HH:mm:ss')
+        );
+
+        const modifyReasonValue =
+            orderModificationInfoDescriptions.querySelector(
+                '#orderModificationReason > mat-expansion-panel > div.mat-expansion-panel-content > div.mat-expansion-panel-body > div'
+            ) as HTMLDivElement;
+        expect(modifyReasonValue.textContent).toContain(
+            modifyReason.toUpperCase()
+        );
+    });
+
+    it('should hide order modification card info when displayModificationDetails is false', () => {
+        const displayModificationDetails = false;
+        componentRef.setInput('orderInput', {
+            displayModificationDetails: displayModificationDetails,
+        });
+        fixture.detectChanges();
+        fixture.detectChanges();
+        expect(
+            fixture.debugElement.nativeElement.querySelector(
+                '#modificationOrderId'
+            )
+        ).toBeFalsy();
     });
 });

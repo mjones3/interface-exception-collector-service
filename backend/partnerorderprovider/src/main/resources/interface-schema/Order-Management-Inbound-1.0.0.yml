@@ -123,6 +123,7 @@ components:
       - "shipmentType"
       - "productCategory"
       - "orderItems"
+      - "shippingMethod"
       properties:
         externalId:
           type: "string"
@@ -177,6 +178,7 @@ components:
         - "modifyDate"
         - "orderItems"
         - "modifyReason"
+        - "shippingMethod"
       properties:
         locationCode:
           type: "string"
