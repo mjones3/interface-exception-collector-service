@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.order.verification.steps;
 
+import com.arcone.biopro.distribution.order.adapter.in.web.dto.PageDTO;
 import com.arcone.biopro.distribution.order.application.dto.OrderReceivedEventDTO;
 import com.arcone.biopro.distribution.order.application.dto.ShipmentCompletedEventDTO;
 import com.arcone.biopro.distribution.order.application.dto.ShipmentCreatedEventDTO;
@@ -8,8 +9,15 @@ import com.arcone.biopro.distribution.order.verification.pages.SharedActions;
 import com.arcone.biopro.distribution.order.verification.pages.order.HomePage;
 import com.arcone.biopro.distribution.order.verification.pages.order.OrderDetailsPage;
 import com.arcone.biopro.distribution.order.verification.pages.order.SearchOrderPage;
-import com.arcone.biopro.distribution.order.verification.support.*;
+import com.arcone.biopro.distribution.order.verification.support.ApiHelper;
+import com.arcone.biopro.distribution.order.verification.support.DatabaseQueries;
+import com.arcone.biopro.distribution.order.verification.support.DatabaseService;
+import com.arcone.biopro.distribution.order.verification.support.KafkaHelper;
+import com.arcone.biopro.distribution.order.verification.support.SharedContext;
+import com.arcone.biopro.distribution.order.verification.support.TestUtils;
+import com.arcone.biopro.distribution.order.verification.support.Topics;
 import com.arcone.biopro.distribution.order.verification.support.graphql.GraphQLQueryMapper;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.And;
@@ -20,13 +28,21 @@ import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDate;
 import java.time.Year;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -50,8 +66,9 @@ public class OrderSteps {
     private String[] quantityList;
     private String[] commentsList;
 
-
     private JSONObject partnerOrder;
+
+    private JSONObject partnerModifyOrder;
     private boolean isLoggedIn = false;
     private JSONObject orderShipment;
 
@@ -91,45 +108,28 @@ public class OrderSteps {
     @Value("${kafka.waiting.time}")
     private long kafkaWaitingTime;
 
-    private Object[] response;
+    private PageDTO<JsonNode> response;
 
-    private void createOrderInboundRequest(String jsonContent, OrderReceivedEventDTO eventPayload) throws JSONException {
-        partnerOrder = new JSONObject(jsonContent);
-        log.info("JSON PAYLOAD :{}", partnerOrder);
-        Assert.assertNotNull(context.getExternalId());
-        Assert.assertNotNull(partnerOrder);
-        var event = kafkaHelper.sendEvent(eventPayload.payload().id().toString(), eventPayload, Topics.ORDER_RECEIVED).block();
-        Assert.assertNotNull(event);
-    }
+    private static final String HAS = "has";
+    private static final String HAS_NOT = "has no";
+
+
+    // Modify request tables
+    private DataTable originalOrderTable;
+    private DataTable modifiedOrderTable;
+    private Map<String, Integer> orderIdMap;
+
+    private static final String ASCENDING = "ascending";
+    private static final String DESCENDING = "descending";
 
     @When("I want to list orders for location {string}.")
     public void searchOrders(String locationCode) {
-        response = apiHelper.graphQlRequestObjectList(GraphQLQueryMapper.listOrdersByLocation(locationCode), "searchOrders");
+        response = apiHelper.graphQlPageRequest(GraphQLQueryMapper.listOrdersByLocation(locationCode), "searchOrders");
     }
 
     @Then("I should have orders listed in the following order.")
     public void iShouldHaveOrdersListedInTheFollowingOrder(DataTable table) {
-        var headers = table.row(0);
-
-
-        var responseIds = Arrays.stream(response)
-            .map(r ->
-            {
-                if (r instanceof LinkedHashMap) {
-                    return ((LinkedHashMap<?, ?>) r).get("externalId").toString();
-                } else {
-                    throw new IllegalArgumentException("Unexpected response type: " + r.getClass().getName());
-                }
-            })
-            .collect(Collectors.joining(","));
-
-        var expectedIds = new ArrayList<String>();
-        for (var i = 1; i < table.height(); i++) {
-            var row = table.row(i);
-            expectedIds.add(row.get(headers.indexOf("External ID")));
-        }
-
-        Assert.assertEquals(String.join(",", expectedIds), responseIds);
+        checkOrdersResponseList(table, response);
     }
 
 
@@ -143,7 +143,7 @@ public class OrderSteps {
         jsonContent = jsonContent.replace("\"DESIRED_DATE\"", "\"" + newDesiredShippingDate + "\"")
             .replace("{EXTERNAL_ID}", externalId);
         var eventPayload = objectMapper.readValue(jsonContent, OrderReceivedEventDTO.class);
-        createOrderInboundRequest(jsonContent, eventPayload);
+        orderController.createOrderInboundRequest(jsonContent, eventPayload);
     }
 
     @Given("I have received an order inbound request with externalId {string}, content {string}, and desired shipping date {string}.")
@@ -162,7 +162,7 @@ public class OrderSteps {
         jsonContent = jsonContent.replace("\"DESIRED_DATE\"", dateValue)
             .replace("{EXTERNAL_ID}", externalId);
         var eventPayload = objectMapper.readValue(jsonContent, OrderReceivedEventDTO.class);
-        createOrderInboundRequest(jsonContent, eventPayload);
+        orderController.createOrderInboundRequest(jsonContent, eventPayload);
     }
 
 
@@ -227,6 +227,8 @@ public class OrderSteps {
 
     @Given("I have this/these BioPro Order(s).")
     public void createBioproOrder(DataTable table) {
+        originalOrderTable = table;
+        orderIdMap = new HashMap<>();
         var headers = table.row(0);
         for (var i = 1; i < table.height(); i++) {
             var row = table.row(i);
@@ -235,11 +237,16 @@ public class OrderSteps {
             this.priority = row.get(headers.indexOf("Priority"));
             this.status = row.get(headers.indexOf("Status"));
             var desireShipDate = row.get(headers.indexOf("Desired Shipment Date")).equals("NULL_VALUE") ? null : "'" + row.get(headers.indexOf("Desired Shipment Date")) + "'";
-            var query = DatabaseQueries.insertBioProOrder(context.getExternalId(), context.getLocationCode(), orderController.getPriorityValue(priority), priority, status, desireShipDate);
+
+            var query = DatabaseQueries.insertBioProOrder(context.getExternalId(), context.getLocationCode(), orderController.getPriorityValue(priority), priority, status, desireShipDate
+                ,row.get(headers.indexOf("Customer Code")),row.get(headers.indexOf("Ship To Customer Name")),row.get(headers.indexOf("Create Date")) );
             databaseService.executeSql(query).block();
 
+            var orderId = Integer.valueOf(databaseService.fetchData(DatabaseQueries.getOrderId(context.getExternalId())).first().block().get("id").toString());
+            orderIdMap.put(context.getExternalId(),orderId);
+
             // Will keep the last order id
-            context.setOrderId(Integer.valueOf(databaseService.fetchData(DatabaseQueries.getOrderId(context.getExternalId())).first().block().get("id").toString()));
+            context.setOrderId(orderId);
         }
 
     }
@@ -292,9 +299,13 @@ public class OrderSteps {
 
     @Given("I have more than {int} Biopro Orders.")
     public void createMultipleBioproOrders(int quantity) {
+        createMultipleBioproOrders(quantity, "EXT20RECORDS");
+    }
+
+    private void createMultipleBioproOrders(int quantity, String externalIdPrefix) {
         for (int i = 0; i <= quantity; i++) {
             var priority = orderController.getRandomPriority();
-            var externalId = "EXT20RECORDS" + i;
+            var externalId = externalIdPrefix + i;
             var query = DatabaseQueries.insertBioProOrder(externalId, "123456789", priority.getValue(), priority.getKey(), "OPEN");
             databaseService.executeSql(query).block();
         }
@@ -792,13 +803,13 @@ public class OrderSteps {
     public void iHaveRemainingProductsAsPartOfTheBackOrderCreated(String choice, Integer quantity) throws InterruptedException {
         Thread.sleep(kafkaWaitingTime);
         orderController.listOrdersByExternalId();
-        var originalOrder = context.getOrderList().stream().filter(order -> order.get("orderStatus").equals("COMPLETED")).findFirst().orElse(null);
+        var originalOrder = context.getOrdersPage().content().stream().filter(order -> order.get("orderStatus").asText().equals("COMPLETED")).findFirst().orElse(null);
         Assert.assertNotNull(originalOrder);
 
         if (choice.equalsIgnoreCase("should")) { // Back order configured
-            Assert.assertEquals(2, context.getOrderList().size());
+            Assert.assertEquals(2, context.getOrdersPage().content().size());
 
-            var backOrder = context.getOrderList().stream().filter(order -> order.get("orderStatus").equals("OPEN")).findFirst().orElse(null);
+            var backOrder = context.getOrdersPage().content().stream().filter(order -> order.get("orderStatus").asText().equals("OPEN")).findFirst().orElse(null);
             Assert.assertNotNull(backOrder);
 
             // Get by id backOrder
@@ -809,7 +820,7 @@ public class OrderSteps {
             Assert.assertEquals(quantity, Integer.valueOf(backOrderDetails.get("totalProducts").toString()));
 
         } else if (choice.equalsIgnoreCase("should not")) { // Back order not configured
-            Assert.assertEquals(1, context.getOrderList().size());
+            Assert.assertEquals(1, context.getOrdersPage().content().size());
         } else {
             Assert.fail("Invalid option for back order configuration.");
         }
@@ -828,17 +839,17 @@ public class OrderSteps {
 
     @Then("I should receive the search results containing {string} order(s).")
     public void iShouldReceiveTheSearchResultsContainingOrder(String expectedQuantity) {
-        var orderList = context.getOrderList();
-        Assert.assertEquals(Integer.parseInt(expectedQuantity), orderList.size());
+        var ordersPage = context.getOrdersPage();
+        Assert.assertEquals(Integer.parseInt(expectedQuantity), ordersPage.content().size());
     }
 
     @Then("I should receive the search results containing {string} order(s) with status(es) {string}.")
     public void iShouldReceiveTheSearchResultsContainingOrderAndStatuses(String expectedQuantity, String statuses) {
-        var orderList = context.getOrderList();
-        Assert.assertEquals(Integer.parseInt(expectedQuantity), orderList.size());
+        var ordersPage = context.getOrdersPage();
+        Assert.assertEquals(Integer.parseInt(expectedQuantity), ordersPage.content().size());
         var statusesList = testUtils.getCommaSeparatedList(statuses);
         Arrays.stream(statusesList).toList().forEach(status -> {
-            Assert.assertTrue(orderList.stream().anyMatch(order -> order.get("orderStatus").toString().equals(status)));
+            Assert.assertTrue(ordersPage.content().stream().anyMatch(order -> order.get("orderStatus").asText().equals(status)));
         });
     }
 
@@ -887,5 +898,322 @@ public class OrderSteps {
         } else {
             Assert.fail("Invalid option for cancel details.");
         }
+    }
+
+    @Given("I have {int} Biopro Order\\(s).")
+    public void iHaveBioproOrderS(int totalRecords) {
+        this.createMultipleBioproOrders(totalRecords - 1, "EXTDIS220");
+    }
+
+    @When("I request to list the Orders.")
+    public void iRequestToListTheOrders() {
+        orderController.listOrdersByPage(null);
+    }
+
+    @Then("I should receive {int} order\\(s) splitted in {int} page\\(s).")
+    public void iShouldReceiveOrderSSplittedInPageS(int totalRecords, int totalPages) {
+        var page = context.getOrdersPage();
+        Assert.assertEquals(totalRecords, page.totalRecords());
+        Assert.assertEquals(totalPages, page.totalPages());
+    }
+
+    @And("I confirm that the page {int} {string} {int} orders.")
+    public void iConfirmThatThePageOrders(int page, String hasHasNot, int totalElements) {
+        var pageIndex = page - 1;
+        orderController.listOrdersByPage(pageIndex);
+        var currentPage = context.getOrdersPage();
+        Assert.assertEquals(pageIndex, currentPage.pageNumber());
+        if (HAS.equals(hasHasNot)) {
+            Assertions.assertFalse(currentPage.content().isEmpty());
+            Assert.assertEquals(totalElements, currentPage.content().size());
+        } else if (HAS_NOT.equals(hasHasNot)) {
+            Assertions.assertTrue(currentPage.content().isEmpty());
+            Assert.assertEquals(totalElements, 0);
+        } else {
+            Assert.fail("Invalid Option of has / has not");
+        }
+    }
+
+    @And("I confirm that the page {int} {string} previous page and {string} next page.")
+    public void iConfirmThatThePagePreviousPageAndNextPage(int page, String hasHasNotPreviousPage, String hasHasNotNextPage) {
+        var pageIndex = page - 1;
+        orderController.listOrdersByPage(pageIndex);
+        var currentPage = context.getOrdersPage();
+        Assert.assertEquals(pageIndex, currentPage.pageNumber());
+
+        if (HAS.equals(hasHasNotPreviousPage)) {
+            Assert.assertTrue(currentPage.hasPrevious());
+        } else if (HAS_NOT.equals(hasHasNotPreviousPage)) {
+            Assert.assertFalse(currentPage.hasPrevious());
+        } else {
+            Assert.fail("Invalid Option of has / has not");
+        }
+
+        if (HAS.equals(hasHasNotNextPage)) {
+            Assert.assertTrue(currentPage.hasNext());
+        } else if (HAS_NOT.equals(hasHasNotNextPage)) {
+            Assert.assertFalse(currentPage.hasNext());
+        } else {
+            Assert.fail("Invalid Option of has / has not");
+        }
+
+    }
+
+    @When("I request to list the Orders at page {int}.")
+    public void iRequestToListTheOrdersAtPage(int page) {
+        orderController.listOrdersByPage(page);
+        Assertions.assertNotNull(context.getOrdersPage());
+    }
+
+
+    @Given("I have orders with the following details.")
+    public void iHaveOrdersWithTheFollowingDetails(DataTable table) {
+        originalOrderTable = table;
+        orderIdMap = new HashMap<>();
+
+        // Headers -> | External ID | Status | Location Code | Delivery Type | Shipping Method | Product Category | Product Family | Blood Type | Quantity | Back Order |
+        var headers = table.row(0);
+
+        for (var i = 1; i < table.height(); i++) {
+            var row = table.row(i);
+
+            var externalId = row.get(headers.indexOf("External ID"));
+            var priority = orderController.getRandomPriority();
+
+            // Order
+            var query = DatabaseQueries.insertBioProOrder(
+                externalId,
+                row.get(headers.indexOf("Location Code")),
+                priority.getValue(),
+                row.get(headers.indexOf("Delivery Type")),
+                Boolean.parseBoolean(row.get(headers.indexOf("Back Order")))
+                    ? "COMPLETED"
+                    : row.get(headers.indexOf("Status")),
+                row.get(headers.indexOf("Product Category")),
+                false);
+            databaseService.executeSql(query).block();
+
+            var orderId = Integer.valueOf(databaseService.fetchData(DatabaseQueries.getOrderId(externalId)).first().block().get("id").toString());
+            orderIdMap.put(externalId, orderId);
+
+            // Order Item
+            var productFamilyList = testUtils.getCommaSeparatedList(row.get(headers.indexOf("Product Family")));
+            var bloodTypeList = testUtils.getCommaSeparatedList(row.get(headers.indexOf("Blood Type")));
+            var quantityList = testUtils.getCommaSeparatedList(row.get(headers.indexOf("Quantity")));
+            for (var j = 0; j < productFamilyList.length; j++) {
+                var queryItem = DatabaseQueries.insertBioProOrderItem(
+                    externalId,
+                    productFamilyList[j],
+                    bloodTypeList[j],
+                    Integer.parseInt(quantityList[j]),
+                    "Comments");
+                databaseService.executeSql(queryItem).block();
+            }
+
+            // Back Order
+            if (Boolean.parseBoolean(row.get(headers.indexOf("Back Order")))) {
+                var queryBack = DatabaseQueries.insertBioProOrder(
+                    externalId,
+                    row.get(headers.indexOf("Location Code")),
+                    priority.getValue(),
+                    row.get(headers.indexOf("Delivery Type")),
+                    row.get(headers.indexOf("Status")),
+                    row.get(headers.indexOf("Product Category")),
+                    true);
+                databaseService.executeSql(queryBack).block();
+                var backOrderId = Integer.valueOf(databaseService.fetchData(DatabaseQueries.getOrderId(externalId)).first().block().get("id").toString());
+                orderIdMap.replace(externalId, backOrderId);
+
+                // Order Item
+                for (var j = 0; j < productFamilyList.length; j++) {
+                    var queryItem = DatabaseQueries.insertBioProOrderItem(
+                        externalId,
+                        productFamilyList[j],
+                        bloodTypeList[j],
+                        Integer.parseInt(quantityList[j]),
+                        "Comments");
+                    databaseService.executeSql(queryItem).block();
+                }
+            }
+
+        }
+    }
+
+    @And("I have received modify order requests with the following details externalId.")
+    public void iHaveReceivedModifyOrderRequestsWithTheFollowingDetailsExternalId(DataTable table) throws Exception {
+        modifiedOrderTable = table;
+
+        // Headers -> | Modify External ID | Modify Date | Location Code | Delivery Type | Shipping Method | Product Category | Product Family | Blood Type | Quantity | Modify Reason | Modify Employee Code |
+        var headers = table.row(0);
+
+        for (var i = 1; i < table.height(); i++) {
+
+            var productFamilyList = testUtils.getCommaSeparatedList(table.row(i).get(headers.indexOf("Product Family")));
+            var bloodTypeList = testUtils.getCommaSeparatedList(table.row(i).get(headers.indexOf("Blood Type")));
+            var quantityList = testUtils.getCommaSeparatedList(table.row(i).get(headers.indexOf("Quantity")));
+
+            orderController.modifyOrderRequest(
+                table.row(i).get(headers.indexOf("Modify External ID")),
+                table.row(i).get(headers.indexOf("Location Code")),
+                table.row(i).get(headers.indexOf("Modify Employee Code")),
+                table.row(i).get(headers.indexOf("Delivery Type")),
+                table.row(i).get(headers.indexOf("Shipping Method")),
+                table.row(i).get(headers.indexOf("Product Category")),
+                table.row(i).get(headers.indexOf("Modify Reason")),
+                table.row(i).get(headers.indexOf("Modify Date")),
+                productFamilyList,
+                bloodTypeList,
+                quantityList,
+                "modify-order-valid-request.json",
+                "modify-order-item.json"
+            );
+        }
+    }
+
+    @When("The system processes the modify order requests.")
+    public void theSystemProcessesTheModifyOrderRequests() {
+        try {
+            Thread.sleep(kafkaWaitingTime);
+        } catch (InterruptedException e) {
+            log.error("Error waiting for Kafka to process the modify order requests: {}", e.getMessage());
+        }
+    }
+
+    @Then("The Modify order request should be processed as.")
+    public void theModifyOrderRequestShouldBeProcessedAs(DataTable table) {
+        // Headers -> | Modify External ID | Location Code | Should be Found? | Should be Updated? |
+        var headers = table.row(0);
+
+        for (var i = 1; i < table.height(); i++) {
+            var row = table.row(i);
+            var externalId = row.get(headers.indexOf("Modify External ID"));
+            var locationCode = row.get(headers.indexOf("Location Code"));
+            var shouldBeFound = row.get(headers.indexOf("Should be Found?"));
+            var shouldBeUpdated = row.get(headers.indexOf("Should be Updated?"));
+
+            orderController.getOrderDetails(orderIdMap.get(externalId));
+            if (shouldBeFound.equalsIgnoreCase("yes")) {
+                Assert.assertNotNull(context.getOrderDetails());
+                List<Map> orderItems = (List<Map>) context.getOrderDetails().get("orderItems");
+                if (shouldBeUpdated.equalsIgnoreCase("yes")) {
+                    // Validate order data
+                    Assert.assertEquals(context.getOrderDetails().get("locationCode"), locationCode);
+                    Assert.assertEquals(context.getOrderDetails().get("priority"), modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Delivery Type")));
+                    Assert.assertEquals(context.getOrderDetails().get("productCategory"), modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Product Category")));
+                    Assert.assertEquals(context.getOrderDetails().get("modifyReason"), modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Modify Reason")));
+                    // Validate order items data
+                    var productFamilyList = testUtils.getCommaSeparatedList(modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Product Family")));
+                    var bloodTypeList = testUtils.getCommaSeparatedList(modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Blood Type")));
+                    var quantityList = testUtils.getCommaSeparatedList(modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Quantity")));
+                    for (var j = 0; j < orderItems.size(); j++) {
+                        Assert.assertEquals(productFamilyList[j], orderItems.get(j).get("productFamily"));
+                        Assert.assertEquals(bloodTypeList[j], orderItems.get(j).get("bloodType"));
+                        Assert.assertEquals(Integer.parseInt(quantityList[j]), Integer.parseInt(orderItems.get(j).get("quantity").toString()));
+                    }
+                } else if (shouldBeUpdated.equalsIgnoreCase("no")) {
+                    // Validate order data
+                    Assert.assertEquals(context.getOrderDetails().get("locationCode"), originalOrderTable.row(i).get(originalOrderTable.row(0).indexOf("Location Code")));
+                    Assert.assertEquals(context.getOrderDetails().get("priority"), originalOrderTable.row(i).get(originalOrderTable.row(0).indexOf("Delivery Type")));
+                    Assert.assertEquals(context.getOrderDetails().get("productCategory"), originalOrderTable.row(i).get(originalOrderTable.row(0).indexOf("Product Category")));
+                    // Validate order items data
+                    var productFamilyList = testUtils.getCommaSeparatedList(originalOrderTable.row(i).get(originalOrderTable.row(0).indexOf("Product Family")));
+                    var bloodTypeList = testUtils.getCommaSeparatedList(originalOrderTable.row(i).get(originalOrderTable.row(0).indexOf("Blood Type")));
+                    var quantityList = testUtils.getCommaSeparatedList(originalOrderTable.row(i).get(originalOrderTable.row(0).indexOf("Quantity")));
+                    for (var j = 0; j < orderItems.size(); j++) {
+                        Assert.assertEquals(productFamilyList[j], orderItems.get(j).get("productFamily"));
+                        Assert.assertEquals(bloodTypeList[j], orderItems.get(j).get("bloodType"));
+                        Assert.assertEquals(Integer.parseInt(quantityList[j]), Integer.parseInt(orderItems.get(j).get("quantity").toString()));
+                    }
+                } else {
+                    Assert.fail("Invalid option for should be updated.");
+                }
+            } else if (shouldBeFound.equalsIgnoreCase("no")) {
+                Assert.assertNull(context.getOrderDetails());
+            } else {
+                Assert.fail("Invalid option for should be found.");
+            }
+        }
+    }
+
+    @When("I request to list the Orders sorted by {string} in {string} order.")
+    public void iRequestToListTheOrdersSortedByInOrder(String property, String sortingOrder) {
+
+        var order = "";
+        if(ASCENDING.equals(sortingOrder)){
+            order = "ASC";
+        } else if (DESCENDING.equals(sortingOrder)) {
+            order = "DESC";
+        }else{
+            Assert.fail("Invalid Sorting Order");
+        }
+
+        orderController.sortOrdersByPage(0,property,order);
+        Assertions.assertNotNull(context.getOrdersPage());
+    }
+
+    @Then("I should receive the orders listed in the following order.")
+    public void iShouldReceiveTheOrdersListedInTheFollowingOrder(DataTable table) {
+        checkOrdersResponseList(table, context.getOrdersPage());
+    }
+
+    private void checkOrdersResponseList(DataTable table , PageDTO<JsonNode> response) {
+        var headers = table.row(0);
+
+        var responseIds = response.content().stream()
+            .map(r -> r.get("externalId").asText())
+            .collect(Collectors.joining(","));
+
+        var expectedIds = new ArrayList<String>();
+        for (var i = 1; i < table.height(); i++) {
+            var row = table.row(i);
+            expectedIds.add(row.get(headers.indexOf("External ID")));
+        }
+
+        log.debug("responseIds {}",responseIds);
+        log.debug("expectedIds {}",String.join(",", expectedIds));
+
+        Assert.assertEquals(String.join(",", expectedIds), responseIds);
+    }
+
+    @And("The sorting indicator should be at {string} property in {string} order.")
+    public void theSortingIndicatorShouldBeAtPropertyInOrder(String property, String sortingOrder) {
+
+        Assert.assertEquals(property,context.getOrdersPage().querySort().orderByList().getFirst().property());
+
+        if(ASCENDING.equals(sortingOrder)){
+            Assert.assertEquals("ASC",context.getOrdersPage().querySort().orderByList().getFirst().direction());
+        } else if (DESCENDING.equals(sortingOrder)) {
+            Assert.assertEquals("DESC",context.getOrdersPage().querySort().orderByList().getFirst().direction());
+        }else{
+            Assert.fail("Invalid Sorting Order");
+        }
+    }
+
+    @Then("I should receive the orders listed by {string} in {string} order.")
+    public void iShouldReceiveTheOrdersListedByInOrder(String property, String sortingOrder) {
+
+        var expectedIds = new ArrayList<String>();
+        for (var i = 1; i < originalOrderTable.height(); i++) {
+            var row = originalOrderTable.row(i);
+            expectedIds.add(orderIdMap.get(row.get(originalOrderTable.row(0).indexOf("External ID"))).toString());
+        }
+
+        Assert.assertEquals(property,context.getOrdersPage().querySort().orderByList().getFirst().property());
+
+        var responseIds = context.getOrdersPage().content().stream()
+            .map(r -> r.get("orderNumber").asText())
+            .collect(Collectors.joining(","));
+
+        if(ASCENDING.equals(sortingOrder)){
+            Assert.assertEquals("ASC",context.getOrdersPage().querySort().orderByList().getFirst().direction());
+            Collections.sort(expectedIds);
+        } else if (DESCENDING.equals(sortingOrder)) {
+            Assert.assertEquals("DESC",context.getOrdersPage().querySort().orderByList().getFirst().direction());
+            Collections.reverse(expectedIds);
+        }else{
+            Assert.fail("Invalid Sorting Order");
+        }
+
+        Assert.assertEquals(String.join(",", expectedIds), responseIds);
     }
 }

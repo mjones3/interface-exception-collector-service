@@ -10,18 +10,19 @@ class ProductTest {
     @Test
     void shouldCreate() {
 
-        var product = new Product("UNIT", "CODE");
+        var product = new Product("UNIT", "CODE","FAMILY");
         Assertions.assertEquals("UNIT", product.getUnitNumber());
+        Assertions.assertEquals("CODE", product.getProductCode());
+        Assertions.assertEquals("FAMILY", product.getProductFamily());
     }
 
     @Test
     void shouldNotCreate() {
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new Product(null, "CODE"), "Unit Number cannot be null");
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new Product("", "CODE"), "Unit Number cannot be empty");
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new Product("UNIT", null), "Product code  cannot be null");
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new Product("UNIT", ""), "Product code cannot be empty");
-
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new Product(null, "CODE","FAMILY"), "Unit Number cannot be null");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new Product("", "CODE","FAMILY"), "Unit Number cannot be empty");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new Product("UNIT", null,"FAMILY"), "Product code  cannot be null");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new Product("UNIT", "","FAMILY"), "Product code cannot be empty");
     }
 
 }

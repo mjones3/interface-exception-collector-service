@@ -59,7 +59,6 @@ public class OrderEntity {
     @Column("billing_customer_code")
     private String billingCustomerCode;
 
-    @NotNull
     @Column("desired_shipping_date")
     private LocalDate desiredShippingDate;
 
@@ -126,4 +125,14 @@ public class OrderEntity {
 
     @Column("cancel_reason")
     private String cancelReason;
+
+    @Column("modify_employee_id")
+    private String modifyEmployeeId;
+
+    @Column("modify_reason")
+    private String modifyReason;
+
+    @Column("modify_by_process")
+    private String modifyByProcess;
+
 }

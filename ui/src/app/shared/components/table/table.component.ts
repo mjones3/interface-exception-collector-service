@@ -6,19 +6,18 @@ import {
     trigger,
 } from '@angular/animations';
 import { SelectionModel } from '@angular/cdk/collections';
-import { CommonModule, NgClass, NgTemplateOutlet } from '@angular/common';
+import { NgClass, NgTemplateOutlet } from '@angular/common';
 import {
     Component,
-    EventEmitter,
-    Input,
     OnInit,
-    Output,
     TemplateRef,
     ViewEncapsulation,
     booleanAttribute,
+    computed,
     effect,
     input,
     numberAttribute,
+    output,
     viewChild,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -33,12 +32,10 @@ import {
 } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { FuseCardComponent } from '@fuse/components/card';
-import { ProgressBarComponent } from 'app/progress-bar/progress-bar.component';
 import {
     TableConfiguration,
     TableDataSource,
 } from 'app/shared/models/table.model';
-import { ProductIconsService } from 'app/shared/services/product-icon.service';
 import { merge } from 'lodash-es';
 import { MenuComponent } from '../menu/menu.component';
 import { PaginatorComponent } from '../paginator/paginator.component';
@@ -46,8 +43,7 @@ import { PaginatorComponent } from '../paginator/paginator.component';
 @Component({
     selector: 'biopro-table',
     templateUrl: './table.component.html',
-    styleUrl: './table.component.scss',
-    standalone: true,
+    styleUrls: ['./table.component.scss'],
     encapsulation: ViewEncapsulation.None,
     animations: [
         trigger('detailExpand', [
@@ -59,6 +55,7 @@ import { PaginatorComponent } from '../paginator/paginator.component';
             ),
         ]),
     ],
+    standalone: true,
     imports: [
         MatTableModule,
         MatButtonModule,
@@ -70,9 +67,6 @@ import { PaginatorComponent } from '../paginator/paginator.component';
         FuseCardComponent,
         MenuComponent,
         PaginatorComponent,
-        CommonModule,
-        MatButtonModule,
-        ProgressBarComponent,
     ],
 })
 export class TableComponent<T extends TableDataSource = TableDataSource>
@@ -85,61 +79,69 @@ export class TableComponent<T extends TableDataSource = TableDataSource>
         showPagination: true,
         showSorting: true,
     };
-    private _configuration: TableConfiguration;
 
     dataSource = input.required<T[]>();
-
-    @Input() set configuration(config: TableConfiguration) {
-        this._configuration = merge({}, this._defaultConfig, config);
-        this.setColumnIds();
-    }
-    get configuration() {
-        return this._configuration;
-    }
-
-    @Input({ transform: booleanAttribute }) serverPagination = false;
-    @Input({ transform: numberAttribute }) totalElements: number;
-    @Input() tableId: string;
-    @Input() expandTemplateRef?: TemplateRef<Element>;
-    @Input() footerTemplateRef?: TemplateRef<Element>;
-    @Input() tableNoResultsMessage?: string = 'No Results Found.';
-    @Input() pageIndex = 0; //TODO: Check if it's really necessary
-    @Input() defaultSort?: MatSortable;
-    @Input() btnTemplateRef?: TemplateRef<Element>;
-
-    @Output() paginate = new EventEmitter<PageEvent>();
-    @Output() sort = new EventEmitter<Sort>();
-    @Output() expandingOneOrMoreRows = new EventEmitter<T | T[]>(); //Lazy loading for the expandable content
+    configuration = input<TableConfiguration, unknown>(this._defaultConfig, {
+        transform: (config: TableConfiguration) =>
+            merge({}, this._defaultConfig, config),
+    });
+    serverPagination = input(false, { transform: booleanAttribute });
+    totalElements = input(0, { transform: numberAttribute });
+    expandTemplateRef = input<TemplateRef<Element>>();
+    footerTemplateRef = input<TemplateRef<Element>>();
+    tableId = input.required<string>();
+    stickyHeader = input(true, { transform: booleanAttribute });
+    tableNoResultsMessage = input('No Results Found');
+    pageIndex = input(0);
+    defaultSort = input<MatSortable>();
+    sortingDataAccessor = input<
+        (data: T, sortHeaderId: string) => string | number
+    >((data, sortHeaderId) => {
+        return typeof data[sortHeaderId] === 'string'
+            ? data[sortHeaderId].toLowerCase()
+            : data[sortHeaderId];
+    });
+    paginate = output<PageEvent>();
+    sort = output<Sort>();
+    expandingOneOrMoreRows = output<T | T[]>(); //Lazy loading for the expandable content
 
     matSortRef = viewChild(MatSort);
     paginatorRef = viewChild(PaginatorComponent);
 
-    columnsId: string[] = [];
+    columnsId = computed(() => {
+        const ids = this.configuration().columns.map((col) => col.id);
+        if (this.configuration().expandableKey) {
+            ids.unshift('expand');
+        }
+        if (this.configuration().selectable) {
+            ids.unshift('select');
+        }
+        return ids;
+    });
     expandedAll: boolean;
     expandedElement: T;
     selection = new SelectionModel<T>(true, []);
     tableDataSource: MatTableDataSource<T>;
 
-    constructor(private productIconService: ProductIconsService) {
+    constructor() {
         effect(
             () => {
                 this.tableDataSource.data = this.dataSource();
 
-                if (this.configuration.showPagination) {
-                    if (!this.serverPagination) {
+                if (this.configuration().showPagination) {
+                    if (!this.serverPagination()) {
                         this.tableDataSource.paginator =
                             this.paginatorRef().matPaginatorRef();
                     } else {
                         this.paginatorRef().matPaginatorRef().length =
-                            this.totalElements;
+                            this.totalElements();
                     }
                 }
 
-                if (this.configuration.showSorting) {
+                if (this.configuration().showSorting) {
                     this.tableDataSource.sort = this.matSortRef();
-                    if (this.defaultSort && this.dataSource?.length) {
-                        this.tableDataSource.sort.sort(this.defaultSort);
-                    }
+                    this.tableDataSource.sortingDataAccessor =
+                        this.sortingDataAccessor();
                 }
             },
             { allowSignalWrites: true }
@@ -157,28 +159,18 @@ export class TableComponent<T extends TableDataSource = TableDataSource>
     }
 
     onSort(event: Sort) {
-        if (this.configuration.showPagination) {
+        if (this.configuration().showPagination) {
             this.paginatorRef().matPaginatorRef().firstPage();
         }
         this.expandedElement = null;
         this.sort.emit(event);
     }
 
-    setColumnIds() {
-        this.columnsId = this.configuration.columns.map((col) => col.id);
-        if (this.configuration.expandableKey) {
-            this.columnsId.unshift('expand');
-        }
-        if (this.configuration.selectable) {
-            this.columnsId.unshift('select');
-        }
-    }
-
     //#region Expand
 
     showExpandAll() {
         return (
-            this.configuration.showExpandAll &&
+            this.configuration().showExpandAll &&
             this.dataSource().some((element) =>
                 this.hasExpandableContent(element)
             )
@@ -199,7 +191,7 @@ export class TableComponent<T extends TableDataSource = TableDataSource>
 
     expandCollapseRow(element: T) {
         if (this.hasExpandableContent(element)) {
-            if (this.configuration.showExpandAll) {
+            if (this.configuration().showExpandAll) {
                 element.expanded = !element.expanded;
                 if (element.expanded) {
                     this.expandingOneOrMoreRows.emit(element);
@@ -220,13 +212,13 @@ export class TableComponent<T extends TableDataSource = TableDataSource>
 
     isExpanded(element: T, expandedElement: T) {
         return (
-            (this.configuration.showExpandAll && element.expanded) ||
+            (this.configuration().showExpandAll && element.expanded) ||
             element === expandedElement
         );
     }
 
     hasExpandableContent(element: T) {
-        const content = element[this.configuration.expandableKey];
+        const content = element[this.configuration().expandableKey];
         if (
             content &&
             ((Array.isArray(content) && content.length) ||
@@ -262,9 +254,5 @@ export class TableComponent<T extends TableDataSource = TableDataSource>
         }
         return `${this.selection.isSelected(element) ? 'deselect' : 'select'} row ${index + 1}`;
     }
-
     //#endregion
-    getIcon(productFamily: string) {
-        return this.productIconService.getIconByProductFamily(productFamily);
-    }
 }

@@ -5,15 +5,21 @@ import lombok.Getter;
 import lombok.ToString;
 import org.springframework.util.Assert;
 
-import java.util.Arrays;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
+import static java.util.Collections.unmodifiableSortedSet;
 
 @Getter
 @EqualsAndHashCode
 @ToString
 public class QueryOrderBy implements Validatable {
-    private String property;
-    private String direction;
-    private final static String[] SORT_DIRECTIONS = {"ASC", "DESC"};
+
+    private final static SortedSet<String> SORT_DIRECTIONS = unmodifiableSortedSet(new TreeSet<>(Set.of("ASC", "DESC")));
+
+    private final String property;
+    private final String direction;
 
     public QueryOrderBy(String property, String direction) {
         this.property = property;
@@ -21,12 +27,11 @@ public class QueryOrderBy implements Validatable {
         checkValid();
     }
 
-
     @Override
     public void checkValid() {
-        Assert.notNull(direction, "Direction must not be null");
         Assert.notNull(property, "Property must not be null");
-        Assert.isTrue(Arrays.stream(SORT_DIRECTIONS).anyMatch(s -> s.equals(direction)), "Direction is invalid");
-
+        Assert.notNull(direction, "Direction must not be null");
+        Assert.isTrue(SORT_DIRECTIONS.contains(direction), "Direction is invalid");
     }
+
 }

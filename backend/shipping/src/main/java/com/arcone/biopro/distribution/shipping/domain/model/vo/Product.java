@@ -12,10 +12,12 @@ public class Product implements Validatable {
 
     private String unitNumber;
     private String productCode;
+    private String productFamily;
 
-    public Product(String unitNumber, String productCode) {
+    public Product(String unitNumber, String productCode , String productFamily) {
         this.unitNumber = unitNumber;
         this.productCode = productCode;
+        this.productFamily = productFamily;
         checkValid();
     }
 

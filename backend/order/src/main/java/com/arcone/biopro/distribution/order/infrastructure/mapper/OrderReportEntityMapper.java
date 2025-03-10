@@ -14,14 +14,17 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderReportEntityMapper {
 
-    public OrderReport mapToDomain(OrderEntity orderEntity , String colorPriority) {
-        return new OrderReport(orderEntity.getId()
-            , orderEntity.getOrderNumber(), orderEntity.getExternalId()
-            , new OrderCustomerReport(orderEntity.getShippingCustomerCode() , orderEntity.getShippingCustomerName())
-            , new OrderPriorityReport(orderEntity.getDeliveryType(), colorPriority)
-            ,orderEntity.getStatus(), orderEntity.getCreateDate() , orderEntity.getDesiredShippingDate()
+    public OrderReport mapToDomain(OrderEntity orderEntity, String colorPriority) {
+        return new OrderReport(
+            orderEntity.getId(),
+            orderEntity.getOrderNumber(),
+            orderEntity.getExternalId(),
+            orderEntity.getStatus(),
+            new OrderCustomerReport(orderEntity.getShippingCustomerCode(), orderEntity.getShippingCustomerName()),
+            new OrderPriorityReport(orderEntity.getDeliveryType(), colorPriority),
+            orderEntity.getCreateDate(),
+            orderEntity.getDesiredShippingDate()
         );
-
     }
 
 

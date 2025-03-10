@@ -1,10 +1,15 @@
 import { Injectable } from '@angular/core';
 import { ApolloQueryResult } from '@apollo/client';
 import { MutationResult } from 'apollo-angular';
+import { PageDTO } from 'app/shared/models/page.model';
 import { Observable } from 'rxjs';
 import { DynamicGraphqlPathService } from '../../../core/services/dynamic-graphql-path.service';
 import { SEARCH_ORDER_CRITERIA } from '../../shipments/graphql/order/query-definitions/search-order-criteria.graphsql';
 import { SEARCH_ORDERS } from '../../shipments/graphql/order/query-definitions/search-orders.graphql';
+import {
+    COMPLETE_ORDER,
+    CompleteOrderCommandDTO,
+} from '../graphql/mutation-definitions/complete-order.graphql';
 import {
     GENERATE_PICK_LIST,
     PickListDTO,
@@ -21,10 +26,6 @@ import {
     OrderQueryCommandDTO,
     OrderReportDTO,
 } from '../models/search-order.model';
-import {
-    COMPLETE_ORDER,
-    CompleteOrderCommandDTO,
-} from '../graphql/mutation-definitions/complete-order.graphql';
 
 @Injectable({
     providedIn: 'root',
@@ -36,7 +37,9 @@ export class OrderService {
 
     public searchOrders(
         orderQueryCommandDTO: OrderQueryCommandDTO
-    ): Observable<ApolloQueryResult<{ searchOrders: OrderReportDTO[] }>> {
+    ): Observable<
+        ApolloQueryResult<{ searchOrders: PageDTO<OrderReportDTO> }>
+    > {
         return this.dynamicGraphqlPathService.executeQuery(
             this.servicePath,
             SEARCH_ORDERS,

@@ -15,7 +15,7 @@ import java.util.Optional;
 public enum MessageType {
     INVENTORY_NOT_FOUND_IN_LOCATION(1, null,  NotificationType.WARN, Action.BACK_TO_STORAGE),
     INVENTORY_IS_EXPIRED(2, null, NotificationType.INFO, Action.TRIGGER_DISCARD),
-    INVENTORY_IS_UNSUITABLE(3, InventoryStatus.UNSUITABLE.name(), NotificationType.INFO, Action.TRIGGER_DISCARD),
+    INVENTORY_IS_UNSUITABLE(3, InventoryConditions.UNSUITABLE.name(), NotificationType.INFO, Action.TRIGGER_DISCARD),
     INVENTORY_IS_QUARANTINED(4, InventoryConditions.QUARANTINED.name(), NotificationType.INFO, Action.BACK_TO_STORAGE),
     INVENTORY_IS_DISCARDED(5, InventoryStatus.DISCARDED.name(), NotificationType.INFO, Action.PLACE_IN_BIOHAZARD),
     INVENTORY_NOT_EXIST(6, null, NotificationType.WARN, Action.BACK_TO_STORAGE),
