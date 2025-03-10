@@ -2,7 +2,7 @@
   "asyncapi": "3.0.0",
   "info": {
     "title": "partner-order-provider-service",
-    "version": "PI4.6",
+    "version": "0.0.1",
     "x-generator": "springwolf"
   },
   "defaultContentType": "application/json",
@@ -280,6 +280,14 @@
               "ee1bf88e-2137-4a17-835a-d43e7b738374"
             ]
           },
+          "modifyReason": {
+            "title": "Modify Reason",
+            "type": "string",
+            "description": "The modify reason",
+            "examples": [
+              "Missing product details."
+            ]
+          },
           "orderItems": {
             "title": "Order Items",
             "type": "array",
@@ -331,6 +339,7 @@
             "locationCode": "565",
             "modifyDate": "2023-04-25 20:09:01",
             "modifyEmployeeCode": "ee1bf88e-2137-4a17-835a-d43e7b738374",
+            "modifyReason": "Missing product details.",
             "orderItems": [
               {
                 "bloodType": "AP",
@@ -349,6 +358,7 @@
           "deliveryType",
           "externalId",
           "locationCode",
+          "modifyReason",
           "orderItems",
           "productCategory",
           "shippingMethod",
@@ -412,6 +422,7 @@
               "locationCode": "565",
               "modifyDate": "2023-04-25 20:09:01",
               "modifyEmployeeCode": "ee1bf88e-2137-4a17-835a-d43e7b738374",
+              "modifyReason": "Missing product details.",
               "orderItems": [
                 {
                   "bloodType": "AP",
