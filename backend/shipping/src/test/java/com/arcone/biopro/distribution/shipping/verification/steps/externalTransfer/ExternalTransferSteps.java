@@ -12,6 +12,7 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
+import org.openqa.selenium.By;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.LinkedHashMap;
@@ -178,5 +179,34 @@ public class ExternalTransferSteps {
     @And("The External transfer process should be restarted.")
     public void theExternalTransferProcessShouldBeRestarted() {
         page.ensureNoProductsAreAdded();
+    }
+
+    @When("I request to cancel the external transfer process.")
+    public void iRequestToCancelTheExternalTransferProcess() {
+        String mutation = GraphQLMutationMapper.cancelExternalTransferInformationMutation(context.getExternalTransferId(), context.getEmployeeId());
+        this.response = apiHelper.graphQlRequest(mutation, "cancelExternalTransfer");
+        Assertions.assertNotNull(response);
+    }
+
+    @When("I confirm the cancellation of external transfer.")
+    public void iConfirmTheCancellationOfExternalTransfer() {
+        String mutation = GraphQLMutationMapper.confirmCancelExternalTransferInformationMutation(context.getExternalTransferId(), context.getEmployeeId());
+        this.response = apiHelper.graphQlRequest(mutation, "confirmCancelExternalTransfer");
+        Assertions.assertNotNull(response);
+    }
+
+    @Then("The cancel external transfer option should be {string}.")
+    public void theCancelExternalTransferOptionShouldBe(String disableEnableFlag) {
+        page.checkCancelButtonEnableDisable(!DISABLED.equals(disableEnableFlag));
+    }
+
+    @When("I choose to cancel the external transfers process.")
+    public void iChooseToCancelTheExternalTransfersProcess() {
+        page.clickCancelExternalTransfer();
+    }
+
+    @When("I choose to confirm the cancelation of external transfers process.")
+    public void iChooseToConfirmTheCancelationOfExternalTransfersProcess() {
+        page.clickConfirmCancellation();
     }
 }

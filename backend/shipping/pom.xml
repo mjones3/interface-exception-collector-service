@@ -72,6 +72,8 @@
         <spotless-maven-plugin.version>2.43.0</spotless-maven-plugin.version>
         <spring-cloud-dependencies.version>2023.0.1</spring-cloud-dependencies.version>
         <springdoc-openapi-starter-webflux-api.version>2.5.0</springdoc-openapi-starter-webflux-api.version>
+        <springdoc-openapi-starter-webflux-ui.version>2.5.0</springdoc-openapi-starter-webflux-ui.version>
+        <springwolf.version>1.7.0</springwolf.version>
         <testng.version>7.10.0</testng.version>
         <tsid-creator.version>5.2.6</tsid-creator.version>
         <allure.version>2.25.0</allure.version>
@@ -114,6 +116,23 @@
                 <version>${rest-assured.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
+                <version>${springdoc-openapi-starter-webflux-ui.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.springwolf</groupId>
+                <artifactId>springwolf-kafka</artifactId>
+                <version>${springwolf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.springwolf</groupId>
+                <artifactId>springwolf-ui</artifactId>
+                <version>${springwolf.version}</version>
             </dependency>
 
             <dependency>
@@ -190,6 +209,21 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+        </dependency>
+
+        <!-- Springdoc dependencies -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.springwolf</groupId>
+            <artifactId>springwolf-kafka</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.springwolf</groupId>
+            <artifactId>springwolf-ui</artifactId>
         </dependency>
 
         <dependency>
@@ -431,6 +465,11 @@
             <groupId>net.sf.barcode4j</groupId>
             <artifactId>barcode4j</artifactId>
             <version>2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-annotations</artifactId>
+            <version>2.2.28</version>
         </dependency>
 
     </dependencies>

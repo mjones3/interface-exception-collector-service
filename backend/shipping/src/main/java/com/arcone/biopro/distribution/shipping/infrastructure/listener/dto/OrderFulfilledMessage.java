@@ -1,9 +1,16 @@
 package com.arcone.biopro.distribution.shipping.infrastructure.listener.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 
+@Schema(
+    name = "OrderFulfilledPayload",
+    title = "OrderFulfilledPayload",
+    description = "Order Fulfilled Event Payload"
+)
 public record OrderFulfilledMessage(
 
 

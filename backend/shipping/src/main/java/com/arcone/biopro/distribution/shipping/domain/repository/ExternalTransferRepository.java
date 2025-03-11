@@ -10,4 +10,6 @@ public interface ExternalTransferRepository {
     Mono<ExternalTransfer> update(ExternalTransfer externalTransfer);
 
     Mono<ExternalTransfer> findOneById(final Long id);
+
+    Mono<Void> deleteOneById(final Long id);
 }

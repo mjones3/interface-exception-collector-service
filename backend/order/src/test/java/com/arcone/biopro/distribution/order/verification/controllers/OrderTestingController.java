@@ -150,6 +150,12 @@ public class OrderTestingController {
         return response;
     }
 
+    public Map getOrderDetailsMap(Integer orderId) {
+        var response = apiHelper.graphQlRequest(GraphQLQueryMapper.findOrderById(orderId), "findOrderById");
+        log.debug("Order details: {}", context.getOrderDetails());
+        return (Map) response.get("data");
+    }
+
     public void getOrderDetails(Integer orderId) {
         var response = apiHelper.graphQlRequest(GraphQLQueryMapper.findOrderById(orderId), "findOrderById");
         context.setOrderDetails((Map) response.get("data"));

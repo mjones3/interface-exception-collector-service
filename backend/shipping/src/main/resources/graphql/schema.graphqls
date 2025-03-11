@@ -28,7 +28,13 @@ type Mutation {
     createExternalTransfer(createExternalTransferRequest:CreateExternalTransferRequestDTO):RuleResponseDTO!
     addExternalTransferProduct(addProductTransferRequestDTO:AddProductTransferRequestDTO):RuleResponseDTO!
     completeExternalTransfer(completeExternalTransferRequestDTO:CompleteExternalTransferRequestDTO):RuleResponseDTO!
+    cancelExternalTransfer(cancelExternalTransferRequestDTO:CancelExternalTransferRequestDTO!):RuleResponseDTO!
+    confirmCancelExternalTransfer(cancelExternalTransferRequestDTO:CancelExternalTransferRequestDTO!):RuleResponseDTO!
+}
 
+input CancelExternalTransferRequestDTO {
+    externalTransferId:Int!
+    employeeId:String!
 }
 
 input CompleteExternalTransferRequestDTO {
