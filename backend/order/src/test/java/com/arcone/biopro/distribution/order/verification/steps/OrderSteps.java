@@ -1192,10 +1192,10 @@ public class OrderSteps {
     @Then("I should receive the orders listed by {string} in {string} order.")
     public void iShouldReceiveTheOrdersListedByInOrder(String property, String sortingOrder) {
 
-        var expectedIds = new ArrayList<String>();
+        var expectedIds = new ArrayList<Integer>();
         for (var i = 1; i < originalOrderTable.height(); i++) {
             var row = originalOrderTable.row(i);
-            expectedIds.add(orderIdMap.get(row.get(originalOrderTable.row(0).indexOf("External ID"))).toString());
+            expectedIds.add(orderIdMap.get(row.get(originalOrderTable.row(0).indexOf("External ID"))));
         }
 
         Assert.assertEquals(property,context.getOrdersPage().querySort().orderByList().getFirst().property());
@@ -1214,6 +1214,6 @@ public class OrderSteps {
             Assert.fail("Invalid Sorting Order");
         }
 
-        Assert.assertEquals(String.join(",", expectedIds), responseIds);
+        Assert.assertEquals(expectedIds.stream().map(String::valueOf).collect(Collectors.joining(",")), responseIds);
     }
 }
