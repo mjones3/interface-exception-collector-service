@@ -80,6 +80,7 @@ const themes = {
 const config = {
     darkMode: 'class',
     content: ['./src/**/*.{html,scss,ts}'],
+    safelist: ['grid-cols-3'],
     important: true,
     theme: {
         fontSize: {

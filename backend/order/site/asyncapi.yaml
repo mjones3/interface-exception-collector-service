@@ -16,8 +16,16 @@
     "CancelOrderReceived": {
       "address": "CancelOrderReceived",
       "messages": {
-        "com.arcone.biopro.distribution.order.application.dto.CancelOrderReceivedDTO": {
-          "$ref": "#/components/messages/com.arcone.biopro.distribution.order.application.dto.CancelOrderReceivedDTO"
+        "CancelOrderReceived": {
+          "$ref": "#/components/messages/CancelOrderReceived"
+        }
+      }
+    },
+    "ModifyOrderReceived": {
+      "address": "ModifyOrderReceived",
+      "messages": {
+        "ModifyOrderReceived": {
+          "$ref": "#/components/messages/ModifyOrderReceived"
         }
       }
     },
@@ -50,6 +58,14 @@
       "messages": {
         "com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledEventDTO": {
           "$ref": "#/components/messages/com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledEventDTO"
+        }
+      }
+    },
+    "OrderModified": {
+      "address": "OrderModified",
+      "messages": {
+        "OrderModified": {
+          "$ref": "#/components/messages/OrderModified"
         }
       }
     },
@@ -88,6 +104,66 @@
   },
   "components": {
     "schemas": {
+      "CancelOrderReceived": {
+        "title": "CancelOrderReceived",
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "eventType": {
+            "type": "string"
+          },
+          "eventVersion": {
+            "type": "string"
+          },
+          "occurredOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.order.application.dto.CancelOrderReceivedPayloadDTO"
+          }
+        },
+        "description": "Cancel Order Received Event",
+        "examples": [
+          {
+            "eventId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "eventType": "string",
+            "eventVersion": "string",
+            "occurredOn": "2015-07-20T15:49:04-07:00",
+            "payload": {
+              "cancelDate": "string",
+              "cancelEmployeeCode": "string",
+              "cancelReason": "string",
+              "externalId": "string",
+              "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+            }
+          }
+        ]
+      },
+      "Headers-1562918469": {
+        "title": "Headers-1562918469",
+        "type": "object",
+        "properties": {
+          "__TypeId__": {
+            "type": "string",
+            "description": "Spring Type Id Header",
+            "enum": [
+              "com.arcone.biopro.distribution.order.infrastructure.event.OrderModifiedOutputEvent"
+            ],
+            "examples": [
+              "com.arcone.biopro.distribution.order.infrastructure.event.OrderModifiedOutputEvent"
+            ]
+          }
+        },
+        "examples": [
+          {
+            "__TypeId__": "com.arcone.biopro.distribution.order.infrastructure.event.OrderModifiedOutputEvent"
+          }
+        ]
+      },
       "Headers-1611396750": {
         "title": "Headers-1611396750",
         "type": "object",
@@ -179,6 +255,60 @@
         "description": "There can be headers, but they are not explicitly documented.",
         "examples": [
           {}
+        ]
+      },
+      "ModifyOrderReceived": {
+        "title": "ModifyOrderReceived",
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "eventType": {
+            "type": "string"
+          },
+          "eventVersion": {
+            "type": "string"
+          },
+          "occurredOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.order.application.dto.ModifyOrderReceivedPayloadDTO"
+          }
+        },
+        "description": "Modify Order Received Event",
+        "examples": [
+          {
+            "eventId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "eventType": "string",
+            "eventVersion": "string",
+            "occurredOn": "2015-07-20T15:49:04-07:00",
+            "payload": {
+              "comments": "string",
+              "deliveryType": "string",
+              "desiredShippingDate": "string",
+              "externalId": "string",
+              "locationCode": "string",
+              "modifyDate": "string",
+              "modifyEmployeeCode": "string",
+              "modifyReason": "string",
+              "orderItems": [
+                {
+                  "bloodType": "string",
+                  "comments": "string",
+                  "productFamily": "string",
+                  "quantity": 0
+                }
+              ],
+              "productCategory": "string",
+              "shippingMethod": "string",
+              "willPickUp": true,
+              "willPickUpPhoneNumber": "string"
+            }
+          }
         ]
       },
       "OrderCancelled": {
@@ -602,6 +732,352 @@
           "quantityShipped"
         ]
       },
+      "OrderModified": {
+        "title": "OrderModified",
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "title": "Event ID",
+            "type": "string",
+            "description": "The event ID",
+            "format": "uuid",
+            "examples": [
+              "ae94cf69-6863-4c26-ad34-99347a9a4c8a"
+            ]
+          },
+          "eventType": {
+            "title": "Event Type",
+            "type": "string",
+            "description": "The event type",
+            "examples": [
+              "CollectionReceived"
+            ]
+          },
+          "eventVersion": {
+            "title": "Event Version",
+            "type": "string",
+            "description": "The event version",
+            "examples": [
+              "1.0"
+            ]
+          },
+          "occurredOn": {
+            "title": "Occurred On",
+            "type": "string",
+            "description": "When the event occurred",
+            "format": "date-time",
+            "examples": [
+              "2024-10-07T20:59:16.925110827Z"
+            ]
+          },
+          "payload": {
+            "$ref": "#/components/schemas/OrderModifiedPayload"
+          }
+        },
+        "description": "Order Modified Event",
+        "examples": [
+          {
+            "eventId": "ae94cf69-6863-4c26-ad34-99347a9a4c8a",
+            "eventType": "CollectionReceived",
+            "eventVersion": "1.0",
+            "occurredOn": "2024-10-07T20:59:16.925110827Z",
+            "payload": {
+              "billingCustomerCode": "ABC123",
+              "comments": "Please delivery ASAP",
+              "createDate": "2024-10-03T15:44:42.328889299Z",
+              "createEmployeeCode": "4c973896-5761-41fc-8217-07c5d13a004b",
+              "desiredShippingDate": "2024-10-02",
+              "externalId": "ABC56865",
+              "locationCode": "123456789",
+              "modifyDate": "2024-10-03T15:44:42.328889299Z",
+              "modifyEmployeeId": "4c973896-5761-41fc-8217-07c5d13a004b",
+              "modifyReason": "Customer Request",
+              "orderItems": [
+                {
+                  "bloodType": "AB",
+                  "comments": "Please send short dated",
+                  "productFamily": "WHOLE_BLOOD",
+                  "quantity": 10,
+                  "quantityRemaining": 10,
+                  "quantityShipped": 10
+                }
+              ],
+              "orderNumber": 153,
+              "orderStatus": "OPEN",
+              "priority": "ASAP",
+              "productCategory": "FROZEN",
+              "shipmentType": "CUSTOMER",
+              "shippingCustomerCode": "ABC123",
+              "shippingMethod": "FEDEX",
+              "totalProducts": 10,
+              "totalRemaining": 10,
+              "totalShipped": 10,
+              "willPickUp": false,
+              "willPickUpPhoneNumber": "12333333"
+            }
+          }
+        ],
+        "required": [
+          "eventId",
+          "eventType",
+          "eventVersion",
+          "occurredOn",
+          "payload"
+        ]
+      },
+      "OrderModifiedPayload": {
+        "title": "OrderModifiedPayload",
+        "type": "object",
+        "properties": {
+          "billingCustomerCode": {
+            "title": "Billing Customer Code",
+            "type": "string",
+            "description": "The billing customer code",
+            "examples": [
+              "ABC123"
+            ]
+          },
+          "comments": {
+            "title": "Comments",
+            "type": "string",
+            "description": "The comments",
+            "examples": [
+              "Please delivery ASAP"
+            ]
+          },
+          "createDate": {
+            "title": "Create date",
+            "type": "string",
+            "description": "The date order was created",
+            "format": "date-time",
+            "examples": [
+              "2024-10-03T15:44:42.328889299Z"
+            ]
+          },
+          "createEmployeeCode": {
+            "title": "Create Employee Code",
+            "type": "string",
+            "description": "The employee ID that created the order",
+            "examples": [
+              "4c973896-5761-41fc-8217-07c5d13a004b"
+            ]
+          },
+          "desiredShippingDate": {
+            "title": "Desire Shipping Date",
+            "type": "string",
+            "description": "The desire shipping date",
+            "format": "date",
+            "examples": [
+              "2024-10-03T00:00:00.000+00:00"
+            ]
+          },
+          "externalId": {
+            "title": "External Order ID",
+            "type": "string",
+            "description": "The external order ID",
+            "examples": [
+              "ABC56865"
+            ]
+          },
+          "locationCode": {
+            "title": "Location Code",
+            "type": "string",
+            "description": "The location code",
+            "examples": [
+              "123456789"
+            ]
+          },
+          "modifyDate": {
+            "title": "Modify Date",
+            "type": "string",
+            "description": "The date order was modified",
+            "format": "date-time",
+            "examples": [
+              "2024-10-03T15:44:42.328889299Z"
+            ]
+          },
+          "modifyEmployeeId": {
+            "title": "Modify Employee ID",
+            "type": "string",
+            "description": "The employee ID of the employee that modified the order",
+            "examples": [
+              "4c973896-5761-41fc-8217-07c5d13a004b"
+            ]
+          },
+          "modifyReason": {
+            "title": "Modify Reason",
+            "type": "string",
+            "description": "The reason of modifying the order",
+            "examples": [
+              "Customer Request"
+            ]
+          },
+          "orderItems": {
+            "title": "Order Items",
+            "type": "array",
+            "description": "The list of product criteria for the order",
+            "items": {
+              "$ref": "#/components/schemas/OrderItemCancelled"
+            }
+          },
+          "orderNumber": {
+            "title": "Order ID",
+            "type": "integer",
+            "description": "The order ID",
+            "format": "int64",
+            "examples": [
+              153
+            ]
+          },
+          "orderStatus": {
+            "title": "Order Status",
+            "type": "string",
+            "description": "The order status",
+            "examples": [
+              "OPEN"
+            ]
+          },
+          "priority": {
+            "title": "Priority",
+            "type": "string",
+            "description": "The order priority",
+            "examples": [
+              "ASAP"
+            ]
+          },
+          "productCategory": {
+            "title": "Product Category",
+            "type": "string",
+            "description": "The product category",
+            "examples": [
+              "FROZEN"
+            ]
+          },
+          "shipmentType": {
+            "title": "Shipment Type",
+            "type": "string",
+            "description": "The shipment type",
+            "examples": [
+              "CUSTOMER"
+            ]
+          },
+          "shippingCustomerCode": {
+            "title": "Shipping Customer Code",
+            "type": "string",
+            "description": "The shipping customer code",
+            "examples": [
+              "ABC123"
+            ]
+          },
+          "shippingMethod": {
+            "title": "Shipping Method",
+            "type": "string",
+            "description": "The shipping method",
+            "examples": [
+              "FEDEX"
+            ]
+          },
+          "totalProducts": {
+            "title": "Total Products",
+            "type": "integer",
+            "description": "The total of requested products",
+            "format": "int32",
+            "examples": [
+              10
+            ]
+          },
+          "totalRemaining": {
+            "title": "Total Remaining",
+            "type": "integer",
+            "description": "The total of remaining products",
+            "format": "int32",
+            "examples": [
+              10
+            ]
+          },
+          "totalShipped": {
+            "title": "Total Shipped",
+            "type": "integer",
+            "description": "The total of shipped products",
+            "format": "int32",
+            "examples": [
+              10
+            ]
+          },
+          "willPickUp": {
+            "title": "Will Pick UP",
+            "type": "boolean",
+            "description": "The will pick up",
+            "examples": [
+              false
+            ]
+          },
+          "willPickUpPhoneNumber": {
+            "title": "Will Pick UP Phone Number",
+            "type": "string",
+            "description": "The will pick up phone number",
+            "examples": [
+              "12333333"
+            ]
+          }
+        },
+        "description": "Order Modified Event Payload",
+        "examples": [
+          {
+            "billingCustomerCode": "ABC123",
+            "comments": "Please delivery ASAP",
+            "createDate": "2024-10-03T15:44:42.328889299Z",
+            "createEmployeeCode": "4c973896-5761-41fc-8217-07c5d13a004b",
+            "desiredShippingDate": "2024-10-02",
+            "externalId": "ABC56865",
+            "locationCode": "123456789",
+            "modifyDate": "2024-10-03T15:44:42.328889299Z",
+            "modifyEmployeeId": "4c973896-5761-41fc-8217-07c5d13a004b",
+            "modifyReason": "Customer Request",
+            "orderItems": [
+              {
+                "bloodType": "AB",
+                "comments": "Please send short dated",
+                "productFamily": "WHOLE_BLOOD",
+                "quantity": 10,
+                "quantityRemaining": 10,
+                "quantityShipped": 10
+              }
+            ],
+            "orderNumber": 153,
+            "orderStatus": "OPEN",
+            "priority": "ASAP",
+            "productCategory": "FROZEN",
+            "shipmentType": "CUSTOMER",
+            "shippingCustomerCode": "ABC123",
+            "shippingMethod": "FEDEX",
+            "totalProducts": 10,
+            "totalRemaining": 10,
+            "totalShipped": 10,
+            "willPickUp": false,
+            "willPickUpPhoneNumber": "12333333"
+          }
+        ],
+        "required": [
+          "billingCustomerCode",
+          "createDate",
+          "createEmployeeCode",
+          "externalId",
+          "locationCode",
+          "modifyDate",
+          "modifyEmployeeId",
+          "modifyReason",
+          "orderItems",
+          "orderNumber",
+          "orderStatus",
+          "priority",
+          "productCategory",
+          "shipmentType",
+          "shippingCustomerCode",
+          "shippingMethod",
+          "willPickUp"
+        ]
+      },
       "OrderRejected": {
         "title": "OrderRejected",
         "type": "object",
@@ -653,6 +1129,7 @@
             "occurredOn": "2024-10-07T20:59:16.925110827Z",
             "payload": {
               "externalId": "ABC56865",
+              "operation": "CREATE_ORDER",
               "rejectedReason": "Order already exists"
             }
           }
@@ -677,6 +1154,14 @@
               "ABC56865"
             ]
           },
+          "operation": {
+            "title": "Operation",
+            "type": "string",
+            "description": "The operation",
+            "examples": [
+              "CREATE_ORDER"
+            ]
+          },
           "rejectedReason": {
             "title": "Rejected Reason",
             "type": "string",
@@ -690,50 +1175,14 @@
         "examples": [
           {
             "externalId": "ABC56865",
+            "operation": "CREATE_ORDER",
             "rejectedReason": "Order already exists"
           }
         ],
         "required": [
           "externalId",
+          "operation",
           "rejectedReason"
-        ]
-      },
-      "com.arcone.biopro.distribution.order.application.dto.CancelOrderReceivedDTO": {
-        "title": "CancelOrderReceivedDTO",
-        "type": "object",
-        "properties": {
-          "eventId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "eventType": {
-            "type": "string"
-          },
-          "eventVersion": {
-            "type": "string"
-          },
-          "occurredOn": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "payload": {
-            "$ref": "#/components/schemas/com.arcone.biopro.distribution.order.application.dto.CancelOrderReceivedPayloadDTO"
-          }
-        },
-        "examples": [
-          {
-            "eventId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-            "eventType": "string",
-            "eventVersion": "string",
-            "occurredOn": "2015-07-20T15:49:04-07:00",
-            "payload": {
-              "cancelDate": "string",
-              "cancelEmployeeCode": "string",
-              "cancelReason": "string",
-              "externalId": "string",
-              "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
-            }
-          }
         ]
       },
       "com.arcone.biopro.distribution.order.application.dto.CancelOrderReceivedPayloadDTO": {
@@ -764,6 +1213,78 @@
             "cancelReason": "string",
             "externalId": "string",
             "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.order.application.dto.ModifyOrderReceivedPayloadDTO": {
+        "title": "ModifyOrderReceivedPayloadDTO",
+        "type": "object",
+        "properties": {
+          "comments": {
+            "type": "string"
+          },
+          "deliveryType": {
+            "type": "string"
+          },
+          "desiredShippingDate": {
+            "type": "string"
+          },
+          "externalId": {
+            "type": "string"
+          },
+          "locationCode": {
+            "type": "string"
+          },
+          "modifyDate": {
+            "type": "string"
+          },
+          "modifyEmployeeCode": {
+            "type": "string"
+          },
+          "modifyReason": {
+            "type": "string"
+          },
+          "orderItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/com.arcone.biopro.distribution.order.application.dto.OrderItemEventDTO"
+            }
+          },
+          "productCategory": {
+            "type": "string"
+          },
+          "shippingMethod": {
+            "type": "string"
+          },
+          "willPickUp": {
+            "type": "boolean"
+          },
+          "willPickUpPhoneNumber": {
+            "type": "string"
+          }
+        },
+        "examples": [
+          {
+            "comments": "string",
+            "deliveryType": "string",
+            "desiredShippingDate": "string",
+            "externalId": "string",
+            "locationCode": "string",
+            "modifyDate": "string",
+            "modifyEmployeeCode": "string",
+            "modifyReason": "string",
+            "orderItems": [
+              {
+                "bloodType": "string",
+                "comments": "string",
+                "productFamily": "string",
+                "quantity": 0
+              }
+            ],
+            "productCategory": "string",
+            "shippingMethod": "string",
+            "willPickUp": true,
+            "willPickUpPhoneNumber": "string"
           }
         ]
       },
@@ -1856,6 +2377,42 @@
       }
     },
     "messages": {
+      "CancelOrderReceived": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/CancelOrderReceived"
+          }
+        },
+        "name": "CancelOrderReceived",
+        "title": "CancelOrderReceived",
+        "bindings": {
+          "kafka": {
+            "bindingVersion": "0.5.0"
+          }
+        }
+      },
+      "ModifyOrderReceived": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/ModifyOrderReceived"
+          }
+        },
+        "name": "ModifyOrderReceived",
+        "title": "ModifyOrderReceived",
+        "bindings": {
+          "kafka": {
+            "bindingVersion": "0.5.0"
+          }
+        }
+      },
       "OrderCancelled": {
         "headers": {
           "$ref": "#/components/schemas/Headers-842767543"
@@ -1875,6 +2432,25 @@
           }
         }
       },
+      "OrderModified": {
+        "headers": {
+          "$ref": "#/components/schemas/Headers-1562918469"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/OrderModified"
+          }
+        },
+        "name": "OrderModified",
+        "title": "OrderModified",
+        "description": "Order Modified Event Payload",
+        "bindings": {
+          "kafka": {
+            "bindingVersion": "0.5.0"
+          }
+        }
+      },
       "OrderRejected": {
         "headers": {
           "$ref": "#/components/schemas/Headers-1611396750"
@@ -1888,24 +2464,6 @@
         "name": "OrderRejected",
         "title": "OrderRejected",
         "description": "Order Rejected Event",
-        "bindings": {
-          "kafka": {
-            "bindingVersion": "0.5.0"
-          }
-        }
-      },
-      "com.arcone.biopro.distribution.order.application.dto.CancelOrderReceivedDTO": {
-        "headers": {
-          "$ref": "#/components/schemas/HeadersNotDocumented"
-        },
-        "payload": {
-          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
-          "schema": {
-            "$ref": "#/components/schemas/com.arcone.biopro.distribution.order.application.dto.CancelOrderReceivedDTO"
-          }
-        },
-        "name": "com.arcone.biopro.distribution.order.application.dto.CancelOrderReceivedDTO",
-        "title": "CancelOrderReceivedDTO",
         "bindings": {
           "kafka": {
             "bindingVersion": "0.5.0"
@@ -2040,7 +2598,25 @@
       },
       "messages": [
         {
-          "$ref": "#/channels/CancelOrderReceived/messages/com.arcone.biopro.distribution.order.application.dto.CancelOrderReceivedDTO"
+          "$ref": "#/channels/CancelOrderReceived/messages/CancelOrderReceived"
+        }
+      ]
+    },
+    "ModifyOrderReceived_receive_handleMessage": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/ModifyOrderReceived"
+      },
+      "title": "ModifyOrderReceived_receive",
+      "description": "Partner Modify Order received Events",
+      "bindings": {
+        "kafka": {
+          "bindingVersion": "0.5.0"
+        }
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/ModifyOrderReceived/messages/ModifyOrderReceived"
         }
       ]
     },
@@ -2113,6 +2689,24 @@
       "messages": [
         {
           "$ref": "#/channels/OrderFulfilled/messages/com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledEventDTO"
+        }
+      ]
+    },
+    "OrderModified_send_handleOrderModifiedEvent": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/OrderModified"
+      },
+      "title": "OrderModified_send",
+      "description": "Order Modified Event",
+      "bindings": {
+        "kafka": {
+          "bindingVersion": "0.5.0"
+        }
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/OrderModified/messages/OrderModified"
         }
       ]
     },

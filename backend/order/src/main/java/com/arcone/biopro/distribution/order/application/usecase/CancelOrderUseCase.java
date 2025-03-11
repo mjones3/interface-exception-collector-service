@@ -3,8 +3,6 @@ package com.arcone.biopro.distribution.order.application.usecase;
 import com.arcone.biopro.distribution.order.application.dto.CancelOrderReceivedDTO;
 import com.arcone.biopro.distribution.order.application.exception.DomainNotFoundForKeyException;
 import com.arcone.biopro.distribution.order.domain.event.OrderCancelledEvent;
-import com.arcone.biopro.distribution.order.domain.event.OrderRejectedEvent;
-import com.arcone.biopro.distribution.order.domain.exception.DomainException;
 import com.arcone.biopro.distribution.order.domain.model.CancelOrderCommand;
 import com.arcone.biopro.distribution.order.domain.model.Order;
 import com.arcone.biopro.distribution.order.domain.repository.OrderRepository;
@@ -18,10 +16,11 @@ import reactor.core.publisher.Mono;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class CancelOrderUseCase implements CancelOrderService {
+public class CancelOrderUseCase extends AbstractProcessOrderUseCase implements CancelOrderService {
 
     private final OrderRepository orderRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final static String USE_CASE_OPERATION = "CANCEL_ORDER";
 
     @Override
     public Mono<Void> processCancelOrderReceivedEvent(CancelOrderReceivedDTO cancelOrderReceivedDTO) {
@@ -34,29 +33,21 @@ public class CancelOrderUseCase implements CancelOrderService {
                     , cancelOrderReceivedDTO.payload().cancelReason(), cancelOrderReceivedDTO.payload().cancelDate());
                 var orderCancelled = orderList.getFirst().cancel(cancelCommand,orderList);
                 return this.orderRepository.update(orderCancelled)
-                    .doOnSuccess(this::publishOrderCancelledEvent);
+                    .doOnSuccess(this::publishOrderProcessedEvent);
             })
             .then()
             .onErrorResume(error -> {
                 log.error("Not able to process order cancel event {}",error.getMessage());
-                publishOrderRejectedEvent(cancelOrderReceivedDTO.payload().externalId(), error);
+                publishOrderRejectedEvent(applicationEventPublisher,cancelOrderReceivedDTO.payload().externalId(), error,USE_CASE_OPERATION);
                     return Mono.empty();
                 }
             );
     }
 
-    private void publishOrderRejectedEvent(String externalId, Throwable error) {
-        log.debug("Publishing OrderRejected {} , ID {}", externalId, error.getMessage());
-        var errorMessage = "";
-        if(error instanceof DomainException){
-            errorMessage = ((DomainException) error).getUseCaseMessageType().getMessage();
-        }else{
-            errorMessage = error.getMessage();
-        }
-        applicationEventPublisher.publishEvent(new OrderRejectedEvent(externalId, errorMessage));
-    }
 
-    private void publishOrderCancelledEvent(Order order) {
+
+    @Override
+    void publishOrderProcessedEvent(Order order) {
         log.debug("Publishing OrderCancelledEvent {} ", order );
         applicationEventPublisher.publishEvent(new OrderCancelledEvent(order));
     }

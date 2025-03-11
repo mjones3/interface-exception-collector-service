@@ -26,7 +26,14 @@ public record OrderRejectedDTO(
         example = "Order already exists",
         requiredMode = Schema.RequiredMode.REQUIRED
     )
-    String rejectedReason
+    String rejectedReason,
+    @Schema(
+        title = "Operation",
+        description = "The operation",
+        example = "CREATE_ORDER",
+        requiredMode = Schema.RequiredMode.REQUIRED
+    )
+    String operation
 ) implements Serializable {
 
 }

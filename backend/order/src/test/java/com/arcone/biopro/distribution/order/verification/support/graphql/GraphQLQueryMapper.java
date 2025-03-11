@@ -31,51 +31,127 @@ public class GraphQLQueryMapper {
 
     public static String listOrdersByLocation(String locationCode) {
         return String.format("""
-            query  {
-              searchOrders(orderQueryCommandDTO:{
-                locationCode:"%s"
-              }) {
-                orderId
-                orderNumber
-                externalId
-                orderStatus
-                createDate
-                desireShipDate
-                orderPriorityReport {
-                  priority
-                  priorityColor
+            query {
+                searchOrders(
+                    orderQueryCommandDTO: {
+                        locationCode:"%s"
+                    }
+                ) {
+                    content
+                    pageNumber
+                    pageSize
+                    totalRecords
+                    hasPrevious
+                    hasNext
+                    isFirst
+                    isLast
+                    totalPages
+                    querySort {
+                        orderByList {
+                            property
+                            direction
+                        }
+                    }
                 }
-                orderCustomerReport {
-                  code
-                  name
-                }
-              }
             }
             """, locationCode);
     }
 
+    public static String listOrdersByPage(String locationCode , Integer page) {
+        var pageNumber = page != null ? page : 0;
+        return String.format("""
+            query {
+                searchOrders(
+                    orderQueryCommandDTO: {
+                        locationCode:"%s",
+                        pageNumber:%s,
+                        pageSize:20
+                    }
+                ) {
+                    content
+                    pageNumber
+                    pageSize
+                    totalRecords
+                    hasPrevious
+                    hasNext
+                    isFirst
+                    isLast
+                    totalPages
+                    querySort {
+                        orderByList {
+                            property
+                            direction
+                        }
+                    }
+                }
+            }
+            """, locationCode , pageNumber);
+    }
+
+    public static String sortOrdersByPage(String locationCode , Integer page , String sortingColumn , String sortingOrder) {
+        var pageNumber = page != null ? page : 0;
+        var sortOrder = sortingOrder != null ? sortingOrder : "ASC";
+        return String.format("""
+            query {
+                searchOrders(
+                    orderQueryCommandDTO: {
+                        locationCode:"%s",
+                        pageNumber:%s,
+                        querySort:{
+                           orderByList:[
+                            {
+                                property:"%s",
+                                direction:"%s"
+                            }
+                            ]
+                        }
+                    }
+                ) {
+                    content
+                    pageNumber
+                    pageSize
+                    totalRecords
+                    hasPrevious
+                    hasNext
+                    isFirst
+                    isLast
+                    totalPages
+                    querySort {
+                        orderByList {
+                            property
+                            direction
+                        }
+                    }
+                }
+            }
+            """, locationCode , pageNumber, sortingColumn , sortOrder);
+    }
+
     public static String listOrdersByUniqueIdentifier(String locationCode, String externalId) {
         return String.format("""
-            query  {
-              searchOrders(orderQueryCommandDTO:{
-                locationCode:"%s",
-                orderUniqueIdentifier:"%s"
-              }) {
-                orderId
-                orderNumber
-                externalId
-                orderStatus
-                createDate
-                desireShipDate
-                orderPriorityReport {
-                  priority
-                  priorityColor
+            query {
+                searchOrders(
+                    orderQueryCommandDTO: {
+                        locationCode:"%s",
+                        orderUniqueIdentifier:"%s"
+                    }
+                ) {
+                    content
+                    pageNumber
+                    pageSize
+                    totalRecords
+                    hasPrevious
+                    hasNext
+                    isFirst
+                    isLast
+                    totalPages
+                    querySort {
+                        orderByList {
+                            property
+                            direction
+                        }
+                    }
                 }
-                orderCustomerReport {
-                  code
-                  name
-                }
-              }
             }
             """, locationCode, externalId);
     }
@@ -121,8 +197,12 @@ public class GraphQLQueryMapper {
                            completeComments
                            backOrderCreationActive
                            cancelEmployeeId
-                               cancelDate
-                               cancelReason
+                           cancelDate
+                           cancelReason
+                           modifyEmployeeId
+                           modifyReason
+                           modifyByProcess
+                           displayModificationDetails
                        }
                        notifications{
                            notificationType

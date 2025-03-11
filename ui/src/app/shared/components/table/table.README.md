@@ -1,4 +1,4 @@
-# Table Common Component
+# Table Component
 
 The Table component provides a data-table using Angular Material table that can be used to display rows of data.
 
@@ -6,54 +6,66 @@ The Table component provides a data-table using Angular Material table that can 
 
 ### Inputs
 
-`@Input() columns: ColumnConfig[]` Contains an array of column configuration to be displayed, where `columnId` is the object property in the data source and `columnHeader` is the header title of the column.
+`dataSource: input.required<T[]>()` Contains an array of the data to be displayed in the table.
 
-`@Input() dataSource: any[]` Contains an array of the data to be displayed in the table.
+`@Input() configuration: TableConfiguration` Contains an object with the configurations needed for display the table.
 
-`@Input() serverPagination: boolean` Set to `true` if pagination will happen at server side. Default value `false`.
-
-`@Input() totalElements: number` Contains the total amount of elements to be displayed in the table when `serverPagination` is `true`.
-
-`@Input() tableConfiguration: TableConfiguration` Contains an object with the configurations needed for display the table.
-
--   `showDeleteBtn?: boolean` If set to `true` will display Delete Btn.
--   `showViewBtn?: boolean` If set to `true` will display View Btn.
--   `pageSize?: number[]` Array of number of rows that user can select to view per page using the pagination.
+-   `title?: string` Text to be displayed at the top of the table.
+-   `menus?: TableMenu[]` List of options to be displayed as a floating panel.
 -   `showPagination?: boolean` If set to `true` will display Pagination.
--   `showSorting?: boolean` If set to `true` will display Column Sorting.
--   `expandableRows?: boolean` If set to `true` will display expandable row when content passed as `ng-template`.
--   `expandableKey?: string` Contains the object key in the data source that tells if the specific row has expandable content or not. Used when `expandableRows` is `true`. If the evaluation of this key in the data source is `false` the expandable btn will not be displayed for the row.
+-   `pageSize?: number` Number of items to display on a page.
+-   `showExpandAll?: boolean` If set to `true` will display Column Expand All.
+-   `expandableKey?: string` Contains the object key in the data source that tells if the specific row has expandable content or not. Used when `expandableRows` is `true`.
+-   `selectable?: boolean` If set to `true` will display Column Select (Checkbox).
+-   `columns: TableColumn[]` Contains an array of columns to be displayed.
+    -   `id: string` Object property in the data source.
+    -   `header?: string` Title of the column.
+    -   `sort?: boolean` If set to `true` that column will be sortable.
+    -   `headerTempRef?: TemplateRef<Element>` Contains the template to be displayed in the column header.
+    -   `columnTempRef?: TemplateRef<Element>` Contains the template to be displayed in the column value.
+-   `showSorting?: boolean` If set to `true` will Column Sorting.
 
-`@Input() templateRef: TemplateRef<any>` Contains the template to be displayed in the expandable row section when `expandableRows` is `true`.
+`@Input({ required: true, transform: booleanAttribute }) serverPagination: boolean` Set to `true` if pagination will happen at server side. Default value `false`.
+
+`@Input({ required: true, transform: numberAttribute }) totalElements: number` Contains the total amount of elements to be displayed in the table when `serverPagination` is `true`.
+
+`@Input() expandTemplateRef: TemplateRef<any>` Contains the template to be displayed in the expandable row section when `expandableRows` is `true`.
+
+`@Input() footerTemplateRef: TemplateRef<any>` Contains the template to be displayed in the footer section.
 
 ### Outputs
 
-`@Output() elementDeleted` Emits the element to be deleted when user clicks on Delete Btn.
+`@Output() paginate` Emits the pagination information when the user navigates between pages.
 
-`@Output() elementView` Emits the element to be inspected when user clicks on View Btn.
+`@Output() sort` Emits the sort information when the user changes the column sort.
 
-`@Output() pagination` Emits the pagination information when the user navigates between pages.
-
-`@Output() sorted` Emits the sorting information when the user sorts a column.
+`@Output() expandingOneOrMoreRows` Emits the expanded rows when the user expands one or more rows to execute lazy loading for the expandable content.
 
 ## Example of Use
 
-Example using server side pagination.
+Examples
 
 ```
-<rsa-table [columns]="columns"
-           [tableConfiguration]="tableConfiguration"
-           [dataSource]="quarantinesDataSource"
-           [serverPagination]="true"
-           [totalElements]="quarantinesTotal"
-           [templateRef]="columnTemplateRef"
-           (elementDeleted)="delete($event)"
-           (pagination)="loadQuarantineInventoryInfo($event)">
+<biopro-table
+    [dataSource]="dataSource"
+    [configuration]="tableConfig"
+    [totalElements]="totalElements"
+    [expandTemplateRef]="expandTemplateRef"
+    [serverPagination]="false"
+></biopro-table>
+<ng-template #expandTemplateRef let-element="element">
+    <div class="p-4">
+        <p><strong>Comment: </strong>{{ element.comment }}</p>
+    </div>
+</ng-template>
 
-        <ng-template #columnTemplateRef let-element='element'>
-          <div class="p-4">
-            <p><strong>Comment: </strong>{{element.comment}} {{element.product}}</p>
-          </div>
-        </ng-template>
-</rsa-table>
+<biopro-table
+    [dataSource]="dataSource"
+    [configuration]="tableConfig"
+    [totalElements]="totalElements"
+    [serverPagination]="true"
+    (paginate)="onPaginate($event)"
+    (sort)="onSort($event)"
+    (expandingOneOrMoreRows)="onExpandingOneOrMoreRows($event)"
+></biopro-table>
 ```

@@ -36,6 +36,9 @@ public class SharedContext {
     private String unitNumber;
     private String productCode;
 
+    // ExternalTransfer Data
+    private Long externalTransferId;
+
     // Packing data
     @Builder.Default
     private Integer totalPacked = 0;

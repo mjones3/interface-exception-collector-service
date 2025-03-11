@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { PageEvent } from '@angular/material/paginator';
 import { Sort } from '@angular/material/sort';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { createTestContext } from '@testing';
 import { TableDataSource } from 'app/shared/models';
 import { TableComponent } from './table.component';
@@ -16,7 +17,7 @@ describe('TableComponent', () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [TableComponent],
+            imports: [NoopAnimationsModule, TableComponent],
         }).compileComponents();
     });
 
@@ -25,14 +26,15 @@ describe('TableComponent', () => {
             createTestContext<TableComponent<DataSource>>(TableComponent);
         fixture = testContext.fixture;
         component = testContext.component;
-        component.configuration = {
+        fixture.componentRef.setInput('tableId', 'table');
+        fixture.componentRef.setInput('configuration', {
             columns: [
                 {
                     id: 'name',
                     header: 'Name',
                 },
             ],
-        };
+        });
         fixture.componentRef.setInput('dataSource', [
             {
                 name: 'Carlos',
@@ -74,32 +76,38 @@ describe('TableComponent', () => {
     });
 
     it('should append expand column', () => {
-        component.configuration.expandableKey = 'expandableKey';
-        component.setColumnIds();
-
-        expect(component.columnsId).toHaveLength(2);
-        expect(component.columnsId.includes('expand')).toBeTruthy();
+        fixture.componentRef.setInput('configuration', {
+            ...component.configuration(),
+            expandableKey: 'expandableKey',
+        });
+        expect(component.columnsId()).toHaveLength(2);
+        expect(component.columnsId().includes('expand')).toBeTruthy();
     });
 
     it('should append select column', () => {
-        component.configuration.selectable = true;
-        component.setColumnIds();
-
-        expect(component.columnsId).toHaveLength(2);
-        expect(component.columnsId.includes('select')).toBeTruthy();
+        fixture.componentRef.setInput('configuration', {
+            ...component.configuration(),
+            selectable: true,
+        });
+        expect(component.columnsId()).toHaveLength(2);
+        expect(component.columnsId().includes('select')).toBeTruthy();
     });
 
     it('should show expand all option', () => {
-        component.configuration.showExpandAll = true;
-        component.configuration.expandableKey = 'detail';
-
+        fixture.componentRef.setInput('configuration', {
+            ...component.configuration(),
+            showExpandAll: true,
+            expandableKey: 'detail',
+        });
         expect(component.showExpandAll()).toBeTruthy();
     });
 
     it('should expand all rows', () => {
         jest.spyOn(component.expandingOneOrMoreRows, 'emit');
-
-        component.configuration.expandableKey = 'detail';
+        fixture.componentRef.setInput('configuration', {
+            ...component.configuration(),
+            expandableKey: 'detail',
+        });
         component.expandCollapseAllRows();
 
         expect(component.expandedAll).toBeTruthy();
@@ -110,8 +118,11 @@ describe('TableComponent', () => {
     });
 
     it('should expand a single row when there is an option to expand all', () => {
-        component.configuration.showExpandAll = true;
-        component.configuration.expandableKey = 'detail';
+        fixture.componentRef.setInput('configuration', {
+            ...component.configuration(),
+            showExpandAll: true,
+            expandableKey: 'detail',
+        });
         component.expandCollapseRow(component.dataSource()[0]);
 
         expect(component.dataSource()[0].expanded).toBeTruthy();
@@ -119,7 +130,10 @@ describe('TableComponent', () => {
     });
 
     it('should expand a single row when there is not an option to expand all', () => {
-        component.configuration.expandableKey = 'detail';
+        fixture.componentRef.setInput('configuration', {
+            ...component.configuration(),
+            expandableKey: 'detail',
+        });
         component.expandCollapseRow(component.dataSource()[0]);
 
         expect(component.expandedElement).toEqual(component.dataSource()[0]);

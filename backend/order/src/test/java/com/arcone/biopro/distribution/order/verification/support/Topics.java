@@ -8,4 +8,6 @@ public interface Topics {
     String SHIPMENT_COMPLETED = "ShipmentCompleted";
     String CANCEL_ORDER_RECEIVED = "CancelOrderReceived";
     String ORDER_CANCELLED = "OrderCancelled";
+    String MODIFY_ORDER_RECEIVED = "ModifyOrderReceived";
+
 }

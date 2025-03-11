@@ -1,3 +1,5 @@
+import { QuerySortDTO } from 'app/shared/models/query-order.model';
+
 export interface OrderCustomerReportDTO {
     code: string;
     name: string;
@@ -30,26 +32,17 @@ export interface PageableDTO {
     pageSize: number;
 }
 
-// Generic
-export interface QueryOrderByDTO {
-    property: string;
-    direction: string;
-}
-
-export interface QuerySortDTO {
-    orderByList: QueryOrderByDTO[];
-}
-
 export interface OrderQueryCommandDTO {
     locationCode: string;
     orderUniqueIdentifier?: string;
     orderStatus?: string[];
     deliveryTypes?: string[];
     customers?: string[];
-    querySort?: QuerySortDTO;
-    limit?: number;
     createDateFrom?: string;
     createDateTo?: string;
     desireShipDateFrom?: string;
     desireShipDateTo?: string;
+    querySort?: QuerySortDTO;
+    pageSize?: number;
+    pageNumber?: number;
 }

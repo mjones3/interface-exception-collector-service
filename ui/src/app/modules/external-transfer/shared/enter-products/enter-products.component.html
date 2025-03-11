@@ -6,7 +6,7 @@
                 appearance="outline"
                 hideRequiredMarker
             >
-                <mat-label class="font-bold">Unit Number</mat-label>
+                <mat-label>Unit Number</mat-label>
                 <input
                     id="unitNumberId"
                     #inputUnitNumber
@@ -21,8 +21,14 @@
                     <mat-error>Unit Number is Required</mat-error>
                 }
 
-                @if (productGroup.get('unitNumber').hasError('pattern')) {
+                @if (
+                    productGroup.get('unitNumber').hasError('pattern') &&
+                    !productGroup.get('unitNumber').hasError('scannedValue')
+                ) {
                     <mat-error>Unit Number is Invalid</mat-error>
+                }
+                @if (productGroup.get('unitNumber').hasError('scannedValue')) {
+                    <mat-error>Scanned Unit Number is not allowed</mat-error>
                 }
             </mat-form-field>
         </div>
@@ -33,7 +39,7 @@
                 appearance="outline"
                 hideRequiredMarker
             >
-                <mat-label class="font-bold">Product Code</mat-label>
+                <mat-label>Product Code</mat-label>
                 <input
                     id="productCodeId"
                     #inputProductCode
@@ -47,8 +53,14 @@
                 @if (productGroup.get('productCode').hasError('required')) {
                     <mat-error>Product Code is Required</mat-error>
                 }
-                @if (productGroup.get('productCode').hasError('pattern')) {
+                @if (
+                    productGroup.get('productCode').hasError('pattern') &&
+                    !productGroup.get('productCode').hasError('scannedValue')
+                ) {
                     <mat-error>Product Code is Invalid</mat-error>
+                }
+                @if (productGroup.get('productCode').hasError('scannedValue')) {
+                    <mat-error>Scanned Product Code is not allowed</mat-error>
                 }
             </mat-form-field>
         </div>

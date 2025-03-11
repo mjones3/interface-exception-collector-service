@@ -1,10 +1,13 @@
 package com.arcone.biopro.distribution.order.verification.support;
 
+import com.arcone.biopro.distribution.order.adapter.in.web.dto.PageDTO;
+import com.fasterxml.jackson.databind.JsonNode;
 import io.cucumber.spring.ScenarioScope;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -35,7 +38,11 @@ public class SharedContext {
     private Integer orderId;
     private String orderStatus;
     private Map orderDetails;
-    private List<Map> orderList;
+    private PageDTO<JsonNode> ordersPage;
+
+    // Kafka payloads
+    private JSONObject partnerCreateOrder;
+    private JSONObject partnerModifyOrder;
 
     // LK configurations
     private boolean backOrderConfig;

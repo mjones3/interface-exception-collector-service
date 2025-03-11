@@ -4,6 +4,7 @@ import com.arcone.biopro.distribution.inventory.application.dto.AddQuarantineInp
 import com.arcone.biopro.distribution.inventory.application.dto.InventoryOutput;
 import com.arcone.biopro.distribution.inventory.application.dto.Product;
 import com.arcone.biopro.distribution.inventory.application.mapper.InventoryOutputMapper;
+import com.arcone.biopro.distribution.inventory.domain.event.InventoryEventPublisher;
 import com.arcone.biopro.distribution.inventory.domain.exception.InventoryNotFoundException;
 import com.arcone.biopro.distribution.inventory.domain.model.Inventory;
 import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
@@ -32,6 +33,9 @@ class AddQuarantinedUseCaseTest {
 
     @Mock
     private InventoryAggregateRepository inventoryAggregateRepository;
+
+    @Mock
+    private InventoryEventPublisher inventoryEventPublisher;
 
     @Mock
     TextConfigService textConfigService;

@@ -2,11 +2,13 @@ package com.arcone.biopro.distribution.partnerorderprovider.adapter.in.web.contr
 
 import com.arcone.biopro.distribution.partnerorderprovider.adapter.in.web.controller.util.HeaderUtil;
 import com.arcone.biopro.distribution.partnerorderprovider.adapter.in.web.dto.CancelOrderInboundDTO;
+import com.arcone.biopro.distribution.partnerorderprovider.adapter.in.web.dto.ModifyOrderInboundDTO;
 import com.arcone.biopro.distribution.partnerorderprovider.adapter.in.web.dto.OrderInboundDTO;
 import com.arcone.biopro.distribution.partnerorderprovider.adapter.in.web.dto.OrderInboundResponseDTO;
 import com.arcone.biopro.distribution.partnerorderprovider.application.validation.JsonValidationFailedException;
 import com.arcone.biopro.distribution.partnerorderprovider.application.validation.ValidJson;
 import com.arcone.biopro.distribution.partnerorderprovider.domain.service.CancelOrderInboundService;
+import com.arcone.biopro.distribution.partnerorderprovider.domain.service.ModifyOrderInboundService;
 import com.arcone.biopro.distribution.partnerorderprovider.domain.service.OrderInboundService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -30,9 +32,11 @@ public class OrderInboundController {
 
     private final OrderInboundService orderInboundService;
     private final CancelOrderInboundService cancelOrderInboundService;
+    private final ModifyOrderInboundService modifyOrderInboundService;
 
     private static final String ORDER_INBOUND_DATA = "interface-schema/Order-Management-Inbound-1.0.0.json";
     private static final String CANCEL_ORDER_INBOUND_DATA = "interface-schema/Cancel-Order-Inbound-1.0.0.json";
+    private static final String MODIFY_ORDER_INBOUND_DATA = "interface-schema/Modify-Order-Inbound-1.0.0.json";
 
     public static final String ORDER_DATA_INBOUND_STATUS_CREATE = "CREATED";
     public static final String ORDER_DATA_INBOUND_STATUS_ACCEPTED = "ACCEPTED";
@@ -84,6 +88,35 @@ public class OrderInboundController {
         log.debug("REST request to cancel Order ID : {} {}" , externalId, cancelOrderInboundDTO);
         var result = cancelOrderInboundService.receiveCancelOrderInbound(cancelOrderInboundDTO);
         log.debug("Cancel Order Data Response: {}", result);
+
+        var resultDto = OrderInboundResponseDTO.builder()
+            .id(result.id().toString())
+            .status(result.status())
+            .timestamp(result.timestamp())
+            .build();
+
+        return resultDto.status().equals(ORDER_DATA_INBOUND_STATUS_ACCEPTED)
+            ? ResponseEntity.accepted()
+            .body(resultDto)
+            : ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(resultDto);
+    }
+
+    /**
+     * {@code PATCH  /v1/orders/{externalId}/update} : Modify an Order.
+     *
+     * @param modifyOrderInboundDTO  the Modify Order Data DTO.
+     * @return the {@link ResponseEntity} with status {@code 202 (Accepted)} and with body the ModifyOrderInboundDTO,
+     * or with status {@code 400 (Bad Request)} if there is any broken validation.
+     */
+    @Operation(summary = "Modify Order Data")
+    @PatchMapping("/v1/partner-order-provider/orders/{externalId}/update")
+    public ResponseEntity<OrderInboundResponseDTO> modifyOrderInbound(@PathVariable String externalId ,
+                                                                      @ValidJson(MODIFY_ORDER_INBOUND_DATA) ModifyOrderInboundDTO modifyOrderInboundDTO) {
+
+        log.debug("REST request to modify Order ID : {} {}" , externalId, modifyOrderInboundDTO);
+        modifyOrderInboundDTO.setExternalId(externalId);
+        var result = modifyOrderInboundService.receiveModifyOrderInbound(modifyOrderInboundDTO);
+        log.debug("Modify Order Data Response: {}", result);
 
         var resultDto = OrderInboundResponseDTO.builder()
             .id(result.id().toString())

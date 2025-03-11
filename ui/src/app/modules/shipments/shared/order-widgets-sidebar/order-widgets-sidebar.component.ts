@@ -45,6 +45,10 @@ export class OrderWidgetsSidebarComponent {
             cancelEmployeeId: string;
             cancelDate: string;
             cancelReason: string;
+            modifyEmployeeId: string;
+            modifyDate: string;
+            modifyReason: string;
+            displayModificationDetails: boolean;
         }>
     >();
 
@@ -129,7 +133,29 @@ export class OrderWidgetsSidebarComponent {
                       label: 'Canceled Date and Time',
                       value: this.datePipe.transform(
                           this.orderInput()?.cancelDate,
-                          'MM/dd/yyyy HH:mm'
+                          'MM/dd/yyyy HH:mm:ss'
+                      ),
+                  },
+              ]
+            : []),
+    ]);
+
+    protected orderModification = computed<Description[]>(() => [
+        ...(this.orderInput()?.modifyEmployeeId
+            ? [
+                  {
+                      label: 'Modified by',
+                      value: this.orderInput()?.modifyEmployeeId,
+                  },
+              ]
+            : []),
+        ...(this.orderInput()?.modifyDate
+            ? [
+                  {
+                      label: 'Modify Date and Time',
+                      value: this.datePipe.transform(
+                          this.orderInput()?.modifyDate,
+                          'MM/dd/yyyy HH:mm:ss'
                       ),
                   },
               ]
@@ -138,6 +164,9 @@ export class OrderWidgetsSidebarComponent {
 
     protected orderCancellationReason = computed<string>(() =>
         this.orderInput()?.cancelReason?.trim()
+    );
+    protected orderModificationReason = computed<string>(() =>
+        this.orderInput()?.modifyReason?.trim()
     );
 
     protected shipping = computed<Description[]>(() => [

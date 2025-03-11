@@ -3,8 +3,11 @@ package com.arcone.biopro.distribution.inventory.application.usecase;
 import com.arcone.biopro.distribution.inventory.application.dto.InventoryOutput;
 import com.arcone.biopro.distribution.inventory.application.dto.RemoveQuarantineInput;
 import com.arcone.biopro.distribution.inventory.application.mapper.InventoryOutputMapper;
+import com.arcone.biopro.distribution.inventory.domain.event.InventoryEventPublisher;
+import com.arcone.biopro.distribution.inventory.domain.event.InventoryUpdatedApplicationEvent;
 import com.arcone.biopro.distribution.inventory.domain.exception.InventoryNotFoundException;
 import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryUpdateType;
 import com.arcone.biopro.distribution.inventory.domain.repository.InventoryAggregateRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +23,7 @@ import reactor.core.publisher.Mono;
 public class RemoveQuarantinedUseCase implements UseCase<Mono<InventoryOutput>, RemoveQuarantineInput> {
 
     InventoryAggregateRepository inventoryAggregateRepository;
+    InventoryEventPublisher inventoryEventPublisher;
 
     InventoryOutputMapper mapper;
 
@@ -29,5 +33,6 @@ public class RemoveQuarantinedUseCase implements UseCase<Mono<InventoryOutput>, 
             .switchIfEmpty(Mono.error(InventoryNotFoundException::new))
             .flatMap(la -> inventoryAggregateRepository.saveInventory(la.removeQuarantine(removeQuarantineInput.quarantineId())))
             .map(InventoryAggregate::getInventory)
+            .doOnSuccess(inventory -> inventoryEventPublisher.publish(new InventoryUpdatedApplicationEvent(inventory, InventoryUpdateType.QUARANTINE_REMOVED)))
             .map(mapper::toOutput);    }
 }

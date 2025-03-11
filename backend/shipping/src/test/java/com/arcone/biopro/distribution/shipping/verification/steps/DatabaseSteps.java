@@ -92,11 +92,14 @@ public class DatabaseSteps {
     }
 
     @Given("I cleaned up from the database the external transfer information that used the customer code {string}.")
-    public void cleanExternalTransfer(String unitNumber) {
-        unitNumber = unitNumber.replace(",", "','");
+    public void cleanExternalTransfer(String customerCode) {
+        customerCode = customerCode.replace(",", "','");
 
-        var query = String.format("DELETE FROM bld_external_transfer WHERE customer_code_to in ('%s')", unitNumber);
+        var query = String.format("DELETE FROM bld_external_transfer_item WHERE  external_transfer_id in (select id from bld_external_transfer where customer_code_to in ('%s') )", customerCode);
         databaseService.executeSql(query).block();
+
+        var queryParent = String.format("DELETE FROM bld_external_transfer WHERE customer_code_to in ('%s')", customerCode);
+        databaseService.executeSql(queryParent).block();
 
     }
 }
