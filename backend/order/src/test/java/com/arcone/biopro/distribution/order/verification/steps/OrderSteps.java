@@ -1091,16 +1091,16 @@ public class OrderSteps {
             var shouldBeFound = row.get(headers.indexOf("Should be Found?"));
             var shouldBeUpdated = row.get(headers.indexOf("Should be Updated?"));
 
-            orderController.getOrderDetails(orderIdMap.get(externalId));
+            var orderDetails = orderController.getOrderDetailsMap(orderIdMap.get(externalId));
             if (shouldBeFound.equalsIgnoreCase("yes")) {
-                Assert.assertNotNull(context.getOrderDetails());
-                List<Map> orderItems = (List<Map>) context.getOrderDetails().get("orderItems");
+                Assert.assertNotNull(orderDetails);
+                List<Map> orderItems = (List<Map>) orderDetails.get("orderItems");
                 if (shouldBeUpdated.equalsIgnoreCase("yes")) {
                     // Validate order data
-                    Assert.assertEquals(context.getOrderDetails().get("locationCode"), locationCode);
-                    Assert.assertEquals(context.getOrderDetails().get("priority"), modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Delivery Type")));
-                    Assert.assertEquals(context.getOrderDetails().get("productCategory"), modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Product Category")));
-                    Assert.assertEquals(context.getOrderDetails().get("modifyReason"), modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Modify Reason")));
+                    Assert.assertEquals(orderDetails.get("locationCode"), locationCode);
+                    Assert.assertEquals(orderDetails.get("priority"), modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Delivery Type")));
+                    Assert.assertEquals(orderDetails.get("productCategory"), modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Product Category")));
+                    Assert.assertEquals(orderDetails.get("modifyReason"), modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Modify Reason")));
                     // Validate order items data
                     var productFamilyList = testUtils.getCommaSeparatedList(modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Product Family")));
                     var bloodTypeList = testUtils.getCommaSeparatedList(modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Blood Type")));
@@ -1112,9 +1112,9 @@ public class OrderSteps {
                     }
                 } else if (shouldBeUpdated.equalsIgnoreCase("no")) {
                     // Validate order data
-                    Assert.assertEquals(context.getOrderDetails().get("locationCode"), originalOrderTable.row(i).get(originalOrderTable.row(0).indexOf("Location Code")));
-                    Assert.assertEquals(context.getOrderDetails().get("priority"), originalOrderTable.row(i).get(originalOrderTable.row(0).indexOf("Delivery Type")));
-                    Assert.assertEquals(context.getOrderDetails().get("productCategory"), originalOrderTable.row(i).get(originalOrderTable.row(0).indexOf("Product Category")));
+                    Assert.assertEquals(orderDetails.get("locationCode"), originalOrderTable.row(i).get(originalOrderTable.row(0).indexOf("Location Code")));
+                    Assert.assertEquals(orderDetails.get("priority"), originalOrderTable.row(i).get(originalOrderTable.row(0).indexOf("Delivery Type")));
+                    Assert.assertEquals(orderDetails.get("productCategory"), originalOrderTable.row(i).get(originalOrderTable.row(0).indexOf("Product Category")));
                     // Validate order items data
                     var productFamilyList = testUtils.getCommaSeparatedList(originalOrderTable.row(i).get(originalOrderTable.row(0).indexOf("Product Family")));
                     var bloodTypeList = testUtils.getCommaSeparatedList(originalOrderTable.row(i).get(originalOrderTable.row(0).indexOf("Blood Type")));
@@ -1128,7 +1128,7 @@ public class OrderSteps {
                     Assert.fail("Invalid option for should be updated.");
                 }
             } else if (shouldBeFound.equalsIgnoreCase("no")) {
-                Assert.assertNull(context.getOrderDetails());
+                Assert.assertNull(orderDetails);
             } else {
                 Assert.fail("Invalid option for should be found.");
             }
