@@ -67,6 +67,8 @@ public class Inventory {
 
     private String storageLocation;
 
+    private String unsuitableReason;
+
     public void createHistory() {
         histories.add(new History(inventoryStatus, statusReason, comments));
     }
@@ -109,5 +111,9 @@ public class Inventory {
         createHistory();
         setStatusReason(statusReason);
         setInventoryStatus(newStatus);
+    }
+
+    public boolean isConverted() {
+        return InventoryStatus.CONVERTED.equals(inventoryStatus);
     }
 }

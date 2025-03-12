@@ -6,6 +6,8 @@ public interface BioProConstants {
     String EXPIRED = "EXPIRED";
     String TEXT_CONFIG_DELIMITER = "; ";
 
+    String UNIT_UNSUITABLE_TOPIC = "UnitUnsuitable";
+    String PRODUCT_UNSUITABLE_TOPIC = "ProductUnsuitable";
     String SHIPMENT_COMPLETED_TOPIC = "ShipmentCompleted";
     String LABEL_APPLIED_TOPIC = "LabelApplied";
     String CHECK_IN_COMPLETED_TOPIC = "CheckInCompleted";
@@ -13,5 +15,15 @@ public interface BioProConstants {
     String APHERESIS_PLASMA_PRODUCT_CREATED_TOPIC = "ApheresisPlasmaProductCreated";
     String WHOLEBLOOD_CREATED_TOPIC = "WholeBloodProductCreated";
     String PAYLOAD = "payload";
+    String UNIT_NUMBER = "unitNumber";
+    String PRODUCT_CODE = "productCode";
+    String UPDATE_TYPE = "updateType";
+    String PROPERTIES = "properties";
+    String LICENSURE = "LICENSURE";
+    String LABELED = "LABELED";
+    String LICENSED = "LICENSED";
+    String UNLICENSED = "UNLICENSED";
+    String INVENTORY_STATUS = "inventoryStatus";
+    String INPUT_PRODUCTS = "inputProducts";
 
 }

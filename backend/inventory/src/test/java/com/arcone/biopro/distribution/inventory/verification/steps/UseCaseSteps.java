@@ -2,6 +2,7 @@ package com.arcone.biopro.distribution.inventory.verification.steps;
 
 import com.arcone.biopro.distribution.inventory.application.dto.*;
 import com.arcone.biopro.distribution.inventory.application.usecase.*;
+import com.arcone.biopro.distribution.inventory.domain.event.InventoryEventPublisher;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ShipmentType;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.InputProduct;
@@ -17,6 +18,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -44,6 +46,10 @@ public class UseCaseSteps {
     private final CheckInCompletedUseCase checkInCompletedUseCase;
 
     private final ProductDiscardedUseCase productDiscardedUseCase;
+
+    private final ProductStoredUseCase productStoredUseCase;
+
+    private final UnsuitableUseCase unsuitableUseCase;
 
     private final ScenarioContext scenarioContext;
 
@@ -166,6 +172,67 @@ public class UseCaseSteps {
                 comments = RandomStringUtils.randomAlphabetic(Integer.parseInt(product.get("Comment Length")));
             }
             productDiscardedUseCase.execute(inventoryUtil.newProductDiscardedInput(unitNumber, productCode, reason, comments)).block();
+        }
+    }
+
+
+    @When("I received a Unit Unsuitable event with unit number {string} and reason {string}")
+    public void iReceivedAUnitUnsuitableEventWithUnitNumberAndReason(String unitNumber, String reason) {
+        unsuitableUseCase.execute(new UnsuitableInput(unitNumber, null, reason)).block();
+    }
+
+    @When("I received a Product Unsuitable event with unit number {string}, product code {string} and reason {string}")
+    public void iReceivedAProductUnsuitableEventWithUnitNumberProductCodeAndReason(String unitNumber, String productCode, String reason) {
+        unsuitableUseCase.execute(new UnsuitableInput(unitNumber, productCode, reason)).block();
+    }
+
+    @When("I received a Product Storage event for unit {string} and product {string} with device {string} and storageLocations {string} at location {string}")
+    public void iReceivedAProductStorageEventWithUnitProductDeviceStorageLocationAndLocation(String unitNumber, String productCode, String device, String storageLocations, String location) {
+        ProductStorageInput productInput = ProductStorageInput.builder()
+            .unitNumber(unitNumber)
+            .productCode(productCode)
+            .location(location)
+            .deviceStored(device)
+            .storageLocation(storageLocations)
+            .build();
+        productStoredUseCase.execute(productInput).block();
+    }
+
+    @When("I received a {string} event for the following products:")
+    public void iReceivedAEventForTheFollowingProducts(String eventType, DataTable dataTable) {
+        List<Map<String, String>> products = dataTable.asMaps(String.class, String.class);
+        for (Map<String, String> product : products) {
+            var unitNumber = product.get("Unit Number");
+            var productCode = product.get("Product Code");
+            var reason = product.get("Reason");
+            var reasonId = product.get("Reason Id");
+            var shipmentType = product.get("Shipment type");
+            var deviceStorage = product.get("Device Storage");
+            var storageLocation = product.get("Storage Location");
+            var location = product.get("Location");
+
+            switch (eventType) {
+                case "Label Applied":
+                    iReceivedALabelAppliedEventForTheFollowingProducts(dataTable);
+                    break;
+                case "Apply Quarantine":
+                    iReceiveApplyQuarantineWithReasonToTheUnitAndTheProduct(unitNumber, productCode, reason, reasonId);
+                    break;
+                case "Remove Quarantine":
+                    iReceiveApplyQuarantineWithReasonToTheUnitAndTheProduct(unitNumber, productCode, reason, reasonId);
+                    iReceivedARemoveQuarantineEventForUnitAndProductWithReason(unitNumber, productCode, reason, reasonId);
+                    break;
+                case "Shipment Completed":
+                    iReceivedAShipmentCompletedEventForTheFollowingUnits(shipmentType, dataTable);
+                    break;
+                case "Discard Created":
+                    iReceivedADiscardCreatedEventForTheFollowingProducts(dataTable);
+                    break;
+                case "Product Stored":
+                    iReceivedAProductStorageEventWithUnitProductDeviceStorageLocationAndLocation(unitNumber, productCode, deviceStorage, storageLocation, location);
+                default:
+                    break;
+            }
         }
     }
 }

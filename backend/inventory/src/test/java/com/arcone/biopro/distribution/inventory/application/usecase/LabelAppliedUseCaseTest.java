@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.inventory.application.usecase;
 import com.arcone.biopro.distribution.inventory.application.dto.InventoryInput;
 import com.arcone.biopro.distribution.inventory.application.dto.InventoryOutput;
 import com.arcone.biopro.distribution.inventory.application.mapper.InventoryOutputMapper;
+import com.arcone.biopro.distribution.inventory.domain.event.InventoryEventPublisher;
 import com.arcone.biopro.distribution.inventory.domain.exception.InventoryAlreadyExistsException;
 import com.arcone.biopro.distribution.inventory.domain.exception.InventoryNotFoundException;
 import com.arcone.biopro.distribution.inventory.domain.model.Inventory;
@@ -47,6 +48,9 @@ class LabelAppliedUseCaseTest {
 
     @InjectMocks
     private LabelAppliedUseCase labelAppliedUseCase;
+
+    @Mock
+    private InventoryEventPublisher inventoryEventPublisher;
 
     @Spy
     private InventoryOutputMapper mapper = Mappers.getMapper(InventoryOutputMapper.class);

@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.inventory.infrastructure.config;
 
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.EventMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.checkin.CheckInCompletedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.discarded.ProductDiscardedMessage;
@@ -8,9 +9,13 @@ import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.A
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.RemoveQuarantinedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.UpdateQuarantinedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.ProductRecoveredMessage;
+import com.arcone.biopro.distribution.inventory.adapter.output.producer.event.InventoryUpdatedEvent;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.unsuitable.UnsuitableMessage;
 import com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.springwolf.core.asyncapi.annotations.AsyncListener;
 import io.github.springwolf.core.asyncapi.annotations.AsyncOperation;
+import io.github.springwolf.core.asyncapi.annotations.AsyncPublisher;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.opentelemetry.instrumentation.kafkaclients.v2_6.TracingProducerInterceptor;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +29,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.core.reactive.ReactiveKafkaConsumerTemplate;
 import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
+import org.springframework.kafka.support.serializer.JsonSerializer;
 import reactor.kafka.receiver.ReceiverOptions;
 import reactor.kafka.sender.MicrometerProducerListener;
 import reactor.kafka.sender.SenderOptions;
@@ -35,6 +41,12 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 class KafkaConfiguration {
+
+    @Value("${topic.product-unsuitable.name}")
+    private String productUnsuitableTopic;
+
+    @Value("${topic.unit-unsuitable.name}")
+    private String unitUnsuitableTopic;
 
     @Value("${topic.check-in.completed.name}")
     private String checkInCompletedTopic;
@@ -71,6 +83,13 @@ class KafkaConfiguration {
 
     @Value("${topic.product-quarantined.name}")
     private String addQuarantinedTopic;
+
+    @Bean
+    @Qualifier("UNSUITABLE")
+    ReceiverOptions<String, String> unsuitableReceiverOptions(KafkaProperties kafkaProperties) {
+        return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
+            .subscription(List.of(productUnsuitableTopic, unitUnsuitableTopic));
+    }
 
     @Bean
     @Qualifier("CHECK_IN_COMPLETED")
@@ -119,6 +138,23 @@ class KafkaConfiguration {
     ReceiverOptions<String, String> shipmentCompletedReceiverOptions(KafkaProperties kafkaProperties) {
         return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
             .subscription(List.of(shipmentCompletedTopic));
+    }
+
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "ProductUnsuitable",
+        description = "Product Unsuitable event to change inventory status to UNSUITABLE",
+        payloadType = UnsuitableMessage.class
+    ))
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "UnitUnsuitable",
+        description = "Unit Unsuitable event to change inventories statuses to UNSUITABLE",
+        payloadType = UnsuitableMessage.class
+    ))
+    @Bean(name = "UNSUITABLE_CONSUMER")
+    ReactiveKafkaConsumerTemplate<String, String> unsuitableConsumerTemplate(
+        @Qualifier("UNSUITABLE") ReceiverOptions<String, String> receiverOptions
+    ) {
+        return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
     }
 
     @AsyncListener(operation = @AsyncOperation(
@@ -270,10 +306,12 @@ class KafkaConfiguration {
     @Bean
     SenderOptions<String, String> senderOptions(
         KafkaProperties kafkaProperties,
+        ObjectMapper objectMapper,
         MeterRegistry meterRegistry) {
         var props = kafkaProperties.buildProducerProperties(null);
         props.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, TracingProducerInterceptor.class.getName());
         return SenderOptions.<String, String>create(props)
+            .withValueSerializer(new JsonSerializer<>(objectMapper))
             .maxInFlight(1) // to keep ordering, prevent duplicate messages (and avoid data loss)
             .producerListener(new MicrometerProducerListener(meterRegistry)); // we want standard Kafka metrics
     }
@@ -281,6 +319,29 @@ class KafkaConfiguration {
     @Bean
     ReactiveKafkaProducerTemplate<String, String> producerTemplate(SenderOptions<String, String> kafkaSenderOptions) {
         return new ReactiveKafkaProducerTemplate<>(kafkaSenderOptions);
+    }
+
+    @Bean
+    SenderOptions<String, EventMessage<InventoryUpdatedEvent>> inventoryUpdatedOption(KafkaProperties kafkaProperties,
+                                                                                      ObjectMapper objectMapper,
+                                                                                      MeterRegistry meterRegistry) {
+        var props = kafkaProperties.buildProducerProperties(null);
+        props.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, TracingProducerInterceptor.class.getName());
+        return SenderOptions.<String, EventMessage<InventoryUpdatedEvent>>create(props)
+            .withValueSerializer(new JsonSerializer<>(objectMapper))
+            .maxInFlight(1) // to keep ordering, prevent duplicate messages (and avoid data loss)
+            .producerListener(new MicrometerProducerListener(meterRegistry)); // we want standard Kafka metrics
+    }
+
+    @AsyncPublisher(operation = @AsyncOperation(
+        channelName = "InventoryUpdatedEvent",
+        description = "An inventory was created/updated.",
+        payloadType = InventoryUpdatedEvent.class
+    ))
+    @Bean
+    ReactiveKafkaProducerTemplate<String, EventMessage<InventoryUpdatedEvent>> producerInventoryUpdatedTemplate(
+        SenderOptions<String, EventMessage<InventoryUpdatedEvent>> senderOptions) {
+        return new ReactiveKafkaProducerTemplate<>(senderOptions);
     }
 
 }

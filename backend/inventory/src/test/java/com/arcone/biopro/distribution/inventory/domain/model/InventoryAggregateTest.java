@@ -210,4 +210,17 @@ class InventoryAggregateTest {
         ));
         assertSame(inventoryAggregate, result, "Should return the same instance");
     }
+
+    @Test
+    @DisplayName("unsuit should transition status to UNSUITABLE with the provided reason")
+    void testUnsuit() {
+        String reason = "Damaged packaging";
+
+        InventoryAggregate result = inventoryAggregate.unsuit(reason);
+
+        verify(inventoryMock).isConverted();
+        verify(inventoryMock).setUnsuitableReason(reason);
+        assertSame(inventoryAggregate, result, "Should return the same instance");
+    }
+
 }

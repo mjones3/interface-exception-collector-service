@@ -10,11 +10,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 import static com.arcone.biopro.distribution.inventory.BioProConstants.EXPIRED;
 
@@ -22,6 +25,7 @@ import static com.arcone.biopro.distribution.inventory.BioProConstants.EXPIRED;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Slf4j
 public class InventoryAggregate {
 
     public static final String OTHER_REASON = "OTHER";
@@ -39,6 +43,9 @@ public class InventoryAggregate {
         if (!inventory.getLocation().equals(location)) {
             notificationMessages.add(createNotificationMessage(MessageType.INVENTORY_NOT_FOUND_IN_LOCATION, null));
         }
+        else if (isUnsuitable()) {
+            notificationMessages.addAll(createUnsuitableNotificationMessage());
+        }
         else if (isQuarantined()) {
             notificationMessages.addAll(createQuarantinesNotificationMessage());
         }
@@ -52,6 +59,22 @@ public class InventoryAggregate {
             notificationMessages.add(createNotificationMessage(MessageType.INVENTORY_IS_EXPIRED, EXPIRED));
         }
         return this;
+    }
+
+    private Collection<NotificationMessage> createUnsuitableNotificationMessage() {
+        MessageType messageType = MessageType.INVENTORY_IS_UNSUITABLE;
+
+        return List.of(new NotificationMessage(
+            messageType.name(),
+            messageType.getCode(),
+            inventory.getUnsuitableReason(),
+            messageType.getType().name(), messageType.getAction().name(),
+            inventory.getUnsuitableReason(),
+            List.of()));
+    }
+
+    private boolean isUnsuitable() {
+        return Objects.nonNull(inventory.getUnsuitableReason());
     }
 
     private NotificationMessage createNotificationMessage(MessageType notificationType, String reason) {
@@ -173,6 +196,15 @@ public class InventoryAggregate {
         inventory.setIsLabeled(true);
         inventory.setIsLicensed(isLicensed);
         inventory.setProductCode(new ProductCode(finalProductCode));
+        return this;
+    }
+
+    public InventoryAggregate unsuit(String reason) {
+        if(inventory.isConverted()) {
+            log.info("Skipping unsuitable for converted products");
+            return this;
+        }
+        inventory.setUnsuitableReason(reason);
         return this;
     }
 }

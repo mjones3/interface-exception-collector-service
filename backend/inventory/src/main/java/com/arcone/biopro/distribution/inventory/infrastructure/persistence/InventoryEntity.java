@@ -114,6 +114,10 @@ public class InventoryEntity implements Serializable, Persistable<UUID> {
     @Column("is_labeled")
     Boolean isLabeled;
 
+    @NotNull
+    @Column("unsuitable_reason")
+    String unsuitableReason;
+
     @JsonIgnore
     @Override
     public boolean isNew() {

@@ -7,6 +7,9 @@ import com.arcone.biopro.distribution.eventbridge.infrastructure.config.KafkaCon
 import com.arcone.biopro.distribution.eventbridge.infrastructure.service.SchemaValidationService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.springwolf.core.asyncapi.annotations.AsyncListener;
+import io.github.springwolf.core.asyncapi.annotations.AsyncOperation;
+import io.github.springwolf.plugins.kafka.asyncapi.annotations.KafkaAsyncOperationBinding;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,6 +28,7 @@ import java.time.Duration;
 @Profile("prod")
 public class ShipmentCompletedListener extends AbstractKafkaListener {
 
+    private static final String SHIPMENT_COMPLETED_SCHEMA = "schema/shipment-completed.json";
     private final ObjectMapper objectMapper;
     private final ShipmentCompletedService shipmentCompletedService;
     private final SchemaValidationService schemaValidationService;
@@ -43,11 +47,17 @@ public class ShipmentCompletedListener extends AbstractKafkaListener {
 
     }
 
-
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "ShipmentCompleted",
+       description = "Shipment Completed received event",
+       payloadType = ShipmentCompletedEventDTO.class
+    ))
+    @KafkaAsyncOperationBinding
+    @Override
     protected Mono<ReceiverRecord<String, String>> handleMessage(ReceiverRecord<String, String> event) {
         try {
             var message = objectMapper.readValue(event.value(), ShipmentCompletedEventDTO.class);
-            return schemaValidationService.validateShipmentCompletedSchema(event.value())
+            return schemaValidationService.validateSchema(event.value(), SHIPMENT_COMPLETED_SCHEMA)
                 .then(Mono.defer(() -> shipmentCompletedService
                             .processCompletedShipmentEvent(message.payload())))
                 .then(Mono.just(event))

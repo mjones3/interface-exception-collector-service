@@ -7,7 +7,8 @@ import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
 
-class SchemaValidationServiceTest {
+class SchemaValidationShipmentCompletedServiceTest {
+    private static final String SHIPMENT_COMPLETED_SCHEMA = "schema/shipment-completed.json";
 
     @Test
     public void shouldBeValidShipmentCompletedSchema() throws Exception {
@@ -17,7 +18,7 @@ class SchemaValidationServiceTest {
         var json = TestUtil.resource("shipment-completed-event.json").replace("\"{order-number}\"", "1");
 
         StepVerifier
-            .create(service.validateShipmentCompletedSchema(json))
+            .create(service.validateSchema(json, SHIPMENT_COMPLETED_SCHEMA))
             .verifyComplete();
     }
 
@@ -30,7 +31,7 @@ class SchemaValidationServiceTest {
             .replace("\"shipmentId\": 1,","");
 
         StepVerifier
-            .create(service.validateShipmentCompletedSchema(json))
+            .create(service.validateSchema(json, SHIPMENT_COMPLETED_SCHEMA))
             .verifyError();
     }
 }

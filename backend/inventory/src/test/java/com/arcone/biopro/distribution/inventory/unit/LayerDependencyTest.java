@@ -21,13 +21,14 @@ public class LayerDependencyTest {
         "org.apache.logging..",
         "org.apache.commons..",
         "reactor..",
-        "org.springframework.stereotype..",
         "org.springframework.util.."
     ));
 
     private static final List<String> APPLICATION_COMMON_DEPENDENCIES = new ArrayList<>(List.of(
         "org.mapstruct..",
-        "io.opentelemetry.."
+        "io.opentelemetry..",
+        "org.springframework.stereotype..",
+        "org.springframework.transaction.."
     ));
 
     private static final List<String> INFRA_COMMON_DEPENDENCIES = new ArrayList<>(List.of(

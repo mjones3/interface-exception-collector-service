@@ -301,3 +301,9 @@ topic:
     name: QuarantineUpdated
   product-recovered:
     name: ProductRecovered
+  inventory-updated:
+    name: InventoryUpdated
+  product-unsuitable:
+    name: ProductUnsuitable
+  unit-unsuitable:
+    name: UnitUnsuitable

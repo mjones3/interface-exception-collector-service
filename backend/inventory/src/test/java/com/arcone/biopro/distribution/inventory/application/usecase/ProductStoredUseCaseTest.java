@@ -4,6 +4,7 @@ import com.arcone.biopro.distribution.inventory.application.dto.InventoryOutput;
 import com.arcone.biopro.distribution.inventory.application.dto.ProductStorageInput;
 import com.arcone.biopro.distribution.inventory.application.mapper.InventoryOutputMapper;
 import com.arcone.biopro.distribution.inventory.common.TestUtil;
+import com.arcone.biopro.distribution.inventory.domain.event.InventoryEventPublisher;
 import com.arcone.biopro.distribution.inventory.domain.exception.InventoryNotFoundException;
 import com.arcone.biopro.distribution.inventory.domain.model.Inventory;
 import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
@@ -40,6 +41,9 @@ class ProductStoredUseCaseTest {
 
     @Spy
     private InventoryOutputMapper mapper = Mappers.getMapper(InventoryOutputMapper.class);
+
+    @Mock
+    private InventoryEventPublisher inventoryEventPublisher;
 
     @InjectMocks
     private ProductStoredUseCase useCase;
