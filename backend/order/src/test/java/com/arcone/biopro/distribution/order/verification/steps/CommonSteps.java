@@ -37,4 +37,20 @@ public class CommonSteps {
         log.debug("Notification found: {}", notification);
     }
 
+    @Then("I should receive a {string} error message response {string}.")
+    public void iShouldReceiveAResponseErrorMessage(String messageType, String message) {
+        // Step to verify the notifications response from the last API call. This is a common step that can be reused in other scenarios.
+        // It's important to set the context variable to the response of the last API call so that the notifications can be verified.
+
+        var error = context.getApiErrorResponse();
+        assertNotNull(error, "Failed to find the notification.");
+        log.debug("Error found: {}", error);
+
+        assertEquals(messageType, error.get("classification"), "Failed to find the message.");
+
+        assertEquals(message, error.get("message"), "Failed to find the message.");
+
+
+    }
+
 }
