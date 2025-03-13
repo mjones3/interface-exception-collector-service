@@ -2,8 +2,7 @@ package com.arcone.biopro.distribution.order.infrastructure.config;
 
 import com.arcone.biopro.distribution.order.infrastructure.dto.OrderCompletedDTO;
 import com.arcone.biopro.distribution.order.infrastructure.dto.OrderCreatedDTO;
-import com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledEventDTO;
-import com.arcone.biopro.distribution.order.infrastructure.dto.OrderRejectedDTO;
+import com.arcone.biopro.distribution.order.infrastructure.event.OrderFulfilledEventDTO;
 import com.arcone.biopro.distribution.order.infrastructure.event.OrderCancelledOutputEvent;
 import com.arcone.biopro.distribution.order.infrastructure.event.OrderModifiedOutputEvent;
 import com.arcone.biopro.distribution.order.infrastructure.event.OrderRejectedOutputEvent;

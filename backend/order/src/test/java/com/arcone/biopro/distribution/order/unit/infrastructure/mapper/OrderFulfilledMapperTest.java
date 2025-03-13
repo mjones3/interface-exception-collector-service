@@ -16,7 +16,7 @@ import com.arcone.biopro.distribution.order.domain.model.vo.ProductCategory;
 import com.arcone.biopro.distribution.order.domain.model.vo.ProductFamily;
 import com.arcone.biopro.distribution.order.domain.model.vo.ShippingMethod;
 import com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledDTO;
-import com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledEventDTO;
+import com.arcone.biopro.distribution.order.infrastructure.event.OrderFulfilledEventDTO;
 import com.arcone.biopro.distribution.order.infrastructure.mapper.OrderFulfilledMapper;
 import com.arcone.biopro.distribution.order.infrastructure.service.dto.CustomerAddressDTO;
 import com.arcone.biopro.distribution.order.infrastructure.service.dto.CustomerDTO;
