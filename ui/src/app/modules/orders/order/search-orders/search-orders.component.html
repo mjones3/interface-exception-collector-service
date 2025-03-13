@@ -16,9 +16,9 @@
                 <biopro-table
                     #ordersTable
                     tableId="ordersTableId"
-                    [dataSource]="page()?.content ?? []"
+                    [dataSource]="page()?.content"
                     [configuration]="tableConfig()"
-                    [totalElements]="page()?.totalRecords ?? 0"
+                    [totalElements]="page()?.totalRecords"
                     [pageIndex]="page()?.pageNumber ?? 0"
                     [serverPagination]="true"
                     (paginate)="handlePagination($event)"

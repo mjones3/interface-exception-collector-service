@@ -92,6 +92,9 @@ export class TableComponent<T extends TableDataSource = TableDataSource>
     tableId = input.required<string>();
     stickyHeader = input(true, { transform: booleanAttribute });
     tableNoResultsMessage = input('No Results Found');
+    noDataRowMessage = computed(() =>
+        this.totalElements() === 0 ? this.tableNoResultsMessage() : 'Loading...'
+    );
     pageIndex = input(0);
     defaultSort = input<MatSortable>();
     sortingDataAccessor = input<
