@@ -129,6 +129,11 @@ public class OrderTestingController {
         Assert.assertNotNull(event);
     }
 
+    public void searchOrdersByCreateDate(String locationCode, String createDateFrom, String createDateTo) {
+        var response = apiHelper.graphQlPageRequest(GraphQLQueryMapper.searchOrdersByCreateDate(locationCode,createDateFrom,createDateTo), "searchOrders");
+        context.setOrdersPage(response);
+    }
+
     @Getter
     @RequiredArgsConstructor
     public

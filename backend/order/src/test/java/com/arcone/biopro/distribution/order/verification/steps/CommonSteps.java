@@ -2,6 +2,7 @@ package com.arcone.biopro.distribution.order.verification.steps;
 
 import com.arcone.biopro.distribution.order.verification.pages.SharedActions;
 import com.arcone.biopro.distribution.order.verification.support.SharedContext;
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +52,11 @@ public class CommonSteps {
         assertEquals(message, error.get("message"), "Failed to find the message.");
 
 
+    }
+
+    @And("The user location is {string}.")
+    public void theUserLocationIs(String location) {
+        context.setLocationCode(location);
     }
 
 }
