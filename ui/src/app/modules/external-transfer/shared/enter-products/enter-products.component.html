@@ -1,11 +1,7 @@
 <div id="enterProductForm" class="flex flex-row" [formGroup]="productGroup">
     <div class="flex w-full flex-row gap-4 px-8 pb-4 pt-4">
         <div class="flex w-full flex-col space-y-1">
-            <mat-form-field
-                class="block"
-                appearance="outline"
-                hideRequiredMarker
-            >
+            <mat-form-field class="block" hideRequiredMarker="true">
                 <mat-label>Unit Number</mat-label>
                 <input
                     id="unitNumberId"
@@ -34,11 +30,7 @@
         </div>
 
         <div class="w-full gap-4">
-            <mat-form-field
-                class="block"
-                appearance="outline"
-                hideRequiredMarker
-            >
+            <mat-form-field class="block" hideRequiredMarker="true">
                 <mat-label>Product Code</mat-label>
                 <input
                     id="productCodeId"

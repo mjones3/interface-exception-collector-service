@@ -39,7 +39,7 @@ export function checkDigitValidator(valid: boolean): ValidatorFn {
     standalone: true,
     imports: [ReactiveFormsModule, MatInputModule, FormsModule, CommonModule],
     providers: [TranslateService],
-    selector: 'rsa-scan-unit-number-check-digit',
+    selector: 'biopro-scan-unit-number-check-digit',
     templateUrl: './scan-unit-number-check-digit.component.html',
 })
 export class ScanUnitNumberCheckDigitComponent implements OnChanges {
