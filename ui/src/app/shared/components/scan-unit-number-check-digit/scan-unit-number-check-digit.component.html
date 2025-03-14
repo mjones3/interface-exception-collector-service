@@ -16,17 +16,17 @@
                     autofocus
                 />
                 @if (form.get('unitNumber').hasError('required')) {
-                    <mat-error>Unit Number is Required</mat-error>
+                    <mat-error>Unit Number is required</mat-error>
                 }
                 @if (form.get('unitNumber').hasError('invalidUnitNumber')) {
-                    <mat-error>Unit Number is Invalid</mat-error>
+                    <mat-error>Unit Number is invalid</mat-error>
                 }
             </mat-form-field>
         </div>
 
         <div class="mb-4 flex flex-col items-baseline">
             @if (checkDigitVisible) {
-                <mat-form-field class="block" hideRequiredMarker="true">
+                <mat-form-field class="block w-30" hideRequiredMarker="true">
                     <mat-label>Check Digit</mat-label>
                     <input
                         matInput
@@ -41,7 +41,7 @@
                         (keyup)="checkValues(true)"
                     />
                     @if (form.get('checkDigit').hasError('required')) {
-                        <mat-error>Check Digit is Required</mat-error>
+                        <mat-error>Check Digit is required</mat-error>
                     }
                     @if (form.get('checkDigit').hasError('invalid')) {
                         <mat-error>{{ checkDigitInvalidMessage }}</mat-error>

@@ -23,14 +23,14 @@
                     @if (
                         unitProductGroup.get('unitNumber').hasError('required')
                     ) {
-                        <mat-error>Unit Number is Required</mat-error>
+                        <mat-error>Unit Number is required</mat-error>
                     }
                     @if (
                         unitProductGroup
                             .get('unitNumber')
                             .hasError('invalidUnitNumber')
                     ) {
-                        <mat-error>Unit Number is Invalid</mat-error>
+                        <mat-error>Unit Number is invalid</mat-error>
                     }
                     @if (
                         unitProductGroup
@@ -62,7 +62,7 @@
                                 .get('productCode')
                                 .hasError('required')
                         ) {
-                            <mat-error>Product Code is Required</mat-error>
+                            <mat-error>Product Code is required</mat-error>
                         }
 
                         @if (
@@ -70,7 +70,7 @@
                                 .get('productCode')
                                 .hasError('invalidProductCode')
                         ) {
-                            <mat-error>Product Code is Invalid</mat-error>
+                            <mat-error>Product Code is invalid</mat-error>
                         }
                         @if (
                             unitProductGroup
