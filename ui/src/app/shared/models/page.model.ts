@@ -12,3 +12,16 @@ export interface PageDTO<T> {
     isLast: boolean;
     totalPages: number;
 }
+
+export const EMPTY_PAGE: PageDTO<any> = Object.freeze({
+    content: [],
+    pageNumber: 0,
+    pageSize: 0,
+    totalRecords: 0,
+    querySort: null,
+    hasPrevious: false,
+    hasNext: false,
+    isFirst: false,
+    isLast: false,
+    totalPages: 0,
+});
