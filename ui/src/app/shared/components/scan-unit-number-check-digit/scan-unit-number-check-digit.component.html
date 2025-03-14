@@ -1,8 +1,8 @@
 <form class="mt-0 flex w-full flex-row" [formGroup]="form">
     <div class="flex w-full flex-row space-x-2">
         <div class="flex w-full flex-col">
-            <mat-form-field class="block">
-                <mat-label class="font-bold">Unit Number</mat-label>
+            <mat-form-field class="block" hideRequiredMarker="true">
+                <mat-label>Unit Number</mat-label>
                 <input
                     id="inUnitNumber"
                     matInput
@@ -26,8 +26,8 @@
 
         <div class="mb-4 flex flex-col items-baseline">
             @if (checkDigitVisible) {
-                <mat-form-field class="block">
-                    <mat-label class="font-bold">Check Digit</mat-label>
+                <mat-form-field class="block" hideRequiredMarker="true">
+                    <mat-label>Check Digit</mat-label>
                     <input
                         matInput
                         formControlName="checkDigit"
