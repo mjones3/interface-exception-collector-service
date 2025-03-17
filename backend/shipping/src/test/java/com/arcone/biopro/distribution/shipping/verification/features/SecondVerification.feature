@@ -81,17 +81,17 @@ Feature: Second Verification of Units Feature
             And The second verification configuration is "enabled".
             And I am on the verify products page.
             When I focus out leaving "Unit Number" empty.
-            Then I should see a field validation error message "Unit Number is Required".
+            Then I should see a field validation error message "Unit Number is required".
             When I "<Action>" the "Unit Number" "<Field Value>".
             Then I should see a field validation error message "<Field Error Message>".
             And The "Product Code" field should be "disabled".
             Examples:
                 | Order Number | Code     | UN            | Action | Field Value   | Field Error Message    |
                 | 122          | E0685V00 | W822530106093 | Type   | W822530106093 | Scan Unit Number       |
-                | 122          | E0685V00 | W822530106093 | Type   | =W82253010608 | Unit Number is Invalid |
-                | 122          | E0685V00 | W822530106093 | Scan   | w232323232    | Unit Number is Invalid |
+                | 122          | E0685V00 | W822530106093 | Type   | =W82253010608 | Unit Number is invalid |
+                | 122          | E0685V00 | W822530106093 | Scan   | w232323232    | Unit Number is invalid |
 
-        Rule: I should be able to complete the shipment once all filled products have been verified.
+    Rule: I should be able to complete the shipment once all filled products have been verified.
         Rule: I should see the status of the shipment updated to “Completed”.
         Rule: I should see a success message indicating the shipment has been successfully completed.
         Rule: I should be able to verify the products' eligibility before completing the shipment.
@@ -120,14 +120,14 @@ Feature: Second Verification of Units Feature
             When I "<Action>" the "<Field Name>" "<Field Value>".
             Then The "Product Code" field should be "enabled".
             When I focus out leaving "<Second Field Name>" empty.
-            Then I should see a field validation error message "Product Code is Required".
+            Then I should see a field validation error message "Product Code is required".
             When I "<Second Action>" the "<Second Field Name>" "<Second Field Value>".
             Then I should see a field validation error message "<Field Error Message>".
             Examples:
                 | Order Number | Code     | UN            | Action | Field Name  | Field Value   | Field Error Message     | Second Action | Second Field Name | Second Field Value |
                 | 123          | E0685V00 | W822530106094 | Scan   | Unit Number | W822530106094 | Scan Product Code       | Type          | Product Code      | E0685V00           |
-                | 123          | E0685V00 | W822530106094 | Scan   | Unit Number | W822530106094 | Product Code is Invalid | Scan          | Product Code      | 121abc             |
-                | 123          | E0685V00 | W822530106087 | Scan   | Unit Number | W822530106094 | Product Code is Invalid | Type          | Product Code      | =<1212             |
+                | 123          | E0685V00 | W822530106094 | Scan   | Unit Number | W822530106094 | Product Code is invalid | Scan          | Product Code      | 121abc             |
+                | 123          | E0685V00 | W822530106087 | Scan   | Unit Number | W822530106094 | Product Code is invalid | Type          | Product Code      | =<1212             |
 
             @DIS-206
             Scenario Outline: Complete shipment Second verification unsuitable products.
