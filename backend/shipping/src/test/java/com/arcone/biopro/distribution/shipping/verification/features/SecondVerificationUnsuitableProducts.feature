@@ -84,15 +84,15 @@ Feature: Second Verification Notification Tab
         And The second verification configuration is "enabled".
         And I am on the verify products page with "notifications" tab active.
         When I focus out leaving "Unit Number" empty.
-        Then I should see a field validation error message "Unit Number is Required".
+        Then I should see a field validation error message "Unit Number is required".
         When I "<Action>" the "Unit Number" "<Field Value>".
         Then I should see a field validation error message "<Field Error Message>".
         And The "Product Code" field should be "disabled".
         Examples:
             | Order Number | Suitable Code | Suitable UN   | Unsuitable Code | Unsuitable UN | Action | Field Value   | Field Error Message    |
-            | 1122          | E0685V00      | W822530106090 | E0685V00        | W822530106091 | Type   | W822530106093 | Scan Unit Number       |
-            | 1122          | E0685V00      | W822530106093 | E0685V00        | W822530106091 | Type   | =W82253010608 | Unit Number is Invalid |
-            | 1122          | E0685V00      | W822530106093 | E0685V00        | W822530106091 | Scan   | w232323232    | Unit Number is Invalid |
+            | 1122         | E0685V00      | W822530106090 | E0685V00        | W822530106091 | Type   | W822530106093 | Scan Unit Number       |
+            | 1122         | E0685V00      | W822530106093 | E0685V00        | W822530106091 | Type   | =W82253010608 | Unit Number is invalid |
+            | 1122         | E0685V00      | W822530106093 | E0685V00        | W822530106091 | Scan   | w232323232    | Unit Number is invalid |
 
     Rule: I should not be able to enter unit number and product code manually.
     Rule: I should be able to scan unit number and product code.
@@ -105,17 +105,17 @@ Feature: Second Verification Notification Tab
         When I "<Action>" the "<Field Name>" "<Field Value>".
         Then The "Product Code" field should be "enabled".
         When I focus out leaving "<Second Field Name>" empty.
-        Then I should see a field validation error message "Product Code is Required".
+        Then I should see a field validation error message "Product Code is required".
         When I "<Second Action>" the "<Second Field Name>" "<Second Field Value>".
         Then I should see a field validation error message "<Field Error Message>".
         Examples:
             | Order Number | Suitable Code | Suitable UN   | Unsuitable Code | Unsuitable UN | Action | Field Name  | Field Value   | Field Error Message     | Second Action | Second Field Name | Second Field Value |
-            | 1124          | E0685V00      | W822530106090 | E0685V00        | W822530106091 | Scan   | Unit Number | W822530106094 | Scan Product Code       | Type          | Product Code      | E0685V00           |
-            | 1124          | E0685V00      | W822530106093 | E0685V00        | W822530106091 | Scan   | Unit Number | W822530106094 | Product Code is Invalid | Scan          | Product Code      | 121abc             |
-            | 1124          | E0685V00      | W822530106093 | E0685V00        | W822530106091 | Scan   | Unit Number | W822530106094 | Product Code is Invalid | Type          | Product Code      | =<1212             |
+            | 1124         | E0685V00      | W822530106090 | E0685V00        | W822530106091 | Scan   | Unit Number | W822530106094 | Scan Product Code       | Type          | Product Code      | E0685V00           |
+            | 1124         | E0685V00      | W822530106093 | E0685V00        | W822530106091 | Scan   | Unit Number | W822530106094 | Product Code is invalid | Scan          | Product Code      | 121abc             |
+            | 1124         | E0685V00      | W822530106093 | E0685V00        | W822530106091 | Scan   | Unit Number | W822530106094 | Product Code is invalid | Type          | Product Code      | =<1212             |
 
 
-        Rule: I should be able to view an acknowledgment message for an unsuitable product when the product is successfully discarded in the system.
+    Rule: I should be able to view an acknowledgment message for an unsuitable product when the product is successfully discarded in the system.
         @DIS-208
         Scenario Outline: Second verification unsuitable products - discard removed units.
             Given I have a shipment for order "<Order Number>" with the units "<Suitable UN>,<Unsuitable UN>" and product codes "<Suitable Code>,<Unsuitable Code>" "verified".
