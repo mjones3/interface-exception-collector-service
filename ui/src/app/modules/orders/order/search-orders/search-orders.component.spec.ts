@@ -277,7 +277,6 @@ describe('SearchOrdersComponent', () => {
         });
     });
 
-    // Check this with Michel
     it.skip('Should be redirected to order details page if only one record is found', () => {
         const singleContent: OrderReportDTO[] = [
             {
