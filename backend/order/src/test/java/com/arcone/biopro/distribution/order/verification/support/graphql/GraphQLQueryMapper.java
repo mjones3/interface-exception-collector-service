@@ -155,6 +155,35 @@ public class GraphQLQueryMapper {
             }
             """, locationCode, externalId);
     }
+    public static String searchOrdersByCreateDate(String locationCode, String createDateFrom, String createDateTo) {
+        return String.format("""
+            query {
+                searchOrders(
+                    orderQueryCommandDTO: {
+                        locationCode:"%s",
+                        createDateFrom:"%s",
+                        createDateTo: "%s"
+                    }
+                ) {
+                    content
+                    pageNumber
+                    pageSize
+                    totalRecords
+                    hasPrevious
+                    hasNext
+                    isFirst
+                    isLast
+                    totalPages
+                    querySort {
+                        orderByList {
+                            property
+                            direction
+                        }
+                    }
+                }
+            }
+            """, locationCode, createDateFrom, createDateTo);
+    }
 
     public static String findOrderById(Integer orderId) {
         return String.format("""

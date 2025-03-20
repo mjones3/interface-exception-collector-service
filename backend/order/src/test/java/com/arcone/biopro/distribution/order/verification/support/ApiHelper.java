@@ -17,6 +17,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -137,6 +138,7 @@ public class ApiHelper {
             }
             return response;
         } catch (FieldAccessException e) {
+            this.setErrorContext(e);
             return e.getResponse().toMap();
         }
     }
@@ -146,6 +148,7 @@ public class ApiHelper {
         try {
             return qlClient.document(document).retrieveSync(path).toEntityList(Map.class);
         } catch (FieldAccessException e) {
+            this.setErrorContext(e);
             return Collections.emptyList();
         }
     }
@@ -163,8 +166,18 @@ public class ApiHelper {
         try {
             return (PageDTO<T>) qlClient.document(document).retrieveSync(path).toEntity(contentTypeClass);
         } catch (FieldAccessException e) {
+            this.setErrorContext(e);
             return new PageDTO<>(Collections.emptyList(), 0, 0, 0, null);
         }
+    }
+
+    private void setErrorContext(FieldAccessException e){
+        log.error("Not able to retrieve data from {}", e.getResponse());
+        var error = e.getResponse().getErrors().getFirst();
+        var errorMap = new HashMap<>();
+        errorMap.put("classification", error.getErrorType().toString());
+        errorMap.put("message", error.getMessage());
+        context.setApiErrorResponse(errorMap);
     }
 
     public Object[] graphQlRequestObjectList(String document, String path) {

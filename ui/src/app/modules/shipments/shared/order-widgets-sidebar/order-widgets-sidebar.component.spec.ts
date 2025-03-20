@@ -101,7 +101,7 @@ describe('OrderWidgetsSidebarComponent', () => {
 
         const modifyDateAndTime =
             orderModificationInfoDescriptions.querySelector(
-                '#informationDetails-Modify-Date-and-Time-value'
+                '#informationDetails-Modified-Date-and-Time-value'
             ) as HTMLSpanElement;
         expect(modifyDateAndTime.textContent).toContain(
             datePipe.transform(modifyDate, 'MM/dd/yyyy HH:mm:ss')
