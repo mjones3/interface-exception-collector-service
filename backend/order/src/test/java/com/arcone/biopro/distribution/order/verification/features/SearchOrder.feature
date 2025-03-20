@@ -68,7 +68,7 @@ Feature: Search Orders
                                 ##################   Disabled scenarios  ##################
                                 ###########################################################
 
-        # TODO cover scenario on UI unit test
+        # AC covered by UI unit test
     Rule: I should be redirected to the Order Details page if there is only one order in the system that matches the search criteria.
         @disabled @ui @R20-227
         Scenario Outline: Search for an order and view the details
@@ -85,7 +85,7 @@ Feature: Search Orders
                 | External ID          | Order LocationCode | User LocationCode | Priority | Status | ProductFamily       | BloodType | Quantity | Item Comments |
                 | EXTSEARCH1DIS1141179 | 123456789          | 123456789         | STAT     | OPEN   | PLASMA_TRANSFUSABLE | AB        | 3        | Needed asap   |
 
-    # TODO cover scenario on UI unit test
+    # AC covered by UI unit test
     Rule: I should be able to reset the applied filter criteria.
         Rule: The system should not enable the Apply and Reset options until at least one filter criteria is chosen.
     Rule: I should be able to see the following filter options
@@ -103,7 +103,7 @@ Feature: Search Orders
             When I choose "reset" option.
             Then The filter information should be empty.
 
-    # TODO cover scenario on UI unit test
+    # AC covered by UI unit test
     Rule: I should not be able to select create date parameters values greater than current date
         @disabled @ui @R20-228
         Scenario: Ensure that the selected dates for create date aren't greater than current date
@@ -115,7 +115,7 @@ Feature: Search Orders
             And "apply" option is "disabled".
 
 
-        # TODO cover scenario on UI unit test
+        # AC covered by UI unit test
     Rule: I should be able to multi-select options for Priority, Status, and Ship to Customer fields.
         Rule: I should be able to see order number disabled when filtering by remaining filter fields.
     Rule: I should see the number of fields used to select the filter criteria.
