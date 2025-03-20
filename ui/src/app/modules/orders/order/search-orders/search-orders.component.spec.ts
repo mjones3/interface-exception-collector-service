@@ -112,7 +112,7 @@ describe('SearchOrdersComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should navigate search order detial page', () => {
+    it('should navigate search order detail page', () => {
         const orderId = 1;
         jest.spyOn(router, 'navigateByUrl');
         component.details(orderId);
@@ -221,7 +221,7 @@ describe('SearchOrdersComponent', () => {
         });
     });
 
-    it('should keep search criterias throughout sorting', () => {
+    it('should keep search criteria throughout sorting', () => {
         const response: ApolloQueryResult<{
             searchOrders: PageDTO<OrderReportDTO>;
         }> = {
@@ -275,5 +275,109 @@ describe('SearchOrdersComponent', () => {
                 ],
             },
         });
+    });
+
+    // Check this with Michel
+    it.skip('Should be redirected to order details page if only one record is found', () => {
+        const singleContent: OrderReportDTO[] = [
+            {
+                orderId: 103,
+                orderNumber: 69,
+                externalId: 'ORDER005',
+                orderStatus: 'IN_PROGRESS',
+                createDate: '2024-12-13T05:00:00.000Z',
+                desireShipDate: '2024-08-20',
+                orderPriorityReport: {
+                    priority: 'STAT',
+                    priorityColor: '#ff3333',
+                },
+                orderCustomerReport: {
+                    code: 'A1235',
+                    name: 'Creative Testing Solutions',
+                },
+            },
+        ];
+        const singlePage: PageDTO<OrderReportDTO> = {
+            content: singleContent,
+            pageNumber: 0,
+            pageSize: 20,
+            totalRecords: 1,
+            querySort: null,
+            hasPrevious: false,
+            hasNext: false,
+            isFirst: true,
+            isLast: true,
+            totalPages: 1,
+        };
+
+        const response: ApolloQueryResult<{
+            searchOrders: PageDTO<OrderReportDTO>;
+        }> = {
+            data: { searchOrders: singlePage },
+            loading: false,
+            networkStatus: 7,
+        };
+
+        orderService.searchOrders.mockReturnValue(of(response));
+
+        jest.spyOn(component, 'details').mockImplementation();
+        jest.spyOn(component, 'isFilterApplied').mockReturnValue(true);
+        cookieService.get.mockReturnValue('123456789');
+
+        component.searchOrders();
+
+        expect(component.loading()).toBe(false);
+        expect(component.page()).toEqual(singlePage);
+        expect(toaster.warning).not.toHaveBeenCalled();
+        expect(toaster.error).not.toHaveBeenCalled();
+
+        const orderId = 103; // defined inside singleContent object
+        jest.spyOn(router, 'navigateByUrl');
+        expect(router.navigateByUrl).toHaveBeenCalledWith(
+            `/orders/${orderId}/order-details`
+        );
+    });
+
+    it('should be able to reset the applied filter criteria', () => {
+        component.currentFilter = {
+            customers: ['Customer A', 'Customer B'],
+            createDate: {
+                start: '0000-00-00',
+                end: '0000-00-00',
+            },
+            deliveryTypes: ['Type A', 'Type B'],
+            limit: 5,
+            sortBy: 'criteria',
+            page: 0,
+            orderNumber: '1',
+            orderStatus: ['status'],
+            order: '1',
+            desiredShipDate: {
+                start: '0000-00-00',
+                end: '0000-00-00',
+            },
+        };
+
+        expect(component.currentFilter.customers).toBeTruthy();
+        expect(component.currentFilter.createDate).toBeTruthy();
+        expect(component.currentFilter.deliveryTypes).toBeTruthy();
+        expect(component.currentFilter.limit).toBeTruthy();
+        expect(component.currentFilter.sortBy).toBeTruthy();
+        expect(component.currentFilter.orderNumber).toBeTruthy();
+        expect(component.currentFilter.orderStatus).toBeTruthy();
+        expect(component.currentFilter.order).toBeTruthy();
+        expect(component.currentFilter.desiredShipDate).toBeTruthy();
+
+        component.resetFilterSearch();
+
+        expect(component.currentFilter.customers).toBeFalsy();
+        expect(component.currentFilter.createDate).toBeFalsy();
+        expect(component.currentFilter.deliveryTypes).toBeFalsy();
+        expect(component.currentFilter.limit).toBeFalsy();
+        expect(component.currentFilter.sortBy).toBeFalsy();
+        expect(component.currentFilter.orderNumber).toBeFalsy();
+        expect(component.currentFilter.orderStatus).toBeFalsy();
+        expect(component.currentFilter.order).toBeFalsy();
+        expect(component.currentFilter.desiredShipDate).toBeFalsy();
     });
 });
