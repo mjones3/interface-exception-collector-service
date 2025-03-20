@@ -35,6 +35,7 @@ public class GraphQLConfig {
             protected GraphQLError resolveToSingleError(Throwable throwable, DataFetchingEnvironment env) {
                 return switch (throwable) {
                     case DataNotFoundException e -> this.buildGraphQLErrorFor(ErrorType.NOT_FOUND, e, env);
+                    case IllegalArgumentException e -> this.buildGraphQLErrorFor(ErrorType.BAD_REQUEST, e, env);
                     case NoResultsFoundException e -> this.buildGraphQLErrorFor(ErrorType.NOT_FOUND, e, env);
                     case ServiceNotAvailableException e -> this.buildGraphQLErrorFor(ErrorType.INTERNAL_ERROR, e, env);
                     default -> super.resolveToSingleError(throwable, env);
