@@ -50,7 +50,7 @@ public class SecurityConfiguration {
 
     @Value("${spring.security.oauth2.client.provider.oidc.issuer-uri}")
     private String issuerUri;
-    @Value("${spring.graphql.path:/order/graphql}")
+    @Value("${spring.graphql.path:/recoveredplasmashipping/graphql}")
     private String graphQLPath;
     @Value("${application.security.disabled:true}")
     private boolean securityDisabled;

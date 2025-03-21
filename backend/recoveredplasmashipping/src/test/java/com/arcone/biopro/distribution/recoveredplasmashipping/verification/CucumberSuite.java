@@ -15,10 +15,10 @@ import static io.cucumber.junit.platform.engine.Constants.JUNIT_PLATFORM_NAMING_
 
 @Suite
 @IncludeEngines("cucumber")
-@SelectDirectories("src/test/java/com/arcone/biopro/distribution/order/verification/features")
+@SelectDirectories("src/test/java/com/arcone/biopro/distribution/recoveredplasmashipping/verification/features")
 @ConfigurationParameters({
     @ConfigurationParameter(key = PLUGIN_PROPERTY_NAME, value = "json:target/cucumber/cucumber.json"),
-    @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "com.arcone.biopro.distribution.order.verification"),
+    @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "com.arcone.biopro.distribution.recoveredplasmashipping.verification"),
     @ConfigurationParameter(key = FILTER_TAGS_PROPERTY_NAME, value = "not @disabled"),
     @ConfigurationParameter(key = PLUGIN_PUBLISH_QUIET_PROPERTY_NAME, value = "true"),
     @ConfigurationParameter(key = JUNIT_PLATFORM_NAMING_STRATEGY_PROPERTY_NAME, value = "long"),
