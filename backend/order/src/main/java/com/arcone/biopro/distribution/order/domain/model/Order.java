@@ -194,9 +194,6 @@ public class Order implements Validatable {
         if (this.orderPriority == null) {
             throw new IllegalArgumentException("orderPriority cannot be null");
         }
-        if (this.createEmployeeId == null || this.createEmployeeId.isBlank()) {
-            throw new IllegalArgumentException("createEmployeeId cannot be null or blank");
-        }
 
         if (this.createDate != null && this.id == null) {
             this.checkDateTimeIsInPast(this.createDate,"Create Date");
