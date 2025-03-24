@@ -1,0 +1,45 @@
+scalar DateTime
+scalar Date
+scalar JSON
+
+type Query {
+    # Searches over all Customers
+    findAllCustomers: [PageDTO]!
+}
+
+input InputQuerySortDTO {
+    orderByList: [InputQueryOrderByDTO]
+}
+
+type OutputQuerySortDTO {
+    orderByList: [OutputQueryOrderByDTO]
+}
+
+input InputQueryOrderByDTO {
+    property:String
+    direction:String
+}
+
+type OutputQueryOrderByDTO {
+    property:String
+    direction:String
+}
+
+type PageDTO {
+    content: JSON
+    pageNumber: Int!
+    pageSize: Int!
+    totalRecords: Int!
+    querySort: OutputQuerySortDTO!
+    hasPrevious: Boolean!
+    hasNext: Boolean!
+    isFirst: Boolean!
+    isLast: Boolean!
+    totalPages: Int!
+}
+
+type NotificationDTO {
+    name: String
+    notificationType: String
+    notificationMessage: String
+}
