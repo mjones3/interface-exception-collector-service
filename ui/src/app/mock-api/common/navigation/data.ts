@@ -102,4 +102,11 @@ export const defaultNavigation: FuseNavigationItem[] = [
         link: 'external-transfer',
         disabled: false,
     },
+    {
+        id: 12,
+        title: 'Recovered Plasma',
+        type: 'basic',
+        link: 'recovered-plasma',
+        disabled: false,
+    },
 ];

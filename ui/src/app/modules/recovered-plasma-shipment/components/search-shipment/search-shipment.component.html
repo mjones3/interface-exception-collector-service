@@ -1,0 +1,12 @@
+<div class="flex flex-auto flex-col">
+    <biopro-process-header
+        [subTitle]="header.subTitle | async"
+        [title]="header.title | async"
+    ></biopro-process-header>
+    <biopro-filter-shipment
+        (toggleFilters)="toggleFilter($event)"
+        [showFilters]="isFilterToggled"
+    >
+    </biopro-filter-shipment>
+    <div class="flex flex-col"></div>
+</div>
