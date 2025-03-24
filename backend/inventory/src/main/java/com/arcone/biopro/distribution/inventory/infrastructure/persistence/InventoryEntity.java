@@ -118,6 +118,10 @@ public class InventoryEntity implements Serializable, Persistable<UUID> {
     @Column("unsuitable_reason")
     String unsuitableReason;
 
+   // @NotBlank
+    @Column("temperature_category")
+    String temperatureCategory;
+
     @JsonIgnore
     @Override
     public boolean isNew() {

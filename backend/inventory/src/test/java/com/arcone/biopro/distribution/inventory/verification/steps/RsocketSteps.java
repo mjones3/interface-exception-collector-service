@@ -9,12 +9,14 @@ import com.arcone.biopro.distribution.inventory.domain.model.enumeration.Message
 import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntity;
 import com.arcone.biopro.distribution.inventory.verification.utils.InventoryUtil;
+import io.cucumber.datatable.DataTable;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.rsocket.RSocketRequester;
@@ -25,6 +27,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -61,7 +64,7 @@ public class RsocketSteps {
 
     @Given("I have {string} products of family {string} with ABORh {string} in location {string} and that will expire in {string} days")
     public void iHaveOfTheOfTheBloodTypeInThe(String quantity, String productFamily, String aboRh, String location, String days) {
-        createMultipleProducts(quantity, productFamily, aboRh, location, days, InventoryStatus.AVAILABLE);
+        createMultipleProducts(quantity, productFamily, aboRh, location, days, InventoryStatus.AVAILABLE, "FROZEN");
     }
 
 
@@ -93,14 +96,33 @@ public class RsocketSteps {
 
     @When("I select {string} of the blood type {string}")
     public void iSelectOfTheOfTheBloodType(String productFamily, String aboRh) {
-        inventoryCriteriaList.add(new AvailableInventoryCriteriaDTO(productFamily, AboRhCriteria.valueOf(aboRh)));
+        inventoryCriteriaList.add(new AvailableInventoryCriteriaDTO(productFamily, AboRhCriteria.valueOf(aboRh), null, true, false));
     }
 
-    @When("I request available inventories for family {string} and ABORh {string} in location {string}")
-    public void iRequestOfTheOfTheBloodType(String productFamily, String aboRh, String location) {
+    @When("I request available inventories for family with the following parameters:")
+    public void iRequestOfTheOfTheBloodType(DataTable dataTable) {
+        List<Map<String, String>> parameters = dataTable.asMaps(String.class, String.class);
+        var parameter = parameters.getFirst();
+        var builder = AvailableInventoryCriteriaDTO.builder();
+        if(parameter.containsKey("Product Family")) {
+            builder.productFamily(parameter.get("Product Family"));
+        }
+        if(parameter.containsKey("Abo Rh Type")) {
+            builder.bloodType(AboRhCriteria.valueOf(parameter.get("Abo Rh Type")));
+        }
+        if(parameter.containsKey("Is Labeled")) {
+            builder.isLabeled(Boolean.parseBoolean(parameter.get("Is Labeled")));
+        }
+        if(parameter.containsKey("Temperature Category")) {
+            builder.temperatureCategory(parameter.get("Temperature Category"));
+        }
+        if(parameter.containsKey("Short date")) {
+            builder.isShortDate(Boolean.parseBoolean(parameter.get("Short date")));
+        }
+
         getAvailableInventoryResponseDTOMonoResult = requester
             .route("getAvailableInventoryWithShortDatedProducts")
-            .data(new GetAvailableInventoryCommandDTO(location, List.of(new AvailableInventoryCriteriaDTO(productFamily, AboRhCriteria.valueOf(aboRh)))))
+            .data(new GetAvailableInventoryCommandDTO(parameter.get("Location"), List.of(builder.build())))
             .retrieveMono(GetAvailableInventoryResponseDTO.class);
     }
 
@@ -253,7 +275,7 @@ public class RsocketSteps {
         inventoryUtil.saveInventory(inventory);
     }
 
-    private void createMultipleProducts(String quantity, String productFamily, String aboRh, String location, String days, InventoryStatus status) {
+    private void createMultipleProducts(String quantity, String productFamily, String aboRh, String location, String days, InventoryStatus status, String temperatureCategory) {
         int qty = Integer.parseInt(quantity);
         int daysToExpire = Integer.parseInt(days);
         AboRhType aboRhType = AboRhType.valueOf(aboRh);
@@ -269,6 +291,7 @@ public class RsocketSteps {
             inventory.setProductFamily(productFamily);
             inventory.setAboRh(aboRhType);
             inventory.setIsLabeled(true);
+            inventory.setTemperatureCategory(temperatureCategory);
             inventoryUtil.saveInventory(inventory);
         }
     }
@@ -282,5 +305,10 @@ public class RsocketSteps {
         inventory.setComments(null);
         inventory.setIsLabeled(true);
         inventoryUtil.saveInventory(inventory);
+    }
+
+    @And("I have {string} products of family {string} with ABORh {string} in location {string} and with temperature category {string} and that will expire in {string} days")
+    public void iHaveProductsOfFamilyWithABORhInLocationAndWithProductCodeAndThatWillExpireInDays(String quantity, String productFamily, String aboRh, String location, String temperatureCategory, String days) {
+        createMultipleProducts(quantity, productFamily, aboRh, location, days, InventoryStatus.AVAILABLE, temperatureCategory);
     }
 }

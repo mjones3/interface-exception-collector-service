@@ -69,6 +69,8 @@ public class Inventory {
 
     private String unsuitableReason;
 
+    private String temperatureCategory;
+
     public void createHistory() {
         histories.add(new History(inventoryStatus, statusReason, comments));
     }

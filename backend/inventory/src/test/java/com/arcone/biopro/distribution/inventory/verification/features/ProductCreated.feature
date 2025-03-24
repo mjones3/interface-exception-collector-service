@@ -15,15 +15,15 @@ Feature: Product Created event
                 | <Unit Number> | <Parent Product Code> | CONVERTED |
 
             And the inventory statuses should be updated as follows:
-                | Unit Number   | Product Code   | Status    | Is Labeled |
-                | <Unit Number> | <Product Code> | AVAILABLE | false      |
+                | Unit Number   | Product Code   | Status    | Is Labeled | Temperature Category   |
+                | <Unit Number> | <Product Code> | AVAILABLE | false      | <Temperature Category> |
 
             Examples:
-                | Unit Number   | Parent Product Code | Product Code | Has Expiration Date |
-                | W036824211111 | PLASAPHP            | E765000      | Yes                 |
-                | W036824211112 | RBCAPH              | E453200      | Yes                 |
-                | W036824211113 | WHOLEBLOOD          | E011200      | Yes                 |
-                | W036824211113 | WHOLEBLOOD          | RBC          | No                  |
-                | W036824211113 | WHOLEBLOOD          | PLASMA       | No                  |
-                | W036824211113 | RBC                 | E016700      | Yes                 |
-                | W036824211113 | PLASMA              | E070100      | Yes                 |
+                | Unit Number   | Parent Product Code | Product Code | Has Expiration Date | Temperature Category |
+                | W036824211111 | PLASAPHP            | E765000      | Yes                 | FROZEN               |
+                | W036824211112 | RBCAPH              | E453200      | Yes                 | REFRIGERATED         |
+                | W036824211113 | WHOLEBLOOD          | E011200      | Yes                 | REFRIGERATED         |
+                | W036824211113 | WHOLEBLOOD          | RBC          | No                  |                      |
+                | W036824211113 | WHOLEBLOOD          | PLASMA       | No                  |                      |
+                | W036824211113 | RBC                 | E016700      | Yes                 | REFRIGERATED         |
+                | W036824211113 | PLASMA              | E070100      | Yes                 | FROZEN               |

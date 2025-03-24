@@ -3,11 +3,13 @@ package com.arcone.biopro.distribution.inventory.application.usecase;
 import com.arcone.biopro.distribution.inventory.application.dto.InventoryOutput;
 import com.arcone.biopro.distribution.inventory.application.dto.ProductCreatedInput;
 import com.arcone.biopro.distribution.inventory.application.mapper.InventoryOutputMapper;
-import com.arcone.biopro.distribution.inventory.domain.event.InventoryEventPublisher;
+import com.arcone.biopro.distribution.inventory.application.service.ConfigurationService;
 import com.arcone.biopro.distribution.inventory.domain.event.InventoryCreatedEvent;
+import com.arcone.biopro.distribution.inventory.domain.event.InventoryEventPublisher;
 import com.arcone.biopro.distribution.inventory.domain.exception.InvalidUpdateProductStatusException;
 import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
 import com.arcone.biopro.distribution.inventory.domain.repository.InventoryAggregateRepository;
+import com.arcone.biopro.distribution.inventory.domain.util.ProductCodeUtil;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -24,6 +26,7 @@ public class ProductCreatedUseCase implements UseCase<Mono<InventoryOutput>, Pro
     InventoryAggregateRepository inventoryAggregateRepository;
     InventoryOutputMapper mapper;
     InventoryEventPublisher publisher;
+    ConfigurationService configurationService;
 
     @Override
     public Mono<InventoryOutput> execute(ProductCreatedInput productCreatedInput) {
@@ -32,6 +35,11 @@ public class ProductCreatedUseCase implements UseCase<Mono<InventoryOutput>, Pro
             .switchIfEmpty(Mono.defer(() -> buildAggregate(productCreatedInput)))
             .filter(aggregate -> aggregate.isAvailable() && !aggregate.getIsLabeled() && !aggregate.isQuarantined())
             .switchIfEmpty(Mono.error(InvalidUpdateProductStatusException::new))
+            .flatMap(aggregate ->
+                configurationService.lookUpTemperatureCategory(aggregate.getInventory().getProductCode().value())
+                    .map(aggregate::updateTemperatureCategory)
+                    .switchIfEmpty(Mono.just(aggregate))
+            )
             .flatMap(inventoryAggregateRepository::saveInventory)
             .doOnSuccess(aggregate -> publisher.publish(new InventoryCreatedEvent(aggregate)))
             .map(InventoryAggregate::getInventory)

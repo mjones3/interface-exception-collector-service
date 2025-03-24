@@ -43,7 +43,7 @@ class GetAllAvailableInventoriesUseCaseTest {
     @Test
     void execute_shouldReturnCorrectOutput_whenValidInputProvided() {
         // Given
-        InventoryCriteria criteria = new InventoryCriteria("PLASMA_TRANSFUSABLE", AboRhCriteria.A);
+        InventoryCriteria criteria = new InventoryCriteria("PLASMA_TRANSFUSABLE", AboRhCriteria.A, true, false, null);
         GetAllAvailableInventoriesInput input = new GetAllAvailableInventoriesInput(LOCATION_1, List.of(criteria));
         List<InventoryAggregate> aggregates = Collections.singletonList(InventoryAggregate.builder().build());
         Product product = new Product("W123456789012", "E0980V99", LOCATION_1, AboRhType.ABN);

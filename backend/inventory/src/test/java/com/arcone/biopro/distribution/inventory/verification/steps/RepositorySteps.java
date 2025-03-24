@@ -15,6 +15,7 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
@@ -231,6 +232,9 @@ public class RepositorySteps {
             }
             if (inventory.containsKey("Is licensed")) {
                 assertEquals(Boolean.valueOf(inventory.get("Is licensed")), inventoryEntity.getIsLicensed());
+            }
+            if (inventory.containsKey("Temperature Category") && Strings.isNotBlank(inventory.get("Temperature Category"))) {
+                assertEquals(inventory.get("Temperature Category"), inventoryEntity.getTemperatureCategory());
             }
             if (inventory.containsKey("Unsuitable reason")) {
                 if (inventory.get("Unsuitable reason").equalsIgnoreCase("Empty")) {

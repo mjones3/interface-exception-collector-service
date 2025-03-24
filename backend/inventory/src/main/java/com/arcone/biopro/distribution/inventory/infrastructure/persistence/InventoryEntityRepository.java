@@ -1,7 +1,10 @@
 package com.arcone.biopro.distribution.inventory.infrastructure.persistence;
 
+import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
+import org.reactivestreams.Publisher;
+import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import org.springframework.graphql.data.GraphQlRepository;
 import reactor.core.publisher.Flux;
@@ -31,7 +34,28 @@ public interface InventoryEntityRepository extends ReactiveCrudRepository<Invent
 
     Mono<Long> countByLocationAndProductFamilyAndAboRhInAndInventoryStatusAndExpirationDateAfterAndIsLabeledTrue(String location, String productFamily, List<AboRhType> aboRh, InventoryStatus inventoryStatus, LocalDateTime dateTime);
 
-    Flux<InventoryEntity> findAllByLocationAndProductFamilyAndAboRhInAndInventoryStatusAndIsLabeledTrueAndExpirationDateBetweenOrderByExpirationDateAsc(String location, String productFamily, List<AboRhType> aboRh, InventoryStatus inventoryStatus, LocalDateTime initialDate, LocalDateTime finalDate);
+    @Query("""
+        SELECT COUNT(bld_inventory.id) FROM bld_inventory
+        WHERE bld_inventory.location = :location
+        AND bld_inventory.product_family = :productFamily
+        AND (:aboRh IS NULL OR bld_inventory.abo_rh = ANY(CAST(:aboRh AS text[])))
+        AND (:inventoryStatus IS NULL OR bld_inventory.status = :inventoryStatus)
+        AND (:dateTime IS NULL OR bld_inventory.expiration_date > :dateTime)
+        AND (:isLabeled IS NULL OR bld_inventory.is_labeled = :isLabeled)
+        """)
+    Mono<Long> countBy(String location, String productFamily, String[] aboRh, InventoryStatus inventoryStatus, LocalDateTime dateTime, boolean isLabeled);
 
     Flux<InventoryEntity> findByUnitNumber(String unitNumber);
+
+    @Query("""
+        SELECT * FROM bld_inventory
+        WHERE bld_inventory.location = :location
+          AND bld_inventory.product_family = :productFamily
+          AND (:aboRh IS NULL OR abo_rh = ANY(CAST(:aboRh AS text[])))
+          AND (:inventoryStatus IS NULL OR status = :inventoryStatus)
+          AND (:finalDateTime IS NULL OR expiration_date <= :finalDateTime)
+          AND (:startDateTime IS NULL OR expiration_date >= :startDateTime)
+          AND (:isLabeled IS NULL OR is_labeled = :isLabeled)
+        """)
+    Flux<InventoryEntity> findBy(String location, String productFamily, String[] aboRh, InventoryStatus inventoryStatus, LocalDateTime startDateTime, LocalDateTime finalDateTime, boolean isLabeled);
 }
