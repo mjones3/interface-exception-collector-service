@@ -33,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Year;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -122,6 +123,10 @@ public class OrderSteps {
     private static final String ASCENDING = "ascending";
     private static final String DESCENDING = "descending";
 
+    private static final String NULL_VALUE = "NULL_VALUE";
+    private static final String CURRENT_DATE = "CURRENT_DATE";
+    private static final String CURRENT_DATE_TIME = "CURRENT_DATE_TIME";
+
     @When("I want to list orders for location {string}.")
     public void searchOrders(String locationCode) {
         response = apiHelper.graphQlPageRequest(GraphQLQueryMapper.listOrdersByLocation(locationCode), "searchOrders");
@@ -150,9 +155,9 @@ public class OrderSteps {
     public void postOrderReceivedEventPast(String externalId, String jsonFileName, String date) throws Exception {
         context.setExternalId(externalId);
         var dateValue = "";
-        if ("NULL_VALUE".equals(date)) {
+        if (NULL_VALUE.equals(date)) {
             dateValue = "null";
-        } else if ("CURRENT_DATE".equals(date)) {
+        } else if (CURRENT_DATE.equals(date)) {
             dateValue = "\"" + LocalDate.now() + "\"";
         } else {
             dateValue = "\"" + date + "\"";
@@ -1237,5 +1242,27 @@ public class OrderSteps {
         } else {
             Assert.fail("Invalid Search Key");
         }
+    }
+
+    @Given("I have received an order inbound request with externalId {string}, content {string}, and create date {string}.")
+    public void iHaveReceivedAnOrderInboundRequestWithExternalIdContentAndCreateDate(String externalId, String jsonFileName, String date) throws Exception {
+
+        context.setExternalId(externalId);
+        var desireShipDate = "\"" + LocalDate.now().plusDays(2) + "\"";
+        var dateValue = "";
+        if (NULL_VALUE.equals(date)) {
+            dateValue = "null";
+        } else if (CURRENT_DATE_TIME.equals(date)) {
+            dateValue = "\"" + DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now()) + "\"";
+        } else {
+            dateValue = "\"" + date + "\"";
+        }
+
+        var jsonContent = testUtils.getResource(jsonFileName);
+        jsonContent = jsonContent.replace("\"CREATE_DATE\"", dateValue)
+            .replace("\"DESIRED_DATE\"", desireShipDate)
+            .replace("{EXTERNAL_ID}", externalId);
+        var eventPayload = objectMapper.readValue(jsonContent, OrderReceivedEventDTO.class);
+        orderController.createOrderInboundRequest(jsonContent, eventPayload);
     }
 }

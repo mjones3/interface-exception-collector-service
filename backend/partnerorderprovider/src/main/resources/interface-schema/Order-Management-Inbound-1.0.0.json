@@ -90,7 +90,7 @@
       "pattern": "^(\\d{4}-\\d{2}-\\d{2})$"
     },
     "dateTimePattern": {
-      "type": "string",
+      "type": ["string","null"],
       "pattern": "^(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2})$"
     },
     "orderPickType": {
