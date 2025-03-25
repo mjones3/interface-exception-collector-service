@@ -12,16 +12,18 @@ Feature: Partner Order Inbound Interface
         Then The response status code should be <responseCode>.
         And The Order status should be "<status>".
         Examples:
-            | JsonPayloadName                                                                  | responseCode | status  |
-            | inbound-test-files/order-inbound-scenario-happy-path.json                        | 201          | CREATED |
-            | inbound-test-files/order-inbound-scenario-aph-rbc-products-path.json             | 201          | CREATED |
-            | inbound-test-files/order-inbound-scenario-rbc-path.json                          | 201          | CREATED |
-            | inbound-test-files/order-inbound-scenario-whole-blood-path.json                  | 201          | CREATED |
-            | inbound-test-files/order-inbound-scenario-whole-blood-leukoreduced-path.json     | 201          | CREATED |
-            | inbound-test-files/order-inbound-scenario-dis-285-desire_ship_date_null.json     | 201          | CREATED |
-            | inbound-test-files/order-inbound-scenario-dis-285-desire_ship_date_no_field.json | 201          | CREATED |
-            | inbound-test-files/order-inbound-scenario-dis-322-create_date_null.json          | 201          | CREATED |
-            | inbound-test-files/order-inbound-scenario-dis-322-create_date_no_field.json      | 201          | CREATED |
+            | JsonPayloadName                                                                      | responseCode | status  |
+            | inbound-test-files/order-inbound-scenario-happy-path.json                            | 201          | CREATED |
+            | inbound-test-files/order-inbound-scenario-aph-rbc-products-path.json                 | 201          | CREATED |
+            | inbound-test-files/order-inbound-scenario-rbc-path.json                              | 201          | CREATED |
+            | inbound-test-files/order-inbound-scenario-whole-blood-path.json                      | 201          | CREATED |
+            | inbound-test-files/order-inbound-scenario-whole-blood-leukoreduced-path.json         | 201          | CREATED |
+            | inbound-test-files/order-inbound-scenario-dis-285-desire_ship_date_null.json         | 201          | CREATED |
+            | inbound-test-files/order-inbound-scenario-dis-285-desire_ship_date_no_field.json     | 201          | CREATED |
+            | inbound-test-files/order-inbound-scenario-dis-322-create_date_null.json              | 201          | CREATED |
+            | inbound-test-files/order-inbound-scenario-dis-322-create_date_no_field.json          | 201          | CREATED |
+            | inbound-test-files/order-inbound-scenario-dis-223-create_employee_code_null.json     | 201          | CREATED |
+            | inbound-test-files/order-inbound-scenario-dis-323-create_employee_code_no_field.json | 201          | CREATED |
 
 
 

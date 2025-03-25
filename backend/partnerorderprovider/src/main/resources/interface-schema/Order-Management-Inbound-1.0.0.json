@@ -20,7 +20,9 @@
       "$ref": "#/definitions/dateTimePattern"
     },
     "createEmployeeCode": {
-      "type": "string"
+      "type": ["string","null"],
+      "title": "Modify Employee Code",
+      "maxLength": 50
     },
     "shipmentType": {
       "type": "string",

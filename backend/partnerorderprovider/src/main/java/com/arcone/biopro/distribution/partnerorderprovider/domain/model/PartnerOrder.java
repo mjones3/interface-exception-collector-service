@@ -32,7 +32,7 @@ public class PartnerOrder {
         this.orderStatus = Objects.requireNonNull(orderStatus,"Status cannot be null");
         this.locationCode = Objects.requireNonNull(locationCode,"Location Code cannot be null");
         this.createDate = createDate;
-        this.createEmployeeCode = Objects.requireNonNull(createEmployeeCode,"Create Employee Code cannot be null");
+        this.createEmployeeCode = createEmployeeCode;
         this.shipmentType = Objects.requireNonNull(shipmentType,"Shipment Type cannot be null");
         this.deliveryType = Objects.requireNonNull(deliveryType,"Delivery Type cannot be null");
         this.shippingMethod = Objects.requireNonNull(shippingMethod,"Shipping Method cannot be null");
