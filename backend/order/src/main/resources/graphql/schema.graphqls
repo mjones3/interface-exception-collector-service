@@ -141,7 +141,7 @@ type Order {
     comments: String
     status: String!
     priority: String!
-    createEmployeeId: String!
+    createEmployeeId: String
     createDate: DateTime!
     modificationDate: DateTime!
     deleteDate: DateTime
