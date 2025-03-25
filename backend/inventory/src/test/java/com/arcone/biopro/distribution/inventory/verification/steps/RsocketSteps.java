@@ -76,6 +76,7 @@ public class RsocketSteps {
         var inventory = inventoryUtil.newInventoryEntity(unitNumber, productCode, inventoryStatus);
         inventory.setLocation(location);
         inventory.setIsLabeled(true);
+        inventory.setTemperatureCategory("FROZEN");
         inventory.setExpirationDate(LocalDateTime.now().plusDays(days));
         inventoryUtil.saveInventory(inventory);
     }
@@ -91,6 +92,7 @@ public class RsocketSteps {
         inventory.setStatusReason(statusReason);
         inventory.setComments(comments);
         inventory.setIsLabeled(true);
+        inventory.setTemperatureCategory("FROZEN");
         inventoryUtil.saveInventory(inventory);
     }
 
@@ -177,8 +179,8 @@ public class RsocketSteps {
         assertThat(inventory.shortDateProducts().size()).isEqualTo(Integer.parseInt(quantityShortDate));
     }
 
-    @Then("I receive for {string} with {string} in the {string} a {string} message with {string} action and {string} reason and {string} message and details {string}")
-    public void iReceiveForWithInTheAMessage(String unitNumber, String productCode, String location, String errorType, String action, String reason, String messageError, String details) {
+    @Then("I receive for {string} with {string} and temperature category {string} in the {string} a {string} message with {string} action and {string} reason and {string} message and details {string}")
+    public void iReceiveForWithInTheAMessage(String unitNumber, String productCode, String temperatureCategory, String location, String errorType, String action, String reason, String messageError, String details) {
         Integer errorCode = "".equals(errorType) ? null : MessageType.valueOf(errorType).getCode();
         StepVerifier
             .create(inventoryValidationResponseDTOMonoResult)
@@ -186,6 +188,7 @@ public class RsocketSteps {
                 if (!MessageType.INVENTORY_NOT_EXIST.getCode().equals(errorCode)) {
                     assertThat(message.inventoryResponseDTO().unitNumber()).isEqualTo(unitNumber);
                     assertThat(message.inventoryResponseDTO().productCode()).isEqualTo(productCode);
+                    assertThat(message.inventoryResponseDTO().temperatureCategory()).isEqualTo(temperatureCategory);
 
                     if (!MessageType.INVENTORY_NOT_FOUND_IN_LOCATION.getCode().equals(errorCode)) {
                         assertThat(message.inventoryResponseDTO().locationCode()).isEqualTo(location);
@@ -236,6 +239,7 @@ public class RsocketSteps {
         inventory.setStatusReason("ACTIVE_DEFERRAL");
         inventory.setComments(null);
         inventory.setIsLabeled(true);
+        inventory.setTemperatureCategory("FROZEN");
         inventoryUtil.saveInventory(inventory);
     }
 
@@ -261,6 +265,7 @@ public class RsocketSteps {
         inventory.setLocation(location);
         inventory.setExpirationDate(LocalDateTime.now().plusDays(days));
         inventory.setIsLabeled(false);
+        inventory.setTemperatureCategory("FROZEN");
         inventoryUtil.saveInventory(inventory);
     }
 
@@ -306,6 +311,7 @@ public class RsocketSteps {
         inventory.setUnsuitableReason(reason);
         inventory.setComments(null);
         inventory.setIsLabeled(true);
+        inventory.setTemperatureCategory("FROZEN");
         inventoryUtil.saveInventory(inventory);
     }
 
