@@ -13,7 +13,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @RequiredArgsConstructor
 @GraphQlRepository
@@ -25,8 +24,6 @@ public class InventoryAggregateRepositoryImpl implements InventoryAggregateRepos
     InventoryEntityMapper inventoryEntityMapper;
 
     ProductFamilyEntityRepository productFamilyEntityRepository;
-
-    TemperatureCategoryEntityRepository temperatureCategoryEntityRepository;
 
     @Override
     public Flux<InventoryAggregate> findByUnitNumber(String unitNumber) {
@@ -49,19 +46,22 @@ public class InventoryAggregateRepositoryImpl implements InventoryAggregateRepos
     }
 
     @Override
-    public Flux<InventoryAggregate> findAllAvailableShortDate(String location, String productFamily, AboRhCriteria aboRh, String temperatureCategory, boolean isLabeled, boolean isShortDate) {
+    public Flux<InventoryAggregate> findAllAvailableShortDate(String location, String productFamily, AboRhCriteria aboRh, String temperatureCategory) {
         return productFamilyEntityRepository.findByProductFamily(productFamily)
-            .flatMapMany(pf -> inventoryEntityRepository.findBy(location, productFamily, aboRHArray(aboRh), InventoryStatus.AVAILABLE, LocalDateTime.now(), getFinalDateTime(pf), isLabeled))
+            .flatMapMany(pf -> inventoryEntityRepository.findBy(
+                location,
+                productFamily,
+                aboRHArray(aboRh),
+                InventoryStatus.AVAILABLE,
+                temperatureCategory,
+                LocalDateTime.now(),
+                getFinalDateTime(pf)))
             .map(inventoryEntityMapper::toAggregate);
-//        return productFamilyEntityRepository.findByProductFamily(productFamily)
-//            .flatMapMany(pf -> inventoryEntityRepository.findAllByLocationAndProductFamilyAndAboRhInAndInventoryStatusAndIsLabeledTrueAndExpirationDateBetweenOrderByExpirationDateAsc(location, productFamily, aboRh.getAboRhTypes(), InventoryStatus.AVAILABLE, LocalDateTime.now(), getFinalDateTime(pf)))
-//            .map(inventoryEntityMapper::toAggregate);
     }
 
     @Override
-    public Mono<Long> countAllAvailable(String location, String productFamily, AboRhCriteria aboRh) {
-        return inventoryEntityRepository.countBy(location, productFamily, aboRHArray(aboRh), InventoryStatus.AVAILABLE,  LocalDateTime.now(), true);
-//        return inventoryEntityRepository.countByLocationAndProductFamilyAndAboRhInAndInventoryStatusAndExpirationDateAfterAndIsLabeledTrue(location, productFamily, aboRh.getAboRhTypes(), InventoryStatus.AVAILABLE, LocalDateTime.now());
+    public Mono<Long> countAllAvailable(String location, String productFamily, AboRhCriteria aboRh, String temperatureCategory) {
+        return inventoryEntityRepository.countBy(location, productFamily, aboRHArray(aboRh), InventoryStatus.AVAILABLE, temperatureCategory, LocalDateTime.now());
     }
 
     private static String[] aboRHArray(AboRhCriteria aboRh) {
@@ -76,11 +76,6 @@ public class InventoryAggregateRepositoryImpl implements InventoryAggregateRepos
         return inventoryEntityRepository.findByUnitNumberAndProductCodeLikeAndLocation(unitNumber, createProductCodePattern(productCode), location)
             .map(inventoryEntityMapper::toDomain)
             .flatMap(inventory -> Mono.just(InventoryAggregate.builder().inventory(inventory).build()));
-    }
-
-    @Override
-    public Mono<String> findTemperatureCategoryByProductCode(String productCode) {
-        return temperatureCategoryEntityRepository.findById(productCode).map(TemperatureCategoryEntity::getTemperatureCategory);
     }
 
     private String createProductCodePattern(String productCode) {

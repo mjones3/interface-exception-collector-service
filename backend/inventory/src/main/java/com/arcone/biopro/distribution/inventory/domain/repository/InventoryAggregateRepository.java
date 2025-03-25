@@ -13,11 +13,9 @@ public interface InventoryAggregateRepository {
 
     Mono<InventoryAggregate> saveInventory(InventoryAggregate inventoryAggregate);
 
-    Flux<InventoryAggregate> findAllAvailableShortDate(String location, String productFamily, AboRhCriteria aboRh, String temperatureCategory, boolean isLabeled, boolean isShortDate);
+    Flux<InventoryAggregate> findAllAvailableShortDate(String location, String productFamily, AboRhCriteria aboRh, String temperatureCategory);
 
-    Mono<Long> countAllAvailable(String location, String productFamily, AboRhCriteria abRh);
+    Mono<Long> countAllAvailable(String location, String productFamily, AboRhCriteria abRh, String temperatureCategory);
 
     Mono<InventoryAggregate> findByLocationAndUnitNumberAndProductCode(String location, String unitNumber, String productCode);
-
-    Mono<String> findTemperatureCategoryByProductCode(String productCode);
 }

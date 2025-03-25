@@ -96,7 +96,7 @@ public class RsocketSteps {
 
     @When("I select {string} of the blood type {string}")
     public void iSelectOfTheOfTheBloodType(String productFamily, String aboRh) {
-        inventoryCriteriaList.add(new AvailableInventoryCriteriaDTO(productFamily, AboRhCriteria.valueOf(aboRh), null, true, false));
+        inventoryCriteriaList.add(new AvailableInventoryCriteriaDTO(productFamily, AboRhCriteria.valueOf(aboRh), null));
     }
 
     @When("I request available inventories for family with the following parameters:")
@@ -104,20 +104,10 @@ public class RsocketSteps {
         List<Map<String, String>> parameters = dataTable.asMaps(String.class, String.class);
         var parameter = parameters.getFirst();
         var builder = AvailableInventoryCriteriaDTO.builder();
-        if(parameter.containsKey("Product Family")) {
-            builder.productFamily(parameter.get("Product Family"));
-        }
-        if(parameter.containsKey("Abo Rh Type")) {
-            builder.bloodType(AboRhCriteria.valueOf(parameter.get("Abo Rh Type")));
-        }
-        if(parameter.containsKey("Is Labeled")) {
-            builder.isLabeled(Boolean.parseBoolean(parameter.get("Is Labeled")));
-        }
+        builder.productFamily(parameter.get("Product Family"));
+        builder.bloodType(AboRhCriteria.valueOf(parameter.get("Abo Rh Type")));
         if(parameter.containsKey("Temperature Category")) {
             builder.temperatureCategory(parameter.get("Temperature Category"));
-        }
-        if(parameter.containsKey("Short date")) {
-            builder.isShortDate(Boolean.parseBoolean(parameter.get("Short date")));
         }
 
         getAvailableInventoryResponseDTOMonoResult = requester
@@ -150,9 +140,21 @@ public class RsocketSteps {
         StepVerifier
             .create(getAvailableInventoryResponseDTOMonoResult)
             .consumeNextWith(message -> {
-                assertThat(message.inventories().getFirst().shortDateProducts().size()).isEqualTo(Integer.parseInt(quantityShortDate));
-                assertThat(message.inventories().getFirst().quantityAvailable()).isEqualTo(Integer.parseInt(quantityTotal));
-                log.debug("Received message {}", message);
+                var inventories = message.inventories().getFirst();
+
+                int expectedShort = Integer.parseInt(quantityShortDate);
+                int expectedTotal = Integer.parseInt(quantityTotal);
+
+                int actualShort = inventories.shortDateProducts().size();
+                int actualTotal = inventories.quantityAvailable();
+
+                assertThat(actualShort)
+                    .withFailMessage("Expected shortDateProducts size: %d but was %d", expectedShort, actualShort)
+                    .isEqualTo(expectedShort);
+
+                assertThat(actualTotal)
+                    .withFailMessage("Expected quantityAvailable: %d but was %d", expectedTotal, actualTotal)
+                    .isEqualTo(expectedTotal);
             })
             .verifyComplete();
     }

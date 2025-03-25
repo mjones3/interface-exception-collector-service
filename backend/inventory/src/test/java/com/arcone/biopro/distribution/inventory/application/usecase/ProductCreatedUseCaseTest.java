@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.inventory.application.usecase;
 import com.arcone.biopro.distribution.inventory.application.dto.InventoryOutput;
 import com.arcone.biopro.distribution.inventory.application.dto.ProductCreatedInput;
 import com.arcone.biopro.distribution.inventory.application.mapper.InventoryOutputMapper;
+import com.arcone.biopro.distribution.inventory.application.service.ConfigurationService;
 import com.arcone.biopro.distribution.inventory.domain.event.InventoryCreatedEvent;
 import com.arcone.biopro.distribution.inventory.domain.event.InventoryEventPublisher;
 import com.arcone.biopro.distribution.inventory.domain.exception.InvalidUpdateProductStatusException;
@@ -13,6 +14,7 @@ import com.arcone.biopro.distribution.inventory.domain.model.enumeration.Invento
 import com.arcone.biopro.distribution.inventory.domain.model.vo.ProductCode;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.UnitNumber;
 import com.arcone.biopro.distribution.inventory.domain.repository.InventoryAggregateRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,9 +48,13 @@ class ProductCreatedUseCaseTest {
     @InjectMocks
     private ProductCreatedUseCase productCreatedUseCase;
 
+    @Mock
+    private ConfigurationService configurationService;
+
     @Test
     @DisplayName("should create inventory and publish event successfully")
     void test1() {
+        when(configurationService.lookUpTemperatureCategory(any())).thenReturn(Mono.empty());
         var uuid = UUID.randomUUID();
         var input = ProductCreatedInput.builder()
             .unitNumber("W123456789012")
@@ -109,6 +115,7 @@ class ProductCreatedUseCaseTest {
     @Test
     @DisplayName("should create new inventory when not found")
     void test2() {
+        when(configurationService.lookUpTemperatureCategory(any())).thenReturn(Mono.empty());
         var input = ProductCreatedInput.builder()
             .unitNumber("W123456789012")
             .productCode("E123412")
@@ -131,6 +138,7 @@ class ProductCreatedUseCaseTest {
         when(aggregate.isAvailable()).thenReturn(true);
         when(aggregate.getIsLabeled()).thenReturn(false);
         when(aggregate.isQuarantined()).thenReturn(false);
+        when(inventory.getProductCode()).thenReturn(new ProductCode("E123412"));
         when(inventoryAggregateRepository.saveInventory(aggregate)).thenReturn(Mono.just(aggregate));
         when(aggregate.getInventory()).thenReturn(inventory);
         when(mapper.toOutput(inventory)).thenReturn(expectedOutput);

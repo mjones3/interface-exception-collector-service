@@ -6,5 +6,5 @@ import lombok.Builder;
 import java.io.Serializable;
 
 @Builder
-public record AvailableInventoryCriteriaDTO(String productFamily, AboRhCriteria bloodType, String temperatureCategory, boolean isLabeled, boolean isShortDate) implements Serializable {
+public record AvailableInventoryCriteriaDTO(String productFamily, AboRhCriteria bloodType, String temperatureCategory) implements Serializable {
 }

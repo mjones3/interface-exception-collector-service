@@ -18,7 +18,7 @@ import reactor.test.StepVerifier;
 import java.util.Collections;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 class GetAllAvailableInventoriesUseCaseTest {
@@ -43,16 +43,16 @@ class GetAllAvailableInventoriesUseCaseTest {
     @Test
     void execute_shouldReturnCorrectOutput_whenValidInputProvided() {
         // Given
-        InventoryCriteria criteria = new InventoryCriteria("PLASMA_TRANSFUSABLE", AboRhCriteria.A, true, false, null);
+        InventoryCriteria criteria = new InventoryCriteria("PLASMA_TRANSFUSABLE", AboRhCriteria.A, null);
         GetAllAvailableInventoriesInput input = new GetAllAvailableInventoriesInput(LOCATION_1, List.of(criteria));
         List<InventoryAggregate> aggregates = Collections.singletonList(InventoryAggregate.builder().build());
         Product product = new Product("W123456789012", "E0980V99", LOCATION_1, AboRhType.ABN);
         InventoryFamily inventoryFamily = new InventoryFamily("PLASMA_TRANSFUSABLE", AboRhCriteria.A, 1L, List.of(product));
         GetAllAvailableInventoriesOutput expectedOutput = new GetAllAvailableInventoriesOutput(LOCATION_1, List.of(inventoryFamily));
 
-        when(inventoryAggregateRepository.findAllAvailableShortDate(any(), any(), any()))
+        when(inventoryAggregateRepository.findAllAvailableShortDate(any(), any(), any(), any()))
             .thenReturn(Flux.fromIterable(aggregates));
-        when(inventoryAggregateRepository.countAllAvailable(any(), any(), any()))
+        when(inventoryAggregateRepository.countAllAvailable(any(), any(), any(), any()))
             .thenReturn(Mono.just(1L));
         when(mapper.toOutput(any(), any(), any(), any()))
             .thenReturn(inventoryFamily);
