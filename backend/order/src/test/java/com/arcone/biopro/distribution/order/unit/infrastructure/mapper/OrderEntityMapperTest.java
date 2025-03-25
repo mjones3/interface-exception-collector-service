@@ -55,7 +55,11 @@ class OrderEntityMapperTest {
     @Test
     @Disabled("Disabled until Manual Order Creation is implemented")
     void testMapToEntity() {
-        var order = new Order(customerService,lookupService, 1L, 1L, "externalId", "locationCode", "shipmentType", "shippingMethod", "code", "code", LocalDate.now().toString(), TRUE, "phoneNumber", "productCategory", "comments", "status", "priority", "createEmployeeId", ZonedDateTime.now(), ZonedDateTime.now(), null);
+        var order = new Order(customerService,lookupService, 1L, 1L, "externalId", "locationCode"
+            , "shipmentType", "shippingMethod"
+            , "code", "code", LocalDate.now().toString(), TRUE, "phoneNumber"
+            , "productCategory", "comments", "status"
+            , "priority", "createEmployeeId", "2023-04-25 20:09:01", ZonedDateTime.now(), null);
 
         var orderEntity = mapper.mapToEntity(order);
 

@@ -5,7 +5,7 @@ Feature: Partner Order Inbound Interface
     so that my order can be processed by the BioPro system.
 
     Rule: BioPro should be able to accept and create orders sent by the Order Provider for all priorities (STAT, ASAP, ROUTINE, SCHEDULED, DATE_TIME) that does not have a Desired Shipping Date indicated.
-    @DIS-91 @DIS-252 @bug @DIS-285
+    @DIS-91 @DIS-252 @bug @DIS-285 @bug @DIS-322
     Scenario Outline: Receive a Partner order inbound request
         Given I have a Partner order "<JsonPayloadName>".
         When I send a request to the Partner Order Inbound Interface.
@@ -20,6 +20,11 @@ Feature: Partner Order Inbound Interface
             | inbound-test-files/order-inbound-scenario-whole-blood-leukoreduced-path.json     | 201          | CREATED |
             | inbound-test-files/order-inbound-scenario-dis-285-desire_ship_date_null.json     | 201          | CREATED |
             | inbound-test-files/order-inbound-scenario-dis-285-desire_ship_date_no_field.json | 201          | CREATED |
+            | inbound-test-files/order-inbound-scenario-dis-322-create_date_null.json          | 201          | CREATED |
+            | inbound-test-files/order-inbound-scenario-dis-322-create_date_no_field.json      | 201          | CREATED |
+
+
+
 
 
     @DIS-91
