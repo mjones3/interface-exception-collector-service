@@ -239,11 +239,11 @@ public class OrderSteps {
             var desireShipDate = row.get(headers.indexOf("Desired Shipment Date")).equals("NULL_VALUE") ? null : "'" + row.get(headers.indexOf("Desired Shipment Date")) + "'";
 
             var query = DatabaseQueries.insertBioProOrder(context.getExternalId(), context.getLocationCode(), orderController.getPriorityValue(priority), priority, status, desireShipDate
-                ,row.get(headers.indexOf("Customer Code")),row.get(headers.indexOf("Ship To Customer Name")),row.get(headers.indexOf("Create Date")) );
+                , row.get(headers.indexOf("Customer Code")), row.get(headers.indexOf("Ship To Customer Name")), row.get(headers.indexOf("Create Date")));
             databaseService.executeSql(query).block();
 
             var orderId = Integer.valueOf(databaseService.fetchData(DatabaseQueries.getOrderId(context.getExternalId())).first().block().get("id").toString());
-            orderIdMap.put(context.getExternalId(),orderId);
+            orderIdMap.put(context.getExternalId(), orderId);
 
             // Will keep the last order id
             context.setOrderId(orderId);
@@ -837,6 +837,15 @@ public class OrderSteps {
         }
     }
 
+    @When("I search for orders by {string} from {string} to {string}.")
+    public void searchForOrdersByCreateDate(String searchKey, String createDateFrom, String createDateTo) {
+        if (searchKey.equalsIgnoreCase("createDate")) {
+            orderController.searchOrdersByCreateDate(context.getLocationCode(), createDateFrom, createDateTo);
+        } else {
+            Assert.fail("Invalid search key.");
+        }
+    }
+
     @Then("I should receive the search results containing {string} order(s).")
     public void iShouldReceiveTheSearchResultsContainingOrder(String expectedQuantity) {
         var ordersPage = context.getOrdersPage();
@@ -1091,16 +1100,16 @@ public class OrderSteps {
             var shouldBeFound = row.get(headers.indexOf("Should be Found?"));
             var shouldBeUpdated = row.get(headers.indexOf("Should be Updated?"));
 
-            orderController.getOrderDetails(orderIdMap.get(externalId));
+            var orderDetails = orderController.getOrderDetailsMap(orderIdMap.get(externalId));
             if (shouldBeFound.equalsIgnoreCase("yes")) {
-                Assert.assertNotNull(context.getOrderDetails());
-                List<Map> orderItems = (List<Map>) context.getOrderDetails().get("orderItems");
+                Assert.assertNotNull(orderDetails);
+                List<Map> orderItems = (List<Map>) orderDetails.get("orderItems");
                 if (shouldBeUpdated.equalsIgnoreCase("yes")) {
                     // Validate order data
-                    Assert.assertEquals(context.getOrderDetails().get("locationCode"), locationCode);
-                    Assert.assertEquals(context.getOrderDetails().get("priority"), modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Delivery Type")));
-                    Assert.assertEquals(context.getOrderDetails().get("productCategory"), modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Product Category")));
-                    Assert.assertEquals(context.getOrderDetails().get("modifyReason"), modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Modify Reason")));
+                    Assert.assertEquals(orderDetails.get("locationCode"), locationCode);
+                    Assert.assertEquals(orderDetails.get("priority"), modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Delivery Type")));
+                    Assert.assertEquals(orderDetails.get("productCategory"), modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Product Category")));
+                    Assert.assertEquals(orderDetails.get("modifyReason"), modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Modify Reason")));
                     // Validate order items data
                     var productFamilyList = testUtils.getCommaSeparatedList(modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Product Family")));
                     var bloodTypeList = testUtils.getCommaSeparatedList(modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Blood Type")));
@@ -1112,9 +1121,9 @@ public class OrderSteps {
                     }
                 } else if (shouldBeUpdated.equalsIgnoreCase("no")) {
                     // Validate order data
-                    Assert.assertEquals(context.getOrderDetails().get("locationCode"), originalOrderTable.row(i).get(originalOrderTable.row(0).indexOf("Location Code")));
-                    Assert.assertEquals(context.getOrderDetails().get("priority"), originalOrderTable.row(i).get(originalOrderTable.row(0).indexOf("Delivery Type")));
-                    Assert.assertEquals(context.getOrderDetails().get("productCategory"), originalOrderTable.row(i).get(originalOrderTable.row(0).indexOf("Product Category")));
+                    Assert.assertEquals(orderDetails.get("locationCode"), originalOrderTable.row(i).get(originalOrderTable.row(0).indexOf("Location Code")));
+                    Assert.assertEquals(orderDetails.get("priority"), originalOrderTable.row(i).get(originalOrderTable.row(0).indexOf("Delivery Type")));
+                    Assert.assertEquals(orderDetails.get("productCategory"), originalOrderTable.row(i).get(originalOrderTable.row(0).indexOf("Product Category")));
                     // Validate order items data
                     var productFamilyList = testUtils.getCommaSeparatedList(originalOrderTable.row(i).get(originalOrderTable.row(0).indexOf("Product Family")));
                     var bloodTypeList = testUtils.getCommaSeparatedList(originalOrderTable.row(i).get(originalOrderTable.row(0).indexOf("Blood Type")));
@@ -1128,7 +1137,7 @@ public class OrderSteps {
                     Assert.fail("Invalid option for should be updated.");
                 }
             } else if (shouldBeFound.equalsIgnoreCase("no")) {
-                Assert.assertNull(context.getOrderDetails());
+                Assert.assertNull(orderDetails);
             } else {
                 Assert.fail("Invalid option for should be found.");
             }
@@ -1139,15 +1148,15 @@ public class OrderSteps {
     public void iRequestToListTheOrdersSortedByInOrder(String property, String sortingOrder) {
 
         var order = "";
-        if(ASCENDING.equals(sortingOrder)){
+        if (ASCENDING.equals(sortingOrder)) {
             order = "ASC";
         } else if (DESCENDING.equals(sortingOrder)) {
             order = "DESC";
-        }else{
+        } else {
             Assert.fail("Invalid Sorting Order");
         }
 
-        orderController.sortOrdersByPage(0,property,order);
+        orderController.sortOrdersByPage(0, property, order);
         Assertions.assertNotNull(context.getOrdersPage());
     }
 
@@ -1156,7 +1165,7 @@ public class OrderSteps {
         checkOrdersResponseList(table, context.getOrdersPage());
     }
 
-    private void checkOrdersResponseList(DataTable table , PageDTO<JsonNode> response) {
+    private void checkOrdersResponseList(DataTable table, PageDTO<JsonNode> response) {
         var headers = table.row(0);
 
         var responseIds = response.content().stream()
@@ -1169,8 +1178,8 @@ public class OrderSteps {
             expectedIds.add(row.get(headers.indexOf("External ID")));
         }
 
-        log.debug("responseIds {}",responseIds);
-        log.debug("expectedIds {}",String.join(",", expectedIds));
+        log.debug("responseIds {}", responseIds);
+        log.debug("expectedIds {}", String.join(",", expectedIds));
 
         Assert.assertEquals(String.join(",", expectedIds), responseIds);
     }
@@ -1178,13 +1187,13 @@ public class OrderSteps {
     @And("The sorting indicator should be at {string} property in {string} order.")
     public void theSortingIndicatorShouldBeAtPropertyInOrder(String property, String sortingOrder) {
 
-        Assert.assertEquals(property,context.getOrdersPage().querySort().orderByList().getFirst().property());
+        Assert.assertEquals(property, context.getOrdersPage().querySort().orderByList().getFirst().property());
 
-        if(ASCENDING.equals(sortingOrder)){
-            Assert.assertEquals("ASC",context.getOrdersPage().querySort().orderByList().getFirst().direction());
+        if (ASCENDING.equals(sortingOrder)) {
+            Assert.assertEquals("ASC", context.getOrdersPage().querySort().orderByList().getFirst().direction());
         } else if (DESCENDING.equals(sortingOrder)) {
-            Assert.assertEquals("DESC",context.getOrdersPage().querySort().orderByList().getFirst().direction());
-        }else{
+            Assert.assertEquals("DESC", context.getOrdersPage().querySort().orderByList().getFirst().direction());
+        } else {
             Assert.fail("Invalid Sorting Order");
         }
     }
@@ -1192,28 +1201,41 @@ public class OrderSteps {
     @Then("I should receive the orders listed by {string} in {string} order.")
     public void iShouldReceiveTheOrdersListedByInOrder(String property, String sortingOrder) {
 
-        var expectedIds = new ArrayList<String>();
+        var expectedIds = new ArrayList<Integer>();
         for (var i = 1; i < originalOrderTable.height(); i++) {
             var row = originalOrderTable.row(i);
-            expectedIds.add(orderIdMap.get(row.get(originalOrderTable.row(0).indexOf("External ID"))).toString());
+            expectedIds.add(orderIdMap.get(row.get(originalOrderTable.row(0).indexOf("External ID"))));
         }
 
-        Assert.assertEquals(property,context.getOrdersPage().querySort().orderByList().getFirst().property());
+        Assert.assertEquals(property, context.getOrdersPage().querySort().orderByList().getFirst().property());
 
         var responseIds = context.getOrdersPage().content().stream()
             .map(r -> r.get("orderNumber").asText())
             .collect(Collectors.joining(","));
 
-        if(ASCENDING.equals(sortingOrder)){
-            Assert.assertEquals("ASC",context.getOrdersPage().querySort().orderByList().getFirst().direction());
+        if (ASCENDING.equals(sortingOrder)) {
+            Assert.assertEquals("ASC", context.getOrdersPage().querySort().orderByList().getFirst().direction());
             Collections.sort(expectedIds);
         } else if (DESCENDING.equals(sortingOrder)) {
-            Assert.assertEquals("DESC",context.getOrdersPage().querySort().orderByList().getFirst().direction());
+            Assert.assertEquals("DESC", context.getOrdersPage().querySort().orderByList().getFirst().direction());
             Collections.reverse(expectedIds);
-        }else{
+        } else {
             Assert.fail("Invalid Sorting Order");
         }
 
-        Assert.assertEquals(String.join(",", expectedIds), responseIds);
+        Assert.assertEquals(expectedIds.stream().map(String::valueOf).collect(Collectors.joining(",")), responseIds);
+    }
+
+    @When("I search for orders by {string} with the value {string}.")
+    public void iSearchForOrdersByWithTheValue(String searchKey, String searchValue) {
+        if (searchKey.equalsIgnoreCase("orderId")) {
+            context.setOrderId(Integer.valueOf(searchValue));
+            orderController.listOrdersByOrderId();
+        } else if (searchKey.equalsIgnoreCase("externalId")) {
+            context.setExternalId(searchValue);
+            orderController.listOrdersByExternalId();
+        } else {
+            Assert.fail("Invalid Search Key");
+        }
     }
 }

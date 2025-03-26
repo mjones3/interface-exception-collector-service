@@ -5,7 +5,7 @@ import com.arcone.biopro.distribution.order.domain.model.Order;
 import com.arcone.biopro.distribution.order.domain.repository.OrderRepository;
 import com.arcone.biopro.distribution.order.domain.service.CustomerService;
 import com.arcone.biopro.distribution.order.infrastructure.config.KafkaConfiguration;
-import com.arcone.biopro.distribution.order.infrastructure.dto.OrderFulfilledEventDTO;
+import com.arcone.biopro.distribution.order.infrastructure.event.OrderFulfilledEventDTO;
 import com.arcone.biopro.distribution.order.infrastructure.mapper.OrderFulfilledMapper;
 import io.github.springwolf.bindings.kafka.annotations.KafkaAsyncOperationBinding;
 import io.github.springwolf.core.asyncapi.annotations.AsyncMessage;
@@ -53,7 +53,7 @@ public class PickListCreatedListener {
         headers = @AsyncOperation.Headers(values = @AsyncOperation.Headers.Header(
             name = DEFAULT_CLASSID_FIELD_NAME,
             description = "Spring Type Id Header",
-            value = "com.arcone.biopro.distribution.order.infrastructure.dto.OrderCompletedDTO"
+            value = "com.arcone.biopro.distribution.order.infrastructure.event.OrderFulfilledEventDTO"
         )),
         message = @AsyncMessage(
             name = "OrderFulfilled",

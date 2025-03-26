@@ -8,10 +8,13 @@ import com.arcone.biopro.distribution.shipping.application.dto.UseCaseMessageTyp
 import com.arcone.biopro.distribution.shipping.application.exception.DomainException;
 import com.arcone.biopro.distribution.shipping.application.mapper.ExternalTransferDomainMapper;
 import com.arcone.biopro.distribution.shipping.application.util.ShipmentServiceMessages;
+import com.arcone.biopro.distribution.shipping.domain.event.ExternalTransferCompletedEvent;
+import com.arcone.biopro.distribution.shipping.domain.model.ExternalTransfer;
 import com.arcone.biopro.distribution.shipping.domain.repository.ExternalTransferRepository;
 import com.arcone.biopro.distribution.shipping.domain.service.CompleteExternalTransferService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -28,6 +31,7 @@ public class CompleteExternalTransferUseCase extends AbstractUseCase implements 
     private final ExternalTransferRepository externalTransferRepository;
     private final ExternalTransferDomainMapper externalTransferDomainMapper;
     private final static String EXTERNAL_TRANSFER_URL  = "/external-transfer";
+    private final ApplicationEventPublisher applicationEventPublisher;
 
 
     @Override
@@ -40,6 +44,7 @@ public class CompleteExternalTransferUseCase extends AbstractUseCase implements 
                 return externalTransferRepository.update(externalTransfer);
             })
             .flatMap(externalTransfer -> {
+                applicationEventPublisher.publishEvent(new ExternalTransferCompletedEvent(externalTransfer));
                 return Mono.just(RuleResponseDTO.builder()
                     .ruleCode(HttpStatus.OK)
                     .results(Map.of("results", List.of(externalTransferDomainMapper.toDTO(externalTransfer))))
@@ -56,7 +61,5 @@ public class CompleteExternalTransferUseCase extends AbstractUseCase implements 
                 return buildErrorResponse(error);
             });
     }
-
-
 
 }

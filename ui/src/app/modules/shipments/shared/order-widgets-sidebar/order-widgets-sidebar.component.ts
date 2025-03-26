@@ -152,7 +152,7 @@ export class OrderWidgetsSidebarComponent {
         ...(this.orderInput()?.modifyDate
             ? [
                   {
-                      label: 'Modify Date and Time',
+                      label: 'Modified Date and Time',
                       value: this.datePipe.transform(
                           this.orderInput()?.modifyDate,
                           'MM/dd/yyyy HH:mm:ss'

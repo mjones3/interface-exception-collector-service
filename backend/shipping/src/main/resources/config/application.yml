@@ -19,7 +19,7 @@ spring:
       on-profile: '!api-docs'
 springdoc:
   api-docs:
-    enabled: false
+    enabled: true
 ---
 # Conditionally disable telemetry on missing telemetry profile
 spring:
@@ -101,6 +101,7 @@ logging:
     org.apache.kafka.clients.consumer.ConsumerConfig: WARN
     org.apache.kafka: WARN
     com.arcone.biopro: DEBUG
+    #io.github.springwolf: DEBUG
 
 spring:
   autoconfigure:
@@ -231,6 +232,18 @@ server:
 springdoc:
   show-actuator: true
 
+springwolf:
+  docket:
+    base-package: com.arcone.biopro
+    info:
+      title: ${spring.application.name}
+      version: 0.0.1
+    servers:
+      kafka:
+        protocol: kafka
+        host: ${kafka.bootstrap.servers:localhost:29092}
+  enabled: true
+
 # ===================================================================
 # BioPro specific properties
 # ===================================================================
@@ -289,6 +302,13 @@ topics:
       partitions: 1
       replicas: 1
       topic-name: ShipmentCreated
+  external-transfer:
+    external-transfer-completed:
+      partitions: 1
+      replicas: 1
+      topic-name: ExternalTransferCompleted
+
+
 
 
 

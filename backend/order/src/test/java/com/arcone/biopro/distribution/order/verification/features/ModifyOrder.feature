@@ -29,7 +29,7 @@ Feature: Modify Order
                 | EXTDIS3160003      | 2025-01-01 11:09:55 | DO1           | STAT          | FEDEX           | FROZEN           | RED_BLOOD_CELLS_LEUKOREDUCED                      | AP         | 10       | Reason  3     | ee1bf88e-2137-4a17-835a-d43e7b738374 |
                 | EXTDIS3160004      | 2025-01-01 11:09:55 | DO1           | STAT          | FEDEX           | REFRIGERATED     | WHOLE_BLOOD,WHOLE_BLOOD                           | AP,ANY     | 10,15    | Reason  2     | ee1bf88e-2137-4a17-835a-d43e7b738374 |
                 | EXTDIS3160005      | 2025-01-01 11:09:55 | DO1           | STAT          | FEDEX           | REFRIGERATED     | WHOLE_BLOOD_LEUKOREDUCED,WHOLE_BLOOD_LEUKOREDUCED | AP,ANY     | 10,15    | Reason  2     | ee1bf88e-2137-4a17-835a-d43e7b738374 |
-                | EXTDIS3160006      | 2025-01-01 11:09:55 | DO1           | STAT          | FEDEX           | REFRIGERATED     | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE           | A,ANY      | 10,15    | Reason  2     | ee1bf88e-2137-4a17-835a-d43e7b738374 |
+                | EXTDIS3160000      | 2025-01-01 11:09:55 | DO1           | STAT          | FEDEX           | REFRIGERATED     | PLASMA_TRANSFUSABLE,PLASMA_TRANSFUSABLE           | A,ANY      | 10,15    | Reason  2     | ee1bf88e-2137-4a17-835a-d43e7b738374 |
                 | EXTDIS3160007      | 2025-31-77 11:09:55 | DO1           | STAT          | FEDEX           | FROZEN           | PLASMA_TRANSFUSABLE                               | ANY        | 10       | Reason  1     | ee1bf88e-2137-4a17-835a-d43e7b738374 |
             When The system processes the modify order requests.
             Then The Modify order request should be processed as.

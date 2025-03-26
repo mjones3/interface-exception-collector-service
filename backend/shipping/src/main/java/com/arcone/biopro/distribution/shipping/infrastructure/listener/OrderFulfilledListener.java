@@ -5,6 +5,9 @@ import com.arcone.biopro.distribution.shipping.infrastructure.listener.dto.Order
 import com.arcone.biopro.distribution.shipping.infrastructure.listener.dto.OrderFulfilledMessage;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.springwolf.bindings.kafka.annotations.KafkaAsyncOperationBinding;
+import io.github.springwolf.core.asyncapi.annotations.AsyncListener;
+import io.github.springwolf.core.asyncapi.annotations.AsyncOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -42,6 +45,7 @@ public class OrderFulfilledListener implements CommandLineRunner {
         handleEvent();
     }
 
+
     private Disposable handleEvent() {
         return consumer
             .receive()
@@ -70,6 +74,12 @@ public class OrderFulfilledListener implements CommandLineRunner {
 
     }
 
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "OrderFulfilled",
+        description = "Order Fulfilled Events", // Optional
+        payloadType = OrderFulfilledEventDTO.class
+    ))
+    @KafkaAsyncOperationBinding
     private Mono<ReceiverRecord<String, String>> handleMessage(ReceiverRecord<String, String> event) {
         try {
             var message = objectMapper.readValue(event.value(), OrderFulfilledEventDTO.class);

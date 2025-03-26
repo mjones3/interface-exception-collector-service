@@ -17,6 +17,13 @@ export default [
                     subTitle: 'Transfer Product Information',
                 },
             },
+            {
+                path: 'new',
+                component: ExternalTransfersComponent,
+                data: {
+                    subTitle: 'Transfer Product Information',
+                },
+            },
         ],
     },
 ] as Routes;

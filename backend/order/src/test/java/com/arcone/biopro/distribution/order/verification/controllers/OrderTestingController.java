@@ -129,6 +129,11 @@ public class OrderTestingController {
         Assert.assertNotNull(event);
     }
 
+    public void searchOrdersByCreateDate(String locationCode, String createDateFrom, String createDateTo) {
+        var response = apiHelper.graphQlPageRequest(GraphQLQueryMapper.searchOrdersByCreateDate(locationCode,createDateFrom,createDateTo), "searchOrders");
+        context.setOrdersPage(response);
+    }
+
     @Getter
     @RequiredArgsConstructor
     public
@@ -148,6 +153,12 @@ public class OrderTestingController {
         var response = apiHelper.graphQlRequest(GraphQLMutationMapper.completeOrderMutation(orderId, employeeId, "Order completed comment", createBackOrder), "completeOrder");
         log.debug("Order completed response: {}", response);
         return response;
+    }
+
+    public Map getOrderDetailsMap(Integer orderId) {
+        var response = apiHelper.graphQlRequest(GraphQLQueryMapper.findOrderById(orderId), "findOrderById");
+        log.debug("Order details: {}", context.getOrderDetails());
+        return (Map) response.get("data");
     }
 
     public void getOrderDetails(Integer orderId) {

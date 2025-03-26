@@ -49,4 +49,6 @@ public class SharedContext {
 
     // General API response data
     private List<Map> apiMessageResponse;
+
+    private Map apiErrorResponse;
 }

@@ -24,7 +24,7 @@ import {
 import { ERROR_MESSAGE } from 'app/core/data/common-labels';
 import { TableComponent } from 'app/shared/components/table/table.component';
 import { OrderStatusMap } from 'app/shared/models/order-status.model';
-import { PageDTO } from 'app/shared/models/page.model';
+import { EMPTY_PAGE, PageDTO } from 'app/shared/models/page.model';
 import { CookieService } from 'ngx-cookie-service';
 import { ToastrService } from 'ngx-toastr';
 import { OrderPriorityMap } from '../../../../shared/models/order-priority.model';
@@ -157,7 +157,7 @@ export class SearchOrdersComponent implements OnInit {
             error: (e: ApolloError) => {
                 this.loading.set(false);
                 if (e?.cause?.message) {
-                    this.page.set(null);
+                    this.page.set(EMPTY_PAGE);
                     this.toaster.warning(e?.cause?.message);
                     return;
                 }
