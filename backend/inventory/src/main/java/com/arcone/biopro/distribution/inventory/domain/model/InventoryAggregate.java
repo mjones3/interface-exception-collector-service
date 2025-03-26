@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -205,6 +206,11 @@ public class InventoryAggregate {
             return this;
         }
         inventory.setUnsuitableReason(reason);
+        return this;
+    }
+
+    public InventoryAggregate updateTemperatureCategory(String temperatureCategory) {
+        inventory.setTemperatureCategory(temperatureCategory);
         return this;
     }
 }
