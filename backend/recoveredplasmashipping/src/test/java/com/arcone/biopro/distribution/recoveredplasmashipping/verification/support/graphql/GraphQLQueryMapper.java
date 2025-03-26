@@ -241,4 +241,23 @@ public class GraphQLQueryMapper {
             }
             """, orderId);
     }
+
+    public static String findAllLocations() {
+        return (String.format("""
+            query {
+                findAllLocations {
+                    id
+                    name
+                    code
+                    externalId
+                    addressLine1
+                    addressLine2
+                    postalCode
+                    city
+                    state
+                    properties
+                }
+            }
+            """));
+    }
 }
