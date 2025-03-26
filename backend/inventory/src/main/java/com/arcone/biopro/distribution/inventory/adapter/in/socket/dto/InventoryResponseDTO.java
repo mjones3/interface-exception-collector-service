@@ -15,6 +15,7 @@ public record InventoryResponseDTO(
     String unitNumber,
     String productCode,
     String productDescription,
+    String temperatureCategory,
     LocalDateTime expirationDate,
     AboRhType aboRh,
     Integer weight,

@@ -17,6 +17,7 @@ public record InventoryOutput(
     LocalDateTime expirationDate,
     String location,
     String productDescription,
+    String temperatureCategory,
     AboRhType aboRh,
     Integer weight,
     Boolean isLicensed,

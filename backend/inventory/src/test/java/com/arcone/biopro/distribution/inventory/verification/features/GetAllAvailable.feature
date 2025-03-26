@@ -17,30 +17,43 @@ Feature: Get all available inventories
         And I have "18" products of family "WHOLE_BLOOD" with ABORh "ABP" in location "LOCATION_1" and that will expire in "30" days
         And I have "7" products of family "WHOLE_BLOOD_LEUKOREDUCED" with ABORh "ABP" in location "LOCATION_1" and that will expire in "30" days
         And I have "3" products of family "WHOLE_BLOOD" with ABORh "ABN" in location "LOCATION_2" and that will expire in "-1" days
-        When I request available inventories for family "<Product Family>" and ABORh "<Abo Rh Type>" in location "<Location>"
+        And I have "1" products of family "PLASMA_TRANSFUSABLE" with ABORh "OP" in location "LOCATION_3" and with temperature category "REFRIGERATED" and that will expire in "2" days
+        And I have "1" products of family "PLASMA_TRANSFUSABLE" with ABORh "OP" in location "LOCATION_3" and with temperature category "REFRIGERATED" and that will expire in "31" days
+        And I have "1" products of family "PLASMA_TRANSFUSABLE" with ABORh "OP" in location "LOCATION_3" and with temperature category "FROZEN" and that will expire in "2" days
+        And I have "1" products of family "PLASMA_TRANSFUSABLE" with ABORh "OP" in location "LOCATION_3" and with temperature category "FROZEN" and that will expire in "31" days
+        When I request available inventories for family with the following parameters:
+            | Product Family   | Abo Rh Type   | Location   | Temperature Category   |
+            | <Product Family> | <Abo Rh Type> | <Location> | <Temperature Category> |
         Then I receive "<Quantity>" of total products and "<Short Date Quantity>" of short date
 
         @LAB-81 @AOA-75
         Examples:
-            | Quantity | Product Family               | Abo Rh Type | Location   | Short Date Quantity |
-            | 2        | PLASMA_TRANSFUSABLE          | OP          | LOCATION_1 | 2                   |
-            | 10       | PLASMA_TRANSFUSABLE          | O           | LOCATION_1 | 10                  |
-            | 44       | PLASMA_TRANSFUSABLE          | ANY         | LOCATION_1 | 23                  |
-            | 3        | PLASMA_TRANSFUSABLE          | ANY         | LOCATION_2 | 3                   |
-            | 5        | RED_BLOOD_CELLS              | ANY         | LOCATION_1 | 5                   |
-            | 5        | RED_BLOOD_CELLS_LEUKOREDUCED | ANY         | LOCATION_1 | 5                   |
-            | 13       | PLASMA_TRANSFUSABLE          | ABN         | LOCATION_1 | 13                  |
-            | 21       | PLASMA_TRANSFUSABLE          | ABP         | LOCATION_1 | 0                   |
-            | 0        | PLASMA_TRANSFUSABLE          | ANY         | LOCATION_7 | 0                   |
+            | Quantity | Product Family               | Abo Rh Type | Location   | Short Date Quantity | Temperature Category |
+            | 2        | PLASMA_TRANSFUSABLE          | OP          | LOCATION_1 | 2                   |                      |
+            | 10       | PLASMA_TRANSFUSABLE          | O           | LOCATION_1 | 10                  |                      |
+            | 44       | PLASMA_TRANSFUSABLE          | ANY         | LOCATION_1 | 23                  |                      |
+            | 3        | PLASMA_TRANSFUSABLE          | ANY         | LOCATION_2 | 3                   |                      |
+            | 5        | RED_BLOOD_CELLS              | ANY         | LOCATION_1 | 5                   |                      |
+            | 5        | RED_BLOOD_CELLS_LEUKOREDUCED | ANY         | LOCATION_1 | 5                   |                      |
+            | 13       | PLASMA_TRANSFUSABLE          | ABN         | LOCATION_1 | 13                  |                      |
+            | 21       | PLASMA_TRANSFUSABLE          | ABP         | LOCATION_1 | 0                   |                      |
+            | 0        | PLASMA_TRANSFUSABLE          | ANY         | LOCATION_7 | 0                   |                      |
 
         @LAB-257 @AOA-152
         Examples:
-            | Quantity | Product Family           | Abo Rh Type | Location   | Short Date Quantity |
-            | 4        | WHOLE_BLOOD              | OP          | LOCATION_1 | 4                   |
-            | 5        | WHOLE_BLOOD_LEUKOREDUCED | OP          | LOCATION_2 | 5                   |
-            | 22       | WHOLE_BLOOD              | ANY         | LOCATION_1 | 4                   |
-            | 19       | WHOLE_BLOOD_LEUKOREDUCED | ANY         | LOCATION_1 | 12                  |
-            | 10       | WHOLE_BLOOD              | ABN         | LOCATION_2 | 10                  |
+            | Quantity | Product Family           | Abo Rh Type | Location   | Short Date Quantity | Temperature Category |
+            | 4        | WHOLE_BLOOD              | OP          | LOCATION_1 | 4                   |                      |
+            | 5        | WHOLE_BLOOD_LEUKOREDUCED | OP          | LOCATION_2 | 5                   |                      |
+            | 22       | WHOLE_BLOOD              | ANY         | LOCATION_1 | 4                   |                      |
+            | 19       | WHOLE_BLOOD_LEUKOREDUCED | ANY         | LOCATION_1 | 12                  |                      |
+            | 10       | WHOLE_BLOOD              | ABN         | LOCATION_2 | 10                  |                      |
+
+        @LAB-379
+        Examples:
+            | Quantity | Product Family      | Abo Rh Type | Location   | Short Date Quantity | Temperature Category |
+            | 4        | PLASMA_TRANSFUSABLE | ANY         | LOCATION_3 | 2                   |                      |
+            | 2        | PLASMA_TRANSFUSABLE | ANY         | LOCATION_3 | 1                   | REFRIGERATED         |
+            | 2        | PLASMA_TRANSFUSABLE | ANY         | LOCATION_3 | 1                   | FROZEN               |
 
     @LAB-81 @AOA-75 @LAB-257 @AOA-152
     Scenario: Get all available inventories grouped
