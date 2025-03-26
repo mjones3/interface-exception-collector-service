@@ -10,10 +10,6 @@ CREATE TABLE inventory.lk_temperature_category_product_code
 
 ALTER TABLE inventory.bld_inventory ADD COLUMN temperature_category VARCHAR(50) NULL;
 
--- migrate script
-
--- ALTER TABLE inventory.bld_inventory ALTER COLUMN temperature_category SET NOT NULL;
-
 INSERT INTO inventory.lk_temperature_category_product_code (product_code, temperature_category) VALUES ('E002300', 'REFRIGERATED');
 INSERT INTO inventory.lk_temperature_category_product_code (product_code, temperature_category) VALUES ('E003300', 'REFRIGERATED');
 INSERT INTO inventory.lk_temperature_category_product_code (product_code, temperature_category) VALUES ('E011200', 'REFRIGERATED');
