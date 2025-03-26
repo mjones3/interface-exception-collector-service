@@ -10,3 +10,12 @@ export interface ShipmentFilterDateRangeDTO {
     start: string;
     end: string;
 }
+
+export interface CreateShipmentRequestDTO {
+    id?: number;
+    customerCode: string;
+    scheduledTransferDate: string;
+    productType: string;
+    cartonTareWeight: string;
+    transporationReferenceNumber?: string;
+}

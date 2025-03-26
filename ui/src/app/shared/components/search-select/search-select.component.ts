@@ -6,7 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { CustomerOptionDTO } from 'app/modules/external-transfer/models/external-transfer.dto';
+import { CustomerOptionDTO } from 'app/shared/models/customer-option.dto';
 
 @Component({
     selector: 'biopro-search-select',

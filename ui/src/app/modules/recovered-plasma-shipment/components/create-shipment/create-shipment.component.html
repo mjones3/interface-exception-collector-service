@@ -1,0 +1,148 @@
+<ng-container>
+    <h1 mat-dialog-title class="p-4 pb-0 text-3xl">Create Shipment</h1>
+    <div class="p-4 pb-0">
+        <form [formGroup]="createShipment">
+            <div class="flex w-full flex-col">
+                <div class="flex flex-col space-y-4">
+                    <div class="w-full">
+                        <biopro-search-select
+                            id="customerNameId"
+                            [formGroup]="createShipment"
+                            controlName="customerName"
+                            [placeholder]="'Select Customer Name'"
+                            (selectionChange)="selectOnCustomer($event)"
+                            title="Customer Name"
+                            [items]="customerOption"
+                            required="true"
+                            matSelectId="customerSelectId"
+                        >
+                        </biopro-search-select>
+                    </div>
+
+                    <div class="w-full">
+                        <biopro-search-select
+                            id="productTypeId"
+                            [formGroup]="createShipment"
+                            controlName="productType"
+                            [placeholder]="'Select Product Type'"
+                            [items]="productTypeOption"
+                            title="Product Type"
+                            required="true"
+                            matSelectId="productTypeSelectId"
+                        >
+                        </biopro-search-select>
+                    </div>
+
+                    <div class="flex w-full flex-row gap-4">
+                        <div class="w-full flex-row">
+                            <mat-form-field class="block">
+                                <mat-label>Carton Tare Weight (g)</mat-label>
+                                <input
+                                    id="cartonTareWeightId"
+                                    required
+                                    matInput
+                                    formControlName="cartonTareWeight"
+                                    placeholder="Enter carton Tare Weight"
+                                    maxlength="50"
+                                    autocomplete="off"
+                                />
+                                @if (
+                                    createShipment
+                                        .get('cartonTareWeight')
+                                        .hasError('required')
+                                ) {
+                                    <mat-error
+                                        >Carton Tare Weight is
+                                        required</mat-error
+                                    >
+                                }
+                            </mat-form-field>
+                        </div>
+
+                        <div class="w-full flex-row">
+                            <mat-form-field class="block">
+                                <mat-label>Scheduled Shipment Date</mat-label>
+                                <input
+                                    id="sheduledShipmentDateId"
+                                    required
+                                    matInput
+                                    formControlName="sheduledShipmentDate"
+                                    placeholder="Enter Sheduled Shipment Date"
+                                    [min]="minDate"
+                                    autocomplete="off"
+                                    [matDatepicker]="
+                                        scheduledShipmentDatePicker
+                                    "
+                                />
+                                <mat-datepicker-toggle
+                                    matIconSuffix
+                                    [for]="scheduledShipmentDatePicker"
+                                ></mat-datepicker-toggle>
+                                <mat-datepicker
+                                    #scheduledShipmentDatePicker
+                                ></mat-datepicker>
+                                @if (
+                                    createShipment
+                                        .get('sheduledShipmentDate')
+                                        .hasError('matDatepickerMin')
+                                ) {
+                                    <mat-error
+                                        >Scheduled Shipment Date cannot be today
+                                        or in the past</mat-error
+                                    >
+                                } @else if (
+                                    createShipment
+                                        .get('sheduledShipmentDate')
+                                        .hasError('matDatepickerParse')
+                                ) {
+                                    <mat-error
+                                        >Scheduled Shipment Date is
+                                        invalid</mat-error
+                                    >
+                                } @else if (
+                                    createShipment
+                                        .get('sheduledShipmentDate')
+                                        .hasError('required')
+                                ) {
+                                    <mat-error
+                                        >Scheduled Shipment Date is
+                                        required</mat-error
+                                    >
+                                }
+                            </mat-form-field>
+                        </div>
+                    </div>
+
+                    <mat-form-field class="block">
+                        <mat-label>Transportation Reference Number</mat-label>
+                        <input
+                            id="transportationReferenceNumberId"
+                            matInput
+                            formControlName="transportationReferenceNumber"
+                            placeholder="Enter Transportation Reference Number"
+                            maxlength="50"
+                            autocomplete="off"
+                        />
+                    </mat-form-field>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <mat-dialog-actions align="end" class="gap-6">
+        <biopro-action-button
+            id="btnCancel"
+            btnId="actionBtnCancel"
+            label="Cancel"
+            color="secondary"
+            mat-dialog-close
+        ></biopro-action-button>
+        <biopro-action-button
+            id="btnSubmit"
+            btnId="actionBtnSubmit"
+            [disabled]="!createShipment.valid"
+            label="Submit"
+            (clickEvent)="submit()"
+        ></biopro-action-button>
+    </mat-dialog-actions>
+</ng-container>

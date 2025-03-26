@@ -2,11 +2,14 @@ import { AsyncPipe } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatStepperModule } from '@angular/material/stepper';
 import { ProcessHeaderComponent, ProcessHeaderService } from '@shared';
+import { ActionButtonComponent } from 'app/shared/components/buttons/action-button.component';
 import { ShipmentFilterDTO } from '../../models/recovered-plasma.dto';
+import { CreateShipmentComponent } from '../create-shipment/create-shipment.component';
 import { FilterShipmentComponent } from '../filter-shipment/filter-shipment.component';
 
 @Component({
@@ -21,6 +24,7 @@ import { FilterShipmentComponent } from '../filter-shipment/filter-shipment.comp
         MatFormFieldModule,
         MatInputModule,
         FilterShipmentComponent,
+        ActionButtonComponent,
         AsyncPipe,
     ],
     templateUrl: './search-shipment.component.html',
@@ -28,10 +32,24 @@ import { FilterShipmentComponent } from '../filter-shipment/filter-shipment.comp
 export class SearchShipmentComponent {
     isFilterToggled = false;
     currentFilter: ShipmentFilterDTO;
-
-    constructor(public header: ProcessHeaderService) {}
+    constructor(
+        public header: ProcessHeaderService,
+        private matDialog: MatDialog
+    ) {}
 
     toggleFilter(toggleFlag: boolean): void {
         this.isFilterToggled = toggleFlag;
+    }
+
+    createShipment() {
+        const dialog = this.matDialog.open(CreateShipmentComponent, {
+            width: '50rem',
+            data: {},
+            disableClose: true,
+        });
+
+        dialog.afterClosed().subscribe((res) => {
+            console.log('res', res);
+        });
     }
 }

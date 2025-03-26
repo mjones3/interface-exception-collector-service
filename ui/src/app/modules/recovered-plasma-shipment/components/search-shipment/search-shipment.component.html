@@ -2,7 +2,22 @@
     <biopro-process-header
         [subTitle]="header.subTitle | async"
         [title]="header.title | async"
+        [buttons]="actionButtonsTpl"
     ></biopro-process-header>
+
+    <ng-template #actionButtonsTpl>
+        <div class="flex flex-row space-x-2">
+            <biopro-action-button
+                id="createShipmentBtn"
+                btnId="createShipmentBtnId"
+                label="Create Shipment"
+                color="primary"
+                icon="heroicons_outline:plus-circle"
+                (clickEvent)="createShipment()"
+            />
+        </div>
+    </ng-template>
+
     <biopro-filter-shipment
         (toggleFilters)="toggleFilter($event)"
         [showFilters]="isFilterToggled"
