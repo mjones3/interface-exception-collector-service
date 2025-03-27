@@ -7,12 +7,14 @@ Feature: Product Completed Event - API
                 | <Unit Number> | <Product Code> | AVAILABLE |
 
             When I received a Product Completed event for the following products:
-                | Unit Number   | Product Code   |
-                | <Unit Number> | <Product Code> |
+                | Unit Number   | Product Code   | Volume |
+                | <Unit Number> | <Product Code> | 50     |
+                | <Unit Number> | <Product Code> |        |
 
             Then the inventory volume should be updated as follows:
                 | Unit Number   | Product Code   | Status    | Volume |
                 | <Unit Number> | <Product Code> | AVAILABLE | 50     |
+                | <Unit Number> | <Product Code> | AVAILABLE | 0      |
 
             Examples:
                 | Unit Number   | Product Code |
