@@ -7,15 +7,15 @@ Feature: Shipment Creation
 
     @ui @DIS-333
     Scenario: Successful shipment creation
-        Given The location "ABC1" is configured with "PRE1", "DIS333001", "0", and "YES".
+        Given The location "ABC1" is configured with prefix "PRE1", shipping code "DIS333001", shipping quantity "0", and prefix configuration "YES".
         And I am on the Shipment Create Page.
         When I choose to create a shipment.
-        And I have entered all required fields:
+        And I have entered all the fields:
             | Field                           | Value      |
             | Customer                        | CUST001    |
-            | Shipment Product Type           | PLASMA     |
+            | Product Type                    | PLASMA     |
             | Carton Tare Weight              | 1000g      |
-            | Scheduled Ship Date             | <tomorrow> |
+            | Scheduled Shipment Date         | <tomorrow> |
             | Transportation Reference Number | 111222333  |
         When I choose to submit the shipment.
         Then I should see a "SUCCESS" message: "Shipment created successfully".
@@ -31,9 +31,9 @@ Feature: Shipment Creation
                 | Customer                        | CUST001    |
                 | Product Type                    | PLASMA     |
                 | Carton Tare Weight              | 1000g      |
-                | Shipment Date                   | <tomorrow> |
-                | Transportation Reference Number | 111222333  |
-            Then I should receive a "SUCCESS" message response "Shipment created with AI".
+                | Scheduled Shipment Date         | <tomorrow> |
+                | Transportation Reference Number | <NULL>     |
+            Then I should receive a "SUCCESS" message response "Shipment created successfully".
             And The shipment should be created with the following information:
                 | Field                  | Value      |
                 | shipping_customer_code | CUST001    |
@@ -41,6 +41,9 @@ Feature: Shipment Creation
                 | status                 | OPEN       |
                 | create_date            | <not_null> |
                 | shipmentNumber         | DIS3330021 |
+                | scheduled_shipment_date |           |
+
+    #### add carton tare weight , scheduled shipment date, transportation reference number.
 
     Rule: I should not be able to create a recovered plasma shipment for a location that is not configured for the recovered plasma shipping.
         Rule: The shipment date cannot be in the past.
@@ -50,26 +53,26 @@ Feature: Shipment Creation
             Then I should receive a "WARN" message response "<Error Message>".
             And The shipment "should not" be created.
             Examples:
-                | Attribute    | Attribute Value | Error Message          |
-                | locationCode | ABCDZ           | Location error message |
-                | customerCode | 11111           | Customer code error    |
-                | productType  | TYPE000         | Product type error     |
-                | shipmentDate | 2020-01-01      | Past date error        |
+                | Attribute             | Attribute Value | Error Message          |
+                | locationCode          | ABCDZ           | Location error message |
+                | customerCode          | 11111           | Customer code error    |
+                | productType           | TYPE000         | Product type error     |
+                | scheduledShipmentDate | 2020-01-01      | Past date error        |
 
     Rule: I should be required to choose a customer.
-        Rule: I should be required to choose Shipment Product Type.
-    Rule: I should be required to enter Carton Tare Weight. (weight should be in gram (gram) g)
-        Rule: I should be required to enter Shipment Date.
+        Rule: I should be required to choose Product Type.
+    Rule: I should be required to enter Carton Tare Weight. (weight should be in gram (g))
+        Rule: I should be required to enter Scheduled Shipment Date.
         @api @DIS-333
         Scenario Outline: Required fields validation
             Given I attempt to create a shipment without filling the field "<Required Field>".
             Then I should receive a "WARN" message response "<Error Message>".
             Examples:
-                | Required Field        | Error Message             |
-                | Customer              | Customer is required      |
-                | Shipment Product Type | Product type is required  |
-                | Carton Tare Weight    | Weight is required        |
-                | Shipment Date         | Shipment date is required |
+                | Required Field          | Error Message                       |
+                | Customer                | Customer is required                |
+                | Product Type            | Product type is required            |
+                | Carton Tare Weight      | Weight is required                  |
+                | Scheduled Shipment Date | Scheduled Shipment date is required |
 
 
     Rule: The system should generate a Unique Location Specific Shipment Number that contains the following based on the configuration.
