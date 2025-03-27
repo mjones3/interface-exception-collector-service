@@ -1,8 +1,5 @@
 @api
 Feature: Location Configuration
-    As an administrator
-    I want to verify that the recovered plasma locations are configured properly
-    So that I can create recovered plasma shipments
 
     @DIS-331
     Scenario: Check Available Recovered Plasma Shipping Locations
