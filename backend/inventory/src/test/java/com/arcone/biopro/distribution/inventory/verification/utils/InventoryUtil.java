@@ -140,4 +140,8 @@ public class InventoryUtil {
             .comments(comments)
             .build();
     }
+
+//    public Object newProductCompletedInput(String unitNumber, String productCode, String volume, String anticoagulantVolume) {
+//
+//    }
 }

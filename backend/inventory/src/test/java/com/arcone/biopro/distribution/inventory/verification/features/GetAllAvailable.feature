@@ -1,3 +1,4 @@
+# Feature Unit Number reference: W036825003000
 @api
 Feature: Get all available inventories
 
@@ -90,12 +91,12 @@ Feature: Get all available inventories
     Scenario: Get all available inventories not considering the other statuses
         Given I have the following inventories:
             | Unit Number   | Product Code | Status     |
-            | W036824200011 | E1624V00     | AVAILABLE  |
-            | W036824200012 | E1624V00     | AVAILABLE  |
-            | W036824200013 | E1624V00     | CONVERTED  |
-            | W036824200014 | E1624V00     | DISCARDED  |
-            | W036824200015 | E1624V00     | SHIPPED    |
-            | W036824200016 | E1624V00     | IN_TRANSIT |
+            | W036825003001 | E1624V00     | AVAILABLE  |
+            | W036825003002 | E1624V00     | AVAILABLE  |
+            | W036825003003 | E1624V00     | CONVERTED  |
+            | W036825003004 | E1624V00     | DISCARDED  |
+            | W036825003005 | E1624V00     | SHIPPED    |
+            | W036825003006 | E1624V00     | IN_TRANSIT |
         When I select "PLASMA_TRANSFUSABLE" of the blood type "OP"
         And I request available inventories in location "123456789"
         Then I receive "1" groups

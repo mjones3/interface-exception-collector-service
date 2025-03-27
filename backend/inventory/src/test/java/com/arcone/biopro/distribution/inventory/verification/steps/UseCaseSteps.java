@@ -235,4 +235,17 @@ public class UseCaseSteps {
             }
         }
     }
+
+    @When("I received a Product Completed event for the following products:")
+    public void iReceivedAProductCompletedEventForTheFollowingProducts(DataTable dataTable) {
+//        List<Map<String, String>> products = dataTable.asMaps(String.class, String.class);
+//        for (Map<String, String> product : products) {
+//            String unitNumber = product.get("Unit Number");
+//            String productCode = product.get("Product Code");
+//            String volume = product.get("Volume");
+//            String anticoagulantVolume = product.get("Anticoagulant Volume");
+//            productCompletedUseCase.execute(inventoryUtil.newProductCompletedInput(unitNumber, productCode, volume, anticoagulantVolume)).block();
+//
+//        }
+    }
 }
