@@ -5,6 +5,8 @@ scalar JSON
 type Query {
     # Searches over all Customers
     findAllCustomers: [PageDTO]!
+    findAllLocations:[LocationDTO]!
+
 }
 
 input InputQuerySortDTO {
@@ -43,3 +45,18 @@ type NotificationDTO {
     notificationType: String
     notificationMessage: String
 }
+
+type LocationDTO {
+    id:ID!
+    name:String!
+    code:String!
+    externalId:String
+    addressLine1:String
+    addressLine2:String
+    postalCode:String
+    city:String
+    state:String
+    properties:JSON
+}
+
+
