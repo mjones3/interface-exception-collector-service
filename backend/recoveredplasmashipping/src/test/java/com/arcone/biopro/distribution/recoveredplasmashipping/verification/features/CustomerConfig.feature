@@ -1,4 +1,4 @@
-@api
+@api @AOA-89
 Feature: Customer Configuration
 
     @DIS-331

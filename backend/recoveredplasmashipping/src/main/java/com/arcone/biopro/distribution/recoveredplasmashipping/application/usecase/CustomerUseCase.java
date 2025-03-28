@@ -31,14 +31,14 @@ public class CustomerUseCase implements CustomerService {
     @Override
     public Mono<CustomerOutput> findById(Long id) {
         return customerRepository.findOneById(id)
-            .switchIfEmpty(Mono.error(new DomainNotFoundForKeyException(String.format("%s", id))))
+            .switchIfEmpty(Mono.error(() -> new DomainNotFoundForKeyException(String.format("%s", id))))
             .map(customerOutputMapper::toCustomerOutput);
     }
 
     @Override
     public Mono<CustomerOutput> findByCode(String code) {
         return customerRepository.findOneByCode(code)
-            .switchIfEmpty(Mono.error(new DomainNotFoundForKeyException(String.format("%s", code))))
+            .switchIfEmpty(Mono.error(() -> new DomainNotFoundForKeyException(String.format("%s", code))))
             .map(customerOutputMapper::toCustomerOutput);
     }
 
