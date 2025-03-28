@@ -3,17 +3,18 @@
 Feature: Validate Inventory
 
     Scenario Outline: Validate Inventory
-        Given I have one product with "W036825014001", "E0869V00" and "LOCATION_1" in "AVAILABLE" status
-        And I have one product with "W036825014002", "E0869VA0" and "LOCATION_2" in "AVAILABLE" status
-        And I have one product with "W036825014003", "E0869VB0" and "LOCATION_2" in "AVAILABLE" status with quarantine reasons "ABS_POSITIVE, PENDING_FURTHER_REVIEW_INSPECTION, OTHER" and comments "Quarantine other comments"
-        And I have one product with "W036825014004", "E0869VC0" and "LOCATION_1" in "EXPIRED" status
-        And I have one product with "W036825014005", "E0869VD0" and "LOCATION_1" in "DISCARDED" status with reason "ADDITIVE_SOLUTION_ISSUES" and comments ""
-        And I have one product with "W036825014006", "E0869VD0" and "LOCATION_1" in "AVAILABLE" status with unsuitable reason "ACTIVE_DEFERRAL"
-        And I have one product with "W036825014006", "E1624V00" and "LOCATION_1" in "AVAILABLE" status with unsuitable reason "TIMING_RULES"
-        And I have one product with "W036825014007", "E0869VD0" and "LOCATION_1" in "DISCARDED" status with reason "OTHER" and comments "Some comments"
-        And I have one product with "W036825014008", "E0869VD0" and "LOCATION_1" in "AVAILABLE" status and is unlabeled
+        Given I have the following inventories:
+            | Unit Number   | Product Code | Location   | Status    | Is Labeled | Expires In Days | Quarantine Reasons                                     | Discard Reason           | Unsuitable Reason | Comments                  |
+            | W036825014001 | E0869V00     | LOCATION_1 | AVAILABLE | true       | 5               |                                                        |                          |                   |                           |
+            | W036825014002 | E0869VA0     | LOCATION_2 | AVAILABLE | true       | 5               |                                                        |                          |                   |                           |
+            | W036825014003 | E0869VB0     | LOCATION_2 | AVAILABLE | true       | 5               | ABS_POSITIVE, PENDING_FURTHER_REVIEW_INSPECTION, OTHER |                          |                   | Quarantine other comments |
+            | W036825014004 | E0869VC0     | LOCATION_1 | AVAILABLE | true       | -1              |                                                        |                          |                   |                           |
+            | W036825014005 | E0869VD0     | LOCATION_1 | DISCARDED | true       | 5               |                                                        | ADDITIVE_SOLUTION_ISSUES |                   |                           |
+            | W036825014006 | E0869VD0     | LOCATION_1 | AVAILABLE | true       | 1               |                                                        |                          | ACTIVE_DEFERRAL   |                           |
+            | W036825014006 | E1624V00     | LOCATION_1 | AVAILABLE | true       | 1               |                                                        |                          | TIMING_RULES      |                           |
+            | W036825014007 | E0869VD0     | LOCATION_1 | DISCARDED | true       | 5               |                                                        | OTHER                    |                   | Some comments             |
+            | W036825014008 | E0869VD0     | LOCATION_1 | AVAILABLE | false      | 5               |                                                        |                          |                   |                           |
         When I request "<Unit Number>" with "<Product Code>" in the "<Location>"
-
         Then I receive for "<Unit Number>" with "<Product Code>" and temperature category "<Temperature Category>" in the "<Location>" a "<RESPONSE ERROR>" message with "<ACTION>" action and "<REASON>" reason and "<MESSAGE>" message and details "<DETAILS>"
 
         Examples:

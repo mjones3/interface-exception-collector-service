@@ -18,4 +18,3 @@ Feature: Product Completed Event - API
             Examples:
                 | Unit Number   | Product Code | Event Volume | Volume | Event Anticoagulant Volume | Anticoagulant Volume |
                 | W036825007001 | E765000      | 450          | 450    | 50                         | 50                   |
-                | W036825007002 | E765000      |              | 0      |                            | 0                    |

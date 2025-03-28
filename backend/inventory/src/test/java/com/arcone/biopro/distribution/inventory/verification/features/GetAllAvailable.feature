@@ -3,28 +3,32 @@
 Feature: Get all available inventories
 
     Scenario Outline: Get all available inventories
-        Given I have "2" products of family "PLASMA_TRANSFUSABLE" with ABORh "OP" in location "LOCATION_1" and that will expire in "2" days
-        And I have "3" products of family "PLASMA_TRANSFUSABLE" with ABORh "OP" in location "LOCATION_2" and that will expire in "2" days
-        And I have "5" products of family "RED_BLOOD_CELLS" with ABORh "OP" in location "LOCATION_1" and that will expire in "2" days
-        And I have "5" products of family "RED_BLOOD_CELLS_LEUKOREDUCED" with ABORh "OP" in location "LOCATION_1" and that will expire in "2" days
-        And I have "8" products of family "PLASMA_TRANSFUSABLE" with ABORh "ON" in location "LOCATION_1" and that will expire in "2" days
-        And I have "13" products of family "PLASMA_TRANSFUSABLE" with ABORh "ABN" in location "LOCATION_1" and that will expire in "2" days
-        And I have "21" products of family "PLASMA_TRANSFUSABLE" with ABORh "ABP" in location "LOCATION_1" and that will expire in "31" days
-        And I have "44" products of family "PLASMA_TRANSFUSABLE" with ABORh "OP" in location "LOCATION_1" and that will expire in "-1" days
-        And I have "4" products of family "WHOLE_BLOOD" with ABORh "OP" in location "LOCATION_1" and that will expire in "5" days
-        And I have "5" products of family "WHOLE_BLOOD_LEUKOREDUCED" with ABORh "OP" in location "LOCATION_2" and that will expire in "5" days
-        And I have "10" products of family "WHOLE_BLOOD" with ABORh "ABN" in location "LOCATION_2" and that will expire in "2" days
-        And I have "12" products of family "WHOLE_BLOOD_LEUKOREDUCED" with ABORh "ABN" in location "LOCATION_1" and that will expire in "2" days
-        And I have "18" products of family "WHOLE_BLOOD" with ABORh "ABP" in location "LOCATION_1" and that will expire in "30" days
-        And I have "7" products of family "WHOLE_BLOOD_LEUKOREDUCED" with ABORh "ABP" in location "LOCATION_1" and that will expire in "30" days
-        And I have "3" products of family "WHOLE_BLOOD" with ABORh "ABN" in location "LOCATION_2" and that will expire in "-1" days
-        And I have "1" products of family "PLASMA_TRANSFUSABLE" with ABORh "OP" in location "LOCATION_3" and with temperature category "REFRIGERATED" and that will expire in "2" days
-        And I have "1" products of family "PLASMA_TRANSFUSABLE" with ABORh "OP" in location "LOCATION_3" and with temperature category "REFRIGERATED" and that will expire in "31" days
-        And I have "1" products of family "PLASMA_TRANSFUSABLE" with ABORh "OP" in location "LOCATION_3" and with temperature category "FROZEN" and that will expire in "2" days
-        And I have "1" products of family "PLASMA_TRANSFUSABLE" with ABORh "OP" in location "LOCATION_3" and with temperature category "FROZEN" and that will expire in "31" days
+        Given I have the following units of products in inventory
+            | Unit Number   | Units | Family                       | ABORh | Location   | Expires In Days | Temperature Category |
+            | W036825003001 | 2     | PLASMA_TRANSFUSABLE          | OP    | LOCATION_1 | 2               | FROZEN               |
+            | W036825003002 | 3     | PLASMA_TRANSFUSABLE          | OP    | LOCATION_2 | 2               | FROZEN               |
+            | W036825003003 | 5     | RED_BLOOD_CELLS              | OP    | LOCATION_1 | 2               | FROZEN               |
+            | W036825003004 | 5     | RED_BLOOD_CELLS_LEUKOREDUCED | OP    | LOCATION_1 | 2               | FROZEN               |
+            | W036825003005 | 8     | PLASMA_TRANSFUSABLE          | ON    | LOCATION_1 | 2               | FROZEN               |
+            | W036825003006 | 13    | PLASMA_TRANSFUSABLE          | ABN   | LOCATION_1 | 2               | FROZEN               |
+            | W036825003007 | 21    | PLASMA_TRANSFUSABLE          | ABP   | LOCATION_1 | 31              | FROZEN               |
+            | W036825003008 | 44    | PLASMA_TRANSFUSABLE          | OP    | LOCATION_1 | -1              | FROZEN               |
+            | W036825003009 | 4     | WHOLE_BLOOD                  | OP    | LOCATION_1 | 5               | FROZEN               |
+            | W036825003010 | 5     | WHOLE_BLOOD_LEUKOREDUCED     | OP    | LOCATION_2 | 5               | FROZEN               |
+            | W036825003011 | 10    | WHOLE_BLOOD                  | ABN   | LOCATION_2 | 2               | FROZEN               |
+            | W036825003012 | 12    | WHOLE_BLOOD_LEUKOREDUCED     | ABN   | LOCATION_1 | 2               | FROZEN               |
+            | W036825003013 | 18    | WHOLE_BLOOD                  | ABP   | LOCATION_1 | 30              | FROZEN               |
+            | W036825003014 | 7     | WHOLE_BLOOD_LEUKOREDUCED     | ABP   | LOCATION_1 | 30              | FROZEN               |
+            | W036825003015 | 3     | WHOLE_BLOOD                  | ABN   | LOCATION_2 | -1              | FROZEN               |
+            | W036825003016 | 1     | PLASMA_TRANSFUSABLE          | OP    | LOCATION_3 | 2               | REFRIGERATED         |
+            | W036825003017 | 1     | PLASMA_TRANSFUSABLE          | OP    | LOCATION_3 | 31              | REFRIGERATED         |
+            | W036825003018 | 1     | PLASMA_TRANSFUSABLE          | OP    | LOCATION_3 | 2               | FROZEN               |
+            | W036825003019 | 1     | PLASMA_TRANSFUSABLE          | OP    | LOCATION_3 | 31              | FROZEN               |
+
         When I request available inventories for family with the following parameters:
             | Product Family   | Abo Rh Type   | Location   | Temperature Category   |
             | <Product Family> | <Abo Rh Type> | <Location> | <Temperature Category> |
+
         Then I receive "<Quantity>" of total products and "<Short Date Quantity>" of short date
 
         @LAB-81 @AOA-75
@@ -58,18 +62,20 @@ Feature: Get all available inventories
 
     @LAB-81 @AOA-75 @LAB-257 @AOA-152
     Scenario: Get all available inventories grouped
-        Given I have "2" products of family "PLASMA_TRANSFUSABLE" with ABORh "OP" in location "LOCATION_1" and that will expire in "2" days
-        And I have "3" products of family "PLASMA_TRANSFUSABLE" with ABORh "OP" in location "LOCATION_2" and that will expire in "2" days
-        And I have "5" products of family "RED_BLOOD_CELLS" with ABORh "OP" in location "LOCATION_1" and that will expire in "2" days
-        And I have "5" products of family "RED_BLOOD_CELLS_LEUKOREDUCED" with ABORh "OP" in location "LOCATION_1" and that will expire in "2" days
-        And I have "8" products of family "PLASMA_TRANSFUSABLE" with ABORh "ON" in location "LOCATION_1" and that will expire in "2" days
-        And I have "13" products of family "PLASMA_TRANSFUSABLE" with ABORh "ABN" in location "LOCATION_1" and that will expire in "2" days
-        And I have "21" products of family "PLASMA_TRANSFUSABLE" with ABORh "ABP" in location "LOCATION_1" and that will expire in "31" days
-        And I have "4" products of family "WHOLE_BLOOD" with ABORh "OP" in location "LOCATION_1" and that will expire in "3" days
-        And I have "5" products of family "WHOLE_BLOOD_LEUKOREDUCED" with ABORh "OP" in location "LOCATION_1" and that will expire in "3" days
-        And I have "10" products of family "WHOLE_BLOOD" with ABORh "ABN" in location "LOCATION_1" and that will expire in "6" days
-        And I have "12" products of family "WHOLE_BLOOD_LEUKOREDUCED" with ABORh "ABN" in location "LOCATION_1" and that will expire in "6" days
-        And I have "3" products of family "WHOLE_BLOOD" with ABORh "ABN" in location "LOCATION_1" and that will expire in "-1" days
+        Given I have the following units of products in inventory
+            | Unit Number   | Units | Family                       | ABORh | Location   | Expires In Days |
+            | W036825003016 | 2     | PLASMA_TRANSFUSABLE          | OP    | LOCATION_1 | 2               |
+            | W036825003017 | 3     | PLASMA_TRANSFUSABLE          | OP    | LOCATION_2 | 2               |
+            | W036825003018 | 5     | RED_BLOOD_CELLS              | OP    | LOCATION_1 | 2               |
+            | W036825003019 | 5     | RED_BLOOD_CELLS_LEUKOREDUCED | OP    | LOCATION_1 | 2               |
+            | W036825003020 | 8     | PLASMA_TRANSFUSABLE          | ON    | LOCATION_1 | 2               |
+            | W036825003021 | 13    | PLASMA_TRANSFUSABLE          | ABN   | LOCATION_1 | 2               |
+            | W036825003022 | 21    | PLASMA_TRANSFUSABLE          | ABP   | LOCATION_1 | 31              |
+            | W036825003023 | 4     | WHOLE_BLOOD                  | OP    | LOCATION_1 | 3               |
+            | W036825003024 | 5     | WHOLE_BLOOD_LEUKOREDUCED     | OP    | LOCATION_1 | 3               |
+            | W036825003025 | 10    | WHOLE_BLOOD                  | ABN   | LOCATION_1 | 6               |
+            | W036825003026 | 12    | WHOLE_BLOOD_LEUKOREDUCED     | ABN   | LOCATION_1 | 6               |
+            | W036825003027 | 3     | WHOLE_BLOOD                  | ABN   | LOCATION_1 | -1              |
 
         When I select "PLASMA_TRANSFUSABLE" of the blood type "O"
         And I select "PLASMA_TRANSFUSABLE" of the blood type "AB"
