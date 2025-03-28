@@ -10,6 +10,7 @@ import com.arcone.biopro.distribution.inventory.verification.common.ScenarioCont
 import com.arcone.biopro.distribution.inventory.verification.utils.ISBTProductUtil;
 import com.arcone.biopro.distribution.inventory.verification.utils.InventoryUtil;
 import com.arcone.biopro.distribution.inventory.verification.utils.LogMonitor;
+import com.github.dockerjava.transport.DockerHttpClient;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.When;
 import lombok.RequiredArgsConstructor;
@@ -50,6 +51,8 @@ public class UseCaseSteps {
     private final ProductStoredUseCase productStoredUseCase;
 
     private final UnsuitableUseCase unsuitableUseCase;
+
+    private final ProductCompletedUseCase productCompletedUseCase;
 
     private final ScenarioContext scenarioContext;
 
@@ -238,14 +241,14 @@ public class UseCaseSteps {
 
     @When("I received a Product Completed event for the following products:")
     public void iReceivedAProductCompletedEventForTheFollowingProducts(DataTable dataTable) {
-//        List<Map<String, String>> products = dataTable.asMaps(String.class, String.class);
-//        for (Map<String, String> product : products) {
-//            String unitNumber = product.get("Unit Number");
-//            String productCode = product.get("Product Code");
-//            String volume = product.get("Volume");
-//            String anticoagulantVolume = product.get("Anticoagulant Volume");
-//            productCompletedUseCase.execute(inventoryUtil.newProductCompletedInput(unitNumber, productCode, volume, anticoagulantVolume)).block();
-//
-//        }
+        List<Map<String, String>> products = dataTable.asMaps(String.class, String.class);
+        for (Map<String, String> product : products) {
+            String unitNumber = product.get("Unit Number");
+            String productCode = product.get("Product Code");
+            Integer volume = Integer.valueOf(product.get("Volume"));
+            Integer anticoagulantVolume = Integer.valueOf(product.get("Anticoagulant Volume"));
+            productCompletedUseCase.execute(inventoryUtil.newProductCompletedInput(unitNumber, productCode, volume, anticoagulantVolume, "ml")).block();
+
+        }
     }
 }

@@ -245,10 +245,11 @@ public class RepositorySteps {
                 }
             }
             if(inventory.containsKey("Anticoagulant Volume")){
-//                assertEquals(Double.parseDouble(inventory.get("Anticoagulant Volume")), inventoryEntity.getAnticoagulantVolume());
+                var volumes = inventoryEntity.getVolumes();
+//                assertEquals(Integer.valueOf((inventory.get("Anticoagulant Volume")), volumes.indexOf("anticoagulantVolume"));
             }
             if(inventory.containsKey("Volume")){
-//                assertEquals(Double.parseDouble(inventory.get("Volume")), inventoryEntity.getVolume());
+//                assertEquals(Integer.valueOf((inventory.get("Volume")), inventoryEntity.getVolume());
             }
             assertEquals(expectedStatus, inventoryEntity.getInventoryStatus().name());
         }

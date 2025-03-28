@@ -1,15 +1,13 @@
 package com.arcone.biopro.distribution.inventory.verification.utils;
 
-import com.arcone.biopro.distribution.inventory.application.dto.CheckInCompletedInput;
-import com.arcone.biopro.distribution.inventory.application.dto.InventoryInput;
-import com.arcone.biopro.distribution.inventory.application.dto.ProductCreatedInput;
-import com.arcone.biopro.distribution.inventory.application.dto.ProductDiscardedInput;
+import com.arcone.biopro.distribution.inventory.application.dto.*;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.InputProduct;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntity;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntityRepository;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -18,8 +16,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Component
 @RequiredArgsConstructor
@@ -141,7 +138,18 @@ public class InventoryUtil {
             .build();
     }
 
-//    public Object newProductCompletedInput(String unitNumber, String productCode, String volume, String anticoagulantVolume) {
-//
-//    }
+    public ProductCompletedInput newProductCompletedInput(String unitNumber, String productCode, Integer volume, Integer anticoagulantVolume, String volumeUnit) {
+        List<VolumeInput> volumeInputs = new ArrayList<>();
+        if (Objects.nonNull(volume)) {
+            volumeInputs.add(new VolumeInput("volume", volume, volumeUnit));
+        }
+        if (Objects.nonNull(anticoagulantVolume)) {
+            volumeInputs.add(new VolumeInput("anticoagulantVolume", anticoagulantVolume, volumeUnit));
+        }
+        return ProductCompletedInput.builder()
+            .productCode(productCode)
+            .unitNumber(unitNumber)
+            .volumes(volumeInputs)
+            .build();
+    }
 }
