@@ -29,7 +29,8 @@ public class ProductCompletedUseCase implements UseCase<Mono<InventoryOutput>, P
 
         return inventoryAggregateRepository.findByUnitNumberAndProductCode(productCreatedInput.unitNumber(), productCreatedInput.productCode())
             .switchIfEmpty(Mono.error(InventoryNotFoundException::new))
-            .flatMap(inventoryAggregate -> inventoryAggregateRepository.saveInventory(inventoryAggregate.completeProduct(volumeInputMapper.toDomain(productCreatedInput.volumes())))
+            .flatMap(inventoryAggregate -> inventoryAggregateRepository
+                .saveInventory(inventoryAggregate.completeProduct(volumeInputMapper.toDomain(productCreatedInput.volumes())))
             .map(InventoryAggregate::getInventory)
             .map(inventoryOutputMapper::toOutput)
             .doOnSuccess(response -> log.info("Product volume was updated to completed: {}", response))

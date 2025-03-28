@@ -14,16 +14,19 @@ import java.util.Objects;
 @Mapper(componentModel = "spring")
 public interface ProductCompletedMessageMapper extends MessageMapper<ProductCompletedInput, ProductCompletedMessage> {
 
+    String VOLUME_TYPE = "volume";
+    String ANTICOAGULANT_VOLUME_TYPE = "anticoagulantVolume";
+
     @Mapping(target = "volumes", expression = "java(createVolumeInputs(message.volume(), message.anticoagulantVolume()))")
     ProductCompletedInput toInput(ProductCompletedMessage message);
 
     default List<VolumeInput> createVolumeInputs(Volume volume, Volume anticoagulantVolume) {
         List<VolumeInput> volumeInputs = new ArrayList<>();
         if (Objects.nonNull(volume)) {
-            volumeInputs.add(new VolumeInput("volume", volume.value(), volume.unit()));
+            volumeInputs.add(new VolumeInput(VOLUME_TYPE, volume.value(), volume.unit()));
         }
         if (Objects.nonNull(anticoagulantVolume)) {
-            volumeInputs.add(new VolumeInput("anticoagulantVolume", anticoagulantVolume.value(), anticoagulantVolume.unit()));
+            volumeInputs.add(new VolumeInput(ANTICOAGULANT_VOLUME_TYPE, anticoagulantVolume.value(), anticoagulantVolume.unit()));
         }
         return volumeInputs;
     }

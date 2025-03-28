@@ -2,6 +2,7 @@ package com.arcone.biopro.distribution.inventory.infrastructure.config;
 
 import com.arcone.biopro.distribution.inventory.domain.model.vo.History;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
+import com.arcone.biopro.distribution.inventory.domain.model.vo.Volume;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -54,7 +55,9 @@ public class DatabaseConfiguration {
         converters.add(ZonedDateTimeReadConverter.INSTANCE);
         converters.add(ZonedDateTimeWriteConverter.INSTANCE);
         converters.add(JsonToQuarantineListConverter.INSTANCE);
+        converters.add(JsonToVolumeListConverter.INSTANCE);
         converters.add(QuarantineListToJsonConverter.INSTANCE);
+        converters.add(VolumeListToJsonConverter.INSTANCE);
         converters.add(JsonToHistoryListConverter.INSTANCE);
         converters.add(HistoryListToJsonConverter.INSTANCE);
         return R2dbcCustomConversions.of(dialect, converters);
@@ -171,6 +174,35 @@ public class DatabaseConfiguration {
                 return Json.of(OBJECT_MAPPER.writeValueAsString(source));
             } catch (JsonProcessingException e) {
                 throw new IllegalStateException("Failed to convert List<Quarantine> to Json", e);
+            }
+        }
+    }
+
+    @ReadingConverter
+    public enum JsonToVolumeListConverter implements Converter<Json, List<Volume>> {
+        INSTANCE;
+
+        @Override
+        public List<Volume> convert(Json source) {
+            try {
+                return OBJECT_MAPPER.readValue(source.asString(), new TypeReference<>() {
+                });
+            } catch (JsonProcessingException e) {
+                throw new IllegalStateException("Failed to convert Json to List<Volume>", e);
+            }
+        }
+    }
+
+    @WritingConverter
+    public enum VolumeListToJsonConverter implements Converter<List<Volume>, Json> {
+        INSTANCE;
+
+        @Override
+        public Json convert(List<Volume> source) {
+            try {
+                return Json.of(OBJECT_MAPPER.writeValueAsString(source));
+            } catch (JsonProcessingException e) {
+                throw new IllegalStateException("Failed to convert List<Volume> to Json", e);
             }
         }
     }
