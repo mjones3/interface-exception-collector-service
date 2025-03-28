@@ -13,7 +13,7 @@ import { CreateShipmentComponent } from '../create-shipment/create-shipment.comp
 import { FilterShipmentComponent } from '../filter-shipment/filter-shipment.component';
 
 @Component({
-    selector: 'app-search-shipment',
+    selector: 'biopro-search-shipment',
     standalone: true,
     imports: [
         MatButtonModule,
@@ -41,15 +41,10 @@ export class SearchShipmentComponent {
         this.isFilterToggled = toggleFlag;
     }
 
-    createShipment() {
-        const dialog = this.matDialog.open(CreateShipmentComponent, {
+    openCreateShipment() {
+        this.matDialog.open(CreateShipmentComponent, {
             width: '50rem',
-            data: {},
             disableClose: true,
-        });
-
-        dialog.afterClosed().subscribe((res) => {
-            console.log('res', res);
         });
     }
 }

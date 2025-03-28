@@ -10,7 +10,6 @@
                             [formGroup]="createShipment"
                             controlName="customerName"
                             [placeholder]="'Select Customer Name'"
-                            (selectionChange)="selectOnCustomer($event)"
                             title="Customer Name"
                             [items]="customerOption"
                             required="true"
@@ -43,7 +42,6 @@
                                     matInput
                                     formControlName="cartonTareWeight"
                                     placeholder="Enter carton Tare Weight"
-                                    maxlength="50"
                                     autocomplete="off"
                                 />
                                 @if (
@@ -55,6 +53,15 @@
                                         >Carton Tare Weight is
                                         required</mat-error
                                     >
+                                } @else if (
+                                    createShipment
+                                        .get('cartonTareWeight')
+                                        .hasError('invalidWeight')
+                                ) {
+                                    <mat-error
+                                        >Carton Tare Weight is
+                                        invalid</mat-error
+                                    >
                                 }
                             </mat-form-field>
                         </div>
@@ -63,11 +70,11 @@
                             <mat-form-field class="block">
                                 <mat-label>Scheduled Shipment Date</mat-label>
                                 <input
-                                    id="sheduledShipmentDateId"
+                                    id="scheduledShipmentDateId"
                                     required
                                     matInput
-                                    formControlName="sheduledShipmentDate"
-                                    placeholder="Enter Sheduled Shipment Date"
+                                    formControlName="scheduledShipmentDate"
+                                    placeholder="Enter Shipment Date"
                                     [min]="minDate"
                                     autocomplete="off"
                                     [matDatepicker]="
@@ -83,16 +90,16 @@
                                 ></mat-datepicker>
                                 @if (
                                     createShipment
-                                        .get('sheduledShipmentDate')
+                                        .get('scheduledShipmentDate')
                                         .hasError('matDatepickerMin')
                                 ) {
                                     <mat-error
-                                        >Scheduled Shipment Date cannot be today
-                                        or in the past</mat-error
+                                        >Scheduled Shipment Date cannot be in
+                                        the past</mat-error
                                     >
                                 } @else if (
                                     createShipment
-                                        .get('sheduledShipmentDate')
+                                        .get('scheduledShipmentDate')
                                         .hasError('matDatepickerParse')
                                 ) {
                                     <mat-error
@@ -101,7 +108,7 @@
                                     >
                                 } @else if (
                                     createShipment
-                                        .get('sheduledShipmentDate')
+                                        .get('scheduledShipmentDate')
                                         .hasError('required')
                                 ) {
                                     <mat-error
@@ -129,20 +136,20 @@
         </form>
     </div>
 
-    <mat-dialog-actions align="end" class="gap-6">
-        <biopro-action-button
+    <mat-dialog-actions align="end" class="gap-2 pb-4 pr-4">
+        <biopro-basic-button
             id="btnCancel"
-            btnId="actionBtnCancel"
+            (buttonClicked)="dialogRef.close()"
             label="Cancel"
             color="secondary"
-            mat-dialog-close
-        ></biopro-action-button>
-        <biopro-action-button
+        ></biopro-basic-button>
+        <biopro-basic-button
             id="btnSubmit"
-            btnId="actionBtnSubmit"
             [disabled]="!createShipment.valid"
+            class="text-primary"
+            color="primary"
             label="Submit"
-            (clickEvent)="submit()"
-        ></biopro-action-button>
+            (buttonClicked)="submit()"
+        ></biopro-basic-button>
     </mat-dialog-actions>
 </ng-container>

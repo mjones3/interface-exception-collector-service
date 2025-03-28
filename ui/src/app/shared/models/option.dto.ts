@@ -1,4 +1,4 @@
-export interface CustomerOptionDTO {
+export interface OptionDTO {
     code: string;
     name: string;
 }

@@ -104,9 +104,10 @@ export const defaultNavigation: FuseNavigationItem[] = [
     },
     {
         id: 12,
-        title: 'Recovered Plasma',
+        title: 'Recovered Plasma Shipping',
         type: 'basic',
         link: 'recovered-plasma',
+        icon: 'local_shipping',
         disabled: false,
     },
 ];
