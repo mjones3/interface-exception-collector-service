@@ -31,7 +31,7 @@ public class LocationUseCase implements LocationService {
     @Override
     public Mono<LocationOutput> findById(Long id) {
         return locationRepository.findOneById(id)
-            .switchIfEmpty(Mono.error(new DomainNotFoundForKeyException(String.format("%s", id))))
+            .switchIfEmpty(Mono.error(() -> new DomainNotFoundForKeyException(String.format("%s", id))))
             .map(locationOutputMapper::toLocationOutput);
     }
 }

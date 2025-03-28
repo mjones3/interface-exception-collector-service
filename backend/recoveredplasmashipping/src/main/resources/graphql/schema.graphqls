@@ -4,7 +4,7 @@ scalar JSON
 
 type Query {
     # Searches over all Customers
-    findAllCustomers: [PageDTO]!
+    findAllCustomers: [CustomerDTO]!
     findAllLocations:[LocationDTO]!
 
 }
@@ -57,6 +57,30 @@ type LocationDTO {
     city:String
     state:String
     properties:JSON
+}
+
+type CustomerDTO {
+    id:ID!
+    externalId:String
+    customerType:String
+    name:String
+    code:String
+    departmentCode:String
+    departmentName:String
+    foreignFlag:String
+    phoneNumber:String
+    contactName:String
+    state:String
+    postalCode:String
+    country:String
+    countryCode:String
+    city:String
+    district:String
+    addressLine1:String
+    addressLine2:String
+    active:Boolean
+    createDate:DateTime
+    modificationDate:DateTime
 }
 
 

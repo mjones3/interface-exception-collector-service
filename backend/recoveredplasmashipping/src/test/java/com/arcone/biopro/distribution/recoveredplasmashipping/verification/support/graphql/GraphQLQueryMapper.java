@@ -260,4 +260,33 @@ public class GraphQLQueryMapper {
             }
             """));
     }
+
+    public static String findAllCustomers() {
+        return (String.format("""
+            query {
+                findAllCustomers {
+                    externalId
+                    customerType
+                    name
+                    code
+                    departmentCode
+                    departmentName
+                    foreignFlag
+                    phoneNumber
+                    contactName
+                    state
+                    postalCode
+                    country
+                    countryCode
+                    city
+                    district
+                    addressLine1
+                    addressLine2
+                    active
+                    createDate
+                    modificationDate
+                }
+            }
+            """));
+    }
 }

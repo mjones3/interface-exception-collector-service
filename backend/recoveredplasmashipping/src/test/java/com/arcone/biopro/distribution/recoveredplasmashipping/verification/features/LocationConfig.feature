@@ -1,7 +1,7 @@
-@api
+@api @AOA-89
 Feature: Location Configuration
 
-    @DIS-331
+    @DIS-332
     Scenario: Check Available Recovered Plasma Shipping Locations
         Given The following locations are defined as Recovered Plasma Shipping Locations
         | Location Code | Location Name |
