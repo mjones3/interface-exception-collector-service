@@ -215,9 +215,7 @@ public class InventoryAggregate {
 
     public InventoryAggregate completeProduct(List<Volume> volumes) {
        if (Objects.nonNull(volumes) && !volumes.isEmpty()) {
-           volumes.forEach(item -> {
-               inventory.addVolume(item.getType(), item.getValue(), item.getUnit());
-           });
+           volumes.forEach(item -> inventory.addVolume(item.getType(), item.getValue(), item.getUnit()));
        }
        return this;
     }

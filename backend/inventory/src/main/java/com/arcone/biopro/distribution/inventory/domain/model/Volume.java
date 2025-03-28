@@ -1,24 +1,16 @@
 package com.arcone.biopro.distribution.inventory.domain.model;
 
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.io.Serializable;
-
-@Data
-@NoArgsConstructor
+@Getter
+@Setter
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Volume implements Serializable {
-
+@NoArgsConstructor
+@AllArgsConstructor
+public class Volume {
     String type;
     Integer value;
     String unit;
-
-    public Volume(String type, Integer value, String unit) {
-        this.type = type;
-        this.value = value;
-        this.unit = unit;
-    }
 }
