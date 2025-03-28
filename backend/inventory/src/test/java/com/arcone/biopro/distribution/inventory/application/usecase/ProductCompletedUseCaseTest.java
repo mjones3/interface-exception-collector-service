@@ -81,6 +81,60 @@ class ProductCompletedUseCaseTest {
     }
 
     @Test
+    @DisplayName("Should Update The Volumes To Default When No Volume Present")
+    void shouldUpdateTheVolumeToDefaultWhenNoVolumePresent() {
+
+        var inventory = Inventory.builder()
+            .id(UUID.randomUUID())
+            .unitNumber(new UnitNumber(UNIT_NUMBER))
+            .productCode(new ProductCode(PRODUCT_CODE))
+            .shortDescription(SHORT_DESCRIPTION)
+            .inventoryStatus(InventoryStatus.AVAILABLE)
+            .expirationDate(LocalDateTime.now().plusMonths(2))
+            .collectionDate(ZonedDateTime.now())
+            .location(LOCATION)
+            .productFamily(PRODUCT_FAMILY)
+            .aboRh(AboRhType.ABN)
+            .isLabeled(false)
+            .build();
+
+        var expectedInventoryOutput = InventoryOutput.builder()
+            .unitNumber(UNIT_NUMBER)
+            .productCode(PRODUCT_CODE)
+            .inventoryStatus(InventoryStatus.AVAILABLE)
+            .expirationDate(LocalDateTime.now().plusMonths(2))
+            .location(LOCATION)
+            .build();
+
+        var inventoryAggregate = InventoryAggregate.builder()
+            .inventory(inventory)
+            .build();
+
+        when(inventoryAggregateRepository.findByUnitNumberAndProductCode(UNIT_NUMBER, PRODUCT_CODE))
+            .thenReturn(Mono.just(inventoryAggregate));
+
+        when(inventoryAggregateRepository.saveInventory(any()))
+            .thenReturn(Mono.just(inventoryAggregate));
+
+        when(inventoryOutputMapper.toOutput(any(Inventory.class)))
+            .thenReturn(expectedInventoryOutput);
+
+        when(volumeInputMapper.toDomain(anyList())).thenReturn(List.of());
+
+        var input = ProductCompletedInput.builder()
+            .unitNumber(UNIT_NUMBER)
+            .productCode(PRODUCT_CODE)
+            .volumes(List.of())
+            .build();
+
+        Mono<InventoryOutput> result = productCompletedUseCase.execute(input);
+
+        StepVerifier.create(result)
+            .expectNextMatches(output -> output.equals(expectedInventoryOutput))
+            .verifyComplete();
+    }
+
+    @Test
     @DisplayName("Should Update The Volumes")
     void shouldUpdateTheVolumes() {
 

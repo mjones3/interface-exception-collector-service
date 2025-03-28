@@ -2,7 +2,7 @@
 @api @LAB-399
 Feature: Product Completed Event - API
     Rule: As an inventory service I want to save the volume after receiving a product completed event.
-        Scenario Outline: Add information into the anticoagulant volume when receiving product completed event
+        Scenario Outline: Add information into the volume when receiving product completed event
             Given I have the following inventories:
                 | Unit Number   | Product Code   | Status    |
                 | <Unit Number> | <Product Code> | AVAILABLE |
