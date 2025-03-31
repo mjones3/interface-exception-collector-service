@@ -57,6 +57,9 @@ class KafkaConfiguration {
     @Value("${topic.product-created.apheresis.rbc.name}")
     private String apheresisRBCProductCreatedTopic;
 
+    @Value("${topic.product-completed.apheresis.plasma.name}")
+    private String apheresisPlasmaProductCompletedTopic;
+
     @Value("${topic.product-created.wholeblood.name}")
     private String wholebloodCreatedTopic;
 
@@ -103,6 +106,13 @@ class KafkaConfiguration {
     ReceiverOptions<String, String> productCreatedReceiverOptions(KafkaProperties kafkaProperties) {
         return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
             .subscription(List.of(apheresisPlasmaProductCreatedTopic, apheresisRBCProductCreatedTopic, wholebloodCreatedTopic));
+    }
+
+    @Bean
+    @Qualifier("PRODUCT_COMPLETED")
+    ReceiverOptions<String, String> productCompletedReceiverOptions(KafkaProperties kafkaProperties) {
+        return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
+            .subscription(List.of(apheresisPlasmaProductCompletedTopic));
     }
 
     @Bean
@@ -182,6 +192,13 @@ class KafkaConfiguration {
     @Bean(name = "PRODUCT_CREATED_CONSUMER")
     ReactiveKafkaConsumerTemplate<String, String> productCreatedConsumerTemplate(
         @Qualifier("PRODUCT_CREATED") ReceiverOptions<String, String> receiverOptions
+    ) {
+        return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
+    }
+
+    @Bean(name = "PRODUCT_COMPLETED_CONSUMER")
+    ReactiveKafkaConsumerTemplate<String, String> productCompletedConsumerTemplate(
+        @Qualifier("PRODUCT_COMPLETED") ReceiverOptions<String, String> receiverOptions
     ) {
         return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
     }

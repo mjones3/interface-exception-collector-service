@@ -111,6 +111,13 @@ class InventoryAggregateTest {
     }
 
     @Test
+    @DisplayName("Should Add Volumes")
+    void shouldAddVolumes() {
+        inventoryAggregate.completeProduct(List.of(new Volume("volume", 50, "MILLILITERS")));
+        verify(inventoryMock).addVolume("volume", 50, "MILLILITERS");
+    }
+
+    @Test
     @DisplayName("Should Fail When Product Is Available And Not Labeled")
     void shouldFailWhenProductIsAvailableAndNotLabeledAndShipped() {
         when(inventoryMock.getInventoryStatus()).thenReturn(InventoryStatus.AVAILABLE);

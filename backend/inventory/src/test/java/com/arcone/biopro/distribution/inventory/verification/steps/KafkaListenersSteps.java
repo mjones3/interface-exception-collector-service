@@ -1,6 +1,5 @@
 package com.arcone.biopro.distribution.inventory.verification.steps;
 
-import com.arcone.biopro.distribution.inventory.common.TestUtil;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.History;
@@ -210,10 +209,8 @@ public class KafkaListenersSteps {
 
     @Given("I am listening the {string} event")
     public void iAmListeningEvent(String event) {
-        scenarioContext.setUnitNumber(TestUtil.randomString(13));
         scenarioContext.setProductCode("E0869VA0");
         scenarioContext.setEvent(event);
-        topicName = topicsMap.get(event);
         if (!EVENT_LABEL_APPLIED.equals(event)) {
             createInventory(scenarioContext.getUnitNumber(), scenarioContext.getProductCode(), "PLASMA_TRANSFUSABLE", AboRhType.OP, "Miami", 10, InventoryStatus.AVAILABLE);
         }
@@ -221,8 +218,8 @@ public class KafkaListenersSteps {
     }
 
     @Given("I am listening the {string} event for {string}")
-    public void iAmListeningEventForUnitNumber(String event, String untNumber) {
-        scenarioContext.setUnitNumber(untNumber);
+    public void iAmListeningEventForUnitNumber(String event, String unitNumber) {
+        scenarioContext.setUnitNumber(unitNumber);
         scenarioContext.setProductCode("E0869VA0");
         topicName = topicsMap.get(event);
         if (!EVENT_LABEL_APPLIED.equals(event)) {
@@ -265,8 +262,10 @@ public class KafkaListenersSteps {
         inventoryUtil.saveInventory(inventory);
     }
 
-    @When("I receive an event {string} event")
-    public void iReceiveAnEvent(String event) throws Exception {
+    @When("I receive an event {string} event for unit number {string}")
+    public void iReceiveAnEvent(String event, String unitNumber) throws Exception {
+        topicName = topicsMap.get(event);
+        scenarioContext.setUnitNumber(unitNumber);
         scenarioContext.setProductCode("E0869VA0");
         var message = buildMessage(event);
         scenarioContext.setLastSentMessage(message);

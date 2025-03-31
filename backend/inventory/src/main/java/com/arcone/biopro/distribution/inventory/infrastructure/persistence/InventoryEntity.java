@@ -4,6 +4,7 @@ import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhTy
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.History;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
+import com.arcone.biopro.distribution.inventory.domain.model.vo.Volume;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -120,6 +121,9 @@ public class InventoryEntity implements Serializable, Persistable<UUID> {
 
     @Column("temperature_category")
     String temperatureCategory;
+
+    @Column("volumes")
+    List<Volume> volumes;
 
     @JsonIgnore
     @Override
