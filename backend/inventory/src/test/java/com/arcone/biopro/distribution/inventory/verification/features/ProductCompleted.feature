@@ -8,13 +8,13 @@ Feature: Product Completed Event - API
                 | <Unit Number> | <Product Code> | AVAILABLE |
 
             When I received a Product Completed event for the following products:
-                | Unit Number   | Product Code   | Volume         | Anticoagulant Volume   |
-                | <Unit Number> | <Product Code> | <Event Volume> | <Event Anticoagulant Volume> |
+                | Unit Number   | Product Code   | Volume   | Anticoagulant Volume   |
+                | <Unit Number> | <Product Code> | <Volume> | <Anticoagulant Volume> |
 
             Then the inventory volume should be updated as follows:
                 | Unit Number   | Product Code   | Status    | Volume   | Anticoagulant Volume   |
                 | <Unit Number> | <Product Code> | AVAILABLE | <Volume> | <Anticoagulant Volume> |
 
             Examples:
-                | Unit Number   | Product Code | Event Volume | Volume | Event Anticoagulant Volume | Anticoagulant Volume |
-                | W036825007001 | E765000      | 450          | 450    | 50                         | 50                   |
+                | Unit Number   | Product Code | Volume | Anticoagulant Volume |
+                | W036825007001 | E765000      | 450    | 50                   |
