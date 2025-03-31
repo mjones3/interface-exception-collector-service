@@ -9,8 +9,25 @@ type Query {
 
 }
 
+type Mutation {
+
+    createShipment(createShipmentRequest:CreateShipmentRequestDTO!): UseCaseResponseDTO!
+}
+
 input InputQuerySortDTO {
     orderByList: [InputQueryOrderByDTO]
+}
+
+input CreateShipmentRequestDTO {
+
+    locationCode:String
+    customerCode:String
+    productType:String
+    transportationReferenceNumber:String
+    scheduleDate:Date
+    cartonTareWeight:Float
+    createEmployeeId:String
+
 }
 
 type OutputQuerySortDTO {
@@ -40,10 +57,10 @@ type PageDTO {
     totalPages: Int!
 }
 
-type NotificationDTO {
-    name: String
-    notificationType: String
-    notificationMessage: String
+type UseCaseNotificationDTO {
+    message: String
+    type: String
+    code: Int
 }
 
 type LocationDTO {
@@ -83,4 +100,9 @@ type CustomerDTO {
     modificationDate:DateTime
 }
 
+type UseCaseResponseDTO {
+    notifications: [UseCaseNotificationDTO]
+    _links: JSON
+    data: JSON
+}
 
