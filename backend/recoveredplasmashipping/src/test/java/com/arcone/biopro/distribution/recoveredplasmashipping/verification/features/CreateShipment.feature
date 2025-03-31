@@ -25,7 +25,7 @@ Feature: Shipment Creation
         Rule: I should be able to receive a success message after a shipment is created successfully.
         @api @DIS-333
         Scenario: Successful shipment creation
-            Given The location "ABC1" is configured with "PRE1", "DIS333002", "0", and "YES".
+            Given The location "ABC1" is configured with prefix "PRE1", shipping code "DIS333002", shipping quantity "0", and prefix configuration "YES".
             When I request to create a new shipment with the values:
                 | Field                           | Value      |
                 | Customer                        | CUST001    |
