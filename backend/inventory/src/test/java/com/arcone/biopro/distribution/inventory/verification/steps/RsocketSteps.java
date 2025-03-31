@@ -1,34 +1,24 @@
 package com.arcone.biopro.distribution.inventory.verification.steps;
 
 import com.arcone.biopro.distribution.inventory.adapter.in.socket.dto.*;
-import com.arcone.biopro.distribution.inventory.common.TestUtil;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhCriteria;
-import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
-import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.MessageType;
-import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
-import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntity;
-import com.arcone.biopro.distribution.inventory.verification.utils.InventoryUtil;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.And;
-import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.rsocket.RSocketRequester;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,9 +27,6 @@ public class RsocketSteps {
 
     @Autowired
     RSocketRequester.Builder builder;
-
-    @Autowired
-    InventoryUtil inventoryUtil;
 
     @Value("${spring.rsocket.server.port}")
     Integer port;
@@ -60,40 +47,6 @@ public class RsocketSteps {
             .tcp("localhost", port);
 
         inventoryCriteriaList = new ArrayList<>();
-    }
-
-    @Given("I have {string} products of family {string} with ABORh {string} in location {string} and that will expire in {string} days")
-    public void iHaveOfTheOfTheBloodTypeInThe(String quantity, String productFamily, String aboRh, String location, String days) {
-        createMultipleProducts(quantity, productFamily, aboRh, location, days, InventoryStatus.AVAILABLE, "FROZEN");
-    }
-
-
-    @Given("I have one product with {string}, {string} and {string} in {string} status")
-    public void iHaveOneProductWithAndInStatus(String unitNumber, String productCode, String location, String status) {
-        int days = "EXPIRED".equals(status) ? -1 : 1;
-        InventoryStatus inventoryStatus = "EXPIRED".equals(status) ? InventoryStatus.AVAILABLE : InventoryStatus.valueOf(status);
-
-        var inventory = inventoryUtil.newInventoryEntity(unitNumber, productCode, inventoryStatus);
-        inventory.setLocation(location);
-        inventory.setIsLabeled(true);
-        inventory.setTemperatureCategory("FROZEN");
-        inventory.setExpirationDate(LocalDateTime.now().plusDays(days));
-        inventoryUtil.saveInventory(inventory);
-    }
-
-    @Given("I have one product with {string}, {string} and {string} in {string} status with reason {string} and comments {string}")
-    public void iHaveOneProductWithAndInStatus(String unitNumber, String productCode, String location, String status, String statusReason, String comments) {
-        int days = "EXPIRED".equals(status) ? -1 : 1;
-        InventoryStatus inventoryStatus = "EXPIRED".equals(status) ? InventoryStatus.AVAILABLE : InventoryStatus.valueOf(status);
-
-        var inventory = inventoryUtil.newInventoryEntity(unitNumber, productCode, inventoryStatus);
-        inventory.setLocation(location);
-        inventory.setExpirationDate(LocalDateTime.now().plusDays(days));
-        inventory.setStatusReason(statusReason);
-        inventory.setComments(comments);
-        inventory.setIsLabeled(true);
-        inventory.setTemperatureCategory("FROZEN");
-        inventoryUtil.saveInventory(inventory);
     }
 
     @When("I select {string} of the blood type {string}")
@@ -225,98 +178,5 @@ public class RsocketSteps {
                 log.debug("Received message from validate inventory {}", message);
             })
             .verifyComplete();
-    }
-
-    @And("I have one product with {string}, {string} and {string} in {string} status with quarantine reasons {string} and comments {string}")
-    public void iHaveOneProductWithAndInStatusWithQuarantineReasonsAndComments(String unitNumber, String productCode, String location, String status, String quarantineReasons, String quarantineComments) {
-        int days = InventoryStatus.DISCARDED.equals(InventoryStatus.valueOf(status)) ? -1 : 1;
-        List<Quarantine> quarantines = Arrays.stream(quarantineReasons.split(",")).map(String::trim).map(reason -> new Quarantine(1L, reason, quarantineComments)).collect(Collectors.toList());
-
-        var inventory = inventoryUtil.newInventoryEntity(unitNumber, productCode, InventoryStatus.valueOf(status));
-        inventory.setExpirationDate(LocalDateTime.now().plusDays(days));
-        inventory.setLocation(location);
-        inventory.setQuarantines(quarantines);
-        inventory.setStatusReason("ACTIVE_DEFERRAL");
-        inventory.setComments(null);
-        inventory.setIsLabeled(true);
-        inventory.setTemperatureCategory("FROZEN");
-        inventoryUtil.saveInventory(inventory);
-    }
-
-    @And("I have one product with {string}, {string} and {string} in {string} status with reason {string}")
-    public void iHaveOneProductWithAndInStatusWithReason(String unitNumber, String productCode, String location, String status, String reason) {
-        int days = "EXPIRED".equals(status) ? -1 : 1;
-        InventoryStatus inventoryStatus = "EXPIRED".equals(status) ? InventoryStatus.AVAILABLE : InventoryStatus.valueOf(status);
-
-        var inventory = inventoryUtil.newInventoryEntity(unitNumber, productCode, inventoryStatus);
-        inventory.setLocation(location);
-        inventory.setExpirationDate(LocalDateTime.now().plusDays(days));
-        inventory.setStatusReason(reason);
-        inventory.setIsLabeled(true);
-        inventoryUtil.saveInventory(inventory);
-    }
-
-    @And("I have one product with {string}, {string} and {string} in {string} status and is unlabeled")
-    public void iHaveOneProductWithAndInStatusAndIsUnlabeled(String unitNumber, String productCode, String location, String status) {
-        int days = "EXPIRED".equals(status) ? -1 : 1;
-        InventoryStatus inventoryStatus = "EXPIRED".equals(status) ? InventoryStatus.AVAILABLE : InventoryStatus.valueOf(status);
-
-        var inventory = inventoryUtil.newInventoryEntity(unitNumber, productCode, inventoryStatus);
-        inventory.setLocation(location);
-        inventory.setExpirationDate(LocalDateTime.now().plusDays(days));
-        inventory.setIsLabeled(false);
-        inventory.setTemperatureCategory("FROZEN");
-        inventoryUtil.saveInventory(inventory);
-    }
-
-
-    private void createInventory(String unitNumber, String productCode, String productFamily, AboRhType aboRhType, String location, Integer daysToExpire, InventoryStatus status, String statusReason, String comments) {
-        var inventory = inventoryUtil.newInventoryEntity(unitNumber, productCode, status);
-        inventory.setLocation(location);
-        inventory.setExpirationDate(LocalDateTime.now().plusDays(daysToExpire));
-        inventory.setProductFamily(productFamily);
-        inventory.setAboRh(aboRhType);
-        inventory.setStatusReason(statusReason);
-        inventory.setComments(comments);
-        inventory.setIsLabeled(true);
-        inventoryUtil.saveInventory(inventory);
-    }
-
-    private void createMultipleProducts(String quantity, String productFamily, String aboRh, String location, String days, InventoryStatus status, String temperatureCategory) {
-        int qty = Integer.parseInt(quantity);
-        int daysToExpire = Integer.parseInt(days);
-        AboRhType aboRhType = AboRhType.valueOf(aboRh);
-
-        for (int i = 0; i < qty; i++) {
-            InventoryEntity inventory = inventoryUtil.newInventoryEntity(
-                TestUtil.randomString(13),
-                "E0869V00",
-                status
-            );
-            inventory.setLocation(location);
-            inventory.setExpirationDate(LocalDateTime.now().plusDays(daysToExpire));
-            inventory.setProductFamily(productFamily);
-            inventory.setAboRh(aboRhType);
-            inventory.setIsLabeled(true);
-            inventory.setTemperatureCategory(temperatureCategory);
-            inventoryUtil.saveInventory(inventory);
-        }
-    }
-
-    @And("I have one product with {string}, {string} and {string} in {string} status with unsuitable reason {string}")
-    public void iHaveOneProductWithAndInStatusWithUnsuitableReason(String unitNumber, String productCode, String location, String status, String reason) {
-        var inventory = inventoryUtil.newInventoryEntity(unitNumber, productCode, InventoryStatus.valueOf(status));
-        inventory.setExpirationDate(LocalDateTime.now().plusDays(1));
-        inventory.setLocation(location);
-        inventory.setUnsuitableReason(reason);
-        inventory.setComments(null);
-        inventory.setIsLabeled(true);
-        inventory.setTemperatureCategory("FROZEN");
-        inventoryUtil.saveInventory(inventory);
-    }
-
-    @And("I have {string} products of family {string} with ABORh {string} in location {string} and with temperature category {string} and that will expire in {string} days")
-    public void iHaveProductsOfFamilyWithABORhInLocationAndWithProductCodeAndThatWillExpireInDays(String quantity, String productFamily, String aboRh, String location, String temperatureCategory, String days) {
-        createMultipleProducts(quantity, productFamily, aboRh, location, days, InventoryStatus.AVAILABLE, temperatureCategory);
     }
 }

@@ -285,6 +285,10 @@ topic:
         name: ApheresisPlasmaProductCreated
       rbc:
         name: ApheresisRBCProductCreated
+  product-completed:
+    apheresis:
+      plasma:
+        name: ApheresisPlasmaProductCompleted
   label-applied:
     name: LabelApplied
   shipment-completed:

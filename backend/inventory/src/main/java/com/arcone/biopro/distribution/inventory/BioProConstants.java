@@ -13,6 +13,7 @@ public interface BioProConstants {
     String CHECK_IN_COMPLETED_TOPIC = "CheckInCompleted";
     String APHERESIS_RBC_PRODUCT_CREATED_TOPIC = "ApheresisRBCProductCreated";
     String APHERESIS_PLASMA_PRODUCT_CREATED_TOPIC = "ApheresisPlasmaProductCreated";
+    String APHERESIS_PLASMA_PRODUCT_COMPLETED_TOPIC = "ApheresisPlasmaProductCompleted";
     String WHOLEBLOOD_CREATED_TOPIC = "WholeBloodProductCreated";
     String PAYLOAD = "payload";
     String UNIT_NUMBER = "unitNumber";

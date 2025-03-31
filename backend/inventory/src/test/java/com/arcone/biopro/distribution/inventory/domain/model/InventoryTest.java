@@ -72,6 +72,16 @@ class InventoryTest {
     }
 
     @Test
+    @DisplayName("Should Add Volumes Into The Inventory")
+    void shouldAddVolumeIntoTheInventory() {
+        inventory.addVolume("volume", 50, "MILLILITERS");
+        inventory.addVolume("anticoagulantVolume", 50, "MILLILITERS");
+        assertNotNull(inventory.getVolumes());
+        assertEquals(2, inventory.getVolumes().size(), "Volumes added");
+
+    }
+
+    @Test
     @DisplayName("Should Add Two Quarantines And Update One")
     void testUpdateQuarantine_ShouldUpdateFirstQuarantine() {
         // Act

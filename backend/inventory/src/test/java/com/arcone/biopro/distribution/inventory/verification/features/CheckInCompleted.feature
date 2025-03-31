@@ -1,3 +1,4 @@
+# Feature Unit Number reference: W036825001000
 @api @LAB-256 @AOA-152
 Feature: CheckIn Completed Event
     Rule: As an inventory service I want to listen to check-in completed event so that I can create the inventory
@@ -12,7 +13,7 @@ Feature: CheckIn Completed Event
 
             Examples:
                 | Unit Number   | Product Code |
-                | W036824411111 | WHOLEBLOOD   |
-                | W036824411112 | PLASAPHP     |
-                | W036824411113 | RBCAPH       |
+                | W036825001001 | WHOLEBLOOD   |
+                | W036825001002 | PLASAPHP     |
+                | W036825001003 | RBCAPH       |
 
