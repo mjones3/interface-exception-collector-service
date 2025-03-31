@@ -1,6 +1,5 @@
 package com.arcone.biopro.distribution.inventory.verification.steps;
 
-import com.arcone.biopro.distribution.inventory.common.TestUtil;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.History;
@@ -212,7 +211,6 @@ public class KafkaListenersSteps {
     public void iAmListeningEvent(String event) {
         scenarioContext.setProductCode("E0869VA0");
         scenarioContext.setEvent(event);
-//        topicName = topicsMap.get(event);
         if (!EVENT_LABEL_APPLIED.equals(event)) {
             createInventory(scenarioContext.getUnitNumber(), scenarioContext.getProductCode(), "PLASMA_TRANSFUSABLE", AboRhType.OP, "Miami", 10, InventoryStatus.AVAILABLE);
         }

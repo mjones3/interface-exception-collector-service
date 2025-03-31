@@ -248,7 +248,6 @@ public class UseCaseSteps {
             Integer volume = Integer.valueOf(product.get("Volume"));
             Integer anticoagulantVolume = Integer.valueOf(product.get("Anticoagulant Volume"));
             productCompletedUseCase.execute(inventoryUtil.newProductCompletedInput(unitNumber, productCode, volume, anticoagulantVolume, "ml")).block();
-
         }
     }
 }
