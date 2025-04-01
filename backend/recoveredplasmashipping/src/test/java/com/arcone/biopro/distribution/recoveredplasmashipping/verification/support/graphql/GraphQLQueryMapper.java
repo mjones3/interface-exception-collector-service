@@ -289,4 +289,16 @@ public class GraphQLQueryMapper {
             }
             """));
     }
+
+    public static String findAllProductTypeCustomer(String customerCode) {
+        return String.format("""
+            query {
+                findAllProductTypeByCustomer(customerCode:"%s") {
+                    id
+                   productType
+                   productTypeDescription
+                }
+            }
+            """, customerCode);
+    }
 }

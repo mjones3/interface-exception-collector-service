@@ -6,7 +6,7 @@ type Query {
     # Searches over all Customers
     findAllCustomers: [CustomerDTO]!
     findAllLocations:[LocationDTO]!
-
+    findAllProductTypeByCustomer(customerCode:String!):[ProductTypeDTO]!
 }
 
 type Mutation {
@@ -104,5 +104,11 @@ type UseCaseResponseDTO {
     notifications: [UseCaseNotificationDTO]
     _links: JSON
     data: JSON
+}
+
+type ProductTypeDTO{
+    id:ID!
+    productType:String
+    productTypeDescription:String
 }
 
