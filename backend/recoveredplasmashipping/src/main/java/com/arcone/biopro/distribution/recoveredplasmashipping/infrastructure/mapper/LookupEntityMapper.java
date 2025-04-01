@@ -3,8 +3,9 @@ package com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.ma
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Lookup;
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.persistence.LookupEntity;
 import org.mapstruct.Mapper;
+import org.mapstruct.MappingConstants;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface LookupEntityMapper {
 
     default Lookup mapToDomain(final LookupEntity entity) {
