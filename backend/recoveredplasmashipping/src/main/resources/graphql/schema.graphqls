@@ -1,0 +1,86 @@
+scalar DateTime
+scalar Date
+scalar JSON
+
+type Query {
+    # Searches over all Customers
+    findAllCustomers: [CustomerDTO]!
+    findAllLocations:[LocationDTO]!
+
+}
+
+input InputQuerySortDTO {
+    orderByList: [InputQueryOrderByDTO]
+}
+
+type OutputQuerySortDTO {
+    orderByList: [OutputQueryOrderByDTO]
+}
+
+input InputQueryOrderByDTO {
+    property:String
+    direction:String
+}
+
+type OutputQueryOrderByDTO {
+    property:String
+    direction:String
+}
+
+type PageDTO {
+    content: JSON
+    pageNumber: Int!
+    pageSize: Int!
+    totalRecords: Int!
+    querySort: OutputQuerySortDTO!
+    hasPrevious: Boolean!
+    hasNext: Boolean!
+    isFirst: Boolean!
+    isLast: Boolean!
+    totalPages: Int!
+}
+
+type NotificationDTO {
+    name: String
+    notificationType: String
+    notificationMessage: String
+}
+
+type LocationDTO {
+    id:ID!
+    name:String!
+    code:String!
+    externalId:String
+    addressLine1:String
+    addressLine2:String
+    postalCode:String
+    city:String
+    state:String
+    properties:JSON
+}
+
+type CustomerDTO {
+    id:ID!
+    externalId:String
+    customerType:String
+    name:String
+    code:String
+    departmentCode:String
+    departmentName:String
+    foreignFlag:String
+    phoneNumber:String
+    contactName:String
+    state:String
+    postalCode:String
+    country:String
+    countryCode:String
+    city:String
+    district:String
+    addressLine1:String
+    addressLine2:String
+    active:Boolean
+    createDate:DateTime
+    modificationDate:DateTime
+}
+
+
