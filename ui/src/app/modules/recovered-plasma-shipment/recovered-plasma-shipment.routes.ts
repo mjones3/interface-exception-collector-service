@@ -19,7 +19,7 @@ export default [
                 },
             },
             {
-                path: 'shipment-details',
+                path: ':id/shipment-details',
                 component: RecoveredPlasmaShippingDetailsComponent,
                 data: {
                     subTitle: 'Shipment Details',

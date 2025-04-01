@@ -3,6 +3,7 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { CreateShipmentComponent } from '../create-shipment/create-shipment.component';
 import { SearchShipmentComponent } from './search-shipment.component';
+import { ApolloTestingModule } from 'apollo-angular/testing';
 
 describe('SearchShipmentComponent', () => {
     let component: SearchShipmentComponent;
@@ -15,6 +16,7 @@ describe('SearchShipmentComponent', () => {
                 SearchShipmentComponent,
                 NoopAnimationsModule,
                 CreateShipmentComponent,
+                ApolloTestingModule
             ],
         }).compileComponents();
 

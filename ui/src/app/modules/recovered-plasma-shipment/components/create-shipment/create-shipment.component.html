@@ -1,17 +1,17 @@
 <ng-container>
     <h1 mat-dialog-title class="p-4 pb-0 text-3xl">Create Shipment</h1>
     <div class="p-4 pb-0">
-        <form [formGroup]="createShipment">
+        <form [formGroup]="createShipmentForm">
             <div class="flex w-full flex-col">
                 <div class="flex flex-col space-y-4">
                     <div class="w-full">
                         <biopro-search-select
                             id="customerNameId"
-                            [formGroup]="createShipment"
+                            [formGroup]="createShipmentForm"
                             controlName="customerName"
                             [placeholder]="'Select Customer Name'"
                             title="Customer Name"
-                            [items]="customerOption"
+                            [items]="customerOptionList"
                             required="true"
                             matSelectId="customerSelectId"
                         >
@@ -21,10 +21,10 @@
                     <div class="w-full">
                         <biopro-search-select
                             id="productTypeId"
-                            [formGroup]="createShipment"
+                            [formGroup]="createShipmentForm"
                             controlName="productType"
                             [placeholder]="'Select Product Type'"
-                            [items]="productTypeOption"
+                            [items]="productTypeOptions"
                             title="Product Type"
                             required="true"
                             matSelectId="productTypeSelectId"
@@ -45,7 +45,7 @@
                                     autocomplete="off"
                                 />
                                 @if (
-                                    createShipment
+                                    createShipmentForm
                                         .get('cartonTareWeight')
                                         .hasError('required')
                                 ) {
@@ -54,7 +54,7 @@
                                         required</mat-error
                                     >
                                 } @else if (
-                                    createShipment
+                                    createShipmentForm
                                         .get('cartonTareWeight')
                                         .hasError('invalidWeight')
                                 ) {
@@ -89,7 +89,7 @@
                                     #scheduledShipmentDatePicker
                                 ></mat-datepicker>
                                 @if (
-                                    createShipment
+                                    createShipmentForm
                                         .get('scheduledShipmentDate')
                                         .hasError('matDatepickerMin')
                                 ) {
@@ -98,7 +98,7 @@
                                         the past</mat-error
                                     >
                                 } @else if (
-                                    createShipment
+                                    createShipmentForm
                                         .get('scheduledShipmentDate')
                                         .hasError('matDatepickerParse')
                                 ) {
@@ -107,7 +107,7 @@
                                         invalid</mat-error
                                     >
                                 } @else if (
-                                    createShipment
+                                    createShipmentForm
                                         .get('scheduledShipmentDate')
                                         .hasError('required')
                                 ) {
@@ -145,7 +145,7 @@
         ></biopro-basic-button>
         <biopro-basic-button
             id="btnSubmit"
-            [disabled]="!createShipment.valid"
+            [disabled]="!createShipmentForm.valid"
             class="text-primary"
             color="primary"
             label="Submit"

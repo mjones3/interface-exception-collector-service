@@ -6,16 +6,18 @@
     ></biopro-process-header>
 
     <ng-template #actionButtonsTpl>
-        <div class="flex flex-row space-x-2">
-            <biopro-action-button
-                id="createShipmentBtn"
-                btnId="createShipmentBtnId"
-                label="Create Shipment"
-                color="primary"
-                icon="heroicons_outline:plus-circle"
-                (clickEvent)="openCreateShipment()"
-            />
-        </div>
+        @if(isRecoveredPlasmaFacility){
+            <div class="flex flex-row space-x-2">
+                <biopro-action-button
+                    id="createShipmentBtn"
+                    btnId="createShipmentBtnId"
+                    label="Create Shipment"
+                    color="primary"
+                    icon="heroicons_outline:plus-circle"
+                    (clickEvent)="openCreateShipment()"
+                />
+            </div>
+        }
     </ng-template>
 
     <biopro-filter-shipment

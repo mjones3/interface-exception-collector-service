@@ -1,5 +1,5 @@
 import { CommonModule, formatDate } from '@angular/common';
-import { Component, Inject, LOCALE_ID, OnInit, OnDestroy } from '@angular/core';
+import { Component, Inject, LOCALE_ID, OnDestroy, OnInit } from '@angular/core';
 import {
     FormBuilder,
     FormGroup,
@@ -17,13 +17,23 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { Router } from '@angular/router';
+import { ApolloError } from '@apollo/client';
+import { Store } from '@ngrx/store';
+import { ToastrImplService } from '@shared';
+import { ERROR_MESSAGE } from 'app/core/data/common-labels';
+import { getAuthState } from 'app/core/state/auth/auth.selectors';
 import { BasicButtonComponent } from 'app/shared/components/buttons/basic-button.component';
 import { SearchSelectComponent } from 'app/shared/components/search-select/search-select.component';
 import { cartonWeightValidator } from 'app/shared/forms/biopro-validators';
 import { OptionDTO } from 'app/shared/models/option.dto';
+import { Cookie } from 'app/shared/types/cookie.enum';
+import { consumeNotifications } from 'app/shared/utils/notification.handling';
 import { map } from 'lodash-es';
-import { ToastrService } from 'ngx-toastr';
-import { Subscription } from 'rxjs';
+import { CookieService } from 'ngx-cookie-service';
+import { Subscription, catchError, take } from 'rxjs';
+import { RecoveredPlasmaCustomerDTO } from '../../graphql/query-definitions/customer.graphql';
+import { RecoveredPlasmaShipmentService } from '../../services/recovered-plasma-shipment.service';
+import { RecoveredPlasmaService } from '../../services/recovered-plasma.service';
 
 @Component({
     selector: 'biopro-create-shipment',
@@ -44,33 +54,30 @@ import { Subscription } from 'rxjs';
     templateUrl: './create-shipment.component.html',
 })
 export class CreateShipmentComponent implements OnInit, OnDestroy {
-    //Remove Mock Data
-    customerList: OptionDTO[] = [
-        { code: '1', name: 'abc' },
-        { code: '2', name: 'xyz' },
-    ];
-    //Remove Mock Data
-    productTypeMap = {
-        '1': [{ id: '1', value: 'aphresis' }],
-        '2': [
-            { id: '2', value: 'plasma' },
-            { id: '3', value: 'redblood' },
-        ],
-    };
-    createShipment: FormGroup;
+    customerOptionList: RecoveredPlasmaCustomerDTO[] = [];
+    productTypeOptions: OptionDTO[] = [];
+    createShipmentForm: FormGroup;
     customerValueChange: Subscription;
     minDate = new Date();
-    customerOption: OptionDTO[];
-    productTypeOption: OptionDTO[] = [];
-
+    loggedUserId: string;
     constructor(
         private fb: FormBuilder,
         public dialogRef: MatDialogRef<CreateShipmentComponent>,
         private router: Router,
-        private toastr: ToastrService,
+        private toastr: ToastrImplService,
+        private store: Store,
+        private cookieService: CookieService,
+        private shipmentService: RecoveredPlasmaShipmentService,
+        private recoveredPlasmaService: RecoveredPlasmaService,
         @Inject(LOCALE_ID) public locale: string
     ) {
-        this.createShipment = this.fb.group({
+        this.store
+            .select(getAuthState)
+            .pipe(take(1))
+            .subscribe((auth) => {
+                this.loggedUserId = auth['id'];
+            });
+        this.createShipmentForm = this.fb.group({
             customerName: ['', [Validators.required]],
             productType: [{ value: '', disabled: true }, [Validators.required]],
             cartonTareWeight: [
@@ -80,58 +87,124 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
             scheduledShipmentDate: ['', [Validators.required]],
             transportationReferenceNumber: [''],
         });
-        this.customerValueChange = this.createShipment
+
+        this.customerValueChange = this.createShipmentForm
             .get('customerName')
             .valueChanges.subscribe((value) => {
                 if (value) {
-                    this.createShipment.get('productType').enable();
-                    this.productTypeOption = map(
-                        this.productTypeMap[value],
-                        (item) => ({ code: item.id, name: item.value })
-                    );
-                    this.createShipment.get('productType').setValue('');
+                    this.createShipmentForm.get('productType').enable();
+                    this.createShipmentForm.get('productType').setValue('');
+                    this.shipmentService
+                        .getProductTypeOptions(value)
+                        .subscribe((result) => {
+                            if (
+                                Array.isArray(
+                                    result?.data['findAllProductTypeByCustomer']
+                                )
+                            ) {
+                                this.productTypeOptions = map(
+                                    result.data['findAllProductTypeByCustomer'],
+                                    (item) => {
+                                        return {
+                                            code: item.productType,
+                                            name: item.productTypeDescription,
+                                        };
+                                    }
+                                );
+                            } else {
+                                this.productTypeOptions = [];
+                            }
+                        });
                 } else {
-                    this.createShipment.get('productType').disable();
-                    this.createShipment.get('productType').setValue('');
-                    this.productTypeOption = [];
+                    this.createShipmentForm.get('productType').disable();
+                    this.createShipmentForm.get('productType').setValue('');
+                    this.productTypeOptions = [];
                 }
             });
     }
 
     ngOnInit(): void {
-        this.customerOption = this.customerList;
+        this.loadCustomers();
     }
 
-    ngOnDestroy() {
+    ngOnDestroy(): void {
         this.customerValueChange?.unsubscribe();
     }
 
-    get createShipmentControl() {
-        return this.createShipment.controls;
+    private loadCustomers(): void {
+        this.recoveredPlasmaService.findAllCustomers().subscribe({
+            next: (response) => {
+                if (Array.isArray(response?.data?.findAllCustomers)) {
+                    this.customerOptionList = response?.data.findAllCustomers;
+                } else {
+                    this.customerOptionList = [];
+                }
+            },
+            error: (error: ApolloError) => {
+                this.toastr.error(ERROR_MESSAGE);
+                throw error;
+            },
+        });
     }
 
-    submit() {
-        if (!this.createShipment.valid) {
+    get createShipmentFormControl() {
+        return this.createShipmentForm.controls;
+    }
+
+    submit(): void {
+        if (!this.createShipmentForm.valid) {
             return;
         }
-        const scheduledShipmentDate =
-            this.createShipmentControl.scheduledShipmentDate.value;
+        const scheduledDate =
+            this.createShipmentFormControl.scheduledShipmentDate.value;
         const formattedScheduledShipmentDate = formatDate(
-            scheduledShipmentDate,
+            scheduledDate,
             'yyyy-MM-dd',
             this.locale
         );
-        const createShipmentInfo = {
-            customer: this.createShipmentControl.customerName?.value ?? '',
-            productType: this.createShipmentControl.productType?.value ?? '',
-            cartonTareWeight:
-                this.createShipmentControl.cartonTareWeight?.value ?? '',
-            scheduledTransferDate: formattedScheduledShipmentDate,
+        const createShipmentFormInfo = {
+            locationCode: this.cookieService.get(Cookie.XFacility),
+            createEmployeeId: this.loggedUserId,
+            customerCode:
+                this.createShipmentFormControl.customerName?.value ?? '',
+            productType:
+                this.createShipmentFormControl.productType?.value ?? '',
+            cartonTareWeight: parseFloat(
+                this.createShipmentFormControl.cartonTareWeight?.value ?? ''
+            ),
+            scheduleDate: formattedScheduledShipmentDate,
         };
-        if (this.createShipment.valid) {
-            this.dialogRef.close();
-            this.toastr.success('sucess');
-            this.router.navigateByUrl(`recovered-plasma/shipment-details`);
+        if (this.createShipmentForm.valid) {
+            this.shipmentService
+                .createRecoveredPlasmaShipment(createShipmentFormInfo)
+                .pipe(
+                    catchError((err) => {
+                        this.toastr.error(ERROR_MESSAGE);
+                        throw err;
+                    })
+                )
+                .subscribe({
+                    next: (response) => {
+                        const ruleResult = response?.data?.createShipment;
+                        const url = ruleResult._links?.next;
+                        let  notifications = ruleResult.notifications;
+                        if (notifications?.length) {
+                            notifications.forEach((notification) => {
+                                notification.notificationType =
+                                    notification['type'];
+                            });
+                            consumeNotifications(this.toastr, notifications);
+                            if (
+                                (notifications[0].notificationType = 'SUCCESS')
+                            ) {
+                                this.dialogRef.close();
+                                if (url) {
+                                    this.router.navigateByUrl(url);
+                                }
+                            }
+                        }
+                    },
+                });
         }
     }
 }
