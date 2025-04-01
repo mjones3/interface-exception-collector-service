@@ -1,16 +1,21 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.unit.application.usecase;
 
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.CreateShipmentInput;
+import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.CustomerOutput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.RecoveredPlasmaShipmentOutput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.UseCaseMessageType;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.UseCaseNotificationOutput;
+import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.UseCaseNotificationType;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.UseCaseOutput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.mapper.CreateShipmentInputMapper;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.mapper.RecoveredPlasmaShipmentOutputMapper;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.usecase.CreateShipmentUseCase;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.event.RecoveredPlasmaShipmentCreatedEvent;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.CreateShipmentCommand;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Location;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.LocationProperty;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.RecoveredPlasmaShipment;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.RecoveredPlasmaShipmentCriteria;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.LocationRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShipmentCriteriaRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShippingRepository;
@@ -25,8 +30,13 @@ import org.springframework.context.ApplicationEventPublisher;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
@@ -58,20 +68,44 @@ class CreateShipmentUseCaseTest {
 
     @InjectMocks
     private CreateShipmentUseCase createShipmentUseCase;
-/*
+
+
+
     @Test
     void createShipment_WhenSuccessful_ShouldReturnSuccessOutput() {
 
         // Given
+
+        var locationMock = Mockito.mock(Location.class);
+        Mockito.when(locationMock.getCode()).thenReturn("CODE");
+        Mockito.when(locationMock.findProperty(Mockito.eq("RPS_USE_PARTNER_PREFIX"))).thenReturn(Optional.of(new LocationProperty(1L, "RPS_USE_PARTNER_PREFIX", "Y")));
+        Mockito.when(locationMock.findProperty(Mockito.eq("RPS_LOCATION_SHIPMENT_CODE"))).thenReturn(Optional.of(new LocationProperty(1L, "RPS_LOCATION_SHIPMENT_CODE", "ABC")));
+
+
+        Mockito.when(recoveredPlasmaShippingRepository.getNextShipmentId()).thenReturn(Mono.just(1L));
+        Mockito.when(locationRepository.findOneByCode(Mockito.any())).thenReturn(Mono.just(locationMock));
+
+        var productTypeMock = Mockito.mock(RecoveredPlasmaShipmentCriteria.class);
+        Mockito.when(productTypeMock.getProductType()).thenReturn("productType");
+        Mockito.when(recoveredPlasmaShipmentCriteriaRepository.findProductCriteriaByCustomerCode(Mockito.any(), Mockito.any())).thenReturn(Mono.just(productTypeMock));
+        Mockito.when(customerService.findByCode(Mockito.any())).thenReturn(Mono.just(CustomerOutput.builder()
+            .code("123")
+            .name("name")
+            .build()));
+
+
+
         CreateShipmentInput input = Mockito.mock(CreateShipmentInput.class);
 
-        CreateShipmentCommand command = Mockito.mock(CreateShipmentCommand.class);
+        var createCommand = new CreateShipmentCommand("customerCoode", "locationCode", "productType"
+            , "createEmployeeId", "123", LocalDate.now().plusDays(1), BigDecimal.TEN);
+
 
         RecoveredPlasmaShipment shipment = Mockito.mock(RecoveredPlasmaShipment.class);
 
         RecoveredPlasmaShipmentOutput shipmentOutput = Mockito.mock(RecoveredPlasmaShipmentOutput.class);
 
-        when(createShipmentInputMapper.toCreateCommand(input)).thenReturn(command);
+        when(createShipmentInputMapper.toCreateCommand(input)).thenReturn(createCommand);
         when(recoveredPlasmaShippingRepository.create(any(RecoveredPlasmaShipment.class)))
             .thenReturn(Mono.just(shipment));
         when(recoveredPlasmaShipmentOutputMapper.toRecoveredPlasmaShipmentOutput(shipment))
@@ -88,7 +122,7 @@ class CreateShipmentUseCaseTest {
             .assertNext(output -> {
                 assertNotNull(output);
                 assertEquals(shipmentOutput, output.data());
-                assertEquals("/recovered-plasma/:123/shipment-details",
+                assertEquals("/recovered-plasma/:0/shipment-details",
                     output._links().get("next"));
 
                 UseCaseNotificationOutput notification = output.notifications().get(0);
@@ -103,80 +137,46 @@ class CreateShipmentUseCaseTest {
         verify(recoveredPlasmaShippingRepository).create(any(RecoveredPlasmaShipment.class));
         verify(recoveredPlasmaShipmentOutputMapper).toRecoveredPlasmaShipmentOutput(shipment);
         verify(applicationEventPublisher).publishEvent(any(RecoveredPlasmaShipmentCreatedEvent.class));
-    }*/
-
-    /*@Test
-    void createShipment_WhenMappingFails_ShouldReturnErrorOutput() {
-        // Given
-        CreateShipmentInput input = new CreateShipmentInput();
-        RuntimeException mappingException = new RuntimeException("Mapping failed");
-
-        when(createShipmentInputMapper.toCreateCommand(input))
-            .thenThrow(mappingException);
-
-        // When
-        Mono<UseCaseOutput<RecoveredPlasmaShipmentOutput>> result = createShipmentUseCase
-            .createShipment(input);
-
-        // Then
-        StepVerifier.create(result)
-            .assertNext(output -> {
-                assertNotNull(output);
-                assertNull(output.getOutput());
-                assertNull(output.getLinks());
-
-                UseCaseNotificationOutput notification = output.getNotifications().get(0);
-                assertEquals(UseCaseNotificationType.WARN,
-                    notification.getUseCaseMessage().getNotificationType());
-                assertEquals(mappingException.getMessage(),
-                    notification.getUseCaseMessage().getMessage());
-                assertEquals(3, notification.getUseCaseMessage().getCode());
-            })
-            .verifyComplete();
-
-        verify(createShipmentInputMapper).toCreateCommand(input);
-        verify(recoveredPlasmaShippingRepository, never()).create(any());
-        verify(recoveredPlasmaShipmentOutputMapper, never())
-            .toRecoveredPlasmaShipmentOutput(any());
-        verify(applicationEventPublisher, never())
-            .publishEvent(any(RecoveredPlasmaShipmentCreatedEvent.class));
     }
 
     @Test
-    void createShipment_WhenRepositoryFails_ShouldReturnErrorOutput() {
-        // Given
-        CreateShipmentInput input = new CreateShipmentInput();
-        CreateShipmentCommand command = new CreateShipmentCommand();
-        RuntimeException repositoryException = new RuntimeException("Repository error");
+    void shouldNotCreateShipment_WhenFails_ShouldReturnErrorOutput() {
 
-        when(createShipmentInputMapper.toCreateCommand(input)).thenReturn(command);
-        when(recoveredPlasmaShippingRepository.create(any(RecoveredPlasmaShipment.class)))
-            .thenReturn(Mono.error(repositoryException));
+        // Given
+        Mockito.when(recoveredPlasmaShippingRepository.getNextShipmentId()).thenReturn(Mono.just(1L));
+        Mockito.when(locationRepository.findOneByCode(Mockito.any())).thenReturn(Mono.empty());
+
+        CreateShipmentInput input = Mockito.mock(CreateShipmentInput.class);
+
+        var createCommand = new CreateShipmentCommand("customerCoode", "locationCode", "productType"
+            , "createEmployeeId", "123", LocalDate.now().plusDays(1), BigDecimal.TEN);
+
+        when(createShipmentInputMapper.toCreateCommand(input)).thenReturn(createCommand);
 
         // When
         Mono<UseCaseOutput<RecoveredPlasmaShipmentOutput>> result = createShipmentUseCase
             .createShipment(input);
 
+
         // Then
         StepVerifier.create(result)
             .assertNext(output -> {
                 assertNotNull(output);
-                assertNull(output.getOutput());
-                assertNull(output.getLinks());
-
-                UseCaseNotificationOutput notification = output.getNotifications().get(0);
+                assertNull(output.data());
+                assertNull(output._links());
+                UseCaseNotificationOutput notification = output.notifications().get(0);
                 assertEquals(UseCaseNotificationType.WARN,
-                    notification.getUseCaseMessage().getNotificationType());
-                assertEquals(repositoryException.getMessage(),
-                    notification.getUseCaseMessage().getMessage());
+                    notification.useCaseMessage().getType());
+                assertEquals("Location is required", notification.useCaseMessage().getMessage());
+                assertEquals(3, notification.useCaseMessage().getCode());
             })
             .verifyComplete();
 
         verify(createShipmentInputMapper).toCreateCommand(input);
-        verify(recoveredPlasmaShippingRepository).create(any());
-        verify(recoveredPlasmaShipmentOutputMapper, never())
+        verify(recoveredPlasmaShippingRepository, Mockito.never()).create(any());
+        verify(recoveredPlasmaShipmentOutputMapper, Mockito.never())
             .toRecoveredPlasmaShipmentOutput(any());
-        verify(applicationEventPublisher, never())
+        verify(applicationEventPublisher, Mockito.never())
             .publishEvent(any(RecoveredPlasmaShipmentCreatedEvent.class));
-    }*/
+    }
 }

@@ -288,3 +288,8 @@ async-call:
     duration: 2
 
 topics:
+  recovered-plasma-shipment:
+    shipment-created:
+      partitions: 1
+      replicas: 1
+      topic-name: RecoveredPlasmaShipmentCreated
