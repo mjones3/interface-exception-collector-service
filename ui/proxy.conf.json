@@ -35,7 +35,6 @@
             "^/order/graphql": ""
         }
     },
-
     {
         "context": ["/shipping/graphql"],
         "target": "http://api.local.gd/shipping/graphql",
@@ -43,6 +42,15 @@
         "changeOrigin": true,
         "pathRewrite": {
             "^/shipping/graphql": ""
+        }
+    },
+    {
+        "context": ["/recoveredplasmashipping/graphql"],
+        "target": "http://api.local.gd/recoveredplasmashipping/graphql",
+        "secure": true,
+        "changeOrigin": true,
+        "pathRewrite": {
+            "^/recoveredplasmashipping/graphql": ""
         }
     },
     {
