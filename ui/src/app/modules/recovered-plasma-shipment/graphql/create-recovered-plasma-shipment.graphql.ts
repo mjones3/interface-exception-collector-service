@@ -7,14 +7,20 @@ export interface CustomerOption {
     customerName: string;
 }
 
+export interface productTypeOptionResponse {
+    findAllProductTypeByCustomer: ProductTypeOption[];
+}
+
 export interface ProductTypeOption {
     id: string;
     productType: string;
-    productTypeDescription:string;
+    productTypeDescription: string;
 }
 
-
-export const GET_PRODUCT_TYPE_OPTIONS = gql<ProductTypeOption, never>`
+export const GET_PRODUCT_TYPE_OPTIONS = gql<
+    { findAllProductTypeByCustomer: productTypeOptionResponse },
+    { customerCode: string }
+>`
     query ($customerCode: String!) {
         findAllProductTypeByCustomer(customerCode: $customerCode) {
             id
@@ -23,7 +29,6 @@ export const GET_PRODUCT_TYPE_OPTIONS = gql<ProductTypeOption, never>`
         }
     }
 `;
-
 
 export const CREATE_RECOVERED_PLASMA_SHIPMENT = gql<
     { createShipment: RuleResponseDTO },

@@ -15,9 +15,9 @@ export interface CreateShipmentRequestDTO {
     customerCode: string;
     scheduleDate: string;
     productType: string;
-    cartonTareWeight: number ;
+    cartonTareWeight: number;
     createEmployeeId: string;
-    transporationReferenceNumber?: string;
+    transportationReferenceNumber?: string;
     locationCode: string;
 }
 export interface CreateShipmentResponseDTO {

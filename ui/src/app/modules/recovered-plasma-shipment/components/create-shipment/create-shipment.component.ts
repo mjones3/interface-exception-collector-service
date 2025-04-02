@@ -30,8 +30,16 @@ import { Cookie } from 'app/shared/types/cookie.enum';
 import { consumeNotifications } from 'app/shared/utils/notification.handling';
 import { map } from 'lodash-es';
 import { CookieService } from 'ngx-cookie-service';
-import { Subscription, catchError, take } from 'rxjs';
+import {
+    Subscription,
+    catchError,
+    debounceTime,
+    take,
+    throttleTime,
+    throwError,
+} from 'rxjs';
 import { RecoveredPlasmaCustomerDTO } from '../../graphql/query-definitions/customer.graphql';
+import { CreateShipmentRequestDTO } from '../../models/recovered-plasma.dto';
 import { RecoveredPlasmaShipmentService } from '../../services/recovered-plasma-shipment.service';
 import { RecoveredPlasmaService } from '../../services/recovered-plasma.service';
 
@@ -71,12 +79,29 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
         private recoveredPlasmaService: RecoveredPlasmaService,
         @Inject(LOCALE_ID) public locale: string
     ) {
+        this.setLoggedUserId();
+    }
+
+    ngOnInit(): void {
+        this.initializeForm();
+        this.setupCustomerValueChangeSubscription();
+        this.loadCustomers();
+    }
+
+    ngOnDestroy(): void {
+        this.customerValueChange?.unsubscribe();
+    }
+
+    private setLoggedUserId() {
         this.store
             .select(getAuthState)
             .pipe(take(1))
             .subscribe((auth) => {
                 this.loggedUserId = auth['id'];
             });
+    }
+
+    private initializeForm(): void {
         this.createShipmentForm = this.fb.group({
             customerName: ['', [Validators.required]],
             productType: [{ value: '', disabled: true }, [Validators.required]],
@@ -87,10 +112,13 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
             scheduledShipmentDate: ['', [Validators.required]],
             transportationReferenceNumber: [''],
         });
+    }
 
+    private setupCustomerValueChangeSubscription() {
         this.customerValueChange = this.createShipmentForm
             .get('customerName')
-            .valueChanges.subscribe((value) => {
+            .valueChanges.pipe(debounceTime(300))
+            .subscribe((value) => {
                 if (value) {
                     this.createShipmentForm.get('productType').enable();
                     this.createShipmentForm.get('productType').setValue('');
@@ -99,11 +127,11 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
                         .subscribe((result) => {
                             if (
                                 Array.isArray(
-                                    result?.data['findAllProductTypeByCustomer']
+                                    result?.data?.findAllProductTypeByCustomer
                                 )
                             ) {
                                 this.productTypeOptions = map(
-                                    result.data['findAllProductTypeByCustomer'],
+                                    result.data.findAllProductTypeByCustomer,
                                     (item) => {
                                         return {
                                             code: item.productType,
@@ -121,14 +149,6 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
                     this.productTypeOptions = [];
                 }
             });
-    }
-
-    ngOnInit(): void {
-        this.loadCustomers();
-    }
-
-    ngOnDestroy(): void {
-        this.customerValueChange?.unsubscribe();
     }
 
     private loadCustomers(): void {
@@ -155,56 +175,70 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
         if (!this.createShipmentForm.valid) {
             return;
         }
-        const scheduledDate =
-            this.createShipmentFormControl.scheduledShipmentDate.value;
-        const formattedScheduledShipmentDate = formatDate(
-            scheduledDate,
-            'yyyy-MM-dd',
-            this.locale
-        );
-        const createShipmentFormInfo = {
-            locationCode: this.cookieService.get(Cookie.XFacility),
-            createEmployeeId: this.loggedUserId,
-            customerCode:
-                this.createShipmentFormControl.customerName?.value ?? '',
-            productType:
-                this.createShipmentFormControl.productType?.value ?? '',
-            cartonTareWeight: parseFloat(
-                this.createShipmentFormControl.cartonTareWeight?.value ?? ''
-            ),
-            scheduleDate: formattedScheduledShipmentDate,
-        };
         if (this.createShipmentForm.valid) {
             this.shipmentService
-                .createRecoveredPlasmaShipment(createShipmentFormInfo)
+                .createRecoveredPlasmaShipment(this.prepareShipmentData())
                 .pipe(
+                    throttleTime(300),
                     catchError((err) => {
                         this.toastr.error(ERROR_MESSAGE);
-                        throw err;
+                        return throwError(() => err);
                     })
                 )
                 .subscribe({
                     next: (response) => {
                         const ruleResult = response?.data?.createShipment;
                         const url = ruleResult._links?.next;
-                        let  notifications = ruleResult.notifications;
+                        const notifications = ruleResult.notifications;
                         if (notifications?.length) {
                             notifications.forEach((notification) => {
                                 notification.notificationType =
                                     notification['type'];
                             });
+                            console.log('log', notifications[0]);
                             consumeNotifications(this.toastr, notifications);
                             if (
-                                (notifications[0].notificationType = 'SUCCESS')
+                                notifications[0].notificationType === 'SUCCESS'
                             ) {
                                 this.dialogRef.close();
                                 if (url) {
-                                    this.router.navigateByUrl(url);
+                                    this.handleNavigation(url);
                                 }
                             }
                         }
                     },
                 });
         }
+    }
+
+    private prepareShipmentData(): CreateShipmentRequestDTO {
+        const scheduledDate =
+            this.createShipmentFormControl.scheduledShipmentDate.value;
+        const formattedDate = this.formatScheduledDate(scheduledDate);
+
+        return {
+            locationCode: this.cookieService.get(Cookie.XFacility),
+            createEmployeeId: this.loggedUserId,
+            customerCode:
+                this.createShipmentFormControl.customerName?.value ?? '',
+            productType:
+                this.createShipmentFormControl.productType?.value ?? '',
+            cartonTareWeight: this.parseCartonWeight(),
+            scheduleDate: formattedDate,
+        };
+    }
+
+    private formatScheduledDate(date: Date): string {
+        return formatDate(date, 'yyyy-MM-dd', this.locale);
+    }
+
+    private parseCartonWeight(): number {
+        return parseFloat(
+            this.createShipmentFormControl.cartonTareWeight?.value ?? ''
+        );
+    }
+
+    private handleNavigation(url: string): void {
+        this.router.navigateByUrl(url);
     }
 }
