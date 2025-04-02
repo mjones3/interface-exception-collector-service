@@ -43,8 +43,8 @@ public class RecoveredPlasmaShipmentQueryCommand implements Validatable, FilterA
         List<String> shipmentStatus,
         List<String> customers,
         List<String> productTypes,
-        LocalDate createDateFrom,
-        LocalDate createDateTo,
+        LocalDate shipmentDateFrom,
+        LocalDate shipmentDateTo,
         QuerySort querySort,
         Integer pageNumber,
         Integer pageSize
@@ -59,8 +59,8 @@ public class RecoveredPlasmaShipmentQueryCommand implements Validatable, FilterA
 
         this.customers = customers;
         this.productTypes = productTypes;
-        this.shipmentDateFrom = createDateFrom;
-        this.shipmentDateTo = createDateTo;
+        this.shipmentDateFrom = shipmentDateFrom;
+        this.shipmentDateTo = shipmentDateTo;
         this.querySort = ofNullable(querySort).orElseGet(() -> new QuerySort(DEFAULT_SORTING));
         this.pageNumber = ofNullable(pageNumber).orElse(DEFAULT_PAGE_NUMBER_FIRST_PAGE);
         this.pageSize = ofNullable(pageSize).orElse(DEFAULT_PAGE_SIZE);
@@ -70,6 +70,10 @@ public class RecoveredPlasmaShipmentQueryCommand implements Validatable, FilterA
 
     @Override
     public void checkValid() {
+
+        if(Objects.isNull(this.locationCode) || this.locationCode.isEmpty()){
+            throw new IllegalArgumentException("The locationCode must not be null or empty");
+        }
 
         if (Objects.nonNull(this.shipmentNumber) && (Objects.nonNull(this.shipmentDateFrom) || Objects.nonNull(this.shipmentDateTo))) {
             throw new IllegalArgumentException("The shipmentDate must be null or empty");

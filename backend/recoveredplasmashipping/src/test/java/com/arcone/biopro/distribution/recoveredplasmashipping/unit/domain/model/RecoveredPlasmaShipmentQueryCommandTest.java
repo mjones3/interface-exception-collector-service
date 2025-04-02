@@ -141,6 +141,17 @@ class RecoveredPlasmaShipmentQueryCommandTest {
     }
 
     @Test
+    @DisplayName("Should throw exception when location is null or empty")
+    void shouldThrowExceptionWhenLocationIsNull() {
+        assertThatThrownBy(() -> new RecoveredPlasmaShipmentQueryCommand(
+            null, null, List.of("OPEN"), null, null,
+            null, null, null, -1, 10
+        ))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("The locationCode must not be null or empty");
+    }
+
+    @Test
     @DisplayName("Should throw exception when no parameters are provided other than date from and date to")
     void shouldThrowExceptionWhenDateFromIsNull() {
         // Given

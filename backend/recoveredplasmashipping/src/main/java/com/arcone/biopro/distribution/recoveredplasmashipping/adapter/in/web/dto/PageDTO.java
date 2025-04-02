@@ -1,9 +1,11 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import lombok.Builder;
 
 import java.util.List;
 
+@Builder
 public record PageDTO<T>(
     List<T> content,
     int pageNumber,
