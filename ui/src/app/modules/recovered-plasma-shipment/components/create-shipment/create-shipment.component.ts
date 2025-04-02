@@ -178,8 +178,8 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
         if (this.createShipmentForm.valid) {
             this.shipmentService
                 .createRecoveredPlasmaShipment(this.prepareShipmentData())
+                .pipe(throttleTime(300))
                 .pipe(
-                    throttleTime(300),
                     catchError((err) => {
                         this.toastr.error(ERROR_MESSAGE);
                         return throwError(() => err);
@@ -195,7 +195,6 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
                                 notification.notificationType =
                                     notification['type'];
                             });
-                            console.log('log', notifications[0]);
                             consumeNotifications(this.toastr, notifications);
                             if (
                                 notifications[0].notificationType === 'SUCCESS'
