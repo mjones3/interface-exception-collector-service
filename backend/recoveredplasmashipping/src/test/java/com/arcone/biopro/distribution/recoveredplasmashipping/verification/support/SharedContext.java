@@ -34,4 +34,7 @@ public class SharedContext {
     private List<Map> apiMessageResponse;
 
     private Map apiErrorResponse;
+
+    private Integer lastShipmentId;
+    private Integer lastShipmentNumber;
 }

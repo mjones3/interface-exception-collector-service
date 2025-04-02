@@ -44,6 +44,7 @@ public class CreateShipmentPage {
 
     public void selectCustomer(String customer) {
         sharedActions.waitForVisible(customerSelect);
+        sharedActions.waitForEnabled(customerSelect);
         sharedActions.click(customerSelect);
         sharedActions.sendKeys(customerSelectFilter, customer);
         sharedActions.click(selectInputOption(customer));

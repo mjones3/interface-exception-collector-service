@@ -57,7 +57,7 @@ public class LocationConfigurationSteps {
     public void configureLocation(String location, String prefix, String shippingCode, String quantity, String prefixConfig) {
         // lk_location
         var createConfigurationSQL = "INSERT INTO lk_location (external_id, code, name, city, state, postal_code, address_line_1, active, create_date, modification_date) " +
-            "VALUES ('" + location + "', '" + location + "', '" + location + "', 'city', 'state', '000000', 'address_line_1'," + prefixConfig.equalsIgnoreCase("Y") + ", now(), now())";
+            "VALUES ('" + location + "', '" + location + "', '" + location + "', 'city', 'state', '000000', 'address_line_1', true, now(), now())";
         databaseService.executeSql(createConfigurationSQL).block();
 
         // lk_location_property

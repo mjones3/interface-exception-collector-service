@@ -58,7 +58,6 @@ class RecoveredPlasmaShipmentTest {
         var createCommand = new CreateShipmentCommand("customerCoode", "locationCode", "productType"
             , "createEmployeeId", "", LocalDate.now().plusDays(1), BigDecimal.TEN);
 
-        Mockito.when(recoveredPlasmaShippingRepository.getNextShipmentId()).thenReturn(Mono.just(1L));
         Mockito.when(locationRepository.findOneByCode(Mockito.any())).thenReturn(Mono.empty());
 
         //when
@@ -76,9 +75,13 @@ class RecoveredPlasmaShipmentTest {
         var createCommand = new CreateShipmentCommand("customerCoode", "locationCode", "productType"
             , "createEmployeeId", "", LocalDate.now().plusDays(1), BigDecimal.TEN);
 
-        Mockito.when(recoveredPlasmaShippingRepository.getNextShipmentId()).thenReturn(Mono.just(1L));
         Mockito.when(locationRepository.findOneByCode(Mockito.any())).thenReturn(Mono.just(Mockito.mock(Location.class)));
+        Mockito.when(customerService.findByCode(Mockito.any())).thenReturn(Mono.just(CustomerOutput.builder()
+            .code("123")
+            .name("name")
+            .build()));
         Mockito.when(recoveredPlasmaShipmentCriteriaRepository.findProductCriteriaByCustomerCode(Mockito.any(), Mockito.any())).thenReturn(Mono.empty());
+
 
         //when
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> RecoveredPlasmaShipment.createNewShipment(createCommand, customerService, recoveredPlasmaShippingRepository, locationRepository, recoveredPlasmaShipmentCriteriaRepository));
@@ -98,6 +101,10 @@ class RecoveredPlasmaShipmentTest {
 
         Mockito.when(recoveredPlasmaShippingRepository.getNextShipmentId()).thenReturn(Mono.just(1L));
         Mockito.when(locationRepository.findOneByCode(Mockito.any())).thenReturn(Mono.just(Mockito.mock(Location.class)));
+        Mockito.when(customerService.findByCode(Mockito.any())).thenReturn(Mono.just(CustomerOutput.builder()
+            .code("123")
+            .name("name")
+            .build()));
         Mockito.when(recoveredPlasmaShipmentCriteriaRepository.findProductCriteriaByCustomerCode(Mockito.any(), Mockito.any())).thenReturn(Mono.just(Mockito.mock(RecoveredPlasmaShipmentCriteria.class)));
 
         //when
@@ -117,12 +124,8 @@ class RecoveredPlasmaShipmentTest {
 
 
         var locationMock = Mockito.mock(Location.class);
-        Mockito.when(locationMock.findProperty(Mockito.eq("RPS_USE_PARTNER_PREFIX"))).thenReturn(Optional.of(new LocationProperty(1L, "RPS_USE_PARTNER_PREFIX", "N")));
 
-
-        Mockito.when(recoveredPlasmaShippingRepository.getNextShipmentId()).thenReturn(Mono.just(1L));
         Mockito.when(locationRepository.findOneByCode(Mockito.any())).thenReturn(Mono.just(locationMock));
-        Mockito.when(recoveredPlasmaShipmentCriteriaRepository.findProductCriteriaByCustomerCode(Mockito.any(), Mockito.any())).thenReturn(Mono.just(Mockito.mock(RecoveredPlasmaShipmentCriteria.class)));
         Mockito.when(customerService.findByCode(Mockito.any())).thenReturn(Mono.empty());
 
 
@@ -148,6 +151,10 @@ class RecoveredPlasmaShipmentTest {
 
         Mockito.when(recoveredPlasmaShippingRepository.getNextShipmentId()).thenReturn(Mono.just(1L));
         Mockito.when(locationRepository.findOneByCode(Mockito.any())).thenReturn(Mono.just(locationMock));
+        Mockito.when(customerService.findByCode(Mockito.any())).thenReturn(Mono.just(CustomerOutput.builder()
+            .code("123")
+            .name("name")
+            .build()));
         Mockito.when(recoveredPlasmaShipmentCriteriaRepository.findProductCriteriaByCustomerCode(Mockito.any(), Mockito.any())).thenReturn(Mono.just(Mockito.mock(RecoveredPlasmaShipmentCriteria.class)));
 
         //when

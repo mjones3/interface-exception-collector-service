@@ -51,17 +51,19 @@ public class RecoveredPlasmaShipment implements Validatable {
         , RecoveredPlasmaShippingRepository recoveredPlasmaShippingRepository
         , LocationRepository locationRepository , RecoveredPlasmaShipmentCriteriaRepository recoveredPlasmaShipmentCriteriaRepository) {
 
-        var shipmentId = getNextShipmentId(recoveredPlasmaShippingRepository);
-
         var location = getLocation(command.getLocationCode(), locationRepository);
 
+        var customer = ShipmentCustomer.fromCustomerCode(command.getCustomerCode(), customerService);
+
         var productCriteria = getProductTypeCriteria(command.getCustomerCode(), command.getProductType(),recoveredPlasmaShipmentCriteriaRepository );
+
+        var shipmentId = getNextShipmentId(recoveredPlasmaShippingRepository);
 
         var shipment = RecoveredPlasmaShipment
             .builder()
             .id(null)
             .shipmentNumber(generateShipmentNumber(shipmentId, location))
-            .shipmentCustomer(ShipmentCustomer.fromCustomerCode(command.getCustomerCode(), customerService))
+            .shipmentCustomer(customer)
             .productType(productCriteria.getProductType())
             .status(OPEN_STATUS)
             .locationCode(location.getCode())
@@ -206,6 +208,5 @@ public class RecoveredPlasmaShipment implements Validatable {
         return recoveredPlasmaShipmentCriteriaRepository.findProductCriteriaByCustomerCode(productType, customerCode)
             .switchIfEmpty(Mono.error(() -> new IllegalArgumentException("Product type is required")))
             .block();
-
     }
 }
