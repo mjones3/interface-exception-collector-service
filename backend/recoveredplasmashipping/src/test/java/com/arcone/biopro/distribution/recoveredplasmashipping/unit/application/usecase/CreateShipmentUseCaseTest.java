@@ -143,7 +143,6 @@ class CreateShipmentUseCaseTest {
     void shouldNotCreateShipment_WhenFails_ShouldReturnErrorOutput() {
 
         // Given
-        Mockito.when(recoveredPlasmaShippingRepository.getNextShipmentId()).thenReturn(Mono.just(1L));
         Mockito.when(locationRepository.findOneByCode(Mockito.any())).thenReturn(Mono.empty());
 
         CreateShipmentInput input = Mockito.mock(CreateShipmentInput.class);
