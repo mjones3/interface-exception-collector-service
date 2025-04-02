@@ -8,6 +8,7 @@ type Query {
     findAllLocations:[LocationDTO]!
     findAllLookupsByType(type: String!): [LookupDTO]!
     findAllProductTypeByCustomer(customerCode:String!):[ProductTypeDTO]!
+    searchShipment(recoveredPlasmaShipmentQueryCommandRequestDTO:RecoveredPlasmaShipmentQueryCommandRequestDTO): UseCaseResponseDTO!
 }
 
 type Mutation {
@@ -26,6 +27,20 @@ input CreateShipmentRequestDTO {
     shipmentDate:Date
     cartonTareWeight:Float
     createEmployeeId:String
+}
+
+input RecoveredPlasmaShipmentQueryCommandRequestDTO {
+
+    locationCode:[String],
+    shipmentNumber:String,
+    shipmentStatus:[String],
+    customers:[String],
+    productTypes:[String],
+    shipmentDateFrom:Date,
+    shipmentDateTo:Date,
+    querySort:InputQuerySortDTO,
+    pageNumber:Int,
+    pageSize:Int
 }
 
 type OutputQuerySortDTO {
