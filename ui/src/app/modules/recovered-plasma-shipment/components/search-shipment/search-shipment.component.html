@@ -23,7 +23,13 @@
     <biopro-filter-shipment
         (toggleFilters)="toggleFilter($event)"
         [showFilters]="isFilterToggled"
+        [locations]="locations()"
+        [customers]="customers()"
+        [productTypes]="productTypes()"
+        [shipmentTypes]="shipmentTypes()"
     >
     </biopro-filter-shipment>
-    <div class="flex flex-col"></div>
+
+    <div class="flex flex-col">
+    </div>
 </div>

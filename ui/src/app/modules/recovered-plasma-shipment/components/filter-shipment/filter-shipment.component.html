@@ -5,7 +5,7 @@
     [showFilters]="showFilters()"
 >
     <form
-        [formGroup]="searchShipmentForm"
+        [formGroup]="form"
         class="inline-form flex w-full flex-col"
         id="searchShipmentFormId"
     >
@@ -24,25 +24,58 @@
                 </mat-form-field>
 
                 <app-multiple-select
-                    [formGroup]="searchShipmentForm"
+                    [formGroup]="form"
+                    [items]="customersOptions()"
                     controlName="customer"
                     title="Customer"
                     matSelectId="customerSelect"
-                ></app-multiple-select>
+                />
 
                 <app-multiple-select
-                    [formGroup]="searchShipmentForm"
+                    [formGroup]="form"
+                    [items]="productTypesOptions()"
                     controlName="productFamily"
                     title="Product Family"
                     matSelectId="productFamilySelect"
-                ></app-multiple-select>
+                />
 
                 <app-multiple-select
-                    [formGroup]="searchShipmentForm"
+                    [formGroup]="form"
+                    [items]="shipmentTypesOptions()"
                     controlName="shipmentStatus"
                     title="Shipment Status"
                     matSelectId="shipmentStatusSelect"
-                ></app-multiple-select>
+                />
+
+                <app-date-range-picker
+                    [formGroup]="getDateRangeFormGroup('shipmentDate')"
+                    matDatepickerMinErrorMessage="Date range exceeds two years"
+                    matEndDateInvalidMessage="Initial date should not be greater than final date"
+                    matDatepickerMaxMessage="Final date should not be greater than today"
+                    title="Shipment Date"
+                    dateRangeId="shipmentDate"
+                    [maxDate]="today"
+                />
+
+                <app-multiple-select
+                    [formGroup]="form"
+                    [items]="locationsOptions()"
+                    controlName="location"
+                    title="Location"
+                    matSelectId="locationSelect"
+                />
+
+                <mat-form-field class="block">
+                    <mat-label>Transportation Reference Number</mat-label>
+                    <input
+                        id="transportationReferenceNumber"
+                        matInput
+                        formControlName="transportationReferenceNumber"
+                        placeholder="Enter Transportation Reference Number"
+                        maxlength="10"
+                        autocomplete="off"
+                    />
+                </mat-form-field>
             </div>
         </div>
     </form>
