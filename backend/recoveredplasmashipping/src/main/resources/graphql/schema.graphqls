@@ -43,6 +43,20 @@ input RecoveredPlasmaShipmentQueryCommandRequestDTO {
     pageSize:Int
 }
 
+input RecoveredPlasmaShipmentQueryCommandRequestDTO {
+
+    locationCode:[String],
+    shipmentNumber:String,
+    shipmentStatus:[String],
+    customers:[String],
+    productTypes:[String],
+    shipmentDateFrom:Date,
+    shipmentDateTo:Date,
+    querySort:InputQuerySortDTO,
+    pageNumber:Int,
+    pageSize:Int
+}
+
 type OutputQuerySortDTO {
     orderByList: [OutputQueryOrderByDTO]
 }
