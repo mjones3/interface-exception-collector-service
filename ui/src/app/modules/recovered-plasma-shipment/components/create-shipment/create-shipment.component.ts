@@ -1,5 +1,12 @@
 import { CommonModule, formatDate } from '@angular/common';
-import { Component, Inject, LOCALE_ID, OnDestroy, OnInit } from '@angular/core';
+import {
+    Component,
+    Inject,
+    LOCALE_ID,
+    OnDestroy,
+    OnInit,
+    signal,
+} from '@angular/core';
 import {
     FormBuilder,
     FormGroup,
@@ -34,8 +41,8 @@ import {
     Subscription,
     catchError,
     debounceTime,
+    finalize,
     take,
-    throttleTime,
     throwError,
 } from 'rxjs';
 import { RecoveredPlasmaCustomerDTO } from '../../graphql/query-definitions/customer.graphql';
@@ -68,6 +75,7 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
     customerValueChange: Subscription;
     minDate = new Date();
     loggedUserId: string;
+    isSubmitting = signal(false);
     constructor(
         private fb: FormBuilder,
         public dialogRef: MatDialogRef<CreateShipmentComponent>,
@@ -176,10 +184,13 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
             return;
         }
         if (this.createShipmentForm.valid) {
+            this.isSubmitting.set(true);
             this.shipmentService
                 .createRecoveredPlasmaShipment(this.prepareShipmentData())
-                .pipe(throttleTime(300))
                 .pipe(
+                    finalize(() => {
+                        this.isSubmitting.set(false);
+                    }),
                     catchError((err) => {
                         this.toastr.error(ERROR_MESSAGE);
                         return throwError(() => err);
@@ -196,10 +207,10 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
                                     notification['type'];
                             });
                             consumeNotifications(this.toastr, notifications);
+                            this.dialogRef.close(true);
                             if (
                                 notifications[0].notificationType === 'SUCCESS'
                             ) {
-                                this.dialogRef.close();
                                 if (url) {
                                     this.handleNavigation(url);
                                 }
@@ -224,6 +235,9 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
                 this.createShipmentFormControl.productType?.value ?? '',
             cartonTareWeight: this.parseCartonWeight(),
             scheduleDate: formattedDate,
+            transportationReferenceNumber:
+                this.createShipmentFormControl.transportationReferenceNumber
+                    ?.value ?? '',
         };
     }
 

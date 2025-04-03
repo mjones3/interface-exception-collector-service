@@ -145,7 +145,7 @@
         ></biopro-basic-button>
         <biopro-basic-button
             id="btnSubmit"
-            [disabled]="!createShipmentForm.valid"
+            [disabled]="!createShipmentForm.valid || isSubmitting()"
             class="text-primary"
             color="primary"
             label="Submit"

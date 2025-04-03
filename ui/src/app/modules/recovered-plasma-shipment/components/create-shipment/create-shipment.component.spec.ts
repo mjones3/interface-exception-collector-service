@@ -61,6 +61,7 @@ describe('CreateShipmentComponent', () => {
         component = fixture.componentInstance;
         shipmentService = TestBed.inject(RecoveredPlasmaShipmentService);
         dialogRef = TestBed.inject(MatDialogRef<CreateShipmentComponent>);
+        router = TestBed.inject(Router);
         recoveredPlasmaService = TestBed.inject(RecoveredPlasmaService);
         toastr = TestBed.inject(ToastrImplService);
         jest.spyOn(shipmentService, 'getProductTypeOptions').mockReturnValue(
@@ -229,7 +230,7 @@ describe('CreateShipmentComponent', () => {
         );
     }));
 
-    it('should not close dialog or navigate if no success notification', () => {
+    it('should close dialog and not navigate if no success notification', () => {
         jest.spyOn(toastr, 'show');
         jest.spyOn(
             shipmentService,
@@ -258,6 +259,7 @@ describe('CreateShipmentComponent', () => {
         );
 
         component.createShipmentForm.get('productType').enable();
+        const routerSpy = jest.spyOn(router, 'navigateByUrl');
 
         // Set valid form values
         component.createShipmentForm.patchValue({
@@ -268,7 +270,8 @@ describe('CreateShipmentComponent', () => {
             transportaionReferenceNumber: 'REF123',
         });
         component.submit();
-        expect(component.dialogRef.close).not.toHaveBeenCalled();
+        expect(component.dialogRef.close).toHaveBeenCalled();
+        expect(routerSpy).not.toHaveBeenCalled();
     });
 
     it('should handle successful shipment creation', () => {
