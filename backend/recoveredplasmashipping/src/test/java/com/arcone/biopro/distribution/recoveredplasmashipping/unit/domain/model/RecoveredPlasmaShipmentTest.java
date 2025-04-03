@@ -23,11 +23,10 @@ import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
 class RecoveredPlasmaShipmentTest {
@@ -162,6 +161,35 @@ class RecoveredPlasmaShipmentTest {
 
         //then
 
+        assertEquals("Location configuration is missing the setup for  RPS_PARTNER_PREFIX property", exception.getMessage());
+    }
+
+    @Test
+    public void shouldNotCreateNewShipmentWhenMissingShipmentLocationCode() {
+
+        //given
+        var createCommand = new CreateShipmentCommand("customerCoode", "locationCode", "productType"
+            , "createEmployeeId", "", LocalDate.now().plusDays(1), BigDecimal.TEN);
+
+
+        var locationMock = Mockito.mock(Location.class);
+        Mockito.when(locationMock.findProperty(Mockito.eq("RPS_USE_PARTNER_PREFIX"))).thenReturn(Optional.of(new LocationProperty(1L, "RPS_USE_PARTNER_PREFIX", "Y")));
+        Mockito.when(locationMock.findProperty(Mockito.eq("RPS_PARTNER_PREFIX"))).thenReturn(Optional.of(new LocationProperty(1L, "RPS_PARTNER_PREFIX", "ABC")));
+
+
+        Mockito.when(recoveredPlasmaShippingRepository.getNextShipmentId()).thenReturn(Mono.just(1L));
+        Mockito.when(locationRepository.findOneByCode(Mockito.any())).thenReturn(Mono.just(locationMock));
+        Mockito.when(customerService.findByCode(Mockito.any())).thenReturn(Mono.just(CustomerOutput.builder()
+            .code("123")
+            .name("name")
+            .build()));
+        Mockito.when(recoveredPlasmaShipmentCriteriaRepository.findProductCriteriaByCustomerCode(Mockito.any(), Mockito.any())).thenReturn(Mono.just(Mockito.mock(RecoveredPlasmaShipmentCriteria.class)));
+
+        //when
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> RecoveredPlasmaShipment.createNewShipment(createCommand, customerService, recoveredPlasmaShippingRepository, locationRepository, recoveredPlasmaShipmentCriteriaRepository));
+
+        //then
+
         assertEquals("Location configuration is missing the setup for  RPS_LOCATION_SHIPMENT_CODE property", exception.getMessage());
     }
 
@@ -177,7 +205,9 @@ class RecoveredPlasmaShipmentTest {
         var locationMock = Mockito.mock(Location.class);
         Mockito.when(locationMock.getCode()).thenReturn("CODE");
         Mockito.when(locationMock.findProperty(Mockito.eq("RPS_USE_PARTNER_PREFIX"))).thenReturn(Optional.of(new LocationProperty(1L, "RPS_USE_PARTNER_PREFIX", "Y")));
-        Mockito.when(locationMock.findProperty(Mockito.eq("RPS_LOCATION_SHIPMENT_CODE"))).thenReturn(Optional.of(new LocationProperty(1L, "RPS_LOCATION_SHIPMENT_CODE", "ABC")));
+        Mockito.when(locationMock.findProperty(Mockito.eq("RPS_PARTNER_PREFIX"))).thenReturn(Optional.of(new LocationProperty(1L, "RPS_PARTNER_PREFIX", "BPM")));
+        Mockito.when(locationMock.findProperty(Mockito.eq("RPS_LOCATION_SHIPMENT_CODE"))).thenReturn(Optional.of(new LocationProperty(1L, "RPS_LOCATION_SHIPMENT_CODE", "2765")));
+
 
 
         Mockito.when(recoveredPlasmaShippingRepository.getNextShipmentId()).thenReturn(Mono.just(1L));
@@ -198,9 +228,9 @@ class RecoveredPlasmaShipmentTest {
         //then
 
         Assertions.assertNotNull(result);
-        Assertions.assertEquals("ABC1", result.getShipmentNumber());
+        Assertions.assertEquals("BPM27651", result.getShipmentNumber());
         Assertions.assertEquals("OPEN", result.getStatus());
-        Assertions.assertEquals(LocalDate.now().plusDays(1), result.getScheduleDate());
+        Assertions.assertEquals(LocalDate.now().plusDays(1), result.getShipmentDate());
         Assertions.assertEquals(BigDecimal.TEN, result.getCartonTareWeight());
         Assertions.assertEquals("123", result.getTransportationReferenceNumber());
         Assertions.assertEquals("createEmployeeId", result.getCreateEmployeeId());
@@ -219,6 +249,7 @@ class RecoveredPlasmaShipmentTest {
         var locationMock = Mockito.mock(Location.class);
         Mockito.when(locationMock.getCode()).thenReturn("CODE");
         Mockito.when(locationMock.findProperty(Mockito.eq("RPS_USE_PARTNER_PREFIX"))).thenReturn(Optional.of(new LocationProperty(1L, "RPS_USE_PARTNER_PREFIX", "N")));
+        Mockito.when(locationMock.findProperty(Mockito.eq("RPS_LOCATION_SHIPMENT_CODE"))).thenReturn(Optional.of(new LocationProperty(1L, "RPS_LOCATION_SHIPMENT_CODE", "2765")));
 
         Mockito.when(recoveredPlasmaShippingRepository.getNextShipmentId()).thenReturn(Mono.just(1L));
         Mockito.when(locationRepository.findOneByCode(Mockito.any())).thenReturn(Mono.just(locationMock));
@@ -238,7 +269,7 @@ class RecoveredPlasmaShipmentTest {
         //then
 
         Assertions.assertNotNull(result);
-        Assertions.assertEquals("1", result.getShipmentNumber());
+        Assertions.assertEquals("27651", result.getShipmentNumber());
 
     }
 
@@ -259,8 +290,7 @@ class RecoveredPlasmaShipmentTest {
         String closeEmployeeId = "EMP002";
         ZonedDateTime closeDate = ZonedDateTime.now();
         String transportationReferenceNumber = "TRN001";
-        LocalDate scheduleDate = LocalDate.now();
-        ZonedDateTime shipmentDate = ZonedDateTime.now();
+        LocalDate shipmentDate = LocalDate.now();
         BigDecimal cartonTareWeight = BigDecimal.valueOf(10.5);
         String unsuitableUnitReportDocumentStatus = "COMPLETED";
         String customerCode = "CUST001";
@@ -282,8 +312,7 @@ class RecoveredPlasmaShipmentTest {
         // Act
         RecoveredPlasmaShipment shipment = RecoveredPlasmaShipment.fromRepository(
             id, locationCode, productType, shipmentNumber, status, createEmployeeId,
-            closeEmployeeId, closeDate, transportationReferenceNumber, scheduleDate,
-            shipmentDate, cartonTareWeight, unsuitableUnitReportDocumentStatus,
+            closeEmployeeId, closeDate, transportationReferenceNumber,shipmentDate, cartonTareWeight, unsuitableUnitReportDocumentStatus,
             customerCode, customerName, customerState, customerPostalCode, customerCountry,
             customerCountryCode, customerCity, customerDistrict, customerAddressLine1,
             customerAddressLine2, customerAddressContactName, customerAddressPhoneNumber,
@@ -301,7 +330,6 @@ class RecoveredPlasmaShipmentTest {
         assertEquals(closeEmployeeId, shipment.getCloseEmployeeId());
         assertEquals(closeDate, shipment.getCloseDate());
         assertEquals(transportationReferenceNumber, shipment.getTransportationReferenceNumber());
-        assertEquals(scheduleDate, shipment.getScheduleDate());
         assertEquals(shipmentDate, shipment.getShipmentDate());
         assertEquals(cartonTareWeight, shipment.getCartonTareWeight());
         assertEquals(unsuitableUnitReportDocumentStatus, shipment.getUnsuitableUnitReportDocumentStatus());
@@ -334,7 +362,7 @@ class RecoveredPlasmaShipmentTest {
             RecoveredPlasmaShipment.fromRepository(
                 1L, "locationCode", "productType", null, "status", "createEmployeeId",
                 "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
-                LocalDate.now(), ZonedDateTime.now(), BigDecimal.ONE, "unsuitableUnitReportDocumentStatus",
+                LocalDate.now(), BigDecimal.ONE, "unsuitableUnitReportDocumentStatus",
                 "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
                 "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
                 "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
@@ -349,7 +377,7 @@ class RecoveredPlasmaShipmentTest {
         assertDoesNotThrow(() -> RecoveredPlasmaShipment.fromRepository(
             1L, "locationCode", "productType", "123", "status", "createEmployeeId",
             "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
-            LocalDate.now(), ZonedDateTime.now(), BigDecimal.ONE, "unsuitableUnitReportDocumentStatus",
+            LocalDate.now(), BigDecimal.ONE, "unsuitableUnitReportDocumentStatus",
             "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
             "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
             "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
@@ -363,7 +391,7 @@ class RecoveredPlasmaShipmentTest {
             () -> RecoveredPlasmaShipment.fromRepository(
                 1L, "locationCode", "productType", null, "status", "createEmployeeId",
                 "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
-                LocalDate.now(), ZonedDateTime.now(), BigDecimal.ONE, "unsuitableUnitReportDocumentStatus",
+                LocalDate.now(), BigDecimal.ONE, "unsuitableUnitReportDocumentStatus",
                 "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
                 "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
                 "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
@@ -378,7 +406,7 @@ class RecoveredPlasmaShipmentTest {
             () -> RecoveredPlasmaShipment.fromRepository(
                 1L, "locationCode", "productType", " ", "status", "createEmployeeId",
                 "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
-                LocalDate.now(), ZonedDateTime.now(), BigDecimal.ONE, "unsuitableUnitReportDocumentStatus",
+                LocalDate.now(), BigDecimal.ONE, "unsuitableUnitReportDocumentStatus",
                 "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
                 "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
                 "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
@@ -393,7 +421,7 @@ class RecoveredPlasmaShipmentTest {
             () -> RecoveredPlasmaShipment.fromRepository(
                 1L, "locationCode", "productType", "123", "status", "createEmployeeId",
                 "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
-                LocalDate.now(), ZonedDateTime.now(), BigDecimal.ONE, "unsuitableUnitReportDocumentStatus",
+                LocalDate.now(),  BigDecimal.ONE, "unsuitableUnitReportDocumentStatus",
                 null, "customerName", "customerState", "customerPostalCode", "customerCountry",
                 "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
                 "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
@@ -408,7 +436,7 @@ class RecoveredPlasmaShipmentTest {
             () -> RecoveredPlasmaShipment.fromRepository(
                 1L, null, "productType", "123", "status", "createEmployeeId",
                 "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
-                LocalDate.now(), ZonedDateTime.now(), BigDecimal.ONE, "unsuitableUnitReportDocumentStatus",
+                LocalDate.now(), BigDecimal.ONE, "unsuitableUnitReportDocumentStatus",
                 "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
                 "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
                 "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
@@ -423,7 +451,7 @@ class RecoveredPlasmaShipmentTest {
             () -> RecoveredPlasmaShipment.fromRepository(
                 1L, " ", "productType", "123", "status", "createEmployeeId",
                 "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
-                LocalDate.now(), ZonedDateTime.now(), BigDecimal.ONE, "unsuitableUnitReportDocumentStatus",
+                LocalDate.now(), BigDecimal.ONE, "unsuitableUnitReportDocumentStatus",
                 "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
                 "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
                 "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
@@ -439,7 +467,7 @@ class RecoveredPlasmaShipmentTest {
             () -> RecoveredPlasmaShipment.fromRepository(
                 1L, "locationCode", null, "123", "status", "createEmployeeId",
                 "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
-                LocalDate.now(), ZonedDateTime.now(), BigDecimal.ONE, "unsuitableUnitReportDocumentStatus",
+                LocalDate.now(), BigDecimal.ONE, "unsuitableUnitReportDocumentStatus",
                 "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
                 "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
                 "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
@@ -455,7 +483,7 @@ class RecoveredPlasmaShipmentTest {
             () -> RecoveredPlasmaShipment.fromRepository(
                 1L, "locationCode", "productType", "123", "status", null,
                 "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
-                LocalDate.now(), ZonedDateTime.now(), BigDecimal.ONE, "unsuitableUnitReportDocumentStatus",
+                LocalDate.now(), BigDecimal.ONE, "unsuitableUnitReportDocumentStatus",
                 "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
                 "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
                 "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
@@ -465,18 +493,18 @@ class RecoveredPlasmaShipmentTest {
     }
 
     @Test
-    void checkValid_WithNullScheduleDate_ShouldThrowException() {
+    void checkValid_WithNullShipmentDate_ShouldThrowException() {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
             () -> RecoveredPlasmaShipment.fromRepository(
                 1L, "locationCode", "productType", "123", "status", "createEmployeeId",
                 "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
-                null, ZonedDateTime.now(), BigDecimal.ONE, "unsuitableUnitReportDocumentStatus",
+                null, BigDecimal.ONE, "unsuitableUnitReportDocumentStatus",
                 "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
                 "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
                 "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
                 "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now()
             ));
-        assertEquals("Schedule date is required", exception.getMessage());
+        assertEquals("Shipment date is required", exception.getMessage());
     }
 
     @Test
@@ -485,7 +513,7 @@ class RecoveredPlasmaShipmentTest {
             () ->RecoveredPlasmaShipment.fromRepository(
                 1L, "locationCode", "productType", "123", null, "createEmployeeId",
                 "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
-                LocalDate.now(), ZonedDateTime.now(), BigDecimal.ONE, "unsuitableUnitReportDocumentStatus",
+                LocalDate.now(), BigDecimal.ONE, "unsuitableUnitReportDocumentStatus",
                 "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
                 "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
                 "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
@@ -500,7 +528,7 @@ class RecoveredPlasmaShipmentTest {
             () -> RecoveredPlasmaShipment.fromRepository(
                 1L, "locationCode", "productType", "123", "status", "createEmployeeId",
                 "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
-                LocalDate.now(), ZonedDateTime.now(), null, "unsuitableUnitReportDocumentStatus",
+                LocalDate.now(), null, "unsuitableUnitReportDocumentStatus",
                 "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
                 "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
                 "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",

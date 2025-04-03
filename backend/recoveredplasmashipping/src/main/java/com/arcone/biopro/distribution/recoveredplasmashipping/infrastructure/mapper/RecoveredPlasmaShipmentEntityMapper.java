@@ -14,7 +14,7 @@ public interface RecoveredPlasmaShipmentEntityMapper {
         return RecoveredPlasmaShipment.fromRepository(
             entity.getId(), entity.getLocationCode(), entity.getProductType(), entity.getShipmentNumber(), entity.getStatus(), entity.getCreateEmployeeId(),
             entity.getCloseEmployeeId(), entity.getCloseDate(), entity.getTransportationReferenceNumber(),
-            entity.getScheduleDate(), entity.getShipmentDate(), entity.getCartonTareWeight(), entity.getUnsuitableUnitReportDocumentStatus(),
+            entity.getShipmentDate(), entity.getCartonTareWeight(), entity.getUnsuitableUnitReportDocumentStatus(),
             entity.getCustomerCode(), entity.getCustomerName(), entity.getCustomerState(), entity.getCustomerPostalCode(), entity.getCustomerCountry(),
             entity.getCustomerCountry(), entity.getCustomerCity(), entity.getCustomerDistrict(), entity.getCustomerAddressLine1(),
             entity.getCustomerAddressLine2(), entity.getCustomerAddressContactName(), entity.getCustomerAddressPhoneNumber(),

@@ -12,7 +12,7 @@ public record CreateShipmentRequestDTO(
         String customerCode,
         String productType,
         String transportationReferenceNumber,
-        LocalDate scheduleDate,
+        LocalDate shipmentDate,
         BigDecimal cartonTareWeight,
         String createEmployeeId
 ) implements Serializable {

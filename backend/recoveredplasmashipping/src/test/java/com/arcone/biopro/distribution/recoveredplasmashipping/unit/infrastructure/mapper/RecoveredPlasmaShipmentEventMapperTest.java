@@ -89,8 +89,7 @@ class RecoveredPlasmaShipmentEventMapperTest {
         Mockito.when(model.getStatus()).thenReturn("ACTIVE");
         Mockito.when(model.getCreateEmployeeId()).thenReturn("EMP123");
         Mockito.when(model.getTransportationReferenceNumber()).thenReturn("TRN123");
-        Mockito.when(model.getScheduleDate()).thenReturn(LocalDate.now());
-        Mockito.when(model.getShipmentDate()).thenReturn(ZonedDateTime.now());
+        Mockito.when(model.getShipmentDate()).thenReturn(LocalDate.now());
         Mockito.when(model.getCartonTareWeight()).thenReturn(new BigDecimal(10.5));
 
         ShipmentCustomer customer = Mockito.mock(ShipmentCustomer.class, Mockito.RETURNS_DEEP_STUBS);

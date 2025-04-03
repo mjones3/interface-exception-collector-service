@@ -26,10 +26,10 @@ public class CreateShipmentController {
     @Autowired
     private SharedContext sharedContext;
 
-    public Map createShipment(String customerCode, String productType, Float cartonTareWeight, String scheduledDate, String TransportationRefNumber, String locationCode) {
+    public Map createShipment(String customerCode, String productType, Float cartonTareWeight, String shipmentDate, String TransportationRefNumber, String locationCode) {
         saveLastShipmentId();
         saveLastShipmentNumber();
-        String payload = GraphQLMutationMapper.createShipment(customerCode, productType, cartonTareWeight, scheduledDate, TransportationRefNumber, locationCode);
+        String payload = GraphQLMutationMapper.createShipment(customerCode, productType, cartonTareWeight, shipmentDate, TransportationRefNumber, locationCode);
         try {
             var response = apiHelper.graphQlRequest(payload, "createShipment");
             var data = (Map) response.get("data");
@@ -74,7 +74,7 @@ public class CreateShipmentController {
         String customerCode = "\"408\"";
         String productType = "\"RP_FROZEN_WITHIN_120_HOURS\"";
         Float cartonTareWeight = 1000f;
-        String scheduledDate = "\"" + LocalDate.now().plusDays(1) + "\"";
+        String shipmentDate = "\"" + LocalDate.now().plusDays(1) + "\"";
         String TransportationRefNumber = "\"3455\"";
         String locationCode = "\"123456789\"";
 
@@ -97,15 +97,15 @@ public class CreateShipmentController {
             case "locationCode":
                 locationCode = value;
                 break;
-            case "scheduledShipmentDate":
-                scheduledDate = value;
+            case "shipmentDate":
+                shipmentDate = value;
                 break;
             default:
                 throw new RuntimeException("Invalid attribute");
         }
 
         try {
-            createShipment(customerCode, productType, cartonTareWeight, scheduledDate, TransportationRefNumber, locationCode);
+            createShipment(customerCode, productType, cartonTareWeight, shipmentDate, TransportationRefNumber, locationCode);
         } catch (Exception e) {
             log.info("Expected exception: {}", e.getMessage());
         }
