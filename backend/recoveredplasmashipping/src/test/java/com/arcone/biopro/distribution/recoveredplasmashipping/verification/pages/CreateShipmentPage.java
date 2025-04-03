@@ -52,6 +52,7 @@ public class CreateShipmentPage {
 
     public void selectProductType(String productType) {
         sharedActions.waitForVisible(productTypeSelect);
+        sharedActions.waitForEnabled(productTypeSelect);
         sharedActions.click(productTypeSelect);
         sharedActions.sendKeys(productTypeSelectFilter, productType);
         sharedActions.click(selectInputOption(productType));

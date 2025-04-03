@@ -9,12 +9,12 @@ public class GraphQLMutationMapper {
             mutation {
                 createShipment(
             createShipmentRequest: {
-                customerCode: "%s"
-                productType: "%s"
+                customerCode: %s
+                productType: %s
                 cartonTareWeight: %s
-                scheduleDate: "%s"
+                scheduleDate: %s
                 transportationReferenceNumber: %s
-                locationCode: "%s"
+                locationCode: %s
                 createEmployeeId: "4c973896-5761-41fc-8217-07c5d13a004b"
             }
         ) {

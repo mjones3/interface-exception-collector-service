@@ -37,4 +37,6 @@ public class SharedContext {
 
     private Integer lastShipmentId;
     private Integer lastShipmentNumber;
+
+    private Map shipmentCreateResponse;
 }

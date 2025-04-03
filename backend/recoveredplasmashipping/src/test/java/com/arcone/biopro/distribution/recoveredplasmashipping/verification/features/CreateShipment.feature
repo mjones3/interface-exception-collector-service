@@ -47,6 +47,7 @@ Feature: Shipment Creation
                 | location_code                   | 123456789_TEST             |
                 | scheduled_shipment_date         | <not_null>                 |
 
+        Rule: I should be required to enter Carton Tare Weight. (weight should be in gram (g))
         Rule: I should not be able to create a recovered plasma shipment for a location that is not configured for the recovered plasma shipping.
         @api @DIS-333
         Scenario Outline: Cannot create recovered plasma shipment for invalid <Attribute>
@@ -54,11 +55,16 @@ Feature: Shipment Creation
             Then I should receive a "WARN" message response "<Error Message>".
             And The shipment "should not" be created.
             Examples:
-                | Attribute    | Attribute Value | Error Message                  |
-                | locationCode | DL1             | Location is required           |
-                | customerCode | 11111           | Domain not found for key 11111 |
-                | productType  | TYPE000         | Product type is required       |
+                | Attribute             | Attribute Value | Error Message                  |
+                | cartonTareWeight      | <null>          | Carton tare weight is required |
+                | locationCode          | DL1             | Location is required           |
+                | customerCode          | 11111           | Domain not found for key 11111 |
+                | productType           | TYPE000         | Product type is required       |
 
+
+        Rule: I should be required to choose Product Type.
+        Rule: I should be required to choose a customer.
+        Rule: I should be required to enter Scheduled Shipment Date.
         Rule: The shipment date cannot be in the past.
         @api @DIS-333
         Scenario Outline: Cannot create recovered plasma shipment for invalid <Attribute>
@@ -67,23 +73,10 @@ Feature: Shipment Creation
             And The shipment "should not" be created.
             Examples:
                 | Attribute             | Attribute Value | Error Message                       |
+                | scheduledShipmentDate | <null>          | Schedule date is required           |
+                | customerCode          | <null>          | Customer code is required           |
+                | productType           | <null>          | Product type is required            |
                 | scheduledShipmentDate | 2020-01-01      | Schedule date must be in the future |
-
-
-    Rule: I should be required to choose a customer.
-        Rule: I should be required to choose Product Type.
-    Rule: I should be required to enter Carton Tare Weight. (weight should be in gram (g))
-        Rule: I should be required to enter Scheduled Shipment Date.
-        @api @DIS-333
-        Scenario Outline: Required fields validation
-            Given I attempt to create a shipment without filling the field "<Required Field>".
-            Then I should receive a "WARN" message response "<Error Message>".
-            Examples:
-                | Required Field          | Error Message                       |
-                | Customer                | Customer is required                |
-                | Product Type            | Product type is required            |
-                | Carton Tare Weight      | Weight is required                  |
-                | Scheduled Shipment Date | Scheduled Shipment date is required |
 
 
     Rule: The system should generate a Unique Location Specific Shipment Number that contains the following based on the configuration.
@@ -92,11 +85,18 @@ Feature: Shipment Creation
     - Shipment Sequence Number
         @api @DIS-333
         Scenario Outline: Unique shipment number generation
-            Given The location "<Location Code>" is configured with "<Partner Prefix>", "<Shipment Code>", "<Amount of Shipments>", and "<Partner Prefix Active>".
-            When I create a new shipment for this location.
-            Then The generated shipment number should be "<Expected Shipment Number>"
+            Given The location "123456789_TEST" is configured with prefix "BPM_TEST", shipping code "DIS333003", shipping quantity "0", and prefix configuration "<Prefix Configuration>".
+            When I request to create a new shipment with the values:
+                | Field                           | Value                      |
+                | Customer Code                   | 408                        |
+                | Product Type                    | RP_FROZEN_WITHIN_120_HOURS |
+                | Carton Tare Weight              | 1000                       |
+                | Scheduled Shipment Date         | <tomorrow>                 |
+                | Transportation Reference Number | <null>                     |
+                | Location Code                   | 123456789_TEST             |
+            Then The generated shipment number should starts with "<Expected Shipment Number>" and ends with the next shipment count number.
             Examples:
-                | Location Code | Partner Prefix | Shipment Code | Amount of Shipments | Partner Prefix Active | Expected Shipment Number |
-                | WAR01         | ABC            | DIS333003     | 1                   | YES                   | ABCDIS333003            |
-                | WAR02         | ABC            | DIS333004     | 10                  | NO                    | DIS333004              |
+                | Prefix Configuration | Expected Shipment Number |
+                | Y                    | BPM_TESTDIS333003        |
+                | N                    | DIS333003                |
 

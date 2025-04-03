@@ -9,6 +9,7 @@ import graphql.Assert;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,14 +53,13 @@ public class CreateShipmentSteps {
     }
 
     @And("I have entered all the fields:")
-    public void enterShipmentFields(DataTable dataTable) {
+    public void enterShipmentFields(DataTable dataTable) throws InterruptedException {
+        Thread.sleep(1000);
         Map<String, String> fields = dataTable.asMap(String.class, String.class);
 
         String customer = fields.get("Customer");
         createShipmentPage.selectCustomer(customer);
 
-        String productType = fields.get("Product Type");
-        createShipmentPage.selectProductType(productType); // Assuming quantity 1 for now
 
         String cartonTareWeight = fields.get("Carton Tare Weight");
         createShipmentPage.setCartonTareWeight(cartonTareWeight);
@@ -72,7 +72,11 @@ public class CreateShipmentSteps {
 
             String transportationRefNumber = fields.get("Transportation Reference Number");
             createShipmentPage.setTransportationRefNumber(transportationRefNumber);
+
         }
+
+        String productType = fields.get("Product Type");
+        createShipmentPage.selectProductType(productType);
     }
 
     @When("I choose to submit the shipment.")
@@ -104,13 +108,13 @@ public class CreateShipmentSteps {
             transportationRefNumber = "\"" + transportationRefNumber + "\"";
         }
 
-        var response = createShipmentController.createShipment(
-            fields.get("Customer Code"),
-            fields.get("Product Type"),
+        createShipmentController.createShipment(
+            "\"" + fields.get("Customer Code") + "\"",
+            "\"" + fields.get("Product Type") + "\"",
             Float.valueOf(fields.get("Carton Tare Weight")),
-            scheduledShipmentDate,
+            "\"" + scheduledShipmentDate + "\"",
             transportationRefNumber,
-            fields.get("Location Code")
+            "\"" + fields.get("Location Code") + "\""
         );
     }
 
@@ -157,5 +161,14 @@ public class CreateShipmentSteps {
         } else if (option.equals("should not")) {
             Assert.assertFalse(createShipmentController.wasNewShipmentWasCreated());
         }
+    }
+
+    @Then("The generated shipment number should starts with {string} and ends with the next shipment count number.")
+    public void theGeneratedShipmentNumberShouldStartsWithAndEndsWithTheNextShipmentCountNumber(String shipentNumberPrefix) {
+        var lastShipmentCount = sharedContext.getLastShipmentNumber();
+        var responseShipmentNumber = sharedContext.getShipmentCreateResponse().get("shipmentNumber");
+
+        assert responseShipmentNumber.equals(shipentNumberPrefix + (lastShipmentCount + 1));
+
     }
 }

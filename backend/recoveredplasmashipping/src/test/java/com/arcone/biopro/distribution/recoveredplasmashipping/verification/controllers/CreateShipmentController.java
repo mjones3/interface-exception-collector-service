@@ -31,7 +31,10 @@ public class CreateShipmentController {
         saveLastShipmentNumber();
         String payload = GraphQLMutationMapper.createShipment(customerCode, productType, cartonTareWeight, scheduledDate, TransportationRefNumber, locationCode);
         try {
-            return apiHelper.graphQlRequest(payload, "createShipment");
+            var response = apiHelper.graphQlRequest(payload, "createShipment");
+            var data = (Map) response.get("data");
+            sharedContext.setShipmentCreateResponse(data);
+            return data;
         } catch (Exception e) {
             log.error("Error creating shipment", e);
             throw new RuntimeException(e);
@@ -62,13 +65,18 @@ public class CreateShipmentController {
     }
 
     public void createShipmentWithInvalidData(String attribute, String value) {
+        if (value.equals("<null>")) {
+            value = null;
+        } else {
+            value = "\"" + value + "\"";
+        }
         // default correct values
-        String customerCode = "408";
-        String productType = "RP_FROZEN_WITHIN_120_HOURS";
-        float cartonTareWeight = 1000;
-        String scheduledDate = LocalDate.now().plusDays(1).toString();
+        String customerCode = "\"408\"";
+        String productType = "\"RP_FROZEN_WITHIN_120_HOURS\"";
+        Float cartonTareWeight = 1000f;
+        String scheduledDate = "\"" + LocalDate.now().plusDays(1) + "\"";
         String TransportationRefNumber = "\"3455\"";
-        String locationCode = "123456789";
+        String locationCode = "\"123456789\"";
 
         switch (attribute) {
             case "customerCode":
@@ -78,7 +86,10 @@ public class CreateShipmentController {
                 productType = value;
                 break;
             case "cartonTareWeight":
-                cartonTareWeight = Float.parseFloat(value);
+                if (value != null) {
+                    cartonTareWeight = Float.parseFloat(value.replace("\"", ""));
+
+                } else cartonTareWeight = null;
                 break;
             case "TransportationRefNumber":
                 TransportationRefNumber = "\"" + value + "\"";
