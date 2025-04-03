@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ProcessHeaderComponent } from './process-header.component';
 
-describe.skip('ProcessHeaderComponent', () => {
+describe('ProcessHeaderComponent', () => {
     let component: ProcessHeaderComponent;
     let fixture: ComponentFixture<ProcessHeaderComponent>;
 
