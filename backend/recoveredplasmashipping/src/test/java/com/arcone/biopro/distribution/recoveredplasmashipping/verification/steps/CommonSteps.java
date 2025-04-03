@@ -32,9 +32,9 @@ public class CommonSteps {
         // Step to verify the notifications response from the last API call. This is a common step that can be reused in other scenarios.
         // It's important to set the context variable to the response of the last API call so that the notifications can be verified.
 
-        var notification = context.getApiMessageResponse().stream().filter(x -> x.get("notificationType").equals(messageType.toUpperCase())).findAny().orElse(null);
+        var notification = context.getApiMessageResponse().stream().filter(x -> x.get("type").equals(messageType.toUpperCase())).findAny().orElse(null);
         assertNotNull(notification, "Failed to find the notification.");
-        assertEquals(message, notification.get("notificationMessage"), "Failed to find the message.");
+        assertEquals(message, notification.get("message"), "Failed to find the message.");
         log.debug("Notification found: {}", notification);
     }
 

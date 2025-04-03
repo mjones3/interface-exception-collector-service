@@ -41,6 +41,15 @@ export const appRoutes: Route[] = [
                     ),
             },
 
+            {
+                path: 'recovered-plasma',
+                canActivate: [AuthGuard],
+                loadChildren: () =>
+                    import(
+                        'app/modules/recovered-plasma-shipment/recovered-plasma-shipment.routes'
+                    ),
+            },
+
             // 404 & Catch all
             { path: '**', redirectTo: 'errors/404' },
         ],

@@ -396,7 +396,7 @@ biopro-process-header {
     color: var(--fuse-divider) !important;
 }
 
-.cdk-overlay-pane {
+.cdk-overlay-pane:not(.mat-mdc-dialog-panel) {
     background-color: white !important;
 }
 

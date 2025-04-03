@@ -9,4 +9,6 @@ public interface LocationRepository {
     Flux<Location> findAll();
 
     Mono<Location> findOneById(Long id);
+
+    Mono<Location> findOneByCode(String code);
 }

@@ -1,66 +1,33 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.graphql;
 
+import java.util.Date;
+
 public class GraphQLMutationMapper {
 
-    public static String completeOrderMutation(Integer orderId, String employeeId, String comments, boolean createBackOrder) {
+    public static String createShipment(String customerCode, String productType, Float cartonTareWeight, String scheduledDate, String TransportationRefNumber, String locationCode) {
         return (String.format("""
             mutation {
-                completeOrder(
-            completeOrderCommandDTO: {
-                orderId: %s
-                employeeId: "%s"
-                comments: "%s"
-                createBackOrder: %s
+                createShipment(
+            createShipmentRequest: {
+                customerCode: %s
+                productType: %s
+                cartonTareWeight: %s
+                scheduleDate: %s
+                transportationReferenceNumber: %s
+                locationCode: %s
+                createEmployeeId: "4c973896-5761-41fc-8217-07c5d13a004b"
             }
         ) {
+            data
             notifications {
-                name
-                notificationType
-                notificationMessage
+                code
+                type
+                message
             }
-            data {
-                id
-                orderNumber
-                externalId
-                locationCode
-                shipmentType
-                shippingMethod
-                shippingCustomerName
-                shippingCustomerCode
-                billingCustomerName
-                billingCustomerCode
-                desiredShippingDate
-                willCallPickup
-                phoneNumber
-                productCategory
-                comments
-                status
-                priority
-                createEmployeeId
-                createDate
-                modificationDate
-                deleteDate
-                totalShipped
-                totalRemaining
-                totalProducts
-                canBeCompleted
-                orderItems {
-                    id
-                    orderId
-                    productFamily
-                    bloodType
-                    quantity
-                    comments
-                    createDate
-                    modificationDate
-                    quantityAvailable
-                    quantityShipped
-                    quantityRemaining
-                }
-            }
+            _links
         }
     }
-    """, orderId, employeeId, comments, createBackOrder));
+    """, customerCode, productType, cartonTareWeight, scheduledDate, TransportationRefNumber, locationCode));
     }
 
 }

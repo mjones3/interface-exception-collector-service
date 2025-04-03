@@ -1,0 +1,49 @@
+<app-filters
+    [appliedTotalFilterCount]="totalFieldsApplied"
+    (resetSearchFilter)="resetFilters()"
+    (showFilterControl)="toggleFilter($event)"
+    [showFilters]="showFilters()"
+>
+    <form
+        [formGroup]="searchShipmentForm"
+        class="inline-form flex w-full flex-col"
+        id="searchShipmentFormId"
+    >
+        <div class="w-full pt-2">
+            <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
+                <mat-form-field class="block">
+                    <mat-label> Shipment Number </mat-label>
+                    <input
+                        id="shipmentNumberId"
+                        matInput
+                        formControlName="shipmentNumber"
+                        placeholder="Enter Shipment Number"
+                        maxlength="50"
+                        autocomplete="off"
+                    />
+                </mat-form-field>
+
+                <app-multiple-select
+                    [formGroup]="searchShipmentForm"
+                    controlName="customer"
+                    title="Customer"
+                    matSelectId="customerSelect"
+                ></app-multiple-select>
+
+                <app-multiple-select
+                    [formGroup]="searchShipmentForm"
+                    controlName="productFamily"
+                    title="Product Family"
+                    matSelectId="productFamilySelect"
+                ></app-multiple-select>
+
+                <app-multiple-select
+                    [formGroup]="searchShipmentForm"
+                    controlName="shipmentStatus"
+                    title="Shipment Status"
+                    matSelectId="shipmentStatusSelect"
+                ></app-multiple-select>
+            </div>
+        </div>
+    </form>
+</app-filters>
