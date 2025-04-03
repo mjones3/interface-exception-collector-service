@@ -60,6 +60,10 @@ public class RecoveredPlasmaShipmentReport implements Validatable {
             throw new IllegalArgumentException("Status is null or blank");
         }
 
+        if (shipmentDate == null ) {
+            throw new IllegalArgumentException("Shipment Date is null");
+        }
+
     }
 }
 

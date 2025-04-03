@@ -8,7 +8,6 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDate;
-import java.time.ZonedDateTime;
 
 @Data
 @Builder(toBuilder = true)
@@ -44,10 +43,6 @@ public class RecoveredPlasmaShipmentReportEntity {
     private String productTypeDescription;
 
     @Column("shipment_date")
-    private ZonedDateTime shipmentDate;
-
-    @Column("schedule_date")
-    private LocalDate scheduleDate;
-
+    private LocalDate shipmentDate;
 
 }

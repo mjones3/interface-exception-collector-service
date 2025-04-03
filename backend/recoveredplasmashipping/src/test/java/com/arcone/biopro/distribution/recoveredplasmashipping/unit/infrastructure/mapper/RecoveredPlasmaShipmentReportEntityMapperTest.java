@@ -29,13 +29,12 @@ class RecoveredPlasmaShipmentReportEntityMapperTest {
             .id(1L)
             .shipmentNumber("SHIP001")
             .customerCode("customerCode")
-            .shipmentDate(ZonedDateTime.now())
+            .shipmentDate(LocalDate.now())
             .customerName("customerName")
             .locationCode("locationCOde")
             .location("location")
             .productType("productType")
             .productTypeDescription("productTypeDescription")
-            .scheduleDate(LocalDate.now())
             .status("OPEN")
             .build();
 
