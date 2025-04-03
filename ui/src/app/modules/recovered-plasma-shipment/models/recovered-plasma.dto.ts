@@ -20,20 +20,3 @@ export interface CreateShipmentRequestDTO {
     transportationReferenceNumber?: string;
     locationCode: string;
 }
-export interface CreateShipmentResponseDTO {
-    id: number;
-    locationCode: string;
-    productType: string;
-    createEmployeeId: string;
-    shipmentNumber: string;
-    status: string;
-    closedEmployeeId: string;
-    transportationReferenceNumber: string;
-    scheduleDate: string;
-    shipmentDate: string;
-    cartonTareWeight: number;
-    createDate: string;
-    modificationDate;
-    customerCode: string;
-    customerName: string;
-}

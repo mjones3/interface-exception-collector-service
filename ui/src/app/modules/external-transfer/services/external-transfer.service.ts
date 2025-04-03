@@ -25,7 +25,7 @@ import {
     providedIn: 'root',
 })
 export class ExternalTransferService {
-    readonly servicePath = 'recoveredplasmashipping/graphql';
+    readonly servicePath = '/shipping/graphql';
 
     constructor(private dynamicGraphqlPathService: DynamicGraphqlPathService) {}
 
