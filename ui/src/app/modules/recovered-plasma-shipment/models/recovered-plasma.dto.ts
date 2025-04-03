@@ -13,7 +13,7 @@ export interface ShipmentFilterDateRangeDTO {
 
 export interface CreateShipmentRequestDTO {
     customerCode: string;
-    scheduleDate: string;
+    shipmentDate: string;
     productType: string;
     cartonTareWeight: number;
     createEmployeeId: string;

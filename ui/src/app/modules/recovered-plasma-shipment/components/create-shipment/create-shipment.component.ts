@@ -117,7 +117,7 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
                 '',
                 [Validators.required, cartonWeightValidator()],
             ],
-            scheduledShipmentDate: ['', [Validators.required]],
+            shipmentDate: ['', [Validators.required]],
             transportationReferenceNumber: [''],
         });
     }
@@ -222,9 +222,8 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
     }
 
     private prepareShipmentData(): CreateShipmentRequestDTO {
-        const scheduledDate =
-            this.createShipmentFormControl.scheduledShipmentDate.value;
-        const formattedDate = this.formatScheduledDate(scheduledDate);
+        const shipmentdDate = this.createShipmentFormControl.shipmentDate.value;
+        const formattedDate = this.formatShipmentDate(shipmentdDate);
 
         return {
             locationCode: this.cookieService.get(Cookie.XFacility),
@@ -234,14 +233,14 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
             productType:
                 this.createShipmentFormControl.productType?.value ?? '',
             cartonTareWeight: this.parseCartonWeight(),
-            scheduleDate: formattedDate,
+            shipmentDate: formattedDate,
             transportationReferenceNumber:
                 this.createShipmentFormControl.transportationReferenceNumber
                     ?.value ?? '',
         };
     }
 
-    private formatScheduledDate(date: Date): string {
+    private formatShipmentDate(date: Date): string {
         return formatDate(date, 'yyyy-MM-dd', this.locale);
     }
 

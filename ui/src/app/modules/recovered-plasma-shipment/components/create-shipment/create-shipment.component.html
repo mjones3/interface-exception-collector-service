@@ -70,50 +70,46 @@
                             <mat-form-field class="block">
                                 <mat-label>Scheduled Shipment Date</mat-label>
                                 <input
-                                    id="scheduledShipmentDateId"
+                                    id="shipmentDateId"
                                     required
                                     matInput
-                                    formControlName="scheduledShipmentDate"
+                                    formControlName="shipmentDate"
                                     placeholder="Enter Shipment Date"
                                     [min]="minDate"
                                     autocomplete="off"
-                                    [matDatepicker]="
-                                        scheduledShipmentDatePicker
-                                    "
+                                    [matDatepicker]="shipmentDatePicker"
                                 />
                                 <mat-datepicker-toggle
                                     matIconSuffix
-                                    [for]="scheduledShipmentDatePicker"
+                                    [for]="shipmentDatePicker"
                                 ></mat-datepicker-toggle>
                                 <mat-datepicker
-                                    #scheduledShipmentDatePicker
+                                    #shipmentDatePicker
                                 ></mat-datepicker>
                                 @if (
                                     createShipmentForm
-                                        .get('scheduledShipmentDate')
+                                        .get('shipmentDate')
                                         .hasError('matDatepickerMin')
                                 ) {
                                     <mat-error
-                                        >Scheduled Shipment Date cannot be in
-                                        the past</mat-error
+                                        >Shipment Date cannot be in the
+                                        past</mat-error
                                     >
                                 } @else if (
                                     createShipmentForm
-                                        .get('scheduledShipmentDate')
+                                        .get('shipmentDate')
                                         .hasError('matDatepickerParse')
                                 ) {
                                     <mat-error
-                                        >Scheduled Shipment Date is
-                                        invalid</mat-error
+                                        >Shipment Date is invalid</mat-error
                                     >
                                 } @else if (
                                     createShipmentForm
-                                        .get('scheduledShipmentDate')
+                                        .get('shipmentDate')
                                         .hasError('required')
                                 ) {
                                     <mat-error
-                                        >Scheduled Shipment Date is
-                                        required</mat-error
+                                        >Shipment Date is required</mat-error
                                     >
                                 }
                             </mat-form-field>
