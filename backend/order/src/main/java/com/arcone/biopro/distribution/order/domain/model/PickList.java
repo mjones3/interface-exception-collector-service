@@ -19,13 +19,15 @@ public class PickList implements Validatable {
     private String orderStatus;
     private List<PickListItem> pickListItems;
     private String orderComments;
+    private String temperatureCategory;
 
-    public PickList(Long orderNumber , String locationCode , String orderStatus, PickListCustomer customer , String orderComments) {
+    public PickList(Long orderNumber , String locationCode , String orderStatus, PickListCustomer customer , String orderComments , String temperatureCategory) {
         this.orderNumber = orderNumber;
         this.locationCode = locationCode;
         this.customer = customer;
         this.orderStatus = orderStatus;
         this.orderComments = orderComments;
+        this.temperatureCategory = temperatureCategory;
 
         checkValid();
     }

@@ -89,7 +89,7 @@ public class ShipmentFulfillmentSteps {
             "123456789",
             "TEST",
             "TEST",
-            "Frozen",
+            "FROZEN",
             LocalDate.now(),
             "Blood Bank",
             customerName,

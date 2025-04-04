@@ -58,6 +58,7 @@ public class InventoryRsocketClient implements InventoryService {
                     .builder()
                     .bloodType(productCriteria.getBloodType())
                     .productFamily(productCriteria.getProductFamily())
+                    .temperatureCategory(productCriteria.getTemperatureCategory())
                     .build())
                 .toList())
             .build())

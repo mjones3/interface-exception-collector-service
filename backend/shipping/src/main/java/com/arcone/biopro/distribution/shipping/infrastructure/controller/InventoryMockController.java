@@ -46,7 +46,8 @@ public class InventoryMockController {
             | Quarantined          | W036898786758    | E0707V00    Quarantined error message |
             | Non existent         | =W03689878675900 | =<E0701V00  Non existent error        |
             | Different Location   | =W03689878676300 | =<E0703V00  Product not found error   |
-            | Already Shipped      | W036898786700    | E0707V00                                */
+            | Already Shipped      | W036898786700    | E0707V00
+            */
 
 
         switch (request.unitNumber()) {

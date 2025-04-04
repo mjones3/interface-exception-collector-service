@@ -6,6 +6,7 @@ import com.arcone.biopro.distribution.order.domain.model.OrderItem;
 import com.arcone.biopro.distribution.order.domain.model.PickList;
 import com.arcone.biopro.distribution.order.domain.model.PickListItem;
 import com.arcone.biopro.distribution.order.domain.model.vo.BloodType;
+import com.arcone.biopro.distribution.order.domain.model.vo.ProductCategory;
 import com.arcone.biopro.distribution.order.domain.model.vo.ProductFamily;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -42,6 +43,10 @@ class PickListCommandMapperTest {
         var order = Mockito.mock(Order.class);
         Mockito.when(order.getLocationCode()).thenReturn("LOCATION_CODE");
 
+        var productCategory = Mockito.mock(ProductCategory.class);
+        Mockito.when(productCategory.getProductCategory()).thenReturn("FROZEN");
+        Mockito.when(order.getProductCategory()).thenReturn(productCategory);
+
 
         var orderItem = Mockito.mock(OrderItem.class);
 
@@ -63,6 +68,7 @@ class PickListCommandMapperTest {
 
         Assertions.assertEquals("BLOOD_TYPE", response.getProductCriteria().getFirst().getBloodType());
         Assertions.assertEquals("PRODUCT_FAMILY", response.getProductCriteria().getFirst().getProductFamily());
+        Assertions.assertEquals("FROZEN", response.getProductCriteria().getFirst().getTemperatureCategory());
     }
 
 }

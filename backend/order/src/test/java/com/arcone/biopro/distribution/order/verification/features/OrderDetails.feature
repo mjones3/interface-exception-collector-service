@@ -5,7 +5,7 @@ Feature: View order details
         Given I cleaned up from the database the orders with external ID starting with "ORDER".
 
         Rule: I should be able to see the available inventory for each line item.
-        @DIS155 @DIS-121 @DIS-100 @DIS-97 @DIS-161 @DIS-253 @bug @DIS-295
+        @DIS155 @DIS-121 @DIS-100 @DIS-97 @DIS-161 @DIS-253 @bug @DIS-295 @bug @DIS-321
         Scenario Outline: View order details
             Given I have a Biopro Order with externalId "<External ID>", Location Code "<LocationCode>", Priority "<Priority>", Status "<Status>", shipment type "<Shipment Type>", delivery type "<Delivery Type>", shipping method "<Shipping Method>", product category "<Product Category>", desired ship date "<Desired Date>", shipping customer code and name as "<Shipping Customer Code>" and "<Shipping Customer Name>", billing customer code and name as "<Billing Customer Code>" and "<Billing Customer Name>", and comments "<Order Comments>".
             And I have 2 order items with product families "<ProductFamily>", blood types "<BloodType>", quantities "<Quantity>", and order item comments "<Item Comments>".
@@ -31,7 +31,7 @@ Feature: View order details
             Rule: I should not be able to generate multiple pick lists for the same order.
             Rule: I should be able to view or reprint the pick list that was previously generated.
             Rule: I should be able to see the short-dated products if applicable.
-            @DIS-121 @DIS-100 @DIS-253
+            @DIS-121 @DIS-100 @DIS-253 @bug @DIS-321
             Scenario Outline: Generate pick list no short date products
             Given I have a Biopro Order with externalId "<External ID>", Location Code "<LocationCode>", Priority "<Priority>", Status "<Status>", shipment type "<Shipment Type>", delivery type "<Delivery Type>", shipping method "<Shipping Method>", product category "<Product Category>", desired ship date "<Desired Date>", shipping customer code and name as "<Shipping Customer Code>" and "<Shipping Customer Name>", billing customer code and name as "<Billing Customer Code>" and "<Billing Customer Name>", and comments "<Order Comments>".
             And I have an order item with product family "<ProductFamily>", blood type "<BloodType>", quantity <Quantity>, and order item comments "<Item Comments>".
