@@ -89,6 +89,8 @@ public class RecoveredPlasmaShipmentQueryCommand implements Validatable, FilterA
             && Objects.isNull(this.shipmentDateTo))
             && ((Objects.nonNull(this.shipmentStatus) && !this.shipmentStatus.isEmpty() && (this.shipmentStatus.size() != DEFAULT_STATUSES.size() || !this.shipmentStatus.containsAll(DEFAULT_STATUSES)))
             || (Objects.nonNull(this.customers) && !this.customers.isEmpty())
+            || (Objects.nonNull(this.productTypes) && !this.productTypes.isEmpty())
+            || (Objects.nonNull(this.transportationReferenceNumber) && !this.transportationReferenceNumber.isBlank())
             ))) {
             throw new IllegalArgumentException("The shipmentDate must not be null or empty");
         }
