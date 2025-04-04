@@ -25,6 +25,7 @@ export interface RecoveredPlasmaShipmentQueryCommandRequestDTO {
     querySort?: QuerySortDTO;
     pageNumber?: number;
     pageSize?: number;
+    transportationReferenceNumber?: string;
 }
 
 export const SEARCH_RP_SHIPMENT = gql<

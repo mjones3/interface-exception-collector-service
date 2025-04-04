@@ -1,5 +1,7 @@
 <app-filters
-    [appliedTotalFilterCount]="totalFieldsApplied"
+    [disabled]="!enableApplyFilters()"
+    [appliedTotalFilterCount]="totalFieldsApplied()"
+    (search)="applyFilterSearch()"
     (resetSearchFilter)="resetFilters()"
     (showFilterControl)="toggleFilter($event)"
     [showFilters]="showFilters()"
@@ -7,7 +9,7 @@
     <form
         [formGroup]="form"
         class="inline-form flex w-full flex-col"
-        id="searchShipmentFormId"
+        id="searchFormId"
     >
         <div class="w-full pt-2">
             <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
@@ -26,7 +28,7 @@
                 <app-multiple-select
                     [formGroup]="form"
                     [items]="customersOptions()"
-                    controlName="customer"
+                    controlName="customers"
                     title="Customer"
                     matSelectId="customerSelect"
                 />
@@ -34,9 +36,9 @@
                 <app-multiple-select
                     [formGroup]="form"
                     [items]="productTypesOptions()"
-                    controlName="productFamily"
-                    title="Product Family"
-                    matSelectId="productFamilySelect"
+                    controlName="productTypes"
+                    title="Product Type"
+                    matSelectId="productTypeSelect"
                 />
 
                 <app-multiple-select
@@ -54,13 +56,12 @@
                     matDatepickerMaxMessage="Final date should not be greater than today"
                     title="Shipment Date"
                     dateRangeId="shipmentDate"
-                    [maxDate]="today"
                 />
 
                 <app-multiple-select
                     [formGroup]="form"
                     [items]="locationsOptions()"
-                    controlName="location"
+                    controlName="locationCode"
                     title="Location"
                     matSelectId="locationSelect"
                 />
@@ -68,11 +69,11 @@
                 <mat-form-field class="block">
                     <mat-label>Transportation Reference Number</mat-label>
                     <input
-                        id="transportationReferenceNumber"
+                        id="transportationReferenceNumberId"
                         matInput
                         formControlName="transportationReferenceNumber"
                         placeholder="Enter Transportation Reference Number"
-                        maxlength="10"
+                        maxlength="50"
                         autocomplete="off"
                     />
                 </mat-form-field>
