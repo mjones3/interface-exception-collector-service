@@ -54,6 +54,16 @@ class RecoveredPlasmaShipmentEventMapperTest {
         assertEquals("John Doe", result.customerAddressContactName());
         assertEquals("123-456-7890", result.customerAddressPhoneNumber());
         assertEquals("Test Department", result.customerAddressDepartmentName());
+        assertEquals(LocalDate.now(), result.shipmentDate());
+        assertEquals(new BigDecimal(10.5), result.cartonTareWeight());
+        assertEquals("LOC123", result.locationCode());
+        assertEquals("PLASMA", result.productType());
+        assertEquals("SHP001", result.shipmentNumber());
+        assertEquals("EMP123", result.createEmployeeId());
+        assertEquals("TRN123", result.transportationReferenceNumber());
+        assertEquals("ACTIVE", result.status());
+
+
     }
 
     @Test

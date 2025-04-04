@@ -19,7 +19,7 @@ public record RecoveredPlasmaShipmentCreatedOutputDTO (
     String status,
     String createEmployeeId,
     String transportationReferenceNumber,
-    LocalDate scheduleDate,
+    LocalDate shipmentDate,
     BigDecimal cartonTareWeight,
     ZonedDateTime createDate,
     ZonedDateTime modificationDate,
