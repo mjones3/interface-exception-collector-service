@@ -7,7 +7,8 @@ import java.io.Serializable;
 @Builder
 public record AvailableInventoryCriteriaDTO(
     String productFamily,
-    String bloodType
+    String bloodType,
+    String temperatureCategory
 ) implements Serializable {
 
 }

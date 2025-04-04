@@ -25,7 +25,7 @@ public class PickListCommandMapper {
             .orElseGet(Collections::emptyList)
             .stream()
             .map(pickListItem -> new GeneratePickListProductCriteria(pickListItem.getProductFamily()
-                , pickListItem.getBloodType()))
+                , pickListItem.getBloodType(), pickList.getTemperatureCategory()))
             .toList();
     }
 
@@ -39,7 +39,7 @@ public class PickListCommandMapper {
             .orElseGet(Collections::emptyList)
             .stream()
             .map(orderItem -> new GeneratePickListProductCriteria(orderItem.getProductFamily().getProductFamily()
-                , orderItem.getBloodType().getBloodType()))
+                , orderItem.getBloodType().getBloodType() , order.getProductCategory().getProductCategory()))
             .toList();
     }
 }

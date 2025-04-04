@@ -44,6 +44,7 @@ class InventoryMockControllerTest {
                 assertEquals(Optional.of("W036898786799"), Optional.of(detail.inventoryResponseDTO().unitNumber()));
                 assertEquals(Optional.of("E1624V00"), Optional.of(detail.inventoryResponseDTO().productCode()));
                 assertEquals(Optional.of("123456789"), Optional.of(detail.inventoryResponseDTO().locationCode()));
+                assertEquals(Optional.of("FROZEN"), Optional.of(detail.inventoryResponseDTO().temperatureCategory()));
             })
             .verifyComplete();
     }
@@ -91,6 +92,7 @@ class InventoryMockControllerTest {
                 assertNotNull(detail.inventoryNotificationsDTO().getFirst().details());
                 assertEquals(Optional.of(10), Optional.of(detail.inventoryNotificationsDTO().getFirst().details().size()));
                 assertEquals(Optional.of("ABS Positive"), Optional.of(detail.inventoryNotificationsDTO().getFirst().details().getFirst()));
+
             })
             .verifyComplete();
     }

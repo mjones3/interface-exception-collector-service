@@ -3,7 +3,7 @@ Feature: Prevent filling a shipment with unsuitable products
     As a distribution technician, I want to prevent filling a shipment with unsuitable products, so that I can avoid shipping the wrong products to the customer.
 
     Background:
-        Given I cleaned up from the database, all shipments with order number "999771,999778,999764,999779,999765,999766,999767,999768,999769,999770".
+        Given I cleaned up from the database, all shipments with order number "999771,999778,999764,999779,999765,999766,999767,999768,999769,999770,999771,999772".
 
     @ui @DIS-125 @DIS-78 @DIS-56 @DIS-194 @DIS-162
     Scenario Outline: Entering an unsuitable product
@@ -40,7 +40,7 @@ Feature: Prevent filling a shipment with unsuitable products
 
 
     Rule: I should not be able fill orders with ineligible Products.
-        @api @DIS-254
+        @api @DIS-254 @bug @DIS-321
         Scenario Outline: Fill shipments with ineligible Products.
             Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>".
             And The visual inspection configuration is "enabled".
@@ -55,3 +55,5 @@ Feature: Prevent filling a shipment with unsuitable products
                 | 999768       | 1           | Testing Customer | 5        | ABP       | WHOLE_BLOOD_LEUKOREDUCED     | W812530107002 | E0023V00 | SATISFACTORY   | Product Family does not match                                                                             | WARN         |
                 | 999769       | 1           | Testing Customer | 5        | BP        | WHOLE_BLOOD                  | W812530107002 | E0023V00 | SATISFACTORY   | Blood type does not match                                                                                 | WARN         |
                 | 999770       | 1           | Testing Customer | 5        | ON        | RED_BLOOD_CELLS              | W812530107003 | E0167V00 | UNSATISFACTORY | This product has been discarded for failed visual inspection in the system. Place in biohazard container. | WARN         |
+                | 999771       | 1           | Testing Customer | 5        | ON        | PLASMA_TRANSFUSABLE          | W812530107004 | E2457V00 | SATISFACTORY   | Temperature Category does not match                                                                       | WARN         |
+                | 999772       | 1           | Testing Customer | 5        | ABP       | PLASMA_TRANSFUSABLE          | W812530107005 | E2469V00 | SATISFACTORY   | Temperature Category does not match                                                                       | WARN         |
