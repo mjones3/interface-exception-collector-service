@@ -1,5 +1,12 @@
 import { CommonModule, formatDate } from '@angular/common';
-import { Component, Inject, LOCALE_ID, OnDestroy, OnInit } from '@angular/core';
+import {
+    Component,
+    Inject,
+    LOCALE_ID,
+    OnDestroy,
+    OnInit,
+    signal,
+} from '@angular/core';
 import {
     FormBuilder,
     FormGroup,
@@ -34,8 +41,8 @@ import {
     Subscription,
     catchError,
     debounceTime,
+    finalize,
     take,
-    throttleTime,
     throwError,
 } from 'rxjs';
 import { RecoveredPlasmaCustomerDTO } from '../../graphql/query-definitions/customer.graphql';
@@ -68,6 +75,7 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
     customerValueChange: Subscription;
     minDate = new Date();
     loggedUserId: string;
+    isSubmitting = signal(false);
     constructor(
         private fb: FormBuilder,
         public dialogRef: MatDialogRef<CreateShipmentComponent>,
@@ -109,7 +117,7 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
                 '',
                 [Validators.required, cartonWeightValidator()],
             ],
-            scheduledShipmentDate: ['', [Validators.required]],
+            shipmentDate: ['', [Validators.required]],
             transportationReferenceNumber: [''],
         });
     }
@@ -176,10 +184,13 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
             return;
         }
         if (this.createShipmentForm.valid) {
+            this.isSubmitting.set(true);
             this.shipmentService
                 .createRecoveredPlasmaShipment(this.prepareShipmentData())
-                .pipe(throttleTime(300))
                 .pipe(
+                    finalize(() => {
+                        this.isSubmitting.set(false);
+                    }),
                     catchError((err) => {
                         this.toastr.error(ERROR_MESSAGE);
                         return throwError(() => err);
@@ -196,10 +207,10 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
                                     notification['type'];
                             });
                             consumeNotifications(this.toastr, notifications);
+                            this.dialogRef.close(true);
                             if (
                                 notifications[0].notificationType === 'SUCCESS'
                             ) {
-                                this.dialogRef.close();
                                 if (url) {
                                     this.handleNavigation(url);
                                 }
@@ -211,9 +222,8 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
     }
 
     private prepareShipmentData(): CreateShipmentRequestDTO {
-        const scheduledDate =
-            this.createShipmentFormControl.scheduledShipmentDate.value;
-        const formattedDate = this.formatScheduledDate(scheduledDate);
+        const shipmentdDate = this.createShipmentFormControl.shipmentDate.value;
+        const formattedDate = this.formatShipmentDate(shipmentdDate);
 
         return {
             locationCode: this.cookieService.get(Cookie.XFacility),
@@ -223,11 +233,14 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
             productType:
                 this.createShipmentFormControl.productType?.value ?? '',
             cartonTareWeight: this.parseCartonWeight(),
-            scheduleDate: formattedDate,
+            shipmentDate: formattedDate,
+            transportationReferenceNumber:
+                this.createShipmentFormControl.transportationReferenceNumber
+                    ?.value ?? '',
         };
     }
 
-    private formatScheduledDate(date: Date): string {
+    private formatShipmentDate(date: Date): string {
         return formatDate(date, 'yyyy-MM-dd', this.locale);
     }
 

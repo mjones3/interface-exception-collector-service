@@ -35,8 +35,7 @@ public class RecoveredPlasmaShipment implements Validatable {
     private String closeEmployeeId;
     private ZonedDateTime closeDate;
     private String transportationReferenceNumber;
-    private LocalDate scheduleDate;
-    private ZonedDateTime shipmentDate;
+    private LocalDate shipmentDate;
     private BigDecimal cartonTareWeight;
     private String unsuitableUnitReportDocumentStatus;
     private ZonedDateTime createDate;
@@ -44,6 +43,7 @@ public class RecoveredPlasmaShipment implements Validatable {
 
     private static final String SHIPMENT_LOCATION_CODE_KEY = "RPS_LOCATION_SHIPMENT_CODE";
     private static final String SHIPMENT_USE_PREFIX_KEY = "RPS_USE_PARTNER_PREFIX";
+    private static final String SHIPMENT_PARTNER_PREFIX_KEY = "RPS_PARTNER_PREFIX";
     private static final String YES = "Y";
     private static final String OPEN_STATUS = "OPEN";
 
@@ -68,7 +68,7 @@ public class RecoveredPlasmaShipment implements Validatable {
             .status(OPEN_STATUS)
             .locationCode(location.getCode())
             .createDate(ZonedDateTime.now())
-            .scheduleDate(command.getScheduleDate())
+            .shipmentDate(command.getShipmentDate())
             .cartonTareWeight(command.getCartonTareWeight())
             .createEmployeeId(command.getCreateEmployeeId())
             .transportationReferenceNumber(command.getTransportationReferenceNumber())
@@ -88,8 +88,7 @@ public class RecoveredPlasmaShipment implements Validatable {
                                                          String closeEmployeeId,
                                                          ZonedDateTime closeDate,
                                                          String transportationReferenceNumber,
-                                                         LocalDate scheduleDate,
-                                                         ZonedDateTime shipmentDate,
+                                                         LocalDate shipmentDate,
                                                          BigDecimal cartonTareWeight,
                                                          String unsuitableUnitReportDocumentStatus,
                                                          String customerCode, String customerName, String customerState, String customerPostalCode, String customerCountry
@@ -111,7 +110,6 @@ public class RecoveredPlasmaShipment implements Validatable {
             .closeEmployeeId(closeEmployeeId)
             .closeDate(closeDate)
             .transportationReferenceNumber(transportationReferenceNumber)
-            .scheduleDate(scheduleDate)
             .shipmentDate(shipmentDate)
             .cartonTareWeight(cartonTareWeight)
             .unsuitableUnitReportDocumentStatus(unsuitableUnitReportDocumentStatus)
@@ -149,16 +147,22 @@ public class RecoveredPlasmaShipment implements Validatable {
             throw new IllegalArgumentException("Location configuration is missing the setup for  " + SHIPMENT_USE_PREFIX_KEY + " property");
         }
         if (useShipmentPrefix.get().getPropertyValue().equals(YES)) {
-            var prefix = location.findProperty(SHIPMENT_LOCATION_CODE_KEY);
+            var prefix = location.findProperty(SHIPMENT_PARTNER_PREFIX_KEY);
             if (prefix.isEmpty()) {
-                log.error("Location property is missed {}", SHIPMENT_LOCATION_CODE_KEY);
-                throw new IllegalArgumentException("Location configuration is missing the setup for  " + SHIPMENT_LOCATION_CODE_KEY + " property");
+                log.error("Location property is missed {}", SHIPMENT_PARTNER_PREFIX_KEY);
+                throw new IllegalArgumentException("Location configuration is missing the setup for  " + SHIPMENT_PARTNER_PREFIX_KEY + " property");
             }
-            shipmentNumber = prefix.get().getPropertyValue() + shipmentId;
+            shipmentNumber = prefix.get().getPropertyValue();
 
-        } else {
-            shipmentNumber = String.valueOf(shipmentId);
         }
+
+        var shipmentLocationCode = location.findProperty(SHIPMENT_LOCATION_CODE_KEY);
+        if (shipmentLocationCode.isEmpty()) {
+            log.error("Location property is missed {}", SHIPMENT_LOCATION_CODE_KEY);
+            throw new IllegalArgumentException("Location configuration is missing the setup for  " + SHIPMENT_LOCATION_CODE_KEY + " property");
+        }
+
+        shipmentNumber = String.format("%s%s%s",shipmentNumber,shipmentLocationCode.get().getPropertyValue(),shipmentId);
 
         return shipmentNumber;
 
@@ -186,8 +190,8 @@ public class RecoveredPlasmaShipment implements Validatable {
             throw new IllegalArgumentException("Create employee ID is required");
         }
 
-        if (this.scheduleDate == null) {
-            throw new IllegalArgumentException("Schedule date is required");
+        if (this.shipmentDate == null) {
+            throw new IllegalArgumentException("Shipment date is required");
         }
 
         if (this.status == null || this.status.isBlank()) {

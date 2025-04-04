@@ -9,6 +9,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.InsertOnlyProperty;
 import org.springframework.data.relational.core.mapping.Table;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
@@ -52,11 +53,8 @@ public class RecoveredPlasmaShipmentEntity {
     @Column("transportation_reference_number")
     private String transportationReferenceNumber;
 
-    @Column("schedule_date")
-    private LocalDate scheduleDate;
-
     @Column("shipment_date")
-    private ZonedDateTime shipmentDate;
+    private LocalDate shipmentDate;
 
     @Column("carton_tare_weight")
     private BigDecimal cartonTareWeight;

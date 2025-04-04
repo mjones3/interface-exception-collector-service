@@ -16,7 +16,7 @@ Feature: Shipment Creation
             | Customer                        | Bio Products                  |
             | Product Type                    | RP NONINJECTABLE REFRIGERATED |
             | Carton Tare Weight              | 1000                          |
-            | Scheduled Shipment Date         | <tomorrow>                    |
+            | Shipment Date                   | <tomorrow>                    |
             | Transportation Reference Number | 111222333                     |
         When I choose to submit the shipment.
         Then I should see a "SUCCESS" message: "Shipment created successfully".
@@ -32,7 +32,7 @@ Feature: Shipment Creation
                 | Customer Code                   | 408                        |
                 | Product Type                    | RP_FROZEN_WITHIN_120_HOURS |
                 | Carton Tare Weight              | 1000                       |
-                | Scheduled Shipment Date         | <tomorrow>                 |
+                | Shipment Date                   | <tomorrow>                 |
                 | Transportation Reference Number | <null>                     |
                 | Location Code                   | 123456789_TEST             |
             Then I should receive a "SUCCESS" message response "Shipment created successfully".
@@ -45,7 +45,7 @@ Feature: Shipment Creation
                 | create_date                     | <not_null>                 |
                 | transportation_reference_number | <null>                     |
                 | location_code                   | 123456789_TEST             |
-                | scheduled_shipment_date         | <not_null>                 |
+                | shipment_date                   | <not_null>                 |
 
         Rule: I should be required to enter Carton Tare Weight. (weight should be in gram (g))
         Rule: I should not be able to create a recovered plasma shipment for a location that is not configured for the recovered plasma shipping.
@@ -73,10 +73,10 @@ Feature: Shipment Creation
             And The shipment "should not" be created.
             Examples:
                 | Attribute             | Attribute Value | Error Message                       |
-                | scheduledShipmentDate | <null>          | Schedule date is required           |
+                | shipmentDate          | <null>          | Shipment date is required           |
                 | customerCode          | <null>          | Customer code is required           |
                 | productType           | <null>          | Product type is required            |
-                | scheduledShipmentDate | 2020-01-01      | Schedule date must be in the future |
+                | shipmentDate          | 2020-01-01      | Shipment date must be in the future |
 
 
     Rule: The system should generate a Unique Location Specific Shipment Number that contains the following based on the configuration.
@@ -91,7 +91,7 @@ Feature: Shipment Creation
                 | Customer Code                   | 408                        |
                 | Product Type                    | RP_FROZEN_WITHIN_120_HOURS |
                 | Carton Tare Weight              | 1000                       |
-                | Scheduled Shipment Date         | <tomorrow>                 |
+                | Shipment Date                   | <tomorrow>                 |
                 | Transportation Reference Number | <null>                     |
                 | Location Code                   | 123456789_TEST             |
             Then The generated shipment number should starts with "<Expected Shipment Number>" and ends with the next shipment count number.

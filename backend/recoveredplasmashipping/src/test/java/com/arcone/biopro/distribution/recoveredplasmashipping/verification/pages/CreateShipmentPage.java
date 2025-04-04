@@ -16,8 +16,8 @@ public class CreateShipmentPage {
     private final By header = By.xpath("//h1[contains(text(),'Recovered Plasma Shipping')]");
     private final By customerSelect = By.id("customerSelectIdSelect");
     private final By customerSelectFilter = By.cssSelector("input[ng-reflect-placeholder='Filter Customer Name']");
-    private final By scheduledShipmentDate = By.id("scheduledShipmentDateId");
-    private final By productTypeSelect = By.id("productTypeId");
+    private final By shipmentDate = By.id("shipmentDateId");
+    private final By productTypeSelect = By.id("productTypeSelectIdSelect");
     private final By productTypeSelectFilter = By.cssSelector("input[ng-reflect-placeholder='Filter Product Type']");
     private final By submitButton = By.id("btnSubmit");
     private final By cancelButton = By.id("btnCancel");
@@ -64,8 +64,8 @@ public class CreateShipmentPage {
     }
 
     public void setShipmentDate(String date) {
-        sharedActions.waitForVisible(scheduledShipmentDate);
-        sharedActions.sendKeys(scheduledShipmentDate, date);
+        sharedActions.waitForVisible(shipmentDate);
+        sharedActions.sendKeys(shipmentDate, date);
     }
 
     public void setTransportationRefNumber(String refNumber) {

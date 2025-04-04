@@ -20,17 +20,17 @@ public class CreateShipmentCommand implements Validatable {
     private String productType;
     private String createEmployeeId;
     private String transportationReferenceNumber;
-    private LocalDate scheduleDate;
+    private LocalDate shipmentDate;
     private BigDecimal cartonTareWeight;
 
     public CreateShipmentCommand(String customerCode, String locationCode, String productType, String createEmployeeId
-        , String transportationReferenceNumber, LocalDate scheduleDate, BigDecimal cartonTareWeight) {
+        , String transportationReferenceNumber, LocalDate shipmentDate, BigDecimal cartonTareWeight) {
         this.customerCode = customerCode;
         this.locationCode = locationCode;
         this.productType = productType;
         this.createEmployeeId = createEmployeeId;
         this.transportationReferenceNumber = transportationReferenceNumber;
-        this.scheduleDate = scheduleDate;
+        this.shipmentDate = shipmentDate;
         this.cartonTareWeight = cartonTareWeight;
 
         checkValid();
@@ -55,12 +55,13 @@ public class CreateShipmentCommand implements Validatable {
             throw new IllegalArgumentException("Create employee ID is required");
         }
 
-        if(scheduleDate == null){
-            throw new IllegalArgumentException("Schedule date is required");
+
+        if(shipmentDate == null){
+            throw new IllegalArgumentException("Shipment date is required");
         }
 
-        if(scheduleDate.isBefore(LocalDate.now())){
-            throw new IllegalArgumentException("Schedule date must be in the future");
+        if(shipmentDate.isBefore(LocalDate.now())){
+            throw new IllegalArgumentException("Shipment date must be in the future");
         }
 
     }

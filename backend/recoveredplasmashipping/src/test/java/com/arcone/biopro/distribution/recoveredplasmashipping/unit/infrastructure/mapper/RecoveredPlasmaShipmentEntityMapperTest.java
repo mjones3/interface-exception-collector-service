@@ -39,7 +39,6 @@ class RecoveredPlasmaShipmentEntityMapperTest {
         assertEquals(entity.getCloseEmployeeId(), result.getCloseEmployeeId());
         assertEquals(entity.getCloseDate(), result.getCloseDate());
         assertEquals(entity.getTransportationReferenceNumber(), result.getTransportationReferenceNumber());
-        assertEquals(entity.getScheduleDate(), result.getScheduleDate());
         assertEquals(entity.getShipmentDate(), result.getShipmentDate());
         assertEquals(entity.getCartonTareWeight(), result.getCartonTareWeight());
         assertEquals(entity.getUnsuitableUnitReportDocumentStatus(), result.getUnsuitableUnitReportDocumentStatus());
@@ -78,7 +77,6 @@ class RecoveredPlasmaShipmentEntityMapperTest {
         assertEquals(shipment.getCloseEmployeeId(), result.getCloseEmployeeId());
         assertEquals(shipment.getCloseDate(), result.getCloseDate());
         assertEquals(shipment.getTransportationReferenceNumber(), result.getTransportationReferenceNumber());
-        assertEquals(shipment.getScheduleDate(), result.getScheduleDate());
         assertEquals(shipment.getShipmentDate(), result.getShipmentDate());
         assertEquals(shipment.getCartonTareWeight(), result.getCartonTareWeight());
         assertEquals(shipment.getUnsuitableUnitReportDocumentStatus(), result.getUnsuitableUnitReportDocumentStatus());
@@ -111,8 +109,7 @@ class RecoveredPlasmaShipmentEntityMapperTest {
             .closeEmployeeId("EMP456")
             .closeDate(ZonedDateTime.now())
             .transportationReferenceNumber("TRN123")
-            .scheduleDate(LocalDate.now())
-            .shipmentDate(ZonedDateTime.now().now())
+            .shipmentDate(LocalDate.now())
             .cartonTareWeight(new BigDecimal(10.5))
             .unsuitableUnitReportDocumentStatus("COMPLETED")
             .customerCode("CUST123")
@@ -145,8 +142,7 @@ class RecoveredPlasmaShipmentEntityMapperTest {
         Mockito.when(model.getCloseEmployeeId()).thenReturn("EMP456");
         Mockito.when(model.getCloseDate()).thenReturn(ZonedDateTime.now());
         Mockito.when(model.getTransportationReferenceNumber()).thenReturn("TRN123");
-        Mockito.when(model.getScheduleDate()).thenReturn(LocalDate.now());
-        Mockito.when(model.getShipmentDate()).thenReturn(ZonedDateTime.now());
+        Mockito.when(model.getShipmentDate()).thenReturn(LocalDate.now());
         Mockito.when(model.getCartonTareWeight()).thenReturn(new BigDecimal(10.5));
         Mockito.when(model.getUnsuitableUnitReportDocumentStatus()).thenReturn("COMPLETED");
 

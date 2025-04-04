@@ -61,6 +61,7 @@ describe('CreateShipmentComponent', () => {
         component = fixture.componentInstance;
         shipmentService = TestBed.inject(RecoveredPlasmaShipmentService);
         dialogRef = TestBed.inject(MatDialogRef<CreateShipmentComponent>);
+        router = TestBed.inject(Router);
         recoveredPlasmaService = TestBed.inject(RecoveredPlasmaService);
         toastr = TestBed.inject(ToastrImplService);
         jest.spyOn(shipmentService, 'getProductTypeOptions').mockReturnValue(
@@ -88,9 +89,7 @@ describe('CreateShipmentComponent', () => {
     });
 
     it('should display mat error if date entered is less than min date', () => {
-        const formControl = component.createShipmentForm.get(
-            'scheduledShipmentDate'
-        );
+        const formControl = component.createShipmentForm.get('shipmentDate');
         const minDate = new Date(2024, 11, 26);
         formControl.setValue(minDate);
         formControl.markAsTouched();
@@ -167,16 +166,14 @@ describe('CreateShipmentComponent', () => {
 
     it('should enable submit button when form is valid', () => {
         const formControl = component.createShipmentForm;
-        const scheduledShipmentDate = new Date(2030, 11, 11);
+        const shipmentDate = new Date(2030, 11, 11);
         formControl.get('customerName').setValue('sunrise');
         formControl.get('customerName').updateValueAndValidity();
         formControl.get('productType').enable();
         formControl.get('productType').setValue('plasma');
         formControl.get('cartonTareWeight').setValue(11);
         formControl.get('transportationReferenceNumber').setValue('');
-        formControl
-            .get('scheduledShipmentDate')
-            .setValue(scheduledShipmentDate.toISOString());
+        formControl.get('shipmentDate').setValue(shipmentDate.toISOString());
         formControl.markAsTouched();
         formControl.updateValueAndValidity();
         fixture.detectChanges();
@@ -229,7 +226,7 @@ describe('CreateShipmentComponent', () => {
         );
     }));
 
-    it('should not close dialog or navigate if no success notification', () => {
+    it('should close dialog and not navigate if no success notification', () => {
         jest.spyOn(toastr, 'show');
         jest.spyOn(
             shipmentService,
@@ -258,17 +255,19 @@ describe('CreateShipmentComponent', () => {
         );
 
         component.createShipmentForm.get('productType').enable();
+        const routerSpy = jest.spyOn(router, 'navigateByUrl');
 
         // Set valid form values
         component.createShipmentForm.patchValue({
             customerName: 'testCustomer',
             productType: 'testProduct',
             cartonTareWeight: 10.5,
-            scheduledShipmentDate: new Date('2029-12-31'),
+            shipmentDate: new Date('2029-12-31'),
             transportaionReferenceNumber: 'REF123',
         });
         component.submit();
-        expect(component.dialogRef.close).not.toHaveBeenCalled();
+        expect(component.dialogRef.close).toHaveBeenCalled();
+        expect(routerSpy).not.toHaveBeenCalled();
     });
 
     it('should handle successful shipment creation', () => {
@@ -296,7 +295,7 @@ describe('CreateShipmentComponent', () => {
                             id: 4,
                             locationCode: '123456789',
                             productType: 'RP_NONINJECTABLE_REFRIGERATED',
-                            scheduleDate: '2025-04-23',
+                            shipmentDate: '2025-04-23',
                             shipmentNumber: '27654',
                             status: 'OPEN',
                         },
@@ -319,7 +318,7 @@ describe('CreateShipmentComponent', () => {
             customerName: 'testCustomer',
             productType: 'testProduct',
             cartonTareWeight: 10.5,
-            scheduledShipmentDate: new Date('2029-12-31'),
+            shipmentDate: new Date('2029-12-31'),
             transportaionReferenceNumber: 'REF123',
         });
         component.submit();

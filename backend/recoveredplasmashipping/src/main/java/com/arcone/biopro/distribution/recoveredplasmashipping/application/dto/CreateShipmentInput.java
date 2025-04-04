@@ -13,7 +13,7 @@ public record CreateShipmentInput(
     String productType,
     String createEmployeeId,
     String transportationReferenceNumber,
-    LocalDate scheduleDate,
+    LocalDate shipmentDate,
     BigDecimal cartonTareWeight
 
 ) implements Serializable {

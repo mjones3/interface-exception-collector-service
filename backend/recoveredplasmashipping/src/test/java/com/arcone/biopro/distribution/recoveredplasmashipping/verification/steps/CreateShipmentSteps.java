@@ -5,7 +5,6 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.verification.pages
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.DatabaseQueries;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.DatabaseService;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.SharedContext;
-import graphql.Assert;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
@@ -14,6 +13,7 @@ import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.Assert;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -64,11 +64,11 @@ public class CreateShipmentSteps {
         String cartonTareWeight = fields.get("Carton Tare Weight");
         createShipmentPage.setCartonTareWeight(cartonTareWeight);
 
-        String scheduledShipmentDate = fields.get("Scheduled Shipment Date");
-        if (scheduledShipmentDate.equals("<tomorrow>")) {
+        String shipmentDate = fields.get("Shipment Date");
+        if (shipmentDate.equals("<tomorrow>")) {
             LocalDate tomorrow = LocalDate.now().plusDays(1);
-            scheduledShipmentDate = tomorrow.format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
-            createShipmentPage.setShipmentDate(scheduledShipmentDate);
+            shipmentDate = tomorrow.format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+            createShipmentPage.setShipmentDate(shipmentDate);
 
             String transportationRefNumber = fields.get("Transportation Reference Number");
             createShipmentPage.setTransportationRefNumber(transportationRefNumber);
@@ -95,10 +95,10 @@ public class CreateShipmentSteps {
         Map<String, String> fields = dataTable.asMap(String.class, String.class);
 
 
-        String scheduledShipmentDate = fields.get("Scheduled Shipment Date");
-        if (scheduledShipmentDate.equals("<tomorrow>")) {
+        String shipmentDate = fields.get("Shipment Date");
+        if (shipmentDate.equals("<tomorrow>")) {
             LocalDate tomorrow = LocalDate.now().plusDays(1);
-            scheduledShipmentDate = tomorrow.toString();
+            shipmentDate = tomorrow.toString();
         }
 
         String transportationRefNumber = fields.get("Transportation Reference Number");
@@ -112,7 +112,7 @@ public class CreateShipmentSteps {
             "\"" + fields.get("Customer Code") + "\"",
             "\"" + fields.get("Product Type") + "\"",
             Float.valueOf(fields.get("Carton Tare Weight")),
-            "\"" + scheduledShipmentDate + "\"",
+            "\"" + shipmentDate + "\"",
             transportationRefNumber,
             "\"" + fields.get("Location Code") + "\""
         );
@@ -125,7 +125,7 @@ public class CreateShipmentSteps {
         String customerCode = fields.get("customer_code");
         String productType = fields.get("product_type");
         String cartonTareWeight = fields.get("carton_tare_weight");
-        String scheduledShipmentDate = fields.get("scheduled_shipment_date");
+        String shipmentDate = fields.get("shipment_date");
         String transportationRefNumber = fields.get("transportation_reference_number");
         String locationCode = fields.get("location_code");
         String status = fields.get("status");
@@ -143,7 +143,7 @@ public class CreateShipmentSteps {
         Assert.assertTrue(
             createShipmentController.verifyIfNullNotNullOrValue(createDate, newShipment.get("create_date")));
         Assert.assertTrue(
-            createShipmentController.verifyIfNullNotNullOrValue(scheduledShipmentDate, newShipment.get("schedule_date")));
+            createShipmentController.verifyIfNullNotNullOrValue(shipmentDate, newShipment.get("shipment_date")));
         Assert.assertTrue(
             createShipmentController.verifyIfNullNotNullOrValue(transportationRefNumber, newShipment.get("transportation_reference_number")));
 
@@ -168,7 +168,7 @@ public class CreateShipmentSteps {
         var lastShipmentCount = sharedContext.getLastShipmentNumber();
         var responseShipmentNumber = sharedContext.getShipmentCreateResponse().get("shipmentNumber");
 
-        assert responseShipmentNumber.equals(shipentNumberPrefix + (lastShipmentCount + 1));
+        Assert.assertEquals(responseShipmentNumber,shipentNumberPrefix + (lastShipmentCount + 1));
 
     }
 }

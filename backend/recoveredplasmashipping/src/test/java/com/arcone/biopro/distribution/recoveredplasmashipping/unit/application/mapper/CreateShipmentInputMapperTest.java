@@ -37,7 +37,7 @@ class CreateShipmentInputMapperTest {
             .customerCode("CUST001")
             .productType("PLASMA_TYPE_A")
             .transportationReferenceNumber("TRN001")
-            .scheduleDate(scheduleDate)
+            .shipmentDate(scheduleDate)
             .cartonTareWeight(BigDecimal.valueOf(15.5))
             .createEmployeeId("EMP001")
             .build();
@@ -52,7 +52,7 @@ class CreateShipmentInputMapperTest {
             () -> assertThat(result.getCustomerCode()).isEqualTo(input.customerCode()),
             () -> assertThat(result.getProductType()).isEqualTo(input.productType()),
             () -> assertThat(result.getTransportationReferenceNumber()).isEqualTo(input.transportationReferenceNumber()),
-            () -> assertThat(result.getScheduleDate()).isEqualTo(input.scheduleDate()),
+            () -> assertThat(result.getShipmentDate()).isEqualTo(input.shipmentDate()),
             () -> assertThat(result.getCartonTareWeight()).isEqualTo(input.cartonTareWeight()),
             () -> assertThat(result.getCreateEmployeeId()).isEqualTo(input.createEmployeeId())
         );

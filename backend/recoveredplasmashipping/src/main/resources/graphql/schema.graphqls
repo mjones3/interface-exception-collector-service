@@ -19,15 +19,13 @@ input InputQuerySortDTO {
 }
 
 input CreateShipmentRequestDTO {
-
     locationCode:String
     customerCode:String
     productType:String
     transportationReferenceNumber:String
-    scheduleDate:Date
+    shipmentDate:Date
     cartonTareWeight:Float
     createEmployeeId:String
-
 }
 
 type OutputQuerySortDTO {

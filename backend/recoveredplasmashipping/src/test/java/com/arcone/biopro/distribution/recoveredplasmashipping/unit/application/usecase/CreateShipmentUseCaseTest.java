@@ -79,7 +79,9 @@ class CreateShipmentUseCaseTest {
         var locationMock = Mockito.mock(Location.class);
         Mockito.when(locationMock.getCode()).thenReturn("CODE");
         Mockito.when(locationMock.findProperty(Mockito.eq("RPS_USE_PARTNER_PREFIX"))).thenReturn(Optional.of(new LocationProperty(1L, "RPS_USE_PARTNER_PREFIX", "Y")));
+        Mockito.when(locationMock.findProperty(Mockito.eq("RPS_PARTNER_PREFIX"))).thenReturn(Optional.of(new LocationProperty(1L, "RPS_PARTNER_PREFIX", "BPM")));
         Mockito.when(locationMock.findProperty(Mockito.eq("RPS_LOCATION_SHIPMENT_CODE"))).thenReturn(Optional.of(new LocationProperty(1L, "RPS_LOCATION_SHIPMENT_CODE", "ABC")));
+
 
 
         Mockito.when(recoveredPlasmaShippingRepository.getNextShipmentId()).thenReturn(Mono.just(1L));

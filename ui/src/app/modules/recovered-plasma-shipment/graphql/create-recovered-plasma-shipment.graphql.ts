@@ -39,7 +39,7 @@ export const CREATE_RECOVERED_PLASMA_SHIPMENT = gql<
         $locationCode: String!
         $productType: String!
         $cartonTareWeight: Float!
-        $scheduleDate: Date!
+        $shipmentDate: Date!
         $transportationReferenceNumber: String
         $createEmployeeId: String!
     ) {
@@ -48,7 +48,7 @@ export const CREATE_RECOVERED_PLASMA_SHIPMENT = gql<
                 customerCode: $customerCode
                 productType: $productType
                 cartonTareWeight: $cartonTareWeight
-                scheduleDate: $scheduleDate
+                shipmentDate: $shipmentDate
                 transportationReferenceNumber: $transportationReferenceNumber
                 locationCode: $locationCode
                 createEmployeeId: $createEmployeeId
