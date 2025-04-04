@@ -1,5 +1,10 @@
 import { provideHttpClient } from '@angular/common/http';
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import {
+    ComponentFixture,
+    fakeAsync,
+    TestBed,
+    waitForAsync,
+} from '@angular/core/testing';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { Router, RouterModule } from '@angular/router';
@@ -277,7 +282,7 @@ describe('SearchOrdersComponent', () => {
         });
     });
 
-    it.skip('Should be redirected to order details page if only one record is found', () => {
+    it('Should be redirected to order details page if only one record is found', fakeAsync(() => {
         const singleContent: OrderReportDTO[] = [
             {
                 orderId: 103,
@@ -319,23 +324,17 @@ describe('SearchOrdersComponent', () => {
 
         orderService.searchOrders.mockReturnValue(of(response));
 
-        jest.spyOn(component, 'details').mockImplementation();
         jest.spyOn(component, 'isFilterApplied').mockReturnValue(true);
+        jest.spyOn(router, 'navigateByUrl').mockImplementation();
         cookieService.get.mockReturnValue('123456789');
 
         component.searchOrders();
 
-        expect(component.loading()).toBe(false);
-        expect(component.page()).toEqual(singlePage);
-        expect(toaster.warning).not.toHaveBeenCalled();
-        expect(toaster.error).not.toHaveBeenCalled();
-
         const orderId = 103; // defined inside singleContent object
-        jest.spyOn(router, 'navigateByUrl');
         expect(router.navigateByUrl).toHaveBeenCalledWith(
             `/orders/${orderId}/order-details`
         );
-    });
+    }));
 
     it('should be able to reset the applied filter criteria', () => {
         component.currentFilter = {

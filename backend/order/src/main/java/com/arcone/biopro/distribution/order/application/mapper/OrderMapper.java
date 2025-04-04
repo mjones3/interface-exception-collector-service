@@ -12,6 +12,7 @@ import com.arcone.biopro.distribution.order.domain.service.OrderShipmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -26,6 +27,7 @@ public class OrderMapper {
     private final LookupService lookupService;
     private final OrderConfigService orderConfigService;
     private final OrderShipmentService orderShipmentService;
+    private static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     public OrderResponseDTO  mapToDTO(final UseCaseResponseDTO<Order> useCaseResponse) {
 
@@ -114,7 +116,7 @@ public class OrderMapper {
             orderDTO.status(),
             orderDTO.priority(),
             orderDTO.createEmployeeId(),
-            orderDTO.createDate(),
+            ofNullable(orderDTO.createDate()).map(dateTime -> DateTimeFormatter.ofPattern(DATE_TIME_FORMAT).format(dateTime)).orElse(null),
             orderDTO.modificationDate(),
             orderDTO.deleteDate());
 
