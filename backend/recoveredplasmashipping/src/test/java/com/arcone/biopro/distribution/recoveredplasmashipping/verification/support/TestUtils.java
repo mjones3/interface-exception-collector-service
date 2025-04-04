@@ -52,4 +52,10 @@ public class TestUtils {
         return Arrays.stream(param.split(",")).map(String::trim).toArray(String[]::new);
     }
 
+    public String parseCommaSeparatedStringToGraphqlArrayList(String param){
+        var paramList = getCommaSeparatedList(param);
+        var formattedParam = String.join("\", \"", paramList);
+        return String.format("[\"%s\"]", formattedParam);
+    }
+
 }

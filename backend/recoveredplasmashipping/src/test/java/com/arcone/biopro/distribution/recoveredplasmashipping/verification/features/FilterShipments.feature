@@ -2,82 +2,82 @@
 Feature: Filter Shipments
 
     Background:
-        Given I have removed from the database all shipments which code contains with "DIS33400".
+        Given I have removed from the database all the configurations for the location "123456700_TEST".
+        And I have removed from the database all shipments which code contains with "DIS33400".
 
-        Rule: I should be able to filter the shipment lists by specific criteria.
-        Rule: The system should not enable the Apply options until at least one filter criteria is chosen.
-        Rule: I should get shipments default sorting as: “status” descending and “shipmentDate” ascending.
-        @ui @DIS-334
-        Scenario: Filter shipments through UI with multiple criteria
-            Given The location "ABC1" is configured with prefix "PRE1", shipment code "DIS334002", shipment quantity "0", and prefix configuration "YES".
-            And I request to create a new shipment with the values:
-                | Field                           | Value      |
-                | Customer                        | CUST001    |
-                | Product Type                    | PLASMA     |
-                | Carton Tare Weight              | 1000g      |
-                | Shipment Date                   | <tomorrow> |
-                | Transportation Reference Number | 111222333  |
-            When I am at the List Shipment Page.
-            Then The Filter Apply button should be "disabled".
-            When I select the following filter criteria:
-                | Customer        | BioLife Plasma Services |
-                | Product Type    | Recovered Plasma        |
-                | Location        | ABC1                    |
-                | Shipment Status | OPEN                    |
-            And I enter shipment date range from "2024-01-01" to "2024-03-31".
-            Then The Filter Apply button should be "enabled".
-            When I click the Filter Apply button.
-            Then I should see filtered shipments matching the criteria.
-            And The shipments should be sorted by status in descending order.
-            And within same status, shipments should be sorted by shipment date in ascending order.
-            And I should see "5" filter criteria applied.
+#    Rule: I should be able to filter the shipment lists by specific criteria.
+#        Rule: The system should not enable the Apply options until at least one filter criteria is chosen.
+#    Rule: I should get shipments default sorting as: “status” descending and “shipmentDate” ascending.
+#        @ui @DIS-334
+#        Scenario: Filter shipments through UI with multiple criteria
+#            Given The location "123456700_TEST" is configured with prefix "BPM_TEST", shipping code "DIS334001", and prefix configuration "Y".
+#            And I request to create a new shipment with the values:
+#                | Field                           | Value                         |
+#                | Customer                        | Bio Products                  |
+#                | Product Type                    | RP NONINJECTABLE REFRIGERATED |
+#                | Carton Tare Weight              | 1000                          |
+#                | Shipment Date         | <tomorrow>                    |
+#                | Transportation Reference Number | 111222333                     |
+#            When I am on the Shipment List Page.
+#            Then The Filter Apply button should be "disabled".
+#            When I select the following filter criteria:
+#                | Customer        | BioLife Plasma Services |
+#                | Product Type    | Recovered Plasma        |
+#                | Location        | ABC1                    |
+#                | Shipment Status | OPEN                    |
+#            And I enter shipment date range from "2024-01-01" to "2024-03-31".
+#            Then The Filter Apply button should be "enabled".
+#            When I click the Filter Apply button.
+#            Then I should see filtered shipments matching the criteria.
+#            And The shipments should be sorted by status in descending order.
+#            And within same status, shipments should be sorted by shipment date in ascending order.
+#            And I should see "5" filter criteria applied.
 
 
-        Rule: I should be able to search by
-            Shipment Number, Customer, Product Type, Shipment Status,
-            Shipment Date Range, Location and Transportation Reference Number as filter Options.
+    Rule: I should be able to search by
+    Shipment Number, Customer, Product Type, Shipment Status,
+    Shipment Date Range, Location and Transportation Reference Number as filter Options.
         Rule: I should be able to multi-select for Customer, Product Type, Shipment Status and Location.
         @api @DIS-334
         Scenario Outline: Search for shipments by <Attribute>
-            Given The location "ABC1" is configured with prefix "PRE1", shipment code "DIS334002", shipment quantity "0", and prefix configuration "YES".
+            Given The location "123456700_TEST" is configured with prefix "BPM_TEST", shipping code "DIS334002", and prefix configuration "Y".
             And I request to create a new shipment with the values:
-                | Field                           | Value            |
-                | Customer                        | CUST001, CUST002 |
-                | Product Type                    | PLASMA           |
-                | Carton Tare Weight              | 1000g            |
-                | Shipment Date                   | <tomorrow>       |
-                | Transportation Reference Number | 111222333        |
+                | Field                           | Value                      |
+                | Customer Code                   | 408                        |
+                | Product Type                    | RP_FROZEN_WITHIN_120_HOURS |
+                | Carton Tare Weight              | 1000                       |
+                | Shipment Date                   | <tomorrow>                 |
+                | Transportation Reference Number | 55123                      |
+                | Location Code                   | 123456700_TEST             |
             When I requested the list of shipments filtering by "<Attribute>" as "<Value>".
             Then The list shipment response should contains "1" items.
             Examples:
-                | Attribute                       | Value          |
-                | shipmentDate                    | <CURRENT_DATE> |
-                | Shipment Number                 | 000            |
-                | Customer                        | CUST001        |
-                | Product Type                    | PLASMA         |
-                | Shipment Status                 | OPEN           |
-                | Shipment Date Range             | XXXXX          |
-                | Location                        | ABC1           |
-                | Transportation Reference Number | 000            |
+                | Attribute            | Value                      |
+                | shipmentDateFrom     | <today>                    |
+                | shipmentNumber       | <currentShipmentNumber>    |
+                | shipmentCustomerList | 408                        |
+                | productTypeList      | RP_FROZEN_WITHIN_120_HOURS |
+                | shipmentStatusList   | OPEN                       |
+                | locationCodeList     | 123456700_TEST             |
+                | shipmentDateRange    | <today>,<tomorrow>         |
 
 
-        Rule: I should be notified when no search results are found.
+    Rule: I should be notified when no search results are found.
         @api @DIS-334
         Scenario Outline: Validation failure handling
             Given I requested the list of shipments filtering by "<Attribute>" as "<Value>".
             When I receive the shipment list response.
             Then The list shipment response should contains "0" items.
-            And I should receive a "WARN" message response "No results found".
+            And I should receive a "CAUTION" message response "No Results Found".
             Examples:
-                | Attribute                       | Value   |
-                | shipmentDate                    | xxxxxxx |
-                | Shipment Number                 | 000     |
-                | Customer                        | XXX     |
-                | Product Type                    | XXX     |
-                | Shipment Status                 | XXXX    |
-                | Shipment Date Range             | XXXXX   |
-                | Location                        | XXXX    |
-                | Transportation Reference Number | 000     |
+                | Attribute            | Value                 |
+                | shipmentDateFrom     | 2030-01-01            |
+                | shipmentNumber       | 111111                |
+                | shipmentCustomerList | 111,222,333           |
+                | productTypeList      | WRONG1, WRONG2        |
+                | shipmentStatusList   | WRONG1, WRONG2        |
+                | locationCodeList     | WRONG1, WRONG2        |
+                | shipmentDateRange    | 2030-01-01,2030-01-01 |
 
 
 

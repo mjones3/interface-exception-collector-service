@@ -395,7 +395,7 @@ public class CustomerTest {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->  new Customer(null, null, null, "", "", null, null, null, null,
             null, "", "", "", "US", "", null, "", null,
             null, null, null));
-        assert exception.getMessage().equals("Code cannot be null or blank");
+        assertEquals("Code cannot be null or blank", exception.getMessage());
     }
 
     /**
@@ -422,7 +422,7 @@ public class CustomerTest {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->  new Customer(1L, "externalId", "customerType", "", "", "departmentCode", "departmentName",
             "foreignFlag", "phoneNumber", "contactName", "", "", "", "",
             "", "district", "Valid Address", "addressLine2", true, null, null));
-        assert "Code cannot be null or blank".equals(exception.getMessage());
+        assertEquals("Code cannot be null or blank",exception.getMessage());
     }
 
     /**
@@ -436,7 +436,7 @@ public class CustomerTest {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new Customer(1L, "externalId", "customerType", "", "", "departmentCode",
             "departmentName", "foreignFlag", "phoneNumber", "contactName", "", "12345",
             "", "", "", "district", "", "addressLine2", true, null, null));
-        assert exception.getMessage().equals("Code cannot be null or blank");
+        assertEquals("Code cannot be null or blank", exception.getMessage());
     }
 
     /**

@@ -41,7 +41,7 @@ public class CreateShipmentSteps {
         log.info("Removing shipments containing code: {}", code);
     }
 
-    @Given("I am on the Shipment Create Page.")
+    @Given("I am on the Shipment Create/List Page.")
     public void navigateToShipmentCreatePage() throws InterruptedException {
         createShipmentPage.goTo();
     }
@@ -99,6 +99,9 @@ public class CreateShipmentSteps {
         if (shipmentDate.equals("<tomorrow>")) {
             LocalDate tomorrow = LocalDate.now().plusDays(1);
             shipmentDate = tomorrow.toString();
+        } else if (shipmentDate.equals("<today>")) {
+            LocalDate today = LocalDate.now();
+            shipmentDate = today.toString();
         }
 
         String transportationRefNumber = fields.get("Transportation Reference Number");
@@ -133,12 +136,12 @@ public class CreateShipmentSteps {
 
         var newShipment = databaseService.fetchData(DatabaseQueries.FETCH_SHIPMENT_BY_ID(sharedContext.getLastShipmentId() + 1)).first().block();
 
-        assert newShipment != null;
-        assert customerCode.equals(newShipment.get("customer_code").toString());
-        assert productType.equals(newShipment.get("product_type").toString());
-        assert cartonTareWeight.equals(newShipment.get("carton_tare_weight").toString());
-        assert locationCode.equals(newShipment.get("location_code").toString());
-        assert status.equals(newShipment.get("status").toString());
+        Assert.assertNotNull(newShipment);
+        Assert.assertEquals(customerCode, newShipment.get("customer_code").toString());
+        Assert.assertEquals(productType, newShipment.get("product_type").toString());
+        Assert.assertEquals(cartonTareWeight, newShipment.get("carton_tare_weight").toString());
+        Assert.assertEquals(locationCode, newShipment.get("location_code").toString());
+        Assert.assertEquals(status, newShipment.get("status").toString());
 
         Assert.assertTrue(
             createShipmentController.verifyIfNullNotNullOrValue(createDate, newShipment.get("create_date")));
