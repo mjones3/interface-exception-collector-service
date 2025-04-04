@@ -24,6 +24,8 @@ Feature: Get all available inventories
             | W036825003017 | 1     | PLASMA_TRANSFUSABLE          | OP    | LOCATION_3 | 31              | REFRIGERATED         |
             | W036825003018 | 1     | PLASMA_TRANSFUSABLE          | OP    | LOCATION_3 | 2               | FROZEN               |
             | W036825003019 | 1     | PLASMA_TRANSFUSABLE          | OP    | LOCATION_3 | 31              | FROZEN               |
+            | W036825003020 | 1     | PLASMA_MFG_NONINJECTABLE     | OP    | LOCATION_4 | 1               | FROZEN               |
+            | W036825003021 | 1     | PLASMA_MFG_INJECTABLE        | OP    | LOCATION_4 | 1               | FROZEN               |
 
         When I request available inventories for family with the following parameters:
             | Product Family   | Abo Rh Type   | Location   | Temperature Category   |
@@ -59,6 +61,12 @@ Feature: Get all available inventories
             | 4        | PLASMA_TRANSFUSABLE | ANY         | LOCATION_3 | 2                   |                      |
             | 2        | PLASMA_TRANSFUSABLE | ANY         | LOCATION_3 | 1                   | REFRIGERATED         |
             | 2        | PLASMA_TRANSFUSABLE | ANY         | LOCATION_3 | 1                   | FROZEN               |
+
+        @LAB-415
+        Examples:
+            | Quantity | Product Family           | Abo Rh Type | Location   | Short Date Quantity | Temperature Category |
+            | 1        | PLASMA_MFG_NONINJECTABLE | ANY         | LOCATION_4 | 0                   |                      |
+            | 1        | PLASMA_MFG_INJECTABLE    | ANY         | LOCATION_4 | 0                   | FROZEN               |
 
     @LAB-81 @AOA-75 @LAB-257 @AOA-152
     Scenario: Get all available inventories grouped
