@@ -86,7 +86,7 @@ class ShipmentSearchUseCaseTest {
             .expectNextMatches(result ->
                 result.notifications() != null &&
                     result.notifications().size() == 1 &&
-                    result.notifications().get(0).useCaseMessage().getType() == UseCaseNotificationType.WARN &&
+                    result.notifications().get(0).useCaseMessage().getType() == UseCaseNotificationType.CAUTION &&
                     result.data() == null
             )
             .verifyComplete();
@@ -114,7 +114,7 @@ class ShipmentSearchUseCaseTest {
             .expectNextMatches(result ->
                 result.notifications() != null &&
                     result.notifications().size() == 1 &&
-                    result.notifications().get(0).useCaseMessage().getType() == UseCaseNotificationType.WARN &&
+                    result.notifications().get(0).useCaseMessage().getType() == UseCaseNotificationType.CAUTION &&
                     result.data() == null
             )
             .verifyComplete();
@@ -140,7 +140,7 @@ class ShipmentSearchUseCaseTest {
             .expectNextMatches(result ->
                 result.notifications() != null &&
                     result.notifications().size() == 1 &&
-                    result.notifications().get(0).useCaseMessage().getType() == UseCaseNotificationType.WARN &&
+                    result.notifications().get(0).useCaseMessage().getType() == UseCaseNotificationType.CAUTION &&
                     result.notifications().get(0).useCaseMessage().getMessage().equals("Test error") &&
                     result.data() == null
             )

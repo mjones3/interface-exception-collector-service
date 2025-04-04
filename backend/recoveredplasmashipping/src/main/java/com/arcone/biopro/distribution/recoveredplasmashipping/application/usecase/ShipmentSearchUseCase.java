@@ -48,7 +48,7 @@ public class ShipmentSearchUseCase implements RecoveredPlasmaShipmentReportServi
     private UseCaseOutput<PageOutput<RecoveredPlasmaShipmentReportOutput>> buildErrorResponse(Throwable error) {
         return new UseCaseOutput<>(List.of(UseCaseNotificationOutput
             .builder()
-            .useCaseMessage(new UseCaseMessage(4, UseCaseNotificationType.WARN, error.getMessage()))
+            .useCaseMessage(new UseCaseMessage(4, UseCaseNotificationType.CAUTION, error.getMessage()))
             .build()), null, null);
 
     }
