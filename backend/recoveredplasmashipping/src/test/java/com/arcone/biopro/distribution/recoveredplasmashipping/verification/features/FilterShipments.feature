@@ -52,14 +52,15 @@ Feature: Filter Shipments
             When I requested the list of shipments filtering by "<Attribute>" as "<Value>".
             Then The list shipment response should contains "1" items.
             Examples:
-                | Attribute            | Value                      |
-                | shipmentDateFrom     | <today>                    |
-                | shipmentNumber       | <currentShipmentNumber>    |
-                | shipmentCustomerList | 408                        |
-                | productTypeList      | RP_FROZEN_WITHIN_120_HOURS |
-                | shipmentStatusList   | OPEN                       |
-                | locationCodeList     | 123456700_TEST             |
-                | shipmentDateRange    | <today>,<tomorrow>         |
+                | Attribute                     | Value                      |
+                | shipmentDateFrom              | <today>                    |
+                | shipmentNumber                | <currentShipmentNumber>    |
+                | shipmentCustomerList          | 408                        |
+                | productTypeList               | RP_FROZEN_WITHIN_120_HOURS |
+                | shipmentStatusList            | OPEN                       |
+                | locationCodeList              | 123456700_TEST             |
+                | shipmentDateRange             | <today>,<tomorrow>         |
+                | transportationReferenceNumber | 55123                      |
 
 
     Rule: I should be notified when no search results are found.

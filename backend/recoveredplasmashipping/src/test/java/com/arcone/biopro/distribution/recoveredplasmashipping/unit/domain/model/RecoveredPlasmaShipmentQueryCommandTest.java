@@ -23,8 +23,6 @@ class RecoveredPlasmaShipmentQueryCommandTest {
         List<String> shipmentStatus = List.of("OPEN");
         List<String> customers = List.of("CUST1");
         List<String> productTypes = List.of("TYPE1");
-        LocalDate dateFrom = LocalDate.now().minusDays(5);
-        LocalDate dateTo = LocalDate.now();
         QuerySort querySort = new QuerySort(List.of(new QueryOrderBy("status", "DESC")));
         Integer pageNumber = 1;
         Integer pageSize = 10;
@@ -32,7 +30,7 @@ class RecoveredPlasmaShipmentQueryCommandTest {
         // When
         RecoveredPlasmaShipmentQueryCommand command = new RecoveredPlasmaShipmentQueryCommand(
             locationCode, shipmentNumber, shipmentStatus, customers, productTypes,
-            null, null, querySort, pageNumber, pageSize
+            null, null, querySort, pageNumber, pageSize, null
         );
 
         // Then
@@ -48,7 +46,7 @@ class RecoveredPlasmaShipmentQueryCommandTest {
         assertThatThrownBy(() -> new RecoveredPlasmaShipmentQueryCommand(
             List.of("LOC1"), "SHIP001", List.of("OPEN"), List.of("CUST1"),
             List.of("TYPE1"), LocalDate.now(), LocalDate.now(),
-            null, 1, 10
+            null, 1, 10, null
         ))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("The shipmentDate must be null or empty");
@@ -63,25 +61,10 @@ class RecoveredPlasmaShipmentQueryCommandTest {
         assertThatThrownBy(() -> new RecoveredPlasmaShipmentQueryCommand(
             List.of("LOC1"), null, List.of("OPEN"), List.of("CUST1"),
             List.of("TYPE1"), dateFrom, dateTo,
-            null, 1, 10
+            null, 1, 10, null
         ))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("Initial date should not be greater than final date");
-    }
-
-    @Test
-    @DisplayName("Should throw exception when final date is in the future")
-    void shouldThrowExceptionWhenFinalDateIsInFuture() {
-        LocalDate dateFrom = LocalDate.now();
-        LocalDate dateTo = LocalDate.now().plusDays(1);
-
-        assertThatThrownBy(() -> new RecoveredPlasmaShipmentQueryCommand(
-            List.of("LOC1"), null, List.of("OPEN"), List.of("CUST1"),
-            List.of("TYPE1"), dateFrom, dateTo,
-            null, 1, 10
-        ))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("Final date should not be greater than today");
     }
 
     @Test
@@ -93,10 +76,10 @@ class RecoveredPlasmaShipmentQueryCommandTest {
         assertThatThrownBy(() -> new RecoveredPlasmaShipmentQueryCommand(
             List.of("LOC1"), null, List.of("OPEN"), List.of("CUST1"),
             List.of("TYPE1"), dateFrom, dateTo,
-            null, 1, 10
+            null, 1, 10, null
         ))
             .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("Date range exceeds two years");
+            .hasMessage("Shipment date range exceeds 2 years");
     }
 
     @Test
@@ -108,7 +91,7 @@ class RecoveredPlasmaShipmentQueryCommandTest {
         // When
         RecoveredPlasmaShipmentQueryCommand command = new RecoveredPlasmaShipmentQueryCommand(
             locationCode, null, null, null, null,
-            null, null, null, null, null
+            null, null, null, null, null, null
         );
 
         // Then
@@ -123,7 +106,7 @@ class RecoveredPlasmaShipmentQueryCommandTest {
     void shouldThrowExceptionWhenPageSizeIsInvalid() {
         assertThatThrownBy(() -> new RecoveredPlasmaShipmentQueryCommand(
             List.of("LOC1"), null, List.of("OPEN"), null, null,
-            null, null, null, 0, 0
+            null, null, null, 0, 0, null
         ))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("pageSize must be greater than 0");
@@ -134,7 +117,7 @@ class RecoveredPlasmaShipmentQueryCommandTest {
     void shouldThrowExceptionWhenPageNumberIsInvalid() {
         assertThatThrownBy(() -> new RecoveredPlasmaShipmentQueryCommand(
             List.of("LOC1"), null, List.of("OPEN"), null, null,
-            null, null, null, -1, 10
+            null, null, null, -1, 10, null
         ))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("pageNumber must be greater than or equal to 0");
@@ -145,7 +128,7 @@ class RecoveredPlasmaShipmentQueryCommandTest {
     void shouldThrowExceptionWhenLocationIsNull() {
         assertThatThrownBy(() -> new RecoveredPlasmaShipmentQueryCommand(
             null, null, List.of("OPEN"), null, null,
-            null, null, null, -1, 10
+            null, null, null, -1, 10, null
         ))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("The locationCode must not be null or empty");
@@ -170,7 +153,7 @@ class RecoveredPlasmaShipmentQueryCommandTest {
 
         assertThatThrownBy(() -> new RecoveredPlasmaShipmentQueryCommand(
             locationCode, shipmentNumber, shipmentStatus, customers, productTypes,
-            null, null, querySort, pageNumber, pageSize
+            null, null, querySort, pageNumber, pageSize, null
         ))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("The shipmentDate must not be null or empty");

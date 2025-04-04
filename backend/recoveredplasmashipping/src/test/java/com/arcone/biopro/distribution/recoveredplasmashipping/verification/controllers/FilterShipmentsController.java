@@ -33,6 +33,7 @@ public class FilterShipmentsController {
                 null,
                 null,
                 null,
+                null,
                 null
         ), "searchShipment");
         sharedContext.setApiListMessageResponse((List<Map>) (response.get("notifications")));
@@ -66,15 +67,19 @@ public class FilterShipmentsController {
         var shipmentTo = attributeKey.equals("shipmentDateRange")
                 ? utils.getCommaSeparatedList(attributeValue)[1]
                 : null;
+        var transportationReferenceNumber = attributeKey.equals("transportationReferenceNumber")
+                ? attributeValue
+                : null;
 
         var response = apiHelper.graphQlRequest(GraphQLQueryMapper.searchShipment(
                 locationCodeList,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
+                shipmentNumber,
+                shipmentStatusList,
+                shipmentCustomerList,
+                productTypeList,
+                shipmentFrom,
+                shipmentTo,
+                transportationReferenceNumber
         ), "searchShipment");
         sharedContext.setApiListMessageResponse((List<Map>) (response.get("notifications")));
 

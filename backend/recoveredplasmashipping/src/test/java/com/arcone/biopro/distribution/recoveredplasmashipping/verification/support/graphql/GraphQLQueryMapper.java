@@ -96,7 +96,8 @@ public class GraphQLQueryMapper {
         String customerList,
         String productTypeList,
         String shipmentDateFrom,
-        String shipmentDateTo) {
+        String shipmentDateTo,
+        String transportationReferenceNumber) {
         return String.format("""
             query SearchShipment {
                 searchShipment(
@@ -108,6 +109,7 @@ public class GraphQLQueryMapper {
                         productTypes: %s
                         shipmentDateFrom: %s
                         shipmentDateTo: %s
+                        transportationReferenceNumber: %s
                     }
                 ) {
                     _links
@@ -120,6 +122,6 @@ public class GraphQLQueryMapper {
                 }
             }
 
-            """, locationCodeList, shipmentNumber, shipmentStatusList, customerList, productTypeList, shipmentDateFrom, shipmentDateTo);
+            """, locationCodeList, shipmentNumber, shipmentStatusList, customerList, productTypeList, shipmentDateFrom, shipmentDateTo, transportationReferenceNumber);
     }
 }

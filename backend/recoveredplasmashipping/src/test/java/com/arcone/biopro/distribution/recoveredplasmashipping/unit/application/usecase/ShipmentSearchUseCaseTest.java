@@ -46,7 +46,7 @@ class ShipmentSearchUseCaseTest {
         RecoveredPlasmaShipmentQueryCommand model =  new RecoveredPlasmaShipmentQueryCommand(
             List.of("LOC1"), "SHIP001", List.of("OPEN"), List.of("CUST1"),
             List.of("TYPE1"), null, null,
-            null, 1, 10
+            null, 1, 10, null
         );
         Page<RecoveredPlasmaShipmentReport> page = Mockito.mock(Page.class);
         PageOutput<RecoveredPlasmaShipmentReportOutput> pageOutput = Mockito.mock(PageOutput.class);
@@ -75,7 +75,7 @@ class ShipmentSearchUseCaseTest {
         RecoveredPlasmaShipmentQueryCommand model =  new RecoveredPlasmaShipmentQueryCommand(
             List.of("LOC1"), "SHIP001", List.of("OPEN"), List.of("CUST1"),
             List.of("TYPE1"), null, null,
-            null, 1, 10
+            null, 1, 10, null
         );
 
         Mockito.when(recoveredPlasmaShipmentQueryCommandInputMapper.toModel(input)).thenReturn(model);
@@ -100,7 +100,7 @@ class ShipmentSearchUseCaseTest {
         RecoveredPlasmaShipmentQueryCommand model =  new RecoveredPlasmaShipmentQueryCommand(
             List.of("LOC1"), "SHIP001", List.of("OPEN"), List.of("CUST1"),
             List.of("TYPE1"), null, null,
-            null, 1, 10
+            null, 1, 10, null
         );
 
         Page<RecoveredPlasmaShipmentReport> page = Mockito.mock(Page.class);
@@ -127,7 +127,7 @@ class ShipmentSearchUseCaseTest {
         RecoveredPlasmaShipmentQueryCommand model =  new RecoveredPlasmaShipmentQueryCommand(
             List.of("LOC1"), "SHIP001", List.of("OPEN"), List.of("CUST1"),
             List.of("TYPE1"), null, null,
-            null, 1, 10
+            null, 1, 10, null
         );
 
         RuntimeException testException = new RuntimeException("Test error");

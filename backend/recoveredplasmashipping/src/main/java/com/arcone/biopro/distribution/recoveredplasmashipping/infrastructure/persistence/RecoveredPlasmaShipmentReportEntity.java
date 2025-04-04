@@ -30,6 +30,9 @@ public class RecoveredPlasmaShipmentReportEntity {
     @Column("customer_name")
     private String customerName;
 
+    @Column("transportation_reference_number")
+    private String transportationReferenceNumber;
+
     @Column("location_code")
     private String locationCode;
 

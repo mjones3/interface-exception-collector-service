@@ -37,6 +37,7 @@ class RecoveredPlasmaShipmentQueryCommandInputMapperTest {
             .shipmentDateTo(LocalDate.now())
             .shipmentStatus(List.of("PENDING"))
             .productTypes(List.of("RECOVERED"))
+            .transportationReferenceNumber("999")
             .build();
 
         // When
@@ -57,6 +58,7 @@ class RecoveredPlasmaShipmentQueryCommandInputMapperTest {
         assertThat(result.getShipmentDateTo()).isEqualTo(input.shipmentDateTo());
         assertThat(result.getShipmentStatus()).isEqualTo(input.shipmentStatus());
         assertThat(result.getProductTypes()).isEqualTo(input.productTypes());
+        assertThat(result.getTransportationReferenceNumber()).isEqualTo(input.transportationReferenceNumber());
 
     }
 

@@ -117,7 +117,7 @@ class RecoveredPlasmaShippingReportControllerTest {
     private RecoveredPlasmaShipmentQueryCommandInput createCommand() {
         return new  RecoveredPlasmaShipmentQueryCommandInput(List.of("LOC1"),"SHIP001"
             , List.of("PENDING"), List.of("CUST1"), List.of("TYPE1"), LocalDate.now().minusDays(7),LocalDate.now(), null
-            , 0 ,10);
+            , 0 ,10, null);
     }
 
     private UseCaseOutput<PageOutput<RecoveredPlasmaShipmentReportOutput>> createServicePage() {

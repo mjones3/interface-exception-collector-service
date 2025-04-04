@@ -35,6 +35,7 @@ class RecoveredPlasmaShipmentReportEntityMapperTest {
             .location("location")
             .productType("productType")
             .productTypeDescription("productTypeDescription")
+            .transportationReferenceNumber("999")
             .status("OPEN")
             .build();
 
@@ -51,6 +52,7 @@ class RecoveredPlasmaShipmentReportEntityMapperTest {
         assertThat(result.getLocation()).isEqualTo(entity.getLocation());
         assertThat(result.getProductType()).isEqualTo(entity.getProductTypeDescription());
         assertThat(result.getStatus()).isEqualTo(entity.getStatus());
+        assertThat(result.getTransportationReferenceNumber()).isEqualTo(entity.getTransportationReferenceNumber());
 
 
         // Add other assertions for remaining properties

@@ -17,6 +17,7 @@ public record RecoveredPlasmaShipmentQueryCommandInput(
     LocalDate shipmentDateTo,
     QuerySortOutput querySort,
     Integer pageNumber,
-    Integer pageSize
+    Integer pageSize,
+    String transportationReferenceNumber
 ) implements Serializable {
 }

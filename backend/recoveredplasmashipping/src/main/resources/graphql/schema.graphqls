@@ -30,17 +30,17 @@ input CreateShipmentRequestDTO {
 }
 
 input RecoveredPlasmaShipmentQueryCommandRequestDTO {
-
-    locationCode:[String],
-    shipmentNumber:String,
-    shipmentStatus:[String],
-    customers:[String],
-    productTypes:[String],
-    shipmentDateFrom:Date,
-    shipmentDateTo:Date,
-    querySort:InputQuerySortDTO,
-    pageNumber:Int,
+    locationCode:[String]
+    shipmentNumber:String
+    shipmentStatus:[String]
+    customers:[String]
+    productTypes:[String]
+    shipmentDateFrom:Date
+    shipmentDateTo:Date
+    querySort:InputQuerySortDTO
+    pageNumber:Int
     pageSize:Int
+    transportationReferenceNumber:String
 }
 
 type OutputQuerySortDTO {

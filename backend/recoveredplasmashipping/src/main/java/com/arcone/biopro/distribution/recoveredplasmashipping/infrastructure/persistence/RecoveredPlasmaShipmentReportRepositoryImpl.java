@@ -54,6 +54,10 @@ public class RecoveredPlasmaShipmentReportRepositoryImpl implements RecoveredPla
             );
         }
 
+        if (recoveredPlasmaShipmentQueryCommand.getTransportationReferenceNumber() != null ) {
+            criteria = criteria.and(where("transportationReferenceNumber").is(recoveredPlasmaShipmentQueryCommand.getTransportationReferenceNumber()));
+        }
+
         var count = this.count(RecoveredPlasmaShipmentReportEntity.class, entityTemplate, criteria);
 
         return this.filter(RecoveredPlasmaShipmentReportEntity.class, entityTemplate, criteria, recoveredPlasmaShipmentQueryCommand)

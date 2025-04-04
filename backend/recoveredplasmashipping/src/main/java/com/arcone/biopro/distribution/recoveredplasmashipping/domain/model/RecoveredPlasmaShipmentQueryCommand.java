@@ -6,6 +6,7 @@ import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
 import java.util.Objects;
 
@@ -17,6 +18,7 @@ import static java.util.Optional.ofNullable;
 @ToString
 public class RecoveredPlasmaShipmentQueryCommand implements Validatable, FilterAndSortCommand {
 
+    private static final int SHIPMENT_DATE_RANGE_YEARS_LIMIT = 2;
     private static final Integer DEFAULT_PAGE_NUMBER_FIRST_PAGE = 0;
     private static final Integer DEFAULT_PAGE_SIZE = 20;
     private static final List<String> DEFAULT_STATUSES = List.of("OPEN");
@@ -36,6 +38,7 @@ public class RecoveredPlasmaShipmentQueryCommand implements Validatable, FilterA
     private final QuerySort querySort;
     private final Integer pageNumber;
     private final Integer pageSize;
+    private final String transportationReferenceNumber;
 
     public RecoveredPlasmaShipmentQueryCommand(
         List<String> locationCode,
@@ -47,7 +50,8 @@ public class RecoveredPlasmaShipmentQueryCommand implements Validatable, FilterA
         LocalDate shipmentDateTo,
         QuerySort querySort,
         Integer pageNumber,
-        Integer pageSize
+        Integer pageSize,
+        String transportationReferenceNumber
     ) {
         this.locationCode = locationCode;
         this.shipmentNumber = shipmentNumber;
@@ -64,6 +68,7 @@ public class RecoveredPlasmaShipmentQueryCommand implements Validatable, FilterA
         this.querySort = ofNullable(querySort).orElseGet(() -> new QuerySort(DEFAULT_SORTING));
         this.pageNumber = ofNullable(pageNumber).orElse(DEFAULT_PAGE_NUMBER_FIRST_PAGE);
         this.pageSize = ofNullable(pageSize).orElse(DEFAULT_PAGE_SIZE);
+        this.transportationReferenceNumber = transportationReferenceNumber;
 
         checkValid();
     }
@@ -71,7 +76,7 @@ public class RecoveredPlasmaShipmentQueryCommand implements Validatable, FilterA
     @Override
     public void checkValid() {
 
-        if(Objects.isNull(this.locationCode) || this.locationCode.isEmpty()){
+        if (Objects.isNull(this.shipmentNumber) && (Objects.isNull(this.locationCode) || this.locationCode.isEmpty())){
             throw new IllegalArgumentException("The locationCode must not be null or empty");
         }
 
@@ -88,16 +93,13 @@ public class RecoveredPlasmaShipmentQueryCommand implements Validatable, FilterA
             throw new IllegalArgumentException("The shipmentDate must not be null or empty");
         }
 
-        if (Objects.nonNull(this.shipmentDateFrom) && Objects.nonNull(this.shipmentDateTo) && this.shipmentDateTo.isBefore(this.shipmentDateFrom)) {
-            throw new IllegalArgumentException("Initial date should not be greater than final date");
-        }
-
-        if (Objects.nonNull(this.shipmentDateTo) && this.shipmentDateTo.isAfter(LocalDate.now())) {
-            throw new IllegalArgumentException("Final date should not be greater than today");
-        }
-
-        if (Objects.nonNull(this.shipmentDateFrom) && this.shipmentDateFrom.isBefore(LocalDate.now().minusYears(2))) {
-            throw new IllegalArgumentException("Date range exceeds two years");
+        if (Objects.nonNull(this.shipmentDateFrom) && Objects.nonNull(this.shipmentDateTo)) {
+            if (this.shipmentDateTo.isBefore(this.shipmentDateFrom)) {
+                throw new IllegalArgumentException("Initial date should not be greater than final date");
+            }
+            if (dateRangeExceedsLimit(this.shipmentDateFrom, this.shipmentDateTo)) {
+                throw new IllegalArgumentException("Shipment date range exceeds " + SHIPMENT_DATE_RANGE_YEARS_LIMIT + " years");
+            }
         }
 
         if (this.pageSize <= 0) {
@@ -109,4 +111,10 @@ public class RecoveredPlasmaShipmentQueryCommand implements Validatable, FilterA
         }
         log.debug("OrderQueryCommand validation ran successfully! {}", this);
     }
+
+    private boolean dateRangeExceedsLimit(LocalDate from, LocalDate to) {
+        var period = Period.between(from, to);
+        return period.getYears() > SHIPMENT_DATE_RANGE_YEARS_LIMIT || (period.getYears() == SHIPMENT_DATE_RANGE_YEARS_LIMIT && (period.getMonths() > 0 || period.getDays() > 0));
+    }
+
 }
