@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.domain.model;
 
+import com.arcone.biopro.distribution.recoveredplasmashipping.application.exception.DomainNotFoundForKeyException;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.LocationRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShipmentCriteriaRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShippingRepository;
@@ -9,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -40,6 +42,10 @@ public class RecoveredPlasmaShipment implements Validatable {
     private String unsuitableUnitReportDocumentStatus;
     private ZonedDateTime createDate;
     private ZonedDateTime modificationDate;
+    private int totalCartons;
+    private int totalProducts;
+    @Setter(AccessLevel.PRIVATE)
+    private boolean canAddCartons;
 
     private static final String SHIPMENT_LOCATION_CODE_KEY = "RPS_LOCATION_SHIPMENT_CODE";
     private static final String SHIPMENT_USE_PREFIX_KEY = "RPS_USE_PARTNER_PREFIX";
@@ -78,6 +84,16 @@ public class RecoveredPlasmaShipment implements Validatable {
 
         return shipment;
 
+    }
+
+    public static RecoveredPlasmaShipment fromFindByCommand(FindShipmentCommand findShipmentCommand , RecoveredPlasmaShippingRepository recoveredPlasmaShippingRepository){
+        return recoveredPlasmaShippingRepository.findOneById(findShipmentCommand.getShipmentId())
+            .switchIfEmpty(Mono.error( ()-> new DomainNotFoundForKeyException(String.format("%s", findShipmentCommand.getShipmentId()))))
+            .flatMap(recoveredPlasmaShipment -> {
+                recoveredPlasmaShipment.setCanAddCartons(recoveredPlasmaShipment.getLocationCode().equals(findShipmentCommand.getLocationCode()));
+                return Mono.just(recoveredPlasmaShipment);
+            })
+            .block();
     }
 
     public static RecoveredPlasmaShipment fromRepository(Long id, String locationCode,
