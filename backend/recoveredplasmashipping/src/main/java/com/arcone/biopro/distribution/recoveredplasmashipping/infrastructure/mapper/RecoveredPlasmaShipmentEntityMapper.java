@@ -1,16 +1,19 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.mapper;
 
 
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Carton;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.RecoveredPlasmaShipment;
+import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.persistence.CartonEntity;
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.persistence.RecoveredPlasmaShipmentEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring")
+import java.util.List;
+
+@Mapper(componentModel = "spring" , uses = CartonEntityMapper.class)
 public interface RecoveredPlasmaShipmentEntityMapper {
 
-
-    default RecoveredPlasmaShipment entityToModel(RecoveredPlasmaShipmentEntity entity) {
+    default RecoveredPlasmaShipment entityToModel(RecoveredPlasmaShipmentEntity entity , List<CartonEntity> cartonEntityList) {
         return RecoveredPlasmaShipment.fromRepository(
             entity.getId(), entity.getLocationCode(), entity.getProductType(), entity.getShipmentNumber(), entity.getStatus(), entity.getCreateEmployeeId(),
             entity.getCloseEmployeeId(), entity.getCloseDate(), entity.getTransportationReferenceNumber(),
@@ -18,8 +21,7 @@ public interface RecoveredPlasmaShipmentEntityMapper {
             entity.getCustomerCode(), entity.getCustomerName(), entity.getCustomerState(), entity.getCustomerPostalCode(), entity.getCustomerCountry(),
             entity.getCustomerCountry(), entity.getCustomerCity(), entity.getCustomerDistrict(), entity.getCustomerAddressLine1(),
             entity.getCustomerAddressLine2(), entity.getCustomerAddressContactName(), entity.getCustomerAddressPhoneNumber(),
-            entity.getCustomerAddressDepartmentName(),entity.getCreateDate(), entity.getModificationDate()
-        );
+            entity.getCustomerAddressDepartmentName(),entity.getCreateDate(), entity.getModificationDate(), cartonEntityList     );
     }
 
 

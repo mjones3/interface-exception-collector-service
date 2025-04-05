@@ -2,12 +2,15 @@ package com.arcone.biopro.distribution.recoveredplasmashipping.unit.domain.model
 
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.CustomerOutput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.exception.DomainNotFoundForKeyException;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Carton;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.CreateCartonCommand;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.CreateShipmentCommand;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.FindShipmentCommand;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Location;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.LocationProperty;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.RecoveredPlasmaShipment;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.RecoveredPlasmaShipmentCriteria;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.CartonRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.LocationRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShipmentCriteriaRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShippingRepository;
@@ -16,6 +19,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
@@ -44,6 +48,11 @@ class RecoveredPlasmaShipmentTest {
 
     @Mock
     private RecoveredPlasmaShipmentCriteriaRepository recoveredPlasmaShipmentCriteriaRepository;
+
+    @Mock
+    private CartonRepository cartonRepository;
+
+
 
 
     @Test
@@ -612,6 +621,20 @@ class RecoveredPlasmaShipmentTest {
         //given
         var findCommand = new FindShipmentCommand(1L, "LOC002", "employee-id");
 
+
+
+        Mockito.when(recoveredPlasmaShippingRepository.findOneById(Mockito.any())).thenReturn(Mono.just(createShipment()));
+
+        //when
+        var result = RecoveredPlasmaShipment.fromFindByCommand(findCommand, recoveredPlasmaShippingRepository);
+
+        //then
+        Assertions.assertNotNull(result);
+        Assertions.assertFalse(result.isCanAddCartons());
+
+    }
+
+    private RecoveredPlasmaShipment createShipment(){
         // Arrange
         Long id = 1L;
         String locationCode = "LOC001";
@@ -642,7 +665,7 @@ class RecoveredPlasmaShipmentTest {
         ZonedDateTime modificationDate = ZonedDateTime.now();
 
         // Act
-        RecoveredPlasmaShipment shipment = RecoveredPlasmaShipment.fromRepository(
+        return  RecoveredPlasmaShipment.fromRepository(
             id, locationCode, productType, shipmentNumber, status, createEmployeeId,
             closeEmployeeId, closeDate, transportationReferenceNumber,shipmentDate, cartonTareWeight, unsuitableUnitReportDocumentStatus,
             customerCode, customerName, customerState, customerPostalCode, customerCountry,
@@ -650,18 +673,5 @@ class RecoveredPlasmaShipmentTest {
             customerAddressLine2, customerAddressContactName, customerAddressPhoneNumber,
             customerAddressDepartmentName, createDate, modificationDate
         );
-
-        Mockito.when(recoveredPlasmaShippingRepository.findOneById(Mockito.any())).thenReturn(Mono.just(shipment));
-
-        //when
-        var result = RecoveredPlasmaShipment.fromFindByCommand(findCommand, recoveredPlasmaShippingRepository);
-
-        //then
-        Assertions.assertNotNull(result);
-        Assertions.assertFalse(result.isCanAddCartons());
-
     }
-
-
-
 }
