@@ -1,17 +1,19 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.mapper;
 
 
-import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Carton;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.RecoveredPlasmaShipment;
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.persistence.CartonEntity;
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.persistence.RecoveredPlasmaShipmentEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
 @Mapper(componentModel = "spring" , uses = CartonEntityMapper.class)
 public interface RecoveredPlasmaShipmentEntityMapper {
+
+    CartonEntityMapper cartonEntityMapper = Mappers.getMapper(CartonEntityMapper.class);
 
     default RecoveredPlasmaShipment entityToModel(RecoveredPlasmaShipmentEntity entity , List<CartonEntity> cartonEntityList) {
         return RecoveredPlasmaShipment.fromRepository(
@@ -21,7 +23,7 @@ public interface RecoveredPlasmaShipmentEntityMapper {
             entity.getCustomerCode(), entity.getCustomerName(), entity.getCustomerState(), entity.getCustomerPostalCode(), entity.getCustomerCountry(),
             entity.getCustomerCountry(), entity.getCustomerCity(), entity.getCustomerDistrict(), entity.getCustomerAddressLine1(),
             entity.getCustomerAddressLine2(), entity.getCustomerAddressContactName(), entity.getCustomerAddressPhoneNumber(),
-            entity.getCustomerAddressDepartmentName(),entity.getCreateDate(), entity.getModificationDate(), cartonEntityList     );
+            entity.getCustomerAddressDepartmentName(),entity.getCreateDate(), entity.getModificationDate(), cartonEntityMapper.toModelList(cartonEntityList) );
     }
 
 

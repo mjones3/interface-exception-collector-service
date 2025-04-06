@@ -245,4 +245,13 @@ public class RecoveredPlasmaShipment implements Validatable {
 
         return this.cartonList.size();
     }
+
+    public int getTotalProducts(){
+        if (this.cartonList == null){
+            return 0;
+        }
+
+        return this.cartonList.stream()
+            .reduce(0, (partialTotalProducts, carton ) -> partialTotalProducts + carton.getTotalProducts(), Integer::sum);
+    }
 }

@@ -23,13 +23,13 @@ public class RecoveredPlasmaShippingRepositoryImpl implements RecoveredPlasmaShi
     @Override
     public Mono<RecoveredPlasmaShipment> create(RecoveredPlasmaShipment recoveredPlasmaShipment) {
         return recoveredPlasmaShipmentEntityRepository.save(recoveredPlasmaShipmentEntityMapper.toEntity(recoveredPlasmaShipment))
-                .map(recoveredPlasmaShipmentEntityMapper::entityToModel);
+                .map(savedRecord -> recoveredPlasmaShipmentEntityMapper.entityToModel(savedRecord,null));
     }
 
     @Override
     public Mono<RecoveredPlasmaShipment> findOneById(Long id) {
         return recoveredPlasmaShipmentEntityRepository.findById(id)
             .zipWith(cartonEntityRepository.findAllByShipmentIdAndDeleteDateIsNullOrderByCartonSequenceNumberAsc(id).collectList())
-            .map(recoveredPlasmaShipmentEntityMapper::entityToModel);
+            .map(tuple -> recoveredPlasmaShipmentEntityMapper.entityToModel(tuple.getT1(),tuple.getT2()));
     }
 }

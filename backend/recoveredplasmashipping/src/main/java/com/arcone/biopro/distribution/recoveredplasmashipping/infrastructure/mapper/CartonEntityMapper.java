@@ -6,6 +6,8 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.per
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface CartonEntityMapper {
     default Carton entityToModel(CartonEntity entity) {
@@ -17,6 +19,8 @@ public interface CartonEntityMapper {
 
     @Mapping(source = "cartonSequence", target = "cartonSequenceNumber")
     CartonEntity toEntity(Carton model);
+
+    List<Carton> toModelList(List<CartonEntity> cartonEntityList);
 }
 
 
