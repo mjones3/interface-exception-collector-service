@@ -480,6 +480,54 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00"
     }
+  ,
+    {
+      "id": "dd8af54c-a40a-438c-a870-b9619447e91f",
+      "locationCode": "123456789",
+      "unitNumber": "W812530107006",
+      "temperatureCategory": "ROOM_TEMPERATURE",
+      "productCode": "EA00700",
+      "productDescription": "LIQUID PLASMA",
+      "expirationDate": "2024-09-03T10:15:30",
+      "aboRh": "ABP",
+      "productFamily": "APHERESIS_PLATELETS_LEUKOREDUCED",
+      "collectionDate": "2011-12-03T10:15:30+01:00",
+      "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
+      "createDate": "2011-12-03T10:15:30+01:00",
+      "modificationDate": "2011-12-03T10:15:30+01:00"
+    }
+  ,
+    {
+      "id": "dd8af54c-a40a-438c-a870-b9619447e91f",
+      "locationCode": "123456789",
+      "unitNumber": "W812530107007",
+      "temperatureCategory": "ROOM_TEMPERATURE",
+      "productCode": "EA14000",
+      "productDescription": "LIQUID PLASMA",
+      "expirationDate": "2024-09-03T10:15:30",
+      "aboRh": "ABP",
+      "productFamily": "APHERESIS_PLATELETS_LEUKOREDUCED",
+      "collectionDate": "2011-12-03T10:15:30+01:00",
+      "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
+      "createDate": "2011-12-03T10:15:30+01:00",
+      "modificationDate": "2011-12-03T10:15:30+01:00"
+    }
+  ,
+    {
+      "id": "dd8af54c-a40a-438c-a870-b9619447e91f",
+      "locationCode": "123456789",
+      "unitNumber": "W812530107008",
+      "temperatureCategory": "ROOM_TEMPERATURE",
+      "productCode": "EA14000",
+      "productDescription": "LIQUID PLASMA",
+      "expirationDate": "2024-09-03T10:15:30",
+      "aboRh": "AP",
+      "productFamily": "APHERESIS_PLATELETS_LEUKOREDUCED",
+      "collectionDate": "2011-12-03T10:15:30+01:00",
+      "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
+      "createDate": "2011-12-03T10:15:30+01:00",
+      "modificationDate": "2011-12-03T10:15:30+01:00"
+    }
   ]
 }
 

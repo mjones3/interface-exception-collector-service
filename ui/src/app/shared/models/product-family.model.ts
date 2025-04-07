@@ -14,6 +14,7 @@ export enum ProductFamily {
     RP_NONINJECTABLE_LIQUID_RT,
     RP_FROZEN_WITHIN_72_HOURS,
     RP_NONINJECTABLE_REFRIGERATED,
+    APHERESIS_PLATELETS_LEUKOREDUCED,
 }
 
 export enum Priority {
@@ -40,6 +41,7 @@ export const ProductFamilyMap: Record<keyof typeof ProductFamily, string> = {
     RP_NONINJECTABLE_LIQUID_RT: 'RP NONINJECTABLE LIQUID RT',
     RP_FROZEN_WITHIN_72_HOURS: 'RP FROZEN WITHIN 72 HOURS',
     RP_NONINJECTABLE_REFRIGERATED: 'RP NONINJECTABLE REFRIGERATED',
+    APHERESIS_PLATELETS_LEUKOREDUCED: 'Apheresis Platelets Leukoreduced',
 };
 
 export const PriorityMap: Record<keyof typeof Priority, string> = {

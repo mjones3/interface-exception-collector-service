@@ -1,10 +1,10 @@
-@api @AOA-152
+@api @AOA-152 @AOA-240
 Feature: Validate order
 
     Background:
         Given I cleaned up from the database the orders with external ID "114117922233599,114117922233500,114117922233511,114117922233512,114117922233513,114117922233514,114117922233515,114117922233516,114117922233517,114117922233518,114117922233519,114117922233520,114117922233521,114117922233522,114117922233523,114117922233524,114117922233525,114117922233526,114117922233527,11411792223353221,11411792223353222,11411792223353223,DIS323000000001".
 
-    @DIS-161 @DIS-92 @DIS-253 @bug @DIS-323
+    @DIS-161 @DIS-92 @DIS-253 @bug @DIS-323 @DIS-336
     Scenario Outline: Creating a BioPro order from a valid order inbound request
         Given I have received an order inbound request with externalId "<External ID>" and content "<JsonPayloadName>".
         When The system process the order request.
@@ -17,6 +17,7 @@ Feature: Validate order
             | 114117922233523 | order-inbound-scenario-whole-blood-leukoreduced-product.json |
             | 114117922233524 | order-inbound-scenario-red-blood-cells-product.json          |
             | DIS323000000001 | order-inbound-scenario-DIS-323_no_create_employee_code.json  |
+            | DIS336000000001 | order-inbound-scenario-DIS-336_apheresis-platelets.json      |
 
     @DIS-92
     Scenario Outline: Creating a BioPro order from an invalid order inbound request
