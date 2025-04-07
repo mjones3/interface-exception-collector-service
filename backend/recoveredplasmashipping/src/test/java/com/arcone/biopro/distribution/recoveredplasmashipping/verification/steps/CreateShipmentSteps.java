@@ -11,9 +11,9 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.junit.Assert;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -69,14 +69,12 @@ public class CreateShipmentSteps {
             LocalDate tomorrow = LocalDate.now().plusDays(1);
             shipmentDate = tomorrow.format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
             createShipmentPage.setShipmentDate(shipmentDate);
-
-            String transportationRefNumber = fields.get("Transportation Reference Number");
-            createShipmentPage.setTransportationRefNumber(transportationRefNumber);
-
         }
-
         String productType = fields.get("Product Type");
         createShipmentPage.selectProductType(productType);
+
+        String transportationRefNumber = fields.get("Transportation Reference Number");
+        createShipmentPage.setTransportationRefNumber(transportationRefNumber);
     }
 
     @When("I choose to submit the shipment.")
@@ -171,7 +169,13 @@ public class CreateShipmentSteps {
         var lastShipmentCount = sharedContext.getLastShipmentNumber();
         var responseShipmentNumber = sharedContext.getShipmentCreateResponse().get("shipmentNumber");
 
-        Assert.assertEquals(responseShipmentNumber,shipentNumberPrefix + (lastShipmentCount + 1));
+        Assert.assertEquals(responseShipmentNumber, shipentNumberPrefix + (lastShipmentCount + 1));
 
+    }
+
+    @And("I have removed from the database all shipments from location {string} with transportation ref number {string}.")
+    public void iHaveRemovedFromTheDatabaseAllShipmentsFromLocationWithTransportationRefNumber(String location, String transportationRefNumber) {
+        var deleteShipmentsQuery = DatabaseQueries.REMOVE_SHIPMENTS_BY_LOCATION_AND_TRANSPORTATION_REF_NUMBER(location, transportationRefNumber);
+        databaseService.executeSql(deleteShipmentsQuery).block();
     }
 }

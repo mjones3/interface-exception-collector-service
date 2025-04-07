@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.verification.controllers;
 
+import com.arcone.biopro.distribution.recoveredplasmashipping.verification.pages.SharedActions;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.ApiHelper;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.DatabaseService;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.SharedContext;
@@ -9,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -50,7 +52,7 @@ public class FilterShipmentsController {
         locationCodeList = utils.parseCommaSeparatedStringToGraphqlArrayList(locationCodeList);
 
         var shipmentNumber = attributeKey.equals("shipmentNumber")
-                ? attributeValue
+                ? "\""+attributeValue+"\""
                 : null;
         var shipmentStatusList = attributeKey.equals("shipmentStatusList")
                 ? utils.parseCommaSeparatedStringToGraphqlArrayList(attributeValue)
@@ -62,14 +64,20 @@ public class FilterShipmentsController {
                 ? utils.parseCommaSeparatedStringToGraphqlArrayList(attributeValue)
                 : null;
         var shipmentFrom = attributeKey.equals("shipmentDateRange")
-                ? utils.getCommaSeparatedList(attributeValue)[0]
+                ? "\"" + utils.getCommaSeparatedList(attributeValue)[0] + "\""
                 : null;
         var shipmentTo = attributeKey.equals("shipmentDateRange")
-                ? utils.getCommaSeparatedList(attributeValue)[1]
+                ?"\"" +  utils.getCommaSeparatedList(attributeValue)[1] + "\""
                 : null;
         var transportationReferenceNumber = attributeKey.equals("transportationReferenceNumber")
-                ? attributeValue
+                ? "\""+attributeValue+"\""
                 : null;
+
+        // Add date range as default when no shipmentNumber is provided
+        if (!List.of("shipmentNumber", "shipmentDateRange").contains(attributeKey)){
+            shipmentFrom = "\"" + LocalDate.now() + "\"";
+            shipmentTo = "\"" + LocalDate.now().plusDays(1) + "\"";
+        }
 
         var response = apiHelper.graphQlRequest(GraphQLQueryMapper.searchShipment(
                 locationCodeList,
@@ -91,4 +99,5 @@ public class FilterShipmentsController {
         }
         log.info("Response: {}", response);
     }
+
 }

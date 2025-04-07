@@ -4,34 +4,35 @@ Feature: Filter Shipments
     Background:
         Given I have removed from the database all the configurations for the location "123456700_TEST".
         And I have removed from the database all shipments which code contains with "DIS33400".
+        And I have removed from the database all shipments from location "123456789" with transportation ref number "DIS334".
 
-#    Rule: I should be able to filter the shipment lists by specific criteria.
-#        Rule: The system should not enable the Apply options until at least one filter criteria is chosen.
-#    Rule: I should get shipments default sorting as: “status” descending and “shipmentDate” ascending.
-#        @ui @DIS-334
-#        Scenario: Filter shipments through UI with multiple criteria
-#            Given The location "123456700_TEST" is configured with prefix "BPM_TEST", shipping code "DIS334001", and prefix configuration "Y".
-#            And I request to create a new shipment with the values:
-#                | Field                           | Value                         |
-#                | Customer                        | Bio Products                  |
-#                | Product Type                    | RP NONINJECTABLE REFRIGERATED |
-#                | Carton Tare Weight              | 1000                          |
-#                | Shipment Date         | <tomorrow>                    |
-#                | Transportation Reference Number | 111222333                     |
-#            When I am on the Shipment List Page.
-#            Then The Filter Apply button should be "disabled".
-#            When I select the following filter criteria:
-#                | Customer        | BioLife Plasma Services |
-#                | Product Type    | Recovered Plasma        |
-#                | Location        | ABC1                    |
-#                | Shipment Status | OPEN                    |
-#            And I enter shipment date range from "2024-01-01" to "2024-03-31".
-#            Then The Filter Apply button should be "enabled".
-#            When I click the Filter Apply button.
-#            Then I should see filtered shipments matching the criteria.
-#            And The shipments should be sorted by status in descending order.
-#            And within same status, shipments should be sorted by shipment date in ascending order.
-#            And I should see "5" filter criteria applied.
+    Rule: I should be able to filter the shipment lists by specific criteria.
+        Rule: The system should not enable the Apply options until at least one filter criteria is chosen.
+    Rule: I should get shipments default sorting as: “status” descending and “shipmentDate” ascending.
+        @ui @DIS-334
+        Scenario: Filter shipments through UI with multiple criteria
+            Given I request to create a new shipment with the values:
+                | Field                           | Value                         |
+                | Customer Code                   | 410                           |
+                | Product Type                    | RP_NONINJECTABLE_REFRIGERATED |
+                | Carton Tare Weight              | 1000                          |
+                | Shipment Date                   | <tomorrow>                    |
+                | Transportation Reference Number | DIS334                        |
+                | Location Code                   | 123456789                     |
+            When I am on the Shipment List Page.
+            And I open the filter panel.
+            Then The Filter Apply button should be "disabled".
+            When I select the following filter criteria:
+                | Customer                        | Bio Products                  |
+                | Product Type                    | RP NONINJECTABLE REFRIGERATED |
+                | Location                        | MDL Hub 1                     |
+                | Shipment Status                 | Open                          |
+                | Transportation Reference Number | DIS334                        |
+            And I enter shipment date range from "<today>" to "<tomorrow>".
+            Then The Filter Apply button should be "enabled".
+            When I click the Filter Apply button.
+            Then I should see filtered shipments matching the criteria.
+            And I should see "6" filter criteria applied.
 
 
     Rule: I should be able to search by

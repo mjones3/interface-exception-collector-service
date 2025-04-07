@@ -13,4 +13,8 @@ public class DatabaseQueries {
         return "SELECT * FROM bld_recovered_plasma_shipment WHERE id = " + id;
     }
 
+    public static String REMOVE_SHIPMENTS_BY_LOCATION_AND_TRANSPORTATION_REF_NUMBER(String location, String transportationRefNumber){
+        return "DELETE FROM bld_recovered_plasma_shipment WHERE location_code = '" + location + "' AND transportation_reference_number = '" + transportationRefNumber + "'";
+    }
+
 }

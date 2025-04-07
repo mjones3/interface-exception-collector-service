@@ -8,8 +8,8 @@ Feature: Shipment Creation
 
     @ui @DIS-333
     Scenario: Successful shipment creation
-        Given The location "123456789_TEST" is configured with prefix "BPM_TEST", shipping code "DIS333001", and prefix configuration "Y".
-        And I am on the Shipment Create Page.
+        Given I am on the Shipment Create Page.
+        And I close the acknowledgment message.
         When I choose to create a shipment.
         And I have entered all the fields:
             | Field                           | Value                         |
@@ -41,7 +41,7 @@ Feature: Shipment Creation
                 | customer_code                   | 408                        |
                 | product_type                    | RP_FROZEN_WITHIN_120_HOURS |
                 | status                          | OPEN                       |
-                | carton_tare_weight              | 1000                       |
+                | carton_tare_weight              | 1000.0                       |
                 | create_date                     | <not_null>                 |
                 | transportation_reference_number | <null>                     |
                 | location_code                   | 123456789_TEST             |
