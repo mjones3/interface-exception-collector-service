@@ -153,8 +153,7 @@ export class TableComponent<T extends TableDataSource = TableDataSource>
 
     ngOnInit(): void {
         this.tableDataSource = new MatTableDataSource(this.dataSource());
-        this.expandedAll =
-            this.dataSource().findIndex((element) => element.expanded) !== -1;
+        this.expandedAll = (this.dataSource()?.findIndex((element) => element.expanded) ?? -1) !== -1;
     }
 
     onPaginate(event: PageEvent) {
@@ -199,10 +198,7 @@ export class TableComponent<T extends TableDataSource = TableDataSource>
                 if (element.expanded) {
                     this.expandingOneOrMoreRows.emit(element);
                 }
-                this.expandedAll =
-                    this.dataSource().findIndex(
-                        (element) => element.expanded
-                    ) !== -1;
+                this.expandedAll = (this.dataSource()?.findIndex((element) => element.expanded) ?? -1) !== -1;
             } else {
                 this.expandedElement =
                     this.expandedElement === element ? null : element;

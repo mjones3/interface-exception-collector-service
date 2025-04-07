@@ -131,7 +131,7 @@ public class ApiHelper {
             // Set the API response to the context so that it can be used in other steps.
             var notifications = (ArrayList) response.get("notifications");
             if (notifications != null && !notifications.isEmpty()) {
-                context.setApiMessageResponse((List<Map>) response.get("notifications"));
+                context.setApiListMessageResponse((List<Map>) response.get("notifications"));
             }
             return response;
         } catch (FieldAccessException e) {

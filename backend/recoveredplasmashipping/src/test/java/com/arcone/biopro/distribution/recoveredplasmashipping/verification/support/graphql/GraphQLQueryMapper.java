@@ -88,4 +88,40 @@ public class GraphQLQueryMapper {
             }
             """, customerCode);
     }
+
+    public static String searchShipment(
+        String locationCodeList,
+        String shipmentNumber,
+        String shipmentStatusList,
+        String customerList,
+        String productTypeList,
+        String shipmentDateFrom,
+        String shipmentDateTo,
+        String transportationReferenceNumber) {
+        return String.format("""
+            query SearchShipment {
+                searchShipment(
+                    recoveredPlasmaShipmentQueryCommandRequestDTO: {
+                        locationCode: %s
+                        shipmentNumber: %s
+                        shipmentStatus: %s
+                        customers: %s
+                        productTypes: %s
+                        shipmentDateFrom: %s
+                        shipmentDateTo: %s
+                        transportationReferenceNumber: %s
+                    }
+                ) {
+                    _links
+                    data
+                    notifications {
+                        message
+                        type
+                        code
+                    }
+                }
+            }
+
+            """, locationCodeList, shipmentNumber, shipmentStatusList, customerList, productTypeList, shipmentDateFrom, shipmentDateTo, transportationReferenceNumber);
+    }
 }

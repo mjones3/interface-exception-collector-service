@@ -1,13 +1,15 @@
 <app-filters
-    [appliedTotalFilterCount]="totalFieldsApplied"
+    [disabled]="!enableApplyFilters()"
+    [appliedTotalFilterCount]="totalFieldsApplied()"
+    (search)="applyFilterSearch()"
     (resetSearchFilter)="resetFilters()"
     (showFilterControl)="toggleFilter($event)"
     [showFilters]="showFilters()"
 >
     <form
-        [formGroup]="searchShipmentForm"
+        [formGroup]="form"
         class="inline-form flex w-full flex-col"
-        id="searchShipmentFormId"
+        id="searchFormId"
     >
         <div class="w-full pt-2">
             <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
@@ -24,25 +26,57 @@
                 </mat-form-field>
 
                 <app-multiple-select
-                    [formGroup]="searchShipmentForm"
-                    controlName="customer"
+                    [formGroup]="form"
+                    [items]="customersOptions()"
+                    controlName="customers"
                     title="Customer"
                     matSelectId="customerSelect"
-                ></app-multiple-select>
+                />
 
                 <app-multiple-select
-                    [formGroup]="searchShipmentForm"
-                    controlName="productFamily"
-                    title="Product Family"
-                    matSelectId="productFamilySelect"
-                ></app-multiple-select>
+                    [formGroup]="form"
+                    [items]="productTypesOptions()"
+                    controlName="productTypes"
+                    title="Product Type"
+                    matSelectId="productTypeSelect"
+                />
 
                 <app-multiple-select
-                    [formGroup]="searchShipmentForm"
+                    [formGroup]="form"
+                    [items]="shipmentTypesOptions()"
                     controlName="shipmentStatus"
                     title="Shipment Status"
                     matSelectId="shipmentStatusSelect"
-                ></app-multiple-select>
+                />
+
+                <app-date-range-picker
+                    [formGroup]="getDateRangeFormGroup('shipmentDate')"
+                    matDatepickerMinErrorMessage="Date range exceeds two years"
+                    matEndDateInvalidMessage="Initial date should not be greater than final date"
+                    matDatepickerMaxMessage="Final date should not be greater than today"
+                    title="Shipment Date"
+                    dateRangeId="shipmentDate"
+                />
+
+                <app-multiple-select
+                    [formGroup]="form"
+                    [items]="locationsOptions()"
+                    controlName="locationCode"
+                    title="Location"
+                    matSelectId="locationSelect"
+                />
+
+                <mat-form-field class="block">
+                    <mat-label>Transportation Reference Number</mat-label>
+                    <input
+                        id="transportationReferenceNumberId"
+                        matInput
+                        formControlName="transportationReferenceNumber"
+                        placeholder="Enter Transportation Reference Number"
+                        maxlength="50"
+                        autocomplete="off"
+                    />
+                </mat-form-field>
             </div>
         </div>
     </form>

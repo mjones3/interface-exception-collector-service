@@ -8,8 +8,8 @@ Feature: Shipment Creation
 
     @ui @DIS-333
     Scenario: Successful shipment creation
-        Given The location "123456789_TEST" is configured with prefix "BPM_TEST", shipping code "DIS333001", shipping quantity "0", and prefix configuration "Y".
-        And I am on the Shipment Create Page.
+        Given I am on the Shipment Create Page.
+        And I close the acknowledgment message.
         When I choose to create a shipment.
         And I have entered all the fields:
             | Field                           | Value                         |
@@ -26,7 +26,7 @@ Feature: Shipment Creation
         Rule: I should be able to receive a success message after a shipment is created successfully.
         @api @DIS-333
         Scenario: Successful shipment creation
-            Given The location "123456789_TEST" is configured with prefix "BPM_TEST", shipping code "DIS333002", shipping quantity "0", and prefix configuration "Y".
+            Given The location "123456789_TEST" is configured with prefix "BPM_TEST", shipping code "DIS333002", and prefix configuration "Y".
             When I request to create a new shipment with the values:
                 | Field                           | Value                      |
                 | Customer Code                   | 408                        |
@@ -41,7 +41,7 @@ Feature: Shipment Creation
                 | customer_code                   | 408                        |
                 | product_type                    | RP_FROZEN_WITHIN_120_HOURS |
                 | status                          | OPEN                       |
-                | carton_tare_weight              | 1000                       |
+                | carton_tare_weight              | 1000.0                       |
                 | create_date                     | <not_null>                 |
                 | transportation_reference_number | <null>                     |
                 | location_code                   | 123456789_TEST             |
@@ -85,7 +85,7 @@ Feature: Shipment Creation
     - Shipment Sequence Number
         @api @DIS-333
         Scenario Outline: Unique shipment number generation
-            Given The location "123456789_TEST" is configured with prefix "BPM_TEST", shipping code "DIS333003", shipping quantity "0", and prefix configuration "<Prefix Configuration>".
+            Given The location "123456789_TEST" is configured with prefix "BPM_TEST", shipping code "DIS333003", and prefix configuration "<Prefix Configuration>".
             When I request to create a new shipment with the values:
                 | Field                           | Value                      |
                 | Customer Code                   | 408                        |

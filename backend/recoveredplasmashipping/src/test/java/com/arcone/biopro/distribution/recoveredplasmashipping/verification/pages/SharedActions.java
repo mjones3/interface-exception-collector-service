@@ -3,10 +3,12 @@ package com.arcone.biopro.distribution.recoveredplasmashipping.verification.page
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -270,6 +272,44 @@ public class SharedActions {
             log.debug("Navigating to URL: {}", baseUrl+url);
             e.get(baseUrl + url);
             return true;
+        });
+    }
+
+    public boolean isElementEnabled(WebDriver driver, By element) {
+        try {
+            return driver.findElement(element).isEnabled();
+        } catch (Exception e) {
+            log.debug("Element {} not found or is not enabled.", element);
+            return false;
+        }
+    }
+
+    public void clearAndSendKeys(By element, String keys) {
+        waitForVisible(element);
+        waitForEnabled(element);
+        wait.until(e -> {
+            log.debug("Clearing and sending keys {} to element {}.", keys, element);
+            e.findElement(element).clear();
+            e.findElement(element).sendKeys(keys);
+            return true;
+        });
+    }
+
+    public void closeAcknowledgment() {
+        try {
+            String closeButtonLocator = "//rsa-toaster//button";
+            waitForVisible(By.xpath(closeButtonLocator));
+            click(By.xpath(closeButtonLocator));
+        } catch (Exception e) {
+            log.debug("Acknowledgment not found.");
+        }
+    }
+
+    public void pressESC() {
+        wait.until(e -> {
+        Actions actions = new Actions(e);
+        actions.sendKeys(Keys.ESCAPE).build().perform();
+        return true;
         });
     }
 }
