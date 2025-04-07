@@ -4,6 +4,11 @@ import { LookUpDto } from '@shared';
 import { MutationResult } from 'apollo-angular';
 import { Observable, Observer } from 'rxjs';
 import { DynamicGraphqlPathService } from '../../../core/services/dynamic-graphql-path.service';
+import {
+    CREATE_CARTON,
+    CartonDTO,
+    CreateCartonRequestDTO,
+} from '../graphql/mutation-definitions/create-carton.graphql';
 import { PageDTO } from '../../../shared/models/page.model';
 import { UseCaseResponseDTO } from '../../../shared/models/use-case-response.dto';
 import {
