@@ -9,4 +9,6 @@ public interface LocationService {
    Flux<LocationOutput> findAll();
 
     Mono<LocationOutput> findById(Long id);
+
+    Mono<LocationOutput> findByCode(String code);
 }

@@ -34,6 +34,7 @@ public class ShipmentServiceMessages {
     public static final String UNPACK_SHIPMENT_NOT_FOUND_ERROR = "Product cannot be removed because shipment does not exist";
     public static final String UNPACK_SHIPMENT_COMPLETED_ERROR = "Product cannot be removed because shipment is completed";
     public static final String EXTERNAL_TRANSFER_CANCEL_CONFIRMATION = "When cancelling, all external transfer information will be removed. Are you sure you want to cancel?";
+    public static final String PRODUCT_CRITERIA_TEMPERATURE_CATEGORY_ERROR = "Temperature Category does not match";
 
 
     //    Success messages

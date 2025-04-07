@@ -267,7 +267,7 @@ public class SharedActions {
 
     public void navigateTo(String url) {
         wait.until(e -> {
-            log.debug("Navigating to URL: {}", url);
+            log.debug("Navigating to URL: {}", baseUrl+url);
             e.get(baseUrl + url);
             return true;
         });

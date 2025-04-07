@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ApolloModule } from 'apollo-angular';
 import { ToastrModule } from 'ngx-toastr';
 import { SearchShipmentsComponent } from './search-shipments.component';
+import { ApolloTestingModule } from 'apollo-angular/testing';
 
 describe('SearchShipmentsComponent', () => {
     let component: SearchShipmentsComponent;
@@ -11,7 +11,7 @@ describe('SearchShipmentsComponent', () => {
         await TestBed.configureTestingModule({
             imports: [
                 SearchShipmentsComponent,
-                ApolloModule,
+                ApolloTestingModule,
                 ToastrModule.forRoot(),
             ],
         });

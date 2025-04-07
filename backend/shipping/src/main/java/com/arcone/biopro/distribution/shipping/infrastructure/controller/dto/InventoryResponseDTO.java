@@ -13,6 +13,7 @@ public record InventoryResponseDTO(
     String locationCode,
     String unitNumber,
     String productCode,
+    String temperatureCategory,
     String productDescription,
     LocalDateTime expirationDate,
     String aboRh,

@@ -6,7 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { CustomerOptionDTO } from 'app/modules/external-transfer/models/external-transfer.dto';
+import { OptionDTO } from 'app/shared/models/option.dto';
 
 @Component({
     selector: 'biopro-search-select',
@@ -31,7 +31,7 @@ export class SearchSelectComponent {
     @Input() matSelectId: string;
     @Input() control!: FormControl;
     @Output() selectionChange: EventEmitter<void> = new EventEmitter<void>();
-    @Input() items: CustomerOptionDTO[];
+    @Input() items: OptionDTO[];
     @Input() disabled = false;
     @Input() required = false;
 
@@ -43,7 +43,7 @@ export class SearchSelectComponent {
         return `${this.title} is required`;
     }
 
-    get itemList(): CustomerOptionDTO[] {
+    get itemList(): OptionDTO[] {
         return this.items ?? [];
     }
 
