@@ -15,6 +15,7 @@ import { MatInputModule } from '@angular/material/input';
 import { PageEvent } from '@angular/material/paginator';
 import { Sort } from '@angular/material/sort';
 import { MatStepperModule } from '@angular/material/stepper';
+import { Router } from '@angular/router';
 import { ApolloError } from '@apollo/client';
 import {
     LookUpDto,
@@ -29,6 +30,8 @@ import { CookieService } from 'ngx-cookie-service';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, forkJoin, map, tap } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { OrderPriorityMap } from '../../../../shared/models/order-priority.model';
+import { OrderStatusMap } from '../../../../shared/models/order-status.model';
 import { BasicButtonComponent } from '../../../../shared/components/buttons/basic-button.component';
 import { TableComponent } from '../../../../shared/components/table/table.component';
 import { EMPTY_PAGE, PageDTO } from '../../../../shared/models/page.model';
@@ -144,6 +147,7 @@ export class SearchShipmentComponent implements OnInit {
     constructor(
         public header: ProcessHeaderService,
         private toaster: ToastrService,
+        private router: Router,
         private matDialog: MatDialog,
         private recoveredPlasmaService: RecoveredPlasmaService,
         private cookieService: CookieService
@@ -311,4 +315,8 @@ export class SearchShipmentComponent implements OnInit {
                 return '';
         }
     }
+    details(id: number) {
+        this.router.navigateByUrl(`/recovered-plasma/${id}/shipment-details`);
+    }
+
 }
