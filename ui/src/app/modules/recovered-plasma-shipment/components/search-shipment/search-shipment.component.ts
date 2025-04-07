@@ -27,18 +27,17 @@ import {
 import { ActionButtonComponent } from 'app/shared/components/buttons/action-button.component';
 import { Cookie } from 'app/shared/types/cookie.enum';
 import { CookieService } from 'ngx-cookie-service';
-import { ToastrService } from 'ngx-toastr';
-import { Observable, forkJoin, map, tap } from 'rxjs';
-import { catchError } from 'rxjs/operators';
-import { OrderPriorityMap } from '../../../../shared/models/order-priority.model';
-import { OrderStatusMap } from '../../../../shared/models/order-status.model';
-import { BasicButtonComponent } from '../../../../shared/components/buttons/basic-button.component';
-import { TableComponent } from '../../../../shared/components/table/table.component';
-import { EMPTY_PAGE, PageDTO } from '../../../../shared/models/page.model';
-import handleApolloError from '../../../../shared/utils/apollo-error-handling';
 import { consumeUseCaseNotifications } from '../../../../shared/utils/notification.handling';
 import { RecoveredPlasmaCustomerDTO } from '../../graphql/query-definitions/customer.graphql';
 import { RecoveredPlasmaLocationDTO } from '../../graphql/query-definitions/location.graphql';
+import { ToastrService } from 'ngx-toastr';
+import { forkJoin, map, Observable, tap } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { TableComponent } from '../../../../shared/components/table/table.component';
+import { OrderPriorityMap } from '../../../../shared/models/order-priority.model';
+import { OrderStatusMap } from '../../../../shared/models/order-status.model';
+import { EMPTY_PAGE, PageDTO } from '../../../../shared/models/page.model';
+import handleApolloError from '../../../../shared/utils/apollo-error-handling';
 import {
     RecoveredPlasmaShipmentQueryCommandRequestDTO,
     RecoveredPlasmaShipmentReportDTO,
@@ -47,6 +46,7 @@ import {
 import { RecoveredPlasmaService } from '../../services/recovered-plasma.service';
 import { CreateShipmentComponent } from '../create-shipment/create-shipment.component';
 import { FilterShipmentComponent } from '../filter-shipment/filter-shipment.component';
+import { BasicButtonComponent } from '../../../../shared/components/buttons/basic-button.component';
 
 @Component({
     selector: 'biopro-search-shipment',
