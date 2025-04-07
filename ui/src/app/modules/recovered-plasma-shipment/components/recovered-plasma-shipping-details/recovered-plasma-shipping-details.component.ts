@@ -2,10 +2,10 @@ import { AsyncPipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
+import { ToastrService } from 'ngx-toastr';
 import {
     ProcessHeaderComponent,
-    ProcessHeaderService,
-    ToastrImplService,
+    ProcessHeaderService, ToastrImplService,
 } from '@shared';
 import { getAuthState } from 'app/core/state/auth/auth.selectors';
 import { ActionButtonComponent } from 'app/shared/components/buttons/action-button.component';
@@ -38,6 +38,7 @@ export class RecoveredPlasmaShippingDetailsComponent
 {
     findShipmentById: RecoveredPlasmaShipmentResponseDTO;
     employeeId: string;
+    protected cartonsRouteComputed = computed(() => this.router.url);
 
     constructor(
         public header: ProcessHeaderService,
@@ -47,7 +48,7 @@ export class RecoveredPlasmaShippingDetailsComponent
         protected toastr: ToastrImplService,
         protected recoveredPlasmaService: RecoveredPlasmaService,
         protected cookieService: CookieService,
-        protected productIconService: ProductIconsService
+        protected productIconService: ProductIconsService,
     ) {
         super(
             route,
@@ -85,4 +86,28 @@ export class RecoveredPlasmaShippingDetailsComponent
     backToSearch() {
         this.router.navigate(['/recovered-plasma']);
     }
+
+    addCarton(): void {
+        const shipmentId = +this.route.snapshot.params?.id;
+        this.recoveredPlasmaService
+            .createCarton({ shipmentId, employeeId: this.employeeId })
+            .pipe(
+                catchError((error: ApolloError) => {
+                    handleApolloError(this.toaster, error);
+                }),
+                tap((response) =>
+                    consumeUseCaseNotifications(
+                        this.toaster,
+                        response.data?.createCarton?.notifications
+                    )
+                ),
+                map((response) => response.data?.createCarton?.data)
+            )
+            .subscribe((carton) => {
+                this.router.navigateByUrl(
+                    `/recovered-plasma/${shipmentId}/add-carton-products`
+                );
+            });
+    }
+
 }

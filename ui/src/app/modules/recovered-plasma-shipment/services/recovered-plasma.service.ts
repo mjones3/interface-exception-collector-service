@@ -1,8 +1,14 @@
 import { Injectable } from '@angular/core';
 import { ApolloQueryResult } from '@apollo/client';
 import { LookUpDto } from '@shared';
+import { MutationResult } from 'apollo-angular';
 import { Observable, Observer } from 'rxjs';
 import { DynamicGraphqlPathService } from '../../../core/services/dynamic-graphql-path.service';
+import {
+    CREATE_CARTON,
+    CartonDTO,
+    CreateCartonRequestDTO,
+} from '../graphql/mutation-definitions/create-carton.graphql';
 import { PageDTO } from '../../../shared/models/page.model';
 import { UseCaseResponseDTO } from '../../../shared/models/use-case-response.dto';
 import {
@@ -80,6 +86,18 @@ export class RecoveredPlasmaService {
         return this.dynamicGraphqlPathService.executeQuery(
             this.servicePath,
             FIND_ALL_CUSTOMERS
+        );
+    }
+
+    public createCarton(
+        request: CreateCartonRequestDTO
+    ): Observable<
+        MutationResult<{ createCarton: UseCaseResponseDTO<CartonDTO> }>
+    > {
+        return this.dynamicGraphqlPathService.executeMutation(
+            this.servicePath,
+            CREATE_CARTON,
+            request
         );
     }
 

@@ -3,9 +3,9 @@ import {
     NotificationTypeMap,
     ToastrImplService,
 } from '@shared';
+import { ToastrService } from 'ngx-toastr';
 import { Notification } from '../../modules/orders/models/notification.dto';
 import { UseCaseNotificationDTO } from '../models/use-case-response.dto';
-import { ToastrService } from 'ngx-toastr';
 
 export function consumeNotification(
     toaster: ToastrImplService,
@@ -83,7 +83,7 @@ export function consumeUseCaseNotification(
             {},
             NotificationTypeMap[notification.type].type
         )
-        .onTap.subscribe(() => onTapFn());
+        ?.onTap.subscribe(() => onTapFn());
 }
 
 /*
