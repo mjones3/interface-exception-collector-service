@@ -124,7 +124,7 @@ class CreateShipmentUseCaseTest {
             .assertNext(output -> {
                 assertNotNull(output);
                 assertEquals(shipmentOutput, output.data());
-                assertEquals("/recovered-plasma/:0/shipment-details",
+                assertEquals("/recovered-plasma/0/shipment-details",
                     output._links().get("next"));
 
                 UseCaseNotificationOutput notification = output.notifications().get(0);
