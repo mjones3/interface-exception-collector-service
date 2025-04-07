@@ -42,6 +42,10 @@ describe('ProductIconsService', () => {
                 productFamily: 'WHOLE_BLOOD_LEUKOREDUCED',
                 value: 'biopro:product-whole-blood',
             },
+            {
+                productFamily: 'APHERESIS_PLATELETS_LEUKOREDUCED',
+                value: 'biopro:product-platelets',
+            },
         ];
         expect(service.getProductIcons()).toEqual(productIconMock);
         expect(service.getIconByProductFamily('WHOLE_BLOOD')).toBe(
