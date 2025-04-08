@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.recoveredplasmashipping.verification.step
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.controllers.FilterShipmentsController;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.pages.CreateShipmentPage;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.SharedContext;
+import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.TestUtils;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
@@ -14,7 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 public class FilterShipmentsSteps {
@@ -27,7 +31,17 @@ public class FilterShipmentsSteps {
     @Autowired
     CreateShipmentPage createShipmentPage;
 
+    @Autowired
+    private TestUtils utils;
+
     private Map<String, String> filterTable;
+
+    private Map<String, Integer> statusOrderMap() {
+        var map = new HashMap<String, Integer>();
+        map.put("OPEN", 1);
+        map.put("CLOSED", 2);
+        return map;
+    }
 
     @Given("I requested the list of shipments filtering by {string} as {string}.")
     public void iRequestedTheListOfShipmentsFilteringByAs(String filter, String value) {
@@ -123,5 +137,64 @@ public class FilterShipmentsSteps {
     @And("I should see {string} filter criteria applied.")
     public void iShouldSeeFilterCriteriaApplied(String quantity) {
         createShipmentPage.verifyFilterCriteriaApplied(Integer.parseInt(quantity));
+    }
+
+    @When("I requested the list of all shipments from the location above having statuses {string}.")
+    public void iRequestedTheListOfAllShipmentsFromTheLocationAbove(String statusList) {
+        filterShipmentsController.getAllShipmentsByLocationDateAndStatus(context.getLocationCode(), context.getInitialShipmentDate(), context.getFinalShipmentDate(), statusList);
+    }
+
+    @And("The list shipment response should be ordered by {string}.")
+    public void theListShipmentResponseShouldBeOrderedBy(String filters) {
+        var filterList = utils.getCommaSeparatedList(filters);
+
+        for (String filter : filterList) {
+            List<String> statusList = context.getApiShipmentListResponse().stream().map(e -> {
+                return e.get("status").toString();
+            }).toList();
+
+            // Verify status order
+            if (filter.equals("status")) {
+                AtomicInteger expectedStatusOrder = new AtomicInteger(1);
+
+
+                statusList.forEach(
+                    status -> {
+                        var currentStatusOrder = statusOrderMap().get(status);
+                        Assert.assertTrue(currentStatusOrder >= expectedStatusOrder.get());
+                        expectedStatusOrder.set(currentStatusOrder);
+                    }
+                );
+            }
+
+            // Verify shipment date order
+            if (filter.equals("shipmentDate")) {
+
+                // List of unique items in statusList
+                List<String> uniqueStatusList = statusList.stream().distinct().toList();
+
+                // Dates should be ordered within each status
+                uniqueStatusList.forEach(status -> {
+                    List<String> shipmentDateList = context.getApiShipmentListResponse().stream()
+                        .filter(e -> {
+                                return e.get("status").equals(status);
+                            }
+                        )
+                        .map(e -> {
+                            return e.get("shipmentDate").toString();
+                        }).toList();
+                    final LocalDate[] currentShipmentDate = {LocalDate.parse(shipmentDateList.getFirst())};
+                    shipmentDateList.forEach(
+                        shipmentDate -> {
+                            Assert.assertTrue(LocalDate.parse(shipmentDate).isAfter(currentShipmentDate[0]) | LocalDate.parse(shipmentDate).equals(currentShipmentDate[0]));
+                            currentShipmentDate[0] = LocalDate.parse(shipmentDate);
+
+                        }
+                    );
+                });
+
+            }
+        }
+
     }
 }

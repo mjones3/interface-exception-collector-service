@@ -1,8 +1,6 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.verification.controllers;
 
-import com.arcone.biopro.distribution.recoveredplasmashipping.verification.pages.SharedActions;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.ApiHelper;
-import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.DatabaseService;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.SharedContext;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.TestUtils;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.graphql.GraphQLQueryMapper;
@@ -29,14 +27,36 @@ public class FilterShipmentsController {
     public void filterShipmentsByLocationList(String locationCodeList) {
 
         var response = apiHelper.graphQlRequest(GraphQLQueryMapper.searchShipment(
-                utils.parseCommaSeparatedStringToGraphqlArrayList(locationCodeList),
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
+            utils.parseCommaSeparatedStringToGraphqlArrayList(locationCodeList),
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+        ), "searchShipment");
+        sharedContext.setApiListMessageResponse((List<Map>) (response.get("notifications")));
+        if (response.get("data") != null) {
+            var responseData = (List<Map>) ((Map) response.get("data")).get("content");
+            sharedContext.setApiShipmentListResponse(responseData);
+        } else {
+            sharedContext.setApiShipmentListResponse(List.of());
+        }
+        log.info("Response: {}", response);
+    }
+
+    public void getAllShipmentsByLocationDateAndStatus(String locationCodeList, String dateFrom, String dateTo, String statuses) {
+
+        var response = apiHelper.graphQlRequest(GraphQLQueryMapper.searchShipment(
+            utils.parseCommaSeparatedStringToGraphqlArrayList(locationCodeList),
+            null,
+            utils.parseCommaSeparatedStringToGraphqlArrayList(statuses),
+            null,
+            null,
+            "\"" + dateFrom + "\"",
+            "\"" + dateTo + "\"",
+            null
         ), "searchShipment");
         sharedContext.setApiListMessageResponse((List<Map>) (response.get("notifications")));
         if (response.get("data") != null) {
@@ -52,42 +72,42 @@ public class FilterShipmentsController {
         locationCodeList = utils.parseCommaSeparatedStringToGraphqlArrayList(locationCodeList);
 
         var shipmentNumber = attributeKey.equals("shipmentNumber")
-                ? "\""+attributeValue+"\""
-                : null;
+            ? "\"" + attributeValue + "\""
+            : null;
         var shipmentStatusList = attributeKey.equals("shipmentStatusList")
-                ? utils.parseCommaSeparatedStringToGraphqlArrayList(attributeValue)
-                : null;
+            ? utils.parseCommaSeparatedStringToGraphqlArrayList(attributeValue)
+            : null;
         var shipmentCustomerList = attributeKey.equals("shipmentCustomerList")
-                ? utils.parseCommaSeparatedStringToGraphqlArrayList(attributeValue)
-                : null;
+            ? utils.parseCommaSeparatedStringToGraphqlArrayList(attributeValue)
+            : null;
         var productTypeList = attributeKey.equals("productTypeList")
-                ? utils.parseCommaSeparatedStringToGraphqlArrayList(attributeValue)
-                : null;
+            ? utils.parseCommaSeparatedStringToGraphqlArrayList(attributeValue)
+            : null;
         var shipmentFrom = attributeKey.equals("shipmentDateRange")
-                ? "\"" + utils.getCommaSeparatedList(attributeValue)[0] + "\""
-                : null;
+            ? "\"" + utils.getCommaSeparatedList(attributeValue)[0] + "\""
+            : null;
         var shipmentTo = attributeKey.equals("shipmentDateRange")
-                ?"\"" +  utils.getCommaSeparatedList(attributeValue)[1] + "\""
-                : null;
+            ? "\"" + utils.getCommaSeparatedList(attributeValue)[1] + "\""
+            : null;
         var transportationReferenceNumber = attributeKey.equals("transportationReferenceNumber")
-                ? "\""+attributeValue+"\""
-                : null;
+            ? "\"" + attributeValue + "\""
+            : null;
 
         // Add date range as default when no shipmentNumber is provided
-        if (!List.of("shipmentNumber", "shipmentDateRange").contains(attributeKey)){
+        if (!List.of("shipmentNumber", "shipmentDateRange").contains(attributeKey)) {
             shipmentFrom = "\"" + LocalDate.now() + "\"";
             shipmentTo = "\"" + LocalDate.now().plusDays(1) + "\"";
         }
 
         var response = apiHelper.graphQlRequest(GraphQLQueryMapper.searchShipment(
-                locationCodeList,
-                shipmentNumber,
-                shipmentStatusList,
-                shipmentCustomerList,
-                productTypeList,
-                shipmentFrom,
-                shipmentTo,
-                transportationReferenceNumber
+            locationCodeList,
+            shipmentNumber,
+            shipmentStatusList,
+            shipmentCustomerList,
+            productTypeList,
+            shipmentFrom,
+            shipmentTo,
+            transportationReferenceNumber
         ), "searchShipment");
         sharedContext.setApiListMessageResponse((List<Map>) (response.get("notifications")));
 
