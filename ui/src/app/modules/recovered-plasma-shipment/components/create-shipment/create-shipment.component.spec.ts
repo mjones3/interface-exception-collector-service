@@ -116,6 +116,34 @@ describe('CreateShipmentComponent', () => {
         );
     });
 
+    it('should not allow comma in carton tare weight', () => {
+        const formControl =
+            component.createShipmentForm.get('cartonTareWeight');
+        formControl.setValue('1,333');
+        formControl.markAsTouched();
+        formControl.updateValueAndValidity();
+        fixture.detectChanges();
+        const error = fixture.debugElement.query(By.css('mat-error'));
+        expect(error).toBeTruthy();
+        expect(error.nativeElement.textContent).toContain(
+            'Carton Tare Weight is invalid'
+        );
+    });
+
+    it('should not allow alphabetic characters in carton tare weight', () => {
+        const formControl =
+            component.createShipmentForm.get('cartonTareWeight');
+        formControl.setValue('asasasas');
+        formControl.markAsTouched();
+        formControl.updateValueAndValidity();
+        fixture.detectChanges();
+        const error = fixture.debugElement.query(By.css('mat-error'));
+        expect(error).toBeTruthy();
+        expect(error.nativeElement.textContent).toContain(
+            'Carton Tare Weight is invalid'
+        );
+    });
+
     it('should display mat error if customer name field is empty', () => {
         const formControl = component.createShipmentForm.get('customerName');
         formControl.setValue('');

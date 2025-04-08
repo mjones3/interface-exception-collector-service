@@ -6,11 +6,12 @@ type Query {
     # Searches over all Customers
     findAllCustomers: [CustomerDTO]!
     findAllLocations:[LocationDTO]!
+    findAllLookupsByType(type: String!): [LookupDTO]!
     findAllProductTypeByCustomer(customerCode:String!):[ProductTypeDTO]!
+    searchShipment(recoveredPlasmaShipmentQueryCommandRequestDTO:RecoveredPlasmaShipmentQueryCommandRequestDTO): UseCaseResponseDTO!
 }
 
 type Mutation {
-
     createShipment(createShipmentRequest:CreateShipmentRequestDTO!): UseCaseResponseDTO!
 }
 
@@ -26,6 +27,20 @@ input CreateShipmentRequestDTO {
     shipmentDate:Date
     cartonTareWeight:Float
     createEmployeeId:String
+}
+
+input RecoveredPlasmaShipmentQueryCommandRequestDTO {
+    locationCode:[String]
+    shipmentNumber:String
+    shipmentStatus:[String]
+    customers:[String]
+    productTypes:[String]
+    shipmentDateFrom:Date
+    shipmentDateTo:Date
+    querySort:InputQuerySortDTO
+    pageNumber:Int
+    pageSize:Int
+    transportationReferenceNumber:String
 }
 
 type OutputQuerySortDTO {
@@ -98,6 +113,15 @@ type CustomerDTO {
     modificationDate:DateTime
 }
 
+type LookupDTO {
+    id: Int!
+    type: String!
+    optionValue: String!
+    descriptionKey: String!
+    orderNumber: Int!
+    active: Boolean!
+}
+
 type UseCaseResponseDTO {
     notifications: [UseCaseNotificationDTO]
     _links: JSON
@@ -109,4 +133,3 @@ type ProductTypeDTO{
     productType:String
     productTypeDescription:String
 }
-

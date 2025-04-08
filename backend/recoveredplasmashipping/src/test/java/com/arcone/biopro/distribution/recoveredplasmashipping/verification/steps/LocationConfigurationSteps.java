@@ -2,6 +2,7 @@ package com.arcone.biopro.distribution.recoveredplasmashipping.verification.step
 
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.ApiHelper;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.DatabaseService;
+import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.SharedContext;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.graphql.GraphQLQueryMapper;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Given;
@@ -25,6 +26,9 @@ public class LocationConfigurationSteps {
 
     @Autowired
     DatabaseService databaseService;
+
+    @Autowired
+    SharedContext context;
 
     @Given("The following locations are defined as Recovered Plasma Shipping Locations")
     public void theFollowingLocationsAreDefinedAsRecoveredPlasmaShippingLocations(DataTable dataTable) {
@@ -53,21 +57,24 @@ public class LocationConfigurationSteps {
     }
 
 
-    @Given("The location {string} is configured with prefix {string}, shipping code {string}, shipping quantity {string}, and prefix configuration {string}.")
-    public void configureLocation(String location, String prefix, String shippingCode, String quantity, String prefixConfig) {
+    @Given("The location {string} is configured with prefix {string}, shipping code {string}, and prefix configuration {string}.")
+    public void configureLocation(String location, String prefix, String shippingCode, String prefixConfig) {
+
+        int randomId = (int) (Math.random() * 1000) +1;
         // lk_location
-        var createConfigurationSQL = "INSERT INTO lk_location (external_id, code, name, city, state, postal_code, address_line_1, active, create_date, modification_date) " +
-            "VALUES ('" + location + "', '" + location + "', '" + location + "', 'city', 'state', '000000', 'address_line_1', true, now(), now())";
+        var createConfigurationSQL = "INSERT INTO lk_location (id, external_id, code, name, city, state, postal_code, address_line_1, active, create_date, modification_date) " +
+            "VALUES ("+ randomId + ", '" + location + "', '" + location + "', '" + location + "', 'city', 'state', '000000', 'address_line_1', true, now(), now())";
         databaseService.executeSql(createConfigurationSQL).block();
 
         // lk_location_property
-        var configIdSubquery = "SELECT max(id) AS id FROM lk_location WHERE external_id = '" + location + "'";
         var locationPropertySQL = "INSERT INTO lk_location_property (location_id, property_key, property_value) " +
-            "VALUES ((" + configIdSubquery + "), 'RPS_PARTNER_PREFIX', '" + prefix + "'), ((" + configIdSubquery + "), 'RPS_LOCATION_SHIPMENT_CODE', '" + shippingCode + "'), ((" + configIdSubquery + "), 'RPS_LOCATION_CARTON_CODE', '" + "MH1" + "'), ((" + configIdSubquery + "), 'RPS_USE_PARTNER_PREFIX', '" + prefixConfig + "');";
+            "VALUES (" + randomId + ", 'RPS_PARTNER_PREFIX', '" + prefix + "'), ((" + randomId + "), 'RPS_LOCATION_SHIPMENT_CODE', '" + shippingCode + "'), ((" + randomId + "), 'RPS_LOCATION_CARTON_CODE', '" + "MH1" + "'), ((" + randomId + "), 'RPS_USE_PARTNER_PREFIX', '" + prefixConfig + "');";
         databaseService.executeSql(locationPropertySQL).block();
 
-        log.info("Configuring location: {} with prefix: {}, shipping code: {}, quantity: {}, prefix config: {}",
-            location, prefix, shippingCode, quantity, prefixConfig);
+        log.info("Configuring location: {} with prefix: {}, shipping code: {}, prefix config: {}",
+            location, prefix, shippingCode, prefixConfig);
+
+        context.setLocationCode(location);
     }
 
     @Given("I have removed from the database all the configurations for the location {string}.")

@@ -11,13 +11,16 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.junit.Assert;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 @Slf4j
 @SpringBootTest
@@ -25,10 +28,8 @@ public class CreateShipmentSteps {
 
     @Autowired
     private CreateShipmentPage createShipmentPage;
-
     @Autowired
     private DatabaseService databaseService;
-
     @Autowired
     private CreateShipmentController createShipmentController;
     @Autowired
@@ -41,7 +42,7 @@ public class CreateShipmentSteps {
         log.info("Removing shipments containing code: {}", code);
     }
 
-    @Given("I am on the Shipment Create Page.")
+    @Given("I am on the Shipment Create/List Page.")
     public void navigateToShipmentCreatePage() throws InterruptedException {
         createShipmentPage.goTo();
     }
@@ -69,14 +70,12 @@ public class CreateShipmentSteps {
             LocalDate tomorrow = LocalDate.now().plusDays(1);
             shipmentDate = tomorrow.format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
             createShipmentPage.setShipmentDate(shipmentDate);
-
-            String transportationRefNumber = fields.get("Transportation Reference Number");
-            createShipmentPage.setTransportationRefNumber(transportationRefNumber);
-
         }
-
         String productType = fields.get("Product Type");
         createShipmentPage.selectProductType(productType);
+
+        String transportationRefNumber = fields.get("Transportation Reference Number");
+        createShipmentPage.setTransportationRefNumber(transportationRefNumber);
     }
 
     @When("I choose to submit the shipment.")
@@ -99,6 +98,9 @@ public class CreateShipmentSteps {
         if (shipmentDate.equals("<tomorrow>")) {
             LocalDate tomorrow = LocalDate.now().plusDays(1);
             shipmentDate = tomorrow.toString();
+        } else if (shipmentDate.equals("<today>")) {
+            LocalDate today = LocalDate.now();
+            shipmentDate = today.toString();
         }
 
         String transportationRefNumber = fields.get("Transportation Reference Number");
@@ -118,6 +120,42 @@ public class CreateShipmentSteps {
         );
     }
 
+    @When("I request to create {int} new shipments with the values:")
+    public void iRequestToCreateANewShipmentsWithTheValues(int quantity, DataTable dataTable) throws InterruptedException {
+        Map<String, String> fields = dataTable.asMap(String.class, String.class);
+
+
+        for (int i = 0; i < quantity; i++) {
+
+            String shipmentDate = LocalDate.now().plusDays(i).toString();
+            if (i == 0) {
+                sharedContext.setInitialShipmentDate(shipmentDate);
+            } else if (i == quantity - 1) {
+                sharedContext.setFinalShipmentDate(shipmentDate);
+            }
+
+
+            String shipmentNumber = fields.get("Shipment Number Prefix") + i;
+            // Get OPEN or CLOSED randomly
+            List<String> statuses = List.of("OPEN", "CLOSED");
+            String status = statuses.get(new Random().nextInt(statuses.size()));
+
+            String createShipmentQuery = DatabaseQueries.INSERT_SHIPMENT(
+                fields.get("Customer Code"),
+                fields.get("Location Code"),
+                fields.get("Product Type"),
+                status,
+                shipmentNumber,
+                shipmentDate
+            );
+
+            databaseService.executeSql(createShipmentQuery).block();
+
+
+            Thread.sleep(500);
+        }
+    }
+
     @And("The shipment should be created with the following information:")
     public void theShipmentShouldBeCreatedWithTheFollowingInformation(DataTable datatable) {
         Map<String, String> fields = datatable.asMap(String.class, String.class);
@@ -133,12 +171,12 @@ public class CreateShipmentSteps {
 
         var newShipment = databaseService.fetchData(DatabaseQueries.FETCH_SHIPMENT_BY_ID(sharedContext.getLastShipmentId() + 1)).first().block();
 
-        assert newShipment != null;
-        assert customerCode.equals(newShipment.get("customer_code").toString());
-        assert productType.equals(newShipment.get("product_type").toString());
-        assert cartonTareWeight.equals(newShipment.get("carton_tare_weight").toString());
-        assert locationCode.equals(newShipment.get("location_code").toString());
-        assert status.equals(newShipment.get("status").toString());
+        Assert.assertNotNull(newShipment);
+        Assert.assertEquals(customerCode, newShipment.get("customer_code").toString());
+        Assert.assertEquals(productType, newShipment.get("product_type").toString());
+        Assert.assertEquals(cartonTareWeight, newShipment.get("carton_tare_weight").toString());
+        Assert.assertEquals(locationCode, newShipment.get("location_code").toString());
+        Assert.assertEquals(status, newShipment.get("status").toString());
 
         Assert.assertTrue(
             createShipmentController.verifyIfNullNotNullOrValue(createDate, newShipment.get("create_date")));
@@ -168,7 +206,13 @@ public class CreateShipmentSteps {
         var lastShipmentCount = sharedContext.getLastShipmentNumber();
         var responseShipmentNumber = sharedContext.getShipmentCreateResponse().get("shipmentNumber");
 
-        Assert.assertEquals(responseShipmentNumber,shipentNumberPrefix + (lastShipmentCount + 1));
+        Assert.assertEquals(responseShipmentNumber, shipentNumberPrefix + (lastShipmentCount + 1));
 
+    }
+
+    @And("I have removed from the database all shipments from location {string} with transportation ref number {string}.")
+    public void iHaveRemovedFromTheDatabaseAllShipmentsFromLocationWithTransportationRefNumber(String location, String transportationRefNumber) {
+        var deleteShipmentsQuery = DatabaseQueries.REMOVE_SHIPMENTS_BY_LOCATION_AND_TRANSPORTATION_REF_NUMBER(location, transportationRefNumber);
+        databaseService.executeSql(deleteShipmentsQuery).block();
     }
 }
