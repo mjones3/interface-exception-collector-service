@@ -6,7 +6,7 @@
     ></biopro-process-header>
 
     <ng-template #actionButtonsTpl>
-        @if(isRecoveredPlasmaFacility){
+        @if (isRecoveredPlasmaFacility) {
             <div class="flex flex-row space-x-2">
                 <biopro-action-button
                     id="createShipmentBtn"
@@ -48,6 +48,23 @@
                     [class.!pointer-events-none]="loading()"
                 >
                 </biopro-table>
+                <ng-template #shipmentDateTemplateRef let-element="element">
+                    {{ element?.shipmentDate | date: 'MM/dd/yyyy' }}
+                </ng-template>
+                <ng-template #statusTemplateRef let-element="element">
+                    <span [class]="getStatusBadgeCssClass(element.status)">
+                        {{ element.status }}
+                    </span>
+                </ng-template>
+                <ng-template #detailBtnTemplateRef let-element="element">
+                    <biopro-basic-button
+                        id="detailsBtn"
+                        [disabled]="true"
+                        class="text-primary"
+                        color="primary"
+                        label="Details"
+                    />
+                </ng-template>
             </div>
         </div>
     </div>

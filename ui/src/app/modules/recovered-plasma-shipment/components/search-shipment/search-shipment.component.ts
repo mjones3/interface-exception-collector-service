@@ -1,11 +1,21 @@
-import { AsyncPipe } from '@angular/common';
-import { Component, computed, OnInit, signal, viewChild } from '@angular/core';
+import { AsyncPipe, DatePipe } from '@angular/common';
+import {
+    Component,
+    OnInit,
+    TemplateRef,
+    computed,
+    signal,
+    viewChild,
+} from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { PageEvent } from '@angular/material/paginator';
+import { Sort } from '@angular/material/sort';
 import { MatStepperModule } from '@angular/material/stepper';
+import { ApolloError } from '@apollo/client';
 import {
     LookUpDto,
     ProcessHeaderComponent,
@@ -14,29 +24,26 @@ import {
     TableConfiguration,
 } from '@shared';
 import { ActionButtonComponent } from 'app/shared/components/buttons/action-button.component';
-import { FilterShipmentComponent } from '../filter-shipment/filter-shipment.component';
-import { CreateShipmentComponent } from '../create-shipment/create-shipment.component';
-import { RecoveredPlasmaService } from '../../services/recovered-plasma.service';
 import { Cookie } from 'app/shared/types/cookie.enum';
 import { CookieService } from 'ngx-cookie-service';
-import { forkJoin, map, Observable, tap } from 'rxjs';
-import { RecoveredPlasmaLocationDTO } from '../../graphql/query-definitions/location.graphql';
-import { RecoveredPlasmaCustomerDTO } from '../../graphql/query-definitions/customer.graphql';
+import { ToastrService } from 'ngx-toastr';
+import { Observable, forkJoin, map, tap } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { BasicButtonComponent } from '../../../../shared/components/buttons/basic-button.component';
+import { TableComponent } from '../../../../shared/components/table/table.component';
 import { EMPTY_PAGE, PageDTO } from '../../../../shared/models/page.model';
+import handleApolloError from '../../../../shared/utils/apollo-error-handling';
+import { consumeUseCaseNotifications } from '../../../../shared/utils/notification.handling';
+import { RecoveredPlasmaCustomerDTO } from '../../graphql/query-definitions/customer.graphql';
+import { RecoveredPlasmaLocationDTO } from '../../graphql/query-definitions/location.graphql';
 import {
     RecoveredPlasmaShipmentQueryCommandRequestDTO,
     RecoveredPlasmaShipmentReportDTO,
+    RecoveredPlasmaShipmentStatus,
 } from '../../graphql/query-definitions/shipment.graphql';
-import { TableComponent } from '../../../../shared/components/table/table.component';
-import { OrderPriorityMap } from '../../../../shared/models/order-priority.model';
-import { OrderStatusMap } from '../../../../shared/models/order-status.model';
-import { PageEvent } from '@angular/material/paginator';
-import { Sort } from '@angular/material/sort';
-import { ApolloError } from '@apollo/client';
-import { ToastrService } from 'ngx-toastr';
-import { consumeUseCaseNotifications } from '../../../../shared/utils/notification.handling';
-import { catchError } from 'rxjs/operators';
-import handleApolloError from '../../../../shared/utils/apollo-error-handling';
+import { RecoveredPlasmaService } from '../../services/recovered-plasma.service';
+import { CreateShipmentComponent } from '../create-shipment/create-shipment.component';
+import { FilterShipmentComponent } from '../filter-shipment/filter-shipment.component';
 
 @Component({
     selector: 'biopro-search-shipment',
@@ -53,6 +60,8 @@ import handleApolloError from '../../../../shared/utils/apollo-error-handling';
         ActionButtonComponent,
         AsyncPipe,
         TableComponent,
+        DatePipe,
+        BasicButtonComponent,
     ],
     templateUrl: './search-shipment.component.html',
 })
@@ -60,6 +69,13 @@ export class SearchShipmentComponent implements OnInit {
     isFilterToggled = false;
     currentFilter: RecoveredPlasmaShipmentQueryCommandRequestDTO;
 
+    shipmentDateTemplateRef = viewChild<TemplateRef<Element>>(
+        'shipmentDateTemplateRef'
+    );
+    statusTemplateRef = viewChild<TemplateRef<Element>>('statusTemplateRef');
+    detailBtnTemplateRef = viewChild<TemplateRef<Element>>(
+        'detailBtnTemplateRef'
+    );
     columns = computed<TableColumn[]>(() => [
         {
             id: 'shipmentNumber',
@@ -67,18 +83,18 @@ export class SearchShipmentComponent implements OnInit {
             sort: false,
         },
         {
-            id: 'location',
-            header: 'Location',
+            id: 'customerName',
+            header: 'Customer',
             sort: false,
         },
         {
             id: 'transportationReferenceNumber',
-            header: 'Transportation Reference Number',
+            header: 'Transportation #',
             sort: false,
         },
         {
-            id: 'customerName',
-            header: 'Customer',
+            id: 'location',
+            header: 'Location',
             sort: false,
         },
         {
@@ -90,11 +106,18 @@ export class SearchShipmentComponent implements OnInit {
             id: 'shipmentDate',
             header: 'Shipment Date',
             sort: false,
+            columnTempRef: this.shipmentDateTemplateRef(),
         },
         {
             id: 'status',
             header: 'Status',
             sort: false,
+            columnTempRef: this.statusTemplateRef(),
+        },
+        {
+            id: 'action',
+            header: '',
+            columnTempRef: this.detailBtnTemplateRef(),
         },
     ]);
     table = viewChild<TableComponent>('recoveredPlasmaShipmentTable');
@@ -278,6 +301,14 @@ export class SearchShipmentComponent implements OnInit {
         this.applyFilterSearch(this.currentFilter);
     }
 
-    protected readonly OrderPriorityMap = OrderPriorityMap;
-    protected readonly OrderStatusMap = OrderStatusMap;
+    getStatusBadgeCssClass(status: keyof typeof RecoveredPlasmaShipmentStatus) {
+        switch (status) {
+            case 'OPEN':
+                return 'text-sm font-bold py-1.5 px-2 badge rounded-full text-white bg-gray-200 !text-gray-700';
+            case 'CLOSED':
+                return 'text-sm font-bold py-1.5 px-2 badge rounded-full text-white bg-blue-200 !text-blue-700';
+            default:
+                return '';
+        }
+    }
 }
