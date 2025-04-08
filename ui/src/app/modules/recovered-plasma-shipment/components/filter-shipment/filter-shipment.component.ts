@@ -268,6 +268,12 @@ export class FilterShipmentComponent implements OnInit {
     resetFilters(): void {
         this.form.reset();
         this.form.enable({ emitEvent: false });
+        this.form.controls.shipmentDate
+            .get('start')
+            .removeValidators([Validators.required]);
+        this.form.controls.shipmentDate
+            .get('end')
+            .removeValidators([Validators.required]);
         this.emitNoResults();
     }
 
