@@ -40,4 +40,8 @@ public class SharedContext {
     private Integer lastShipmentNumber;
 
     private Map shipmentCreateResponse;
+
+    // Shipment data
+    private String initialShipmentDate;
+    private String finalShipmentDate;
 }

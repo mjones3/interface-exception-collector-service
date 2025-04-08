@@ -13,11 +13,14 @@ import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 @Slf4j
 @SpringBootTest
@@ -25,10 +28,8 @@ public class CreateShipmentSteps {
 
     @Autowired
     private CreateShipmentPage createShipmentPage;
-
     @Autowired
     private DatabaseService databaseService;
-
     @Autowired
     private CreateShipmentController createShipmentController;
     @Autowired
@@ -117,6 +118,42 @@ public class CreateShipmentSteps {
             transportationRefNumber,
             "\"" + fields.get("Location Code") + "\""
         );
+    }
+
+    @When("I request to create {int} new shipments with the values:")
+    public void iRequestToCreateANewShipmentsWithTheValues(int quantity, DataTable dataTable) throws InterruptedException {
+        Map<String, String> fields = dataTable.asMap(String.class, String.class);
+
+
+        for (int i = 0; i < quantity; i++) {
+
+            String shipmentDate = LocalDate.now().plusDays(i).toString();
+            if (i == 0) {
+                sharedContext.setInitialShipmentDate(shipmentDate);
+            } else if (i == quantity - 1) {
+                sharedContext.setFinalShipmentDate(shipmentDate);
+            }
+
+
+            String shipmentNumber = fields.get("Shipment Number Prefix") + i;
+            // Get OPEN or CLOSED randomly
+            List<String> statuses = List.of("OPEN", "CLOSED");
+            String status = statuses.get(new Random().nextInt(statuses.size()));
+
+            String createShipmentQuery = DatabaseQueries.INSERT_SHIPMENT(
+                fields.get("Customer Code"),
+                fields.get("Location Code"),
+                fields.get("Product Type"),
+                status,
+                shipmentNumber,
+                shipmentDate
+            );
+
+            databaseService.executeSql(createShipmentQuery).block();
+
+
+            Thread.sleep(500);
+        }
     }
 
     @And("The shipment should be created with the following information:")

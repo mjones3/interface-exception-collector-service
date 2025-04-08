@@ -6,9 +6,8 @@ Feature: Filter Shipments
         And I have removed from the database all shipments which code contains with "DIS33400".
         And I have removed from the database all shipments from location "123456789" with transportation ref number "DIS334".
 
-    Rule: I should be able to filter the shipment lists by specific criteria.
+        Rule: I should be able to filter the shipment lists by specific criteria.
         Rule: The system should not enable the Apply options until at least one filter criteria is chosen.
-    Rule: I should get shipments default sorting as: “status” descending and “shipmentDate” ascending.
         @ui @DIS-334
         Scenario: Filter shipments through UI with multiple criteria
             Given I request to create a new shipment with the values:
@@ -35,9 +34,9 @@ Feature: Filter Shipments
             And I should see "6" filter criteria applied.
 
 
-    Rule: I should be able to search by
-    Shipment Number, Customer, Product Type, Shipment Status,
-    Shipment Date Range, Location and Transportation Reference Number as filter Options.
+        Rule: I should be able to search by
+        Shipment Number, Customer, Product Type, Shipment Status,
+        Shipment Date Range, Location and Transportation Reference Number as filter Options.
         Rule: I should be able to multi-select for Customer, Product Type, Shipment Status and Location.
         @api @DIS-334
         Scenario Outline: Search for shipments by <Attribute>
@@ -64,7 +63,7 @@ Feature: Filter Shipments
                 | transportationReferenceNumber | 55123                      |
 
 
-    Rule: I should be notified when no search results are found.
+        Rule: I should be notified when no search results are found.
         @api @DIS-334
         Scenario Outline: Validation failure handling
             Given I requested the list of shipments filtering by "<Attribute>" as "<Value>".
@@ -80,6 +79,22 @@ Feature: Filter Shipments
                 | shipmentStatusList   | WRONG1, WRONG2        |
                 | locationCodeList     | WRONG1, WRONG2        |
                 | shipmentDateRange    | 2030-01-01,2030-01-01 |
+
+        Rule: I should get shipments default sorting as: “status” descending and “shipmentDate” ascending.
+        @api @DIS-334
+        Scenario: Verify shipment list order
+            Given The location "123456700_TEST" is configured with prefix "BPM_TEST", shipping code "DIS334003", and prefix configuration "Y".
+            And I request to create 10 new shipments with the values:
+                | Field                           | Value                      |
+                | Customer Code                   | 408                        |
+                | Product Type                    | RP_FROZEN_WITHIN_120_HOURS |
+                | Carton Tare Weight              | 1000                       |
+                | Transportation Reference Number | 55123                      |
+                | Location Code                   | 123456700_TEST             |
+                | Shipment Number Prefix          | BPM_TESTDIS334003          |
+            When I requested the list of all shipments from the location above having statuses "OPEN,CLOSED".
+            Then The list shipment response should contains "10" items.
+            And The list shipment response should be ordered by "status,shipmentDate".
 
 
 
