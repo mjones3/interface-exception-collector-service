@@ -1,4 +1,4 @@
-@AOA-6 @AOA-40 @AOA-152
+@AOA-6 @AOA-40 @AOA-152 @AOA-105
 Feature: Complete Shipment Feature
     As a distribution technician, I want to complete a shipment, so I can ship products to the customer.
 
@@ -13,7 +13,7 @@ Feature: Complete Shipment Feature
         Rule: I should be able to view the pending log of products to be filled for each line item on the Shipment Fulfillment Details page.
         Rule: I should be able to complete the shipment process without second verification if configured by the blood center.
 
-        @ui  @DIS-202 @DIS-162 @DIS-156 @DIS-56 @DIS-25 @DIS-21 @DIS-201 @bug @DIS-273 @DIS-254 @DIS-336
+        @ui  @DIS-202 @DIS-162 @DIS-156 @DIS-56 @DIS-25 @DIS-21 @DIS-201 @bug @DIS-273 @DIS-254 @DIS-336 @DIS-337
         Scenario Outline: Complete Shipment with suitable products.
             Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>" , Temperature Category "<Category>".
             And The check digit configuration is "disabled".
@@ -41,9 +41,10 @@ Feature: Complete Shipment Feature
                 | 254001       | 1           | Testing Customer | 5,8      | AP,BN     | WHOLE_BLOOD,WHOLE_BLOOD                                                                | WHOLE BLOOD                     | AP   | =W81253010700200 | =<E0023V00 | 1                | enabled           | FROZEN           |
                 | 254002       | 1           | Testing Customer | 10,5     | ABP,AP    | WHOLE_BLOOD_LEUKOREDUCED,WHOLE_BLOOD_LEUKOREDUCED                                     | WHOLE BLOOD LEUKOREDUCED         | ABP  | =W81253010700100 | =<E0033V00 | 1                | enabled           | FROZEN           |
                 | 254003       | 1           | Testing Customer | 2,2      | OP,ON     | RED_BLOOD_CELLS,RED_BLOOD_CELLS                                                       | RED BLOOD CELLS                  | ON   | =W81253010609900 | =<E0167V00 | 1                | enabled           | FROZEN           |
-                | 336001       | 1           | Testing Customer | 2        | ANY       | APHERESIS_PLATELETS_LEUKOREDUCED                                                      | APHERESIS PLATELETS LEUKOREDUCED | ANY  | =W81253010700800  | =<EA141V00 | 1                | enabled           | ROOM_TEMPERATURE |
+                | 336001       | 1           | Testing Customer | 2        | ANY       | APHERESIS_PLATELETS_LEUKOREDUCED                                                      | APHERESIS PLATELETS LEUKOREDUCED | ANY  | =W81253010700800  | =<EA141V00 | 1                | enabled          | ROOM_TEMPERATURE |
                 | 336002       | 1           | Testing Customer | 2        | A        | PRT_APHERESIS_PLATELETS                                                               | PRT APHERESIS PLATELETS           | A    | =W81253010700900 | =<E8340V00 | 1                | enabled           | ROOM_TEMPERATURE |
                 | 336003       | 1           | Testing Customer | 2        | B        | PRT_APHERESIS_PLATELETS                                                               | PRT APHERESIS PLATELETS           | B    | =W81253010701000 | =<E9431V00 | 1                | enabled           | REFRIGERATED |
+                | 337001       | 1           | Testing Customer | 2        | AP       | RED_BLOOD_CELLS_LEUKOREDUCED                                                          | RED BLOOD CELLS LEUKOREDUCED      | AP   | =W81253010701200 | =<E5107V00 | 1                | enabled           | REFRIGERATED |
 
 
 

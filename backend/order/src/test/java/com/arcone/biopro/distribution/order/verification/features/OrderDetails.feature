@@ -5,7 +5,7 @@ Feature: View order details
         Given I cleaned up from the database the orders with external ID starting with "ORDER".
 
         Rule: I should be able to see the available inventory for each line item.
-        @DIS155 @DIS-121 @DIS-100 @DIS-97 @DIS-161 @DIS-253 @bug @DIS-295 @bug @DIS-321 @DIS-336
+        @DIS155 @DIS-121 @DIS-100 @DIS-97 @DIS-161 @DIS-253 @bug @DIS-295 @bug @DIS-321 @DIS-336 @DIS-337
         Scenario Outline: View order details
             Given I have a Biopro Order with externalId "<External ID>", Location Code "<LocationCode>", Priority "<Priority>", Status "<Status>", shipment type "<Shipment Type>", delivery type "<Delivery Type>", shipping method "<Shipping Method>", product category "<Product Category>", desired ship date "<Desired Date>", shipping customer code and name as "<Shipping Customer Code>" and "<Shipping Customer Name>", billing customer code and name as "<Billing Customer Code>" and "<Billing Customer Name>", and comments "<Order Comments>".
             And I have 2 order items with product families "<ProductFamily>", blood types "<BloodType>", quantities "<Quantity>", and order item comments "<Item Comments>".
@@ -28,6 +28,7 @@ Feature: View order details
                 | ORDERDIS336001 | 123456789    | STAT     | OPEN   | APHERESIS_PLATELETS_LEUKOREDUCED,APHERESIS_PLATELETS_LEUKOREDUCED | AB,A      | 2,50     | CUSTOMER      | FEDEX           | ROOM_TEMPERATURE | 2024-08-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap, Another comment |
                 | ORDERDIS336002 | 123456789    | STAT     | OPEN   | PRT_APHERESIS_PLATELETS,PRT_APHERESIS_PLATELETS                   | AB,A      | 10,5     | CUSTOMER      | FEDEX           | ROOM_TEMPERATURE | 2024-08-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap, Another comment |
                 | ORDERDIS336003 | 123456789    | STAT     | OPEN   | PRT_APHERESIS_PLATELETS,PRT_APHERESIS_PLATELETS                   | AB,O      | 10,7     | CUSTOMER      | FEDEX           | REFRIGERATED     | 2024-08-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap, Another comment |
+                | ORDERDIS337001 | 123456789    | STAT     | OPEN   | RED_BLOOD_CELLS_LEUKOREDUCED,RED_BLOOD_CELLS_LEUKOREDUCED         | AP,OP     | 10,7     | CUSTOMER      | FEDEX           | FROZEN           | 2024-08-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap, Another comment |
 
 
             Rule: I should be able to create the order fulfillment request when the pick list is generated.Rule: The BioPro order status must be updated to InProgress when an order is being fulfilled.

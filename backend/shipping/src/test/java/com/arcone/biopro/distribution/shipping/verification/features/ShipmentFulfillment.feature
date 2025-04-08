@@ -3,7 +3,7 @@ Feature: Shipment fulfillment request
 
     Background:
         Given I cleaned up from the database the packed item that used the unit number "W822530106093,W822530106094,W812530106095,W812530106097,W812530106098,W812530106199,W812530107006,W812530107007,,W812530107009,,W812530107010".
-        And I cleaned up from the database, all shipments with order number "1321,1331,1341,1351,1361,1371,1381,1391,1392,1393,1394,1395,2851,2852,261002,336001,336002,336003,336004".
+        And I cleaned up from the database, all shipments with order number "1321,1331,1341,1351,1361,1371,1381,1391,1392,1393,1394,1395,2851,2852,261002,336001,336002,336003,336004,337001".
 
         Rule: I should be able to receive the shipment fulfillment request.
         Rule: I should be able to persist the shipment fulfilled request on the local store.
@@ -97,7 +97,8 @@ Feature: Shipment fulfillment request
 
         Rule: I should be able to fill orders with Whole Blood and Derived Products.
         Rule: I should be able to fill orders with Apheresis Platelets (PRT and BacT) Products.
-        @api @DIS-254 @DIS-336
+        Rule: I should be able to fill orders with Frozen RBCs Products.
+        @api @DIS-254 @DIS-336 @DIS-337
         Scenario Outline: Ship Whole Blood and Derived Products.
             Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>" , Temperature Category "<Category>".
             And The visual inspection configuration is "enabled".
@@ -115,6 +116,7 @@ Feature: Shipment fulfillment request
                 | 336002         | 1           | Testing Customer | 5        | AB        | APHERESIS_PLATELETS_LEUKOREDUCED | W812530107007 | EA139V00 | ROOM_TEMPERATURE |
                 | 336003         | 1           | Testing Customer | 5        | AP        | PRT_APHERESIS_PLATELETS          | W812530107009 | E8340V00 | ROOM_TEMPERATURE |
                 | 336004         | 1           | Testing Customer | 5        | BP        | PRT_APHERESIS_PLATELETS          | W812530107010 | E9431V00 | REFRIGERATED     |
+                | 337001         | 1           | Testing Customer | 5        | BP        | RED_BLOOD_CELLS_LEUKOREDUCED     | W812530107011 | E5085V00 | FROZEN           |
 
             @api @DIS-261
             Rule: The second verification process should be restarted when a product is added into the shipment.
