@@ -304,9 +304,9 @@ export class SearchShipmentComponent implements OnInit {
     getStatusBadgeCssClass(status: keyof typeof RecoveredPlasmaShipmentStatus) {
         switch (status) {
             case 'OPEN':
-                return 'text-sm font-bold py-1.5 px-2 badge rounded-full text-white bg-gray-200 !text-gray-700';
+                return 'text-sm font-bold py-1.5 px-2 badge rounded-full bg-gray-200 text-gray-700';
             case 'CLOSED':
-                return 'text-sm font-bold py-1.5 px-2 badge rounded-full text-white bg-blue-200 !text-blue-700';
+                return 'text-sm font-bold py-1.5 px-2 badge rounded-full bg-blue-200 text-blue-700';
             default:
                 return '';
         }
