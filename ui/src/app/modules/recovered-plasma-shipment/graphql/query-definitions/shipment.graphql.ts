@@ -1,7 +1,12 @@
 import { gql } from 'apollo-angular';
-import { PageDTO } from '../../../../shared/models/page.model';
 import { QuerySortDTO } from 'app/shared/models/query-order.model';
+import { PageDTO } from '../../../../shared/models/page.model';
 import { UseCaseResponseDTO } from '../../../../shared/models/use-case-response.dto';
+
+export enum RecoveredPlasmaShipmentStatus {
+    OPEN,
+    CLOSED,
+}
 
 export interface RecoveredPlasmaShipmentReportDTO {
     shipmentId: number;
@@ -11,7 +16,7 @@ export interface RecoveredPlasmaShipmentReportDTO {
     transportationReferenceNumber?: string;
     productType: string;
     shipmentDate?: string;
-    status: 'OPEN' | 'CLOSED';
+    status: keyof typeof RecoveredPlasmaShipmentStatus;
 }
 
 export interface RecoveredPlasmaShipmentQueryCommandRequestDTO {
@@ -29,11 +34,21 @@ export interface RecoveredPlasmaShipmentQueryCommandRequestDTO {
 }
 
 export const SEARCH_RP_SHIPMENT = gql<
-    { searchShipment: UseCaseResponseDTO<PageDTO<RecoveredPlasmaShipmentReportDTO>> },
-    { recoveredPlasmaShipmentQueryCommandRequestDTO: RecoveredPlasmaShipmentQueryCommandRequestDTO }
+    {
+        searchShipment: UseCaseResponseDTO<
+            PageDTO<RecoveredPlasmaShipmentReportDTO>
+        >;
+    },
+    {
+        recoveredPlasmaShipmentQueryCommandRequestDTO: RecoveredPlasmaShipmentQueryCommandRequestDTO;
+    }
 >`
-    query ($recoveredPlasmaShipmentQueryCommandRequestDTO: RecoveredPlasmaShipmentQueryCommandRequestDTO!) {
-        searchShipment(recoveredPlasmaShipmentQueryCommandRequestDTO: $recoveredPlasmaShipmentQueryCommandRequestDTO) {
+    query (
+        $recoveredPlasmaShipmentQueryCommandRequestDTO: RecoveredPlasmaShipmentQueryCommandRequestDTO!
+    ) {
+        searchShipment(
+            recoveredPlasmaShipmentQueryCommandRequestDTO: $recoveredPlasmaShipmentQueryCommandRequestDTO
+        ) {
             _links
             data
             notifications {

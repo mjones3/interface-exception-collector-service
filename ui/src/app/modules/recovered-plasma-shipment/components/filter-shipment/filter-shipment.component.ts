@@ -1,11 +1,11 @@
 import { CommonModule, formatDate } from '@angular/common';
 import {
     Component,
+    LOCALE_ID,
+    OnInit,
     computed,
     inject,
     input,
-    LOCALE_ID,
-    OnInit,
     output,
     signal,
 } from '@angular/core';
@@ -22,14 +22,14 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { LookUpDto, SelectOptionDto } from '@shared';
 import { DateRangePickerComponent } from 'app/shared/components/date-range-picker/date-range-picker.component';
 import { FiltersComponent } from 'app/shared/components/filters/filters.component';
 import { MultipleSelectComponent } from 'app/shared/components/multiple-select/multiple-select.component';
-import { RecoveredPlasmaLocationDTO } from '../../graphql/query-definitions/location.graphql';
-import { RecoveredPlasmaCustomerDTO } from '../../graphql/query-definitions/customer.graphql';
-import { LookUpDto, SelectOptionDto } from '@shared';
-import { RecoveredPlasmaShipmentQueryCommandRequestDTO } from '../../graphql/query-definitions/shipment.graphql';
 import { SELECT_ALL_VALUE } from '../../../../shared/utils/mat-select-trigger.utils';
+import { RecoveredPlasmaCustomerDTO } from '../../graphql/query-definitions/customer.graphql';
+import { RecoveredPlasmaLocationDTO } from '../../graphql/query-definitions/location.graphql';
+import { RecoveredPlasmaShipmentQueryCommandRequestDTO } from '../../graphql/query-definitions/shipment.graphql';
 
 interface FilterShipmentFormDateRange {
     start: Date;
@@ -43,6 +43,7 @@ interface FilterShipmentForm {
     customers: string[];
     productTypes: string[];
     shipmentDate: FilterShipmentFormDateRange;
+    transportationReferenceNumber: string;
 }
 
 @Component({
@@ -111,7 +112,8 @@ export class FilterShipmentComponent implements OnInit {
         }))
     );
 
-    onApplySearchFilters = output<RecoveredPlasmaShipmentQueryCommandRequestDTO>();
+    onApplySearchFilters =
+        output<RecoveredPlasmaShipmentQueryCommandRequestDTO>();
     onResetFilters = output<RecoveredPlasmaShipmentQueryCommandRequestDTO>();
     toggleFilters = output<boolean>();
     enableApplyFilters = signal(false);
@@ -123,39 +125,70 @@ export class FilterShipmentComponent implements OnInit {
     }
 
     private monitorChanges() {
-        const { locationCode, shipmentNumber, shipmentStatus, customers, productTypes, shipmentDate, transportationReferenceNumber } = this.form.controls;
+        const {
+            locationCode,
+            shipmentNumber,
+            shipmentStatus,
+            customers,
+            productTypes,
+            shipmentDate,
+            transportationReferenceNumber,
+        } = this.form.controls;
         const criteriaSingle = shipmentNumber;
-        const criteriaMultiple = [ locationCode, shipmentStatus, customers, productTypes, shipmentDate, transportationReferenceNumber ];
+        const criteriaMultiple = [
+            locationCode,
+            shipmentStatus,
+            customers,
+            productTypes,
+            shipmentDate,
+            transportationReferenceNumber,
+        ];
         const startShipmentDate = shipmentDate.get('start');
         const endShipmentDate = shipmentDate.get('end');
 
         this.form.valueChanges.subscribe((value: FilterShipmentForm) => {
             if (value.shipmentNumber) {
-                criteriaSingle.enable({ emitEvent : false });
+                criteriaSingle.enable({ emitEvent: false });
                 criteriaMultiple
-                    .filter(control => !control.disabled)
-                    .forEach(control => control.disable({ emitEvent : false }));
-                startShipmentDate.removeValidators([ Validators.required ]);
-                endShipmentDate.removeValidators([ Validators.required ]);
-            } else if (value.locationCode?.length || value.shipmentStatus?.length || value.customers?.length || value.productTypes?.length || value.shipmentDate?.start || value.shipmentDate?.end) {
-                criteriaSingle.disable({ emitEvent : false });
+                    .filter((control) => !control.disabled)
+                    .forEach((control) =>
+                        control.disable({ emitEvent: false })
+                    );
+                startShipmentDate.removeValidators([Validators.required]);
+                endShipmentDate.removeValidators([Validators.required]);
+            } else if (
+                value.locationCode?.length ||
+                value.shipmentStatus?.length ||
+                value.customers?.length ||
+                value.productTypes?.length ||
+                value.shipmentDate?.start ||
+                value.shipmentDate?.end ||
+                value.transportationReferenceNumber
+            ) {
+                criteriaSingle.disable({ emitEvent: false });
                 criteriaMultiple
-                    .filter(control => control.disabled)
-                    .forEach(control => control.enable({ emitEvent : false }));
+                    .filter((control) => control.disabled)
+                    .forEach((control) => control.enable({ emitEvent: false }));
                 if (!startShipmentDate.hasValidator(Validators.required)) {
-                    startShipmentDate.addValidators([ Validators.required ]);
-                    startShipmentDate.updateValueAndValidity({ emitEvent : false });
-                    startShipmentDate.markAsTouched({ emitEvent : false });
+                    startShipmentDate.addValidators([Validators.required]);
+                    startShipmentDate.updateValueAndValidity({
+                        emitEvent: false,
+                    });
+                    startShipmentDate.markAsTouched({ emitEvent: false });
                 }
                 if (!endShipmentDate.hasValidator(Validators.required)) {
-                    endShipmentDate.addValidators([ Validators.required ]);
-                    endShipmentDate.updateValueAndValidity({ emitEvent : false });
-                    endShipmentDate.markAsTouched({ emitEvent : false });
+                    endShipmentDate.addValidators([Validators.required]);
+                    endShipmentDate.updateValueAndValidity({
+                        emitEvent: false,
+                    });
+                    endShipmentDate.markAsTouched({ emitEvent: false });
                 }
             } else {
-                this.form.enable({ emitEvent : false });
+                this.form.enable({ emitEvent: false });
             }
-            this.enableApplyFilters.set(this.form.errors == null && this.form.valid);
+            this.enableApplyFilters.set(
+                this.form.errors == null && this.form.valid
+            );
         });
     }
 
@@ -223,15 +256,18 @@ export class FilterShipmentComponent implements OnInit {
                   }
                 : null),
             ...(formValue.transportationReferenceNumber
-                ? { transportationReferenceNumber: formValue.transportationReferenceNumber }
-                : null)
+                ? {
+                      transportationReferenceNumber:
+                          formValue.transportationReferenceNumber,
+                  }
+                : null),
         };
         this.emitResults(criteria);
     }
 
     resetFilters(): void {
         this.form.reset();
-        this.form.enable({ emitEvent: false })
+        this.form.enable({ emitEvent: false });
         this.emitNoResults();
     }
 
@@ -269,9 +305,11 @@ export class FilterShipmentComponent implements OnInit {
     isInvalidDateRangeInformed(field: 'shipmentDate'): boolean {
         const startDate = this.form.get(field)?.get('start');
         const endDate = this.form.get(field)?.get('end');
-        return startDate?.hasError('matStartDateInvalid')
-            || startDate?.hasError('matDatepickerParse')
-            || endDate?.hasError('matDatepickerParse')
-            || endDate?.hasError('matEndDateInvalid');
+        return (
+            startDate?.hasError('matStartDateInvalid') ||
+            startDate?.hasError('matDatepickerParse') ||
+            endDate?.hasError('matDatepickerParse') ||
+            endDate?.hasError('matEndDateInvalid')
+        );
     }
 }

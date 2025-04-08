@@ -33,10 +33,10 @@ export class DateRangePickerComponent implements AfterContentInit, OnDestroy {
     @Input() minDate?: Date;
     @Input() disabled = false;
     @Input() matDatepickerMinErrorMessage: string;
-    @Input() matEndDateInvalidMessage: string;
     @Input() matDatepickerMaxMessage: string;
     @Input() invalidDateMessage = 'Date is invalid';
     @Input() noDateInformedMessage = 'Date is required';
+    @Input() invalidDateRangeMessage = 'Date range is invalid';
 
     private readonly destroyed$ = new Subject<void>();
 
@@ -73,6 +73,8 @@ export class DateRangePickerComponent implements AfterContentInit, OnDestroy {
             const errorKeys = Object.keys(startControl.errors);
             if (errorKeys.includes('matDatepickerParse')) {
                 return this.invalidDateMessage;
+            } else if (errorKeys.includes('matStartDateInvalid')) {
+                return this.invalidDateRangeMessage;
             } else if (errorKeys.includes('invalidDate')) {
                 return this.invalidDateMessage;
             } else if (errorKeys.includes('required')) {
@@ -83,7 +85,7 @@ export class DateRangePickerComponent implements AfterContentInit, OnDestroy {
         } else if (endControl?.errors) {
             const errorKeys = Object.keys(endControl.errors);
             if (errorKeys.includes('matEndDateInvalid')) {
-                return this.matEndDateInvalidMessage;
+                return this.invalidDateRangeMessage;
             } else if (errorKeys.includes('matDatepickerMax')) {
                 return this.matDatepickerMaxMessage;
             } else if (errorKeys.includes('matDatepickerParse')) {
