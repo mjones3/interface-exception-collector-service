@@ -3,7 +3,7 @@ Feature: Prevent filling a shipment with unsuitable products
     As a distribution technician, I want to prevent filling a shipment with unsuitable products, so that I can avoid shipping the wrong products to the customer.
 
     Background:
-        Given I cleaned up from the database, all shipments with order number "999771,999778,999764,999779,999765,999766,999767,999768,999769,999770,999771,999772,999773".
+        Given I cleaned up from the database, all shipments with order number "999771,999778,999764,999779,999765,999766,999767,999768,999769,999770,999771,999772,999773,999774,999775".
 
     @ui @DIS-125 @DIS-78 @DIS-56 @DIS-194 @DIS-162
     Scenario Outline: Entering an unsuitable product
@@ -57,4 +57,7 @@ Feature: Prevent filling a shipment with unsuitable products
                 | 999770       | 1           | Testing Customer | 5        | ON        | RED_BLOOD_CELLS                  | W812530107003 | E0167V00 | UNSATISFACTORY | This product has been discarded for failed visual inspection in the system. Place in biohazard container. | WARN         |
                 | 999771       | 1           | Testing Customer | 5        | ON        | PLASMA_TRANSFUSABLE              | W812530107004 | E2457V00 | SATISFACTORY   | Temperature Category does not match                                                                       | WARN         |
                 | 999772       | 1           | Testing Customer | 5        | ABP       | PLASMA_TRANSFUSABLE              | W812530107005 | E2469V00 | SATISFACTORY   | Temperature Category does not match                                                                       | WARN         |
-                | 999773       | 1           | Testing Customer | 5        | AP        | APHERESIS_PLATELETS_LEUKOREDUCED | W812530107008 | EA140V00 | SATISFACTORY   | Temperature Category does not match                                                                       | WARN         |
+                | 999773       | 1           | Testing Customer | 5        | AP        | APHERESIS_PLATELETS_LEUKOREDUCED | W812530107008 | EA141V00 | SATISFACTORY   | Temperature Category does not match                                                                       | WARN         |
+                | 999774       | 1           | Testing Customer | 5        | AP        | PRT_APHERESIS_PLATELETS          | W812530107009 | E8340V00 | SATISFACTORY   | Temperature Category does not match                                                                       | WARN         |
+                | 999775       | 1           | Testing Customer | 5        | BP        | PRT_APHERESIS_PLATELETS          | W812530107010 | E9431V00 | SATISFACTORY   | Temperature Category does not match                                                                       | WARN         |
+
