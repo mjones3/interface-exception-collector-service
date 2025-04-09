@@ -14,7 +14,7 @@
         "test:cov": "jest --coverage",
         "prepare": "cd .. && husky ui/.husky"
     },
-   "dependencies": {
+    "dependencies": {
         "@angular-eslint/schematics": "^18.0.1",
         "@angular/animations": "18.0.1",
         "@angular/cdk": "18.0.1",
@@ -52,6 +52,7 @@
         "ngx-quill": "26.0.1",
         "ngx-toastr": "^19.0.0",
         "perfect-scrollbar": "1.5.5",
+        "primeicons": "^7.0.0",
         "primeng": "^17.18.2",
         "quill": "2.0.2",
         "react": "^18.3.1",
@@ -67,6 +68,7 @@
         "@commitlint/cli": "^19.3.0",
         "@commitlint/config-conventional": "^19.2.2",
         "@eslint/js": "^9.5.0",
+        "@nrwl/jest": "^19.5.4",
         "@tailwindcss/typography": "0.5.13",
         "@types/chroma-js": "2.4.4",
         "@types/crypto-js": "4.2.2",
@@ -88,6 +90,7 @@
         "jest-preset-angular": "^14.1.1",
         "lint-staged": "^15.2.7",
         "lodash": "4.17.21",
+        "ng-mocks": "14.13.0",
         "postcss": "8.4.38",
         "prettier": "3.3.0",
         "prettier-plugin-organize-imports": "3.2.4",
