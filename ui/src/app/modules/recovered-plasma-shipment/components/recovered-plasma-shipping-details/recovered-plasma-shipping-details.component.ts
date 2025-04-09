@@ -39,8 +39,8 @@ import { RecoveredPlasmaShipmentDetailsNavbarComponent } from '../recovered-plas
 export class RecoveredPlasmaShippingDetailsComponent implements OnInit {
     findShipmentById: RecoveredPlasmaShipmentResponseDTO;
     employeeId: string;
+    protected cartonsRouteComputed = computed(() => this.router.url);
 
-    protected cartonsRouteComputed = computed(() => `recovered-plasma`);
     constructor(
         public header: ProcessHeaderService,
         private router: Router,
