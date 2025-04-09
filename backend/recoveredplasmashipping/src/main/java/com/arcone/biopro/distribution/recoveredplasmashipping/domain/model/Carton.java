@@ -5,6 +5,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.application.except
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.CartonRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.LocationRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShippingRepository;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.InventoryService;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,6 +17,8 @@ import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @EqualsAndHashCode
@@ -35,6 +38,7 @@ public class Carton implements Validatable {
     private ZonedDateTime modificationDate;
     private ZonedDateTime closeDate;
     private String status;
+    @Getter(AccessLevel.NONE)
     private int totalProducts;
     private BigDecimal totalWeight;
     private BigDecimal totalVolume;
@@ -79,7 +83,7 @@ public class Carton implements Validatable {
         }
 
         return recoveredPlasmaShippingRepository.findOneById(shipmentId)
-            .switchIfEmpty(Mono.error( ()-> new IllegalArgumentException("Carton generation error")))
+            .switchIfEmpty(Mono.error( ()-> new IllegalArgumentException("Shipment is required")))
             .block();
     }
 
@@ -180,5 +184,43 @@ public class Carton implements Validatable {
         return cartonRepository.countByShipment(shipmentId)
             .switchIfEmpty(Mono.error( ()-> new IllegalArgumentException("Total Cartons is required")))
             .block();
+    }
+
+    public int getTotalProducts() {
+        if(this.products == null){
+            return  0;
+        }
+        return this.products.size();
+    }
+
+    public int getTotalWeight() {
+        if(this.products == null){
+            return 0;
+        }
+
+        totalWeight = products.stream()
+            .reduce(0, (partialTotalWeight, product) -> partialTotalWeight + product.getWeight(), Integer::sum);
+        return totalWeight;
+    }
+
+    public int getTotalVolume() {
+        if(this.products == null){
+            return 0;
+        }
+        totalVolume = products.stream()
+            .reduce(0, (partialTotalVolume, product) -> partialTotalVolume + product.getVolume(), Integer::sum);
+        return totalVolume;
+    }
+
+    public CartonItem packItem(PackItemCommand packItemCommand , InventoryService inventoryService) {
+        if(this.products == null){
+            this.products = new ArrayList<>();
+        }
+
+        var item = CartonItem.createNewCartonItem(packItemCommand,this,inventoryService);
+
+        this.products.add(item);
+
+        return item;
     }
 }
