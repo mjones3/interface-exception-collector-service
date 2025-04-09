@@ -1,7 +1,9 @@
+import { DatePipe } from '@angular/common';
 import {
     Component,
     computed,
     EventEmitter,
+    inject,
     Input,
     input,
     Output,
@@ -22,6 +24,8 @@ import { ProductFamilyMap } from 'app/shared/models/product-family.model';
     styleUrl: './shipping-information-card.component.scss',
 })
 export class ShippingInformationCardComponent {
+    datePipe = inject(DatePipe);
+
     @Input() showBasicButton = false;
     @Input() isButtonDisabled = true;
     @Output() handleClick = new EventEmitter<void>();
@@ -69,7 +73,7 @@ export class ShippingInformationCardComponent {
         ...(this.shippingInput()?.status
             ? [
                   {
-                      label: 'Status',
+                      label: 'Shipment Status',
                       value: this.shippingInput()?.status,
                   },
               ]
@@ -88,7 +92,10 @@ export class ShippingInformationCardComponent {
             ? [
                   {
                       label: 'Shipment Date',
-                      value: this.shippingInput()?.shipmentDate,
+                      value: this.datePipe.transform(
+                          this.shippingInput()?.shipmentDate,
+                          'MM/dd/yyyy'
+                      ),
                   },
               ]
             : []),
@@ -104,7 +111,7 @@ export class ShippingInformationCardComponent {
             ? [
                   {
                       label: 'Total Products',
-                      value: '1212121',
+                      value: this.shippingInput()?.totalProducts,
                   },
               ]
             : []),
@@ -126,7 +133,7 @@ export class ShippingInformationCardComponent {
             : []),
     ]);
 
-    handleButtonClick() {
+    handleButtonClick(): void {
         this.handleClick.emit();
     }
 }

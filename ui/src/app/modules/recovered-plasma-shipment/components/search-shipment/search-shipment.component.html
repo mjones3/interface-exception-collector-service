@@ -59,10 +59,9 @@
                 <ng-template #detailBtnTemplateRef let-element="element">
                     <biopro-basic-button
                         id="detailsBtn"
-                        [disabled]="true"
                         class="text-primary"
                         color="primary"
-                        (click)="details(element?.shipmentId)"
+                        (buttonClicked)="details(element?.shipmentId)"
                         label="Details"
                     />
                 </ng-template>

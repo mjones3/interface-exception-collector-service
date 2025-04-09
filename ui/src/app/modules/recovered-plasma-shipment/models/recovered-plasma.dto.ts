@@ -17,6 +17,7 @@ export interface RecoveredPlasmaShipmentResponseDTO {
     status?: string;
     closedEmployeeId?: string;
     closeDate?: string;
+    closeEmployeeId?: string;
     transportationReferenceNumber?: string;
     unsuitableUnitReportDocumentStatus?: string;
     scheduleDate?: string;
