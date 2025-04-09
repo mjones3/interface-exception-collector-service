@@ -12,6 +12,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.ZonedDateTime;
+import java.util.Collections;
 
 @ExtendWith(MockitoExtension.class)
 class CartonEntityMapperTest {
@@ -69,7 +70,7 @@ class CartonEntityMapperTest {
         Mockito.when(entity.getCreateEmployeeId()).thenReturn("create-id");
         Mockito.when(entity.getCloseEmployeeId()).thenReturn("close-id");
 
-        var cartonModel = mapper.entityToModel(entity);
+        var cartonModel = mapper.entityToModel(entity, Collections.emptyList());
 
         Assertions.assertNotNull(cartonModel);
         Assertions.assertEquals(entity.getCartonNumber(), cartonModel.getCartonNumber());

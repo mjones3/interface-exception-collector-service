@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.domain.model;
 
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.exception.ProductValidationException;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.CartonItemRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.InventoryService;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -40,8 +41,10 @@ public class CartonItem implements Validatable {
 
     private static final String PACKED_STATUS = "PACKED";
 
-    public static CartonItem createNewCartonItem(PackItemCommand packItemCommand, Carton carton , InventoryService inventoryService) {
+    public static CartonItem createNewCartonItem(PackItemCommand packItemCommand, Carton carton , InventoryService inventoryService , CartonItemRepository cartonItemRepository) {
 
+
+        validateProductAlreadyPacked(packItemCommand,cartonItemRepository);
 
         var inventoryValidation = validateInventory(packItemCommand, inventoryService);
 
@@ -82,6 +85,35 @@ public class CartonItem implements Validatable {
 
         return cartonItem;
     }
+
+    public static CartonItem fromRepository(Long id, Long cartonId, String unitNumber, String productCode, String productDescription, String productType
+        , Integer volume, Integer weight, String packedByEmployeeId
+        , String aboRh, String status, LocalDateTime expirationDate, ZonedDateTime collectionDate, ZonedDateTime createDate, ZonedDateTime modificationDate) {
+
+        CartonItemBuilder builder = CartonItem.builder();
+        builder.id(id);
+        builder.cartonId(cartonId);
+        builder.unitNumber(unitNumber);
+        builder.productCode(productCode);
+        builder.productDescription(productDescription);
+        builder.productType(productType);
+        builder.volume(volume);
+        builder.weight(weight);
+        builder.status(status);
+        builder.packedByEmployeeId(packedByEmployeeId);
+        builder.aboRh(aboRh);
+        builder.expirationDate(expirationDate);
+        builder.collectionDate(collectionDate);
+        builder.createDate(createDate);
+        builder.modificationDate(modificationDate);
+
+        var cartonItem = builder.build();
+        cartonItem.checkValid();
+
+        return cartonItem;
+    }
+
+
 
     @Override
     public void checkValid() {
@@ -138,6 +170,23 @@ public class CartonItem implements Validatable {
         } else {
             throw new ProductValidationException("Inventory Validation failed",inventoryValidationResponse);
         }
+    }
+
+    private static void validateProductAlreadyPacked(PackItemCommand packItemCommand , CartonItemRepository cartonItemRepository){
+        if(cartonItemRepository == null){
+            throw new IllegalArgumentException("Carton Item Repository is required");
+        }
+
+        cartonItemRepository.countByProduct(packItemCommand.getUnitNumber(), packItemCommand.getProductCode())
+            .onErrorResume(error -> {
+                throw new ProductValidationException(error.getMessage());
+            })
+            .blockOptional()
+            .ifPresent(count -> {
+                if(count > 0){
+                    throw new ProductValidationException("Product already used");
+                }
+            });
     }
 }
 

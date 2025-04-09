@@ -13,6 +13,8 @@ public class CartonRepositoryImpl implements CartonRepository {
 
     private final CartonEntityRepository cartonEntityRepository;
     private final CartonEntityMapper cartonEntityMapper;
+    private final CartonItemEntityRepository cartonItemEntityRepository;
+
 
     @Override
     public Mono<Long> getNextCartonId() {
@@ -33,7 +35,7 @@ public class CartonRepositoryImpl implements CartonRepository {
     @Override
     public Mono<Carton> findOneById(Long id) {
         return cartonEntityRepository.findById(id)
-            .map(cartonEntityMapper::entityToModel);
+            .zipWith(cartonItemEntityRepository.findAllByCartonIdOrderByCreateDateAsc(id).collectList())
+            .map(tuple -> cartonEntityMapper.entityToModel(tuple.getT1(),tuple.getT2()));
     }
-
 }

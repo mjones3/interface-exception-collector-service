@@ -2,6 +2,7 @@ package com.arcone.biopro.distribution.recoveredplasmashipping.domain.model;
 
 
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.exception.DomainNotFoundForKeyException;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.CartonItemRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.CartonRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.LocationRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShippingRepository;
@@ -89,6 +90,7 @@ public class Carton implements Validatable {
 
     public static Carton fromRepository(Long id, String cartonNumber, Long shipmentId, Integer cartonSequence, String createEmployeeId, String closeEmployeeId
         , ZonedDateTime createDate, ZonedDateTime modificationDate, ZonedDateTime closeDate, String status , BigDecimal totalVolume , BigDecimal totalWeight) {
+        , ZonedDateTime createDate, ZonedDateTime modificationDate, ZonedDateTime closeDate, String status , List<CartonItem> products) {
         var carton = Carton.builder()
             .id(id)
             .cartonNumber(cartonNumber)
@@ -102,6 +104,7 @@ public class Carton implements Validatable {
             .status(status)
             .totalWeight(totalWeight)
             .totalVolume(totalVolume)
+            .products(products)
             .build();
 
         carton.checkValid();
@@ -212,12 +215,12 @@ public class Carton implements Validatable {
         return totalVolume;
     }
 
-    public CartonItem packItem(PackItemCommand packItemCommand , InventoryService inventoryService) {
+    public CartonItem packItem(PackItemCommand packItemCommand , InventoryService inventoryService, CartonItemRepository cartonItemRepository) {
         if(this.products == null){
             this.products = new ArrayList<>();
         }
 
-        var item = CartonItem.createNewCartonItem(packItemCommand,this,inventoryService);
+        var item = CartonItem.createNewCartonItem(packItemCommand,this,inventoryService , cartonItemRepository);
 
         this.products.add(item);
 
