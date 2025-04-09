@@ -2,6 +2,7 @@ package com.arcone.biopro.distribution.inventory.infrastructure.config;
 
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.EventMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.checkin.CheckInCompletedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.discarded.ProductDiscardedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.label.LabelAppliedMessage;
@@ -9,8 +10,8 @@ import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.A
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.RemoveQuarantinedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.UpdateQuarantinedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.ProductRecoveredMessage;
-import com.arcone.biopro.distribution.inventory.adapter.output.producer.event.InventoryUpdatedEvent;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.unsuitable.UnsuitableMessage;
+import com.arcone.biopro.distribution.inventory.adapter.output.producer.event.InventoryUpdatedEvent;
 import com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.springwolf.core.asyncapi.annotations.AsyncListener;
@@ -57,8 +58,20 @@ class KafkaConfiguration {
     @Value("${topic.product-created.apheresis.rbc.name}")
     private String apheresisRBCProductCreatedTopic;
 
+    @Value("${topic.product-created.apheresis.platelet.name}")
+    private String apheresisPlateletProductCreatedTopic;
+
     @Value("${topic.product-completed.apheresis.plasma.name}")
     private String apheresisPlasmaProductCompletedTopic;
+
+    @Value("${topic.product-completed.apheresis.rbc.name}")
+    private String apheresisRBCProductCompletedTopic;
+
+    @Value("${topic.product-completed.apheresis.platelet.name}")
+    private String apheresisPlateletProductCompletedTopic;
+
+    @Value("${topic.product-completed.wholeblood.name}")
+    private String wholebloodCompletedTopic;
 
     @Value("${topic.product-created.wholeblood.name}")
     private String wholebloodCreatedTopic;
@@ -105,14 +118,14 @@ class KafkaConfiguration {
     @Qualifier("PRODUCT_CREATED")
     ReceiverOptions<String, String> productCreatedReceiverOptions(KafkaProperties kafkaProperties) {
         return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
-            .subscription(List.of(apheresisPlasmaProductCreatedTopic, apheresisRBCProductCreatedTopic, wholebloodCreatedTopic));
+            .subscription(List.of(apheresisPlasmaProductCreatedTopic, apheresisRBCProductCreatedTopic, wholebloodCreatedTopic, apheresisPlateletProductCreatedTopic));
     }
 
     @Bean
     @Qualifier("PRODUCT_COMPLETED")
     ReceiverOptions<String, String> productCompletedReceiverOptions(KafkaProperties kafkaProperties) {
         return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
-            .subscription(List.of(apheresisPlasmaProductCompletedTopic));
+            .subscription(List.of(apheresisPlasmaProductCompletedTopic, apheresisRBCProductCompletedTopic, wholebloodCompletedTopic, apheresisPlateletProductCompletedTopic));
     }
 
     @Bean
@@ -189,6 +202,16 @@ class KafkaConfiguration {
         description = "Apheresis RBC Product has been created.",
         payloadType = ProductCreatedMessage.class
     ))
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "ApheresisPlateletProductCreated",
+        description = "Apheresis Platelet Product has been created.",
+        payloadType = ProductCreatedMessage.class
+    ))
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "WholeBloodProductCreated",
+        description = "Wholeblood Product has been created.",
+        payloadType = ProductCreatedMessage.class
+    ))
     @Bean(name = "PRODUCT_CREATED_CONSUMER")
     ReactiveKafkaConsumerTemplate<String, String> productCreatedConsumerTemplate(
         @Qualifier("PRODUCT_CREATED") ReceiverOptions<String, String> receiverOptions
@@ -196,6 +219,26 @@ class KafkaConfiguration {
         return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
     }
 
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "ApheresisPlasmaProductCompleted",
+        description = "Apheresis Plasma Product has been completed.",
+        payloadType = ProductCompletedMessage.class
+    ))
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "ApheresisRBCProductCompleted",
+        description = "Apheresis RBC Product has been completed.",
+        payloadType = ProductCompletedMessage.class
+    ))
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "ApheresisPlateletProductCompleted",
+        description = "Apheresis Platelet Product has been completed.",
+        payloadType = ProductCompletedMessage.class
+    ))
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "WholeBloodProductCompleted",
+        description = "Wholeblood Product has been completed.",
+        payloadType = ProductCompletedMessage.class
+    ))
     @Bean(name = "PRODUCT_COMPLETED_CONSUMER")
     ReactiveKafkaConsumerTemplate<String, String> productCompletedConsumerTemplate(
         @Qualifier("PRODUCT_COMPLETED") ReceiverOptions<String, String> receiverOptions

@@ -64,7 +64,7 @@ public class ProductCompletedIntegrationIT {
 
     @Test
     @DisplayName("Should Receive Apheresis Plasma Product Completed And Save The Volume")
-    public void shouldReceiveApheresisPlasmaProductCompletedAndSaveTheVolume() throws InterruptedException, IOException {
+    public void test1() throws InterruptedException, IOException {
         var payloadJson = publishCreatedEvent("json/apheresis/plasma/product_completed_volume.json", APHERESIS_PLASMA_PRODUCT_COMPLETED_TOPIC);
         ArgumentCaptor<ProductCompletedInput> captor = ArgumentCaptor.forClass(ProductCompletedInput.class);
         verify(productCompletedUseCase, times(1)).execute(captor.capture());
@@ -74,8 +74,38 @@ public class ProductCompletedIntegrationIT {
 
     @Test
     @DisplayName("Should Receive Apheresis Plasma Product Completed And Save The Volume And Anticoagulant Volume")
-    public void shouldReceiveApheresisPlasmaProductCompletedAndSaveTheVolumeAndAnticoagulantVolume() throws InterruptedException, IOException {
+    public void test2() throws InterruptedException, IOException {
         var payloadJson = publishCreatedEvent("json/apheresis/plasma/product_completed.json", APHERESIS_PLASMA_PRODUCT_COMPLETED_TOPIC);
+        ArgumentCaptor<ProductCompletedInput> captor = ArgumentCaptor.forClass(ProductCompletedInput.class);
+        verify(productCompletedUseCase, times(1)).execute(captor.capture());
+        ProductCompletedInput capturedInput = captor.getValue();
+        assertDefaultProductCreatedValues(capturedInput, payloadJson);
+    }
+
+    @Test
+    @DisplayName("Should Receive Apheresis RBC Product Completed")
+    public void test3() throws InterruptedException, IOException {
+        var payloadJson = publishCreatedEvent("json/apheresis/rbc/product_completed.json", APHERESIS_RBC_PRODUCT_COMPLETED_TOPIC);
+        ArgumentCaptor<ProductCompletedInput> captor = ArgumentCaptor.forClass(ProductCompletedInput.class);
+        verify(productCompletedUseCase, times(1)).execute(captor.capture());
+        ProductCompletedInput capturedInput = captor.getValue();
+        assertDefaultProductCreatedValues(capturedInput, payloadJson);
+    }
+
+    @Test
+    @DisplayName("Should Receive Apheresis PLATELET Product Completed")
+    public void test4() throws InterruptedException, IOException {
+        var payloadJson = publishCreatedEvent("json/apheresis/platelet/product_completed.json", APHERESIS_PLATELET_PRODUCT_COMPLETED_TOPIC);
+        ArgumentCaptor<ProductCompletedInput> captor = ArgumentCaptor.forClass(ProductCompletedInput.class);
+        verify(productCompletedUseCase, times(1)).execute(captor.capture());
+        ProductCompletedInput capturedInput = captor.getValue();
+        assertDefaultProductCreatedValues(capturedInput, payloadJson);
+    }
+
+    @Test
+    @DisplayName("Should Receive WHOLEBLOOD Product Completed")
+    public void test5() throws InterruptedException, IOException {
+        var payloadJson = publishCreatedEvent("json/wholeblood/product_completed.json", WHOLEBLOOD_COMPLETED_TOPIC);
         ArgumentCaptor<ProductCompletedInput> captor = ArgumentCaptor.forClass(ProductCompletedInput.class);
         verify(productCompletedUseCase, times(1)).execute(captor.capture());
         ProductCompletedInput capturedInput = captor.getValue();
