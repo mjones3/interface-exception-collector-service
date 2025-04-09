@@ -4,28 +4,30 @@ Feature: Get all available inventories
 
     Scenario Outline: Get all available inventories
         Given I have the following units of products in inventory
-            | Unit Number   | Units | Family                       | ABORh | Location   | Expires In Days | Temperature Category |
-            | W036825003001 | 2     | PLASMA_TRANSFUSABLE          | OP    | LOCATION_1 | 2               | FROZEN               |
-            | W036825003002 | 3     | PLASMA_TRANSFUSABLE          | OP    | LOCATION_2 | 2               | FROZEN               |
-            | W036825003003 | 5     | RED_BLOOD_CELLS              | OP    | LOCATION_1 | 2               | FROZEN               |
-            | W036825003004 | 5     | RED_BLOOD_CELLS_LEUKOREDUCED | OP    | LOCATION_1 | 2               | FROZEN               |
-            | W036825003005 | 8     | PLASMA_TRANSFUSABLE          | ON    | LOCATION_1 | 2               | FROZEN               |
-            | W036825003006 | 13    | PLASMA_TRANSFUSABLE          | ABN   | LOCATION_1 | 2               | FROZEN               |
-            | W036825003007 | 21    | PLASMA_TRANSFUSABLE          | ABP   | LOCATION_1 | 31              | FROZEN               |
-            | W036825003008 | 44    | PLASMA_TRANSFUSABLE          | OP    | LOCATION_1 | -1              | FROZEN               |
-            | W036825003009 | 4     | WHOLE_BLOOD                  | OP    | LOCATION_1 | 5               | FROZEN               |
-            | W036825003010 | 5     | WHOLE_BLOOD_LEUKOREDUCED     | OP    | LOCATION_2 | 5               | FROZEN               |
-            | W036825003011 | 10    | WHOLE_BLOOD                  | ABN   | LOCATION_2 | 2               | FROZEN               |
-            | W036825003012 | 12    | WHOLE_BLOOD_LEUKOREDUCED     | ABN   | LOCATION_1 | 2               | FROZEN               |
-            | W036825003013 | 18    | WHOLE_BLOOD                  | ABP   | LOCATION_1 | 30              | FROZEN               |
-            | W036825003014 | 7     | WHOLE_BLOOD_LEUKOREDUCED     | ABP   | LOCATION_1 | 30              | FROZEN               |
-            | W036825003015 | 3     | WHOLE_BLOOD                  | ABN   | LOCATION_2 | -1              | FROZEN               |
-            | W036825003016 | 1     | PLASMA_TRANSFUSABLE          | OP    | LOCATION_3 | 2               | REFRIGERATED         |
-            | W036825003017 | 1     | PLASMA_TRANSFUSABLE          | OP    | LOCATION_3 | 31              | REFRIGERATED         |
-            | W036825003018 | 1     | PLASMA_TRANSFUSABLE          | OP    | LOCATION_3 | 2               | FROZEN               |
-            | W036825003019 | 1     | PLASMA_TRANSFUSABLE          | OP    | LOCATION_3 | 31              | FROZEN               |
-            | W036825003020 | 1     | PLASMA_MFG_NONINJECTABLE     | OP    | LOCATION_4 | 1               | FROZEN               |
-            | W036825003021 | 1     | PLASMA_MFG_INJECTABLE        | OP    | LOCATION_4 | 1               | FROZEN               |
+            | Unit Number   | Units | Family                           | ABORh | Location   | Expires In Days | Temperature Category |
+            | W036825003001 | 2     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_1 | 2               | FROZEN               |
+            | W036825003002 | 3     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_2 | 2               | FROZEN               |
+            | W036825003003 | 5     | RED_BLOOD_CELLS                  | OP    | LOCATION_1 | 2               | FROZEN               |
+            | W036825003004 | 5     | RED_BLOOD_CELLS_LEUKOREDUCED     | OP    | LOCATION_1 | 2               | FROZEN               |
+            | W036825003005 | 8     | PLASMA_TRANSFUSABLE              | ON    | LOCATION_1 | 2               | FROZEN               |
+            | W036825003006 | 13    | PLASMA_TRANSFUSABLE              | ABN   | LOCATION_1 | 2               | FROZEN               |
+            | W036825003007 | 21    | PLASMA_TRANSFUSABLE              | ABP   | LOCATION_1 | 31              | FROZEN               |
+            | W036825003008 | 44    | PLASMA_TRANSFUSABLE              | OP    | LOCATION_1 | -1              | FROZEN               |
+            | W036825003009 | 4     | WHOLE_BLOOD                      | OP    | LOCATION_1 | 5               | FROZEN               |
+            | W036825003010 | 5     | WHOLE_BLOOD_LEUKOREDUCED         | OP    | LOCATION_2 | 5               | FROZEN               |
+            | W036825003011 | 10    | WHOLE_BLOOD                      | ABN   | LOCATION_2 | 2               | FROZEN               |
+            | W036825003012 | 12    | WHOLE_BLOOD_LEUKOREDUCED         | ABN   | LOCATION_1 | 2               | FROZEN               |
+            | W036825003013 | 18    | WHOLE_BLOOD                      | ABP   | LOCATION_1 | 30              | FROZEN               |
+            | W036825003014 | 7     | WHOLE_BLOOD_LEUKOREDUCED         | ABP   | LOCATION_1 | 30              | FROZEN               |
+            | W036825003015 | 3     | WHOLE_BLOOD                      | ABN   | LOCATION_2 | -1              | FROZEN               |
+            | W036825003016 | 1     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_3 | 2               | REFRIGERATED         |
+            | W036825003017 | 1     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_3 | 31              | REFRIGERATED         |
+            | W036825003018 | 1     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_3 | 2               | FROZEN               |
+            | W036825003019 | 1     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_3 | 31              | FROZEN               |
+            | W036825003020 | 1     | PLASMA_MFG_NONINJECTABLE         | OP    | LOCATION_4 | 1               | FROZEN               |
+            | W036825003021 | 1     | PLASMA_MFG_INJECTABLE            | OP    | LOCATION_4 | 1               | FROZEN               |
+            | W036825003022 | 1     | PRT_APHERESIS_PLATELETS          | OP    | LOCATION_5 | 2               | ROOM_TEMPERATURE     |
+            | W036825003023 | 1     | APHERESIS_PLATELETS_LEUKOREDUCED | OP    | LOCATION_5 | 2               | ROOM_TEMPERATURE     |
 
         When I request available inventories for family with the following parameters:
             | Product Family   | Abo Rh Type   | Location   | Temperature Category   |
@@ -67,6 +69,12 @@ Feature: Get all available inventories
             | Quantity | Product Family           | Abo Rh Type | Location   | Short Date Quantity | Temperature Category |
             | 1        | PLASMA_MFG_NONINJECTABLE | ANY         | LOCATION_4 | 0                   |                      |
             | 1        | PLASMA_MFG_INJECTABLE    | ANY         | LOCATION_4 | 0                   | FROZEN               |
+
+        @LAB-412ó
+        Examples:
+            | Quantity | Product Family                   | Abo Rh Type | Location   | Short Date Quantity | Temperature Category |
+            | 1        | PRT_APHERESIS_PLATELETS          | ANY         | LOCATION_5 | 1                   | ROOM_TEMPERATURE     |
+            | 1        | APHERESIS_PLATELETS_LEUKOREDUCED | ANY         | LOCATION_5 | 1                   | ROOM_TEMPERATURE     |
 
     @LAB-81 @AOA-75 @LAB-257 @AOA-152
     Scenario: Get all available inventories grouped
