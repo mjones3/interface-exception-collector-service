@@ -375,6 +375,22 @@ biopro-process-header {
         @apply text-primary hover:bg-primary/10 disabled:text-accent/10;
     }
 
+    &.mat-primary-flat {
+        background-color: rgba(var(--fuse-primary-rgb), 0.8);
+
+        &[disabled='true'] {
+            color: rgba(var(--fuse-accent-rgb), 0.6) !important;
+
+            &.mat-primary {
+                background-color: rgba(var(--fuse-accent-rgb), 0.15) !important;
+            }
+        }
+
+        &:hover {
+            background-color: rgba(var(--fuse-primary-rgb), 0.9);
+        }
+    }
+
     &.mat-secondary {
         @apply text-accent hover:bg-accent/10 disabled:text-accent/10;
     }
@@ -396,7 +412,7 @@ biopro-process-header {
     color: var(--fuse-divider) !important;
 }
 
-.cdk-overlay-pane {
+.cdk-overlay-pane:not(.mat-mdc-dialog-panel) {
     background-color: white !important;
 }
 

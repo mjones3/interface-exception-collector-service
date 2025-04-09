@@ -18,6 +18,7 @@ import com.arcone.biopro.distribution.shipping.domain.model.enumeration.VisualIn
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemPackedRepository;
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemRepository;
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemShortDateProductRepository;
+import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentRepository;
 import com.arcone.biopro.distribution.shipping.domain.service.ConfigService;
 import com.arcone.biopro.distribution.shipping.domain.service.SecondVerificationService;
 import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryNotificationDTO;
@@ -58,6 +59,7 @@ class PackItemUseCaseTest {
     private PackItemUseCase useCase;
     private ReasonDomainMapper reasonDomainMapper;
     private SecondVerificationService secondVerificationService;
+    private ShipmentRepository shipmentRepository;
 
     @BeforeEach
     public void setUp(){
@@ -69,8 +71,13 @@ class PackItemUseCaseTest {
         secondVerificationService = Mockito.mock(SecondVerificationService.class);
         reasonDomainMapper = new ReasonDomainMapper();
         shipmentMapper = new ShipmentMapper();
+        shipmentRepository = Mockito.mock(ShipmentRepository.class);
 
-        useCase = new PackItemUseCase(configService,shipmentItemRepository,shipmentItemShortDateProductRepository,shipmentItemPackedRepository,shipmentMapper,reasonDomainMapper,inventoryRsocketClient,secondVerificationService);
+        var shipmentMock = Mockito.mock(Shipment.class);
+        Mockito.when(shipmentMock.getProductCategory()).thenReturn("FROZEN");
+        Mockito.when(shipmentRepository.findById(Mockito.anyLong())).thenReturn(Mono.just(shipmentMock));
+
+        useCase = new PackItemUseCase(configService,shipmentItemRepository,shipmentItemShortDateProductRepository,shipmentItemPackedRepository,shipmentMapper,reasonDomainMapper,inventoryRsocketClient,secondVerificationService,shipmentRepository);
     }
 
     @Test
@@ -151,6 +158,7 @@ class PackItemUseCaseTest {
             .productCode("123")
             .unitNumber("UN")
             .productFamily("product_family")
+                .temperatureCategory("FROZEN")
             .aboRh("AP")
             .build());
 
@@ -158,6 +166,7 @@ class PackItemUseCaseTest {
 
         Mockito.when(shipmentItemRepository.findById(Mockito.anyLong())).thenReturn(Mono.just(ShipmentItem.builder()
             .productFamily("product_family")
+                .shipmentId(1L)
             .bloodType(BloodType.BP)
             .build()));
 
@@ -203,6 +212,7 @@ class PackItemUseCaseTest {
             .productCode("123")
             .unitNumber("UN")
             .productFamily("product_family")
+                .temperatureCategory("FROZEN")
             .aboRh("AP")
             .build());
 
@@ -210,6 +220,7 @@ class PackItemUseCaseTest {
 
         Mockito.when(shipmentItemRepository.findById(Mockito.anyLong())).thenReturn(Mono.just(ShipmentItem.builder()
             .productFamily("product_family")
+                .shipmentId(1L)
             .bloodType(BloodType.AP)
             .build()));
 
@@ -263,6 +274,7 @@ class PackItemUseCaseTest {
             .productCode("123")
             .unitNumber("UN")
             .productFamily("product_family")
+                .temperatureCategory("FROZEN")
             .aboRh("AP")
             .build());
 
@@ -271,6 +283,7 @@ class PackItemUseCaseTest {
         Mockito.when(shipmentItemRepository.findById(Mockito.anyLong())).thenReturn(Mono.just(ShipmentItem.builder()
             .productFamily("product_family")
             .bloodType(BloodType.AP)
+                .shipmentId(1L)
             .quantity(10)
             .build()));
 
@@ -317,6 +330,7 @@ class PackItemUseCaseTest {
             .productCode("123")
             .unitNumber("UN")
             .productFamily("product_family")
+                .temperatureCategory("FROZEN")
             .aboRh("AP")
             .build());
 
@@ -324,6 +338,7 @@ class PackItemUseCaseTest {
 
         Mockito.when(shipmentItemRepository.findById(Mockito.anyLong())).thenReturn(Mono.just(ShipmentItem.builder()
             .productFamily("product_family")
+                .shipmentId(1L)
             .bloodType(BloodType.AP)
             .quantity(10)
             .build()));
@@ -372,11 +387,13 @@ class PackItemUseCaseTest {
             .productCode("123")
             .unitNumber("UN")
             .productFamily("product_family")
+                .temperatureCategory("FROZEN")
             .aboRh("AP")
             .build());
 
         Mockito.when(shipmentItemRepository.findById(Mockito.anyLong())).thenReturn(Mono.just(ShipmentItem.builder()
             .productFamily("product_family")
+                .shipmentId(1L)
             .id(1L)
             .bloodType(BloodType.AP)
             .quantity(10)
@@ -462,11 +479,13 @@ class PackItemUseCaseTest {
             .productCode("123")
             .unitNumber("UN")
             .productFamily("product_family")
+                .temperatureCategory("FROZEN")
             .aboRh("AP")
             .build());
 
         Mockito.when(shipmentItemRepository.findById(Mockito.anyLong())).thenReturn(Mono.just(ShipmentItem.builder()
             .productFamily("product_family")
+                .shipmentId(1L)
             .id(1L)
             .bloodType(BloodType.AP)
             .quantity(10)
@@ -589,6 +608,7 @@ class PackItemUseCaseTest {
             .productCode("123")
             .unitNumber("UN")
             .productFamily("product_family")
+                .temperatureCategory("FROZEN")
             .aboRh("AP")
             .build());
 
@@ -596,6 +616,7 @@ class PackItemUseCaseTest {
             .productFamily("product_family")
             .id(1L)
             .bloodType(BloodType.ANY)
+                .shipmentId(1L)
             .quantity(10)
             .build()));
 
@@ -665,6 +686,65 @@ class PackItemUseCaseTest {
                 var firstShortDateProduct = shipmentItem.shortDateProducts().getFirst();
                 assertEquals("UNIT_NUMBER", firstShortDateProduct.unitNumber());
                 assertEquals("ABCD", firstShortDateProduct.productCode());
+            })
+            .verifyComplete();
+    }
+
+    @Test
+    public void shouldNotPackItemWhenTemperatureCategoryDoesNotMatch(){
+
+        InventoryValidationResponseDTO validationResponseDTO = Mockito.mock(InventoryValidationResponseDTO.class);
+        Mockito.when(validationResponseDTO.inventoryResponseDTO()).thenReturn(InventoryResponseDTO
+            .builder()
+            .locationCode("123456789")
+            .productCode("123")
+            .unitNumber("UN")
+            .productFamily("product_family")
+            .aboRh("AP")
+                .temperatureCategory("REFRIGERATED")
+            .build());
+
+        Mockito.when(inventoryRsocketClient.validateInventory(Mockito.any(InventoryValidationRequest.class))).thenReturn(Mono.just(validationResponseDTO));
+
+        Mockito.when(shipmentItemRepository.findById(Mockito.anyLong())).thenReturn(Mono.just(ShipmentItem.builder()
+            .productFamily("product_family")
+                .shipmentId(1L)
+            .bloodType(BloodType.AP)
+                .quantity(1)
+            .build()));
+
+        Mockito.when(shipmentItemPackedRepository.countAllByShipmentItemId(Mockito.anyLong())).thenReturn(Mono.just(0));
+
+        Mockito.when(shipmentItemPackedRepository.countAllByUnitNumberAndProductCode(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just(0));
+
+        Mockito.when(configService.findShippingVisualInspectionActive()).thenReturn(Mono.just(Boolean.TRUE));
+
+        Mockito.when(configService.findShippingSecondVerificationActive()).thenReturn(Mono.just(Boolean.FALSE));
+
+
+
+
+
+        var reason = Mockito.mock(Reason.class);
+        Mockito.when(configService.findVisualInspectionFailedDiscardReasons()).thenReturn(Flux.just(reason));
+
+        Mono<RuleResponseDTO>  packDetail = useCase.packItem(PackItemRequest.builder()
+            .unitNumber("UN")
+            .shipmentItemId(1L)
+            .employeeId("test")
+            .locationCode("123456789")
+            .productCode("123")
+            .visualInspection(VisualInspection.SATISFACTORY)
+            .build());
+
+        StepVerifier
+            .create(packDetail)
+            .consumeNextWith(detail -> {
+                var firstNotification = detail.notifications().getFirst();
+                assertEquals(HttpStatus.BAD_REQUEST, detail.ruleCode());
+                assertEquals(HttpStatus.BAD_REQUEST.value(), firstNotification.statusCode());
+                assertEquals("WARN", firstNotification.notificationType());
+                assertEquals(ShipmentServiceMessages.PRODUCT_CRITERIA_TEMPERATURE_CATEGORY_ERROR, firstNotification.message());
             })
             .verifyComplete();
     }

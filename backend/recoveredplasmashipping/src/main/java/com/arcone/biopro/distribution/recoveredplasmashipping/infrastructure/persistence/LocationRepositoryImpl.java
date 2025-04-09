@@ -31,4 +31,12 @@ public class LocationRepositoryImpl implements LocationRepository {
                 .collectList()
                 .map(locationProperties -> locationEntityMapper.toDomain(locationEntity,locationProperties)));
     }
+
+    @Override
+    public Mono<Location> findOneByCode(String code) {
+        return locationEntityRepository.findByCode(code)
+            .flatMap(locationEntity -> locationPropertyEntityRepository.findByLocationId(locationEntity.getId())
+                .collectList()
+                .map(locationProperties -> locationEntityMapper.toDomain(locationEntity,locationProperties)));
+    }
 }

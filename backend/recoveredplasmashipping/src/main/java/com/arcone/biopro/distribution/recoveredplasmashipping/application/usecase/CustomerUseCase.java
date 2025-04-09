@@ -26,6 +26,7 @@ public class CustomerUseCase implements CustomerService {
         return customerRepository.findAll()
             .switchIfEmpty(Mono.error(NoResultsFoundException::new))
             .map(customerOutputMapper::toCustomerOutput);
+
     }
 
     @Override

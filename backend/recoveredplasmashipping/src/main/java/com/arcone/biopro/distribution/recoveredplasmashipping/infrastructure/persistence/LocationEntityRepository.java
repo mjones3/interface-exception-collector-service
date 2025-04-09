@@ -8,4 +8,5 @@ public interface LocationEntityRepository extends ReactiveCrudRepository<Locatio
 
     Flux<LocationEntity> findAllByActiveIsTrueOrderByNameAsc();
     Mono<LocationEntity> findById(Long id);
+    Mono<LocationEntity> findByCode(String code);
 }
