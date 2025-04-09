@@ -28,3 +28,4 @@ Feature: Product Created event
                 | W036825008005 | WHOLEBLOOD          | PLASMA       | No                  |                      |
                 | W036825008006 | RBC                 | E016700      | Yes                 | REFRIGERATED         |
                 | W036825008007 | PLASMA              | E070100      | Yes                 | FROZEN               |
+                | W036825008008 | APLTAPHP            | E834000      | Yes                 | ROOM_TEMPERATURE     |

@@ -93,6 +93,16 @@ public class ProductCreatedIntegrationIT {
         assertDefaultProductCreatedValues(capturedInput, payloadJson);
     }
 
+    @Test
+    @DisplayName("Should publish, receive, map and call usecase with correct input for apheresis PLATELET")
+    public void test4() throws InterruptedException, IOException {
+        var payloadJson = publishCreatedEvent("json/apheresis/platelet/product_created.json", APHERESIS_PLATELET_PRODUCT_CREATED_TOPIC);
+        ArgumentCaptor<ProductCreatedInput> captor = ArgumentCaptor.forClass(ProductCreatedInput.class);
+        verify(productCreatedUseCase, times(1)).execute(captor.capture());
+        ProductCreatedInput capturedInput = captor.getValue();
+        assertDefaultProductCreatedValues(capturedInput, payloadJson);
+    }
+
     private static void assertDefaultProductCreatedValues(ProductCreatedInput capturedInput, JsonNode payloadJson) {
         assertThat(capturedInput.unitNumber()).isEqualTo(payloadJson.path(PAYLOAD).path("unitNumber").asText());
         assertThat(capturedInput.productCode()).isEqualTo(payloadJson.path(PAYLOAD).path("productCode").asText());
