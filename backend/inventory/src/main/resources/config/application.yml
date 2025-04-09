@@ -281,14 +281,22 @@ topic:
     wholeblood:
       name: WholeBloodProductCreated
     apheresis:
+      platelet:
+        name: ApheresisPlateletProductCreated
       plasma:
         name: ApheresisPlasmaProductCreated
       rbc:
         name: ApheresisRBCProductCreated
   product-completed:
+    wholeblood:
+      name: WholeBloodProductCompleted
     apheresis:
+      platelet:
+        name: ApheresisPlateletProductCompleted
       plasma:
         name: ApheresisPlasmaProductCompleted
+      rbc:
+        name: ApheresisRBCProductCompleted
   label-applied:
     name: LabelApplied
   shipment-completed:
