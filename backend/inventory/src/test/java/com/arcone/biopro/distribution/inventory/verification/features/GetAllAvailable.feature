@@ -70,7 +70,7 @@ Feature: Get all available inventories
             | 1        | PLASMA_MFG_NONINJECTABLE | ANY         | LOCATION_4 | 0                   |                      |
             | 1        | PLASMA_MFG_INJECTABLE    | ANY         | LOCATION_4 | 0                   | FROZEN               |
 
-        @LAB-412ó
+        @LAB-412
         Examples:
             | Quantity | Product Family                   | Abo Rh Type | Location   | Short Date Quantity | Temperature Category |
             | 1        | PRT_APHERESIS_PLATELETS          | ANY         | LOCATION_5 | 1                   | ROOM_TEMPERATURE     |
