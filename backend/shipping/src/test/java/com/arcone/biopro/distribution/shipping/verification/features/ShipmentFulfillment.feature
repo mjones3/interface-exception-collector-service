@@ -115,7 +115,7 @@ Feature: Shipment fulfillment request
                 | 336001         | 1           | Testing Customer | 10       | A         | APHERESIS_PLATELETS_LEUKOREDUCED | W812530107006 | EA007V00 | ROOM_TEMPERATURE |
                 | 336002         | 1           | Testing Customer | 5        | AB        | APHERESIS_PLATELETS_LEUKOREDUCED | W812530107007 | EA139V00 | ROOM_TEMPERATURE |
                 | 336003         | 1           | Testing Customer | 5        | AP        | PRT_APHERESIS_PLATELETS          | W812530107009 | E8340V00 | ROOM_TEMPERATURE |
-                | 336004         | 1           | Testing Customer | 5        | BP        | PRT_APHERESIS_PLATELETS          | W812530107010 | E9431V00 | REFRIGERATED     |
+                | 336004         | 1           | Testing Customer | 5        | BP        | PRT_APHERESIS_PLATELETS          | W812530107010 | EB317V00 | REFRIGERATED     |
                 | 337001         | 1           | Testing Customer | 5        | BP        | RED_BLOOD_CELLS_LEUKOREDUCED     | W812530107011 | E5085V00 | FROZEN           |
 
             @api @DIS-261
