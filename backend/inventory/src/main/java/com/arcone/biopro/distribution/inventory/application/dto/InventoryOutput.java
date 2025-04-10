@@ -2,10 +2,12 @@ package com.arcone.biopro.distribution.inventory.application.dto;
 
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
+import com.arcone.biopro.distribution.inventory.domain.model.vo.Volume;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Builder
@@ -26,6 +28,7 @@ public record InventoryOutput(
     String shortDescription,
     ZonedDateTime createDate,
     ZonedDateTime modificationDate,
-    String storageLocation) {
+    String storageLocation,
+    List<Volume> volumes) {
 }
 

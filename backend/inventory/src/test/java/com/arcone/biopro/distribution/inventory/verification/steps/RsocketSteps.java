@@ -19,8 +19,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 
 @Slf4j
 public class RsocketSteps {
@@ -132,9 +134,19 @@ public class RsocketSteps {
         assertThat(inventory.shortDateProducts().size()).isEqualTo(Integer.parseInt(quantityShortDate));
     }
 
-    @Then("I receive for {string} with {string} and temperature category {string} in the {string} a {string} message with {string} action and {string} reason and {string} message and details {string}")
-    public void iReceiveForWithInTheAMessage(String unitNumber, String productCode, String temperatureCategory, String location, String errorType, String action, String reason, String messageError, String details) {
-        Integer errorCode = "".equals(errorType) ? null : MessageType.valueOf(errorType).getCode();
+    @Then("I receive the following:")
+    public void iReceiveTheFollowing(DataTable dataTable) {
+        var row = dataTable.asMaps(String.class, String.class).getFirst();
+        String unitNumber = row.get("Unit Number");
+        String productCode = row.get("Product Code");
+        String temperatureCategory = row.get("Temperature Category");
+        String location = row.get("Location");
+        String errorType = row.get("RESPONSE ERROR");
+        String action = row.get("ACTION");
+        String reason = row.get("REASON");
+        String messageError = row.get("MESSAGE");
+        String details = row.get("DETAILS");
+        Integer errorCode = Objects.isNull(errorType) ? null : MessageType.valueOf(errorType).getCode();
         StepVerifier
             .create(inventoryValidationResponseDTOMonoResult)
             .consumeNextWith(message -> {
@@ -145,6 +157,18 @@ public class RsocketSteps {
 
                     if (!MessageType.INVENTORY_NOT_FOUND_IN_LOCATION.getCode().equals(errorCode)) {
                         assertThat(message.inventoryResponseDTO().locationCode()).isEqualTo(location);
+                    }
+
+                    if (row.containsKey("Volumes") && row.get("Volumes") != null) {
+                        var volumes = row.get("Volumes").split(",");
+                        for(String volume: volumes) {
+                            var volumeFields = volume.split("-");
+                            assertTrue( message.inventoryResponseDTO().volumes().stream()
+                                .filter(v -> v.type().equals(volumeFields[0].trim().toUpperCase()))
+                                .findFirst()
+                                .map(v -> Objects.equals(v.value(), Integer.parseInt(volumeFields[1].trim())))
+                                .orElse(false));
+                        }
                     }
 
                 } else {

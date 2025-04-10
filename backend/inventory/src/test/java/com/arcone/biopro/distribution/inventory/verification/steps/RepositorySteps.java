@@ -19,6 +19,7 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -233,6 +234,15 @@ public class RepositorySteps {
             if(headers.contains("Expires In Days")) {
                 int expiresInDays = Integer.parseInt(inventory.get("Expires In Days"));
                 inventoryEntity.setExpirationDate(LocalDateTime.now().plusDays(expiresInDays));
+            }
+
+            inventoryEntity.setVolumes(new ArrayList<>());
+            if(headers.contains("Volumes") && inventory.get("Volumes") != null){
+                var volumes = inventory.get("Volumes").split(",");
+                for(String volume: volumes) {
+                    var volumeFields = volume.split("-");
+                    inventoryEntity.getVolumes().add(new Volume(volumeFields[0].trim().toUpperCase(), Integer.parseInt(volumeFields[1].trim()), "MILLILITERS"));
+                }
             }
 
             inventoryEntity.setTemperatureCategory(headers.contains("Temperature Category") ? inventory.get("Temperature Category") : "FROZEN");
