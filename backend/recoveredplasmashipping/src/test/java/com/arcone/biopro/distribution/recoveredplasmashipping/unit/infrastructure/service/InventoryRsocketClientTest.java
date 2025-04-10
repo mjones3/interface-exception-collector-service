@@ -4,6 +4,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Valid
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.controller.dto.InventoryNotificationDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.controller.dto.InventoryResponseDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.controller.dto.InventoryValidationResponseDTO;
+import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.controller.dto.InventoryVolumeDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.exception.InventoryServiceNotAvailableException;
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.mapper.CommandMapper;
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.mapper.InventoryMapper;
@@ -58,6 +59,11 @@ class InventoryRsocketClientTest {
                 .storageLocation("Storage Location")
                 .createDate(ZonedDateTime.now())
                 .modificationDate(ZonedDateTime.now())
+                .volumes(List.of(InventoryVolumeDTO.builder()
+                        .type("volume")
+                        .value(150)
+                        .unit("MILLILITERS")
+                    .build()))
                 .build())
             .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
                 .builder()

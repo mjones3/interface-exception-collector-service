@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.domain.model;
 
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.vo.InventoryVolume;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -7,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Getter
@@ -27,8 +30,11 @@ public class Inventory implements Validatable  {
     private final String storageLocation;
     private final ZonedDateTime createDate;
     private final ZonedDateTime modificationDate;
+    private final Integer weight;
+    private final List<InventoryVolume> volumes;
 
-    public Inventory(UUID id, String locationCode, String unitNumber, String productCode, String productDescription, LocalDateTime expirationDate, String aboRh, String productFamily, ZonedDateTime collectionDate, String storageLocation, ZonedDateTime createDate, ZonedDateTime modificationDate) {
+    public Inventory(UUID id, String locationCode, String unitNumber, String productCode, String productDescription, LocalDateTime expirationDate, String aboRh, String productFamily
+        , ZonedDateTime collectionDate, String storageLocation, ZonedDateTime createDate, ZonedDateTime modificationDate , Integer weight , List<InventoryVolume> volumes) {
         this.id = id;
         this.locationCode = locationCode;
         this.unitNumber = unitNumber;
@@ -41,6 +47,8 @@ public class Inventory implements Validatable  {
         this.storageLocation = storageLocation;
         this.createDate = createDate;
         this.modificationDate = modificationDate;
+        this.weight = weight;
+        this.volumes = volumes;
 
         checkValid();
     }
@@ -74,7 +82,9 @@ public class Inventory implements Validatable  {
         if(collectionDate == null){
             throw new IllegalArgumentException("Collection Date is required");
         }
+    }
 
-
+    public Optional<InventoryVolume> getVolumeByType(String type){
+        return this.volumes.stream().filter(volume -> volume.getType().equals(type)).findFirst();
     }
 }

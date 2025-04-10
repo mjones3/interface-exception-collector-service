@@ -5,6 +5,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.application.except
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.CartonItemRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.CartonRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.LocationRepository;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShipmentCriteriaRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShippingRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.InventoryService;
 import lombok.AccessLevel;
@@ -215,12 +216,12 @@ public class Carton implements Validatable {
         return totalVolume;
     }
 
-    public CartonItem packItem(PackItemCommand packItemCommand , InventoryService inventoryService, CartonItemRepository cartonItemRepository) {
+    public CartonItem packItem(PackItemCommand packItemCommand , InventoryService inventoryService, CartonItemRepository cartonItemRepository , RecoveredPlasmaShipmentCriteriaRepository recoveredPlasmaShipmentCriteriaRepository , RecoveredPlasmaShippingRepository recoveredPlasmaShippingRepository) {
         if(this.products == null){
             this.products = new ArrayList<>();
         }
 
-        var item = CartonItem.createNewCartonItem(packItemCommand,this,inventoryService , cartonItemRepository);
+        var item = CartonItem.createNewCartonItem(packItemCommand,this,inventoryService , cartonItemRepository , recoveredPlasmaShippingRepository , recoveredPlasmaShipmentCriteriaRepository);
 
         this.products.add(item);
 

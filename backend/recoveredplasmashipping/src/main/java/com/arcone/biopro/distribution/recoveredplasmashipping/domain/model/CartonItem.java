@@ -1,7 +1,10 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.domain.model;
 
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.exception.ProductValidationException;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.vo.InventoryVolume;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.CartonItemRepository;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShipmentCriteriaRepository;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShippingRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.InventoryService;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -10,6 +13,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -40,13 +44,22 @@ public class CartonItem implements Validatable {
     private ZonedDateTime modificationDate;
 
     private static final String PACKED_STATUS = "PACKED";
+    private static final String VOLUME_TYPE = "volume";
 
-    public static CartonItem createNewCartonItem(PackItemCommand packItemCommand, Carton carton , InventoryService inventoryService , CartonItemRepository cartonItemRepository) {
+    public static CartonItem createNewCartonItem(PackItemCommand packItemCommand, Carton carton , InventoryService inventoryService
+        , CartonItemRepository cartonItemRepository
+        , RecoveredPlasmaShippingRepository recoveredPlasmaShippingRepository
+        , RecoveredPlasmaShipmentCriteriaRepository recoveredPlasmaShipmentCriteriaRepository) {
 
 
         validateProductAlreadyPacked(packItemCommand,cartonItemRepository);
 
+        var shipment = getShipment(carton.getShipmentId(), recoveredPlasmaShippingRepository);
+
+        validateProductType(recoveredPlasmaShipmentCriteriaRepository, shipment.getProductType(), packItemCommand.getProductCode());
+
         var inventoryValidation = validateInventory(packItemCommand, inventoryService);
+
 
         /// Validations
         // Call Inventory
@@ -63,14 +76,14 @@ public class CartonItem implements Validatable {
 
         CartonItemBuilder builder = CartonItem.builder();
         builder.id(null);
-        builder.cartonId(Optional.ofNullable(carton)
+        builder.cartonId(Optional.of(carton)
             .map(Carton::getId).orElse(null));
         builder.unitNumber(inventoryValidation.getInventory().getUnitNumber());
         builder.productCode(inventoryValidation.getInventory().getProductCode());
         builder.productDescription(inventoryValidation.getInventory().getProductDescription());
         builder.productType(null);
-        builder.volume(null);
-        builder.weight(null);
+        builder.volume(inventoryValidation.getInventory().getVolumeByType(VOLUME_TYPE).map(InventoryVolume::getValue).orElse(0));
+        builder.weight(inventoryValidation.getInventory().getWeight());
         builder.status(PACKED_STATUS);
         builder.packedByEmployeeId(packItemCommand.getEmployeeId());
         builder.aboRh(inventoryValidation.getInventory().getAboRh());
@@ -187,6 +200,37 @@ public class CartonItem implements Validatable {
                     throw new ProductValidationException("Product already used");
                 }
             });
+    }
+
+    private static void validateProductType(RecoveredPlasmaShipmentCriteriaRepository recoveredPlasmaShipmentCriteriaRepository , String cartonProductType, String productCode){
+        if(recoveredPlasmaShipmentCriteriaRepository == null){
+            log.error("Recovered Plasma Shipment Criteria Repository is required");
+            throw new IllegalArgumentException("Recovered Plasma Shipment Criteria Repository is required");
+        }
+
+        recoveredPlasmaShipmentCriteriaRepository.findProductTypeByProductCode(productCode)
+            .switchIfEmpty(Mono.error(new ProductValidationException("Product Type does not match")))
+            .onErrorResume(error -> {
+                log.error("Error finding product type: {}", error.getMessage());
+                throw new ProductValidationException(error.getMessage());
+            })
+            .blockOptional()
+            .ifPresent(productType -> {
+                if(!productType.getProductType().equals(cartonProductType)){
+                    throw new ProductValidationException("Product Type does not match");
+                }
+            });
+
+    }
+
+    private static RecoveredPlasmaShipment getShipment(Long shipmentId , RecoveredPlasmaShippingRepository recoveredPlasmaShippingRepository) {
+        if (recoveredPlasmaShippingRepository == null) {
+            throw new IllegalArgumentException("RecoveredPlasmaShippingRepository is required");
+        }
+
+        return recoveredPlasmaShippingRepository.findOneById(shipmentId)
+            .switchIfEmpty(Mono.error( ()-> new IllegalArgumentException("Shipment is required")))
+            .block();
     }
 }
 

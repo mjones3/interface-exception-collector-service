@@ -4,6 +4,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Inven
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.controller.dto.InventoryNotificationDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.controller.dto.InventoryResponseDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.controller.dto.InventoryValidationResponseDTO;
+import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.controller.dto.InventoryVolumeDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.mapper.InventoryMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,6 +46,11 @@ class InventoryMapperTest {
                 .storageLocation("Storage Location")
                 .createDate(ZonedDateTime.now())
                 .modificationDate(ZonedDateTime.now())
+                .volumes(List.of(InventoryVolumeDTO.builder()
+                    .type("volume")
+                    .value(150)
+                    .unit("MILLILITERS")
+                    .build()))
                 .build())
             .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
                 .builder()
@@ -77,6 +83,10 @@ class InventoryMapperTest {
         assertEquals(dto.inventoryResponseDTO().storageLocation(), result.getInventory().getStorageLocation());
         assertEquals(dto.inventoryResponseDTO().createDate(), result.getInventory().getCreateDate());
         assertEquals(dto.inventoryResponseDTO().modificationDate(), result.getInventory().getModificationDate());
+        assertEquals(dto.inventoryResponseDTO().volumes().size(), result.getInventory().getVolumes().size());
+        assertEquals(dto.inventoryResponseDTO().volumes().get(0).type(), result.getInventory().getVolumes().get(0).getType());
+        assertEquals(dto.inventoryResponseDTO().volumes().get(0).value(), result.getInventory().getVolumes().get(0).getValue());
+        assertEquals(dto.inventoryResponseDTO().volumes().get(0).unit(), result.getInventory().getVolumes().get(0).getUnit());
         assertEquals(dto.inventoryNotificationsDTO().size(), result.getNotifications().size());
         assertEquals(dto.inventoryNotificationsDTO().get(0).errorName(), result.getNotifications().get(0).getErrorName());
         assertEquals(dto.inventoryNotificationsDTO().get(0).errorCode(), result.getNotifications().get(0).getErrorCode());
@@ -86,6 +96,7 @@ class InventoryMapperTest {
         assertEquals(dto.inventoryNotificationsDTO().get(0).reason(), result.getNotifications().get(0).getReason());
         assertEquals(dto.inventoryNotificationsDTO().get(0).details().size(), result.getNotifications().get(0).getDetails().size());
         assertEquals(dto.inventoryNotificationsDTO().get(0).details().get(0), result.getNotifications().get(0).getDetails().get(0));
+
 
 
     }
