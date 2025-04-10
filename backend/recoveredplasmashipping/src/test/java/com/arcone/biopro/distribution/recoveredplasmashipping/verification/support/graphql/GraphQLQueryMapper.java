@@ -124,4 +124,25 @@ public class GraphQLQueryMapper {
 
             """, locationCodeList, shipmentNumber, shipmentStatusList, customerList, productTypeList, shipmentDateFrom, shipmentDateTo, transportationReferenceNumber);
     }
+
+    public static String findShipmentByIdAndLocation(String shipmentId, String locationCode) {
+        return String.format("""
+            query FindShipmentById {
+                 findShipmentById(
+                     findShipmentCommandDTO: {
+                     shipmentId: %s,
+                     locationCode: "%s",
+                     employeeId: "4c973896-5761-41fc-8217-07c5d13a004b" }
+                 ) {
+                     _links
+                     data
+                     notifications {
+                         message
+                         type
+                         code
+                     }
+                 }
+             }
+            """, shipmentId, locationCode);
+    }
 }

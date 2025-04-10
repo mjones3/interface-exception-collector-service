@@ -1,7 +1,9 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.unit.domain.model;
 
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.CustomerOutput;
+import com.arcone.biopro.distribution.recoveredplasmashipping.application.exception.DomainNotFoundForKeyException;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.CreateShipmentCommand;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.FindShipmentCommand;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Location;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.LocationProperty;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.RecoveredPlasmaShipment;
@@ -31,12 +33,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @ExtendWith(MockitoExtension.class)
 class RecoveredPlasmaShipmentTest {
 
-
-    @Mock
-    private RecoveredPlasmaShipment recoveredPlasmaShipment;
-
-    @Mock
-    private RecoveredPlasmaShipment shipment;
     @Mock
     private CustomerService customerService;
 
@@ -536,4 +532,136 @@ class RecoveredPlasmaShipmentTest {
             ));
         assertEquals("Carton tare weight is required", exception.getMessage());
     }
+
+
+    @Test
+    public void shouldNotFindByIdWhenShipmentDoesNotExists() {
+
+        //given
+        var findCommand = new FindShipmentCommand(1L, "locationCode", "employee-id");
+
+        Mockito.when(recoveredPlasmaShippingRepository.findOneById(Mockito.any())).thenReturn(Mono.empty());
+
+        //when
+        DomainNotFoundForKeyException exception = assertThrows(DomainNotFoundForKeyException.class, () -> RecoveredPlasmaShipment.fromFindByCommand(findCommand , recoveredPlasmaShippingRepository));
+
+        //then
+
+        assertEquals("Domain not found for key 1", exception.getMessage());
+    }
+
+    @Test
+    public void shouldFindByIdWhenShipmentExists() {
+
+        //given
+        var findCommand = new FindShipmentCommand(1L, "LOC001", "employee-id");
+
+        // Arrange
+        Long id = 1L;
+        String locationCode = "LOC001";
+        String productType = "PLASMA";
+        String shipmentNumber = "SHP001";
+        String status = "OPEN";
+        String createEmployeeId = "EMP001";
+        String closeEmployeeId = "EMP002";
+        ZonedDateTime closeDate = ZonedDateTime.now();
+        String transportationReferenceNumber = "TRN001";
+        LocalDate shipmentDate = LocalDate.now();
+        BigDecimal cartonTareWeight = BigDecimal.valueOf(10.5);
+        String unsuitableUnitReportDocumentStatus = "COMPLETED";
+        String customerCode = "CUST001";
+        String customerName = "Test Customer";
+        String customerState = "Test State";
+        String customerPostalCode = "12345";
+        String customerCountry = "Test Country";
+        String customerCountryCode = "TC";
+        String customerCity = "Test City";
+        String customerDistrict = "Test District";
+        String customerAddressLine1 = "123 Test St";
+        String customerAddressLine2 = "Apt 4";
+        String customerAddressContactName = "John Doe";
+        String customerAddressPhoneNumber = "1234567890";
+        String customerAddressDepartmentName = "Test Department";
+        ZonedDateTime createDate = ZonedDateTime.now();
+        ZonedDateTime modificationDate = ZonedDateTime.now();
+
+        // Act
+        RecoveredPlasmaShipment shipment = RecoveredPlasmaShipment.fromRepository(
+            id, locationCode, productType, shipmentNumber, status, createEmployeeId,
+            closeEmployeeId, closeDate, transportationReferenceNumber,shipmentDate, cartonTareWeight, unsuitableUnitReportDocumentStatus,
+            customerCode, customerName, customerState, customerPostalCode, customerCountry,
+            customerCountryCode, customerCity, customerDistrict, customerAddressLine1,
+            customerAddressLine2, customerAddressContactName, customerAddressPhoneNumber,
+            customerAddressDepartmentName, createDate, modificationDate
+        );
+
+        Mockito.when(recoveredPlasmaShippingRepository.findOneById(Mockito.any())).thenReturn(Mono.just(shipment));
+
+        //when
+        var result = RecoveredPlasmaShipment.fromFindByCommand(findCommand, recoveredPlasmaShippingRepository);
+
+        //then
+        Assertions.assertNotNull(result);
+        Assertions.assertTrue(result.isCanAddCartons());
+
+    }
+
+    @Test
+    public void shouldFindByIdWhenShipmentExists_not_allow_add_cartonsWhenLocationDoesNotMatch() {
+
+        //given
+        var findCommand = new FindShipmentCommand(1L, "LOC002", "employee-id");
+
+        // Arrange
+        Long id = 1L;
+        String locationCode = "LOC001";
+        String productType = "PLASMA";
+        String shipmentNumber = "SHP001";
+        String status = "OPEN";
+        String createEmployeeId = "EMP001";
+        String closeEmployeeId = "EMP002";
+        ZonedDateTime closeDate = ZonedDateTime.now();
+        String transportationReferenceNumber = "TRN001";
+        LocalDate shipmentDate = LocalDate.now();
+        BigDecimal cartonTareWeight = BigDecimal.valueOf(10.5);
+        String unsuitableUnitReportDocumentStatus = "COMPLETED";
+        String customerCode = "CUST001";
+        String customerName = "Test Customer";
+        String customerState = "Test State";
+        String customerPostalCode = "12345";
+        String customerCountry = "Test Country";
+        String customerCountryCode = "TC";
+        String customerCity = "Test City";
+        String customerDistrict = "Test District";
+        String customerAddressLine1 = "123 Test St";
+        String customerAddressLine2 = "Apt 4";
+        String customerAddressContactName = "John Doe";
+        String customerAddressPhoneNumber = "1234567890";
+        String customerAddressDepartmentName = "Test Department";
+        ZonedDateTime createDate = ZonedDateTime.now();
+        ZonedDateTime modificationDate = ZonedDateTime.now();
+
+        // Act
+        RecoveredPlasmaShipment shipment = RecoveredPlasmaShipment.fromRepository(
+            id, locationCode, productType, shipmentNumber, status, createEmployeeId,
+            closeEmployeeId, closeDate, transportationReferenceNumber,shipmentDate, cartonTareWeight, unsuitableUnitReportDocumentStatus,
+            customerCode, customerName, customerState, customerPostalCode, customerCountry,
+            customerCountryCode, customerCity, customerDistrict, customerAddressLine1,
+            customerAddressLine2, customerAddressContactName, customerAddressPhoneNumber,
+            customerAddressDepartmentName, createDate, modificationDate
+        );
+
+        Mockito.when(recoveredPlasmaShippingRepository.findOneById(Mockito.any())).thenReturn(Mono.just(shipment));
+
+        //when
+        var result = RecoveredPlasmaShipment.fromFindByCommand(findCommand, recoveredPlasmaShippingRepository);
+
+        //then
+        Assertions.assertNotNull(result);
+        Assertions.assertFalse(result.isCanAddCartons());
+
+    }
+
+
+
 }

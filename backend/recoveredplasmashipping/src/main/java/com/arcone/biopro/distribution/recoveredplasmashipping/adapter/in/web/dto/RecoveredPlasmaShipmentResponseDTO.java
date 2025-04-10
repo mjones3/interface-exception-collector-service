@@ -36,7 +36,10 @@ public record RecoveredPlasmaShipmentResponseDTO(
     String customerAddressLine2,
     String customerAddressContactName,
     String customerAddressPhoneNumber,
-    String customerAddressDepartmentName
+    String customerAddressDepartmentName,
+    int totalCartons,
+    int totalProducts,
+    boolean canAddCartons
 
 ) implements Serializable {
 

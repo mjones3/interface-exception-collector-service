@@ -38,7 +38,7 @@ public class CreateShipmentUseCase implements CreateShipmentService {
     private final LocationRepository locationRepository;
     private final RecoveredPlasmaShipmentCriteriaRepository recoveredPlasmaShipmentCriteriaRepository;
     private final RecoveredPlasmaShipmentOutputMapper recoveredPlasmaShipmentOutputMapper;
-    private static final String SHIPMENT_DETAILS_URL = "/recovered-plasma/:%s/shipment-details";
+    private static final String SHIPMENT_DETAILS_URL = "/recovered-plasma/%s/shipment-details";
     private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
