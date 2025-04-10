@@ -41,7 +41,7 @@ export class ShippingInformationCardComponent {
             totalCartons: number;
             totalProducts: number;
             totalVolume: number;
-            transporationReferenceNumber: string;
+            transportationReferenceNumber: string;
         }>
     >();
 
@@ -127,7 +127,8 @@ export class ShippingInformationCardComponent {
             ? [
                   {
                       label: 'Transportation #',
-                      value: this.shippingInput()?.transporationReferenceNumber,
+                      value: this.shippingInput()
+                          ?.transportationReferenceNumber,
                   },
               ]
             : []),
