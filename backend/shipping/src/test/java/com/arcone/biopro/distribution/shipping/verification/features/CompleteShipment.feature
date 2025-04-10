@@ -3,8 +3,8 @@ Feature: Complete Shipment Feature
     As a distribution technician, I want to complete a shipment, so I can ship products to the customer.
 
     Background:
-        Given I cleaned up from the database the packed item that used the unit number "W036898786802,W812530106086,W812530106089,W036824705327,W812530106090,W812530107002,W812530107001,W812530106099,W036898786759,W812530107008,W812530107009,W8125301070010,W812530107010".
-        And I cleaned up from the database, all shipments with order number "108,109,110,111,112,113,114,115,116,117,254001,254002,254003,1125,336001,336002,336003".
+        Given I cleaned up from the database the packed item that used the unit number "W036898786802,W812530106086,W812530106089,W036824705327,W812530106090,W812530107002,W812530107001,W812530106099,W036898786759,W812530107008,W812530107009,W8125301070010,W812530107012".
+        And I cleaned up from the database, all shipments with order number "108,109,110,111,112,113,114,115,116,117,254001,254002,254003,1125,336001,336002,336003,337001".
 
         Rule: I should be able to complete a shipment whenever at least one product is filledRule: I should be able to view the list of packed products added once it is filled on the Shipment Fulfillment Details page.
         Rule: I should see a success message when the shipment is completed.
@@ -43,8 +43,8 @@ Feature: Complete Shipment Feature
                 | 254003       | 1           | Testing Customer | 2,2      | OP,ON     | RED_BLOOD_CELLS,RED_BLOOD_CELLS                                                       | RED BLOOD CELLS                  | ON   | =W81253010609900 | =<E0167V00 | 1                | enabled           | FROZEN           |
                 | 336001       | 1           | Testing Customer | 2        | ANY       | APHERESIS_PLATELETS_LEUKOREDUCED                                                      | APHERESIS PLATELETS LEUKOREDUCED | ANY  | =W81253010700800  | =<EA141V00 | 1                | enabled          | ROOM_TEMPERATURE |
                 | 336002       | 1           | Testing Customer | 2        | A        | PRT_APHERESIS_PLATELETS                                                               | PRT APHERESIS PLATELETS           | A    | =W81253010700900 | =<E8340V00 | 1                | enabled           | ROOM_TEMPERATURE |
-                | 336003       | 1           | Testing Customer | 2        | B        | PRT_APHERESIS_PLATELETS                                                               | PRT APHERESIS PLATELETS           | B    | =W81253010701000 | =<EB317V00 | 1                | enabled           | REFRIGERATED |
-                | 337001       | 1           | Testing Customer | 2        | AP       | RED_BLOOD_CELLS_LEUKOREDUCED                                                          | RED BLOOD CELLS LEUKOREDUCED      | AP   | =W81253010701200 | =<E5107V00 | 1                | enabled           | REFRIGERATED |
+                | 336003       | 1           | Testing Customer | 2        | B        | PRT_APHERESIS_PLATELETS                                                               | PRT APHERESIS PLATELETS           | B    | =W81253010701000 | =<EB317V00 | 1                | enabled           | REFRIGERATED     |
+                | 337001       | 1           | Testing Customer | 2        | AP       | RED_BLOOD_CELLS_LEUKOREDUCED                                                          | RED BLOOD CELLS LEUKOREDUCED      | AP   | =W81253010701200 | =<E5107V00 | 1                | enabled           | FROZEN           |
 
 
 
