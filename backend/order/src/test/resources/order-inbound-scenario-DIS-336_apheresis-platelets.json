@@ -1,0 +1,30 @@
+{
+  "eventType": "OrderReceived",
+  "eventVersion": "1.0",
+  "payload": {
+    "id": "6ff46d1b-14a1-4928-a7cc-40c49155f3bb",
+    "externalId": "{EXTERNAL_ID}",
+    "orderStatus": "OPEN",
+    "locationCode": "123456789",
+    "createDate": "2023-04-25 20:09:01",
+    "createEmployeeCode": "ee1bf88e-2137-4a17-835a-d43e7b738374",
+    "shipmentType": "CUSTOMER",
+    "deliveryType": "SCHEDULED",
+    "willPickUp": true,
+    "willPickUpPhoneNumber": "12333333",
+    "shippingMethod": "FEDEX",
+    "productCategory": "ROOM_TEMPERATURE",
+    "desiredShippingDate": "DESIRED_DATE",
+    "shippingCustomerCode": "A1235",
+    "billingCustomerCode": "A1235",
+    "comments": "string",
+    "orderItems": [
+      {
+        "productFamily": "APHERESIS_PLATELETS_LEUKOREDUCED",
+        "bloodType": "A",
+        "quantity": 10,
+        "comments": "Comments"
+      }
+    ]
+  }
+}
