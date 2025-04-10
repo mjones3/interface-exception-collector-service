@@ -46,7 +46,7 @@ export class ShippingInformationCardComponent {
     >();
 
     protected shipping = computed<Description[]>(() => [
-        ...(this.shippingInput()?.shipmentNumber
+        ...(this.shippingInput()
             ? [
                   {
                       label: 'Shipment Number',
@@ -54,7 +54,7 @@ export class ShippingInformationCardComponent {
                   },
               ]
             : []),
-        ...(this.shippingInput()?.customerCode
+        ...(this.shippingInput()
             ? [
                   {
                       label: 'Customer Code',
@@ -62,7 +62,7 @@ export class ShippingInformationCardComponent {
                   },
               ]
             : []),
-        ...(this.shippingInput()?.customerName
+        ...(this.shippingInput()
             ? [
                   {
                       label: 'Customer Name',
@@ -70,7 +70,7 @@ export class ShippingInformationCardComponent {
                   },
               ]
             : []),
-        ...(this.shippingInput()?.status
+        ...(this.shippingInput()
             ? [
                   {
                       label: 'Shipment Status',
@@ -78,7 +78,7 @@ export class ShippingInformationCardComponent {
                   },
               ]
             : []),
-        ...(this.shippingInput()?.productType
+        ...(this.shippingInput()
             ? [
                   {
                       label: 'Product Type',
@@ -88,7 +88,7 @@ export class ShippingInformationCardComponent {
                   },
               ]
             : []),
-        ...(this.shippingInput()?.shipmentDate
+        ...(this.shippingInput()
             ? [
                   {
                       label: 'Shipment Date',
