@@ -115,6 +115,10 @@ public class CreateShipmentPage extends CommonPageFactory {
         return sharedActions.isElementVisible(header);
     }
 
+    public void waitForLoad(){
+        sharedActions.waitForVisible(header);
+    }
+
     public void clickCreateShipment() {
         sharedActions.click(createShipmentButton);
     }

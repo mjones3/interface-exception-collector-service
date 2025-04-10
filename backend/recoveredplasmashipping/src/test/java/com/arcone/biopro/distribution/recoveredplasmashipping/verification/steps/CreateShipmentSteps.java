@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.Random;
 
 @Slf4j
-@SpringBootTest
 public class CreateShipmentSteps {
 
     @Autowired
@@ -109,6 +108,8 @@ public class CreateShipmentSteps {
         } else {
             transportationRefNumber = "\"" + transportationRefNumber + "\"";
         }
+
+        sharedContext.setLocationCode(fields.get("Location Code"));
 
         createShipmentController.createShipment(
             "\"" + fields.get("Customer Code") + "\"",
