@@ -39,19 +39,7 @@
         </div>
         <biopro-shipping-information-card
             [showBasicButton]="true"
-            [shippingInput]="{
-                shipmentNumber: findShipmentById?.shipmentNumber,
-                customerCode: findShipmentById?.customerCode,
-                customerName: findShipmentById?.customerName,
-                status: findShipmentById?.status,
-                productType: findShipmentById?.productType,
-                shipmentDate: findShipmentById?.shipmentDate,
-                totalCartons: findShipmentById?.totalCartons,
-                totalProducts: findShipmentById?.totalProducts,
-                totalVolume: findShipmentById?.totalVolume,
-                transportationReferenceNumber:
-                    findShipmentById?.transportationReferenceNumber,
-            }"
+            [shippingInput]="shipmentDetailsSignal()"
         />
     </div>
 </div>

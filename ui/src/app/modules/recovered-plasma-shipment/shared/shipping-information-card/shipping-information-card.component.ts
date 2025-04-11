@@ -46,92 +46,49 @@ export class ShippingInformationCardComponent {
     >();
 
     protected shipping = computed<Description[]>(() => [
-        ...(this.shippingInput()?.shipmentNumber
-            ? [
-                  {
-                      label: 'Shipment Number',
-                      value: this.shippingInput()?.shipmentNumber,
-                  },
-              ]
-            : []),
-        ...(this.shippingInput()?.customerCode
-            ? [
-                  {
-                      label: 'Customer Code',
-                      value: this.shippingInput()?.customerCode,
-                  },
-              ]
-            : []),
-        ...(this.shippingInput()?.customerName
-            ? [
-                  {
-                      label: 'Customer Name',
-                      value: this.shippingInput()?.customerName,
-                  },
-              ]
-            : []),
-        ...(this.shippingInput()?.status
-            ? [
-                  {
-                      label: 'Shipment Status',
-                      value: this.shippingInput()?.status,
-                  },
-              ]
-            : []),
-        ...(this.shippingInput()?.productType
-            ? [
-                  {
-                      label: 'Product Type',
-                      value: ProductFamilyMap[
-                          this.shippingInput()?.productType
-                      ],
-                  },
-              ]
-            : []),
-        ...(this.shippingInput()?.shipmentDate
-            ? [
-                  {
-                      label: 'Shipment Date',
-                      value: this.datePipe.transform(
-                          this.shippingInput()?.shipmentDate,
-                          'MM/dd/yyyy'
-                      ),
-                  },
-              ]
-            : []),
-        ...(this.shippingInput()
-            ? [
-                  {
-                      label: 'Total Cartons',
-                      value: this.shippingInput()?.totalCartons,
-                  },
-              ]
-            : []),
-        ...(this.shippingInput()
-            ? [
-                  {
-                      label: 'Total Products',
-                      value: this.shippingInput()?.totalProducts,
-                  },
-              ]
-            : []),
-        ...(this.shippingInput()
-            ? [
-                  {
-                      label: 'Total Volume',
-                      value: this.shippingInput()?.totalVolume,
-                  },
-              ]
-            : []),
-        ...(this.shippingInput()
-            ? [
-                  {
-                      label: 'Transportation #',
-                      value: this.shippingInput()
-                          ?.transportationReferenceNumber,
-                  },
-              ]
-            : []),
+        {
+            label: 'Shipment Number',
+            value: this.shippingInput()?.shipmentNumber,
+        },
+        {
+            label: 'Customer Code',
+            value: this.shippingInput()?.customerCode,
+        },
+        {
+            label: 'Customer Name',
+            value: this.shippingInput()?.customerName,
+        },
+        {
+            label: 'Shipment Status',
+            value: this.shippingInput()?.status,
+        },
+        {
+            label: 'Product Type',
+            value: ProductFamilyMap[this.shippingInput()?.productType],
+        },
+        {
+            label: 'Shipment Date',
+            value: this.datePipe.transform(
+                this.shippingInput()?.shipmentDate,
+                'MM/dd/yyyy'
+            ),
+        },
+        {
+            label: 'Total Cartons',
+            value: this.shippingInput()?.totalCartons,
+        },
+        {
+            label: 'Total Products',
+            value: this.shippingInput()?.totalProducts,
+        },
+        {
+            label: 'Total Volume',
+            value: this.shippingInput()?.totalVolume,
+        },
+        {
+            label: 'Transportation #',
+            value: this.shippingInput()?.transportationReferenceNumber,
+        },
     ]);
 
     handleButtonClick(): void {
