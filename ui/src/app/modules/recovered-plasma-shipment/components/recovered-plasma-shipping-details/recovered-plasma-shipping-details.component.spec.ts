@@ -1,4 +1,4 @@
-import { AsyncPipe, CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -10,7 +10,7 @@ import { of, throwError } from 'rxjs';
 import { RecoveredPlasmaService } from '../../services/recovered-plasma.service';
 import { RecoveredPlasmaShippingDetailsComponent } from './recovered-plasma-shipping-details.component';
 
-xdescribe('RecoveredPlasmaShippingDetailsComponent', () => {
+describe('RecoveredPlasmaShippingDetailsComponent', () => {
     let component: RecoveredPlasmaShippingDetailsComponent;
     let fixture: ComponentFixture<RecoveredPlasmaShippingDetailsComponent>;
     let mockRouter: jest.Mocked<Router>;
@@ -18,6 +18,7 @@ xdescribe('RecoveredPlasmaShippingDetailsComponent', () => {
     let mockToastrService: jest.Mocked<ToastrImplService>;
     let mockStore: jest.Mocked<Store>;
     let cookieService: jest.Mocked<CookieService>;
+    let datePipe: DatePipe;
 
     beforeEach(async () => {
         mockRouter = {
@@ -40,44 +41,14 @@ xdescribe('RecoveredPlasmaShippingDetailsComponent', () => {
             get: jest.fn(),
         } as any;
 
-        const mockShipmentData = {
-            data: {
-                findShipmentById: {
-                    _links: null,
-                    data: {
-                        id: 7,
-                        locationCode: '123456789',
-                        productType: 'RP_NONINJECTABLE_REFRIGERATED',
-                        shipmentNumber: 'BPM27659',
-                        status: 'OPEN',
-                        createEmployeeId: 'emp123',
-                        closeEmployeeId: null,
-                        closeDate: null,
-                        transportationReferenceNumber: '',
-                        shipmentDate: '2025-04-08',
-                        cartonTareWeight: 111.0,
-                        unsuitableUnitReportDocumentStatus: null,
-                        createDate: '2025-04-07T16:24:45.098172Z',
-                        modificationDate: '2025-04-07T16:24:45.098172Z',
-                        customerCode: '410',
-                        customerName: 'Bio Products',
-                        totalCartons: 0,
-                        totalProducts: 0,
-                        canAddCartons: true,
-                    },
-                    notifications: null,
-                },
-            },
-        };
-
         await TestBed.configureTestingModule({
             imports: [
                 RecoveredPlasmaShippingDetailsComponent,
                 NoopAnimationsModule,
                 CommonModule,
-                AsyncPipe,
             ],
             providers: [
+                DatePipe,
                 {
                     provide: ActivatedRoute,
                     useValue: {
@@ -100,6 +71,7 @@ xdescribe('RecoveredPlasmaShippingDetailsComponent', () => {
 
         mockStore.select.mockReturnValue(of({ id: 'emp123' }));
         jest.spyOn(cookieService, 'get').mockReturnValue('123456789');
+        datePipe = TestBed.inject(DatePipe);
         fixture = TestBed.createComponent(
             RecoveredPlasmaShippingDetailsComponent
         );
