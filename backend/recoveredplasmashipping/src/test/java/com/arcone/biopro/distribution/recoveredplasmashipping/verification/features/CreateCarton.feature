@@ -1,76 +1,99 @@
-Feature: Add Cartons to Shipment
+@AOA-89
+Feature: Create Carton
 
     Background:
-        Given I am logged in as a Distribution Technician
-        And I am at location "MH1"
-        And there exists a shipment with number "SHP2024001"
+        Given I have removed from the database all the configurations for the location "123456789_TEST".
+        And I have removed from the database all shipments which code contains with "DIS33800".
+        And I have removed from the database all cartons from location "123456789_TEST".
 
-    Scenario: Successfully add a carton to shipment with auto-generated unique number
-        When I initiate adding a new carton to the shipment
-        Then a unique carton number should be generated with format:
-            | Partner Prefix | Location Code | Sequence Number |
-            | BPM           | MH1           | 1234            |
-        And the generated carton number should be "BPMMH11234"
-        When I confirm adding the carton
-        Then I should see a success notification "Carton BPMMH11234 has been added to the shipment"
-        And the carton should appear in the shipment's carton list
-        And the carton sequence number should be incremented for the next carton
-
-    Scenario: Attempt to add carton with duplicate number
-        Given a carton with number "BPMMH11234" already exists
-        When I attempt to add a carton with the same number "BPMMH11234"
-        Then I should see an error notification "Carton number must be unique for the blood center"
-        And the carton should not be added to the shipment
-
-    Scenario: View carton details after addition
-        Given a carton "BPMMH11234" exists in the shipment
-        When I select the carton from the list
-        Then I should see the following carton details:
-            | Field           | Value      |
-            | Carton Number   | BPMMH11234 |
-            | Location Code   | MH1        |
-            | Sequence Number | 1234       |
-            | Partner Prefix  | BPM        |
-
-    Scenario: View sequential carton numbers in shipment
-        Given I have added multiple cartons to the shipment
-        When I view the list of cartons
-        Then I should see the cartons in sequential order
-        And each carton should have an incrementing sequence number
-        And the carton list should display:
-            | Carton Number | Sequence Number |
-            | BPMMH11234   | 1234           |
-            | BPMMH11235   | 1235           |
-            | BPMMH11236   | 1236           |
-
-    Scenario: Attempt to add carton from different location
-        Given I am logged in at location "MH1"
-        When I attempt to add a carton with location code "MH2"
-        Then I should see an error notification "Cannot add cartons from different location"
-        And the carton should not be added to the shipment
-
-    Scenario: View shipment details with updated carton count
-        Given I have added a carton to the shipment
-        When I view the shipment details
-        Then I should see the updated total number of cartons
+    Rule: I should be able to generate a Unique Location Specific Carton Number that contains the following: Partner Prefix + Location Carton Code + Carton Sequence Number
+    Rule: I should be able to view the carton details.
+    Rule: I should be able to view the shipment details.
+    Rule: I should be notified when the carton is added to the shipment.
+    Rule: I should be able to view the list of cartons added in the shipment.
+    @ui @DIS-338
+    Scenario: Successfully add carton to shipment through UI
+        Given I request to create a new shipment with the values:
+            | Field                           | Value                         |
+            | Customer Code                   | 410                           |
+            | Product Type                    | RP_NONINJECTABLE_REFRIGERATED |
+            | Carton Tare Weight              | 1000                          |
+            | Shipment Date                   | <tomorrow>                    |
+            | Transportation Reference Number | DIS338                        |
+            | Location Code                   | 123456789                     |
+        And I navigate to the shipment details page for the last shipment created.
+        When I choose to add a carton to the shipment.
+        Then I should be redirected to the Add Carton Products page.
+        And I should see a "SUCCESS" message: "Carton created successfully".
+        And I close the acknowledgment message.
+        And I should see the carton details:
+            | Field                | Value   |
+            | Carton Number Prefix | PPFXLOC |
+            | Carton Sequence      | 1       |
+            | Tare Weight          |         |
+            | Total Volume         |         |
+            | Minimum Products     |         |
+            | Maximum Products     |         |
         And I should see the following shipment information:
-            | Field         | Value       |
-            | Total Cartons | 1           |
-            | Shipment ID   | SHP2024001  |
+            | Field                      | Value                         |
+            | Shipment Number Prefix     | BPM2765                       |
+            | Customer Code              | 410                           |
+            | Customer Name              | BIO PRODUCTS                  |
+            | Product Type               | RP NONINJECTABLE REFRIGERATED |
+            | Shipment Status            | OPEN                          |
+            | Shipment Date              | <tomorrow>                    |
+            | Transportation Ref. Number | DIS338                        |
+            | Total Products             | 0                             |
+            | Total Cartons              | 0                             |
+            | Total Volume               | 0                             |
+        When I click to go back to Shipment Details page.
+        Then I should see the list of cartons added to the shipment.
 
-    Scenario: System failure while adding carton
-        Given the system encounters an error while adding a carton
-        When I attempt to add a new carton
-        Then I should see an error notification "Failed to add carton. Please try again"
-        And the carton should not be added to the shipment
+    Rule: I should not be able to add cartons in a shipment from a different location that the user is logged in.
+    @ui @DIS-338
+    Scenario: Unable to add carton to a shipment from a different location
+        Given The location "DIS_338" is configured with prefix "DIS_338", shipping code "DIS33800", and prefix configuration "Y".
+        And I request to create a new shipment with the values:
+            | Field                           | Value                         |
+            | Customer Code                   | 410                           |
+            | Product Type                    | RP_NONINJECTABLE_REFRIGERATED |
+            | Carton Tare Weight              | 1000                          |
+            | Shipment Date                   | <tomorrow>                    |
+            | Transportation Reference Number | DIS338                        |
+            | Location Code                   | DIS_338                       |
+        When I navigate to the shipment details page for the last shipment created.
+        Then The Add Carton button should be "not visible".
 
-    Scenario: View list of cartons in shipment
-        Given multiple cartons have been added to the shipment
-        When I view the shipment's carton list
-        Then I should see all cartons associated with the shipment
-        And for each carton I should see:
-            | Field           | Value      |
-            | Carton Number   | BPMMH11234 |
-            | Location Code   | MH1        |
-            | Sequence Number | 1234       |
-            | Status         | Active      |
+    Rule: The carton number must be unique for the blood center.
+    Rule: I should be able to view a sequence number for every carton generated in the shipment in a sequential order.
+    @api @DIS-338
+    Scenario: Verify unique carton number generation
+        Given I request to create a new shipment with the values:
+            | Field                           | Value                         |
+            | Customer Code                   | 410                           |
+            | Product Type                    | RP_NONINJECTABLE_REFRIGERATED |
+            | Carton Tare Weight              | 1000                          |
+            | Shipment Date                   | <tomorrow>                    |
+            | Transportation Reference Number | DIS338                        |
+            | Location Code                   | 123456789                     |
+        And I request to add "2" cartons to the shipment number "<currentShipmentNumber>".
+        When I request the last created shipment data.
+        Then I should be able to verify the following informations:
+            | Information          | Value         |
+            | Total Cartons        | 2             |
+            | Carton Number Prefix | BPMMH1,BPMMH1 |
+            | Sequence Number      | 1,2           |
+
+    Rule: I should be notified when the carton is not added to the shipment.
+    @api @DIS-338
+    Scenario: Verify unique carton number generation
+        Given I request to create a new shipment with the values:
+            | Field                           | Value                         |
+            | Customer Code                   | 410                           |
+            | Product Type                    | RP_NONINJECTABLE_REFRIGERATED |
+            | Carton Tare Weight              | 1000                          |
+            | Shipment Date                   | <tomorrow>                    |
+            | Transportation Reference Number | DIS338                        |
+            | Location Code                   | 123456789                     |
+        And I request to add "1" cartons to the shipment number "111".
+        Then I should receive a "SYSTEM" message response "Carton generation error".

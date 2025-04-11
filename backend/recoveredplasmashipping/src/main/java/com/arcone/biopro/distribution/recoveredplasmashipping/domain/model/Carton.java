@@ -78,7 +78,7 @@ public class Carton implements Validatable {
         }
 
         return recoveredPlasmaShippingRepository.findOneById(shipmentId)
-            .switchIfEmpty(Mono.error( ()-> new IllegalArgumentException("Shipment is required")))
+            .switchIfEmpty(Mono.error( ()-> new IllegalArgumentException("Carton generation error")))
             .block();
     }
 

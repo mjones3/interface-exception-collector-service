@@ -243,7 +243,7 @@ class CartonTest {
         // When/Then
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
             () -> Carton.createNewCarton(new CreateCartonCommand(1L,"create-employee-id"), recoveredPlasmaShippingRepository, cartonRepository, locationRepository));
-        assertEquals("Shipment is required",
+        assertEquals("Carton generation error",
             exception.getMessage());
     }
 
