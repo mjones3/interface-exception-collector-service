@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.domain.model;
 
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.exception.ProductCriteriaValidationException;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.exception.ProductValidationException;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.vo.InventoryVolume;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.CartonItemRepository;
@@ -45,6 +46,8 @@ public class CartonItem implements Validatable {
 
     private static final String PACKED_STATUS = "PACKED";
     private static final String VOLUME_TYPE = "volume";
+    private static final String MINIMUM_VOLUME_CRITERIA_TYPE = "MINIMUM_VOLUME";
+    private static final String MAXIMUM_UNITS_BY_CARTON_CRITERIA_TYPE = "MAXIMUM_UNITS_BY_CARTON";
 
     public static CartonItem createNewCartonItem(PackItemCommand packItemCommand, Carton carton , InventoryService inventoryService
         , CartonItemRepository cartonItemRepository
@@ -59,20 +62,6 @@ public class CartonItem implements Validatable {
         validateProductType(recoveredPlasmaShipmentCriteriaRepository, shipment.getProductType(), packItemCommand.getProductCode());
 
         var inventoryValidation = validateInventory(packItemCommand, inventoryService);
-
-
-        /// Validations
-        // Call Inventory
-        // Check Product Criteria
-         // PRODUCT TYPE
-        //  PRODUCT PACKED/SHIPPED
-
-
-
-        // Check Recovered Plasma Criteria
-            // MINIMUM_VOLUME
-            // MINIMUM_UNITS_BY_CARTON
-            // MAXIMUM_UNITS_BY_CARTON
 
         CartonItemBuilder builder = CartonItem.builder();
         builder.id(null);
@@ -93,6 +82,9 @@ public class CartonItem implements Validatable {
         builder.modificationDate(null);
 
         var cartonItem = builder.build();
+
+
+        validateProductCriteria(shipment.getShipmentCustomer().getCustomerCode(), shipment.getProductType(), cartonItem.getVolume() , carton.getTotalProducts() , recoveredPlasmaShipmentCriteriaRepository );
 
         cartonItem.checkValid();
 
@@ -231,6 +223,43 @@ public class CartonItem implements Validatable {
         return recoveredPlasmaShippingRepository.findOneById(shipmentId)
             .switchIfEmpty(Mono.error( ()-> new IllegalArgumentException("Shipment is required")))
             .block();
+    }
+
+    private static void validateProductCriteria(String customerCode , String productType ,Integer volume , Integer totalProducts, RecoveredPlasmaShipmentCriteriaRepository recoveredPlasmaShipmentCriteriaRepository){
+
+        if (recoveredPlasmaShipmentCriteriaRepository == null) {
+            throw new IllegalArgumentException("RecoveredPlasmaShipmentCriteriaRepository is required");
+        }
+
+        var criteria = recoveredPlasmaShipmentCriteriaRepository.findProductCriteriaByCustomerCode(productType, customerCode)
+            .switchIfEmpty(Mono.error( ()-> new IllegalArgumentException("Product Criteria not found")))
+            .block();
+
+        if(criteria != null){
+
+            var minVolumeCriteria = criteria.findCriteriaItemByType(MINIMUM_VOLUME_CRITERIA_TYPE);
+            if(minVolumeCriteria.isEmpty()){
+                log.error("Criteria configuration is missed {}", MINIMUM_VOLUME_CRITERIA_TYPE);
+                throw new IllegalArgumentException("Criteria configuration is missing the setup for  " + MINIMUM_VOLUME_CRITERIA_TYPE + " type");
+            }
+
+            if(volume < Integer.parseInt(minVolumeCriteria.get().getValue())){
+                throw new ProductCriteriaValidationException(minVolumeCriteria.get().getMessage(), minVolumeCriteria.get().getMessageType());
+            }
+
+
+            var maxUnitsCriteria = criteria.findCriteriaItemByType(MAXIMUM_UNITS_BY_CARTON_CRITERIA_TYPE);
+            if(maxUnitsCriteria.isEmpty()){
+                log.error("Criteria configuration is missed {}", MAXIMUM_UNITS_BY_CARTON_CRITERIA_TYPE);
+                throw new IllegalArgumentException("Criteria configuration is missing the setup for  " + MAXIMUM_UNITS_BY_CARTON_CRITERIA_TYPE + " type");
+            }
+
+            if(totalProducts +1 > Integer.parseInt(maxUnitsCriteria.get().getValue())){
+                throw new ProductCriteriaValidationException(maxUnitsCriteria.get().getMessage(), maxUnitsCriteria.get().getMessageType());
+            }
+
+        }
+
     }
 }
 
