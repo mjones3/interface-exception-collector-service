@@ -560,5 +560,37 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00"
     }
+  ,
+    {
+      "id": "dd8af54c-a40a-438c-a870-b9619447e91f",
+      "locationCode": "123456789",
+      "unitNumber": "W812530107011",
+      "temperatureCategory": "FROZEN",
+      "productCode": "E5085V00",
+      "productDescription": "Frozen RBCs|None/XX|<-65C|Open|ResLeu<5E6",
+      "expirationDate": "2024-09-03T10:15:30",
+      "aboRh": "BP",
+      "productFamily": "RED_BLOOD_CELLS_LEUKOREDUCED",
+      "collectionDate": "2011-12-03T10:15:30+01:00",
+      "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
+      "createDate": "2011-12-03T10:15:30+01:00",
+      "modificationDate": "2011-12-03T10:15:30+01:00"
+    }
+  ,
+    {
+      "id": "dd8af54c-a40a-438c-a870-b9619447e91f",
+      "locationCode": "123456789",
+      "unitNumber": "W812530107012",
+      "temperatureCategory": "FROZEN",
+      "productCode": "E5107V00",
+      "productDescription": "Frozen Apheresis RED BLOOD CELLS|None/XX|<- 65C|Open|ResLeu|2nd container",
+      "expirationDate": "2024-09-03T10:15:30",
+      "aboRh": "AP",
+      "productFamily": "RED_BLOOD_CELLS_LEUKOREDUCED",
+      "collectionDate": "2011-12-03T10:15:30+01:00",
+      "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
+      "createDate": "2011-12-03T10:15:30+01:00",
+      "modificationDate": "2011-12-03T10:15:30+01:00"
+    }
   ]
 }
