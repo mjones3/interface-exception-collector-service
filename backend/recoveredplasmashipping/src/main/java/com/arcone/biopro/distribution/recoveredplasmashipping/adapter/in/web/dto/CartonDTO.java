@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dt
 import lombok.Builder;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 
 @Builder
@@ -18,7 +19,7 @@ public record CartonDTO(
     ZonedDateTime closeDate,
     String status,
     int totalProducts,
-    int totalWeight,
-    int totalVolume
+    BigDecimal totalWeight,
+    BigDecimal totalVolume
 ) implements Serializable {
 }

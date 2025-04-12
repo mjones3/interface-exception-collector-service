@@ -10,6 +10,7 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.InsertOnlyProperty;
 import org.springframework.data.relational.core.mapping.Table;
 
+import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 
 @Data
@@ -32,6 +33,18 @@ public class CartonEntity {
 
     @Column("status")
     private String status;
+
+    @Column("total_weight")
+    private BigDecimal totalWeight;
+
+    @Column("total_volume")
+    private BigDecimal totalVolume;
+
+    @Column("calculated_total_weight")
+    private BigDecimal calculatedTotalWeight;
+
+    @Column("calculated_total_volume")
+    private BigDecimal calculatedTotalVolume;
 
     @Column("create_employee_id")
     private String createEmployeeId;

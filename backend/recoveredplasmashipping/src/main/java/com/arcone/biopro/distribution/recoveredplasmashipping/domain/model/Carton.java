@@ -14,6 +14,7 @@ import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 
 @Getter
@@ -35,8 +36,8 @@ public class Carton implements Validatable {
     private ZonedDateTime closeDate;
     private String status;
     private int totalProducts;
-    private int totalWeight;
-    private int totalVolume;
+    private BigDecimal totalWeight;
+    private BigDecimal totalVolume;
 
     private static final String STATUS_OPEN = "OPEN";
     private static final String SHIPMENT_PARTNER_PREFIX_KEY = "RPS_PARTNER_PREFIX";
@@ -63,8 +64,8 @@ public class Carton implements Validatable {
             .modificationDate(null)
             .status(STATUS_OPEN)
             .totalProducts(0)
-            .totalWeight(0)
-            .totalVolume(0)
+            .totalWeight(BigDecimal.ZERO)
+            .totalVolume(BigDecimal.ZERO)
             .build();
 
         carton.checkValid();
@@ -83,7 +84,7 @@ public class Carton implements Validatable {
     }
 
     public static Carton fromRepository(Long id, String cartonNumber, Long shipmentId, Integer cartonSequence, String createEmployeeId, String closeEmployeeId
-        , ZonedDateTime createDate, ZonedDateTime modificationDate, ZonedDateTime closeDate, String status) {
+        , ZonedDateTime createDate, ZonedDateTime modificationDate, ZonedDateTime closeDate, String status , BigDecimal totalVolume , BigDecimal totalWeight) {
         var carton = Carton.builder()
             .id(id)
             .cartonNumber(cartonNumber)
@@ -95,6 +96,8 @@ public class Carton implements Validatable {
             .modificationDate(modificationDate)
             .closeDate(closeDate)
             .status(status)
+            .totalWeight(totalWeight)
+            .totalVolume(totalVolume)
             .build();
 
         carton.checkValid();

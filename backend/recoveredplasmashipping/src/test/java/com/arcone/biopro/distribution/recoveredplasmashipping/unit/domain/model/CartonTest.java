@@ -16,6 +16,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
@@ -80,8 +81,8 @@ class CartonTest {
         assertNull(carton.getCloseEmployeeId());
         assertNull(carton.getCloseDate());
         assertEquals(0,carton.getTotalProducts());
-        assertEquals(0,carton.getTotalWeight());
-        assertEquals(0,carton.getTotalVolume());
+        assertEquals(BigDecimal.ZERO,carton.getTotalWeight());
+        assertEquals(BigDecimal.ZERO,carton.getTotalVolume());
 
         verify(cartonRepository).getNextCartonId();
         verify(locationRepository).findOneByCode(anyString());
@@ -94,7 +95,7 @@ class CartonTest {
 
         // When/Then
         assertDoesNotThrow(() -> Carton.fromRepository(1L,"number",1L,1,"employee-id","close-employee-id"
-            , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN"));
+            , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO));
     }
 
     @Test
@@ -103,7 +104,7 @@ class CartonTest {
         // When/Then
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
             () -> Carton.fromRepository(1L,"number",null,1,"employee-id","close-employee-id"
-                , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN"));
+                , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO));
         assertEquals("Shipment Id is required", exception.getMessage());
     }
 
@@ -113,7 +114,7 @@ class CartonTest {
         // When/Then
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
             () -> Carton.fromRepository(1L,"number",1L,1,null,"close-employee-id"
-                , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN"));
+                , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO));
         assertEquals("Create Employee Id is required", exception.getMessage());
     }
 
@@ -123,7 +124,7 @@ class CartonTest {
         // When/Then
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
             () ->  Carton.fromRepository(1L,null,1L,1,"employee-id","close-employee-id"
-                , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN"));
+                , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO));
         assertEquals("Carton Number is required", exception.getMessage());
     }
 
@@ -132,7 +133,7 @@ class CartonTest {
         // When/Then
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
             () -> Carton.fromRepository(1L,"number",1L,null,"employee-id","close-employee-id"
-                , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN"));
+                , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO));
         assertEquals("Carton Sequence is required", exception.getMessage());
     }
 
@@ -141,7 +142,7 @@ class CartonTest {
         // When/Then
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
             () -> Carton.fromRepository(1L, "number", 1L, 0, "employee-id", "close-employee-id"
-                , ZonedDateTime.now(), ZonedDateTime.now(), ZonedDateTime.now(), "OPEN"));
+                , ZonedDateTime.now(), ZonedDateTime.now(), ZonedDateTime.now(), "OPEN", BigDecimal.ZERO,BigDecimal.ZERO));
         assertEquals("Carton Sequence must be greater than 0", exception.getMessage());
     }
 
@@ -285,8 +286,8 @@ class CartonTest {
         assertNull(carton.getCloseEmployeeId());
         assertNull(carton.getCloseDate());
         assertEquals(0,carton.getTotalProducts());
-        assertEquals(0,carton.getTotalWeight());
-        assertEquals(0,carton.getTotalVolume());
+        assertEquals(BigDecimal.ZERO,carton.getTotalWeight());
+        assertEquals(BigDecimal.ZERO,carton.getTotalVolume());
 
         verify(cartonRepository).getNextCartonId();
         verify(locationRepository).findOneByCode(anyString());

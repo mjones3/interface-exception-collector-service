@@ -96,4 +96,4 @@ Feature: Create Carton
             | Transportation Reference Number | DIS338                        |
             | Location Code                   | 123456789                     |
         And I request to add "1" cartons to the shipment number "111".
-        Then I should receive a "SYSTEM" message response "Carton generation error".
+        Then I should receive a "SYSTEM" message response "Carton generation error. Contact Support.".

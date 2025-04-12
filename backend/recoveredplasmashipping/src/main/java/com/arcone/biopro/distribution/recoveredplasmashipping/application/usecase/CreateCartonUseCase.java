@@ -34,6 +34,7 @@ public class CreateCartonUseCase implements CreateCartonService {
     private final CartonOutputMapper cartonOutputMapper;
     private final LocationRepository locationRepository;
     private static final String CARTON_DETAILS_PAGE = "/recovered-plasma/%s/carton-details";
+    private static final String CARTON_GENERATION_ERROR_MESSAGE = "Carton generation error. Contact Support.";
 
     @Override
     @Transactional
@@ -53,7 +54,7 @@ public class CreateCartonUseCase implements CreateCartonService {
 
                 return Mono.just(new UseCaseOutput<>(List.of(UseCaseNotificationOutput
                     .builder()
-                    .useCaseMessage(new UseCaseMessage(5, UseCaseNotificationType.WARN, error.getMessage()))
+                    .useCaseMessage(new UseCaseMessage(5, UseCaseNotificationType.SYSTEM, CARTON_GENERATION_ERROR_MESSAGE))
                     .build()), null, null));
             });
 

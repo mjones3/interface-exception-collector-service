@@ -24,7 +24,7 @@ public class CartonController {
 
 
     @MutationMapping("createCarton")
-    public Mono<UseCaseResponseDTO<CartonDTO>> createShipment(@Argument("createCartonRequest") CreateCartonRequestDTO createCartonRequestDTO) {
+    public Mono<UseCaseResponseDTO<CartonDTO>> createCarton(@Argument("createCartonRequest") CreateCartonRequestDTO createCartonRequestDTO) {
         log.debug("Request to Create Carton: {}", createCartonRequestDTO);
         return createCartonService.createCarton(commandRequestDTOMapper.toInputCommand(createCartonRequestDTO))
             .map(useCaseResponseMapper::toUseCaseCreateCartonDTO);
