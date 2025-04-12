@@ -5,6 +5,7 @@ import lombok.Builder;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
+import java.util.List;
 
 @Builder
 public record CartonDTO(
@@ -20,6 +21,7 @@ public record CartonDTO(
     String status,
     int totalProducts,
     BigDecimal totalWeight,
-    BigDecimal totalVolume
+    BigDecimal totalVolume,
+    List<CartonItemDTO> packedProducts
 ) implements Serializable {
 }

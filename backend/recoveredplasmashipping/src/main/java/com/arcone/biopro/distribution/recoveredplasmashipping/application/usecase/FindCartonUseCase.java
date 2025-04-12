@@ -36,7 +36,13 @@ public class FindCartonUseCase implements CartonService {
                 log.error("Error Finding Carton by id ", error);
                 return Mono.just(new UseCaseOutput<>(List.of(UseCaseNotificationOutput
                     .builder()
-                    .useCaseMessage(new UseCaseMessage(10, UseCaseNotificationType.WARN, error.getMessage()))
+                    .useCaseMessage(
+                        UseCaseMessage
+                            .builder()
+                            .message(error.getMessage())
+                            .code(10)
+                            .type(UseCaseNotificationType.WARN)
+                            .build())
                     .build()), null, null));
             });
     }

@@ -13,6 +13,9 @@ public interface UseCaseNotificationDtoMapper {
     @Mapping(source = "useCaseMessage.type" , target = "type")
     @Mapping(source = "useCaseMessage.code" , target = "code")
     @Mapping(source = "useCaseMessage.message" , target = "message")
+    @Mapping(source = "useCaseMessage.action" , target = "action")
+    @Mapping(source = "useCaseMessage.reason" , target = "reason")
+    @Mapping(source = "useCaseMessage.details" , target = "details")
     UseCaseNotificationDTO toDto(UseCaseNotificationOutput useCaseNotificationOutput);
 
     List<UseCaseNotificationDTO> toDto(List<UseCaseNotificationOutput> useCaseNotificationOutput);

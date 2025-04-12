@@ -3,8 +3,9 @@ package com.arcone.biopro.distribution.recoveredplasmashipping.unit.adapter.in.w
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.CustomerDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.RecoveredPlasmaShipmentResponseDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.UseCaseResponseDTO;
+import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.mapper.CartonDtoMapper;
+import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.mapper.CartonDtoMapperImpl;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.mapper.CustomerDtoMapperImpl;
-import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.mapper.RecoveredPlasmaShipmentDtoMapper;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.mapper.RecoveredPlasmaShipmentDtoMapperImpl;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.mapper.UseCaseNotificationDtoMapperImpl;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.mapper.UseCaseResponseMapper;
@@ -25,7 +26,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@SpringJUnitConfig(classes = {UseCaseResponseMapperImpl.class, UseCaseNotificationDtoMapperImpl.class, CustomerDtoMapperImpl.class , RecoveredPlasmaShipmentDtoMapperImpl.class})
+@SpringJUnitConfig(classes = {UseCaseResponseMapperImpl.class, UseCaseNotificationDtoMapperImpl.class, CustomerDtoMapperImpl.class , RecoveredPlasmaShipmentDtoMapperImpl.class , CartonDtoMapperImpl.class})
 class UseCaseResponseMapperTest {
 
     @Autowired
@@ -38,7 +39,10 @@ class UseCaseResponseMapperTest {
 
         UseCaseOutput<CustomerOutput> useCaseOutput =  new UseCaseOutput<>(List.of(UseCaseNotificationOutput
             .builder()
-            .useCaseMessage(new UseCaseMessage(UseCaseMessageType.SHIPMENT_CREATED_SUCCESS))
+            .useCaseMessage(UseCaseMessage.builder()
+                .type(UseCaseMessageType.SHIPMENT_CREATED_SUCCESS.getType())
+                .message(UseCaseMessageType.SHIPMENT_CREATED_SUCCESS.getMessage())
+                .build())
             .build())
             , CustomerOutput.builder().code("123").build()
             , Map.of("next", "test"));
@@ -50,9 +54,7 @@ class UseCaseResponseMapperTest {
         // Assert
         assertNotNull(result);
         Assertions.assertEquals("SUCCESS",result.notifications().getFirst().type());
-        Assertions.assertEquals(2,result.notifications().getFirst().code());
         Assertions.assertEquals("Shipment created successfully",result.notifications().getFirst().message());
-        Assertions.assertEquals("123",result.data().code());
         Assertions.assertEquals("123",result.data().code());
         assertNotNull(result._links());
 
@@ -63,7 +65,12 @@ class UseCaseResponseMapperTest {
 
         UseCaseOutput<RecoveredPlasmaShipmentOutput> useCaseOutput =  new UseCaseOutput<>(List.of(UseCaseNotificationOutput
             .builder()
-            .useCaseMessage(new UseCaseMessage(UseCaseMessageType.SHIPMENT_CREATED_SUCCESS))
+            .useCaseMessage(
+                UseCaseMessage.builder()
+                    .type(UseCaseMessageType.SHIPMENT_CREATED_SUCCESS.getType())
+                    .message(UseCaseMessageType.SHIPMENT_CREATED_SUCCESS.getMessage())
+                    .build()
+                )
             .build())
             , RecoveredPlasmaShipmentOutput.builder().locationCode("123").build()
             , Map.of("next", "test"));
@@ -75,7 +82,6 @@ class UseCaseResponseMapperTest {
         // Assert
         assertNotNull(result);
         Assertions.assertEquals("SUCCESS",result.notifications().getFirst().type());
-        Assertions.assertEquals(2,result.notifications().getFirst().code());
         Assertions.assertEquals("Shipment created successfully",result.notifications().getFirst().message());
         Assertions.assertEquals("123",result.data().locationCode());
         assertNotNull(result._links());

@@ -99,8 +99,8 @@ class RecoveredPlasmaShipmentUseCaseTest {
                assertNotNull(useCaseOutput);
                assertNotNull(useCaseOutput.notifications());
                assertNotNull(useCaseOutput.notifications().getFirst());
-               assertEquals(UseCaseNotificationType.WARN,useCaseOutput.notifications().getFirst().useCaseMessage().getType());
-               assertEquals("Domain not found for key 1",useCaseOutput.notifications().getFirst().useCaseMessage().getMessage());
+               assertEquals(UseCaseNotificationType.WARN,useCaseOutput.notifications().getFirst().useCaseMessage().type());
+               assertEquals("Domain not found for key 1",useCaseOutput.notifications().getFirst().useCaseMessage().message());
                assertNull(useCaseOutput.data());
            })
            .verifyComplete();
@@ -123,8 +123,8 @@ class RecoveredPlasmaShipmentUseCaseTest {
                 assertNotNull(useCaseOutput);
                 assertNotNull(useCaseOutput.notifications());
                 assertNotNull(useCaseOutput.notifications().getFirst());
-                assertEquals(UseCaseNotificationType.WARN,useCaseOutput.notifications().getFirst().useCaseMessage().getType());
-                assertEquals(expectedError.getMessage(),useCaseOutput.notifications().getFirst().useCaseMessage().getMessage());
+                assertEquals(UseCaseNotificationType.WARN,useCaseOutput.notifications().getFirst().useCaseMessage().type());
+                assertEquals(expectedError.getMessage(),useCaseOutput.notifications().getFirst().useCaseMessage().message());
                 assertNull(useCaseOutput.data());
             })
             .verifyComplete();
@@ -155,8 +155,8 @@ class RecoveredPlasmaShipmentUseCaseTest {
                 assertNotNull(useCaseOutput);
                 assertNotNull(useCaseOutput.notifications());
                 assertNotNull(useCaseOutput.notifications().getFirst());
-                assertEquals(UseCaseNotificationType.WARN,useCaseOutput.notifications().getFirst().useCaseMessage().getType());
-                assertEquals(expectedError.getMessage(),useCaseOutput.notifications().getFirst().useCaseMessage().getMessage());
+                assertEquals(UseCaseNotificationType.WARN,useCaseOutput.notifications().getFirst().useCaseMessage().type());
+                assertEquals(expectedError.getMessage(),useCaseOutput.notifications().getFirst().useCaseMessage().message());
                 assertNull(useCaseOutput.data());
             })
             .verifyComplete();

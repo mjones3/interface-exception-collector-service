@@ -97,6 +97,9 @@ type UseCaseNotificationDTO {
     message: String
     type: String
     code: Int
+    action:String
+    reason:String
+    details:[String]
 }
 
 type LocationDTO {

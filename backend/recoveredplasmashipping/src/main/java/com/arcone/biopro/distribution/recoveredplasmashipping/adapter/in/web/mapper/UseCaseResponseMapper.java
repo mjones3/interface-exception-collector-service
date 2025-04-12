@@ -16,7 +16,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.Re
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.UseCaseOutput;
 import org.mapstruct.Mapper;
 
-@Mapper(componentModel = "spring" , uses = {UseCaseNotificationDtoMapper.class, CustomerDtoMapper.class , RecoveredPlasmaShipmentDtoMapper.class})
+@Mapper(componentModel = "spring" , uses = {UseCaseNotificationDtoMapper.class, CustomerDtoMapper.class , RecoveredPlasmaShipmentDtoMapper.class , CartonDtoMapper.class})
 public interface UseCaseResponseMapper {
     UseCaseResponseDTO<CustomerDTO> toUseCaseResponseDTO(UseCaseOutput<CustomerOutput> useCaseOutput);
     UseCaseResponseDTO<RecoveredPlasmaShipmentResponseDTO> toUseCaseRecoveredPlasmaShipmentResponseDTO(UseCaseOutput<RecoveredPlasmaShipmentOutput> useCaseOutput);

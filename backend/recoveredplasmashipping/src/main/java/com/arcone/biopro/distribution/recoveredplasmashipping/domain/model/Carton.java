@@ -44,6 +44,7 @@ public class Carton implements Validatable {
     private int totalProducts;
     private BigDecimal totalWeight;
     private BigDecimal totalVolume;
+    private List<CartonItem> products;
 
     private static final String STATUS_OPEN = "OPEN";
     private static final String CARTON_PARTNER_PREFIX_KEY = "RPS_CARTON_PARTNER_PREFIX";
@@ -90,8 +91,7 @@ public class Carton implements Validatable {
     }
 
     public static Carton fromRepository(Long id, String cartonNumber, Long shipmentId, Integer cartonSequence, String createEmployeeId, String closeEmployeeId
-        , ZonedDateTime createDate, ZonedDateTime modificationDate, ZonedDateTime closeDate, String status , BigDecimal totalVolume , BigDecimal totalWeight) {
-        , ZonedDateTime createDate, ZonedDateTime modificationDate, ZonedDateTime closeDate, String status , List<CartonItem> products) {
+        , ZonedDateTime createDate, ZonedDateTime modificationDate, ZonedDateTime closeDate, String status , BigDecimal totalVolume , BigDecimal totalWeight , List<CartonItem> products) {
         var carton = Carton.builder()
             .id(id)
             .cartonNumber(cartonNumber)
@@ -195,25 +195,6 @@ public class Carton implements Validatable {
             return  0;
         }
         return this.products.size();
-    }
-
-    public int getTotalWeight() {
-        if(this.products == null){
-            return 0;
-        }
-
-        totalWeight = products.stream()
-            .reduce(0, (partialTotalWeight, product) -> partialTotalWeight + product.getWeight(), Integer::sum);
-        return totalWeight;
-    }
-
-    public int getTotalVolume() {
-        if(this.products == null){
-            return 0;
-        }
-        totalVolume = products.stream()
-            .reduce(0, (partialTotalVolume, product) -> partialTotalVolume + product.getVolume(), Integer::sum);
-        return totalVolume;
     }
 
     public CartonItem packItem(PackItemCommand packItemCommand , InventoryService inventoryService, CartonItemRepository cartonItemRepository , RecoveredPlasmaShipmentCriteriaRepository recoveredPlasmaShipmentCriteriaRepository , RecoveredPlasmaShippingRepository recoveredPlasmaShippingRepository) {

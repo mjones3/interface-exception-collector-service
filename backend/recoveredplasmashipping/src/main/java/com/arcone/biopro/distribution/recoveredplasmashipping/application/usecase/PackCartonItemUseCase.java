@@ -9,8 +9,9 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.Us
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.UseCaseOutput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.exception.DomainNotFoundForKeyException;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.mapper.CartonItemOutputMapper;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.exception.ProductCriteriaValidationException;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.exception.ProductValidationException;
-import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.CartonItem;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.InventoryValidation;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.PackItemCommand;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.CartonItemRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.CartonRepository;
@@ -21,10 +22,12 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.Pac
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -39,17 +42,23 @@ public class PackCartonItemUseCase implements PackCartonItemService {
     private final CartonItemOutputMapper cartonItemOutputMapper;
 
     @Override
+    @Transactional
     public Mono<UseCaseOutput<CartonItemOutput>> packItem(PackCartonItemCommandInput packCartonItemCommandInput) {
         return cartonRepository.findOneById(packCartonItemCommandInput.cartonId())
             .publishOn(Schedulers.boundedElastic())
             .switchIfEmpty(Mono.error(() -> new DomainNotFoundForKeyException(String.format("%s", packCartonItemCommandInput.cartonId()))))
-            .flatMap(carton -> Mono.fromSupplier( () -> CartonItem.createNewCartonItem(new PackItemCommand(packCartonItemCommandInput.cartonId(), packCartonItemCommandInput.unitNumber(), packCartonItemCommandInput.productCode(), packCartonItemCommandInput.employeeId(), packCartonItemCommandInput.locationCode()), carton
-                , inventoryService, cartonItemRepository, recoveredPlasmaShippingRepository, recoveredPlasmaShipmentCriteriaRepository)))
+            .flatMap(carton -> Mono.fromSupplier( () -> carton.packItem(new PackItemCommand(packCartonItemCommandInput.cartonId(), packCartonItemCommandInput.unitNumber(), packCartonItemCommandInput.productCode(), packCartonItemCommandInput.employeeId(), packCartonItemCommandInput.locationCode())
+                , inventoryService, cartonItemRepository, recoveredPlasmaShipmentCriteriaRepository, recoveredPlasmaShippingRepository)))
             .flatMap(cartonItemRepository::save)
             .flatMap(cartonItemSaved -> {
                 return Mono.just(new UseCaseOutput<>(List.of(UseCaseNotificationOutput
                     .builder()
-                    .useCaseMessage(new UseCaseMessage(UseCaseMessageType.CARTON_CREATED_SUCCESS))
+                    .useCaseMessage(UseCaseMessage
+                        .builder()
+                        .code(UseCaseMessageType.CARTON_ITEM_PACKED_SUCCESS.getCode())
+                        .message(UseCaseMessageType.CARTON_ITEM_PACKED_SUCCESS.getMessage())
+                        .type(UseCaseMessageType.CARTON_ITEM_PACKED_SUCCESS.getType())
+                        .build())
                     .build())
                     , cartonItemOutputMapper.toOutput(cartonItemSaved)
                     , null));
@@ -63,15 +72,53 @@ public class PackCartonItemUseCase implements PackCartonItemService {
 
     private Mono<UseCaseOutput<CartonItemOutput>> buildPackErrorResponse(Throwable error) {
 
-        if(error instanceof ProductValidationException productValidationException){
+        if(error instanceof ProductValidationException productValidationException) {
+            var notification = Optional.ofNullable(productValidationException.getInventoryValidation()).map(InventoryValidation::getFistNotification).orElse(null);
             return Mono.just(new UseCaseOutput<>(List.of(UseCaseNotificationOutput
                 .builder()
-                .useCaseMessage(new UseCaseMessage(6, UseCaseNotificationType.valueOf(productValidationException.getErrorType()), productValidationException.getMessage()))
+                .useCaseMessage(
+                    Optional.ofNullable(notification).map(firstNotification ->
+                        UseCaseMessage
+                            .builder()
+                            .code(6)
+                            .message(firstNotification.getErrorMessage())
+                            .type(UseCaseNotificationType.valueOf(firstNotification.getErrorType()))
+                            .action(firstNotification.getAction())
+                            .reason(firstNotification.getReason())
+                            .details(firstNotification.getDetails())
+                            .build()
+                    ).orElse( UseCaseMessage
+                        .builder()
+                        .code(6)
+                            .message(productValidationException.getMessage())
+                            .type(UseCaseNotificationType.valueOf(productValidationException.getErrorType()))
+                        .build())
+                    )
+                .build()), cartonItemOutputMapper.toOutput(productValidationException.getInventoryValidation()), null));
+        }else if(error instanceof ProductCriteriaValidationException productCriteriaValidationException){
+            return Mono.just(new UseCaseOutput<>(List.of(UseCaseNotificationOutput
+                .builder()
+                .useCaseMessage(
+                    UseCaseMessage
+                        .builder()
+                        .code(7)
+                        .message(productCriteriaValidationException.getMessage())
+                        .type(UseCaseNotificationType.valueOf(productCriteriaValidationException.getErrorType()))
+                        .build()
+                    )
                 .build()), null, null));
+
         }else{
             return Mono.just(new UseCaseOutput<>(List.of(UseCaseNotificationOutput
                 .builder()
-                .useCaseMessage(new UseCaseMessage(6, UseCaseNotificationType.WARN, error.getMessage()))
+                .useCaseMessage(
+
+                    UseCaseMessage
+                        .builder()
+                        .code(8)
+                        .message(error.getMessage())
+                        .type(UseCaseNotificationType.WARN)
+                        .build())
                 .build()), null, null));
         }
 

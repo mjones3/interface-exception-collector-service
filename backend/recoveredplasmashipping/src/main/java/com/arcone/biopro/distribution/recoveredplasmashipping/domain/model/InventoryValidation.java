@@ -20,4 +20,12 @@ public class InventoryValidation {
         this.inventory = inventory;
         this.notifications = notifications;
     }
+
+    public InventoryNotification getFistNotification(){
+        if(notifications == null || notifications.isEmpty()){
+            return null;
+        }
+
+        return notifications.getFirst();
+    }
 }

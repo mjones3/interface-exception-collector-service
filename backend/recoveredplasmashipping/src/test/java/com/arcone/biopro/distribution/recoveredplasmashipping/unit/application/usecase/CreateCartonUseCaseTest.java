@@ -97,8 +97,8 @@ class CreateCartonUseCaseTest {
                         output._links().get("next"));
 
                     UseCaseNotificationOutput notification = output.notifications().get(0);
-                    assertEquals(UseCaseMessageType.CARTON_CREATED_SUCCESS.getMessage(),notification.useCaseMessage().getMessage());
-                    assertEquals(UseCaseMessageType.CARTON_CREATED_SUCCESS.getType(),notification.useCaseMessage().getType());
+                    assertEquals(UseCaseMessageType.CARTON_CREATED_SUCCESS.getMessage(),notification.useCaseMessage().message());
+                    assertEquals(UseCaseMessageType.CARTON_CREATED_SUCCESS.getType(),notification.useCaseMessage().type());
                 })
                 .verifyComplete();
 
@@ -124,9 +124,9 @@ class CreateCartonUseCaseTest {
                 assertNull(output._links());
                 UseCaseNotificationOutput notification = output.notifications().get(0);
                 assertEquals(UseCaseNotificationType.SYSTEM,
-                    notification.useCaseMessage().getType());
-                assertEquals("Carton generation error. Contact Support.", notification.useCaseMessage().getMessage());
-                assertEquals(5, notification.useCaseMessage().getCode());
+                    notification.useCaseMessage().type());
+                assertEquals("Carton generation error. Contact Support.", notification.useCaseMessage().message());
+                assertEquals(6, notification.useCaseMessage().code());
             })
             .verifyComplete();
     }
