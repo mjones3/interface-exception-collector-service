@@ -17,13 +17,19 @@ public class RecoveredPlasmaShipmentCriteriaRepositoryImpl implements RecoveredP
     private final RecoveredPlasmaShipmentCriteriaEntityRepository recoveredPlasmaShipmentCriteriaEntityRepository;
     private final RecoveredPlasmaShipmentCriteriaEntityMapper recoveredPlasmaShipmentCriteriaEntityMapper;
     private final RecoveredPlasmaProductTypeEntityRepository recoveredPlasmaProductTypeEntityRepository;
+    private final RecoveredPlasmaShipmentCriteriaItemEntityRepository recoveredPlasmaShipmentCriteriaItemEntityRepository;
     private final ProductTypeEntityMapper productTypeEntityMapper;
 
     @Override
     public Mono<RecoveredPlasmaShipmentCriteria> findProductCriteriaByCustomerCode(String productType, String customerCode) {
         return recoveredPlasmaShipmentCriteriaEntityRepository
             .findByCustomerCodeAndProductTypeAndActiveIsTrue(customerCode,productType)
-            .map(recoveredPlasmaShipmentCriteriaEntityMapper::toModel);
+            .flatMap(shipmentCriteria -> recoveredPlasmaShipmentCriteriaItemEntityRepository
+                .findAllByCriteriaId(shipmentCriteria.getId())
+                .collectList()
+                .map(criteriaItemList -> {
+                    return recoveredPlasmaShipmentCriteriaEntityMapper.toModel(shipmentCriteria,criteriaItemList);
+                }));
     }
 
     @Override

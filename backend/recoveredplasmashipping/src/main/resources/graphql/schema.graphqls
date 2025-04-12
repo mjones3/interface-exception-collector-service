@@ -16,6 +16,7 @@ type Query {
 type Mutation {
     createShipment(createShipmentRequest:CreateShipmentRequestDTO!): UseCaseResponseDTO!
     createCarton(createCartonRequest:CreateCartonRequestDTO!): UseCaseResponseDTO!
+    packCartonItem(packCartonItemRequest:PackCartonItemRequestDTO!): UseCaseResponseDTO!
 }
 
 input InputQuerySortDTO {
@@ -55,6 +56,14 @@ input CreateShipmentRequestDTO {
     shipmentDate:Date
     cartonTareWeight:Float
     createEmployeeId:String
+}
+
+input PackCartonItemRequestDTO {
+    cartonId:Int!
+    unitNumber:String!
+    productCode:String!
+    employeeId:String!
+    locationCode:String!
 }
 
 type OutputQuerySortDTO {

@@ -48,6 +48,10 @@ public class CartonItem implements Validatable {
     private static final String VOLUME_TYPE = "volume";
     private static final String MINIMUM_VOLUME_CRITERIA_TYPE = "MINIMUM_VOLUME";
     private static final String MAXIMUM_UNITS_BY_CARTON_CRITERIA_TYPE = "MAXIMUM_UNITS_BY_CARTON";
+    private static final String SYSTEM_ERROR_TYPE = "SYSTEM";
+    private static final String WARN_ERROR_TYPE = "WARN";
+
+
 
     public static CartonItem createNewCartonItem(PackItemCommand packItemCommand, Carton carton , InventoryService inventoryService
         , CartonItemRepository cartonItemRepository
@@ -70,7 +74,7 @@ public class CartonItem implements Validatable {
         builder.unitNumber(inventoryValidation.getInventory().getUnitNumber());
         builder.productCode(inventoryValidation.getInventory().getProductCode());
         builder.productDescription(inventoryValidation.getInventory().getProductDescription());
-        builder.productType(null);
+        builder.productType(shipment.getProductType());
         builder.volume(inventoryValidation.getInventory().getVolumeByType(VOLUME_TYPE).map(InventoryVolume::getValue).orElse(0));
         builder.weight(inventoryValidation.getInventory().getWeight());
         builder.status(PACKED_STATUS);
@@ -166,14 +170,14 @@ public class CartonItem implements Validatable {
 
         var inventoryValidationResponse =  inventoryService.validateInventory(new ValidateInventoryCommand(packItemCommand.getUnitNumber(), packItemCommand.getProductCode(), packItemCommand.getLocationCode()))
             .onErrorResume(error -> {
-                throw new ProductValidationException(error.getMessage());
+                throw new ProductValidationException(error.getMessage(), SYSTEM_ERROR_TYPE);
             })
             .block();
 
         if (inventoryValidationResponse.getInventory() != null && (inventoryValidationResponse.getNotifications() == null || inventoryValidationResponse.getNotifications().isEmpty())) {
             return inventoryValidationResponse;
         } else {
-            throw new ProductValidationException("Inventory Validation failed",inventoryValidationResponse);
+            throw new ProductValidationException("Inventory Validation failed",inventoryValidationResponse,WARN_ERROR_TYPE);
         }
     }
 
@@ -184,12 +188,12 @@ public class CartonItem implements Validatable {
 
         cartonItemRepository.countByProduct(packItemCommand.getUnitNumber(), packItemCommand.getProductCode())
             .onErrorResume(error -> {
-                throw new ProductValidationException(error.getMessage());
+                throw new ProductValidationException(error.getMessage(),SYSTEM_ERROR_TYPE);
             })
             .blockOptional()
             .ifPresent(count -> {
                 if(count > 0){
-                    throw new ProductValidationException("Product already used");
+                    throw new ProductValidationException("Product already used",WARN_ERROR_TYPE);
                 }
             });
     }
@@ -201,15 +205,15 @@ public class CartonItem implements Validatable {
         }
 
         recoveredPlasmaShipmentCriteriaRepository.findProductTypeByProductCode(productCode)
-            .switchIfEmpty(Mono.error(new ProductValidationException("Product Type does not match")))
+            .switchIfEmpty(Mono.error(new ProductValidationException("Product Type does not match",WARN_ERROR_TYPE)))
             .onErrorResume(error -> {
                 log.error("Error finding product type: {}", error.getMessage());
-                throw new ProductValidationException(error.getMessage());
+                throw new ProductValidationException(error.getMessage(),SYSTEM_ERROR_TYPE);
             })
             .blockOptional()
             .ifPresent(productType -> {
                 if(!productType.getProductType().equals(cartonProductType)){
-                    throw new ProductValidationException("Product Type does not match");
+                    throw new ProductValidationException("Product Type does not match",WARN_ERROR_TYPE);
                 }
             });
 
@@ -238,26 +242,22 @@ public class CartonItem implements Validatable {
         if(criteria != null){
 
             var minVolumeCriteria = criteria.findCriteriaItemByType(MINIMUM_VOLUME_CRITERIA_TYPE);
-            if(minVolumeCriteria.isEmpty()){
-                log.error("Criteria configuration is missed {}", MINIMUM_VOLUME_CRITERIA_TYPE);
-                throw new IllegalArgumentException("Criteria configuration is missing the setup for  " + MINIMUM_VOLUME_CRITERIA_TYPE + " type");
+            if(minVolumeCriteria.isPresent()){
+                if(volume < Integer.parseInt(minVolumeCriteria.get().getValue())){
+                    throw new ProductCriteriaValidationException(minVolumeCriteria.get().getMessage(), minVolumeCriteria.get().getMessageType());
+                }
+            }else{
+                log.debug("Criteria configuration is missed skip validation {}", MINIMUM_VOLUME_CRITERIA_TYPE);
             }
-
-            if(volume < Integer.parseInt(minVolumeCriteria.get().getValue())){
-                throw new ProductCriteriaValidationException(minVolumeCriteria.get().getMessage(), minVolumeCriteria.get().getMessageType());
-            }
-
 
             var maxUnitsCriteria = criteria.findCriteriaItemByType(MAXIMUM_UNITS_BY_CARTON_CRITERIA_TYPE);
-            if(maxUnitsCriteria.isEmpty()){
-                log.error("Criteria configuration is missed {}", MAXIMUM_UNITS_BY_CARTON_CRITERIA_TYPE);
-                throw new IllegalArgumentException("Criteria configuration is missing the setup for  " + MAXIMUM_UNITS_BY_CARTON_CRITERIA_TYPE + " type");
+            if(maxUnitsCriteria.isPresent()){
+                if(totalProducts +1 > Integer.parseInt(maxUnitsCriteria.get().getValue())){
+                    throw new ProductCriteriaValidationException(maxUnitsCriteria.get().getMessage(), maxUnitsCriteria.get().getMessageType());
+                }
+            }else{
+                log.debug("Criteria configuration is missed skip validation {}", MAXIMUM_UNITS_BY_CARTON_CRITERIA_TYPE);
             }
-
-            if(totalProducts +1 > Integer.parseInt(maxUnitsCriteria.get().getValue())){
-                throw new ProductCriteriaValidationException(maxUnitsCriteria.get().getMessage(), maxUnitsCriteria.get().getMessageType());
-            }
-
         }
 
     }
