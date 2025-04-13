@@ -4,13 +4,12 @@ import { LookUpDto } from '@shared';
 import { MutationResult } from 'apollo-angular';
 import { Observable, Observer } from 'rxjs';
 import { DynamicGraphqlPathService } from '../../../core/services/dynamic-graphql-path.service';
-import {
-    CREATE_CARTON,
-    CartonDTO,
-    CreateCartonRequestDTO,
-} from '../graphql/mutation-definitions/create-carton.graphql';
 import { PageDTO } from '../../../shared/models/page.model';
 import { UseCaseResponseDTO } from '../../../shared/models/use-case-response.dto';
+import {
+    CREATE_CARTON,
+    CreateCartonRequestDTO,
+} from '../graphql/mutation-definitions/create-carton.graphql';
 import {
     FIND_ALL_CUSTOMERS,
     RecoveredPlasmaCustomerDTO,
@@ -29,7 +28,10 @@ import {
     FindShipmentRequestDTO,
     RECOVERED_PLASMA_SHIPMENT_DETAILS,
 } from '../graphql/query-definitions/shipmentDetails.graphql';
-import { RecoveredPlasmaShipmentResponseDTO } from '../models/recovered-plasma.dto';
+import {
+    CartonDTO,
+    RecoveredPlasmaShipmentResponseDTO,
+} from '../models/recovered-plasma.dto';
 
 @Injectable({
     providedIn: 'root',

@@ -27,7 +27,7 @@ export default [
                 },
             },
             {
-                path: ':id/add-carton-products',
+                path: ':id/carton-details',
                 component: AddCartonProductsComponent,
                 data: {
                     subTitle: 'Add Carton Products',

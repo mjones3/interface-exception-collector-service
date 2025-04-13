@@ -1,24 +1,30 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import {
+    Component,
+    computed,
+    OnInit,
+    TemplateRef,
+    viewChild,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApolloError } from '@apollo/client';
 import { Store } from '@ngrx/store';
-import { ToastrService } from 'ngx-toastr';
 import {
     ProcessHeaderComponent,
-    ProcessHeaderService, ToastrImplService,
+    ProcessHeaderService,
+    TableConfiguration,
+    ToastrImplService,
 } from '@shared';
-import { ProcessHeaderComponent, ProcessHeaderService } from '@shared';
 import { getAuthState } from 'app/core/state/auth/auth.selectors';
 import { ActionButtonComponent } from 'app/shared/components/buttons/action-button.component';
 import { BasicButtonComponent } from 'app/shared/components/buttons/basic-button.component';
 import { ProductIconsService } from 'app/shared/services/product-icon.service';
 import { CookieService } from 'ngx-cookie-service';
-import { take } from 'rxjs';
-import { ToastrService } from 'ngx-toastr';
-import { catchError, map, take, tap } from 'rxjs';
+import { catchError, take, tap } from 'rxjs';
+import { TableComponent } from '../../../../shared/components/table/table.component';
+import handleApolloError from '../../../../shared/utils/apollo-error-handling';
 import { consumeUseCaseNotifications } from '../../../../shared/utils/notification.handling';
-import { FindShipmentRequestDTO } from '../../graphql/query-definitions/shipmentDetails.graphql';
+import { RecoveredPlasmaShipmentStatus } from '../../graphql/query-definitions/shipment.graphql';
 import { RecoveredPlasmaShipmentResponseDTO } from '../../models/recovered-plasma.dto';
 import { RecoveredPlasmaShipmentCommon } from '../../recovered-plasma-shipment.common';
 import { RecoveredPlasmaService } from '../../services/recovered-plasma.service';
@@ -35,6 +41,7 @@ import { RecoveredPlasmaShipmentDetailsNavbarComponent } from '../recovered-plas
         ShippingInformationCardComponent,
         BasicButtonComponent,
         RecoveredPlasmaShipmentDetailsNavbarComponent,
+        TableComponent,
     ],
     templateUrl: './recovered-plasma-shipping-details.component.html',
 })
@@ -44,7 +51,37 @@ export class RecoveredPlasmaShippingDetailsComponent
 {
     findShipmentById: RecoveredPlasmaShipmentResponseDTO;
     employeeId: string;
-    protected cartonsRouteComputed = computed(() => this.router.url);
+    cartonsComputed = computed(
+        () => this.shipmentDetailsSignal()?.cartonList ?? []
+    );
+    statusTemplateRef = viewChild<TemplateRef<Element>>('statusTemplateRef');
+
+    cartonTableConfig: TableConfiguration = {
+        showPagination: false,
+        columns: [
+            {
+                id: 'cartonNumber',
+                header: 'Carton Number',
+                sort: false,
+            },
+            {
+                id: 'cartonSequence',
+                header: 'Sequence',
+                sort: false,
+            },
+            {
+                id: 'totalProducts',
+                header: 'Total Products',
+                sort: false,
+            },
+            {
+                id: 'status',
+                header: 'Status',
+                sort: false,
+                columnTempRef: this.statusTemplateRef(),
+            },
+        ],
+    };
 
     constructor(
         public header: ProcessHeaderService,
@@ -54,7 +91,7 @@ export class RecoveredPlasmaShippingDetailsComponent
         protected toastr: ToastrImplService,
         protected recoveredPlasmaService: RecoveredPlasmaService,
         protected cookieService: CookieService,
-        protected productIconService: ProductIconsService,
+        protected productIconService: ProductIconsService
     ) {
         super(
             route,
@@ -85,6 +122,10 @@ export class RecoveredPlasmaShippingDetailsComponent
             });
     }
 
+    get cartonsRoute(): string {
+        return this.router.url;
+    }
+
     get shipmentId(): number {
         return parseInt(this.route.snapshot.params?.id);
     }
@@ -99,20 +140,29 @@ export class RecoveredPlasmaShippingDetailsComponent
             .createCarton({ shipmentId, employeeId: this.employeeId })
             .pipe(
                 catchError((error: ApolloError) => {
-                    handleApolloError(this.toaster, error);
+                    handleApolloError(this.toastr, error);
                 }),
                 tap((response) =>
                     consumeUseCaseNotifications(
-                        this.toaster,
+                        this.toastr,
                         response.data?.createCarton?.notifications
                     )
-                ),
-                map((response) => response.data?.createCarton?.data)
+                )
             )
             .subscribe((carton) => {
-                this.router.navigateByUrl(
-                    `/recovered-plasma/${shipmentId}/add-carton-products`
-                );
+                const nextUrl = carton?.data?.createCarton?._links.next;
+                if (nextUrl) {
+                    this.router.navigateByUrl(nextUrl);
+                }
             });
+    }
+
+    getStatusBadgeCssClass(status: keyof typeof RecoveredPlasmaShipmentStatus) {
+        switch (status) {
+            case 'OPEN':
+                return 'text-sm font-bold py-1.5 px-2 badge rounded-full bg-blue-200 text-blue-700';
+            default:
+                return '';
+        }
     }
 }

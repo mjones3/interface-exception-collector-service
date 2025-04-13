@@ -6,10 +6,8 @@
     ></biopro-process-header>
 
     <biopro-recovered-plasma-shipment-details-navbar
-        [links]="{
-            Cartons: cartonsRouteComputed(),
-        }"
-        [activeLinkRoute]="cartonsRouteComputed()"
+        [links]="{ Cartons: cartonsRoute }"
+        [activeLinkRoute]="cartonsRoute"
         style="margin-top: 1px !important"
     >
     </biopro-recovered-plasma-shipment-details-navbar>
@@ -34,9 +32,25 @@
                     id="btnAddCarton"
                     label="Add Carton"
                     class="mat-primary-flat text-primary-900"
-                    (click)="addCarton()"
-                ></biopro-basic-button>
+                    (buttonClicked)="addCarton()"
+                    [disabled]="shipmentDetailsSignal()?.canAddCartons"
+                />
             </div>
+            <biopro-table
+                #recoveredPlasmaCartonsTable
+                tableId="cartonListTableId"
+                [dataSource]="cartonsComputed()"
+                [configuration]="cartonTableConfig"
+                [totalElements]="cartonsComputed().length ?? 0"
+                [pageIndex]="0"
+                [serverPagination]="false"
+            >
+            </biopro-table>
+            <ng-template #statusTemplateRef let-element="element">
+                <span [class]="getStatusBadgeCssClass(element.status)">
+                    {{ element.status }}
+                </span>
+            </ng-template>
         </div>
         <biopro-shipping-information-card
             [showBasicButton]="true"

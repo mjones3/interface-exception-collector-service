@@ -8,6 +8,22 @@ export interface CreateShipmentRequestDTO {
     locationCode: string;
 }
 
+export interface CartonDTO {
+    id?: number;
+    cartonNumber?: string;
+    shipmentId?: number;
+    cartonSequence?: number;
+    createEmployeeId?: string;
+    closeEmployeeId?: string;
+    createDate?: string;
+    modificationDate?: string;
+    closeDate?: string;
+    status?: string;
+    totalProducts?: number;
+    totalWeight?: number;
+    totalVolume?: number;
+}
+
 export interface RecoveredPlasmaShipmentResponseDTO {
     id?: number;
     locationCode?: string;
@@ -41,5 +57,5 @@ export interface RecoveredPlasmaShipmentResponseDTO {
     totalCartons?: number;
     totalProducts?: number;
     canAddCartons?: boolean;
-    totalVolume?: number;
+    cartonList?: CartonDTO[];
 }

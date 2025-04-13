@@ -1,25 +1,10 @@
 import { gql } from 'apollo-angular';
 import { UseCaseResponseDTO } from '../../../../shared/models/use-case-response.dto';
+import { CartonDTO } from '../../models/recovered-plasma.dto';
 
 export interface CreateCartonRequestDTO {
     shipmentId: number;
     employeeId: string;
-}
-
-export interface CartonDTO {
-    id?: number;
-    cartonNumber?: string;
-    shipmentId?: number;
-    cartonSequence?: number;
-    createEmployeeId?: string;
-    closeEmployeeId?: string;
-    createDate?: string;
-    modificationDate?: string;
-    closeDate?: string;
-    status?: string;
-    totalProducts?: number;
-    totalWeight?: number;
-    totalVolume?: number;
 }
 
 export const CREATE_CARTON = gql<
