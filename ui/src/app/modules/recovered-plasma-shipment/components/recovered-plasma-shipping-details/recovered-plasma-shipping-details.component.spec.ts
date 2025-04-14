@@ -85,11 +85,6 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should set employee id on construction', () => {
-        expect(mockStore.select).toHaveBeenCalled();
-        expect(component.employeeId).toBe('emp123');
-    });
-
     it('should get shipment id from route params', () => {
         expect(component.shipmentId).toBe(1);
     });

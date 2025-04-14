@@ -15,17 +15,15 @@ import {
     TableConfiguration,
     ToastrImplService,
 } from '@shared';
-import { getAuthState } from 'app/core/state/auth/auth.selectors';
 import { ActionButtonComponent } from 'app/shared/components/buttons/action-button.component';
 import { BasicButtonComponent } from 'app/shared/components/buttons/basic-button.component';
 import { ProductIconsService } from 'app/shared/services/product-icon.service';
 import { CookieService } from 'ngx-cookie-service';
-import { catchError, take, tap } from 'rxjs';
+import { catchError, tap } from 'rxjs';
 import { TableComponent } from '../../../../shared/components/table/table.component';
 import handleApolloError from '../../../../shared/utils/apollo-error-handling';
 import { consumeUseCaseNotifications } from '../../../../shared/utils/notification.handling';
 import { RecoveredPlasmaShipmentStatus } from '../../graphql/query-definitions/shipment.graphql';
-import { RecoveredPlasmaShipmentResponseDTO } from '../../models/recovered-plasma.dto';
 import { RecoveredPlasmaShipmentCommon } from '../../recovered-plasma-shipment.common';
 import { RecoveredPlasmaService } from '../../services/recovered-plasma.service';
 import { ShippingInformationCardComponent } from '../../shared/shipping-information-card/shipping-information-card.component';
@@ -49,14 +47,11 @@ export class RecoveredPlasmaShippingDetailsComponent
     extends RecoveredPlasmaShipmentCommon
     implements OnInit
 {
-    findShipmentById: RecoveredPlasmaShipmentResponseDTO;
-    employeeId: string;
+    statusTemplateRef = viewChild<TemplateRef<Element>>('statusTemplateRef');
     cartonsComputed = computed(
         () => this.shipmentDetailsSignal()?.cartonList ?? []
     );
-    statusTemplateRef = viewChild<TemplateRef<Element>>('statusTemplateRef');
-
-    cartonTableConfig: TableConfiguration = {
+    cartonTableConfigComputed = computed<TableConfiguration>(() => ({
         showPagination: false,
         columns: [
             {
@@ -80,8 +75,12 @@ export class RecoveredPlasmaShippingDetailsComponent
                 sort: false,
                 columnTempRef: this.statusTemplateRef(),
             },
+            {
+                id: 'actions',
+                header: '',
+            },
         ],
-    };
+    }));
 
     constructor(
         public header: ProcessHeaderService,
@@ -102,7 +101,6 @@ export class RecoveredPlasmaShippingDetailsComponent
             productIconService,
             cookieService
         );
-        this.setEmployeeId();
     }
 
     ngOnInit(): void {
@@ -111,15 +109,6 @@ export class RecoveredPlasmaShippingDetailsComponent
 
     subscribeTriggerFetchData(): void {
         super.fetchRecoveredPlasmaShippingDetails();
-    }
-
-    private setEmployeeId() {
-        this.store
-            .select(getAuthState)
-            .pipe(take(1))
-            .subscribe((auth) => {
-                this.employeeId = auth['id'];
-            });
     }
 
     get cartonsRoute(): string {
@@ -137,7 +126,7 @@ export class RecoveredPlasmaShippingDetailsComponent
     addCarton(): void {
         const shipmentId = +this.route.snapshot.params?.id;
         this.recoveredPlasmaService
-            .createCarton({ shipmentId, employeeId: this.employeeId })
+            .createCarton({ shipmentId, employeeId: this.employeeIdSignal() })
             .pipe(
                 catchError((error: ApolloError) => {
                     handleApolloError(this.toastr, error);
@@ -160,7 +149,13 @@ export class RecoveredPlasmaShippingDetailsComponent
     getStatusBadgeCssClass(status: keyof typeof RecoveredPlasmaShipmentStatus) {
         switch (status) {
             case 'OPEN':
-                return 'text-sm font-bold py-1.5 px-2 badge rounded-full bg-blue-200 text-blue-700';
+                return 'text-sm font-bold py-1.5 px-2 badge rounded-full bg-blue-100 text-blue-700';
+            case 'IN_PROGRESS':
+                // Our current Tailwind version does not support text-orange-* and bg-orange-* shades.
+                // After updating Tailwind version, replace to bg-orange-100 text-orange-700
+                return 'text-sm font-bold py-1.5 px-2 badge rounded-full bg-[#FFEDD5] text-[#C2410C]';
+            case 'CLOSED':
+                return 'text-sm font-bold py-1.5 px-2 badge rounded-full bg-green-100 text-green-700';
             default:
                 return '';
         }

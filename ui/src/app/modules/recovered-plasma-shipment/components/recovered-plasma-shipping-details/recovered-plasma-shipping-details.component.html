@@ -33,14 +33,14 @@
                     label="Add Carton"
                     class="mat-primary-flat text-primary-900"
                     (buttonClicked)="addCarton()"
-                    [disabled]="shipmentDetailsSignal()?.canAddCartons"
+                    [disabled]="!shipmentDetailsSignal()?.canAddCartons"
                 />
             </div>
             <biopro-table
                 #recoveredPlasmaCartonsTable
                 tableId="cartonListTableId"
                 [dataSource]="cartonsComputed()"
-                [configuration]="cartonTableConfig"
+                [configuration]="cartonTableConfigComputed()"
                 [totalElements]="cartonsComputed().length ?? 0"
                 [pageIndex]="0"
                 [serverPagination]="false"
@@ -48,7 +48,7 @@
             </biopro-table>
             <ng-template #statusTemplateRef let-element="element">
                 <span [class]="getStatusBadgeCssClass(element.status)">
-                    {{ element.status }}
+                    {{ RecoveredPlasmaShipmentStatusMap[element.status] }}
                 </span>
             </ng-template>
         </div>

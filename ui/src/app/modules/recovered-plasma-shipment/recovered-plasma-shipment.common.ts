@@ -9,11 +9,15 @@ import { CookieService } from 'ngx-cookie-service';
 import { catchError, take } from 'rxjs';
 import { getAuthState } from '../../core/state/auth/auth.selectors';
 import { ProductIconsService } from '../../shared/services/product-icon.service';
+import { RecoveredPlasmaShipmentStatusMap } from './graphql/query-definitions/shipment.graphql';
 import { FindShipmentRequestDTO } from './graphql/query-definitions/shipmentDetails.graphql';
 import { RecoveredPlasmaShipmentResponseDTO } from './models/recovered-plasma.dto';
 import { RecoveredPlasmaService } from './services/recovered-plasma.service';
 
 export class RecoveredPlasmaShipmentCommon {
+    protected readonly RecoveredPlasmaShipmentStatusMap =
+        RecoveredPlasmaShipmentStatusMap;
+
     protected cartonsRouteComputed = computed(() => this.router.url);
     protected shipmentIdComputed = computed(() =>
         Number(this.route.snapshot.params?.id)
