@@ -136,7 +136,8 @@
                     method: shipmentInfo?.shippingMethod,
                 }"
                 [productInput]="{
-                    temperatureCategory: shipmentInfo?.productCategory,
+                    temperatureCategory:
+                        ProductCategoryMap[shipmentInfo?.productCategory],
                     productFamily: productFamily,
                     bloodType: shipmentProduct?.bloodType,
                 }"
