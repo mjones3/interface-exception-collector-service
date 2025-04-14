@@ -124,7 +124,8 @@
                     id: shipmentInfo?.orderNumber,
                     externalId: shipmentInfo?.externalId,
                     priority: shipmentInfo?.priority,
-                    labelingProductCategory: shipmentInfo?.productCategory,
+                    labelingProductCategory:
+                        ProductCategoryMap[shipmentInfo?.productCategory],
                 }"
                 [comments]="shipmentInfo?.comments"
                 [shippingInput]="{

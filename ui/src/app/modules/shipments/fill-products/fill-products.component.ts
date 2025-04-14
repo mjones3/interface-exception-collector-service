@@ -45,6 +45,7 @@ import {
 } from '../../../shared/components/record-unsatisfactory-visual-inspection/record-unsatisfactory-visual-inspection.component';
 import { DiscardRequestDTO } from '../../../shared/models/discard.model';
 import { InventoryDTO } from '../../../shared/models/inventory.model';
+import { ProductCategoryMap } from '../../../shared/models/product-category.model';
 import { ProductFamilyMap } from '../../../shared/models/product-family.model';
 import { ReasonDTO } from '../../../shared/models/reason.dto';
 import { DiscardService } from '../../../shared/services/discard.service';
@@ -566,4 +567,6 @@ export class FillProductsComponent implements OnInit {
                 }
             });
     }
+
+    protected readonly ProductCategoryMap = ProductCategoryMap;
 }
