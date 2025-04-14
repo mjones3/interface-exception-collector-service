@@ -45,4 +45,7 @@ public class SharedContext {
     // Shipment data
     private String initialShipmentDate;
     private String finalShipmentDate;
+
+    // RecoveredPlasmaCriteriaConfiguration
+    private String recoveredPlasmaCriteriaConfigurationCustomerCode;
 }
