@@ -33,6 +33,7 @@ public class SharedContext {
     // General API response data
     private List<Map> apiListMessageResponse; // message from the response "notifications"
     private List<Map> apiShipmentListResponse; // list of shipments inside 'data' from the previous response
+    private Map findShipmentApiResponse; // response of findById request
 
     private Map apiErrorResponse;
 

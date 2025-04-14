@@ -1,7 +1,10 @@
 import { Injectable } from '@angular/core';
 import { ApolloQueryResult } from '@apollo/client';
+import { LookUpDto } from '@shared';
 import { Observable, Observer } from 'rxjs';
 import { DynamicGraphqlPathService } from '../../../core/services/dynamic-graphql-path.service';
+import { PageDTO } from '../../../shared/models/page.model';
+import { UseCaseResponseDTO } from '../../../shared/models/use-case-response.dto';
 import {
     FIND_ALL_CUSTOMERS,
     RecoveredPlasmaCustomerDTO,
@@ -10,15 +13,17 @@ import {
     FIND_ALL_LOCATIONS,
     RecoveredPlasmaLocationDTO,
 } from '../graphql/query-definitions/location.graphql';
-import { LookUpDto } from '@shared';
 import { FIND_ALL_LOOKUPS_BY_TYPE } from '../graphql/query-definitions/lookup.graphql';
-import { UseCaseResponseDTO } from '../../../shared/models/use-case-response.dto';
-import { PageDTO } from '../../../shared/models/page.model';
 import {
     RecoveredPlasmaShipmentQueryCommandRequestDTO,
     RecoveredPlasmaShipmentReportDTO,
-    SEARCH_RP_SHIPMENT
+    SEARCH_RP_SHIPMENT,
 } from '../graphql/query-definitions/shipment.graphql';
+import {
+    FindShipmentRequestDTO,
+    RECOVERED_PLASMA_SHIPMENT_DETAILS,
+} from '../graphql/query-definitions/shipmentDetails.graphql';
+import { RecoveredPlasmaShipmentResponseDTO } from '../models/recovered-plasma.dto';
 
 @Injectable({
     providedIn: 'root',
@@ -89,5 +94,19 @@ export class RecoveredPlasmaService {
                 observer.complete();
             });
         });
+    }
+
+    public getShipmentById(
+        findShipmentCommandDTO: FindShipmentRequestDTO
+    ): Observable<
+        ApolloQueryResult<{
+            findShipmentById: UseCaseResponseDTO<RecoveredPlasmaShipmentResponseDTO>;
+        }>
+    > {
+        return this.dynamicGraphqlPathService.executeQuery(
+            this.servicePath,
+            RECOVERED_PLASMA_SHIPMENT_DETAILS,
+            { findShipmentCommandDTO }
+        );
     }
 }

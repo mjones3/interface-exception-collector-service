@@ -376,7 +376,7 @@ biopro-process-header {
     }
 
     &.mat-primary-flat {
-        background-color: rgba(var(--fuse-primary-rgb), 0.8);
+        background-color: rgba(var(--fuse-primary-rgb), 0.5);
 
         &[disabled='true'] {
             color: rgba(var(--fuse-accent-rgb), 0.6) !important;
@@ -387,7 +387,7 @@ biopro-process-header {
         }
 
         &:hover {
-            background-color: rgba(var(--fuse-primary-rgb), 0.9);
+            background-color: rgba(var(--fuse-primary-rgb), 0.7);
         }
     }
 

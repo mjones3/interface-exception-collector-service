@@ -80,7 +80,7 @@ public class ShipmentFulfillmentSteps {
     private KafkaHelper kafkaHelper;
 
     private ShipmentRequestDetailsResponseType setupOrderFulfillmentRequest(String orderNumber, String customerId, String customerName, String quantities, String bloodTypes
-        , String productFamilies, String unitNumbers, String productCodes) {
+        , String productFamilies, String unitNumbers, String productCodes , String temperatureCategory) {
         return shipmentTestingController.buildShipmentRequestDetailsResponseType(Long.valueOf(orderNumber),
             "ASAP",
             "OPEN",
@@ -89,7 +89,7 @@ public class ShipmentFulfillmentSteps {
             "123456789",
             "TEST",
             "TEST",
-            "FROZEN",
+            temperatureCategory,
             LocalDate.now(),
             "Blood Bank",
             customerName,
@@ -309,7 +309,17 @@ public class ShipmentFulfillmentSteps {
     public void buildOrderFulfilmentRequest(String orderNumber, String customerId, String customerName
         , String quantities, String bloodTypes, String productFamilies) {
 
-        this.shipmentDetailType = setupOrderFulfillmentRequest(orderNumber, customerId, customerName, quantities, bloodTypes, productFamilies, null, null);
+        this.shipmentDetailType = setupOrderFulfillmentRequest(orderNumber, customerId, customerName, quantities, bloodTypes, productFamilies, null, null, "FROZEN");
+
+        Assert.assertNotNull(this.shipmentDetailType);
+
+    }
+
+    @Given("The shipment details are order Number {string}, customer ID {string}, Customer Name {string}, Product Details: Quantities {string}, Blood Types: {string}, Product Families {string} , Temperature Category {string}.")
+    public void buildOrderFulfilmentRequest(String orderNumber, String customerId, String customerName
+        , String quantities, String bloodTypes, String productFamilies , String temperatureCategory) {
+
+        this.shipmentDetailType = setupOrderFulfillmentRequest(orderNumber, customerId, customerName, quantities, bloodTypes, productFamilies, null, null, temperatureCategory);
 
         Assert.assertNotNull(this.shipmentDetailType);
 
