@@ -18,7 +18,7 @@ public class ShipmentDetailsPage extends CommonPageFactory {
     private final By totalCartons = By.id("informationDetails-Total-Cartons-value");
     private final By totalProducts = By.id("informationDetails-Total-Products-value");
     private final By totalVolume = By.id("informationDetails-Total-Volume-value");
-    private final By addCartonBtn = By.id("btnAddCarton");
+    private final By addCartonBtn = By.xpath("//button[@id='btnAddCarton']");
     private final By backToSearchBtn = By.id("backActionBtn");
 
     @Autowired
@@ -90,5 +90,13 @@ public class ShipmentDetailsPage extends CommonPageFactory {
 
     public void clickBackToSearchButton() {
         sharedActions.click(backToSearchBtn);
+    }
+
+    public void clickAddCarton() {
+        sharedActions.click(addCartonBtn);
+    }
+
+    public boolean isAddCartonButtonEnabled() {
+        return sharedActions.isElementEnabled(driver, addCartonBtn);
     }
 }

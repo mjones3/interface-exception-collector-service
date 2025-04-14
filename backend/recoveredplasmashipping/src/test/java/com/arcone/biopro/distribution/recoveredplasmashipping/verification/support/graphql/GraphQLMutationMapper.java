@@ -28,4 +28,20 @@ public class GraphQLMutationMapper {
     """, customerCode, productType, cartonTareWeight, shipmentDate, TransportationRefNumber, locationCode));
     }
 
+    public static String createCarton(String shipmentId) {
+        return (String.format("""
+            mutation CreateCarton {
+                        createCarton(createCartonRequest: { shipmentId: %s, employeeId: "4c973896-5761-41fc-8217-07c5d13a004b" }) {
+                            _links
+                            data
+                            notifications {
+                                message
+                                type
+                                code
+                            }
+                        }
+                    }
+    """, shipmentId));
+    }
+
 }
