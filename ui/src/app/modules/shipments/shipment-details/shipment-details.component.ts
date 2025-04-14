@@ -33,6 +33,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { TableModule } from 'primeng/table';
 import { of, switchMap } from 'rxjs';
 import { catchError, take } from 'rxjs/operators';
+import { ProductCategoryMap } from '../../../shared/models/product-category.model';
 import { ProductFamilyMap } from '../../../shared/models/product-family.model';
 import { consumeNotifications } from '../../../shared/utils/notification.handling';
 import {
@@ -113,7 +114,9 @@ export class ShipmentDetailsComponent implements OnInit {
     }
 
     get labelingProductCategory() {
-        return this.shipmentInfo ? this.shipmentInfo?.productCategory : '';
+        return this.shipmentInfo
+            ? ProductCategoryMap[this.shipmentInfo?.productCategory]
+            : '';
     }
 
     get shipmentId(): number {
@@ -321,4 +324,6 @@ export class ShipmentDetailsComponent implements OnInit {
     }
 
     protected readonly ProductFamilyMap = ProductFamilyMap;
+
+    protected readonly ProductCategoryMap = ProductCategoryMap;
 }
