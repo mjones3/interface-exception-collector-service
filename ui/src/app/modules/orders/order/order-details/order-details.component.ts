@@ -44,6 +44,7 @@ import {
 import { getAuthState } from '../../../../core/state/auth/auth.selectors';
 import { ActionButtonComponent } from '../../../../shared/components/buttons/action-button.component';
 import { TagComponent } from '../../../../shared/components/tag/tag.component';
+import { ProductCategoryMap } from '../../../../shared/models/product-category.model';
 import handleApolloError from '../../../../shared/utils/apollo-error-handling';
 import { consumeNotificationMessages } from '../../../../shared/utils/notification.handling';
 import { CompleteOrderComponent } from '../../complete-order/complete-order.component';
@@ -357,4 +358,6 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
                     response?.data?.completeOrder?.notifications ?? [];
             });
     }
+
+    protected readonly ProductCategoryMap = ProductCategoryMap;
 }
