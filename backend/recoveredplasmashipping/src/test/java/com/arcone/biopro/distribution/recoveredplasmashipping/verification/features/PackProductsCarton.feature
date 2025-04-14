@@ -7,7 +7,7 @@ Feature: Add Products to Carton
     @ui @DIS-339
     Scenario Outline: Successfully add product to carton by scanning
         Given I have an empty carton created with the Customer Code as "<Customer Code>" , Product Type as "<Product Type>", Carton Tare Weight as "<Carton Tare Weight>", Shipment Date as "<Shipment Date>", Transportation Reference Number as "<Transportation Reference Number>" and Location Code as "<Location Code>".
-        When I navigate to the Add Carton Products page for the carton number "<carton_number>".
+        And I navigate to the Add Carton Products page for the carton number "<carton_number>".
         When I fill an acceptable product with the unit number "<unit_number>", product code "<product_code>" and product type <product_type>.
         Then I should see the product in the packed list with unit number "<unit_number>" and product code "<product_code>"
         Examples:
