@@ -19,6 +19,7 @@ import { ActionButtonComponent } from '../../../shared/components/buttons/action
 import { GlobalMessageComponent } from '../../../shared/components/global-message/global-message.component';
 import { UnitNumberCardComponent } from '../../../shared/components/unit-number-card/unit-number-card.component';
 import { DiscardRequestDTO } from '../../../shared/models/discard.model';
+import { ProductCategoryMap } from '../../../shared/models/product-category.model';
 import { RuleResponseDTO } from '../../../shared/models/rule.model';
 import { DiscardService } from '../../../shared/services/discard.service';
 import { ProductIconsService } from '../../../shared/services/product-icon.service';
@@ -275,4 +276,6 @@ export class VerifyProductsNotificationsComponent
             },
         ]);
     }
+
+    protected readonly ProductCategoryMap = ProductCategoryMap;
 }
