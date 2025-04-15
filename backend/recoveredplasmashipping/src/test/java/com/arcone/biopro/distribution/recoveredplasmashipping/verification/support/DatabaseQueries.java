@@ -65,4 +65,18 @@ public class DatabaseQueries {
         );
     }
 
+    public static String FETCH_SHIPMENT_CRITERIA_BY_CUSTOMER_AND_PRODUCT_TYPE(String customerCode , String productType){
+        return String.format(
+            """
+                select lrpsc.customer_code, lrpsc.product_type, lrpptpc.product_code , lrpsci."type" , lrpsci.value
+                        from lk_recovered_plasma_shipment_criteria lrpsc
+                        inner join lk_recovered_plasma_product_type lrppt on lrppt.product_type = lrpsc.product_type
+                        inner join lk_recovered_plasma_product_type_product_code lrpptpc on lrpptpc.product_type_id  = lrppt.id
+                        inner join lk_recovered_plasma_shipment_criteria_item lrpsci on lrpsci.recovered_plasma_shipment_criteria_id  = lrpsc.id
+                        where lrpsc.customer_code = '%s' and lrpsc.product_type = '%s' and lrpsc.active = true
+                """
+            ,customerCode, productType
+        );
+    }
+
 }
