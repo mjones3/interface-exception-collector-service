@@ -1,38 +1,27 @@
 @AOA-89
 Feature: Add Products to Carton
 
-    Rule: I should be able to scan  the unit number and product code without the check digit.
+    Rule: I should be able to only scan the unit number and product code.
     Rule: I should be able to view the products added to the carton with information like unit number and product code.
     Rule: Verify acceptability of the products as they are added to the carton.
+    Rule: I should be able to view shipping information.
     @ui @DIS-339
     Scenario Outline: Successfully add product to carton by scanning
         Given I have an empty carton created with the Customer Code as "<Customer Code>" , Product Type as "<Product Type>", Carton Tare Weight as "<Carton Tare Weight>", Shipment Date as "<Shipment Date>", Transportation Reference Number as "<Transportation Reference Number>" and Location Code as "<Location Code>".
         And I navigate to the Add Carton Products page for the carton number "<carton_number>".
         When I fill an acceptable product with the unit number "<unit_number>", product code "<product_code>" and product type <product_type>.
         Then I should see the product in the packed list with unit number "<unit_number>" and product code "<product_code>"
+        When I navigate to the shipment details page for the last shipment created.
+        Then I should see a list of all cartons
+        When I choose to expand the row for the carton number "<carton_number>"
+        Then I should see a list of all products with their unit numbers and product codes
+        And I should see the total number of products as "<total_products>"
         Examples:
             | Customer Code | Product Type               | Carton Tare Weight   | Shipment Date | Transportation Reference Number | Location Code  | carton_number | unit_number      | product_code | product_type               |
             | 408           | RP_FROZEN_WITHIN_120_HOURS | 1000                 | <tomorrow>    | <null>                          | 123456789_TEST |  BPMMH1       | =W03689878680100 |  =<E2534V00  | RP_FROZEN_WITHIN_120_HOURS |
 
-    Rule: I should be able to view shipping information.
-    Rule: I should be able to view the products added to the carton with information like unit number and product code.
-    @ui @DIS-339
-    Scenario Outline: View shipping information and products in carton
-        Given I have an empty carton created with the Customer Code as "<Customer Code>" , Product Type as "<Product Type>", Carton Tare Weight as "<Carton Tare Weight>", Shipment Date as "<Shipment Date>", Transportation Reference Number as "<Transportation Reference Number>" and Location Code as "<Location Code>".
-        And I have packed the following products:
-            |unit_number| product code | product_type |
-            |           |              |              |
-            |           |              |              |
-        When I navigate to the Add Carton Products page for the carton number "<carton_number>".
-        Then I should see the shipping information
-        And I should see a list of all products with their unit numbers and product codes
-        Examples:
-            | Customer Code | Product Type               | Carton Tare Weight   | Shipment Date | Transportation Reference Number | Location Code  | carton_number |
-            | 408           | RP_FROZEN_WITHIN_120_HOURS | 1000                 | <tomorrow>    | <null>                          | 123456789_TEST |  BPMMH1       |
-
     Rule: Verify acceptability of the products as they are added to the carton.
     Rule: I should not be able to enter a unit number that doesn’t exist in the system and be notified.
-    Rule: I should not be able to add shipped products in the carton and be notified.
     Rule: I should not be able to add discarded products in the carton and be notified.
     Rule: I should not be able to add quarantined products in the carton and be notified.
     Rule: I should not be able to add expired products in the carton and be notified.
@@ -74,6 +63,18 @@ Feature: Add Products to Carton
         Examples:
            | Customer Code | Product Type               | Carton Tare Weight   | Shipment Date | Transportation Reference Number | Location Code  |  configured_volume | unit_number   | product_code | product_volume |
            | 408           | RP_FROZEN_WITHIN_120_HOURS | 1000                 | <tomorrow>    | <null>                          | 123456789_TEST |      250           | W036898786801 | E2534V00     |    150         |
+
+
+        Rule: I should be able to add products in the carton for customers that do not requires minimum volume criteria.
+        @api @DIS-339
+        Scenario Outline: Add product with correct volume
+            Given I have an empty carton created with the Customer Code as "<Customer Code>" , Product Type as "<Product Type>", Carton Tare Weight as "<Carton Tare Weight>", Shipment Date as "<Shipment Date>", Transportation Reference Number as "<Transportation Reference Number>" and Location Code as "<Location Code>".
+            And The Minimum acceptable Volume of Units in Carton is configured as "<configured_volume>" milliliters for the customer code "<Customer Code>" and product type "<Product Type>".
+            When I pack a product with the unit number "unit_number", product code "product_code" and volume "<product_volume>".
+            And The product unit number "<unit_number>" and product code "<product_code>" "should" be packed in the carton.
+            Examples:
+                | Customer Code | Product Type                  | Carton Tare Weight   | Shipment Date | Transportation Reference Number | Location Code  |  configured_volume | unit_number   | product_code | product_volume |
+                | 410           | RP_NONINJECTABLE_REFRIGERATED | 1000                 | <tomorrow>    | <null>                          | 123456789_TEST |      <null>        | W036898786801 | E2534V00     |    150         |
 
 
     Rule: I should not be able to add products in the carton once the configured number of products in the carton criteria is met and be notified.
