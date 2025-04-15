@@ -59,3 +59,21 @@ export interface RecoveredPlasmaShipmentResponseDTO {
     canAddCartons?: boolean;
     cartonList?: CartonDTO[];
 }
+
+export interface CartonPackedItemResponseDTO {
+    id: number;
+    cartonId?: string;
+    unitNumber?: string;
+    productCode?: string;
+    productDescription?: string;
+    productType?: string;
+    volume?: number;
+    weight?: number;
+    packedByEmployeeId?: string;
+    aboRh?: string;
+    status?: string;
+    expirationDate?: string;
+    collectionDate?: string;
+    createDate?: string;
+    modificationDate?: string;
+}

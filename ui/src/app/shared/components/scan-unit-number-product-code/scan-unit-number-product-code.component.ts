@@ -16,13 +16,20 @@ import {
 } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { RsaValidators } from '@shared';
+import { UppercaseDirective } from 'app/shared/directive/uppercase/uppercase.directive';
 import { extractUnitNumber } from 'app/shared/utils/utils';
 import { Subscription, combineLatestWith, debounceTime, filter } from 'rxjs';
 
 @Component({
     selector: 'biopro-scan-unit-number-product-code',
     standalone: true,
-    imports: [ReactiveFormsModule, MatInputModule, FormsModule, CommonModule],
+    imports: [
+        ReactiveFormsModule,
+        MatInputModule,
+        FormsModule,
+        CommonModule,
+        UppercaseDirective,
+    ],
     templateUrl: './scan-unit-number-product-code.component.html',
 })
 export class ScanUnitNumberProductCodeComponent implements OnDestroy {

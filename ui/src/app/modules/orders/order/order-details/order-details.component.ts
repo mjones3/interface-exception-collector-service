@@ -14,7 +14,7 @@ import {
     ToastrImplService,
 } from '@shared';
 import { OrderWidgetsSidebarComponent } from 'app/modules/shipments/shared/order-widgets-sidebar/order-widgets-sidebar.component';
-import { ProgressBarComponent } from 'app/progress-bar/progress-bar.component';
+import { ProgressBarComponent } from 'app/shared/components/progress-bar/progress-bar.component';
 import { OrderStatusMap } from 'app/shared/models/order-status.model';
 import { ProductFamilyMap } from 'app/shared/models/product-family.model';
 import { ProductIconsService } from 'app/shared/services/product-icon.service';

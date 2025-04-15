@@ -4,6 +4,17 @@ import { LookUpDto } from '@shared';
 import { MutationResult } from 'apollo-angular';
 import { Observable, Observer } from 'rxjs';
 import { DynamicGraphqlPathService } from '../../../core/services/dynamic-graphql-path.service';
+import { PageDTO } from '../../../shared/models/page.model';
+import { UseCaseResponseDTO } from '../../../shared/models/use-case-response.dto';
+import {
+    CREATE_CARTON,
+    CreateCartonRequestDTO,
+} from '../graphql/mutation-definitions/create-carton.graphql';
+import {
+    CARTON_PACK_ITEM,
+    PackCartonItemsDTO,
+} from '../graphql/mutation-definitions/pack-items.graphql';
+import { FIND_CARTON_BY_ID } from '../graphql/query-definitions/carton.graphql';
 import {
     FIND_ALL_CUSTOMERS,
     RecoveredPlasmaCustomerDTO,
@@ -24,15 +35,9 @@ import {
 } from '../graphql/query-definitions/shipmentDetails.graphql';
 import {
     CartonDTO,
+    CartonPackedItemResponseDTO,
     RecoveredPlasmaShipmentResponseDTO,
 } from '../models/recovered-plasma.dto';
-import { FIND_CARTON_BY_ID } from '../graphql/query-definitions/carton.graphql';
-import { UseCaseResponseDTO } from '../../../shared/models/use-case-response.dto';
-import { PageDTO } from '../../../shared/models/page.model';
-import {
-    CREATE_CARTON,
-    CreateCartonRequestDTO,
-} from '../graphql/mutation-definitions/create-carton.graphql';
 
 @Injectable({
     providedIn: 'root',
@@ -140,6 +145,18 @@ export class RecoveredPlasmaService {
             this.servicePath,
             RECOVERED_PLASMA_SHIPMENT_DETAILS,
             { findShipmentCommandDTO }
+        );
+    }
+
+    public addCartonProducts(cartonProducts: PackCartonItemsDTO): Observable<
+        MutationResult<{
+            packCartonItem: UseCaseResponseDTO<CartonPackedItemResponseDTO>;
+        }>
+    > {
+        return this.dynamicGraphqlPathService.executeMutation(
+            this.servicePath,
+            CARTON_PACK_ITEM,
+            cartonProducts
         );
     }
 }
