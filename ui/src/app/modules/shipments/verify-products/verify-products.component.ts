@@ -21,6 +21,7 @@ import { FuseConfirmationService } from '../../../../@fuse/services/confirmation
 import { ProgressBarComponent } from '../../../progress-bar/progress-bar.component';
 import { GlobalMessageComponent } from '../../../shared/components/global-message/global-message.component';
 import { UnitNumberCardComponent } from '../../../shared/components/unit-number-card/unit-number-card.component';
+import { ProductCategoryMap } from '../../../shared/models/product-category.model';
 import { ProductIconsService } from '../../../shared/services/product-icon.service';
 import handleApolloError from '../../../shared/utils/apollo-error-handling';
 import { consumeNotifications } from '../../../shared/utils/notification.handling';
@@ -311,4 +312,6 @@ export class VerifyProductsComponent
             );
         });
     }
+
+    protected readonly ProductCategoryMap = ProductCategoryMap;
 }
