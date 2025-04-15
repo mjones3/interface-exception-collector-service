@@ -21,6 +21,13 @@ public class ShipmentDetailsPage extends CommonPageFactory {
     private final By addCartonBtn = By.xpath("//button[@id='btnAddCarton']");
     private final By backToSearchBtn = By.id("backActionBtn");
 
+    private By addedCartonRow(String cartonNumberPrefix, String sequence, String status) {
+        return By.xpath(
+            String.format(
+                "//table[@id='cartonListTableId']//td[contains(.,'%s')]/following-sibling::td[contains(.,'%s')]/following-sibling::td[contains(.,'%s')]",
+                cartonNumberPrefix, sequence, status));
+    }
+
     @Autowired
     private SharedActions sharedActions;
 
@@ -98,5 +105,9 @@ public class ShipmentDetailsPage extends CommonPageFactory {
 
     public boolean isAddCartonButtonEnabled() {
         return sharedActions.isElementEnabled(driver, addCartonBtn);
+    }
+
+    public void verifyCartonIsListed(String cartonNumberPrefix, String sequence, String status) {
+        sharedActions.waitForVisible(addedCartonRow(cartonNumberPrefix, sequence, status));
     }
 }

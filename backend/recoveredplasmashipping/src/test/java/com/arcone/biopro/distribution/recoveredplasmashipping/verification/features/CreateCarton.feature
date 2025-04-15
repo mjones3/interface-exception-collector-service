@@ -27,13 +27,13 @@ Feature: Create Carton
             And I should see a "SUCCESS" message: "Carton created successfully".
             And I close the acknowledgment message.
             And I should see the carton details:
-                | Field                | Value   |
-                | Carton Number Prefix | PPFXLOC |
-                | Carton Sequence      | 1       |
-                | Tare Weight          |         |
-                | Total Volume         |         |
-                | Minimum Products     |         |
-                | Maximum Products     |         |
+                | Field                | Value |
+                | Carton Number Prefix | BPMH1 |
+                | Carton Sequence      | 1     |
+                | Tare Weight          | 1000  |
+                | Total Volume         | 0     |
+                | Minimum Products     |       |
+                | Maximum Products     |       |
             And I should see the following shipment information:
                 | Field                      | Value                         |
                 | Shipment Number Prefix     | BPM2765                       |
@@ -44,10 +44,11 @@ Feature: Create Carton
                 | Shipment Date              | <tomorrow>                    |
                 | Transportation Ref. Number | DIS338                        |
                 | Total Products             | 0                             |
-                | Total Cartons              | 0                             |
-                | Total Volume               | 0                             |
+                | Total Cartons              | 1                             |
             When I click to go back to Shipment Details page.
-            Then I should see the list of cartons added to the shipment.
+            Then I should see the list of cartons added to the shipment containing:
+                | Carton Number Prefix | Sequence | Status |
+                | BPMMH1               | 1        | OPEN   |
 
         Rule: I should not be able to add cartons in a shipment from a different location that the user is logged in.
         @ui @DIS-338
@@ -64,7 +65,7 @@ Feature: Create Carton
             When I navigate to the shipment details page for the last shipment created.
             Then The Add Carton button should be "disabled".
 
-        Rule: The carton number must be unique for the blood center.
+    Rule: The carton number must be unique for the blood center.
         Rule: I should be able to view a sequence number for every carton generated in the shipment in a sequential order.
         @api @DIS-338
         Scenario: Verify unique carton number generation

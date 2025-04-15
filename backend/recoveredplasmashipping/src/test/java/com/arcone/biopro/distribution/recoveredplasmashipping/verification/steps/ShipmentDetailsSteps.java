@@ -133,4 +133,16 @@ public class ShipmentDetailsSteps {
                 index.getAndSet(index.get() + 1);
             });
     }
+
+    @Then("I should see the list of cartons added to the shipment containing:")
+    public void iShouldSeeTheListOfCartonsAddedToTheShipmentContaining(DataTable dataTable) {
+        var tableHeaders = dataTable.row(0);
+        for (int i = 1; i < dataTable.height(); i++) {
+            var row = dataTable.row(i);
+            shipmentDetailsPage.verifyCartonIsListed(
+                row.get(tableHeaders.indexOf("Carton Number Prefix")),
+                row.get(tableHeaders.indexOf("Sequence")),
+                row.get(tableHeaders.indexOf("Status")));
+        }
+    }
 }
