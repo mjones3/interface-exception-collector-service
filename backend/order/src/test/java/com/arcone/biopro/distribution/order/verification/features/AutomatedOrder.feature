@@ -1,4 +1,4 @@
-@api @AOA-152 @AOA-240
+@api @AOA-152 @AOA-240 @AOA-128 @AOA-105 
 Feature: Validate order
 
     Background:
