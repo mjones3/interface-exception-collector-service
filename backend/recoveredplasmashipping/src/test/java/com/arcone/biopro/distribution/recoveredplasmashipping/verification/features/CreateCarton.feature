@@ -53,15 +53,14 @@ Feature: Create Carton
         Rule: I should not be able to add cartons in a shipment from a different location that the user is logged in.
         @ui @DIS-338
         Scenario: Unable to add carton to a shipment from a different location
-            Given The location "123456789_DIS338" is configured with prefix "DIS_338", shipping code "DIS33800", and prefix configuration "Y".
-            And I request to create a new shipment with the values:
+            Given I request to create a new shipment with the values:
                 | Field                           | Value                         |
                 | Customer Code                   | 410                           |
                 | Product Type                    | RP_NONINJECTABLE_REFRIGERATED |
                 | Carton Tare Weight              | 1000                          |
                 | Shipment Date                   | <tomorrow>                    |
                 | Transportation Reference Number | DIS338                        |
-                | Location Code                   | DIS_338                       |
+                | Location Code                   | 123456789_DIS338              |
             When I navigate to the shipment details page for the last shipment created.
             Then The Add Carton button should be "disabled".
 
