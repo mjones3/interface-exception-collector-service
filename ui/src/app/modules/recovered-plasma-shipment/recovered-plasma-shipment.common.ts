@@ -6,24 +6,28 @@ import { ToastrImplService } from '@shared';
 import { Cookie } from 'app/shared/types/cookie.enum';
 import handleApolloError from 'app/shared/utils/apollo-error-handling';
 import { CookieService } from 'ngx-cookie-service';
-import { catchError, map, Observable, take, tap } from 'rxjs';
+import { Observable, catchError, map, take, tap } from 'rxjs';
 import { getAuthState } from '../../core/state/auth/auth.selectors';
 import { ProductIconsService } from '../../shared/services/product-icon.service';
+import { consumeUseCaseNotifications } from '../../shared/utils/notification.handling';
 import { RecoveredPlasmaShipmentStatusMap } from './graphql/query-definitions/shipment.graphql';
 import { FindShipmentRequestDTO } from './graphql/query-definitions/shipmentDetails.graphql';
 import { RecoveredPlasmaShipmentResponseDTO } from './models/recovered-plasma.dto';
 import { RecoveredPlasmaService } from './services/recovered-plasma.service';
-import { consumeUseCaseNotifications } from '../../shared/utils/notification.handling';
 
 export class RecoveredPlasmaShipmentCommon {
+    protected readonly RecoveredPlasmaShipmentStatusMap =
+        RecoveredPlasmaShipmentStatusMap;
 
-    protected readonly RecoveredPlasmaShipmentStatusMap = RecoveredPlasmaShipmentStatusMap;
-
-    protected routeIdComputed = computed(() => Number(this.route.snapshot.params?.id));
-    protected employeeIdSignal = signal<string>(null);
-    protected shipmentDetailsSignal = signal<RecoveredPlasmaShipmentResponseDTO>(null);
-    protected shipmentIdComputed = computed<number>(() => this.shipmentDetailsSignal()?.id);
-    protected locationCodeComputed = computed(() => this.cookieService.get(Cookie.XFacility));
+    routeIdComputed = computed(() => Number(this.route.snapshot.params?.id));
+    employeeIdSignal = signal<string>(null);
+    shipmentDetailsSignal = signal<RecoveredPlasmaShipmentResponseDTO>(null);
+    shipmentIdComputed = computed<number>(
+        () => this.shipmentDetailsSignal()?.id
+    );
+    locationCodeComputed = computed(() =>
+        this.cookieService.get(Cookie.XFacility)
+    );
 
     constructor(
         protected route: ActivatedRoute,
@@ -46,7 +50,9 @@ export class RecoveredPlasmaShipmentCommon {
         );
     }
 
-    loadRecoveredPlasmaShippingDetails(shipmentId?: number): Observable<RecoveredPlasmaShipmentResponseDTO> {
+    loadRecoveredPlasmaShippingDetails(
+        shipmentId?: number
+    ): Observable<RecoveredPlasmaShipmentResponseDTO> {
         return this.recoveredPlasmaService
             .getShipmentById(this.prepareShipmentRequest(shipmentId))
             .pipe(
@@ -67,12 +73,13 @@ export class RecoveredPlasmaShipmentCommon {
             );
     }
 
-    protected prepareShipmentRequest(shipmentId?: number): FindShipmentRequestDTO {
+    protected prepareShipmentRequest(
+        shipmentId?: number
+    ): FindShipmentRequestDTO {
         return {
             employeeId: this.employeeIdSignal(),
             locationCode: this.locationCodeComputed(),
             shipmentId: shipmentId ?? this.routeIdComputed(),
         };
     }
-
 }

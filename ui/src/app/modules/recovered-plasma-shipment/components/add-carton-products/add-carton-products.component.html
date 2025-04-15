@@ -9,7 +9,7 @@
             <biopro-action-button
                 id="backActionBtn"
                 btnId="backToShipmentBtn"
-                label="Back to Shipment"
+                label="Back to Shipment Details"
                 color="secondary"
                 icon="heroicons_outline:arrow-uturn-left"
                 (clickEvent)="backToShipment()"
@@ -17,10 +17,9 @@
         </div>
     </ng-template>
 
-    <div class="flex w-full flex-row gap-8 p-4">
-        <div class="flex w-9/12 flex-auto flex-col gap-4">
-        </div>
-        <div class="flex w-1/4 flex-col gap-8">
+    <div class="flex w-full flex-row gap-4 p-4">
+        <div class="flex w-9/12 flex-col gap-4"></div>
+        <div class="flex w-3/12 flex-col gap-4">
             <biopro-shipping-carton-information-card
                 [showBasicButton]="false"
                 [shippingInput]="shipmentDetailsSignal()"
