@@ -27,13 +27,13 @@ Feature: Create Carton
             And I should see a "SUCCESS" message: "Carton created successfully".
             And I close the acknowledgment message.
             And I should see the carton details:
-                | Field                | Value |
-                | Carton Number Prefix | BPMH1 |
-                | Carton Sequence      | 1     |
-                | Tare Weight          | 1000  |
-                | Total Volume         | 0     |
-                | Minimum Products     |       |
-                | Maximum Products     |       |
+                | Field                | Value  |
+                | Carton Number Prefix | BPMMH1 |
+                | Carton Sequence      | 1      |
+                | Tare Weight          | 1000   |
+                | Total Volume         | 0      |
+                | Minimum Products     |        |
+                | Maximum Products     |        |
             And I should see the following shipment information:
                 | Field                      | Value                         |
                 | Shipment Number Prefix     | BPM2765                       |

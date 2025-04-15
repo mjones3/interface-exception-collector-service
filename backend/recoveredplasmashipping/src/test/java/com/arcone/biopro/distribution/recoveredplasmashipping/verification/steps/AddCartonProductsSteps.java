@@ -3,7 +3,7 @@ package com.arcone.biopro.distribution.recoveredplasmashipping.verification.step
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.pages.AddCartonPage;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.And;
-import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,7 @@ public class AddCartonProductsSteps {
     @Autowired
     private AddCartonPage addCartonPage;
 
-    @Given("I should be redirected to the Add Carton Products page.")
+    @Then("I should be redirected to the Add Carton Products page.")
     public void iShouldBeRedirectedToTheAddCartonProductsPage() {
         addCartonPage.waitForLoad();
     }

@@ -3,9 +3,11 @@ package com.arcone.biopro.distribution.recoveredplasmashipping.verification.page
 import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
+@Component
 public class AddCartonPage extends CommonPageFactory {
 
     @Autowired
