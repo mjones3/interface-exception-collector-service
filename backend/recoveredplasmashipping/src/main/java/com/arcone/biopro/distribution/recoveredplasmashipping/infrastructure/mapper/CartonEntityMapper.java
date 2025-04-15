@@ -16,17 +16,18 @@ public interface CartonEntityMapper {
 
     CartonItemEntityMapper cartonItemEntityMapper = Mappers.getMapper(CartonItemEntityMapper.class);
 
-    default Carton entityToModel(CartonEntity entity , List<CartonItemEntity> cartonItemEntityList) {
+    default Carton entityToModel(CartonEntity entity , List<CartonItemEntity> cartonItemEntityList , Integer minNumberOfUnits , Integer maxNumberOfUnits) {
         return Carton.fromRepository(
             entity.getId(), entity.getCartonNumber(), entity.getShipmentId(), entity.getCartonSequenceNumber(), entity.getCreateEmployeeId(),
-            entity.getCloseEmployeeId(), entity.getCreateDate(), entity.getModificationDate(), entity.getCloseDate(), entity.getStatus() , entity.getTotalVolume() , entity.getTotalWeight() , cartonItemEntityMapper.toModelList(cartonItemEntityList)
+            entity.getCloseEmployeeId(), entity.getCreateDate(), entity.getModificationDate(), entity.getCloseDate(), entity.getStatus() , entity.getTotalVolume()
+            , entity.getTotalWeight() , cartonItemEntityMapper.toModelList(cartonItemEntityList) , minNumberOfUnits , maxNumberOfUnits
         );
     }
 
     default Carton entityToModel(CartonEntity entity) {
         return Carton.fromRepository(
             entity.getId(), entity.getCartonNumber(), entity.getShipmentId(), entity.getCartonSequenceNumber(), entity.getCreateEmployeeId(),
-            entity.getCloseEmployeeId(), entity.getCreateDate(), entity.getModificationDate(), entity.getCloseDate(), entity.getStatus() , entity.getTotalVolume() , entity.getTotalWeight(), null
+            entity.getCloseEmployeeId(), entity.getCreateDate(), entity.getModificationDate(), entity.getCloseDate(), entity.getStatus() , entity.getTotalVolume() , entity.getTotalWeight(), null , 0 , 0
         );
     }
 

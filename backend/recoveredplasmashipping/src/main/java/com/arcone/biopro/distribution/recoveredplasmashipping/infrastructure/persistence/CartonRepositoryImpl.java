@@ -14,6 +14,10 @@ public class CartonRepositoryImpl implements CartonRepository {
     private final CartonEntityRepository cartonEntityRepository;
     private final CartonEntityMapper cartonEntityMapper;
     private final CartonItemEntityRepository cartonItemEntityRepository;
+    private final RecoveredPlasmaShipmentCriteriaItemEntityRepository recoveredPlasmaShipmentCriteriaItemEntityRepository;
+    private static final String MINIMUM_UNITS_BY_CARTON_TYPE = "MINIMUM_UNITS_BY_CARTON";
+    private static final String MAXIMUM_UNITS_BY_CARTON_TYPE = "MAXIMUM_UNITS_BY_CARTON";
+
 
 
     @Override
@@ -34,8 +38,15 @@ public class CartonRepositoryImpl implements CartonRepository {
 
     @Override
     public Mono<Carton> findOneById(Long id) {
-        return cartonEntityRepository.findById(id)
-            .zipWith(cartonItemEntityRepository.findAllByCartonIdOrderByCreateDateAsc(id).collectList())
-            .map(tuple -> cartonEntityMapper.entityToModel(tuple.getT1(),tuple.getT2()));
+
+        var cartonEntity = cartonEntityRepository.findById(id);
+        var cartonItems = cartonItemEntityRepository.findAllByCartonIdOrderByCreateDateAsc(id).collectList();
+        var minNumberOfUnits = recoveredPlasmaShipmentCriteriaItemEntityRepository.findByCartonIdAndType(id,MINIMUM_UNITS_BY_CARTON_TYPE).switchIfEmpty(Mono.just(0));
+        var maxNumberOfUnits = recoveredPlasmaShipmentCriteriaItemEntityRepository.findByCartonIdAndType(id,MAXIMUM_UNITS_BY_CARTON_TYPE).switchIfEmpty(Mono.just(0));
+
+        return Mono.zip(cartonEntity,cartonItems,minNumberOfUnits,maxNumberOfUnits)
+            .map(tuple -> cartonEntityMapper.entityToModel(tuple.getT1(),tuple.getT2(), tuple.getT3(), tuple.getT4()));
+
+
     }
 }

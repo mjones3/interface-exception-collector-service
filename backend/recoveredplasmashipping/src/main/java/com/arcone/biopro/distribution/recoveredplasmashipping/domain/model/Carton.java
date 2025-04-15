@@ -45,6 +45,8 @@ public class Carton implements Validatable {
     private BigDecimal totalWeight;
     private BigDecimal totalVolume;
     private List<CartonItem> products;
+    private Integer maxNumberOfProducts;
+    private Integer minNumberOfProducts;
 
     private static final String STATUS_OPEN = "OPEN";
     private static final String CARTON_PARTNER_PREFIX_KEY = "RPS_CARTON_PARTNER_PREFIX";
@@ -91,7 +93,7 @@ public class Carton implements Validatable {
     }
 
     public static Carton fromRepository(Long id, String cartonNumber, Long shipmentId, Integer cartonSequence, String createEmployeeId, String closeEmployeeId
-        , ZonedDateTime createDate, ZonedDateTime modificationDate, ZonedDateTime closeDate, String status , BigDecimal totalVolume , BigDecimal totalWeight , List<CartonItem> products) {
+        , ZonedDateTime createDate, ZonedDateTime modificationDate, ZonedDateTime closeDate, String status , BigDecimal totalVolume , BigDecimal totalWeight , List<CartonItem> products , Integer minNumberOfUnits , Integer maxNumberOfUnits) {
         var carton = Carton.builder()
             .id(id)
             .cartonNumber(cartonNumber)
@@ -106,6 +108,8 @@ public class Carton implements Validatable {
             .totalWeight(totalWeight)
             .totalVolume(totalVolume)
             .products(products)
+            .minNumberOfProducts(minNumberOfUnits)
+            .maxNumberOfProducts(maxNumberOfUnits)
             .build();
 
         carton.checkValid();

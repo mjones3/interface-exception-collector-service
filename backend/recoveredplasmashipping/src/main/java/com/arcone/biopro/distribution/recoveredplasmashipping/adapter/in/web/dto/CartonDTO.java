@@ -22,6 +22,8 @@ public record CartonDTO(
     int totalProducts,
     BigDecimal totalWeight,
     BigDecimal totalVolume,
-    List<CartonItemDTO> packedProducts
+    List<CartonItemDTO> packedProducts,
+    Integer maxNumberOfProducts,
+    Integer minNumberOfProducts
 ) implements Serializable {
 }
