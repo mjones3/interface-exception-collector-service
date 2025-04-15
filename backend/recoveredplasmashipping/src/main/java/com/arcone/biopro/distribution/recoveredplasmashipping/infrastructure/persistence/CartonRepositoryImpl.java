@@ -29,4 +29,11 @@ public class CartonRepositoryImpl implements CartonRepository {
     public Mono<Integer> countByShipment(Long shipmentId) {
         return cartonEntityRepository.countByShipmentIdAndDeleteDateIsNull(shipmentId);
     }
+
+    @Override
+    public Mono<Carton> findOneById(Long id) {
+        return cartonEntityRepository.findById(id)
+            .map(cartonEntityMapper::entityToModel);
+    }
+
 }
