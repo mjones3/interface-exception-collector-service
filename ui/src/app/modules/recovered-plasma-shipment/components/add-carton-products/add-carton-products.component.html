@@ -2,5 +2,34 @@
     <biopro-process-header
         [subTitle]="header.subTitle | async"
         [title]="header.title | async"
+        [buttons]="actionButtonsTpl"
     />
+    <ng-template #actionButtonsTpl>
+        <div class="flex flex-row space-x-2">
+            <biopro-action-button
+                id="backActionBtn"
+                btnId="backToShipmentBtn"
+                label="Back to Shipment"
+                color="secondary"
+                icon="heroicons_outline:arrow-uturn-left"
+                (clickEvent)="backToShipment()"
+            />
+        </div>
+    </ng-template>
+
+    <div class="flex w-full flex-row gap-8 p-4">
+        <div class="flex w-9/12 flex-auto flex-col gap-4">
+        </div>
+        <div class="flex w-1/4 flex-col gap-8">
+            <biopro-shipping-carton-information-card
+                [showBasicButton]="false"
+                [shippingInput]="shipmentDetailsSignal()"
+                [cartonInput]="cartonDetailsSignal()"
+            />
+            <biopro-shipping-information-card
+                [showBasicButton]="true"
+                [shippingInput]="shipmentDetailsSignal()"
+            />
+        </div>
+    </div>
 </div>

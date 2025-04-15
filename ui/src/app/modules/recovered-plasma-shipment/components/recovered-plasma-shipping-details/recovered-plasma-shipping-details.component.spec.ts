@@ -97,7 +97,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         mockRecoveredPlasmaService.getShipmentById.mockReturnValue(
             throwError(() => mockError)
         );
-        component.fetchRecoveredPlasmaShippingDetails();
+        component.loadRecoveredPlasmaShippingDetails().subscribe();
         expect(mockToastrService.error).toHaveBeenCalled();
     });
 

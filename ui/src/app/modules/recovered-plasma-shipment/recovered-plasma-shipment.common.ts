@@ -6,29 +6,24 @@ import { ToastrImplService } from '@shared';
 import { Cookie } from 'app/shared/types/cookie.enum';
 import handleApolloError from 'app/shared/utils/apollo-error-handling';
 import { CookieService } from 'ngx-cookie-service';
-import { catchError, take } from 'rxjs';
+import { catchError, map, Observable, take, tap } from 'rxjs';
 import { getAuthState } from '../../core/state/auth/auth.selectors';
 import { ProductIconsService } from '../../shared/services/product-icon.service';
 import { RecoveredPlasmaShipmentStatusMap } from './graphql/query-definitions/shipment.graphql';
 import { FindShipmentRequestDTO } from './graphql/query-definitions/shipmentDetails.graphql';
 import { RecoveredPlasmaShipmentResponseDTO } from './models/recovered-plasma.dto';
 import { RecoveredPlasmaService } from './services/recovered-plasma.service';
+import { consumeUseCaseNotifications } from '../../shared/utils/notification.handling';
 
 export class RecoveredPlasmaShipmentCommon {
-    protected readonly RecoveredPlasmaShipmentStatusMap =
-        RecoveredPlasmaShipmentStatusMap;
 
-    protected cartonsRouteComputed = computed(() => this.router.url);
-    protected shipmentIdComputed = computed(() =>
-        Number(this.route.snapshot.params?.id)
-    );
+    protected readonly RecoveredPlasmaShipmentStatusMap = RecoveredPlasmaShipmentStatusMap;
+
+    protected routeIdComputed = computed(() => Number(this.route.snapshot.params?.id));
     protected employeeIdSignal = signal<string>(null);
-    protected shipmentDetailsSignal =
-        signal<RecoveredPlasmaShipmentResponseDTO>(null);
-    protected shipmentIdSignal = signal<number>(null);
-    protected locationCodeComputed = computed(() =>
-        this.cookieService.get(Cookie.XFacility)
-    );
+    protected shipmentDetailsSignal = signal<RecoveredPlasmaShipmentResponseDTO>(null);
+    protected shipmentIdComputed = computed<number>(() => this.shipmentDetailsSignal()?.id);
+    protected locationCodeComputed = computed(() => this.cookieService.get(Cookie.XFacility));
 
     constructor(
         protected route: ActivatedRoute,
@@ -51,33 +46,33 @@ export class RecoveredPlasmaShipmentCommon {
         );
     }
 
-    getShipmentId() {
-        const shipmentId = parseInt(this.route.snapshot.params?.id);
-        return this.shipmentIdSignal.set(shipmentId);
-    }
-
-    fetchRecoveredPlasmaShippingDetails() {
+    loadRecoveredPlasmaShippingDetails(shipmentId?: number): Observable<RecoveredPlasmaShipmentResponseDTO> {
         return this.recoveredPlasmaService
-            .getShipmentById(this.prepareShipmentRequest())
+            .getShipmentById(this.prepareShipmentRequest(shipmentId))
             .pipe(
                 catchError((error: ApolloError) => {
                     handleApolloError(this.toastr, error);
+                }),
+                tap((response) =>
+                    consumeUseCaseNotifications(
+                        this.toastr,
+                        response.data?.findShipmentById?.notifications
+                    )
+                ),
+                map((response) => {
+                    const { data } = response.data.findShipmentById;
+                    this.shipmentDetailsSignal.set(data);
+                    return data;
                 })
-            )
-            .subscribe({
-                next: (response) => {
-                    this.shipmentDetailsSignal.set(
-                        response.data?.findShipmentById?.data
-                    );
-                },
-            });
+            );
     }
 
-    protected prepareShipmentRequest(): FindShipmentRequestDTO {
+    protected prepareShipmentRequest(shipmentId?: number): FindShipmentRequestDTO {
         return {
             employeeId: this.employeeIdSignal(),
             locationCode: this.locationCodeComputed(),
-            shipmentId: this.shipmentIdComputed(),
+            shipmentId: shipmentId ?? this.routeIdComputed(),
         };
     }
+
 }

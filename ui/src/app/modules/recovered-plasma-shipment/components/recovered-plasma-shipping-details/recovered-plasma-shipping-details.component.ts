@@ -65,11 +65,6 @@ export class RecoveredPlasmaShippingDetailsComponent
                 sort: false,
             },
             {
-                id: 'totalProducts',
-                header: 'Total Products',
-                sort: false,
-            },
-            {
                 id: 'status',
                 header: 'Status',
                 sort: false,
@@ -104,11 +99,7 @@ export class RecoveredPlasmaShippingDetailsComponent
     }
 
     ngOnInit(): void {
-        this.subscribeTriggerFetchData();
-    }
-
-    subscribeTriggerFetchData(): void {
-        super.fetchRecoveredPlasmaShippingDetails();
+        super.loadRecoveredPlasmaShippingDetails().subscribe();
     }
 
     get cartonsRoute(): string {

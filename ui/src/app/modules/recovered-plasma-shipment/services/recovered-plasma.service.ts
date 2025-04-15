@@ -32,6 +32,7 @@ import {
     CartonDTO,
     RecoveredPlasmaShipmentResponseDTO,
 } from '../models/recovered-plasma.dto';
+import { FIND_CARTON_BY_ID } from '../graphql/query-definitions/carton.graphql';
 
 @Injectable({
     providedIn: 'root',
@@ -114,6 +115,18 @@ export class RecoveredPlasmaService {
                 observer.complete();
             });
         });
+    }
+
+    public getCartonById(
+        cartonId: number
+    ): Observable<
+        ApolloQueryResult<{ findCartonById: UseCaseResponseDTO<CartonDTO> }>
+    > {
+        return this.dynamicGraphqlPathService.executeQuery(
+            this.servicePath,
+            FIND_CARTON_BY_ID,
+            { cartonId }
+        );
     }
 
     public getShipmentById(
