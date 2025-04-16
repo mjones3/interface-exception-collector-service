@@ -244,7 +244,7 @@ public class CartonItem implements Validatable {
             var minVolumeCriteria = criteria.findCriteriaItemByType(MINIMUM_VOLUME_CRITERIA_TYPE);
             if(minVolumeCriteria.isPresent()){
                 if(volume < Integer.parseInt(minVolumeCriteria.get().getValue())){
-                    throw new ProductCriteriaValidationException(minVolumeCriteria.get().getMessage(), minVolumeCriteria.get().getMessageType());
+                    throw new ProductCriteriaValidationException(minVolumeCriteria.get().getMessage(), minVolumeCriteria.get().getMessageType() , minVolumeCriteria.get().getType());
                 }
             }else{
                 log.debug("Criteria configuration is missed skip validation {}", MINIMUM_VOLUME_CRITERIA_TYPE);
@@ -253,7 +253,7 @@ public class CartonItem implements Validatable {
             var maxUnitsCriteria = criteria.findCriteriaItemByType(MAXIMUM_UNITS_BY_CARTON_CRITERIA_TYPE);
             if(maxUnitsCriteria.isPresent()){
                 if(totalProducts +1 > Integer.parseInt(maxUnitsCriteria.get().getValue())){
-                    throw new ProductCriteriaValidationException(maxUnitsCriteria.get().getMessage(), maxUnitsCriteria.get().getMessageType());
+                    throw new ProductCriteriaValidationException(maxUnitsCriteria.get().getMessage(), maxUnitsCriteria.get().getMessageType() , maxUnitsCriteria.get().getType());
                 }
             }else{
                 log.debug("Criteria configuration is missed skip validation {}", MAXIMUM_UNITS_BY_CARTON_CRITERIA_TYPE);

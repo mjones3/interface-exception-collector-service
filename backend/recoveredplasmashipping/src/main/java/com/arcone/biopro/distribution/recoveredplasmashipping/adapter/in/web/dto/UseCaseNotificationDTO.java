@@ -11,6 +11,7 @@ public record UseCaseNotificationDTO(
     Integer code,
     String action,
     String reason,
-    List<String> details
+    List<String> details,
+    String name
 ) {
 }

@@ -12,7 +12,8 @@ public record UseCaseMessage(
     Integer code,
     String action,
     String reason,
-    List<String>details
+    List<String>details,
+    String name
 ) implements Serializable {
 
 }

@@ -181,7 +181,7 @@ class PackCartonItemUseCaseTest {
 
         Carton carton = Mockito.mock(Carton.class);
         ProductCriteriaValidationException exception =
-            new ProductCriteriaValidationException("Criteria validation failed","WARN");
+            new ProductCriteriaValidationException("Criteria validation failed","WARN","ERROR_TYPE");
 
         when(cartonRepository.findOneById(cartonId)).thenReturn(Mono.just(carton));
 
@@ -198,6 +198,7 @@ class PackCartonItemUseCaseTest {
                 assertEquals(7, output.notifications().get(0).useCaseMessage().code());
                 assertEquals(UseCaseNotificationType.WARN, output.notifications().get(0).useCaseMessage().type());
                 assertEquals(exception.getMessage(), output.notifications().get(0).useCaseMessage().message());
+                assertEquals(exception.getErrorName(), output.notifications().get(0).useCaseMessage().name());
             })
             .verifyComplete();
     }

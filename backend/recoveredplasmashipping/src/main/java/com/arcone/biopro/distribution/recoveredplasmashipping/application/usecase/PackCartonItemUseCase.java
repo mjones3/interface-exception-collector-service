@@ -86,6 +86,7 @@ public class PackCartonItemUseCase implements PackCartonItemService {
                             .action(firstNotification.getAction())
                             .reason(firstNotification.getReason())
                             .details(firstNotification.getDetails())
+                            .name(firstNotification.getErrorName())
                             .build()
                     ).orElse( UseCaseMessage
                         .builder()
