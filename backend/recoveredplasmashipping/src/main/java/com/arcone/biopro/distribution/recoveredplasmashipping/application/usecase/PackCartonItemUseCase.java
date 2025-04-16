@@ -105,6 +105,7 @@ public class PackCartonItemUseCase implements PackCartonItemService {
                         .code(7)
                         .message(productCriteriaValidationException.getMessage())
                         .type(UseCaseNotificationType.valueOf(productCriteriaValidationException.getErrorType()))
+                        .name(productCriteriaValidationException.getErrorName())
                         .build()
                     )
                 .build()), null, null));
