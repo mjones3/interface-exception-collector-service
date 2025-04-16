@@ -9,6 +9,10 @@ public class DatabaseQueries {
         return "DELETE FROM bld_recovered_plasma_shipment WHERE shipment_number LIKE '%" + code + "%'";
     }
 
+    public static String DELETE_CARTONS_BY_SHIPMENT_CODE(String code){
+        return "DELETE FROM bld_recovered_plasma_shipment_carton WHERE recovered_plasma_shipment_id IN (SELECT id FROM bld_recovered_plasma_shipment WHERE shipment_number LIKE '%" + code + "%')";
+    }
+
     public static String FETCH_SHIPMENT_BY_ID(Integer id) {
         return "SELECT * FROM bld_recovered_plasma_shipment WHERE id = " + id;
     }

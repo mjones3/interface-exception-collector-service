@@ -8,7 +8,7 @@ import {
     CREATE_RECOVERED_PLASMA_SHIPMENT,
     GET_PRODUCT_TYPE_OPTIONS,
     productTypeOptionResponse,
-} from '../../recovered-plasma-shipment/graphql/create-recovered-plasma-shipment.graphql';
+} from '../graphql/create-recovered-plasma-shipment.graphql';
 import { CreateShipmentRequestDTO } from '../models/recovered-plasma.dto';
 
 @Injectable({
@@ -19,9 +19,7 @@ export class RecoveredPlasmaShipmentService {
 
     constructor(private dynamicGraphqlPathService: DynamicGraphqlPathService) {}
 
-    public getProductTypeOptions(
-        customerCode: string
-    ): Observable<
+    public getProductTypeOptions(customerCode: string): Observable<
         ApolloQueryResult<{
             findAllProductTypeByCustomer: productTypeOptionResponse;
         }>

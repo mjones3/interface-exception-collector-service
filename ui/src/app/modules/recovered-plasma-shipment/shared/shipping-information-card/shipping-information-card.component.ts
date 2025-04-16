@@ -15,6 +15,7 @@ import {
     WidgetComponent,
 } from '@shared';
 import { ProductFamilyMap } from 'app/shared/models/product-family.model';
+import { RecoveredPlasmaShipmentResponseDTO } from '../../models/recovered-plasma.dto';
 
 @Component({
     selector: 'biopro-shipping-information-card',
@@ -30,20 +31,8 @@ export class ShippingInformationCardComponent {
     @Input() isButtonDisabled = true;
     @Output() handleClick = new EventEmitter<void>();
 
-    protected shippingInput = input<
-        Partial<{
-            shipmentNumber: string;
-            customerCode: string;
-            customerName: string;
-            status: string;
-            productType: string;
-            shipmentDate: string;
-            totalCartons: number;
-            totalProducts: number;
-            totalVolume: number;
-            transportationReferenceNumber: string;
-        }>
-    >();
+    protected shippingInput =
+        input<Partial<RecoveredPlasmaShipmentResponseDTO>>();
 
     protected shipping = computed<Description[]>(() => [
         {
@@ -80,10 +69,6 @@ export class ShippingInformationCardComponent {
         {
             label: 'Total Products',
             value: this.shippingInput()?.totalProducts,
-        },
-        {
-            label: 'Total Volume',
-            value: this.shippingInput()?.totalVolume,
         },
         {
             label: 'Transportation #',

@@ -10,10 +10,12 @@ type Query {
     findAllProductTypeByCustomer(customerCode:String!):[ProductTypeDTO]!
     searchShipment(recoveredPlasmaShipmentQueryCommandRequestDTO:RecoveredPlasmaShipmentQueryCommandRequestDTO): UseCaseResponseDTO!
     findShipmentById(findShipmentCommandDTO:FindShipmentRequestDTO): UseCaseResponseDTO!
+    findCartonById(cartonId:ID!): UseCaseResponseDTO!
 }
 
 type Mutation {
     createShipment(createShipmentRequest:CreateShipmentRequestDTO!): UseCaseResponseDTO!
+    createCarton(createCartonRequest:CreateCartonRequestDTO!): UseCaseResponseDTO!
 }
 
 input InputQuerySortDTO {
@@ -38,6 +40,11 @@ input RecoveredPlasmaShipmentQueryCommandRequestDTO {
     pageNumber:Int
     pageSize:Int
     transportationReferenceNumber:String
+}
+
+input CreateCartonRequestDTO {
+    shipmentId:Int!
+    employeeId:String!
 }
 
 input CreateShipmentRequestDTO {

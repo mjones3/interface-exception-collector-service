@@ -13,8 +13,6 @@ import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -36,6 +34,13 @@ public class CreateShipmentSteps {
 
     @Given("I have removed from the database all shipments which code contains with {string}.")
     public void removeShipmentsFromDatabase(String code) {
+        // Delete cartons
+        var deleteCartonsQuery = DatabaseQueries.DELETE_CARTONS_BY_SHIPMENT_CODE(code);
+        databaseService.executeSql(deleteCartonsQuery).block();
+        log.info("Removing cartons from shipments containing code: {}", code);
+
+
+        // Delete Shipments
         var deleteShipmentsQuery = DatabaseQueries.DELETE_SHIPMENTS_BY_CODE(code);
         databaseService.executeSql(deleteShipmentsQuery).block();
         log.info("Removing shipments containing code: {}", code);
@@ -215,5 +220,16 @@ public class CreateShipmentSteps {
     public void iHaveRemovedFromTheDatabaseAllShipmentsFromLocationWithTransportationRefNumber(String location, String transportationRefNumber) {
         var deleteShipmentsQuery = DatabaseQueries.REMOVE_SHIPMENTS_BY_LOCATION_AND_TRANSPORTATION_REF_NUMBER(location, transportationRefNumber);
         databaseService.executeSql(deleteShipmentsQuery).block();
+    }
+
+    @And("I request to add {int} carton(s) to the shipment.")
+    public void iRequestToAddCartonsToTheShipment(int quantity) {
+        for (var n = 0; n < quantity; n++)
+            createShipmentController.createCarton(sharedContext.getShipmentCreateResponse().get("id").toString());
+    }
+    @And("I request to add {int} carton(s) to the shipment {int}.")
+    public void iRequestToAddCartonsToTheShipmentNumber(int quantity, int shipmentId) {
+        for (var n = 0; n < quantity; n++)
+            createShipmentController.createCarton(shipmentId);
     }
 }

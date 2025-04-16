@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -116,5 +118,25 @@ public class CreateShipmentController {
         var currentShipmentId = Integer.valueOf(databaseService.fetchData(DatabaseQueries.GET_LAST_SHIPMENT_ID).first().block().get("id").toString());
 
         return lastShipmentId < currentShipmentId;
+    }
+
+    public Map createCarton(String shipmentId) {
+        String payload = GraphQLMutationMapper.createCarton(shipmentId);
+        var response = apiHelper.graphQlRequest(payload, "createCarton");
+        addCartonToList((Map) response.get("data"));
+        return response;
+    }
+
+    public Map createCarton(int shipmentId){
+        return createCarton(String.valueOf(shipmentId));
+    }
+
+    private void addCartonToList(Map carton) {
+        List<Map> cartonList = sharedContext.getCreateCartonResponseList();
+        if (cartonList == null) {
+            cartonList = new ArrayList<>();
+        }
+        cartonList.add(carton);
+        sharedContext.setCreateCartonResponseList(cartonList);
     }
 }
