@@ -142,11 +142,12 @@ public class Carton implements Validatable {
             .block();
 
         var cartonNumber = "";
+        var cartonPrefix = "";
 
         var prefix = location.findProperty(SHIPMENT_PARTNER_PREFIX_KEY);
-        if (prefix.isEmpty()) {
-            log.error("Location property is missed {}", SHIPMENT_PARTNER_PREFIX_KEY);
-            throw new IllegalArgumentException("Location configuration is missing the setup for  " + SHIPMENT_PARTNER_PREFIX_KEY + " property");
+        if (prefix.isPresent()) {
+            log.debug("Location property {}", SHIPMENT_PARTNER_PREFIX_KEY);
+            cartonPrefix = prefix.get().getPropertyValue();
         }
 
         var cartonLocationCode = location.findProperty(RPS_LOCATION_CARTON_CODE_KEY);
@@ -154,8 +155,7 @@ public class Carton implements Validatable {
             log.error("Location property is missed {}", RPS_LOCATION_CARTON_CODE_KEY);
             throw new IllegalArgumentException("Location configuration is missing the setup for  " + RPS_LOCATION_CARTON_CODE_KEY + " property");
         }
-
-        cartonNumber = String.format("%s%s%s",prefix.get().getPropertyValue(),cartonLocationCode.get().getPropertyValue(),cartonId);
+        cartonNumber = String.format("%s%s%s",cartonPrefix,cartonLocationCode.get().getPropertyValue(),cartonId);
 
         return cartonNumber;
 
