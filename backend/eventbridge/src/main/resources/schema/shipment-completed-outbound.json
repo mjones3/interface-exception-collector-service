@@ -14,7 +14,16 @@
     "shipmentLocationName": {
       "type": "string"
     },
+    "deliveryType": {
+      "type": "string"
+    },
+    "departmentCode": {
+      "type": "string"
+    },
     "customerCode": {
+      "type": "string"
+    },
+    "customerName": {
       "type": "string"
     },
     "customerType": {

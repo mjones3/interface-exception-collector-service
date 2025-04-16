@@ -77,6 +77,7 @@ public class ShipmentServiceUseCase implements ShipmentService {
             .district(message.customerAddressDistrict())
             .comments(message.comments())
             .departmentName(message.departmentName())
+            .departmentCode(message.departmentCode())
             .createdByEmployeeId("mock-employee-id")
             .build();
 
@@ -186,6 +187,8 @@ public class ShipmentServiceUseCase implements ShipmentService {
                 .completeDate(shipment.getCompleteDate())
                 .completedByEmployeeId(shipment.getCompletedByEmployeeId())
                 .comments(shipment.getComments())
+                .departmentCode(shipment.getDepartmentCode())
+                .departmentName(shipment.getDepartmentName())
                 .items(shipmentItemList)
                 .checkDigitActive(checkDigitActive)
                 .visualInspectionActive(visualInspectionActive)

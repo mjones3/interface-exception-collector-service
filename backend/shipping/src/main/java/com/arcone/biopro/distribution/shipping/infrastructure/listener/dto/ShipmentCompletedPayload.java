@@ -15,8 +15,11 @@ public record ShipmentCompletedPayload(
     String performedBy,
     String locationCode,
     String locationName,
+    String deliveryType,
+    String customerName,
     String customerCode,
     String customerType,
+    String departmentCode,
     ZonedDateTime createDate,
     List<ShipmentCompletedItemPayload> lineItems,
     List<ShipmentCompletedServicePayload> services
