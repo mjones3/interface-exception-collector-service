@@ -45,11 +45,45 @@
                 [totalElements]="cartonsComputed().length ?? 0"
                 [pageIndex]="0"
                 [serverPagination]="false"
-            />
+                [expandTemplateRef]="expandTemplateRef"
+                (expandingOneOrMoreRows)="loadCartonPackedProduct($event)"
+            >
+            </biopro-table>
             <ng-template #statusTemplateRef let-element="element">
                 <span [class]="getStatusBadgeCssClass(element.status)">
                     {{ RecoveredPlasmaShipmentStatusMap[element.status] }}
                 </span>
+            </ng-template>
+            <ng-template #editTemplateRef let-element="element">
+                <biopro-basic-button
+                    id="editBtn"
+                    class="text-primary"
+                    color="primary"
+                    (buttonClicked)="editCarton(element?.id)"
+                    label="Edit"
+                />
+            </ng-template>
+
+            <!--Expand row for added products-->
+            <ng-template #expandTemplateRef let-element="element">
+                @if(expandedRowDataSignal()?.length) {
+                    <div class="w-full">
+                        <div class="p-4 w-full">
+                            <div class="flex items-center text-xl font-bold p-4">
+                            <span>
+                                Unit Numbers
+                                (<span id="prodQtyId">{{expandedRowDataSignal().length}}</span>)
+                            </span>
+                            </div>
+                            <mat-divider></mat-divider>
+                            <div class="grid grid-cols-5 gap-4 p-4">
+                                @for(product of expandedRowDataSignal(); track product.unitNumber) {
+                                    <div class="text-xl">{{product.unitNumber}}</div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
             </ng-template>
         </div>
         <div class="flex w-3/12 flex-col gap-4">

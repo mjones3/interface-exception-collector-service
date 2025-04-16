@@ -200,11 +200,11 @@ export class TableComponent<T extends TableDataSource = TableDataSource>
                 }
                 this.expandedAll = (this.dataSource()?.findIndex((element) => element.expanded) ?? -1) !== -1;
             } else {
-                this.expandedElement =
-                    this.expandedElement === element ? null : element;
                 if (!this.expandedElement) {
                     this.expandingOneOrMoreRows.emit(element);
                 }
+                this.expandedElement =
+                    this.expandedElement === element ? null : element;
             }
         }
     }

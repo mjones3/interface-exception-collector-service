@@ -4,33 +4,6 @@ import { Injectable } from '@angular/core';
     providedIn: 'root',
 })
 export class ProductIconsService {
-    private productTypeIcons: { productType: string; value: string }[] = [
-        {
-            productType: 'RP_FROZEN_WITHIN_120_HOURS',
-            value: 'biopro:product-plasma',
-        },
-        {
-            productType: 'RP_FROZEN_WITHIN_24_HOURS',
-            value: 'biopro:product-plasma',
-        },
-        {
-            productType: 'RP_NONINJECTABLE_FROZEN',
-            value: 'biopro:product-plasma',
-        },
-        {
-            productType: 'RP_NONINJECTABLE_LIQUID_RT',
-            value: 'biopro:product-plasma',
-        },
-        {
-            productType: 'RP_FROZEN_WITHIN_72_HOURS',
-            value: 'biopro:product-plasma',
-        },
-        {
-            productType: 'FRP_NONINJECTABLE_REFRIGERATED',
-            value: 'biopro:product-plasma',
-        },
-    ];
-
     private productIcons: { productFamily: string; value: string }[] = [
         { productFamily: 'FROZEN_PLASMA', value: 'biopro:product-plasma' },
         {
@@ -67,6 +40,30 @@ export class ProductIconsService {
             productFamily: 'PRT_APHERESIS_PLATELETS',
             value: 'biopro:product-platelets',
         },
+        {
+            productFamily: 'RP_FROZEN_WITHIN_120_HOURS',
+            value: 'biopro:product-plasma',
+        },
+        {
+            productFamily: 'RP_FROZEN_WITHIN_24_HOURS',
+            value: 'biopro:product-plasma',
+        },
+        {
+            productFamily: 'RP_NONINJECTABLE_FROZEN',
+            value: 'biopro:product-plasma',
+        },
+        {
+            productFamily: 'RP_NONINJECTABLE_LIQUID_RT',
+            value: 'biopro:product-plasma',
+        },
+        {
+            productFamily: 'RP_FROZEN_WITHIN_72_HOURS',
+            value: 'biopro:product-plasma',
+        },
+        {
+            productFamily: 'FRP_NONINJECTABLE_REFRIGERATED',
+            value: 'biopro:product-plasma',
+        },
     ];
 
     getProductIcons() {
@@ -76,12 +73,6 @@ export class ProductIconsService {
     getIconByProductFamily(productFamily: string) {
         return this.productIcons.find(
             (productIcon) => productIcon.productFamily === productFamily
-        )?.value;
-    }
-
-    getIconByProductType(productType: string) {
-        return this.productTypeIcons.find(
-            (productTypeIcon) => productTypeIcon.productType === productType
         )?.value;
     }
 }

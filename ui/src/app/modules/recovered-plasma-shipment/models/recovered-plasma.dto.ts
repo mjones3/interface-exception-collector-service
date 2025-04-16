@@ -22,6 +22,9 @@ export interface CartonDTO {
     totalProducts?: number;
     totalWeight?: number;
     totalVolume?: number;
+    maxNumberOfProducts?: number;
+    minNumberOfProducts?: number;
+    packedProducts?: CartonPackedItemResponseDTO[];
 }
 
 export interface RecoveredPlasmaShipmentResponseDTO {
@@ -61,7 +64,7 @@ export interface RecoveredPlasmaShipmentResponseDTO {
 }
 
 export interface CartonPackedItemResponseDTO {
-    id: number;
+    id?: number;
     cartonId?: string;
     unitNumber?: string;
     productCode?: string;

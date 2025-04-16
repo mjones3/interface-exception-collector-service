@@ -5,6 +5,7 @@ export interface UseCaseNotificationDTO {
     action?: string;
     reason?: string;
     details?: string[];
+    name?: string;
 }
 
 export interface UseCaseResponseDTO<T> {

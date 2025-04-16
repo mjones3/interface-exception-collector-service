@@ -22,8 +22,7 @@ import { CartonDTO } from '../../models/recovered-plasma.dto';
 import { RecoveredPlasmaService } from '../../services/recovered-plasma.service';
 import { AddCartonProductsComponent } from './add-carton-products.component';
 
-//FIXME
-xdescribe('AddCartonProductsComponent', () => {
+describe('AddCartonProductsComponent', () => {
     let component: AddCartonProductsComponent;
     let fixture: ComponentFixture<AddCartonProductsComponent>;
     let mockRouter: jest.Mocked<Router>;

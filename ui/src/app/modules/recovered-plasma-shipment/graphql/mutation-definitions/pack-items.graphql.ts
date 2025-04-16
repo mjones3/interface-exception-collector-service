@@ -39,6 +39,7 @@ export const CARTON_PACK_ITEM = gql<
                 reason
                 action
                 details
+                name
             }
             data
             _links
