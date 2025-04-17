@@ -91,67 +91,62 @@ class CartonTest {
         verify(recoveredPlasmaShippingRepository).findOneById(anyLong());
     }
 
-//    @Test
-//    void shouldValidateCompleteCarton() {
-//
-//        // When/Then
-//        assertDoesNotThrow(() -> Carton.fromRepository(1L,"number",1L,1,"employee-id","close-employee-id"
-//            , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO));
-//            , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", Collections.emptyList()));
-//    }
-//
-//    @Test
-//    void shouldThrowExceptionWhenShipmentIdIsNull() {
-//
-//        // When/Then
-//        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-//            () -> Carton.fromRepository(1L,"number",null,1,"employee-id","close-employee-id"
-//                , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO));
-//                , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN",Collections.emptyList()));
-//        assertEquals("Shipment Id is required", exception.getMessage());
-//    }
-//
-//    @Test
-//    void shouldThrowExceptionWhenCreateEmployeeIdIsNull() {
-//
-//        // When/Then
-//        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-//            () -> Carton.fromRepository(1L,"number",1L,1,null,"close-employee-id"
-//                , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO));
-//                , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN",Collections.emptyList()));
-//        assertEquals("Create Employee Id is required", exception.getMessage());
-//    }
-//
-//    @Test
-//    void shouldThrowExceptionWhenCartonNumberIsNull() {
-//
-//        // When/Then
-//        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-//            () ->  Carton.fromRepository(1L,null,1L,1,"employee-id","close-employee-id"
-//                , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO));
-//                , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN",Collections.emptyList()));
-//        assertEquals("Carton Number is required", exception.getMessage());
-//    }
-//
-//    @Test
-//    void shouldThrowExceptionWhenCartonSequenceIsNull() {
-//        // When/Then
-//        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-//            () -> Carton.fromRepository(1L,"number",1L,null,"employee-id","close-employee-id"
-//                , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO));
-//                , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN",Collections.emptyList()));
-//        assertEquals("Carton Sequence is required", exception.getMessage());
-//    }
-//
-//    @Test
-//    void shouldThrowExceptionWhenCartonSequenceIsZero() {
-//        // When/Then
-//        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-//            () -> Carton.fromRepository(1L, "number", 1L, 0, "employee-id", "close-employee-id"
-//                , ZonedDateTime.now(), ZonedDateTime.now(), ZonedDateTime.now(), "OPEN", BigDecimal.ZERO,BigDecimal.ZERO));
-//                , ZonedDateTime.now(), ZonedDateTime.now(), ZonedDateTime.now(), "OPEN",Collections.emptyList()));
-//        assertEquals("Carton Sequence must be greater than 0", exception.getMessage());
-//    }
+    @Test
+    void shouldValidateCompleteCarton() {
+
+        // When/Then
+        assertDoesNotThrow(() -> Carton.fromRepository(1L,"number",1L,1,"employee-id","close-employee-id"
+            , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO,Collections.emptyList(),0,0));
+
+    }
+
+    @Test
+    void shouldThrowExceptionWhenShipmentIdIsNull() {
+
+        // When/Then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            () -> Carton.fromRepository(1L,"number",null,1,"employee-id","close-employee-id"
+                , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO,Collections.emptyList(),0,0));
+        assertEquals("Shipment Id is required", exception.getMessage());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenCreateEmployeeIdIsNull() {
+
+        // When/Then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            () -> Carton.fromRepository(1L,"number",1L,1,null,"close-employee-id"
+                , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO,Collections.emptyList(),0,0));
+        assertEquals("Create Employee Id is required", exception.getMessage());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenCartonNumberIsNull() {
+
+        // When/Then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            () ->  Carton.fromRepository(1L,null,1L,1,"employee-id","close-employee-id"
+                , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO,Collections.emptyList(),0,0));
+        assertEquals("Carton Number is required", exception.getMessage());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenCartonSequenceIsNull() {
+        // When/Then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            () -> Carton.fromRepository(1L,"number",1L,null,"employee-id","close-employee-id"
+                , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO,Collections.emptyList(),0,0));
+        assertEquals("Carton Sequence is required", exception.getMessage());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenCartonSequenceIsZero() {
+        // When/Then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            () -> Carton.fromRepository(1L, "number", 1L, 0, "employee-id", "close-employee-id"
+                , ZonedDateTime.now(), ZonedDateTime.now(), ZonedDateTime.now(), "OPEN", BigDecimal.ZERO,BigDecimal.ZERO,Collections.emptyList(),0,0));
+        assertEquals("Carton Sequence must be greater than 0", exception.getMessage());
+    }
 
     @Test
     void shouldThrowExceptionWhenLocationNotFound() {
