@@ -43,6 +43,7 @@ public class SharedContext {
     private Map shipmentCreateResponse;
 
     private List<Map> createCartonResponseList;
+    private Map packCartonItemResponse;
 
     // Shipment data
     private String initialShipmentDate;

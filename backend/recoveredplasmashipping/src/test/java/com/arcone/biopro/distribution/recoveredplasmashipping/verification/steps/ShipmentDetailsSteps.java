@@ -106,9 +106,9 @@ public class ShipmentDetailsSteps {
 
     @Then("The Add Carton button should be {string}.")
     public void theAddCartonButtonShouldBe(String enabledDisabled) {
-        if (enabledDisabled.equalsIgnoreCase("enabled")){
+        if (enabledDisabled.equalsIgnoreCase("enabled")) {
             Assert.assertTrue(shipmentDetailsPage.isAddCartonButtonEnabled());
-        } else if (enabledDisabled.equalsIgnoreCase("disabled")){
+        } else if (enabledDisabled.equalsIgnoreCase("disabled")) {
             Assert.assertFalse(shipmentDetailsPage.isAddCartonButtonEnabled());
         } else {
             Assert.fail("Wrong option for button enabledDisabled");
@@ -141,5 +141,25 @@ public class ShipmentDetailsSteps {
                 row.get(tableHeaders.indexOf("Sequence")),
                 row.get(tableHeaders.indexOf("Status")));
         }
+    }
+
+    @Then("I should see a list of all cartons.")
+    public void iShouldSeeAListOfAllCartons() {
+        shipmentDetailsPage.verifyCartonsAreVisible(sharedContext.getCreateCartonResponseList());
+    }
+
+    @When("I choose to expand the row for the carton sequence number {string}.")
+    public void iChooseToExpandTheRowForTheCartonSequenceNumber(String sequenceNumber) {
+        shipmentDetailsPage.clickExpandCarton(sequenceNumber);
+    }
+
+    @And("I should see the unit(s) {string} added to the carton sequence {string}.")
+    public void iShouldSeeTheUnitAddedToTheCartonSequence(String unitNumber, String cartonSequence) {
+        shipmentDetailsPage.verifyUnitsAreListed(cartonSequence, unitNumber);
+    }
+
+    @And("I should see the total number of products as {string}.")
+    public void iShouldSeeTheTotalNumberOfProductsAs(String totalProducts) {
+        Assert.assertEquals(totalProducts, shipmentDetailsPage.getTotalProducts());
     }
 }

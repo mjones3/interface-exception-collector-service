@@ -9,19 +9,31 @@ public class DatabaseQueries {
         return "DELETE FROM bld_recovered_plasma_shipment WHERE shipment_number LIKE '%" + code + "%'";
     }
 
-    public static String DELETE_CARTONS_BY_SHIPMENT_CODE(String code){
+    public static String DELETE_CARTONS_BY_SHIPMENT_CODE(String code) {
         return "DELETE FROM bld_recovered_plasma_shipment_carton WHERE recovered_plasma_shipment_id IN (SELECT id FROM bld_recovered_plasma_shipment WHERE shipment_number LIKE '%" + code + "%')";
+    }
+
+    public static String DELETE_CARTON_ITEMS_BY_SHIPMENT_CODE(String code) {
+        return "DELETE FROM bld_recovered_plasma_shipment_carton_item WHERE carton_id IN (SELECT id FROM bld_recovered_plasma_shipment_carton WHERE recovered_plasma_shipment_id IN (SELECT id FROM bld_recovered_plasma_shipment WHERE shipment_number LIKE '%" + code + "%'))";
     }
 
     public static String FETCH_SHIPMENT_BY_ID(Integer id) {
         return "SELECT * FROM bld_recovered_plasma_shipment WHERE id = " + id;
     }
 
-    public static String REMOVE_SHIPMENTS_BY_LOCATION_AND_TRANSPORTATION_REF_NUMBER(String location, String transportationRefNumber){
+    public static String REMOVE_SHIPMENTS_BY_LOCATION_AND_TRANSPORTATION_REF_NUMBER(String location, String transportationRefNumber) {
         return "DELETE FROM bld_recovered_plasma_shipment WHERE location_code = '" + location + "' AND transportation_reference_number = '" + transportationRefNumber + "'";
     }
 
-    public static String INSERT_SHIPMENT(String customerCode, String locationCode, String productType,  String status, String shipmentNumber, String scheduleDate){
+    public static String REMOVE_CARTONS_BY_LOCATION_AND_TRANSPORTATION_REF_NUMBER(String location, String transportationRefNumber) {
+        return "DELETE FROM bld_recovered_plasma_shipment_carton WHERE recovered_plasma_shipment_id IN (SELECT id FROM bld_recovered_plasma_shipment WHERE location_code = '" + location + "' AND transportation_reference_number = '" + transportationRefNumber + "')";
+    }
+
+    public static String REMOVE_CARTON_ITEMS_BY_LOCATION_AND_TRANSPORTATION_REF_NUMBER(String location, String transportationRefNumber) {
+        return "DELETE FROM bld_recovered_plasma_shipment_carton_item WHERE carton_id IN (SELECT id FROM bld_recovered_plasma_shipment_carton WHERE recovered_plasma_shipment_id IN (SELECT id FROM bld_recovered_plasma_shipment WHERE location_code = '" + location + "' AND transportation_reference_number = '" + transportationRefNumber + "'))";
+    }
+
+    public static String INSERT_SHIPMENT(String customerCode, String locationCode, String productType, String status, String shipmentNumber, String scheduleDate) {
         return String.format(
             """
                 INSERT INTO bld_recovered_plasma_shipment (
@@ -65,11 +77,11 @@ public class DatabaseQueries {
                     CURRENT_TIMESTAMP                   -- modification_date
                 )
                 """
-            ,customerCode, locationCode, productType, status, shipmentNumber, scheduleDate
+            , customerCode, locationCode, productType, status, shipmentNumber, scheduleDate
         );
     }
 
-    public static String FETCH_SHIPMENT_CRITERIA_BY_CUSTOMER_AND_PRODUCT_TYPE(String customerCode , String productType){
+    public static String FETCH_SHIPMENT_CRITERIA_BY_CUSTOMER_AND_PRODUCT_TYPE(String customerCode, String productType) {
         return String.format(
             """
                 select lrpsc.customer_code, lrpsc.product_type, lrpptpc.product_code , lrpsci."type" , lrpsci.value
@@ -79,8 +91,57 @@ public class DatabaseQueries {
                         inner join lk_recovered_plasma_shipment_criteria_item lrpsci on lrpsci.recovered_plasma_shipment_criteria_id  = lrpsc.id
                         where lrpsc.customer_code = '%s' and lrpsc.product_type = '%s' and lrpsc.active = true
                 """
-            ,customerCode, productType
+            , customerCode, productType
         );
     }
 
+    public static String UPDATE_MIN_VOLUME_CUSTOMER_PRODUCT_CRITERIA(String customerCode, String productType, String criteriaType, String criteriaValue) {
+        criteriaValue = criteriaValue.equals("<null>") ? null : "'" + criteriaValue + "'";
+
+        return String.format(
+            """
+                UPDATE lk_recovered_plasma_shipment_criteria_item
+                SET value = %s
+                WHERE recovered_plasma_shipment_criteria_id IN (
+                    SELECT id
+                    FROM lk_recovered_plasma_shipment_criteria
+                    WHERE customer_code = '%s'
+                    AND product_type = '%s'
+                    AND active = true
+                )
+                AND "type" = '%s'
+                """
+            , criteriaValue, customerCode, productType, criteriaType
+        );
+    }
+
+    public static String RESET_SHIPMENT_CRITERIA_CONFIG(String recoveredPlasmaShipmentCriteriaId, String type, String value, String message, String messageType) {
+        return String.format(
+            """
+                UPDATE lk_recovered_plasma_shipment_criteria_item
+                SET value = %s, message = '%s', message_type = '%s'
+                WHERE recovered_plasma_shipment_criteria_id = %s
+                AND type = '%s'
+                """
+            , value, message, messageType, recoveredPlasmaShipmentCriteriaId, type
+        );
+    }
+
+    public static String UPDATE_MAX_PRODUCTS_CUSTOMER_CRITERIA(String customerCode, String productType, String maxValue) {
+        return String.format(
+            """
+                UPDATE lk_recovered_plasma_shipment_criteria_item
+                SET value = %s
+                WHERE recovered_plasma_shipment_criteria_id IN (
+                    SELECT id
+                    FROM lk_recovered_plasma_shipment_criteria
+                    WHERE customer_code = '%s'
+                    AND product_type = '%s'
+                    AND active = true
+                )
+                AND "type" = 'MAXIMUM_UNITS_BY_CARTON'
+                """
+            , maxValue, customerCode, productType
+        );
+    }
 }

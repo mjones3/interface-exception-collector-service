@@ -28,10 +28,18 @@ public class CreateShipmentController {
     @Autowired
     private SharedContext sharedContext;
 
-    public Map createShipment(String customerCode, String productType, Float cartonTareWeight, String shipmentDate, String TransportationRefNumber, String locationCode) {
+    public Map createShipment(String customerCode, String productType, Float cartonTareWeight, String shipmentDate, String transportationRefNumber, String locationCode) {
         saveLastShipmentId();
         saveLastShipmentNumber();
-        String payload = GraphQLMutationMapper.createShipment(customerCode, productType, cartonTareWeight, shipmentDate, TransportationRefNumber, locationCode);
+        sharedContext.setLocationCode(locationCode);
+        transportationRefNumber = transportationRefNumber.equals("<null>") ? null : "\"" + transportationRefNumber + "\"";
+        String payload = GraphQLMutationMapper.createShipment(
+            "\"" + customerCode + "\"",
+            "\"" + productType + "\"",
+            cartonTareWeight,
+            "\"" + shipmentDate + "\"",
+            transportationRefNumber,
+            "\"" + locationCode + "\"");
         try {
             var response = apiHelper.graphQlRequest(payload, "createShipment");
             var data = (Map) response.get("data");
@@ -127,7 +135,7 @@ public class CreateShipmentController {
         return response;
     }
 
-    public Map createCarton(int shipmentId){
+    public Map createCarton(int shipmentId) {
         return createCarton(String.valueOf(shipmentId));
     }
 
@@ -138,5 +146,23 @@ public class CreateShipmentController {
         }
         cartonList.add(carton);
         sharedContext.setCreateCartonResponseList(cartonList);
+    }
+
+    public void packCartonProduct(String cartonId, String unitNumber, String productCode, String locationCode) {
+        String payload = GraphQLMutationMapper.packCartonItem(Integer.parseInt(cartonId), unitNumber, productCode, locationCode);
+        var response = apiHelper.graphQlRequest(payload, "packCartonItem");
+        sharedContext.setPackCartonItemResponse((Map) response.get("data"));
+    }
+
+    public boolean verifyProductIsPacked(String unitNumber, String productCode) {
+        var carton = sharedContext.getPackCartonItemResponse();
+        if (carton == null) {
+            return false;
+        } else {
+            return carton.get("unitNumber") != null
+                && carton.get("productCode") != null
+                && unitNumber.equals(carton.get("unitNumber").toString())
+                && productCode.equals(carton.get("productCode").toString());
+        }
     }
 }

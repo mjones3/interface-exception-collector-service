@@ -12,6 +12,8 @@ public class AddCartonPage extends CommonPageFactory {
 
     @Autowired
     private SharedActions sharedActions;
+    @Autowired
+    private HomePage homePage;
 
     private final By addCartonHeader = By.xpath("//h3//span[contains(text(),'Add Carton Products')]");
     private final By cartonNumber = By.id("informationDetails-Carton-Number-value");
@@ -20,6 +22,12 @@ public class AddCartonPage extends CommonPageFactory {
     private final By minimumProducts = By.id("informationDetails-Minimum-Products-value");
     private final By maximumProducts = By.id("informationDetails-Maximum-Products-value");
     private final By clickBackBtn = By.id("backToShipmentBtn");
+    private final By addUnitNumberInput = By.id("scanUnitNumberId");
+    private final By addProductCodeInput = By.id("scanProductCodeId");
+
+    private By addedProductCard(String unitNumber, String productCode) {
+        return By.xpath(String.format("//biopro-unit-number-card//div[contains(text(),'%s')]/following-sibling::div/span[contains(text(),'%s')]", unitNumber, productCode));
+    }
 
     @Override
     public boolean isLoaded() {
@@ -43,5 +51,26 @@ public class AddCartonPage extends CommonPageFactory {
 
     public void clickBack() {
         sharedActions.click(clickBackBtn);
+    }
+
+    public void navigateToCarton(String cartonId) throws InterruptedException {
+        var url = String.format("/recovered-plasma/%s/carton-details", cartonId);
+
+        homePage.goTo();
+        sharedActions.navigateTo(url);
+    }
+
+    public void addProduct(String unitNumber, String productCode) {
+        sharedActions.sendKeys(addUnitNumberInput, unitNumber);
+        sharedActions.sendKeys(addProductCodeInput, productCode);
+    }
+
+    public boolean verifyProductIsPacked(String unitNumber, String productCode) {
+        try {
+            sharedActions.waitForVisible(addedProductCard(unitNumber, productCode));
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

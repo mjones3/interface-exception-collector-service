@@ -44,4 +44,30 @@ public class GraphQLMutationMapper {
     """, shipmentId));
     }
 
+    public static String packCartonItem(int cartonId, String unitNumber, String productCode, String locationCode) {
+        return String.format("""
+            mutation PackCartonItem {
+                packCartonItem(
+                    packCartonItemRequest: {
+                        cartonId: %s
+                        unitNumber: "%s"
+                        productCode: "%s"
+                        employeeId: "4c973896-5761-41fc-8217-07c5d13a004b"
+                        locationCode: "%s"
+                    }
+                ) {
+                    _links
+                    data
+                    notifications {
+                        message
+                        type
+                        code
+                        action
+                        reason
+                        details
+                    }
+                }
+            }
+            """, cartonId, unitNumber, productCode, locationCode);
+    }
 }
