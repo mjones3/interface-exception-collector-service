@@ -105,22 +105,15 @@ public class CreateShipmentSteps {
         String shipmentDate = fields.get("Shipment Date");
         shipmentDate = testUtils.parseDataKeyword(shipmentDate);
 
-        String transportationRefNumber = fields.get("Transportation Reference Number");
-        if (transportationRefNumber.equals("<null>")) {
-            transportationRefNumber = null;
-        } else {
-            transportationRefNumber = "\"" + transportationRefNumber + "\"";
-        }
-
         sharedContext.setLocationCode(fields.get("Location Code"));
 
         createShipmentController.createShipment(
-            "\"" + fields.get("Customer Code") + "\"",
-            "\"" + fields.get("Product Type") + "\"",
+            fields.get("Customer Code"),
+            fields.get("Product Type"),
             Float.valueOf(fields.get("Carton Tare Weight")),
-            "\"" + shipmentDate + "\"",
-            transportationRefNumber,
-            "\"" + fields.get("Location Code") + "\""
+            shipmentDate,
+            fields.get("Transportation Reference Number"),
+            fields.get("Location Code")
         );
     }
 

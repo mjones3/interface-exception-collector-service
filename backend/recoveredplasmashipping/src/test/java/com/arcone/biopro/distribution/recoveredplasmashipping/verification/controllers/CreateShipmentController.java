@@ -33,11 +33,13 @@ public class CreateShipmentController {
         saveLastShipmentNumber();
         sharedContext.setLocationCode(locationCode);
         transportationRefNumber = transportationRefNumber.equals("<null>") ? null : "\"" + transportationRefNumber + "\"";
+        shipmentDate = shipmentDate == null ? null : "\"" + shipmentDate + "\"";
+
         String payload = GraphQLMutationMapper.createShipment(
             "\"" + customerCode + "\"",
             "\"" + productType + "\"",
             cartonTareWeight,
-            "\"" + shipmentDate + "\"",
+            shipmentDate,
             transportationRefNumber,
             "\"" + locationCode + "\"");
         try {
@@ -78,15 +80,15 @@ public class CreateShipmentController {
         if (value.equals("<null>")) {
             value = null;
         } else {
-            value = "\"" + value + "\"";
+            value =  value;
         }
         // default correct values
-        String customerCode = "\"408\"";
-        String productType = "\"RP_FROZEN_WITHIN_120_HOURS\"";
+        String customerCode = "408";
+        String productType = "RP_FROZEN_WITHIN_120_HOURS";
         Float cartonTareWeight = 1000f;
-        String shipmentDate = "\"" + LocalDate.now().plusDays(1) + "\"";
-        String TransportationRefNumber = "\"3455\"";
-        String locationCode = "\"123456789\"";
+        String shipmentDate =  LocalDate.now().plusDays(1).toString();
+        String TransportationRefNumber = "3455";
+        String locationCode = "123456789";
 
         switch (attribute) {
             case "customerCode":
@@ -102,7 +104,7 @@ public class CreateShipmentController {
                 } else cartonTareWeight = null;
                 break;
             case "TransportationRefNumber":
-                TransportationRefNumber = "\"" + value + "\"";
+                TransportationRefNumber = value;
                 break;
             case "locationCode":
                 locationCode = value;

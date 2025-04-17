@@ -24,6 +24,7 @@ public class AddCartonPage extends CommonPageFactory {
     private final By clickBackBtn = By.id("backToShipmentBtn");
     private final By addUnitNumberInput = By.id("scanUnitNumberId");
     private final By addProductCodeInput = By.id("scanProductCodeId");
+    private final By submitButton = By.id("submitActionBtn");
 
     private By addedProductCard(String unitNumber, String productCode) {
         return By.xpath(String.format("//biopro-unit-number-card//div[contains(text(),'%s')]/following-sibling::div/span[contains(text(),'%s')]", unitNumber, productCode));
@@ -72,5 +73,9 @@ public class AddCartonPage extends CommonPageFactory {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public void clickSubmit() {
+        sharedActions.click(submitButton);
     }
 }

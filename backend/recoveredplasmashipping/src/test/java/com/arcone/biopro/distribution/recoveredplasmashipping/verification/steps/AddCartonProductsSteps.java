@@ -98,4 +98,9 @@ public class AddCartonProductsSteps {
         createShipmentController.packCartonProduct(cartonId, unitNumber, productCode, sharedContext.getLocationCode());
 
     }
+
+    @When("I choose to submit the carton.")
+    public void iChooseToSubmitTheCarton() {
+        addCartonPage.clickSubmit();
+    }
 }

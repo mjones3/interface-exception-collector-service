@@ -82,6 +82,27 @@ Feature: Add Products to Carton
             | 408           | RP_FROZEN_WITHIN_24_HOURS | 1000               | <tomorrow>    | DIS-339                         | 123456789     | 300               | W036898786801 | E2534V00     | 259            |
 
 
+    Rule: I should not be able to add products in the carton once the configured number of products in the carton criteria is met and be notified.
+        Rule: Add products to a carton up to configurable number by plasma customer.
+        @api @DIS-339
+        Scenario Outline: Attempt to exceed maximum products in carton
+            Given I have an empty carton created with the Customer Code as "<Customer Code>" , Product Type as "<Product Type>", Carton Tare Weight as "<Carton Tare Weight>", Shipment Date as "<Shipment Date>", Transportation Reference Number as "<Transportation Reference Number>" and Location Code as "<Location Code>".
+            And The Maximum Number of Units in Carton is configured as "<configured_max_products>" products for the customer code "<Customer Code>" and product type "<Product Type>".
+            And I have packed the following products:
+                | unit_number   | product_code | product_type               |
+                | W036898786806 | E2488V00     | RP_NONINJECTABLE_LIQUID_RT |
+                | W036898786807 | E2488V00     | RP_NONINJECTABLE_LIQUID_RT |
+                | W036898786808 | E2488V00     | RP_NONINJECTABLE_LIQUID_RT |
+                | W036898786809 | E2488V00     | RP_NONINJECTABLE_LIQUID_RT |
+                | W036898786810 | E2488V00     | RP_NONINJECTABLE_LIQUID_RT |
+            When I pack a product with the unit number "<unit_number>", product code "<product_code>".
+            Then The product unit number "<unit_number>" and product code "<product_code>" "should not" be packed in the carton.
+            And  I should receive a "WARN" message response "Maximum number of products exceeded".
+            Examples:
+                | Customer Code | Product Type               | Carton Tare Weight | Shipment Date | Transportation Reference Number | Location Code | configured_max_products | unit_number   | product_code |
+                | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>    | DIS-339                         | 123456789     | 5                       | W036898786803 | E2488V00     |
+
+
         Rule: I should be able to add products in the carton for customers that do not requires minimum volume criteria.
         @api @DIS-339
         Scenario Outline: Add product with correct volume
@@ -91,25 +112,4 @@ Feature: Add Products to Carton
             Examples:
                 | Customer Code | Product Type                  | Carton Tare Weight | Shipment Date | Transportation Reference Number | Location Code | unit_number   | product_code | product_volume |
                 | 410           | RP_NONINJECTABLE_REFRIGERATED | 1000               | <tomorrow>    | DIS-339                         | 123456789     | W036898786805 | E6170V00     | 259            |
-
-
-    Rule: I should not be able to add products in the carton once the configured number of products in the carton criteria is met and be notified.
-    Rule: Add products to a carton up to configurable number by plasma customer.
-    @api @DIS-339
-    Scenario Outline: Attempt to exceed maximum products in carton
-        Given I have an empty carton created with the Customer Code as "<Customer Code>" , Product Type as "<Product Type>", Carton Tare Weight as "<Carton Tare Weight>", Shipment Date as "<Shipment Date>", Transportation Reference Number as "<Transportation Reference Number>" and Location Code as "<Location Code>".
-        And The Maximum Number of Units in Carton is configured as "<configured_max_products>" products for the customer code "<Customer Code>" and product type "<Product Type>".
-        And I have packed the following products:
-            | unit_number   | product_code | product_type               |
-            | W036898786806 | E2488V00     | RP_NONINJECTABLE_LIQUID_RT |
-            | W036898786807 | E2488V00     | RP_NONINJECTABLE_LIQUID_RT |
-            | W036898786808 | E2488V00     | RP_NONINJECTABLE_LIQUID_RT |
-            | W036898786809 | E2488V00     | RP_NONINJECTABLE_LIQUID_RT |
-            | W036898786810 | E2488V00     | RP_NONINJECTABLE_LIQUID_RT |
-        When I pack a product with the unit number "<unit_number>", product code "<product_code>".
-        Then The product unit number "<unit_number>" and product code "<product_code>" "should not" be packed in the carton.
-        And  I should receive a "WARN" message response "Maximum number of products exceeded".
-        Examples:
-            | Customer Code | Product Type               | Carton Tare Weight | Shipment Date | Transportation Reference Number | Location Code | configured_max_products | unit_number   | product_code |
-            | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>    | DIS-339                         | 123456789     | 5                       | W036898786803 | E2488V00     |
 

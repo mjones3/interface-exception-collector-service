@@ -46,7 +46,7 @@ Feature: Create Carton
                 | Transportation Ref. Number | DIS338                        |
                 | Total Products             | 0                             |
                 | Total Cartons              | 1                             |
-            When I click to go back to Shipment Details page.
+            When I choose to submit the carton.
             Then I should see the list of cartons added to the shipment containing:
                 | Carton Number Prefix | Sequence | Status |
                 | BPMMH1               | 1        | OPEN   |
