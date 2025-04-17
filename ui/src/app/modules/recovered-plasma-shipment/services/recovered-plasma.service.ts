@@ -1,10 +1,15 @@
 import { Injectable } from '@angular/core';
 import { ApolloQueryResult } from '@apollo/client';
 import { LookUpDto } from '@shared';
+import { MutationResult } from 'apollo-angular';
 import { Observable, Observer } from 'rxjs';
 import { DynamicGraphqlPathService } from '../../../core/services/dynamic-graphql-path.service';
 import { PageDTO } from '../../../shared/models/page.model';
 import { UseCaseResponseDTO } from '../../../shared/models/use-case-response.dto';
+import {
+    CREATE_CARTON,
+    CreateCartonRequestDTO,
+} from '../graphql/mutation-definitions/create-carton.graphql';
 import {
     FIND_ALL_CUSTOMERS,
     RecoveredPlasmaCustomerDTO,
@@ -23,7 +28,11 @@ import {
     FindShipmentRequestDTO,
     RECOVERED_PLASMA_SHIPMENT_DETAILS,
 } from '../graphql/query-definitions/shipmentDetails.graphql';
-import { RecoveredPlasmaShipmentResponseDTO } from '../models/recovered-plasma.dto';
+import {
+    CartonDTO,
+    RecoveredPlasmaShipmentResponseDTO,
+} from '../models/recovered-plasma.dto';
+import { FIND_CARTON_BY_ID } from '../graphql/query-definitions/carton.graphql';
 
 @Injectable({
     providedIn: 'root',
@@ -83,6 +92,18 @@ export class RecoveredPlasmaService {
         );
     }
 
+    public createCarton(
+        request: CreateCartonRequestDTO
+    ): Observable<
+        MutationResult<{ createCarton: UseCaseResponseDTO<CartonDTO> }>
+    > {
+        return this.dynamicGraphqlPathService.executeMutation(
+            this.servicePath,
+            CREATE_CARTON,
+            request
+        );
+    }
+
     public checkRecoveredPlasmaFacility(facilityCode: string) {
         let matchFacility;
         return new Observable((observer: Observer<boolean>) => {
@@ -94,6 +115,18 @@ export class RecoveredPlasmaService {
                 observer.complete();
             });
         });
+    }
+
+    public getCartonById(
+        cartonId: number
+    ): Observable<
+        ApolloQueryResult<{ findCartonById: UseCaseResponseDTO<CartonDTO> }>
+    > {
+        return this.dynamicGraphqlPathService.executeQuery(
+            this.servicePath,
+            FIND_CARTON_BY_ID,
+            { cartonId }
+        );
     }
 
     public getShipmentById(

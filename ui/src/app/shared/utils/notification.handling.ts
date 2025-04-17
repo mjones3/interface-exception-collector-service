@@ -3,12 +3,12 @@ import {
     NotificationTypeMap,
     ToastrImplService,
 } from '@shared';
+import { ToastrService } from 'ngx-toastr';
 import { Notification } from '../../modules/orders/models/notification.dto';
 import { UseCaseNotificationDTO } from '../models/use-case-response.dto';
-import { ToastrService } from 'ngx-toastr';
 
 export function consumeNotification(
-    toaster: ToastrImplService,
+    toaster: ToastrService | ToastrImplService,
     notification: NotificationDto,
     onTapFn: () => void
 ): void {
@@ -23,7 +23,7 @@ export function consumeNotification(
 }
 
 export function consumeNotifications(
-    toaster: ToastrImplService,
+    toaster: ToastrService | ToastrImplService,
     notifications: NotificationDto[],
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     onTapFn: () => void = () => {}
@@ -38,7 +38,7 @@ export function consumeNotifications(
  * FIXME refactor and sync notifications structures.
  */
 export function consumeNotificationMessage(
-    toaster: ToastrImplService,
+    toaster: ToastrService | ToastrImplService,
     notification: Notification,
     onTapFn: () => void
 ): void {
@@ -57,7 +57,7 @@ export function consumeNotificationMessage(
  * FIXME refactor and sync notifications structures.
  */
 export function consumeNotificationMessages(
-    toaster: ToastrImplService,
+    toaster: ToastrService | ToastrImplService,
     notifications: Notification[],
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     onTapFn: () => void = () => {}
@@ -72,7 +72,7 @@ export function consumeNotificationMessages(
  * FIXME refactor and sync notifications structures.
  */
 export function consumeUseCaseNotification(
-    toaster: ToastrService,
+    toaster: ToastrService | ToastrImplService,
     notification: UseCaseNotificationDTO,
     onTapFn: () => void
 ): void {
@@ -83,7 +83,7 @@ export function consumeUseCaseNotification(
             {},
             NotificationTypeMap[notification.type].type
         )
-        .onTap.subscribe(() => onTapFn());
+        ?.onTap.subscribe(() => onTapFn());
 }
 
 /*
@@ -91,7 +91,7 @@ export function consumeUseCaseNotification(
  * FIXME refactor and sync notifications structures.
  */
 export function consumeUseCaseNotifications(
-    toaster: ToastrService,
+    toaster: ToastrService | ToastrImplService,
     notifications: UseCaseNotificationDTO[],
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     onTapFn: () => void = () => {}

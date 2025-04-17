@@ -9,6 +9,10 @@ public class DatabaseQueries {
         return "DELETE FROM bld_recovered_plasma_shipment WHERE shipment_number LIKE '%" + code + "%'";
     }
 
+    public static String DELETE_CARTONS_BY_SHIPMENT_CODE(String code){
+        return "DELETE FROM bld_recovered_plasma_shipment_carton WHERE recovered_plasma_shipment_id IN (SELECT id FROM bld_recovered_plasma_shipment WHERE shipment_number LIKE '%" + code + "%')";
+    }
+
     public static String FETCH_SHIPMENT_BY_ID(Integer id) {
         return "SELECT * FROM bld_recovered_plasma_shipment WHERE id = " + id;
     }
@@ -62,6 +66,20 @@ public class DatabaseQueries {
                 )
                 """
             ,customerCode, locationCode, productType, status, shipmentNumber, scheduleDate
+        );
+    }
+
+    public static String FETCH_SHIPMENT_CRITERIA_BY_CUSTOMER_AND_PRODUCT_TYPE(String customerCode , String productType){
+        return String.format(
+            """
+                select lrpsc.customer_code, lrpsc.product_type, lrpptpc.product_code , lrpsci."type" , lrpsci.value
+                        from lk_recovered_plasma_shipment_criteria lrpsc
+                        inner join lk_recovered_plasma_product_type lrppt on lrppt.product_type = lrpsc.product_type
+                        inner join lk_recovered_plasma_product_type_product_code lrpptpc on lrpptpc.product_type_id  = lrppt.id
+                        inner join lk_recovered_plasma_shipment_criteria_item lrpsci on lrpsci.recovered_plasma_shipment_criteria_id  = lrpsc.id
+                        where lrpsc.customer_code = '%s' and lrpsc.product_type = '%s' and lrpsc.active = true
+                """
+            ,customerCode, productType
         );
     }
 

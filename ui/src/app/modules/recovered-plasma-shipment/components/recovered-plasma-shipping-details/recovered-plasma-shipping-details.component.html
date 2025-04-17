@@ -6,10 +6,8 @@
     ></biopro-process-header>
 
     <biopro-recovered-plasma-shipment-details-navbar
-        [links]="{
-            Cartons: cartonsRouteComputed(),
-        }"
-        [activeLinkRoute]="cartonsRouteComputed()"
+        [links]="{ Cartons: cartonsRoute }"
+        [activeLinkRoute]="cartonsRoute"
         style="margin-top: 1px !important"
     >
     </biopro-recovered-plasma-shipment-details-navbar>
@@ -27,19 +25,38 @@
         </div>
     </ng-template>
 
-    <div class="flex w-full flex-row space-x-8 p-4">
-        <div class="flex w-9/12 flex-auto flex-col space-y-3">
-            <div class="col flex justify-end">
-                <biopro-basic-button
-                    id="btnAddCarton"
-                    label="Add Carton"
-                    class="mat-primary-flat text-primary-900"
-                ></biopro-basic-button>
-            </div>
+    <div class="flex w-full flex-row gap-4 p-4">
+        <div class="flex w-9/12 flex-col gap-4">
+            @if (shipmentDetailsSignal()?.canAddCartons) {
+                <div class="col flex justify-end">
+                    <biopro-basic-button
+                        id="btnAddCarton"
+                        label="Add Carton"
+                        class="mat-primary-flat text-primary-900"
+                        (buttonClicked)="addCarton()"
+                    />
+                </div>
+            }
+            <biopro-table
+                #recoveredPlasmaCartonsTable
+                tableId="cartonListTableId"
+                [dataSource]="cartonsComputed()"
+                [configuration]="cartonTableConfigComputed()"
+                [totalElements]="cartonsComputed().length ?? 0"
+                [pageIndex]="0"
+                [serverPagination]="false"
+            />
+            <ng-template #statusTemplateRef let-element="element">
+                <span [class]="getStatusBadgeCssClass(element.status)">
+                    {{ RecoveredPlasmaShipmentStatusMap[element.status] }}
+                </span>
+            </ng-template>
         </div>
-        <biopro-shipping-information-card
-            [showBasicButton]="true"
-            [shippingInput]="shipmentDetailsSignal()"
-        />
+        <div class="flex w-3/12 flex-col gap-4">
+            <biopro-shipping-information-card
+                [showBasicButton]="true"
+                [shippingInput]="shipmentDetailsSignal()"
+            />
+        </div>
     </div>
 </div>

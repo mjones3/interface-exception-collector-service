@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.util.List;
 
 @Builder
 public record RecoveredPlasmaShipmentResponseDTO(
@@ -39,7 +40,8 @@ public record RecoveredPlasmaShipmentResponseDTO(
     String customerAddressDepartmentName,
     int totalCartons,
     int totalProducts,
-    boolean canAddCartons
+    boolean canAddCartons,
+    List<CartonDTO> cartonList
 
 ) implements Serializable {
 

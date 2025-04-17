@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.recoveredplasmashipping.unit.infrastructu
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.RecoveredPlasmaShipment;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.ShipmentCustomer;
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.mapper.RecoveredPlasmaShipmentEntityMapper;
+import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.persistence.CartonEntity;
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.persistence.RecoveredPlasmaShipmentEntity;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
@@ -11,6 +12,7 @@ import org.mockito.Mockito;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -24,9 +26,24 @@ class RecoveredPlasmaShipmentEntityMapperTest {
     void entityToModel_ShouldMapAllFields() {
         // Arrange
         RecoveredPlasmaShipmentEntity entity = createTestEntity();
+        List<CartonEntity> cartonEntityList = List.of(CartonEntity.
+            builder()
+                .shipmentId(1L)
+                .cartonNumber("NUMBER")
+                .id(1L)
+                .status("OPEN")
+                .createDate(ZonedDateTime.now())
+                .cartonSequenceNumber(1)
+                .closeDate(ZonedDateTime.now())
+                .closeEmployeeId("close-id")
+                .createDate(ZonedDateTime.now())
+                .createEmployeeId("create-id")
+            .build());
+
+
 
         // Act
-        RecoveredPlasmaShipment result = mapper.entityToModel(entity);
+        RecoveredPlasmaShipment result = mapper.entityToModel(entity,cartonEntityList);
 
         // Assert
         assertNotNull(result);
@@ -56,6 +73,9 @@ class RecoveredPlasmaShipmentEntityMapperTest {
         assertEquals(entity.getCustomerAddressDepartmentName(), result.getShipmentCustomer().getCustomerAddressDepartmentName());
         assertEquals(entity.getCreateDate(), result.getCreateDate());
         assertEquals(entity.getModificationDate(), result.getModificationDate());
+
+        assertEquals(1,result.getCartonList().size());
+        assertEquals(1,result.getTotalCartons());
     }
 
     @Test
