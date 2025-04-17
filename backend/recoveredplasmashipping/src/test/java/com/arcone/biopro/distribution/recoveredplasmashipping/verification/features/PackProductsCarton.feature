@@ -5,7 +5,7 @@ Feature: Add Products to Carton
         Given I have removed from the database all the configurations for the location "123456789_DIS339".
         And I have removed from the database all shipments which code contains with "DIS33900".
         And I have removed from the database all shipments from location "123456789" with transportation ref number "DIS-339".
-        And The location "123456789_DIS339" is configured with prefix "DIS_339", shipping code "DIS33900", and prefix configuration "Y".
+        And The location "123456789_DIS339" is configured with prefix "DIS_339", shipping code "DIS33900", carton prefix "BPM" and prefix configuration "Y".
         And I have reset the shipment product criteria to have the following values:
             | recovered_plasma_shipment_criteria_id | type                    | value | message                                | message_type |
             | 1                                     | MINIMUM_VOLUME          | 165   | Product Volume does not match criteria | WARN         |
