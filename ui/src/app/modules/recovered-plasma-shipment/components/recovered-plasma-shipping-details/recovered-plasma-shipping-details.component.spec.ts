@@ -1,12 +1,16 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { By } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ApolloError } from '@apollo/client';
+import { ApolloError, ApolloQueryResult } from '@apollo/client';
 import { Store } from '@ngrx/store';
 import { ToastrImplService } from '@shared';
 import { CookieService } from 'ngx-cookie-service';
 import { of, throwError } from 'rxjs';
+import { UseCaseResponseDTO } from '../../../../shared/models/use-case-response.dto';
+import { RecoveredPlasmaShipmentResponseDTO } from '../../models/recovered-plasma.dto';
 import { RecoveredPlasmaService } from '../../services/recovered-plasma.service';
 import { RecoveredPlasmaShippingDetailsComponent } from './recovered-plasma-shipping-details.component';
 
@@ -51,6 +55,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
                 RecoveredPlasmaShippingDetailsComponent,
                 NoopAnimationsModule,
                 CommonModule,
+                MatIconTestingModule,
             ],
             providers: [
                 DatePipe,
@@ -170,6 +175,50 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
             component.addCarton();
 
             expect(mockRouter.navigateByUrl).not.toHaveBeenCalled();
+        });
+
+        it('should hide "add carton button" when canAddCartons is false', () => {
+            const buttonIdCssSelector = By.css('#btnAddCarton');
+            const root = fixture.debugElement;
+            mockRecoveredPlasmaService.getShipmentById.mockReturnValue(
+                of({
+                    data: {
+                        findShipmentById: {
+                            data: {
+                                canAddCartons: false,
+                            },
+                        },
+                    },
+                } as unknown as ApolloQueryResult<{
+                    findShipmentById: UseCaseResponseDTO<RecoveredPlasmaShipmentResponseDTO>;
+                }>)
+            );
+
+            fixture.detectChanges();
+            const button = root.query(buttonIdCssSelector)?.nativeElement;
+            expect(button).toBeFalsy();
+        });
+
+        it('should show "add carton button" when canAddCartons is true', () => {
+            const buttonIdCssSelector = By.css('#btnAddCarton');
+            const root = fixture.debugElement;
+            mockRecoveredPlasmaService.getShipmentById.mockReturnValue(
+                of({
+                    data: {
+                        findShipmentById: {
+                            data: {
+                                canAddCartons: true,
+                            },
+                        },
+                    },
+                } as unknown as ApolloQueryResult<{
+                    findShipmentById: UseCaseResponseDTO<RecoveredPlasmaShipmentResponseDTO>;
+                }>)
+            );
+
+            fixture.detectChanges();
+            const button = root.query(buttonIdCssSelector)?.nativeElement;
+            expect(button).toBeTruthy();
         });
     });
 

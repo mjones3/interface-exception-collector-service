@@ -76,7 +76,7 @@ class CreateCartonUseCaseTest {
         when(locationRepository.findOneByCode(anyString())).thenReturn(Mono.just(location));
         when(cartonRepository.getNextCartonId()).thenReturn(Mono.just( 123L));
 
-        when(location.findProperty("RPS_PARTNER_PREFIX")).thenReturn(Optional.of(new LocationProperty(1L,"RPS_PARTNER_PREFIX","BPM")));
+        when(location.findProperty("RPS_CARTON_PARTNER_PREFIX")).thenReturn(Optional.of(new LocationProperty(1L,"RPS_CARTON_PARTNER_PREFIX","BPM")));
         when(location.findProperty("RPS_LOCATION_CARTON_CODE")).thenReturn(Optional.of(new LocationProperty(1L,"RPS_LOCATION_CARTON_CODE","MH1")));
         when(locationRepository.findOneByCode(anyString())).thenReturn(Mono.just(location));
         when(cartonRepository.getNextCartonId()).thenReturn(Mono.just(1L));

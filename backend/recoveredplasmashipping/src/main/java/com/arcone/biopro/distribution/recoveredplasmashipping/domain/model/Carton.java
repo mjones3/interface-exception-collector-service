@@ -40,7 +40,7 @@ public class Carton implements Validatable {
     private BigDecimal totalVolume;
 
     private static final String STATUS_OPEN = "OPEN";
-    private static final String SHIPMENT_PARTNER_PREFIX_KEY = "RPS_PARTNER_PREFIX";
+    private static final String CARTON_PARTNER_PREFIX_KEY = "RPS_CARTON_PARTNER_PREFIX";
     private static final String RPS_LOCATION_CARTON_CODE_KEY = "RPS_LOCATION_CARTON_CODE";
 
 
@@ -142,12 +142,11 @@ public class Carton implements Validatable {
             .block();
 
         var cartonNumber = "";
-        var cartonPrefix = "";
 
-        var prefix = location.findProperty(SHIPMENT_PARTNER_PREFIX_KEY);
-        if (prefix.isPresent()) {
-            log.debug("Location property {}", SHIPMENT_PARTNER_PREFIX_KEY);
-            cartonPrefix = prefix.get().getPropertyValue();
+        var prefix = location.findProperty(CARTON_PARTNER_PREFIX_KEY);
+        if (prefix.isEmpty()) {
+            log.error("Location property is missed {}", CARTON_PARTNER_PREFIX_KEY);
+            throw new IllegalArgumentException("Location configuration is missing the setup for  " + CARTON_PARTNER_PREFIX_KEY + " property");
         }
 
         var cartonLocationCode = location.findProperty(RPS_LOCATION_CARTON_CODE_KEY);
@@ -155,7 +154,7 @@ public class Carton implements Validatable {
             log.error("Location property is missed {}", RPS_LOCATION_CARTON_CODE_KEY);
             throw new IllegalArgumentException("Location configuration is missing the setup for  " + RPS_LOCATION_CARTON_CODE_KEY + " property");
         }
-        cartonNumber = String.format("%s%s%s",cartonPrefix,cartonLocationCode.get().getPropertyValue(),cartonId);
+        cartonNumber = String.format("%s%s%s",prefix.get().getPropertyValue(),cartonLocationCode.get().getPropertyValue(),cartonId);
 
         return cartonNumber;
 
