@@ -52,6 +52,7 @@ export class RecoveredPlasmaShippingDetailsComponent
         () => this.shipmentDetailsSignal()?.cartonList ?? []
     );
     cartonTableConfigComputed = computed<TableConfiguration>(() => ({
+        title: 'Results',
         showPagination: false,
         columns: [
             {

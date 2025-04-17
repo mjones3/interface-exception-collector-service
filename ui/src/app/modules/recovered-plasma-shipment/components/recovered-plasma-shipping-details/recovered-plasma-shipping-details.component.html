@@ -27,15 +27,16 @@
 
     <div class="flex w-full flex-row gap-4 p-4">
         <div class="flex w-9/12 flex-col gap-4">
-            <div class="col flex justify-end">
-                <biopro-basic-button
-                    id="btnAddCarton"
-                    label="Add Carton"
-                    class="mat-primary-flat text-primary-900"
-                    (buttonClicked)="addCarton()"
-                    [disabled]="!shipmentDetailsSignal()?.canAddCartons"
-                />
-            </div>
+            @if (shipmentDetailsSignal()?.canAddCartons) {
+                <div class="col flex justify-end">
+                    <biopro-basic-button
+                        id="btnAddCarton"
+                        label="Add Carton"
+                        class="mat-primary-flat text-primary-900"
+                        (buttonClicked)="addCarton()"
+                    />
+                </div>
+            }
             <biopro-table
                 #recoveredPlasmaCartonsTable
                 tableId="cartonListTableId"
@@ -44,8 +45,7 @@
                 [totalElements]="cartonsComputed().length ?? 0"
                 [pageIndex]="0"
                 [serverPagination]="false"
-            >
-            </biopro-table>
+            />
             <ng-template #statusTemplateRef let-element="element">
                 <span [class]="getStatusBadgeCssClass(element.status)">
                     {{ RecoveredPlasmaShipmentStatusMap[element.status] }}
