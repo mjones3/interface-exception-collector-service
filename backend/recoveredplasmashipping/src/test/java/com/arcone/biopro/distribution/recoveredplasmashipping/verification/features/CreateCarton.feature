@@ -4,7 +4,8 @@ Feature: Create Carton
     Background:
         Given I have removed from the database all the configurations for the location "123456789_DIS338".
         And I have removed from the database all shipments which code contains with "DIS33800".
-        And The location "123456789_DIS338" is configured with prefix "DIS_338", shipping code "DIS33800", and prefix configuration "Y".
+        And The location "123456789_DIS338" is configured with prefix "DIS_338", shipping code "DIS33800", carton prefix "BPM" and prefix configuration "Y".
+
 
         Rule: I should be able to generate a Unique Location Specific Carton Number that contains the following: Partner Prefix + Location Carton Code + Carton Sequence Number
         Rule: I should be able to view the carton details.
@@ -81,7 +82,7 @@ Feature: Create Carton
             Then The find shipment response should have the following information:
                 | Information          | Value                 |
                 | Total Cartons        | 2                     |
-                | Carton Number Prefix | DIS_338MH1,DIS_338MH1 |
+                | Carton Number Prefix | BPMMH1,BPMMH1 |
                 | Sequence Number      | 1,2                   |
 
         Rule: I should be notified when the carton is not added to the shipment.

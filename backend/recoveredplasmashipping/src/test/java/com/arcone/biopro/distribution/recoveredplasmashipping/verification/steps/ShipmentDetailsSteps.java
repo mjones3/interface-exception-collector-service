@@ -124,12 +124,9 @@ public class ShipmentDetailsSteps {
         Assert.assertEquals(Integer.parseInt(table.get("Total Cartons")), cartonResponseList.size());
 
         AtomicReference<Integer> index = new AtomicReference<>(0);
-        cartonResponseList.stream().forEach(carton -> {
-                Assert.assertTrue(carton.get("cartonNumber").toString().contains(
-                    utils.getCommaSeparatedList(table.get("Carton Number Prefix"))[index.get()]));
-                Assert.assertEquals(
-                    carton.get("cartonSequence").toString(),
-                        utils.getCommaSeparatedList(table.get("Sequence Number"))[index.get()]);
+        cartonResponseList.forEach(carton -> {
+                Assert.assertTrue(carton.get("cartonNumber").toString().contains(utils.getCommaSeparatedList(table.get("Carton Number Prefix"))[index.get()]));
+                Assert.assertEquals(carton.get("cartonSequence").toString(),utils.getCommaSeparatedList(table.get("Sequence Number"))[index.get()]);
                 index.getAndSet(index.get() + 1);
             });
     }

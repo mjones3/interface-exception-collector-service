@@ -61,7 +61,7 @@ class CartonTest {
         when(locationRepository.findOneByCode(anyString())).thenReturn(Mono.just(location));
         when(cartonRepository.getNextCartonId()).thenReturn(Mono.just( 123L));
 
-        when(location.findProperty("RPS_PARTNER_PREFIX")).thenReturn(Optional.of(new LocationProperty(1L,"RPS_PARTNER_PREFIX","BPM")));
+        when(location.findProperty("RPS_CARTON_PARTNER_PREFIX")).thenReturn(Optional.of(new LocationProperty(1L,"RPS_CARTON_PARTNER_PREFIX","BPM")));
         when(location.findProperty("RPS_LOCATION_CARTON_CODE")).thenReturn(Optional.of(new LocationProperty(1L,"RPS_LOCATION_CARTON_CODE","MH1")));
         when(locationRepository.findOneByCode(anyString())).thenReturn(Mono.just(location));
         when(cartonRepository.getNextCartonId()).thenReturn(Mono.just(1L));
@@ -180,7 +180,7 @@ class CartonTest {
         LocationProperty prefixProperty = mock(LocationProperty.class);
         when(locationRepository.findOneByCode(anyString())).thenReturn(Mono.just(location));
         when(cartonRepository.getNextCartonId()).thenReturn(Mono.just( 123L));
-        when(location.findProperty("RPS_PARTNER_PREFIX")).thenReturn(Optional.of(prefixProperty));
+        when(location.findProperty("RPS_CARTON_PARTNER_PREFIX")).thenReturn(Optional.of(prefixProperty));
         when(location.findProperty("RPS_LOCATION_CARTON_CODE")).thenReturn(Optional.empty());
 
         Mockito.when(cartonRepository.countByShipment(Mockito.anyLong())).thenReturn(Mono.just(0));
@@ -241,10 +241,11 @@ class CartonTest {
         when(locationRepository.findOneByCode(anyString())).thenReturn(Mono.just(location));
         when(cartonRepository.getNextCartonId()).thenReturn(Mono.just( 123L));
 
-        when(location.findProperty("RPS_PARTNER_PREFIX")).thenReturn(Optional.of(new LocationProperty(1L,"RPS_PARTNER_PREFIX","BPM")));
+        when(location.findProperty("RPS_CARTON_PARTNER_PREFIX")).thenReturn(Optional.of(new LocationProperty(1L,"RPS_CARTON_PARTNER_PREFIX","BPM")));
         when(location.findProperty("RPS_LOCATION_CARTON_CODE")).thenReturn(Optional.of(new LocationProperty(1L,"RPS_LOCATION_CARTON_CODE","MH1")));
         when(locationRepository.findOneByCode(anyString())).thenReturn(Mono.just(location));
         when(cartonRepository.getNextCartonId()).thenReturn(Mono.just(1L));
+
 
         // When
         Carton carton = Carton.createNewCarton(new CreateCartonCommand(1L,"create-employee-id"), recoveredPlasmaShippingRepository, cartonRepository, locationRepository);
@@ -270,7 +271,7 @@ class CartonTest {
 
 
     @Test
-    void shouldCreateNewCartonWhenPartnerPrefixIsNotConfigured() {
+    void shouldNotCreateNewCartonWhenCartonPartnerPrefixIsNotConfigured() {
         // Given
 
         RecoveredPlasmaShipment recoveredPlasmaShipment = Mockito.mock(RecoveredPlasmaShipment.class);
@@ -287,32 +288,14 @@ class CartonTest {
         when(locationRepository.findOneByCode(anyString())).thenReturn(Mono.just(location));
         when(cartonRepository.getNextCartonId()).thenReturn(Mono.just( 123L));
 
-        when(location.findProperty("RPS_PARTNER_PREFIX")).thenReturn(Optional.empty());
-        when(location.findProperty("RPS_LOCATION_CARTON_CODE")).thenReturn(Optional.of(new LocationProperty(1L,"RPS_LOCATION_CARTON_CODE","MH1")));
+        when(location.findProperty("RPS_CARTON_PARTNER_PREFIX")).thenReturn(Optional.empty());
         when(locationRepository.findOneByCode(anyString())).thenReturn(Mono.just(location));
         when(cartonRepository.getNextCartonId()).thenReturn(Mono.just(1L));
 
-        // When
-        Carton carton = Carton.createNewCarton(new CreateCartonCommand(1L,"create-employee-id"), recoveredPlasmaShippingRepository, cartonRepository, locationRepository);
-
-        // Then
-        assertNotNull(carton);
-
-        assertEquals(1,carton.getCartonSequence());
-        assertEquals("MH11",carton.getCartonNumber());
-        assertNull(carton.getId());
-        assertEquals(1L,carton.getShipmentId());
-        assertEquals("create-employee-id",carton.getCreateEmployeeId());
-        assertEquals("OPEN", carton.getStatus());
-        assertNull(carton.getCloseEmployeeId());
-        assertNull(carton.getCloseDate());
-        assertEquals(0,carton.getTotalProducts());
-        assertEquals(BigDecimal.ZERO,carton.getTotalWeight());
-        assertEquals(BigDecimal.ZERO,carton.getTotalVolume());
-
-        verify(cartonRepository).getNextCartonId();
-        verify(locationRepository).findOneByCode(anyString());
-        verify(cartonRepository).countByShipment(anyLong());
-        verify(recoveredPlasmaShippingRepository).findOneById(anyLong());
+        // When/Then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            () -> Carton.createNewCarton(new CreateCartonCommand(1L,"create-employee-id"), recoveredPlasmaShippingRepository, cartonRepository, locationRepository));
+        assertEquals("Location configuration is missing the setup for  RPS_CARTON_PARTNER_PREFIX property",
+            exception.getMessage());
     }
 }

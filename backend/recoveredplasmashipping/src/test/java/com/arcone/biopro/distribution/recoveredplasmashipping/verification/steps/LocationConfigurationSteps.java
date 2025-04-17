@@ -57,8 +57,8 @@ public class LocationConfigurationSteps {
     }
 
 
-    @Given("The location {string} is configured with prefix {string}, shipping code {string}, and prefix configuration {string}.")
-    public void configureLocation(String location, String prefix, String shippingCode, String prefixConfig) {
+    @Given("The location {string} is configured with prefix {string}, shipping code {string}, carton prefix {string} and prefix configuration {string}.")
+    public void configureLocation(String location, String prefix, String shippingCode , String cartonPrefix, String prefixConfig) {
 
         int randomId = (int) (Math.random() * 1000) +1;
         // lk_location
@@ -68,7 +68,11 @@ public class LocationConfigurationSteps {
 
         // lk_location_property
         var locationPropertySQL = "INSERT INTO lk_location_property (location_id, property_key, property_value) " +
-            "VALUES (" + randomId + ", 'RPS_PARTNER_PREFIX', '" + prefix + "'), ((" + randomId + "), 'RPS_LOCATION_SHIPMENT_CODE', '" + shippingCode + "'), ((" + randomId + "), 'RPS_LOCATION_CARTON_CODE', '" + "MH1" + "'), ((" + randomId + "), 'RPS_USE_PARTNER_PREFIX', '" + prefixConfig + "');";
+            "VALUES (" + randomId + ", 'RPS_PARTNER_PREFIX', '" + prefix + "'), " +
+            " ((" + randomId + "), 'RPS_LOCATION_SHIPMENT_CODE', '" + shippingCode + "'), " +
+            " ((" + randomId + "), 'RPS_LOCATION_CARTON_CODE', '" + "MH1" + "'), " +
+            " ((" + randomId + "), 'RPS_CARTON_PARTNER_PREFIX', '" + cartonPrefix + "'), " +
+            " ((" + randomId + "), 'RPS_USE_PARTNER_PREFIX', '" + prefixConfig + "');";
         databaseService.executeSql(locationPropertySQL).block();
 
         log.info("Configuring location: {} with prefix: {}, shipping code: {}, prefix config: {}",
