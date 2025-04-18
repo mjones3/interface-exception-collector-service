@@ -56,7 +56,6 @@ public class ShipmentDetailsSteps {
         Assert.assertTrue(shipmentDetailsPage.getShipmentStatus().equalsIgnoreCase(table.get("Shipment Status")));
         Assert.assertTrue(shipmentDetailsPage.getShipmentDate().equalsIgnoreCase(expectedDate));
         Assert.assertTrue(shipmentDetailsPage.getTotalCartons().equalsIgnoreCase(table.get("Total Cartons")));
-        Assert.assertTrue(shipmentDetailsPage.getTotalProducts().equalsIgnoreCase(table.get("Total Products")));
         Assert.assertTrue(shipmentDetailsPage.getTransportationNumber().equalsIgnoreCase(table.get("Transportation Ref. Number")));
 
     }

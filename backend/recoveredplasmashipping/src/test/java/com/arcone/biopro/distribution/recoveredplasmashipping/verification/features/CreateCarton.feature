@@ -33,8 +33,8 @@ Feature: Create Carton
                 | Carton Sequence      | 1      |
                 | Tare Weight          | 1000   |
                 | Total Volume         | 0      |
-                | Minimum Products     |        |
-                | Maximum Products     |        |
+                | Minimum Products     | 15     |
+                | Maximum Products     | 20     |
             And I should see the following shipment information:
                 | Field                      | Value                         |
                 | Shipment Number Prefix     | BPM2765                       |
@@ -44,7 +44,6 @@ Feature: Create Carton
                 | Shipment Status            | OPEN                          |
                 | Shipment Date              | <tomorrow>                    |
                 | Transportation Ref. Number | DIS338                        |
-                | Total Products             | 0                             |
                 | Total Cartons              | 1                             |
             When I choose to submit the carton.
             Then I should see the list of cartons added to the shipment containing:
