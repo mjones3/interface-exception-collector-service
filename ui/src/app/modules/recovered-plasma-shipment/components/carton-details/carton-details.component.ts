@@ -147,7 +147,7 @@ export class cartonDetailsComponent
             .pipe(
                 catchError((err) => {
                     if (this.scanUnitNumberProductCode) {
-                        this.resetproductGroup();
+                        this.resetProductGroup();
                     }
                     this.toastr.error(ERROR_MESSAGE);
                     throw err;
@@ -166,11 +166,11 @@ export class cartonDetailsComponent
                             ...this.packedProductsDataSignal(),
                             productResult.data,
                         ]);
-                        this.resetproductGroup();
+                        this.resetProductGroup();
                         this.focusOnUnitNumber();
                     } else {
                         if (notifications.length > 0) {
-                            this.resetproductGroup();
+                            this.resetProductGroup();
                             if (notifications[0].type === 'INFO') {
                                 const inventory = productResult.data;
                                 if (
@@ -195,7 +195,7 @@ export class cartonDetailsComponent
                                 ) {
                                     this.disableInputsIfMaxCartonProduct();
                                 } else {
-                                    this.resetproductGroup();
+                                    this.resetProductGroup();
                                 }
                             }
                         }
@@ -209,15 +209,15 @@ export class cartonDetailsComponent
             this.packedProductsDataSignal().length ===
             this.maxProductsComputed()
         ) {
-            this.disableUnitProductGroup();
+            this.disableProductGroup();
         }
     }
 
-    disableUnitProductGroup() {
+    disableProductGroup() {
         this.scanUnitNumberProductCode.disableUnitProductGroup();
     }
 
-    resetproductGroup() {
+    resetProductGroup() {
         this.scanUnitNumberProductCode.resetUnitProductGroup();
     }
 
@@ -309,7 +309,7 @@ export class cartonDetailsComponent
             message,
             details,
             () => {
-                this.resetproductGroup();
+                this.resetProductGroup();
                 this.focusOnUnitNumber();
             }
         );

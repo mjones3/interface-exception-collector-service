@@ -378,11 +378,11 @@ describe('cartonDetailsComponent', () => {
         jest.spyOn(component, 'maxProductsComputed').mockReturnValue(
             maxNumberOfProducts
         );
-        jest.spyOn(component, 'disableUnitProductGroup');
+        jest.spyOn(component, 'disableProductGroup');
         component.packedProductsDataSignal.set([{}]);
         fixture.detectChanges();
         component.disableInputsIfMaxCartonProduct();
-        expect(component.disableUnitProductGroup).toHaveBeenCalled();
+        expect(component.disableProductGroup).toHaveBeenCalled();
     });
 
     it('should set data to the packedProductsDataSignal', () => {
@@ -416,11 +416,11 @@ describe('cartonDetailsComponent', () => {
             mockRecoveredPlasmaService,
             'addCartonProducts'
         ).mockReturnValue(of(mockPackedProductsDataInfo) as any);
-        jest.spyOn(component, 'resetproductGroup').mockImplementation(() => {});
+        jest.spyOn(component, 'resetProductGroup').mockImplementation(() => {});
         jest.spyOn(component, 'triggerDiscard');
         component.enterAndVerifyProduct(filledProduct);
         expect(mockRecoveredPlasmaService.addCartonProducts).toHaveBeenCalled();
-        expect(component.resetproductGroup).toHaveBeenCalled();
+        expect(component.resetProductGroup).toHaveBeenCalled();
         expect(component.triggerDiscard).toHaveBeenCalled();
     });
 
@@ -437,7 +437,7 @@ describe('cartonDetailsComponent', () => {
             'addCartonProducts'
         ).mockReturnValue(of(mockPackedProductsDataWarn) as any);
         component.enterAndVerifyProduct(filledProduct);
-        jest.spyOn(component, 'resetproductGroup').mockImplementation(() => {});
+        jest.spyOn(component, 'resetProductGroup').mockImplementation(() => {});
         jest.spyOn(
             component,
             'disableInputsIfMaxCartonProduct'
