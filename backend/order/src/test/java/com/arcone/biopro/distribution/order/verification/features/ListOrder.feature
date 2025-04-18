@@ -110,7 +110,7 @@ Feature: List of all orders in Search Order
             And I have <Total Records> Biopro Order(s).
         # Request without specifying a page (expected to get the first page by default)
             When I request to list the Orders.
-            Then I should receive <Total Records> order(s) splitted in <Total Pages> page(s).
+            Then I should receive a minimum of <Total Records> order(s) splitted in <Total Pages> page(s).
             And I confirm that the page 1 "has" <Total Items per Page> orders.
             And I confirm that the page 1 "has no" previous page and "has" next page.
         # Navigate to next page (page 2 out of 3)
@@ -119,10 +119,10 @@ Feature: List of all orders in Search Order
             And I confirm that the page 2 "has" previous page and "has" next page.
         # Navigate to last page (page 3 out of 3)
             When I request to list the Orders at page 3.
-            Then I confirm that the page 3 "has" <Last Page Total Items> orders.
+            Then I confirm that the page 3 "has" a minimum of <Last Page Minimum Items> orders.
             And I confirm that the page 3 "has" previous page and "has no" next page.
             Examples:
-                | Total Records | Total Pages | Total Items per Page | Last Page Total Items |
+                | Total Records | Total Pages | Total Items per Page | Last Page Minimum Items |
                 | 50            | 3           | 20                   | 10                    |
 
 
@@ -328,6 +328,14 @@ Feature: List of all orders in Search Order
             When I request to list the Orders sorted by "orderNumber" in "descending" order.
             Then I should receive the orders listed by "orderNumber" in "descending" order.
             And  The sorting indicator should be at "orderNumber" property in "descending" order.
+
+        Scenario: Database clean up
+            Given I cleaned up from the database the orders with external ID starting with "EXT1141179".
+            And I cleaned up from the database the orders with external ID starting with "EXTDIS220".
+            And I cleaned up from the database the orders with external ID starting with "EXTDIS227".
+            And I cleaned up from the database the orders with external ID starting with "EXT20RECORDS".
+            And I cleaned up from the database the orders with external ID starting with "EXTDIS237".
+            And I have restored the default configuration for the order priority colors.
 
 
 

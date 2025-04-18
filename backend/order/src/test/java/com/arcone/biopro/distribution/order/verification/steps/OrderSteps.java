@@ -924,10 +924,10 @@ public class OrderSteps {
         orderController.listOrdersByPage(null);
     }
 
-    @Then("I should receive {int} order\\(s) splitted in {int} page\\(s).")
+    @Then("I should receive a minimum of {int} order\\(s) splitted in {int} page\\(s).")
     public void iShouldReceiveOrderSSplittedInPageS(int totalRecords, int totalPages) {
         var page = context.getOrdersPage();
-        Assert.assertEquals(totalRecords, page.totalRecords());
+        Assert.assertTrue(page.totalRecords() >= totalRecords);
         Assert.assertEquals(totalPages, page.totalPages());
     }
 
@@ -943,6 +943,22 @@ public class OrderSteps {
         } else if (HAS_NOT.equals(hasHasNot)) {
             Assertions.assertTrue(currentPage.content().isEmpty());
             Assert.assertEquals(totalElements, 0);
+        } else {
+            Assert.fail("Invalid Option of has / has not");
+        }
+    }
+    @And("I confirm that the page {int} {string} a minimum of {int} orders.")
+    public void iConfirmThatThePageHasOrders(int page, String hasHasNot, int totalElements) {
+        var pageIndex = page - 1;
+        orderController.listOrdersByPage(pageIndex);
+        var currentPage = context.getOrdersPage();
+        Assert.assertEquals(pageIndex, currentPage.pageNumber());
+        if (HAS.equals(hasHasNot)) {
+            Assertions.assertFalse(currentPage.content().isEmpty());
+            Assert.assertTrue(currentPage.content().size() >= totalElements);
+        } else if (HAS_NOT.equals(hasHasNot)) {
+            Assertions.assertTrue(currentPage.content().isEmpty());
+            Assert.assertEquals(0, totalElements);
         } else {
             Assert.fail("Invalid Option of has / has not");
         }

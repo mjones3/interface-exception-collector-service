@@ -41,3 +41,6 @@ Feature: Modify Order
                 | EXTDIS3160005      | 123456789     | YES              | NO                 |
                 | EXTDIS3160000      | 123456789     | NO               | NO                 |
                 | EXTDIS3160007      | 123456789     | YES              | NO                 |
+
+            Scenario: Database clean up
+                Given I cleaned up from the database the orders with external ID starting with "EXTDIS316".

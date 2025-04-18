@@ -91,3 +91,6 @@ Feature: Complete Order
                 | COMPLETED       | false             | should not | 2                | 8                  |
                 | COMPLETED       | true              | should     | 3                | 7                  |
 
+            Scenario: Database cleanup
+                Given I cleaned up from the database the orders with external ID starting with "EXTDIS111".
+
