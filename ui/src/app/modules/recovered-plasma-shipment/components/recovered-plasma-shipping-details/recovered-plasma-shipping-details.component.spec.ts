@@ -10,7 +10,10 @@ import { ToastrImplService } from '@shared';
 import { CookieService } from 'ngx-cookie-service';
 import { of, throwError } from 'rxjs';
 import { UseCaseResponseDTO } from '../../../../shared/models/use-case-response.dto';
-import { RecoveredPlasmaShipmentResponseDTO } from '../../models/recovered-plasma.dto';
+import {
+    CartonDTO,
+    RecoveredPlasmaShipmentResponseDTO,
+} from '../../models/recovered-plasma.dto';
 import { RecoveredPlasmaService } from '../../services/recovered-plasma.service';
 import { RecoveredPlasmaShippingDetailsComponent } from './recovered-plasma-shipping-details.component';
 
@@ -22,7 +25,6 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
     let mockToastrService: jest.Mocked<ToastrImplService>;
     let mockStore: jest.Mocked<Store>;
     let cookieService: jest.Mocked<CookieService>;
-    let datePipe: DatePipe;
 
     beforeEach(async () => {
         mockRouter = {
@@ -34,6 +36,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         mockRecoveredPlasmaService = {
             getShipmentById: jest.fn(),
             createCarton: jest.fn(),
+            getCartonById: jest.fn(),
         } as any;
 
         mockToastrService = {
@@ -81,7 +84,6 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
 
         mockStore.select.mockReturnValue(of({ id: 'emp123' }));
         jest.spyOn(cookieService, 'get').mockReturnValue('123456789');
-        datePipe = TestBed.inject(DatePipe);
         fixture = TestBed.createComponent(
             RecoveredPlasmaShippingDetailsComponent
         );
@@ -248,5 +250,163 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
             const result = component.getStatusBadgeCssClass('UNKNOWN' as any);
             expect(result).toBe('');
         });
+    });
+
+    it('should handle error when loadCartonPackedProduct fails', () => {
+        const mockError = new ApolloError({
+            errorMessage: 'Network error',
+        });
+        const carton = {
+            id: 1,
+            cartonNumber: '123',
+            shipmentId: 123,
+            cartonSequence: null,
+            createEmployeeId: '',
+            closeEmployeeId: '',
+            createDate: '',
+            modificationDate: '',
+            closeDate: '',
+            status: '',
+            totalProducts: 0,
+            totalWeight: 0,
+            totalVolume: 0,
+            maxNumberOfProducts: 0,
+            minNumberOfProducts: 0,
+            packedProducts: [],
+        };
+
+        mockRecoveredPlasmaService.getCartonById.mockReturnValue(
+            throwError(() => mockError)
+        );
+
+        component.loadCartonPackedProduct(carton);
+
+        expect(mockToastrService.error).toHaveBeenCalled();
+    });
+
+    it('should not call service if carton id is undefined', () => {
+        const carton: CartonDTO = { id: undefined };
+        component.loadCartonPackedProduct(carton);
+        jest.spyOn(mockRecoveredPlasmaService, 'getCartonById');
+        expect(mockRecoveredPlasmaService.getCartonById).not.toHaveBeenCalled();
+    });
+
+    it('should not call service if carton is null', () => {
+        component.loadCartonPackedProduct(null);
+        jest.spyOn(mockRecoveredPlasmaService, 'getCartonById');
+        expect(mockRecoveredPlasmaService.getCartonById).not.toHaveBeenCalled();
+    });
+
+    it('should load packed products successfully and update signal', () => {
+        const carton: CartonDTO = { id: 2 };
+        const mockResponse = {
+            data: {
+                findCartonById: {
+                    _links: null,
+                    data: {
+                        id: 2,
+                        cartonNumber: 'BPMMH12',
+                        shipmentId: 2,
+                        cartonSequence: 123,
+                        createEmployeeId:
+                            '4c973896-5761-41fc-8217-07c5d13a004b',
+                        closeEmployeeId: null,
+                        createDate: '2025-04-17T13:03:54.560015Z',
+                        modificationDate: '2025-04-17T13:03:54.560015Z',
+                        closeDate: null,
+                        status: 'OPEN',
+                        totalProducts: 1,
+                        totalWeight: 0,
+                        totalVolume: 0,
+                        packedProducts: [
+                            {
+                                id: 5,
+                                cartonId: 2,
+                                unitNumber: 'W036898786800',
+                                productCode: 'E6022V00',
+                                productDescription: 'CP2D PLS MI 120H',
+                                productType: 'RP_FROZEN_WITHIN_120_HOURS',
+                                volume: 229,
+                                weight: 150,
+                                packedByEmployeeId:
+                                    '4c973896-5761-41fc-8217-07c5d13a004b',
+                                aboRh: 'AP',
+                                status: 'PACKED',
+                                expirationDate: '2024-09-03T10:15:30',
+                                collectionDate: '2011-12-03T09:15:30Z',
+                                createDate: '2025-04-17T16:36:30.643488Z',
+                                modificationDate: '2025-04-17T16:36:30.643488Z',
+                            },
+                        ],
+                        maxNumberOfProducts: 2,
+                        minNumberOfProducts: 20,
+                    },
+                    notifications: [],
+                },
+            },
+        } as any as ApolloQueryResult<{
+            findCartonById: UseCaseResponseDTO<CartonDTO>;
+        }>;
+        mockRecoveredPlasmaService.getCartonById.mockReturnValue(
+            of(mockResponse)
+        );
+        component.loadCartonPackedProduct(carton);
+        jest.spyOn(mockRecoveredPlasmaService, 'getCartonById');
+
+        expect(mockRecoveredPlasmaService.getCartonById).toHaveBeenCalledWith(
+            2
+        );
+        expect(component.expandedRowDataSignal()).toEqual(
+            mockResponse.data.findCartonById.data.packedProducts
+        );
+    });
+
+    it('should not update signal if packed products data is null', () => {
+        const carton: CartonDTO = { id: 123 };
+        const mockResponse = {
+            packedProducts: [],
+        } as any as ApolloQueryResult<{
+            findCartonById: UseCaseResponseDTO<CartonDTO>;
+        }>;
+
+        mockRecoveredPlasmaService.getCartonById.mockReturnValue(
+            of(mockResponse)
+        );
+        component.loadCartonPackedProduct(carton);
+        expect(mockRecoveredPlasmaService.getCartonById).toHaveBeenCalledWith(
+            123
+        );
+        expect(component.expandedRowDataSignal()).toEqual([]);
+    });
+
+    it('should hide "edit" when canAddCartons is false', () => {
+        const buttonIdCssSelector = By.css('#editBtn');
+        const root = fixture.debugElement;
+        mockRecoveredPlasmaService.getShipmentById.mockReturnValue(
+            of({
+                data: {
+                    findShipmentById: {
+                        data: {
+                            canAddCartons: false,
+                        },
+                    },
+                },
+            } as unknown as ApolloQueryResult<{
+                findShipmentById: UseCaseResponseDTO<RecoveredPlasmaShipmentResponseDTO>;
+            }>)
+        );
+
+        fixture.detectChanges();
+        const button = root.query(buttonIdCssSelector)?.nativeElement;
+        expect(button).toBeFalsy();
+    });
+
+    it('should navigate  to carton details page when click on edit', () => {
+        const cartonId = 1;
+        jest.spyOn(mockRouter, 'navigate');
+        component.editCarton(cartonId);
+        expect(mockRouter.navigate).toHaveBeenCalledWith([
+            `recovered-plasma/${cartonId}/carton-details`,
+        ]);
     });
 });

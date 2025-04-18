@@ -1,8 +1,9 @@
 import { AsyncPipe, CommonModule } from '@angular/common';
-import { Component, ViewChild, computed, signal } from '@angular/core';
+import { Component, OnInit, ViewChild, computed, signal } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { MatDividerModule } from '@angular/material/divider';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ApolloError } from '@apollo/client';
 import { FuseCardComponent } from '@fuse/components/card/public-api';
 import { Store } from '@ngrx/store';
 import {
@@ -21,8 +22,17 @@ import { UseCaseNotificationDTO } from 'app/shared/models/use-case-response.dto'
 import { ConfirmationAcknowledgmentService } from 'app/shared/services/confirmation-acknowledgment.service';
 import { DiscardService } from 'app/shared/services/discard.service';
 import { ProductIconsService } from 'app/shared/services/product-icon.service';
+import handleApolloError from 'app/shared/utils/apollo-error-handling';
+import { consumeUseCaseNotifications } from 'app/shared/utils/notification.handling';
 import { CookieService } from 'ngx-cookie-service';
-import { Observable, Subscription, catchError, map, switchMap, tap } from 'rxjs';
+import {
+    Observable,
+    Subscription,
+    catchError,
+    map,
+    switchMap,
+    tap,
+} from 'rxjs';
 import { PackCartonItemsDTO } from '../../graphql/mutation-definitions/pack-items.graphql';
 import {
     CartonDTO,
@@ -33,12 +43,9 @@ import { RecoveredPlasmaShipmentCommon } from '../../recovered-plasma-shipment.c
 import { RecoveredPlasmaService } from '../../services/recovered-plasma.service';
 import { ShippingCartonInformationCardComponent } from '../../shared/shipping-carton-information-card/shipping-carton-information-card.component';
 import { ShippingInformationCardComponent } from '../../shared/shipping-information-card/shipping-information-card.component';
-import { ApolloError } from '@apollo/client';
-import handleApolloError from 'app/shared/utils/apollo-error-handling';
-import { consumeUseCaseNotifications } from 'app/shared/utils/notification.handling';
 
 @Component({
-    selector: 'biopro-add-carton-products',
+    selector: 'biopro-carton-details',
     standalone: true,
     imports: [
         AsyncPipe,
@@ -53,9 +60,12 @@ import { consumeUseCaseNotifications } from 'app/shared/utils/notification.handl
         FuseCardComponent,
         ScanUnitNumberProductCodeComponent,
     ],
-    templateUrl: './add-carton-products.component.html',
+    templateUrl: './carton-details.component.html',
 })
-export class AddCartonProductsComponent extends RecoveredPlasmaShipmentCommon {
+export class cartonDetailsComponent
+    extends RecoveredPlasmaShipmentCommon
+    implements OnInit
+{
     recoveredPlasmaProduct: FormGroup;
     formValueChange: Subscription;
     findShipmentById: RecoveredPlasmaShipmentResponseDTO;
@@ -66,7 +76,7 @@ export class AddCartonProductsComponent extends RecoveredPlasmaShipmentCommon {
     cartonDetailsSignal = signal<CartonDTO>(null);
 
     @ViewChild('scanUnitNumberProductCode')
-    protected scanUnitNumberProductCode: ScanUnitNumberProductCodeComponent;
+    scanUnitNumberProductCode: ScanUnitNumberProductCodeComponent;
 
     constructor(
         public header: ProcessHeaderService,
@@ -93,13 +103,13 @@ export class AddCartonProductsComponent extends RecoveredPlasmaShipmentCommon {
     }
 
     ngOnInit(): void {
-    this.loadRecoveredPlasmaShippingCartonDetails(this.routeIdComputed())
-        .pipe(
-            switchMap((carton) =>
-                this.loadRecoveredPlasmaShippingDetails(carton.shipmentId)
+        this.loadRecoveredPlasmaShippingCartonDetails(this.routeIdComputed())
+            .pipe(
+                switchMap((carton) =>
+                    this.loadRecoveredPlasmaShippingDetails(carton.shipmentId)
+                )
             )
-        )
-        .subscribe();
+            .subscribe();
     }
 
     loadRecoveredPlasmaShippingCartonDetails(
@@ -118,7 +128,7 @@ export class AddCartonProductsComponent extends RecoveredPlasmaShipmentCommon {
             map((response) => {
                 const { data } = response.data.findCartonById;
                 this.cartonDetailsSignal.set(data);
-                this.packedProductsDataSignal.set([...data.packedProducts])
+                this.packedProductsDataSignal.set([...data.packedProducts]);
                 this.disableInputsIfMaxCartonProduct();
                 return data;
             })
@@ -137,7 +147,7 @@ export class AddCartonProductsComponent extends RecoveredPlasmaShipmentCommon {
             .pipe(
                 catchError((err) => {
                     if (this.scanUnitNumberProductCode) {
-                        this.scanUnitNumberProductCode.resetUnitProductGroup();
+                        this.resetproductGroup();
                     }
                     this.toastr.error(ERROR_MESSAGE);
                     throw err;
@@ -146,50 +156,76 @@ export class AddCartonProductsComponent extends RecoveredPlasmaShipmentCommon {
             .subscribe({
                 next: (response) => {
                     const productResult = response?.data?.packCartonItem;
-                    const notifications: UseCaseNotificationDTO[] = productResult.notifications;
-                        if (productResult?.data && notifications[0].type === "SUCCESS") {
-                                this.packedProductsDataSignal.set([...this.packedProductsDataSignal(), productResult.data])
-                            this.scanUnitNumberProductCode.resetUnitProductGroup();
-                        } else {
-                            if (notifications.length > 0) {
-                                this.scanUnitNumberProductCode.resetUnitProductGroup();
-                                 if(notifications[0].type === "INFO"){
-                                    const inventory = productResult.data;
-                                    if (notifications[0].action === 'TRIGGER_DISCARD')
-                                        {
-                                           return this.triggerDiscard(
-                                            notifications[0],
-                                               inventory
-                                           );
-                                       } else {
-                                           return this.openAcknowledgmentMessageDialog(
-                                            notifications[0]
-                                           );
-                                       }
-                                }else{
-                                    this.displayMessageFromNotificationDto(notifications);
-                                    const notification = notifications[0];
-                                        if (notification.name ==='MAXIMUM_UNITS_BY_CARTON' 
-                                        ) {
-                                            this.disableInputsIfMaxCartonProduct();
-                                        } else {
-                                            this.scanUnitNumberProductCode.resetUnitProductGroup();
-                                            this.scanUnitNumberProductCode.enableProductCode();
-                                    }
+                    const notifications: UseCaseNotificationDTO[] =
+                        productResult.notifications;
+                    if (
+                        productResult?.data &&
+                        notifications[0].type === 'SUCCESS'
+                    ) {
+                        this.packedProductsDataSignal.set([
+                            ...this.packedProductsDataSignal(),
+                            productResult.data,
+                        ]);
+                        this.resetproductGroup();
+                        this.focusOnUnitNumber();
+                    } else {
+                        if (notifications.length > 0) {
+                            this.resetproductGroup();
+                            if (notifications[0].type === 'INFO') {
+                                const inventory = productResult.data;
+                                if (
+                                    notifications[0].action ===
+                                    'TRIGGER_DISCARD'
+                                ) {
+                                    return this.triggerDiscard(
+                                        notifications[0],
+                                        inventory
+                                    );
+                                } else {
+                                    return this.openAcknowledgmentMessageDialog(
+                                        notifications[0]
+                                    );
+                                }
+                            } else {
+                                this.displayNotificationMessage(notifications);
+                                const notification = notifications[0];
+                                if (
+                                    notification.name ===
+                                    'MAXIMUM_UNITS_BY_CARTON'
+                                ) {
+                                    this.disableInputsIfMaxCartonProduct();
+                                } else {
+                                    this.resetproductGroup();
                                 }
                             }
                         }
                     }
+                },
             });
     }
 
     disableInputsIfMaxCartonProduct(): void {
-        if (this.packedProductsDataSignal().length === this.maxProductsComputed()) {
-            this.scanUnitNumberProductCode.disableUnitProductGroup();
+        if (
+            this.packedProductsDataSignal().length ===
+            this.maxProductsComputed()
+        ) {
+            this.disableUnitProductGroup();
         }
     }
 
-    private triggerDiscard(
+    disableUnitProductGroup() {
+        this.scanUnitNumberProductCode.disableUnitProductGroup();
+    }
+
+    resetproductGroup() {
+        this.scanUnitNumberProductCode.resetUnitProductGroup();
+    }
+
+    focusOnUnitNumber() {
+        this.scanUnitNumberProductCode.focusOnUnitNumber();
+    }
+
+    triggerDiscard(
         triggerDiscardNotifications: UseCaseNotificationDTO,
         inventoryItem: CartonPackedItemResponseDTO
     ): void {
@@ -219,7 +255,7 @@ export class AddCartonProductsComponent extends RecoveredPlasmaShipmentCommon {
     }
 
     private showDiscardSystemError() {
-        this.displayMessageFromNotificationDto([
+        this.displayNotificationMessage([
             {
                 type: 'SYSTEM',
                 message:
@@ -228,10 +264,10 @@ export class AddCartonProductsComponent extends RecoveredPlasmaShipmentCommon {
         ]);
     }
 
-    displayMessageFromNotificationDto(notifications: UseCaseNotificationDTO[]) {
+    displayNotificationMessage(notifications: UseCaseNotificationDTO[]) {
         notifications.forEach((notification) => {
             const notificationType = NotificationTypeMap[notification.type];
-            this.toastr.show(
+            const toastrRef = this.toastr.show(
                 notification.message,
                 notificationType.title,
                 {
@@ -242,6 +278,7 @@ export class AddCartonProductsComponent extends RecoveredPlasmaShipmentCommon {
                 },
                 notificationType.type
             );
+            toastrRef?.onTap.subscribe(() => this.focusOnUnitNumber());
         });
     }
 
@@ -272,8 +309,8 @@ export class AddCartonProductsComponent extends RecoveredPlasmaShipmentCommon {
             message,
             details,
             () => {
-                this.scanUnitNumberProductCode.resetUnitProductGroup();
-                this.scanUnitNumberProductCode.enableProductCode();
+                this.resetproductGroup();
+                this.focusOnUnitNumber();
             }
         );
     }

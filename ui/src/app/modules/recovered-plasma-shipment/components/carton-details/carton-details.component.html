@@ -53,7 +53,10 @@
                         id="optionButtons"
                         class="grid max-h-[520px] grid-cols-4 gap-4 overflow-auto pb-4 pt-4"
                     >
-                        @for (option of packedProductsDataSignal(); track $index) {
+                        @for (
+                            option of packedProductsDataSignal();
+                            track $index
+                        ) {
                             <biopro-unit-number-card
                                 [id]="'unit-' + $index"
                                 class="max-h-24"

@@ -55,35 +55,38 @@
                 </span>
             </ng-template>
             <ng-template #editTemplateRef let-element="element">
-                <biopro-basic-button
-                    id="editBtn"
-                    class="text-primary"
-                    color="primary"
-                    (buttonClicked)="editCarton(element?.id)"
-                    label="Edit"
-                />
+                @if (shipmentDetailsSignal()?.canAddCartons) {
+                    <button id="editBtn" (click)="editCarton(element?.id)">
+                        <mat-icon>edit</mat-icon>
+                    </button>
+                }
             </ng-template>
 
             <!--Expand row for added products-->
             <ng-template #expandTemplateRef let-element="element">
-                @if(expandedRowDataSignal()?.length) {
-                    <div class="w-full">
-                        <div class="p-4 w-full">
-                            <div class="flex items-center text-xl font-bold p-4">
+                <div class="w-full">
+                    <div class="w-full p-2">
+                        <div class="flex items-center p-2 text-xl font-bold">
                             <span>
-                                Unit Numbers
-                                (<span id="prodQtyId">{{expandedRowDataSignal().length}}</span>)
+                                Unit Numbers (<span id="prodQtyId">{{
+                                    expandedRowDataSignal().length
+                                }}</span
+                                >)
                             </span>
-                            </div>
-                            <mat-divider></mat-divider>
-                            <div class="grid grid-cols-5 gap-4 p-4">
-                                @for(product of expandedRowDataSignal(); track product.unitNumber) {
-                                    <div class="text-xl">{{product.unitNumber}}</div>
-                                }
-                            </div>
+                        </div>
+                        <mat-divider></mat-divider>
+                        <div class="grid grid-cols-5 gap-4 p-2">
+                            @for (
+                                product of expandedRowDataSignal();
+                                track product.unitNumber
+                            ) {
+                                <div class="text-lg">
+                                    {{ product.unitNumber }}
+                                </div>
+                            }
                         </div>
                     </div>
-                }
+                </div>
             </ng-template>
         </div>
         <div class="flex w-3/12 flex-col gap-4">

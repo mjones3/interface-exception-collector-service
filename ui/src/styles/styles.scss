@@ -391,6 +391,22 @@ biopro-process-header {
         }
     }
 
+    &.mat-primary-action {
+        background-color: rgba(var(--fuse-primary-rgb), 0.9);
+
+        &[disabled='true'] {
+            color: rgba(var(--fuse-accent-rgb), 0.6) !important;
+
+            &.mat-primary {
+                background-color: rgba(var(--fuse-accent-rgb), 0.15) !important;
+            }
+        }
+
+        &:hover {
+            background-color: rgba(var(--fuse-primary-rgb), 0.8);
+        }
+    }
+
     &.mat-secondary {
         @apply text-accent hover:bg-accent/10 disabled:text-accent/10;
     }

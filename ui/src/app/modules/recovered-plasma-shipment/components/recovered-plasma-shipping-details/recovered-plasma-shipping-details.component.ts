@@ -7,6 +7,8 @@ import {
     TemplateRef,
     viewChild,
 } from '@angular/core';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApolloError } from '@apollo/client';
 import { Store } from '@ngrx/store';
@@ -20,18 +22,19 @@ import { ActionButtonComponent } from 'app/shared/components/buttons/action-butt
 import { BasicButtonComponent } from 'app/shared/components/buttons/basic-button.component';
 import { ProductIconsService } from 'app/shared/services/product-icon.service';
 import { CookieService } from 'ngx-cookie-service';
-import { catchError, EMPTY, map, Observable, Subject, Subscription, switchMap, takeUntil, tap } from 'rxjs';
+import { catchError, map, tap } from 'rxjs';
 import { TableComponent } from '../../../../shared/components/table/table.component';
 import handleApolloError from '../../../../shared/utils/apollo-error-handling';
 import { consumeUseCaseNotifications } from '../../../../shared/utils/notification.handling';
 import { RecoveredPlasmaShipmentStatus } from '../../graphql/query-definitions/shipment.graphql';
+import {
+    CartonDTO,
+    CartonPackedItemResponseDTO,
+} from '../../models/recovered-plasma.dto';
 import { RecoveredPlasmaShipmentCommon } from '../../recovered-plasma-shipment.common';
 import { RecoveredPlasmaService } from '../../services/recovered-plasma.service';
 import { ShippingInformationCardComponent } from '../../shared/shipping-information-card/shipping-information-card.component';
 import { RecoveredPlasmaShipmentDetailsNavbarComponent } from '../recovered-plasma-shipment-details-navbar/recovered-plasma-shipment-details-navbar.component';
-import { CartonDTO, CartonPackedItemResponseDTO } from '../../models/recovered-plasma.dto';
-import { PackCartonItemsDTO } from '../../graphql/mutation-definitions/pack-items.graphql';
-import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
     selector: 'biopro-recovered-plasma-shipping-details',
@@ -44,7 +47,8 @@ import { MatDividerModule } from '@angular/material/divider';
         BasicButtonComponent,
         RecoveredPlasmaShipmentDetailsNavbarComponent,
         TableComponent,
-        MatDividerModule
+        MatDividerModule,
+        MatIcon,
     ],
     templateUrl: './recovered-plasma-shipping-details.component.html',
 })
@@ -57,8 +61,8 @@ export class RecoveredPlasmaShippingDetailsComponent
     editTemplateRef = viewChild<TemplateRef<Element>>('editTemplateRef');
 
     // Signal to store expanded row data
-    expandedRowDataSignal = signal<CartonPackedItemResponseDTO[]>(null);
-    
+    expandedRowDataSignal = signal<CartonPackedItemResponseDTO[]>([]);
+
     cartonsComputed = computed(
         () => this.shipmentDetailsSignal()?.cartonList ?? []
     );
@@ -119,24 +123,32 @@ export class RecoveredPlasmaShippingDetailsComponent
     }
 
     ngOnInit(): void {
-        this.loadRecoveredPlasmaShippingDetails(this.routeIdComputed()).subscribe();
+        this.loadRecoveredPlasmaShippingDetails(
+            this.routeIdComputed()
+        ).subscribe();
     }
 
     loadCartonPackedProduct(carton: CartonDTO): void {
         if (!carton?.id) return;
-        this.recoveredPlasmaService.getCartonById(carton.id).pipe(
-            catchError((error: ApolloError) => {
-                handleApolloError(this.toastr, error);
-            }),
-            map((response) => response.data?.findCartonById?.data?.packedProducts)
-        ).subscribe(data => {
-            if (data) {
-                this.expandedRowDataSignal.set(data);
-            }
-        });
+        this.recoveredPlasmaService
+            .getCartonById(carton.id)
+            .pipe(
+                catchError((error: ApolloError) => {
+                    handleApolloError(this.toastr, error);
+                }),
+                map(
+                    (response) =>
+                        response.data?.findCartonById?.data?.packedProducts
+                )
+            )
+            .subscribe((data) => {
+                if (data) {
+                    this.expandedRowDataSignal.set(data);
+                }
+            });
     }
 
-    editCarton(id: number){
+    editCarton(id: number) {
         this.router.navigate([`recovered-plasma/${id}/carton-details`]);
     }
 
