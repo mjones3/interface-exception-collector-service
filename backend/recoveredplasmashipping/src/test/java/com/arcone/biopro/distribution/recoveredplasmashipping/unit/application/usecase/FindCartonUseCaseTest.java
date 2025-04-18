@@ -84,9 +84,9 @@ class FindCartonUseCaseTest {
                 UseCaseNotificationOutput notification = useCaseOutput.notifications().get(0);
                 return useCaseOutput.data() == null &&
                     useCaseOutput.notifications().size() == 1 &&
-                    notification.useCaseMessage().getType() == UseCaseNotificationType.WARN &&
-                    notification.useCaseMessage().getCode() == 10 &&
-                    notification.useCaseMessage().getMessage().contains(CARTON_ID.toString());
+                    notification.useCaseMessage().type() == UseCaseNotificationType.WARN &&
+                    notification.useCaseMessage().code() == 10 &&
+                    notification.useCaseMessage().message().contains(CARTON_ID.toString());
             })
             .verifyComplete();
 
@@ -110,9 +110,9 @@ class FindCartonUseCaseTest {
                 UseCaseNotificationOutput notification = useCaseOutput.notifications().get(0);
                 return useCaseOutput.data() == null &&
                     useCaseOutput.notifications().size() == 1 &&
-                    notification.useCaseMessage().getType() == UseCaseNotificationType.WARN &&
-                    notification.useCaseMessage().getCode() == 10 &&
-                    notification.useCaseMessage().getMessage().equals("Database error");
+                    notification.useCaseMessage().type() == UseCaseNotificationType.WARN &&
+                    notification.useCaseMessage().code() == 10 &&
+                    notification.useCaseMessage().message().equals("Database error");
             })
             .verifyComplete();
 
@@ -136,9 +136,9 @@ class FindCartonUseCaseTest {
                 UseCaseNotificationOutput notification = useCaseOutput.notifications().get(0);
                 return useCaseOutput.data() == null &&
                     useCaseOutput.notifications().size() == 1 &&
-                    notification.useCaseMessage().getType() == UseCaseNotificationType.WARN &&
-                    notification.useCaseMessage().getCode() == 10 &&
-                    notification.useCaseMessage().getMessage().equals("Mapping error");
+                    notification.useCaseMessage().type() == UseCaseNotificationType.WARN &&
+                    notification.useCaseMessage().code() == 10 &&
+                    notification.useCaseMessage().message().equals("Mapping error");
             })
             .verifyComplete();
 

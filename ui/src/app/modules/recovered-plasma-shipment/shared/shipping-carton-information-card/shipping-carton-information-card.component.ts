@@ -24,7 +24,6 @@ export class ShippingCartonInformationCardComponent {
     @Input() isButtonDisabled = true;
     @Output() handleClick = new EventEmitter<void>();
 
-    protected shippingInput = input<Partial<RecoveredPlasmaShipmentResponseDTO>>();
     protected cartonInput = input<Partial<CartonDTO>>();
 
     protected carton = computed<Description[]>(() => [
@@ -33,18 +32,16 @@ export class ShippingCartonInformationCardComponent {
             value: this.cartonInput()?.cartonNumber,
         },
         {
-            label: 'Tare Weight (g)',
-            value: this.shippingInput()?.cartonTareWeight,
-        },
-        {
             label: 'Total Volume (L)',
             value: this.cartonInput()?.totalVolume,
         },
         {
             label: 'Minimum Products',
+            value: this.cartonInput()?.minNumberOfProducts,
         },
         {
             label: 'Maximum Products',
+            value: this.cartonInput()?.maxNumberOfProducts,
         },
     ]);
 

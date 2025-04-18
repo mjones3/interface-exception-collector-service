@@ -18,6 +18,7 @@ import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -95,7 +96,8 @@ class CartonTest {
 
         // When/Then
         assertDoesNotThrow(() -> Carton.fromRepository(1L,"number",1L,1,"employee-id","close-employee-id"
-            , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO));
+            , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO,Collections.emptyList(),0,0));
+
     }
 
     @Test
@@ -104,7 +106,7 @@ class CartonTest {
         // When/Then
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
             () -> Carton.fromRepository(1L,"number",null,1,"employee-id","close-employee-id"
-                , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO));
+                , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO,Collections.emptyList(),0,0));
         assertEquals("Shipment Id is required", exception.getMessage());
     }
 
@@ -114,7 +116,7 @@ class CartonTest {
         // When/Then
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
             () -> Carton.fromRepository(1L,"number",1L,1,null,"close-employee-id"
-                , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO));
+                , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO,Collections.emptyList(),0,0));
         assertEquals("Create Employee Id is required", exception.getMessage());
     }
 
@@ -124,7 +126,7 @@ class CartonTest {
         // When/Then
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
             () ->  Carton.fromRepository(1L,null,1L,1,"employee-id","close-employee-id"
-                , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO));
+                , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO,Collections.emptyList(),0,0));
         assertEquals("Carton Number is required", exception.getMessage());
     }
 
@@ -133,7 +135,7 @@ class CartonTest {
         // When/Then
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
             () -> Carton.fromRepository(1L,"number",1L,null,"employee-id","close-employee-id"
-                , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO));
+                , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO,Collections.emptyList(),0,0));
         assertEquals("Carton Sequence is required", exception.getMessage());
     }
 
@@ -142,7 +144,7 @@ class CartonTest {
         // When/Then
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
             () -> Carton.fromRepository(1L, "number", 1L, 0, "employee-id", "close-employee-id"
-                , ZonedDateTime.now(), ZonedDateTime.now(), ZonedDateTime.now(), "OPEN", BigDecimal.ZERO,BigDecimal.ZERO));
+                , ZonedDateTime.now(), ZonedDateTime.now(), ZonedDateTime.now(), "OPEN", BigDecimal.ZERO,BigDecimal.ZERO,Collections.emptyList(),0,0));
         assertEquals("Carton Sequence must be greater than 0", exception.getMessage());
     }
 
@@ -219,7 +221,7 @@ class CartonTest {
         // When/Then
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
             () -> Carton.createNewCarton(new CreateCartonCommand(1L,"create-employee-id"), recoveredPlasmaShippingRepository, cartonRepository, locationRepository));
-        assertEquals("Carton generation error",
+        assertEquals("Shipment is required",
             exception.getMessage());
     }
 

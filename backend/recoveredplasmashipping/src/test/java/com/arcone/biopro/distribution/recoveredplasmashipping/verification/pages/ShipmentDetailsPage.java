@@ -1,8 +1,12 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.verification.pages;
 
+import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.TestUtils;
 import org.openqa.selenium.By;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class ShipmentDetailsPage extends CommonPageFactory {
@@ -28,11 +32,28 @@ public class ShipmentDetailsPage extends CommonPageFactory {
                 cartonNumberPrefix, sequence, status));
     }
 
+    private By addedCartonRow(String sequence) {
+        return By.xpath(
+            String.format(
+                "//td[contains(@id,'cartonSequenceRow')]//*[.='%s']",
+                sequence));
+    }
+
+    private By addedUnitInCartonTable(String cartonSequence, String unitNumber) {
+        return By.xpath(
+            String.format(
+                "//td[contains(@id,'cartonSequenceRow')]//*[.='%s']/ancestor::tr/following-sibling::tr//*[contains(text(),'%s')]",
+                cartonSequence, unitNumber));
+    }
+
     @Autowired
     private SharedActions sharedActions;
 
     @Autowired
     private HomePage homePage;
+
+    @Autowired
+    private TestUtils testUtils;
 
     @Override
     public boolean isLoaded() {
@@ -109,5 +130,22 @@ public class ShipmentDetailsPage extends CommonPageFactory {
 
     public void verifyCartonIsListed(String cartonNumberPrefix, String sequence, String status) {
         sharedActions.waitForVisible(addedCartonRow(cartonNumberPrefix, sequence, status));
+    }
+
+    public void verifyCartonsAreVisible(List<Map> createCartonResponseList) {
+        for (Map carton : createCartonResponseList) {
+            verifyCartonIsListed(carton.get("cartonNumber").toString(), carton.get("cartonSequence").toString(), carton.get("status").toString());
+        }
+    }
+
+    public void clickExpandCarton(String sequenceNumber) {
+        sharedActions.click(addedCartonRow(sequenceNumber));
+    }
+
+    public void verifyUnitsAreListed(String cartonSequence, String unitNumberList) {
+        clickExpandCarton(cartonSequence);
+        for (String unitNumber : testUtils.getCommaSeparatedList(unitNumberList)) {
+            sharedActions.waitForVisible(addedUnitInCartonTable(cartonSequence, testUtils.removeUnitNumberScanDigits(unitNumber)));
+        }
     }
 }

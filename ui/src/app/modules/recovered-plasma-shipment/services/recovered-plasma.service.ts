@@ -11,6 +11,11 @@ import {
     CreateCartonRequestDTO,
 } from '../graphql/mutation-definitions/create-carton.graphql';
 import {
+    CARTON_PACK_ITEM,
+    PackCartonItemsDTO,
+} from '../graphql/mutation-definitions/pack-items.graphql';
+import { FIND_CARTON_BY_ID } from '../graphql/query-definitions/carton.graphql';
+import {
     FIND_ALL_CUSTOMERS,
     RecoveredPlasmaCustomerDTO,
 } from '../graphql/query-definitions/customer.graphql';
@@ -30,9 +35,9 @@ import {
 } from '../graphql/query-definitions/shipmentDetails.graphql';
 import {
     CartonDTO,
+    CartonPackedItemResponseDTO,
     RecoveredPlasmaShipmentResponseDTO,
 } from '../models/recovered-plasma.dto';
-import { FIND_CARTON_BY_ID } from '../graphql/query-definitions/carton.graphql';
 
 @Injectable({
     providedIn: 'root',
@@ -140,6 +145,18 @@ export class RecoveredPlasmaService {
             this.servicePath,
             RECOVERED_PLASMA_SHIPMENT_DETAILS,
             { findShipmentCommandDTO }
+        );
+    }
+
+    public addCartonProducts(cartonProducts: PackCartonItemsDTO): Observable<
+        MutationResult<{
+            packCartonItem: UseCaseResponseDTO<CartonPackedItemResponseDTO>;
+        }>
+    > {
+        return this.dynamicGraphqlPathService.executeMutation(
+            this.servicePath,
+            CARTON_PACK_ITEM,
+            cartonProducts
         );
     }
 }

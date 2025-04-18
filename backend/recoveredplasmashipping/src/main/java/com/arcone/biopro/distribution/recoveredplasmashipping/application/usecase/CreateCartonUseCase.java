@@ -34,7 +34,6 @@ public class CreateCartonUseCase implements CreateCartonService {
     private final CartonOutputMapper cartonOutputMapper;
     private final LocationRepository locationRepository;
     private static final String CARTON_DETAILS_PAGE = "/recovered-plasma/%s/carton-details";
-    private static final String CARTON_GENERATION_ERROR_MESSAGE = "Carton generation error. Contact Support.";
 
     @Override
     @Transactional
@@ -45,7 +44,13 @@ public class CreateCartonUseCase implements CreateCartonService {
             .flatMap(createdCarton -> {
                 return Mono.just(new UseCaseOutput<>(List.of(UseCaseNotificationOutput
                     .builder()
-                    .useCaseMessage(new UseCaseMessage(UseCaseMessageType.CARTON_CREATED_SUCCESS))
+                    .useCaseMessage(
+                        UseCaseMessage
+                            .builder()
+                            .message(UseCaseMessageType.CARTON_CREATED_SUCCESS.getMessage())
+                            .code(UseCaseMessageType.CARTON_CREATED_SUCCESS.getCode())
+                            .type(UseCaseMessageType.CARTON_CREATED_SUCCESS.getType())
+                            .build())
                     .build())
                     , cartonOutputMapper.toOutput(createdCarton)
                     , Map.of("next", String.format(CARTON_DETAILS_PAGE, createdCarton.getId()))));
@@ -54,7 +59,13 @@ public class CreateCartonUseCase implements CreateCartonService {
 
                 return Mono.just(new UseCaseOutput<>(List.of(UseCaseNotificationOutput
                     .builder()
-                    .useCaseMessage(new UseCaseMessage(5, UseCaseNotificationType.SYSTEM, CARTON_GENERATION_ERROR_MESSAGE))
+                    .useCaseMessage(
+                        UseCaseMessage
+                            .builder()
+                            .message(UseCaseMessageType.CARTON_GENERATION_ERROR.getMessage())
+                            .code(UseCaseMessageType.CARTON_GENERATION_ERROR.getCode())
+                            .type(UseCaseMessageType.CARTON_GENERATION_ERROR.getType())
+                            .build())
                     .build()), null, null));
             });
 

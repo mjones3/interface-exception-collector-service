@@ -28,9 +28,9 @@ import {
 } from '@shared';
 import { ERROR_MESSAGE } from 'app/core/data/common-labels';
 import { getAuthState } from 'app/core/state/auth/auth.selectors';
-import { ProgressBarComponent } from 'app/progress-bar/progress-bar.component';
 import { ActionButtonComponent } from 'app/shared/components/buttons/action-button.component';
 import { BasicButtonComponent } from 'app/shared/components/buttons/basic-button.component';
+import { ProgressBarComponent } from 'app/shared/components/progress-bar/progress-bar.component';
 import { UnitNumberCardComponent } from 'app/shared/components/unit-number-card/unit-number-card.component';
 import { ConfirmationAcknowledgmentService } from 'app/shared/services/confirmation-acknowledgment.service';
 import { ProductIconsService } from 'app/shared/services/product-icon.service';

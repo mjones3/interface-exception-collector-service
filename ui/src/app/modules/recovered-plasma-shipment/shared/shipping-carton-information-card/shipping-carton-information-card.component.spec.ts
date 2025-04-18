@@ -8,10 +8,6 @@ describe('ShippingCartonInformationCardComponent', () => {
     let fixture: ComponentFixture<ShippingCartonInformationCardComponent>;
     let componentRef: ComponentRef<ShippingCartonInformationCardComponent>;
 
-    const mockShippingData = {
-        cartonTareWeight: 100,
-    };
-
     const mockCartonData = {
         cartonNumber: 'CARTON123',
         totalVolume: 500,
@@ -44,7 +40,6 @@ describe('ShippingCartonInformationCardComponent', () => {
     });
 
     it('should render carton information correctly', () => {
-        componentRef.setInput('shippingInput', mockShippingData);
         componentRef.setInput('cartonInput', mockCartonData);
         fixture.detectChanges();
 
@@ -58,13 +53,6 @@ describe('ShippingCartonInformationCardComponent', () => {
         ) as HTMLSpanElement;
         expect(cartonNumberValue.textContent).toContain(
             mockCartonData.cartonNumber
-        );
-
-        const tareWeightValue = shippingCartonInfoDescriptions.querySelector(
-            '#informationDetails-Tare-Weight-\\(g\\)-value'
-        ) as HTMLSpanElement;
-        expect(tareWeightValue.textContent).toContain(
-            mockShippingData.cartonTareWeight.toString()
         );
 
         const totalVolumeValue = shippingCartonInfoDescriptions.querySelector(
@@ -92,7 +80,6 @@ describe('ShippingCartonInformationCardComponent', () => {
     });
 
     it('should compute carton descriptions correctly', () => {
-        componentRef.setInput('shippingInput', mockShippingData);
         componentRef.setInput('cartonInput', mockCartonData);
         fixture.detectChanges();
 
@@ -102,10 +89,6 @@ describe('ShippingCartonInformationCardComponent', () => {
             {
                 label: 'Carton Number',
                 value: mockCartonData.cartonNumber,
-            },
-            {
-                label: 'Tare Weight (g)',
-                value: mockShippingData.cartonTareWeight,
             },
             {
                 label: 'Total Volume (L)',

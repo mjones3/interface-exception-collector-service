@@ -23,8 +23,8 @@ import {
 } from 'app/core/models/browser-printing.model';
 import { BrowserPrintingService } from 'app/core/services/browser-printing/browser-printing.service';
 import { getAuthState } from 'app/core/state/auth/auth.selectors';
-import { ProgressBarComponent } from 'app/progress-bar/progress-bar.component';
 import { ActionButtonComponent } from 'app/shared/components/buttons/action-button.component';
+import { ProgressBarComponent } from 'app/shared/components/progress-bar/progress-bar.component';
 import { ProductIconsService } from 'app/shared/services/product-icon.service';
 import { ToastrModule } from 'ngx-toastr';
 import { SortEvent } from 'primeng/api';

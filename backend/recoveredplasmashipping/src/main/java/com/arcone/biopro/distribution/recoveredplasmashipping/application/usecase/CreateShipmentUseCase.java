@@ -52,7 +52,13 @@ public class CreateShipmentUseCase implements CreateShipmentService {
                     applicationEventPublisher.publishEvent(new RecoveredPlasmaShipmentCreatedEvent(createdShipment));
                     return Mono.just(new UseCaseOutput<>(List.of(UseCaseNotificationOutput
                         .builder()
-                        .useCaseMessage(new UseCaseMessage(UseCaseMessageType.SHIPMENT_CREATED_SUCCESS))
+                        .useCaseMessage(
+                            UseCaseMessage
+                                .builder()
+                                .message(UseCaseMessageType.SHIPMENT_CREATED_SUCCESS.getMessage())
+                                .code(UseCaseMessageType.SHIPMENT_CREATED_SUCCESS.getCode())
+                                .type(UseCaseMessageType.SHIPMENT_CREATED_SUCCESS.getType())
+                                .build())
                         .build())
                         , recoveredPlasmaShipmentOutputMapper.toRecoveredPlasmaShipmentOutput(createdShipment)
                         , Map.of("next", String.format(SHIPMENT_DETAILS_URL, createdShipment.getId()))));
@@ -68,7 +74,13 @@ public class CreateShipmentUseCase implements CreateShipmentService {
     private UseCaseOutput<RecoveredPlasmaShipmentOutput> buildErrorResponse(Throwable error) {
         return new UseCaseOutput<>(List.of(UseCaseNotificationOutput
             .builder()
-            .useCaseMessage(new UseCaseMessage(3, UseCaseNotificationType.WARN, error.getMessage()))
+            .useCaseMessage(
+                UseCaseMessage
+                    .builder()
+                    .message(error.getMessage())
+                    .code(3)
+                    .type(UseCaseNotificationType.WARN)
+                    .build())
             .build()), null, null);
 
     }

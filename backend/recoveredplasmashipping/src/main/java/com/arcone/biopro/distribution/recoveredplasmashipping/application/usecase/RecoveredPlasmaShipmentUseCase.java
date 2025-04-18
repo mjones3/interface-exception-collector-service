@@ -39,7 +39,13 @@ public class RecoveredPlasmaShipmentUseCase implements RecoveredPlasmaShipmentSe
            }).onErrorResume(error -> {
                return Mono.just(new UseCaseOutput<>(List.of(UseCaseNotificationOutput
                    .builder()
-                   .useCaseMessage(new UseCaseMessage(5, UseCaseNotificationType.WARN, error.getMessage()))
+                   .useCaseMessage(
+                       UseCaseMessage
+                           .builder()
+                           .message(error.getMessage())
+                           .code(5)
+                           .type(UseCaseNotificationType.WARN)
+                           .build())
                    .build()), null, null));
            });
     }

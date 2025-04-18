@@ -26,7 +26,7 @@ Feature: Shipment Creation
         Rule: I should be able to receive a success message after a shipment is created successfully.
         @api @DIS-333
         Scenario: Successful shipment creation
-            Given The location "123456789_TEST" is configured with prefix "BPM_TEST", shipping code "DIS333002", and prefix configuration "Y".
+            Given The location "123456789_TEST" is configured with prefix "BPM_TEST", shipping code "DIS333002", carton prefix "BPM" and prefix configuration "Y".
             When I request to create a new shipment with the values:
                 | Field                           | Value                      |
                 | Customer Code                   | 408                        |
@@ -55,11 +55,13 @@ Feature: Shipment Creation
             Then I should receive a "WARN" message response "<Error Message>".
             And The shipment "should not" be created.
             Examples:
-                | Attribute             | Attribute Value | Error Message                  |
-                | cartonTareWeight      | <null>          | Carton tare weight is required |
-                | locationCode          | DL1             | Location is required           |
-                | customerCode          | 11111           | Domain not found for key 11111 |
-                | productType           | TYPE000         | Product type is required       |
+                | Attribute        | Attribute Value | Error Message                  |
+                | cartonTareWeight | <null>          | Carton tare weight is required |
+                | locationCode     | DL1             | Location is required           |
+                | customerCode     | 11111           | Domain not found for key 11111 |
+                | productType      | TYPE000         | Product type is required       |
+                | productType      | <null>          | Product type is required       |
+                | customerCode     | <null>          | Domain not found for key null  |
 
 
         Rule: I should be required to choose Product Type.
@@ -74,8 +76,6 @@ Feature: Shipment Creation
             Examples:
                 | Attribute             | Attribute Value | Error Message                       |
                 | shipmentDate          | <null>          | Shipment date is required           |
-                | customerCode          | <null>          | Customer code is required           |
-                | productType           | <null>          | Product type is required            |
                 | shipmentDate          | 2020-01-01      | Shipment date must be in the future |
 
 
@@ -85,7 +85,7 @@ Feature: Shipment Creation
     - Shipment Sequence Number
         @api @DIS-333
         Scenario Outline: Unique shipment number generation
-            Given The location "123456789_TEST" is configured with prefix "BPM_TEST", shipping code "DIS333003", and prefix configuration "<Prefix Configuration>".
+            Given The location "123456789_TEST" is configured with prefix "BPM_TEST", shipping code "DIS333003", carton prefix "BPM" and prefix configuration "<Prefix Configuration>".
             When I request to create a new shipment with the values:
                 | Field                           | Value                      |
                 | Customer Code                   | 408                        |

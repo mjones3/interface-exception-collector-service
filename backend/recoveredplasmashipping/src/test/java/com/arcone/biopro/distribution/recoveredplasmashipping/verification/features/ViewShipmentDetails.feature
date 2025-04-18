@@ -5,7 +5,7 @@ Feature: View Shipment Details
         Given I have removed from the database all the configurations for the location "DIS_335".
         And I have removed from the database all shipments which code contains with "DIS33500".
         And I have removed from the database all shipments from location "123456789" with transportation ref number "DIS335".
-        And The location "DIS_335" is configured with prefix "DIS_335", shipping code "DIS33500", and prefix configuration "Y".
+        And The location "DIS_335" is configured with prefix "DIS_335", shipping code "DIS33500", carton prefix "BPM" and prefix configuration "Y".
 
         Rule: I should be able to view Shipment Information (Shipment Number, Customer Code, Customer Name, Product Type, Shipment Status, Shipment Date, Transportation Reference Number).
         Rule: I should be able to view the total number of the products (Total Products) in the shipment.
