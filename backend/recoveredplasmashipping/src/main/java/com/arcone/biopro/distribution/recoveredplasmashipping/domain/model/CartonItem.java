@@ -205,15 +205,19 @@ public class CartonItem implements Validatable {
         }
 
         recoveredPlasmaShipmentCriteriaRepository.findProductTypeByProductCode(productCode)
-            .switchIfEmpty(Mono.error(new ProductValidationException("Product Type does not match",WARN_ERROR_TYPE)))
             .onErrorResume(error -> {
                 log.error("Error finding product type: {}", error.getMessage());
-                throw new ProductValidationException(error.getMessage(),SYSTEM_ERROR_TYPE);
+                throw new ProductValidationException(error.getMessage(), SYSTEM_ERROR_TYPE);
             })
+            .switchIfEmpty(Mono.error(() -> {
+                log.warn("No results for product code {}", productCode);
+                return new ProductValidationException("Product Type does not match", WARN_ERROR_TYPE);
+            }))
             .blockOptional()
             .ifPresent(productType -> {
-                if(!productType.getProductType().equals(cartonProductType)){
-                    throw new ProductValidationException("Product Type does not match",WARN_ERROR_TYPE);
+                if(!productType.getProductType().equals(cartonProductType)) {
+                    log.warn("Product Type {} does not match with Carton product type {}", productType.getProductType(), cartonProductType);
+                    throw new ProductValidationException("Product Type does not match", WARN_ERROR_TYPE);
                 }
             });
 

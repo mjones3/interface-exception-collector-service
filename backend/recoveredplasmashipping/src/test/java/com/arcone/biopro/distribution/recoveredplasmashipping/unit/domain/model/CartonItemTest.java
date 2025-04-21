@@ -392,6 +392,52 @@ class CartonItemTest {
         Assertions.assertNotNull(cartonItem.getModificationDate());
     }
 
+    @Test
+    public void shouldNotCreateCartonIfProductTypeNotFound() {
+        var carton = Mockito.mock(Carton.class);
+        var shipment = Mockito.mock(RecoveredPlasmaShipment.class);
 
+        Mockito.when(cartonItemRepository.countByProduct(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just(0));
+        Mockito.when(recoveredPlasmaShippingRepository.findOneById(Mockito.anyLong())).thenReturn(Mono.just(shipment));
+        Mockito.when(recoveredPlasmaShipmentCriteriaRepository.findProductTypeByProductCode(Mockito.anyString())).thenReturn(Mono.empty());
+
+        var exception = assertThrows(ProductValidationException.class,
+            () -> CartonItem.createNewCartonItem(packItemCommand, carton, inventoryService, cartonItemRepository, recoveredPlasmaShippingRepository , recoveredPlasmaShipmentCriteriaRepository));
+        assertEquals("Product Type does not match", exception.getMessage());
+        assertEquals("WARN", exception.getErrorType());
+    }
+
+    @Test
+    public void shouldNotCreateCartonIfProductTypeThrowsSystemError() {
+        var carton = Mockito.mock(Carton.class);
+        var shipment = Mockito.mock(RecoveredPlasmaShipment.class);
+
+        Mockito.when(cartonItemRepository.countByProduct(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just(0));
+        Mockito.when(recoveredPlasmaShippingRepository.findOneById(Mockito.anyLong())).thenReturn(Mono.just(shipment));
+        Mockito.when(recoveredPlasmaShipmentCriteriaRepository.findProductTypeByProductCode(Mockito.anyString())).thenReturn(Mono.error(new Throwable("System error")));
+
+        var exception = assertThrows(ProductValidationException.class,
+            () -> CartonItem.createNewCartonItem(packItemCommand, carton, inventoryService, cartonItemRepository, recoveredPlasmaShippingRepository , recoveredPlasmaShipmentCriteriaRepository));
+        assertEquals("System error", exception.getMessage());
+        assertEquals("SYSTEM", exception.getErrorType());
+    }
+
+    @Test
+    public void shouldNotCreateCartonIfProductTypeNotEqualsShipmentProductType() {
+        var carton = Mockito.mock(Carton.class);
+        var shipment = Mockito.mock(RecoveredPlasmaShipment.class);
+
+        Mockito.when(cartonItemRepository.countByProduct(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just(0));
+        Mockito.when(recoveredPlasmaShippingRepository.findOneById(Mockito.anyLong())).thenReturn(Mono.just(shipment));
+
+        var productType = Mockito.mock(ProductType.class);
+        Mockito.when(productType.getProductType()).thenReturn("ANOTHER_PRODUCT_TYPE");
+        Mockito.when(recoveredPlasmaShipmentCriteriaRepository.findProductTypeByProductCode(Mockito.eq("PRODUCT_CODE"))).thenReturn(Mono.just(productType));
+
+        var exception = assertThrows(ProductValidationException.class,
+            () -> CartonItem.createNewCartonItem(packItemCommand, carton, inventoryService, cartonItemRepository, recoveredPlasmaShippingRepository , recoveredPlasmaShipmentCriteriaRepository));
+        assertEquals("Product Type does not match", exception.getMessage());
+        assertEquals("WARN", exception.getErrorType());
+    }
 
 }
