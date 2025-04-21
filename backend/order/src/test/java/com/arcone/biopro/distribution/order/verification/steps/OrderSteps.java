@@ -1133,12 +1133,19 @@ public class OrderSteps {
                     Assert.assertEquals(orderDetails.get("modifyReason"), modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Modify Reason")));
                     // Validate order items data
                     var productFamilyList = testUtils.getCommaSeparatedList(modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Product Family")));
+                    Arrays.sort(productFamilyList);
                     var bloodTypeList = testUtils.getCommaSeparatedList(modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Blood Type")));
-                    var quantityList = testUtils.getCommaSeparatedList(modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Quantity")));
+                    Arrays.sort(bloodTypeList);
+                    var quantityList = testUtils.getCommaSeparatedList(modifiedOrderTable.row(i).get(modifiedOrderTable.row(0).indexOf("Quantity")), Integer::parseInt, Integer[]::new);
+                    Arrays.sort(quantityList);
                     for (var j = 0; j < orderItems.size(); j++) {
-                        Assert.assertEquals(productFamilyList[j], orderItems.get(j).get("productFamily"));
-                        Assert.assertEquals(bloodTypeList[j], orderItems.get(j).get("bloodType"));
-                        Assert.assertEquals(Integer.parseInt(quantityList[j]), Integer.parseInt(orderItems.get(j).get("quantity").toString()));
+                        // IMPORTANT: when comparing by a property, make sure to sort the comparison list by the property before asserting
+                        var productFamily = testUtils.sortListOfMapByProperty(orderItems, "productFamily", String.class).get(j).get("productFamily");
+                        Assert.assertEquals(productFamilyList[j], productFamily);
+                        var bloodType = testUtils.sortListOfMapByProperty(orderItems, "bloodType", String.class).get(j).get("bloodType");
+                        Assert.assertEquals(bloodTypeList[j], bloodType);
+                        var quantity = testUtils.sortListOfMapByProperty(orderItems, "quantity", Integer.class).get(j).get("quantity");
+                        Assert.assertEquals(quantityList[j], quantity);
                     }
                 } else if (shouldBeUpdated.equalsIgnoreCase("no")) {
                     // Validate order data
@@ -1147,12 +1154,19 @@ public class OrderSteps {
                     Assert.assertEquals(orderDetails.get("productCategory"), originalOrderTable.row(i).get(originalOrderTable.row(0).indexOf("Product Category")));
                     // Validate order items data
                     var productFamilyList = testUtils.getCommaSeparatedList(originalOrderTable.row(i).get(originalOrderTable.row(0).indexOf("Product Family")));
+                    Arrays.sort(productFamilyList);
                     var bloodTypeList = testUtils.getCommaSeparatedList(originalOrderTable.row(i).get(originalOrderTable.row(0).indexOf("Blood Type")));
-                    var quantityList = testUtils.getCommaSeparatedList(originalOrderTable.row(i).get(originalOrderTable.row(0).indexOf("Quantity")));
+                    Arrays.sort(bloodTypeList);
+                    var quantityList = testUtils.getCommaSeparatedList(originalOrderTable.row(i).get(originalOrderTable.row(0).indexOf("Quantity")), Integer::parseInt, Integer[]::new);
+                    Arrays.sort(quantityList);
                     for (var j = 0; j < orderItems.size(); j++) {
-                        Assert.assertEquals(productFamilyList[j], orderItems.get(j).get("productFamily"));
-                        Assert.assertEquals(bloodTypeList[j], orderItems.get(j).get("bloodType"));
-                        Assert.assertEquals(Integer.parseInt(quantityList[j]), Integer.parseInt(orderItems.get(j).get("quantity").toString()));
+                        // IMPORTANT: when comparing by a property, make sure to sort the comparison list by the property before asserting
+                        var productFamily = testUtils.sortListOfMapByProperty(orderItems, "productFamily", String.class).get(j).get("productFamily");
+                        Assert.assertEquals(productFamilyList[j], productFamily);
+                        var bloodType = testUtils.sortListOfMapByProperty(orderItems, "bloodType", String.class).get(j).get("bloodType");
+                        Assert.assertEquals(bloodTypeList[j], bloodType);
+                        var quantity = testUtils.sortListOfMapByProperty(orderItems, "quantity", Integer.class).get(j).get("quantity");
+                        Assert.assertEquals(quantityList[j], quantity);
                     }
                 } else {
                     Assert.fail("Invalid option for should be updated.");
