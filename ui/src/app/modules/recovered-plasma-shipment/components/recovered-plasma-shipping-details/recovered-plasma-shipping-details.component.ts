@@ -130,6 +130,7 @@ export class RecoveredPlasmaShippingDetailsComponent
 
     loadCartonPackedProduct(carton: CartonDTO): void {
         if (!carton?.id) return;
+        this.expandedRowDataSignal.set([]);
         this.recoveredPlasmaService
             .getCartonById(carton.id)
             .pipe(
