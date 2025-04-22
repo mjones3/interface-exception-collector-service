@@ -70,7 +70,7 @@
                             <span>
                                 Unit Numbers (
                                 @if (expandedRowDataSignal()?.length >= 0) {
-                                    <span id="prodQtyId">
+                                    <span [id]="'prodQtyId_' + element.id">
                                         {{ expandedRowDataSignal().length }}
                                     </span>
                                 }
