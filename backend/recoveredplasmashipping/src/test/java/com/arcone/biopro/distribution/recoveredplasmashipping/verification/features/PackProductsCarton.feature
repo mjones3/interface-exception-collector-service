@@ -57,6 +57,7 @@ Feature: Add Products to Carton
     Rule: I should not be able to add quarantined products in the carton and be notified.
     Rule: I should not be able to add expired products in the carton and be notified.
     Rule: I should not be able to add products in the carton that do not match the product type criteria and be notified.
+    Rule: I should not be able to add shipped products in the carton and be notified.
     @api @DIS-339
     Scenario Outline: Attempt to add unsuitable products to carton
         Given I have an empty carton created with the Customer Code as "<Customer Code>" , Product Type as "<Product Type>", Carton Tare Weight as "<Carton Tare Weight>", Shipment Date as "<Shipment Date>", Transportation Reference Number as "<Transportation Reference Number>" and Location Code as "<Location Code>".
@@ -64,17 +65,18 @@ Feature: Add Products to Carton
         Then I should receive a "<error_type>" message response "<error_message>".
         And The product unit number "<unit_number>" and product code "<product_code>" "should not" be packed in the carton.
         Examples:
-            | Customer Code | Product Type               | Carton Tare Weight   | Shipment Date | Transportation Reference Number | Location Code  | unit_number   | product_code | product_type               | error_type | error_message                                                                 |
+            | Customer Code | Product Type               | Carton Tare Weight   | Shipment Date | Transportation Reference Number | Location Code  | unit_number     | product_code | product_type               | error_type | error_message                                                                 |
             | 408           | RP_FROZEN_WITHIN_120_HOURS | 1000                 | <tomorrow>    | DIS-339                         | 123456789_DIS339 | W036898786905 | E6022V00     | RP_FROZEN_WITHIN_120_HOURS | WARN       | This product is not in the inventory and cannot be shipped                    |
             | 408           | RP_FROZEN_WITHIN_120_HOURS | 1000                 | <tomorrow>    | DIS-339                         | 123456789_DIS339 | W036898786757 | E6022V00     | RP_FROZEN_WITHIN_120_HOURS | INFO       | This product is discarded and cannot be shipped                               |
             | 408           | RP_FROZEN_WITHIN_120_HOURS | 1000                 | <tomorrow>    | DIS-339                         | 123456789_DIS339 | W036898786758 | E6022V00     | RP_FROZEN_WITHIN_120_HOURS | INFO       | This product is quarantined and cannot be shipped                             |
             | 408           | RP_FROZEN_WITHIN_120_HOURS | 1000                 | <tomorrow>    | DIS-339                         | 123456789_DIS339 | W036898786756 | E6022V00     | RP_FROZEN_WITHIN_120_HOURS | INFO       | This product is expired and has been discarded. Place in biohazard container. |
             | 408           | RP_FROZEN_WITHIN_120_HOURS | 1000                 | <tomorrow>    | DIS-339                         | 123456789_DIS339 | W036898786804 | E5880V00     | RP_FROZEN_WITHIN_72_HOURS  | WARN       | Product Type does not match                                                   |
+            | 408           | RP_FROZEN_WITHIN_120_HOURS | 1000                 | <tomorrow>    | DIS-339                         | 123456789_DIS339 | W036898786700 | E6022V00     | RP_FROZEN_WITHIN_120_HOURS | WARN       | This product was previously shipped.                                          |
 
 
     Rule: I should not be able to add products that is part of another carton or shipment and be notified.
     @api @DIS-339
-    Scenario: Attempt to add a shipped or packed products to carton
+    Scenario: Attempt to add packed products to carton
         Given I have an empty carton created with the Customer Code as "408" , Product Type as "RP_FROZEN_WITHIN_120_HOURS", Carton Tare Weight as "1000", Shipment Date as "<tomorrow>", Transportation Reference Number as "DIS-339" and Location Code as "123456789".
         When I fill an "acceptable" product with the unit number "W036898786800", product code "E6022V00" and product type "RP_FROZEN_WITHIN_120_HOURS".
         Then The product unit number "W036898786800" and product code "E6022V00" "should" be packed in the carton.
