@@ -8,7 +8,6 @@ Feature: View Shipment Details
         And The location "DIS_335" is configured with prefix "DIS_335", shipping code "DIS33500", carton prefix "BPM" and prefix configuration "Y".
 
         Rule: I should be able to view Shipment Information (Shipment Number, Customer Code, Customer Name, Product Type, Shipment Status, Shipment Date, Transportation Reference Number).
-        Rule: I should be able to view the total number of the products (Total Products) in the shipment.
         Rule: I should be able to view the total number of cartons (Total Cartons) in the shipment.
         Rule: I should have an option to add carton to the shipment.
         Rule: I should have an option to go back to Search Shipments list.
@@ -32,14 +31,12 @@ Feature: View Shipment Details
                 | Shipment Status            | OPEN                          |
                 | Shipment Date              | <tomorrow>                    |
                 | Transportation Ref. Number | DIS335                        |
-                | Total Products             | 0                             |
                 | Total Cartons              | 0                             |
             And I should have an option to add a carton to the shipment.
             And It should be possible to navigate back to the Search page.
 
 
     Rule: I should be able to view Shipment Information (Shipment Number, Customer Code, Customer Name, Product Type, Shipment Status, Shipment Date, Transportation Reference Number).
-    Rule: I should be able to view the total number of the products (Total Products) in the shipment.
     Rule: I should be able to view the total number of cartons (Total Cartons) in the shipment.
     @api @DIS-335
     Scenario: Successfully retrieve shipment details via API
@@ -61,7 +58,6 @@ Feature: View Shipment Details
             | productType                   | RP_FROZEN_WITHIN_72_HOURS |
             | shipmentStatus                | OPEN                      |
             | transportationReferenceNumber | DIS335                    |
-            | totalProducts                 | 0                         |
             | totalCartons                  | 0                         |
             | canAddCartons                 | true                      |
 
