@@ -68,13 +68,15 @@
                     <div class="w-full p-2">
                         <div class="flex items-center p-2 text-xl font-bold">
                             <span>
-                                Unit Numbers (<span id="prodQtyId">{{
-                                    expandedRowDataSignal().length
-                                }}</span
-                                >)
+                                Unit Numbers (
+                                @if (expandedRowDataSignal()?.length >= 0) {
+                                    <span id="prodQtyId">
+                                        {{ expandedRowDataSignal().length }}
+                                    </span>
+                                }
+                                )
                             </span>
                         </div>
-                        <mat-divider></mat-divider>
                         <div class="grid grid-cols-5 gap-4 p-2">
                             @for (
                                 product of expandedRowDataSignal();
