@@ -37,6 +37,20 @@ Feature: Add Products to Carton
             | Customer Code | Product Type              | Carton Tare Weight | Shipment Date | Transportation Reference Number | Location Code | Carton Sequence Number | unit_number      | product_code | product_type              | total_products |
             | 408           | RP_FROZEN_WITHIN_24_HOURS | 1000               | <tomorrow>    | DIS-339                         | 123456789     | 1                      | =W03689878680100 | =<E2534V00   | RP_FROZEN_WITHIN_24_HOURS |1               |
 
+        @ui @DIS-339
+        Scenario Outline: Add product with correct volume
+            Given I have 2 empty cartons created with the Customer Code as "<Customer Code>" , Product Type as "<Product Type>", Carton Tare Weight as "<Carton Tare Weight>", Shipment Date as "<Shipment Date>", Transportation Reference Number as "<Transportation Reference Number>" and Location Code as "<Location Code>".
+            And I pack a product with the unit number "<unit_number 1>" and product code "<product_code>" into the carton sequence 1.
+            And I pack a product with the unit number "<unit_number 2>" and product code "<product_code>" into the carton sequence 2.
+            When I navigate to the shipment details page for the last shipment created.
+            Then I should see a list of all cartons.
+            And I should see the unit "<unit_number 1>" added to the carton sequence "1".
+            And I should see the unit "<unit_number 2>" added to the carton sequence "2".
+            Examples:
+                | Customer Code | Product Type                  | Carton Tare Weight | Shipment Date | Transportation Reference Number | Location Code | unit_number 1 | unit_number 2 | product_code |
+                | 410           | RP_NONINJECTABLE_REFRIGERATED | 1000               | <tomorrow>    | DIS-339                         | 123456789     | W036898786805 | W036898786811 | E6170V00     |
+
+
     Rule: Verify acceptability of the products as they are added to the carton.
     Rule: I should not be able to enter a unit number that doesn’t exist in the system and be notified.
     Rule: I should not be able to add discarded products in the carton and be notified.

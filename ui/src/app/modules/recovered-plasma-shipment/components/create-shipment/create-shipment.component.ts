@@ -147,6 +147,13 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
                                         };
                                     }
                                 );
+                                if (this.productTypeOptions.length === 1) {
+                                    const singleOption =
+                                        this.productTypeOptions[0];
+                                    this.createShipmentForm
+                                        .get('productType')
+                                        .setValue(singleOption.code);
+                                }
                             } else {
                                 this.productTypeOptions = [];
                             }

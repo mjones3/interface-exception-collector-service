@@ -236,7 +236,11 @@ public class CreateShipmentSteps {
 
     @Given("I have an empty carton created with the Customer Code as {string} , Product Type as {string}, Carton Tare Weight as {string}, Shipment Date as {string}, Transportation Reference Number as {string} and Location Code as {string}.")
     public void createShipmentAndCarton(String customerCode, String productType, String cartonTare, String shipmentDate, String transportationRefNumber, String locationCode) {
+        createShipmentAndMultipleCarton(1, customerCode, productType, cartonTare, shipmentDate, transportationRefNumber, locationCode);
+    }
+    @Given("I have {int} empty carton(s) created with the Customer Code as {string} , Product Type as {string}, Carton Tare Weight as {string}, Shipment Date as {string}, Transportation Reference Number as {string} and Location Code as {string}.")
+    public void createShipmentAndMultipleCarton(int qtyCartons, String customerCode, String productType, String cartonTare, String shipmentDate, String transportationRefNumber, String locationCode) {
         createShipmentController.createShipment(customerCode, productType, Float.parseFloat(cartonTare), testUtils.parseDataKeyword(shipmentDate), transportationRefNumber, locationCode);
-        iRequestToAddCartonsToTheShipment(1);
+        iRequestToAddCartonsToTheShipment(qtyCartons);
     }
 }

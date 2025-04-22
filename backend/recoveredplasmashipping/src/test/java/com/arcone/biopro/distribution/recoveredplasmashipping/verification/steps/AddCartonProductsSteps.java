@@ -64,6 +64,11 @@ public class AddCartonProductsSteps {
     public void iPackAProductWithTheUnitNumberProductCodeAndVolume(String unitNumber, String productCode, String productVolume) {
         addProductToCarton("", unitNumber, productCode, "");
     }
+    @When("I pack a product with the unit number {string} and product code {string} into the carton sequence {int}.")
+    public void iPackAProductInASpecificCarton(String unitNumber, String productCode, int cartonSequence) {
+        String cartonId = sharedContext.getCreateCartonResponseList().get(cartonSequence - 1).get("id").toString();
+        createShipmentController.packCartonProduct(cartonId, unitNumber, productCode, sharedContext.getLocationCode());
+    }
 
     @And("I navigate to the Add Carton Products page for the carton sequence number {int}.")
     public void iNavigateToTheAddCartonProductsPageForTheCartonNumber(int sequenceNumber) throws InterruptedException {
@@ -82,7 +87,7 @@ public class AddCartonProductsSteps {
     }
 
     @And("I have packed the following products:")
-    public void iHavePackedTheFollowingProducts(DataTable dataTable) {
+    public void iHavePackedTheFollowingProducts(DataTable dataTable) throws InterruptedException {
         var headers = dataTable.row(0);
         String cartonId = sharedContext.getCreateCartonResponseList().getFirst().get("id").toString();
 
@@ -93,7 +98,7 @@ public class AddCartonProductsSteps {
     }
 
     @When("I pack a product with the unit number {string}, product code {string}.")
-    public void iPackAProductWithTheUnitNumberProductCode(String unitNumber, String productCode) {
+    public void iPackAProductWithTheUnitNumberProductCode(String unitNumber, String productCode) throws InterruptedException {
         String cartonId = sharedContext.getCreateCartonResponseList().getFirst().get("id").toString();
         createShipmentController.packCartonProduct(cartonId, unitNumber, productCode, sharedContext.getLocationCode());
 

@@ -80,13 +80,13 @@ public class CreateShipmentController {
         if (value.equals("<null>")) {
             value = null;
         } else {
-            value =  value;
+            value = value;
         }
         // default correct values
         String customerCode = "408";
         String productType = "RP_FROZEN_WITHIN_120_HOURS";
         Float cartonTareWeight = 1000f;
-        String shipmentDate =  LocalDate.now().plusDays(1).toString();
+        String shipmentDate = LocalDate.now().plusDays(1).toString();
         String TransportationRefNumber = "3455";
         String locationCode = "123456789";
 
