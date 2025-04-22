@@ -5,6 +5,7 @@ import lombok.Builder;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Builder
@@ -20,7 +21,9 @@ public record InventoryResponseDTO(
     ZonedDateTime collectionDate,
     String storageLocation,
     ZonedDateTime createDate,
-    ZonedDateTime modificationDate
+    ZonedDateTime modificationDate,
+    Integer weight,
+    List<InventoryVolumeDTO> volumes
 
 ) implements Serializable {
 }

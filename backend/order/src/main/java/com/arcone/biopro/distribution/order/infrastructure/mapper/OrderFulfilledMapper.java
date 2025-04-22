@@ -87,6 +87,7 @@ public class OrderFulfilledMapper {
         orderFulfilledEvent.getPayload().setCustomerAddressDistrict(shippingAddress.district());
         orderFulfilledEvent.getPayload().setDepartmentName(customer.departmentName());
         orderFulfilledEvent.getPayload().setCustomerPhoneNumber(customer.phoneNumber());
+        orderFulfilledEvent.getPayload().setDepartmentCode(customer.departmentCode());
 
 
         return Mono.just(orderFulfilledEvent);

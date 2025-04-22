@@ -4,11 +4,12 @@ import {
     BrowserAnimationsModule,
     NoopAnimationsModule,
 } from '@angular/platform-browser/animations';
+import { UppercaseDirective } from 'app/shared/directive/uppercase/uppercase.directive';
 import { ScanUnitNumberProductCodeComponent } from './scan-unit-number-product-code.component';
-
 describe('ScanUnitNumberProductCodeComponent', () => {
     let component: ScanUnitNumberProductCodeComponent;
     let fixture: ComponentFixture<ScanUnitNumberProductCodeComponent>;
+    let inputValue: HTMLInputElement;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
@@ -16,11 +17,13 @@ describe('ScanUnitNumberProductCodeComponent', () => {
                 ScanUnitNumberProductCodeComponent,
                 BrowserAnimationsModule,
                 NoopAnimationsModule,
+                UppercaseDirective,
             ],
         }).compileComponents();
 
         fixture = TestBed.createComponent(ScanUnitNumberProductCodeComponent);
         component = fixture.componentInstance;
+        inputValue = fixture.debugElement.query(By.css('input')).nativeElement;
         fixture.detectChanges();
     });
 
@@ -91,5 +94,12 @@ describe('ScanUnitNumberProductCodeComponent', () => {
             '.mat-mdc-form-field-required-marker'
         );
         expect(isAsterisk).toBeNull();
+    });
+
+    it('Should convert input text to Uppercase', () => {
+        inputValue.value = 'abc123';
+        inputValue.dispatchEvent(new Event('input'));
+        fixture.detectChanges();
+        expect(inputValue.value).toBe('ABC123');
     });
 });

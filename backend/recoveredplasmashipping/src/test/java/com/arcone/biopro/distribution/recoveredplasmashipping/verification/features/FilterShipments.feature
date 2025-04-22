@@ -40,7 +40,7 @@ Feature: Filter Shipments
         Rule: I should be able to multi-select for Customer, Product Type, Shipment Status and Location.
         @api @DIS-334
         Scenario Outline: Search for shipments by <Attribute>
-            Given The location "123456700_TEST" is configured with prefix "BPM_TEST", shipping code "DIS334002", and prefix configuration "Y".
+            Given The location "123456700_TEST" is configured with prefix "BPM_TEST", shipping code "DIS334002", carton prefix "BPM" and prefix configuration "Y".
             And I request to create a new shipment with the values:
                 | Field                           | Value                      |
                 | Customer Code                   | 408                        |
@@ -66,7 +66,8 @@ Feature: Filter Shipments
         Rule: I should be notified when no search results are found.
         @api @DIS-334
         Scenario Outline: Validation failure handling
-            Given I requested the list of shipments filtering by "<Attribute>" as "<Value>".
+            Given The location "123456700_TEST" is configured with prefix "BPM_TEST", shipping code "DIS334002", carton prefix "BPM" and prefix configuration "Y".
+            And I requested the list of shipments filtering by "<Attribute>" as "<Value>".
             When I receive the shipment list response.
             Then The list shipment response should contains "0" items.
             And I should receive a "CAUTION" message response "No Results Found".
@@ -83,7 +84,7 @@ Feature: Filter Shipments
         Rule: I should get shipments default sorting as: “status” descending and “shipmentDate” ascending.
         @api @DIS-334
         Scenario: Verify shipment list order
-            Given The location "123456700_TEST" is configured with prefix "BPM_TEST", shipping code "DIS334003", and prefix configuration "Y".
+            Given The location "123456700_TEST" is configured with prefix "BPM_TEST", shipping code "DIS334003", carton prefix "BPM" and prefix configuration "Y".
             And I request to create 10 new shipments with the values:
                 | Field                           | Value                      |
                 | Customer Code                   | 408                        |

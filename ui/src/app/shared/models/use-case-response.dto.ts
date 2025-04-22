@@ -1,7 +1,11 @@
 export interface UseCaseNotificationDTO {
     type: string;
     message: string;
-    code: number;
+    code?: number;
+    action?: string;
+    reason?: string;
+    details?: string[];
+    name?: string;
 }
 
 export interface UseCaseResponseDTO<T> {

@@ -124,7 +124,8 @@ public class OrderDetailsPage extends CommonPageFactory {
     }
 
     private String formatTemperatureCategoryLocator(String category) {
-        return String.format("//span[contains(.,'Temperature Category')]/following-sibling::span[contains(.,'%s')]", category);
+        var categoryLabel = category.replace("_", " ");
+        return String.format("//span[contains(.,'Temperature Category')]/following-sibling::span[contains(.,'%s')]", categoryLabel);
     }
 
     // Strings mappers

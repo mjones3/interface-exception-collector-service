@@ -28,8 +28,10 @@ class ShipmentCompletedMapperTest {
         Mockito.when(mockPayload.externalOrderId()).thenReturn("EXTERNAL_ID");
         Mockito.when(mockPayload.customerCode()).thenReturn("CUSTOMER_CODE");
         Mockito.when(mockPayload.customerType()).thenReturn("CUSTOMER_TYPE");
+        Mockito.when(mockPayload.customerName()).thenReturn("CUSTOMER_NAME");
         Mockito.when(mockPayload.locationName()).thenReturn("LOCATION_NAME");
         Mockito.when(mockPayload.locationCode()).thenReturn("LOCATION_CODE");
+        Mockito.when(mockPayload.deliveryType()).thenReturn("DELIVERY_TYPE");
 
         var payloadLineItem = Mockito.mock(ShipmentCompletedItemPayload.class);
         Mockito.when(payloadLineItem.productFamily()).thenReturn("PRODUCT_FAMILY");
@@ -61,9 +63,12 @@ class ShipmentCompletedMapperTest {
         Assertions.assertEquals(createDate,domain.getShipmentDate());
         Assertions.assertEquals("CUSTOMER_CODE",domain.getShipmentCustomer().customerCode());
         Assertions.assertEquals("CUSTOMER_TYPE",domain.getShipmentCustomer().customerType());
+        Assertions.assertEquals("CUSTOMER_NAME",domain.getShipmentCustomer().customerName());
 
         Assertions.assertEquals("LOCATION_CODE",domain.getShipmentLocation().shipmentLocationCode());
         Assertions.assertEquals("LOCATION_NAME",domain.getShipmentLocation().shipmentLocationName());
+
+        Assertions.assertEquals("DELIVERY_TYPE",domain.getDeliveryType());
 
         Assertions.assertEquals(1,domain.getQuantityShipped());
         Assertions.assertEquals(1,domain.getServices().size());

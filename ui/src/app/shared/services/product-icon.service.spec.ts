@@ -50,6 +50,30 @@ describe('ProductIconsService', () => {
                 productFamily: 'PRT_APHERESIS_PLATELETS',
                 value: 'biopro:product-platelets',
             },
+            {
+                productFamily: 'RP_FROZEN_WITHIN_120_HOURS',
+                value: 'biopro:product-plasma',
+            },
+            {
+                productFamily: 'RP_FROZEN_WITHIN_24_HOURS',
+                value: 'biopro:product-plasma',
+            },
+            {
+                productFamily: 'RP_NONINJECTABLE_FROZEN',
+                value: 'biopro:product-plasma',
+            },
+            {
+                productFamily: 'RP_NONINJECTABLE_LIQUID_RT',
+                value: 'biopro:product-plasma',
+            },
+            {
+                productFamily: 'RP_FROZEN_WITHIN_72_HOURS',
+                value: 'biopro:product-plasma',
+            },
+            {
+                productFamily: 'FRP_NONINJECTABLE_REFRIGERATED',
+                value: 'biopro:product-plasma',
+            },
         ];
         expect(service.getProductIcons()).toEqual(productIconMock);
         expect(service.getIconByProductFamily('WHOLE_BLOOD')).toBe(

@@ -281,6 +281,8 @@ class OrderFulfilledMapperTest {
         var customerDTO = Mockito.mock(CustomerDTO.class);
         Mockito.when(customerDTO.addresses()).thenReturn(List.of(addressMock));
         Mockito.when(customerDTO.phoneNumber()).thenReturn("PHONE_NUMBER");
+        Mockito.when(customerDTO.departmentName()).thenReturn("DEPARTAMENT_NAME");
+        Mockito.when(customerDTO.departmentCode()).thenReturn("DEPARTAMENT_CODE");
 
         Mockito.when(tupleMock.getT1()).thenReturn(new OrderFulfilledEventDTO(new OrderFulfilledDTO()));
         Mockito.when(tupleMock.getT2()).thenReturn(customerDTO);
@@ -301,6 +303,8 @@ class OrderFulfilledMapperTest {
                 Assertions.assertEquals("CustomerAddressDistrict",response.getPayload().getCustomerAddressDistrict());
                 Assertions.assertEquals("CustomerAddressAddressLine1",response.getPayload().getCustomerAddressAddressLine1());
                 Assertions.assertEquals("CustomerAddressAddressLine2",response.getPayload().getCustomerAddressAddressLine2());
+                Assertions.assertEquals("DEPARTAMENT_NAME",response.getPayload().getDepartmentName());
+                Assertions.assertEquals("DEPARTAMENT_CODE",response.getPayload().getDepartmentCode());
 
             })
             .verifyComplete();

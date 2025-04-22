@@ -2,9 +2,12 @@ package com.arcone.biopro.distribution.recoveredplasmashipping.domain.model;
 
 
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.exception.DomainNotFoundForKeyException;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.CartonItemRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.CartonRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.LocationRepository;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShipmentCriteriaRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShippingRepository;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.InventoryService;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,6 +19,8 @@ import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @EqualsAndHashCode
@@ -35,9 +40,13 @@ public class Carton implements Validatable {
     private ZonedDateTime modificationDate;
     private ZonedDateTime closeDate;
     private String status;
+    @Getter(AccessLevel.NONE)
     private int totalProducts;
     private BigDecimal totalWeight;
     private BigDecimal totalVolume;
+    private List<CartonItem> products;
+    private Integer maxNumberOfProducts;
+    private Integer minNumberOfProducts;
 
     private static final String STATUS_OPEN = "OPEN";
     private static final String CARTON_PARTNER_PREFIX_KEY = "RPS_CARTON_PARTNER_PREFIX";
@@ -79,12 +88,12 @@ public class Carton implements Validatable {
         }
 
         return recoveredPlasmaShippingRepository.findOneById(shipmentId)
-            .switchIfEmpty(Mono.error( ()-> new IllegalArgumentException("Carton generation error")))
+            .switchIfEmpty(Mono.error( ()-> new IllegalArgumentException("Shipment is required")))
             .block();
     }
 
     public static Carton fromRepository(Long id, String cartonNumber, Long shipmentId, Integer cartonSequence, String createEmployeeId, String closeEmployeeId
-        , ZonedDateTime createDate, ZonedDateTime modificationDate, ZonedDateTime closeDate, String status , BigDecimal totalVolume , BigDecimal totalWeight) {
+        , ZonedDateTime createDate, ZonedDateTime modificationDate, ZonedDateTime closeDate, String status , BigDecimal totalVolume , BigDecimal totalWeight , List<CartonItem> products , Integer minNumberOfUnits , Integer maxNumberOfUnits) {
         var carton = Carton.builder()
             .id(id)
             .cartonNumber(cartonNumber)
@@ -98,6 +107,9 @@ public class Carton implements Validatable {
             .status(status)
             .totalWeight(totalWeight)
             .totalVolume(totalVolume)
+            .products(products)
+            .minNumberOfProducts(minNumberOfUnits)
+            .maxNumberOfProducts(maxNumberOfUnits)
             .build();
 
         carton.checkValid();
@@ -180,5 +192,24 @@ public class Carton implements Validatable {
         return cartonRepository.countByShipment(shipmentId)
             .switchIfEmpty(Mono.error( ()-> new IllegalArgumentException("Total Cartons is required")))
             .block();
+    }
+
+    public int getTotalProducts() {
+        if(this.products == null){
+            return  0;
+        }
+        return this.products.size();
+    }
+
+    public CartonItem packItem(PackItemCommand packItemCommand , InventoryService inventoryService, CartonItemRepository cartonItemRepository , RecoveredPlasmaShipmentCriteriaRepository recoveredPlasmaShipmentCriteriaRepository , RecoveredPlasmaShippingRepository recoveredPlasmaShippingRepository) {
+        if(this.products == null){
+            this.products = new ArrayList<>();
+        }
+
+        var item = CartonItem.createNewCartonItem(packItemCommand,this,inventoryService , cartonItemRepository , recoveredPlasmaShippingRepository , recoveredPlasmaShipmentCriteriaRepository);
+
+        this.products.add(item);
+
+        return item;
     }
 }

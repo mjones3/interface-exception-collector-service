@@ -6,5 +6,6 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface CartonDtoMapper {
+
    CartonDTO toDto(CartonOutput cartonOutput);
 }

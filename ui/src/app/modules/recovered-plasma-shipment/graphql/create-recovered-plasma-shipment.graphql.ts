@@ -1,6 +1,9 @@
 import { gql } from 'apollo-angular';
-import { RuleResponseDTO } from 'app/shared/models/rule.model';
-import { CreateShipmentRequestDTO } from '../models/recovered-plasma.dto';
+import { UseCaseResponseDTO } from 'app/shared/models/use-case-response.dto';
+import {
+    CreateShipmentRequestDTO,
+    RecoveredPlasmaShipmentResponseDTO,
+} from '../models/recovered-plasma.dto';
 
 export interface CustomerOption {
     customerCode: string;
@@ -31,7 +34,7 @@ export const GET_PRODUCT_TYPE_OPTIONS = gql<
 `;
 
 export const CREATE_RECOVERED_PLASMA_SHIPMENT = gql<
-    { createShipment: RuleResponseDTO },
+    { createShipment: UseCaseResponseDTO<RecoveredPlasmaShipmentResponseDTO> },
     CreateShipmentRequestDTO
 >`
     mutation createShipment(

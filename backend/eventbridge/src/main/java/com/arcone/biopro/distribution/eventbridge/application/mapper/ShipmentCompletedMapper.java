@@ -17,8 +17,8 @@ public class ShipmentCompletedMapper {
         var shipmentCompletedOutbound = new ShipmentCompletedOutbound(shipmentCompletedPayload.shipmentId()
             ,shipmentCompletedPayload.externalOrderId()
             ,shipmentCompletedPayload.createDate()
-            , new ShipmentCustomer(shipmentCompletedPayload.customerCode(), shipmentCompletedPayload.customerType())
-            , new ShipmentLocation(shipmentCompletedPayload.locationCode(), shipmentCompletedPayload.locationName())
+            , new ShipmentCustomer(shipmentCompletedPayload.customerCode(), shipmentCompletedPayload.customerType() , shipmentCompletedPayload.customerName() , shipmentCompletedPayload.departmentCode())
+            , new ShipmentLocation(shipmentCompletedPayload.locationCode(), shipmentCompletedPayload.locationName()), shipmentCompletedPayload.deliveryType()
         );
 
         if(shipmentCompletedPayload.lineItems() != null && !shipmentCompletedPayload.lineItems().isEmpty()){

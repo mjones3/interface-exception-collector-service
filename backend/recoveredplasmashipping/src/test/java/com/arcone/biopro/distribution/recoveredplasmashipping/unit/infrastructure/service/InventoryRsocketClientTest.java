@@ -1,23 +1,38 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.unit.infrastructure.service;
 
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.ValidateInventoryCommand;
+import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.controller.dto.InventoryNotificationDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.controller.dto.InventoryResponseDTO;
-import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.controller.dto.InventoryValidationRequest;
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.controller.dto.InventoryValidationResponseDTO;
+import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.controller.dto.InventoryVolumeDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.exception.InventoryServiceNotAvailableException;
+import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.mapper.CommandMapper;
+import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.mapper.InventoryMapper;
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.service.InventoryRsocketClient;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mapstruct.factory.Mappers;
 import org.mockito.Mockito;
 import org.springframework.messaging.rsocket.RSocketRequester;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.UUID;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 class InventoryRsocketClientTest {
+
+    private InventoryMapper inventoryMapper;
+    private CommandMapper commandMapper;
+
+    @BeforeEach
+    public void setup() {
+        inventoryMapper = Mappers.getMapper(InventoryMapper.class);
+        commandMapper = Mappers.getMapper(CommandMapper.class);
+    }
 
     @Test
     public void shouldGetInventoryDetails(){
@@ -30,26 +45,51 @@ class InventoryRsocketClientTest {
 
         Mockito.when(rsocketRequesterMock.route("validateInventory")).thenReturn(requestSpec);
         Mockito.when(requestSpec.data(Mockito.any())).thenReturn(requestSpec) ;
-        Mockito.when(requestSpec.retrieveMono(InventoryValidationResponseDTO.class)).thenReturn(Mono.just(InventoryValidationResponseDTO.builder()
-                .inventoryResponseDTO(InventoryResponseDTO.builder()
-                    .id(id)
-                    .unitNumber("W036898786799")
-                    .productCode("E0701V00")
-                    .locationCode("123456789")
-                    .build())
-            .build()));
+        var dto = InventoryValidationResponseDTO.builder()
+            .inventoryResponseDTO(InventoryResponseDTO.builder()
+                .id(UUID.randomUUID())
+                .unitNumber("W036898786799")
+                .locationCode("123456789")
+                .productCode("E0701V00")
+                .productDescription("Description")
+                .expirationDate(LocalDateTime.now())
+                .aboRh("AP")
+                .productFamily("Product family")
+                .collectionDate(ZonedDateTime.now())
+                .storageLocation("Storage Location")
+                .createDate(ZonedDateTime.now())
+                .modificationDate(ZonedDateTime.now())
+                .volumes(List.of(InventoryVolumeDTO.builder()
+                        .type("volume")
+                        .value(150)
+                        .unit("MILLILITERS")
+                    .build()))
+                .build())
+            .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
+                .builder()
+                .errorName("NAME")
+                .errorCode(1)
+                .errorMessage("Notification message")
+                .errorType("TYPE")
+                .action("ACTION")
+                .reason("REASON")
+                .details(List.of("DETAILS_1"))
+                .build()))
+            .build();
 
-        var target = new InventoryRsocketClient(rsocketRequesterMock);
+        Mockito.when(requestSpec.retrieveMono(InventoryValidationResponseDTO.class)).thenReturn(Mono.just(dto));
 
-        var response = target.validateInventory(InventoryValidationRequest.builder().build());
+        var target = new InventoryRsocketClient(rsocketRequesterMock,commandMapper,inventoryMapper);
+
+        var response = target.validateInventory(new ValidateInventoryCommand("W036898786799","E0701V00","123456789"));
 
         StepVerifier.create(response)
             .consumeNextWith(detail -> {
-                assertNotNull(detail.inventoryResponseDTO());
-                assertEquals(Optional.of(id), Optional.of(detail.inventoryResponseDTO().id()));
-                assertEquals(Optional.of("W036898786799"), Optional.of(detail.inventoryResponseDTO().unitNumber()));
-                assertEquals(Optional.of("E0701V00"), Optional.of(detail.inventoryResponseDTO().productCode()));
-                assertEquals(Optional.of("123456789"), Optional.of(detail.inventoryResponseDTO().locationCode()));
+                Assertions.assertNotNull(detail.getInventory());
+                Assertions.assertEquals(dto.inventoryResponseDTO().id(), detail.getInventory().getId());
+                Assertions.assertEquals(dto.inventoryResponseDTO().unitNumber(), detail.getInventory().getUnitNumber());
+                Assertions.assertEquals(dto.inventoryResponseDTO().productCode(), detail.getInventory().getProductCode());
+                Assertions.assertEquals(dto.inventoryResponseDTO().locationCode(), detail.getInventory().getLocationCode());
             })
             .verifyComplete();
 
@@ -65,9 +105,9 @@ class InventoryRsocketClientTest {
         Mockito.when(requestSpec.data(Mockito.any())).thenReturn(requestSpec) ;
         Mockito.when(requestSpec.retrieveMono(InventoryValidationResponseDTO.class)).thenReturn(Mono.error(new RuntimeException("Any error")));
 
-        var target = new InventoryRsocketClient(rsocketRequesterMock);
+        var target = new InventoryRsocketClient(rsocketRequesterMock,commandMapper,inventoryMapper);
 
-        var response = target.validateInventory(InventoryValidationRequest.builder().build());
+        var response = target.validateInventory(new ValidateInventoryCommand("W036898786799","E0701V00","123456789"));
 
         StepVerifier.create(response)
             .expectError(InventoryServiceNotAvailableException.class)

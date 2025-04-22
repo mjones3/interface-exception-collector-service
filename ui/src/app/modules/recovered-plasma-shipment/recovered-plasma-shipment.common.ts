@@ -44,10 +44,8 @@ export class RecoveredPlasmaShipmentCommon {
             .subscribe((auth) => this.employeeIdSignal.set(auth.id));
     }
 
-    getItemIcon(item: { productFamily?: string }) {
-        return this.productIconService.getIconByProductFamily(
-            item.productFamily
-        );
+    getItemIcon(productType: string ) {
+        return this.productIconService.getIconByProductFamily(productType);
     }
 
     loadRecoveredPlasmaShippingDetails(

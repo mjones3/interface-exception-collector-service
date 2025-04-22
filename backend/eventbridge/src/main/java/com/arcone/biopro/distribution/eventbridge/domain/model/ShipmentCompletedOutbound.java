@@ -18,24 +18,28 @@ public class ShipmentCompletedOutbound {
     private final ZonedDateTime shipmentDate;
     private final ShipmentCustomer shipmentCustomer;
     private final ShipmentLocation shipmentLocation;
+    private final String deliveryType;
+
 
     private List<ShipmentLineItem> lineItems;
     private List<ShipmentService> services;
 
     public ShipmentCompletedOutbound(Long shipmentId, String externalId, ZonedDateTime shipmentDate
-        , ShipmentCustomer shipmentCustomer , ShipmentLocation shipmentLocation) {
+        , ShipmentCustomer shipmentCustomer , ShipmentLocation shipmentLocation , String deliveryType) {
 
         Assert.notNull(shipmentId, "shipmentId must not be null");
         Assert.notNull(externalId, "externalId must not be null");
         Assert.notNull(shipmentDate, "shipmentDate must not be null");
         Assert.notNull(shipmentCustomer, "Customer must not be null");
         Assert.notNull(shipmentLocation, "Location must not be null");
+        Assert.notNull(deliveryType, "DeliveryType must not be null");
 
         this.shipmentId = shipmentId;
         this.externalId = externalId;
         this.shipmentDate = shipmentDate;
         this.shipmentCustomer = shipmentCustomer;
         this.shipmentLocation = shipmentLocation;
+        this.deliveryType = deliveryType;
     }
 
     public void addLineItem(final ShipmentLineItem shipmentLineItem) {
