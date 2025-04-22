@@ -1,4 +1,4 @@
-@AOA-6 @AOA-40 @AOA-152 @AOA-128 @AOA-105 
+@AOA-6 @AOA-40 @AOA-152 @AOA-128 @AOA-105 @AOA-240
 Feature: Complete Shipment Feature
     As a distribution technician, I want to complete a shipment, so I can ship products to the customer.
 
