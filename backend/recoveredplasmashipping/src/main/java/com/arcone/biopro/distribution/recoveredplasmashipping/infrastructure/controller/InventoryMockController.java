@@ -166,10 +166,10 @@ public class InventoryMockController {
                         .build())
                     .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
                         .builder()
-                        .errorType("INFO")
+                        .errorType("WARN")
                         .errorName("INVENTORY_IS_SHIPPED")
                         .errorCode(4)
-                        .errorMessage(RecoveredPlasmaShippingServiceMessages.INVENTORY_NOT_FOUND_ERROR)
+                        .errorMessage(RecoveredPlasmaShippingServiceMessages.INVENTORY_SHIPPED_ERROR)
                         .build()))
                     .build());
             case "W036898786812":
