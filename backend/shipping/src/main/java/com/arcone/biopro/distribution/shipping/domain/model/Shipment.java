@@ -147,6 +147,9 @@ public class Shipment implements Serializable, Persistable<Long> {
     @Column("department_name")
     private String departmentName;
 
+    @Column("department_code")
+    private String departmentCode;
+
     @Column("complete_date")
     private ZonedDateTime completeDate;
 

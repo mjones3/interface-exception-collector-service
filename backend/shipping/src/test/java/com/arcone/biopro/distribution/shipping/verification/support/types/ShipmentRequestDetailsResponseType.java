@@ -25,7 +25,8 @@ public class ShipmentRequestDetailsResponseType {
     String shippingMethod;
     String productCategory;
     LocalDate shippingDate;
-    String department;
+    String departmentName;
+    String departmentCode;
     String shippingCustomerName;
     String billingCustomerName;
     String customerPhoneNumber;

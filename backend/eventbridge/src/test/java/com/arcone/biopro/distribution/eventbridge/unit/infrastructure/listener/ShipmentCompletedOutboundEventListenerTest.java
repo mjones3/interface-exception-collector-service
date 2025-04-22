@@ -27,7 +27,7 @@ class ShipmentCompletedOutboundEventListenerTest {
         var mapper = new ShipmentCompletedOutboundMapper();
 
         var model = Mockito.mock(ShipmentCompletedOutbound.class);
-        Mockito.when(model.getShipmentCustomer()).thenReturn(new ShipmentCustomer("CUSTOMER_CODE","CUSTOMER_TYPE"));
+        Mockito.when(model.getShipmentCustomer()).thenReturn(new ShipmentCustomer("CUSTOMER_CODE","CUSTOMER_TYPE","NAME", "DPT_CODE"));
         Mockito.when(model.getShipmentLocation()).thenReturn(new ShipmentLocation("LOCATION_CODE","LOCATION_NAME"));
 
         var target = new ShipmentCompletedOutboundEventListener(producerTemplate, "TestTopic",mapper);

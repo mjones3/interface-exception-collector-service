@@ -37,5 +37,6 @@ public class OrderFulfilledDTO implements Serializable {
     private String customerAddressAddressLine2;
     private String comments;
     private String departmentName;
+    private String departmentCode;
     private List<OrderFulfilledItemDTO> items;
 }

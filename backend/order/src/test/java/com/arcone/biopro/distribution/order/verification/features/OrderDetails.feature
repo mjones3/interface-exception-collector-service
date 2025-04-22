@@ -1,4 +1,4 @@
-@ui @AOA-152 @AOA-128 @AOA-105 
+@ui @AOA-152 @AOA-128 @AOA-105
 Feature: View order details
 
     Background:
@@ -103,3 +103,6 @@ Feature: View order details
             Examples:
                 | External ID | LocationCode | Priority | Status      | Items Quantity | ProductFamily       | BloodType | Quantity | Shipment Type | Shipping Method | Product Category | Desired Date | Shipping Customer Code | Shipping Customer Name     | Billing Customer Code | Billing Customer Name      | Order Comments     | Item Comments |
                 | ORDER005    | 123456789    | STAT     | IN_PROGRESS | 1              | PLASMA_TRANSFUSABLE | AB        | 1        | CUSTOMER      | FEDEX           | FROZEN           | 2024-08-20   | A1235                  | Creative Testing Solutions | A1235                 | Creative Testing Solutions | Confirm when ready | Needed asap   |
+
+            Scenario: Cleanup database
+                Given I cleaned up from the database the orders with external ID starting with "ORDER".

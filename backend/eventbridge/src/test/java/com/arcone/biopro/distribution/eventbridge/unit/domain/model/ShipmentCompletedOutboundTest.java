@@ -14,23 +14,23 @@ class ShipmentCompletedOutboundTest {
 
     @Test
     public void shouldCreateDomain(){
-        var target = new ShipmentCompletedOutbound(1L,"EXTERNAL_ID", ZonedDateTime.now(), new ShipmentCustomer("CODE","TYPE"), new ShipmentLocation("LOCATION_CODE","LOCATION_NAME"));
+        var target = new ShipmentCompletedOutbound(1L,"EXTERNAL_ID", ZonedDateTime.now(), new ShipmentCustomer("CODE","TYPE","NAME", "DPT_CODE"), new ShipmentLocation("LOCATION_CODE","LOCATION_NAME"),"DELIVERY_TYPE");
         Assertions.assertNotNull(target);
     }
 
     @Test
     public void shouldNotCreateDomain(){
         Assertions.assertThrows(IllegalArgumentException.class, () -> new ShipmentCompletedOutbound(null,"EXTERNAL_ID", ZonedDateTime.now()
-            , new ShipmentCustomer("CODE","TYPE"), new ShipmentLocation("LOCATION_CODE","LOCATION_NAME")));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new ShipmentCompletedOutbound(1L,null, ZonedDateTime.now(), new ShipmentCustomer("CODE","TYPE"), new ShipmentLocation("LOCATION_CODE","LOCATION_NAME")));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new ShipmentCompletedOutbound(1L,"EXTERNAL_ID", null,new ShipmentCustomer("CODE","TYPE"), new ShipmentLocation("LOCATION_CODE","LOCATION_NAME")));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new ShipmentCompletedOutbound(1L,"EXTERNAL_ID", ZonedDateTime.now(),null, new ShipmentLocation("LOCATION_CODE","LOCATION_NAME")));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new ShipmentCompletedOutbound(1L,"EXTERNAL_ID", ZonedDateTime.now(),new ShipmentCustomer("CODE","TYPE"), null));
+            , new ShipmentCustomer("CODE","TYPE","NAME","DEPT_CODE"), new ShipmentLocation("LOCATION_CODE","LOCATION_NAME"),"DELIVERY_TYPE"));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new ShipmentCompletedOutbound(1L,null, ZonedDateTime.now(), new ShipmentCustomer("CODE","TYPE","NAME", "DPT_CODE"), new ShipmentLocation("LOCATION_CODE","LOCATION_NAME"),"DELIVERY_TYPE"));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new ShipmentCompletedOutbound(1L,"EXTERNAL_ID", null,new ShipmentCustomer("CODE","TYPE","NAME", "DPT_CODE"), new ShipmentLocation("LOCATION_CODE","LOCATION_NAME"),"DELIVERY_TYPE"));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new ShipmentCompletedOutbound(1L,"EXTERNAL_ID", ZonedDateTime.now(),null, new ShipmentLocation("LOCATION_CODE","LOCATION_NAME"),"DELIVERY_TYPE"));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new ShipmentCompletedOutbound(1L,"EXTERNAL_ID", ZonedDateTime.now(),new ShipmentCustomer("CODE","TYPE","NAME", "DPT_CODE"), null,"DELIVERY_TYPE"));
     }
 
     @Test
     public void shouldAddService(){
-        var target = new ShipmentCompletedOutbound(1L,"EXTERNAL_ID", ZonedDateTime.now(), new ShipmentCustomer("CODE","TYPE"), new ShipmentLocation("LOCATION_CODE","LOCATION_NAME"));
+        var target = new ShipmentCompletedOutbound(1L,"EXTERNAL_ID", ZonedDateTime.now(), new ShipmentCustomer("CODE","TYPE","NAME", "DPT_CODE"), new ShipmentLocation("LOCATION_CODE","LOCATION_NAME"),"DELIVERY_TYPE");
         Assertions.assertNotNull(target);
         target.addService("SERVICE_CODE",10);
 
@@ -42,7 +42,7 @@ class ShipmentCompletedOutboundTest {
 
     @Test
     public void shouldAddLineItem(){
-        var target = new ShipmentCompletedOutbound(1L,"EXTERNAL_ID", ZonedDateTime.now(), new ShipmentCustomer("CODE","TYPE"), new ShipmentLocation("LOCATION_CODE","LOCATION_NAME"));
+        var target = new ShipmentCompletedOutbound(1L,"EXTERNAL_ID", ZonedDateTime.now(), new ShipmentCustomer("CODE","TYPE","NAME", "DPT_CODE"), new ShipmentLocation("LOCATION_CODE","LOCATION_NAME"),"DELIVERY_TYPE");
         Assertions.assertNotNull(target);
         target.addLineItem(new ShipmentLineItem("FAMILY",10));
 
@@ -54,7 +54,7 @@ class ShipmentCompletedOutboundTest {
 
     @Test
     public void shouldCalculateQuantityShipped(){
-        var target = new ShipmentCompletedOutbound(1L,"EXTERNAL_ID", ZonedDateTime.now(), new ShipmentCustomer("CODE","TYPE"), new ShipmentLocation("LOCATION_CODE","LOCATION_NAME"));
+        var target = new ShipmentCompletedOutbound(1L,"EXTERNAL_ID", ZonedDateTime.now(), new ShipmentCustomer("CODE","TYPE","NAME", "DPT_CODE"), new ShipmentLocation("LOCATION_CODE","LOCATION_NAME"),"DELIVERY_TYPE");
         Assertions.assertNotNull(target);
 
         Assertions.assertEquals(0,target.getQuantityShipped());
