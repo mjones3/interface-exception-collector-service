@@ -34,28 +34,6 @@ def cert_manager():
     )
 
 
-def otel_operator():
-    helm_remote(
-        'opentelemetry-collector',
-        repo_url='https://open-telemetry.github.io/opentelemetry-helm-charts',
-        set=[
-            'image.repository=otel/opentelemetry-collector-k8s',
-            'mode=deployment',
-            'dnsPolicy=ClusterFirstWithHostNet',
-        ]
-    )
-    k8s_resource(
-        'opentelemetry-collector',
-        resource_deps=[
-            'cert-manager-webhook',
-            'cert-manager-cainjector',
-            'cert-manager'
-        ],
-        trigger_mode=TRIGGER_MODE_MANUAL,
-
-    )
-
-
 # Function to build and deploy: zookeeper service
 def zookeeper_service():
     # Specify the Kubernetes manifest for the deployment
@@ -205,7 +183,6 @@ def ui_service():
 
 
 cert_manager()
-otel_operator()
 keycloak_service()
 zookeeper_service()
 kafka_service()
