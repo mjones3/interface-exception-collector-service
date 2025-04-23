@@ -1,15 +1,18 @@
 import { Injectable } from '@angular/core';
 import { ApolloQueryResult } from '@apollo/client';
 import { MutationResult } from 'apollo-angular';
-import { RuleResponseDTO } from 'app/shared/models/rule.model';
+import { UseCaseResponseDTO } from 'app/shared/models/use-case-response.dto';
 import { Observable } from 'rxjs';
 import { DynamicGraphqlPathService } from '../../../core/services/dynamic-graphql-path.service';
 import {
     CREATE_RECOVERED_PLASMA_SHIPMENT,
     GET_PRODUCT_TYPE_OPTIONS,
     productTypeOptionResponse,
-} from '../../recovered-plasma-shipment/graphql/create-recovered-plasma-shipment.graphql';
-import { CreateShipmentRequestDTO } from '../models/recovered-plasma.dto';
+} from '../graphql/create-recovered-plasma-shipment.graphql';
+import {
+    CreateShipmentRequestDTO,
+    RecoveredPlasmaShipmentResponseDTO,
+} from '../models/recovered-plasma.dto';
 
 @Injectable({
     providedIn: 'root',
@@ -19,9 +22,7 @@ export class RecoveredPlasmaShipmentService {
 
     constructor(private dynamicGraphqlPathService: DynamicGraphqlPathService) {}
 
-    public getProductTypeOptions(
-        customerCode: string
-    ): Observable<
+    public getProductTypeOptions(customerCode: string): Observable<
         ApolloQueryResult<{
             findAllProductTypeByCustomer: productTypeOptionResponse;
         }>
@@ -35,7 +36,11 @@ export class RecoveredPlasmaShipmentService {
 
     public createRecoveredPlasmaShipment(
         createShipmentRequest: CreateShipmentRequestDTO
-    ): Observable<MutationResult<{ createShipment: RuleResponseDTO }>> {
+    ): Observable<
+        MutationResult<{
+            createShipment: UseCaseResponseDTO<RecoveredPlasmaShipmentResponseDTO>;
+        }>
+    > {
         return this.dynamicGraphqlPathService.executeMutation(
             this.servicePath,
             CREATE_RECOVERED_PLASMA_SHIPMENT,

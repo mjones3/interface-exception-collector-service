@@ -1,10 +1,10 @@
-@api @AOA-152
+@api @AOA-152 @AOA-240 @AOA-128 @AOA-105
 Feature: Validate order
 
     Background:
-        Given I cleaned up from the database the orders with external ID "114117922233599,114117922233500,114117922233511,114117922233512,114117922233513,114117922233514,114117922233515,114117922233516,114117922233517,114117922233518,114117922233519,114117922233520,114117922233521,114117922233522,114117922233523,114117922233524,114117922233525,114117922233526,114117922233527,11411792223353221,11411792223353222,11411792223353223,DIS323000000001".
+        Given I cleaned up from the database the orders with external ID "114117922233599,114117922233500,114117922233511,114117922233512,114117922233513,114117922233514,114117922233515,114117922233516,114117922233517,114117922233518,114117922233519,114117922233520,114117922233521,114117922233522,114117922233523,114117922233524,114117922233525,114117922233526,114117922233527,11411792223353221,11411792223353222,11411792223353223,DIS323000000001,DIS336000000002,DIS336000000003,114117922233521,DIS337000000001".
 
-    @DIS-161 @DIS-92 @DIS-253 @bug @DIS-323
+    @DIS-161 @DIS-92 @DIS-253 @bug @DIS-323 @DIS-336 @DIS-337
     Scenario Outline: Creating a BioPro order from a valid order inbound request
         Given I have received an order inbound request with externalId "<External ID>" and content "<JsonPayloadName>".
         When The system process the order request.
@@ -17,23 +17,27 @@ Feature: Validate order
             | 114117922233523 | order-inbound-scenario-whole-blood-leukoreduced-product.json |
             | 114117922233524 | order-inbound-scenario-red-blood-cells-product.json          |
             | DIS323000000001 | order-inbound-scenario-DIS-323_no_create_employee_code.json  |
+            | DIS336000000002 | order-inbound-scenario-DIS-336_apheresis-platelets.json      |
+            | DIS336000000003 | order-inbound-scenario-DIS-336_prt-apheresis-platelets.json  |
+            | DIS337000000001 | order-inbound-scenario-DIS-337_frozen-rbc.json               |
 
-    @DIS-92
+    @DIS-92 @DIS-336
     Scenario Outline: Creating a BioPro order from an invalid order inbound request
         Given I have received an order inbound request with externalId "<External ID>" and content "<JsonPayloadName>".
         When The system process the order request.
         Then A biopro Order "should not" be available in the Distribution local data store.
         Examples:
-            | External ID     | JsonPayloadName                                          |
-            | 0-@             | order-inbound-scenario-3-invalid_external_id.json        |
-            | 114117922233511 | order-inbound-scenario-4-invalid_order_status.json       |
-            | 114117922233514 | order-inbound-scenario-7-invalid_shipment_type.json      |
-            | 114117922233515 | order-inbound-scenario-8-invalid_blood_type.json         |
-            | 114117922233516 | order-inbound-scenario-9-invalid_category.json           |
-            | 114117922233517 | order-inbound-scenario-10-invalid_shipping_customer.json |
-            | 114117922233518 | order-inbound-scenario-11-invalid_billing_customer.json  |
-            | 114117922233519 | order-inbound-scenario-12-invalid_family.json            |
-            | 114117922233520 | order-inbound-scenario-13_invalid_quantity.json          |
+            | External ID     | JsonPayloadName                                                              |
+            | 0-@             | order-inbound-scenario-3-invalid_external_id.json                            |
+            | 114117922233511 | order-inbound-scenario-4-invalid_order_status.json                           |
+            | 114117922233514 | order-inbound-scenario-7-invalid_shipment_type.json                          |
+            | 114117922233515 | order-inbound-scenario-8-invalid_blood_type.json                             |
+            | 114117922233516 | order-inbound-scenario-9-invalid_category.json                               |
+            | 114117922233517 | order-inbound-scenario-10-invalid_shipping_customer.json                     |
+            | 114117922233518 | order-inbound-scenario-11-invalid_billing_customer.json                      |
+            | 114117922233519 | order-inbound-scenario-12-invalid_family.json                                |
+            | 114117922233520 | order-inbound-scenario-13_invalid_quantity.json                              |
+            | 114117922233521 | order-inbound-scenario-DIS-336_prt-apheresis-platelets_invalid_category.json |
 
     @DIS-92
     Scenario Outline: Creating a BioPro order with duplicated external ID
@@ -74,3 +78,6 @@ Feature: Validate order
             | 11411792223353222 | order-inbound-scenario-dis-322-create_date.json | CURRENT_DATE_TIME   | should      |
             | 11411792223353223 | order-inbound-scenario-dis-322-create_date.json | 2023-04-25 20:09:01 | should      |
             | 11411792223353223 | order-inbound-scenario-dis-322-create_date.json | 2099-04-25 20:09:01 | should not  |
+
+        Scenario: Database clean up
+            Given I cleaned up from the database the orders with external ID "114117922233599,114117922233500,114117922233511,114117922233512,114117922233513,114117922233514,114117922233515,114117922233516,114117922233517,114117922233518,114117922233519,114117922233520,114117922233521,114117922233522,114117922233523,114117922233524,114117922233525,114117922233526,114117922233527,11411792223353221,11411792223353222,11411792223353223,DIS323000000001,DIS336000000002,DIS336000000003,114117922233521,DIS337000000001".

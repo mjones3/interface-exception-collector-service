@@ -1,11 +1,16 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.unit.domain.model;
 
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.CustomerOutput;
+import com.arcone.biopro.distribution.recoveredplasmashipping.application.exception.DomainNotFoundForKeyException;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Carton;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.CreateCartonCommand;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.CreateShipmentCommand;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.FindShipmentCommand;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Location;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.LocationProperty;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.RecoveredPlasmaShipment;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.RecoveredPlasmaShipmentCriteria;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.CartonRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.LocationRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShipmentCriteriaRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShippingRepository;
@@ -14,6 +19,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
@@ -21,6 +27,8 @@ import reactor.core.publisher.Mono;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -31,12 +39,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @ExtendWith(MockitoExtension.class)
 class RecoveredPlasmaShipmentTest {
 
-
-    @Mock
-    private RecoveredPlasmaShipment recoveredPlasmaShipment;
-
-    @Mock
-    private RecoveredPlasmaShipment shipment;
     @Mock
     private CustomerService customerService;
 
@@ -48,7 +50,6 @@ class RecoveredPlasmaShipmentTest {
 
     @Mock
     private RecoveredPlasmaShipmentCriteriaRepository recoveredPlasmaShipmentCriteriaRepository;
-
 
     @Test
     public void shouldNotCreateNewShipmentWhenLocationIsInvalid() {
@@ -308,6 +309,7 @@ class RecoveredPlasmaShipmentTest {
         String customerAddressDepartmentName = "Test Department";
         ZonedDateTime createDate = ZonedDateTime.now();
         ZonedDateTime modificationDate = ZonedDateTime.now();
+        List<Carton> cartonList = List.of(Mockito.mock(Carton.class));
 
         // Act
         RecoveredPlasmaShipment shipment = RecoveredPlasmaShipment.fromRepository(
@@ -316,7 +318,7 @@ class RecoveredPlasmaShipmentTest {
             customerCode, customerName, customerState, customerPostalCode, customerCountry,
             customerCountryCode, customerCity, customerDistrict, customerAddressLine1,
             customerAddressLine2, customerAddressContactName, customerAddressPhoneNumber,
-            customerAddressDepartmentName, createDate, modificationDate
+            customerAddressDepartmentName, createDate, modificationDate , cartonList
         );
 
         // Assert
@@ -350,6 +352,11 @@ class RecoveredPlasmaShipmentTest {
         assertEquals(customerAddressContactName, shipment.getShipmentCustomer().getCustomerAddressContactName());
         assertEquals(customerAddressPhoneNumber, shipment.getShipmentCustomer().getCustomerAddressPhoneNumber());
         assertEquals(customerAddressDepartmentName, shipment.getShipmentCustomer().getCustomerAddressDepartmentName());
+
+        assertEquals(1,shipment.getCartonList().size());
+        assertEquals(1,shipment.getTotalCartons());
+
+
     }
 
     /**
@@ -366,7 +373,7 @@ class RecoveredPlasmaShipmentTest {
                 "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
                 "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
                 "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
-                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now()
+                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), null
             );
         });
     }
@@ -381,7 +388,7 @@ class RecoveredPlasmaShipmentTest {
             "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
             "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
             "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
-            "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now()
+            "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), null
         ));
     }
 
@@ -395,7 +402,7 @@ class RecoveredPlasmaShipmentTest {
                 "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
                 "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
                 "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
-                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now()
+                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), null
             ));
         assertEquals("Shipment Number is required", exception.getMessage());
     }
@@ -410,7 +417,7 @@ class RecoveredPlasmaShipmentTest {
                 "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
                 "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
                 "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
-                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now()
+                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), null
             ));
         assertEquals("Shipment Number is required", exception.getMessage());
     }
@@ -425,7 +432,7 @@ class RecoveredPlasmaShipmentTest {
                 null, "customerName", "customerState", "customerPostalCode", "customerCountry",
                 "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
                 "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
-                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now()
+                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), null
             ));
         assertEquals("Customer code cannot be null or blank", exception.getMessage());
     }
@@ -440,7 +447,7 @@ class RecoveredPlasmaShipmentTest {
                 "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
                 "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
                 "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
-                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now()
+                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), null
             ));
         assertEquals("Location code is required", exception.getMessage());
     }
@@ -455,7 +462,7 @@ class RecoveredPlasmaShipmentTest {
                 "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
                 "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
                 "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
-                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now()
+                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), null
             ));
         assertEquals("Location code is required", exception.getMessage());
     }
@@ -471,7 +478,7 @@ class RecoveredPlasmaShipmentTest {
                 "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
                 "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
                 "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
-                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now()
+                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), null
             ));
         assertEquals("Product type is required", exception.getMessage());
     }
@@ -487,7 +494,7 @@ class RecoveredPlasmaShipmentTest {
                 "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
                 "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
                 "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
-                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now()
+                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), null
             ));
         assertEquals("Create employee ID is required", exception.getMessage());
     }
@@ -502,7 +509,7 @@ class RecoveredPlasmaShipmentTest {
                 "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
                 "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
                 "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
-                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now()
+                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), null
             ));
         assertEquals("Shipment date is required", exception.getMessage());
     }
@@ -517,7 +524,7 @@ class RecoveredPlasmaShipmentTest {
                 "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
                 "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
                 "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
-                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now()
+                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), null
             ));
         assertEquals("Status is required", exception.getMessage());
     }
@@ -532,8 +539,135 @@ class RecoveredPlasmaShipmentTest {
                 "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
                 "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
                 "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
-                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now()
+                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), null
             ));
         assertEquals("Carton tare weight is required", exception.getMessage());
+    }
+
+
+    @Test
+    public void shouldNotFindByIdWhenShipmentDoesNotExists() {
+
+        //given
+        var findCommand = new FindShipmentCommand(1L, "locationCode", "employee-id");
+
+        Mockito.when(recoveredPlasmaShippingRepository.findOneById(Mockito.any())).thenReturn(Mono.empty());
+
+        //when
+        DomainNotFoundForKeyException exception = assertThrows(DomainNotFoundForKeyException.class, () -> RecoveredPlasmaShipment.fromFindByCommand(findCommand , recoveredPlasmaShippingRepository));
+
+        //then
+
+        assertEquals("Domain not found for key 1", exception.getMessage());
+    }
+
+    @Test
+    public void shouldFindByIdWhenShipmentExists() {
+
+        //given
+        var findCommand = new FindShipmentCommand(1L, "LOC001", "employee-id");
+
+        // Arrange
+
+
+        Mockito.when(recoveredPlasmaShippingRepository.findOneById(Mockito.any())).thenReturn(Mono.just(createShipment()));
+
+        //when
+        var result = RecoveredPlasmaShipment.fromFindByCommand(findCommand, recoveredPlasmaShippingRepository);
+
+        //then
+        Assertions.assertNotNull(result);
+        Assertions.assertTrue(result.isCanAddCartons());
+
+    }
+
+    @Test
+    public void shouldFindByIdWhenShipmentExists_not_allow_add_cartonsWhenLocationDoesNotMatch() {
+
+        //given
+        var findCommand = new FindShipmentCommand(1L, "LOC002", "employee-id");
+
+
+
+        Mockito.when(recoveredPlasmaShippingRepository.findOneById(Mockito.any())).thenReturn(Mono.just(createShipment()));
+
+        //when
+        var result = RecoveredPlasmaShipment.fromFindByCommand(findCommand, recoveredPlasmaShippingRepository);
+
+        //then
+        Assertions.assertNotNull(result);
+        Assertions.assertFalse(result.isCanAddCartons());
+
+    }
+
+    private RecoveredPlasmaShipment createShipment(){
+        // Arrange
+        Long id = 1L;
+        String locationCode = "LOC001";
+        String productType = "PLASMA";
+        String shipmentNumber = "SHP001";
+        String status = "OPEN";
+        String createEmployeeId = "EMP001";
+        String closeEmployeeId = "EMP002";
+        ZonedDateTime closeDate = ZonedDateTime.now();
+        String transportationReferenceNumber = "TRN001";
+        LocalDate shipmentDate = LocalDate.now();
+        BigDecimal cartonTareWeight = BigDecimal.valueOf(10.5);
+        String unsuitableUnitReportDocumentStatus = "COMPLETED";
+        String customerCode = "CUST001";
+        String customerName = "Test Customer";
+        String customerState = "Test State";
+        String customerPostalCode = "12345";
+        String customerCountry = "Test Country";
+        String customerCountryCode = "TC";
+        String customerCity = "Test City";
+        String customerDistrict = "Test District";
+        String customerAddressLine1 = "123 Test St";
+        String customerAddressLine2 = "Apt 4";
+        String customerAddressContactName = "John Doe";
+        String customerAddressPhoneNumber = "1234567890";
+        String customerAddressDepartmentName = "Test Department";
+        ZonedDateTime createDate = ZonedDateTime.now();
+        ZonedDateTime modificationDate = ZonedDateTime.now();
+
+        // Act
+        return  RecoveredPlasmaShipment.fromRepository(
+            id, locationCode, productType, shipmentNumber, status, createEmployeeId,
+            closeEmployeeId, closeDate, transportationReferenceNumber,shipmentDate, cartonTareWeight, unsuitableUnitReportDocumentStatus,
+            customerCode, customerName, customerState, customerPostalCode, customerCountry,
+            customerCountryCode, customerCity, customerDistrict, customerAddressLine1,
+            customerAddressLine2, customerAddressContactName, customerAddressPhoneNumber,
+            customerAddressDepartmentName, createDate, modificationDate , Collections.emptyList()
+        );
+    }
+
+    @Test
+    public void test_fromRepository_calculateTotalProducts() {
+        // Arrange
+
+        var carton1 = Mockito.mock(Carton.class);
+        Mockito.when(carton1.getTotalProducts()).thenReturn(5);
+
+        var carton2 = Mockito.mock(Carton.class);
+        Mockito.when(carton2.getTotalProducts()).thenReturn(7);
+
+        List<Carton> cartonList = List.of(carton1,carton2);
+
+        var shipment = RecoveredPlasmaShipment.fromRepository(
+            1L, "locationCode", "productType", "123", "status", "createEmployeeId",
+            "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
+            LocalDate.now(), BigDecimal.TEN, "unsuitableUnitReportDocumentStatus",
+            "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
+            "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
+            "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
+            "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), cartonList
+        );
+
+        // Assert
+        assertNotNull(shipment);
+        assertEquals(2,shipment.getCartonList().size());
+        assertEquals(2,shipment.getTotalCartons());
+        assertEquals(12,shipment.getTotalProducts());
+
     }
 }

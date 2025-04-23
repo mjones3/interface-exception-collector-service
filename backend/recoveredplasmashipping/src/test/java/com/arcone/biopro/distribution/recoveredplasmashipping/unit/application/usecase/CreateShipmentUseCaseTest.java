@@ -124,14 +124,14 @@ class CreateShipmentUseCaseTest {
             .assertNext(output -> {
                 assertNotNull(output);
                 assertEquals(shipmentOutput, output.data());
-                assertEquals("/recovered-plasma/:0/shipment-details",
+                assertEquals("/recovered-plasma/0/shipment-details",
                     output._links().get("next"));
 
                 UseCaseNotificationOutput notification = output.notifications().get(0);
                 assertEquals(UseCaseMessageType.SHIPMENT_CREATED_SUCCESS.getMessage(),
-                    notification.useCaseMessage().getMessage());
+                    notification.useCaseMessage().message());
                 assertEquals(UseCaseMessageType.SHIPMENT_CREATED_SUCCESS.getType(),
-                    notification.useCaseMessage().getType());
+                    notification.useCaseMessage().type());
             })
             .verifyComplete();
 
@@ -167,9 +167,9 @@ class CreateShipmentUseCaseTest {
                 assertNull(output._links());
                 UseCaseNotificationOutput notification = output.notifications().get(0);
                 assertEquals(UseCaseNotificationType.WARN,
-                    notification.useCaseMessage().getType());
-                assertEquals("Location is required", notification.useCaseMessage().getMessage());
-                assertEquals(3, notification.useCaseMessage().getCode());
+                    notification.useCaseMessage().type());
+                assertEquals("Location is required", notification.useCaseMessage().message());
+                assertEquals(3, notification.useCaseMessage().code());
             })
             .verifyComplete();
 

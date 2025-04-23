@@ -40,3 +40,6 @@ Feature: Cancel Order
             Examples:
                 | Shipment Status | Shipped Quantity | Search Key | Source External ID | Cancel External ID | Cancel Date         | Expected Quantity | Expected Statuses    |
                 | COMPLETED       | 2                | externalId | EXTDIS3150009      | EXTDIS3150009      | 2025-01-01 11:09:55 | 2                 | COMPLETED, CANCELLED |
+
+        Scenario: Database clean up
+            Given I cleaned up from the database the orders with external ID starting with "EXTDIS315".

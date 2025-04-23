@@ -120,4 +120,15 @@ public class FilterShipmentsController {
         log.info("Response: {}", response);
     }
 
+    public void findShipmentByIdAndLocation(String id, String locationCode) {
+        var response = apiHelper.graphQlRequest(GraphQLQueryMapper.findShipmentByIdAndLocation(id, locationCode), "findShipmentById");
+        sharedContext.setApiListMessageResponse((List<Map>) (response.get("notifications")));
+        if (response.get("data") != null) {
+            var responseData = (Map) response.get("data");
+            sharedContext.setFindShipmentApiResponse(responseData);
+        } else {
+            sharedContext.setFindShipmentApiResponse(Map.of());
+        }
+        log.info("Response: {}", response);
+    }
 }

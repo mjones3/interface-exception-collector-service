@@ -63,6 +63,10 @@ Feature: Search Orders
                 | COMPLETED       | orderId    | 3                | 1                 | EXTSEARCH1DIS29402 |
                 | COMPLETED       | orderId    | 3                | 1                 | 29402              |
 
+        Scenario: Cleanup database
+            Given I cleaned up from the database the orders with external ID starting with "EXTSEARCH1".
+            And I cleaned up from the database the orders with external ID starting with "29402".
+
 
                                 ############################################################
                                 ##################   Disabled scenarios  ##################

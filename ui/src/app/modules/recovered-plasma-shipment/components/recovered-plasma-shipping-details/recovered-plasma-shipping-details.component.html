@@ -1,6 +1,101 @@
-<div class="flex flex-auto flex-col">
+<div class="flex flex-auto flex-col space-y-1">
     <biopro-process-header
         [subTitle]="header.subTitle | async"
         [title]="header.title | async"
+        [buttons]="actionButtonsTpl"
     ></biopro-process-header>
+
+    <biopro-recovered-plasma-shipment-details-navbar
+        [links]="{ Cartons: cartonsRoute }"
+        [activeLinkRoute]="cartonsRoute"
+        style="margin-top: 1px !important"
+    >
+    </biopro-recovered-plasma-shipment-details-navbar>
+
+    <ng-template #actionButtonsTpl>
+        <div class="flex flex-row space-x-2">
+            <biopro-action-button
+                id="backActionBtn"
+                btnId="backToSearchBtn"
+                label="Back to Search"
+                color="secondary"
+                icon="heroicons_outline:arrow-uturn-left"
+                (clickEvent)="backToSearch()"
+            />
+        </div>
+    </ng-template>
+
+    <div class="flex w-full flex-row gap-4 p-4">
+        <div class="flex w-9/12 flex-col gap-4">
+            @if (shipmentDetailsSignal()?.canAddCartons) {
+                <div class="col flex justify-end">
+                    <biopro-basic-button
+                        id="btnAddCarton"
+                        label="Add Carton"
+                        class="mat-primary-flat text-primary-900"
+                        (buttonClicked)="addCarton()"
+                    />
+                </div>
+            }
+            <biopro-table
+                #recoveredPlasmaCartonsTable
+                tableId="cartonListTableId"
+                [dataSource]="cartonsComputed()"
+                [configuration]="cartonTableConfigComputed()"
+                [totalElements]="cartonsComputed().length ?? 0"
+                [pageIndex]="0"
+                [serverPagination]="false"
+                [expandTemplateRef]="expandTemplateRef"
+                (expandingOneOrMoreRows)="loadCartonPackedProduct($event)"
+            >
+            </biopro-table>
+            <ng-template #statusTemplateRef let-element="element">
+                <span [class]="getStatusBadgeCssClass(element.status)">
+                    {{ RecoveredPlasmaShipmentStatusMap[element.status] }}
+                </span>
+            </ng-template>
+            <ng-template #editTemplateRef let-element="element">
+                @if (shipmentDetailsSignal()?.canAddCartons) {
+                    <button id="editBtn" (click)="editCarton(element?.id)">
+                        <mat-icon>edit</mat-icon>
+                    </button>
+                }
+            </ng-template>
+
+            <!--Expand row for added products-->
+            <ng-template #expandTemplateRef let-element="element">
+                <div class="w-full">
+                    <div class="w-full p-2">
+                        <div class="flex items-center p-2 text-xl font-bold">
+                            <span>
+                                Unit Numbers (
+                                @if (expandedRowDataSignal()?.length >= 0) {
+                                    <span [id]="'prodQtyId_' + element.id">
+                                        {{ expandedRowDataSignal().length }}
+                                    </span>
+                                }
+                                )
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-5 gap-4 p-2">
+                            @for (
+                                product of expandedRowDataSignal();
+                                track product.unitNumber
+                            ) {
+                                <div class="text-lg">
+                                    {{ product.unitNumber }}
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </ng-template>
+        </div>
+        <div class="flex w-3/12 flex-col gap-4">
+            <biopro-shipping-information-card
+                [showBasicButton]="true"
+                [shippingInput]="shipmentDetailsSignal()"
+            />
+        </div>
+    </div>
 </div>

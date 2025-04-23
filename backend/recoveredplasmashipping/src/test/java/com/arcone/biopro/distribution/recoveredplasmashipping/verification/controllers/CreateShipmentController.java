@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -26,10 +28,20 @@ public class CreateShipmentController {
     @Autowired
     private SharedContext sharedContext;
 
-    public Map createShipment(String customerCode, String productType, Float cartonTareWeight, String shipmentDate, String TransportationRefNumber, String locationCode) {
+    public Map createShipment(String customerCode, String productType, Float cartonTareWeight, String shipmentDate, String transportationRefNumber, String locationCode) {
         saveLastShipmentId();
         saveLastShipmentNumber();
-        String payload = GraphQLMutationMapper.createShipment(customerCode, productType, cartonTareWeight, shipmentDate, TransportationRefNumber, locationCode);
+        sharedContext.setLocationCode(locationCode);
+        transportationRefNumber = transportationRefNumber.equals("<null>") ? null : "\"" + transportationRefNumber + "\"";
+        shipmentDate = shipmentDate == null ? null : "\"" + shipmentDate + "\"";
+
+        String payload = GraphQLMutationMapper.createShipment(
+            "\"" + customerCode + "\"",
+            "\"" + productType + "\"",
+            cartonTareWeight,
+            shipmentDate,
+            transportationRefNumber,
+            "\"" + locationCode + "\"");
         try {
             var response = apiHelper.graphQlRequest(payload, "createShipment");
             var data = (Map) response.get("data");
@@ -68,15 +80,15 @@ public class CreateShipmentController {
         if (value.equals("<null>")) {
             value = null;
         } else {
-            value = "\"" + value + "\"";
+            value = value;
         }
         // default correct values
-        String customerCode = "\"408\"";
-        String productType = "\"RP_FROZEN_WITHIN_120_HOURS\"";
+        String customerCode = "408";
+        String productType = "RP_FROZEN_WITHIN_120_HOURS";
         Float cartonTareWeight = 1000f;
-        String shipmentDate = "\"" + LocalDate.now().plusDays(1) + "\"";
-        String TransportationRefNumber = "\"3455\"";
-        String locationCode = "\"123456789\"";
+        String shipmentDate = LocalDate.now().plusDays(1).toString();
+        String TransportationRefNumber = "3455";
+        String locationCode = "123456789";
 
         switch (attribute) {
             case "customerCode":
@@ -92,7 +104,7 @@ public class CreateShipmentController {
                 } else cartonTareWeight = null;
                 break;
             case "TransportationRefNumber":
-                TransportationRefNumber = "\"" + value + "\"";
+                TransportationRefNumber = value;
                 break;
             case "locationCode":
                 locationCode = value;
@@ -116,5 +128,43 @@ public class CreateShipmentController {
         var currentShipmentId = Integer.valueOf(databaseService.fetchData(DatabaseQueries.GET_LAST_SHIPMENT_ID).first().block().get("id").toString());
 
         return lastShipmentId < currentShipmentId;
+    }
+
+    public Map createCarton(String shipmentId) {
+        String payload = GraphQLMutationMapper.createCarton(shipmentId);
+        var response = apiHelper.graphQlRequest(payload, "createCarton");
+        addCartonToList((Map) response.get("data"));
+        return response;
+    }
+
+    public Map createCarton(int shipmentId) {
+        return createCarton(String.valueOf(shipmentId));
+    }
+
+    private void addCartonToList(Map carton) {
+        List<Map> cartonList = sharedContext.getCreateCartonResponseList();
+        if (cartonList == null) {
+            cartonList = new ArrayList<>();
+        }
+        cartonList.add(carton);
+        sharedContext.setCreateCartonResponseList(cartonList);
+    }
+
+    public void packCartonProduct(String cartonId, String unitNumber, String productCode, String locationCode) {
+        String payload = GraphQLMutationMapper.packCartonItem(Integer.parseInt(cartonId), unitNumber, productCode, locationCode);
+        var response = apiHelper.graphQlRequest(payload, "packCartonItem");
+        sharedContext.setPackCartonItemResponse((Map) response.get("data"));
+    }
+
+    public boolean verifyProductIsPacked(String unitNumber, String productCode) {
+        var carton = sharedContext.getPackCartonItemResponse();
+        if (carton == null) {
+            return false;
+        } else {
+            return carton.get("unitNumber") != null
+                && carton.get("productCode") != null
+                && unitNumber.equals(carton.get("unitNumber").toString())
+                && productCode.equals(carton.get("productCode").toString());
+        }
     }
 }

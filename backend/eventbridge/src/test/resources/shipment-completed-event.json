@@ -12,6 +12,9 @@
     "locationName": "MDL Hub 1",
     "customerCode": "1",
     "customerType": null,
+    "customerName": "Customer Name",
+    "deliveryType": "ASAP",
+    "departmentCode": "code",
     "createDate": "2024-10-03T15:44:31.960157Z",
     "lineItems": [
       {

@@ -34,7 +34,7 @@ import { SearchSelectComponent } from 'app/shared/components/search-select/searc
 import { cartonWeightValidator } from 'app/shared/forms/biopro-validators';
 import { OptionDTO } from 'app/shared/models/option.dto';
 import { Cookie } from 'app/shared/types/cookie.enum';
-import { consumeNotifications } from 'app/shared/utils/notification.handling';
+import { consumeUseCaseNotifications } from 'app/shared/utils/notification.handling';
 import { map } from 'lodash-es';
 import { CookieService } from 'ngx-cookie-service';
 import {
@@ -147,6 +147,13 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
                                         };
                                     }
                                 );
+                                if (this.productTypeOptions.length === 1) {
+                                    const singleOption =
+                                        this.productTypeOptions[0];
+                                    this.createShipmentForm
+                                        .get('productType')
+                                        .setValue(singleOption.code);
+                                }
                             } else {
                                 this.productTypeOptions = [];
                             }
@@ -202,15 +209,12 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
                         const url = ruleResult._links?.next;
                         const notifications = ruleResult.notifications;
                         if (notifications?.length) {
-                            notifications.forEach((notification) => {
-                                notification.notificationType =
-                                    notification['type'];
-                            });
-                            consumeNotifications(this.toastr, notifications);
+                            consumeUseCaseNotifications(
+                                this.toastr,
+                                notifications
+                            );
                             this.dialogRef.close(true);
-                            if (
-                                notifications[0].notificationType === 'SUCCESS'
-                            ) {
+                            if (notifications[0].type === 'SUCCESS') {
                                 if (url) {
                                     this.handleNavigation(url);
                                 }

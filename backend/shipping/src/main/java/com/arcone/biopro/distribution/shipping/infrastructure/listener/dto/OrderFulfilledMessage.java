@@ -53,6 +53,7 @@ public record OrderFulfilledMessage(
 
     String comments,
     String departmentName,
+    String departmentCode,
 
     List<OrderItemFulfilledMessage> items
 

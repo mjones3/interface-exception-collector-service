@@ -5,8 +5,18 @@ import { UseCaseResponseDTO } from '../../../../shared/models/use-case-response.
 
 export enum RecoveredPlasmaShipmentStatus {
     OPEN,
+    IN_PROGRESS,
     CLOSED,
 }
+
+export const RecoveredPlasmaShipmentStatusMap: Record<
+    keyof typeof RecoveredPlasmaShipmentStatus,
+    string
+> = {
+    OPEN: 'OPEN',
+    IN_PROGRESS: 'IN PROGRESS',
+    CLOSED: 'CLOSED',
+};
 
 export interface RecoveredPlasmaShipmentReportDTO {
     shipmentId: number;

@@ -9,4 +9,5 @@ import reactor.core.publisher.Mono;
 public interface RecoveredPlasmaShipmentCriteriaRepository {
     Mono<RecoveredPlasmaShipmentCriteria> findProductCriteriaByCustomerCode(String productType, String customerCode);
     Flux<ProductType> findAllProductTypeByByCustomerCode(String customerCode);
+    Mono<ProductType> findProductTypeByProductCode(String productCode);
 }

@@ -32,6 +32,38 @@ export class ProductIconsService {
             productFamily: 'WHOLE_BLOOD_LEUKOREDUCED',
             value: 'biopro:product-whole-blood',
         },
+        {
+            productFamily: 'APHERESIS_PLATELETS_LEUKOREDUCED',
+            value: 'biopro:product-platelets',
+        },
+        {
+            productFamily: 'PRT_APHERESIS_PLATELETS',
+            value: 'biopro:product-platelets',
+        },
+        {
+            productFamily: 'RP_FROZEN_WITHIN_120_HOURS',
+            value: 'biopro:product-plasma',
+        },
+        {
+            productFamily: 'RP_FROZEN_WITHIN_24_HOURS',
+            value: 'biopro:product-plasma',
+        },
+        {
+            productFamily: 'RP_NONINJECTABLE_FROZEN',
+            value: 'biopro:product-plasma',
+        },
+        {
+            productFamily: 'RP_NONINJECTABLE_LIQUID_RT',
+            value: 'biopro:product-plasma',
+        },
+        {
+            productFamily: 'RP_FROZEN_WITHIN_72_HOURS',
+            value: 'biopro:product-plasma',
+        },
+        {
+            productFamily: 'FRP_NONINJECTABLE_REFRIGERATED',
+            value: 'biopro:product-plasma',
+        },
     ];
 
     getProductIcons() {

@@ -8,5 +8,6 @@ public class RecoveredPlasmaShippingServiceMessages {
     public static final String INVENTORY_DISCARDED_ERROR = "This product is discarded and cannot be shipped";
     public static final String INVENTORY_QUARANTINED_ERROR = "This product is quarantined and cannot be shipped";
     public static final String INVENTORY_NOT_FOUND_ERROR = "This product is not in the inventory and cannot be shipped";
+    public static final String INVENTORY_SHIPPED_ERROR = "This product was previously shipped.";
 
 }

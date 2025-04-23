@@ -9,6 +9,7 @@ import org.testcontainers.shaded.org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.net.URL;
+import java.time.LocalDate;
 import java.util.Arrays;
 
 @Component
@@ -52,10 +53,39 @@ public class TestUtils {
         return Arrays.stream(param.split(",")).map(String::trim).toArray(String[]::new);
     }
 
-    public String parseCommaSeparatedStringToGraphqlArrayList(String param){
+    public String parseCommaSeparatedStringToGraphqlArrayList(String param) {
         var paramList = getCommaSeparatedList(param);
         var formattedParam = String.join("\", \"", paramList);
         return String.format("[\"%s\"]", formattedParam);
+    }
+
+    public String parseDataKeyword(String keyword) {
+        if (keyword.equals("<tomorrow>")) {
+            LocalDate tomorrow = LocalDate.now().plusDays(1);
+            log.info("Tomorrow's date is {}", tomorrow);
+            return tomorrow.toString();
+        } else if (keyword.equals("<today>")) {
+            LocalDate today = LocalDate.now();
+            log.info("Today's date is {}", today);
+            return today.toString();
+        } else {
+            log.info("Keyword {} not recognized", keyword);
+            return keyword;
+        }
+    }
+
+    public String removeUnitNumberScanDigits(String unit) {
+        if (unit.startsWith("=")) {
+            unit = unit.substring(1, unit.length() - 2);
+        }
+        return unit;
+    }
+
+    public String removeProductCodeScanDigits(String productCode) {
+        if (productCode.startsWith("=<")) {
+            productCode = productCode.substring(2);
+        }
+        return productCode;
     }
 
 }

@@ -32,6 +32,8 @@ public class ShipmentEventMapper {
             .locationName(facilityName)
             .customerCode(dto.shippingCustomerCode())
             .customerName(dto.shippingCustomerName())
+            .deliveryType(dto.deliveryType())
+            .departmentCode(dto.departmentCode())
             .createDate(dto.createDate())
             .lineItems(buildLineItems(dto.items()))
             .build());

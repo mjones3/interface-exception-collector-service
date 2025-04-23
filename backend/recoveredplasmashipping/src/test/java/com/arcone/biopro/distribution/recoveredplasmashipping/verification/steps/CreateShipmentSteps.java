@@ -5,6 +5,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.verification.pages
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.DatabaseQueries;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.DatabaseService;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.SharedContext;
+import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.TestUtils;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
@@ -13,8 +14,6 @@ import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -23,7 +22,6 @@ import java.util.Map;
 import java.util.Random;
 
 @Slf4j
-@SpringBootTest
 public class CreateShipmentSteps {
 
     @Autowired
@@ -34,9 +32,19 @@ public class CreateShipmentSteps {
     private CreateShipmentController createShipmentController;
     @Autowired
     private SharedContext sharedContext;
+    @Autowired
+    private TestUtils testUtils;
 
     @Given("I have removed from the database all shipments which code contains with {string}.")
     public void removeShipmentsFromDatabase(String code) {
+        // Delete carton items
+        var deleteCartonItemsQuery = DatabaseQueries.DELETE_CARTON_ITEMS_BY_SHIPMENT_CODE(code);
+        databaseService.executeSql(deleteCartonItemsQuery).block();
+        // Delete cartons
+        var deleteCartonsQuery = DatabaseQueries.DELETE_CARTONS_BY_SHIPMENT_CODE(code);
+        databaseService.executeSql(deleteCartonsQuery).block();
+        log.info("Removing cartons from shipments containing code: {}", code);
+        // Delete Shipments
         var deleteShipmentsQuery = DatabaseQueries.DELETE_SHIPMENTS_BY_CODE(code);
         databaseService.executeSql(deleteShipmentsQuery).block();
         log.info("Removing shipments containing code: {}", code);
@@ -95,28 +103,17 @@ public class CreateShipmentSteps {
 
 
         String shipmentDate = fields.get("Shipment Date");
-        if (shipmentDate.equals("<tomorrow>")) {
-            LocalDate tomorrow = LocalDate.now().plusDays(1);
-            shipmentDate = tomorrow.toString();
-        } else if (shipmentDate.equals("<today>")) {
-            LocalDate today = LocalDate.now();
-            shipmentDate = today.toString();
-        }
+        shipmentDate = testUtils.parseDataKeyword(shipmentDate);
 
-        String transportationRefNumber = fields.get("Transportation Reference Number");
-        if (transportationRefNumber.equals("<null>")) {
-            transportationRefNumber = null;
-        } else {
-            transportationRefNumber = "\"" + transportationRefNumber + "\"";
-        }
+        sharedContext.setLocationCode(fields.get("Location Code"));
 
         createShipmentController.createShipment(
-            "\"" + fields.get("Customer Code") + "\"",
-            "\"" + fields.get("Product Type") + "\"",
+            fields.get("Customer Code"),
+            fields.get("Product Type"),
             Float.valueOf(fields.get("Carton Tare Weight")),
-            "\"" + shipmentDate + "\"",
-            transportationRefNumber,
-            "\"" + fields.get("Location Code") + "\""
+            shipmentDate,
+            fields.get("Transportation Reference Number"),
+            fields.get("Location Code")
         );
     }
 
@@ -212,7 +209,38 @@ public class CreateShipmentSteps {
 
     @And("I have removed from the database all shipments from location {string} with transportation ref number {string}.")
     public void iHaveRemovedFromTheDatabaseAllShipmentsFromLocationWithTransportationRefNumber(String location, String transportationRefNumber) {
+        // Delete Carton Items
+        var deleteCartonItemsQuery = DatabaseQueries.REMOVE_CARTON_ITEMS_BY_LOCATION_AND_TRANSPORTATION_REF_NUMBER(location, transportationRefNumber);
+        databaseService.executeSql(deleteCartonItemsQuery).block();
+
+        // Delete Cartons
+        var deleteCartonsQuery = DatabaseQueries.REMOVE_CARTONS_BY_LOCATION_AND_TRANSPORTATION_REF_NUMBER(location, transportationRefNumber);
+        databaseService.executeSql(deleteCartonsQuery).block();
+
+        // Delete shipments
         var deleteShipmentsQuery = DatabaseQueries.REMOVE_SHIPMENTS_BY_LOCATION_AND_TRANSPORTATION_REF_NUMBER(location, transportationRefNumber);
         databaseService.executeSql(deleteShipmentsQuery).block();
+    }
+
+    @And("I request to add {int} carton(s) to the shipment.")
+    public void iRequestToAddCartonsToTheShipment(int quantity) {
+        for (var n = 0; n < quantity; n++)
+            createShipmentController.createCarton(sharedContext.getShipmentCreateResponse().get("id").toString());
+    }
+
+    @And("I request to add {int} carton(s) to the shipment {int}.")
+    public void iRequestToAddCartonsToTheShipmentNumber(int quantity, int shipmentId) {
+        for (var n = 0; n < quantity; n++)
+            createShipmentController.createCarton(shipmentId);
+    }
+
+    @Given("I have an empty carton created with the Customer Code as {string} , Product Type as {string}, Carton Tare Weight as {string}, Shipment Date as {string}, Transportation Reference Number as {string} and Location Code as {string}.")
+    public void createShipmentAndCarton(String customerCode, String productType, String cartonTare, String shipmentDate, String transportationRefNumber, String locationCode) {
+        createShipmentAndMultipleCarton(1, customerCode, productType, cartonTare, shipmentDate, transportationRefNumber, locationCode);
+    }
+    @Given("I have {int} empty carton(s) created with the Customer Code as {string} , Product Type as {string}, Carton Tare Weight as {string}, Shipment Date as {string}, Transportation Reference Number as {string} and Location Code as {string}.")
+    public void createShipmentAndMultipleCarton(int qtyCartons, String customerCode, String productType, String cartonTare, String shipmentDate, String transportationRefNumber, String locationCode) {
+        createShipmentController.createShipment(customerCode, productType, Float.parseFloat(cartonTare), testUtils.parseDataKeyword(shipmentDate), transportationRefNumber, locationCode);
+        iRequestToAddCartonsToTheShipment(qtyCartons);
     }
 }

@@ -1,5 +1,7 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.domain.model;
 
+import com.arcone.biopro.distribution.recoveredplasmashipping.application.exception.DomainNotFoundForKeyException;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.CartonRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.LocationRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShipmentCriteriaRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShippingRepository;
@@ -9,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -16,6 +19,8 @@ import reactor.core.publisher.Mono;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @EqualsAndHashCode
@@ -40,6 +45,13 @@ public class RecoveredPlasmaShipment implements Validatable {
     private String unsuitableUnitReportDocumentStatus;
     private ZonedDateTime createDate;
     private ZonedDateTime modificationDate;
+    @Getter(AccessLevel.NONE)
+    private int totalCartons;
+    @Getter(AccessLevel.NONE)
+    private int totalProducts;
+    @Setter(AccessLevel.PRIVATE)
+    private boolean canAddCartons;
+    private List<Carton> cartonList;
 
     private static final String SHIPMENT_LOCATION_CODE_KEY = "RPS_LOCATION_SHIPMENT_CODE";
     private static final String SHIPMENT_USE_PREFIX_KEY = "RPS_USE_PARTNER_PREFIX";
@@ -80,6 +92,16 @@ public class RecoveredPlasmaShipment implements Validatable {
 
     }
 
+    public static RecoveredPlasmaShipment fromFindByCommand(FindShipmentCommand findShipmentCommand , RecoveredPlasmaShippingRepository recoveredPlasmaShippingRepository){
+        return recoveredPlasmaShippingRepository.findOneById(findShipmentCommand.getShipmentId())
+            .switchIfEmpty(Mono.error( ()-> new DomainNotFoundForKeyException(String.format("%s", findShipmentCommand.getShipmentId()))))
+            .flatMap(recoveredPlasmaShipment -> {
+                recoveredPlasmaShipment.setCanAddCartons(recoveredPlasmaShipment.getLocationCode().equals(findShipmentCommand.getLocationCode()));
+                return Mono.just(recoveredPlasmaShipment);
+            })
+            .block();
+    }
+
     public static RecoveredPlasmaShipment fromRepository(Long id, String locationCode,
                                                          String productType,
                                                          String shipmentNumber,
@@ -96,7 +118,7 @@ public class RecoveredPlasmaShipment implements Validatable {
         , String customerAddressPhoneNumber, String customerAddressDepartmentName,
 
                                                          ZonedDateTime createDate,
-                                                         ZonedDateTime modificationDate) {
+                                                         ZonedDateTime modificationDate , List<Carton> cartonList) {
         var shipment = RecoveredPlasmaShipment
             .builder()
             .id(id)
@@ -115,6 +137,7 @@ public class RecoveredPlasmaShipment implements Validatable {
             .unsuitableUnitReportDocumentStatus(unsuitableUnitReportDocumentStatus)
             .createDate(createDate)
             .modificationDate(modificationDate)
+            .cartonList(cartonList)
             .build();
 
         shipment.checkValid();
@@ -212,5 +235,23 @@ public class RecoveredPlasmaShipment implements Validatable {
         return recoveredPlasmaShipmentCriteriaRepository.findProductCriteriaByCustomerCode(productType, customerCode)
             .switchIfEmpty(Mono.error(() -> new IllegalArgumentException("Product type is required")))
             .block();
+    }
+
+
+    public int getTotalCartons() {
+        if(this.cartonList == null){
+            return 0;
+        }
+
+        return this.cartonList.size();
+    }
+
+    public int getTotalProducts(){
+        if (this.cartonList == null){
+            return 0;
+        }
+
+        return this.cartonList.stream()
+            .reduce(0, (partialTotalProducts, carton ) -> partialTotalProducts + carton.getTotalProducts(), Integer::sum);
     }
 }

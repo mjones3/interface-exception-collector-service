@@ -13,12 +13,13 @@ import { CookieService } from 'ngx-cookie-service';
 import { catchError, finalize, switchMap, tap } from 'rxjs';
 import { FuseCardComponent } from '../../../../@fuse';
 import { FuseConfirmationService } from '../../../../@fuse/services/confirmation';
-import { ProgressBarComponent } from '../../../progress-bar/progress-bar.component';
-import { ScanUnitNumberProductCodeComponent } from '../../../scan-unit-number-product-code/scan-unit-number-product-code.component';
 import { ActionButtonComponent } from '../../../shared/components/buttons/action-button.component';
 import { GlobalMessageComponent } from '../../../shared/components/global-message/global-message.component';
+import { ProgressBarComponent } from '../../../shared/components/progress-bar/progress-bar.component';
+import { ScanUnitNumberProductCodeComponent } from '../../../shared/components/scan-unit-number-product-code/scan-unit-number-product-code.component';
 import { UnitNumberCardComponent } from '../../../shared/components/unit-number-card/unit-number-card.component';
 import { DiscardRequestDTO } from '../../../shared/models/discard.model';
+import { ProductCategoryMap } from '../../../shared/models/product-category.model';
 import { RuleResponseDTO } from '../../../shared/models/rule.model';
 import { DiscardService } from '../../../shared/services/discard.service';
 import { ProductIconsService } from '../../../shared/services/product-icon.service';
@@ -275,4 +276,6 @@ export class VerifyProductsNotificationsComponent
             },
         ]);
     }
+
+    protected readonly ProductCategoryMap = ProductCategoryMap;
 }

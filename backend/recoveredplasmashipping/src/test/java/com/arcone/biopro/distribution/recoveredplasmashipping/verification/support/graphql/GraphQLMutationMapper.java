@@ -28,4 +28,46 @@ public class GraphQLMutationMapper {
     """, customerCode, productType, cartonTareWeight, shipmentDate, TransportationRefNumber, locationCode));
     }
 
+    public static String createCarton(String shipmentId) {
+        return (String.format("""
+            mutation CreateCarton {
+                        createCarton(createCartonRequest: { shipmentId: %s, employeeId: "4c973896-5761-41fc-8217-07c5d13a004b" }) {
+                            _links
+                            data
+                            notifications {
+                                message
+                                type
+                                code
+                            }
+                        }
+                    }
+    """, shipmentId));
+    }
+
+    public static String packCartonItem(int cartonId, String unitNumber, String productCode, String locationCode) {
+        return String.format("""
+            mutation PackCartonItem {
+                packCartonItem(
+                    packCartonItemRequest: {
+                        cartonId: %s
+                        unitNumber: "%s"
+                        productCode: "%s"
+                        employeeId: "4c973896-5761-41fc-8217-07c5d13a004b"
+                        locationCode: "%s"
+                    }
+                ) {
+                    _links
+                    data
+                    notifications {
+                        message
+                        type
+                        code
+                        action
+                        reason
+                        details
+                    }
+                }
+            }
+            """, cartonId, unitNumber, productCode, locationCode);
+    }
 }

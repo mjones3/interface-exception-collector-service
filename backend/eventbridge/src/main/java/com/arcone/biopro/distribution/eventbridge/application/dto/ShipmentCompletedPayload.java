@@ -98,7 +98,30 @@ public record ShipmentCompletedPayload(
         requiredMode = REQUIRED
     )
     ZonedDateTime createDate,
-
+    @Schema(
+        name = "deliveryType",
+        title = "Delivery type",
+        description = "The shipment delivery type",
+        example = "ASAP",
+        requiredMode = REQUIRED
+    )
+    String deliveryType,
+    @Schema(
+        name = "customerName",
+        title = "Customer Name",
+        description = "The Customer Name",
+        example = "Customer Name",
+        requiredMode = NOT_REQUIRED
+    )
+    String customerName,
+    @Schema(
+        name = "departmentCode",
+        title = "Department Code",
+        description = "The Department code",
+        example = "12356",
+        requiredMode = NOT_REQUIRED
+    )
+    String departmentCode,
     @Schema(
         name = "lineItems",
         title = "Line Items",

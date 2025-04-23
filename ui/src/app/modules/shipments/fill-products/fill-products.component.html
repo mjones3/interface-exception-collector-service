@@ -124,7 +124,8 @@
                     id: shipmentInfo?.orderNumber,
                     externalId: shipmentInfo?.externalId,
                     priority: shipmentInfo?.priority,
-                    labelingProductCategory: shipmentInfo?.productCategory,
+                    labelingProductCategory:
+                        ProductCategoryMap[shipmentInfo?.productCategory],
                 }"
                 [comments]="shipmentInfo?.comments"
                 [shippingInput]="{
@@ -135,7 +136,8 @@
                     method: shipmentInfo?.shippingMethod,
                 }"
                 [productInput]="{
-                    temperatureCategory: shipmentInfo?.productCategory,
+                    temperatureCategory:
+                        ProductCategoryMap[shipmentInfo?.productCategory],
                     productFamily: productFamily,
                     bloodType: shipmentProduct?.bloodType,
                 }"

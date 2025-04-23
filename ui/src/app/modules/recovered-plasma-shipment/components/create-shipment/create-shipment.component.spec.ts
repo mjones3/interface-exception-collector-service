@@ -13,9 +13,10 @@ import { MutationResult, QueryResult } from '@apollo/client';
 import { provideMockStore } from '@ngrx/store/testing';
 import { ToastrImplService } from '@shared';
 import { ApolloTestingModule } from 'apollo-angular/testing';
-import { RuleResponseDTO } from 'app/shared/models/rule.model';
+import { UseCaseResponseDTO } from 'app/shared/models/use-case-response.dto';
 import { ToastrModule } from 'ngx-toastr';
 import { of } from 'rxjs';
+import { RecoveredPlasmaShipmentResponseDTO } from '../../models/recovered-plasma.dto';
 import { RecoveredPlasmaShipmentService } from '../../services/recovered-plasma-shipment.service';
 import { RecoveredPlasmaService } from '../../services/recovered-plasma.service';
 import { CreateShipmentComponent } from './create-shipment.component';
@@ -262,7 +263,7 @@ describe('CreateShipmentComponent', () => {
         ).mockReturnValue(
             of<
                 MutationResult<{
-                    createShipment: RuleResponseDTO<never>;
+                    createShipment: UseCaseResponseDTO<RecoveredPlasmaShipmentResponseDTO>;
                 }>
             >({
                 data: {
@@ -306,7 +307,7 @@ describe('CreateShipmentComponent', () => {
         ).mockReturnValue(
             of<
                 MutationResult<{
-                    createShipment: RuleResponseDTO<never>;
+                    createShipment: UseCaseResponseDTO<RecoveredPlasmaShipmentResponseDTO>;
                 }>
             >({
                 data: {

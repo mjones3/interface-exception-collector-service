@@ -1,8 +1,11 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.verification.steps;
 
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.ApiHelper;
+import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.DatabaseQueries;
+import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.DatabaseService;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.graphql.GraphQLQueryMapper;
 import io.cucumber.datatable.DataTable;
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -21,6 +24,8 @@ public class CustomerConfigurationSteps {
 
     @Autowired
     ApiHelper apiHelper;
+    @Autowired
+    DatabaseService databaseService;
 
 
     @Given("The following customers are defined as Recovered Plasma Shipping customers.")
@@ -53,5 +58,15 @@ public class CustomerConfigurationSteps {
             Assertions.assertEquals(result.get().get("city"), row.get(headers.indexOf("City")));
         }
 
+    }
+
+    @And("The Minimum acceptable Volume of Units in Carton is configured as {string} milliliters for the customer code {string} and product type {string}.")
+    public void theMinimumAcceptableVolumeOfUnitsInCartonIsConfiguredAsMillilitersForTheCustomerCodeAndProductType(String volume, String customerCode, String productType) {
+        databaseService.executeSql(DatabaseQueries.UPDATE_MIN_VOLUME_CUSTOMER_PRODUCT_CRITERIA(customerCode, productType, "MINIMUM_VOLUME",volume)).block();
+    }
+
+    @And("The Maximum Number of Units in Carton is configured as {string} products for the customer code {string} and product type {string}.")
+    public void theMaximumNumberOfUnitsInCartonIsConfiguredAsProductsForTheCustomerCodeAndProductType(String maxValue, String customerCode, String productType) {
+        databaseService.executeSql(DatabaseQueries.UPDATE_MAX_PRODUCTS_CUSTOMER_CRITERIA(customerCode, productType, maxValue)).block();
     }
 }

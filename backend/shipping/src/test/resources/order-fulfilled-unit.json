@@ -26,6 +26,7 @@
     "customerAddressAddressLine2": "North Miami",
     "comments": "Distribution Comments",
     "departmentName": "Department",
+    "departmentCode": "Department Code",
     "items": [
       {
         "productFamily": "PLASMA_TRANSFUSABLE",

@@ -1,25 +1,19 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.application.dto;
 
-import lombok.Getter;
-import lombok.ToString;
+import lombok.Builder;
 
-@ToString
-@Getter
-public class UseCaseMessage {
+import java.io.Serializable;
+import java.util.List;
 
-    final UseCaseNotificationType type;
-    final String message;
-    final Integer code;
+@Builder
+public record UseCaseMessage(
+    UseCaseNotificationType type,
+    String message,
+    Integer code,
+    String action,
+    String reason,
+    List<String>details,
+    String name
+) implements Serializable {
 
-    public UseCaseMessage (UseCaseMessageType useCaseMessageType){
-        this.type = useCaseMessageType.getType();
-        this.message = useCaseMessageType.getMessage();
-        this.code = useCaseMessageType.getCode();
-    }
-
-    public UseCaseMessage (Integer code , UseCaseNotificationType type , String message){
-        this.type = type;
-        this.message = message;
-        this.code = code;
-    }
 }
