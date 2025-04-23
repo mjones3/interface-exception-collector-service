@@ -127,8 +127,7 @@ def flyway_service():
         resource_deps=[
             'postgresql-deployment',
             'kafka-deployment',
-            'keycloak-deployment',
-            'opentelemetry-collector'
+            'keycloak-deployment'
         ],
          trigger_mode=TRIGGER_MODE_MANUAL
     )
