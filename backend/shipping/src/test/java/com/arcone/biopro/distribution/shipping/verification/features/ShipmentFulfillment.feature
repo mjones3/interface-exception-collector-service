@@ -1,4 +1,4 @@
-@api @AOA-6 @AOA-152 @AOA-128 @AOA-105
+@api @AOA-6 @AOA-152 @AOA-128 @AOA-105 @AOA-240
 Feature: Shipment fulfillment request
 
     Background:
