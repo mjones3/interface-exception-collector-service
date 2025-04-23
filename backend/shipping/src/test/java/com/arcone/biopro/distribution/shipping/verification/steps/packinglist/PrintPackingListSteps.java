@@ -2,7 +2,6 @@ package com.arcone.biopro.distribution.shipping.verification.steps.packinglist;
 
 import com.arcone.biopro.distribution.shipping.verification.pages.distribution.ShipmentDetailPage;
 import com.arcone.biopro.distribution.shipping.verification.support.ApiHelper;
-import com.arcone.biopro.distribution.shipping.verification.support.ScreenshotService;
 import com.arcone.biopro.distribution.shipping.verification.support.SharedContext;
 import com.arcone.biopro.distribution.shipping.verification.support.TestUtils;
 import com.arcone.biopro.distribution.shipping.verification.support.controllers.ShipmentTestingController;
@@ -35,9 +34,6 @@ public class PrintPackingListSteps {
 
     @Autowired
     private ShipmentDetailPage shipmentDetailPage;
-
-    @Autowired
-    private ScreenshotService screenshotService;
 
     @Autowired
     private ShipmentTestingController shipmentTestingController;
@@ -98,7 +94,6 @@ public class PrintPackingListSteps {
             shipmentDetailPage.clickViewPackingSlip();
             // Wait for the print component to load
             Thread.sleep(2000);
-            screenshotService.attachConditionalScreenshot(saveAllScreenshots);
         } else {
             log.info("Skipping print packing slip. Test in headless mode.");
         }
@@ -110,7 +105,6 @@ public class PrintPackingListSteps {
             shipmentDetailPage.clickPrintShippingLabel();
             // Wait for the print component to load
             Thread.sleep(2000);
-            screenshotService.attachConditionalScreenshot(saveAllScreenshots);
         } else {
             log.info("Skipping print packing slip. Test in headless mode.");
         }
@@ -205,12 +199,10 @@ public class PrintPackingListSteps {
     @Then("I should not be able to print the Packing List.")
     public void iShouldNotBeAbleToPrintThePackingList() {
         shipmentDetailPage.ensureViewPackingSlipButtonIsNotVisible();
-        screenshotService.attachConditionalScreenshot(saveAllScreenshots);
     }
 
     @Then("I should not be able to print the Shipping Label.")
     public void iShouldNotBeAbleToPrintTheShippingLabel() {
         shipmentDetailPage.ensureViewShippingLabelButtonIsNotVisible();
-        screenshotService.attachConditionalScreenshot(saveAllScreenshots);
     }
 }

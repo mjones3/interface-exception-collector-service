@@ -4,7 +4,6 @@ import com.arcone.biopro.distribution.shipping.verification.pages.distribution.F
 import com.arcone.biopro.distribution.shipping.verification.pages.distribution.HomePage;
 import com.arcone.biopro.distribution.shipping.verification.pages.distribution.ShipmentDetailPage;
 import com.arcone.biopro.distribution.shipping.verification.support.KafkaHelper;
-import com.arcone.biopro.distribution.shipping.verification.support.ScreenshotService;
 import com.arcone.biopro.distribution.shipping.verification.support.SharedContext;
 import com.arcone.biopro.distribution.shipping.verification.support.StaticValuesMapper;
 import com.arcone.biopro.distribution.shipping.verification.support.TestUtils;
@@ -22,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
@@ -60,13 +58,6 @@ public class ShipmentFulfillmentSteps {
 
     @Autowired
     private HomePage homePage;
-
-    @Autowired
-    private ScreenshotService screenshot;
-
-    @Value("${save.all.screenshots}")
-    private boolean saveAllScreenshots;
-
 
     @Autowired
     private FillProductsPage fillProductsPage;
@@ -112,7 +103,6 @@ public class ShipmentFulfillmentSteps {
         Long shipmentId = shipmentTestingController.getOrderShipmentId(orderNumber);
         homePage.goTo();
         this.shipmentDetailPage.goTo(shipmentId);
-        screenshot.attachConditionalScreenshot(saveAllScreenshots);
     }
 
 
