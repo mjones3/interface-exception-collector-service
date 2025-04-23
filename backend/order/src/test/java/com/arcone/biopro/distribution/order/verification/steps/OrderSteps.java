@@ -137,9 +137,8 @@ public class OrderSteps {
         checkOrdersResponseList(table, response);
     }
 
-
-    @Given("I have received an order inbound request with externalId {string} and content {string}.")
-    public void postOrderReceivedEvent(String externalId, String jsonFileName) throws Exception {
+    @Given("I have received an order inbound request with externalId {string}, shipping method as {string} and content {string}.")
+    public void postOrderReceivedEvent(String externalId, String shippingMethod, String jsonFileName) throws Exception {
         context.setExternalId(externalId);
         var jsonContent = testUtils.getResource(jsonFileName);
         var newDesiredShippingDate = LocalDate.now().plusDays(
@@ -147,8 +146,16 @@ public class OrderSteps {
         ).toString();
         jsonContent = jsonContent.replace("\"DESIRED_DATE\"", "\"" + newDesiredShippingDate + "\"")
             .replace("{EXTERNAL_ID}", externalId);
+        if (shippingMethod != null && !shippingMethod.isBlank()) {
+            jsonContent = jsonContent.replace("{SHIPPING_METHOD}", shippingMethod);
+        }
         var eventPayload = objectMapper.readValue(jsonContent, OrderReceivedEventDTO.class);
         orderController.createOrderInboundRequest(jsonContent, eventPayload);
+    }
+
+    @Given("I have received an order inbound request with externalId {string} and content {string}.")
+    public void postOrderReceivedEvent(String externalId, String jsonFileName) throws Exception {
+        this.postOrderReceivedEvent(externalId, null, jsonFileName);
     }
 
     @Given("I have received an order inbound request with externalId {string}, content {string}, and desired shipping date {string}.")
