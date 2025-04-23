@@ -1,4 +1,4 @@
-@api @AOA-6 @AOA-152 @AOA-128 @AOA-105 
+@api @AOA-6 @AOA-152 @AOA-128 @AOA-105
 Feature: Shipment fulfillment request
 
     Background:
@@ -80,7 +80,6 @@ Feature: Shipment fulfillment request
 
 
         Rule: Distribution Technicians must be able to process and ship products for “DATE-TIME” delivery type orders.
-        Rule:
         @api @bug @DIS-260 @DIS-285
         Scenario Outline: Receive a shipment fulfillment request based on priority
             Given I have no shipment fulfillment requests.
@@ -95,7 +94,16 @@ Feature: Shipment fulfillment request
                 | 1381         | SCHEDULED | 2025-12-31   |
                 | 2852         | ROUTINE   | NULL_VALUE   |
 
-        Rule: I should be able to fill orders with Whole Blood and Derived Products.
+        @api @DIS-377 @rc
+        Scenario Outline: Receive a shipment fulfillment request using a custom shipping method configuration
+            Given I have no shipment fulfillment requests.
+            When I receive a shipment fulfillment request event for the order number "<Order Number>" and shipping method "<Shipping Method>".
+            Then The shipment request will be available in the Distribution local data store and I can fill the shipment.
+            Examples:
+                | Order Number | Shipping Method |
+                | 2853         | DEFAULT         |
+
+    Rule: I should be able to fill orders with Whole Blood and Derived Products.
         Rule: I should be able to fill orders with Apheresis Platelets (PRT and BacT) Products.
         Rule: I should be able to fill orders with Frozen RBCs Products.
         @api @DIS-254 @DIS-336 @DIS-337

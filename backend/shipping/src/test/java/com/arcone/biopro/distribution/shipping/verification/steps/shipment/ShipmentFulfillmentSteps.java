@@ -517,9 +517,16 @@ public class ShipmentFulfillmentSteps {
         if("NULL_VALUE".equals(shippingDate)) {
             shippingDate = null;
         }
-        context.setOrderNumber(shipmentTestingController.createShippingRequest(Long.valueOf(orderNumber), priority,shippingDate ));
+        context.setOrderNumber(shipmentTestingController.createShippingRequest(Long.valueOf(orderNumber), priority,shippingDate, null));
         this.orderPriority = priority;
 
+    }
+
+    @When("I receive a shipment fulfillment request event for the order number {string} and shipping method {string}.")
+    public void receiveFulfillmentOrderRequest(String orderNumber, String shippingMethod) throws Exception {
+        var samplePriority = "ASAP";
+        context.setOrderNumber(shipmentTestingController.createShippingRequest(Long.valueOf(orderNumber), samplePriority, null, shippingMethod));
+        this.orderPriority = samplePriority;
     }
 
     @Then("I should receive a {string} message {string}.")
