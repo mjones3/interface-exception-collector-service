@@ -127,6 +127,8 @@ public class OrderSteps {
     private static final String CURRENT_DATE = "CURRENT_DATE";
     private static final String CURRENT_DATE_TIME = "CURRENT_DATE_TIME";
 
+    private JsonNode originalOrder;
+
     @When("I want to list orders for location {string}.")
     public void searchOrders(String locationCode) {
         response = apiHelper.graphQlPageRequest(GraphQLQueryMapper.listOrdersByLocation(locationCode), "searchOrders");
@@ -815,7 +817,7 @@ public class OrderSteps {
     public void iHaveRemainingProductsAsPartOfTheBackOrderCreated(String choice, Integer quantity) throws InterruptedException {
         Thread.sleep(kafkaWaitingTime);
         orderController.listOrdersByExternalId();
-        var originalOrder = context.getOrdersPage().content().stream().filter(order -> order.get("orderStatus").asText().equals("COMPLETED")).findFirst().orElse(null);
+        originalOrder = context.getOrdersPage().content().stream().filter(order -> order.get("orderStatus").asText().equals("COMPLETED")).findFirst().orElse(null);
         Assert.assertNotNull(originalOrder);
 
         if (choice.equalsIgnoreCase("should")) { // Back order configured
@@ -1301,5 +1303,12 @@ public class OrderSteps {
             .replace("{EXTERNAL_ID}", externalId);
         var eventPayload = objectMapper.readValue(jsonContent, OrderReceivedEventDTO.class);
         orderController.createOrderInboundRequest(jsonContent, eventPayload);
+    }
+
+    @And("I {string} have the back order created with the same desired shipping date as the original order.")
+    public void iHaveTheBackOrderCreatedWithTheSameDesiredShippingDateAsTheOriginalOrder(String option) {
+        if (option.equalsIgnoreCase("should")){
+            Assert.assertEquals(context.getOrderDetails().get("desiredShippingDate").toString(), originalOrder.get("desireShipDate").toString().replace("\"", ""));
+        }
     }
 }
