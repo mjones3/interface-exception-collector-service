@@ -2,15 +2,11 @@ package com.arcone.biopro.distribution.inventory.verification.steps;
 
 import com.arcone.biopro.distribution.inventory.application.dto.*;
 import com.arcone.biopro.distribution.inventory.application.usecase.*;
-import com.arcone.biopro.distribution.inventory.domain.event.InventoryEventPublisher;
-import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ShipmentType;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.InputProduct;
 import com.arcone.biopro.distribution.inventory.verification.common.ScenarioContext;
-import com.arcone.biopro.distribution.inventory.verification.utils.ISBTProductUtil;
 import com.arcone.biopro.distribution.inventory.verification.utils.InventoryUtil;
 import com.arcone.biopro.distribution.inventory.verification.utils.LogMonitor;
-import com.github.dockerjava.transport.DockerHttpClient;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.When;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +46,8 @@ public class UseCaseSteps {
     private final ProductStoredUseCase productStoredUseCase;
 
     private final UnsuitableUseCase unsuitableUseCase;
+
+    private final RecoveredPlasmaCartonPackedUseCase recoveredPlasmaCartonPackedUseCase;
 
     private final ProductCompletedUseCase productCompletedUseCase;
 
@@ -182,6 +179,31 @@ public class UseCaseSteps {
     @When("I received a Unit Unsuitable event with unit number {string} and reason {string}")
     public void iReceivedAUnitUnsuitableEventWithUnitNumberAndReason(String unitNumber, String reason) {
         unsuitableUseCase.execute(new UnsuitableInput(unitNumber, null, reason)).block();
+    }
+
+    @When("I received a Recovered Plasma Carton Packed Event for carton number {string}")
+    public void IReceivedRecoveredPlasmaCartonPacked(String cartonNumber, DataTable dataTable) {
+
+        List<Map<String, String>> products = dataTable.asMaps(String.class, String.class);
+        List<RecoveredPlasmaCartonPackedInput.PackedProduct> packedProducts = new ArrayList<>();
+        for (Map<String, String> product : products) {
+
+            var unitNumber = product.get("Unit Number");
+            var productCode = product.get("Product Code");
+            packedProducts.add(RecoveredPlasmaCartonPackedInput.PackedProduct.builder()
+                .unitNumber(unitNumber)
+                .productCode(productCode)
+                .status("PACKED")
+                .build());
+        }
+
+        RecoveredPlasmaCartonPackedInput input = RecoveredPlasmaCartonPackedInput.builder()
+            .cartonNumber(cartonNumber)
+            .packedProducts(packedProducts)
+            .build();
+        recoveredPlasmaCartonPackedUseCase.execute(input).block();
+
+
     }
 
     @When("I received a Product Unsuitable event with unit number {string}, product code {string} and reason {string}")
