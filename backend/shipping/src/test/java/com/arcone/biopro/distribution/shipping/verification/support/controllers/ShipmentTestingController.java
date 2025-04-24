@@ -89,7 +89,7 @@ public class ShipmentTestingController {
         return shipmentDetail.getOrderNumber();
     }
 
-    public long createShippingRequest(long orderNumber, String priority , String shippingDate) throws Exception {
+    public long createShippingRequest(long orderNumber, String priority , String shippingDate, String shippingMethod) throws Exception {
 
         var shippingDateFormat = Optional.ofNullable(shippingDate).map(shippingDateMap -> "\""+shippingDateMap+"\"").orElse("null");
 
@@ -97,6 +97,12 @@ public class ShipmentTestingController {
             .replace("{order.number}", String.valueOf(orderNumber))
             .replace("{order.priority}",priority)
             .replace("\"{order.shipping_date}\"",shippingDateFormat);
+
+        if (shippingMethod != null && !shippingMethod.isBlank()) {
+            resource = resource.replace("{SHIPPING_METHOD}", shippingMethod);
+        } else {
+            resource = resource.replace("{SHIPPING_METHOD}", "TEST");
+        }
 
         kafkaHelper.sendEvent(UUID.randomUUID().toString(), objectMapper.readValue(resource, OrderFulfilledEventType.class), Topics.ORDER_FULFILLED).block();
         // Add sleep to wait for the message to be consumed.

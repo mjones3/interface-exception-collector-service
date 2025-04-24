@@ -1,4 +1,4 @@
-@ui @AOA-152 @AOA-128 @AOA-105
+@ui @AOA-152 @AOA-128 @AOA-105 @AOA-240
 Feature: View order details
 
     Background:

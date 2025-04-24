@@ -25,7 +25,7 @@ Feature: Partner Order Inbound Interface
             | inbound-test-files/order-inbound-scenario-dis-223-create_employee_code_null.json     | 201          | CREATED |
             | inbound-test-files/order-inbound-scenario-dis-323-create_employee_code_no_field.json | 201          | CREATED |
             | inbound-test-files/order-inbound-scenario-dis-325-will_pick_up_false_no_phone.json   | 201          | CREATED |
-
+            | inbound-test-files/order-inbound-scenario-custom-shipping-method.json                | 201          | CREATED |
 
     @DIS-91 @bug @DIS-325
     Scenario Outline: Validate Partner order inbound request
