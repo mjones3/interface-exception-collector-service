@@ -109,7 +109,7 @@ Feature: Get all available inventories
         And I receive a group of product family "WHOLE_BLOOD_LEUKOREDUCED" and abo rh criteria "AB" with "12" inventories and "0" product short date listed
         And I receive a group of product family "WHOLE_BLOOD" and abo rh criteria "ANY" with "14" inventories and "4" product short date listed
 
-    @LAB-259
+    @LAB-259 @LAB-408
     Scenario: Get all available inventories not considering the other statuses
         Given I have the following inventories:
             | Unit Number   | Product Code | Status     |
@@ -119,6 +119,8 @@ Feature: Get all available inventories
             | W036825003004 | E1624V00     | DISCARDED  |
             | W036825003005 | E1624V00     | SHIPPED    |
             | W036825003006 | E1624V00     | IN_TRANSIT |
+            | W036825003007 | E1624V00     | PACKED     |
+
         When I select "PLASMA_TRANSFUSABLE" of the blood type "OP"
         And I request available inventories in location "123456789"
         Then I receive "1" groups

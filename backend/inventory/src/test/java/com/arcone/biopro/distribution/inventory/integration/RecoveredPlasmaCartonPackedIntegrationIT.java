@@ -1,9 +1,7 @@
 package com.arcone.biopro.distribution.inventory.integration;
 
 import com.arcone.biopro.distribution.inventory.application.dto.RecoveredPlasmaCartonPackedInput;
-import com.arcone.biopro.distribution.inventory.application.dto.UnsuitableInput;
 import com.arcone.biopro.distribution.inventory.application.usecase.RecoveredPlasmaCartonPackedUseCase;
-import com.arcone.biopro.distribution.inventory.application.usecase.UnsuitableUseCase;
 import com.arcone.biopro.distribution.inventory.verification.utils.KafkaHelper;
 import com.arcone.biopro.distribution.inventory.verification.utils.LogMonitor;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -63,7 +61,7 @@ public class RecoveredPlasmaCartonPackedIntegrationIT {
     @Test
     @DisplayName("should publish, listen recovery plasma carton packed event")
     public void test1() throws InterruptedException, IOException {
-        var payloadJson = publishCreatedEvent("json/recovery_plasma_carton_packed.json", RECOVER_PLASMA_CARTON_PACKED_TOPIC);
+        var payloadJson = publishCreatedEvent("json/recovered_plasma_carton_packed.json", RECOVER_PLASMA_CARTON_PACKED_TOPIC);
         ArgumentCaptor<RecoveredPlasmaCartonPackedInput> captor = ArgumentCaptor.forClass(RecoveredPlasmaCartonPackedInput.class);
         verify(useCase, times(1)).execute(captor.capture());
         RecoveredPlasmaCartonPackedInput capturedInput = captor.getValue();

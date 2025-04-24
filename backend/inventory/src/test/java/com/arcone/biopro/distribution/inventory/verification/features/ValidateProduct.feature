@@ -1,5 +1,5 @@
 # Feature Unit Number reference: W036825014000
-@api @LAB-116 @AOA-75 @LAB-185 @LAB-254 @LAB-379
+@api @LAB-116 @AOA-75 @LAB-185 @LAB-254 @LAB-379 @LAB-408
 Feature: Validate Inventory
 
     Scenario Outline: Validate Inventory
@@ -14,6 +14,7 @@ Feature: Validate Inventory
             | W036825014006 | E1624V00     | LOCATION_1 | AVAILABLE | true       | 1               |                                                        |                          | TIMING_RULES      |                           |                                  |
             | W036825014007 | E0869VD0     | LOCATION_1 | DISCARDED | true       | 5               |                                                        | OTHER                    |                   | Some comments             |                                  |
             | W036825014008 | E0869VD0     | LOCATION_1 | AVAILABLE | false      | 5               |                                                        |                          |                   |                           |                                  |
+            | W036825014009 | E0869VD0     | LOCATION_1 | PACKED    | true       | 5               |                                                        |                          |                   |                           |                                  |
         When I request "<Unit Number>" with "<Product Code>" in the "<Location>"
         Then I receive the following:
             | Unit Number   | Product Code   | Temperature Category   | Location   | Volumes   | RESPONSE ERROR   | ACTION   | REASON   | MESSAGE   | DETAILS   |
@@ -32,3 +33,7 @@ Feature: Validate Inventory
             | W036825014006 | E1624V00     | FROZEN               | LOCATION_1 |                                  | INVENTORY_IS_UNSUITABLE         | TRIGGER_DISCARD    | TIMING_RULES    | This product has been discarded for Timing Rules. Place in biohazard container.                                      |                                                                                     |
             | W036825014007 | E0869VD0     | FROZEN               | LOCATION_1 |                                  | INVENTORY_IS_DISCARDED          | PLACE_IN_BIOHAZARD |                 | This product has already been discarded for OTHER: Some comments in the system. Place in biohazard container.        |                                                                                     |
             | W036825014008 | E0869VD0     | FROZEN               | LOCATION_1 |                                  | INVENTORY_IS_UNLABELED          | BACK_TO_STORAGE    |                 | This product is not labeled and cannot be shipped.                                                                   |                                                                                     |
+            | W036825014009 | E0869VD0     | FROZEN               | LOCATION_1 |                                  | INVENTORY_IS_PACKED             | BACK_TO_STORAGE    |                 | This product is part of a carton package and cannot be shipped individually.                                         |                                                                                     |
+
+
+

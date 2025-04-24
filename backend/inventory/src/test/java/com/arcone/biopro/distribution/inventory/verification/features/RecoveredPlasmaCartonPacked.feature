@@ -1,9 +1,9 @@
 # Feature Unit Number reference: W036825013000
-@api @LAB-292 @AOA-106
-Feature: Unit Unsuitable Event - API
-    As an inventory service I want to update the status of an inventory after receiving an Unsuitable event.
+@api @LAB-408
+Feature: Recovered Plasma Carton Packed Event - API
+    As an inventory service I want to update the status of an inventory after receiving an Recovered Plasma Carton Packed event.
 
-    Scenario Outline: Update the status of multiple inventories with different product code but same division code after receiving a Unit Unsuitable event.
+    Scenario Outline: Update the status of multiple inventories with different product after receiving a Recovered Plasma Carton Packed event.
         Given I have the following inventories:
             | Unit Number   | Product Code          |
             | <Unit Number> | <First Product Code>  |
