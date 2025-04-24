@@ -76,7 +76,7 @@ public class AddCartonProductsSteps {
         addCartonPage.navigateToCarton(cartonId);
     }
 
-    @When("I add an {string} product with the unit number {string}, product code {string} and product type {string}.")
+    @When("I add/scan an {string} product with the unit number {string}, product code {string} and product type {string}.")
     public void iFillAnAcceptableProductWithTheUnitNumberProductCodeAndProductType(String productQuality, String unitNumber, String productCode, String productType) {
         addCartonPage.addProduct(unitNumber, productCode);
     }
