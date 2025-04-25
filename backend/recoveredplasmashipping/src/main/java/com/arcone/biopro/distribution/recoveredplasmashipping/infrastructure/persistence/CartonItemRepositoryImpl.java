@@ -24,4 +24,14 @@ public class CartonItemRepositoryImpl implements CartonItemRepository {
         return cartonItemEntityRepository.save(cartonItemEntityMapper.toEntity(cartonItem))
             .map(cartonItemEntityMapper::entityToModel);
     }
+
+    @Override
+    public Mono<CartonItem> findByCartonAndProduct(Long cartonId, String unitNumber, String productCode) {
+        return cartonItemEntityRepository.findByCartonIdAndProductCodeAndUnitNumber(cartonId,productCode,unitNumber)
+            .map(cartonItemEntityMapper::entityToModel);
+    }
+    @Override
+    public Mono<Void> deleteAllByCartonId(Long cartonId) {
+        return cartonItemEntityRepository.deleteAllByCartonId(cartonId);
+    }
 }

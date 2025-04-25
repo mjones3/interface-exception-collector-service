@@ -3,9 +3,12 @@ package com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.ma
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.CartonDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.CartonOutput;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface CartonDtoMapper {
 
-   CartonDTO toDto(CartonOutput cartonOutput);
+    @Mapping(target = "canVerify", expression = "java(cartonOutput.canVerify())")
+    @Mapping(target = "canClose", expression = "java(cartonOutput.canClose())")
+    CartonDTO toDto(CartonOutput cartonOutput);
 }

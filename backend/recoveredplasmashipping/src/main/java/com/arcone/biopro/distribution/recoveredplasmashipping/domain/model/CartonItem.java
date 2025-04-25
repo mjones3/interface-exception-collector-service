@@ -43,6 +43,8 @@ public class CartonItem implements Validatable {
     private ZonedDateTime collectionDate;
     private ZonedDateTime createDate;
     private ZonedDateTime modificationDate;
+    private String verifiedByEmployeeId;
+    private ZonedDateTime verifyDate;
 
     private static final String PACKED_STATUS = "PACKED";
     private static final String VOLUME_TYPE = "volume";
@@ -50,6 +52,7 @@ public class CartonItem implements Validatable {
     private static final String MAXIMUM_UNITS_BY_CARTON_CRITERIA_TYPE = "MAXIMUM_UNITS_BY_CARTON";
     private static final String SYSTEM_ERROR_TYPE = "SYSTEM";
     private static final String WARN_ERROR_TYPE = "WARN";
+    private static final String VERIFIED_STATUS = "VERIFIED";
 
 
 
@@ -65,7 +68,7 @@ public class CartonItem implements Validatable {
 
         validateProductType(recoveredPlasmaShipmentCriteriaRepository, shipment.getProductType(), packItemCommand.getProductCode());
 
-        var inventoryValidation = validateInventory(packItemCommand, inventoryService);
+        var inventoryValidation = validateInventory(packItemCommand.getUnitNumber(), packItemCommand.getProductCode() , packItemCommand.getLocationCode(), inventoryService);
 
         CartonItemBuilder builder = CartonItem.builder();
         builder.id(null);
@@ -88,7 +91,7 @@ public class CartonItem implements Validatable {
         var cartonItem = builder.build();
 
 
-        validateProductCriteria(shipment.getShipmentCustomer().getCustomerCode(), shipment.getProductType(), cartonItem.getVolume() , carton.getTotalProducts() , recoveredPlasmaShipmentCriteriaRepository );
+        validateProductCriteria(shipment.getShipmentCustomer().getCustomerCode(), shipment.getProductType(), cartonItem.getVolume() , carton.getTotalProducts() , recoveredPlasmaShipmentCriteriaRepository , Boolean.TRUE );
 
         cartonItem.checkValid();
 
@@ -97,7 +100,7 @@ public class CartonItem implements Validatable {
 
     public static CartonItem fromRepository(Long id, Long cartonId, String unitNumber, String productCode, String productDescription, String productType
         , Integer volume, Integer weight, String packedByEmployeeId
-        , String aboRh, String status, LocalDateTime expirationDate, ZonedDateTime collectionDate, ZonedDateTime createDate, ZonedDateTime modificationDate) {
+        , String aboRh, String status, LocalDateTime expirationDate, ZonedDateTime collectionDate, ZonedDateTime createDate, ZonedDateTime modificationDate , String verifiedByEmployeeId , ZonedDateTime verifyDate) {
 
         CartonItemBuilder builder = CartonItem.builder();
         builder.id(id);
@@ -115,6 +118,8 @@ public class CartonItem implements Validatable {
         builder.collectionDate(collectionDate);
         builder.createDate(createDate);
         builder.modificationDate(modificationDate);
+        builder.verifiedByEmployeeId(verifiedByEmployeeId);
+        builder.verifyDate(verifyDate);
 
         var cartonItem = builder.build();
         cartonItem.checkValid();
@@ -160,15 +165,21 @@ public class CartonItem implements Validatable {
         if(status == null || status.isBlank()){
             throw new IllegalArgumentException("Status is required");
         }
+        if(VERIFIED_STATUS.equals(status) && (verifiedByEmployeeId == null || verifiedByEmployeeId.isBlank())){
+            throw new IllegalArgumentException("Verified By EmployeeId is required");
+        }
+        if(VERIFIED_STATUS.equals(status) && (verifyDate == null)){
+            throw new IllegalArgumentException("Verified Date is required");
+        }
 
     }
 
-    private static InventoryValidation validateInventory(PackItemCommand packItemCommand,InventoryService inventoryService){
+    private static InventoryValidation validateInventory(String unitNumber, String productCode , String locationCode,InventoryService inventoryService){
         if(inventoryService == null){
             throw new IllegalArgumentException("Inventory Service is required");
         }
 
-        var inventoryValidationResponse =  inventoryService.validateInventory(new ValidateInventoryCommand(packItemCommand.getUnitNumber(), packItemCommand.getProductCode(), packItemCommand.getLocationCode()))
+        var inventoryValidationResponse =  inventoryService.validateInventory(new ValidateInventoryCommand(unitNumber, productCode, locationCode))
             .onErrorResume(error -> {
                 throw new ProductValidationException(error.getMessage(), SYSTEM_ERROR_TYPE);
             })
@@ -197,6 +208,8 @@ public class CartonItem implements Validatable {
                 }
             });
     }
+
+
 
     private static void validateProductType(RecoveredPlasmaShipmentCriteriaRepository recoveredPlasmaShipmentCriteriaRepository , String cartonProductType, String productCode){
         if(recoveredPlasmaShipmentCriteriaRepository == null){
@@ -233,7 +246,7 @@ public class CartonItem implements Validatable {
             .block();
     }
 
-    private static void validateProductCriteria(String customerCode , String productType ,Integer volume , Integer totalProducts, RecoveredPlasmaShipmentCriteriaRepository recoveredPlasmaShipmentCriteriaRepository){
+    private static void validateProductCriteria(String customerCode , String productType ,Integer volume , Integer totalProducts, RecoveredPlasmaShipmentCriteriaRepository recoveredPlasmaShipmentCriteriaRepository , boolean packing){
 
         if (recoveredPlasmaShipmentCriteriaRepository == null) {
             throw new IllegalArgumentException("RecoveredPlasmaShipmentCriteriaRepository is required");
@@ -255,7 +268,7 @@ public class CartonItem implements Validatable {
             }
 
             var maxUnitsCriteria = criteria.findCriteriaItemByType(MAXIMUM_UNITS_BY_CARTON_CRITERIA_TYPE);
-            if(maxUnitsCriteria.isPresent()){
+            if(maxUnitsCriteria.isPresent() && packing){
                 if(totalProducts +1 > Integer.parseInt(maxUnitsCriteria.get().getValue())){
                     throw new ProductCriteriaValidationException(maxUnitsCriteria.get().getMessage(), maxUnitsCriteria.get().getMessageType() , maxUnitsCriteria.get().getType());
                 }
@@ -263,6 +276,75 @@ public class CartonItem implements Validatable {
                 log.debug("Criteria configuration is missed skip validation {}", MAXIMUM_UNITS_BY_CARTON_CRITERIA_TYPE);
             }
         }
+
+    }
+
+
+
+    public static CartonItem verifyCartonItem(VerifyItemCommand verifyItemCommand, Carton carton , InventoryService inventoryService
+        , CartonItemRepository cartonItemRepository
+        , RecoveredPlasmaShippingRepository recoveredPlasmaShippingRepository
+        , RecoveredPlasmaShipmentCriteriaRepository recoveredPlasmaShipmentCriteriaRepository) {
+
+        var cartonItem = validateProductIsPacked(verifyItemCommand,cartonItemRepository);
+
+        var shipment = getShipment(carton.getShipmentId(), recoveredPlasmaShippingRepository);
+
+        if(!verifyItemCommand.getLocationCode().equals(shipment.getLocationCode())){
+            log.warn("Carton cannot be verified from a different location {} {}", verifyItemCommand.getLocationCode(),shipment.getLocationCode() );
+            throw new ProductValidationException("Carton cannot be verified from a different location", WARN_ERROR_TYPE);
+        }
+
+        validateProductType(recoveredPlasmaShipmentCriteriaRepository, shipment.getProductType(), verifyItemCommand.getProductCode());
+
+        var inventoryValidation = validateInventory(verifyItemCommand.getUnitNumber(), verifyItemCommand.getProductCode() , verifyItemCommand.getLocationCode(), inventoryService);
+
+
+        CartonItemBuilder builder = CartonItem.builder();
+        builder.id(cartonItem.getId());
+        builder.cartonId(cartonItem.getCartonId());
+        builder.unitNumber(cartonItem.getUnitNumber());
+        builder.productCode(cartonItem.getProductCode());
+        builder.productDescription(cartonItem.getProductDescription());
+        builder.productType(cartonItem.getProductType());
+        builder.volume(inventoryValidation.getInventory().getVolumeByType(VOLUME_TYPE).map(InventoryVolume::getValue).orElse(0));
+        builder.weight(inventoryValidation.getInventory().getWeight());
+        builder.packedByEmployeeId(cartonItem.getPackedByEmployeeId());
+        builder.aboRh(cartonItem.getAboRh());
+        builder.expirationDate(inventoryValidation.getInventory().getExpirationDate());
+        builder.collectionDate(inventoryValidation.getInventory().getCollectionDate());
+        builder.createDate(cartonItem.getCreateDate());
+        builder.modificationDate(ZonedDateTime.now());
+        builder.status(VERIFIED_STATUS);
+        builder.verifyDate(ZonedDateTime.now());
+        builder.verifiedByEmployeeId(verifyItemCommand.getEmployeeId());
+
+        var cartonItemVerified = builder.build();
+
+        validateProductCriteria(shipment.getShipmentCustomer().getCustomerCode(), shipment.getProductType(), cartonItemVerified.getVolume() , carton.getTotalProducts() , recoveredPlasmaShipmentCriteriaRepository , Boolean.FALSE );
+
+        cartonItemVerified.checkValid();
+
+        return cartonItemVerified;
+    }
+
+    private static CartonItem validateProductIsPacked(VerifyItemCommand verifyItemCommand , CartonItemRepository cartonItemRepository){
+        if(cartonItemRepository == null){
+            throw new IllegalArgumentException("Carton Item Repository is required");
+        }
+
+        var item = cartonItemRepository.findByCartonAndProduct(verifyItemCommand.getCartonId(), verifyItemCommand.getUnitNumber(), verifyItemCommand.getProductCode())
+            .onErrorResume(error -> {
+                throw new ProductValidationException(error.getMessage(),SYSTEM_ERROR_TYPE);
+            })
+            .switchIfEmpty(Mono.error( ()-> new ProductValidationException("The verification does not match all products in this order. Please re-scan all the products.", WARN_ERROR_TYPE)))
+            .block();
+
+        if(item != null && !item.getStatus().equals(PACKED_STATUS)){
+            throw new ProductValidationException("This product has already been verified. Please re-scan all the products in the order.",WARN_ERROR_TYPE);
+        }
+
+        return item;
 
     }
 }

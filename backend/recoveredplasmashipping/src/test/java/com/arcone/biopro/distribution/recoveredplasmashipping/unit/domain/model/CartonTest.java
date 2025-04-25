@@ -2,16 +2,23 @@ package com.arcone.biopro.distribution.recoveredplasmashipping.unit.domain.model
 
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.exception.DomainNotFoundForKeyException;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Carton;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.CartonItem;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.CreateCartonCommand;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Location;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.LocationProperty;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.RecoveredPlasmaShipment;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.VerifyItemCommand;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.CartonItemRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.CartonRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.LocationRepository;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShipmentCriteriaRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShippingRepository;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.InventoryService;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
@@ -19,13 +26,16 @@ import reactor.core.publisher.Mono;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.mock;
@@ -299,5 +309,136 @@ class CartonTest {
             () -> Carton.createNewCarton(new CreateCartonCommand(1L,"create-employee-id"), recoveredPlasmaShippingRepository, cartonRepository, locationRepository));
         assertEquals("Location configuration is missing the setup for  RPS_CARTON_PARTNER_PREFIX property",
             exception.getMessage());
+    }
+
+    @Test
+    public void shouldReturnVerifiedProduct(){
+
+        CartonItem cartonItem = Mockito.mock(CartonItem.class);
+        Mockito.when(cartonItem.getStatus()).thenReturn("VERIFIED");
+        Mockito.when(cartonItem.getProductCode()).thenReturn("CODE1");
+
+        CartonItem cartonItem2 = Mockito.mock(CartonItem.class);
+        Mockito.when(cartonItem2.getStatus()).thenReturn("PACKED");
+
+
+        Carton carton = Carton.fromRepository(1L,"number",1L,1,"employee-id","close-employee-id"
+            , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO, List.of(cartonItem2,cartonItem),0 ,0 );
+
+        assertEquals(1,carton.getVerifiedProducts().size());
+        assertEquals("CODE1",carton.getVerifiedProducts().getFirst().getProductCode());
+        assertEquals("VERIFIED",carton.getVerifiedProducts().getFirst().getStatus());
+
+    }
+
+    @Test
+    public void shouldAllowVerification(){
+
+        CartonItem cartonItem = Mockito.mock(CartonItem.class);
+        CartonItem cartonItem2 = Mockito.mock(CartonItem.class);
+
+        Carton carton = Carton.fromRepository(1L,"number",1L,1,"employee-id","close-employee-id"
+            , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO, List.of(cartonItem2,cartonItem),1 ,3 );
+
+        assertTrue(carton.canVerify());
+    }
+
+    @Test
+    public void shouldNotAllowVerification(){
+
+        CartonItem cartonItem = Mockito.mock(CartonItem.class);
+
+        CartonItem cartonItem2 = Mockito.mock(CartonItem.class);
+
+
+        Carton carton = Carton.fromRepository(1L,"number",1L,1,"employee-id","close-employee-id"
+            , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO, List.of(cartonItem2,cartonItem),5 ,10 );
+
+        assertFalse(carton.canVerify());
+    }
+
+    @Test
+    public void shouldAllowClose(){
+
+        CartonItem cartonItem = Mockito.mock(CartonItem.class);
+        Mockito.when(cartonItem.getStatus()).thenReturn("VERIFIED");
+        CartonItem cartonItem2 = Mockito.mock(CartonItem.class);
+        Mockito.when(cartonItem2.getStatus()).thenReturn("VERIFIED");
+
+        Carton carton = Carton.fromRepository(1L,"number",1L,1,"employee-id","close-employee-id"
+            , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO, List.of(cartonItem2,cartonItem),2 ,2 );
+
+        assertTrue(carton.canClose());
+    }
+
+    @Test
+    public void shouldNotAllowCloseWhenStatusIsNotOpen(){
+
+        CartonItem cartonItem = Mockito.mock(CartonItem.class);
+        Mockito.when(cartonItem.getStatus()).thenReturn("VERIFIED");
+        CartonItem cartonItem2 = Mockito.mock(CartonItem.class);
+        Mockito.when(cartonItem2.getStatus()).thenReturn("VERIFIED");
+
+        Carton carton = Carton.fromRepository(1L,"number",1L,1,"employee-id","close-employee-id"
+            , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"CLOSED", BigDecimal.ZERO,BigDecimal.ZERO, List.of(cartonItem2,cartonItem),2 ,2 );
+
+        assertFalse(carton.canClose());
+    }
+
+    @Test
+    public void shouldNotAllowCloseWhenAllProductsAreNotVerified(){
+
+        CartonItem cartonItem = Mockito.mock(CartonItem.class);
+        Mockito.when(cartonItem.getStatus()).thenReturn("VERIFIED");
+        CartonItem cartonItem2 = Mockito.mock(CartonItem.class);
+        Mockito.when(cartonItem2.getStatus()).thenReturn("PACKED");
+
+        Carton carton = Carton.fromRepository(1L,"number",1L,1,"employee-id","close-employee-id"
+            , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO, List.of(cartonItem2,cartonItem),2 ,2 );
+
+        assertFalse(carton.canClose());
+    }
+
+    @Test
+    public void shouldNotVerifyWhenMinimumProductsAreNotPacked(){
+
+        CartonItem cartonItem = Mockito.mock(CartonItem.class);
+        CartonItem cartonItem2 = Mockito.mock(CartonItem.class);
+
+        Carton carton = Carton.fromRepository(1L,"number",1L,1,"employee-id","close-employee-id"
+            , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO, List.of(cartonItem2,cartonItem),5 ,10 );
+
+
+        // When/Then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            () -> carton.verifyItem(Mockito.mock(VerifyItemCommand.class),Mockito.mock(InventoryService.class), Mockito.mock(CartonItemRepository.class)
+                , Mockito.mock(RecoveredPlasmaShipmentCriteriaRepository.class), Mockito.mock(RecoveredPlasmaShippingRepository.class)));
+        assertEquals("Carton cannot be verified",
+            exception.getMessage());
+    }
+
+    @Test
+    public void shouldVerifyItem(){
+
+        CartonItem cartonItem = Mockito.mock(CartonItem.class);
+        CartonItem cartonItem2 = Mockito.mock(CartonItem.class);
+
+        Carton carton = Carton.fromRepository(1L,"number",1L,1,"employee-id","close-employee-id"
+            , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO, List.of(cartonItem2,cartonItem),2 ,10 );
+
+
+       var cartonItem3 = Mockito.mock(CartonItem.class);
+
+        try (MockedStatic<CartonItem> utilities = Mockito.mockStatic(CartonItem.class)) {
+            utilities.when(() -> CartonItem.verifyCartonItem(Mockito.any(VerifyItemCommand.class),Mockito.any(Carton.class),Mockito.any(InventoryService.class), Mockito.any(CartonItemRepository.class)
+                , Mockito.any(RecoveredPlasmaShippingRepository.class), Mockito.any(RecoveredPlasmaShipmentCriteriaRepository.class)))
+                .thenReturn(cartonItem3);
+
+            // When/Then
+           var response = carton.verifyItem(Mockito.mock(VerifyItemCommand.class),Mockito.mock(InventoryService.class), Mockito.mock(CartonItemRepository.class), Mockito.mock(RecoveredPlasmaShipmentCriteriaRepository.class), Mockito.mock(RecoveredPlasmaShippingRepository.class));
+
+            Assertions.assertNotNull(response);
+
+        }
     }
 }

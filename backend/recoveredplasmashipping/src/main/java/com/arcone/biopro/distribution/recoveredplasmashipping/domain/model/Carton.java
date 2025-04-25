@@ -51,6 +51,7 @@ public class Carton implements Validatable {
     private static final String STATUS_OPEN = "OPEN";
     private static final String CARTON_PARTNER_PREFIX_KEY = "RPS_CARTON_PARTNER_PREFIX";
     private static final String RPS_LOCATION_CARTON_CODE_KEY = "RPS_LOCATION_CARTON_CODE";
+    private static final String STATUS_VERIFIED = "VERIFIED";
 
 
     public static Carton createNewCarton(CreateCartonCommand createCartonCommand , RecoveredPlasmaShippingRepository recoveredPlasmaShippingRepository, CartonRepository cartonRepository, LocationRepository locationRepository) {
@@ -93,7 +94,8 @@ public class Carton implements Validatable {
     }
 
     public static Carton fromRepository(Long id, String cartonNumber, Long shipmentId, Integer cartonSequence, String createEmployeeId, String closeEmployeeId
-        , ZonedDateTime createDate, ZonedDateTime modificationDate, ZonedDateTime closeDate, String status , BigDecimal totalVolume , BigDecimal totalWeight , List<CartonItem> products , Integer minNumberOfUnits , Integer maxNumberOfUnits) {
+        , ZonedDateTime createDate, ZonedDateTime modificationDate, ZonedDateTime closeDate, String status , BigDecimal totalVolume , BigDecimal totalWeight
+        , List<CartonItem> products , Integer minNumberOfUnits , Integer maxNumberOfUnits) {
         var carton = Carton.builder()
             .id(id)
             .cartonNumber(cartonNumber)
@@ -211,5 +213,34 @@ public class Carton implements Validatable {
         this.products.add(item);
 
         return item;
+    }
+
+    public boolean canVerify(){
+        return this.getTotalProducts() >= minNumberOfProducts;
+    }
+
+    public boolean canClose(){
+        var verifiedProducts = getVerifiedProducts();
+        if(verifiedProducts == null || verifiedProducts.isEmpty()){
+            return false;
+        }
+        return this.status.equals(STATUS_OPEN) && this.getTotalProducts() > 0 && verifiedProducts.size() == this.getTotalProducts();
+    }
+
+    public List<CartonItem> getVerifiedProducts(){
+        if(this.products == null){
+            return new ArrayList<>();
+        }
+
+        return this.products.stream().filter(product -> product.getStatus().equals(STATUS_VERIFIED)).toList();
+    }
+
+    public CartonItem verifyItem(VerifyItemCommand verifyItemCommand , InventoryService inventoryService, CartonItemRepository cartonItemRepository , RecoveredPlasmaShipmentCriteriaRepository recoveredPlasmaShipmentCriteriaRepository , RecoveredPlasmaShippingRepository recoveredPlasmaShippingRepository){
+        if(!canVerify()){
+            log.warn("Carton is not ready for verification {}", this.cartonNumber);
+            throw new IllegalArgumentException("Carton cannot be verified");
+        }
+
+        return CartonItem.verifyCartonItem(verifyItemCommand, this, inventoryService, cartonItemRepository, recoveredPlasmaShippingRepository, recoveredPlasmaShipmentCriteriaRepository);
     }
 }

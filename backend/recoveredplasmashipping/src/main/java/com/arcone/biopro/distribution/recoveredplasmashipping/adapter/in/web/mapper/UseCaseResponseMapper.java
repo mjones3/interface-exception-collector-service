@@ -23,6 +23,7 @@ public interface UseCaseResponseMapper {
     UseCaseResponseDTO<PageDTO<RecoveredPlasmaShipmentReportDTO>> toUseCaseRecoveredPlasmaShipmentReportDTO(UseCaseOutput<PageOutput<RecoveredPlasmaShipmentReportOutput>> useCaseOutput);
     UseCaseResponseDTO<CartonDTO> toUseCaseCreateCartonDTO(UseCaseOutput<CartonOutput> useCaseOutput);
     UseCaseResponseDTO<CartonItemDTO> toUseCasePackCartonItemDTO(UseCaseOutput<CartonItemOutput> useCaseOutput);
+    UseCaseResponseDTO<CartonDTO> toUseCaseVerifyCartonDTO(UseCaseOutput<CartonOutput> useCaseOutput);
 
 
 
