@@ -189,7 +189,6 @@ def ui_service():
 
 
 cert_manager()
-#otel_operator()
 keycloak_service()
 zookeeper_service()
 kafka_service()
