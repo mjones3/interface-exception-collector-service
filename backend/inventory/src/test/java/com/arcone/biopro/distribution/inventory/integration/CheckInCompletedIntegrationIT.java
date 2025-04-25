@@ -15,14 +15,12 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
-import java.nio.file.Files;
 
 import static com.arcone.biopro.distribution.inventory.BioProConstants.CHECK_IN_COMPLETED_TOPIC;
 import static com.arcone.biopro.distribution.inventory.BioProConstants.PAYLOAD;
@@ -63,7 +61,7 @@ public class CheckInCompletedIntegrationIT {
     @Test
     @DisplayName("Should publish, receive, map and call usecase with correct input for check in completed payload")
     public void test1() throws InterruptedException, IOException {
-        var payloadJson = publishCreatedEvent("json/check_in_completed.json", CHECK_IN_COMPLETED_TOPIC);
+        var payloadJson = kafkaHelper.publishEvent("json/check_in_completed.json", CHECK_IN_COMPLETED_TOPIC);
         ArgumentCaptor<CheckInCompletedInput> captor = ArgumentCaptor.forClass(CheckInCompletedInput.class);
         verify(checkInCompletedUseCase, times(1)).execute(captor.capture());
         CheckInCompletedInput capturedInput = captor.getValue();
@@ -78,13 +76,5 @@ public class CheckInCompletedIntegrationIT {
         assertThat(capturedInput.location()).isEqualTo(payloadJson.path(PAYLOAD).path("collectionLocation").asText());
         assertThat(capturedInput.productFamily()).isEqualTo(payloadJson.path(PAYLOAD).path("productFamily").asText());
         assertThat(capturedInput.aboRh()).isEqualTo(AboRhType.valueOf(payloadJson.path(PAYLOAD).path("aboRh").asText()));
-    }
-
-    private JsonNode publishCreatedEvent(String path, String topic) throws IOException, InterruptedException {
-        var resource = new ClassPathResource(path).getFile().toPath();
-        var payloadJson = objectMapper.readTree(Files.newInputStream(resource));
-        kafkaHelper.sendEvent(topic, topic + "test-key", payloadJson).block();
-        logMonitor.await("Processed message.*");
-        return payloadJson;
     }
 }

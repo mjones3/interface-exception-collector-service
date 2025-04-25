@@ -4,7 +4,6 @@ import com.arcone.biopro.distribution.inventory.application.dto.ShipmentComplete
 import com.arcone.biopro.distribution.inventory.application.usecase.ShipmentCompletedUseCase;
 import com.arcone.biopro.distribution.inventory.verification.utils.KafkaHelper;
 import com.arcone.biopro.distribution.inventory.verification.utils.LogMonitor;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,14 +12,12 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
-import java.nio.file.Files;
 
 import static com.arcone.biopro.distribution.inventory.BioProConstants.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -61,7 +58,7 @@ public class ShipmentCompletedIntegrationIT {
 
     @Test
     public void testKafkaListenerReceivesAndProcessesMessage() throws InterruptedException, IOException {
-        var payloadJson = publishCreatedEvent();
+        var payloadJson = kafkaHelper.publishEvent("json/shipment_completed.json", SHIPMENT_COMPLETED_TOPIC);
         ArgumentCaptor<ShipmentCompletedInput> captor = ArgumentCaptor.forClass(ShipmentCompletedInput.class);
         verify(shipmentCompletedUseCase, times(1)).execute(captor.capture());
         ShipmentCompletedInput capturedInput = captor.getValue();
@@ -84,13 +81,5 @@ public class ShipmentCompletedIntegrationIT {
                     .isEqualTo(payloadJson.path(PAYLOAD).path("lineItems").get(i).path("products").get(j).path("unitNumber").asText());
             }
         }
-    }
-
-    private JsonNode publishCreatedEvent() throws IOException, InterruptedException {
-        var resource = new ClassPathResource("json/shipment_completed.json").getFile().toPath();
-        var payloadJson = objectMapper.readTree(Files.newInputStream(resource));
-        kafkaHelper.sendEvent(SHIPMENT_COMPLETED_TOPIC, SHIPMENT_COMPLETED_TOPIC + "test-key", payloadJson).block();
-        logMonitor.await("Processed message.*");
-        return payloadJson;
     }
 }

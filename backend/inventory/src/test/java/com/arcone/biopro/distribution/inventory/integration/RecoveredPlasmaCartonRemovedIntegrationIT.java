@@ -4,7 +4,6 @@ import com.arcone.biopro.distribution.inventory.application.dto.RecoveredPlasmaC
 import com.arcone.biopro.distribution.inventory.application.usecase.RecoveredPlasmaCartonRemovedUseCase;
 import com.arcone.biopro.distribution.inventory.verification.utils.KafkaHelper;
 import com.arcone.biopro.distribution.inventory.verification.utils.LogMonitor;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,14 +13,12 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
-import java.nio.file.Files;
 
 import static com.arcone.biopro.distribution.inventory.BioProConstants.PAYLOAD;
 import static com.arcone.biopro.distribution.inventory.BioProConstants.RECOVER_PLASMA_CARTON_REMOVED_TOPIC;
@@ -62,7 +59,7 @@ public class RecoveredPlasmaCartonRemovedIntegrationIT {
     @Test
     @DisplayName("should publish, listen recovery plasma carton removed event")
     public void test1() throws InterruptedException, IOException {
-        var payloadJson = publishCreatedEvent("json/recovered_plasma_carton_removed.json", RECOVER_PLASMA_CARTON_REMOVED_TOPIC);
+        var payloadJson = kafkaHelper.publishEvent("json/recovered_plasma_carton_removed.json", RECOVER_PLASMA_CARTON_REMOVED_TOPIC);
         ArgumentCaptor<RecoveredPlasmaCartonRemovedInput> captor = ArgumentCaptor.forClass(RecoveredPlasmaCartonRemovedInput.class);
         verify(useCase, times(1)).execute(captor.capture());
         RecoveredPlasmaCartonRemovedInput capturedInput = captor.getValue();
@@ -71,13 +68,5 @@ public class RecoveredPlasmaCartonRemovedIntegrationIT {
         assertThat(capturedInput.cartonNumber()).isEqualTo(payloadJson.path(PAYLOAD).path("cartonNumber").asText());
         assertThat(capturedInput.packedProducts().size()).isEqualTo(1);
         assertThat(capturedInput.packedProducts().getFirst().status()).isEqualTo("UNPACKED");
-    }
-
-    private JsonNode publishCreatedEvent(String json, String topic) throws IOException, InterruptedException {
-        var resource = new ClassPathResource(json).getFile().toPath();
-        var payloadJson = objectMapper.readTree(Files.newInputStream(resource));
-        kafkaHelper.sendEvent(topic, topic + "test-key", payloadJson).block();
-        logMonitor.await("Processed message.*");
-        return payloadJson;
     }
 }
