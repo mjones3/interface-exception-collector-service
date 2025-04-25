@@ -225,4 +225,13 @@ public class InventoryAggregate {
         inventory.setCartonNumber(cartonNumber);
         return this;
     }
+
+    public InventoryAggregate removeFromCarton(String cartonNumber) {
+        if (cartonNumber.equals(inventory.getCartonNumber())) {
+            inventory.transitionStatus(InventoryStatus.AVAILABLE, null);
+            inventory.setCartonNumber(null);
+        }
+        return this;
+    }
 }
+

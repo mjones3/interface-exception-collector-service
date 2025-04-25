@@ -1,7 +1,7 @@
 package com.arcone.biopro.distribution.inventory.integration;
 
-import com.arcone.biopro.distribution.inventory.application.dto.RecoveredPlasmaCartonPackedInput;
-import com.arcone.biopro.distribution.inventory.application.usecase.RecoveredPlasmaCartonPackedUseCase;
+import com.arcone.biopro.distribution.inventory.application.dto.RecoveredPlasmaCartonRemovedInput;
+import com.arcone.biopro.distribution.inventory.application.usecase.RecoveredPlasmaCartonRemovedUseCase;
 import com.arcone.biopro.distribution.inventory.verification.utils.KafkaHelper;
 import com.arcone.biopro.distribution.inventory.verification.utils.LogMonitor;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -23,7 +23,8 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.nio.file.Files;
 
-import static com.arcone.biopro.distribution.inventory.BioProConstants.*;
+import static com.arcone.biopro.distribution.inventory.BioProConstants.PAYLOAD;
+import static com.arcone.biopro.distribution.inventory.BioProConstants.RECOVER_PLASMA_CARTON_REMOVED_TOPIC;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -39,13 +40,13 @@ import static org.mockito.Mockito.*;
     })
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @EmbeddedKafka(partitions = 1, brokerProperties = {"listeners=PLAINTEXT://localhost:9096", "port=9096"})
-public class RecoveredPlasmaCartonPackedIntegrationIT {
+public class RecoveredPlasmaCartonRemovedIntegrationIT {
 
     @Autowired
     private KafkaHelper kafkaHelper;
 
     @MockBean
-    private RecoveredPlasmaCartonPackedUseCase useCase;
+    private RecoveredPlasmaCartonRemovedUseCase useCase;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -55,21 +56,21 @@ public class RecoveredPlasmaCartonPackedIntegrationIT {
 
     @BeforeEach
     void setUp() {
-        when(useCase.execute(any(RecoveredPlasmaCartonPackedInput.class))).thenReturn(Mono.empty());
+        when(useCase.execute(any(RecoveredPlasmaCartonRemovedInput.class))).thenReturn(Mono.empty());
     }
 
     @Test
-    @DisplayName("should publish, listen recovery plasma carton packed event")
+    @DisplayName("should publish, listen recovery plasma carton removed event")
     public void test1() throws InterruptedException, IOException {
-        var payloadJson = publishCreatedEvent("json/recovered_plasma_carton_packed.json", RECOVER_PLASMA_CARTON_PACKED_TOPIC);
-        ArgumentCaptor<RecoveredPlasmaCartonPackedInput> captor = ArgumentCaptor.forClass(RecoveredPlasmaCartonPackedInput.class);
+        var payloadJson = publishCreatedEvent("json/recovered_plasma_carton_removed.json", RECOVER_PLASMA_CARTON_REMOVED_TOPIC);
+        ArgumentCaptor<RecoveredPlasmaCartonRemovedInput> captor = ArgumentCaptor.forClass(RecoveredPlasmaCartonRemovedInput.class);
         verify(useCase, times(1)).execute(captor.capture());
-        RecoveredPlasmaCartonPackedInput capturedInput = captor.getValue();
+        RecoveredPlasmaCartonRemovedInput capturedInput = captor.getValue();
 
         assertThat(capturedInput).isNotNull();
         assertThat(capturedInput.cartonNumber()).isEqualTo(payloadJson.path(PAYLOAD).path("cartonNumber").asText());
         assertThat(capturedInput.packedProducts().size()).isEqualTo(1);
-        assertThat(capturedInput.packedProducts().getFirst().status()).isEqualTo("PACKED");
+        assertThat(capturedInput.packedProducts().getFirst().status()).isEqualTo("UNPACKED");
     }
 
     private JsonNode publishCreatedEvent(String json, String topic) throws IOException, InterruptedException {

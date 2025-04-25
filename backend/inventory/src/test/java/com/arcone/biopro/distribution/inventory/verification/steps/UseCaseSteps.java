@@ -16,12 +16,9 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -48,6 +45,8 @@ public class UseCaseSteps {
     private final UnsuitableUseCase unsuitableUseCase;
 
     private final RecoveredPlasmaCartonPackedUseCase recoveredPlasmaCartonPackedUseCase;
+
+    private final RecoveredPlasmaCartonRemovedUseCase recoveredPlasmaCartonRemovedUseCase;
 
     private final ProductCompletedUseCase productCompletedUseCase;
 
@@ -185,12 +184,12 @@ public class UseCaseSteps {
     public void IReceivedRecoveredPlasmaCartonPacked(String cartonNumber, DataTable dataTable) {
 
         List<Map<String, String>> products = dataTable.asMaps(String.class, String.class);
-        List<RecoveredPlasmaCartonPackedInput.PackedProduct> packedProducts = new ArrayList<>();
+        List<PackedProductInput> packedProducts = new ArrayList<>();
         for (Map<String, String> product : products) {
 
             var unitNumber = product.get("Unit Number");
             var productCode = product.get("Product Code");
-            packedProducts.add(RecoveredPlasmaCartonPackedInput.PackedProduct.builder()
+            packedProducts.add(PackedProductInput.builder()
                 .unitNumber(unitNumber)
                 .productCode(productCode)
                 .status("PACKED")
@@ -202,9 +201,31 @@ public class UseCaseSteps {
             .packedProducts(packedProducts)
             .build();
         recoveredPlasmaCartonPackedUseCase.execute(input).block();
-
-
     }
+
+    @When("I received a Recovered Plasma Carton Removed Event for carton number {string}")
+    public void IReceivedRecoveredPlasmaCartonRemoved(String cartonNumber, DataTable dataTable) {
+
+        List<Map<String, String>> products = dataTable.asMaps(String.class, String.class);
+        List<PackedProductInput> packedProducts = new ArrayList<>();
+        for (Map<String, String> product : products) {
+
+            var unitNumber = product.get("Unit Number");
+            var productCode = product.get("Product Code");
+            packedProducts.add(PackedProductInput.builder()
+                .unitNumber(unitNumber)
+                .productCode(productCode)
+                .status("UNPACKED")
+                .build());
+        }
+
+        RecoveredPlasmaCartonRemovedInput input = RecoveredPlasmaCartonRemovedInput.builder()
+            .cartonNumber(cartonNumber)
+            .packedProducts(packedProducts)
+            .build();
+        recoveredPlasmaCartonRemovedUseCase.execute(input).block();
+    }
+
 
     @When("I received a Product Unsuitable event with unit number {string}, product code {string} and reason {string}")
     public void iReceivedAProductUnsuitableEventWithUnitNumberProductCodeAndReason(String unitNumber, String productCode, String reason) {

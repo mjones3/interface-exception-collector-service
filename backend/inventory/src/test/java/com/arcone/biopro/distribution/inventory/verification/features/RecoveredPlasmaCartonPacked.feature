@@ -17,6 +17,6 @@ Feature: Recovered Plasma Carton Packed Event - API
             | <Unit Number> | <First Product Code>  | PACKED |
             | <Unit Number> | <Second Product Code> | PACKED |
         Examples:
-            | Carton Number | Unit Number   |  | First Product Code | Second Product Code |
-            | CN1001        | W036825013001 |  | E4689V00           | E4693V00            |
-            | CN1002        | W036825013002 |  | E1624VA0           | E070100             |
+            | Carton Number | Unit Number   | First Product Code | Second Product Code |
+            | CN1001        | W036825013001 | E4689V00           | E4693V00            |
+            | CN1002        | W036825013002 | E1624VA0           | E070100             |

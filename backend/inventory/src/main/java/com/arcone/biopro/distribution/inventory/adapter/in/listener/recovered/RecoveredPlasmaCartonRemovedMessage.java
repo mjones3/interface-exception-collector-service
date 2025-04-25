@@ -2,13 +2,13 @@ package com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered;
 
 import java.util.List;
 
-public record RecoveredPlasmaCartonPackedMessage(
+public record RecoveredPlasmaCartonRemovedMessage(
     String cartonNumber,
     int cartonSequence,
     String locationCode,
     String productType,
-    String closeEmployeeId,
-    String closeDate,
+    String removeEmployeeId,
+    String removeDate,
     String status,
     int totalProducts,
     double totalWeight,

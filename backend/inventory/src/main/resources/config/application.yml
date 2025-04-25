@@ -315,10 +315,13 @@ topic:
     name: ProductRecovered
   recovered-plasma-carton-packed:
     name: RecoveredPlasmaCartonPacked
+  recovered-plasma-carton-removed:
+    name: RecoveredPlasmaCartonRemoved
   inventory-updated:
     name: InventoryUpdated
   product-unsuitable:
     name: ProductUnsuitable
   unit-unsuitable:
     name: UnitUnsuitable
+
 

@@ -2,18 +2,18 @@ package com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered;
 
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.MessageMapper;
 import com.arcone.biopro.distribution.inventory.application.dto.PackedProductInput;
-import com.arcone.biopro.distribution.inventory.application.dto.RecoveredPlasmaCartonPackedInput;
+import com.arcone.biopro.distribution.inventory.application.dto.RecoveredPlasmaCartonRemovedInput;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import java.util.List;
 
 @Mapper(componentModel = "spring")
-public interface RecoveredPlasmaCartonPackedMessageMapper extends MessageMapper<RecoveredPlasmaCartonPackedInput, RecoveredPlasmaCartonPackedMessage> {
+public interface RecoveredPlasmaCartonRemovedMessageMapper extends MessageMapper<RecoveredPlasmaCartonRemovedInput, RecoveredPlasmaCartonRemovedMessage> {
 
     @Override
     @Mapping(target = "packedProducts", source = "packedProducts")
-    RecoveredPlasmaCartonPackedInput toInput(RecoveredPlasmaCartonPackedMessage message);
+    RecoveredPlasmaCartonRemovedInput toInput(RecoveredPlasmaCartonRemovedMessage message);
 
     @Mapping(target = "unitNumber", source = "unitNumber")
     @Mapping(target = "productCode", source = "productCode")
