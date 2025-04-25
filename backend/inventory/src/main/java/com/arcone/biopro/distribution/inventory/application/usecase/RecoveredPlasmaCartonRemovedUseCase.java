@@ -4,7 +4,10 @@ import com.arcone.biopro.distribution.inventory.application.dto.InventoryOutput;
 import com.arcone.biopro.distribution.inventory.application.dto.PackedProductInput;
 import com.arcone.biopro.distribution.inventory.application.dto.RecoveredPlasmaCartonRemovedInput;
 import com.arcone.biopro.distribution.inventory.application.mapper.InventoryOutputMapper;
+import com.arcone.biopro.distribution.inventory.domain.event.InventoryEventPublisher;
+import com.arcone.biopro.distribution.inventory.domain.event.InventoryUpdatedApplicationEvent;
 import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryUpdateType;
 import com.arcone.biopro.distribution.inventory.domain.repository.InventoryAggregateRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +29,9 @@ public class RecoveredPlasmaCartonRemovedUseCase implements UseCase<Mono<Invento
 
     InventoryOutputMapper inventoryOutputMapper;
 
+    InventoryEventPublisher inventoryEventPublisher;
+
+
     @Override
     public Mono<InventoryOutput> execute(RecoveredPlasmaCartonRemovedInput input) {
         log.info("Processing RecoveredPlasmaCartonRemoved event for carton: {}", input.cartonNumber());
@@ -43,6 +49,7 @@ public class RecoveredPlasmaCartonRemovedUseCase implements UseCase<Mono<Invento
             .collectList()
             .map(List::getLast)
             .map(InventoryAggregate::getInventory)
+            .doOnSuccess(inventory -> inventoryEventPublisher.publish(new InventoryUpdatedApplicationEvent(inventory, InventoryUpdateType.PACKED)))
             .map(inventoryOutputMapper::toOutput);
     }
 

@@ -6,5 +6,7 @@ public enum InventoryUpdateType {
     QUARANTINE_REMOVED,
     SHIPPED,
     DISCARDED,
-    STORED
+    STORED,
+    PACKED,
+    UNPACKED
 }

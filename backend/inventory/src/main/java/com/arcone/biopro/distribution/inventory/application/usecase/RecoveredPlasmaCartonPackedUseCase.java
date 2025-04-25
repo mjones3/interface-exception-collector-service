@@ -4,7 +4,9 @@ import com.arcone.biopro.distribution.inventory.application.dto.InventoryOutput;
 import com.arcone.biopro.distribution.inventory.application.dto.RecoveredPlasmaCartonPackedInput;
 import com.arcone.biopro.distribution.inventory.application.mapper.InventoryOutputMapper;
 import com.arcone.biopro.distribution.inventory.domain.event.InventoryEventPublisher;
+import com.arcone.biopro.distribution.inventory.domain.event.InventoryUpdatedApplicationEvent;
 import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryUpdateType;
 import com.arcone.biopro.distribution.inventory.domain.repository.InventoryAggregateRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,9 @@ public class RecoveredPlasmaCartonPackedUseCase implements UseCase<Mono<Inventor
 
     InventoryOutputMapper inventoryOutputMapper;
 
+    InventoryEventPublisher inventoryEventPublisher;
+
+
     @Override
     public Mono<InventoryOutput> execute(RecoveredPlasmaCartonPackedInput input) {
         log.info("Processing RecoveredPlasmaCartonPacked event for carton: {}", input.cartonNumber());
@@ -42,8 +47,7 @@ public class RecoveredPlasmaCartonPackedUseCase implements UseCase<Mono<Inventor
                 .collectList()
                 .map(List::getLast)
                 .map(InventoryAggregate::getInventory)
-                //TODO check if should to propagate for inventory update event.
-                //.doOnSuccess(inventory -> inventoryEventPublisher.publish(new InventoryUpdatedApplicationEvent(inventory, InventoryUpdateType.PACKED)))
+                .doOnSuccess(inventory -> inventoryEventPublisher.publish(new InventoryUpdatedApplicationEvent(inventory, InventoryUpdateType.PACKED)))
                 .map(inventoryOutputMapper::toOutput);
     }
 }
