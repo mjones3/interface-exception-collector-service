@@ -216,7 +216,7 @@ public class Carton implements Validatable {
     }
 
     public boolean canVerify(){
-        return this.getTotalProducts() >= minNumberOfProducts;
+        return STATUS_OPEN.equals(this.status) && this.getTotalProducts() >= minNumberOfProducts;
     }
 
     public boolean canClose(){

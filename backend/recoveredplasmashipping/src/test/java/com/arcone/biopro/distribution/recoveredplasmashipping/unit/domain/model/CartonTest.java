@@ -358,6 +358,20 @@ class CartonTest {
     }
 
     @Test
+    public void shouldNotAllowVerificationWhenStatusIsNotOpen(){
+
+        CartonItem cartonItem = Mockito.mock(CartonItem.class);
+
+        CartonItem cartonItem2 = Mockito.mock(CartonItem.class);
+
+
+        Carton carton = Carton.fromRepository(1L,"number",1L,1,"employee-id","close-employee-id"
+            , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"CLOSED", BigDecimal.ZERO,BigDecimal.ZERO, List.of(cartonItem2,cartonItem),2 ,10 );
+
+        assertFalse(carton.canVerify());
+    }
+
+    @Test
     public void shouldAllowClose(){
 
         CartonItem cartonItem = Mockito.mock(CartonItem.class);
@@ -369,20 +383,6 @@ class CartonTest {
             , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO, List.of(cartonItem2,cartonItem),2 ,2 );
 
         assertTrue(carton.canClose());
-    }
-
-    @Test
-    public void shouldNotAllowCloseWhenStatusIsNotOpen(){
-
-        CartonItem cartonItem = Mockito.mock(CartonItem.class);
-        Mockito.when(cartonItem.getStatus()).thenReturn("VERIFIED");
-        CartonItem cartonItem2 = Mockito.mock(CartonItem.class);
-        Mockito.when(cartonItem2.getStatus()).thenReturn("VERIFIED");
-
-        Carton carton = Carton.fromRepository(1L,"number",1L,1,"employee-id","close-employee-id"
-            , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"CLOSED", BigDecimal.ZERO,BigDecimal.ZERO, List.of(cartonItem2,cartonItem),2 ,2 );
-
-        assertFalse(carton.canClose());
     }
 
     @Test
@@ -407,6 +407,24 @@ class CartonTest {
 
         Carton carton = Carton.fromRepository(1L,"number",1L,1,"employee-id","close-employee-id"
             , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO, List.of(cartonItem2,cartonItem),5 ,10 );
+
+
+        // When/Then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            () -> carton.verifyItem(Mockito.mock(VerifyItemCommand.class),Mockito.mock(InventoryService.class), Mockito.mock(CartonItemRepository.class)
+                , Mockito.mock(RecoveredPlasmaShipmentCriteriaRepository.class), Mockito.mock(RecoveredPlasmaShippingRepository.class)));
+        assertEquals("Carton cannot be verified",
+            exception.getMessage());
+    }
+
+    @Test
+    public void shouldNotVerifyWhenStatusIsNotOpen(){
+
+        CartonItem cartonItem = Mockito.mock(CartonItem.class);
+        CartonItem cartonItem2 = Mockito.mock(CartonItem.class);
+
+        Carton carton = Carton.fromRepository(1L,"number",1L,1,"employee-id","close-employee-id"
+            , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"CLOSED", BigDecimal.ZERO,BigDecimal.ZERO, List.of(cartonItem2,cartonItem),2 ,10 );
 
 
         // When/Then
