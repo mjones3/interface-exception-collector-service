@@ -97,3 +97,29 @@ Feature: Create Carton
                 | Location Code                   | 123456789                     |
             And I request to add 1 carton to the shipment 1111.
             Then I should receive a "SYSTEM" message response "Carton generation error. Contact Support.".
+
+        Rule: The shipment status must be updated to “In Progress” when a carton is created.
+        @api @DIS-378
+        Scenario: Shipment Status must be in progress after adding carton
+            Given I request to create a new shipment with the values:
+                | Field                           | Value                         |
+                | Customer Code                   | 410                           |
+                | Product Type                    | RP_NONINJECTABLE_REFRIGERATED |
+                | Carton Tare Weight              | 1000                          |
+                | Shipment Date                   | <tomorrow>                    |
+                | Transportation Reference Number | DIS338                        |
+                | Location Code                   | 123456789_DIS338              |
+            When I request the last created shipment data.
+            Then The find shipment response should have the following information:
+                | Information          | Value         |
+                | Total Cartons        | 0             |
+                | Shipment Number      | DIS_338DIS338 |
+                | Shipment Status      | OPEN          |
+            And I request to add 1 cartons to the shipment.
+            And I request the last created shipment data.
+            Then The find shipment response should have the following information:
+                | Information          | Value         |
+                | Total Cartons        | 1             |
+                | Shipment Number      | DIS_338DIS338 |
+                | Shipment Status      | IN_PROGRESS   |
+

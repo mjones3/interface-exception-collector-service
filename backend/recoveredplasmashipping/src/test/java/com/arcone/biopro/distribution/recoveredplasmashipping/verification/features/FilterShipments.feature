@@ -98,6 +98,27 @@ Feature: Filter Shipments
             And The list shipment response should be ordered by "status,shipmentDate".
 
 
+         ## Check with Archana about update the default status currently it is only OPEN
+         ## Check with Ram/Lorena what is the default style for IN Progress Status
+        Rule: I should be able to search shipments by In Progress shipping status.
+        @api @DIS-378
+        Scenario: Search for shipments by status
+            Given The location "123456700_TEST" is configured with prefix "BPM_TEST", shipping code "DIS334003", carton prefix "BPM" and prefix configuration "Y".
+            And I request to create a new shipment with the values:
+                | Field                           | Value                      |
+                | Customer Code                   | 408                        |
+                | Product Type                    | RP_FROZEN_WITHIN_120_HOURS |
+                | Carton Tare Weight              | 1000                       |
+                | Shipment Date                   | <tomorrow>                 |
+                | Transportation Reference Number | 55123                      |
+                | Location Code                   | 123456700_TEST             |
+            And I request to add 1 cartons to the shipment.
+            When I requested the list of shipments filtering by "shipmentStatusList" as "IN_PROGRESS".
+            Then The list shipment response should contains "1" items.
+
+
+
+
 
       ###### Acceptance criteria covered by UI Unit tests ######
 

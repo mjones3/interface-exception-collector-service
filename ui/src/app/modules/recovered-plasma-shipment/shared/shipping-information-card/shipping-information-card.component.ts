@@ -16,6 +16,7 @@ import {
 } from '@shared';
 import { ProductFamilyMap } from 'app/shared/models/product-family.model';
 import { RecoveredPlasmaShipmentResponseDTO } from '../../models/recovered-plasma.dto';
+import { RecoveredPlasmaShipmentStatusMap } from '../../graphql/query-definitions/shipment.graphql';
 
 @Component({
     selector: 'biopro-shipping-information-card',
@@ -49,7 +50,7 @@ export class ShippingInformationCardComponent {
         },
         {
             label: 'Shipment Status',
-            value: this.shippingInput()?.status,
+            value: RecoveredPlasmaShipmentStatusMap[this.shippingInput()?.status],
         },
         {
             label: 'Product Type',

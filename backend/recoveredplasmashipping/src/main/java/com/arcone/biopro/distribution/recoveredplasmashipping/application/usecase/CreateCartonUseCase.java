@@ -8,6 +8,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.Us
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.UseCaseNotificationType;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.UseCaseOutput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.mapper.CartonOutputMapper;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.event.RecoveredPlasmaCartonCreatedEvent;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Carton;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.CreateCartonCommand;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.CartonRepository;
@@ -16,6 +17,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.CreateCartonService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
@@ -34,6 +36,7 @@ public class CreateCartonUseCase implements CreateCartonService {
     private final CartonOutputMapper cartonOutputMapper;
     private final LocationRepository locationRepository;
     private static final String CARTON_DETAILS_PAGE = "/recovered-plasma/%s/carton-details";
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     @Transactional
@@ -41,6 +44,7 @@ public class CreateCartonUseCase implements CreateCartonService {
         return Mono.fromCallable(() -> Carton.createNewCarton(new CreateCartonCommand(createCartonCommandInput.shipmentId(), createCartonCommandInput.employeeId()),recoveredPlasmaShippingRepository , cartonRepository,locationRepository))
             .subscribeOn(Schedulers.boundedElastic())
             .flatMap(cartonRepository::create)
+            .doOnSuccess(carton -> applicationEventPublisher.publishEvent(new RecoveredPlasmaCartonCreatedEvent(carton)))
             .flatMap(createdCarton -> {
                 return Mono.just(new UseCaseOutput<>(List.of(UseCaseNotificationOutput
                     .builder()

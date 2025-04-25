@@ -32,4 +32,10 @@ public class RecoveredPlasmaShippingRepositoryImpl implements RecoveredPlasmaShi
             .zipWith(cartonEntityRepository.findAllByShipmentIdAndDeleteDateIsNullOrderByCartonSequenceNumberAsc(id).collectList())
             .map(tuple -> recoveredPlasmaShipmentEntityMapper.entityToModel(tuple.getT1(),tuple.getT2()));
     }
+
+    @Override
+    public Mono<RecoveredPlasmaShipment> update(RecoveredPlasmaShipment recoveredPlasmaShipment) {
+        return recoveredPlasmaShipmentEntityRepository.save(recoveredPlasmaShipmentEntityMapper.toEntity(recoveredPlasmaShipment))
+            .map(updated -> recoveredPlasmaShipmentEntityMapper.entityToModel(updated,null));
+    }
 }
