@@ -20,7 +20,9 @@ public enum MessageType {
     INVENTORY_IS_DISCARDED(5, InventoryStatus.DISCARDED.name(), NotificationType.INFO, Action.PLACE_IN_BIOHAZARD),
     INVENTORY_NOT_EXIST(6, null, NotificationType.WARN, Action.BACK_TO_STORAGE),
     INVENTORY_IS_SHIPPED(7, InventoryStatus.SHIPPED.name(), NotificationType.WARN, Action.BACK_TO_STORAGE),
-    INVENTORY_IS_UNLABELED(8, null, NotificationType.INFO, Action.BACK_TO_STORAGE);
+    INVENTORY_IS_UNLABELED(8, null, NotificationType.INFO, Action.BACK_TO_STORAGE),
+    INVENTORY_IS_PACKED(9, InventoryStatus.PACKED.name(), NotificationType.WARN, Action.BACK_TO_STORAGE);
+    ;
 
     Integer code;
     String status;

@@ -30,6 +30,7 @@ public interface InventoryEntityRepository extends ReactiveCrudRepository<Invent
         AND (:temperatureCategory IS NULL OR bld_inventory.temperature_category = :temperatureCategory)
         AND bld_inventory.expiration_date > :startDateTime
         AND bld_inventory.is_labeled = true
+        AND bld_inventory.unsuitable_reason is null
         """)
     Mono<Long> countBy(
         @Param("location") String location,
@@ -52,6 +53,7 @@ public interface InventoryEntityRepository extends ReactiveCrudRepository<Invent
           AND bld_inventory.expiration_date >= :startDateTime
           AND bld_inventory.expiration_date <= :finalDateTime
           AND bld_inventory.is_labeled = true
+          AND bld_inventory.unsuitable_reason is null
         ORDER BY expiration_date ASC
         """)
     Flux<InventoryEntity> findBy(

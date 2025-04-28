@@ -1,6 +1,5 @@
 package com.arcone.biopro.distribution.inventory.integration;
 
-import com.arcone.biopro.distribution.inventory.application.usecase.LabelAppliedUseCase;
 import com.arcone.biopro.distribution.inventory.domain.model.Inventory;
 import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
@@ -106,21 +105,21 @@ public class EventProducerIntegrationIT {
     @Test
     @DisplayName("Should receive label applied event (licensed inventory), map, call usecase and produce the event with the correct information (including the LICENSED property)")
     public void test1() throws InterruptedException, IOException {
-        publishCreatedEvent("json/label_applied.json", LABEL_APPLIED_TOPIC);
+        kafkaHelper.publishEvent("json/label_applied.json", LABEL_APPLIED_TOPIC);
         assertProducedMessageValues("W123456789012", "E0869V00", "LABEL_APPLIED", "LICENSED", List.of("AVAILABLE", "LABELED"));
     }
 
     @Test
     @DisplayName("Should receive label applied event (unlicensed inventory), map, call usecase and produce the event with the correct information (including the UNLICENSED property)")
     public void test2() throws InterruptedException, IOException {
-        publishCreatedEvent("json/label_applied_unlicensed.json", LABEL_APPLIED_TOPIC);
+        kafkaHelper.publishEvent("json/label_applied_unlicensed.json", LABEL_APPLIED_TOPIC);
         assertProducedMessageValues("W123456789012", "E0869V00", "LABEL_APPLIED", "LICENSED", List.of("AVAILABLE", "LABELED"));
     }
 
     @Test
     @DisplayName("Should receive shipment completed event, map, call usecase and not generate kafka event since the product is not labeled")
     public void test3() throws InterruptedException, IOException {
-        publishCreatedEvent("json/shipment_completed.json", SHIPMENT_COMPLETED_TOPIC);
+        kafkaHelper.publishEvent("json/shipment_completed.json", SHIPMENT_COMPLETED_TOPIC);
         assertNoMessageProduced();
     }
 
@@ -135,10 +134,6 @@ public class EventProducerIntegrationIT {
     private void labelAndAssertProducedMessageValues(String unitNumber, String productCode, List<String> expectedStatuses) throws IOException, InterruptedException {
         publishCreatedEventWithTemplate(unitNumber, productCode, "json/label_applied_template.json", LABEL_APPLIED_TOPIC);
         assertProducedMessageValues("W123456789012", "E0869V00", "LABEL_APPLIED", "LICENSED", expectedStatuses);
-    }
-
-    private JsonNode publishCreatedEvent(String path, String topic) throws IOException, InterruptedException {
-        return publishCreatedEventWithTemplate("", "", path, topic);
     }
 
     private JsonNode publishCreatedEventWithTemplate(String unitNumber, String productCode, String path, String topic) throws IOException, InterruptedException {
@@ -182,5 +177,4 @@ public class EventProducerIntegrationIT {
 
         assertThat(receivedMessage).isNull();
     }
-
 }
