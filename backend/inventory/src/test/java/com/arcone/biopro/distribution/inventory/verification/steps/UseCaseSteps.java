@@ -181,7 +181,7 @@ public class UseCaseSteps {
     }
 
     @When("I received a Recovered Plasma Carton Packed Event for carton number {string}")
-    public void IReceivedRecoveredPlasmaCartonPacked(String cartonNumber, DataTable dataTable) {
+    public void iReceivedRecoveredPlasmaCartonPacked(String cartonNumber, DataTable dataTable) {
 
         List<Map<String, String>> products = dataTable.asMaps(String.class, String.class);
         List<PackedProductInput> packedProducts = new ArrayList<>();
@@ -204,7 +204,7 @@ public class UseCaseSteps {
     }
 
     @When("I received a Recovered Plasma Carton Removed Event for carton number {string}")
-    public void IReceivedRecoveredPlasmaCartonRemoved(String cartonNumber, DataTable dataTable) {
+    public void iReceivedRecoveredPlasmaCartonRemoved(String cartonNumber, DataTable dataTable) {
 
         List<Map<String, String>> products = dataTable.asMaps(String.class, String.class);
         List<PackedProductInput> packedProducts = new ArrayList<>();
@@ -276,6 +276,13 @@ public class UseCaseSteps {
                     break;
                 case "Product Stored":
                     iReceivedAProductStorageEventWithUnitProductDeviceStorageLocationAndLocation(unitNumber, productCode, deviceStorage, storageLocation, location);
+                    break;
+                case "Recovered Plasma Carton Packed":
+                    iReceivedRecoveredPlasmaCartonPacked("CN001", dataTable);
+                    break;
+                case "Recovered Plasma Carton Removed":
+                    iReceivedRecoveredPlasmaCartonRemoved("CN001", dataTable);
+                    break;
                 default:
                     break;
             }

@@ -49,7 +49,7 @@ public class RecoveredPlasmaCartonRemovedUseCase implements UseCase<Mono<Invento
             .collectList()
             .map(List::getLast)
             .map(InventoryAggregate::getInventory)
-            .doOnSuccess(inventory -> inventoryEventPublisher.publish(new InventoryUpdatedApplicationEvent(inventory, InventoryUpdateType.PACKED)))
+            .doOnSuccess(inventory -> inventoryEventPublisher.publish(new InventoryUpdatedApplicationEvent(inventory, InventoryUpdateType.UNPACKED)))
             .map(inventoryOutputMapper::toOutput);
     }
 
