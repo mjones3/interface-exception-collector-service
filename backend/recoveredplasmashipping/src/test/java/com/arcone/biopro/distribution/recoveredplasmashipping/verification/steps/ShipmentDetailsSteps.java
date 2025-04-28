@@ -122,12 +122,22 @@ public class ShipmentDetailsSteps {
         Assert.assertEquals(table.get("Total Cartons"), shipmentResponse.get("totalCartons").toString());
         Assert.assertEquals(Integer.parseInt(table.get("Total Cartons")), cartonResponseList.size());
 
-        AtomicReference<Integer> index = new AtomicReference<>(0);
-        cartonResponseList.forEach(carton -> {
+        if(table.get("Shipment Status")!=null){
+            Assert.assertEquals(table.get("Shipment Status"), shipmentResponse.get("status").toString());
+        }
+
+        if(table.get("Shipment Number") != null){
+            Assert.assertTrue(shipmentResponse.get("shipmentNumber").toString().contains(table.get("Shipment Number")));
+        }
+
+        if(table.get("Carton Number Prefix") != null){
+            AtomicReference<Integer> index = new AtomicReference<>(0);
+            cartonResponseList.forEach(carton -> {
                 Assert.assertTrue(carton.get("cartonNumber").toString().contains(utils.getCommaSeparatedList(table.get("Carton Number Prefix"))[index.get()]));
                 Assert.assertEquals(carton.get("cartonSequence").toString(),utils.getCommaSeparatedList(table.get("Sequence Number"))[index.get()]);
                 index.getAndSet(index.get() + 1);
             });
+        }
     }
 
     @Then("I should see the list of cartons added to the shipment containing:")

@@ -41,7 +41,7 @@ import handleApolloError from '../../../../shared/utils/apollo-error-handling';
 import {
     RecoveredPlasmaShipmentQueryCommandRequestDTO,
     RecoveredPlasmaShipmentReportDTO,
-    RecoveredPlasmaShipmentStatus,
+    RecoveredPlasmaShipmentStatus, RecoveredPlasmaShipmentStatusMap
 } from '../../graphql/query-definitions/shipment.graphql';
 import { RecoveredPlasmaService } from '../../services/recovered-plasma.service';
 import { CreateShipmentComponent } from '../create-shipment/create-shipment.component';
@@ -311,6 +311,8 @@ export class SearchShipmentComponent implements OnInit {
                 return 'text-sm font-bold py-1.5 px-2 badge rounded-full bg-gray-200 text-gray-700';
             case 'CLOSED':
                 return 'text-sm font-bold py-1.5 px-2 badge rounded-full bg-blue-200 text-blue-700';
+            case 'IN_PROGRESS':
+                return 'text-sm font-bold py-1.5 px-2 badge rounded-full bg-[#FFEDD5] text-[#C2410C]';
             default:
                 return '';
         }
@@ -319,4 +321,5 @@ export class SearchShipmentComponent implements OnInit {
         this.router.navigateByUrl(`/recovered-plasma/${id}/shipment-details`);
     }
 
+    protected readonly RecoveredPlasmaShipmentStatusMap = RecoveredPlasmaShipmentStatusMap;
 }
