@@ -18,21 +18,24 @@ Feature: Verify Recovered Plasma Products
             | 5                                     | MAXIMUM_UNITS_BY_CARTON | 20    | Maximum number of products exceeded    | WARN         |
             | 6                                     | MAXIMUM_UNITS_BY_CARTON | 20    | Maximum number of products exceeded    | WARN         |
 
+
         Rule: I should be able to perform a second scan of the unit number and product code. (Verify Products in the Carton by second scan of unit number and product code)
         Rule: I should be able to confirm that a second verification of the products in the carton has been completed (Have a visual indicator for second verification of products)
         Rule: I should be able to view shipping information.
         Rule: I should be able to view carton information.
-
+        ## This is no longer needed as the user will be able to go back to the step 1 and add more products anytime
+        Rule: I should have an option to add more products in the carton when a product fails a validation.
         @ui @DIS-341
         Scenario Outline: Successfully verify products in carton by second scan
             Given I have an empty carton created with the Customer Code as "<Customer Code>" , Product Type as "<Product Type>", Carton Tare Weight as "<Carton Tare Weight>", Shipment Date as "<Shipment Date>", Transportation Reference Number as "<Transportation Reference Number>" and Location Code as "<Location Code>".
             And The Minimum Number of Units in Carton is configured as "<configured_min_products>" products for the customer code "<Customer Code>" and product type "<Product Type>".
-            And I have packed the unit numbers "<unit_number>", product codes "<product_code>" and product types "<product_type>".
-            When I navigate to the shipment details page for the last shipment created.
-            When I choose to verify carton sequence "<carton_sequence>".
-            Then I should be redirected to the Verify Product page.
+            And I navigate to the Manage Carton Products page for the carton sequence number <Carton Sequence Number>.
+            When I add an "acceptable" product with the unit number "<unit_number>", product code "<product_code>" and product type "<product_type>".
+            Then The verify products option should be "enable"
+            And I choose to verify products.
             When I scan an "acceptable" product with the unit number "<unit_number>", product code "<product_code>" and product type "<product_type>".
             Then I should see the product in the verified list with unit number "<unit_number>" and product code "<product_code>".
+            And The close carton option should be "enable"
             Examples:
                 | Customer Code | Product Type              | Carton Tare Weight | Shipment Date | Transportation Reference Number | Location Code |   configured_min_products | unit_number                      | product_code           | product_type                                           | carton_sequence |
                 | 408           | RP_FROZEN_WITHIN_24_HOURS | 1000               | <tomorrow>    | DIS-339                         | 123456789     |  2                       | =W03689878680600,=W03689878680700 | =<E2488V00, =<E2488V00 | RP_NONINJECTABLE_LIQUID_RT, RP_NONINJECTABLE_LIQUID_RT | 1               |
@@ -44,12 +47,7 @@ Feature: Verify Recovered Plasma Products
         Rule: I should not be able to verify discarded products in the carton and be notified.
         Rule: I should not be able to verify quarantined products in the carton and be notified.
         Rule: I should not be able to verify expired products in the carton and be notified.
-        #need confirmation whether products should be removed on each error type, or only when its unsuitable
-        # first differentiate between unsuitable and unacceptable,
-        #should we remove  unsuitable and unacceptable?
-        # message that are used in add carton products cannot be used in verify products when there is an error, because system is reset and removing products.
         Rule: The system should automatically remove the products that are unacceptable from the carton.
-        Rule: I should have an option to add more products in the carton when a product fails a validation.
         @api @DIS-341
         Scenario Outline: Attempt to verify unsuitable products in carton
             Given I have an empty carton created with the Customer Code as "<Customer Code>" , Product Type as "<Product Type>", Carton Tare Weight as "<Carton Tare Weight>", Shipment Date as "<Shipment Date>", Transportation Reference Number as "<Transportation Reference Number>" and Location Code as "<Location Code>".
@@ -59,7 +57,6 @@ Feature: Verify Recovered Plasma Products
             Then I should receive a "<error_type>" message response "<error_message>".
             And The product unit number "<unit_number>" and product code "<product_code>" "should not" be added to the verified list.
             And The product unit number "<unit_number>" and product code "<product_code>" "should not" be packed in the carton.
-            And I should be able to add more products in the carton.
             Examples:
                 | Customer Code | Product Type               | Carton Tare Weight | Shipment Date | Transportation Reference Number | Location Code    | unit_number   | product_code | product_type               | error_type | error_message                                                                 |
                 | 408           | RP_FROZEN_WITHIN_120_HOURS | 1000               | <tomorrow>    | DIS-339                         | 123456789_DIS339 | W036898786905 | E6022V00     | RP_FROZEN_WITHIN_120_HOURS | WARN       | This product is not in the inventory and cannot be shipped                    |
@@ -82,7 +79,8 @@ Feature: Verify Recovered Plasma Products
             Then The product unit number "W036898786800" and product code "E6022V00" "should" be varified in the carton.
             When I verify an "acceptable" product with the unit number "W036898786800", product code "E6022V00" and product type "RP_FROZEN_WITHIN_120_HOURS".
             Then I should receive a "WARN" message response "This product has already been verified. Please re-scan all the products in the carton.".
-            And The product unit number "W036898786800" and product code "E6022V00" "should not" be varified in the carton.
+            And The product unit number "W036898786800" and product code "E6022V00" "should not" be verified in the carton.
+             ## Check if the packed list and verified list are empty
             And The carton verification should reset.
 
 
@@ -95,7 +93,8 @@ Feature: Verify Recovered Plasma Products
                 And I have packed the unit number "W036898786800", product codes "E6022V00" and product types "RP_FROZEN_WITHIN_120_HOURS".
                 When I verify an "acceptable" product with the unit number "W036898786801", product code "E6022V00" and product type "RP_FROZEN_WITHIN_120_HOURS".
                 Then I should receive a "WARN" message response "The verification does not match all products in this carton. Please re-scan all the products.".
-                And The product unit number "W036898786800" and product code "E6022V00" "should not" be varified in the carton.
+                And The product unit number "W036898786800" and product code "E6022V00" "should not" be verified in the carton.
+                ## Check if the packed list and verified list are empty
                 And The carton verification should reset.
 
 
@@ -109,7 +108,7 @@ Feature: Verify Recovered Plasma Products
             When I verify a product with the unit number "<unit_number>", product code "<product_code>" and volume "<product_volume>".
             Then I should receive a "WARN" message response "Product Volume does not match criteria".
             And The product unit number "<unit_number>" and product code "<product_code>" "should not" be verified in the carton.
-            #need confirmation whether products should be removed on each error type, or only when its unsuitable
+            ## Check if the packed list and verified list are empty
             And The carton verification should reset.
             Examples:
                 | Customer Code | Product Type              | Carton Tare Weight | Shipment Date | Transportation Reference Number | Location Code | configured_volume | unit_number   | product_code | product_volume |
