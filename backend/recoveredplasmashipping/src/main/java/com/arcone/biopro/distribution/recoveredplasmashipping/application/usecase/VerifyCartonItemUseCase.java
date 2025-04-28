@@ -41,7 +41,7 @@ public class VerifyCartonItemUseCase implements VerifyCartonService {
     private final RecoveredPlasmaShippingRepository recoveredPlasmaShippingRepository;
     private final CartonRepository cartonRepository;
     private final CartonOutputMapper cartonOutputMapper;
-    private static final String CARTON_DETAILS_PAGE = "/recovered-plasma/%s/carton-details?rescan=true";
+    private static final String CARTON_DETAILS_PAGE = "/recovered-plasma/%s/carton-details?step=0&reset=true&resetMessage=Products removed due to failure, repeat process";
 
     @Override
     @Transactional

@@ -3,7 +3,7 @@ package com.arcone.biopro.distribution.recoveredplasmashipping.unit.application.
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.PackCartonItemCommandInput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.UseCaseMessageType;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.UseCaseNotificationType;
-import com.arcone.biopro.distribution.recoveredplasmashipping.application.mapper.CartonItemOutputMapper;
+import com.arcone.biopro.distribution.recoveredplasmashipping.application.mapper.CartonOutputMapper;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.usecase.PackCartonItemUseCase;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.exception.ProductCriteriaValidationException;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.exception.ProductValidationException;
@@ -32,6 +32,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
 
@@ -49,14 +50,14 @@ class PackCartonItemUseCaseTest {
     @Mock
     private CartonRepository cartonRepository;
 
-    private CartonItemOutputMapper cartonItemOutputMapper = Mappers.getMapper(CartonItemOutputMapper.class);
+    private CartonOutputMapper cartonOutputMapper = Mappers.getMapper(CartonOutputMapper.class);
 
 
     private PackCartonItemUseCase packCartonItemUseCase;
 
     @BeforeEach
     public void setUp() {
-        packCartonItemUseCase = new PackCartonItemUseCase(inventoryService, cartonItemRepository, recoveredPlasmaShipmentCriteriaRepository, recoveredPlasmaShippingRepository, cartonRepository, cartonItemOutputMapper);
+        packCartonItemUseCase = new PackCartonItemUseCase(inventoryService, cartonItemRepository, recoveredPlasmaShipmentCriteriaRepository, recoveredPlasmaShippingRepository, cartonRepository, cartonOutputMapper);
     }
 
     @Test
@@ -76,10 +77,8 @@ class PackCartonItemUseCaseTest {
         CartonItem cartonItem = Mockito.mock(CartonItem.class);
 
 
-        Mockito.when(cartonRepository.findOneById(cartonId))
-            .thenReturn(Mono.just(carton));
-        when(cartonItemRepository.save(any(CartonItem.class)))
-            .thenReturn(Mono.just(cartonItem));
+        Mockito.when(cartonRepository.findOneById(any())).thenReturn(Mono.just(carton));
+        when(cartonItemRepository.save(any(CartonItem.class))).thenReturn(Mono.just(cartonItem));
 
         when(carton.packItem(any(PackItemCommand.class),Mockito.any(InventoryService.class),Mockito.any(CartonItemRepository.class),Mockito.any(RecoveredPlasmaShipmentCriteriaRepository.class),Mockito.any(RecoveredPlasmaShippingRepository.class))).thenReturn(cartonItem);
 
@@ -101,27 +100,26 @@ class PackCartonItemUseCaseTest {
     }
 
     @Test
-    void shouldHandleGenericError() {
+    void shouldHandleCartonNotFoundError() {
         // Arrange
         Long cartonId = 123L;
         PackCartonItemCommandInput input = new PackCartonItemCommandInput(
             cartonId, "UNIT001", "PROD001", "EMP001", "LOC001"
         );
 
-        Carton carton = Mockito.mock(Carton.class); // Create with necessary data
-        RuntimeException genericException = new RuntimeException("Unexpected error");
 
-        when(cartonRepository.findOneById(cartonId)).thenReturn(Mono.error(genericException));
+
+        when(cartonRepository.findOneById(any())).thenReturn(Mono.empty());
 
         // Act & Assert
         StepVerifier.create(packCartonItemUseCase.packItem(input))
             .assertNext(output -> {
-                assertNotNull(output);
+                assertNull(output.data());
                 assertNotNull(output.notifications());
                 assertEquals(1, output.notifications().size());
-                assertEquals(8, output.notifications().get(0).useCaseMessage().code());
-                assertEquals(genericException.getMessage(), output.notifications().get(0).useCaseMessage().message());
-                assertEquals(UseCaseNotificationType.WARN,output.notifications().get(0).useCaseMessage().type());
+                assertEquals(10, output.notifications().get(0).useCaseMessage().code());
+                assertEquals("Carton Item packed error. Contact Support.", output.notifications().get(0).useCaseMessage().message());
+                assertEquals(UseCaseNotificationType.SYSTEM,output.notifications().get(0).useCaseMessage().type());
             })
             .verifyComplete();
     }

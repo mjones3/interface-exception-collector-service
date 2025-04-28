@@ -16,7 +16,8 @@ public enum UseCaseMessageType {
     CARTON_GENERATION_ERROR(6,  UseCaseNotificationType.SYSTEM, "Carton generation error. Contact Support."),
     CARTON_ITEM_PACKED_SUCCESS(7,  UseCaseNotificationType.SUCCESS, "Carton Item packed successfully"),
     VERIFY_CARTON_ITEM_SUCCESS(8,  UseCaseNotificationType.SUCCESS, "Carton Item verified successfully"),
-    CARTON_VERIFICATION_ERROR(9,  UseCaseNotificationType.SYSTEM, "Carton verification error. Contact Support.");;
+    CARTON_VERIFICATION_ERROR(9,  UseCaseNotificationType.SYSTEM, "Carton verification error. Contact Support."),
+    CARTON_ITEM_PACKED_ERROR(10,  UseCaseNotificationType.SYSTEM, "Carton Item packed error. Contact Support.");
 
     Integer code;
     UseCaseNotificationType type;
