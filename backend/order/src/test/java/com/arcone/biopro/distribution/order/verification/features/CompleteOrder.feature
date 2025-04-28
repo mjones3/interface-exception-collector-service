@@ -75,7 +75,8 @@ Feature: Complete Order
         Rule: The status of the backorder must be assigned as “Open”.
         Rule: The backorder must be visible in the system.
         Rule: The backorder must contain the same external ID as the original order.
-        @api @DIS-175
+        Rule: Back orders should have the same original desired ship date if the date is in the future.
+        @api @DIS-175 @DIS-285 @bug
         Scenario Outline: Complete an order with back order configuration <Back Order Config>
             Given I have an order with external ID "EXTDIS11105" partially fulfilled with a shipment "<Shipment Status>".
             And I have Shipped "<Shipped Quantity>" products of each item line.
@@ -85,11 +86,12 @@ Feature: Complete Order
             When I request to complete the order.
             Then The order status should be "COMPLETED".
             And I "<Option>" have <Remaining Quantity> remaining products as part of the back order created.
+            And I "<Option>" have the back order created with the same desired shipping date as the original order.
 
             Examples:
                 | Shipment Status | Back Order Config | Option     | Shipped Quantity | Remaining Quantity |
-                | COMPLETED       | false             | should not | 2                | 8                  |
                 | COMPLETED       | true              | should     | 3                | 7                  |
+                | COMPLETED       | false             | should not | 2                | 8                  |
 
             Scenario: Database cleanup
                 Given I cleaned up from the database the orders with external ID starting with "EXTDIS111".

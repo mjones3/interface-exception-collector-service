@@ -21,6 +21,15 @@ Feature: Validate order
             | DIS336000000003 | order-inbound-scenario-DIS-336_prt-apheresis-platelets.json  |
             | DIS337000000001 | order-inbound-scenario-DIS-337_frozen-rbc.json               |
 
+    @DIS-377 @rc
+    Scenario Outline: Creating a BioPro order using a custom shipping method configuration from a valid order inbound request
+        Given I have received an order inbound request with externalId "<External ID>", shipping method as "<Shipping Method>" and content "<JsonPayloadName>".
+        When The system process the order request.
+        Then A biopro Order will be available in the Distribution local data store.
+        Examples:
+            | External ID     | JsonPayloadName                                     | Shipping Method |
+            | 114117922233500 | order-inbound-scenario-shipment-method-default.json | DEFAULT         |
+
     @DIS-92 @DIS-336
     Scenario Outline: Creating a BioPro order from an invalid order inbound request
         Given I have received an order inbound request with externalId "<External ID>" and content "<JsonPayloadName>".

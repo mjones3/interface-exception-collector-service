@@ -4,7 +4,6 @@ import com.arcone.biopro.distribution.shipping.verification.pages.distribution.F
 import com.arcone.biopro.distribution.shipping.verification.pages.distribution.HomePage;
 import com.arcone.biopro.distribution.shipping.verification.pages.distribution.ShipmentDetailPage;
 import com.arcone.biopro.distribution.shipping.verification.support.KafkaHelper;
-import com.arcone.biopro.distribution.shipping.verification.support.ScreenshotService;
 import com.arcone.biopro.distribution.shipping.verification.support.SharedContext;
 import com.arcone.biopro.distribution.shipping.verification.support.StaticValuesMapper;
 import com.arcone.biopro.distribution.shipping.verification.support.TestUtils;
@@ -22,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
@@ -60,13 +58,6 @@ public class ShipmentFulfillmentSteps {
 
     @Autowired
     private HomePage homePage;
-
-    @Autowired
-    private ScreenshotService screenshot;
-
-    @Value("${save.all.screenshots}")
-    private boolean saveAllScreenshots;
-
 
     @Autowired
     private FillProductsPage fillProductsPage;
@@ -112,7 +103,6 @@ public class ShipmentFulfillmentSteps {
         Long shipmentId = shipmentTestingController.getOrderShipmentId(orderNumber);
         homePage.goTo();
         this.shipmentDetailPage.goTo(shipmentId);
-        screenshot.attachConditionalScreenshot(saveAllScreenshots);
     }
 
 
@@ -517,9 +507,16 @@ public class ShipmentFulfillmentSteps {
         if("NULL_VALUE".equals(shippingDate)) {
             shippingDate = null;
         }
-        context.setOrderNumber(shipmentTestingController.createShippingRequest(Long.valueOf(orderNumber), priority,shippingDate ));
+        context.setOrderNumber(shipmentTestingController.createShippingRequest(Long.valueOf(orderNumber), priority,shippingDate, null));
         this.orderPriority = priority;
 
+    }
+
+    @When("I receive a shipment fulfillment request event for the order number {string} and shipping method {string}.")
+    public void receiveFulfillmentOrderRequest(String orderNumber, String shippingMethod) throws Exception {
+        var samplePriority = "ASAP";
+        context.setOrderNumber(shipmentTestingController.createShippingRequest(Long.valueOf(orderNumber), samplePriority, null, shippingMethod));
+        this.orderPriority = samplePriority;
     }
 
     @Then("I should receive a {string} message {string}.")
