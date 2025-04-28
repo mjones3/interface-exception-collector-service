@@ -95,7 +95,7 @@ class RecoveredPlasmaShipmentQueryCommandTest {
         );
 
         // Then
-        assertThat(command.getShipmentStatus()).isEqualTo(List.of("OPEN"));
+        assertThat(command.getShipmentStatus()).isEqualTo(List.of("OPEN","IN_PROGRESS"));
         assertThat(command.getPageNumber()).isEqualTo(0);
         assertThat(command.getPageSize()).isEqualTo(20);
         assertThat(command.getQuerySort()).isNotNull();
@@ -105,7 +105,7 @@ class RecoveredPlasmaShipmentQueryCommandTest {
     @DisplayName("Should throw exception when page size is invalid")
     void shouldThrowExceptionWhenPageSizeIsInvalid() {
         assertThatThrownBy(() -> new RecoveredPlasmaShipmentQueryCommand(
-            List.of("LOC1"), null, List.of("OPEN"), null, null,
+            List.of("LOC1"), null, List.of("OPEN","IN_PROGRESS"), null, null,
             null, null, null, 0, 0, null
         ))
             .isInstanceOf(IllegalArgumentException.class)
@@ -116,7 +116,7 @@ class RecoveredPlasmaShipmentQueryCommandTest {
     @DisplayName("Should throw exception when page number is invalid")
     void shouldThrowExceptionWhenPageNumberIsInvalid() {
         assertThatThrownBy(() -> new RecoveredPlasmaShipmentQueryCommand(
-            List.of("LOC1"), null, List.of("OPEN"), null, null,
+            List.of("LOC1"), null, List.of("OPEN","IN_PROGRESS"), null, null,
             null, null, null, -1, 10, null
         ))
             .isInstanceOf(IllegalArgumentException.class)

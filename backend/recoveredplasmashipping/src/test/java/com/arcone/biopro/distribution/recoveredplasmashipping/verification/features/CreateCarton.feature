@@ -41,7 +41,7 @@ Feature: Create Carton
                 | Customer Code              | 410                           |
                 | Customer Name              | BIO PRODUCTS                  |
                 | Product Type               | RP NONINJECTABLE REFRIGERATED |
-                | Shipment Status            | OPEN                          |
+                | Shipment Status            | IN PROGRESS                   |
                 | Shipment Date              | <tomorrow>                    |
                 | Transportation Ref. Number | DIS338                        |
                 | Total Cartons              | 1                             |

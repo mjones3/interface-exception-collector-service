@@ -98,8 +98,6 @@ Feature: Filter Shipments
             And The list shipment response should be ordered by "status,shipmentDate".
 
 
-         ## Check with Archana about update the default status currently it is only OPEN
-         ## Check with Ram/Lorena what is the default style for IN Progress Status
         Rule: I should be able to search shipments by In Progress shipping status.
         @api @DIS-378
         Scenario: Search for shipments by status

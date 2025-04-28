@@ -21,7 +21,7 @@ public class RecoveredPlasmaShipmentQueryCommand implements Validatable, FilterA
     private static final int SHIPMENT_DATE_RANGE_YEARS_LIMIT = 2;
     private static final Integer DEFAULT_PAGE_NUMBER_FIRST_PAGE = 0;
     private static final Integer DEFAULT_PAGE_SIZE = 20;
-    private static final List<String> DEFAULT_STATUSES = List.of("OPEN");
+    private static final List<String> DEFAULT_STATUSES = List.of("OPEN","IN_PROGRESS");
     private static final List<QueryOrderBy> DEFAULT_SORTING = List.of(
         new QueryOrderBy("status", "DESC"),
         new QueryOrderBy("shipment_date", "ASC"),

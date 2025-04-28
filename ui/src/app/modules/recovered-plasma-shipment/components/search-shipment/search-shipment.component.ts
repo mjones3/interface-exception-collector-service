@@ -312,7 +312,7 @@ export class SearchShipmentComponent implements OnInit {
             case 'CLOSED':
                 return 'text-sm font-bold py-1.5 px-2 badge rounded-full bg-blue-200 text-blue-700';
             case 'IN_PROGRESS':
-                return 'text-sm font-bold py-1.5 px-2 badge rounded-full bg-white-200 text-orange-700';
+                return 'text-sm font-bold py-1.5 px-2 badge rounded-full bg-[#FFEDD5] text-[#C2410C]';
             default:
                 return '';
         }
