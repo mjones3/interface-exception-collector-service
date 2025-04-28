@@ -19,16 +19,14 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import static com.arcone.biopro.distribution.inventory.verification.steps.KafkaListenersSteps.*;
 import static com.arcone.biopro.distribution.inventory.verification.steps.UseCaseSteps.quarantineReasonMap;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -229,6 +227,10 @@ public class RepositorySteps {
 
             if(headers.contains("Is Labeled")){
                 inventoryEntity.setIsLabeled(Boolean.valueOf(inventory.get("Is Labeled")));
+            }
+
+            if(headers.contains("Carton Number")){
+                inventoryEntity.setCartonNumber(inventory.get("Carton Number"));
             }
 
             if(headers.contains("Expires In Days")) {

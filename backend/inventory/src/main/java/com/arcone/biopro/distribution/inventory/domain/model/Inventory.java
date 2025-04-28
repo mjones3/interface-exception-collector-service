@@ -64,13 +64,16 @@ public class Inventory {
 
     String comments;
 
-    private String deviceStored;
+    String deviceStored;
 
-    private String storageLocation;
+    String storageLocation;
 
-    private String unsuitableReason;
+    String unsuitableReason;
 
-    private String temperatureCategory;
+    String temperatureCategory;
+
+    String cartonNumber;
+
 
     @Builder.Default
     List<Volume> volumes = new ArrayList<>();

@@ -122,6 +122,9 @@ public class InventoryEntity implements Serializable, Persistable<UUID> {
     @Column("temperature_category")
     String temperatureCategory;
 
+    @Column("carton_number")
+    String cartonNumber;
+
     @Column("volumes")
     List<Volume> volumes;
 

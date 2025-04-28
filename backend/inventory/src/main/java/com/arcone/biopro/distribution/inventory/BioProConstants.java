@@ -8,6 +8,9 @@ public interface BioProConstants {
 
     String UNIT_UNSUITABLE_TOPIC = "UnitUnsuitable";
     String PRODUCT_UNSUITABLE_TOPIC = "ProductUnsuitable";
+
+    String RECOVER_PLASMA_CARTON_PACKED_TOPIC = "RecoveredPlasmaCartonPacked";
+    String RECOVER_PLASMA_CARTON_REMOVED_TOPIC = "RecoveredPlasmaCartonRemoved";
     String SHIPMENT_COMPLETED_TOPIC = "ShipmentCompleted";
     String LABEL_APPLIED_TOPIC = "LabelApplied";
     String CHECK_IN_COMPLETED_TOPIC = "CheckInCompleted";

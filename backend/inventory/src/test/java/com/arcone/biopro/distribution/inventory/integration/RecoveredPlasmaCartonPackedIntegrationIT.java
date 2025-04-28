@@ -1,7 +1,7 @@
 package com.arcone.biopro.distribution.inventory.integration;
 
-import com.arcone.biopro.distribution.inventory.application.dto.UnsuitableInput;
-import com.arcone.biopro.distribution.inventory.application.usecase.UnsuitableUseCase;
+import com.arcone.biopro.distribution.inventory.application.dto.RecoveredPlasmaCartonPackedInput;
+import com.arcone.biopro.distribution.inventory.application.usecase.RecoveredPlasmaCartonPackedUseCase;
 import com.arcone.biopro.distribution.inventory.verification.utils.KafkaHelper;
 import com.arcone.biopro.distribution.inventory.verification.utils.LogMonitor;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,18 +31,18 @@ import static org.mockito.Mockito.*;
     properties = {
         "spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}",
         "spring.kafka.consumer.auto-offset-reset=earliest",
-        "spring.kafka.consumer.group-id=unsuitable-test-group",
+        "spring.kafka.consumer.group-id=recovered_plasma_carton_removed-test-group",
         "default.location=TestLocation"
     })
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @EmbeddedKafka(partitions = 1, brokerProperties = {"listeners=PLAINTEXT://localhost:9096", "port=9096"})
-public class ProductUnsuitableIntegrationIT {
+public class RecoveredPlasmaCartonPackedIntegrationIT {
 
     @Autowired
     private KafkaHelper kafkaHelper;
 
     @MockBean
-    private UnsuitableUseCase useCase;
+    private RecoveredPlasmaCartonPackedUseCase useCase;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -52,34 +52,20 @@ public class ProductUnsuitableIntegrationIT {
 
     @BeforeEach
     void setUp() {
-        when(useCase.execute(any(UnsuitableInput.class))).thenReturn(Mono.empty());
+        when(useCase.execute(any(RecoveredPlasmaCartonPackedInput.class))).thenReturn(Mono.empty());
     }
 
     @Test
-    @DisplayName("should publish, listen, map and call use case with correct converted inputs for Product Unsuitable")
+    @DisplayName("should publish, listen recovery plasma carton packed event")
     public void test1() throws InterruptedException, IOException {
-        var payloadJson = kafkaHelper.publishEvent("json/product_unsuitable.json", PRODUCT_UNSUITABLE_TOPIC);
-        ArgumentCaptor<UnsuitableInput> captor = ArgumentCaptor.forClass(UnsuitableInput.class);
+        var payloadJson = kafkaHelper.publishEvent("json/recovered_plasma_carton_packed.json", RECOVER_PLASMA_CARTON_PACKED_TOPIC);
+        ArgumentCaptor<RecoveredPlasmaCartonPackedInput> captor = ArgumentCaptor.forClass(RecoveredPlasmaCartonPackedInput.class);
         verify(useCase, times(1)).execute(captor.capture());
-        UnsuitableInput capturedInput = captor.getValue();
+        RecoveredPlasmaCartonPackedInput capturedInput = captor.getValue();
 
         assertThat(capturedInput).isNotNull();
-        assertThat(capturedInput.unitNumber()).isEqualTo(payloadJson.path(PAYLOAD).path("unitNumber").asText());
-        assertThat(capturedInput.productCode()).isEqualTo(payloadJson.path(PAYLOAD).path("productCode").asText());
-        assertThat(capturedInput.reasonKey()).isEqualTo(payloadJson.path(PAYLOAD).path("reasonKey").asText());
-    }
-
-    @Test
-    @DisplayName("should publish, listen, map and call use case with correct converted inputs for Unit Unsuitable")
-    public void test2() throws InterruptedException, IOException {
-        var payloadJson = kafkaHelper.publishEvent("json/unit_unsuitable.json", UNIT_UNSUITABLE_TOPIC);
-        ArgumentCaptor<UnsuitableInput> captor = ArgumentCaptor.forClass(UnsuitableInput.class);
-        verify(useCase, times(1)).execute(captor.capture());
-        UnsuitableInput capturedInput = captor.getValue();
-
-        assertThat(capturedInput).isNotNull();
-        assertThat(capturedInput.unitNumber()).isEqualTo(payloadJson.path(PAYLOAD).path("unitNumber").asText());
-        assertThat(capturedInput.productCode()).isNull();
-        assertThat(capturedInput.reasonKey()).isEqualTo(payloadJson.path(PAYLOAD).path("reasonKey").asText());
+        assertThat(capturedInput.cartonNumber()).isEqualTo(payloadJson.path(PAYLOAD).path("cartonNumber").asText());
+        assertThat(capturedInput.packedProducts().size()).isEqualTo(1);
+        assertThat(capturedInput.packedProducts().getFirst().status()).isEqualTo("PACKED");
     }
 }
