@@ -1,0 +1,13 @@
+{
+  "eventType": "ProductDiscarded",
+  "eventVersion": "1.0",
+  "payload": {
+    "unitNumber": "W036825005001",
+    "productCode": "E0869A0",
+    "reasonDescriptionKey": "ADDITIVE_SOLUTION_ISSUES",
+    "comments": "The comments about discarded product",
+    "triggeredBy": "USER_ID",
+    "performedBy": "USER_ID",
+    "createDate": "2024-07-01T00:10:00Z"
+  }
+}

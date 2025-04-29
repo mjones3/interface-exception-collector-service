@@ -174,6 +174,25 @@ public class UseCaseSteps {
         }
     }
 
+    @When("I received a Product Stored event for the following products:")
+    public void iReceivedAProductStoredEventForTheFollowingProducts(DataTable dataTable) {
+        List<Map<String, String>> products = dataTable.asMaps(String.class, String.class);
+        for (Map<String, String> product : products) {
+            String unitNumber = product.get("Unit Number");
+            String productCode = product.get("Product Code");
+            String reason = product.get("Reason");
+            String comments = null;
+            if (product.containsKey("Comments")) {
+                comments = product.get("Comments");
+            }
+            if (product.containsKey("Comment Length")) {
+                comments = RandomStringUtils.randomAlphabetic(Integer.parseInt(product.get("Comment Length")));
+            }
+            productDiscardedUseCase.execute(inventoryUtil.newProductDiscardedInput(unitNumber, productCode, reason, comments)).block();
+        }
+    }
+
+
 
     @When("I received a Unit Unsuitable event with unit number {string} and reason {string}")
     public void iReceivedAUnitUnsuitableEventWithUnitNumberAndReason(String unitNumber, String reason) {
