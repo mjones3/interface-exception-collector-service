@@ -5,6 +5,7 @@ Feature: Shipment Creation
     Background:
         Given I have removed from the database all the configurations for the location "123456789_TEST".
         And I have removed from the database all shipments which code contains with "DIS33300".
+        And I have removed from the database all shipments which code contains with "DIS37100".
 
     @ui @DIS-333
     Scenario: Successful shipment creation
@@ -41,11 +42,35 @@ Feature: Shipment Creation
                 | customer_code                   | 408                        |
                 | product_type                    | RP_FROZEN_WITHIN_120_HOURS |
                 | status                          | OPEN                       |
-                | carton_tare_weight              | 1000.0                       |
+                | carton_tare_weight              | 1000.0                     |
                 | create_date                     | <not_null>                 |
                 | transportation_reference_number | <null>                     |
                 | location_code                   | 123456789_TEST             |
                 | shipment_date                   | <not_null>                 |
+
+        Rule: I should be able to create a shipment with the Ship Date as optional.
+        @api @DIS-371
+        Scenario: Successful shipment creation without Ship Date
+            Given The location "123456789_TEST" is configured with prefix "BPM_TEST", shipping code "DIS371001", carton prefix "BPM" and prefix configuration "Y".
+            When I request to create a new shipment with the values:
+                | Field                           | Value                      |
+                | Customer Code                   | 408                        |
+                | Product Type                    | RP_FROZEN_WITHIN_120_HOURS |
+                | Carton Tare Weight              | 1000                       |
+                | Shipment Date                   | <null>                     |
+                | Transportation Reference Number | 123456789                  |
+                | Location Code                   | 123456789_TEST             |
+            Then I should receive a "SUCCESS" message response "Shipment created successfully".
+            And The shipment should be created with the following information:
+                | Field                           | Value                      |
+                | customer_code                   | 408                        |
+                | product_type                    | RP_FROZEN_WITHIN_120_HOURS |
+                | status                          | OPEN                       |
+                | carton_tare_weight              | 1000.0                     |
+                | create_date                     | <null>                     |
+                | transportation_reference_number | 123456789                  |
+                | location_code                   | 123456789_TEST             |
+                | shipment_date                   | <null>                     |
 
         Rule: I should be required to enter Carton Tare Weight. (weight should be in gram (g))
         Rule: I should not be able to create a recovered plasma shipment for a location that is not configured for the recovered plasma shipping.
