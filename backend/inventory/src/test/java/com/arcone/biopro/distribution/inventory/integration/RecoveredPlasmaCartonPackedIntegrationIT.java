@@ -15,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 
@@ -31,7 +32,7 @@ import static org.mockito.Mockito.*;
     properties = {
         "spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}",
         "spring.kafka.consumer.auto-offset-reset=earliest",
-        "spring.kafka.consumer.group-id=recovered_plasma_carton_removed-test-group",
+        "spring.kafka.consumer.group-id=recovered_plasma_carton_packed-test-group",
         "default.location=TestLocation"
     })
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
