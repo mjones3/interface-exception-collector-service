@@ -12,7 +12,11 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.time.Duration;
+import java.util.List;
 
 /**
  * Controller for the Validate an Inventory using RSocket.
@@ -28,11 +32,27 @@ public class ValidateInventorySocketServer {
     GetAllAvailableMapper mapper;
 
     @MessageMapping("validateInventory")
-    public Mono<InventoryValidationResponseDTO> licensing(InventoryValidationRequest dto) {
+    public Mono<InventoryValidationResponseDTO> validateInventory(InventoryValidationRequest dto) {
         log.info("validateInventory to validate inventory with request: {}", dto.toString());
         return useCase.execute(mapper.toInput(dto))
             .map(mapper::toResponse)
             .doOnSuccess(response -> log.debug("response: {}", response.toString()));
+    }
+
+    @MessageMapping("validateInventoryBatch")
+    public Flux<InventoryValidationResponseDTO> validateInventoryBatch(
+        Flux<InventoryValidationRequest> requests) {
+
+        return requests
+            .windowTimeout(1000, Duration.ofSeconds(1)) // batch size of 1000 or 1 second
+            .flatMap(window -> window
+                .doOnNext(request ->
+                    log.debug("Processing inventory validation request: {}", request))
+                .flatMap(request -> useCase.execute(mapper.toInput(request)))
+                .map(mapper::toResponse)
+                .doOnError(error ->
+                    log.error("Error processing inventory validation: {}", error.getMessage()))
+            );
     }
 
 }
