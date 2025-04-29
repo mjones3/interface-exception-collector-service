@@ -204,7 +204,7 @@ public class CartonItem implements Validatable {
             .blockOptional()
             .ifPresent(count -> {
                 if(count > 0){
-                    throw new ProductValidationException("Product already used",WARN_ERROR_TYPE);
+                    throw new ProductValidationException("Product already added in a carton",WARN_ERROR_TYPE);
                 }
             });
     }
@@ -337,11 +337,11 @@ public class CartonItem implements Validatable {
             .onErrorResume(error -> {
                 throw new ProductValidationException(error.getMessage(),SYSTEM_ERROR_TYPE);
             })
-            .switchIfEmpty(Mono.error( ()-> new ProductValidationException("The verification does not match all products in this order. Please re-scan all the products.", WARN_ERROR_TYPE)))
+            .switchIfEmpty(Mono.error( ()-> new ProductValidationException("The verification does not match all products in this carton. Please re-scan all the products.", WARN_ERROR_TYPE)))
             .block();
 
         if(item != null && !item.getStatus().equals(PACKED_STATUS)){
-            throw new ProductValidationException("This product has already been verified. Please re-scan all the products in the order.",WARN_ERROR_TYPE);
+            throw new ProductValidationException("This product has already been verified. Please re-scan all the products in the carton.",WARN_ERROR_TYPE);
         }
 
         return item;

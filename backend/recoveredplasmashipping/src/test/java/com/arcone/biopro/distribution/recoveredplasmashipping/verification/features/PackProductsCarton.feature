@@ -82,7 +82,6 @@ Feature: Add Products to Carton
         When I fill an "acceptable" product with the unit number "W036898786800", product code "E6022V00" and product type "RP_FROZEN_WITHIN_120_HOURS".
         Then The product unit number "W036898786800" and product code "E6022V00" "should" be packed in the carton.
         When I fill an "acceptable" product with the unit number "W036898786800", product code "E6022V00" and product type "RP_FROZEN_WITHIN_120_HOURS".
-        ## Refactor the message in the back-end
         Then I should receive a "WARN" message response "Product already added in a carton".
         And The product unit number "W036898786800" and product code "E2534V00" "should not" be packed in the carton.
 

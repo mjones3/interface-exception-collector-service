@@ -135,7 +135,7 @@ class CartonItemTest {
 
         ProductValidationException exception = assertThrows(ProductValidationException.class,
             () -> CartonItem.createNewCartonItem(packItemCommand, cartonMock , inventoryService, cartonItemRepository, recoveredPlasmaShippingRepository , recoveredPlasmaShipmentCriteriaRepository));
-        assertEquals("Product already used", exception.getMessage());
+        assertEquals("Product already added in a carton", exception.getMessage());
 
     }
 

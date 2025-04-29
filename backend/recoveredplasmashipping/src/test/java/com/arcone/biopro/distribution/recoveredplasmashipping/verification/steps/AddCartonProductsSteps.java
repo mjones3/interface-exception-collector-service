@@ -43,7 +43,7 @@ public class AddCartonProductsSteps {
         addCartonPage.clickBack();
     }
 
-    @When("I fill an {string} product with the unit number {string}, product code {string} and product type {string}.")
+    @When("I fill/pack an {string} product with the unit number {string}, product code {string} and product type {string}.")
     public void addProductToCarton(String productQuality, String unitNumber, String productCode, String productType) {
         String cartonId = sharedContext.getCreateCartonResponseList().getFirst().get("id").toString();
         createShipmentController.packCartonProduct(cartonId, unitNumber, productCode, sharedContext.getLocationCode());
@@ -52,9 +52,19 @@ public class AddCartonProductsSteps {
     @And("The product unit number {string} and product code {string} {string} be packed in the carton.")
     public void theProductUnitNumberAndProductCodeBePackedInTheCarton(String unitNumber, String productCode, String option) {
         if (option.equals("should")) {
-            Assert.assertTrue(createShipmentController.verifyProductIsPacked(unitNumber, productCode));
+            Assert.assertTrue(createShipmentController.checkProductIsPacked(unitNumber, productCode));
         } else if (option.equals("should not")) {
-            Assert.assertFalse(createShipmentController.verifyProductIsPacked(unitNumber, productCode));
+            Assert.assertFalse(createShipmentController.checkProductIsPacked(unitNumber, productCode));
+        } else {
+            Assert.fail("The option " + option + " is not valid.");
+        }
+    }
+    @And("The product unit number {string} and product code {string} {string} be verified in the carton.")
+    public void theProductUnitNumberAndProductCodeBeVerifiedInTheCarton(String unitNumber, String productCode, String option) {
+        if (option.equals("should")) {
+            Assert.assertTrue(createShipmentController.checkProductIsVerified(unitNumber, productCode));
+        } else if (option.equals("should not")) {
+            Assert.assertFalse(createShipmentController.checkProductIsVerified(unitNumber, productCode));
         } else {
             Assert.fail("The option " + option + " is not valid.");
         }
@@ -107,5 +117,17 @@ public class AddCartonProductsSteps {
     @When("I choose to submit the carton.")
     public void iChooseToSubmitTheCarton() {
         addCartonPage.clickSubmit();
+    }
+
+    @And("I have the unit numbers {string}, product codes {string} and product types {string} packed which become unsuitable.")
+    public void iHaveTheUnitNumbersProductCodesAndProductTypesPackedWhichBecomeUnsuitable(String unitNumbers, String productCodes, String productTypes) {
+        String cartonId = sharedContext.getCreateCartonResponseList().getFirst().get("id").toString();
+        String[] unitNumbersArray = testUtils.getCommaSeparatedList(unitNumbers);
+        String[] productCodesArray = testUtils.getCommaSeparatedList(productCodes);
+        String[] productTypesArray = testUtils.getCommaSeparatedList(productTypes);
+
+        for (int i = 0; i < unitNumbersArray.length; i++) {
+            createShipmentController.insertPackedProduct(cartonId, unitNumbersArray[i], productCodesArray[i], productTypesArray[i]);
+        }
     }
 }

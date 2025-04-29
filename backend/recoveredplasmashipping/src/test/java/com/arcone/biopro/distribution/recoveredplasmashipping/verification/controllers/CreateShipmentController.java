@@ -153,18 +153,53 @@ public class CreateShipmentController {
     public void packCartonProduct(String cartonId, String unitNumber, String productCode, String locationCode) {
         String payload = GraphQLMutationMapper.packCartonItem(Integer.parseInt(cartonId), unitNumber, productCode, locationCode);
         var response = apiHelper.graphQlRequest(payload, "packCartonItem");
-        sharedContext.setPackCartonItemResponse((Map) response.get("data"));
+        var packedProducts = (List) ((Map) response.get("data")).get("packedProducts");
+        sharedContext.setPackedProductsList(packedProducts);
+
+        sharedContext.setLastCartonResponse((Map) response.get("data"));
     }
 
-    public boolean verifyProductIsPacked(String unitNumber, String productCode) {
-        var carton = sharedContext.getPackCartonItemResponse();
-        if (carton == null) {
+    public boolean checkProductIsPacked(String unitNumber, String productCode) {
+        var packedList = sharedContext.getPackedProductsList();
+        if (packedList.isEmpty()) {
             return false;
         } else {
-            return carton.get("unitNumber") != null
-                && carton.get("productCode") != null
-                && unitNumber.equals(carton.get("unitNumber").toString())
-                && productCode.equals(carton.get("productCode").toString());
+            return packedList.stream().anyMatch(packedProduct -> {
+                var packedUnitNumber = packedProduct.get("unitNumber");
+                var packedProductCode = packedProduct.get("productCode");
+                return unitNumber.equals(packedUnitNumber.toString()) && productCode.equals(packedProductCode.toString());
+            });
         }
+    }
+    public boolean checkProductIsVerified(String unitNumber, String productCode) {
+        var verifiedList = sharedContext.getVerifiedProductsList();
+        if (verifiedList.isEmpty()) {
+            return false;
+        } else {
+            return verifiedList.stream().anyMatch(verifiedProduct -> {
+                var verifiedUnitNumber = verifiedProduct.get("unitNumber");
+                var verifiedProductCode = verifiedProduct.get("productCode");
+                return unitNumber.equals(verifiedUnitNumber.toString()) && productCode.equals(verifiedProductCode.toString());
+            });
+        }
+    }
+
+    public void insertPackedProduct(String cartonId, String unitNumber, String productCode, String productType) {
+        databaseService.executeSql(DatabaseQueries.INSERT_PACKED_PRODUCT(cartonId, unitNumber, productCode, productType)).block();
+    }
+
+    public void verifyCartonProduct(String cartonId, String unitNumber, String productCode, String locationCode) {
+        String payload = GraphQLMutationMapper.verifyCarton(Integer.parseInt(cartonId), unitNumber, productCode, locationCode);
+        var response = apiHelper.graphQlRequest(payload, "verifyCarton");
+
+        var verifiedProducts = (List) ((Map) response.get("data")).get("verifiedProducts");
+        sharedContext.setVerifiedProductsList(verifiedProducts);
+
+        var packedProducts = (List) ((Map) response.get("data")).get("packedProducts");
+        sharedContext.setPackedProductsList(packedProducts);
+
+        sharedContext.setLastCartonResponse((Map) response.get("data"));
+
+        sharedContext.setLinksResponse((Map) response.get("_links"));
     }
 }
