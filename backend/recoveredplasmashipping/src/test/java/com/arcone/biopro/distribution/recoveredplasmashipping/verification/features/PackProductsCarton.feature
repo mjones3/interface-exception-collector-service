@@ -72,6 +72,7 @@ Feature: Add Products to Carton
             | 408           | RP_FROZEN_WITHIN_120_HOURS | 1000                 | <tomorrow>    | DIS-339                         | 123456789_DIS339 | W036898786756 | E6022V00     | RP_FROZEN_WITHIN_120_HOURS | INFO       | This product is expired and has been discarded. Place in biohazard container. |
             | 408           | RP_FROZEN_WITHIN_120_HOURS | 1000                 | <tomorrow>    | DIS-339                         | 123456789_DIS339 | W036898786804 | E5880V00     | RP_FROZEN_WITHIN_72_HOURS  | WARN       | Product Type does not match                                                   |
             | 408           | RP_FROZEN_WITHIN_120_HOURS | 1000                 | <tomorrow>    | DIS-339                         | 123456789_DIS339 | W036898786700 | E6022V00     | RP_FROZEN_WITHIN_120_HOURS | WARN       | This product was previously shipped.                                          |
+            | 408           | RP_FROZEN_WITHIN_120_HOURS | 1000                 | <tomorrow>    | DIS-339                         | 123456789_DIS339 | W036898786700 | E6022V00     | RP_FROZEN_WITHIN_120_HOURS | WARN       | This product was previously shipped.                                          |
 
 
     Rule: I should not be able to add products that is part of another carton or shipment and be notified.
@@ -81,7 +82,8 @@ Feature: Add Products to Carton
         When I fill an "acceptable" product with the unit number "W036898786800", product code "E6022V00" and product type "RP_FROZEN_WITHIN_120_HOURS".
         Then The product unit number "W036898786800" and product code "E6022V00" "should" be packed in the carton.
         When I fill an "acceptable" product with the unit number "W036898786800", product code "E6022V00" and product type "RP_FROZEN_WITHIN_120_HOURS".
-        Then I should receive a "WARN" message response "Product already used".
+        ## Refactor the message in the back-end
+        Then I should receive a "WARN" message response "Product already added in a carton".
         And The product unit number "W036898786800" and product code "E2534V00" "should not" be packed in the carton.
 
 

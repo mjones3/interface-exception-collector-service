@@ -31,11 +31,11 @@ Feature: Verify Recovered Plasma Products
             And The Minimum Number of Units in Carton is configured as "<configured_min_products>" products for the customer code "<Customer Code>" and product type "<Product Type>".
             And I navigate to the Manage Carton Products page for the carton sequence number <Carton Sequence Number>.
             When I add an "acceptable" product with the unit number "<unit_number>", product code "<product_code>" and product type "<product_type>".
-            Then The verify products option should be "enable"
+            Then The verify products option should be "enabled"
             And I choose to verify products.
             When I scan an "acceptable" product with the unit number "<unit_number>", product code "<product_code>" and product type "<product_type>".
             Then I should see the product in the verified list with unit number "<unit_number>" and product code "<product_code>".
-            And The close carton option should be "enable"
+            And The close carton option should be "enabled".
             Examples:
                 | Customer Code | Product Type              | Carton Tare Weight | Shipment Date | Transportation Reference Number | Location Code |   configured_min_products | unit_number                      | product_code           | product_type                                           | carton_sequence |
                 | 408           | RP_FROZEN_WITHIN_24_HOURS | 1000               | <tomorrow>    | DIS-339                         | 123456789     |  2                       | =W03689878680600,=W03689878680700 | =<E2488V00, =<E2488V00 | RP_NONINJECTABLE_LIQUID_RT, RP_NONINJECTABLE_LIQUID_RT | 1               |
@@ -48,6 +48,7 @@ Feature: Verify Recovered Plasma Products
         Rule: I should not be able to verify quarantined products in the carton and be notified.
         Rule: I should not be able to verify expired products in the carton and be notified.
         Rule: The system should automatically remove the products that are unacceptable from the carton.
+        Rule: I should be notified when I scan a unit that is not part of the shipment.
         @api @DIS-341
         Scenario Outline: Attempt to verify unsuitable products in carton
             Given I have an empty carton created with the Customer Code as "<Customer Code>" , Product Type as "<Product Type>", Carton Tare Weight as "<Carton Tare Weight>", Shipment Date as "<Shipment Date>", Transportation Reference Number as "<Transportation Reference Number>" and Location Code as "<Location Code>".
@@ -57,18 +58,18 @@ Feature: Verify Recovered Plasma Products
             Then I should receive a "<error_type>" message response "<error_message>".
             And The product unit number "<unit_number>" and product code "<product_code>" "should not" be added to the verified list.
             And The product unit number "<unit_number>" and product code "<product_code>" "should not" be packed in the carton.
+            And I should receive a "CAUTION" static message response "Products removed due to failure, repeat process".
             Examples:
                 | Customer Code | Product Type               | Carton Tare Weight | Shipment Date | Transportation Reference Number | Location Code    | unit_number   | product_code | product_type               | error_type | error_message                                                                 |
-                | 408           | RP_FROZEN_WITHIN_120_HOURS | 1000               | <tomorrow>    | DIS-339                         | 123456789_DIS339 | W036898786905 | E6022V00     | RP_FROZEN_WITHIN_120_HOURS | WARN       | This product is not in the inventory and cannot be shipped                    |
-                | 408           | RP_FROZEN_WITHIN_120_HOURS | 1000               | <tomorrow>    | DIS-339                         | 123456789_DIS339 | W036898786757 | E6022V00     | RP_FROZEN_WITHIN_120_HOURS | INFO       | This product is discarded and cannot be shipped                               |
-                | 408           | RP_FROZEN_WITHIN_120_HOURS | 1000               | <tomorrow>    | DIS-339                         | 123456789_DIS339 | W036898786758 | E6022V00     | RP_FROZEN_WITHIN_120_HOURS | INFO       | This product is quarantined and cannot be shipped                             |
-                | 408           | RP_FROZEN_WITHIN_120_HOURS | 1000               | <tomorrow>    | DIS-339                         | 123456789_DIS339 | W036898786756 | E6022V00     | RP_FROZEN_WITHIN_120_HOURS | INFO       | This product is expired and has been discarded. Place in biohazard container. |
-                | 408           | RP_FROZEN_WITHIN_120_HOURS | 1000               | <tomorrow>    | DIS-339                         | 123456789_DIS339 | W036898786804 | E5880V00     | RP_FROZEN_WITHIN_72_HOURS  | WARN       | Product Type does not match                                                   |
-                | 408           | RP_FROZEN_WITHIN_120_HOURS | 1000               | <tomorrow>    | DIS-339                         | 123456789_DIS339 | W036898786700 | E6022V00     | RP_FROZEN_WITHIN_120_HOURS | WARN       | This product was previously shipped.                                          |
+                | 408           | RP_FROZEN_WITHIN_120_HOURS | 1000               | <tomorrow>    | DIS-341                         | 123456789_DIS341 | W036898786905 | E6022V00     | RP_FROZEN_WITHIN_120_HOURS | WARN       | This product is not in the inventory and cannot be shipped                    |
+                | 408           | RP_FROZEN_WITHIN_120_HOURS | 1000               | <tomorrow>    | DIS-341                         | 123456789_DIS341 | W036898786757 | E6022V00     | RP_FROZEN_WITHIN_120_HOURS | INFO       | This product is discarded and cannot be shipped                               |
+                | 408           | RP_FROZEN_WITHIN_120_HOURS | 1000               | <tomorrow>    | DIS-341                         | 123456789_DIS341 | W036898786758 | E6022V00     | RP_FROZEN_WITHIN_120_HOURS | INFO       | This product is quarantined and cannot be shipped                             |
+                | 408           | RP_FROZEN_WITHIN_120_HOURS | 1000               | <tomorrow>    | DIS-341                         | 123456789_DIS341 | W036898786756 | E6022V00     | RP_FROZEN_WITHIN_120_HOURS | INFO       | This product is expired and has been discarded. Place in biohazard container. |
+                | 408           | RP_FROZEN_WITHIN_120_HOURS | 1000               | <tomorrow>    | DIS-341                         | 123456789_DIS341 | W036898786804 | E5880V00     | RP_FROZEN_WITHIN_72_HOURS  | WARN       | Product Type does not match                                                   |
+                | 408           | RP_FROZEN_WITHIN_120_HOURS | 1000               | <tomorrow>    | DIS-341                         | 123456789_DIS341 | W036898786701 | E6022V00     | RP_FROZEN_WITHIN_120_HOURS | WARN       | The verification does not match all products in this order. Please re-scan all the products.                                          |
 
 
-        Rule: The system should automatically reset the verification process when the products are unacceptable to be filled in the carton.
-         #confirm with Archana to add in AC
+        Rule: The system should automatically remove all the products from the carton when there is an unacceptable product.
         Rule: I should not be able to verify products which are already verified.
         @api @DIS-341
             Scenario: Attempt to verify products which are already verified.
@@ -79,12 +80,11 @@ Feature: Verify Recovered Plasma Products
             Then The product unit number "W036898786800" and product code "E6022V00" "should" be varified in the carton.
             When I verify an "acceptable" product with the unit number "W036898786800", product code "E6022V00" and product type "RP_FROZEN_WITHIN_120_HOURS".
             Then I should receive a "WARN" message response "This product has already been verified. Please re-scan all the products in the carton.".
-            And The product unit number "W036898786800" and product code "E6022V00" "should not" be verified in the carton.
-             ## Check if the packed list and verified list are empty
-            And The carton verification should reset.
+            And The product unit number "<unit_number>" and product code "<product_code>" "should not" be added to the verified list.
+            And The product unit number "<unit_number>" and product code "<product_code>" "should not" be packed in the carton.
+            And I should receive a "CAUTION" static message response "Products removed due to failure, repeat process".
 
 
-        # confirm with Archana to add this AC and  wanring message mentioning word please
         Rule: I should not be able to verify products that is part of another carton or shipment and be notified.
         @api @DIS-341
             Scenario: Attempt to verify products which are not packed into the carton.
@@ -94,8 +94,8 @@ Feature: Verify Recovered Plasma Products
                 When I verify an "acceptable" product with the unit number "W036898786801", product code "E6022V00" and product type "RP_FROZEN_WITHIN_120_HOURS".
                 Then I should receive a "WARN" message response "The verification does not match all products in this carton. Please re-scan all the products.".
                 And The product unit number "W036898786800" and product code "E6022V00" "should not" be verified in the carton.
-                ## Check if the packed list and verified list are empty
-                And The carton verification should reset.
+                And The product unit number "<unit_number>" and product code "<product_code>" "should not" be packed in the carton.
+                And I should receive a "CAUTION" static message response "Products removed due to failure, repeat process".
 
 
 
@@ -108,8 +108,8 @@ Feature: Verify Recovered Plasma Products
             When I verify a product with the unit number "<unit_number>", product code "<product_code>" and volume "<product_volume>".
             Then I should receive a "WARN" message response "Product Volume does not match criteria".
             And The product unit number "<unit_number>" and product code "<product_code>" "should not" be verified in the carton.
-            ## Check if the packed list and verified list are empty
-            And The carton verification should reset.
+            And The product unit number "<unit_number>" and product code "<product_code>" "should not" be packed in the carton.
+            And I should receive a "CAUTION" static message response "Products removed due to failure, repeat process".
             Examples:
                 | Customer Code | Product Type              | Carton Tare Weight | Shipment Date | Transportation Reference Number | Location Code | configured_volume | unit_number   | product_code | product_volume |
                 | 408           | RP_FROZEN_WITHIN_24_HOURS | 1000               | <tomorrow>    | DIS-339                         | 123456789     | 300               | W036898786801 | E2534V00     | 259            |
