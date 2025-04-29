@@ -1,11 +1,13 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.mapper;
 
+import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.CloseCartonRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.CreateCartonRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.FindShipmentRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.PackCartonItemRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.QuerySortDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.RecoveredPlasmaShipmentQueryCommandRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.VerifyCartonItemRequestDTO;
+import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.CloseCartonCommandInput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.CreateCartonCommandInput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.FindShipmentCommandInput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.PackCartonItemCommandInput;
@@ -32,4 +34,6 @@ public interface CommandRequestDTOMapper {
     PackCartonItemCommandInput toInputCommand(PackCartonItemRequestDTO packCartonItemRequestDTO);
 
     VerifyItemCommandInput toInputCommand(VerifyCartonItemRequestDTO verifyCartonItemRequestDTO);
+
+    CloseCartonCommandInput toInputCommand(CloseCartonRequestDTO closeCartonRequestDTO);
 }

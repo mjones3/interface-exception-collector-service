@@ -224,7 +224,7 @@ public class Carton implements Validatable {
         if(verifiedProducts == null || verifiedProducts.isEmpty()){
             return false;
         }
-        return this.status.equals(STATUS_OPEN) && this.getTotalProducts() > 0 && verifiedProducts.size() == this.getTotalProducts();
+        return this.status.equals(STATUS_OPEN) && this.getTotalProducts() > 0 && verifiedProducts.size() == this.getTotalProducts() && verifiedProducts.size() >= this.minNumberOfProducts;
     }
 
     public List<CartonItem> getVerifiedProducts(){
@@ -242,5 +242,18 @@ public class Carton implements Validatable {
         }
 
         return CartonItem.verifyCartonItem(verifyItemCommand, this, inventoryService, cartonItemRepository, recoveredPlasmaShippingRepository, recoveredPlasmaShipmentCriteriaRepository);
+    }
+
+    public Carton close(CloseCartonCommand closeCartonCommand){
+        if(!canClose()){
+            log.warn("Carton is not ready for closing {}", this.cartonNumber);
+            throw new IllegalArgumentException("Carton cannot be closed");
+        }
+
+        this.closeEmployeeId = closeCartonCommand.getEmployeeId();
+        this.closeDate = ZonedDateTime.now();
+        this.status = "CLOSED";
+
+        return this;
     }
 }

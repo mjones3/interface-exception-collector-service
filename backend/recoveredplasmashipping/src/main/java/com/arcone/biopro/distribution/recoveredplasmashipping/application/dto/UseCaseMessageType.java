@@ -17,7 +17,9 @@ public enum UseCaseMessageType {
     CARTON_ITEM_PACKED_SUCCESS(7,  UseCaseNotificationType.SUCCESS, "Carton Item packed successfully"),
     VERIFY_CARTON_ITEM_SUCCESS(8,  UseCaseNotificationType.SUCCESS, "Carton Item verified successfully"),
     CARTON_VERIFICATION_ERROR(9,  UseCaseNotificationType.SYSTEM, "Carton verification error. Contact Support."),
-    CARTON_ITEM_PACKED_ERROR(10,  UseCaseNotificationType.SYSTEM, "Carton Item packed error. Contact Support.");
+    CARTON_ITEM_PACKED_ERROR(10,  UseCaseNotificationType.SYSTEM, "Carton Item packed error. Contact Support."),
+    CARTON_CLOSED_SUCCESS(11,  UseCaseNotificationType.SUCCESS, "Carton closed successfully"),
+    CARTON_CLOSED_ERROR(12,  UseCaseNotificationType.SYSTEM, "Close Carton error. Contact Support.");
 
     Integer code;
     UseCaseNotificationType type;

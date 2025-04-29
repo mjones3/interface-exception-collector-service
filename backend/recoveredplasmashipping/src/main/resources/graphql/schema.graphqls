@@ -18,6 +18,7 @@ type Mutation {
     createCarton(createCartonRequest:CreateCartonRequestDTO!): UseCaseResponseDTO!
     packCartonItem(packCartonItemRequest:PackCartonItemRequestDTO!): UseCaseResponseDTO!
     verifyCarton(verifyCartonItemRequest:VerifyCartonItemRequestDTO!): UseCaseResponseDTO!
+    closeCarton(closeCartonRequest:CloseCartonRequestDTO!): UseCaseResponseDTO!
 
 }
 
@@ -60,7 +61,13 @@ input CreateShipmentRequestDTO {
     createEmployeeId:String
 }
 
-input VerifyCartonItemRequestDTO {
+input CloseCartonRequestDTO {
+    cartonId:Int!
+    employeeId:String!
+    locationCode:String!
+}
+
+input PackCartonItemRequestDTO {
     cartonId:Int!
     unitNumber:String!
     productCode:String!
@@ -68,7 +75,7 @@ input VerifyCartonItemRequestDTO {
     locationCode:String!
 }
 
-input PackCartonItemRequestDTO {
+input VerifyCartonItemRequestDTO {
     cartonId:Int!
     unitNumber:String!
     productCode:String!

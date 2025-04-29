@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.recoveredplasmashipping.unit.domain.model
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.exception.DomainNotFoundForKeyException;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Carton;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.CartonItem;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.CloseCartonCommand;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.CreateCartonCommand;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Location;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.LocationProperty;
@@ -459,4 +460,67 @@ class CartonTest {
 
         }
     }
+
+    @Test
+    public void shouldNotCloseWhenAllProductsAreNotVerified(){
+
+        CartonItem cartonItem = Mockito.mock(CartonItem.class);
+        Mockito.when(cartonItem.getStatus()).thenReturn("VERIFIED");
+        CartonItem cartonItem2 = Mockito.mock(CartonItem.class);
+        Mockito.when(cartonItem2.getStatus()).thenReturn("PACKED");
+
+        Carton carton = Carton.fromRepository(1L,"number",1L,1,"employee-id","close-employee-id"
+            , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO, List.of(cartonItem2,cartonItem),2 ,2 );
+
+        var closeCartonCommand = Mockito.mock(CloseCartonCommand.class);
+
+        // When/Then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            () -> carton.close(closeCartonCommand));
+        assertEquals("Carton cannot be closed",
+            exception.getMessage());
+    }
+
+    @Test
+    public void shouldNotCloseWhenStatusIsNotOpen(){
+
+        Carton carton = Carton.fromRepository(1L,"number",1L,1,"employee-id","close-employee-id"
+            , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"CLOSED", BigDecimal.ZERO,BigDecimal.ZERO, null,2 ,10 );
+
+        var closeCartonCommand = Mockito.mock(CloseCartonCommand.class);
+
+        // When/Then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            () -> carton.close(closeCartonCommand));
+        assertEquals("Carton cannot be closed",
+            exception.getMessage());
+    }
+
+
+    @Test
+    public void shouldCloseCarton(){
+
+        CartonItem cartonItem = Mockito.mock(CartonItem.class);
+        Mockito.when(cartonItem.getStatus()).thenReturn("VERIFIED");
+        CartonItem cartonItem2 = Mockito.mock(CartonItem.class);
+        Mockito.when(cartonItem2.getStatus()).thenReturn("VERIFIED");
+
+        Carton carton = Carton.fromRepository(1L,"number",1L,1,"employee-id","close-employee-id"
+            , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO, List.of(cartonItem2,cartonItem),2 ,2 );
+
+        var closeCartonCommand = Mockito.mock(CloseCartonCommand.class);
+        Mockito.when(closeCartonCommand.getEmployeeId()).thenReturn("close-employee-id");
+
+
+        // When/Then
+        var response = carton.close(closeCartonCommand);
+
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals("CLOSED", response.getStatus());
+        Assertions.assertNotNull(response.getCloseDate());
+        Assertions.assertEquals("close-employee-id", response.getCloseEmployeeId());
+
+    }
+
+
 }
