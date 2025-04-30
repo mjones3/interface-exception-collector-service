@@ -1,30 +1,12 @@
 <div class="flex flex-auto flex-col space-y-1">
-    <biopro-process-header
-        [subTitle]="header.subTitle | async"
-        [title]="header.title | async"
-        [buttons]="actionButtonsTpl"
-    />
-    <ng-template #actionButtonsTpl>
-        <div class="flex flex-row space-x-2">
-            <biopro-action-button
-                id="submitBtn"
-                btnId="submitActionBtn"
-                label="Submit"
-                color="primary"
-                icon="heroicons_outline:paper-airplane"
-                (clickEvent)="backToShipment()"
-            ></biopro-action-button>
-        </div>
-    </ng-template>
-
     <div class="flex w-full flex-row gap-4 p-4">
-        <div class="flex w-9/12 flex-col gap-4">
+        <div class="flex w-full flex-col gap-4">
             <div class="flex w-full flex-col space-y-3">
                 <fuse-card class="flex flex-col space-y-2">
                     <div class="w-full">
                         <biopro-scan-unit-number-product-code
                             #scanUnitNumberProductCode
-                            (validate)="enterAndVerifyProduct($event)"
+                            (validate)="addProduct($event)"
                         ></biopro-scan-unit-number-product-code>
                     </div>
                 </fuse-card>
@@ -38,11 +20,11 @@
                             <span>
                                 Added Products (
                                 <span id="numberOfProductsAdded">{{
-                                    packedProductsDataSignal().length
+                                    cartonDetails()?.packedProducts.length
                                 }}</span>
                                 of
                                 <span id="prodQtyId">{{
-                                    maxProductsComputed()
+                                    cartonDetails()?.maxNumberOfProducts
                                 }}</span
                                 >)
                             </span>
@@ -54,7 +36,7 @@
                         class="grid max-h-[520px] grid-cols-4 gap-4 overflow-auto pb-4 pt-4"
                     >
                         @for (
-                            option of packedProductsDataSignal();
+                            option of getPackedProducts();
                             track $index
                         ) {
                             <biopro-unit-number-card
@@ -69,16 +51,6 @@
                     </div>
                 </fuse-card>
             </div>
-        </div>
-        <div class="flex w-1/4 flex-col gap-4">
-            <biopro-shipping-carton-information-card
-                [showBasicButton]="false"
-                [cartonInput]="cartonDetailsSignal()"
-            />
-            <biopro-shipping-information-card
-                [showBasicButton]="false"
-                [shippingInput]="shipmentDetailsSignal()"
-            />
         </div>
     </div>
 </div>

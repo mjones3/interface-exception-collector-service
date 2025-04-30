@@ -2,7 +2,7 @@ import { gql } from 'apollo-angular';
 import { UseCaseResponseDTO } from 'app/shared/models/use-case-response.dto';
 import { CartonDTO } from '../../models/recovered-plasma.dto';
 
-export interface PackCartonItemsDTO {
+export interface VerifyCartonItemsDTO {
     cartonId: number;
     locationCode: string;
     unitNumber: string;
@@ -10,21 +10,21 @@ export interface PackCartonItemsDTO {
     productCode: string;
 }
 
-export const CARTON_PACK_ITEM = gql<
+export const VERIFY_CARTON_PACK_ITEM = gql<
     {
-        packCartonItem: UseCaseResponseDTO<CartonDTO>;
+        verifyCarton: UseCaseResponseDTO<CartonDTO>;
     },
-    PackCartonItemsDTO
+    VerifyCartonItemsDTO
 >`
-    mutation packCartonItem(
+    mutation verifyCarton(
         $cartonId: Int!
         $locationCode: String!
         $unitNumber: String!
         $employeeId: String!
         $productCode: String!
     ) {
-        packCartonItem(
-            packCartonItemRequest: {
+        verifyCarton(
+            verifyCartonItemRequest: {
                 cartonId: $cartonId
                 locationCode: $locationCode
                 unitNumber: $unitNumber
