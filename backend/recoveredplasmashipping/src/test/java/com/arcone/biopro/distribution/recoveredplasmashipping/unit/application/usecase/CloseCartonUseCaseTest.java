@@ -10,11 +10,13 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.domain.event.Recov
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Carton;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.CloseCartonCommand;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.CartonRepository;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 import reactor.core.publisher.Mono;
@@ -57,6 +59,7 @@ class CloseCartonUseCaseTest {
         CloseCartonCommandInput commandInput = new CloseCartonCommandInput(cartonId, employeeId, locationCode);
         Carton carton = mock(Carton.class);
         Carton closedCarton = mock(Carton.class);
+        Mockito.when(closedCarton.getId()).thenReturn(cartonId);
         CartonOutput cartonOutput = mock(CartonOutput.class);
 
         when(cartonRepository.findOneById(cartonId)).thenReturn(Mono.just(carton));
@@ -71,10 +74,10 @@ class CloseCartonUseCaseTest {
         // Then
         StepVerifier.create(result)
             .assertNext(output -> {
-                assert output.notifications().size() == 1;
-                assert output.notifications().get(0).useCaseMessage().type() == UseCaseMessageType.CARTON_CLOSED_SUCCESS.getType();
-                assert output.data() == cartonOutput;
-                assert output._links().get("next").equals(String.format("/recovered-plasma/%s/shipment-details", shipmentId));
+                Assertions.assertEquals(1,output.notifications().size());
+                Assertions.assertEquals(output.notifications().get(0).useCaseMessage().type(),UseCaseMessageType.CARTON_CLOSED_SUCCESS.getType());
+                Assertions.assertEquals(output.data(),cartonOutput);
+                Assertions.assertEquals(output._links().get("next"),"/recovered-plasma/2/shipment-details?print=true&closeCartonId=1");
             })
             .verifyComplete();
 
@@ -98,10 +101,10 @@ class CloseCartonUseCaseTest {
         // Then
         StepVerifier.create(result)
             .assertNext(output -> {
-                assert output.notifications().size() == 1;
-                assert output.notifications().get(0).useCaseMessage().type() == UseCaseMessageType.CARTON_CLOSED_ERROR.getType();
-                assert output.data() == null;
-                assert output._links() == null;
+                Assertions.assertEquals(1,output.notifications().size());
+                Assertions.assertEquals(output.notifications().get(0).useCaseMessage().type(),UseCaseMessageType.CARTON_CLOSED_ERROR.getType());
+                Assertions.assertNull(output.data());
+                Assertions.assertNull(output._links());
             })
             .verifyComplete();
 
@@ -128,10 +131,10 @@ class CloseCartonUseCaseTest {
         // Then
         StepVerifier.create(result)
             .assertNext(output -> {
-                assert output.notifications().size() == 1;
-                assert output.notifications().get(0).useCaseMessage().type() == UseCaseMessageType.CARTON_CLOSED_ERROR.getType();
-                assert output.data() == null;
-                assert output._links() == null;
+                Assertions.assertEquals(1,output.notifications().size());
+                Assertions.assertEquals(output.notifications().get(0).useCaseMessage().type(),UseCaseMessageType.CARTON_CLOSED_ERROR.getType());
+                Assertions.assertNull(output.data());
+                Assertions.assertNull(output._links());
             })
             .verifyComplete();
 
@@ -160,10 +163,10 @@ class CloseCartonUseCaseTest {
         // Then
         StepVerifier.create(result)
             .assertNext(output -> {
-                assert output.notifications().size() == 1;
-                assert output.notifications().get(0).useCaseMessage().type() == UseCaseMessageType.CARTON_CLOSED_ERROR.getType();
-                assert output.data() == null;
-                assert output._links() == null;
+                Assertions.assertEquals(1,output.notifications().size());
+                Assertions.assertEquals(output.notifications().get(0).useCaseMessage().type() , UseCaseMessageType.CARTON_CLOSED_ERROR.getType());
+                Assertions.assertNull(output.data());
+                Assertions.assertNull(output._links());
             })
             .verifyComplete();
 

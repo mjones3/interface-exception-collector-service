@@ -29,7 +29,7 @@ public class CloseCartonUseCase implements CloseCartonService {
     private final CartonRepository cartonRepository;
     private final CartonOutputMapper cartonOutputMapper;
     private final ApplicationEventPublisher applicationEventPublisher;
-    private static final String SHIPMENT_DETAILS_URL = "/recovered-plasma/%s/shipment-details";
+    private static final String SHIPMENT_DETAILS_URL = "/recovered-plasma/%s/shipment-details?print=true&closeCartonId=%s";
 
 
     @Override
@@ -54,7 +54,7 @@ public class CloseCartonUseCase implements CloseCartonService {
                             .build())
                     .build())
                     , cartonOutputMapper.toOutput(closedCarton)
-                    , Map.of("next", String.format(SHIPMENT_DETAILS_URL, closedCarton.getShipmentId()))));
+                    , Map.of("next", String.format(SHIPMENT_DETAILS_URL, closedCarton.getShipmentId(), closedCarton.getId()))));
             })
             .onErrorResume(error -> {
                 log.error("Error closing carton {}", error.getMessage());
