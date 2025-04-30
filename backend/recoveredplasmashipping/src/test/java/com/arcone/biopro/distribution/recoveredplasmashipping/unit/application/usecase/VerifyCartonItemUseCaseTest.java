@@ -29,6 +29,7 @@ import reactor.test.StepVerifier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @ExtendWith(MockitoExtension.class)
 class VerifyCartonItemUseCaseTest {
@@ -85,6 +86,8 @@ class VerifyCartonItemUseCaseTest {
                 assertEquals(UseCaseMessageType.VERIFY_CARTON_ITEM_SUCCESS.getCode(),
                     notification.useCaseMessage().code());
                 assertEquals(cartonOutput, output.data());
+                assertNull(output._links());
+
 
 
             })
@@ -110,6 +113,7 @@ class VerifyCartonItemUseCaseTest {
                 assertEquals(9, notification.useCaseMessage().code());
                 assertEquals(UseCaseNotificationType.SYSTEM,
                     notification.useCaseMessage().type());
+                assertNull(output._links());
             })
             .verifyComplete();
     }
@@ -148,6 +152,7 @@ class VerifyCartonItemUseCaseTest {
                 assertEquals(11, notification.useCaseMessage().code());
                 assertEquals("Validation failed", notification.useCaseMessage().message());
                 assertEquals(UseCaseNotificationType.WARN,notification.useCaseMessage().type());
+                assertEquals("/recovered-plasma/0/carton-details?step=0&reset=true&resetMessage=Products removed due to failure, repeat process",output._links().get("next"));
             })
             .verifyComplete();
     }
@@ -191,6 +196,7 @@ class VerifyCartonItemUseCaseTest {
                 assertEquals(11, notification.useCaseMessage().code());
                 assertEquals("Inventory Validation failed", notification.useCaseMessage().message());
                 assertEquals(UseCaseNotificationType.INFO,notification.useCaseMessage().type());
+                assertEquals("/recovered-plasma/0/carton-details?step=0&reset=true&resetMessage=Products removed due to failure, repeat process",output._links().get("next"));
             })
             .verifyComplete();
     }
@@ -230,6 +236,7 @@ class VerifyCartonItemUseCaseTest {
                 assertEquals("Validation criteria failed", notification.useCaseMessage().message());
                 assertEquals("NAME", notification.useCaseMessage().name());
                 assertEquals(UseCaseNotificationType.WARN,notification.useCaseMessage().type());
+                assertEquals("/recovered-plasma/0/carton-details?step=0&reset=true&resetMessage=Products removed due to failure, repeat process",output._links().get("next"));
             })
             .verifyComplete();
     }
@@ -268,6 +275,7 @@ class VerifyCartonItemUseCaseTest {
                 assertEquals(13, notification.useCaseMessage().code());
                 assertEquals("IllegalArgumentException", notification.useCaseMessage().message());
                 assertEquals(UseCaseNotificationType.SYSTEM,notification.useCaseMessage().type());
+                assertNull(output._links());
             })
             .verifyComplete();
     }
@@ -306,6 +314,8 @@ class VerifyCartonItemUseCaseTest {
                 assertEquals(11, notification.useCaseMessage().code());
                 assertEquals("Inventory Service Dow", notification.useCaseMessage().message());
                 assertEquals(UseCaseNotificationType.SYSTEM,notification.useCaseMessage().type());
+                assertNull(output._links());
+
             })
             .verifyComplete();
 

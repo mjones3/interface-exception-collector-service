@@ -92,6 +92,7 @@ public class VerifyCartonItemUseCase implements VerifyCartonService {
         return cartonRepository.findOneById(cartonId).flatMap(carton -> {
             if(error instanceof ProductValidationException productValidationException) {
                 var notification = Optional.ofNullable(productValidationException.getInventoryValidation()).map(InventoryValidation::getFistNotification).orElse(null);
+                var linksNext = SYSTEM_ERROR_TYPE.equals(productValidationException.getErrorType()) ? null : Map.of("next", String.format(CARTON_DETAILS_PAGE, carton.getId()));
                 return Mono.just(new UseCaseOutput<>(List.of(UseCaseNotificationOutput
                     .builder()
                     .useCaseMessage(
@@ -113,7 +114,7 @@ public class VerifyCartonItemUseCase implements VerifyCartonService {
                             .type(UseCaseNotificationType.valueOf(productValidationException.getErrorType()))
                             .build())
                     )
-                    .build()), cartonOutputMapper.toOutput(carton,productValidationException.getInventoryValidation()) , Map.of("next", String.format(CARTON_DETAILS_PAGE, carton.getId()))));
+                    .build()), cartonOutputMapper.toOutput(carton,productValidationException.getInventoryValidation()) ,linksNext));
             }else if(error instanceof ProductCriteriaValidationException productCriteriaValidationException){
                 return Mono.just(new UseCaseOutput<>(List.of(UseCaseNotificationOutput
                     .builder()
@@ -138,7 +139,7 @@ public class VerifyCartonItemUseCase implements VerifyCartonService {
                             .message(error.getMessage())
                             .type(UseCaseNotificationType.SYSTEM)
                             .build())
-                    .build()), cartonOutputMapper.toOutput(carton), Map.of("next", String.format(CARTON_DETAILS_PAGE, carton.getId()))));
+                    .build()), cartonOutputMapper.toOutput(carton), null));
             }
         }).switchIfEmpty(Mono.just(new UseCaseOutput<>(List.of(UseCaseNotificationOutput
             .builder()
