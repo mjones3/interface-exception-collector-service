@@ -90,17 +90,17 @@ Feature: Verify Recovered Plasma Products
             And I should receive a "CAUTION" static message response "Products removed due to failure, repeat process".
 
 
-#       Implement 2 carton and add same product in both
         Rule: I should not be able to verify products that is part of another carton or shipment and be notified.
-        @api @DIS-341 @disabled
+        @api @DIS-341
             Scenario: Attempt to verify products which are not packed into the carton.
-                Given I have an empty carton created with the Customer Code as "<Customer Code>" , Product Type as "<Product Type>", Carton Tare Weight as "<Carton Tare Weight>", Shipment Date as "<Shipment Date>", Transportation Reference Number as "<Transportation Reference Number>" and Location Code as "<Location Code>".
-                And The Minimum Number of Units in Carton is configured as "<configured_min_products>" products for the customer code "<Customer Code>" and product type "<Product Type>".
-                And I have packed the unit number "W036898786800", product codes "E6022V00" and product types "RP_FROZEN_WITHIN_120_HOURS".
-                When I verify an "acceptable" product with the unit number "W036898786801", product code "E6022V00" and product type "RP_FROZEN_WITHIN_120_HOURS".
+                Given I have 2 empty cartons created with the Customer Code as "408" , Product Type as "RP_FROZEN_WITHIN_120_HOURS", Carton Tare Weight as "1000", Shipment Date as "<tomorrow>", Transportation Reference Number as "DIS-341" and Location Code as "123456789".
+                And The Minimum Number of Units in Carton is configured as "1" products for the customer code "408" and product type "RP_FROZEN_WITHIN_120_HOURS".
+                And I pack a product with the unit number "W036898786800" and product code "E6022V00" into the carton sequence 1.
+                And I pack a product with the unit number "W036898786813" and product code "E6022V00" into the carton sequence 2.
+                When I verify an "acceptable" product with the unit number "W036898786800", product code "E6022V00" and product type "RP_FROZEN_WITHIN_120_HOURS" into the carton sequence 2.
                 Then I should receive a "WARN" message response "The verification does not match all products in this carton. Please re-scan all the products.".
                 And The product unit number "W036898786800" and product code "E6022V00" "should not" be verified in the carton.
-                And The product unit number "<unit_number>" and product code "<product_code>" "should not" be packed in the carton.
+                And The product unit number "W036898786801" and product code "E6022V00" "should not" be packed in the carton.
                 And I should receive a "CAUTION" static message response "Products removed due to failure, repeat process".
 
 

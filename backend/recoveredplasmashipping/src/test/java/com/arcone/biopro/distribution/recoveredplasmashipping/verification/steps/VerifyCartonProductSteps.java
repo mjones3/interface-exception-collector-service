@@ -21,6 +21,11 @@ public class VerifyCartonProductSteps {
         String cartonId = sharedContext.getCreateCartonResponseList().getFirst().get("id").toString();
         createShipmentController.verifyCartonProduct(cartonId, unitNumber, productCode, sharedContext.getLocationCode());
     }
+    @Given("I verify a(n) {string} product with the unit number {string}, product code {string} and product type {string} into the carton sequence {int}.")
+    public void iVerifyAProductWithTheUnitNumberProductCodeAndProductTypeIntoCarton(String productQuality, String unitNumber, String productCode, String productType, int cartonSequence) {
+        String cartonId = sharedContext.getCreateCartonResponseList().get(cartonSequence - 1).get("id").toString();
+        createShipmentController.verifyCartonProduct(cartonId, unitNumber, productCode, sharedContext.getLocationCode());
+    }
     @Given("I verify a product with the unit number {string}, product code {string} and volume {string}.")
     public void iVerifyAProductWithTheUnitNumberProductCodeAndVolume(String unitNumber, String productCode, String volume) {
         String cartonId = sharedContext.getCreateCartonResponseList().getFirst().get("id").toString();
@@ -29,7 +34,7 @@ public class VerifyCartonProductSteps {
 
     @And("I should receive a {string} static message response {string}.")
     public void iShouldReceiveAStaticMessageResponse(String messageType, String message) {
-        String cartonId = sharedContext.getCreateCartonResponseList().getFirst().get("id").toString();
+        String cartonId = sharedContext.getLastCartonResponse().get("id").toString();
         String nextLink = String.format("/recovered-plasma/%s/carton-details?step=0&reset=true&resetMessage=%s", cartonId, message);
         var linksResponse = sharedContext.getLinksResponse().get("next");
 
