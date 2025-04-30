@@ -172,7 +172,7 @@ onClickNext(){
 
 navigateBackToShipmentDetails() {
     this.router.navigateByUrl(
-        `/recovered-plasma/${this.cartonDetailsSignal().id}/shipment-details`
+        `/recovered-plasma/${this.shipmentDetailsSignal().id}/shipment-details`
     );
 }
 

@@ -18,8 +18,6 @@ describe('VerifyCloseCartonComponent', () => {
   let service: RecoveredPlasmaService;
   let toaster: ToastrImplService;
 
-  
-  
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
