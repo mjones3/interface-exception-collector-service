@@ -1,0 +1,1 @@
+ALTER TABLE recoveredplasmashipping.bld_recovered_plasma_shipment ALTER shipment_date DROP NOT NULL;

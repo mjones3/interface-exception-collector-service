@@ -132,7 +132,7 @@ Feature: Filter Shipments
             When I requested the list of shipments filtering by "shipmentDateRange" as "<null>,<null>".
             Then The list shipment response should contains "1" items.
 
-        Rule: I should be able to filter the results for ship date from 2 years back.
+        Rule: I should be able to filter the results for ship date from 2 years back, regardless the future date.
         Rule: I should not be able to search ship date for more than 2 years range.
         @api @DIS-371
         Scenario: Search for shipments by <Attribute>
