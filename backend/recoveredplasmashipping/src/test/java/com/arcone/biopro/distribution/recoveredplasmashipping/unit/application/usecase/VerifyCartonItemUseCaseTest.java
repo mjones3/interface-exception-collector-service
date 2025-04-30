@@ -11,7 +11,6 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.domain.exception.P
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.exception.ProductValidationException;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Carton;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.CartonItem;
-import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.InventoryNotification;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.InventoryValidation;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.VerifyItemCommand;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.CartonItemRepository;
@@ -27,8 +26,6 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -273,6 +270,47 @@ class VerifyCartonItemUseCaseTest {
                 assertEquals(UseCaseNotificationType.SYSTEM,notification.useCaseMessage().type());
             })
             .verifyComplete();
+    }
+
+
+    @Test
+    void shouldNotResetVerificationWhenSystemError() {
+
+        // Arrange
+        Long cartonId = 1L;
+        String unitNumber = "UNIT001";
+        String productCode = "PROD001";
+        String employeeId = "EMP001";
+        String locationCode = "LOC001";
+
+        VerifyItemCommandInput input = new VerifyItemCommandInput(cartonId, unitNumber,
+            productCode, employeeId, locationCode);
+
+        Carton carton = Mockito.mock(Carton.class);
+
+        ProductValidationException validationException = new ProductValidationException("Inventory Service Dow","SYSTEM");
+
+        Mockito.when(carton.verifyItem(Mockito.any(VerifyItemCommand.class),Mockito.any(InventoryService.class), Mockito.any(CartonItemRepository.class)
+            , Mockito.any(RecoveredPlasmaShipmentCriteriaRepository.class), Mockito.any(RecoveredPlasmaShippingRepository.class))).thenThrow(validationException);
+
+        Mockito.when(cartonRepository.findOneById(cartonId)).thenReturn(Mono.just(carton));
+
+
+        // Act & Assert
+        StepVerifier.create(verifyCartonItemUseCase.verifyCartonItem(input))
+            .assertNext(output -> {
+                // Assert
+                assertNotNull(output);
+                assertEquals(1, output.notifications().size());
+                UseCaseNotificationOutput notification = output.notifications().get(0);
+                assertEquals(11, notification.useCaseMessage().code());
+                assertEquals("Inventory Service Dow", notification.useCaseMessage().message());
+                assertEquals(UseCaseNotificationType.SYSTEM,notification.useCaseMessage().type());
+            })
+            .verifyComplete();
+
+
+        Mockito.verifyNoInteractions(cartonItemRepository);
     }
 
 

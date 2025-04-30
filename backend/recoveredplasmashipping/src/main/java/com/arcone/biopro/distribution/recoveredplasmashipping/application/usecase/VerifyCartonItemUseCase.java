@@ -42,6 +42,7 @@ public class VerifyCartonItemUseCase implements VerifyCartonService {
     private final CartonRepository cartonRepository;
     private final CartonOutputMapper cartonOutputMapper;
     private static final String CARTON_DETAILS_PAGE = "/recovered-plasma/%s/carton-details?step=0&reset=true&resetMessage=Products removed due to failure, repeat process";
+    private static final String SYSTEM_ERROR_TYPE = "SYSTEM";
 
     @Override
     @Transactional
@@ -71,13 +72,19 @@ public class VerifyCartonItemUseCase implements VerifyCartonService {
             } )
             .doOnError(error -> {
                 log.warn("resetting verification {}", error.getMessage());
-                 cartonItemRepository.deleteAllByCartonId(verifyItemCommandInput.cartonId()).subscribe();
+                this.resetVerification(error,verifyItemCommandInput.cartonId());
             })
             .publishOn(Schedulers.boundedElastic())
             .onErrorResume(error -> {
                 log.error("Not able to verify carton Item {}", error.getMessage());
                 return buildVerifyErrorResponse(error , verifyItemCommandInput.cartonId());
             });
+    }
+
+    private void resetVerification(Throwable error , Long cartonId){
+        if(!(error instanceof ProductValidationException productValidationException) || !SYSTEM_ERROR_TYPE.equals(productValidationException.getErrorType())) {
+            cartonItemRepository.deleteAllByCartonId(cartonId).subscribe();
+        }
     }
 
     private Mono<UseCaseOutput<CartonOutput>> buildVerifyErrorResponse(Throwable error , Long cartonId) {
