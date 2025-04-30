@@ -6,6 +6,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.Us
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.UseCaseNotificationType;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.mapper.CartonOutputMapper;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.usecase.CreateCartonUseCase;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.event.RecoveredPlasmaCartonCreatedEvent;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Carton;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Location;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.LocationProperty;
@@ -20,6 +21,7 @@ import org.mapstruct.factory.Mappers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -41,6 +43,9 @@ class CreateCartonUseCaseTest {
     @Mock
     private  RecoveredPlasmaShippingRepository recoveredPlasmaShippingRepository;
 
+    @Mock
+    private ApplicationEventPublisher applicationEventPublisher;
+
     private  CartonOutputMapper cartonOutputMapper;
 
     @Mock
@@ -51,7 +56,7 @@ class CreateCartonUseCaseTest {
     @BeforeEach
     public void setUp(){
         cartonOutputMapper = Mappers.getMapper(CartonOutputMapper.class);
-        createCartonUseCase = new CreateCartonUseCase(cartonRepository,recoveredPlasmaShippingRepository,cartonOutputMapper,locationRepository);
+        createCartonUseCase = new CreateCartonUseCase(cartonRepository,recoveredPlasmaShippingRepository,cartonOutputMapper,locationRepository,applicationEventPublisher);
     }
 
     @Test
@@ -102,6 +107,7 @@ class CreateCartonUseCaseTest {
                 })
                 .verifyComplete();
 
+            Mockito.verify(applicationEventPublisher).publishEvent(Mockito.any(RecoveredPlasmaCartonCreatedEvent.class));
 
     }
 
@@ -129,6 +135,8 @@ class CreateCartonUseCaseTest {
                 assertEquals(6, notification.useCaseMessage().code());
             })
             .verifyComplete();
+
+        Mockito.verifyNoInteractions(applicationEventPublisher);
     }
 
 }

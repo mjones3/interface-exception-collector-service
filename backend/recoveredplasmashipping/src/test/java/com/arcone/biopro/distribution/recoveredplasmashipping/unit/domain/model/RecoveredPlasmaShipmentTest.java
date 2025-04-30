@@ -670,4 +670,57 @@ class RecoveredPlasmaShipmentTest {
         assertEquals(12,shipment.getTotalProducts());
 
     }
+
+    @Test
+    public void shouldNotMarkAsInProgressWhenStatusIsClosed() {
+        var shipment = RecoveredPlasmaShipment.fromRepository(
+            1L, "locationCode", "productType", "123", "CLOSED", "createEmployeeId",
+            "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
+            LocalDate.now(), BigDecimal.TEN, "unsuitableUnitReportDocumentStatus",
+            "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
+            "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
+            "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
+            "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), Collections.emptyList()
+        );
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            shipment::markAsInProgress);
+        assertEquals("Shipment is closed and cannot be reopen", exception.getMessage());
+
+    }
+
+    @Test
+    public void shouldMarkAsInProgressWhenStatusIsOpen() {
+        var shipment = RecoveredPlasmaShipment.fromRepository(
+            1L, "locationCode", "productType", "123", "OPEN", "createEmployeeId",
+            "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
+            LocalDate.now(), BigDecimal.TEN, "unsuitableUnitReportDocumentStatus",
+            "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
+            "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
+            "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
+            "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), Collections.emptyList()
+        );
+
+       var result = shipment.markAsInProgress();
+        assertNotNull(result);
+        assertEquals("IN_PROGRESS", result.getStatus());
+
+    }
+    @Test
+    public void shouldNotMarkAsInProgressWhenStatusIsInProgress() {
+        var shipment = RecoveredPlasmaShipment.fromRepository(
+            1L, "locationCode", "productType", "123", "IN_PROGRESS", "createEmployeeId",
+            "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
+            LocalDate.now(), BigDecimal.TEN, "unsuitableUnitReportDocumentStatus",
+            "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
+            "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
+            "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
+            "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), Collections.emptyList()
+        );
+
+        var result = shipment.markAsInProgress();
+        assertNotNull(result);
+        assertEquals("IN_PROGRESS", result.getStatus());
+
+    }
 }

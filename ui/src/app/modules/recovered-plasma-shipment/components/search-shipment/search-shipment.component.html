@@ -53,7 +53,7 @@
                 </ng-template>
                 <ng-template #statusTemplateRef let-element="element">
                     <span [class]="getStatusBadgeCssClass(element.status)">
-                        {{ element.status }}
+                        {{ RecoveredPlasmaShipmentStatusMap[element.status] }}
                     </span>
                 </ng-template>
                 <ng-template #detailBtnTemplateRef let-element="element">

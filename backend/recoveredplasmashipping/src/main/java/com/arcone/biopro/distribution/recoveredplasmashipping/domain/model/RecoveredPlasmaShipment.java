@@ -58,6 +58,8 @@ public class RecoveredPlasmaShipment implements Validatable {
     private static final String SHIPMENT_PARTNER_PREFIX_KEY = "RPS_PARTNER_PREFIX";
     private static final String YES = "Y";
     private static final String OPEN_STATUS = "OPEN";
+    private static final String IN_PROGRESS_STATUS = "IN_PROGRESS";
+    private static final String CLOSED_STATUS = "CLOSED";
 
     public static RecoveredPlasmaShipment createNewShipment(CreateShipmentCommand command, CustomerService customerService
         , RecoveredPlasmaShippingRepository recoveredPlasmaShippingRepository
@@ -253,5 +255,17 @@ public class RecoveredPlasmaShipment implements Validatable {
 
         return this.cartonList.stream()
             .reduce(0, (partialTotalProducts, carton ) -> partialTotalProducts + carton.getTotalProducts(), Integer::sum);
+    }
+
+    public RecoveredPlasmaShipment markAsInProgress(){
+        if(CLOSED_STATUS.equals(this.status)){
+            throw new IllegalArgumentException("Shipment is closed and cannot be reopen");
+        }
+
+        if(this.status.equals(OPEN_STATUS)){
+               this.status = "IN_PROGRESS";
+        }
+
+       return this;
     }
 }
