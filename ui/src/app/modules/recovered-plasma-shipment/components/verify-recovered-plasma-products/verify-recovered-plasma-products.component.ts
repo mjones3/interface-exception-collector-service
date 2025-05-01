@@ -6,7 +6,6 @@ import { CookieService } from 'ngx-cookie-service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { ToastrImplService } from '@shared';
-import { UseCaseNotificationDTO } from 'app/shared/models/use-case-response.dto';
 import { ProductIconsService } from 'app/shared/services/product-icon.service';
 import { RecoveredPlasmaService } from '../../services/recovered-plasma.service';
 import { MatDividerModule } from '@angular/material/divider';
@@ -33,7 +32,6 @@ import { FuseCardComponent } from '@fuse/components/card/public-api';
 export class VerifyRecoveredPlasmaProductsComponent 
 extends RecoveredPlasmaShipmentCommon implements OnInit
 {
-maxProductsComputed = computed(() => this.cartonDetails()?.maxNumberOfProducts);
 @Input() cartonDetails = signal<CartonDTO>(null);
 @ViewChild('scanUnitNumberProductCode')
 scanUnitNumberProductCode: ScanUnitNumberProductCodeComponent;
@@ -73,13 +71,6 @@ resetProductGroup(): void {
 
 focusOnUnitNumber(): void {
     this.scanUnitNumberProductCode?.focusOnUnitNumber();
-}
-
-displayNotificationMessage(notifications: UseCaseNotificationDTO[]): void {
-    this.recoveredPlasmaService.displayNotificationMessage(
-        notifications,
-        this.focusOnUnitNumber.bind(this)
-    );
 }
 
 disableInputsIfMaxCartonProduct(): void {

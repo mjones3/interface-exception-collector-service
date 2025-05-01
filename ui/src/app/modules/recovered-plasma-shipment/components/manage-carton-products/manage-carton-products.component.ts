@@ -1,4 +1,4 @@
-import { Component, computed, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, OnInit, signal, ViewChild } from '@angular/core';
 import { RecoveredPlasmaShipmentCommon } from '../../recovered-plasma-shipment.common';
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { MatDividerModule } from '@angular/material/divider';
@@ -24,7 +24,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatStep, MatStepper, MatStepperModule } from '@angular/material/stepper';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FuseCardComponent } from '@fuse/components/card/public-api';
-import { cartonDetailsComponent } from '../carton-details/carton-details.component';
 import { BasicButtonComponent } from 'app/shared/components/buttons/basic-button.component';
 import { FuseAlertType } from '@fuse/components/alert/public-api';
 import { GlobalMessageComponent } from 'app/shared/components/global-message/global-message.component';
@@ -32,9 +31,10 @@ import { PackCartonItemsDTO } from '../../graphql/mutation-definitions/pack-item
 import { ERROR_MESSAGE } from 'app/core/data/common-labels';
 import { UseCaseNotificationDTO } from 'app/shared/models/use-case-response.dto';
 import { VerifyCartonItemsDTO } from '../../graphql/mutation-definitions/verify-products.graphql';
+import { AddRecoveredPlasmaProductsComponent } from '../add-recovered-plasma-products/add-recovered-plasma-products.component';
 
 @Component({
-  selector: 'biopro-verify-close-carton',
+  selector: 'biopro-manage-carton-products',
   standalone: true,
   imports: [
         AsyncPipe,
@@ -54,23 +54,23 @@ import { VerifyCartonItemsDTO } from '../../graphql/mutation-definitions/verify-
         FormsModule,
         ReactiveFormsModule,
         MatFormFieldModule,
-        cartonDetailsComponent,
+        AddRecoveredPlasmaProductsComponent,
         BasicButtonComponent,
         GlobalMessageComponent,
         MatStep,
         MatStepper
   ],
-  templateUrl: './add-verify-close-carton.component.html',
-  styleUrl: './add-verify-close-carton.component.scss'
+  templateUrl: './manage-carton-products.component.html',
+  styleUrl: './manage-carton-products.component.scss'
 })
-export class VerifyCloseCartonComponent extends RecoveredPlasmaShipmentCommon
+export class ManageCartonComponent extends RecoveredPlasmaShipmentCommon
 implements OnInit {
   isLinear: boolean = true;
   messageSignal = signal<string>(null);
   messageTypeSignal = signal<FuseAlertType>(null);
   cartonDetailsSignal = signal<CartonDTO>(null);
   @ViewChild('verifyProductsControl') verifyProductsControl: VerifyRecoveredPlasmaProductsComponent;
-  @ViewChild('addProductsControl') addProductsControl: cartonDetailsComponent;
+  @ViewChild('addProductsControl') addProductsControl: AddRecoveredPlasmaProductsComponent;
   @ViewChild('stepper') stepper: MatStepper;
   constructor(
     public header: ProcessHeaderService,

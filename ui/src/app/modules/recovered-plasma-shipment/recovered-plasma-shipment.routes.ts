@@ -3,7 +3,7 @@ import { initialDataResolver } from 'app/app.resolvers';
 import { EmptyLayoutComponent } from 'app/layout/layouts/empty/empty.component';
 import { RecoveredPlasmaShippingDetailsComponent } from './components/recovered-plasma-shipping-details/recovered-plasma-shipping-details.component';
 import { SearchShipmentComponent } from './components/search-shipment/search-shipment.component';
-import { VerifyCloseCartonComponent } from './components/add-verify-close-carton/add-verify-close-carton.component';
+import { ManageCartonComponent } from './components/manage-carton-products/manage-carton-products.component';
 
 export default [
     {
@@ -28,14 +28,14 @@ export default [
             },
             {
                 path: ':id/carton-details',
-                component: VerifyCloseCartonComponent,
+                component: ManageCartonComponent,
                 data: {
                     subTitle: 'Manage Carton Products',
                 },
             },
             {
                 path: ':id/verify-carton',
-                component: VerifyCloseCartonComponent,
+                component: ManageCartonComponent,
                 data: {
                     subTitle: 'Manage Carton Products',
                     step: 1,

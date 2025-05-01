@@ -21,7 +21,7 @@
             label="Close Carton"
             color="primary"
             [disabled]= "!cartonDetailsSignal()?.canClose"
-            icon="heroicons_outline:paper-airplane"
+            icon="check_circle_outline"
         ></biopro-action-button>
         </div>
     </ng-template>
@@ -39,14 +39,14 @@
             <fuse-card class="min-h-[300px] w-full stepper">
                 <mat-stepper [linear]="isLinear" #stepper class="w-full">
                     <mat-step [completed]="cartonDetailsSignal()?.canVerify">
-                        <ng-template matStepLabel>Add Products</ng-template>
-                            <biopro-carton-details
+                        <ng-template matStepLabel>Add Products</ng-template> 
+                            <biopro-add-recovered-plasma-products
                                 #addProductsControl
                                 [cartonDetails]="cartonDetailsSignal"
                                 (unitNumberProductCode)="
                                 enterAndVerifyProduct($event)
                             "
-                            ></biopro-carton-details>
+                            ></biopro-add-recovered-plasma-products>
                         <div class="flex justify-end">
                         <button
                             mat-button

@@ -25,7 +25,7 @@ import { ShippingCartonInformationCardComponent } from '../../shared/shipping-ca
 import { ShippingInformationCardComponent } from '../../shared/shipping-information-card/shipping-information-card.component';
 
 @Component({
-    selector: 'biopro-carton-details',
+    selector: 'biopro-add-recovered-plasma-products',
     standalone: true,
     imports: [
         AsyncPipe,
@@ -40,9 +40,9 @@ import { ShippingInformationCardComponent } from '../../shared/shipping-informat
         FuseCardComponent,
         ScanUnitNumberProductCodeComponent,
     ],
-    templateUrl: './carton-details.component.html',
+    templateUrl: './add-recovered-plasma-products.component.html',
 })
-export class cartonDetailsComponent
+export class AddRecoveredPlasmaProductsComponent
     extends RecoveredPlasmaShipmentCommon
     implements OnInit
 {
