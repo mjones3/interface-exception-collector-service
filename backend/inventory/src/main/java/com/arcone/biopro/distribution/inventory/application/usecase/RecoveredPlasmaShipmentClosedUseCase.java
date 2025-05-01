@@ -56,7 +56,7 @@ public class RecoveredPlasmaShipmentClosedUseCase implements UseCase<Mono<Invent
 
         return Flux.fromIterable(packedProducts)
             .flatMap(packedProduct -> inventoryAggregateRepository.findByUnitNumberAndProductCode(packedProduct.unitNumber(), packedProduct.productCode()))
-            .map(inventoryAggregate -> inventoryAggregate.updateInventoryStatus(InventoryStatus.SHIPPED))
+            .map(InventoryAggregate::cartonShipped)
             .flatMap(inventoryAggregateRepository::saveInventory)
             .collectList()
             .map(List::getLast)
