@@ -135,7 +135,7 @@ class CartonItemTest {
 
         ProductValidationException exception = assertThrows(ProductValidationException.class,
             () -> CartonItem.createNewCartonItem(packItemCommand, cartonMock , inventoryService, cartonItemRepository, recoveredPlasmaShippingRepository , recoveredPlasmaShipmentCriteriaRepository));
-        assertEquals("Product already used", exception.getMessage());
+        assertEquals("Product already added in a carton", exception.getMessage());
 
     }
 
@@ -372,7 +372,7 @@ class CartonItemTest {
     public void shouldCreateCartonItemFromRepository() {
         var cartonItem = CartonItem.fromRepository(1L, 1L, "UNIT_NUMBER", "PRODUCT_CODE", "DESCRIPTION",
             "PRODUCT_TYPE", 160, 10, "EMPLOYEE_ID", "AP", "PACKED",
-            LocalDateTime.now(), ZonedDateTime.now(), ZonedDateTime.now(), ZonedDateTime.now());
+            LocalDateTime.now(), ZonedDateTime.now(), ZonedDateTime.now(), ZonedDateTime.now() , "verify-employee", ZonedDateTime.now());
 
         Assertions.assertNotNull(cartonItem);
         Assertions.assertEquals(1L, cartonItem.getId());
@@ -390,6 +390,8 @@ class CartonItemTest {
         Assertions.assertNotNull(cartonItem.getCollectionDate());
         Assertions.assertNotNull(cartonItem.getCreateDate());
         Assertions.assertNotNull(cartonItem.getModificationDate());
+        Assertions.assertEquals("verify-employee", cartonItem.getVerifiedByEmployeeId());
+        Assertions.assertNotNull(cartonItem.getVerifyDate());
     }
 
     @Test

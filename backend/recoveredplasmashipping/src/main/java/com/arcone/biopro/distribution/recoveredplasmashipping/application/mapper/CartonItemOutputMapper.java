@@ -17,6 +17,8 @@ import java.util.UUID;
 @Mapper(componentModel = "spring" , unmappedTargetPolicy = ReportingPolicy.IGNORE )
 public interface CartonItemOutputMapper {
 
+    @Mapping(source ="verifiedByEmployeeId" , target = "verifiedByEmployeeId")
+    @Mapping(source ="verifyDate" , target = "verifyDate")
     CartonItemOutput toOutput(CartonItem cartonItem);
 
     @Mapping(source ="inventory.unitNumber" , target = "unitNumber")

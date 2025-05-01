@@ -24,7 +24,7 @@ Feature: Create Carton
                 | Location Code                   | 123456789                     |
             And I navigate to the shipment details page for the last shipment created.
             When I choose to add a carton to the shipment.
-            Then I should be redirected to the Add Carton Products page.
+            Then I should be redirected to the Manage Carton Products page.
             And I should see a "SUCCESS" message: "Carton created successfully".
             And I close the acknowledgment message.
             And I should see the carton details:
@@ -45,7 +45,7 @@ Feature: Create Carton
                 | Shipment Date              | <tomorrow>                    |
                 | Transportation Ref. Number | DIS338                        |
                 | Total Cartons              | 1                             |
-            When I choose to submit the carton.
+            When I choose to navigate back to Shipment Details page.
             Then I should see the list of cartons added to the shipment containing:
                 | Carton Number Prefix | Sequence | Status |
                 | BPMMH1               | 1        | OPEN   |

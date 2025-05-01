@@ -7,6 +7,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.Us
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.mapper.CartonOutputMapper;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.usecase.FindCartonUseCase;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Carton;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.InventoryValidation;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.CartonRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -91,7 +92,7 @@ class FindCartonUseCaseTest {
             .verifyComplete();
 
         verify(cartonRepository).findOneById(CARTON_ID);
-        verify(cartonOutputMapper, never()).toOutput(any());
+        verify(cartonOutputMapper, never()).toOutput(any(Carton.class));
     }
 
     @Test

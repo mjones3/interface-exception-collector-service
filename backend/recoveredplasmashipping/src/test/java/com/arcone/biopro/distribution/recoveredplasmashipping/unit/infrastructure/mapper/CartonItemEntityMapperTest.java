@@ -34,6 +34,7 @@ class CartonItemEntityMapperTest {
             nowZ.minusDays(1),     // collectionDate
             nowZ,                  // createDate
             nowZ                   // modificationDate
+            ,"verify-employee", ZonedDateTime.now()
         );
 
         // When
@@ -56,6 +57,8 @@ class CartonItemEntityMapperTest {
         assertThat(entity.getCollectionDate()).isEqualTo(cartonItem.getCollectionDate());
         assertThat(entity.getCreateDate()).isEqualTo(cartonItem.getCreateDate());
         assertThat(entity.getModificationDate()).isEqualTo(cartonItem.getModificationDate());
+        assertThat(entity.getVerificationDate()).isEqualTo(cartonItem.getVerifyDate());
+        assertThat(entity.getVerifiedByEmployeeId()).isEqualTo(cartonItem.getVerifiedByEmployeeId());
     }
 
     @Test

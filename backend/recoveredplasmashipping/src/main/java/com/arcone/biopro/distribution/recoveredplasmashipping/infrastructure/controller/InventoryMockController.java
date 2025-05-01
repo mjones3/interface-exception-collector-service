@@ -210,6 +210,7 @@ public class InventoryMockController {
             var mockData = objectMapper.readValue(fileInputStream, InventoryMockData.class);
             inventoryResponseDTOList = mockData.data();
         } catch (IOException e) {
+            log.error(e.getMessage());
             throw new RuntimeException(e);
         }
     }

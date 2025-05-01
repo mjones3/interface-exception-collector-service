@@ -1,0 +1,4 @@
+ALTER TABLE recoveredplasmashipping.bld_recovered_plasma_shipment_carton_item ADD COLUMN verified_by_employee_id varchar(50) NULL;
+
+ALTER TABLE recoveredplasmashipping.bld_recovered_plasma_shipment_carton_item ADD COLUMN verification_date TIMESTAMP WITH TIME ZONE NULL;
+

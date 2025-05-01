@@ -127,6 +127,8 @@ public class ApiHelper {
     public Map graphQlRequest(String document, String path) {
         HttpGraphQlClient qlClient = HttpGraphQlClient.create(webTestClientGraphQl);
         try {
+            log.debug("Path: {}", path);
+            log.debug("Request: {}", document);
             var response = qlClient.document(document).retrieveSync(path).toEntity(Map.class);
             // Set the API response to the context so that it can be used in other steps.
             log.debug("Response: {}", response);

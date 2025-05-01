@@ -1,0 +1,95 @@
+<div class="flex flex-auto flex-col space-y-1">
+    <biopro-process-header
+        [subTitle]="header.subTitle | async"
+        [title]="header.title | async"
+        [buttons]="actionButtonsTpl"
+    />
+    <ng-template #actionButtonsTpl>
+        <div class="flex flex-row space-x-2">
+            <biopro-action-button
+                id="backBtn"
+                btnId="backActionBtn"
+                label="Back"
+                color="secondary"
+                icon="heroicons_outline:arrow-uturn-left"
+                (clickEvent)="navigateBackToShipmentDetails()"
+            ></biopro-action-button>
+
+            <biopro-action-button
+            id="closeCartonBtn"
+            btnId="closeCartonBtn"
+            label="Close Carton"
+            color="primary"
+            [disabled]= "!cartonDetailsSignal()?.canClose"
+            icon="check_circle_outline"
+        ></biopro-action-button>
+        </div>
+    </ng-template>
+
+    <div class="flex w-full flex-row gap-4 p-4">
+        <div class="flex flex-col w-full">
+            @if(messageSignal() && !cartonDetailsSignal()?.canVerify ){
+                <biopro-global-message
+                    [messageType]="messageTypeSignal()"
+                    [message]="messageSignal()"
+                    class="mb-4"
+                >
+                </biopro-global-message>
+                }
+            <fuse-card class="min-h-[300px] w-full stepper">
+                <mat-stepper [linear]="isLinear" #stepper class="w-full">
+                    <mat-step [completed]="cartonDetailsSignal()?.canVerify">
+                        <ng-template matStepLabel>Add Products</ng-template> 
+                            <biopro-add-recovered-plasma-products
+                                #addProductsControl
+                                [cartonDetails]="cartonDetailsSignal"
+                                (unitNumberProductCode)="
+                                enterAndVerifyProduct($event)
+                            "
+                            ></biopro-add-recovered-plasma-products>
+                        <div class="flex justify-end">
+                        <button
+                            mat-button
+                            class="mat-primary text-primary-800"
+                            matStepperNext
+                            id = "manageCartonNextBtn"
+                            [disabled]="!cartonDetailsSignal()?.canVerify"
+                            (click)="onClickNext()"
+                        >
+                        Next
+                        </button>
+                        </div>
+                    </mat-step>
+                    <mat-step>
+                        <ng-template matStepLabel>Verify Products</ng-template>
+                            <biopro-verify-recovered-plasma-products
+                                #verifyProductsControl
+                                [cartonDetails]="cartonDetailsSignal"
+                                (verifyUnitNumberProductCode)="verifyProducts($event)"
+                            >
+                            </biopro-verify-recovered-plasma-products>
+                        <div class="flex justify-end">
+                            <button
+                                mat-button
+                                class="mat-primary text-primary-900"
+                                (click)="onClickPrevious({index: 0})"
+                             >
+                             Previous
+                            </button>
+                        </div>
+                    </mat-step>
+                </mat-stepper>
+            </fuse-card>
+        </div>
+        <div class="flex w-1/4 flex-col gap-4">
+            <biopro-shipping-carton-information-card
+                [showBasicButton]="false"
+                [cartonInput]="cartonDetailsSignal()"
+            />
+            <biopro-shipping-information-card
+                [showBasicButton]="false"
+                [shippingInput]="shipmentDetailsSignal()"
+            />
+        </div>
+    </div>
+</div>

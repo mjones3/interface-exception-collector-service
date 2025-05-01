@@ -1,6 +1,6 @@
 import { gql } from 'apollo-angular';
 import { UseCaseResponseDTO } from 'app/shared/models/use-case-response.dto';
-import { CartonPackedItemResponseDTO } from '../../models/recovered-plasma.dto';
+import { CartonDTO } from '../../models/recovered-plasma.dto';
 
 export interface PackCartonItemsDTO {
     cartonId: number;
@@ -12,7 +12,7 @@ export interface PackCartonItemsDTO {
 
 export const CARTON_PACK_ITEM = gql<
     {
-        packCartonItem: UseCaseResponseDTO<CartonPackedItemResponseDTO>;
+        packCartonItem: UseCaseResponseDTO<CartonDTO>;
     },
     PackCartonItemsDTO
 >`
