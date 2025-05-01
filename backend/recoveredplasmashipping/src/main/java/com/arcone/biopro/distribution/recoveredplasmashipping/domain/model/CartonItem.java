@@ -61,7 +61,6 @@ public class CartonItem implements Validatable {
         , RecoveredPlasmaShippingRepository recoveredPlasmaShippingRepository
         , RecoveredPlasmaShipmentCriteriaRepository recoveredPlasmaShipmentCriteriaRepository) {
 
-
         validateProductAlreadyPacked(packItemCommand,cartonItemRepository);
 
         var shipment = getShipment(carton.getShipmentId(), recoveredPlasmaShippingRepository);
@@ -70,31 +69,27 @@ public class CartonItem implements Validatable {
 
         var inventoryValidation = validateInventory(packItemCommand.getUnitNumber(), packItemCommand.getProductCode() , packItemCommand.getLocationCode(), inventoryService);
 
-        CartonItemBuilder builder = CartonItem.builder();
-        builder.id(null);
-        builder.cartonId(Optional.of(carton)
-            .map(Carton::getId).orElse(null));
-        builder.unitNumber(inventoryValidation.getInventory().getUnitNumber());
-        builder.productCode(inventoryValidation.getInventory().getProductCode());
-        builder.productDescription(inventoryValidation.getInventory().getProductDescription());
-        builder.productType(shipment.getProductType());
-        builder.volume(inventoryValidation.getInventory().getVolumeByType(VOLUME_TYPE).map(InventoryVolume::getValue).orElse(0));
-        builder.weight(inventoryValidation.getInventory().getWeight());
-        builder.status(PACKED_STATUS);
-        builder.packedByEmployeeId(packItemCommand.getEmployeeId());
-        builder.aboRh(inventoryValidation.getInventory().getAboRh());
-        builder.expirationDate(inventoryValidation.getInventory().getExpirationDate());
-        builder.collectionDate(inventoryValidation.getInventory().getCollectionDate());
-        builder.createDate(ZonedDateTime.now());
-        builder.modificationDate(null);
-
-        var cartonItem = builder.build();
-
+        var cartonItem = CartonItem.builder()
+            .id(null)
+            .cartonId(Optional.of(carton).map(Carton::getId).orElse(null))
+            .unitNumber(inventoryValidation.getInventory().getUnitNumber())
+            .productCode(inventoryValidation.getInventory().getProductCode())
+            .productDescription(inventoryValidation.getInventory().getProductDescription())
+            .productType(shipment.getProductType())
+            .volume(inventoryValidation.getInventory().getVolumeByType(VOLUME_TYPE).map(InventoryVolume::getValue).orElse(0))
+            .weight(inventoryValidation.getInventory().getWeight())
+            .status(PACKED_STATUS)
+            .packedByEmployeeId(packItemCommand.getEmployeeId())
+            .aboRh(inventoryValidation.getInventory().getAboRh())
+            .expirationDate(inventoryValidation.getInventory().getExpirationDate())
+            .collectionDate(inventoryValidation.getInventory().getCollectionDate())
+            .createDate(ZonedDateTime.now())
+            .modificationDate(null)
+            .build();
 
         validateProductCriteria(shipment.getShipmentCustomer().getCustomerCode(), shipment.getProductType(), cartonItem.getVolume() , carton.getTotalProducts() , recoveredPlasmaShipmentCriteriaRepository , Boolean.TRUE );
 
         cartonItem.checkValid();
-
         return cartonItem;
     }
 
@@ -102,31 +97,29 @@ public class CartonItem implements Validatable {
         , Integer volume, Integer weight, String packedByEmployeeId
         , String aboRh, String status, LocalDateTime expirationDate, ZonedDateTime collectionDate, ZonedDateTime createDate, ZonedDateTime modificationDate , String verifiedByEmployeeId , ZonedDateTime verifyDate) {
 
-        CartonItemBuilder builder = CartonItem.builder();
-        builder.id(id);
-        builder.cartonId(cartonId);
-        builder.unitNumber(unitNumber);
-        builder.productCode(productCode);
-        builder.productDescription(productDescription);
-        builder.productType(productType);
-        builder.volume(volume);
-        builder.weight(weight);
-        builder.status(status);
-        builder.packedByEmployeeId(packedByEmployeeId);
-        builder.aboRh(aboRh);
-        builder.expirationDate(expirationDate);
-        builder.collectionDate(collectionDate);
-        builder.createDate(createDate);
-        builder.modificationDate(modificationDate);
-        builder.verifiedByEmployeeId(verifiedByEmployeeId);
-        builder.verifyDate(verifyDate);
+        var cartonItem = CartonItem.builder()
+            .id(id)
+            .cartonId(cartonId)
+            .unitNumber(unitNumber)
+            .productCode(productCode)
+            .productDescription(productDescription)
+            .productType(productType)
+            .volume(volume)
+            .weight(weight)
+            .status(status)
+            .packedByEmployeeId(packedByEmployeeId)
+            .aboRh(aboRh)
+            .expirationDate(expirationDate)
+            .collectionDate(collectionDate)
+            .createDate(createDate)
+            .modificationDate(modificationDate)
+            .verifiedByEmployeeId(verifiedByEmployeeId)
+            .verifyDate(verifyDate)
+            .build();
 
-        var cartonItem = builder.build();
         cartonItem.checkValid();
-
         return cartonItem;
     }
-
 
 
     @Override
@@ -299,27 +292,25 @@ public class CartonItem implements Validatable {
 
         var inventoryValidation = validateInventory(verifyItemCommand.getUnitNumber(), verifyItemCommand.getProductCode() , verifyItemCommand.getLocationCode(), inventoryService);
 
-
-        CartonItemBuilder builder = CartonItem.builder();
-        builder.id(cartonItem.getId());
-        builder.cartonId(cartonItem.getCartonId());
-        builder.unitNumber(cartonItem.getUnitNumber());
-        builder.productCode(cartonItem.getProductCode());
-        builder.productDescription(cartonItem.getProductDescription());
-        builder.productType(cartonItem.getProductType());
-        builder.volume(inventoryValidation.getInventory().getVolumeByType(VOLUME_TYPE).map(InventoryVolume::getValue).orElse(0));
-        builder.weight(inventoryValidation.getInventory().getWeight());
-        builder.packedByEmployeeId(cartonItem.getPackedByEmployeeId());
-        builder.aboRh(cartonItem.getAboRh());
-        builder.expirationDate(inventoryValidation.getInventory().getExpirationDate());
-        builder.collectionDate(inventoryValidation.getInventory().getCollectionDate());
-        builder.createDate(cartonItem.getCreateDate());
-        builder.modificationDate(ZonedDateTime.now());
-        builder.status(VERIFIED_STATUS);
-        builder.verifyDate(ZonedDateTime.now());
-        builder.verifiedByEmployeeId(verifyItemCommand.getEmployeeId());
-
-        var cartonItemVerified = builder.build();
+        var cartonItemVerified = CartonItem.builder()
+            .id(cartonItem.getId())
+            .cartonId(cartonItem.getCartonId())
+            .unitNumber(cartonItem.getUnitNumber())
+            .productCode(cartonItem.getProductCode())
+            .productDescription(cartonItem.getProductDescription())
+            .productType(cartonItem.getProductType())
+            .volume(inventoryValidation.getInventory().getVolumeByType(VOLUME_TYPE).map(InventoryVolume::getValue).orElse(0))
+            .weight(inventoryValidation.getInventory().getWeight())
+            .packedByEmployeeId(cartonItem.getPackedByEmployeeId())
+            .aboRh(cartonItem.getAboRh())
+            .expirationDate(inventoryValidation.getInventory().getExpirationDate())
+            .collectionDate(inventoryValidation.getInventory().getCollectionDate())
+            .createDate(cartonItem.getCreateDate())
+            .modificationDate(ZonedDateTime.now())
+            .status(VERIFIED_STATUS)
+            .verifyDate(ZonedDateTime.now())
+            .verifiedByEmployeeId(verifyItemCommand.getEmployeeId())
+            .build();
 
         validateProductCriteria(shipment.getShipmentCustomer().getCustomerCode(), shipment.getProductType(), cartonItemVerified.getVolume() , carton.getTotalProducts() , recoveredPlasmaShipmentCriteriaRepository , Boolean.FALSE );
 
