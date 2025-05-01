@@ -1,7 +1,9 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.application.mapper;
 
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.CartonOutput;
+import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.CartonPackingSlipOutput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Carton;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.CartonPackingSlip;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.InventoryValidation;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -29,5 +31,26 @@ public interface CartonOutputMapper {
     @Mapping(target = "canVerify", expression = "java(carton.canVerify())")
     @Mapping(target = "canClose", expression = "java(carton.canClose())")
     CartonOutput toOutput(Carton carton,InventoryValidation inventoryValidation);
+
+    @Mapping(source ="cartonPackingSlip.cartonId" , target = "cartonId")
+    @Mapping(source ="cartonPackingSlip.cartonNumber" , target = "cartonNumber")
+    @Mapping(source ="cartonPackingSlip.cartonSequence" , target = "cartonSequence")
+    @Mapping(source ="cartonPackingSlip.totalProducts" , target = "totalProducts")
+    @Mapping(source ="cartonPackingSlip.dateTimePacked" , target = "dateTimePacked")
+    @Mapping(source ="cartonPackingSlip.packedByEmployeeId" , target = "packedByEmployeeId")
+    @Mapping(source ="cartonPackingSlip.testingStatement" , target = "testingStatement")
+    @Mapping(target = "displaySignature", expression = "java(cartonPackingSlip.isDisplaySignature())")
+    @Mapping(target = "displayTransportationReferenceNumber", expression = "java(cartonPackingSlip.isDisplayTransportationReferenceNumber())")
+    @Mapping(target = "displayTestingStatement", expression = "java(cartonPackingSlip.isDisplayTestingStatement())")
+    @Mapping(target = "displayLicenceNumber", expression = "java(cartonPackingSlip.isDisplayLicenceNumber())")
+    @Mapping(source ="cartonPackingSlip.shipFrom.bloodCenterName" , target = "shipFromBloodCenterName")
+    @Mapping(source ="cartonPackingSlip.shipFrom.licenseNumber" , target = "shipFromLicenseNumber")
+    @Mapping(source ="cartonPackingSlip.shipFrom.locationAddressFormatted" , target = "shipFromLocationAddress")
+    @Mapping(source ="cartonPackingSlip.shipTo.formattedAddress" , target = "shipToAddress")
+    @Mapping(source ="cartonPackingSlip.packingSlipShipment.shipmentNumber" , target = "shipmentNumber")
+    @Mapping(source ="cartonPackingSlip.packingSlipShipment.productType" , target = "shipmentProductType")
+    @Mapping(source ="cartonPackingSlip.packingSlipShipment.productDescription" , target = "shipmentProductDescription")
+    @Mapping(source ="cartonPackingSlip.packingSlipShipment.transportationReferenceNumber" , target = "shipmentTransportationReferenceNumber")
+    CartonPackingSlipOutput toOutPut(CartonPackingSlip cartonPackingSlip);
 
 }
