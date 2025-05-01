@@ -230,4 +230,12 @@ class InventoryAggregateTest {
         assertSame(inventoryAggregate, result, "Should return the same instance");
     }
 
+    @Test
+    @DisplayName("Should Update Inventory Status")
+    void shouldUpdateInventoryStatus() {
+        InventoryAggregate result = inventoryAggregate.cartonShipped();
+        verify(inventoryMock).transitionStatus(InventoryStatus.SHIPPED, null);
+        assertSame(inventoryAggregate, result, "Should return the same instance");
+    }
+
 }
