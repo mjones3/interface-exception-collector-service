@@ -32,6 +32,7 @@ import { ERROR_MESSAGE } from 'app/core/data/common-labels';
 import { UseCaseNotificationDTO } from 'app/shared/models/use-case-response.dto';
 import { VerifyCartonItemsDTO } from '../../graphql/mutation-definitions/verify-products.graphql';
 import { AddRecoveredPlasmaProductsComponent } from '../add-recovered-plasma-products/add-recovered-plasma-products.component';
+import { CloseCartonDTO } from '../../graphql/mutation-definitions/close-carton.graphql';
 
 @Component({
   selector: 'biopro-manage-carton-products',
@@ -335,4 +336,36 @@ private getVerifyProductRequest(
       employeeId: this.employeeIdSignal(),
   };
 }
+
+
+// Close Carton
+closeCarton() {
+  this.recoveredPlasmaService
+      .closeCarton(this.closeCartonRequest())
+      .pipe(
+        catchError((error: ApolloError) => {
+            handleApolloError(this.toastr, error);
+        }),
+        tap((response) =>
+            consumeUseCaseNotifications(
+                this.toastr,
+                response.data?.closeCarton.notifications
+            )
+        )
+      )
+      .subscribe((carton) => {
+        const nextUrl = carton?.data?.closeCarton?._links.next;
+        if (nextUrl) {
+            this.router.navigateByUrl(nextUrl);
+        }
+    });
+}
+
+private closeCartonRequest(): CloseCartonDTO {
+    return {
+        cartonId: this.routeIdComputed(),
+        locationCode: this.locationCodeComputed(),
+        employeeId: this.employeeIdSignal(),
+    };
+  }
 }

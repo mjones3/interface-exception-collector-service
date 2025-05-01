@@ -55,7 +55,7 @@
                 </span>
             </ng-template>
             <ng-template #editTemplateRef let-element="element">
-                @if (shipmentDetailsSignal()?.canAddCartons) {
+                @if (element?.status !== 'CLOSED') {
                     <button id="editBtn" (click)="editCarton(element?.id)" class="edit-button-mat-icon">
                         <mat-icon>edit</mat-icon>
                     </button>

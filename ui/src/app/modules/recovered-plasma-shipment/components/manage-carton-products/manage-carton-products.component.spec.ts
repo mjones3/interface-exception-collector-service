@@ -61,7 +61,7 @@ describe('ManageCartonComponent', () => {
     shipmentId: 456,
     cartonNumber: 'C123',
     status: 'OPEN',
-    canClose: true,
+    canClose: false,
     canVerify: true,
     packedProducts: []
   };
@@ -387,6 +387,16 @@ describe('ManageCartonComponent', () => {
       expect(component.verifyProductsControl.focusOnUnitNumber).toHaveBeenCalled();
     });
 
+    it('should disable close carton option', () => {
+      jest.spyOn(service, 'verifyCartonProducts').mockReturnValue(of(mockSuccessResponse));
+      component.setCartonDetails(mockCartonData);
+      const buttonIdCssSelector = By.css('#closeCartonBtn button');
+            const root = fixture.debugElement;
+            fixture.detectChanges();
+            const button = root.query(buttonIdCssSelector)?.nativeElement;
+            expect(button.disabled).toBeTruthy();
+    });
+
     it('should handle info notification during verification', () => {
       const infoResponse = {
         data: {
@@ -490,4 +500,10 @@ describe('ManageCartonComponent', () => {
       expect(callbacks).toHaveProperty('focusFn');
     });
   });
+
+it('should go to step based on route data', () => {
+  activatedRoute.data = of({ step: 1 });
+  component.goToStep();
+  expect(component.stepper.selectedIndex).toBe(1);
+});
 });
