@@ -233,5 +233,10 @@ public class InventoryAggregate {
         }
         return this;
     }
+
+    public InventoryAggregate updateInventoryStatus(InventoryStatus status) {
+        inventory.transitionStatus(status, null);
+        return this;
+    }
 }
 

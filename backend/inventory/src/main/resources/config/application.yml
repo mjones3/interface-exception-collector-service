@@ -317,6 +317,8 @@ topic:
     name: RecoveredPlasmaCartonPacked
   recovered-plasma-carton-removed:
     name: RecoveredPlasmaCartonRemoved
+  recovered-plasma-shipment-closed:
+    name: RecoveredPlasmaShipmentClosed
   inventory-updated:
     name: InventoryUpdated
   product-unsuitable:

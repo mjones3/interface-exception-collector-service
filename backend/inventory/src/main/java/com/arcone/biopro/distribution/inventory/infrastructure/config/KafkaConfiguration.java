@@ -12,6 +12,7 @@ import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.U
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.ProductRecoveredMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.RecoveredPlasmaCartonPackedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.RecoveredPlasmaCartonRemovedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.RecoveredPlasmaShipmentClosedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.unsuitable.UnsuitableMessage;
 import com.arcone.biopro.distribution.inventory.adapter.output.producer.event.InventoryUpdatedEvent;
 import com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput;
@@ -92,10 +93,13 @@ class KafkaConfiguration {
 
     @Value("${topic.product-recovered.name}")
     private String productRecoveredTopic;
-    
+
     @Value("${topic.recovered-plasma-carton-packed.name}")
     private String recoveredPlasmaCartonPackedTopic;
-    
+
+    @Value("${topic.recovered-plasma-shipment-closed.name}")
+    private String recoveredPlasmaShipmentClosedTopic;
+
     @Value("${topic.recovered-plasma-carton-removed.name}")
     private String recoveredPlasmaCartonRemovedTopic;
 
@@ -163,14 +167,21 @@ class KafkaConfiguration {
         return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
             .subscription(List.of(productRecoveredTopic));
     }
-    
+
     @Bean
     @Qualifier("RECOVERED_PLASMA_CARTON_PACKED")
     ReceiverOptions<String, String> recoveredPlasmaCartonPackedReceiverOptions(KafkaProperties kafkaProperties) {
         return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
             .subscription(List.of(recoveredPlasmaCartonPackedTopic));
     }
-    
+
+    @Bean
+    @Qualifier("RECOVERED_PLASMA_SHIPMENT_CLOSED")
+    ReceiverOptions<String, String> recoveredPlasmaShipmentClosedReceiverOptions(KafkaProperties kafkaProperties) {
+        return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
+            .subscription(List.of(recoveredPlasmaShipmentClosedTopic));
+    }
+
     @Bean
     @Qualifier("RECOVERED_PLASMA_CARTON_REMOVED")
     ReceiverOptions<String, String> recoveredPlasmaCartonRemovedReceiverOptions(KafkaProperties kafkaProperties) {
@@ -327,7 +338,19 @@ class KafkaConfiguration {
     ) {
         return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
     }
-    
+
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "RecoveredPlasmaShipmentClosed",
+        description = "Recovered Plasma Shipment Closed event has been listened and inventory status was updated",
+        payloadType = RecoveredPlasmaShipmentClosedMessage.class
+    ))
+    @Bean(name = "RECOVERED_PLASMA_SHIPMENT_CLOSED_CONSUMER")
+    ReactiveKafkaConsumerTemplate<String, String> recoveredPlasmaShipmentClosedConsumerTemplate(
+        @Qualifier("RECOVERED_PLASMA_SHIPMENT_CLOSED") ReceiverOptions<String, String> receiverOptions
+    ) {
+        return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
+    }
+
     @AsyncListener(operation = @AsyncOperation(
         channelName = "RecoveredPlasmaCartonPacked",
         description = "Recovered Plasma Carton Packed event has been listened and inventory status was updated",
@@ -339,7 +362,7 @@ class KafkaConfiguration {
     ) {
         return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
     }
-    
+
     @AsyncListener(operation = @AsyncOperation(
         channelName = "RecoveredPlasmaCartonRemoved",
         description = "Recovered Plasma Carton Removed event has been listened and inventory status was updated",
