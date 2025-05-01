@@ -8,7 +8,6 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.Us
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.UseCaseNotificationType;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.UseCaseOutput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.exception.DomainNotFoundForKeyException;
-import com.arcone.biopro.distribution.recoveredplasmashipping.application.mapper.CartonItemOutputMapper;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.mapper.CartonOutputMapper;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.exception.ProductCriteriaValidationException;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.exception.ProductValidationException;
@@ -94,7 +93,7 @@ public class PackCartonItemUseCase implements PackCartonItemService {
                                 .details(firstNotification.getDetails())
                                 .name(firstNotification.getErrorName())
                                 .build()
-                        ).orElse( UseCaseMessage
+                        ).orElseGet(() -> UseCaseMessage
                             .builder()
                             .code(6)
                             .message(productValidationException.getMessage())

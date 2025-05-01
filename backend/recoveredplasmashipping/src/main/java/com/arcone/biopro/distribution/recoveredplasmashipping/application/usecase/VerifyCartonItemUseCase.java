@@ -107,7 +107,7 @@ public class VerifyCartonItemUseCase implements VerifyCartonService {
                                 .details(firstNotification.getDetails())
                                 .name(firstNotification.getErrorName())
                                 .build()
-                        ).orElse( UseCaseMessage
+                        ).orElseGet(() -> UseCaseMessage
                             .builder()
                             .code(11)
                             .message(productValidationException.getMessage())
