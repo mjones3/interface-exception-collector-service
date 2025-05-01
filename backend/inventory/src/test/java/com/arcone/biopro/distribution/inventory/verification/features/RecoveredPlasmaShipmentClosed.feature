@@ -5,8 +5,8 @@ Feature: Recovered Plasma Shipment Closed Event - API
 
     Scenario Outline: Update the status of multiple inventories with different product after receiving a Recovered PlasmaShipment Closed event.
         Given I have the following inventories:
-            | Unit Number   | Product Code    |
-            | <Unit Number> | <Product Code>  |
+            | Unit Number   | Product Code    | Status |
+            | <Unit Number> | <Product Code>  | PACKED |
 
         When I received a Recovered Plasma Shipment Closed Event
             | Unit Number   | Product Code    |Carton Number  |
