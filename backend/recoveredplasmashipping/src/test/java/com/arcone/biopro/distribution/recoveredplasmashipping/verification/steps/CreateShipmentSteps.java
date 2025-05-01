@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.verification.steps;
 
+import com.arcone.biopro.distribution.recoveredplasmashipping.verification.controllers.CartonTestingController;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.controllers.CreateShipmentController;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.pages.CreateShipmentPage;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.DatabaseQueries;
@@ -34,6 +35,8 @@ public class CreateShipmentSteps {
     private SharedContext sharedContext;
     @Autowired
     private TestUtils testUtils;
+    @Autowired
+    private CartonTestingController cartonTestingController;
 
     @Given("I have removed from the database all shipments which code contains with {string}.")
     public void removeShipmentsFromDatabase(String code) {
@@ -225,13 +228,13 @@ public class CreateShipmentSteps {
     @And("I request to add {int} carton(s) to the shipment.")
     public void iRequestToAddCartonsToTheShipment(int quantity) {
         for (var n = 0; n < quantity; n++)
-            createShipmentController.createCarton(sharedContext.getShipmentCreateResponse().get("id").toString());
+            cartonTestingController.createCarton(sharedContext.getShipmentCreateResponse().get("id").toString());
     }
 
     @And("I request to add {int} carton(s) to the shipment {int}.")
     public void iRequestToAddCartonsToTheShipmentNumber(int quantity, int shipmentId) {
         for (var n = 0; n < quantity; n++)
-            createShipmentController.createCarton(shipmentId);
+            cartonTestingController.createCarton(shipmentId);
     }
 
     @Given("I have an empty carton created with the Customer Code as {string} , Product Type as {string}, Carton Tare Weight as {string}, Shipment Date as {string}, Transportation Reference Number as {string} and Location Code as {string}.")

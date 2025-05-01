@@ -134,7 +134,7 @@ public class ApiHelper {
             log.debug("Response: {}", response);
             var notifications = (ArrayList) response.get("notifications");
             if (notifications != null && !notifications.isEmpty()) {
-                context.setApiListMessageResponse((List<Map>) response.get("notifications"));
+                context.setApiListMessageResponse(notifications);
             }
             return response;
         } catch (FieldAccessException e) {

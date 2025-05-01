@@ -96,4 +96,26 @@ public class GraphQLMutationMapper {
             }
             """, cartonId, unitNumber, productCode, locationCode);
     }
+
+    public static String closeCarton (String cartonId, String employeeId, String locationCode) {
+        return String.format("""
+            mutation CloseCarton {
+                closeCarton(
+                    closeCartonRequest: { cartonId: %s, employeeId: "%s", locationCode: "%s" }
+                ) {
+                    _links
+                    data
+                    notifications {
+                        message
+                        type
+                        code
+                        action
+                        reason
+                        details
+                        name
+                    }
+                }
+            }
+            """, cartonId, employeeId, locationCode);
+    }
 }
