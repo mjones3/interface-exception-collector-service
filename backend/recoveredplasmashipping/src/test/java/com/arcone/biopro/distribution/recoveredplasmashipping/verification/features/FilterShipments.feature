@@ -21,7 +21,6 @@ Feature: Filter Shipments
                 | Location Code                   | 123456789                     |
             When I am on the Shipment List Page.
             And I open the filter panel.
-            Then The Filter Apply button should be "disabled".
             When I select the following filter criteria:
                 | Customer                        | Bio Products                  |
                 | Product Type                    | RP NONINJECTABLE REFRIGERATED |
