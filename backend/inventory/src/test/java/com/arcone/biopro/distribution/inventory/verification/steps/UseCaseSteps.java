@@ -48,6 +48,8 @@ public class UseCaseSteps {
 
     private final RecoveredPlasmaCartonRemovedUseCase recoveredPlasmaCartonRemovedUseCase;
 
+    private final RecoveredPlasmaShipmentClosedUseCase recoveredPlasmaShipmentClosedUseCase;
+
     private final ProductCompletedUseCase productCompletedUseCase;
 
     private final ScenarioContext scenarioContext;
@@ -318,5 +320,29 @@ public class UseCaseSteps {
             Integer anticoagulantVolume = Integer.valueOf(product.get("Anticoagulant Volume"));
             productCompletedUseCase.execute(inventoryUtil.newProductCompletedInput(unitNumber, productCode, volume, anticoagulantVolume, "ml")).block();
         }
+    }
+
+    @When("I received a Recovered Plasma Shipment Closed Event")
+    public void iReceivedARecoveredPlasmaShipmentClosedEvent(DataTable dataTable) {
+        List<Map<String, String>> products = dataTable.asMaps(String.class, String.class);
+        List<ShipmentPackedProductInput> packedProducts = new ArrayList<>();
+        for (Map<String, String> product : products) {
+            var unitNumber = product.get("Unit Number");
+            var productCode = product.get("Product Code");
+            packedProducts.add(ShipmentPackedProductInput.builder()
+                .unitNumber(unitNumber)
+                .productCode(productCode)
+                .status("SHIPPED")
+                .build());
+        }
+        List<CartonInput> cartons = new ArrayList<>();
+        cartons.add(CartonInput.builder()
+            .cartonNumber("CN001")
+            .packedProducts(packedProducts)
+            .build());
+        RecoveredPlasmaShipmentClosedInput input =  RecoveredPlasmaShipmentClosedInput.builder()
+            .cartonList(cartons)
+            .build();
+        recoveredPlasmaShipmentClosedUseCase.execute(input).block();
     }
 }
