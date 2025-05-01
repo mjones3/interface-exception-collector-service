@@ -205,7 +205,8 @@ public class SharedActions {
         }
     }
 
-    public void verifyMessage(String header, String message) {
+    public void verifyMessage(String header, String message) throws InterruptedException {
+        waitLoadingAnimation();
         log.info("Verifying message: {}", message);
         String bannerMessageLocator = "#toast-container";
         String msg = wait.until(e -> e.findElement(By.cssSelector(bannerMessageLocator))).getText();

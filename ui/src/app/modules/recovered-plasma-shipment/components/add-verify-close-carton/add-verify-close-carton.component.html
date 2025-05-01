@@ -35,11 +35,11 @@
                     class="mb-4"
                 >
                 </biopro-global-message>
-                } 
+                }
             <fuse-card class="min-h-[300px] w-full stepper">
                 <mat-stepper [linear]="isLinear" #stepper class="w-full">
                     <mat-step [completed]="cartonDetailsSignal()?.canVerify">
-                        <ng-template matStepLabel>Add Products</ng-template> 
+                        <ng-template matStepLabel>Add Products</ng-template>
                             <biopro-carton-details
                                 #addProductsControl
                                 [cartonDetails]="cartonDetailsSignal"
@@ -48,10 +48,11 @@
                             "
                             ></biopro-carton-details>
                         <div class="flex justify-end">
-                        <button 
-                            mat-button 
-                            class="mat-primary text-primary-800" 
+                        <button
+                            mat-button
+                            class="mat-primary text-primary-800"
                             matStepperNext
+                            id = "manageCartonNextBtn"
                             [disabled]="!cartonDetailsSignal()?.canVerify"
                             (click)="onClickNext()"
                         >
@@ -68,13 +69,13 @@
                             >
                             </biopro-verify-recovered-plasma-products>
                         <div class="flex justify-end">
-                            <button 
-                                mat-button 
-                                class="mat-primary text-primary-900" 
+                            <button
+                                mat-button
+                                class="mat-primary text-primary-900"
                                 (click)="onClickPrevious({index: 0})"
                              >
                              Previous
-                            </button>                      
+                            </button>
                         </div>
                     </mat-step>
                 </mat-stepper>

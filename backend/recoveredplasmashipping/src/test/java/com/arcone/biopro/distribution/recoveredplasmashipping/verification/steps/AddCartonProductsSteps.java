@@ -27,7 +27,7 @@ public class AddCartonProductsSteps {
     @Autowired
     private TestUtils testUtils;
 
-    @Given("I should be redirected to the Add Carton Products page.")
+    @Given("I should be redirected to the Manage Carton Products page.")
     public void iShouldBeRedirectedToTheAddCartonProductsPage() {
         addCartonPage.waitForLoad();
     }
@@ -36,11 +36,6 @@ public class AddCartonProductsSteps {
     public void iShouldSeeTheCartonDetails(DataTable dataTable) {
         Map<String, String> table = dataTable.asMap(String.class, String.class);
         addCartonPage.verifyCartonDetails(table);
-    }
-
-    @When("I click to go back to Shipment Details page.")
-    public void iClickToGoBackToShipmentDetailsPage() {
-        addCartonPage.clickBack();
     }
 
     @When("I fill/pack an {string} product with the unit number {string}, product code {string} and product type {string}.")
@@ -59,6 +54,7 @@ public class AddCartonProductsSteps {
             Assert.fail("The option " + option + " is not valid.");
         }
     }
+
     @And("The product unit number {string} and product code {string} {string} be verified in the carton.")
     public void theProductUnitNumberAndProductCodeBeVerifiedInTheCarton(String unitNumber, String productCode, String option) {
         if (option.equals("should")) {
@@ -74,6 +70,7 @@ public class AddCartonProductsSteps {
     public void iPackAProductWithTheUnitNumberProductCodeAndVolume(String unitNumber, String productCode, String productVolume) {
         addProductToCarton("", unitNumber, productCode, "");
     }
+
     @When("I pack a product with the unit number {string} and product code {string} into the carton sequence {int}.")
     public void iPackAProductInASpecificCarton(String unitNumber, String productCode, int cartonSequence) {
         String cartonId = sharedContext.getCreateCartonResponseList().get(cartonSequence - 1).get("id").toString();
@@ -86,14 +83,43 @@ public class AddCartonProductsSteps {
         addCartonPage.navigateToCarton(cartonId);
     }
 
-    @When("I add/scan an {string} product with the unit number {string}, product code {string} and product type {string}.")
-    public void iFillAnAcceptableProductWithTheUnitNumberProductCodeAndProductType(String productQuality, String unitNumber, String productCode, String productType) {
-        addCartonPage.addProduct(unitNumber, productCode);
+    @And("I navigate to the Manage Carton Products page for the carton sequence number {int}.")
+    public void iNavigateToTheManageCartonProductsPageForTheCartonNumber(int sequenceNumber) throws InterruptedException {
+        iNavigateToTheAddCartonProductsPageForTheCartonNumber(sequenceNumber);
     }
 
-    @Then("I should see the product in the packed list with unit number {string} and product code {string}.")
+    @When("I add/scan an {string} product with the unit number {string}, product code {string} and product type {string}.")
+    public void iFillAnAcceptableProductWithTheUnitNumberProductCodeAndProductType(String productQuality, String unitNumber, String productCode, String productType) throws InterruptedException {
+        var productList = testUtils.getCommaSeparatedList(unitNumber);
+        var productCodeList = testUtils.getCommaSeparatedList(productCode);
+        Assert.assertEquals(productList.length, productCodeList.length);
+        for (int i = 0; i < productList.length; i++) {
+            addCartonPage.addProduct(productList[i], productCodeList[i]);
+            Thread.sleep(500);
+        }
+    }
+
+    @When("I add/scan to verify an {string} product with the unit number {string}, product code {string} and product type {string}.")
+    public void verifyAnAcceptableProductWithTheUnitNumberProductCodeAndProductType(String productQuality, String unitNumber, String productCode, String productType) throws InterruptedException {
+        var productList = testUtils.getCommaSeparatedList(unitNumber);
+        var productCodeList = testUtils.getCommaSeparatedList(productCode);
+        Assert.assertEquals(productList.length, productCodeList.length);
+
+        for (int i = 0; i < productList.length; i++) {
+            addCartonPage.verifyProduct(productList[i], productCodeList[i]);
+            Thread.sleep(500);
+        }
+    }
+
+    @Then("I should see the product in the packed/verified list with unit number {string} and product code {string}.")
     public void iShouldSeeTheProductInThePackedListWithUnitNumberAndProductCode(String unitNumber, String productCode) {
-        Assert.assertTrue(addCartonPage.verifyProductIsPacked(testUtils.removeUnitNumberScanDigits(unitNumber), testUtils.removeProductCodeScanDigits(productCode)));
+        var unitList = testUtils.getCommaSeparatedList(unitNumber);
+        var productList = testUtils.getCommaSeparatedList(productCode);
+        Assert.assertEquals(unitList.length, productList.length);
+
+        for (var i = 0; i > productList.length; i++) {
+            Assert.assertTrue(addCartonPage.verifyProductIsPacked(testUtils.removeUnitNumberScanDigits(unitNumber), testUtils.removeProductCodeScanDigits(productCode)));
+        }
     }
 
     @And("I have packed the following products:")
@@ -114,9 +140,9 @@ public class AddCartonProductsSteps {
 
     }
 
-    @When("I choose to submit the carton.")
-    public void iChooseToSubmitTheCarton() {
-        addCartonPage.clickSubmit();
+    @When("I choose to navigate back to Shipment Details page.")
+    public void iChooseToNavigateBack() {
+        addCartonPage.clickBackToShipmentDetails();
     }
 
     @And("I have the unit numbers {string}, product codes {string} and product types {string} packed which become unsuitable.")
