@@ -83,21 +83,15 @@ public class FilterShipmentsController {
         var productTypeList = attributeKey.equals("productTypeList")
             ? utils.parseCommaSeparatedStringToGraphqlArrayList(attributeValue)
             : null;
-        var shipmentFrom = attributeKey.equals("shipmentDateRange")
+        var shipmentFrom = attributeKey.equals("shipmentDateRange") && !utils.getCommaSeparatedList(attributeValue)[0].equalsIgnoreCase("<null>")
             ? "\"" + utils.getCommaSeparatedList(attributeValue)[0] + "\""
             : null;
-        var shipmentTo = attributeKey.equals("shipmentDateRange")
+        var shipmentTo = attributeKey.equals("shipmentDateRange") && !utils.getCommaSeparatedList(attributeValue)[1].equalsIgnoreCase("<null>")
             ? "\"" + utils.getCommaSeparatedList(attributeValue)[1] + "\""
             : null;
         var transportationReferenceNumber = attributeKey.equals("transportationReferenceNumber")
             ? "\"" + attributeValue + "\""
             : null;
-
-        // Add date range as default when no shipmentNumber is provided
-        if (!List.of("shipmentNumber", "shipmentDateRange").contains(attributeKey)) {
-            shipmentFrom = "\"" + LocalDate.now() + "\"";
-            shipmentTo = "\"" + LocalDate.now().plusDays(1) + "\"";
-        }
 
         var response = apiHelper.graphQlRequest(GraphQLQueryMapper.searchShipment(
             locationCodeList,

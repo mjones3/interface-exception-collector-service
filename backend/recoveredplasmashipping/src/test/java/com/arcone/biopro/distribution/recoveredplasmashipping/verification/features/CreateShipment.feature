@@ -67,7 +67,7 @@ Feature: Shipment Creation
                 | product_type                    | RP_FROZEN_WITHIN_120_HOURS |
                 | status                          | OPEN                       |
                 | carton_tare_weight              | 1000.0                     |
-                | create_date                     | <null>                     |
+                | create_date                     | <not_null>                     |
                 | transportation_reference_number | 123456789                  |
                 | location_code                   | 123456789_TEST             |
                 | shipment_date                   | <null>                     |
@@ -100,7 +100,6 @@ Feature: Shipment Creation
             And The shipment "should not" be created.
             Examples:
                 | Attribute             | Attribute Value | Error Message                       |
-                | shipmentDate          | <null>          | Shipment date is required           |
                 | shipmentDate          | 2020-01-01      | Shipment date must be in the future |
 
 

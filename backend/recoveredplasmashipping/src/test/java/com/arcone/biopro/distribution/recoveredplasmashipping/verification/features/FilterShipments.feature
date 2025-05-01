@@ -142,19 +142,19 @@ Feature: Filter Shipments
                 | Customer Code                   | 408                        |
                 | Product Type                    | RP_FROZEN_WITHIN_120_HOURS |
                 | Carton Tare Weight              | 1000                       |
-                | Shipment Date                   | 2020-05-03                 |
+                | Shipment Date                   | <tomorrow>                 |
                 | Transportation Reference Number | 55123                      |
                 | Location Code                   | 123456700_TEST             |
             And I request to create a new shipment with the values:
                 | Field                           | Value                      |
                 | Customer Code                   | 409                        |
-                | Product Type                    | RP_FROZEN_WITHIN_120_HOURS |
+                | Product Type                    | RP_FROZEN_WITHIN_72_HOURS |
                 | Carton Tare Weight              | 1000                       |
                 | Shipment Date                   | <today>                    |
                 | Transportation Reference Number | 55456                      |
                 | Location Code                   | 123456700_TEST             |
             When I requested the list of shipments filtering by "shipmentDateRange" as "2020-01-01,2025-01-01".
-            Then I should receive a "WARN" message response "Shipment Date range must not exceed 2 years".
+            Then I should receive a "BAD_REQUEST" error message response "Shipment date range exceeds 2 years".
             When I requested the list of shipments filtering by "shipmentDateRange" as "<two-years-back>,<today>".
             Then The list shipment response should contains "1" items.
 
