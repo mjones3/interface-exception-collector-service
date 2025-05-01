@@ -118,6 +118,7 @@ Feature: Filter Shipments
 
 
         Rule: I should be able to search shipments without the Ship Date.
+        @api @DIS-371
         Scenario: Search for shipments by <Attribute>
             Given The location "123456700_TEST" is configured with prefix "BPM_TEST", shipping code "DIS371001", carton prefix "BPM" and prefix configuration "Y".
             And I request to create a new shipment with the values:
@@ -145,13 +146,13 @@ Feature: Filter Shipments
                 | Transportation Reference Number | 55123                      |
                 | Location Code                   | 123456700_TEST             |
             And I request to create a new shipment with the values:
-                | Field                           | Value                      |
-                | Customer Code                   | 409                        |
+                | Field                           | Value                     |
+                | Customer Code                   | 409                       |
                 | Product Type                    | RP_FROZEN_WITHIN_72_HOURS |
-                | Carton Tare Weight              | 1000                       |
-                | Shipment Date                   | <today>                    |
-                | Transportation Reference Number | 55456                      |
-                | Location Code                   | 123456700_TEST             |
+                | Carton Tare Weight              | 1000                      |
+                | Shipment Date                   | <today>                   |
+                | Transportation Reference Number | 55456                     |
+                | Location Code                   | 123456700_TEST            |
             When I requested the list of shipments filtering by "shipmentDateRange" as "2020-01-01,2025-01-01".
             Then I should receive a "BAD_REQUEST" error message response "Shipment date range exceeds 2 years".
             When I requested the list of shipments filtering by "shipmentDateRange" as "<two-years-back>,<today>".
