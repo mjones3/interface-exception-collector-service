@@ -1,6 +1,6 @@
 export interface CreateShipmentRequestDTO {
     customerCode: string;
-    shipmentDate: string;
+    shipmentDate?: string;
     productType: string;
     cartonTareWeight: number;
     createEmployeeId: string;

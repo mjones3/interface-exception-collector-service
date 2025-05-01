@@ -49,8 +49,8 @@ class RecoveredPlasmaShipmentQueryCommandInputMapperTest {
         assertThat(result.getPageSize()).isEqualTo(input.pageSize());
         assertThat(result.getQuerySort()).isNotNull();
         assertThat(result.getQuerySort().getQueryOrderByList()).hasSize(1);
-        assertThat(result.getQuerySort().getQueryOrderByList().get(0).getProperty()).isEqualTo("shipmentDate");
-        assertThat(result.getQuerySort().getQueryOrderByList().get(0).getDirection()).isEqualTo("DESC");
+        assertThat(result.getQuerySort().getQueryOrderByList().getFirst().getProperty()).isEqualTo("shipmentDate");
+        assertThat(result.getQuerySort().getQueryOrderByList().getFirst().getDirection()).isEqualTo("DESC");
         assertThat(result.getShipmentNumber()).isEqualTo(input.shipmentNumber());
         assertThat(result.getLocationCode()).isEqualTo(input.locationCode());
         assertThat(result.getCustomers()).isEqualTo(input.customers());
@@ -77,7 +77,6 @@ class RecoveredPlasmaShipmentQueryCommandInputMapperTest {
             .shipmentNumber("123")
             .locationCode(List.of("FAC-001"))
             .customers(List.of("FAC-002"))
-            .shipmentStatus(List.of("PENDING"))
             .productTypes(List.of("RECOVERED"))
             .build();
 
@@ -90,16 +89,15 @@ class RecoveredPlasmaShipmentQueryCommandInputMapperTest {
         assertThat(result.getPageSize()).isEqualTo(input.pageSize());
         assertThat(result.getQuerySort()).isNotNull();
         assertThat(result.getQuerySort().getQueryOrderByList()).hasSize(1);
-        assertThat(result.getQuerySort().getQueryOrderByList().get(0).getProperty()).isEqualTo("shipmentDate");
-        assertThat(result.getQuerySort().getQueryOrderByList().get(0).getDirection()).isEqualTo("DESC");
+        assertThat(result.getQuerySort().getQueryOrderByList().getFirst().getProperty()).isEqualTo("shipmentDate");
+        assertThat(result.getQuerySort().getQueryOrderByList().getFirst().getDirection()).isEqualTo("DESC");
         assertThat(result.getShipmentNumber()).isEqualTo(input.shipmentNumber());
         assertThat(result.getLocationCode()).isEqualTo(input.locationCode());
         assertThat(result.getCustomers()).isEqualTo(input.customers());
-        assertThat(result.getShipmentDateFrom()).isEqualTo(input.shipmentDateFrom());
-        assertThat(result.getShipmentDateTo()).isEqualTo(input.shipmentDateTo());
-        assertThat(result.getShipmentStatus()).isEqualTo(input.shipmentStatus());
+        assertThat(result.getShipmentDateFrom()).isNull();
+        assertThat(result.getShipmentDateTo()).isNull();
+        assertThat(result.getShipmentStatus()).isNull();
         assertThat(result.getProductTypes()).isEqualTo(input.productTypes());
-
     }
 
 }

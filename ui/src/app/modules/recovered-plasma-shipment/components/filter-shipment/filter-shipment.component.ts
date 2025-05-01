@@ -1,21 +1,6 @@
 import { CommonModule, formatDate } from '@angular/common';
-import {
-    Component,
-    LOCALE_ID,
-    OnInit,
-    computed,
-    inject,
-    input,
-    output,
-    signal,
-} from '@angular/core';
-import {
-    FormBuilder,
-    FormGroup,
-    FormsModule,
-    ReactiveFormsModule,
-    Validators,
-} from '@angular/forms';
+import { Component, computed, inject, input, LOCALE_ID, OnInit, output, signal } from '@angular/core';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDividerModule } from '@angular/material/divider';
@@ -30,6 +15,7 @@ import { SELECT_ALL_VALUE } from '../../../../shared/utils/mat-select-trigger.ut
 import { RecoveredPlasmaCustomerDTO } from '../../graphql/query-definitions/customer.graphql';
 import { RecoveredPlasmaLocationDTO } from '../../graphql/query-definitions/location.graphql';
 import { RecoveredPlasmaShipmentQueryCommandRequestDTO } from '../../graphql/query-definitions/shipment.graphql';
+import { DateTime } from 'luxon';
 
 interface FilterShipmentFormDateRange {
     start: Date;
@@ -112,13 +98,16 @@ export class FilterShipmentComponent implements OnInit {
         }))
     );
 
-    onApplySearchFilters =
-        output<RecoveredPlasmaShipmentQueryCommandRequestDTO>();
+    onApplySearchFilters = output<RecoveredPlasmaShipmentQueryCommandRequestDTO>();
     onResetFilters = output<RecoveredPlasmaShipmentQueryCommandRequestDTO>();
     toggleFilters = output<boolean>();
-    enableApplyFilters = signal(false);
+    enableApplyFilters = computed(() => (this.form.errors == null && this.form.valid) ?? false);
     totalFieldsApplied = signal(0);
     today = new Date();
+    minShipmentDateCriteria = DateTime.now()
+        .minus({ year: 2 })
+        .set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
+        .toJSDate();
 
     ngOnInit() {
         this.monitorChanges();
@@ -126,36 +115,30 @@ export class FilterShipmentComponent implements OnInit {
 
     private monitorChanges() {
         const {
-            locationCode,
             shipmentNumber,
-            shipmentStatus,
             customers,
             productTypes,
+            shipmentStatus,
             shipmentDate,
+            locationCode,
             transportationReferenceNumber,
         } = this.form.controls;
         const criteriaSingle = shipmentNumber;
         const criteriaMultiple = [
-            locationCode,
-            shipmentStatus,
             customers,
             productTypes,
-            shipmentDate,
+            shipmentStatus,
+            shipmentDate.get("start"),
+            shipmentDate.get("end"),
+            locationCode,
             transportationReferenceNumber,
         ];
-        const startShipmentDate = shipmentDate.get('start');
-        const endShipmentDate = shipmentDate.get('end');
-
         this.form.valueChanges.subscribe((value: FilterShipmentForm) => {
             if (value.shipmentNumber) {
                 criteriaSingle.enable({ emitEvent: false });
                 criteriaMultiple
-                    .filter((control) => !control.disabled)
-                    .forEach((control) =>
-                        control.disable({ emitEvent: false })
-                    );
-                startShipmentDate.removeValidators([Validators.required]);
-                endShipmentDate.removeValidators([Validators.required]);
+                    .filter(control => !control.disabled)
+                    .forEach(control => control.disable({ emitEvent: false }));
             } else if (
                 value.locationCode?.length ||
                 value.shipmentStatus?.length ||
@@ -167,28 +150,11 @@ export class FilterShipmentComponent implements OnInit {
             ) {
                 criteriaSingle.disable({ emitEvent: false });
                 criteriaMultiple
-                    .filter((control) => control.disabled)
-                    .forEach((control) => control.enable({ emitEvent: false }));
-                if (!startShipmentDate.hasValidator(Validators.required)) {
-                    startShipmentDate.addValidators([Validators.required]);
-                    startShipmentDate.updateValueAndValidity({
-                        emitEvent: false,
-                    });
-                    startShipmentDate.markAsTouched({ emitEvent: false });
-                }
-                if (!endShipmentDate.hasValidator(Validators.required)) {
-                    endShipmentDate.addValidators([Validators.required]);
-                    endShipmentDate.updateValueAndValidity({
-                        emitEvent: false,
-                    });
-                    endShipmentDate.markAsTouched({ emitEvent: false });
-                }
+                    .filter(control => control.disabled)
+                    .forEach(control => control.enable({ emitEvent: false }));
             } else {
                 this.form.enable({ emitEvent: false });
             }
-            this.enableApplyFilters.set(
-                this.form.errors == null && this.form.valid
-            );
         });
     }
 
@@ -214,53 +180,18 @@ export class FilterShipmentComponent implements OnInit {
     applyFilterSearch(): void {
         const formValue = this.form.value;
         const criteria: RecoveredPlasmaShipmentQueryCommandRequestDTO = {
-            ...(formValue.locationCode?.length
-                ? {
-                      locationCode: this.dropSelectAllOptionFrom(
-                          formValue.locationCode
-                      ),
-                  }
-                : null),
-            ...(formValue.shipmentNumber
-                ? { shipmentNumber: formValue.shipmentNumber }
-                : null),
-            ...(formValue.shipmentStatus?.length
-                ? {
-                      shipmentStatus: this.dropSelectAllOptionFrom(
-                          formValue.shipmentStatus
-                      ),
-                  }
-                : null),
-            ...(formValue.customers?.length
-                ? {
-                      customers: this.dropSelectAllOptionFrom(
-                          formValue.customers
-                      ),
-                  }
-                : null),
-            ...(formValue.productTypes?.length
-                ? {
-                      productTypes: this.dropSelectAllOptionFrom(
-                          formValue.productTypes
-                      ),
-                  }
-                : null),
+            ...(formValue.locationCode?.length ? { locationCode: this.dropSelectAllOptionFrom(formValue.locationCode) } : null),
+            ...(formValue.shipmentNumber ? { shipmentNumber: formValue.shipmentNumber } : null),
+            ...(formValue.shipmentStatus?.length ? { shipmentStatus: this.dropSelectAllOptionFrom(formValue.shipmentStatus) } : null),
+            ...(formValue.customers?.length ? { customers: this.dropSelectAllOptionFrom(formValue.customers) } : null),
+            ...(formValue.productTypes?.length ? { productTypes: this.dropSelectAllOptionFrom(formValue.productTypes) } : null),
             ...(formValue.shipmentDate
                 ? {
-                      shipmentDateFrom: this.formatToISO(
-                          formValue.shipmentDate?.start
-                      ),
-                      shipmentDateTo: this.formatToISO(
-                          formValue.shipmentDate?.end
-                      ),
+                      ...( formValue.shipmentDate?.start ? { shipmentDateFrom: this.formatToISO(formValue.shipmentDate?.start) } : null ),
+                      ...( formValue.shipmentDate?.end ? { shipmentDateTo: this.formatToISO(formValue.shipmentDate?.end) } : null )
                   }
                 : null),
-            ...(formValue.transportationReferenceNumber
-                ? {
-                      transportationReferenceNumber:
-                          formValue.transportationReferenceNumber,
-                  }
-                : null),
+            ...(formValue.transportationReferenceNumber ? { transportationReferenceNumber: formValue.transportationReferenceNumber } : null),
         };
         this.emitResults(criteria);
     }
@@ -268,12 +199,6 @@ export class FilterShipmentComponent implements OnInit {
     resetFilters(): void {
         this.form.reset();
         this.form.enable({ emitEvent: false });
-        this.form.controls.shipmentDate
-            .get('start')
-            .removeValidators([Validators.required]);
-        this.form.controls.shipmentDate
-            .get('end')
-            .removeValidators([Validators.required]);
         this.emitNoResults();
     }
 

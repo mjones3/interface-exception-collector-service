@@ -68,6 +68,9 @@ public class TestUtils {
             LocalDate today = LocalDate.now();
             log.info("Today's date is {}", today);
             return today.toString();
+        } else if(keyword.equals("<null>")) {
+            log.info("Shipment date in unset");
+            return null;
         } else {
             log.info("Keyword {} not recognized", keyword);
             return keyword;

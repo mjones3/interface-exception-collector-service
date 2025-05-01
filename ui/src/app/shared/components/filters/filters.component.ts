@@ -41,7 +41,6 @@ export class FiltersComponent {
     }
 
     resetFilters() {
-        this.disabled = true;
         this.resetSearchFilter.emit();
     }
 }
