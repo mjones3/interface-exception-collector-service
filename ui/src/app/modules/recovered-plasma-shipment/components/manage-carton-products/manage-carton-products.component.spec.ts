@@ -132,6 +132,7 @@ describe('ManageCartonComponent', () => {
           provide: RecoveredPlasmaService,
           useValue: {
             getCartonById: jest.fn(),
+            closeCarton: jest.fn(),
             getShipmentById: jest.fn(),
             addCartonProducts: jest.fn(),
             verifyCartonProducts: jest.fn(),
@@ -145,7 +146,7 @@ describe('ManageCartonComponent', () => {
             error: jest.fn(),
             success: jest.fn(),
             show: jest.fn()
-          }
+          } as Partial<ToastrImplService> as jest.Mocked<ToastrImplService>
         },
         {
           provide: CookieService,
@@ -506,4 +507,44 @@ it('should go to step based on route data', () => {
   component.goToStep();
   expect(component.stepper.selectedIndex).toBe(1);
 });
+
+describe('close carton', () => {
+const mockResponseCloseCarton = {
+  data: {
+    closeCarton: {
+      data: {},
+    notifications: {
+      type: 'SUCCESS',
+      message: 'Carton closed successfully'
+    },
+    _links: {
+      next: '/recovered-plasma/1/shipment-details?print=true'
+  }
+    }
+  }
+}
+
+  it('should call closeCarton service and navigate on success', () => {
+    jest.spyOn(service, 'closeCarton').mockReturnValue(of(mockResponseCloseCarton) as any);
+    component.closeCarton();
+    expect(service.closeCarton).toHaveBeenCalled();
+  });
+  
+  it('should not navigate if no next url returned', () => {
+    const mockResponse = {
+      data: {
+        closeCarton: {
+          notifications: [{type: 'SUCCESS', message: 'Success'}],
+          _links: {
+            next: null
+          }
+        }
+      }
+    };
+  
+    jest.spyOn(service, 'closeCarton').mockReturnValue(of(mockResponse) as any);
+    component.closeCarton();
+    expect(router.navigateByUrl).not.toHaveBeenCalled();
+  });
+})
 });

@@ -349,7 +349,7 @@ closeCarton() {
         tap((response) =>
             consumeUseCaseNotifications(
                 this.toastr,
-                response.data?.closeCarton.notifications
+                response.data?.closeCarton?.notifications
             )
         )
       )
