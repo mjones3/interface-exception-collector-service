@@ -1,4 +1,4 @@
-import { Component, computed, EventEmitter, Input, OnInit, Output, signal, ViewChild } from '@angular/core';
+import { Component, computed, EventEmitter, input, Input, OnInit, Output, signal, ViewChild } from '@angular/core';
 import { RecoveredPlasmaShipmentCommon } from '../../recovered-plasma-shipment.common';
 import { CartonDTO } from '../../models/recovered-plasma.dto';
 import { ScanUnitNumberProductCodeComponent } from 'app/shared/components/scan-unit-number-product-code/scan-unit-number-product-code.component';
@@ -30,9 +30,9 @@ import { FuseCardComponent } from '@fuse/components/card/public-api';
   templateUrl: './verify-recovered-plasma-products.component.html'
 })
 export class VerifyRecoveredPlasmaProductsComponent 
-extends RecoveredPlasmaShipmentCommon implements OnInit
+extends RecoveredPlasmaShipmentCommon 
 {
-@Input() cartonDetails = signal<CartonDTO>(null);
+cartonDetails = input<CartonDTO>();
 @ViewChild('scanUnitNumberProductCode')
 scanUnitNumberProductCode: ScanUnitNumberProductCodeComponent;
 @Output()verifyUnitNumberProductCode: EventEmitter<CartonDTO> = new EventEmitter<CartonDTO>();
@@ -57,10 +57,6 @@ constructor(
     );
 }
 
-ngOnInit(): void {
-    this.disableInputsIfMaxCartonProduct()
-}
-
 verifyProducts(event): void {
     this.verifyUnitNumberProductCode.emit(event);
 }
@@ -71,13 +67,6 @@ resetProductGroup(): void {
 
 focusOnUnitNumber(): void {
     this.scanUnitNumberProductCode?.focusOnUnitNumber();
-}
-
-disableInputsIfMaxCartonProduct(): void {
-    if (!this.cartonDetails()?.canVerify) 
-    {
-        this.disableProductGroup();
-    }
 }
 
 disableProductGroup(): void {

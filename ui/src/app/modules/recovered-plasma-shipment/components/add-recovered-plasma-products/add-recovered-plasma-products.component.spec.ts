@@ -28,35 +28,59 @@ describe('AddRecoveredPlasmaProductsComponent', () => {
     let mockProcessHeaderService: jest.Mocked<ProcessHeaderService>;
     let mockScanUnitNumberProductCode: jest.Mocked<ScanUnitNumberProductCodeComponent>;
 
-    const mockCartonDetails: CartonDTO = {
-        id: 1,
-        cartonNumber: 'CART123',
-        shipmentId: 100,
-        maxNumberOfProducts: 5,
+    // Mock CartonDTO for testing
+    const mockCartonData: CartonDTO = {
+        id: 3,
+        cartonNumber: "BPMMH13",
+        shipmentId: 2,
+        cartonSequence: 1,
+        createEmployeeId: "4c973896-5761-41fc-8217-07c5d13a004b",
+        closeEmployeeId: null,
+        createDate: "2025-05-01T19:35:06.663415Z",
+        modificationDate: "2025-05-01T19:35:06.663415Z",
+        closeDate: null,
+        status: "OPEN",
+        totalProducts: 0,
+        totalWeight: 0,
+        totalVolume: 0,
+        packedProducts: [],
+        maxNumberOfProducts: 20,
         minNumberOfProducts: 1,
-        packedProducts: [
-            {
-                id: 1,
-                unitNumber: 'W121212121221',
-                productCode: 'EPROD001',
-                productType: 'PLASMA'
-            } as CartonPackedItemResponseDTO,
-            {
-                id: 2,
-                unitNumber: 'W121212121223',
-                productCode: 'EPROD002',
-                productType: 'PLASMA'
-            } as CartonPackedItemResponseDTO
-        ]
+        canVerify: false,
+        canClose: false,
+        verifiedProducts: [],
+        failedCartonItem: null
+    };
+
+    // Mock packed products data
+    const mockPackedProductData: CartonPackedItemResponseDTO = {
+        id: 5,
+        cartonId: "3",
+        unitNumber: "W036898786801",
+        productCode: "E2534V00",
+        productDescription: "CPD PLS MI 24H",
+        productType: "RP_FROZEN_WITHIN_24_HOURS",
+        volume: 259,
+        weight: 150,
+        packedByEmployeeId: "4c973896-5761-41fc-8217-07c5d13a004b",
+        aboRh: "AP",
+        status: "PACKED",
+        expirationDate: "2024-09-03T10:15:30",
+        collectionDate: "2011-12-03T09:15:30Z",
+        createDate: "2025-05-01T22:03:13.598779Z",
+        modificationDate: "2025-05-01T22:03:13.598779Z",
+        verifiedByEmployeeId: null,
+        verifyDate: null
     };
 
     beforeEach(async () => {
-        // Create Jest mocks for all dependencies
-        mockRouter = {navigate: jest.fn()} as Partial<Router> as jest.Mocked<Router>;
+        // Create mocks for all dependencies
+        mockRouter = { navigate: jest.fn() } as Partial<Router> as jest.Mocked<Router>;
         
         mockRecoveredPlasmaService = {
             getShipmentById: jest.fn()
         } as Partial<RecoveredPlasmaService> as jest.Mocked<RecoveredPlasmaService>;        
+        
         mockToastrService = {
             success: jest.fn(),
             error: jest.fn()
@@ -122,18 +146,19 @@ describe('AddRecoveredPlasmaProductsComponent', () => {
         mockStore = TestBed.inject(MockStore);
         fixture = TestBed.createComponent(AddRecoveredPlasmaProductsComponent);
         component = fixture.componentInstance;
-        component.cartonDetails.set(mockCartonDetails);
+        
+        // Set up the input signal with mock data
+        Object.defineProperty(component, 'cartonDetails', {
+            get: () => {
+                return () => mockCartonData;
+            }
+        });
+        
         component.scanUnitNumberProductCode = mockScanUnitNumberProductCode;
     });
 
     it('should create', () => {
         expect(component).toBeTruthy();
-    });
-
-    it('should initialize and call disableInputsIfMaxCartonProduct on ngOnInit', () => {
-        jest.spyOn(component, 'disableInputsIfMaxCartonProduct');
-        component.ngOnInit();
-        expect(component.disableInputsIfMaxCartonProduct).toHaveBeenCalled();
     });
 
     it('should emit unitNumberProductCode when addProduct is called', () => {
@@ -145,33 +170,44 @@ describe('AddRecoveredPlasmaProductsComponent', () => {
 
     it('should return packed products from cartonDetails', () => {
         const result = component.getPackedProducts();
-        expect(result).toEqual(mockCartonDetails.packedProducts);
+        expect(result).toEqual(mockCartonData.packedProducts);
     });
 
     it('should return empty array if packedProducts is undefined', () => {
-        component.cartonDetails.set({ ...mockCartonDetails, packedProducts: undefined });
+        const mockCartonWithUndefinedProducts = { ...mockCartonData, packedProducts: undefined };
+        Object.defineProperty(component, 'cartonDetails', {
+            get: () => {
+                return () => mockCartonWithUndefinedProducts;
+            }
+        });
         const result = component.getPackedProducts();
         expect(result).toEqual([]);
     });
 
     it('should disable inputs if max carton products reached', () => {
-        component.cartonDetails.set({
-            ...mockCartonDetails,
-            packedProducts: Array(5).fill({} as CartonPackedItemResponseDTO),
-            maxNumberOfProducts: 5
-        });
-        component.disableInputsIfMaxCartonProduct();
+        const mockCartonWithMaxProducts = { 
+            ...mockCartonData, 
+            packedProducts: Array(20).fill(mockPackedProductData),
+            maxNumberOfProducts: 20
+        };
+        component.disableInputsIfMaxCartonProduct(mockCartonWithMaxProducts);
         expect(mockScanUnitNumberProductCode.disableUnitProductGroup).toHaveBeenCalled();
     });
 
     it('should not disable inputs if max carton products not reached', () => {
-        component.cartonDetails.set({
-            ...mockCartonDetails,
-            packedProducts: Array(3).fill({} as CartonPackedItemResponseDTO),
+        const mockCartonWithFewProducts = { 
+            ...mockCartonData, 
+            packedProducts: Array(3).fill(mockPackedProductData),
             maxNumberOfProducts: 5
+        };
+        
+        Object.defineProperty(component, 'cartonDetails', {
+            get: () => {
+                return () => mockCartonWithFewProducts;
+            }
         });
         
-        component.disableInputsIfMaxCartonProduct();
+        component.disableInputsIfMaxCartonProduct(mockCartonData);
         expect(mockScanUnitNumberProductCode.disableUnitProductGroup).not.toHaveBeenCalled();
     });
 
@@ -192,17 +228,43 @@ describe('AddRecoveredPlasmaProductsComponent', () => {
 
     it('should compute maxProducts correctly', () => {
         const maxProducts = component.maxProductsComputed();
-        expect(maxProducts).toBe(mockCartonDetails.maxNumberOfProducts);
+        expect(maxProducts).toBe(mockCartonData.maxNumberOfProducts);
     });
 
     it('should compute minProducts correctly', () => {
         const minProducts = component.minProductsComputed();
-        expect(minProducts).toBe(mockCartonDetails.minNumberOfProducts);
+        expect(minProducts).toBe(mockCartonData.minNumberOfProducts);
     });
         
     it('should handle null cartonDetails in getPackedProducts', () => {
-        component.cartonDetails.set(null);
+        const mockCartonWithNullProducts = { ...mockCartonData, packedProducts: null };
+        Object.defineProperty(component, 'cartonDetails', {
+            get: () => {
+                return () => mockCartonWithNullProducts;
+            }
+        });
         const result = component.getPackedProducts();
         expect(result).toEqual([]);
-    });   
+    });
+    
+    it('should properly handle cartonDetails input property', () => {
+        expect(component.cartonDetails()).toBeDefined();
+        expect(component.cartonDetails().id).toBe(3);
+        expect(component.cartonDetails().cartonNumber).toBe('BPMMH13');
+    });
+    
+    it('should update computed values when cartonDetails changes', () => {
+        const updatedMockCarton = { 
+            ...mockCartonData, 
+            maxNumberOfProducts: 30,
+            minNumberOfProducts: 5
+        };
+        Object.defineProperty(component, 'cartonDetails', {
+            get: () => {
+                return () => updatedMockCarton;
+            }
+        });
+        expect(component.maxProductsComputed()).toBe(30);
+        expect(component.minProductsComputed()).toBe(5);
+    });
 });

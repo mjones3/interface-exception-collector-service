@@ -42,7 +42,7 @@
                         <ng-template matStepLabel>Add Products</ng-template> 
                             <biopro-add-recovered-plasma-products
                                 #addProductsControl
-                                [cartonDetails]="cartonDetailsSignal"
+                                [cartonDetails]="cartonDetailsSignal()"
                                 (unitNumberProductCode)="
                                 enterAndVerifyProduct($event)
                             "
@@ -64,7 +64,7 @@
                         <ng-template matStepLabel>Verify Products</ng-template>
                             <biopro-verify-recovered-plasma-products
                                 #verifyProductsControl
-                                [cartonDetails]="cartonDetailsSignal"
+                                [cartonDetails]="cartonDetailsSignal()"
                                 (verifyUnitNumberProductCode)="verifyProducts($event)"
                             >
                             </biopro-verify-recovered-plasma-products>
