@@ -13,6 +13,8 @@ public record CartonPackingSlipDTO(
     int totalProducts,
     String dateTimePacked,
     String packedByEmployeeId,
+    String cartonProductCode,
+    String cartonProductDescription,
     String testingStatement,
     String shipFromBloodCenterName,
     String shipFromLicenseNumber,

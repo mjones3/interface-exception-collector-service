@@ -9,7 +9,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring", uses = CartonItemOutputMapper.class , unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", uses = {CartonItemOutputMapper.class, PackingSlipProductMapper.class} , unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface CartonOutputMapper {
     @Mapping(source = "products", target = "packedProducts")
     @Mapping(target = "canVerify", expression = "java(carton.canVerify())")
@@ -51,6 +51,7 @@ public interface CartonOutputMapper {
     @Mapping(source ="cartonPackingSlip.packingSlipShipment.productType" , target = "shipmentProductType")
     @Mapping(source ="cartonPackingSlip.packingSlipShipment.productDescription" , target = "shipmentProductDescription")
     @Mapping(source ="cartonPackingSlip.packingSlipShipment.transportationReferenceNumber" , target = "shipmentTransportationReferenceNumber")
+    @Mapping(source ="cartonPackingSlip.packedProducts", target = "products")
     CartonPackingSlipOutput toOutPut(CartonPackingSlip cartonPackingSlip);
 
 }

@@ -67,6 +67,8 @@ class CartonPackingSlipTest {
         Mockito.when(cartonItem1.getUnitNumber()).thenReturn("UNIT_NUMBER");
         Mockito.when(cartonItem1.getCollectionDate()).thenReturn(ZonedDateTime.now());
         Mockito.when(cartonItem1.getVolume()).thenReturn(10);
+        Mockito.when(cartonItem1.getProductCode()).thenReturn("PRODUCT_CODE");
+        Mockito.when(cartonItem1.getProductDescription()).thenReturn("PRODUCT_DESC");
 
         Mockito.when(carton.getVerifiedProducts()).thenReturn(List.of(cartonItem1));
 
@@ -81,7 +83,7 @@ class CartonPackingSlipTest {
             .thenReturn(Mono.just(shipment));
         when(locationRepository.findOneByCode(anyString()))
             .thenReturn(Mono.just(location));
-        when(recoveredPlasmaShipmentCriteriaRepository.findProductTypeByProductCode("PLASMA"))
+        when(recoveredPlasmaShipmentCriteriaRepository.findBYProductType("PLASMA"))
             .thenReturn(Mono.just(new ProductType(1,"PLASMA", "Recovered Plasma")));
 
         // When
@@ -112,6 +114,10 @@ class CartonPackingSlipTest {
         assertEquals(1, packingSlip.getPackedProducts().size());
         assertEquals("UNIT_NUMBER", packingSlip.getPackedProducts().getFirst().getUnitNumber());
         assertNotNull( packingSlip.getPackedProducts().getFirst().getCollectionDateFormatted());
+        assertEquals("PRODUCT_CODE", packingSlip.getCartonProductCode());
+        assertEquals("PRODUCT_DESC", packingSlip.getCartonProductDescription());
+
+        assertEquals("Products packed, inspected and found satisfactory by: EMP123", packingSlip.getTestingStatement());
     }
 
     @Test
@@ -144,7 +150,7 @@ class CartonPackingSlipTest {
             .thenReturn(Mono.just(shipment));
         when(locationRepository.findOneByCode(anyString()))
             .thenReturn(Mono.just(location));
-        when(recoveredPlasmaShipmentCriteriaRepository.findProductTypeByProductCode("PLASMA"))
+        when(recoveredPlasmaShipmentCriteriaRepository.findBYProductType("PLASMA"))
             .thenReturn(Mono.just(new ProductType(1,"PLASMA", "Recovered Plasma")));
 
         // When/Then
@@ -168,6 +174,7 @@ class CartonPackingSlipTest {
         Carton carton = Mockito.mock(Carton.class);
         Mockito.when(carton.getShipmentId()).thenReturn(1L);
         Mockito.when(carton.getCloseDate()).thenReturn(ZonedDateTime.now());
+        Mockito.when(carton.getCloseEmployeeId()).thenReturn("test");
 
         CartonItem cartonItem1 = Mockito.mock(CartonItem.class);
         Mockito.when(cartonItem1.getUnitNumber()).thenReturn("UNIT_NUMBER");
@@ -190,7 +197,7 @@ class CartonPackingSlipTest {
 
         var productType = Mockito.mock(ProductType.class);
         Mockito.when(productType.getProductTypeDescription()).thenReturn("Recovered Plasma");
-        when(recoveredPlasmaShipmentCriteriaRepository.findProductTypeByProductCode("PLASMA"))
+        when(recoveredPlasmaShipmentCriteriaRepository.findBYProductType("PLASMA"))
             .thenReturn(Mono.just(productType));
 
         // When/Then
@@ -324,6 +331,8 @@ class CartonPackingSlipTest {
         properties.add(new SystemProcessProperty(6L, "RPS_CARTON_PACKING_SLIP", "USE_TRANSPORTATION_NUMBER", "Y"));
         properties.add(new SystemProcessProperty(7L, "RPS_CARTON_PACKING_SLIP", "USE_TESTING_STATEMENT", "Y"));
         properties.add(new SystemProcessProperty(8L, "RPS_CARTON_PACKING_SLIP", "USE_LICENSE_NUMBER", "Y"));
+        properties.add(new SystemProcessProperty(9L, "RPS_CARTON_PACKING_SLIP", "USE_TESTING_STATEMENT", "Y"));
+        properties.add(new SystemProcessProperty(10L, "RPS_CARTON_PACKING_SLIP", "TESTING_STATEMENT_TXT", "Products packed, inspected and found satisfactory by: {employeeName}"));
         return properties;
     }
 
@@ -341,15 +350,6 @@ class CartonPackingSlipTest {
     }
 
     private Location createMockLocation() {
-        /*List<LocationProperty> properties = new ArrayList<>();
-        properties.add(new LocationProperty(1L, "TZ", "America/New_York"));
-        properties.add(new LocationProperty(2L, "ADDRESS_LINE_1", "456 Center Ave"));
-        properties.add(new LocationProperty(3L, "ADDRESS_LINE_2", "Building B"));
-        properties.add(new LocationProperty(4L, "CITY", "Chicago"));
-        properties.add(new LocationProperty(5L, "STATE", "IL"));
-        properties.add(new LocationProperty(6L, "ZIP", "60601"));
-        properties.add(new LocationProperty(7L, "COUNTRY", "USA"));*/
-
         Location location = Mockito.mock(Location.class);
         Mockito.when(location.findProperty("TZ")).thenReturn(Optional.of(new LocationProperty(1L, "TZ", "America/New_York")));
 

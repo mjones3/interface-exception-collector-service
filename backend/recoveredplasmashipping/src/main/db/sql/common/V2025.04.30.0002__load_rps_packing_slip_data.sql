@@ -11,3 +11,10 @@ VALUES ('RPS_CARTON_PACKING_SLIP','BLOOD_CENTER_NAME','ARC-One Solutions'),
        ('RPS_CARTON_PACKING_SLIP','ADDRESS_FORMAT','{address} {city}, {state}, {zipCode} {county}'),
        ('RPS_CARTON_PACKING_SLIP','TESTING_STATEMENT_TXT','Products packed, inspected and found satisfactory by: {employeeName}');
 
+
+
+INSERT INTO recoveredplasmashipping.lk_location_property (location_id,property_key,property_value)
+VALUES (1,'TZ','America/New_York'),
+       (1,'LICENSE_NUMBER','2222'),
+       (2, 'TZ','America/Chicago'),
+       (2,'LICENSE_NUMBER','1875');

@@ -34,6 +34,8 @@ public class CartonPackingSlip implements Validatable {
     private Long cartonId;
     private String cartonNumber;
     private Integer cartonSequence;
+    private String cartonProductCode;
+    private String cartonProductDescription;
     private int totalProducts;
     private String dateTimePacked;
     private String packedByEmployeeId;
@@ -78,6 +80,8 @@ public class CartonPackingSlip implements Validatable {
            .displayLicenceNumber(YES_PROPERTY_VALUE.equals(getSystemPropertyByKey(systemProperties,"USE_LICENSE_NUMBER")))
            .shipTo(buildShipTo(shipment,systemProperties))
            .testingStatement(buildTestingStatement(carton.getCloseEmployeeId(), systemProperties))
+           .cartonProductCode(carton.getVerifiedProducts().getFirst().getProductCode())
+           .cartonProductDescription(carton.getVerifiedProducts().getFirst().getProductDescription())
            .build();
 
        packingSlip.checkValid();
@@ -117,6 +121,12 @@ public class CartonPackingSlip implements Validatable {
         }
         if(packedProducts == null || packedProducts.isEmpty()){
             throw new IllegalArgumentException("Packed Products is required");
+        }
+        if(cartonProductDescription == null || cartonProductDescription.isBlank()){
+            throw new IllegalArgumentException("Carton Product Description is required");
+        }
+        if(cartonProductCode == null || cartonProductCode.isBlank()){
+            throw new IllegalArgumentException("Carton Product Code is required");
         }
     }
 
@@ -189,7 +199,7 @@ public class CartonPackingSlip implements Validatable {
             throw new IllegalArgumentException("RecoveredPlasmaShipmentCriteriaRepository is required");
         }
 
-        var productType = recoveredPlasmaShipmentCriteriaRepository.findProductTypeByProductCode(shipment.getProductType())
+        var productType = recoveredPlasmaShipmentCriteriaRepository.findBYProductType(shipment.getProductType())
             .switchIfEmpty(Mono.error( ()-> new IllegalArgumentException("Product Type is required")))
             .block();
 
