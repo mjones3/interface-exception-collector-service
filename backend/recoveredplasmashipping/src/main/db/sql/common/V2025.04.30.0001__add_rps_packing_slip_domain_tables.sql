@@ -6,4 +6,4 @@ CREATE TABLE recoveredplasmashipping.lk_system_process_property
     property_value VARCHAR(500)   NOT NULL
 );
 
-CREATE UNIQUE INDEX uq_idx_lk_system_process_property_process_type_key ON recoveredplasmashipping.lk_location_property (system_process_type,property_key);
+CREATE UNIQUE INDEX uq_idx_lk_system_process_property_process_type_key ON recoveredplasmashipping.lk_system_process_property (system_process_type,property_key);
