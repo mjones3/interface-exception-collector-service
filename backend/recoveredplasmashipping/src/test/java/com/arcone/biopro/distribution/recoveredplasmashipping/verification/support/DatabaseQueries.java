@@ -199,4 +199,15 @@ public class DatabaseQueries {
             , cartonId, unitNumber, productCode, productType, productType
         );
     }
+
+    public static String UPDATE_SYSTEM_CONFIGURATION(String processType , String propertyKey, String propertyValue) {
+        return String.format(
+            """
+                UPDATE lk_system_process_property
+                SET property_value = '%s'
+                WHERE system_process_type = '%s' AND property_key = '%s'
+                """
+            , propertyValue, processType, propertyKey
+        );
+    }
 }

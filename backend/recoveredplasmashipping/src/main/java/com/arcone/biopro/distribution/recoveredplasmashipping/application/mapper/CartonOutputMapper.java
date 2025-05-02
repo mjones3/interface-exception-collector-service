@@ -47,6 +47,7 @@ public interface CartonOutputMapper {
     @Mapping(source ="cartonPackingSlip.shipFrom.licenseNumber" , target = "shipFromLicenseNumber")
     @Mapping(source ="cartonPackingSlip.shipFrom.locationAddressFormatted" , target = "shipFromLocationAddress")
     @Mapping(source ="cartonPackingSlip.shipTo.formattedAddress" , target = "shipToAddress")
+    @Mapping(source ="cartonPackingSlip.shipTo.customerName" , target = "shipToCustomerName")
     @Mapping(source ="cartonPackingSlip.packingSlipShipment.shipmentNumber" , target = "shipmentNumber")
     @Mapping(source ="cartonPackingSlip.packingSlipShipment.productType" , target = "shipmentProductType")
     @Mapping(source ="cartonPackingSlip.packingSlipShipment.productDescription" , target = "shipmentProductDescription")

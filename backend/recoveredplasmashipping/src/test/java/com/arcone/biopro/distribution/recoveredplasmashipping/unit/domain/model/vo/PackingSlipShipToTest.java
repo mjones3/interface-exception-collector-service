@@ -25,7 +25,7 @@ class PackingSlipShipToTest {
         Mockito.when(mockCustomer.getCustomerPostalCode()).thenReturn("12345");
         Mockito.when(mockCustomer.getCustomerCountry()).thenReturn("USA");
 
-        validAddressFormat = "{address}, {city}, {state} {zipcode}, {country}";
+        validAddressFormat = "{address}, {city}, {state} {zipCode}, {country}";
     }
 
     @Test
@@ -104,7 +104,7 @@ class PackingSlipShipToTest {
     @DisplayName("Should handle different address format patterns")
     void shouldHandleDifferentAddressFormatPatterns() {
         // Given
-        String customFormat = "{address} {city}, {state} {zipcode} {country}";
+        String customFormat = "{address} {city}, {state} {zipCode} {country}";
         PackingSlipShipTo shipTo = new PackingSlipShipTo(mockCustomer, customFormat);
 
         // When

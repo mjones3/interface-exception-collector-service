@@ -43,7 +43,7 @@ public class PackingSlipShipTo implements Validatable {
             .replace("{address}",shipmentCustomer.getCustomerAddressLine1())
             .replace("{city}", shipmentCustomer.getCustomerCity())
             .replace("{state}", shipmentCustomer.getCustomerState())
-            .replace("{zipcode}", shipmentCustomer.getCustomerPostalCode())
+            .replace("{zipCode}", shipmentCustomer.getCustomerPostalCode())
             .replace("{country}",shipmentCustomer.getCustomerCountry());
     }
 

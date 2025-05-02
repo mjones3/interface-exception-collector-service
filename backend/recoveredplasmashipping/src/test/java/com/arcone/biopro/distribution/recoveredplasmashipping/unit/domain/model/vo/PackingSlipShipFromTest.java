@@ -24,7 +24,7 @@ class PackingSlipShipFromTest {
         String locationState = "TS";
         String locationZipcode = "12345";
 
-        String addressFormat = "{address}, {city}, {state} {zipcode}, {country}";
+        String addressFormat = "{address}, {city}, {state} {zipCode}, {country}";
 
         var location = Mockito.mock(Location.class);
         Mockito.when(location.getAddressLine1()).thenReturn(locationAddress);
@@ -95,7 +95,7 @@ class PackingSlipShipFromTest {
         String locationCity = "Test City";
         String locationState = "TS";
         String locationZipcode = "12345";
-        String addressFormat = "{address}, {city}, {state} {zipcode}, {country}";
+        String addressFormat = "{address}, {city}, {state} {zipCode}, {country}";
 
         var location = Mockito.mock(Location.class);
         Mockito.when(location.getAddressLine1()).thenReturn(locationAddress);

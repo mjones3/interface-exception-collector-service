@@ -52,7 +52,7 @@ public class PackingSlipShipFrom implements Validatable {
             .replace("{address}",location.getAddressLine1())
             .replace("{city}", location.getCity())
             .replace("{state}", location.getState())
-            .replace("{zipcode}", location.getPostalCode())
+            .replace("{zipCode}", location.getPostalCode())
             .replace("{country}","USA");
     }
 }

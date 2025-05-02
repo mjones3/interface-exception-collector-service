@@ -24,7 +24,7 @@ Feature: Carton Packing Slip Printing
             | 6                                     | MINIMUM_UNITS_BY_CARTON | 15    | Minimum number of products does not match | WARN         |
 
 
-        Rule: The system should trigger the printing of the carton automatically once a carton is closed.
+    Rule: The system should trigger the printing of the carton automatically once a carton is closed.
         Rule: I should be able to print the carton packing slip with the carton details and products information.
         @ui @DIS-343
         Scenario Outline: Automatic printing when carton is closed
@@ -38,53 +38,57 @@ Feature: Carton Packing Slip Printing
                 | 408           | RP_FROZEN_WITHIN_24_HOURS | 1000               | <tomorrow>    | DIS-343                         | 123456789     | 2                       | W03689878680600,W03689878680700 | E2488V00, E2488V00 | RP_NONINJECTABLE_LIQUID_RT, RP_NONINJECTABLE_LIQUID_RT |
 
 
-        Rule: I should be able to reprint carton packing slip if needed.
+    Rule: I should be able to reprint carton packing slip if needed.
         Rule: The Testing Statement displayed on the carton packing slip must be configurable.
         @api @DIS-343
         Scenario: Manual printing of carton packing slip
-            Given I have a verified carton created with the Customer Code as "408" , Product Type as "RP_FROZEN_WITHIN_120_HOURS", Carton Tare Weight as "1000", Shipment Date as "<tomorrow>", Transportation Reference Number as "DIS-339" and Location Code as "123456789".
-            And The system configuration "TESTING_STATEMENT_TXT" is configured as "Testing statement template: {employeeName}" for the element "testingStatement".
-            And The carton is closed.
+            Given I have an empty carton created with the Customer Code as "409" , Product Type as "RP_NONINJECTABLE_LIQUID_RT", Carton Tare Weight as "1000", Shipment Date as "<tomorrow>", Transportation Reference Number as "DIS-343" and Location Code as "123456789".
+            And The Minimum Number of Units in Carton is configured as "2" products for the customer code "409" and product type "RP_NONINJECTABLE_LIQUID_RT".
+            And The system configuration "TESTING_STATEMENT_TXT" is configured as "Testing statement template: {employeeName}" for the element "testingStatement" in the process type "RPS_CARTON_PACKING_SLIP".
+            And I have verified product with the unit number "W036898786808,W036898786809", product code "E2488V00, E2488V00" and product type "RP_FROZEN_WITHIN_120_HOURS, RP_FROZEN_WITHIN_120_HOURS".
+            And I request to close the carton.
             When I request to print the carton packing slip.
             Then The carton packing slip should contain:
-                | Information Type                 | Information Value                                             |
-                | Blood Center Name                | ARC-One Solutions                                             |
-                | Blood Center License Number      | #2222                                                         |
-                | Ship To: (Customer Name)         | Prothya                                                       |
-                | Customer Address                 | 147 Wild Violet St. Atlanta, Georgia, 30041 USA               |
-                | Ship From: (Blood Center Name)   | ARC-One Solutions                                             |
-                | Location Address                 | 147 Wild Violet St. Atlanta, Georgia, 30041 USA               |
-                | Product Type                     | RP FROZEN WITHIN 120 HOURS                                    |
-                | Product Description              | CP2D PLS MI 120H                                              |
-                | Product Code                     | E2488V00                                                      |
-                | Carton Number                    | BPM2765                                                       |
-                | Shipment Number                  | 123                                                           |
-                | Carton Sequence                  | 2                                                             |
-                | Products Packed and  Verified by | test-employee-id                                              |
-                | Date/Time Packed Carton Closed   | 12/21/2024 16:05                                              |
-                | Total Products                   | 2                                                             |
-                | Transportation Reference Number  | 123                                                           |
-                | Unit Numbers                     | W03689878680600,W03689878680700                               |
-                | Collection Date                  | 12/12/2024, 12/12/2024                                        |
-                | Product Volume                   | 100ml, 200ml                                                  |
-                | Signature                        | <is_present>                                                  |
-                | Testing statement                | Testing statement template: Jon Doe                           |
+                | Response property                     | Information Type                 | Information Value                               |
+                | shipFromBloodCenterName               | Blood Center Name                | ARC-One Solutions                               |
+                | shipFromLicenseNumber                 | Blood Center License Number      | 2222                                            |
+                | shipToCustomerName                    | Ship To: (Customer Name)         | Southern Biologics                              |
+                | shipToAddress                         | Customer Address                 | 4801 Woodlane Circle Tallahassee, FL, 32303 USA |
+                | shipFromBloodCenterName               | Ship From: (Blood Center Name)   | ARC-One Solutions                               |
+                | shipFromLocationAddress               | Location Address                 | 444 Main St. Charlotte, NC, 28209 USA           |
+                | shipmentProductDescription            | Product Type                     | RP NONINJECTABLE LIQUID RT                      |
+                | cartonProductDescription              | Product Description              | LIQ CPD PLS MNI RT                              |
+                | cartonProductCode                     | Product Code                     | E2488V00                                        |
+                | cartonNumber                         | Carton Number Prefix             | BPMMH                                            |
+                | shipmentNumber                       | Shipment Number Prefix           | BPM2765                                        |
+                | cartonSequence                        | Carton Sequence                  | 1                                               |
+                | packedByEmployeeId                    | Products Packed and  Verified by | 5db1da0b-6392-45ff-86d0-17265ea33226            |
+#                | dateTimePacked                        | Date/Time Packed Carton Closed   | 12/21/2024 16:05                                |
+                | totalProducts                         | Total Products                   | 2                                               |
+                | shipmentTransportationReferenceNumber | Transportation Reference Number  | DIS-343                                         |
+                | products                              | Unit Numbers                     | W036898786808,W036898786809                     |
+                | products                              | Collection Date                  | 12/03/2011,12/03/2011                           |
+                | products                              | Product Volume                   | 259,259                                         |
+                | displaySignature                      | Signature                        | true                                            |
+                | testingStatement                      | Testing statement                | Testing statement template: 5db1da0b-6392-45ff-86d0-17265ea33226             |
 
         Rule: The system must display the transportation reference number, if configured.
         Rule: The system must display the signature, if configured.
         Rule: The system must display the License number, if configured.
         @api @DIS-343
         Scenario Outline: Display of configurable elements on packing slip
-            Given I have a verified carton with the Customer Code as "<Customer Code>" , Product Type as "<Product Type>", Carton Tare Weight as "<Carton Tare Weight>", Shipment Date as "<Shipment Date>", Transportation Reference Number as "<Transportation Reference Number>" and Location Code as "<Location Code>".
-            And The carton is closed.
-            And The system configuration "<system_configuration_key>" is configured as "<system_configuration_value>" for the element "<element>".
+            Given I have an empty carton created with the Customer Code as "<Customer Code>" , Product Type as "<Product Type>", Carton Tare Weight as "<Carton Tare Weight>", Shipment Date as "<Shipment Date>", Transportation Reference Number as "<Transportation Reference Number>" and Location Code as "<Location Code>".
+            And The Minimum Number of Units in Carton is configured as "<configured_min_products>" products for the customer code "<Customer Code>" and product type "<Product Type>".
+            And The system configuration "<system_configuration_key>" is configured as "<system_configuration_value>" for the element "<element>" in the process type "RPS_CARTON_PACKING_SLIP".
+            And I have verified product with the unit number "<unit_number>", product code "<product_code>" and product type "<product_type>".
+            And I request to close the carton.
             When I request to print the carton packing slip.
-            Then The element "<element>" "<should_should_not>" be present.
+            Then The element "<element>" for the property "<element property>" "<should_should_not>" be display.
             Examples:
-                | system_configuration_key  | system_configuration_value | element                       | should_should_not | Customer Code | Product Type              | Carton Tare Weight | Shipment Date | Transportation Reference Number | Location Code | configured_min_products | unit_number                     | product_code       | product_type                                           |
-                | USE_SIGNATURE             | Y                          | signature                     | should            | 408           | RP_FROZEN_WITHIN_24_HOURS | 1000               | <tomorrow>    | DIS-343                         | 123456789     | 2                       | W03689878680600,W03689878680700 | E2488V00, E2488V00 | RP_NONINJECTABLE_LIQUID_RT, RP_NONINJECTABLE_LIQUID_RT |
-                | USE_TRANSPORTATION_NUMBER | Y                          | transportationReferenceNumber | should            | 408           | RP_FROZEN_WITHIN_24_HOURS | 1000               | <tomorrow>    | DIS-343                         | 123456789     | 2                       | W03689878680600,W03689878680700 | E2488V00, E2488V00 | RP_NONINJECTABLE_LIQUID_RT, RP_NONINJECTABLE_LIQUID_RT |
-                | USE_LICENSE_NUMBER        | Y                          | licenseNumber                 | should            | 408           | RP_FROZEN_WITHIN_24_HOURS | 1000               | <tomorrow>    | DIS-343                         | 123456789     | 2                       | W03689878680600,W03689878680700 | E2488V00, E2488V00 | RP_NONINJECTABLE_LIQUID_RT, RP_NONINJECTABLE_LIQUID_RT |
-                | USE_TRANSPORTATION_NUMBER | N                          | transportationReferenceNumber | should not        | 408           | RP_FROZEN_WITHIN_24_HOURS | 1000               | <tomorrow>    | DIS-343                         | 123456789     | 2                       | W03689878680600,W03689878680700 | E2488V00, E2488V00 | RP_NONINJECTABLE_LIQUID_RT, RP_NONINJECTABLE_LIQUID_RT |
+                | system_configuration_key  | system_configuration_value | element property                     | element                         | should_should_not | Customer Code | Product Type               | Carton Tare Weight | Shipment Date | Transportation Reference Number | Location Code | configured_min_products | unit_number                 | product_code       | product_type                                           |
+                | USE_SIGNATURE             | Y                          | displaySignature                     | Signature                       | should            | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>    | DIS-343                         | 123456789     | 2                       | W036898786808,W036898786809 | E2488V00, E2488V00 | RP_FROZEN_WITHIN_120_HOURS, RP_FROZEN_WITHIN_120_HOURS |
+                | USE_TRANSPORTATION_NUMBER | Y                          | displayTransportationReferenceNumber | Transportation Reference Number | should            | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>    | DIS-343                         | 123456789     | 2                       | W036898786808,W036898786809 | E2488V00, E2488V00 | RP_FROZEN_WITHIN_120_HOURS, RP_FROZEN_WITHIN_120_HOURS |
+                | USE_LICENSE_NUMBER        | Y                          | displayLicenceNumber                 | License number                  | should            | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>    | DIS-343                         | 123456789     | 2                       | W036898786808,W036898786809 | E2488V00, E2488V00 | RP_FROZEN_WITHIN_120_HOURS, RP_FROZEN_WITHIN_120_HOURS |
+                | USE_TRANSPORTATION_NUMBER | N                          | displayTransportationReferenceNumber | Transportation Reference Number | should not        | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>    | DIS-343                         | 123456789     | 2                       | W036898786808,W036898786809 | E2488V00, E2488V00 | RP_FROZEN_WITHIN_120_HOURS, RP_FROZEN_WITHIN_120_HOURS |
 
 

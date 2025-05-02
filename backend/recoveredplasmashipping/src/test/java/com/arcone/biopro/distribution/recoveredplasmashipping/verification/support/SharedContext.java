@@ -55,4 +55,6 @@ public class SharedContext {
 
     // RecoveredPlasmaCriteriaConfiguration
     private String recoveredPlasmaCriteriaConfigurationCustomerCode;
+
+    private Map lastCartonPackingSlipResponse;
 }
