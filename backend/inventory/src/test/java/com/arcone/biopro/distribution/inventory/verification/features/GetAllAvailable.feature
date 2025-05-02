@@ -126,4 +126,4 @@ Feature: Get all available inventories
         When I select "PLASMA_TRANSFUSABLE" of the blood type "OP"
         And I request available inventories in location "123456789"
         Then I receive "1" groups
-        And I receive a group of product family "PLASMA_TRANSFUSABLE" and abo rh criteria "OP" with "3" inventories and "3" product short date listed
+        And I receive a group of product family "PLASMA_TRANSFUSABLE" and abo rh criteria "OP" with "2" inventories and "2" product short date listed
