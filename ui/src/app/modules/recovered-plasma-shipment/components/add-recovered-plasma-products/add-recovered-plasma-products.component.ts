@@ -1,5 +1,5 @@
 import { AsyncPipe, CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild, computed, signal } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild, computed, input, signal } from '@angular/core';
 import { FormBuilder,  } from '@angular/forms';
 import { MatDividerModule } from '@angular/material/divider';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -44,7 +44,6 @@ import { ShippingInformationCardComponent } from '../../shared/shipping-informat
 })
 export class AddRecoveredPlasmaProductsComponent
     extends RecoveredPlasmaShipmentCommon
-    implements OnInit
 {
     maxProductsComputed = computed(
         () => this.cartonDetails()?.maxNumberOfProducts
@@ -53,7 +52,7 @@ export class AddRecoveredPlasmaProductsComponent
         () => this.cartonDetails()?.minNumberOfProducts
     );
     @ViewChild('scanUnitNumberProductCode') scanUnitNumberProductCode: ScanUnitNumberProductCodeComponent;
-    @Input() cartonDetails = signal<CartonDTO>(null);
+    cartonDetails = input<CartonDTO>();
     @Output()unitNumberProductCode: EventEmitter<CartonDTO> = new EventEmitter<CartonDTO>();
 
     constructor(
@@ -78,10 +77,6 @@ export class AddRecoveredPlasmaProductsComponent
         );
     }
 
-    ngOnInit(): void {
-       this.disableInputsIfMaxCartonProduct();
-    }
-
     addProduct(event): void {
         this.unitNumberProductCode.emit(event);
     }
@@ -90,12 +85,14 @@ export class AddRecoveredPlasmaProductsComponent
         return this.cartonDetails()?.packedProducts ?? [];
     }
 
-    disableInputsIfMaxCartonProduct(): void {
+    disableInputsIfMaxCartonProduct(cartonDetails): void {
         if (
-            this.cartonDetails()?.packedProducts?.length ===
-            this.maxProductsComputed()
+            cartonDetails?.packedProducts?.length ===
+            cartonDetails?.maxNumberOfProducts
         ) {
             this.scanUnitNumberProductCode?.disableUnitProductGroup();
+        }else{
+            this.scanUnitNumberProductCode?.resetUnitProductGroup();
         }
     }
 

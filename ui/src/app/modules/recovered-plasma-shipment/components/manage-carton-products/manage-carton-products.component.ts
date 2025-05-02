@@ -143,12 +143,16 @@ setCartonDetails(data: CartonDTO){
 
 onClickPrevious(data) {
     this.loadRecoveredPlasmaShippingCartonDetails(this.cartonDetailsSignal().id)
-        .subscribe();
-    this.stepper.selectedIndex = data.index;
-    if (data.displayStaticMessage) {
-        this.messageTypeSignal.set('warning');
-        this.messageSignal.set(data.resetMessage);
-    }
+        .subscribe({
+            next: (cartonDetails) => {
+                this.stepper.selectedIndex = data.index;
+                if (data.displayStaticMessage) {
+                    this.messageTypeSignal.set('warning');
+                    this.messageSignal.set(data.resetMessage);
+                } 
+                this.addProductsControl.disableInputsIfMaxCartonProduct(cartonDetails);
+            }
+        });
 }
 
 getValuesForReset(data){
@@ -221,7 +225,7 @@ enterAndVerifyProduct(item: PackCartonItemsDTO) {
                                 notification.name ===
                                 'MAXIMUM_UNITS_BY_CARTON'
                             ) {
-                                this.addProductsControl.disableInputsIfMaxCartonProduct();
+                                this.addProductsControl.disableInputsIfMaxCartonProduct(productResult.data);
                             } else {
                                 this.resetAddProductGroup();
                             }
