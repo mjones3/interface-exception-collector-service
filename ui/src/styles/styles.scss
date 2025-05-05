@@ -155,6 +155,15 @@ button {
         background-color: $gray-light-color;
     }
 
+    &.edit-button-mat-icon{
+        height: 48px;
+        width: 48px;
+
+        &:hover {
+            background-color: rgba(var(--fuse-accent-rgb), 0.15) !important;
+        }
+    }
+
     &.bg-purple-light {
         background-color: $purple-light-color !important;
         color: white;

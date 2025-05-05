@@ -66,5 +66,11 @@ public class CartonItemEntity {
     @LastModifiedDate
     private ZonedDateTime modificationDate;
 
+    @Column("verification_date")
+    private ZonedDateTime verificationDate;
+
+    @Column("verified_by_employee_id")
+    private String verifiedByEmployeeId;
+
 
 }

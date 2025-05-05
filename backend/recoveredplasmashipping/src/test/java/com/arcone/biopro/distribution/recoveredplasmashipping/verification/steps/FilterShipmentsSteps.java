@@ -47,6 +47,7 @@ public class FilterShipmentsSteps {
     public void iRequestedTheListOfShipmentsFilteringByAs(String filter, String value) {
         value = value.replace("<today>", LocalDate.now().toString());
         value = value.replace("<tomorrow>", LocalDate.now().plusDays(1).toString());
+        value = value.replace("<two-years-back>", LocalDate.now().plusYears(-2).toString());
         if (value.equals("<currentShipmentNumber>")) {
             value = context.getShipmentCreateResponse().get("shipmentNumber").toString();
         }

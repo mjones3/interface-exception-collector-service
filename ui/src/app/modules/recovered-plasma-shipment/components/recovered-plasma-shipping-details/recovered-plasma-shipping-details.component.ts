@@ -59,6 +59,7 @@ export class RecoveredPlasmaShippingDetailsComponent
     statusTemplateRef = viewChild<TemplateRef<Element>>('statusTemplateRef');
     expandTemplateRef = viewChild<TemplateRef<Element>>('expandTemplateRef');
     editTemplateRef = viewChild<TemplateRef<Element>>('editTemplateRef');
+    verifyProductsBtnTemplateRef = viewChild<TemplateRef<Element>>('verifyProductsBtnTemplateRef');
 
     // Signal to store expanded row data
     expandedRowDataSignal = signal<CartonPackedItemResponseDTO[]>([]);
@@ -68,7 +69,7 @@ export class RecoveredPlasmaShippingDetailsComponent
     );
 
     cartonTableConfigComputed = computed<TableConfiguration>(() => ({
-        title: 'Results',
+        title: 'Carton Details',
         showPagination: false,
         expandableKey: 'cartonNumber',
         columns: [
@@ -92,6 +93,12 @@ export class RecoveredPlasmaShippingDetailsComponent
                 header: 'Status',
                 sort: false,
                 columnTempRef: this.statusTemplateRef(),
+            },
+
+            {
+                id: 'verifyProducts',
+                header: '',
+                columnTempRef: this.verifyProductsBtnTemplateRef(),
             },
             {
                 id: 'actions',
@@ -201,5 +208,9 @@ export class RecoveredPlasmaShippingDetailsComponent
             default:
                 return '';
         }
+    }
+
+    verifyProducts(id: number){
+        this.router.navigate([`recovered-plasma/${id}/verify-carton`])     
     }
 }

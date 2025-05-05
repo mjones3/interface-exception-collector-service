@@ -31,27 +31,27 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
             navigate: jest.fn(),
             navigateByUrl: jest.fn(),
             url: '/test-url',
-        } as any;
+        } as Partial<Router> as jest.Mocked<Router>;
 
         mockRecoveredPlasmaService = {
             getShipmentById: jest.fn(),
             createCarton: jest.fn(),
             getCartonById: jest.fn(),
-        } as any;
+        } as Partial<RecoveredPlasmaService> as jest.Mocked<RecoveredPlasmaService>;
 
         mockToastrService = {
             error: jest.fn(),
             success: jest.fn(),
             warning: jest.fn(),
-        } as any;
+        } as Partial<ToastrImplService> as jest.Mocked<ToastrImplService>;
 
         mockStore = {
             select: jest.fn(),
-        } as any;
+        } as Partial<Store> as jest.Mocked<Store>;
 
         cookieService = {
             get: jest.fn(),
-        } as any;
+        } as Partial<CookieService> as jest.Mocked<CookieService>;
 
         await TestBed.configureTestingModule({
             imports: [
@@ -379,7 +379,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         expect(component.expandedRowDataSignal()).toEqual([]);
     });
 
-    it('should hide "edit" when canAddCartons is false', () => {
+    it('should hide "edit" when carton status is closed', () => {
         const buttonIdCssSelector = By.css('#editBtn');
         const root = fixture.debugElement;
         mockRecoveredPlasmaService.getShipmentById.mockReturnValue(
@@ -387,7 +387,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
                 data: {
                     findShipmentById: {
                         data: {
-                            canAddCartons: false,
+                            status: 'CLOSED',
                         },
                     },
                 },
@@ -407,6 +407,37 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         component.editCarton(cartonId);
         expect(mockRouter.navigate).toHaveBeenCalledWith([
             `recovered-plasma/${cartonId}/carton-details`,
+        ]);
+    });
+
+    it('should hide "Verify Products" when canVerify is false', () => {
+        const buttonIdCssSelector = By.css('#verifyProductsBtn');
+        const root = fixture.debugElement;
+        mockRecoveredPlasmaService.getShipmentById.mockReturnValue(
+            of({
+                data: {
+                    findShipmentById: {
+                        data: {
+                            canVerify: false,
+                        },
+                    },
+                },
+            } as unknown as ApolloQueryResult<{
+                findShipmentById: UseCaseResponseDTO<RecoveredPlasmaShipmentResponseDTO>;
+            }>)
+        );
+
+        fixture.detectChanges();
+        const button = root.query(buttonIdCssSelector)?.nativeElement;
+        expect(button).toBeFalsy();
+    });
+
+    it('should navigate  to verify product page when click on verify product button', () => {
+        const id = 1;
+        jest.spyOn(mockRouter, 'navigate');
+        component.verifyProducts(id);
+        expect(mockRouter.navigate).toHaveBeenCalledWith([
+            `recovered-plasma/${id}/verify-carton`,
         ]);
     });
 });

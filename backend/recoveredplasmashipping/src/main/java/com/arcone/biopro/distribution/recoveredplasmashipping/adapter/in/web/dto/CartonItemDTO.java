@@ -22,6 +22,8 @@ public record CartonItemDTO(
     LocalDateTime expirationDate,
     ZonedDateTime collectionDate,
     ZonedDateTime createDate,
-    ZonedDateTime modificationDate
+    ZonedDateTime modificationDate,
+    String verifiedByEmployeeId,
+    ZonedDateTime verifyDate
 ) implements Serializable {
 }

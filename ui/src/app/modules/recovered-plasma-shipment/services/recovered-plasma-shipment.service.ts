@@ -5,14 +5,11 @@ import { UseCaseResponseDTO } from 'app/shared/models/use-case-response.dto';
 import { Observable } from 'rxjs';
 import { DynamicGraphqlPathService } from '../../../core/services/dynamic-graphql-path.service';
 import {
-    CREATE_RECOVERED_PLASMA_SHIPMENT,
-    GET_PRODUCT_TYPE_OPTIONS,
-    productTypeOptionResponse,
-} from '../graphql/create-recovered-plasma-shipment.graphql';
-import {
     CreateShipmentRequestDTO,
     RecoveredPlasmaShipmentResponseDTO,
 } from '../models/recovered-plasma.dto';
+import { GET_PRODUCT_TYPE_OPTIONS, productTypeOptionResponse } from '../graphql/query-definitions/create-rp-shipment.graphql';
+import { CREATE_RECOVERED_PLASMA_SHIPMENT } from '../graphql/mutation-definitions/create-recovered-plasma-shipment.graphql';
 
 @Injectable({
     providedIn: 'root',

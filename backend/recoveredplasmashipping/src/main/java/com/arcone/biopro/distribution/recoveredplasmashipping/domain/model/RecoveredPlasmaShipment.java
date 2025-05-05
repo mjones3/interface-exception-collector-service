@@ -1,7 +1,6 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.domain.model;
 
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.exception.DomainNotFoundForKeyException;
-import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.CartonRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.LocationRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShipmentCriteriaRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShippingRepository;
@@ -19,7 +18,6 @@ import reactor.core.publisher.Mono;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -29,6 +27,8 @@ import java.util.List;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(access = AccessLevel.PRIVATE)
 public class RecoveredPlasmaShipment implements Validatable {
+
+    public static final int SHIPMENT_DATE_RANGE_YEARS_LIMIT = 2;
 
     private Long id;
     private ShipmentCustomer shipmentCustomer;
@@ -213,10 +213,6 @@ public class RecoveredPlasmaShipment implements Validatable {
 
         if (this.createEmployeeId == null || this.createEmployeeId.isBlank()) {
             throw new IllegalArgumentException("Create employee ID is required");
-        }
-
-        if (this.shipmentDate == null) {
-            throw new IllegalArgumentException("Shipment date is required");
         }
 
         if (this.status == null || this.status.isBlank()) {

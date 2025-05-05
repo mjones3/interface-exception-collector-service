@@ -1,0 +1,50 @@
+<div class="flex w-full flex-col gap-4">
+    <fuse-card class="flex flex-col space-y-2">
+        <div class="w-full">
+            <biopro-scan-unit-number-product-code
+                #scanUnitNumberProductCode
+                (validate)="addProduct($event)"
+            ></biopro-scan-unit-number-product-code>
+        </div>
+    </fuse-card>
+
+    <fuse-card
+        class="mb-4 flex flex-col px-4 pb-4"
+        id="filledProduct-container"
+    >
+        <div class="mb-2 mt-2 flex flex-row justify-between">
+            <div class="flex items-center text-lg font-bold">
+                <span>
+                    Added Products (
+                    <span id="numberOfProductsAdded">{{
+                        cartonDetails()?.packedProducts?.length
+                    }}</span>
+                    of
+                    <span id="prodQtyId">{{
+                        cartonDetails()?.maxNumberOfProducts
+                    }}</span
+                    >)
+                </span>
+            </div>
+        </div>
+        <mat-divider></mat-divider>
+        <div
+            id="optionButtons"
+            class="grid max-h-[520px] grid-cols-4 gap-4 overflow-auto pb-4 pt-4"
+        >
+            @for (
+                option of getPackedProducts();
+                track $index
+            ) {
+                <biopro-unit-number-card
+                    [id]="'unit-' + $index"
+                    class="max-h-24"
+                    [unitNumber]="option.unitNumber"
+                    [productName]="option.productCode"
+                    [disableActive]="false"
+                    [iconName]="getItemIcon(option.productType)"
+                ></biopro-unit-number-card>
+            }
+        </div>
+    </fuse-card>
+</div>

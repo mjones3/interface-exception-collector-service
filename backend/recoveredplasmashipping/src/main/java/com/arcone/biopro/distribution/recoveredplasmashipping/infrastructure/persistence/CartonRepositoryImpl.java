@@ -47,6 +47,11 @@ public class CartonRepositoryImpl implements CartonRepository {
         return Mono.zip(cartonEntity,cartonItems,minNumberOfUnits,maxNumberOfUnits)
             .map(tuple -> cartonEntityMapper.entityToModel(tuple.getT1(),tuple.getT2(), tuple.getT3(), tuple.getT4()));
 
+    }
 
+    @Override
+    public Mono<Carton> update(Carton carton) {
+        return cartonEntityRepository.save(cartonEntityMapper.toEntity(carton))
+            .flatMap(cartonEntity -> findOneById(cartonEntity.getId()));
     }
 }

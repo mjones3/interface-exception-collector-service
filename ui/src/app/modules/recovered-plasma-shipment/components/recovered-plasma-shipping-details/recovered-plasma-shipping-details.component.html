@@ -55,10 +55,22 @@
                 </span>
             </ng-template>
             <ng-template #editTemplateRef let-element="element">
-                @if (shipmentDetailsSignal()?.canAddCartons) {
-                    <button id="editBtn" (click)="editCarton(element?.id)">
+                @if (element?.status !== 'CLOSED') {
+                    <button id="editBtn" (click)="editCarton(element?.id)" class="edit-button-mat-icon">
                         <mat-icon>edit</mat-icon>
                     </button>
+                }
+            </ng-template>
+
+            <ng-template #verifyProductsBtnTemplateRef let-element="element">
+                @if(shipmentDetailsSignal()?.canVerify){
+                    <biopro-basic-button
+                    id="verifyProductsBtn"
+                    class="text-primary"
+                    color="primary"
+                    (buttonClicked)="verifyProducts(element.id)"
+                    label="Verify Products"
+                />
                 }
             </ng-template>
 

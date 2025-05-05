@@ -293,3 +293,7 @@ topics:
       partitions: 1
       replicas: 1
       topic-name: RecoveredPlasmaShipmentCreated
+    carton-closed:
+      partitions: 1
+      replicas: 1
+      topic-name: RecoveredPlasmaCartonPacked
