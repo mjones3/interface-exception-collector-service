@@ -13,7 +13,7 @@ import java.util.List;
 @Mapper(componentModel = "spring" , unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface RecoveredPlasmaCartonEventMapper {
 
-    @Mapping(target ="productTye" , expression = "java(carton.getProducts().getFirst().getProductType())")
+    @Mapping(target ="productType" , expression = "java(carton.getProducts().getFirst().getProductType())")
     @Mapping(source ="products" , target = "packedProducts")
     RecoveredPlasmaCartonPackedOutputDTO modelToPackedEventDTO(Carton carton);
 

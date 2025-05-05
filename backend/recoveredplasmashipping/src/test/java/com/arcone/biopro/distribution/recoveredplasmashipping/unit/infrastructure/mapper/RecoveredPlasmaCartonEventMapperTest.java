@@ -49,7 +49,7 @@ class RecoveredPlasmaCartonEventMapperTest {
         assertEquals(carton.getTotalProducts(), result.totalProducts());
         assertEquals(carton.getTotalWeight(), result.totalWeight());
         assertEquals(carton.getTotalVolume(), result.totalVolume());
-        assertEquals("PRODUCT_TYPE", result.productTye());
+        assertEquals("PRODUCT_TYPE", result.productType());
         assertEquals(carton.getTotalProducts(), result.packedProducts().size());
 
     }

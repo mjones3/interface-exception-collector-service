@@ -17,7 +17,7 @@ public record RecoveredPlasmaCartonPackedOutputDTO(
     Integer cartonSequence,
     String closeEmployeeId,
     ZonedDateTime closeDate,
-    String productTye,
+    String productType,
     String status,
     int totalProducts,
     BigDecimal totalWeight,

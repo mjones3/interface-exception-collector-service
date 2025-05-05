@@ -32,8 +32,8 @@ import java.util.List;
 public class KafkaConfiguration {
 
     public static final String DLQ_PRODUCER = "dlq-producer";
-    public static final String RSP_SHIPMENT_CREATED_PRODUCER = "rps-shipment-created-producer";
-    public static final String RSP_CARTON_CLOSED_PRODUCER = "rps-carton-closed-producer";
+    public static final String RPS_SHIPMENT_CREATED_PRODUCER = "rps-shipment-created-producer";
+    public static final String RPS_CARTON_CLOSED_PRODUCER = "rps-carton-closed-producer";
 
 
     @Bean
@@ -87,7 +87,7 @@ public class KafkaConfiguration {
             .producerListener(new MicrometerProducerListener(meterRegistry)); // we want standard Kafka metrics
     }
 
-    @Bean(name = RSP_SHIPMENT_CREATED_PRODUCER )
+    @Bean(name = RPS_SHIPMENT_CREATED_PRODUCER )
     ReactiveKafkaProducerTemplate<String, RecoveredPlasmaShipmentCreatedOutputEvent> shipmentCreatedProducerTemplate(
         SenderOptions<String, RecoveredPlasmaShipmentCreatedOutputEvent> shipmentCreatedSenderOptions) {
         return new ReactiveKafkaProducerTemplate<>(shipmentCreatedSenderOptions);
@@ -106,7 +106,7 @@ public class KafkaConfiguration {
             .producerListener(new MicrometerProducerListener(meterRegistry)); // we want standard Kafka metrics
     }
 
-    @Bean(name = RSP_CARTON_CLOSED_PRODUCER )
+    @Bean(name = RPS_CARTON_CLOSED_PRODUCER )
     ReactiveKafkaProducerTemplate<String, RecoveredPlasmaCartonPackedOutputEvent> cartonClosedProducerTemplate(
         SenderOptions<String, RecoveredPlasmaCartonPackedOutputEvent> cartonPackedOutputEventSenderOptions) {
         return new ReactiveKafkaProducerTemplate<>(cartonPackedOutputEventSenderOptions);

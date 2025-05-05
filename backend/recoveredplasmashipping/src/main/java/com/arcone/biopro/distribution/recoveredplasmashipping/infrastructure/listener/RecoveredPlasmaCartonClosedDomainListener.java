@@ -28,7 +28,7 @@ public class RecoveredPlasmaCartonClosedDomainListener {
     private final String topicName;
     private final RecoveredPlasmaCartonEventMapper recoveredPlasmaCartonEventMapper;
 
-    public RecoveredPlasmaCartonClosedDomainListener(@Qualifier(KafkaConfiguration.RSP_CARTON_CLOSED_PRODUCER) ReactiveKafkaProducerTemplate<String, RecoveredPlasmaCartonPackedOutputEvent> producerTemplate,
+    public RecoveredPlasmaCartonClosedDomainListener(@Qualifier(KafkaConfiguration.RPS_CARTON_CLOSED_PRODUCER) ReactiveKafkaProducerTemplate<String, RecoveredPlasmaCartonPackedOutputEvent> producerTemplate,
                                                      @Value("${topics.recovered-plasma-shipment.carton-closed.topic-name:RecoveredPlasmaCartonPacked}") String topicName , RecoveredPlasmaCartonEventMapper recoveredPlasmaCartonEventMapper) {
         this.producerTemplate = producerTemplate;
         this.topicName = topicName;
