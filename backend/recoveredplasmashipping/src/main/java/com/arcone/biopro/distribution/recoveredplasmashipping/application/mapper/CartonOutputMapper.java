@@ -14,6 +14,7 @@ public interface CartonOutputMapper {
     @Mapping(source = "products", target = "packedProducts")
     @Mapping(target = "canVerify", expression = "java(carton.canVerify())")
     @Mapping(target = "canClose", expression = "java(carton.canClose())")
+    @Mapping(target = "canPrint", expression = "java(carton.canPrint())")
     CartonOutput toOutput(Carton carton);
 
     @Mapping(target = "failedCartonItem.id" , ignore = true)
@@ -30,7 +31,8 @@ public interface CartonOutputMapper {
     @Mapping(source ="carton.products" , target = "packedProducts")
     @Mapping(target = "canVerify", expression = "java(carton.canVerify())")
     @Mapping(target = "canClose", expression = "java(carton.canClose())")
-    CartonOutput toOutput(Carton carton,InventoryValidation inventoryValidation);
+    @Mapping(target = "canPrint", expression = "java(carton.canPrint())")
+    CartonOutput toOutput(Carton carton, InventoryValidation inventoryValidation);
 
     @Mapping(source ="cartonPackingSlip.cartonId" , target = "cartonId")
     @Mapping(source ="cartonPackingSlip.cartonNumber" , target = "cartonNumber")

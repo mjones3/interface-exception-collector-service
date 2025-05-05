@@ -48,6 +48,7 @@ class CartonOutputMapperTest {
             Carton carton = Mockito.mock(Carton.class);
             Mockito.when(carton.canClose()).thenReturn(true);
             Mockito.when(carton.canVerify()).thenReturn(true);
+            Mockito.when(carton.canPrint()).thenReturn(true);
 
             CartonItem cartonItem = Mockito.mock(CartonItem.class);
             Mockito.when(cartonItem.getStatus()).thenReturn("VERIFIED");
@@ -60,6 +61,7 @@ class CartonOutputMapperTest {
             assertNotNull(result);
             assertTrue(result.canClose());
             assertTrue(result.canVerify());
+            assertTrue(result.canPrint());
             assertNotNull(result.verifiedProducts());
             assertTrue(result.verifiedProducts().size() > 0);
         }
@@ -76,6 +78,7 @@ class CartonOutputMapperTest {
 
             when(carton.canVerify()).thenReturn(true);
             when(carton.canClose()).thenReturn(false);
+            when(carton.canPrint()).thenReturn(true);
 
             // When
             CartonOutput result = cartonOutputMapper.toOutput(carton);
@@ -85,6 +88,7 @@ class CartonOutputMapperTest {
             assertThat(result.packedProducts().size()).isEqualTo(1);
             assertThat(result.canVerify()).isTrue();
             assertThat(result.canClose()).isFalse();
+            assertThat(result.canPrint()).isTrue();
         }
 
         @Test
@@ -97,6 +101,7 @@ class CartonOutputMapperTest {
 
             when(carton.canVerify()).thenReturn(true);
             when(carton.canClose()).thenReturn(false);
+            when(carton.canPrint()).thenReturn(true);
 
             Inventory inventory = Mockito.mock(Inventory.class);
             Mockito.when(inventory.getUnitNumber()).thenReturn("UN123");
@@ -121,6 +126,7 @@ class CartonOutputMapperTest {
             assertThat(result.packedProducts().size()).isEqualTo(1);
             assertThat(result.canVerify()).isTrue();
             assertThat(result.canClose()).isFalse();
+            assertThat(result.canPrint()).isTrue();
 
             assertThat(result.failedCartonItem()).isNotNull();
             assertThat(result.failedCartonItem().unitNumber()).isEqualTo("UN123");

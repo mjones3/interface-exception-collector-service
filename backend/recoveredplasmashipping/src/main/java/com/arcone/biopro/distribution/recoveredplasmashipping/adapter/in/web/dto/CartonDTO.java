@@ -28,6 +28,7 @@ public record CartonDTO(
     Integer minNumberOfProducts,
     boolean canVerify,
     boolean canClose,
+    boolean canPrint,
     List<CartonItemDTO> verifiedProducts,
     CartonItemOutput failedCartonItem
 ) implements Serializable {
