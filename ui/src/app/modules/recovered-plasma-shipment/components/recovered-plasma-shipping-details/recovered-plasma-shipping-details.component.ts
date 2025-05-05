@@ -1,40 +1,36 @@
 import { AsyncPipe } from '@angular/common';
-import {
-    Component,
-    computed,
-    OnInit,
-    signal,
-    TemplateRef,
-    viewChild,
-} from '@angular/core';
+import { Component, computed, OnInit, signal, TemplateRef, viewChild } from '@angular/core';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApolloError } from '@apollo/client';
 import { Store } from '@ngrx/store';
-import {
-    ProcessHeaderComponent,
-    ProcessHeaderService,
-    TableConfiguration,
-    ToastrImplService,
-} from '@shared';
+import { ProcessHeaderComponent, ProcessHeaderService, TableConfiguration, ToastrImplService } from '@shared';
 import { ActionButtonComponent } from 'app/shared/components/buttons/action-button.component';
 import { BasicButtonComponent } from 'app/shared/components/buttons/basic-button.component';
 import { ProductIconsService } from 'app/shared/services/product-icon.service';
 import { CookieService } from 'ngx-cookie-service';
-import { catchError, map, tap } from 'rxjs';
+import { catchError, map, of, switchMap, tap } from 'rxjs';
 import { TableComponent } from '../../../../shared/components/table/table.component';
 import handleApolloError from '../../../../shared/utils/apollo-error-handling';
 import { consumeUseCaseNotifications } from '../../../../shared/utils/notification.handling';
 import { RecoveredPlasmaShipmentStatus } from '../../graphql/query-definitions/shipment.graphql';
-import {
-    CartonDTO,
-    CartonPackedItemResponseDTO,
-} from '../../models/recovered-plasma.dto';
+import { CartonDTO, CartonPackedItemResponseDTO } from '../../models/recovered-plasma.dto';
 import { RecoveredPlasmaShipmentCommon } from '../../recovered-plasma-shipment.common';
 import { RecoveredPlasmaService } from '../../services/recovered-plasma.service';
-import { ShippingInformationCardComponent } from '../../shared/shipping-information-card/shipping-information-card.component';
-import { RecoveredPlasmaShipmentDetailsNavbarComponent } from '../recovered-plasma-shipment-details-navbar/recovered-plasma-shipment-details-navbar.component';
+import {
+    ShippingInformationCardComponent
+} from '../../shared/shipping-information-card/shipping-information-card.component';
+import {
+    RecoveredPlasmaShipmentDetailsNavbarComponent
+} from '../recovered-plasma-shipment-details-navbar/recovered-plasma-shipment-details-navbar.component';
+import { BrowserPrintingService } from '../../../../core/services/browser-printing/browser-printing.service';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { DEFAULT_PAGE_SIZE } from '../../../../core/models/browser-printing.model';
+import {
+    ViewShippingCartonPackingSlipComponent
+} from '../view-shipping-carton-packing-slip/view-shipping-carton-packing-slip.component';
+import { CartonPackingSlipDTO } from '../../graphql/query-definitions/generate-carton-packing-slip.graphql';
 
 @Component({
     selector: 'biopro-recovered-plasma-shipping-details',
@@ -58,8 +54,7 @@ export class RecoveredPlasmaShippingDetailsComponent
 {
     statusTemplateRef = viewChild<TemplateRef<Element>>('statusTemplateRef');
     expandTemplateRef = viewChild<TemplateRef<Element>>('expandTemplateRef');
-    editTemplateRef = viewChild<TemplateRef<Element>>('editTemplateRef');
-    verifyProductsBtnTemplateRef = viewChild<TemplateRef<Element>>('verifyProductsBtnTemplateRef');
+    actionsTemplateRef = viewChild<TemplateRef<Element>>('actionsTemplateRef');
 
     // Signal to store expanded row data
     expandedRowDataSignal = signal<CartonPackedItemResponseDTO[]>([]);
@@ -94,16 +89,10 @@ export class RecoveredPlasmaShippingDetailsComponent
                 sort: false,
                 columnTempRef: this.statusTemplateRef(),
             },
-
-            {
-                id: 'verifyProducts',
-                header: '',
-                columnTempRef: this.verifyProductsBtnTemplateRef(),
-            },
             {
                 id: 'actions',
                 header: '',
-                columnTempRef: this.editTemplateRef(),
+                columnTempRef: this.actionsTemplateRef(),
             },
         ],
     }));
@@ -116,7 +105,9 @@ export class RecoveredPlasmaShippingDetailsComponent
         protected toastr: ToastrImplService,
         protected recoveredPlasmaService: RecoveredPlasmaService,
         protected cookieService: CookieService,
-        protected productIconService: ProductIconsService
+        protected productIconService: ProductIconsService,
+        protected browserPrintingService: BrowserPrintingService,
+        protected matDialog: MatDialog,
     ) {
         super(
             route,
@@ -130,9 +121,15 @@ export class RecoveredPlasmaShippingDetailsComponent
     }
 
     ngOnInit(): void {
-        this.loadRecoveredPlasmaShippingDetails(
-            this.routeIdComputed()
-        ).subscribe();
+        this.loadRecoveredPlasmaShippingDetails(this.routeIdComputed())
+            .pipe(
+                tap(() => {
+                    if (this.shouldPrintCartonPackingSlip) {
+                        this.printCarton(null, this.shipmentCloseCartonId);
+                    }
+                })
+            )
+            .subscribe();
     }
 
     loadCartonPackedProduct(carton: CartonDTO): void {
@@ -160,12 +157,63 @@ export class RecoveredPlasmaShippingDetailsComponent
         this.router.navigate([`recovered-plasma/${id}/carton-details`]);
     }
 
+    printCarton(event: Event, cartonId: number) {
+        // This is to prevent event bubbling, avoiding triggering the table row expansion
+        event?.stopPropagation();
+
+        let dialogRef: MatDialogRef<ViewShippingCartonPackingSlipComponent, CartonPackingSlipDTO>;
+        this.recoveredPlasmaService
+            .generateCartonPackingSlip({
+                cartonId: cartonId,
+                employeeId: this.employeeIdSignal(),
+                locationCode: this.locationCodeComputed()
+            })
+            .pipe(
+                catchError((error: ApolloError) => {
+                    handleApolloError(this.toastr, error);
+                }),
+                switchMap(response => {
+                    if (response?.data?.generateCartonPackingSlip?.notifications?.[0]?.type === 'SUCCESS') {
+                        dialogRef = this.matDialog
+                            .open(ViewShippingCartonPackingSlipComponent, {
+                                id: 'ViewShippingCartonPackingSlipDialog',
+                                hasBackdrop: false,
+                                panelClass: 'hidden',
+                                data: response.data.generateCartonPackingSlip?.data
+                            });
+                        return dialogRef.afterOpened();
+                    }
+                    consumeUseCaseNotifications(
+                        this.toastr,
+                        response.data.generateCartonPackingSlip?.notifications
+                    )
+                    return of({});
+                }),
+                tap(() => {
+                    this.browserPrintingService
+                        .print('viewShippingCartonPackingSlipReport', { pageSize: DEFAULT_PAGE_SIZE });
+                    dialogRef?.close();
+                }),
+            )
+            .subscribe();
+    }
+
     get cartonsRoute(): string {
         return this.router.url;
     }
 
     get shipmentId(): number {
         return parseInt(this.route.snapshot.params?.id);
+    }
+
+    get shipmentCloseCartonId(): number {
+        return parseInt(this.route.snapshot.queryParams?.closeCartonId);
+    }
+
+    get shouldPrintCartonPackingSlip(): boolean {
+        const shouldPrint = this.route.snapshot.queryParams?.print === 'true';
+        const hasValidCartonId = !isNaN(parseInt(this.route.snapshot.queryParams?.closeCartonId))
+        return shouldPrint && hasValidCartonId;
     }
 
     backToSearch() {
@@ -211,6 +259,6 @@ export class RecoveredPlasmaShippingDetailsComponent
     }
 
     verifyProducts(id: number){
-        this.router.navigate([`recovered-plasma/${id}/verify-carton`])     
+        this.router.navigate([`recovered-plasma/${id}/verify-carton`])
     }
 }

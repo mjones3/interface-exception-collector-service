@@ -54,24 +54,18 @@
                     {{ RecoveredPlasmaShipmentStatusMap[element.status] }}
                 </span>
             </ng-template>
-            <ng-template #editTemplateRef let-element="element">
+            <ng-template #actionsTemplateRef let-element="element">
                 @if (element?.status !== 'CLOSED') {
                     <button id="editBtn" (click)="editCarton(element?.id)" class="edit-button-mat-icon">
                         <mat-icon>edit</mat-icon>
                     </button>
                 }
-            </ng-template>
-
-            <ng-template #verifyProductsBtnTemplateRef let-element="element">
-                @if(shipmentDetailsSignal()?.canVerify){
-                    <biopro-basic-button
-                    id="verifyProductsBtn"
-                    class="text-primary"
-                    color="primary"
-                    (buttonClicked)="verifyProducts(element.id)"
-                    label="Verify Products"
-                />
-                }
+<!-- FIXME -->
+<!--                @if (element?.canPrint) {-->
+                    <button id="printBtn" (click)="printCarton($event, element?.id)" class="edit-button-mat-icon">
+                        <mat-icon>print</mat-icon>
+                    </button>
+<!--                }-->
             </ng-template>
 
             <!--Expand row for added products-->

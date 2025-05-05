@@ -2,47 +2,40 @@ import { Injectable } from '@angular/core';
 import { ApolloQueryResult } from '@apollo/client';
 import { LookUpDto, NotificationTypeMap, ToastrImplService } from '@shared';
 import { MutationResult } from 'apollo-angular';
-import { Observable, Observer, catchError } from 'rxjs';
+import { catchError, Observable, Observer } from 'rxjs';
 import { DynamicGraphqlPathService } from '../../../core/services/dynamic-graphql-path.service';
 import { DiscardRequestDTO } from '../../../shared/models/discard.model';
 import { PageDTO } from '../../../shared/models/page.model';
 import { UseCaseNotificationDTO, UseCaseResponseDTO } from '../../../shared/models/use-case-response.dto';
 import { ConfirmationAcknowledgmentService } from '../../../shared/services/confirmation-acknowledgment.service';
 import { DiscardService } from '../../../shared/services/discard.service';
-import {
-    CREATE_CARTON,
-    CreateCartonRequestDTO,
-} from '../graphql/mutation-definitions/create-carton.graphql';
-import {
-    CARTON_PACK_ITEM,
-    PackCartonItemsDTO,
-} from '../graphql/mutation-definitions/pack-items.graphql';
+import { CREATE_CARTON, CreateCartonRequestDTO } from '../graphql/mutation-definitions/create-carton.graphql';
+import { CARTON_PACK_ITEM, PackCartonItemsDTO } from '../graphql/mutation-definitions/pack-items.graphql';
 import { FIND_CARTON_BY_ID } from '../graphql/query-definitions/carton.graphql';
-import {
-    FIND_ALL_CUSTOMERS,
-    RecoveredPlasmaCustomerDTO,
-} from '../graphql/query-definitions/customer.graphql';
-import {
-    FIND_ALL_LOCATIONS,
-    RecoveredPlasmaLocationDTO,
-} from '../graphql/query-definitions/location.graphql';
+import { FIND_ALL_CUSTOMERS, RecoveredPlasmaCustomerDTO } from '../graphql/query-definitions/customer.graphql';
+import { FIND_ALL_LOCATIONS, RecoveredPlasmaLocationDTO } from '../graphql/query-definitions/location.graphql';
 import { FIND_ALL_LOOKUPS_BY_TYPE } from '../graphql/query-definitions/lookup.graphql';
 import {
     RecoveredPlasmaShipmentQueryCommandRequestDTO,
     RecoveredPlasmaShipmentReportDTO,
-    SEARCH_RP_SHIPMENT,
+    SEARCH_RP_SHIPMENT
 } from '../graphql/query-definitions/shipment.graphql';
 import {
     FindShipmentRequestDTO,
-    RECOVERED_PLASMA_SHIPMENT_DETAILS,
+    RECOVERED_PLASMA_SHIPMENT_DETAILS
 } from '../graphql/query-definitions/shipmentDetails.graphql';
 import {
     CartonDTO,
     CartonPackedItemResponseDTO,
-    RecoveredPlasmaShipmentResponseDTO,
+    RecoveredPlasmaShipmentResponseDTO
 } from '../models/recovered-plasma.dto';
 import { VERIFY_CARTON_PACK_ITEM, VerifyCartonItemsDTO } from '../graphql/mutation-definitions/verify-products.graphql';
 import { CLOSE_CARTON, CloseCartonDTO } from '../graphql/mutation-definitions/close-carton.graphql';
+import {
+    CartonPackingSlipDTO,
+    GENERATE_CARTON_PACKING_SLIP,
+    GenerateCartonPackingSlipRequestDTO
+} from '../graphql/query-definitions/generate-carton-packing-slip.graphql';
 
 @Injectable({
     providedIn: 'root',
@@ -170,30 +163,35 @@ export class RecoveredPlasmaService {
         );
     }
 
-    public closeCarton(closeCarton: CloseCartonDTO): Observable<
-    MutationResult<{
-        closeCarton: UseCaseResponseDTO<CartonDTO>;
-    }>
-    > {
-    return this.dynamicGraphqlPathService.executeMutation(
-        this.servicePath,
-        CLOSE_CARTON,
-        closeCarton
-    );
-}
+    public closeCarton(closeCarton: CloseCartonDTO)
+        : Observable<MutationResult<{ closeCarton: UseCaseResponseDTO<CartonDTO> }>> {
 
-    public verifyCartonProducts(cartonProducts: VerifyCartonItemsDTO): Observable<
-    MutationResult<{
-        verifyCarton: UseCaseResponseDTO<CartonDTO>;
-    }>
-> {
-    return this.dynamicGraphqlPathService.executeMutation(
-        this.servicePath,
-        VERIFY_CARTON_PACK_ITEM,
-        cartonProducts
-    );
-}
+        return this.dynamicGraphqlPathService.executeMutation(
+            this.servicePath,
+            CLOSE_CARTON,
+            closeCarton
+        );
+    }
 
+    public verifyCartonProducts(cartonProducts: VerifyCartonItemsDTO)
+        : Observable<MutationResult<{ verifyCarton: UseCaseResponseDTO<CartonDTO> }>> {
+
+        return this.dynamicGraphqlPathService.executeMutation(
+            this.servicePath,
+            VERIFY_CARTON_PACK_ITEM,
+            cartonProducts
+        );
+    }
+
+    public generateCartonPackingSlip(generateCartonPackingSlipRequestDTO: GenerateCartonPackingSlipRequestDTO)
+        : Observable<ApolloQueryResult<{ generateCartonPackingSlip: UseCaseResponseDTO<CartonPackingSlipDTO> }>> {
+
+        return this.dynamicGraphqlPathService.executeQuery(
+            this.servicePath,
+            GENERATE_CARTON_PACKING_SLIP,
+            generateCartonPackingSlipRequestDTO
+        );
+    }
 
     //Handles INFO notifications and triggers discard if needed
     public handleInfoNotificationAndDiscard(
@@ -330,3 +328,4 @@ export class RecoveredPlasmaService {
         };
     }
 }
+
