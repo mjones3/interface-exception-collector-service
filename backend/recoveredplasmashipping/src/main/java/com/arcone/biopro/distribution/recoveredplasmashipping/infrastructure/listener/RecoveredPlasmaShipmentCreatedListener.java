@@ -28,7 +28,7 @@ public class RecoveredPlasmaShipmentCreatedListener {
     private final String topicName;
     private final RecoveredPlasmaShipmentEventMapper recoveredPlasmaShipmentEventMapper;
 
-    public RecoveredPlasmaShipmentCreatedListener(@Qualifier(KafkaConfiguration.RSP_SHIPMENT_CREATED_PRODUCER) ReactiveKafkaProducerTemplate<String, RecoveredPlasmaShipmentCreatedOutputEvent> producerTemplate,
+    public RecoveredPlasmaShipmentCreatedListener(@Qualifier(KafkaConfiguration.RPS_SHIPMENT_CREATED_PRODUCER) ReactiveKafkaProducerTemplate<String, RecoveredPlasmaShipmentCreatedOutputEvent> producerTemplate,
                                                   @Value("${topics.recovered-plasma-shipment.shipment-created.topic-name:RecoveredPlasmaShipmentCreated}") String topicName , RecoveredPlasmaShipmentEventMapper recoveredPlasmaShipmentEventMapper) {
         this.producerTemplate = producerTemplate;
         this.topicName = topicName;

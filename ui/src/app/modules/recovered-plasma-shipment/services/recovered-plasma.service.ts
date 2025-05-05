@@ -42,6 +42,7 @@ import {
     RecoveredPlasmaShipmentResponseDTO,
 } from '../models/recovered-plasma.dto';
 import { VERIFY_CARTON_PACK_ITEM, VerifyCartonItemsDTO } from '../graphql/mutation-definitions/verify-products.graphql';
+import { CLOSE_CARTON, CloseCartonDTO } from '../graphql/mutation-definitions/close-carton.graphql';
 
 @Injectable({
     providedIn: 'root',
@@ -168,6 +169,18 @@ export class RecoveredPlasmaService {
             cartonProducts
         );
     }
+
+    public closeCarton(closeCarton: CloseCartonDTO): Observable<
+    MutationResult<{
+        closeCarton: UseCaseResponseDTO<CartonDTO>;
+    }>
+    > {
+    return this.dynamicGraphqlPathService.executeMutation(
+        this.servicePath,
+        CLOSE_CARTON,
+        closeCarton
+    );
+}
 
     public verifyCartonProducts(cartonProducts: VerifyCartonItemsDTO): Observable<
     MutationResult<{

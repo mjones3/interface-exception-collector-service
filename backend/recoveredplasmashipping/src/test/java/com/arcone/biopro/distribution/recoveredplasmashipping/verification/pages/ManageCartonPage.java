@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 
 @Component
-public class AddCartonPage extends CommonPageFactory {
+public class ManageCartonPage extends CommonPageFactory {
 
     @Autowired
     private SharedActions sharedActions;
@@ -120,5 +120,9 @@ public class AddCartonPage extends CommonPageFactory {
 
     public void clickBackToShipmentDetails() {
         sharedActions.click(backShipmentDetailsBtn);
+    }
+
+    public void closeCarton() {
+        sharedActions.click(closeCartonButton);
     }
 }

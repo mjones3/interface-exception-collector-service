@@ -31,27 +31,27 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
             navigate: jest.fn(),
             navigateByUrl: jest.fn(),
             url: '/test-url',
-        } as Partial<Router> as jest.Mocked<Router>;;
+        } as Partial<Router> as jest.Mocked<Router>;
 
         mockRecoveredPlasmaService = {
             getShipmentById: jest.fn(),
             createCarton: jest.fn(),
             getCartonById: jest.fn(),
-        } as Partial<RecoveredPlasmaService> as jest.Mocked<RecoveredPlasmaService>;;
+        } as Partial<RecoveredPlasmaService> as jest.Mocked<RecoveredPlasmaService>;
 
         mockToastrService = {
             error: jest.fn(),
             success: jest.fn(),
             warning: jest.fn(),
-        } as Partial<ToastrImplService> as jest.Mocked<ToastrImplService>;;
+        } as Partial<ToastrImplService> as jest.Mocked<ToastrImplService>;
 
         mockStore = {
             select: jest.fn(),
-        } as Partial<Store> as jest.Mocked<Store>;;
+        } as Partial<Store> as jest.Mocked<Store>;
 
         cookieService = {
             get: jest.fn(),
-        } as Partial<CookieService> as jest.Mocked<CookieService>;;
+        } as Partial<CookieService> as jest.Mocked<CookieService>;
 
         await TestBed.configureTestingModule({
             imports: [
@@ -379,7 +379,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         expect(component.expandedRowDataSignal()).toEqual([]);
     });
 
-    it('should hide "edit" when canAddCartons is false', () => {
+    it('should hide "edit" when carton status is closed', () => {
         const buttonIdCssSelector = By.css('#editBtn');
         const root = fixture.debugElement;
         mockRecoveredPlasmaService.getShipmentById.mockReturnValue(
@@ -387,7 +387,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
                 data: {
                     findShipmentById: {
                         data: {
-                            canAddCartons: false,
+                            status: 'CLOSED',
                         },
                     },
                 },

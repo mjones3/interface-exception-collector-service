@@ -8,4 +8,5 @@ public interface CartonRepository {
     Mono<Carton> create(Carton carton);
     Mono<Integer> countByShipment(Long shipmentId);
     Mono<Carton> findOneById(Long id);
+    Mono<Carton> update(Carton carton);
 }

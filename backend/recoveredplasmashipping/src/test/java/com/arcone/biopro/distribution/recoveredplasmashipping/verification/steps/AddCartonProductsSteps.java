@@ -1,7 +1,8 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.verification.steps;
 
+import com.arcone.biopro.distribution.recoveredplasmashipping.verification.controllers.CartonTestingController;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.controllers.CreateShipmentController;
-import com.arcone.biopro.distribution.recoveredplasmashipping.verification.pages.AddCartonPage;
+import com.arcone.biopro.distribution.recoveredplasmashipping.verification.pages.ManageCartonPage;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.SharedContext;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.TestUtils;
 import io.cucumber.datatable.DataTable;
@@ -19,37 +20,40 @@ import java.util.Map;
 public class AddCartonProductsSteps {
 
     @Autowired
-    private AddCartonPage addCartonPage;
+    private ManageCartonPage manageCartonPage;
     @Autowired
     private CreateShipmentController createShipmentController;
     @Autowired
     private SharedContext sharedContext;
     @Autowired
     private TestUtils testUtils;
+    @Autowired
+    private CartonTestingController cartonTestingController;
+
 
     @Given("I should be redirected to the Manage Carton Products page.")
     public void iShouldBeRedirectedToTheAddCartonProductsPage() {
-        addCartonPage.waitForLoad();
+        manageCartonPage.waitForLoad();
     }
 
     @And("I should see the carton details:")
     public void iShouldSeeTheCartonDetails(DataTable dataTable) {
         Map<String, String> table = dataTable.asMap(String.class, String.class);
-        addCartonPage.verifyCartonDetails(table);
+        manageCartonPage.verifyCartonDetails(table);
     }
 
-    @When("I fill/pack an {string} product with the unit number {string}, product code {string} and product type {string}.")
+    @When("I fill/pack a(n) {string} product with the unit number {string}, product code {string} and product type {string}.")
     public void addProductToCarton(String productQuality, String unitNumber, String productCode, String productType) {
         String cartonId = sharedContext.getCreateCartonResponseList().getFirst().get("id").toString();
-        createShipmentController.packCartonProduct(cartonId, unitNumber, productCode, sharedContext.getLocationCode());
+        cartonTestingController.packCartonProduct(cartonId, unitNumber, productCode, sharedContext.getLocationCode());
     }
 
     @And("The product unit number {string} and product code {string} {string} be packed in the carton.")
     public void theProductUnitNumberAndProductCodeBePackedInTheCarton(String unitNumber, String productCode, String option) {
         if (option.equals("should")) {
-            Assert.assertTrue(createShipmentController.checkProductIsPacked(unitNumber, productCode));
+            Assert.assertTrue(cartonTestingController.checkProductIsPacked(unitNumber, productCode));
         } else if (option.equals("should not")) {
-            Assert.assertFalse(createShipmentController.checkProductIsPacked(unitNumber, productCode));
+            Assert.assertFalse(cartonTestingController.checkProductIsPacked(unitNumber, productCode));
         } else {
             Assert.fail("The option " + option + " is not valid.");
         }
@@ -58,9 +62,9 @@ public class AddCartonProductsSteps {
     @And("The product unit number {string} and product code {string} {string} be verified in the carton.")
     public void theProductUnitNumberAndProductCodeBeVerifiedInTheCarton(String unitNumber, String productCode, String option) {
         if (option.equals("should")) {
-            Assert.assertTrue(createShipmentController.checkProductIsVerified(unitNumber, productCode));
+            Assert.assertTrue(cartonTestingController.checkProductIsVerified(unitNumber, productCode));
         } else if (option.equals("should not")) {
-            Assert.assertFalse(createShipmentController.checkProductIsVerified(unitNumber, productCode));
+            Assert.assertFalse(cartonTestingController.checkProductIsVerified(unitNumber, productCode));
         } else {
             Assert.fail("The option " + option + " is not valid.");
         }
@@ -74,13 +78,13 @@ public class AddCartonProductsSteps {
     @When("I pack a product with the unit number {string} and product code {string} into the carton sequence {int}.")
     public void iPackAProductInASpecificCarton(String unitNumber, String productCode, int cartonSequence) {
         String cartonId = sharedContext.getCreateCartonResponseList().get(cartonSequence - 1).get("id").toString();
-        createShipmentController.packCartonProduct(cartonId, unitNumber, productCode, sharedContext.getLocationCode());
+        cartonTestingController.packCartonProduct(cartonId, unitNumber, productCode, sharedContext.getLocationCode());
     }
 
     @And("I navigate to the Add Carton Products page for the carton sequence number {int}.")
     public void iNavigateToTheAddCartonProductsPageForTheCartonNumber(int sequenceNumber) throws InterruptedException {
         String cartonId = sharedContext.getCreateCartonResponseList().get(sequenceNumber - 1).get("id").toString();
-        addCartonPage.navigateToCarton(cartonId);
+        manageCartonPage.navigateToCarton(cartonId);
     }
 
     @And("I navigate to the Manage Carton Products page for the carton sequence number {int}.")
@@ -94,7 +98,7 @@ public class AddCartonProductsSteps {
         var productCodeList = testUtils.getCommaSeparatedList(productCode);
         Assert.assertEquals(productList.length, productCodeList.length);
         for (int i = 0; i < productList.length; i++) {
-            addCartonPage.addProduct(productList[i], productCodeList[i]);
+            manageCartonPage.addProduct(productList[i], productCodeList[i]);
             Thread.sleep(500);
         }
     }
@@ -106,7 +110,7 @@ public class AddCartonProductsSteps {
         Assert.assertEquals(productList.length, productCodeList.length);
 
         for (int i = 0; i < productList.length; i++) {
-            addCartonPage.verifyProduct(productList[i], productCodeList[i]);
+            manageCartonPage.verifyProduct(productList[i], productCodeList[i]);
             Thread.sleep(500);
         }
     }
@@ -118,7 +122,7 @@ public class AddCartonProductsSteps {
         Assert.assertEquals(unitList.length, productList.length);
 
         for (var i = 0; i > productList.length; i++) {
-            Assert.assertTrue(addCartonPage.verifyProductIsPacked(testUtils.removeUnitNumberScanDigits(unitNumber), testUtils.removeProductCodeScanDigits(productCode)));
+            Assert.assertTrue(manageCartonPage.verifyProductIsPacked(testUtils.removeUnitNumberScanDigits(unitNumber), testUtils.removeProductCodeScanDigits(productCode)));
         }
     }
 
@@ -129,20 +133,20 @@ public class AddCartonProductsSteps {
 
         for (int i = 1; i < dataTable.height(); i++) {
             var row = dataTable.row(i);
-            createShipmentController.packCartonProduct(cartonId, row.get(headers.indexOf("unit_number")), row.get(headers.indexOf("product_code")), sharedContext.getLocationCode());
+            cartonTestingController.packCartonProduct(cartonId, row.get(headers.indexOf("unit_number")), row.get(headers.indexOf("product_code")), sharedContext.getLocationCode());
         }
     }
 
     @When("I pack a product with the unit number {string}, product code {string}.")
     public void iPackAProductWithTheUnitNumberProductCode(String unitNumber, String productCode) throws InterruptedException {
         String cartonId = sharedContext.getCreateCartonResponseList().getFirst().get("id").toString();
-        createShipmentController.packCartonProduct(cartonId, unitNumber, productCode, sharedContext.getLocationCode());
+        cartonTestingController.packCartonProduct(cartonId, unitNumber, productCode, sharedContext.getLocationCode());
 
     }
 
     @When("I choose to navigate back to Shipment Details page.")
     public void iChooseToNavigateBack() {
-        addCartonPage.clickBackToShipmentDetails();
+        manageCartonPage.clickBackToShipmentDetails();
     }
 
     @And("I have the unit numbers {string}, product codes {string} and product types {string} packed which become unsuitable.")
@@ -153,7 +157,7 @@ public class AddCartonProductsSteps {
         String[] productTypesArray = testUtils.getCommaSeparatedList(productTypes);
 
         for (int i = 0; i < unitNumbersArray.length; i++) {
-            createShipmentController.insertPackedProduct(cartonId, unitNumbersArray[i], productCodesArray[i], productTypesArray[i]);
+            cartonTestingController.insertPackedProduct(cartonId, unitNumbersArray[i], productCodesArray[i], productTypesArray[i]);
         }
     }
 }
