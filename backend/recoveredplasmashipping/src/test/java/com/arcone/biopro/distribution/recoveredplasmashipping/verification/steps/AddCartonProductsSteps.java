@@ -149,7 +149,7 @@ public class AddCartonProductsSteps {
         manageCartonPage.clickBackToShipmentDetails();
     }
 
-    @And("I have the unit numbers {string}, product codes {string} and product types {string} packed which become unsuitable.")
+    @And("I have the unit numbers {string}, product codes {string} and product types {string} packed which become unacceptable.")
     public void iHaveTheUnitNumbersProductCodesAndProductTypesPackedWhichBecomeUnsuitable(String unitNumbers, String productCodes, String productTypes) {
         String cartonId = sharedContext.getCreateCartonResponseList().getFirst().get("id").toString();
         String[] unitNumbersArray = testUtils.getCommaSeparatedList(unitNumbers);

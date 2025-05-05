@@ -69,7 +69,7 @@ public class VerifyCartonProductSteps {
     }
 
     @And("I choose to close the carton.")
-    public void closeCarton() {
+    public void closeCarton() throws InterruptedException {
         manageCartonPage.closeCarton();
     }
 
@@ -83,9 +83,11 @@ public class VerifyCartonProductSteps {
 
         for (int i = 0; i < unitNumberList.length; i++) { // pack all
             cartonTestingController.packCartonProduct(cartonId, unitNumberList[i], productCodeList[i], sharedContext.getLocationCode());
+            Assert.assertFalse(sharedContext.getPackedProductsList().isEmpty());
         }
         for (int i = 0; i < unitNumberList.length; i++) { // verify all
             cartonTestingController.verifyCartonProduct(cartonId, unitNumberList[i], productCodeList[i], sharedContext.getLocationCode());
+            Assert.assertFalse(sharedContext.getVerifiedProductsList().isEmpty());
         }
     }
 }

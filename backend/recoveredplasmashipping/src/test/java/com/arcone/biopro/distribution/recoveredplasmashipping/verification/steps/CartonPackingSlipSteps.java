@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.verification.steps;
 
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.controllers.CartonTestingController;
+import com.arcone.biopro.distribution.recoveredplasmashipping.verification.pages.ShipmentDetailsPage;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.DatabaseQueries;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.DatabaseService;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.SharedContext;
@@ -11,6 +12,7 @@ import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -27,6 +29,12 @@ public class CartonPackingSlipSteps {
 
     @Autowired
     DatabaseService databaseService;
+
+    @Autowired
+    private ShipmentDetailsPage shipmentDetailsPage;
+
+    @Value("${selenium.headless.execution}")
+    private boolean headless;
 
 
     @When("I request to print the carton packing slip.")
@@ -89,6 +97,15 @@ public class CartonPackingSlipSteps {
                 , row.get(headers.indexOf("system_configuration_key")), row.get(headers.indexOf("system_configuration_value")))).block();
 
 
+        }
+    }
+
+    @And("I should be able to see the Carton Packing Slip details.")
+    public void iShouldBeAbleToSeeTheCartonPackingSlipDetails() throws InterruptedException {
+        if (!headless) {
+            shipmentDetailsPage.viewCartonPackingSlip();
+        } else {
+            log.info("Skipping print packing slip. Test in headless mode.");
         }
     }
 }

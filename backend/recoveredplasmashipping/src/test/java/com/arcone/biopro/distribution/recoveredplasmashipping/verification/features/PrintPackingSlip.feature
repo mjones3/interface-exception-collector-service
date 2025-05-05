@@ -33,7 +33,7 @@ Feature: Carton Packing Slip Printing
 
 
 
-    Rule: The system should trigger the printing of the carton automatically once a carton is closed.
+        Rule: The system should trigger the printing of the carton automatically once a carton is closed.
         Rule: I should be able to print the carton packing slip with the carton details and products information.
         @ui @DIS-343
         Scenario Outline: Automatic printing when carton is closed
@@ -43,10 +43,10 @@ Feature: Carton Packing Slip Printing
             And I navigate to the Manage Carton Products page for the carton sequence number <Carton Sequence Number>.
             When I choose to close the carton.
             Then I should be redirected to the Shipment Details page.
-            And I should be able to see the Carton Packing Slip details.
+            And  I should be able to see the Carton Packing Slip details.
             Examples:
-                | Customer Code | Product Type              | Carton Tare Weight | Shipment Date | Transportation Reference Number | Location Code | configured_min_products | unit_number                     | product_code       | product_type                                           | Carton Sequence Number |
-                | 408           | RP_FROZEN_WITHIN_24_HOURS | 1000               | <tomorrow>    | DIS-343                         | 123456789     | 2                       | W03689878680600,W03689878680700 | E2488V00, E2488V00 | RP_NONINJECTABLE_LIQUID_RT, RP_NONINJECTABLE_LIQUID_RT | 1                      |
+                | Customer Code | Product Type              | Carton Tare Weight | Shipment Date | Transportation Reference Number | Location Code | configured_min_products | unit_number                 | product_code       | product_type                                           | Carton Sequence Number |
+                | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>    | DIS-343                         | 123456789     | 2                      | W036898786808,W036898786809 | E2488V00, E2488V00 | RP_NONINJECTABLE_LIQUID_RT, RP_NONINJECTABLE_LIQUID_RT | 1                      |
 
 
     Rule: I should be able to reprint carton packing slip if needed.

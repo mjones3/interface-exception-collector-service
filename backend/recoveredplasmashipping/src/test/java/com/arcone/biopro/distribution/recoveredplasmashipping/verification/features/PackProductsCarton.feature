@@ -33,7 +33,7 @@ Feature: Add Products to Carton
     @ui @DIS-339
     Scenario Outline: Successfully add product to carton by scanning
         Given I have an empty carton created with the Customer Code as "<Customer Code>" , Product Type as "<Product Type>", Carton Tare Weight as "<Carton Tare Weight>", Shipment Date as "<Shipment Date>", Transportation Reference Number as "<Transportation Reference Number>" and Location Code as "<Location Code>".
-        And I navigate to the Add Carton Products page for the carton sequence number <Carton Sequence Number>.
+        And I navigate to the Manage Carton Products page for the carton sequence number <Carton Sequence Number>.
         When I add an "acceptable" product with the unit number "<unit_number>", product code "<product_code>" and product type "<product_type>".
         Then I should see the product in the packed list with unit number "<unit_number>" and product code "<product_code>".
         When I choose to navigate back to Shipment Details page.
@@ -65,9 +65,9 @@ Feature: Add Products to Carton
     Rule: I should not be able to add products in the carton that do not match the product type criteria and be notified.
     Rule: I should not be able to add shipped products in the carton and be notified.
     @api @DIS-339
-    Scenario Outline: Attempt to add unsuitable products to carton
+    Scenario Outline: Attempt to add unacceptable products to carton
         Given I have an empty carton created with the Customer Code as "<Customer Code>" , Product Type as "<Product Type>", Carton Tare Weight as "<Carton Tare Weight>", Shipment Date as "<Shipment Date>", Transportation Reference Number as "<Transportation Reference Number>" and Location Code as "<Location Code>".
-        When I fill an "unsuitable" product with the unit number "<unit_number>", product code "<product_code>" and product type "<product_type>".
+        When I fill an "unacceptable" product with the unit number "<unit_number>", product code "<product_code>" and product type "<product_type>".
         Then I should receive a "<error_type>" message response "<error_message>".
         And The product unit number "<unit_number>" and product code "<product_code>" "should not" be packed in the carton.
         Examples:
