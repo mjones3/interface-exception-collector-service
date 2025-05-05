@@ -1,7 +1,8 @@
 import { AsyncPipe, DatePipe } from '@angular/common';
 import { Component } from '@angular/core';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { DomSanitizer } from '@angular/platform-browser';
 import { Observable, of } from 'rxjs';
+import { PrintableReportComponent } from '../../../shared/components/printable-report.component';
 import { ProductFamilyMap } from '../../../shared/models/product-family.model';
 import { PackingListLabelDTO } from '../models/packing-list.model';
 
@@ -11,34 +12,16 @@ import { PackingListLabelDTO } from '../models/packing-list.model';
     imports: [AsyncPipe, DatePipe],
     templateUrl: './view-packing-list.component.html',
 })
-export class ViewPackingListComponent {
+export class ViewPackingListComponent extends PrintableReportComponent {
+    protected readonly ProductFamilyMap = ProductFamilyMap;
+
     model$: Observable<Partial<PackingListLabelDTO>> = of();
 
-    constructor(private domSanitizer: DomSanitizer) {}
+    constructor(protected domSanitizer: DomSanitizer) {
+        super(domSanitizer);
+    }
 
     getPackedItemsQuantity(packingListLabelDTO: Partial<PackingListLabelDTO>) {
         return packingListLabelDTO?.packedItems?.length ?? 0;
     }
-
-    getBase64DataImage(payload: string): SafeResourceUrl {
-        return this.domSanitizer.bypassSecurityTrustResourceUrl(
-            `data:image/*;base64,${payload}`
-        );
-    }
-
-    get navigatorLanguage() {
-        return navigator.languages?.[0] ?? navigator.language;
-    }
-
-    get localTimezone() {
-        const dateParts = new Date()
-            .toLocaleTimeString(this.navigatorLanguage, {
-                timeZoneName: 'short',
-            })
-            .split(' ');
-
-        return dateParts?.length > 0 ? dateParts[dateParts.length - 1] : '';
-    }
-
-    protected readonly ProductFamilyMap = ProductFamilyMap;
 }
