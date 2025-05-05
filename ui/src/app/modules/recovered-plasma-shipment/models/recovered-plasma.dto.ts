@@ -28,7 +28,7 @@ export interface CartonDTO {
     canClose?: boolean;
     packedProducts?: CartonPackedItemResponseDTO[];
     verifiedProducts?: VerifiedProductsDTO[];
-    failedCartonItem?: FailedCartonItemDTO[];
+    failedCartonItem?: CartonPackedItemResponseDTO;
 }
 
 export interface VerifiedProductsDTO {
@@ -49,10 +49,6 @@ export interface VerifiedProductsDTO {
     modificationDate?: string;
     verifiedByEmployeeId?: string,
     verifyDate?: string;
-}
-
-export interface FailedCartonItemDTO {
-    id?: number;
 }
 
 export interface RecoveredPlasmaShipmentResponseDTO {

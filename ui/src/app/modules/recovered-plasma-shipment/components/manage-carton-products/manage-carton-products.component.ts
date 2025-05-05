@@ -150,7 +150,7 @@ onClickPrevious(data) {
                 if (data.displayStaticMessage) {
                     this.messageTypeSignal.set('warning');
                     this.messageSignal.set(data.resetMessage);
-                } 
+                }
                 this.addProductsControl.disableInputsIfMaxCartonProduct(cartonDetails);
             }
         });
@@ -208,7 +208,7 @@ enterAndVerifyProduct(item: PackCartonItemsDTO) {
                     if (notifications.length > 0) {
                         this.resetAddProductGroup();
                         if (notifications[0].type === 'INFO') {
-                            const inventory = productResult.data;
+                            const inventory = productResult?.data?.failedCartonItem;
                             this.recoveredPlasmaService.handleInfoNotificationAndDiscard(
                                 notifications[0],
                                 inventory,
@@ -260,7 +260,7 @@ AddProductFocusOnUnitNumber() {
 getCallBacks(){
   return {
      resetFn: this.resetAddProductGroup.bind(this),
-     focusFn: this.AddProductFocusOnUnitNumber.bind(this) 
+     focusFn: this.AddProductFocusOnUnitNumber.bind(this)
   }
 }
 
@@ -292,7 +292,7 @@ verifyProducts(item: VerifyCartonItemsDTO) {
                   if (notifications.length > 0) {
                       this.verifyProductsControl.resetProductGroup();
                       if (notifications[0].type === 'INFO') {
-                          const inventory = productResult.data;
+                          const inventory = productResult?.data?.failedCartonItem;
                           this.recoveredPlasmaService.handleInfoNotificationAndDiscard(
                               notifications[0],
                               inventory,
@@ -321,7 +321,7 @@ verifyProducts(item: VerifyCartonItemsDTO) {
 getVerifyProductsCallBacks(){
     return {
        resetFn: this.verifyProductsControl.resetProductGroup.bind(this),
-       focusFn: this.verifyProductsControl.focusOnUnitNumber.bind(this) 
+       focusFn: this.verifyProductsControl.focusOnUnitNumber.bind(this)
     }
   }
 

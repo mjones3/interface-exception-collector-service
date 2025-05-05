@@ -160,7 +160,7 @@ export class RecoveredPlasmaService {
 
     public addCartonProducts(cartonProducts: PackCartonItemsDTO): Observable<
         MutationResult<{
-            packCartonItem: UseCaseResponseDTO<CartonPackedItemResponseDTO>;
+            packCartonItem: UseCaseResponseDTO<CartonDTO>;
         }>
     > {
         return this.dynamicGraphqlPathService.executeMutation(
@@ -194,7 +194,7 @@ export class RecoveredPlasmaService {
     );
 }
 
-    
+
     //Handles INFO notifications and triggers discard if needed
     public handleInfoNotificationAndDiscard(
         notification: UseCaseNotificationDTO,
@@ -210,7 +210,7 @@ export class RecoveredPlasmaService {
         }
     }
 
-  
+
     //Displays notification messages
     public displayNotificationMessage(
         notifications: UseCaseNotificationDTO[],
@@ -235,7 +235,7 @@ export class RecoveredPlasmaService {
         });
     }
 
-    
+
     //Triggers discard for an inventory item
     private triggerDiscard(
         triggerDiscardNotification: UseCaseNotificationDTO,
@@ -275,7 +275,7 @@ export class RecoveredPlasmaService {
             });
     }
 
-    
+
     // Shows discard system error message
     private showDiscardSystemError(focusCallback): void {
         this.displayNotificationMessage(
@@ -308,7 +308,7 @@ export class RecoveredPlasmaService {
         );
     }
 
-    
+
     //Creates a discard request DTO
     private getDiscardRequestDto(
         inventoryItem: CartonPackedItemResponseDTO,
