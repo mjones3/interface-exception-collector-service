@@ -1,8 +1,11 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.verification.steps;
 
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.controllers.CartonTestingController;
+import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.DatabaseQueries;
+import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.DatabaseService;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.SharedContext;
 import io.cucumber.datatable.DataTable;
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +25,9 @@ public class CartonPackingSlipSteps {
     @Autowired
     private SharedContext sharedContext;
 
+    @Autowired
+    DatabaseService databaseService;
+
 
     @When("I request to print the carton packing slip.")
     public void iRequestToPrintCartonPackingSlip() {
@@ -38,22 +44,6 @@ public class CartonPackingSlipSteps {
     @Then("The carton packing slip should contain:")
     public void theCartonPackingSlipShouldContain(DataTable dataTable) {
         Assert.assertNotNull(dataTable);
-
-        //| Response property       | Information Type                 | Information Value                                             |
-        //Response: {data={cartonId=3, cartonNumber=BPMMH13, cartonSequence=1, totalProducts=2, dateTimePacked=05/02/2025 18:04, packedByEmployeeId=5db1da0b-6392-45ff-86d0-17265ea33226, cartonProductCode=E2488V00
-        // , cartonProductDescription=LIQ CPD PLS MNI RT, testingStatement=Testing statement template: 5db1da0b-6392-45ff-86d0-17265ea33226
-        // , shipFromBloodCenterName=ARC-One Solutions, shipFromLicenseNumber=2222
-        // , shipFromLocationAddress=444 Main St. Charlotte, NC, {zipCode} USA
-        // , shipToAddress=4801 Woodlane Circle Tallahassee, FL, 32303 USA, shipToCustomerName=Southern Biologics, shipmentNumber=BPM27653
-        // , shipmentProductType=RP_NONINJECTABLE_LIQUID_RT, shipmentProductDescription=RP NONINJECTABLE LIQUID RT, shipmentTransportationReferenceNumber=DIS-343, displaySignature=true
-        // , displayTransportationReferenceNumber=true, displayTestingStatement=true, displayLicenceNumber=true, products=[{unitNumber=W036898786808, volume=259, collectionDate=12/03/2011}
-        // , {unitNumber=W036898786809, volume=259, collectionDate=12/03/2011}]}, notifications=[{message=Carton Packing Slip generated successfully, type=SUCCESS, code=13
-        // , reason=null, action=null, details=null}], _links=null}
-
-        //Expected :W03689878680[8,W036898786809]
-        //Actual   :W03689878680[600,W03689878680700]
-
-
         var headers = dataTable.row(0);
         for (var i = 1; i < dataTable.height(); i++) {
             var row = dataTable.row(i);
@@ -87,6 +77,18 @@ public class CartonPackingSlipSteps {
             Assert.assertTrue((Boolean) sharedContext.getLastCartonPackingSlipResponse().get(elementProperty));
         }else if ("should not".equals(shouldBeNot)){
             Assert.assertFalse((Boolean) sharedContext.getLastCartonPackingSlipResponse().get(elementProperty));
+        }
+    }
+
+    @And("I have reset the carton packing slip system configurations following values:")
+    public void iHaveResetTheCartonPackingSlipSystemConfigurationsToHaveTheFollowingValues(DataTable dataTable) {
+        var headers = dataTable.row(0);
+        for (var i = 1; i < dataTable.height(); i++) {
+            var row = dataTable.row(i);
+            databaseService.executeSql(DatabaseQueries.UPDATE_SYSTEM_CONFIGURATION(row.get(headers.indexOf("process_type"))
+                , row.get(headers.indexOf("system_configuration_key")), row.get(headers.indexOf("system_configuration_value")))).block();
+
+
         }
     }
 }

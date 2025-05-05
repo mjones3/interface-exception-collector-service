@@ -22,13 +22,24 @@ Feature: Carton Packing Slip Printing
             | 4                                     | MINIMUM_UNITS_BY_CARTON | 15    | Minimum number of products does not match | WARN         |
             | 1                                     | MINIMUM_UNITS_BY_CARTON | 20    | Minimum number of products does not match | WARN         |
             | 6                                     | MINIMUM_UNITS_BY_CARTON | 15    | Minimum number of products does not match | WARN         |
+        And I have reset the carton packing slip system configurations following values:
+        | system_configuration_key  | system_configuration_value                                            | process_type            |
+        | TESTING_STATEMENT_TXT     | Products packed, inspected and found satisfactory by: {employeeName}  | RPS_CARTON_PACKING_SLIP |
+        | USE_SIGNATURE             | Y                                                                     | RPS_CARTON_PACKING_SLIP |
+        | USE_TRANSPORTATION_NUMBER | Y                                                                     | RPS_CARTON_PACKING_SLIP |
+        | USE_LICENSE_NUMBER        | Y                                                                     | RPS_CARTON_PACKING_SLIP |
+        |USE_TESTING_STATEMENT      | Y                                                                     | RPS_CARTON_PACKING_SLIP |
+
+
 
 
     Rule: The system should trigger the printing of the carton automatically once a carton is closed.
         Rule: I should be able to print the carton packing slip with the carton details and products information.
         @ui @DIS-343
         Scenario Outline: Automatic printing when carton is closed
-            Given I have a verified carton with the Customer Code as "<Customer Code>" , Product Type as "<Product Type>", Carton Tare Weight as "<Carton Tare Weight>", Shipment Date as "<Shipment Date>", Transportation Reference Number as "<Transportation Reference Number>" and Location Code as "<Location Code>".
+            Given I have an empty carton created with the Customer Code as "<Customer Code>" , Product Type as "<Product Type>", Carton Tare Weight as "<Carton Tare Weight>", Shipment Date as "<Shipment Date>", Transportation Reference Number as "<Transportation Reference Number>" and Location Code as "<Location Code>".
+            And The Minimum Number of Units in Carton is configured as "<configured_min_products>" products for the customer code "<Customer Code>" and product type "<Product Type>".
+            And I have verified product with the unit number "<unit_number>", product code "<product_code>" and product type "<product_type>".
             And  I navigate to the Manage Carton Products page for the carton sequence number <Carton Sequence Number>.
             When I choose to close the carton.
             Then I should be redirected to the Shipment Details page.
@@ -89,6 +100,8 @@ Feature: Carton Packing Slip Printing
                 | USE_SIGNATURE             | Y                          | displaySignature                     | Signature                       | should            | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>    | DIS-343                         | 123456789     | 2                       | W036898786808,W036898786809 | E2488V00, E2488V00 | RP_FROZEN_WITHIN_120_HOURS, RP_FROZEN_WITHIN_120_HOURS |
                 | USE_TRANSPORTATION_NUMBER | Y                          | displayTransportationReferenceNumber | Transportation Reference Number | should            | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>    | DIS-343                         | 123456789     | 2                       | W036898786808,W036898786809 | E2488V00, E2488V00 | RP_FROZEN_WITHIN_120_HOURS, RP_FROZEN_WITHIN_120_HOURS |
                 | USE_LICENSE_NUMBER        | Y                          | displayLicenceNumber                 | License number                  | should            | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>    | DIS-343                         | 123456789     | 2                       | W036898786808,W036898786809 | E2488V00, E2488V00 | RP_FROZEN_WITHIN_120_HOURS, RP_FROZEN_WITHIN_120_HOURS |
+                | USE_SIGNATURE             | N                          | displaySignature                     | Signature                       | should not        | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>    | DIS-343                         | 123456789     | 2                       | W036898786808,W036898786809 | E2488V00, E2488V00 | RP_FROZEN_WITHIN_120_HOURS, RP_FROZEN_WITHIN_120_HOURS |
                 | USE_TRANSPORTATION_NUMBER | N                          | displayTransportationReferenceNumber | Transportation Reference Number | should not        | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>    | DIS-343                         | 123456789     | 2                       | W036898786808,W036898786809 | E2488V00, E2488V00 | RP_FROZEN_WITHIN_120_HOURS, RP_FROZEN_WITHIN_120_HOURS |
+                | USE_LICENSE_NUMBER        | N                          | displayLicenceNumber                 | License number                  | should not        | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>    | DIS-343                         | 123456789     | 2                       | W036898786808,W036898786809 | E2488V00, E2488V00 | RP_FROZEN_WITHIN_120_HOURS, RP_FROZEN_WITHIN_120_HOURS |
 
 
