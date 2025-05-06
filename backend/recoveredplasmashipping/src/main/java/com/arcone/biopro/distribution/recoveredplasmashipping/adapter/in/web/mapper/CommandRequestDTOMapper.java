@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.ma
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.CloseCartonRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.CreateCartonRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.FindShipmentRequestDTO;
+import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.GenerateCartonPackingSlipRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.PackCartonItemRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.QuerySortDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.RecoveredPlasmaShipmentQueryCommandRequestDTO;
@@ -10,6 +11,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.CloseCartonCommandInput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.CreateCartonCommandInput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.FindShipmentCommandInput;
+import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.GenerateCartonPackingSlipCommandInput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.PackCartonItemCommandInput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.QueryOrderByOutput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.QuerySortOutput;
@@ -36,4 +38,6 @@ public interface CommandRequestDTOMapper {
     VerifyItemCommandInput toInputCommand(VerifyCartonItemRequestDTO verifyCartonItemRequestDTO);
 
     CloseCartonCommandInput toInputCommand(CloseCartonRequestDTO closeCartonRequestDTO);
+
+    GenerateCartonPackingSlipCommandInput toInputCommand(GenerateCartonPackingSlipRequestDTO generateCartonPackingSlipRequestDTO);
 }

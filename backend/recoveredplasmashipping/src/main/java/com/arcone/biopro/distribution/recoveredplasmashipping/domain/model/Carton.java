@@ -7,6 +7,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.LocationRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShipmentCriteriaRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShippingRepository;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.SystemProcessPropertyRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.InventoryService;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -52,6 +53,7 @@ public class Carton implements Validatable {
     private static final String CARTON_PARTNER_PREFIX_KEY = "RPS_CARTON_PARTNER_PREFIX";
     private static final String RPS_LOCATION_CARTON_CODE_KEY = "RPS_LOCATION_CARTON_CODE";
     private static final String STATUS_VERIFIED = "VERIFIED";
+    private static final String STATUS_CLOSED = "CLOSED";
 
 
     public static Carton createNewCarton(CreateCartonCommand createCartonCommand , RecoveredPlasmaShippingRepository recoveredPlasmaShippingRepository, CartonRepository cartonRepository, LocationRepository locationRepository) {
@@ -252,8 +254,23 @@ public class Carton implements Validatable {
 
         this.closeEmployeeId = closeCartonCommand.getEmployeeId();
         this.closeDate = ZonedDateTime.now();
-        this.status = "CLOSED";
+        this.status = STATUS_CLOSED;
 
         return this;
+    }
+
+    public boolean canPrint(){
+        return STATUS_CLOSED.equals(this.status);
+    }
+
+    public CartonPackingSlip generatePackingSlip(LocationRepository locationRepository, SystemProcessPropertyRepository systemProcessPropertyRepository
+        , RecoveredPlasmaShippingRepository recoveredPlasmaShippingRepository , RecoveredPlasmaShipmentCriteriaRepository recoveredPlasmaShipmentCriteriaRepository){
+
+        if(!canPrint()){
+            log.warn("Carton is not ready for printing {}", this.cartonNumber);
+            throw new IllegalArgumentException("Carton cannot be printed");
+        }
+
+        return CartonPackingSlip.generatePackingSlip(this,locationRepository , systemProcessPropertyRepository , recoveredPlasmaShippingRepository , recoveredPlasmaShipmentCriteriaRepository);
     }
 }

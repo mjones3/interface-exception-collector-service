@@ -11,6 +11,7 @@ type Query {
     searchShipment(recoveredPlasmaShipmentQueryCommandRequestDTO:RecoveredPlasmaShipmentQueryCommandRequestDTO): UseCaseResponseDTO!
     findShipmentById(findShipmentCommandDTO:FindShipmentRequestDTO): UseCaseResponseDTO!
     findCartonById(cartonId:ID!): UseCaseResponseDTO!
+    generateCartonPackingSlip(generateCartonPackingSlipRequest:GenerateCartonPackingSlipRequestDTO!): UseCaseResponseDTO!
 }
 
 type Mutation {
@@ -79,6 +80,12 @@ input VerifyCartonItemRequestDTO {
     cartonId:Int!
     unitNumber:String!
     productCode:String!
+    employeeId:String!
+    locationCode:String!
+}
+
+input GenerateCartonPackingSlipRequestDTO {
+    cartonId:Int!
     employeeId:String!
     locationCode:String!
 }

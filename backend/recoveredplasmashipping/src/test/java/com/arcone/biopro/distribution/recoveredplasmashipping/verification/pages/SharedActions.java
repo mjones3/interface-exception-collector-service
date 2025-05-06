@@ -313,4 +313,9 @@ public class SharedActions {
         return true;
         });
     }
+
+    public void moveToNewTab(WebDriver driver, int expectedWindowsNumber) {
+        wait.until(numberOfWindowsToBe(expectedWindowsNumber));
+        driver.switchTo().window(driver.getWindowHandles().toArray(new String[0])[1]);
+    }
 }

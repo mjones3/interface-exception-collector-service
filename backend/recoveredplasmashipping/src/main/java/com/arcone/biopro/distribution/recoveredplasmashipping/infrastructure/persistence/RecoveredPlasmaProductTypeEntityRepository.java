@@ -16,4 +16,7 @@ public interface RecoveredPlasmaProductTypeEntityRepository extends ReactiveCrud
     @Query("select type.* from lk_recovered_plasma_product_type type where type.id in (select product_type_id from lk_recovered_plasma_product_type_product_code where product_code = :productCode ) and type.active = true")
     Mono<RecoveredPlasmaProductTypeEntity> findByProductCode(@Param("productCode") String productCode);
 
+    Mono<RecoveredPlasmaProductTypeEntity> findByProductTypeAndActiveTrue(String productType);
+
+
 }

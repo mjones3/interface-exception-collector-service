@@ -145,4 +145,27 @@ public class GraphQLQueryMapper {
              }
             """, shipmentId, locationCode);
     }
+
+    public static String generateCartonPackingSlip(int cartonId,String employeeId ,String locationCode) {
+        return String.format("""
+                query{
+                    generateCartonPackingSlip(generateCartonPackingSlipRequest:{
+                    cartonId:%s
+                    locationCode:"%s"
+                    employeeId:"%s"
+                   }){
+                    data
+                    notifications{
+                        message
+                        type
+                        code
+                        reason
+                        action
+                        details
+                     }
+                    _links
+                    }
+               }
+               """, cartonId, locationCode, employeeId);
+    }
 }

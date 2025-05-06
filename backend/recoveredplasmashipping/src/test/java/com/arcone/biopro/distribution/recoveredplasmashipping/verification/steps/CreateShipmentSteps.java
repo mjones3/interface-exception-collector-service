@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.recoveredplasmashipping.verification.step
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.controllers.CartonTestingController;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.controllers.CreateShipmentController;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.pages.CreateShipmentPage;
+import com.arcone.biopro.distribution.recoveredplasmashipping.verification.pages.ShipmentDetailsPage;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.DatabaseQueries;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.DatabaseService;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.SharedContext;
@@ -37,6 +38,8 @@ public class CreateShipmentSteps {
     private TestUtils testUtils;
     @Autowired
     private CartonTestingController cartonTestingController;
+    @Autowired
+    private ShipmentDetailsPage shipmentDetailsPage;
 
     @Given("I have removed from the database all shipments which code contains with {string}.")
     public void removeShipmentsFromDatabase(String code) {
@@ -96,8 +99,8 @@ public class CreateShipmentSteps {
 
     @And("I should be redirected to the Shipment Details page.")
     public void verifyRedirectToShipmentDetails() {
-        // Implementation will be added in the DIS-334 story
-        log.info("Verifying redirect to Shipment Details page");
+        log.debug("Verifying redirect to Shipment Details page");
+        shipmentDetailsPage.waitForLoad();
     }
 
     @When("I request to create a new shipment with the values:")

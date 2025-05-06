@@ -5,7 +5,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Recov
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring" , uses = CartonOutputMapper.class)
 public interface RecoveredPlasmaShipmentOutputMapper {
 
     @Mapping(target = "customerCode", source = "shipmentCustomer.customerCode")

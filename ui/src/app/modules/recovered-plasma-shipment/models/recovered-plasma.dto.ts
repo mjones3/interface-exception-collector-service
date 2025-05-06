@@ -26,6 +26,7 @@ export interface CartonDTO {
     minNumberOfProducts?: number;
     canVerify?: boolean;
     canClose?: boolean;
+    canPrint?: boolean;
     packedProducts?: CartonPackedItemResponseDTO[];
     verifiedProducts?: VerifiedProductsDTO[];
     failedCartonItem?: CartonPackedItemResponseDTO;

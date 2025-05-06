@@ -5,6 +5,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.verification.suppo
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.DatabaseService;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.SharedContext;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.graphql.GraphQLMutationMapper;
+import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.graphql.GraphQLQueryMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -105,5 +106,11 @@ public class CartonTestingController {
         if (response.get("data") != null) {
             sharedContext.setLastCartonResponse((Map) response.get("data"));
         }
+    }
+
+    public void printCartonPackingSlip(String cartonId, String locationCode) {
+        String payload = GraphQLQueryMapper.generateCartonPackingSlip(Integer.parseInt(cartonId), sharedContext.getEmployeeId(),locationCode);
+        var response = apiHelper.graphQlRequest(payload, "generateCartonPackingSlip");
+        sharedContext.setLastCartonPackingSlipResponse((Map) response.get("data"));
     }
 }

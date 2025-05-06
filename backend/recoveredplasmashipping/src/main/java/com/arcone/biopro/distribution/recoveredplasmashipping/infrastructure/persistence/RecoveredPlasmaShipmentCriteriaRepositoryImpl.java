@@ -44,4 +44,10 @@ public class RecoveredPlasmaShipmentCriteriaRepositoryImpl implements RecoveredP
             .findByProductCode(productCode)
             .map(productTypeEntityMapper::toModel);
     }
+
+    @Override
+    public Mono<ProductType> findBYProductType(String productType) {
+        return recoveredPlasmaProductTypeEntityRepository.findByProductTypeAndActiveTrue(productType)
+            .map(productTypeEntityMapper::toModel);
+    }
 }
