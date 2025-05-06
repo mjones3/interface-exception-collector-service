@@ -62,7 +62,7 @@
                 }
 
                 @if (element?.canPrint) {
-                    <button id="printBtn" (click)="printCarton($event, element?.id)" class="edit-button-mat-icon">
+                    <button data-testid="view-shipping-carton-packing-slip" (click)="printCarton($event, element?.id)" class="edit-button-mat-icon">
                         <mat-icon>print</mat-icon>
                     </button>
                 }
