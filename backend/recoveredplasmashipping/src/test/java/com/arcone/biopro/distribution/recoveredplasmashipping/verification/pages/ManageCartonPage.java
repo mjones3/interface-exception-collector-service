@@ -28,9 +28,9 @@ public class ManageCartonPage extends CommonPageFactory {
     private final By submitButton = By.id("submitActionBtn");
     private final By nextButton = By.id("manageCartonNextBtn");
     private final By verifyTab = By.xpath("//biopro-verify-recovered-plasma-products");
-    private final By closeCartonButton = By.id("closeCartonBtn");
-    private final By backShipmentDetailsBtn = By.id("backActionBtn");
-    private final By backSearchBtn = By.id("backToSearchBtn");
+    private final By closeCartonButton = By.id("closeCartonBtnId");
+    private final By backShipmentDetailsBtn = By.id("backActionBtnId");
+    private final By backSearchBtn = By.id("backToSearchBtnId");
 
     private By addedProductCard(String unitNumber, String productCode) {
         return By.xpath(String.format("//biopro-unit-number-card//div[contains(text(),'%s')]/following-sibling::div/span[contains(text(),'%s')]", unitNumber, productCode));

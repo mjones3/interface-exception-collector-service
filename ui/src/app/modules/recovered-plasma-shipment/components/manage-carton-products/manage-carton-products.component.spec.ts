@@ -170,7 +170,7 @@ describe('ManageCartonComponent', () => {
       ],
     })
     .compileComponents();
-    
+
     fixture = TestBed.createComponent(ManageCartonComponent);
     component = fixture.componentInstance;
     router = TestBed.inject(Router);
@@ -205,7 +205,7 @@ describe('ManageCartonComponent', () => {
   it('should navigate back to shipment details', () => {
     component.shipmentDetailsSignal.set(mockShipmentData);
     component.navigateBackToShipmentDetails();
-    
+
     expect(router.navigateByUrl).toHaveBeenCalledWith('/recovered-plasma/456/shipment-details');
   });
 
@@ -213,7 +213,7 @@ describe('ManageCartonComponent', () => {
     const error = new ApolloError({ graphQLErrors: [{ message: 'Test error' }] });
     jest.spyOn(service, 'getCartonById').mockReturnValue(throwError(() => error));
     jest.spyOn(toastr, 'error');
-    
+
     component.loadRecoveredPlasmaShippingCartonDetails(123).subscribe({
       error: () => {
         expect(toastr.error).toHaveBeenCalled();
@@ -229,9 +229,9 @@ describe('ManageCartonComponent', () => {
   it('should handle click on previous button', () => {
     const loadSpy = jest.spyOn(component, 'loadRecoveredPlasmaShippingCartonDetails');
     component.cartonDetailsSignal.set(mockCartonData);
-    
+
     component.onClickPrevious({ index: 1, displayStaticMessage: true, resetMessage: 'Test message' });
-    
+
     expect(loadSpy).toHaveBeenCalledWith(123);
     expect(component.stepper.selectedIndex).toBe(1);
     expect(component.messageTypeSignal()).toBe('warning');
@@ -241,17 +241,17 @@ describe('ManageCartonComponent', () => {
   it('should handle click on next button', () => {
     const loadSpy = jest.spyOn(component, 'loadRecoveredPlasmaShippingCartonDetails');
     component.cartonDetailsSignal.set(mockCartonData);
-    
+
     component.onClickNext();
-    
+
     expect(loadSpy).toHaveBeenCalledWith(123);
   });
 
   it('should get values for reset from URL', () => {
-    const result = component.getValuesForReset({ 
-      next: '/test?step=2&reset=true&resetMessage=Test%20Reset' 
+    const result = component.getValuesForReset({
+      next: '/test?step=2&reset=true&resetMessage=Test%20Reset'
     });
-    
+
     expect(result).toEqual({
       index: 2,
       displayStaticMessage: 'true',
@@ -285,9 +285,9 @@ describe('ManageCartonComponent', () => {
 
     it('should add product successfully', () => {
       jest.spyOn(service, 'addCartonProducts').mockReturnValue(of(mockSuccessResponse));
-      
+
       component.enterAndVerifyProduct(mockProductItem);
-      
+
       expect(service.addCartonProducts).toHaveBeenCalledWith({
         cartonId: 123,
         unitNumber: 'UNIT123',
@@ -309,12 +309,12 @@ describe('ManageCartonComponent', () => {
           }
         }
       };
-      
+
       jest.spyOn(service, 'addCartonProducts').mockReturnValue(of(infoResponse));
       jest.spyOn(service, 'handleInfoNotificationAndDiscard');
-      
+
       component.enterAndVerifyProduct(mockProductItem);
-      
+
       expect(component.resetAddProductGroup).toHaveBeenCalled();
       expect(service.handleInfoNotificationAndDiscard).toHaveBeenCalled();
     });
@@ -328,13 +328,13 @@ describe('ManageCartonComponent', () => {
           }
         }
       };
-      
+
       jest.spyOn(service, 'addCartonProducts').mockReturnValue(of(maxUnitsResponse));
       jest.spyOn(service, 'displayNotificationMessage');
       jest.spyOn(component.addProductsControl, 'disableInputsIfMaxCartonProduct');
-      
+
       component.enterAndVerifyProduct(mockProductItem);
-      
+
       expect(service.displayNotificationMessage).toHaveBeenCalled();
       expect(component.addProductsControl.disableInputsIfMaxCartonProduct).toHaveBeenCalled();
     });
@@ -408,7 +408,7 @@ describe('ManageCartonComponent', () => {
           }
         }
       };
-      
+
       jest.spyOn(service, 'verifyCartonProducts').mockReturnValue(of(infoResponse));
       jest.spyOn(service, 'handleInfoNotificationAndDiscard');
       component.verifyProducts(mockVerifyItem);
@@ -426,7 +426,7 @@ describe('ManageCartonComponent', () => {
           }
         }
       };
-      
+
       jest.spyOn(service, 'verifyCartonProducts').mockReturnValue(of(responseWithLinks));
       jest.spyOn(component, 'onClickPrevious');
       component.verifyProducts(mockVerifyItem);
@@ -455,9 +455,9 @@ describe('ManageCartonComponent', () => {
         locationCode: '',
         employeeId: ''
       };
-      
+
       const result = component['getCartonProductRequest'](item);
-      
+
       expect(result).toEqual({
         cartonId: 123,
         unitNumber: 'UNIT123',
@@ -475,9 +475,9 @@ describe('ManageCartonComponent', () => {
         locationCode: '',
         employeeId: ''
       };
-      
+
       const result = component['getVerifyProductRequest'](item);
-      
+
       expect(result).toEqual({
         cartonId: 123,
         unitNumber: 'UNIT123',
@@ -529,7 +529,7 @@ const mockResponseCloseCarton = {
     component.closeCarton();
     expect(service.closeCarton).toHaveBeenCalled();
   });
-  
+
   it('should not navigate if no next url returned', () => {
     const mockResponse = {
       data: {
@@ -541,7 +541,7 @@ const mockResponseCloseCarton = {
         }
       }
     };
-  
+
     jest.spyOn(service, 'closeCarton').mockReturnValue(of(mockResponse) as any);
     component.closeCarton();
     expect(router.navigateByUrl).not.toHaveBeenCalled();

@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.recoveredplasmashipping.verification.page
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.TestUtils;
 import org.openqa.selenium.By;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -54,6 +55,9 @@ public class ShipmentDetailsPage extends CommonPageFactory {
 
     @Autowired
     private TestUtils testUtils;
+
+    @Value("${testing.browser}")
+    private String browser;
 
     @Override
     public boolean isLoaded() {
@@ -147,5 +151,18 @@ public class ShipmentDetailsPage extends CommonPageFactory {
         for (String unitNumber : testUtils.getCommaSeparatedList(unitNumberList)) {
             sharedActions.waitForVisible(addedUnitInCartonTable(cartonSequence, testUtils.removeUnitNumberScanDigits(unitNumber)));
         }
+    }
+
+    public void waitForLoad() {
+        sharedActions.waitForVisible(shipmentDetailsHeader);
+    }
+
+    public void viewCartonPackingSlip() throws InterruptedException {
+        Thread.sleep(500);
+        sharedActions.moveToNewTab(driver, getExpectedWindowsNumber());
+    }
+
+    private int getExpectedWindowsNumber() {
+        return "chrome".equals(browser) ? 3 : 2;
     }
 }

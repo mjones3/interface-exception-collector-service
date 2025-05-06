@@ -8,7 +8,7 @@
         <div class="flex flex-row space-x-2">
             <biopro-action-button
                 id="backBtn"
-                btnId="backActionBtn"
+                btnId="backActionBtnId"
                 label="Back"
                 color="secondary"
                 icon="heroicons_outline:arrow-uturn-left"
@@ -17,7 +17,7 @@
 
             <biopro-action-button
                 id="closeCartonBtn"
-                btnId="closeCartonBtn"
+                btnId="closeCartonBtnId"
                 label="Close Carton"
                 color="primary"
                 [disabled]= "!cartonDetailsSignal()?.canClose"
@@ -40,7 +40,7 @@
             <fuse-card class="min-h-[300px] w-full stepper">
                 <mat-stepper [linear]="isLinear" #stepper class="w-full">
                     <mat-step [completed]="cartonDetailsSignal()?.canVerify">
-                        <ng-template matStepLabel>Add Products</ng-template> 
+                        <ng-template matStepLabel>Add Products</ng-template>
                             <biopro-add-recovered-plasma-products
                                 #addProductsControl
                                 [cartonDetails]="cartonDetailsSignal()"

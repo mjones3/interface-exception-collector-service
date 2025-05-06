@@ -10,10 +10,7 @@ import { ToastrImplService } from '@shared';
 import { CookieService } from 'ngx-cookie-service';
 import { of, throwError } from 'rxjs';
 import { UseCaseResponseDTO } from '../../../../shared/models/use-case-response.dto';
-import {
-    CartonDTO,
-    RecoveredPlasmaShipmentResponseDTO,
-} from '../../models/recovered-plasma.dto';
+import { CartonDTO, RecoveredPlasmaShipmentResponseDTO } from '../../models/recovered-plasma.dto';
 import { RecoveredPlasmaService } from '../../services/recovered-plasma.service';
 import { RecoveredPlasmaShippingDetailsComponent } from './recovered-plasma-shipping-details.component';
 
@@ -410,29 +407,45 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         ]);
     });
 
-    it('should hide "Verify Products" when canVerify is false', () => {
-        const buttonIdCssSelector = By.css('#verifyProductsBtn');
-        const root = fixture.debugElement;
+    it('should show carton print button when canPrint is true', () => {
         mockRecoveredPlasmaService.getShipmentById.mockReturnValue(
             of({
                 data: {
                     findShipmentById: {
-                        data: {
-                            canVerify: false,
-                        },
+                        data: { cartonList: [ { canPrint: true } ] } as RecoveredPlasmaShipmentResponseDTO,
                     },
                 },
-            } as unknown as ApolloQueryResult<{
-                findShipmentById: UseCaseResponseDTO<RecoveredPlasmaShipmentResponseDTO>;
-            }>)
+            } as unknown as ApolloQueryResult<{ findShipmentById: UseCaseResponseDTO<RecoveredPlasmaShipmentResponseDTO> }>)
         );
 
         fixture.detectChanges();
-        const button = root.query(buttonIdCssSelector)?.nativeElement;
+        const button = fixture.debugElement
+            ?.query(By.css('button[data-testid=view-shipping-carton-packing-slip]'))
+            ?.nativeElement;
+
+        expect(button).toBeTruthy();
+    });
+
+    it('should hide carton print button when canPrint is false', () => {
+        mockRecoveredPlasmaService.getShipmentById.mockReturnValue(
+            of({
+                data: {
+                    findShipmentById: {
+                        data: { cartonList: [ { canPrint: false } ] } as RecoveredPlasmaShipmentResponseDTO,
+                    },
+                },
+            } as unknown as ApolloQueryResult<{ findShipmentById: UseCaseResponseDTO<RecoveredPlasmaShipmentResponseDTO> }>)
+        );
+
+        fixture.detectChanges();
+        const button = fixture.debugElement
+            ?.query(By.css('button[data-testid=view-shipping-carton-packing-slip]'))
+            ?.nativeElement;
+
         expect(button).toBeFalsy();
     });
 
-    it('should navigate  to verify product page when click on verify product button', () => {
+    it('should navigate to verify product page when click on verify product button', () => {
         const id = 1;
         jest.spyOn(mockRouter, 'navigate');
         component.verifyProducts(id);
