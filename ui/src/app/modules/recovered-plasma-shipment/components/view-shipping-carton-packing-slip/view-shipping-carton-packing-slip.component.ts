@@ -24,7 +24,7 @@ export class ViewShippingCartonPackingSlipComponent extends PrintableReportCompo
     readonly splitGroupsTableRowsCount = 15;
 
     data = inject<CartonPackingSlipDTO>(MAT_DIALOG_DATA);
-    reportModel = computed<Partial<CartonPackingSlipDTO>>(() => this.data ?? {});
+    reportModel = computed<Partial<CartonPackingSlipDTO>>(() => ({ ...this.data }));
     reportModelProductsCount = computed(() => this.reportModel()?.products?.length ?? 0);
     reportModelProductsByGroups = computed<PackingSlipProductSplitGroup[]>(() => this.buildReportModelProductsSplitGroups(this.reportModel()?.products));
 

@@ -67,10 +67,10 @@
                     </tr>
                     <tr>
                         <td class="font-bold">Total Products:</td>
-                        <td [colSpan]="report?.displayTransportationReferenceNumber ? 3 : 1">{{ report?.totalProducts ?? 0 }}</td>
+                        <td [colSpan]="report?.displayTransportationReferenceNumber ? 1 : 3">{{ report?.totalProducts ?? 0 }}</td>
                         @if (report?.displayTransportationReferenceNumber) {
-                        <td class="font-bold">Transportation Reference Number:</td>
-                        <td>{{ report?.shipmentTransportationReferenceNumber }}</td>
+                        <td data-testid="transportation-reference-number-label" class="font-bold">Transportation Reference Number:</td>
+                        <td data-testid="transportation-reference-number-value">{{ report?.shipmentTransportationReferenceNumber }}</td>
                         }
                     </tr>
                     </tbody>

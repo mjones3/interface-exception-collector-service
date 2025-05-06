@@ -148,6 +148,13 @@ describe('ViewShippingCartonPackingSlipComponent', () => {
       const signatureText = fixture.debugElement.query(By.css('span[data-testid=signature]'));
       expect(signatureText.nativeElement.textContent.trim()).toBe('Signature:');
     });
+
+    it('should display transportation reference number when displayTransportationReferenceNumber is true', () => {
+      const transportationReferenceNumberLabel = fixture.debugElement.query(By.css('td[data-testid=transportation-reference-number-label]'));
+      expect(transportationReferenceNumberLabel.nativeElement.textContent).toBe('Transportation Reference Number:');
+      const transportationReferenceNumberValue = fixture.debugElement.query(By.css('td[data-testid=transportation-reference-number-value]'));
+      expect(transportationReferenceNumberValue.nativeElement.textContent).toBe('TRN-987654');
+    });
   });
 
   describe('with many products', () => {
@@ -249,10 +256,8 @@ describe('ViewShippingCartonPackingSlipComponent', () => {
     });
 
     it('should not display transportation reference number when displayTransportationReferenceNumber is false', () => {
-      const summaryTable = fixture.debugElement.query(By.css('#packingSlipSummaryTable'));
-      const tableContent = summaryTable.nativeElement.textContent;
-
-      expect(tableContent).not.toContain('Transportation Reference Number:');
+      const transportationReferenceNumberLabel = fixture.debugElement.query(By.css('td[data-testid=transportation-reference-number-label]'));
+      expect(transportationReferenceNumberLabel).toBeFalsy();
     });
   });
 });
