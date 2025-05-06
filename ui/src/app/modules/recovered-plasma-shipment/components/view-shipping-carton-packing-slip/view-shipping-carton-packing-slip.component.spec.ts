@@ -98,7 +98,7 @@ describe('ViewShippingCartonPackingSlipComponent', () => {
     });
 
     it('should display shipping information correctly', () => {
-      const headerTable = fixture.debugElement.query(By.css('#packingSlipHeaderTable'));
+      const headerTable = fixture.debugElement.query(By.css('#packingSlipHeader'));
       const tableContent = headerTable.nativeElement.textContent;
 
       expect(tableContent).toContain(mockCartonPackingSlip.shipToCustomerName);
@@ -189,7 +189,7 @@ describe('ViewShippingCartonPackingSlipComponent', () => {
       const firstRowCells = tableRows[0].queryAll(By.css('td'));
       expect(firstRowCells[0].nativeElement.textContent).toBe(mockCartonPackingSlip.products[0].unitNumber);
       expect(firstRowCells[1].nativeElement.textContent).toBe(mockCartonPackingSlip.products[0].collectionDate);
-      expect(firstRowCells[2].nativeElement.textContent).toBe(mockCartonPackingSlip.products[0].volume);
+      expect(firstRowCells[2].nativeElement.textContent).toContain(`${mockCartonPackingSlip.products[0].volume} mL`);
       expect(firstRowCells[3].nativeElement.textContent).toBe(mockCartonPackingSlip.products[1].unitNumber);
       expect(firstRowCells[4].nativeElement.textContent).toBe(mockCartonPackingSlip.products[1].collectionDate);
       expect(firstRowCells[5].nativeElement.textContent).toContain(`${mockCartonPackingSlip.products[1].volume} mL`);

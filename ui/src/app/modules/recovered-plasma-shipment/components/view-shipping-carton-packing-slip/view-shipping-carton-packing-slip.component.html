@@ -1,8 +1,8 @@
 <div class="modal-body-width">
     <div id="viewShippingCartonPackingSlipReport" class="px-6 py-0" style="font-family: sans-serif;">
         @if (reportModel(); as report) {
-            <p class="text-center text-md font-bold">
-                <span data-testid="blood-center-name">{{ report?.shipFromBloodCenterName }}</span>
+            <p class="text-center font-bold">
+                <span data-testid="blood-center-name" class="text-xl">{{ report?.shipFromBloodCenterName }}</span>
                 @if (report?.displayLicenceNumber) {
                     <br />
                     <span data-testid="license-number">License #{{ report?.shipFromLicenseNumber }}</span>
@@ -13,26 +13,22 @@
                 Carton Packing Slip
             </h2>
 
-            <div class="mx-10 py-6 border-b border-b-black">
-                <table
-                    id="packingSlipHeaderTable"
-                    class="w-full table-auto border-separate"
-                >
-                    <tbody>
-                    <tr>
-                        <td class="font-bold align-top whitespace-nowrap text-ellipsis overflow-hidden">Ship To:</td>
-                        <td class="font-bold align-top w-1/2">
-                            <span>{{ report?.shipToCustomerName }}</span><br/>
-                            <span>{{ report?.shipToAddress }}</span><br/>
-                        </td>
-                        <td class="font-bold align-top whitespace-nowrap text-ellipsis overflow-hidden">Ship From:</td>
-                        <td class="font-bold align-top w-1/2">
-                            <span>{{ report?.shipFromBloodCenterName }}</span><br/>
-                            <span>{{ report?.shipFromLocationAddress }}</span><br/>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
+            <div id="packingSlipHeader" class="flex flex-row justify-between gap-10 mx-10 py-6 border-b border-b-black">
+                <div class="flex flex-row flex-1 gap-2">
+                    <div class="flex-0 font-bold align-top whitespace-nowrap text-ellipsis overflow-hidden">Ship To:</div>
+                    <div class="max-w-64 font-bold align-top">
+                        <div>{{ report?.shipToCustomerName }}</div>
+                        <div>{{ report?.shipToAddress }}</div>
+                    </div>
+                </div>
+
+                <div class="flex flex-row flex-1 gap-2 justify-end">
+                    <div class="flex-0 font-bold align-top whitespace-nowrap text-ellipsis overflow-hidden">Ship From:</div>
+                    <div class="max-w-64 font-bold align-top">
+                        <div>{{ report?.shipFromBloodCenterName }}</div>
+                        <div>{{ report?.shipFromLocationAddress }}</div>
+                    </div>
+                </div>
             </div>
 
             <div class="px-1 py-3 flex flex-col gap-6">
@@ -84,7 +80,7 @@
                 >
                     <thead>
                     <tr>
-                        <th class="font-bold" colSpan="3">Unit Numbers</th>
+                        <th class="font-bold" colSpan="3">Products Information</th>
                     </tr>
                     <tr>
                         <th class="font-bold">Unit Number</th>
@@ -113,7 +109,7 @@
                 >
                     <thead>
                     <tr>
-                        <th class="font-bold" colSpan="6">Unit Numbers</th>
+                        <th class="font-bold" colSpan="6">Products Information</th>
                     </tr>
                     <tr>
                         <th class="font-bold">Unit Number</th>
@@ -130,7 +126,7 @@
                             <tr>
                                 <td class="text-center">{{ group?.leftSide?.unitNumber }}</td>
                                 <td class="text-center">{{ group?.leftSide?.collectionDate }}</td>
-                                <td class="text-center">{{ group?.leftSide?.volume }}</td>
+                                <td class="text-center">{{ group?.leftSide?.volume }} mL</td>
                                 <td class="text-center">{{ group?.rightSide?.unitNumber }}</td>
                                 <td class="text-center">{{ group?.rightSide?.collectionDate }}</td>
                                 <td class="text-center">{{ group?.rightSide?.volume }} mL</td>
