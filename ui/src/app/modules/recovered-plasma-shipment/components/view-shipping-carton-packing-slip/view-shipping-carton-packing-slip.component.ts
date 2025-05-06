@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, Inject, signal } from '@angular/core';
 import { PrintableReportComponent } from '../../../../shared/components/printable-report.component';
 import { DomSanitizer } from '@angular/platform-browser';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -23,13 +23,16 @@ export class ViewShippingCartonPackingSlipComponent extends PrintableReportCompo
 
     readonly splitGroupsTableRowsCount = 15;
 
-    data = inject<CartonPackingSlipDTO>(MAT_DIALOG_DATA);
-    reportModel = computed<Partial<CartonPackingSlipDTO>>(() => ({ ...this.data }));
+    reportModel = signal<Partial<CartonPackingSlipDTO>>(null);
     reportModelProductsCount = computed(() => this.reportModel()?.products?.length ?? 0);
     reportModelProductsByGroups = computed<PackingSlipProductSplitGroup[]>(() => this.buildReportModelProductsSplitGroups(this.reportModel()?.products));
 
-    constructor(protected domSanitizer: DomSanitizer) {
+    constructor(
+        protected domSanitizer: DomSanitizer,
+        @Inject(MAT_DIALOG_DATA) protected data: CartonPackingSlipDTO
+    ) {
         super(domSanitizer);
+        this.reportModel.set(this.data);
     }
 
     buildReportModelProductsSplitGroups(products: PackingSlipProductDTO[]): PackingSlipProductSplitGroup[] {
