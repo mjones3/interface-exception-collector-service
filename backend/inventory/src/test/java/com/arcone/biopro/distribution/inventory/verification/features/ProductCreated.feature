@@ -1,4 +1,5 @@
-@api @LAB-253 @AOA-152
+# Feature Unit Number reference: W036825008000
+@api @LAB-253 @AOA-152 @LAB-379 @LAB-412
 Feature: Product Created event
     Rule: As an inventory service I want to listen to product created event so that I can create the inventory, convert it's parent if any, and manage it's statuses
         Scenario Outline: Create the inventory as AVAILABLE and UNLABELED and convert it's parent after receiving a Product Created event.
@@ -15,15 +16,16 @@ Feature: Product Created event
                 | <Unit Number> | <Parent Product Code> | CONVERTED |
 
             And the inventory statuses should be updated as follows:
-                | Unit Number   | Product Code   | Status    | Is Labeled |
-                | <Unit Number> | <Product Code> | AVAILABLE | false      |
+                | Unit Number   | Product Code   | Status    | Is Labeled | Temperature Category   |
+                | <Unit Number> | <Product Code> | AVAILABLE | false      | <Temperature Category> |
 
             Examples:
-                | Unit Number   | Parent Product Code | Product Code | Has Expiration Date |
-                | W036824211111 | PLASAPHP            | E765000      | Yes                 |
-                | W036824211112 | RBCAPH              | E453200      | Yes                 |
-                | W036824211113 | WHOLEBLOOD          | E011200      | Yes                 |
-                | W036824211113 | WHOLEBLOOD          | RBC          | No                  |
-                | W036824211113 | WHOLEBLOOD          | PLASMA       | No                  |
-                | W036824211113 | RBC                 | E016700      | Yes                 |
-                | W036824211113 | PLASMA              | E070100      | Yes                 |
+                | Unit Number   | Parent Product Code | Product Code | Has Expiration Date | Temperature Category |
+                | W036825008001 | PLASAPHP            | E765000      | Yes                 | FROZEN               |
+                | W036825008002 | RBCAPH              | E453200      | Yes                 | REFRIGERATED         |
+                | W036825008003 | WHOLEBLOOD          | E011200      | Yes                 | REFRIGERATED         |
+                | W036825008004 | WHOLEBLOOD          | RBC          | No                  |                      |
+                | W036825008005 | WHOLEBLOOD          | PLASMA       | No                  |                      |
+                | W036825008006 | RBC                 | E016700      | Yes                 | REFRIGERATED         |
+                | W036825008007 | PLASMA              | E070100      | Yes                 | FROZEN               |
+                | W036825008008 | APLTAPHP            | E834000      | Yes                 | ROOM_TEMPERATURE     |

@@ -1,3 +1,4 @@
+# Feature Unit Number reference: W036825006000
 @api @LAB-253 @AOA-152
 Feature: Label Applied Event
     Rule: As an inventory service I want to listen to label applied event so that I can update the inventory information about license, product code with 6th digit and labeled status
@@ -16,5 +17,5 @@ Feature: Label Applied Event
 
             Examples:
                 | Unit Number   | Product Code | Final Product Code | Is licensed |
-                | W036824311111 | E162400      | E1624V00           | true        |
-                | W036824311112 | E162400      | E1624V00           | false       |
+                | W036825006001 | E162400      | E1624V00           | true        |
+                | W036825006002 | E162400      | E1624V00           | false       |

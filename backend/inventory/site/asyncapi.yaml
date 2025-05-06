@@ -1,0 +1,1345 @@
+{
+  "asyncapi": "3.0.0",
+  "info": {
+    "title": "inventory",
+    "version": "0.0.1",
+    "x-generator": "springwolf"
+  },
+  "defaultContentType": "application/json",
+  "servers": {
+    "kafka": {
+      "host": "localhost:29092",
+      "protocol": "kafka"
+    }
+  },
+  "channels": {
+    "ApheresisPlasmaProductCompleted": {
+      "messages": {
+        "com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage": {
+          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage"
+        }
+      }
+    },
+    "ApheresisPlasmaProductCreated": {
+      "messages": {
+        "com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage": {
+          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage"
+        }
+      }
+    },
+    "ApheresisPlateletProductCompleted": {
+      "messages": {
+        "com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage": {
+          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage"
+        }
+      }
+    },
+    "ApheresisPlateletProductCreated": {
+      "messages": {
+        "com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage": {
+          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage"
+        }
+      }
+    },
+    "ApheresisRBCProductCompleted": {
+      "messages": {
+        "com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage": {
+          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage"
+        }
+      }
+    },
+    "ApheresisRBCProductCreated": {
+      "messages": {
+        "com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage": {
+          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage"
+        }
+      }
+    },
+    "CheckInCompleted": {
+      "messages": {
+        "com.arcone.biopro.distribution.inventory.adapter.in.listener.checkin.CheckInCompletedMessage": {
+          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.checkin.CheckInCompletedMessage"
+        }
+      }
+    },
+    "InventoryUpdatedEvent": {
+      "messages": {
+        "InventoryUpdatedEventPayload": {
+          "$ref": "#/components/messages/InventoryUpdatedEventPayload"
+        }
+      }
+    },
+    "LabelApplied": {
+      "messages": {
+        "com.arcone.biopro.distribution.inventory.adapter.in.listener.label.LabelAppliedMessage": {
+          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.label.LabelAppliedMessage"
+        }
+      }
+    },
+    "ProductDiscarded": {
+      "messages": {
+        "com.arcone.biopro.distribution.inventory.adapter.in.listener.discarded.ProductDiscardedMessage": {
+          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.discarded.ProductDiscardedMessage"
+        }
+      }
+    },
+    "ProductQuarantined": {
+      "messages": {
+        "com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.AddQuarantinedMessage": {
+          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.AddQuarantinedMessage"
+        }
+      }
+    },
+    "ProductRecovered": {
+      "messages": {
+        "com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.ProductRecoveredMessage": {
+          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.ProductRecoveredMessage"
+        }
+      }
+    },
+    "ProductStored": {
+      "messages": {
+        "com.arcone.biopro.distribution.inventory.adapter.in.listener.label.LabelAppliedMessage": {
+          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.label.LabelAppliedMessage"
+        }
+      }
+    },
+    "ProductUnsuitable": {
+      "messages": {
+        "com.arcone.biopro.distribution.inventory.adapter.in.listener.unsuitable.UnsuitableMessage": {
+          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.unsuitable.UnsuitableMessage"
+        }
+      }
+    },
+    "QuarantineRemoved": {
+      "messages": {
+        "com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.RemoveQuarantinedMessage": {
+          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.RemoveQuarantinedMessage"
+        }
+      }
+    },
+    "QuarantineUpdated": {
+      "messages": {
+        "com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.UpdateQuarantinedMessage": {
+          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.UpdateQuarantinedMessage"
+        }
+      }
+    },
+    "ShipmentCompleted": {
+      "messages": {
+        "com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput": {
+          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput"
+        }
+      }
+    },
+    "UnitUnsuitable": {
+      "messages": {
+        "com.arcone.biopro.distribution.inventory.adapter.in.listener.unsuitable.UnsuitableMessage": {
+          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.unsuitable.UnsuitableMessage"
+        }
+      }
+    },
+    "WholeBloodProductCompleted": {
+      "messages": {
+        "com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage": {
+          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage"
+        }
+      }
+    },
+    "WholeBloodProductCreated": {
+      "messages": {
+        "com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage": {
+          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage"
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HeadersNotDocumented": {
+        "type": "object",
+        "properties": {},
+        "description": "There can be headers, but they are not explicitly documented.",
+        "examples": [
+          {}
+        ]
+      },
+      "InventoryUpdatedEventPayload": {
+        "title": "InventoryUpdatedEventPayload",
+        "type": "object",
+        "properties": {
+          "bloodType": {
+            "title": "Blood Type",
+            "type": "string",
+            "description": "Blood Type of the updated inventory",
+            "examples": [
+              "AP"
+            ]
+          },
+          "expirationDate": {
+            "title": "Expiration Date",
+            "type": "string",
+            "description": "Expiration Date of the updated inventory",
+            "format": "date",
+            "examples": [
+              "2025-03-04T00:00:00.000+00:00"
+            ]
+          },
+          "inputProducts": {
+            "title": "Input Products",
+            "type": "array",
+            "description": "List of the parent product information",
+            "examples": [
+              [
+                {
+                  "productCode": "E468899",
+                  "unitNumber": "W123456748998"
+                }
+              ]
+            ],
+            "items": {
+              "title": "Input Products",
+              "type": "object",
+              "description": "List of the parent product information",
+              "examples": [
+                [
+                  {
+                    "productCode": "E468899",
+                    "unitNumber": "W123456748998"
+                  }
+                ]
+              ]
+            }
+          },
+          "inventoryStatus": {
+            "title": "Inventory Statuses",
+            "type": "array",
+            "description": "Current statuses of the updated inventory",
+            "examples": [
+              [
+                "AVAILABLE"
+              ]
+            ],
+            "items": {
+              "title": "Inventory Statuses",
+              "type": "string",
+              "description": "Current statuses of the updated inventory",
+              "examples": [
+                "[\"AVAILABLE\"]"
+              ]
+            }
+          },
+          "locationCode": {
+            "title": "Location Code",
+            "type": "string",
+            "description": "Location code of the updated inventory",
+            "examples": [
+              "123456789"
+            ]
+          },
+          "productCode": {
+            "title": "Product Code",
+            "type": "string",
+            "description": "Product Code of the updated inventory",
+            "examples": [
+              "RBCAPH1"
+            ]
+          },
+          "productDescription": {
+            "title": "Product Description",
+            "type": "string",
+            "description": "Product Description of the updated inventory",
+            "examples": [
+              "APH RBC B"
+            ]
+          },
+          "productFamily": {
+            "title": "Product Family",
+            "type": "string",
+            "description": "Product Family of the updated inventory",
+            "examples": [
+              "RED_BLOOD_CELLS_LEUKOREDUCED"
+            ]
+          },
+          "properties": {
+            "title": "Properties",
+            "type": "object",
+            "description": "Properties of the updated inventory",
+            "examples": [
+              {
+                "LICENSURE": "LICENSED"
+              }
+            ],
+            "additionalProperties": {
+              "title": "Properties",
+              "type": "object",
+              "description": "Properties of the updated inventory",
+              "examples": [
+                {
+                  "LICENSURE": "LICENSED"
+                }
+              ]
+            }
+          },
+          "storageLocation": {
+            "title": "Storage Location",
+            "type": "string",
+            "description": "Storage location of the updated inventory",
+            "examples": [
+              "FREEZER 1|RACK 1|SHELF 1"
+            ]
+          },
+          "unitNumber": {
+            "title": "Unit Number",
+            "type": "string",
+            "description": "Unit Number of the updated inventory",
+            "examples": [
+              "W036824111111"
+            ]
+          },
+          "updateType": {
+            "title": "Update Type",
+            "type": "string",
+            "description": "The use case scenario that triggered the inventory updated event",
+            "examples": [
+              "LABEL_APPLIED"
+            ]
+          }
+        },
+        "description": "Inventory Updated payload",
+        "examples": [
+          {
+            "bloodType": "AP",
+            "expirationDate": "2025-03-03",
+            "inputProducts": "[{unitNumber=W123456748998, productCode=E468899}]",
+            "inventoryStatus": "[AVAILABLE]",
+            "locationCode": "123456789",
+            "productCode": "RBCAPH1",
+            "productDescription": "APH RBC B",
+            "productFamily": "RED_BLOOD_CELLS_LEUKOREDUCED",
+            "properties": {},
+            "storageLocation": "FREEZER 1|RACK 1|SHELF 1",
+            "unitNumber": "W036824111111",
+            "updateType": "LABEL_APPLIED"
+          }
+        ],
+        "required": [
+          "bloodType",
+          "productCode",
+          "productDescription",
+          "productFamily",
+          "unitNumber",
+          "updateType"
+        ]
+      },
+      "com.arcone.biopro.distribution.inventory.adapter.in.listener.checkin.CheckInCompletedMessage": {
+        "type": "object",
+        "properties": {
+          "aboRh": {
+            "type": "string",
+            "enum": [
+              "ON",
+              "OP",
+              "AN",
+              "AP",
+              "BN",
+              "BP",
+              "ABN",
+              "ABP"
+            ]
+          },
+          "collectionLocation": {
+            "type": "string"
+          },
+          "drawTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "productCode": {
+            "type": "string"
+          },
+          "productDescription": {
+            "type": "string"
+          },
+          "productFamily": {
+            "type": "string"
+          },
+          "unitNumber": {
+            "type": "string"
+          }
+        },
+        "examples": [
+          {
+            "aboRh": "ON",
+            "collectionLocation": "string",
+            "drawTime": "2015-07-20T15:49:04-07:00",
+            "productCode": "string",
+            "productDescription": "string",
+            "productFamily": "string",
+            "unitNumber": "string"
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.inventory.adapter.in.listener.common.Volume": {
+        "type": "object",
+        "properties": {
+          "unit": {
+            "type": "string"
+          },
+          "value": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "examples": [
+          {
+            "unit": "string",
+            "value": 0
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage": {
+        "type": "object",
+        "properties": {
+          "anticoagulantVolume": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.common.Volume"
+          },
+          "productCode": {
+            "type": "string"
+          },
+          "unitNumber": {
+            "type": "string"
+          },
+          "volume": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.common.Volume"
+          }
+        },
+        "examples": [
+          {
+            "anticoagulantVolume": {
+              "unit": "string",
+              "value": 0
+            },
+            "productCode": "string",
+            "unitNumber": "string",
+            "volume": {
+              "unit": "string",
+              "value": 0
+            }
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage": {
+        "type": "object",
+        "properties": {
+          "aboRh": {
+            "type": "string",
+            "enum": [
+              "ON",
+              "OP",
+              "AN",
+              "AP",
+              "BN",
+              "BP",
+              "ABN",
+              "ABP"
+            ]
+          },
+          "drawTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expirationDate": {
+            "type": "string"
+          },
+          "expirationTime": {
+            "type": "string"
+          },
+          "expirationTimeZone": {
+            "type": "string"
+          },
+          "inputProducts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.domain.model.vo.InputProduct"
+            }
+          },
+          "manufacturingLocation": {
+            "type": "string"
+          },
+          "productCode": {
+            "type": "string"
+          },
+          "productDescription": {
+            "type": "string"
+          },
+          "productFamily": {
+            "type": "string"
+          },
+          "unitNumber": {
+            "type": "string"
+          },
+          "weight": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ValueUnit"
+          }
+        },
+        "examples": [
+          {
+            "aboRh": "ON",
+            "drawTime": "2015-07-20T15:49:04-07:00",
+            "expirationDate": "string",
+            "expirationTime": "string",
+            "expirationTimeZone": "string",
+            "inputProducts": [
+              {
+                "productCode": "string",
+                "unitNumber": "string"
+              }
+            ],
+            "manufacturingLocation": "string",
+            "productCode": "string",
+            "productDescription": "string",
+            "productFamily": "string",
+            "unitNumber": "string",
+            "weight": {
+              "unit": "string",
+              "value": 0
+            }
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ValueUnit": {
+        "type": "object",
+        "properties": {
+          "unit": {
+            "type": "string"
+          },
+          "value": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "examples": [
+          {
+            "unit": "string",
+            "value": 0
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.inventory.adapter.in.listener.discarded.ProductDiscardedMessage": {
+        "type": "object",
+        "properties": {
+          "comments": {
+            "type": "string"
+          },
+          "createDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "performedBy": {
+            "type": "string"
+          },
+          "productCode": {
+            "type": "string"
+          },
+          "reasonDescriptionKey": {
+            "type": "string"
+          },
+          "triggeredBy": {
+            "type": "string"
+          },
+          "unitNumber": {
+            "type": "string"
+          }
+        },
+        "examples": [
+          {
+            "comments": "string",
+            "createDate": "2015-07-20T15:49:04-07:00",
+            "performedBy": "string",
+            "productCode": "string",
+            "reasonDescriptionKey": "string",
+            "triggeredBy": "string",
+            "unitNumber": "string"
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.inventory.adapter.in.listener.label.LabelAppliedMessage": {
+        "type": "object",
+        "properties": {
+          "aboRh": {
+            "type": "string"
+          },
+          "collectionDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expirationDate": {
+            "type": "string"
+          },
+          "isLicensed": {
+            "type": "boolean"
+          },
+          "location": {
+            "type": "string"
+          },
+          "productCode": {
+            "type": "string"
+          },
+          "productDescription": {
+            "type": "string"
+          },
+          "productFamily": {
+            "type": "string"
+          },
+          "unitNumber": {
+            "type": "string"
+          },
+          "weight": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "examples": [
+          {
+            "aboRh": "string",
+            "collectionDate": "2015-07-20T15:49:04-07:00",
+            "expirationDate": "string",
+            "isLicensed": true,
+            "location": "string",
+            "productCode": "string",
+            "productDescription": "string",
+            "productFamily": "string",
+            "unitNumber": "string",
+            "weight": 0
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.AddQuarantinedMessage": {
+        "type": "object",
+        "properties": {
+          "comments": {
+            "type": "string"
+          },
+          "createDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "performedBy": {
+            "type": "string"
+          },
+          "productCode": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "stopsManufacturing": {
+            "type": "boolean"
+          },
+          "unitNumber": {
+            "type": "string"
+          }
+        },
+        "examples": [
+          {
+            "comments": "string",
+            "createDate": "2015-07-20T15:49:04-07:00",
+            "id": 0,
+            "performedBy": "string",
+            "productCode": "string",
+            "reason": "string",
+            "stopsManufacturing": true,
+            "unitNumber": "string"
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.RemoveQuarantinedMessage": {
+        "type": "object",
+        "properties": {
+          "createDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "performedBy": {
+            "type": "string"
+          },
+          "productCode": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "stopsManufacturing": {
+            "type": "boolean"
+          },
+          "unitNumber": {
+            "type": "string"
+          }
+        },
+        "examples": [
+          {
+            "createDate": "2015-07-20T15:49:04-07:00",
+            "id": 0,
+            "performedBy": "string",
+            "productCode": "string",
+            "reason": "string",
+            "stopsManufacturing": true,
+            "unitNumber": "string"
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.UpdateQuarantinedMessage": {
+        "type": "object",
+        "properties": {
+          "comments": {
+            "type": "string"
+          },
+          "createDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "newReason": {
+            "type": "string"
+          },
+          "performedBy": {
+            "type": "string"
+          },
+          "productCode": {
+            "type": "string"
+          },
+          "stopsManufacturing": {
+            "type": "boolean"
+          },
+          "unitNumber": {
+            "type": "string"
+          }
+        },
+        "examples": [
+          {
+            "comments": "string",
+            "createDate": "2015-07-20T15:49:04-07:00",
+            "id": 0,
+            "newReason": "string",
+            "performedBy": "string",
+            "productCode": "string",
+            "stopsManufacturing": true,
+            "unitNumber": "string"
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.ProductRecoveredMessage": {
+        "type": "object",
+        "properties": {
+          "createDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "performedBy": {
+            "type": "string"
+          },
+          "productCode": {
+            "type": "string"
+          },
+          "unitNumber": {
+            "type": "string"
+          }
+        },
+        "examples": [
+          {
+            "createDate": "2015-07-20T15:49:04-07:00",
+            "performedBy": "string",
+            "productCode": "string",
+            "unitNumber": "string"
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.inventory.adapter.in.listener.unsuitable.UnsuitableMessage": {
+        "type": "object",
+        "properties": {
+          "productCode": {
+            "type": "string"
+          },
+          "reasonKey": {
+            "type": "string"
+          },
+          "unitNumber": {
+            "type": "string"
+          }
+        },
+        "examples": [
+          {
+            "productCode": "string",
+            "reasonKey": "string",
+            "unitNumber": "string"
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput": {
+        "type": "object",
+        "properties": {
+          "lineItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput$LineItem"
+            }
+          },
+          "orderNumber": {
+            "type": "string"
+          },
+          "performedBy": {
+            "type": "string"
+          },
+          "shipmentId": {
+            "type": "string"
+          },
+          "shipmentType": {
+            "type": "string",
+            "enum": [
+              "CUSTOMER",
+              "INTERNAL_TRANSFER"
+            ]
+          }
+        },
+        "examples": [
+          {
+            "lineItems": [
+              {
+                "products": [
+                  {
+                    "productCode": "string",
+                    "unitNumber": "string"
+                  }
+                ]
+              }
+            ],
+            "orderNumber": "string",
+            "performedBy": "string",
+            "shipmentId": "string",
+            "shipmentType": "CUSTOMER"
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput$LineItem": {
+        "type": "object",
+        "properties": {
+          "products": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput$LineItem$Product"
+            }
+          }
+        },
+        "examples": [
+          {
+            "products": [
+              {
+                "productCode": "string",
+                "unitNumber": "string"
+              }
+            ]
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput$LineItem$Product": {
+        "type": "object",
+        "properties": {
+          "productCode": {
+            "type": "string"
+          },
+          "unitNumber": {
+            "type": "string"
+          }
+        },
+        "examples": [
+          {
+            "productCode": "string",
+            "unitNumber": "string"
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.inventory.domain.model.vo.InputProduct": {
+        "type": "object",
+        "properties": {
+          "productCode": {
+            "type": "string"
+          },
+          "unitNumber": {
+            "type": "string"
+          }
+        },
+        "examples": [
+          {
+            "productCode": "string",
+            "unitNumber": "string"
+          }
+        ]
+      }
+    },
+    "messages": {
+      "InventoryUpdatedEventPayload": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/InventoryUpdatedEventPayload"
+          }
+        },
+        "name": "InventoryUpdatedEventPayload",
+        "title": "InventoryUpdatedEvent",
+        "description": "Inventory Updated payload",
+        "bindings": {}
+      },
+      "com.arcone.biopro.distribution.inventory.adapter.in.listener.checkin.CheckInCompletedMessage": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.checkin.CheckInCompletedMessage"
+          }
+        },
+        "name": "com.arcone.biopro.distribution.inventory.adapter.in.listener.checkin.CheckInCompletedMessage",
+        "title": "CheckInCompletedMessage",
+        "bindings": {}
+      },
+      "com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage"
+          }
+        },
+        "name": "com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage",
+        "title": "ProductCompletedMessage",
+        "bindings": {}
+      },
+      "com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage"
+          }
+        },
+        "name": "com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage",
+        "title": "ProductCreatedMessage",
+        "bindings": {}
+      },
+      "com.arcone.biopro.distribution.inventory.adapter.in.listener.discarded.ProductDiscardedMessage": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.discarded.ProductDiscardedMessage"
+          }
+        },
+        "name": "com.arcone.biopro.distribution.inventory.adapter.in.listener.discarded.ProductDiscardedMessage",
+        "title": "ProductDiscardedMessage",
+        "bindings": {}
+      },
+      "com.arcone.biopro.distribution.inventory.adapter.in.listener.label.LabelAppliedMessage": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.label.LabelAppliedMessage"
+          }
+        },
+        "name": "com.arcone.biopro.distribution.inventory.adapter.in.listener.label.LabelAppliedMessage",
+        "title": "LabelAppliedMessage",
+        "bindings": {}
+      },
+      "com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.AddQuarantinedMessage": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.AddQuarantinedMessage"
+          }
+        },
+        "name": "com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.AddQuarantinedMessage",
+        "title": "AddQuarantinedMessage",
+        "bindings": {}
+      },
+      "com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.RemoveQuarantinedMessage": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.RemoveQuarantinedMessage"
+          }
+        },
+        "name": "com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.RemoveQuarantinedMessage",
+        "title": "RemoveQuarantinedMessage",
+        "bindings": {}
+      },
+      "com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.UpdateQuarantinedMessage": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.UpdateQuarantinedMessage"
+          }
+        },
+        "name": "com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.UpdateQuarantinedMessage",
+        "title": "UpdateQuarantinedMessage",
+        "bindings": {}
+      },
+      "com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.ProductRecoveredMessage": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.ProductRecoveredMessage"
+          }
+        },
+        "name": "com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.ProductRecoveredMessage",
+        "title": "ProductRecoveredMessage",
+        "bindings": {}
+      },
+      "com.arcone.biopro.distribution.inventory.adapter.in.listener.unsuitable.UnsuitableMessage": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.unsuitable.UnsuitableMessage"
+          }
+        },
+        "name": "com.arcone.biopro.distribution.inventory.adapter.in.listener.unsuitable.UnsuitableMessage",
+        "title": "UnsuitableMessage",
+        "bindings": {}
+      },
+      "com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput"
+          }
+        },
+        "name": "com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput",
+        "title": "ShipmentCompletedInput",
+        "bindings": {}
+      }
+    }
+  },
+  "operations": {
+    "ApheresisPlasmaProductCompleted_receive_productCompletedConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/ApheresisPlasmaProductCompleted"
+      },
+      "title": "ApheresisPlasmaProductCompleted_receive",
+      "description": "Apheresis Plasma Product has been completed.",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/ApheresisPlasmaProductCompleted/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage"
+        }
+      ]
+    },
+    "ApheresisPlasmaProductCreated_receive_productCreatedConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/ApheresisPlasmaProductCreated"
+      },
+      "title": "ApheresisPlasmaProductCreated_receive",
+      "description": "Apheresis Plasma Product has been created.",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/ApheresisPlasmaProductCreated/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage"
+        }
+      ]
+    },
+    "ApheresisPlateletProductCompleted_receive_productCompletedConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/ApheresisPlateletProductCompleted"
+      },
+      "title": "ApheresisPlateletProductCompleted_receive",
+      "description": "Apheresis Platelet Product has been completed.",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/ApheresisPlateletProductCompleted/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage"
+        }
+      ]
+    },
+    "ApheresisPlateletProductCreated_receive_productCreatedConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/ApheresisPlateletProductCreated"
+      },
+      "title": "ApheresisPlateletProductCreated_receive",
+      "description": "Apheresis Platelet Product has been created.",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/ApheresisPlateletProductCreated/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage"
+        }
+      ]
+    },
+    "ApheresisRBCProductCompleted_receive_productCompletedConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/ApheresisRBCProductCompleted"
+      },
+      "title": "ApheresisRBCProductCompleted_receive",
+      "description": "Apheresis RBC Product has been completed.",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/ApheresisRBCProductCompleted/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage"
+        }
+      ]
+    },
+    "ApheresisRBCProductCreated_receive_productCreatedConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/ApheresisRBCProductCreated"
+      },
+      "title": "ApheresisRBCProductCreated_receive",
+      "description": "Apheresis RBC Product has been created.",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/ApheresisRBCProductCreated/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage"
+        }
+      ]
+    },
+    "CheckInCompleted_receive_checkInCompletedConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/CheckInCompleted"
+      },
+      "title": "CheckInCompleted_receive",
+      "description": "CheckIn completed product has been created.",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/CheckInCompleted/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.checkin.CheckInCompletedMessage"
+        }
+      ]
+    },
+    "InventoryUpdatedEvent_send_producerInventoryUpdatedTemplate": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/InventoryUpdatedEvent"
+      },
+      "title": "InventoryUpdatedEvent_send",
+      "description": "An inventory was created/updated.",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/InventoryUpdatedEvent/messages/InventoryUpdatedEventPayload"
+        }
+      ]
+    },
+    "LabelApplied_receive_labelAppliedConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/LabelApplied"
+      },
+      "title": "LabelApplied_receive",
+      "description": "Label Applied has been listened and an inventory was created",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/LabelApplied/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.label.LabelAppliedMessage"
+        }
+      ]
+    },
+    "ProductDiscarded_receive_productDiscardedConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/ProductDiscarded"
+      },
+      "title": "ProductDiscarded_receive",
+      "description": "Product Discarded has been listened and an inventory status was updated to discarded",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/ProductDiscarded/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.discarded.ProductDiscardedMessage"
+        }
+      ]
+    },
+    "ProductQuarantined_receive_productAddQuarantinedConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/ProductQuarantined"
+      },
+      "title": "ProductQuarantined_receive",
+      "description": "Product Quarantine is added.",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/ProductQuarantined/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.AddQuarantinedMessage"
+        }
+      ]
+    },
+    "ProductRecovered_receive_productRecoveredConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/ProductRecovered"
+      },
+      "title": "ProductRecovered_receive",
+      "description": "Product Recovered has been listened and an inventory status was restored",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/ProductRecovered/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.ProductRecoveredMessage"
+        }
+      ]
+    },
+    "ProductStored_receive_productStoredConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/ProductStored"
+      },
+      "title": "ProductStored_receive",
+      "description": "Product Stored has been listened and an storage is created",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/ProductStored/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.label.LabelAppliedMessage"
+        }
+      ]
+    },
+    "ProductUnsuitable_receive_unsuitableConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/ProductUnsuitable"
+      },
+      "title": "ProductUnsuitable_receive",
+      "description": "Product Unsuitable event to change inventory status to UNSUITABLE",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/ProductUnsuitable/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.unsuitable.UnsuitableMessage"
+        }
+      ]
+    },
+    "QuarantineRemoved_receive_productRemoveQuarantinedConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/QuarantineRemoved"
+      },
+      "title": "QuarantineRemoved_receive",
+      "description": "Product Quarantine is removed.",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/QuarantineRemoved/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.RemoveQuarantinedMessage"
+        }
+      ]
+    },
+    "QuarantineUpdated_receive_productUpdateQuarantinedConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/QuarantineUpdated"
+      },
+      "title": "QuarantineUpdated_receive",
+      "description": "Product Quarantine is Updated.",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/QuarantineUpdated/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.UpdateQuarantinedMessage"
+        }
+      ]
+    },
+    "ShipmentCompleted_receive_shipmentCompletedConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/ShipmentCompleted"
+      },
+      "title": "ShipmentCompleted_receive",
+      "description": "Shipment Completed has been listened and an inventory status was updated to SHIPPED",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/ShipmentCompleted/messages/com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput"
+        }
+      ]
+    },
+    "UnitUnsuitable_receive_unsuitableConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/UnitUnsuitable"
+      },
+      "title": "UnitUnsuitable_receive",
+      "description": "Unit Unsuitable event to change inventories statuses to UNSUITABLE",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/UnitUnsuitable/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.unsuitable.UnsuitableMessage"
+        }
+      ]
+    },
+    "WholeBloodProductCompleted_receive_productCompletedConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/WholeBloodProductCompleted"
+      },
+      "title": "WholeBloodProductCompleted_receive",
+      "description": "Wholeblood Product has been completed.",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/WholeBloodProductCompleted/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage"
+        }
+      ]
+    },
+    "WholeBloodProductCreated_receive_productCreatedConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/WholeBloodProductCreated"
+      },
+      "title": "WholeBloodProductCreated_receive",
+      "description": "Wholeblood Product has been created.",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/WholeBloodProductCreated/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage"
+        }
+      ]
+    }
+  }
+}

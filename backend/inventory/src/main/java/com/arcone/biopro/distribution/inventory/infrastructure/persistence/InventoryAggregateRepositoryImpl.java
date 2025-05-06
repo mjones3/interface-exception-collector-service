@@ -2,6 +2,7 @@ package com.arcone.biopro.distribution.inventory.infrastructure.persistence;
 
 import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhCriteria;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.repository.InventoryAggregateRepository;
 import lombok.AccessLevel;
@@ -45,26 +46,29 @@ public class InventoryAggregateRepositoryImpl implements InventoryAggregateRepos
     }
 
     @Override
-    public Mono<Boolean> existsByLocationAndUnitNumberAndProductCode(String location, String unitNumber, String productCode) {
-        return inventoryEntityRepository.existsByLocationAndUnitNumberAndProductCode(location, unitNumber, productCode);
-    }
-
-    @Override
-    public Flux<InventoryAggregate> findAllAvailable(String location, String productFamily, AboRhCriteria aboRh) {
-        return inventoryEntityRepository.findAllByLocationAndProductFamilyAndAboRhInAndInventoryStatusOrderByExpirationDateAsc(location, productFamily, aboRh.getAboRhTypes(), InventoryStatus.AVAILABLE)
-            .map(inventoryEntityMapper::toAggregate);
-    }
-
-    @Override
-    public Flux<InventoryAggregate> findAllAvailableShortDate(String location, String productFamily, AboRhCriteria aboRh) {
+    public Flux<InventoryAggregate> findAllAvailableShortDate(String location, String productFamily, AboRhCriteria aboRh, String temperatureCategory) {
         return productFamilyEntityRepository.findByProductFamily(productFamily)
-            .flatMapMany(pf -> inventoryEntityRepository.findAllByLocationAndProductFamilyAndAboRhInAndInventoryStatusAndIsLabeledTrueAndExpirationDateBetweenOrderByExpirationDateAsc(location, productFamily, aboRh.getAboRhTypes(), InventoryStatus.AVAILABLE, LocalDateTime.now(), getFinalDateTime(pf)))
+            .flatMapMany(pf -> inventoryEntityRepository.findBy(
+                location,
+                productFamily,
+                aboRHArray(aboRh),
+                InventoryStatus.AVAILABLE,
+                temperatureCategory,
+                LocalDateTime.now(),
+                getFinalDateTime(pf)))
             .map(inventoryEntityMapper::toAggregate);
     }
 
     @Override
-    public Mono<Long> countAllAvailable(String location, String productFamily, AboRhCriteria aboRh) {
-        return inventoryEntityRepository.countByLocationAndProductFamilyAndAboRhInAndInventoryStatusAndExpirationDateAfterAndIsLabeledTrue(location, productFamily, aboRh.getAboRhTypes(), InventoryStatus.AVAILABLE, LocalDateTime.now());
+    public Mono<Long> countAllAvailable(String location, String productFamily, AboRhCriteria aboRh, String temperatureCategory) {
+        return inventoryEntityRepository.countBy(location, productFamily, aboRHArray(aboRh), InventoryStatus.AVAILABLE, temperatureCategory, LocalDateTime.now());
+    }
+
+    private static String[] aboRHArray(AboRhCriteria aboRh) {
+        return aboRh.getAboRhTypes()
+            .stream()
+            .map(AboRhType::name)
+            .toArray(String[]::new);
     }
 
     @Override

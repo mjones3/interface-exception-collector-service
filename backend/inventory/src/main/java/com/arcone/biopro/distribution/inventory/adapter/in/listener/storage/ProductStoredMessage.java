@@ -1,7 +1,5 @@
 package com.arcone.biopro.distribution.inventory.adapter.in.listener.storage;
 
-import java.time.ZonedDateTime;
-
 public record ProductStoredMessage(
     String unitNumber,
     String productCode,

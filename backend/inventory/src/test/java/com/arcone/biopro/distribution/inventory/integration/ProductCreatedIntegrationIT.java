@@ -16,14 +16,12 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
-import java.nio.file.Files;
 
 import static com.arcone.biopro.distribution.inventory.BioProConstants.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -66,7 +64,7 @@ public class ProductCreatedIntegrationIT {
     @Test
     @DisplayName("Should publish, receive, map and call usecase with correct input for apheresis RBC")
     public void test1() throws InterruptedException, IOException {
-        var payloadJson = publishCreatedEvent("json/apheresis/rbc/product_created.json", APHERESIS_RBC_PRODUCT_CREATED_TOPIC);
+        var payloadJson = kafkaHelper.publishEvent("json/apheresis/rbc/product_created.json", APHERESIS_RBC_PRODUCT_CREATED_TOPIC);
         ArgumentCaptor<ProductCreatedInput> captor = ArgumentCaptor.forClass(ProductCreatedInput.class);
         verify(productCreatedUseCase, times(1)).execute(captor.capture());
         ProductCreatedInput capturedInput = captor.getValue();
@@ -76,7 +74,7 @@ public class ProductCreatedIntegrationIT {
     @Test
     @DisplayName("Should publish, receive, map and call usecase with correct input for apheresis PLASMA")
     public void test2() throws InterruptedException, IOException {
-        var payloadJson = publishCreatedEvent("json/apheresis/plasma/product_created.json", APHERESIS_PLASMA_PRODUCT_CREATED_TOPIC);
+        var payloadJson = kafkaHelper.publishEvent("json/apheresis/plasma/product_created.json", APHERESIS_PLASMA_PRODUCT_CREATED_TOPIC);
         ArgumentCaptor<ProductCreatedInput> captor = ArgumentCaptor.forClass(ProductCreatedInput.class);
         verify(productCreatedUseCase, times(1)).execute(captor.capture());
         ProductCreatedInput capturedInput = captor.getValue();
@@ -86,7 +84,17 @@ public class ProductCreatedIntegrationIT {
     @Test
     @DisplayName("Should publish, receive, map and call usecase with correct input for wholeblood")
     public void test3() throws InterruptedException, IOException {
-        var payloadJson = publishCreatedEvent("json/wholeblood/product_created.json", WHOLEBLOOD_CREATED_TOPIC);
+        var payloadJson = kafkaHelper.publishEvent("json/wholeblood/product_created.json", WHOLEBLOOD_CREATED_TOPIC);
+        ArgumentCaptor<ProductCreatedInput> captor = ArgumentCaptor.forClass(ProductCreatedInput.class);
+        verify(productCreatedUseCase, times(1)).execute(captor.capture());
+        ProductCreatedInput capturedInput = captor.getValue();
+        assertDefaultProductCreatedValues(capturedInput, payloadJson);
+    }
+
+    @Test
+    @DisplayName("Should publish, receive, map and call usecase with correct input for apheresis PLATELET")
+    public void test4() throws InterruptedException, IOException {
+        var payloadJson = kafkaHelper.publishEvent("json/apheresis/platelet/product_created.json", APHERESIS_PLATELET_PRODUCT_CREATED_TOPIC);
         ArgumentCaptor<ProductCreatedInput> captor = ArgumentCaptor.forClass(ProductCreatedInput.class);
         verify(productCreatedUseCase, times(1)).execute(captor.capture());
         ProductCreatedInput capturedInput = captor.getValue();
@@ -109,13 +117,5 @@ public class ProductCreatedIntegrationIT {
             .isEqualTo(payloadJson.path(PAYLOAD).path("inputProducts").get(0).path("unitNumber").asText());
         assertThat(capturedInput.inputProducts().getFirst().productCode())
             .isEqualTo(payloadJson.path(PAYLOAD).path("inputProducts").get(0).path("productCode").asText());
-    }
-
-    private JsonNode publishCreatedEvent(String path, String topic) throws IOException, InterruptedException {
-        var resource = new ClassPathResource(path).getFile().toPath();
-        var payloadJson = objectMapper.readTree(Files.newInputStream(resource));
-        kafkaHelper.sendEvent(topic, topic + "test-key", payloadJson).block();
-        logMonitor.await("Processed message.*");
-        return payloadJson;
     }
 }

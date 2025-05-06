@@ -4,7 +4,6 @@ import com.arcone.biopro.distribution.inventory.application.dto.UnsuitableInput;
 import com.arcone.biopro.distribution.inventory.application.usecase.UnsuitableUseCase;
 import com.arcone.biopro.distribution.inventory.verification.utils.KafkaHelper;
 import com.arcone.biopro.distribution.inventory.verification.utils.LogMonitor;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,14 +13,12 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
-import java.nio.file.Files;
 
 import static com.arcone.biopro.distribution.inventory.BioProConstants.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -61,7 +58,7 @@ public class ProductUnsuitableIntegrationIT {
     @Test
     @DisplayName("should publish, listen, map and call use case with correct converted inputs for Product Unsuitable")
     public void test1() throws InterruptedException, IOException {
-        var payloadJson = publishCreatedEvent("json/product_unsuitable.json", PRODUCT_UNSUITABLE_TOPIC);
+        var payloadJson = kafkaHelper.publishEvent("json/product_unsuitable.json", PRODUCT_UNSUITABLE_TOPIC);
         ArgumentCaptor<UnsuitableInput> captor = ArgumentCaptor.forClass(UnsuitableInput.class);
         verify(useCase, times(1)).execute(captor.capture());
         UnsuitableInput capturedInput = captor.getValue();
@@ -75,7 +72,7 @@ public class ProductUnsuitableIntegrationIT {
     @Test
     @DisplayName("should publish, listen, map and call use case with correct converted inputs for Unit Unsuitable")
     public void test2() throws InterruptedException, IOException {
-        var payloadJson = publishCreatedEvent("json/unit_unsuitable.json", UNIT_UNSUITABLE_TOPIC);
+        var payloadJson = kafkaHelper.publishEvent("json/unit_unsuitable.json", UNIT_UNSUITABLE_TOPIC);
         ArgumentCaptor<UnsuitableInput> captor = ArgumentCaptor.forClass(UnsuitableInput.class);
         verify(useCase, times(1)).execute(captor.capture());
         UnsuitableInput capturedInput = captor.getValue();
@@ -84,13 +81,5 @@ public class ProductUnsuitableIntegrationIT {
         assertThat(capturedInput.unitNumber()).isEqualTo(payloadJson.path(PAYLOAD).path("unitNumber").asText());
         assertThat(capturedInput.productCode()).isNull();
         assertThat(capturedInput.reasonKey()).isEqualTo(payloadJson.path(PAYLOAD).path("reasonKey").asText());
-    }
-
-    private JsonNode publishCreatedEvent(String json, String topic) throws IOException, InterruptedException {
-        var resource = new ClassPathResource(json).getFile().toPath();
-        var payloadJson = objectMapper.readTree(Files.newInputStream(resource));
-        kafkaHelper.sendEvent(topic, topic + "test-key", payloadJson).block();
-        logMonitor.await("Processed message.*");
-        return payloadJson;
     }
 }

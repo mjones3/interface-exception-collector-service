@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.inventory.domain.model;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.*;
+import com.arcone.biopro.distribution.inventory.domain.model.vo.Volume;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -63,11 +64,19 @@ public class Inventory {
 
     String comments;
 
-    private String deviceStored;
+    String deviceStored;
 
-    private String storageLocation;
+    String storageLocation;
 
-    private String unsuitableReason;
+    String unsuitableReason;
+
+    String temperatureCategory;
+
+    String cartonNumber;
+
+
+    @Builder.Default
+    List<Volume> volumes = new ArrayList<>();
 
     public void createHistory() {
         histories.add(new History(inventoryStatus, statusReason, comments));
@@ -115,5 +124,9 @@ public class Inventory {
 
     public boolean isConverted() {
         return InventoryStatus.CONVERTED.equals(inventoryStatus);
+    }
+
+    public void addVolume(String type, Integer value, String unit) {
+        volumes.add(new Volume(type, value, unit));
     }
 }

@@ -2,12 +2,9 @@ package com.arcone.biopro.distribution.inventory.verification.steps;
 
 import com.arcone.biopro.distribution.inventory.application.dto.*;
 import com.arcone.biopro.distribution.inventory.application.usecase.*;
-import com.arcone.biopro.distribution.inventory.domain.event.InventoryEventPublisher;
-import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ShipmentType;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.InputProduct;
 import com.arcone.biopro.distribution.inventory.verification.common.ScenarioContext;
-import com.arcone.biopro.distribution.inventory.verification.utils.ISBTProductUtil;
 import com.arcone.biopro.distribution.inventory.verification.utils.InventoryUtil;
 import com.arcone.biopro.distribution.inventory.verification.utils.LogMonitor;
 import io.cucumber.datatable.DataTable;
@@ -19,13 +16,9 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -50,6 +43,14 @@ public class UseCaseSteps {
     private final ProductStoredUseCase productStoredUseCase;
 
     private final UnsuitableUseCase unsuitableUseCase;
+
+    private final RecoveredPlasmaCartonPackedUseCase recoveredPlasmaCartonPackedUseCase;
+
+    private final RecoveredPlasmaCartonRemovedUseCase recoveredPlasmaCartonRemovedUseCase;
+
+    private final RecoveredPlasmaShipmentClosedUseCase recoveredPlasmaShipmentClosedUseCase;
+
+    private final ProductCompletedUseCase productCompletedUseCase;
 
     private final ScenarioContext scenarioContext;
 
@@ -175,11 +176,77 @@ public class UseCaseSteps {
         }
     }
 
+    @When("I received a Product Stored event for the following products:")
+    public void iReceivedAProductStoredEventForTheFollowingProducts(DataTable dataTable) {
+        List<Map<String, String>> products = dataTable.asMaps(String.class, String.class);
+        for (Map<String, String> product : products) {
+            String unitNumber = product.get("Unit Number");
+            String productCode = product.get("Product Code");
+            String reason = product.get("Reason");
+            String comments = null;
+            if (product.containsKey("Comments")) {
+                comments = product.get("Comments");
+            }
+            if (product.containsKey("Comment Length")) {
+                comments = RandomStringUtils.randomAlphabetic(Integer.parseInt(product.get("Comment Length")));
+            }
+            productDiscardedUseCase.execute(inventoryUtil.newProductDiscardedInput(unitNumber, productCode, reason, comments)).block();
+        }
+    }
+
+
 
     @When("I received a Unit Unsuitable event with unit number {string} and reason {string}")
     public void iReceivedAUnitUnsuitableEventWithUnitNumberAndReason(String unitNumber, String reason) {
         unsuitableUseCase.execute(new UnsuitableInput(unitNumber, null, reason)).block();
     }
+
+    @When("I received a Recovered Plasma Carton Packed Event for carton number {string}")
+    public void iReceivedRecoveredPlasmaCartonPacked(String cartonNumber, DataTable dataTable) {
+
+        List<Map<String, String>> products = dataTable.asMaps(String.class, String.class);
+        List<PackedProductInput> packedProducts = new ArrayList<>();
+        for (Map<String, String> product : products) {
+
+            var unitNumber = product.get("Unit Number");
+            var productCode = product.get("Product Code");
+            packedProducts.add(PackedProductInput.builder()
+                .unitNumber(unitNumber)
+                .productCode(productCode)
+                .status("PACKED")
+                .build());
+        }
+
+        RecoveredPlasmaCartonPackedInput input = RecoveredPlasmaCartonPackedInput.builder()
+            .cartonNumber(cartonNumber)
+            .packedProducts(packedProducts)
+            .build();
+        recoveredPlasmaCartonPackedUseCase.execute(input).block();
+    }
+
+    @When("I received a Recovered Plasma Carton Removed Event for carton number {string}")
+    public void iReceivedRecoveredPlasmaCartonRemoved(String cartonNumber, DataTable dataTable) {
+
+        List<Map<String, String>> products = dataTable.asMaps(String.class, String.class);
+        List<PackedProductInput> packedProducts = new ArrayList<>();
+        for (Map<String, String> product : products) {
+
+            var unitNumber = product.get("Unit Number");
+            var productCode = product.get("Product Code");
+            packedProducts.add(PackedProductInput.builder()
+                .unitNumber(unitNumber)
+                .productCode(productCode)
+                .status("UNPACKED")
+                .build());
+        }
+
+        RecoveredPlasmaCartonRemovedInput input = RecoveredPlasmaCartonRemovedInput.builder()
+            .cartonNumber(cartonNumber)
+            .packedProducts(packedProducts)
+            .build();
+        recoveredPlasmaCartonRemovedUseCase.execute(input).block();
+    }
+
 
     @When("I received a Product Unsuitable event with unit number {string}, product code {string} and reason {string}")
     public void iReceivedAProductUnsuitableEventWithUnitNumberProductCodeAndReason(String unitNumber, String productCode, String reason) {
@@ -230,9 +297,52 @@ public class UseCaseSteps {
                     break;
                 case "Product Stored":
                     iReceivedAProductStorageEventWithUnitProductDeviceStorageLocationAndLocation(unitNumber, productCode, deviceStorage, storageLocation, location);
+                    break;
+                case "Recovered Plasma Carton Packed":
+                    iReceivedRecoveredPlasmaCartonPacked("CN001", dataTable);
+                    break;
+                case "Recovered Plasma Carton Removed":
+                    iReceivedRecoveredPlasmaCartonRemoved("CN001", dataTable);
+                    break;
                 default:
                     break;
             }
         }
+    }
+
+    @When("I received a Product Completed event for the following products:")
+    public void iReceivedAProductCompletedEventForTheFollowingProducts(DataTable dataTable) {
+        List<Map<String, String>> products = dataTable.asMaps(String.class, String.class);
+        for (Map<String, String> product : products) {
+            String unitNumber = product.get("Unit Number");
+            String productCode = product.get("Product Code");
+            Integer volume = Integer.valueOf(product.get("Volume"));
+            Integer anticoagulantVolume = Integer.valueOf(product.get("Anticoagulant Volume"));
+            productCompletedUseCase.execute(inventoryUtil.newProductCompletedInput(unitNumber, productCode, volume, anticoagulantVolume, "ml")).block();
+        }
+    }
+
+    @When("I received a Recovered Plasma Shipment Closed Event")
+    public void iReceivedARecoveredPlasmaShipmentClosedEvent(DataTable dataTable) {
+        List<Map<String, String>> products = dataTable.asMaps(String.class, String.class);
+        List<ShipmentPackedProductInput> packedProducts = new ArrayList<>();
+        for (Map<String, String> product : products) {
+            var unitNumber = product.get("Unit Number");
+            var productCode = product.get("Product Code");
+            packedProducts.add(ShipmentPackedProductInput.builder()
+                .unitNumber(unitNumber)
+                .productCode(productCode)
+                .status("SHIPPED")
+                .build());
+        }
+        List<CartonInput> cartons = new ArrayList<>();
+        cartons.add(CartonInput.builder()
+            .cartonNumber("CN001")
+            .packedProducts(packedProducts)
+            .build());
+        RecoveredPlasmaShipmentClosedInput input =  RecoveredPlasmaShipmentClosedInput.builder()
+            .cartonList(cartons)
+            .build();
+        recoveredPlasmaShipmentClosedUseCase.execute(input).block();
     }
 }

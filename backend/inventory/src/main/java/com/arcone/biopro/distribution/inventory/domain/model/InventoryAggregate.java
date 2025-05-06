@@ -207,4 +207,36 @@ public class InventoryAggregate {
         inventory.setUnsuitableReason(reason);
         return this;
     }
+
+    public InventoryAggregate updateTemperatureCategory(String temperatureCategory) {
+        inventory.setTemperatureCategory(temperatureCategory);
+        return this;
+    }
+
+    public InventoryAggregate completeProduct(List<Volume> volumes) {
+       if (Objects.nonNull(volumes) && !volumes.isEmpty()) {
+           volumes.forEach(item -> inventory.addVolume(item.getType(), item.getValue(), item.getUnit()));
+       }
+       return this;
+    }
+
+    public InventoryAggregate putInTheCarton(String cartonNumber) {
+        inventory.transitionStatus(InventoryStatus.PACKED, null);
+        inventory.setCartonNumber(cartonNumber);
+        return this;
+    }
+
+    public InventoryAggregate removeFromCarton(String cartonNumber) {
+        if (cartonNumber.equals(inventory.getCartonNumber())) {
+            inventory.transitionStatus(InventoryStatus.AVAILABLE, null);
+            inventory.setCartonNumber(null);
+        }
+        return this;
+    }
+
+    public InventoryAggregate cartonShipped() {
+        inventory.transitionStatus(InventoryStatus.SHIPPED, null);
+        return this;
+    }
 }
+
