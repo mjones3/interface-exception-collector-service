@@ -210,9 +210,13 @@ public class RepositorySteps {
 
             if(headers.contains("Quarantine Reasons") && inventory.get("Quarantine Reasons")!=null ){
                 String quarantineReasons = inventory.get("Quarantine Reasons");
-                String comments = inventory.get("Comments");
-                List<Quarantine> quarantines = Arrays.stream(quarantineReasons.split(",")).map(String::trim).map(reason -> new Quarantine(1L, reason, comments)).toList();
-                inventoryEntity.setQuarantines(quarantines);
+                if(quarantineReasons.equalsIgnoreCase("EMPTY")) {
+                    inventoryEntity.setQuarantines(new ArrayList<>());
+                } else {
+                    String comments = inventory.get("Comments");
+                    List<Quarantine> quarantines = Arrays.stream(quarantineReasons.split(",")).map(String::trim).map(reason -> new Quarantine(1L, reason, comments)).toList();
+                    inventoryEntity.setQuarantines(quarantines);
+                }
             }
 
             if(headers.contains("Discard Reason") && inventory.get("Discard Reason")!=null){
