@@ -70,4 +70,52 @@ public class GraphQLMutationMapper {
             }
             """, cartonId, unitNumber, productCode, locationCode);
     }
+    public static String verifyCarton(int cartonId, String unitNumber, String productCode, String locationCode) {
+        return String.format("""
+            mutation VerifyCarton {
+                verifyCarton(
+                    verifyCartonItemRequest: {
+                        cartonId: %s
+                        unitNumber: "%s"
+                        productCode: "%s"
+                        employeeId: "4c973896-5761-41fc-8217-07c5d13a004b"
+                        locationCode: "%s"
+                    }
+                ) {
+                    _links
+                    data
+                    notifications {
+                        message
+                        type
+                        code
+                        action
+                        reason
+                        details
+                    }
+                }
+            }
+            """, cartonId, unitNumber, productCode, locationCode);
+    }
+
+    public static String closeCarton (String cartonId, String employeeId, String locationCode) {
+        return String.format("""
+            mutation CloseCarton {
+                closeCarton(
+                    closeCartonRequest: { cartonId: %s, employeeId: "%s", locationCode: "%s" }
+                ) {
+                    _links
+                    data
+                    notifications {
+                        message
+                        type
+                        code
+                        action
+                        reason
+                        details
+                        name
+                    }
+                }
+            }
+            """, cartonId, employeeId, locationCode);
+    }
 }

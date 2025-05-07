@@ -129,42 +129,4 @@ public class CreateShipmentController {
 
         return lastShipmentId < currentShipmentId;
     }
-
-    public Map createCarton(String shipmentId) {
-        String payload = GraphQLMutationMapper.createCarton(shipmentId);
-        var response = apiHelper.graphQlRequest(payload, "createCarton");
-        addCartonToList((Map) response.get("data"));
-        return response;
-    }
-
-    public Map createCarton(int shipmentId) {
-        return createCarton(String.valueOf(shipmentId));
-    }
-
-    private void addCartonToList(Map carton) {
-        List<Map> cartonList = sharedContext.getCreateCartonResponseList();
-        if (cartonList == null) {
-            cartonList = new ArrayList<>();
-        }
-        cartonList.add(carton);
-        sharedContext.setCreateCartonResponseList(cartonList);
-    }
-
-    public void packCartonProduct(String cartonId, String unitNumber, String productCode, String locationCode) {
-        String payload = GraphQLMutationMapper.packCartonItem(Integer.parseInt(cartonId), unitNumber, productCode, locationCode);
-        var response = apiHelper.graphQlRequest(payload, "packCartonItem");
-        sharedContext.setPackCartonItemResponse((Map) response.get("data"));
-    }
-
-    public boolean verifyProductIsPacked(String unitNumber, String productCode) {
-        var carton = sharedContext.getPackCartonItemResponse();
-        if (carton == null) {
-            return false;
-        } else {
-            return carton.get("unitNumber") != null
-                && carton.get("productCode") != null
-                && unitNumber.equals(carton.get("unitNumber").toString())
-                && productCode.equals(carton.get("productCode").toString());
-        }
-    }
 }

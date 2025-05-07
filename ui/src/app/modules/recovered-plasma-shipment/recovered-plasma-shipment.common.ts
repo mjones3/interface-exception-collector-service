@@ -19,7 +19,7 @@ export class RecoveredPlasmaShipmentCommon {
     protected readonly RecoveredPlasmaShipmentStatusMap =
         RecoveredPlasmaShipmentStatusMap;
 
-    routeIdComputed = computed(() => Number(this.route.snapshot.params?.id));
+    routeIdComputed = computed(() => Number(this.route?.snapshot?.params?.id));
     employeeIdSignal = signal<string>(null);
     shipmentDetailsSignal = signal<RecoveredPlasmaShipmentResponseDTO>(null);
     shipmentIdComputed = computed<number>(

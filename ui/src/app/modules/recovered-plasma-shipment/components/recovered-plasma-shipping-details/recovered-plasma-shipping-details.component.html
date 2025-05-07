@@ -16,7 +16,7 @@
         <div class="flex flex-row space-x-2">
             <biopro-action-button
                 id="backActionBtn"
-                btnId="backToSearchBtn"
+                btnId="backToSearchBtnId"
                 label="Back to Search"
                 color="secondary"
                 icon="heroicons_outline:arrow-uturn-left"
@@ -54,10 +54,16 @@
                     {{ RecoveredPlasmaShipmentStatusMap[element.status] }}
                 </span>
             </ng-template>
-            <ng-template #editTemplateRef let-element="element">
-                @if (shipmentDetailsSignal()?.canAddCartons) {
-                    <button id="editBtn" (click)="editCarton(element?.id)">
+            <ng-template #actionsTemplateRef let-element="element">
+                @if (element?.status !== 'CLOSED') {
+                    <button id="editBtn" (click)="editCarton(element?.id)" class="edit-button-mat-icon">
                         <mat-icon>edit</mat-icon>
+                    </button>
+                }
+
+                @if (element?.canPrint) {
+                    <button data-testid="view-shipping-carton-packing-slip" (click)="printCarton($event, element?.id)" class="edit-button-mat-icon">
+                        <mat-icon>print</mat-icon>
                     </button>
                 }
             </ng-template>

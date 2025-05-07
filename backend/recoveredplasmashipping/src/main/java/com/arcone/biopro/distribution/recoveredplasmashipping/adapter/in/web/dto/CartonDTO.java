@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto;
 
+import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.CartonItemOutput;
 import lombok.Builder;
 
 import java.io.Serializable;
@@ -24,6 +25,11 @@ public record CartonDTO(
     BigDecimal totalVolume,
     List<CartonItemDTO> packedProducts,
     Integer maxNumberOfProducts,
-    Integer minNumberOfProducts
+    Integer minNumberOfProducts,
+    boolean canVerify,
+    boolean canClose,
+    boolean canPrint,
+    List<CartonItemDTO> verifiedProducts,
+    CartonItemOutput failedCartonItem
 ) implements Serializable {
 }

@@ -1,0 +1,154 @@
+<div class="modal-body-width">
+    <div id="viewShippingCartonPackingSlipReport" class="px-6 py-0" style="font-family: sans-serif;">
+        @if (reportModel(); as report) {
+            <p class="text-center font-bold">
+                <span data-testid="blood-center-name" class="text-xl">{{ report?.shipFromBloodCenterName }}</span>
+                @if (report?.displayLicenceNumber) {
+                    <br />
+                    <span data-testid="license-number">License #{{ report?.shipFromLicenseNumber }}</span>
+                }
+            </p>
+
+            <h2 class="mx-10 text-3xl text-blue-900 border-b-2 border-b-blue-700">
+                Carton Packing Slip
+            </h2>
+
+            <div id="packingSlipHeader" class="flex flex-row justify-between gap-10 mx-10 py-6 border-b border-b-black">
+                <div class="flex flex-row flex-1 gap-2">
+                    <div class="flex-0 font-bold align-top whitespace-nowrap text-ellipsis overflow-hidden">Ship To:</div>
+                    <div class="max-w-64 font-bold align-top">
+                        <div>{{ report?.shipToCustomerName }}</div>
+                        <div>{{ report?.shipToAddress }}</div>
+                    </div>
+                </div>
+
+                <div class="flex flex-row flex-1 gap-2 justify-end">
+                    <div class="flex-0 font-bold align-top whitespace-nowrap text-ellipsis overflow-hidden">Ship From:</div>
+                    <div class="max-w-64 font-bold align-top">
+                        <div>{{ report?.shipFromBloodCenterName }}</div>
+                        <div>{{ report?.shipFromLocationAddress }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-1 py-3 flex flex-col gap-6">
+                <table
+                    id="packingSlipSummaryTable"
+                    class="w-full grid-borders"
+                >
+                    <tbody>
+                    <tr>
+                        <td class=" font-bold">Product Type:</td>
+                        <td class="">{{ report?.shipmentProductDescription }}</td>
+                        <td class=" font-bold">Product Description:</td>
+                        <td class="">{{ report?.cartonProductDescription }}</td>
+                    </tr>
+                    <tr>
+                        <td class="font-bold">Product Code:</td>
+                        <td>{{ report?.cartonProductCode }}</td>
+                        <td class="font-bold">Carton Number:</td>
+                        <td>{{ report?.cartonNumber }}</td>
+                    </tr>
+                    <tr>
+                        <td class="font-bold">Shipment Number:</td>
+                        <td>{{ report?.shipmentNumber }}</td>
+                        <td class="font-bold">Carton Sequence:</td>
+                        <td>{{ report?.cartonSequence }}</td>
+                    </tr>
+                    <tr>
+                        <td class="font-bold">Products Packed and Verified by:</td>
+                        <td>{{ report?.packedByEmployeeId }}</td>
+                        <td class="font-bold">Date/Time Carton Closed:</td>
+                        <td>{{ report?.dateTimePacked }}</td>
+                    </tr>
+                    <tr>
+                        <td class="font-bold">Total Products:</td>
+                        <td [colSpan]="report?.displayTransportationReferenceNumber ? 1 : 3">{{ report?.totalProducts ?? 0 }}</td>
+                        @if (report?.displayTransportationReferenceNumber) {
+                        <td data-testid="transportation-reference-number-label" class="font-bold">Transportation Reference Number:</td>
+                        <td data-testid="transportation-reference-number-value">{{ report?.shipmentTransportationReferenceNumber }}</td>
+                        }
+                    </tr>
+                    </tbody>
+                </table>
+
+                <!-- Products Table with 3 columns -->
+                @if (reportModelProductsCount() <= splitGroupsTableRowsCount) {
+                <table
+                    id="packingSlipUnitsTable"
+                    class="w-full grid-borders"
+                >
+                    <thead>
+                    <tr>
+                        <th class="font-bold" colSpan="3">Products Information</th>
+                    </tr>
+                    <tr>
+                        <th class="font-bold">Unit Number</th>
+                        <th class="font-bold">Collection Date</th>
+                        <th class="font-bold">Product Volume</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    @for (product of report?.products; track $index) {
+                    <tr>
+                        <td class="text-center">{{ product?.unitNumber }}</td>
+                        <td class="text-center">{{ product?.collectionDate }}</td>
+                        <td class="text-center">{{ product?.volume }} mL</td>
+                    </tr>
+                    }
+                    </tbody>
+                </table>
+                }
+
+                <!-- Products Table with 6 columns -->
+                @if (reportModelProductsCount() > splitGroupsTableRowsCount) {
+                <table
+                    id="packingSlipUnitGroupsTable"
+                    class="w-full grid-borders"
+                >
+                    <thead>
+                    <tr>
+                        <th class="font-bold" colSpan="6">Products Information</th>
+                    </tr>
+                    <tr>
+                        <th class="font-bold">Unit Number</th>
+                        <th class="font-bold">Collection Date</th>
+                        <th class="font-bold">Product Volume</th>
+                        <th class="font-bold">Unit Number</th>
+                        <th class="font-bold">Collection Date</th>
+                        <th class="font-bold">Product Volume</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                        @for (group of reportModelProductsByGroups(); track $index) {
+                            <tr>
+                                <td class="text-center">{{ group?.leftSide?.unitNumber }}</td>
+                                <td class="text-center">{{ group?.leftSide?.collectionDate }}</td>
+                                <td class="text-center">{{ group?.leftSide?.volume }} mL</td>
+                                <td class="text-center">{{ group?.rightSide?.unitNumber }}</td>
+                                <td class="text-center">{{ group?.rightSide?.collectionDate }}</td>
+                                <td class="text-center">{{ group?.rightSide?.volume }} mL</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                }
+
+                @if (report?.displayTestingStatement) {
+                <p class="mx-10">
+                    <span class="font-bold">Testing Statement:</span><br/>
+                    <span data-testid="testing-statement">{{ report?.testingStatement }}</span>
+                </p>
+                }
+                @if (report?.displaySignature) {
+                <p class="mx-10 mt-10">
+                    <span data-testid="signature" class="font-bold">Signature: </span>
+                    <span class="inline-block w-2/5 border-b border-b-black"></span>
+                </p>
+                }
+            </div>
+        }
+    </div>
+</div>

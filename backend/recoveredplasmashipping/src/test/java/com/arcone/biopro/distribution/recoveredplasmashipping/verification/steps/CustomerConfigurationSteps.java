@@ -69,4 +69,14 @@ public class CustomerConfigurationSteps {
     public void theMaximumNumberOfUnitsInCartonIsConfiguredAsProductsForTheCustomerCodeAndProductType(String maxValue, String customerCode, String productType) {
         databaseService.executeSql(DatabaseQueries.UPDATE_MAX_PRODUCTS_CUSTOMER_CRITERIA(customerCode, productType, maxValue)).block();
     }
+    @And("The Minimum Number of Units in Carton is configured as {string} products for the customer code {string} and product type {string}.")
+    public void theMinimumNumberOfUnitsInCartonIsConfiguredAsProductsForTheCustomerCodeAndProductType(String maxValue, String customerCode, String productType) {
+        databaseService.executeSql(DatabaseQueries.UPDATE_MIN_PRODUCTS_CUSTOMER_CRITERIA(customerCode, productType, maxValue)).block();
+    }
+
+    @And("The system configuration {string} is configured as {string} for the element {string} in the process type {string}.")
+    public void theSystemConfigurationIsConfiguredAsForTheElement(String propertyKey, String propertyValue, String element , String processType) {
+        databaseService.executeSql(DatabaseQueries.UPDATE_SYSTEM_CONFIGURATION(processType, propertyKey, propertyValue)).block();
+
+    }
 }

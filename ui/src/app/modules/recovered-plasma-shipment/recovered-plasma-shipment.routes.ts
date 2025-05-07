@@ -1,9 +1,9 @@
 import { Routes } from '@angular/router';
 import { initialDataResolver } from 'app/app.resolvers';
 import { EmptyLayoutComponent } from 'app/layout/layouts/empty/empty.component';
-import { cartonDetailsComponent } from './components/carton-details/carton-details.component';
 import { RecoveredPlasmaShippingDetailsComponent } from './components/recovered-plasma-shipping-details/recovered-plasma-shipping-details.component';
 import { SearchShipmentComponent } from './components/search-shipment/search-shipment.component';
+import { ManageCartonComponent } from './components/manage-carton-products/manage-carton-products.component';
 
 export default [
     {
@@ -28,9 +28,17 @@ export default [
             },
             {
                 path: ':id/carton-details',
-                component: cartonDetailsComponent,
+                component: ManageCartonComponent,
                 data: {
-                    subTitle: 'Add Carton Products',
+                    subTitle: 'Manage Carton Products',
+                },
+            },
+            {
+                path: ':id/verify-carton',
+                component: ManageCartonComponent,
+                data: {
+                    subTitle: 'Manage Carton Products',
+                    step: 1,
                 },
             },
         ],

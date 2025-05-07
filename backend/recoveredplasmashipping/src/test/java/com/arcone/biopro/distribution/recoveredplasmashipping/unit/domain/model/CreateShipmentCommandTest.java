@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -44,6 +45,21 @@ class CreateShipmentCommandTest {
             () -> assertEquals(shipmentDate, command.getShipmentDate()),
             () -> assertEquals(cartonTareWeight, command.getCartonTareWeight())
         );
+    }
+
+    @Test
+    void shouldCreateWhenShipmentDateIsNull() {
+        assertDoesNotThrow(() -> {
+            new CreateShipmentCommand(
+                "CUST123",
+                "LOC456",
+                "PLASMA",
+                "EMP789",
+                "TRN001",
+                null,
+                new BigDecimal("10.5")
+            );
+        });
     }
 
     @Test
@@ -161,21 +177,6 @@ class CreateShipmentCommandTest {
                 "",
                 "TRN001",
                 LocalDate.now().plusDays(1),
-                new BigDecimal("10.5")
-            );
-        });
-    }
-
-    @Test
-    void shouldThrowExceptionWhenShipmentDateIsNull() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new CreateShipmentCommand(
-                "CUST123",
-                "LOC456",
-                "PLASMA",
-                "EMP789",
-                "TRN001",
-                null,
                 new BigDecimal("10.5")
             );
         });

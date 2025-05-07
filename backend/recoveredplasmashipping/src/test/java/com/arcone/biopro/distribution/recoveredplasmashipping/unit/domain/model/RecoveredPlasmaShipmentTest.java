@@ -3,14 +3,12 @@ package com.arcone.biopro.distribution.recoveredplasmashipping.unit.domain.model
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.CustomerOutput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.exception.DomainNotFoundForKeyException;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Carton;
-import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.CreateCartonCommand;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.CreateShipmentCommand;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.FindShipmentCommand;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Location;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.LocationProperty;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.RecoveredPlasmaShipment;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.RecoveredPlasmaShipmentCriteria;
-import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.CartonRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.LocationRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShipmentCriteriaRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShippingRepository;
@@ -19,7 +17,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
@@ -500,9 +497,9 @@ class RecoveredPlasmaShipmentTest {
     }
 
     @Test
-    void checkValid_WithNullShipmentDate_ShouldThrowException() {
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-            () -> RecoveredPlasmaShipment.fromRepository(
+    void checkValid_WithNullShipmentDate_ShouldNotThrowException() {
+        assertDoesNotThrow(() -> RecoveredPlasmaShipment
+            .fromRepository(
                 1L, "locationCode", "productType", "123", "status", "createEmployeeId",
                 "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
                 null, BigDecimal.ONE, "unsuitableUnitReportDocumentStatus",
@@ -511,7 +508,6 @@ class RecoveredPlasmaShipmentTest {
                 "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
                 "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), null
             ));
-        assertEquals("Shipment date is required", exception.getMessage());
     }
 
     @Test
@@ -668,6 +664,59 @@ class RecoveredPlasmaShipmentTest {
         assertEquals(2,shipment.getCartonList().size());
         assertEquals(2,shipment.getTotalCartons());
         assertEquals(12,shipment.getTotalProducts());
+
+    }
+
+    @Test
+    public void shouldNotMarkAsInProgressWhenStatusIsClosed() {
+        var shipment = RecoveredPlasmaShipment.fromRepository(
+            1L, "locationCode", "productType", "123", "CLOSED", "createEmployeeId",
+            "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
+            LocalDate.now(), BigDecimal.TEN, "unsuitableUnitReportDocumentStatus",
+            "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
+            "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
+            "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
+            "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), Collections.emptyList()
+        );
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            shipment::markAsInProgress);
+        assertEquals("Shipment is closed and cannot be reopen", exception.getMessage());
+
+    }
+
+    @Test
+    public void shouldMarkAsInProgressWhenStatusIsOpen() {
+        var shipment = RecoveredPlasmaShipment.fromRepository(
+            1L, "locationCode", "productType", "123", "OPEN", "createEmployeeId",
+            "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
+            LocalDate.now(), BigDecimal.TEN, "unsuitableUnitReportDocumentStatus",
+            "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
+            "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
+            "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
+            "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), Collections.emptyList()
+        );
+
+       var result = shipment.markAsInProgress();
+        assertNotNull(result);
+        assertEquals("IN_PROGRESS", result.getStatus());
+
+    }
+    @Test
+    public void shouldNotMarkAsInProgressWhenStatusIsInProgress() {
+        var shipment = RecoveredPlasmaShipment.fromRepository(
+            1L, "locationCode", "productType", "123", "IN_PROGRESS", "createEmployeeId",
+            "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
+            LocalDate.now(), BigDecimal.TEN, "unsuitableUnitReportDocumentStatus",
+            "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
+            "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
+            "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
+            "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), Collections.emptyList()
+        );
+
+        var result = shipment.markAsInProgress();
+        assertNotNull(result);
+        assertEquals("IN_PROGRESS", result.getStatus());
 
     }
 }

@@ -3,7 +3,6 @@ package com.arcone.biopro.distribution.recoveredplasmashipping.unit.adapter.in.w
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.CustomerDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.RecoveredPlasmaShipmentResponseDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.UseCaseResponseDTO;
-import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.mapper.CartonDtoMapper;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.mapper.CartonDtoMapperImpl;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.mapper.CustomerDtoMapperImpl;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.mapper.RecoveredPlasmaShipmentDtoMapperImpl;

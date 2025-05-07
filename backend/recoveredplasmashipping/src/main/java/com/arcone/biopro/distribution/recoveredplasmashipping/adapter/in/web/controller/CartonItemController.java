@@ -1,6 +1,6 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.controller;
 
-import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.CartonItemDTO;
+import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.CartonDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.PackCartonItemRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.UseCaseResponseDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.mapper.CommandRequestDTOMapper;
@@ -23,7 +23,7 @@ public class CartonItemController {
     private final UseCaseResponseMapper useCaseResponseMapper;
 
     @MutationMapping("packCartonItem")
-    public Mono<UseCaseResponseDTO<CartonItemDTO>> packCartonItem(@Argument("packCartonItemRequest") PackCartonItemRequestDTO packCartonItemRequestDTO) {
+    public Mono<UseCaseResponseDTO<CartonDTO>> packCartonItem(@Argument("packCartonItemRequest") PackCartonItemRequestDTO packCartonItemRequestDTO) {
         log.debug("Request to pack a Carton Item : {}", packCartonItemRequestDTO);
         return packCartonItemService.packItem(commandRequestDTOMapper.toInputCommand(packCartonItemRequestDTO))
             .map(useCaseResponseMapper::toUseCasePackCartonItemDTO);

@@ -1,14 +1,16 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.controller;
 
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.CartonDTO;
+import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.CartonPackingSlipDTO;
+import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.CloseCartonRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.CreateCartonRequestDTO;
-import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.PageDTO;
-import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.RecoveredPlasmaShipmentQueryCommandRequestDTO;
-import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.RecoveredPlasmaShipmentReportDTO;
+import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.GenerateCartonPackingSlipRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.UseCaseResponseDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.mapper.CommandRequestDTOMapper;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.mapper.UseCaseResponseMapper;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.CartonPackingSlipService;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.CartonService;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.CloseCartonService;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.CreateCartonService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +29,8 @@ public class CartonController {
     private final CommandRequestDTOMapper commandRequestDTOMapper;
     private final UseCaseResponseMapper useCaseResponseMapper;
     private final CartonService cartonService;
+    private final CloseCartonService closeCartonService;
+    private final CartonPackingSlipService cartonPackingSlipService;
 
 
     @MutationMapping("createCarton")
@@ -41,5 +45,19 @@ public class CartonController {
         log.debug("Request to find carton by ID : {}", cartonId);
         return cartonService.findOneById(cartonId)
             .map(useCaseResponseMapper::toUseCaseCreateCartonDTO);
+    }
+
+    @MutationMapping("closeCarton")
+    public Mono<UseCaseResponseDTO<CartonDTO>> closeCarton(@Argument("closeCartonRequest") CloseCartonRequestDTO closeCartonRequestDTO) {
+        log.debug("Request to Close Carton: {}", closeCartonRequestDTO);
+        return closeCartonService.closeCarton(commandRequestDTOMapper.toInputCommand(closeCartonRequestDTO))
+            .map(useCaseResponseMapper::toUseCaseCreateCartonDTO);
+    }
+
+    @QueryMapping("generateCartonPackingSlip")
+    public Mono<UseCaseResponseDTO<CartonPackingSlipDTO>> generateCartonPackingSlip(@Argument("generateCartonPackingSlipRequest") GenerateCartonPackingSlipRequestDTO generateCartonPackingSlipRequestDTO) {
+        log.debug("Request to generate carton packing slip : {}", generateCartonPackingSlipRequestDTO);
+        return cartonPackingSlipService.generateCartonPackingSlip(commandRequestDTOMapper.toInputCommand(generateCartonPackingSlipRequestDTO))
+            .map(useCaseResponseMapper::toUseCaseGenerateCartonPackingSlipDTO);
     }
 }

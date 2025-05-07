@@ -10,10 +10,7 @@ import { ToastrImplService } from '@shared';
 import { CookieService } from 'ngx-cookie-service';
 import { of, throwError } from 'rxjs';
 import { UseCaseResponseDTO } from '../../../../shared/models/use-case-response.dto';
-import {
-    CartonDTO,
-    RecoveredPlasmaShipmentResponseDTO,
-} from '../../models/recovered-plasma.dto';
+import { CartonDTO, RecoveredPlasmaShipmentResponseDTO } from '../../models/recovered-plasma.dto';
 import { RecoveredPlasmaService } from '../../services/recovered-plasma.service';
 import { RecoveredPlasmaShippingDetailsComponent } from './recovered-plasma-shipping-details.component';
 
@@ -31,27 +28,27 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
             navigate: jest.fn(),
             navigateByUrl: jest.fn(),
             url: '/test-url',
-        } as any;
+        } as Partial<Router> as jest.Mocked<Router>;
 
         mockRecoveredPlasmaService = {
             getShipmentById: jest.fn(),
             createCarton: jest.fn(),
             getCartonById: jest.fn(),
-        } as any;
+        } as Partial<RecoveredPlasmaService> as jest.Mocked<RecoveredPlasmaService>;
 
         mockToastrService = {
             error: jest.fn(),
             success: jest.fn(),
             warning: jest.fn(),
-        } as any;
+        } as Partial<ToastrImplService> as jest.Mocked<ToastrImplService>;
 
         mockStore = {
             select: jest.fn(),
-        } as any;
+        } as Partial<Store> as jest.Mocked<Store>;
 
         cookieService = {
             get: jest.fn(),
-        } as any;
+        } as Partial<CookieService> as jest.Mocked<CookieService>;
 
         await TestBed.configureTestingModule({
             imports: [
@@ -379,7 +376,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         expect(component.expandedRowDataSignal()).toEqual([]);
     });
 
-    it('should hide "edit" when canAddCartons is false', () => {
+    it('should hide "edit" when carton status is closed', () => {
         const buttonIdCssSelector = By.css('#editBtn');
         const root = fixture.debugElement;
         mockRecoveredPlasmaService.getShipmentById.mockReturnValue(
@@ -387,7 +384,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
                 data: {
                     findShipmentById: {
                         data: {
-                            canAddCartons: false,
+                            status: 'CLOSED',
                         },
                     },
                 },
@@ -407,6 +404,53 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         component.editCarton(cartonId);
         expect(mockRouter.navigate).toHaveBeenCalledWith([
             `recovered-plasma/${cartonId}/carton-details`,
+        ]);
+    });
+
+    it('should show carton print button when canPrint is true', () => {
+        mockRecoveredPlasmaService.getShipmentById.mockReturnValue(
+            of({
+                data: {
+                    findShipmentById: {
+                        data: { cartonList: [ { canPrint: true } ] } as RecoveredPlasmaShipmentResponseDTO,
+                    },
+                },
+            } as unknown as ApolloQueryResult<{ findShipmentById: UseCaseResponseDTO<RecoveredPlasmaShipmentResponseDTO> }>)
+        );
+
+        fixture.detectChanges();
+        const button = fixture.debugElement
+            ?.query(By.css('button[data-testid=view-shipping-carton-packing-slip]'))
+            ?.nativeElement;
+
+        expect(button).toBeTruthy();
+    });
+
+    it('should hide carton print button when canPrint is false', () => {
+        mockRecoveredPlasmaService.getShipmentById.mockReturnValue(
+            of({
+                data: {
+                    findShipmentById: {
+                        data: { cartonList: [ { canPrint: false } ] } as RecoveredPlasmaShipmentResponseDTO,
+                    },
+                },
+            } as unknown as ApolloQueryResult<{ findShipmentById: UseCaseResponseDTO<RecoveredPlasmaShipmentResponseDTO> }>)
+        );
+
+        fixture.detectChanges();
+        const button = fixture.debugElement
+            ?.query(By.css('button[data-testid=view-shipping-carton-packing-slip]'))
+            ?.nativeElement;
+
+        expect(button).toBeFalsy();
+    });
+
+    it('should navigate to verify product page when click on verify product button', () => {
+        const id = 1;
+        jest.spyOn(mockRouter, 'navigate');
+        component.verifyProducts(id);
+        expect(mockRouter.navigate).toHaveBeenCalledWith([
+            `recovered-plasma/${id}/verify-carton`,
         ]);
     });
 });

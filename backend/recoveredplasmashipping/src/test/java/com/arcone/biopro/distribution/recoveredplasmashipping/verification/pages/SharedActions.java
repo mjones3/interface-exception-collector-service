@@ -205,7 +205,8 @@ public class SharedActions {
         }
     }
 
-    public void verifyMessage(String header, String message) {
+    public void verifyMessage(String header, String message) throws InterruptedException {
+        waitLoadingAnimation();
         log.info("Verifying message: {}", message);
         String bannerMessageLocator = "#toast-container";
         String msg = wait.until(e -> e.findElement(By.cssSelector(bannerMessageLocator))).getText();
@@ -311,5 +312,10 @@ public class SharedActions {
         actions.sendKeys(Keys.ESCAPE).build().perform();
         return true;
         });
+    }
+
+    public void moveToNewTab(WebDriver driver, int expectedWindowsNumber) {
+        wait.until(numberOfWindowsToBe(expectedWindowsNumber));
+        driver.switchTo().window(driver.getWindowHandles().toArray(new String[0])[1]);
     }
 }

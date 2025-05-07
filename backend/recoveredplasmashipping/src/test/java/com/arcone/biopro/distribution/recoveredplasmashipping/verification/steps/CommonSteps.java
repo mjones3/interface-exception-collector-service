@@ -7,7 +7,6 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -22,7 +21,7 @@ public class CommonSteps {
     SharedContext context;
 
     @Then("I should see a {string} message: {string}.")
-    public void iShouldSeeAMessage(String header, String message) {
+    public void iShouldSeeAMessage(String header, String message) throws InterruptedException {
         log.info("I should see a message: {}", message);
         sharedActions.verifyMessage(header, message);
     }
@@ -63,4 +62,5 @@ public class CommonSteps {
     public void iCloseTheAcknowledgmentMessage() {
         sharedActions.closeAcknowledgment();
     }
+
 }

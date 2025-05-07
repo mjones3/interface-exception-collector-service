@@ -203,6 +203,36 @@ describe('FilterShipmentComponent', () => {
             expect(emittedCriteria.shipmentDateTo).toBe('2024-01-31');
         });
 
+        it('should apply filter search with only start shipmentDate criteria', () => {
+            const emitSpy = jest.spyOn(component.onApplySearchFilters, 'emit');
+
+            component.form.patchValue({
+                shipmentDate: {
+                    start: new Date('2024-01-01'),
+                },
+            });
+
+            component.applyFilterSearch();
+
+            const emittedCriteria = emitSpy.mock.calls[0][0];
+            expect(emittedCriteria.shipmentStatus).toBeUndefined();
+            expect(emittedCriteria.locationCode).toBeUndefined();
+            expect(emittedCriteria.productTypes).toBeUndefined();
+            expect(emittedCriteria.shipmentDateFrom).toBe('2024-01-01');
+            expect(emittedCriteria.shipmentDateTo).toBeUndefined();
+        });
+
+        it('should apply filter search with no criteria', () => {
+            const emitSpy = jest.spyOn(component.onApplySearchFilters, 'emit');
+
+            component.form.patchValue({});
+
+            component.applyFilterSearch();
+
+            const emittedCriteria = emitSpy.mock.calls[0][0];
+            expect(emittedCriteria.locationCode).toBeUndefined();
+        });
+
         it('should handle select-all value correctly', () => {
             const result = component.dropSelectAllOptionFrom([
                 'select-all',

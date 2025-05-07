@@ -144,4 +144,70 @@ public class DatabaseQueries {
             , maxValue, customerCode, productType
         );
     }
+
+    public static String UPDATE_MIN_PRODUCTS_CUSTOMER_CRITERIA(String customerCode, String productType, String minValue) {
+        return String.format(
+            """
+                UPDATE lk_recovered_plasma_shipment_criteria_item
+                SET value = %s
+                WHERE recovered_plasma_shipment_criteria_id IN (
+                    SELECT id
+                    FROM lk_recovered_plasma_shipment_criteria
+                    WHERE customer_code = '%s'
+                    AND product_type = '%s'
+                    AND active = true
+                )
+                AND "type" = 'MINIMUM_UNITS_BY_CARTON'
+                """
+            , minValue, customerCode, productType
+        );
+    }
+
+    public static String INSERT_PACKED_PRODUCT(String cartonId, String unitNumber, String productCode, String productType) {
+        return String.format(
+            """
+                INSERT INTO bld_recovered_plasma_shipment_carton_item (
+                    carton_id,
+                    unit_number,
+                    product_code,
+                    product_type,
+                    product_description,
+                    create_date,
+                    modification_date,
+                    packed_by_employee_id,
+                    volume,
+                    status,
+                    weight,
+                    expiration_date,
+                    abo_rh
+                ) VALUES (
+                    '%s',              -- carton_id
+                    '%s',              -- unit_number
+                    '%s',              -- product_code
+                    '%s',              -- product_type
+                    (select product_type_description from lk_recovered_plasma_product_type where product_type = '%s'), -- product_description
+                    CURRENT_TIMESTAMP, -- create_date
+                    CURRENT_TIMESTAMP,  -- modification_date,
+                    '5db1da0b-6392-45ff-86d0-17265ea33226',
+                    250,
+                    'PACKED',
+                    100,
+                    CURRENT_TIMESTAMP,
+                    'AP'
+                )
+                """
+            , cartonId, unitNumber, productCode, productType, productType
+        );
+    }
+
+    public static String UPDATE_SYSTEM_CONFIGURATION(String processType , String propertyKey, String propertyValue) {
+        return String.format(
+            """
+                UPDATE lk_system_process_property
+                SET property_value = '%s'
+                WHERE system_process_type = '%s' AND property_key = '%s'
+                """
+            , propertyValue, processType, propertyKey
+        );
+    }
 }

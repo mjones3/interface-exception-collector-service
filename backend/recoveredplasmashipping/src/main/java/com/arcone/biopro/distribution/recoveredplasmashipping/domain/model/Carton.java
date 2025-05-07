@@ -7,6 +7,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.LocationRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShipmentCriteriaRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShippingRepository;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.SystemProcessPropertyRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.InventoryService;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -51,6 +52,8 @@ public class Carton implements Validatable {
     private static final String STATUS_OPEN = "OPEN";
     private static final String CARTON_PARTNER_PREFIX_KEY = "RPS_CARTON_PARTNER_PREFIX";
     private static final String RPS_LOCATION_CARTON_CODE_KEY = "RPS_LOCATION_CARTON_CODE";
+    private static final String STATUS_VERIFIED = "VERIFIED";
+    private static final String STATUS_CLOSED = "CLOSED";
 
 
     public static Carton createNewCarton(CreateCartonCommand createCartonCommand , RecoveredPlasmaShippingRepository recoveredPlasmaShippingRepository, CartonRepository cartonRepository, LocationRepository locationRepository) {
@@ -93,7 +96,8 @@ public class Carton implements Validatable {
     }
 
     public static Carton fromRepository(Long id, String cartonNumber, Long shipmentId, Integer cartonSequence, String createEmployeeId, String closeEmployeeId
-        , ZonedDateTime createDate, ZonedDateTime modificationDate, ZonedDateTime closeDate, String status , BigDecimal totalVolume , BigDecimal totalWeight , List<CartonItem> products , Integer minNumberOfUnits , Integer maxNumberOfUnits) {
+        , ZonedDateTime createDate, ZonedDateTime modificationDate, ZonedDateTime closeDate, String status , BigDecimal totalVolume , BigDecimal totalWeight
+        , List<CartonItem> products , Integer minNumberOfUnits , Integer maxNumberOfUnits) {
         var carton = Carton.builder()
             .id(id)
             .cartonNumber(cartonNumber)
@@ -211,5 +215,62 @@ public class Carton implements Validatable {
         this.products.add(item);
 
         return item;
+    }
+
+    public boolean canVerify(){
+        return STATUS_OPEN.equals(this.status) && this.getTotalProducts() >= minNumberOfProducts;
+    }
+
+    public boolean canClose(){
+        var verifiedProducts = getVerifiedProducts();
+        if(verifiedProducts == null || verifiedProducts.isEmpty()){
+            return false;
+        }
+        return this.status.equals(STATUS_OPEN) && this.getTotalProducts() > 0 && verifiedProducts.size() == this.getTotalProducts() && verifiedProducts.size() >= this.minNumberOfProducts;
+    }
+
+    public List<CartonItem> getVerifiedProducts(){
+        if(this.products == null){
+            return new ArrayList<>();
+        }
+
+        return this.products.stream().filter(product -> product.getStatus().equals(STATUS_VERIFIED)).toList();
+    }
+
+    public CartonItem verifyItem(VerifyItemCommand verifyItemCommand , InventoryService inventoryService, CartonItemRepository cartonItemRepository , RecoveredPlasmaShipmentCriteriaRepository recoveredPlasmaShipmentCriteriaRepository , RecoveredPlasmaShippingRepository recoveredPlasmaShippingRepository){
+        if(!canVerify()){
+            log.warn("Carton is not ready for verification {}", this.cartonNumber);
+            throw new IllegalArgumentException("Carton cannot be verified");
+        }
+
+        return CartonItem.verifyCartonItem(verifyItemCommand, this, inventoryService, cartonItemRepository, recoveredPlasmaShippingRepository, recoveredPlasmaShipmentCriteriaRepository);
+    }
+
+    public Carton close(CloseCartonCommand closeCartonCommand){
+        if(!canClose()){
+            log.warn("Carton is not ready for closing {}", this.cartonNumber);
+            throw new IllegalArgumentException("Carton cannot be closed");
+        }
+
+        this.closeEmployeeId = closeCartonCommand.getEmployeeId();
+        this.closeDate = ZonedDateTime.now();
+        this.status = STATUS_CLOSED;
+
+        return this;
+    }
+
+    public boolean canPrint(){
+        return STATUS_CLOSED.equals(this.status);
+    }
+
+    public CartonPackingSlip generatePackingSlip(LocationRepository locationRepository, SystemProcessPropertyRepository systemProcessPropertyRepository
+        , RecoveredPlasmaShippingRepository recoveredPlasmaShippingRepository , RecoveredPlasmaShipmentCriteriaRepository recoveredPlasmaShipmentCriteriaRepository){
+
+        if(!canPrint()){
+            log.warn("Carton is not ready for printing {}", this.cartonNumber);
+            throw new IllegalArgumentException("Carton cannot be printed");
+        }
+
+        return CartonPackingSlip.generatePackingSlip(this,locationRepository , systemProcessPropertyRepository , recoveredPlasmaShippingRepository , recoveredPlasmaShipmentCriteriaRepository);
     }
 }

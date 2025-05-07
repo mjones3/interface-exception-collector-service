@@ -3,159 +3,128 @@ package com.arcone.biopro.distribution.recoveredplasmashipping.unit.domain.model
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.QueryOrderBy;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.QuerySort;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.RecoveredPlasmaShipmentQueryCommand;
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.util.List;
 
+import static com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.RecoveredPlasmaShipment.SHIPMENT_DATE_RANGE_YEARS_LIMIT;
+import static com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.RecoveredPlasmaShipmentQueryCommand.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class RecoveredPlasmaShipmentQueryCommandTest {
 
     @Test
-    @DisplayName("Should create command with valid parameters")
-    void shouldCreateCommandWithValidParameters() {
-        // Given
-        List<String> locationCode = List.of("LOC1");
-        String shipmentNumber = "SHIP001";
-        List<String> shipmentStatus = List.of("OPEN");
-        List<String> customers = List.of("CUST1");
-        List<String> productTypes = List.of("TYPE1");
-        QuerySort querySort = new QuerySort(List.of(new QueryOrderBy("status", "DESC")));
-        Integer pageNumber = 1;
-        Integer pageSize = 10;
-
-        // When
-        RecoveredPlasmaShipmentQueryCommand command = new RecoveredPlasmaShipmentQueryCommand(
-            locationCode, shipmentNumber, shipmentStatus, customers, productTypes,
-            null, null, querySort, pageNumber, pageSize, null
-        );
-
-        // Then
-        assertThat(command).isNotNull();
-        assertThat(command.getLocationCode()).isEqualTo(locationCode);
-        assertThat(command.getShipmentNumber()).isEqualTo(shipmentNumber);
-    }
-
-
-    @Test
-    @DisplayName("Should throw exception when shipment number and dates are provided together")
-    void shouldThrowExceptionWhenShipmentNumberAndDatesProvided() {
-        assertThatThrownBy(() -> new RecoveredPlasmaShipmentQueryCommand(
-            List.of("LOC1"), "SHIP001", List.of("OPEN"), List.of("CUST1"),
-            List.of("TYPE1"), LocalDate.now(), LocalDate.now(),
-            null, 1, 10, null
-        ))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("The shipmentDate must be null or empty");
+    void shouldCreateCommandWithAllParametersExceptLocationCodes() {
+        var command = new RecoveredPlasmaShipmentQueryCommand(null, "100", List.of("OPEN", "CLOSED", "IN_PROGRESS"), List.of("CUSTOMER 1", "CUSTOMER 2"), List.of("PRODUCT TYPE 1", "PRODUCT TYPE 2"), LocalDate.now().minusDays(5), LocalDate.now().plusDays(5), new QuerySort(List.of(new QueryOrderBy("PROP", "DESC"))), 10, 50, "500");
+        assertThat(command.getLocationCode()).isNull();
+        assertThat(command.getShipmentNumber()).isEqualTo("100");
+        assertThat(command.getShipmentStatus()).isNull(); // shipmentStatus is not set when using shipmentNumber
+        assertThat(command.getCustomers()).isEqualTo(List.of("CUSTOMER 1", "CUSTOMER 2"));
+        assertThat(command.getProductTypes()).isEqualTo(List.of("PRODUCT TYPE 1", "PRODUCT TYPE 2"));
+        assertThat(command.getShipmentDateFrom()).isNull(); // shipmentDateFrom is not set when using shipmentNumber
+        assertThat(command.getShipmentDateTo()).isNull(); // shipmentDateTo is not set when using shipmentNumber
+        assertThat(command.getQuerySort()).isEqualTo(new QuerySort(List.of(new QueryOrderBy("PROP", "DESC"))));
+        assertThat(command.getPageNumber()).isEqualTo(10);
+        assertThat(command.getPageSize()).isEqualTo(50);
+        assertThat(command.getTransportationReferenceNumber()).isEqualTo("500");
     }
 
     @Test
-    @DisplayName("Should throw exception when dates are invalid")
-    void shouldThrowExceptionWhenDatesAreInvalid() {
-        LocalDate dateFrom = LocalDate.now();
-        LocalDate dateTo = LocalDate.now().minusDays(1);
-
-        assertThatThrownBy(() -> new RecoveredPlasmaShipmentQueryCommand(
-            List.of("LOC1"), null, List.of("OPEN"), List.of("CUST1"),
-            List.of("TYPE1"), dateFrom, dateTo,
-            null, 1, 10, null
-        ))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("Initial date should not be greater than final date");
+    void shouldCreateCommandWithAllParametersExceptShipmentNumber() {
+        var command = new RecoveredPlasmaShipmentQueryCommand(List.of("LOCATION 1", "LOCATION 2"), null, List.of("OPEN", "CLOSED", "IN_PROGRESS"), List.of("CUSTOMER 1", "CUSTOMER 2"), List.of("PRODUCT TYPE 1", "PRODUCT TYPE 2"), LocalDate.now().minusDays(5), LocalDate.now().plusDays(5), new QuerySort(List.of(new QueryOrderBy("PROP", "DESC"))), 10, 50, "500");
+        assertThat(command.getLocationCode()).isEqualTo(List.of("LOCATION 1", "LOCATION 2"));
+        assertThat(command.getShipmentNumber()).isNull();
+        assertThat(command.getShipmentStatus()).isEqualTo(List.of("OPEN", "CLOSED", "IN_PROGRESS"));
+        assertThat(command.getCustomers()).isEqualTo(List.of("CUSTOMER 1", "CUSTOMER 2"));
+        assertThat(command.getProductTypes()).isEqualTo(List.of("PRODUCT TYPE 1", "PRODUCT TYPE 2"));
+        assertThat(command.getShipmentDateFrom()).isEqualTo(LocalDate.now().minusDays(5));
+        assertThat(command.getShipmentDateTo()).isEqualTo(LocalDate.now().plusDays(5));
+        assertThat(command.getQuerySort()).isEqualTo(new QuerySort(List.of(new QueryOrderBy("PROP", "DESC"))));
+        assertThat(command.getPageNumber()).isEqualTo(10);
+        assertThat(command.getPageSize()).isEqualTo(50);
+        assertThat(command.getTransportationReferenceNumber()).isEqualTo("500");
     }
 
     @Test
-    @DisplayName("Should throw exception when date range exceeds two years")
-    void shouldThrowExceptionWhenDateRangeExceedsTwoYears() {
-        LocalDate dateFrom = LocalDate.now().minusYears(3);
-        LocalDate dateTo = LocalDate.now();
-
-        assertThatThrownBy(() -> new RecoveredPlasmaShipmentQueryCommand(
-            List.of("LOC1"), null, List.of("OPEN"), List.of("CUST1"),
-            List.of("TYPE1"), dateFrom, dateTo,
-            null, 1, 10, null
-        ))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("Shipment date range exceeds 2 years");
+    void shouldCreateCommandWithOnlyLocation() {
+        var command = new RecoveredPlasmaShipmentQueryCommand(List.of("LOCATION"), null, null, null, null, null, null, null, null, null, null);
+        assertThat(command.getLocationCode()).isEqualTo(List.of("LOCATION"));
+        assertThat(command.getShipmentNumber()).isNull();
+        assertThat(command.getShipmentStatus()).isEqualTo(DEFAULT_STATUSES);
+        assertThat(command.getCustomers()).isNull();
+        assertThat(command.getProductTypes()).isNull();
+        assertThat(command.getShipmentDateFrom()).isEqualTo(LocalDate.now().minusYears(SHIPMENT_DATE_RANGE_YEARS_LIMIT));
+        assertThat(command.getShipmentDateTo()).isNull();
+        assertThat(command.getQuerySort()).isEqualTo(new QuerySort(DEFAULT_SORTING));
+        assertThat(command.getPageNumber()).isEqualTo(DEFAULT_PAGE_NUMBER_FIRST_PAGE);
+        assertThat(command.getPageSize()).isEqualTo(DEFAULT_PAGE_SIZE);
+        assertThat(command.getTransportationReferenceNumber()).isNull();
     }
 
     @Test
-    @DisplayName("Should use default values when optional parameters are null")
-    void shouldUseDefaultValuesWhenOptionalParametersAreNull() {
-        // Given
-        List<String> locationCode = List.of("LOC1");
-
-        // When
-        RecoveredPlasmaShipmentQueryCommand command = new RecoveredPlasmaShipmentQueryCommand(
-            locationCode, null, null, null, null,
-            null, null, null, null, null, null
-        );
-
-        // Then
-        assertThat(command.getShipmentStatus()).isEqualTo(List.of("OPEN"));
-        assertThat(command.getPageNumber()).isEqualTo(0);
-        assertThat(command.getPageSize()).isEqualTo(20);
-        assertThat(command.getQuerySort()).isNotNull();
+    void shouldCreateCommandWithOnlyShipmentNumber() {
+        var command = new RecoveredPlasmaShipmentQueryCommand(null, "1", null, null, null, null, null, null, null, null, null);
+        assertThat(command.getLocationCode()).isNull();
+        assertThat(command.getShipmentNumber()).isEqualTo("1");
+        assertThat(command.getShipmentStatus()).isNull();
+        assertThat(command.getCustomers()).isNull();
+        assertThat(command.getProductTypes()).isNull();
+        assertThat(command.getShipmentDateFrom()).isNull();
+        assertThat(command.getShipmentDateTo()).isNull();
+        assertThat(command.getQuerySort()).isEqualTo(new QuerySort(DEFAULT_SORTING));
+        assertThat(command.getPageNumber()).isEqualTo(DEFAULT_PAGE_NUMBER_FIRST_PAGE);
+        assertThat(command.getPageSize()).isEqualTo(DEFAULT_PAGE_SIZE);
+        assertThat(command.getTransportationReferenceNumber()).isNull();
     }
 
     @Test
-    @DisplayName("Should throw exception when page size is invalid")
-    void shouldThrowExceptionWhenPageSizeIsInvalid() {
-        assertThatThrownBy(() -> new RecoveredPlasmaShipmentQueryCommand(
-            List.of("LOC1"), null, List.of("OPEN"), null, null,
-            null, null, null, 0, 0, null
-        ))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("pageSize must be greater than 0");
+    void shouldThrowExceptionWhenWithoutShipmentNumberAndLocationCode() {
+        var exception = Assertions.assertThrows(IllegalArgumentException.class,
+            () -> new RecoveredPlasmaShipmentQueryCommand(null, null, List.of("OPEN", "CLOSED", "IN_PROGRESS"), List.of("CUSTOMER 1", "CUSTOMER 2"), List.of("PRODUCT TYPE 1", "PRODUCT TYPE 2"), LocalDate.now().minusDays(5), LocalDate.now().plusDays(5), new QuerySort(List.of(new QueryOrderBy("PROP", "DESC"))), 10, 50, "500"));
+
+        assertThat(exception.getMessage()).isEqualTo("The locationCode must not be null or empty");
     }
 
     @Test
-    @DisplayName("Should throw exception when page number is invalid")
-    void shouldThrowExceptionWhenPageNumberIsInvalid() {
-        assertThatThrownBy(() -> new RecoveredPlasmaShipmentQueryCommand(
-            List.of("LOC1"), null, List.of("OPEN"), null, null,
-            null, null, null, -1, 10, null
-        ))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("pageNumber must be greater than or equal to 0");
+    void shouldThrowExceptionWhenShipmentDateRangeIsWrong() {
+        var shipmentDateFrom = LocalDate.now().plusDays(5);
+        var shipmentDateTo = LocalDate.now(); // The shipmentDateTo is BEFORE shipmentDateFrom and it should not
+
+        var exception = Assertions.assertThrows(IllegalArgumentException.class,
+            () -> new RecoveredPlasmaShipmentQueryCommand(List.of("LOCATION"), null, List.of("OPEN", "CLOSED", "IN_PROGRESS"), List.of("CUSTOMER 1", "CUSTOMER 2"), List.of("PRODUCT TYPE 1", "PRODUCT TYPE 2"), shipmentDateFrom, shipmentDateTo, new QuerySort(List.of(new QueryOrderBy("PROP", "DESC"))), 10, 50, "500"));
+
+        assertThat(exception.getMessage()).isEqualTo("Initial date should not be greater than final date");
     }
 
     @Test
-    @DisplayName("Should throw exception when location is null or empty")
-    void shouldThrowExceptionWhenLocationIsNull() {
-        assertThatThrownBy(() -> new RecoveredPlasmaShipmentQueryCommand(
-            null, null, List.of("OPEN"), null, null,
-            null, null, null, -1, 10, null
-        ))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("The locationCode must not be null or empty");
+    void shouldThrowExceptionWhenShipmentDateRangeExceedsLimit() {
+        var shipmentDateFrom = LocalDate.now();
+        var shipmentDateTo = LocalDate.now()
+            .plusYears(SHIPMENT_DATE_RANGE_YEARS_LIMIT)
+            .plusDays(1); // Adding one day exceeding the limit
+
+        var exception = Assertions.assertThrows(IllegalArgumentException.class,
+            () -> new RecoveredPlasmaShipmentQueryCommand(List.of("LOCATION"), null, List.of("OPEN", "CLOSED", "IN_PROGRESS"), List.of("CUSTOMER 1", "CUSTOMER 2"), List.of("PRODUCT TYPE 1", "PRODUCT TYPE 2"), shipmentDateFrom, shipmentDateTo, new QuerySort(List.of(new QueryOrderBy("PROP", "DESC"))), 10, 50, "500"));
+
+        assertThat(exception.getMessage()).isEqualTo("Shipment date range exceeds " + SHIPMENT_DATE_RANGE_YEARS_LIMIT + " years");
     }
 
     @Test
-    @DisplayName("Should throw exception when no parameters are provided other than date from and date to")
-    void shouldThrowExceptionWhenDateFromIsNull() {
-        // Given
-        List<String> locationCode = List.of("LOC1");
-        String shipmentNumber = null;
-        List<String> shipmentStatus = List.of("OPEN","CLOSED");
-        List<String> customers = null;
-        List<String> productTypes = null;
-        LocalDate dateFrom = LocalDate.now().minusDays(5);
-        LocalDate dateTo = LocalDate.now();
-        QuerySort querySort = new QuerySort(List.of(new QueryOrderBy("productType", "DESC")));
-        Integer pageNumber = 1;
-        Integer pageSize = 10;
+    void shouldThrowExceptionWhenPageSizeIsLesserThan1() {
+        var exception = Assertions.assertThrows(IllegalArgumentException.class,
+            () -> new RecoveredPlasmaShipmentQueryCommand(List.of("LOCATION"), null, List.of("OPEN", "CLOSED", "IN_PROGRESS"), List.of("CUSTOMER 1", "CUSTOMER 2"), List.of("PRODUCT TYPE 1", "PRODUCT TYPE 2"), LocalDate.now().minusDays(5), LocalDate.now().plusDays(5), new QuerySort(List.of(new QueryOrderBy("PROP", "DESC"))), 10, -1, "500"));
 
-        // When
-
-        assertThatThrownBy(() -> new RecoveredPlasmaShipmentQueryCommand(
-            locationCode, shipmentNumber, shipmentStatus, customers, productTypes,
-            null, null, querySort, pageNumber, pageSize, null
-        ))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("The shipmentDate must not be null or empty");
+        assertThat(exception.getMessage()).isEqualTo("pageSize must be greater than 0");
     }
+
+    @Test
+    void shouldThrowExceptionWhenPageNumberIsLesserThanZero() {
+        var exception = Assertions.assertThrows(IllegalArgumentException.class,
+            () -> new RecoveredPlasmaShipmentQueryCommand(List.of("LOCATION"), null, List.of("OPEN", "CLOSED", "IN_PROGRESS"), List.of("CUSTOMER 1", "CUSTOMER 2"), List.of("PRODUCT TYPE 1", "PRODUCT TYPE 2"), LocalDate.now().minusDays(5), LocalDate.now().plusDays(5), new QuerySort(List.of(new QueryOrderBy("PROP", "DESC"))), -1, 50, "500"));
+
+        assertThat(exception.getMessage()).isEqualTo("pageNumber must be greater than or equal to 0");
+    }
+
 }

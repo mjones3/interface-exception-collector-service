@@ -10,5 +10,7 @@ public interface CartonItemEntityRepository extends ReactiveCrudRepository<Carto
 
     Flux<CartonItemEntity> findAllByCartonIdOrderByCreateDateAsc(Long cartonId);
     Mono<Integer> countByUnitNumberAndProductCode(String unitNumber, String productCode);
+    Mono<CartonItemEntity> findByCartonIdAndProductCodeAndUnitNumber(Long cartonId, String productCode, String unitNumber);
+    Mono<Void> deleteAllByCartonId(Long cartonId);
 
 }

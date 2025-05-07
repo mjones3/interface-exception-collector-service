@@ -55,14 +55,8 @@ public class CreateShipmentCommand implements Validatable {
             throw new IllegalArgumentException("Create employee ID is required");
         }
 
-
-        if(shipmentDate == null){
-            throw new IllegalArgumentException("Shipment date is required");
-        }
-
-        if(shipmentDate.isBefore(LocalDate.now())){
+        if(shipmentDate != null && shipmentDate.isBefore(LocalDate.now())){
             throw new IllegalArgumentException("Shipment date must be in the future");
         }
-
     }
 }

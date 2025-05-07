@@ -24,6 +24,11 @@ public record CartonOutput(
     BigDecimal totalVolume,
     List<CartonItemOutput> packedProducts,
     Integer maxNumberOfProducts,
-    Integer minNumberOfProducts
+    Integer minNumberOfProducts,
+    boolean canVerify,
+    boolean canClose,
+    boolean canPrint,
+    List<CartonItemOutput> verifiedProducts,
+    CartonItemOutput failedCartonItem
 ) implements Serializable {
 }

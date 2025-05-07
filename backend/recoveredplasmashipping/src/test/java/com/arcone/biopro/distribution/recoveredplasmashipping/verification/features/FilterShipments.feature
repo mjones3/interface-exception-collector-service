@@ -4,6 +4,7 @@ Feature: Filter Shipments
     Background:
         Given I have removed from the database all the configurations for the location "123456700_TEST".
         And I have removed from the database all shipments which code contains with "DIS33400".
+        And I have removed from the database all shipments which code contains with "DIS37100".
         And I have removed from the database all shipments from location "123456789" with transportation ref number "DIS334".
 
         Rule: I should be able to filter the shipment lists by specific criteria.
@@ -20,7 +21,6 @@ Feature: Filter Shipments
                 | Location Code                   | 123456789                     |
             When I am on the Shipment List Page.
             And I open the filter panel.
-            Then The Filter Apply button should be "disabled".
             When I select the following filter criteria:
                 | Customer                        | Bio Products                  |
                 | Product Type                    | RP NONINJECTABLE REFRIGERATED |
@@ -98,6 +98,65 @@ Feature: Filter Shipments
             And The list shipment response should be ordered by "status,shipmentDate".
 
 
+        Rule: I should be able to search shipments by In Progress shipping status.
+        @api @DIS-378
+        Scenario: Search for shipments by status
+            Given The location "123456700_TEST" is configured with prefix "BPM_TEST", shipping code "DIS334003", carton prefix "BPM" and prefix configuration "Y".
+            And I request to create a new shipment with the values:
+                | Field                           | Value                      |
+                | Customer Code                   | 408                        |
+                | Product Type                    | RP_FROZEN_WITHIN_120_HOURS |
+                | Carton Tare Weight              | 1000                       |
+                | Shipment Date                   | <tomorrow>                 |
+                | Transportation Reference Number | 55123                      |
+                | Location Code                   | 123456700_TEST             |
+            And I request to add 1 cartons to the shipment.
+            When I requested the list of shipments filtering by "shipmentStatusList" as "IN_PROGRESS".
+            Then The list shipment response should contains "1" items.
+
+
+
+
+        Rule: I should be able to search shipments without the Ship Date.
+        @api @DIS-371
+        Scenario: Search for shipments by <Attribute>
+            Given The location "123456700_TEST" is configured with prefix "BPM_TEST", shipping code "DIS371001", carton prefix "BPM" and prefix configuration "Y".
+            And I request to create a new shipment with the values:
+                | Field                           | Value                      |
+                | Customer Code                   | 408                        |
+                | Product Type                    | RP_FROZEN_WITHIN_120_HOURS |
+                | Carton Tare Weight              | 1000                       |
+                | Shipment Date                   | <null>                     |
+                | Transportation Reference Number | 371001                     |
+                | Location Code                   | 123456700_TEST             |
+            When I requested the list of shipments filtering by "shipmentDateRange" as "<null>,<null>".
+            Then The list shipment response should contains "1" items.
+
+        Rule: I should be able to filter the results for ship date from 2 years back, regardless the future date.
+        Rule: I should not be able to search ship date for more than 2 years range.
+        @api @DIS-371
+        Scenario: Search for shipments by <Attribute>
+            Given The location "123456700_TEST" is configured with prefix "BPM_TEST", shipping code "DIS371001", carton prefix "BPM" and prefix configuration "Y".
+            And I request to create a new shipment with the values:
+                | Field                           | Value                      |
+                | Customer Code                   | 408                        |
+                | Product Type                    | RP_FROZEN_WITHIN_120_HOURS |
+                | Carton Tare Weight              | 1000                       |
+                | Shipment Date                   | <tomorrow>                 |
+                | Transportation Reference Number | 55123                      |
+                | Location Code                   | 123456700_TEST             |
+            And I request to create a new shipment with the values:
+                | Field                           | Value                     |
+                | Customer Code                   | 409                       |
+                | Product Type                    | RP_FROZEN_WITHIN_72_HOURS |
+                | Carton Tare Weight              | 1000                      |
+                | Shipment Date                   | <today>                   |
+                | Transportation Reference Number | 55456                     |
+                | Location Code                   | 123456700_TEST            |
+            When I requested the list of shipments filtering by "shipmentDateRange" as "2020-01-01,2025-01-01".
+            Then I should receive a "BAD_REQUEST" error message response "Shipment date range exceeds 2 years".
+            When I requested the list of shipments filtering by "shipmentDateRange" as "<two-years-back>,<today>".
+            Then The list shipment response should contains "1" items.
 
       ###### Acceptance criteria covered by UI Unit tests ######
 
