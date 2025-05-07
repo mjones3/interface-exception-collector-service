@@ -304,6 +304,9 @@ public class UseCaseSteps {
                 case "Recovered Plasma Carton Removed":
                     iReceivedRecoveredPlasmaCartonRemoved("CN001", dataTable);
                     break;
+                case "Recovered Plasma Carton Closed":
+                    iReceivedARecoveredPlasmaShipmentClosedEvent(dataTable);
+                    break;
                 default:
                     break;
             }
@@ -342,6 +345,7 @@ public class UseCaseSteps {
             .build());
         RecoveredPlasmaShipmentClosedInput input =  RecoveredPlasmaShipmentClosedInput.builder()
             .cartonList(cartons)
+            .shipmentNumber("CN001")
             .build();
         recoveredPlasmaShipmentClosedUseCase.execute(input).block();
     }
