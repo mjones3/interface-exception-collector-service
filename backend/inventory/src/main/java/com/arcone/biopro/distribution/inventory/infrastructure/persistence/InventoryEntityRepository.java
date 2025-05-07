@@ -31,7 +31,7 @@ public interface InventoryEntityRepository extends ReactiveCrudRepository<Invent
         AND bld_inventory.expiration_date > :startDateTime
         AND bld_inventory.is_labeled = true
         AND bld_inventory.unsuitable_reason is null
-        AND bld_inventory.quarantines is null OR jsonb_array_length(bld_inventory.quarantines) = 0
+        AND (bld_inventory.quarantines is null OR jsonb_array_length(bld_inventory.quarantines) = 0)
         """)
     Mono<Long> countBy(
         @Param("location") String location,
@@ -55,7 +55,7 @@ public interface InventoryEntityRepository extends ReactiveCrudRepository<Invent
           AND bld_inventory.expiration_date <= :finalDateTime
           AND bld_inventory.is_labeled = true
           AND bld_inventory.unsuitable_reason is null
-          AND bld_inventory.quarantines is null OR jsonb_array_length(bld_inventory.quarantines) = 0
+          AND (bld_inventory.quarantines is null OR jsonb_array_length(bld_inventory.quarantines) = 0)
         ORDER BY expiration_date ASC
         """)
     Flux<InventoryEntity> findBy(

@@ -109,17 +109,17 @@ Feature: Get all available inventories
         And I receive a group of product family "WHOLE_BLOOD_LEUKOREDUCED" and abo rh criteria "AB" with "12" inventories and "0" product short date listed
         And I receive a group of product family "WHOLE_BLOOD" and abo rh criteria "ANY" with "14" inventories and "4" product short date listed
 
-    @LAB-259 @LAB-408
+    @LAB-259 @LAB-408 @LAB-498
     Scenario: Get all available inventories not considering the other statuses
         Given I have the following inventories:
             | Unit Number   | Product Code | Status     | Unsuitable Reason              | Quarantine Reasons |
-            | W036825003001 | E1624V00     | AVAILABLE  |                                |                    |
+            | W036825003001 | E1624V00     | AVAILABLE  |                                | EMPTY              |
             | W036825003002 | E1624V00     | AVAILABLE  |                                |                    |
-            | W036825003003 | E1624V00     | CONVERTED  |                                |                    |
+            | W036825003003 | E1624V00     | CONVERTED  |                                | EMPTY              |
             | W036825003004 | E1624V00     | DISCARDED  |                                |                    |
             | W036825003005 | E1624V00     | SHIPPED    |                                |                    |
-            | W036825003006 | E1624V00     | IN_TRANSIT |                                |                    |
-            | W036825003007 | E1624V00     | PACKED     |                                |                    |
+            | W036825003006 | E1624V00     | IN_TRANSIT |                                | EMPTY              |
+            | W036825003007 | E1624V00     | PACKED     |                                | EMPTY              |
             | W036825003008 | E1624V00     | AVAILABLE  | POSITIVE_REACTIVE_TEST_RESULTS |                    |
             | W036825003009 | E1624V00     | AVAILABLE  |                                | ABS_POSITIVE       |
 
