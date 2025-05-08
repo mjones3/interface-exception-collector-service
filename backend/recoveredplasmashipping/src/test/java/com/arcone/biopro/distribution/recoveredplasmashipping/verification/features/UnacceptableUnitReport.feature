@@ -46,11 +46,12 @@ Feature: Generate the Unacceptable Products Report
             And The system process the unacceptable units report.
             When I request the last created shipment data.
             Then The find shipment response should have the following information:
-                | Information          | Value  |
-                | Total Cartons        | 1      |
-                | Carton Number Prefix | BPMMH1 |
-                | Sequence Number      | 1      |
-                | Carton Status        | REPACK |
+                | Information          | Value        |
+                | Total Cartons        | 1            |
+                | Carton Number Prefix | BPMMH1       |
+                | Sequence Number      | 1            |
+                | Carton Status        | REPACK       |
+                | Shipment Status      | IN_PROGRESS  |
             When I request to print the Unacceptable Products Report.
             Then The Unacceptable Products Report status should be "COMPLETED_FAILED"
             And The Unacceptable Products Report should contain:
