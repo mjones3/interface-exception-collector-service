@@ -20,6 +20,7 @@ type Mutation {
     packCartonItem(packCartonItemRequest:PackCartonItemRequestDTO!): UseCaseResponseDTO!
     verifyCarton(verifyCartonItemRequest:VerifyCartonItemRequestDTO!): UseCaseResponseDTO!
     closeCarton(closeCartonRequest:CloseCartonRequestDTO!): UseCaseResponseDTO!
+    closeShipment(closeShipmentRequest:CloseShipmentRequestDTO!): UseCaseResponseDTO!
 
 }
 
@@ -88,6 +89,14 @@ input GenerateCartonPackingSlipRequestDTO {
     cartonId:Int!
     employeeId:String!
     locationCode:String!
+}
+
+input CloseShipmentRequestDTO {
+
+    shipmentId:Int!
+    employeeId:String!
+    locationCode:String!
+    shipDate:Date!
 }
 
 type OutputQuerySortDTO {

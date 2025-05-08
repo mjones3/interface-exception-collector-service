@@ -38,6 +38,7 @@ class RecoveredPlasmaShipmentEntityMapperTest {
                 .closeEmployeeId("close-id")
                 .createDate(ZonedDateTime.now())
                 .createEmployeeId("create-id")
+
             .build());
 
 
@@ -144,8 +145,10 @@ class RecoveredPlasmaShipmentEntityMapperTest {
             .customerAddressContactName("John Doe")
             .customerAddressPhoneNumber("123-456-7890")
             .customerAddressDepartmentName("Shipping")
-            .createDate(ZonedDateTime.now().now())
-            .modificationDate(ZonedDateTime.now().now())
+            .createDate(ZonedDateTime.now())
+            .modificationDate(ZonedDateTime.now())
+            .unsuitableUnitReportDocumentStatus("COMPLETED")
+            .lastUnsuitableReportRunDate(ZonedDateTime.now())
             .build();
 
         return entity;

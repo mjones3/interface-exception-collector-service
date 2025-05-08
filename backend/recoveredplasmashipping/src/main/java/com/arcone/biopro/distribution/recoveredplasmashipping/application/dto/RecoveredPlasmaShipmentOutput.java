@@ -41,7 +41,11 @@ public record RecoveredPlasmaShipmentOutput(
     int totalCartons,
     int totalProducts,
     boolean canAddCartons,
-    List<CartonOutput> cartonList
+    List<CartonOutput> cartonList,
+    boolean canClose,
+    ZonedDateTime lastUnsuitableReportRunDate,
+    boolean canModify
+
 
 ) implements Serializable {
 
