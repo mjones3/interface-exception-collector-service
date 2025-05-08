@@ -61,7 +61,7 @@ export class ProductIconsService {
             value: 'biopro:product-plasma',
         },
         {
-            productFamily: 'FRP_NONINJECTABLE_REFRIGERATED',
+            productFamily: 'RP_NONINJECTABLE_REFRIGERATED',
             value: 'biopro:product-plasma',
         },
     ];
