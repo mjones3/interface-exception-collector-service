@@ -59,7 +59,6 @@ export interface RecoveredPlasmaShipmentResponseDTO {
     shipmentNumber?: string;
     createEmployeeId?: string;
     status?: string;
-    closedEmployeeId?: string;
     closeDate?: string;
     closeEmployeeId?: string;
     transportationReferenceNumber?: string;
@@ -85,6 +84,9 @@ export interface RecoveredPlasmaShipmentResponseDTO {
     totalCartons?: number;
     totalProducts?: number;
     canAddCartons?: boolean;
+    canClose?: boolean;
+    lastUnsuitableReportRunDate?: string;
+    canModify?: boolean;
     cartonList?: CartonDTO[];
 }
 
