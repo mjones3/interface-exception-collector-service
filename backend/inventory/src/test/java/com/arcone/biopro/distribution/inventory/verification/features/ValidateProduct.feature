@@ -15,6 +15,7 @@ Feature: Validate Inventory
             | W036825014007 | E0869VD0     | LOCATION_1 | DISCARDED | true       | 5               |                                                        | OTHER                    |                   | Some comments             |                                  |
             | W036825014008 | E0869VD0     | LOCATION_1 | AVAILABLE | false      | 5               |                                                        |                          |                   |                           |                                  |
             | W036825014009 | E0869VD0     | LOCATION_1 | PACKED    | true       | 5               |                                                        |                          |                   |                           |                                  |
+            | W036825014010 | E0869VD0     | LOCATION_1 | SHIPPED   | true       | 5               |                                                        |                          |                   |                           |                                  |
         When I request "<Unit Number>" with "<Product Code>" in the "<Location>"
         Then I receive the following:
             | Unit Number   | Product Code   | Temperature Category   | Location   | Volumes   | RESPONSE ERROR   | ACTION   | REASON   | MESSAGE   | DETAILS   |
@@ -34,6 +35,5 @@ Feature: Validate Inventory
             | W036825014007 | E0869VD0     | FROZEN               | LOCATION_1 |                                  | INVENTORY_IS_DISCARDED          | PLACE_IN_BIOHAZARD |                 | This product has already been discarded for OTHER: Some comments in the system. Place in biohazard container.        |                                                                                     |
             | W036825014008 | E0869VD0     | FROZEN               | LOCATION_1 |                                  | INVENTORY_IS_UNLABELED          | BACK_TO_STORAGE    |                 | This product is not labeled and cannot be shipped.                                                                   |                                                                                     |
             | W036825014009 | E0869VD0     | FROZEN               | LOCATION_1 |                                  | INVENTORY_IS_PACKED             | BACK_TO_STORAGE    |                 | This product is part of a carton and cannot be added.                                                                |                                                                                     |
-
-
+            | W036825014010 | E0869VD0     | FROZEN               | LOCATION_1 |                                  | INVENTORY_IS_SHIPPED            | BACK_TO_STORAGE    |                 | This product was previously shipped.                                                                                 |                                                                                     |
 
