@@ -14,6 +14,7 @@ import reactor.kafka.sender.SenderResult;
 import java.io.IOException;
 import java.nio.file.Files;
 
+
 @Component
 @Slf4j
 public class KafkaHelper {
@@ -45,9 +46,13 @@ public class KafkaHelper {
      * @throws IOException If there's an error reading the JSON file
      * @throws InterruptedException If the waiting process is interrupted
      */
+    // The try-with-resources statement ensures that the InputStream is properly closed after use
     public JsonNode publishEvent(String path, String topic) throws IOException, InterruptedException {
         var resource = new ClassPathResource(path).getFile().toPath();
-        var payloadJson = objectMapper.readTree(Files.newInputStream(resource));
+        JsonNode payloadJson;
+        try (var inputStream = Files.newInputStream(resource)) {
+            payloadJson = objectMapper.readTree(inputStream);
+        }
         sendEvent(topic, topic + "test-key", payloadJson).block();
         logMonitor.await("Processed message.*");
         return payloadJson;
