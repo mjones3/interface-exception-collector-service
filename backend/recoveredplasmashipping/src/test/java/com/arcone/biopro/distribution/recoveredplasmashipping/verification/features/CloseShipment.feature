@@ -34,12 +34,12 @@ Feature: Close Shipment
         Given I have a shipment created with the Customer Code as "<Customer Code>" , Product Type as "<Product Type>", Carton Tare Weight as "<Carton Tare Weight>", Shipment Date as "<Shipment Date>", Transportation Reference Number as "<Transportation Reference Number>" and Location Code as "<Location Code>".
         And The Minimum Number of Units in Carton is configured as "<configured_min_products>" products for the customer code "<Customer Code>" and product type "<Product Type>".
         And I have a closed carton with the unit numbers as "<unit_number>" and product codes as "<product_code>".
-        When I request to close the shipment with ship date as "<ship_date>"
+        When I request to close the shipment with ship date as "<Shipment Date>"
         Then I should receive a "SUCCESS" message response "Close Shipment is in progress".
         And The shipment status should be "PROCESSING"
         Examples:
-            | Customer Code | Product Type              | Carton Tare Weight | Shipment Date | Transportation Reference Number | Location Code | configured_min_products | unit_number                 | product_code       | Shipment Date|
-            | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000              | <tomorrow>    | DIS-347                         | 123456789     | 2                      | W036898786808,W036898786809 | E2488V00, E2488V00 | <tomorrow>   |
+            | Customer Code | Product Type              | Carton Tare Weight | Shipment Date | Transportation Reference Number | Location Code | configured_min_products | unit_number                 | product_code       |
+            | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000              | <tomorrow>    | DIS-347                         | 123456789     | 2                       | W036898786808,W036898786809 | E2488V00, E2488V00 |
 
 
     Rule: I should required to provide a ship date when closing the shipment.
@@ -79,22 +79,23 @@ Feature: Close Shipment
         And The Minimum Number of Units in Carton is configured as "<configured_min_products>" products for the customer code "<Customer Code>" and product type "<Product Type>".
         And I have a closed carton with the unit numbers as "<unit_number>" and product codes as "<product_code>".
         When I request to close the shipment with ship date as "<ship_date>"
-        Then I should receive a "<error_type>" message response "<error_message>".
-        And The shipment status should be "IN_PROGRESS"
+        Then I should receive a API "<error_type>" error message response "<error_message>".
+        When I request the last created shipment data.
+        Then The shipment status should be "IN_PROGRESS"
         Examples:
-            | error_type | error_message                   | ship_date   | Customer Code | Product Type              | Carton Tare Weight | Shipment Date | Transportation Reference Number | Location Code | configured_min_products | unit_number                 | product_code       | Shipment Date|
-            | WARN       | Ship date cannot be in the past | 2024-04-01  | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>    | DIS-347                         | 123456789     | 2                      | W036898786808,W036898786809 | E2488V00, E2488V00 | <tomorrow>   |
-            | WARN       | Ship date is required           | <null>      | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>    | DIS-347                         | 123456789     | 2                      | W036898786808,W036898786809 | E2488V00, E2488V00 | <tomorrow>   |
-            | WARN       | Ship date is invalid            | 01-01-01    | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>    | DIS-347                         | 123456789     | 2                      | W036898786808,W036898786809 | E2488V00, E2488V00 | <tomorrow>   |
+            | error_type       | error_message                   | ship_date   | Customer Code | Product Type              | Carton Tare Weight | Shipment Date | Transportation Reference Number | Location Code | configured_min_products | unit_number                 | product_code       | Shipment Date|
+            | WARN             | Ship date cannot be in the past | 2024-04-01  | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>    | DIS-347                         | 123456789     | 2                      | W036898786808,W036898786809 | E2488V00, E2488V00 | <tomorrow>   |
+            | ValidationError  | is not a valid 'Date'           | <null>      | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>    | DIS-347                         | 123456789     | 2                      | W036898786808,W036898786809 | E2488V00, E2488V00 | <tomorrow>   |
+            | ValidationError  | is not a valid 'Date'           | 01-01-01    | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>    | DIS-347                         | 123456789     | 2                      | W036898786808,W036898786809 | E2488V00, E2488V00 | <tomorrow>   |
 
     Rule: I should not be able to close the shipment if the all the cartons in the shipment are not closed.
     @api @DIS-347
     Scenario: Attempting to close shipment with unclosed cartons
-        Given I have an empty carton created with the Customer Code as "408" , Product Type as "RP_FROZEN_WITHIN_120_HOURS", Carton Tare Weight as "1000", Shipment Date as "<tomorrow>", Transportation Reference Number as "DIS-341" and Location Code as "123456789".
+        Given I have an empty carton created with the Customer Code as "408" , Product Type as "RP_FROZEN_WITHIN_120_HOURS", Carton Tare Weight as "1000", Shipment Date as "<tomorrow>", Transportation Reference Number as "DIS-347" and Location Code as "123456789".
         And The Minimum Number of Units in Carton is configured as "1" products for the customer code "408" and product type "RP_FROZEN_WITHIN_120_HOURS".
         And I pack an "acceptable" product with the unit number "W036898786800", product code "E6022V00" and product type "RP_FROZEN_WITHIN_120_HOURS".
         When I request to close the shipment with ship date as "<tomorrow>"
-        Then I should receive a "WARN" message response "Shipment cannot be closed with open cartons".
+        Then I should receive a "WARN" message response "Shipment cannot be closed".
         And The shipment status should be "IN_PROGRESS"
 
     Scenario: Reset default configurations

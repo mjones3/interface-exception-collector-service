@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -129,4 +128,18 @@ public class CreateShipmentController {
 
         return lastShipmentId < currentShipmentId;
     }
+
+    public void closeShipment(String id, String employeeId, String locationCode , String shipDate ) {
+        String payload = GraphQLMutationMapper.closeShipment(id, employeeId, locationCode ,shipDate);
+        var response = apiHelper.graphQlRequest(payload, "closeShipment");
+        sharedContext.setLastShipmentCloseResponse((Map) response);
+        if (response.get("data") != null) {
+            sharedContext.setShipmentCreateResponse((Map) response.get("data"));
+        }
+        if(response.get("errors") != null){
+            sharedContext.setApiErrorResponse((Map) ((List) response.get("errors")).getFirst());
+        }
+    }
+
+
 }
