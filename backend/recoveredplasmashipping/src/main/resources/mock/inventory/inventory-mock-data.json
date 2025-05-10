@@ -15,6 +15,7 @@
       "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
+      "status": "AVAILABLE",
       "volumes": [
         {
           "type": "volume",
@@ -43,6 +44,7 @@
       "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
+      "status": "AVAILABLE",
       "volumes": [
         {
           "type": "volume",
@@ -71,6 +73,7 @@
       "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
+      "status": "AVAILABLE",
       "volumes": [
         {
           "type": "volume",
@@ -99,6 +102,7 @@
       "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
+      "status": "AVAILABLE",
       "volumes": [
         {
           "type": "volume",
@@ -114,7 +118,7 @@
     },
     {
       "id": "dd8af54c-a40a-438c-a870-b9619447e91f",
-      "locationCode": "123456789",
+      "locationCode": "123456789_DIS339",
       "unitNumber": "W036898786804",
       "temperatureCategory": "FROZEN",
       "productCode": "E5880V00",
@@ -127,6 +131,7 @@
       "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
+      "status": "AVAILABLE",
       "volumes": [
         {
           "type": "volume",
@@ -155,6 +160,7 @@
       "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
+      "status": "AVAILABLE",
       "volumes": [
         {
           "type": "volume",
@@ -183,6 +189,7 @@
       "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
+      "status": "AVAILABLE",
       "volumes": [
         {
           "type": "volume",
@@ -211,6 +218,7 @@
       "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
+      "status": "AVAILABLE",
       "volumes": [
         {
           "type": "volume",
@@ -239,6 +247,7 @@
       "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
+      "status": "AVAILABLE",
       "volumes": [
         {
           "type": "volume",
@@ -267,6 +276,7 @@
       "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
+      "status": "AVAILABLE",
       "volumes": [
         {
           "type": "volume",
@@ -295,6 +305,7 @@
       "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
+      "status": "AVAILABLE",
       "volumes": [
         {
           "type": "volume",
@@ -323,6 +334,7 @@
       "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
+      "status": "AVAILABLE",
       "volumes": [
         {
           "type": "volume",
@@ -351,6 +363,123 @@
       "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
+      "status": "AVAILABLE",
+      "volumes": [
+        {
+          "type": "volume",
+          "value": 229,
+          "unit": "MILLILITERS"
+        },
+        {
+          "type": "anticoagulantVolume",
+          "value": 2,
+          "unit": "MILLILITERS"
+        }
+      ]
+    },
+    {
+      "id": "dd8af54c-a40a-438c-a870-b9619447e91f",
+      "locationCode": "123456789_DIS339",
+      "unitNumber": "W036898786756",
+      "temperatureCategory": "FROZEN",
+      "productCode": "E6022V00",
+      "productDescription": "CP2D PLS MI 120H",
+      "expirationDate": "2024-09-03T10:15:30",
+      "aboRh": "AP",
+      "weight": 150,
+      "productFamily": "PLASMA_MFG_INJECTABLE",
+      "collectionDate": "2011-12-03T10:15:30+01:00",
+      "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
+      "createDate": "2011-12-03T10:15:30+01:00",
+      "modificationDate": "2011-12-03T10:15:30+01:00",
+      "status": "EXPIRED",
+      "volumes": [
+        {
+          "type": "volume",
+          "value": 229,
+          "unit": "MILLILITERS"
+        },
+        {
+          "type": "anticoagulantVolume",
+          "value": 2,
+          "unit": "MILLILITERS"
+        }
+      ]
+    },
+    {
+      "id": "dd8af54c-a40a-438c-a870-b9619447e91f",
+      "locationCode": "123456789_DIS339",
+      "unitNumber": "W036898786757",
+      "temperatureCategory": "FROZEN",
+      "productCode": "E6022V00",
+      "productDescription": "CP2D PLS MI 120H",
+      "expirationDate": "2024-09-03T10:15:30",
+      "aboRh": "AP",
+      "weight": 150,
+      "productFamily": "PLASMA_MFG_INJECTABLE",
+      "collectionDate": "2011-12-03T10:15:30+01:00",
+      "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
+      "createDate": "2011-12-03T10:15:30+01:00",
+      "modificationDate": "2011-12-03T10:15:30+01:00",
+      "status": "DISCARDED",
+      "volumes": [
+        {
+          "type": "volume",
+          "value": 229,
+          "unit": "MILLILITERS"
+        },
+        {
+          "type": "anticoagulantVolume",
+          "value": 2,
+          "unit": "MILLILITERS"
+        }
+      ]
+    },
+    {
+      "id": "dd8af54c-a40a-438c-a870-b9619447e91f",
+      "locationCode": "123456789",
+      "unitNumber": "W036898786759",
+      "temperatureCategory": "FROZEN",
+      "productCode": "E6022V00",
+      "productDescription": "CP2D PLS MI 120H",
+      "expirationDate": "2024-09-03T10:15:30",
+      "aboRh": "AP",
+      "weight": 150,
+      "productFamily": "PLASMA_MFG_INJECTABLE",
+      "collectionDate": "2011-12-03T10:15:30+01:00",
+      "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
+      "createDate": "2011-12-03T10:15:30+01:00",
+      "modificationDate": "2011-12-03T10:15:30+01:00",
+      "status": "DISCARDED_COMMENTS",
+      "volumes": [
+        {
+          "type": "volume",
+          "value": 229,
+          "unit": "MILLILITERS"
+        },
+        {
+          "type": "anticoagulantVolume",
+          "value": 2,
+          "unit": "MILLILITERS"
+        }
+      ]
+    },
+    {
+      "id": "dd8af54c-a40a-438c-a870-b9619447e91f",
+      "locationCode": "123456789_DIS339",
+      "unitNumber": "W036898786758",
+      "temperatureCategory": "FROZEN",
+      "productCode": "E6022V00",
+      "productDescription": "CP2D PLS MI 120H",
+      "expirationDate": "2024-09-03T10:15:30",
+      "aboRh": "AP",
+      "weight": 150,
+      "productFamily": "PLASMA_MFG_INJECTABLE",
+      "collectionDate": "2011-12-03T10:15:30+01:00",
+      "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
+      "createDate": "2011-12-03T10:15:30+01:00",
+      "modificationDate": "2011-12-03T10:15:30+01:00",
+      "status": "QUARANTINED",
       "volumes": [
         {
           "type": "volume",
@@ -364,9 +493,616 @@
         }
       ]
     }
+  ,
+    {
+      "id": "dd8af54c-a40a-438c-a870-b9619447e91f",
+      "locationCode": "123456789_DIS339",
+      "unitNumber": "W036898786700",
+      "temperatureCategory": "FROZEN",
+      "productCode": "E6022V00",
+      "productDescription": "CP2D PLS MI 120H",
+      "expirationDate": "2024-09-03T10:15:30",
+      "aboRh": "AP",
+      "weight": 150,
+      "productFamily": "PLASMA_MFG_INJECTABLE",
+      "collectionDate": "2011-12-03T10:15:30+01:00",
+      "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
+      "createDate": "2011-12-03T10:15:30+01:00",
+      "modificationDate": "2011-12-03T10:15:30+01:00",
+      "status": "SHIPPED",
+      "volumes": [
+        {
+          "type": "volume",
+          "value": 229,
+          "unit": "MILLILITERS"
+        },
+        {
+          "type": "anticoagulantVolume",
+          "value": 2,
+          "unit": "MILLILITERS"
+        }
+      ]
+    }
+  ,
+    {
+      "id": "dd8af54c-a40a-438c-a870-b9619447e91f",
+      "locationCode": "123456789",
+      "unitNumber": "W036898786812",
+      "temperatureCategory": "FROZEN",
+      "productCode": "E6022V00",
+      "productDescription": "CP2D PLS MI 120H",
+      "expirationDate": "2024-09-03T10:15:30",
+      "aboRh": "AP",
+      "weight": 150,
+      "productFamily": "PLASMA_MFG_INJECTABLE",
+      "collectionDate": "2011-12-03T10:15:30+01:00",
+      "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
+      "createDate": "2011-12-03T10:15:30+01:00",
+      "modificationDate": "2011-12-03T10:15:30+01:00",
+      "status": "SYSTEM_DOW",
+      "volumes": [
+        {
+          "type": "volume",
+          "value": 229,
+          "unit": "MILLILITERS"
+        },
+        {
+          "type": "anticoagulantVolume",
+          "value": 2,
+          "unit": "MILLILITERS"
+        }
+      ]
+    },
+    {
+      "id": "dd8af54c-a40a-438c-a870-b9619447e91f",
+      "locationCode": "123456789_DIS341",
+      "unitNumber": "W036898341757",
+      "temperatureCategory": "FROZEN",
+      "productCode": "E6022V00",
+      "productDescription": "CP2D PLS MI 120H",
+      "expirationDate": "2024-09-03T10:15:30",
+      "aboRh": "AP",
+      "weight": 150,
+      "productFamily": "PLASMA_MFG_INJECTABLE",
+      "collectionDate": "2011-12-03T10:15:30+01:00",
+      "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
+      "createDate": "2011-12-03T10:15:30+01:00",
+      "modificationDate": "2011-12-03T10:15:30+01:00",
+      "status": "DISCARDED",
+      "volumes": [
+        {
+          "type": "volume",
+          "value": 229,
+          "unit": "MILLILITERS"
+        },
+        {
+          "type": "anticoagulantVolume",
+          "value": 2,
+          "unit": "MILLILITERS"
+        }
+      ]
+    },
+    {
+      "id": "dd8af54c-a40a-438c-a870-b9619447e91f",
+      "locationCode": "123456789_DIS341",
+      "unitNumber": "W036898341758",
+      "temperatureCategory": "FROZEN",
+      "productCode": "E6022V00",
+      "productDescription": "CP2D PLS MI 120H",
+      "expirationDate": "2024-09-03T10:15:30",
+      "aboRh": "AP",
+      "weight": 150,
+      "productFamily": "PLASMA_MFG_INJECTABLE",
+      "collectionDate": "2011-12-03T10:15:30+01:00",
+      "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
+      "createDate": "2011-12-03T10:15:30+01:00",
+      "modificationDate": "2011-12-03T10:15:30+01:00",
+      "status": "QUARANTINED",
+      "volumes": [
+        {
+          "type": "volume",
+          "value": 229,
+          "unit": "MILLILITERS"
+        },
+        {
+          "type": "anticoagulantVolume",
+          "value": 2,
+          "unit": "MILLILITERS"
+        }
+      ]
+    },
+    {
+      "id": "dd8af54c-a40a-438c-a870-b9619447e91f",
+      "locationCode": "123456789_DIS341",
+      "unitNumber": "W036898341756",
+      "temperatureCategory": "FROZEN",
+      "productCode": "E6022V00",
+      "productDescription": "CP2D PLS MI 120H",
+      "expirationDate": "2024-09-03T10:15:30",
+      "aboRh": "AP",
+      "weight": 150,
+      "productFamily": "PLASMA_MFG_INJECTABLE",
+      "collectionDate": "2011-12-03T10:15:30+01:00",
+      "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
+      "createDate": "2011-12-03T10:15:30+01:00",
+      "modificationDate": "2011-12-03T10:15:30+01:00",
+      "status": "EXPIRED",
+      "volumes": [
+        {
+          "type": "volume",
+          "value": 229,
+          "unit": "MILLILITERS"
+        },
+        {
+          "type": "anticoagulantVolume",
+          "value": 2,
+          "unit": "MILLILITERS"
+        }
+      ]
+    },
+    {
+      "id": "dd8af54c-a40a-438c-a870-b9619447e91f",
+      "locationCode": "123456789_DIS341",
+      "unitNumber": "W036898341804",
+      "temperatureCategory": "FROZEN",
+      "productCode": "E5880V00",
+      "productDescription": "CP2D PLS MI 72H",
+      "expirationDate": "2024-09-03T10:15:30",
+      "aboRh": "AP",
+      "weight": 150,
+      "productFamily": "PLASMA_MFG_INJECTABLE",
+      "collectionDate": "2011-12-03T10:15:30+01:00",
+      "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
+      "createDate": "2011-12-03T10:15:30+01:00",
+      "modificationDate": "2011-12-03T10:15:30+01:00",
+      "status": "AVAILABLE",
+      "volumes": [
+        {
+          "type": "volume",
+          "value": 259,
+          "unit": "MILLILITERS"
+        },
+        {
+          "type": "anticoagulantVolume",
+          "value": 3,
+          "unit": "MILLILITERS"
+        }
+      ]
+    },
+    {
+      "id": "dd8af54c-a40a-438c-a870-b9619447e91f",
+      "locationCode": "123456789",
+      "unitNumber": "W036898347808",
+      "temperatureCategory": "FROZEN",
+      "productCode": "E2488V00",
+      "productDescription": "LIQ CPD PLS MNI RT",
+      "expirationDate": "2024-09-03T10:15:30",
+      "aboRh": "AP",
+      "weight": 150,
+      "productFamily": "PLASMA_MFG_NONINJECTABLE",
+      "collectionDate": "2011-12-03T10:15:30+01:00",
+      "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
+      "createDate": "2011-12-03T10:15:30+01:00",
+      "modificationDate": "2011-12-03T10:15:30+01:00",
+      "status": "AVAILABLE",
+      "volumes": [
+        {
+          "type": "volume",
+          "value": 259,
+          "unit": "MILLILITERS"
+        },
+        {
+          "type": "anticoagulantVolume",
+          "value": 3,
+          "unit": "MILLILITERS"
+        }
+      ]
+    },
+    {
+      "id": "dd8af54c-a40a-438c-a870-b9619447e91f",
+      "locationCode": "123456789",
+      "unitNumber": "W036898347809",
+      "temperatureCategory": "FROZEN",
+      "productCode": "E2488V00",
+      "productDescription": "LIQ CPD PLS MNI RT",
+      "expirationDate": "2024-09-03T10:15:30",
+      "aboRh": "AP",
+      "weight": 150,
+      "productFamily": "PLASMA_MFG_NONINJECTABLE",
+      "collectionDate": "2011-12-03T10:15:30+01:00",
+      "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
+      "createDate": "2011-12-03T10:15:30+01:00",
+      "modificationDate": "2011-12-03T10:15:30+01:00",
+      "status": "AVAILABLE",
+      "volumes": [
+        {
+          "type": "volume",
+          "value": 259,
+          "unit": "MILLILITERS"
+        },
+        {
+          "type": "anticoagulantVolume",
+          "value": 3,
+          "unit": "MILLILITERS"
+        }
+      ]
+    },
+    {
+      "id": "dd8af54c-a40a-438c-a870-b9619447e91f",
+      "locationCode": "123456789",
+      "unitNumber": "W036898342808",
+      "temperatureCategory": "FROZEN",
+      "productCode": "E2488V00",
+      "productDescription": "LIQ CPD PLS MNI RT",
+      "expirationDate": "2024-09-03T10:15:30",
+      "aboRh": "AP",
+      "weight": 150,
+      "productFamily": "PLASMA_MFG_NONINJECTABLE",
+      "collectionDate": "2011-12-03T10:15:30+01:00",
+      "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
+      "createDate": "2011-12-03T10:15:30+01:00",
+      "modificationDate": "2011-12-03T10:15:30+01:00",
+      "status": "AVAILABLE",
+      "volumes": [
+        {
+          "type": "volume",
+          "value": 259,
+          "unit": "MILLILITERS"
+        },
+        {
+          "type": "anticoagulantVolume",
+          "value": 3,
+          "unit": "MILLILITERS"
+        }
+      ]
+    },
+    {
+      "id": "dd8af54c-a40a-438c-a870-b9619447e91f",
+      "locationCode": "123456789",
+      "unitNumber": "W036898342809",
+      "temperatureCategory": "FROZEN",
+      "productCode": "E2488V00",
+      "productDescription": "LIQ CPD PLS MNI RT",
+      "expirationDate": "2024-09-03T10:15:30",
+      "aboRh": "AP",
+      "weight": 150,
+      "productFamily": "PLASMA_MFG_NONINJECTABLE",
+      "collectionDate": "2011-12-03T10:15:30+01:00",
+      "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
+      "createDate": "2011-12-03T10:15:30+01:00",
+      "modificationDate": "2011-12-03T10:15:30+01:00",
+      "status": "AVAILABLE",
+      "volumes": [
+        {
+          "type": "volume",
+          "value": 259,
+          "unit": "MILLILITERS"
+        },
+        {
+          "type": "anticoagulantVolume",
+          "value": 3,
+          "unit": "MILLILITERS"
+        }
+      ]
+    },
+    {
+      "id": "dd8af54c-a40a-438c-a870-b9619447e91f",
+      "locationCode": "123456789",
+      "unitNumber": "W036898342801",
+      "temperatureCategory": "FROZEN",
+      "productCode": "E2534V00",
+      "productDescription": "CPD PLS MI 24H",
+      "expirationDate": "2024-09-03T10:15:30",
+      "aboRh": "AP",
+      "weight": 150,
+      "productFamily": "PLASMA_MFG_NONINJECTABLE",
+      "collectionDate": "2011-12-03T10:15:30+01:00",
+      "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
+      "createDate": "2011-12-03T10:15:30+01:00",
+      "modificationDate": "2011-12-03T10:15:30+01:00",
+      "status": "AVAILABLE",
+      "volumes": [
+        {
+          "type": "volume",
+          "value": 259,
+          "unit": "MILLILITERS"
+        },
+        {
+          "type": "anticoagulantVolume",
+          "value": 3,
+          "unit": "MILLILITERS"
+        }
+      ]
+    },
+    {
+      "id": "dd8af54c-a40a-438c-a870-b9619447e91f",
+      "locationCode": "123456789",
+      "unitNumber": "W036898347808",
+      "temperatureCategory": "FROZEN",
+      "productCode": "E2488V00",
+      "productDescription": "LIQ CPD PLS MNI RT",
+      "expirationDate": "2024-09-03T10:15:30",
+      "aboRh": "AP",
+      "weight": 150,
+      "productFamily": "PLASMA_MFG_NONINJECTABLE",
+      "collectionDate": "2011-12-03T10:15:30+01:00",
+      "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
+      "createDate": "2011-12-03T10:15:30+01:00",
+      "modificationDate": "2011-12-03T10:15:30+01:00",
+      "status": "AVAILABLE",
+      "volumes": [
+        {
+          "type": "volume",
+          "value": 259,
+          "unit": "MILLILITERS"
+        },
+        {
+          "type": "anticoagulantVolume",
+          "value": 3,
+          "unit": "MILLILITERS"
+        }
+      ]
+    },
+    {
+      "id": "dd8af54c-a40a-438c-a870-b9619447e91f",
+      "locationCode": "123456789",
+      "unitNumber": "W036898347809",
+      "temperatureCategory": "FROZEN",
+      "productCode": "E2488V00",
+      "productDescription": "LIQ CPD PLS MNI RT",
+      "expirationDate": "2024-09-03T10:15:30",
+      "aboRh": "AP",
+      "weight": 150,
+      "productFamily": "PLASMA_MFG_NONINJECTABLE",
+      "collectionDate": "2011-12-03T10:15:30+01:00",
+      "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
+      "createDate": "2011-12-03T10:15:30+01:00",
+      "modificationDate": "2011-12-03T10:15:30+01:00",
+      "status": "AVAILABLE",
+      "volumes": [
+        {
+          "type": "volume",
+          "value": 259,
+          "unit": "MILLILITERS"
+        },
+        {
+          "type": "anticoagulantVolume",
+          "value": 3,
+          "unit": "MILLILITERS"
+        }
+      ]
+    },
+    {
+      "id": "dd8af54c-a40a-438c-a870-b9619447e91f",
+      "locationCode": "123456789",
+      "unitNumber": "W036898339800",
+      "temperatureCategory": "FROZEN",
+      "productCode": "E6022V00",
+      "productDescription": "CP2D PLS MI 120H",
+      "expirationDate": "2024-09-03T10:15:30",
+      "aboRh": "AP",
+      "weight": 150,
+      "productFamily": "PLASMA_MFG_INJECTABLE",
+      "collectionDate": "2011-12-03T10:15:30+01:00",
+      "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
+      "createDate": "2011-12-03T10:15:30+01:00",
+      "modificationDate": "2011-12-03T10:15:30+01:00",
+      "status": "AVAILABLE",
+      "volumes": [
+        {
+          "type": "volume",
+          "value": 229,
+          "unit": "MILLILITERS"
+        },
+        {
+          "type": "anticoagulantVolume",
+          "value": 2,
+          "unit": "MILLILITERS"
+        }
+      ]
+    },
+    {
+      "id": "dd8af54c-a40a-438c-a870-b9619447e91f",
+      "locationCode": "123456789",
+      "unitNumber": "W036898341800",
+      "temperatureCategory": "FROZEN",
+      "productCode": "E6022V00",
+      "productDescription": "CP2D PLS MI 120H",
+      "expirationDate": "2024-09-03T10:15:30",
+      "aboRh": "AP",
+      "weight": 150,
+      "productFamily": "PLASMA_MFG_INJECTABLE",
+      "collectionDate": "2011-12-03T10:15:30+01:00",
+      "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
+      "createDate": "2011-12-03T10:15:30+01:00",
+      "modificationDate": "2011-12-03T10:15:30+01:00",
+      "status": "AVAILABLE",
+      "volumes": [
+        {
+          "type": "volume",
+          "value": 229,
+          "unit": "MILLILITERS"
+        },
+        {
+          "type": "anticoagulantVolume",
+          "value": 2,
+          "unit": "MILLILITERS"
+        }
+      ]
+    },
+    {
+      "id": "dd8af54c-a40a-438c-a870-b9619447e91f",
+      "locationCode": "123456789",
+      "unitNumber": "W036898734113",
+      "temperatureCategory": "FROZEN",
+      "productCode": "E6022V00",
+      "productDescription": "CP2D PLS MI 120H",
+      "expirationDate": "2024-09-03T10:15:30",
+      "aboRh": "AP",
+      "weight": 150,
+      "productFamily": "PLASMA_MFG_INJECTABLE",
+      "collectionDate": "2011-12-03T10:15:30+01:00",
+      "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
+      "createDate": "2011-12-03T10:15:30+01:00",
+      "modificationDate": "2011-12-03T10:15:30+01:00",
+      "status": "AVAILABLE",
+      "volumes": [
+        {
+          "type": "volume",
+          "value": 229,
+          "unit": "MILLILITERS"
+        },
+        {
+          "type": "anticoagulantVolume",
+          "value": 2,
+          "unit": "MILLILITERS"
+        }
+      ]
+    },
+    {
+      "id": "dd8af54c-a40a-438c-a870-b9619447e91f",
+      "locationCode": "123456789",
+      "unitNumber": "W036898339806",
+      "temperatureCategory": "FROZEN",
+      "productCode": "E2488V00",
+      "productDescription": "LIQ CPD PLS MNI RT",
+      "expirationDate": "2024-09-03T10:15:30",
+      "aboRh": "AP",
+      "weight": 150,
+      "productFamily": "PLASMA_MFG_NONINJECTABLE",
+      "collectionDate": "2011-12-03T10:15:30+01:00",
+      "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
+      "createDate": "2011-12-03T10:15:30+01:00",
+      "modificationDate": "2011-12-03T10:15:30+01:00",
+      "status": "AVAILABLE",
+      "volumes": [
+        {
+          "type": "volume",
+          "value": 259,
+          "unit": "MILLILITERS"
+        },
+        {
+          "type": "anticoagulantVolume",
+          "value": 3,
+          "unit": "MILLILITERS"
+        }
+      ]
+    },
+    {
+      "id": "dd8af54c-a40a-438c-a870-b9619447e91f",
+      "locationCode": "123456789",
+      "unitNumber": "W036898339807",
+      "temperatureCategory": "FROZEN",
+      "productCode": "E2488V00",
+      "productDescription": "LIQ CPD PLS MNI RT",
+      "expirationDate": "2024-09-03T10:15:30",
+      "aboRh": "AP",
+      "weight": 150,
+      "productFamily": "PLASMA_MFG_NONINJECTABLE",
+      "collectionDate": "2011-12-03T10:15:30+01:00",
+      "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
+      "createDate": "2011-12-03T10:15:30+01:00",
+      "modificationDate": "2011-12-03T10:15:30+01:00",
+      "status": "AVAILABLE",
+      "volumes": [
+        {
+          "type": "volume",
+          "value": 259,
+          "unit": "MILLILITERS"
+        },
+        {
+          "type": "anticoagulantVolume",
+          "value": 3,
+          "unit": "MILLILITERS"
+        }
+      ]
+    },
+    {
+      "id": "dd8af54c-a40a-438c-a870-b9619447e91f",
+      "locationCode": "123456789",
+      "unitNumber": "W036898339808",
+      "temperatureCategory": "FROZEN",
+      "productCode": "E2488V00",
+      "productDescription": "LIQ CPD PLS MNI RT",
+      "expirationDate": "2024-09-03T10:15:30",
+      "aboRh": "AP",
+      "weight": 150,
+      "productFamily": "PLASMA_MFG_NONINJECTABLE",
+      "collectionDate": "2011-12-03T10:15:30+01:00",
+      "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
+      "createDate": "2011-12-03T10:15:30+01:00",
+      "modificationDate": "2011-12-03T10:15:30+01:00",
+      "status": "AVAILABLE",
+      "volumes": [
+        {
+          "type": "volume",
+          "value": 259,
+          "unit": "MILLILITERS"
+        },
+        {
+          "type": "anticoagulantVolume",
+          "value": 3,
+          "unit": "MILLILITERS"
+        }
+      ]
+    },
+    {
+      "id": "dd8af54c-a40a-438c-a870-b9619447e91f",
+      "locationCode": "123456789",
+      "unitNumber": "W036898339809",
+      "temperatureCategory": "FROZEN",
+      "productCode": "E2488V00",
+      "productDescription": "LIQ CPD PLS MNI RT",
+      "expirationDate": "2024-09-03T10:15:30",
+      "aboRh": "AP",
+      "weight": 150,
+      "productFamily": "PLASMA_MFG_NONINJECTABLE",
+      "collectionDate": "2011-12-03T10:15:30+01:00",
+      "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
+      "createDate": "2011-12-03T10:15:30+01:00",
+      "modificationDate": "2011-12-03T10:15:30+01:00",
+      "status": "AVAILABLE",
+      "volumes": [
+        {
+          "type": "volume",
+          "value": 259,
+          "unit": "MILLILITERS"
+        },
+        {
+          "type": "anticoagulantVolume",
+          "value": 3,
+          "unit": "MILLILITERS"
+        }
+      ]
+    },
+    {
+      "id": "dd8af54c-a40a-438c-a870-b9619447e91f",
+      "locationCode": "123456789",
+      "unitNumber": "W036898339810",
+      "temperatureCategory": "FROZEN",
+      "productCode": "E2488V00",
+      "productDescription": "LIQ CPD PLS MNI RT",
+      "expirationDate": "2024-09-03T10:15:30",
+      "aboRh": "AP",
+      "weight": 150,
+      "productFamily": "PLASMA_MFG_NONINJECTABLE",
+      "collectionDate": "2011-12-03T10:15:30+01:00",
+      "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
+      "createDate": "2011-12-03T10:15:30+01:00",
+      "modificationDate": "2011-12-03T10:15:30+01:00",
+      "status": "AVAILABLE",
+      "volumes": [
+        {
+          "type": "volume",
+          "value": 259,
+          "unit": "MILLILITERS"
+        },
+        {
+          "type": "anticoagulantVolume",
+          "value": 3,
+          "unit": "MILLILITERS"
+        }
+      ]
+    }
   ]
 }
-
-
-
-

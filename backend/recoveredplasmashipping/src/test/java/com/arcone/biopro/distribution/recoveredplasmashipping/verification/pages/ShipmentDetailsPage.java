@@ -25,6 +25,9 @@ public class ShipmentDetailsPage extends CommonPageFactory {
     private final By totalVolume = By.id("informationDetails-Total-Volume-value");
     private final By addCartonBtn = By.xpath("//button[@id='btnAddCarton']");
     private final By backToSearchBtn = By.id("backActionBtn");
+    private final By closeShipmentBtn = By.id("closeShipmentBtnId");
+    private final By confirmationShipmentDate = By.id("shipmentDateId");
+    private final By confirmCloseShipmentBtn = By.id("btnContinue");
 
     private By addedCartonRow(String cartonNumberPrefix, String sequence, String status) {
         return By.xpath(
@@ -164,5 +167,26 @@ public class ShipmentDetailsPage extends CommonPageFactory {
 
     private int getExpectedWindowsNumber() {
         return "chrome".equals(browser) ? 3 : 2;
+    }
+
+    public void clickCloseShipment() {
+        sharedActions.click(closeShipmentBtn);
+    }
+
+    public boolean isCloseShipmentButtonEnabled() {
+        sharedActions.waitForVisible(closeShipmentBtn);
+        return sharedActions.isElementEnabled(driver, closeShipmentBtn);
+    }
+
+    public void setShipmentConfirmationDate(String date) {
+        sharedActions.sendKeys(confirmationShipmentDate, date);
+    }
+
+    public String getShipmentConfirmationDate() {
+        return sharedActions.getInputValue(confirmationShipmentDate);
+    }
+
+    public void clickConfirmCloseShipment() {
+        sharedActions.click(confirmCloseShipmentBtn);
     }
 }

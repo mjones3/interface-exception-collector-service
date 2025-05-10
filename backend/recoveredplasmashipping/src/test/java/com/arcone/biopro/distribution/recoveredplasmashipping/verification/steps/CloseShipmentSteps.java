@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.recoveredplasmashipping.verification.step
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.controllers.CartonTestingController;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.controllers.CreateShipmentController;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.controllers.FilterShipmentsController;
+import com.arcone.biopro.distribution.recoveredplasmashipping.verification.pages.ShipmentDetailsPage;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.SharedContext;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.TestUtils;
 import io.cucumber.java.en.And;
@@ -15,6 +16,8 @@ import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -39,6 +42,9 @@ public class CloseShipmentSteps {
     private String employeeId;
 
     private String shipmentId;
+
+    @Autowired
+    private ShipmentDetailsPage shipmentDetailsPage;
 
 
     @Given("I have a shipment created with the Customer Code as {string} , Product Type as {string}, Carton Tare Weight as {string}, Shipment Date as {string}, Transportation Reference Number as {string} and Location Code as {string}.")
@@ -109,4 +115,41 @@ public class CloseShipmentSteps {
 
         }
     }
+
+    @Then("The close shipment option should be {string}.")
+    public void theCloseShipmentOptionShouldBe(String enabledDisabled) {
+        if (enabledDisabled.equalsIgnoreCase("enabled")) {
+            Assert.assertTrue(shipmentDetailsPage.isCloseShipmentButtonEnabled());
+        } else if (enabledDisabled.equalsIgnoreCase("disabled")) {
+            Assert.assertFalse(shipmentDetailsPage.isCloseShipmentButtonEnabled());
+        } else {
+            Assert.fail("Wrong option for button enabledDisabled");
+        }
+    }
+
+    @When("I choose to close the shipment.")
+    public void iChooseToCloseTheShipment() {
+        shipmentDetailsPage.clickCloseShipment();
+    }
+
+
+    @And("I should have the shipment date as {string}.")
+    public void iShouldHaveTheShipmentDateAs(String shipmentDate){
+        if (shipmentDate.equals("<tomorrow>")) {
+            LocalDate tomorrow = LocalDate.now().plusDays(1);
+            shipmentDate = tomorrow.format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+        }
+        Assertions.assertEquals(shipmentDetailsPage.getShipmentConfirmationDate(),shipmentDate);
+    }
+
+    @When("I confirm to close the shipment.")
+    public void iConfirmToCloseTheShipment() {
+        shipmentDetailsPage.clickConfirmCloseShipment();
+    }
+
+    @And("The shipment status should be updated to {string}")
+    public void theShipmentStatusShouldBeUpdatedTo(String shipmentStatus) {
+        Assertions.assertEquals(shipmentDetailsPage.getShipmentStatus(),shipmentStatus);
+    }
+
 }

@@ -208,14 +208,42 @@ public class SharedActions {
     public void verifyMessage(String header, String message) throws InterruptedException {
         waitLoadingAnimation();
         log.info("Verifying message: {}", message);
-        String bannerMessageLocator = "#toast-container";
-        String msg = wait.until(e -> e.findElement(By.cssSelector(bannerMessageLocator))).getText();
+        String bannerMessageLocator;
+        String msg;
+
+        if(header.startsWith("Confirmation") || header.startsWith("Close")){
+            bannerMessageLocator = "//mat-dialog-container[starts-with(@id,'mat-mdc-dialog')]";
+            waitForVisible(By.xpath(bannerMessageLocator));
+            msg = wait.until(e -> e.findElement(By.xpath(bannerMessageLocator))).getText();
+        } else {
+            bannerMessageLocator = "#toast-container";
+            msg = wait.until(e -> e.findElement(By.cssSelector(bannerMessageLocator))).getText();
+        }
 
         // Split the message at line break to get header and message
         String[] msgParts = msg.split("\n");
         Assert.assertEquals(header.toUpperCase(), msgParts[0].toUpperCase());
         Assert.assertEquals(message.toUpperCase(), msgParts[1].toUpperCase());
     }
+
+    public void verifyStaticMessage(String header, String message) throws InterruptedException {
+        waitLoadingAnimation();
+        log.info("Verifying Static message: {}", message);
+        String bannerMessageLocator;
+        String msg;
+
+        bannerMessageLocator = "//div[starts-with(@class,'fuse-alert-container')]";
+        waitForVisible(By.xpath(bannerMessageLocator));
+        msg = wait.until(e -> e.findElement(By.xpath(bannerMessageLocator))).getText();
+
+
+        // Split the message at line break to get header and message
+        String[] msgParts = msg.split("\n");
+        Assert.assertEquals(header.toUpperCase(), msgParts[0].toUpperCase());
+        Assert.assertEquals(message.toUpperCase(), msgParts[1].toUpperCase());
+    }
+
+
 
     public void waitLoadingAnimation() throws InterruptedException {
         String loadingAnimationLocator = "rsa.loading";
@@ -265,6 +293,15 @@ public class SharedActions {
         return wait.until(e -> {
             log.debug("Getting text from element {}.", locator);
             return e.findElement(locator).getText();
+        });
+    }
+
+    public String getInputValue(By locator) {
+        waitForVisible(locator);
+        waitForEnabled(locator);
+        return wait.until(e -> {
+            log.debug("Getting value from element {}.", locator);
+            return e.findElement(locator).getAttribute("value");
         });
     }
 

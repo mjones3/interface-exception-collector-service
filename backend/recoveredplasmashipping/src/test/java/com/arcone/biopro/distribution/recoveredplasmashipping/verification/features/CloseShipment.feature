@@ -39,7 +39,7 @@ Feature: Close Shipment
         And The shipment status should be "PROCESSING"
         Examples:
             | Customer Code | Product Type              | Carton Tare Weight | Shipment Date | Transportation Reference Number | Location Code | configured_min_products | unit_number                 | product_code       |
-            | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000              | <tomorrow>    | DIS-347                         | 123456789     | 2                       | W036898786808,W036898786809 | E2488V00, E2488V00 |
+            | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000              | <tomorrow>    | DIS-347                         | 123456789     | 2                       | W036898347808,W036898347809 | E2488V00, E2488V00 |
 
 
     Rule: I should required to provide a ship date when closing the shipment.
@@ -57,17 +57,18 @@ Feature: Close Shipment
         When I navigate to the shipment details page for the last shipment created.
         Then The close shipment option should be "enabled".
         When I choose to close the shipment.
-        Then I should see a "Close Confirmation" message: "Are you sure you want to close the shipment?".
-        And I should have the shipment date as "<Shipment Date">".
+        Then I should see a "Close Shipment" message: "The shipment will be closed. Are you sure you want to continue?".
+        And I should have the shipment date as "<Shipment Date>".
         When I confirm to close the shipment.
         Then I should see a "SUCCESS" message: "Close Shipment is in progress".
-        And The shipment status should be updated to "Processing"
+        And The shipment status should be updated to "PROCESSING"
         And The close shipment option should be "disabled".
         And The Add Carton button should be "disabled".
-        And I should see a "SYSTEM" static message "Close in progress".
+        And I close the acknowledgment message.
+        And I should see a "SYSTEM" static message: "Close Shipment is in progress.".
         Examples:
             | Customer Code | Product Type              | Carton Tare Weight | Shipment Date | Transportation Reference Number | Location Code | configured_min_products | unit_number                 | product_code       | Shipment Date|
-            | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>    | DIS-347                         | 123456789     | 2                      | W036898786808,W036898786809 | E2488V00, E2488V00 | <tomorrow>   |
+            | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>    | DIS-347                         | 123456789     | 2                      | W036898347808,W036898347809 | E2488V00, E2488V00 | <tomorrow>   |
 
 
 
@@ -83,10 +84,10 @@ Feature: Close Shipment
         When I request the last created shipment data.
         Then The shipment status should be "IN_PROGRESS"
         Examples:
-            | error_type       | error_message                   | ship_date   | Customer Code | Product Type              | Carton Tare Weight | Shipment Date | Transportation Reference Number | Location Code | configured_min_products | unit_number                 | product_code       | Shipment Date|
-            | WARN             | Ship date cannot be in the past | 2024-04-01  | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>    | DIS-347                         | 123456789     | 2                      | W036898786808,W036898786809 | E2488V00, E2488V00 | <tomorrow>   |
-            | ValidationError  | is not a valid 'Date'           | <null>      | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>    | DIS-347                         | 123456789     | 2                      | W036898786808,W036898786809 | E2488V00, E2488V00 | <tomorrow>   |
-            | ValidationError  | is not a valid 'Date'           | 01-01-01    | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>    | DIS-347                         | 123456789     | 2                      | W036898786808,W036898786809 | E2488V00, E2488V00 | <tomorrow>   |
+            | error_type       | error_message                   | ship_date   | Customer Code | Product Type              | Carton Tare Weight | Shipment Date | Transportation Reference Number | Location Code | configured_min_products | unit_number                 | product_code      | Shipment Date|
+            | WARN             | Ship date cannot be in the past | 2024-04-01  | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>   | DIS-347                        | 123456789     | 2                      | W036898347808,W036898347809 | E2488V00, E2488V00 | <tomorrow>   |
+            | ValidationError  | is not a valid 'Date'           | <null>      | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>   | DIS-347                        | 123456789     | 2                      | W036898347808,W036898347809 | E2488V00, E2488V00 | <tomorrow>   |
+            | ValidationError  | is not a valid 'Date'           | 01-01-01    | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>   | DIS-347                        | 123456789     | 2                      | W036898347808,W036898347809 | E2488V00, E2488V00 | <tomorrow>   |
 
     Rule: I should not be able to close the shipment if the all the cartons in the shipment are not closed.
     @api @DIS-347
