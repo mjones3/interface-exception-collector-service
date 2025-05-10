@@ -5,6 +5,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.verification.suppo
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.DatabaseService;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.SharedContext;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.graphql.GraphQLMutationMapper;
+import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.graphql.GraphQLQueryMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -139,6 +140,12 @@ public class CreateShipmentController {
         if(response.get("errors") != null){
             sharedContext.setApiErrorResponse((Map) ((List) response.get("errors")).getFirst());
         }
+    }
+
+    public void printUnacceptableUnitsReport(String shipmentId, String locationCode) {
+        String payload = GraphQLQueryMapper.printUnacceptalbleUnitsReport(Integer.parseInt(shipmentId), sharedContext.getEmployeeId(),locationCode);
+        var response = apiHelper.graphQlRequest(payload, "printUnacceptableUnitsReport");
+        sharedContext.setLastUnacceptableUnitsReportResponse((Map) response.get("data"));
     }
 
 

@@ -20,6 +20,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 
 @Service
 @RequiredArgsConstructor
@@ -36,11 +37,14 @@ public class RecoveredPlasmaShipmentProcessingUseCase {
     @Transactional
     public Mono<RecoveredPlasmaShipment> onRecoveredPlasmaShipmentProcessing(RecoveredPlasmaShipmentProcessingEvent recoveredPlasmaShipmentProcessingEvent){
        log.debug("Processing RecoveredPlasmaShipmentProcessing Event {}",recoveredPlasmaShipmentProcessingEvent);
+
+        var reportItemArrayList = new ArrayList<UnacceptableUnitReportItem>();
+
        return recoveredPlasmaShippingRepository.findOneById(recoveredPlasmaShipmentProcessingEvent.getPayload().getId())
            .switchIfEmpty(Mono.error(() -> new DomainNotFoundForKeyException(String.format("%s", recoveredPlasmaShipmentProcessingEvent.getPayload().getId()))))
            .publishOn(Schedulers.boundedElastic())
            .doOnNext(recoveredPlasmaShipment -> unacceptableUnitReportRepository.deleteAllByShipmentId(recoveredPlasmaShipment.getId()).subscribe())
-           .flatMap(recoveredPlasmaShipment -> Mono.from(cartonItemRepository.findAllByShipmentId(recoveredPlasmaShipment.getId()))
+           .flatMap(recoveredPlasmaShipment -> Flux.from(cartonItemRepository.findAllByShipmentId(recoveredPlasmaShipment.getId()))
                .flatMap(cartonItem -> {
                    return inventoryService.validateInventoryBatch(Flux.just(new ValidateInventoryCommand(cartonItem.getUnitNumber(),cartonItem.getProductCode(), recoveredPlasmaShipment.getLocationCode())))
                        .flatMap(inventoryValidation -> {
@@ -50,21 +54,29 @@ public class RecoveredPlasmaShipmentProcessingUseCase {
                                    .flatMap(carton -> cartonRepository.update(carton.markAsRepack()))
                                    .flatMap(cartonRepacked -> unacceptableUnitReportRepository.save(new UnacceptableUnitReportItem(recoveredPlasmaShipment.getId()
                                        , cartonRepacked.getCartonNumber() , cartonRepacked.getCartonSequence()
-                                       , cartonItem.getUnitNumber() , cartonItem.getProductCode(), notification.getErrorMessage(), ZonedDateTime.now())));
+                                       , cartonItem.getUnitNumber() , cartonItem.getProductCode(), notification.getErrorMessage(), ZonedDateTime.now())))
+                                   .flatMap(reportItem -> {
+                                       reportItemArrayList.add(reportItem);
+                                       return Mono.just(reportItem);
+                                   });
                            }else{
                                return Mono.empty();
                            }
                        })
-                       .collectList();
-               }).flatMap(unacceptableUnitReportItemList -> recoveredPlasmaShippingRepository.update(recoveredPlasmaShipment.completeProcessing(unacceptableUnitReportItemList))))
-           .onErrorResume(error -> {
+                       .then();
+               })
+               .collectList()
+               .flatMap(list -> {
+                   log.debug("Total Flagged products {}",reportItemArrayList.size());
+                   return recoveredPlasmaShippingRepository.update(recoveredPlasmaShipment.completeProcessing(reportItemArrayList));
+               })
+           ).onErrorResume(error -> {
                log.error("Not able to process RecoveredPlasmaShipmentProcessing Event {}", error.getMessage());
+               if(error instanceof DomainNotFoundForKeyException){
+                   return Mono.empty();
+               }
                return recoveredPlasmaShippingRepository.findOneById(recoveredPlasmaShipmentProcessingEvent.getPayload().getId())
                    .flatMap(recoveredPlasmaShipment -> recoveredPlasmaShippingRepository.update(recoveredPlasmaShipment.markAsProcessingError()));
            });
-
     }
-
-
-
 }

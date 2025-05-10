@@ -37,10 +37,10 @@ Feature: Generate the Unacceptable Products Report
         Rule: I should not be able to close a shipment with expired products.
         @api @DIS-356
         Scenario: Generate unacceptable summary report with flagged products
-            Given I have a shipment created with the Customer Code as "409" , Product Type as "RP_FROZEN_WITHIN_120_HOURS", Carton Tare Weight as "100", Shipment Date as "<tomorrow>", Transportation Reference Number as "DIS-356" and Location Code as "123456789_DIS356".
+            Given I have a shipment created with the Customer Code as "409" , Product Type as "RP_NONINJECTABLE_LIQUID_RT", Carton Tare Weight as "100", Shipment Date as "<tomorrow>", Transportation Reference Number as "DIS-356" and Location Code as "123456789_DIS356".
             And The Minimum Number of Units in Carton is configured as "4" products for the customer code "409" and product type "RP_FROZEN_WITHIN_120_HOURS".
-            And I have a closed carton with the unit numbers as "W036898786905,W036898786757,W036898786758,W036898786756" and product codes as "E6022V00,E6022V00,E6022V00,E6022V00" which become unacceptable.
-            When I request to close the shipment with ship date as "<ship_date>"
+            And I have a closed carton with the unit numbers as "W036898356905,W036898356757,W036898356758,W036898356756" and product codes as "E6022V00,E6022V00,E6022V00,E6022V00" and product types "RP_NONINJECTABLE_LIQUID_RT,RP_NONINJECTABLE_LIQUID_RT,RP_NONINJECTABLE_LIQUID_RT,RP_NONINJECTABLE_LIQUID_RT" which become unacceptable.
+            When I request to close the shipment with ship date as "<tomorrow>"
             Then I should receive a "SUCCESS" message response "Close Shipment is in progress".
             And The shipment status should be "PROCESSING"
             And The system process the unacceptable units report.
@@ -56,14 +56,14 @@ Feature: Generate the Unacceptable Products Report
             When I request to print the Unacceptable Products Report.
             Then The Unacceptable Products Report status should be "COMPLETED_FAILED"
             And The Unacceptable Products Report should contain:
-                | Response property | Information Type       | Information Value                                                                                                                                                                                                                          |
-                | reportTitle       | Report Title           | Unacceptable Product Report                                                                                                                                                                                                                |
-                | shipmentNumber    | Shipment Number Prefix | BPMMH                                                                                                                                                                                                                                      |
-                | unitNumbers       | Unit Number            | W036898786905,W036898786757,W036898786758,W036898786756                                                                                                                                                                                    |
-                | productCodes      | Product Code           | E6022V00,E6022V00,E6022V00,E6022V00                                                                                                                                                                                                        |
-                | cartonNumbers     | Carton Number Prefix   | BPMMH1,BPMMH1,BPMMH1,BPMMH1                                                                                                                                                                                                                                    |
-                | cartonSequences   | Carton Sequence        | 1,1,1,1                                                                                                                                                                                                                                    |
-                | reasons           | Reason for Failure     | This product is not in the inventory and cannot be shipped,This product is discarded and cannot be shipped,This product is quarantined and cannot be shipped,This product is expired and has been discarded. Place in biohazard container. |
+                | Information Type       | Information Value                                                                                                                                                                                                                          |
+                | Report Title           | Unacceptable Product Report                                                                                                                                                                                                                |
+                | Shipment Number Prefix | DIS_356DIS356                                                                                                                                                                                                                              |
+                | Unit Number            | W036898356905,W036898356757,W036898356758,W036898356756                                                                                                                                                                                    |
+                | Product Code           | E6022V00,E6022V00,E6022V00,E6022V00                                                                                                                                                                                                        |
+                | Carton Number Prefix   | BPMMH,BPMMH,BPMMH,BPMMH                                                                                                                                                                                                                |
+                | Carton Sequence        | 1,1,1,1                                                                                                                                                                                                                                    |
+                | Reason for Failure     | This product is not in the inventory and cannot be shipped,This product is discarded and cannot be shipped,This product is quarantined and cannot be shipped,This product is expired and has been discarded. Place in biohazard container. |
 
 
         Rule: I should not be able to close a shipment with products flagged as unacceptable.
@@ -71,7 +71,7 @@ Feature: Generate the Unacceptable Products Report
         Scenario Outline: Attempt to close shipment with unacceptable products
             Given I have a shipment created with the Customer Code as "<Customer Code>" , Product Type as "<Product Type>", Carton Tare Weight as "<Carton Tare Weight>", Shipment Date as "<Shipment Date>", Transportation Reference Number as "<Transportation Reference Number>" and Location Code as "<Location Code>".
             And The Minimum Number of Units in Carton is configured as "<configured_min_products>" products for the customer code "<Customer Code>" and product type "<Product Type>".
-            And I have a closed carton with the unit numbers as "<unit_number>" and product codes as "<product_code>" which become unacceptable.
+            And I have a closed carton with the unit numbers as "<unit_number>" and product codes as "<product_code>" and product types "<product_type>" which become unacceptable.
             When I request to close the shipment with ship date as "<ship_date>"
             Then I should receive a "SUCCESS" message response "Close Shipment is in progress".
             And The shipment status should be "PROCESSING"
@@ -79,8 +79,8 @@ Feature: Generate the Unacceptable Products Report
             When I request to close the shipment with ship date as "<tomorrow>"
             Then I should receive a "WARN" message response "Shipment cannot be closed with open cartons".
             Examples:
-                | Customer Code | Product Type               | Carton Tare Weight | Shipment Date | Transportation Reference Number | Location Code | configured_min_products | unit_number                 | product_code       | Shipment Date |
-                | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>    | DIS-347                         | 123456789     | 2                       | W036898786808,W036898786809 | E2488V00, E2488V00 | <tomorrow>    |
+                | Customer Code | Product Type               | Carton Tare Weight | Shipment Date | Transportation Reference Number | Location Code    | configured_min_products | unit_number                 | product_code       | product_type                                         | Shipment Date |
+                | 409           | RP_FROZEN_WITHIN_120_HOURS | 1000               | <tomorrow>    | DIS-356                         | 123456789_DIS356 | 2                       | W036898356905,W036898356757 | E6022V00,E6022V00 | RP_FROZEN_WITHIN_120_HOURS,RP_FROZEN_WITHIN_120_HOURS | <tomorrow>    |
 
 
         Rule: The shipment status must be updated to Closed if there are no unacceptable products after running the unsuitable report.
@@ -175,3 +175,4 @@ Feature: Generate the Unacceptable Products Report
                 | 4                                     | MINIMUM_UNITS_BY_CARTON | 15    | Minimum number of products does not match | WARN         |
                 | 1                                     | MINIMUM_UNITS_BY_CARTON | 20    | Minimum number of products does not match | WARN         |
                 | 6                                     | MINIMUM_UNITS_BY_CARTON | 15    | Minimum number of products does not match | WARN         |
+

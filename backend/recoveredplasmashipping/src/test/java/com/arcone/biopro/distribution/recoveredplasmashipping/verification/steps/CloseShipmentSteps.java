@@ -86,6 +86,7 @@ public class CloseShipmentSteps {
 
     @When("I request to close the shipment with ship date as {string}")
     public void iRequestToCloseTheShipmentWithShipDateAs(String shipDate) {
+
         createShipmentController.closeShipment(sharedContext.getShipmentCreateResponse().get("id").toString()
            ,employeeId,sharedContext.getLocationCode() , testUtils.parseDataKeyword(shipDate));
 
@@ -152,4 +153,20 @@ public class CloseShipmentSteps {
         Assertions.assertEquals(shipmentDetailsPage.getShipmentStatus(),shipmentStatus);
     }
 
+    @And("I have a closed carton with the unit numbers as {string} and product codes as {string} and product types {string} which become unacceptable.")
+    public void iHaveAClosedCartonWithTheUnitNumbersAsAndProductCodesAsWhichBecomeUnacceptable(String unitNumbers, String productCodes , String productTypes) {
+
+        cartonTestingController.createCarton(this.shipmentId);
+        Assertions.assertNotNull(sharedContext.getCreateCartonResponseList());
+
+        String cartonId = sharedContext.getCreateCartonResponseList().getFirst().get("id").toString();
+        String[] unitNumbersArray = testUtils.getCommaSeparatedList(unitNumbers);
+        String[] productCodesArray = testUtils.getCommaSeparatedList(productCodes);
+        String[] productTypesArray = testUtils.getCommaSeparatedList(productTypes);
+
+        for (int i = 0; i < unitNumbersArray.length; i++) {
+            cartonTestingController.insertVerifiedProduct(cartonId, unitNumbersArray[i], productCodesArray[i], productTypesArray[i]);
+        }
+        cartonTestingController.updateCartonStatus(cartonId,"CLOSED");
+    }
 }

@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.verification.steps;
 
+import com.arcone.biopro.distribution.recoveredplasmashipping.verification.controllers.CreateShipmentController;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.controllers.FilterShipmentsController;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.pages.CreateShipmentPage;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.pages.ShipmentDetailsPage;
@@ -11,13 +12,16 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class ShipmentDetailsSteps {
@@ -32,6 +36,8 @@ public class ShipmentDetailsSteps {
     private FilterShipmentsController filterShipmentsController;
     @Autowired
     TestUtils utils;
+    @Autowired
+    private CreateShipmentController createShipmentController;
 
     @When("I navigate to the shipment details page for the last shipment created.")
     public void iNavigateToTheShipmentDetailsPageForTheLastShipmentCreated() throws InterruptedException {
@@ -170,5 +176,49 @@ public class ShipmentDetailsSteps {
     @And("I should see the total number of products as {string}.")
     public void iShouldSeeTheTotalNumberOfProductsAs(String totalProducts) {
         Assert.assertEquals(totalProducts, shipmentDetailsPage.getTotalProducts());
+    }
+
+    @When("I request to print the Unacceptable Products Report.")
+    public void iRequestToPrintTheUnacceptableProductsReport() {
+        createShipmentController.printUnacceptableUnitsReport(sharedContext.getShipmentCreateResponse().get("id").toString(), sharedContext.getShipmentCreateResponse().get("locationCode").toString());
+        Assertions.assertNotNull(sharedContext.getLastUnacceptableUnitsReportResponse());
+    }
+
+    @Then("The Unacceptable Products Report status should be {string}")
+    public void theUnacceptableProductsReportStatusShouldBe(String status) {
+        Assertions.assertEquals(sharedContext.getFindShipmentApiResponse().get("unsuitableUnitReportDocumentStatus").toString(), status);
+    }
+
+    @And("The Unacceptable Products Report should contain:")
+    public void theUnacceptableProductsReportShouldContain(DataTable dataTable) {
+        Assertions.assertNotNull(dataTable);
+        Map<String, String> table = dataTable.asMap(String.class, String.class);
+        var reportResponse = sharedContext.getLastUnacceptableUnitsReportResponse();
+
+        var products = (List) reportResponse.get("failedProducts");
+
+        if(table.get("Shipment Number Prefix") != null){
+            Assert.assertTrue(reportResponse.get("shipmentNumber").toString().contains(table.get("Shipment Number Prefix")));
+        }
+
+        if(table.get("Unit Number") != null){
+            Assert.assertEquals(products.stream().map(s -> ((LinkedHashMap) s ).get("unitNumber")).collect(Collectors.joining(",")),table.get("Unit Number"));
+        }
+
+        if(table.get("Product Code") != null){
+            Assert.assertEquals(products.stream().map(s -> ((LinkedHashMap) s ).get("productCode")).collect(Collectors.joining(",")),table.get("Product Code"));
+        }
+
+       /* if(table.get("Carton Number Prefix") != null){
+            Assert.assertEquals(products.stream().map(s -> ((LinkedHashMap) s ).get("cartonNumber")).collect(Collectors.joining(",")),table.get("Carton Number Prefix"));
+        }*/
+
+        if(table.get("Carton Sequence") != null){
+            Assert.assertTrue(products.stream().map(s -> ((LinkedHashMap) s ).get("cartonSequenceNumber").toString()).collect(Collectors.joining(",")).toString().contains(table.get("Carton Sequence")));
+        }
+
+        if(table.get("Reason for Failure") != null){
+            Assert.assertEquals(products.stream().map(s -> ((LinkedHashMap) s ).get("failureReason")).collect(Collectors.joining(",")),table.get("Reason for Failure"));
+        }
     }
 }
