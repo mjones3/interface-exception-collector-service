@@ -42,7 +42,7 @@ Feature: Generate the Unacceptable Products Report
             And I have a closed carton with the unit numbers as "W036898786905,W036898786757,W036898786758,W036898786756" and product codes as "E6022V00,E6022V00,E6022V00,E6022V00" which become unacceptable.
             When I request to close the shipment with ship date as "<ship_date>"
             Then I should receive a "SUCCESS" message response "Close Shipment is in progress".
-            And The shipment status should be "IN_PROGRESS"
+            And The shipment status should be "PROCESSING"
             And The system process the unacceptable units report.
             When I request the last created shipment data.
             Then The find shipment response should have the following information:
@@ -74,7 +74,7 @@ Feature: Generate the Unacceptable Products Report
             And I have a closed carton with the unit numbers as "<unit_number>" and product codes as "<product_code>" which become unacceptable.
             When I request to close the shipment with ship date as "<ship_date>"
             Then I should receive a "SUCCESS" message response "Close Shipment is in progress".
-            And The shipment status should be "IN_PROGRESS"
+            And The shipment status should be "PROCESSING"
             And The system process the unacceptable units report.
             When I request to close the shipment with ship date as "<tomorrow>"
             Then I should receive a "WARN" message response "Shipment cannot be closed with open cartons".
@@ -92,7 +92,7 @@ Feature: Generate the Unacceptable Products Report
             And I have a closed carton with the unit numbers as "W036898786800" and product codes as "E6022V00".
             When I request to close the shipment with ship date as "<tomorrow>"
             Then I should receive a "SUCCESS" message response "Close Shipment is in progress".
-            And The shipment status should be "IN_PROGRESS"
+            And The shipment status should be "PROCESSING"
             And The system process the unacceptable units report.
             When I request the last created shipment data.
             Then The find shipment response should have the following information:
@@ -103,7 +103,7 @@ Feature: Generate the Unacceptable Products Report
                 | Carton Status        | CLOSED |
                 | Shipment Status      | CLOSED |
             When I request to print the Unacceptable Products Report.
-            Then I should not see products in the report Unacceptable Products Report.
+            Then I should see a message "The shipment contains no defective products" indicating there are not unacceptable products in the shipment.
             And The Unacceptable Products Report status should be "COMPLETED"
 
 
@@ -127,7 +127,7 @@ Feature: Generate the Unacceptable Products Report
             And I have a closed carton with the unit numbers as "W036898786905,W036898786757,W036898786758,W036898786756" and product codes as "E6022V00,E6022V00,E6022V00,E6022V00" which become unacceptable.
             When I request to close the shipment with ship date as "<ship_date>"
             Then I should receive a "SUCCESS" message response "Close Shipment is in progress".
-            And The shipment status should be "IN_PROGRESS"
+            And The shipment status should be "PROCESSING"
             And The system process the unacceptable units report.
             When I navigate to the shipment details page for the last shipment created.
             Then I should see the following shipment information:

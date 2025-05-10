@@ -88,4 +88,14 @@ public class Location implements Validatable {
             throw new IllegalArgumentException("State cannot be null or blank");
         }
     }
+
+    public String getTimeZone(){
+        var timeZone = findProperty("TZ");
+        if(timeZone.isEmpty()){
+            log.error("Location Timezone is missing {}", this.name);
+            throw new IllegalArgumentException("Timezone is required");
+        }
+
+        return timeZone.get().getPropertyValue();
+    }
 }

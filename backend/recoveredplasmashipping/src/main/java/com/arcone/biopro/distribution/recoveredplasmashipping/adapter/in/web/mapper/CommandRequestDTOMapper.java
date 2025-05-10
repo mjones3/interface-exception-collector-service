@@ -6,6 +6,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.FindShipmentRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.GenerateCartonPackingSlipRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.PackCartonItemRequestDTO;
+import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.PrintUnacceptableUnitReportRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.QuerySortDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.RecoveredPlasmaShipmentQueryCommandRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.VerifyCartonItemRequestDTO;
@@ -15,6 +16,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.Cr
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.FindShipmentCommandInput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.GenerateCartonPackingSlipCommandInput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.PackCartonItemCommandInput;
+import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.PrintUnacceptableUnitReportCommandInput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.QueryOrderByOutput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.QuerySortOutput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.RecoveredPlasmaShipmentQueryCommandInput;
@@ -44,4 +46,6 @@ public interface CommandRequestDTOMapper {
     GenerateCartonPackingSlipCommandInput toInputCommand(GenerateCartonPackingSlipRequestDTO generateCartonPackingSlipRequestDTO);
 
     CloseShipmentCommandInput toInputCommand(CloseShipmentRequestDTO closeShipmentRequestDTO);
+
+    PrintUnacceptableUnitReportCommandInput toInputCommand(PrintUnacceptableUnitReportRequestDTO printUnacceptableUnitReportRequestDTO);
 }

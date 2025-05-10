@@ -54,6 +54,7 @@ public class Carton implements Validatable {
     private static final String RPS_LOCATION_CARTON_CODE_KEY = "RPS_LOCATION_CARTON_CODE";
     private static final String STATUS_VERIFIED = "VERIFIED";
     private static final String STATUS_CLOSED = "CLOSED";
+    private static final String STATUS_REPACK = "REPACK";
 
 
     public static Carton createNewCarton(CreateCartonCommand createCartonCommand , RecoveredPlasmaShippingRepository recoveredPlasmaShippingRepository, CartonRepository cartonRepository, LocationRepository locationRepository) {
@@ -272,5 +273,13 @@ public class Carton implements Validatable {
         }
 
         return CartonPackingSlip.generatePackingSlip(this,locationRepository , systemProcessPropertyRepository , recoveredPlasmaShippingRepository , recoveredPlasmaShipmentCriteriaRepository);
+    }
+
+    public Carton markAsRepack(){
+        this.status = STATUS_REPACK;
+        this.closeDate = null;
+        this.closeEmployeeId = null;
+
+        return this;
     }
 }
