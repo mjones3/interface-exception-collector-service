@@ -53,7 +53,7 @@ Feature: Verify Recovered Plasma Products
                 | BPMMH1               | 1        | CLOSED |
             Examples:
                 | Customer Code | Product Type               | Carton Tare Weight | Shipment Date | Transportation Reference Number | Location Code | configured_min_products | unit_number                       | product_code           | product_type                                           | Carton Sequence Number |
-                | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>    | DIS-339                         | 123456789     | 2                       | =W03689878680800,=W03689878680900 | =<E2488V00, =<E2488V00 | RP_NONINJECTABLE_LIQUID_RT, RP_NONINJECTABLE_LIQUID_RT | 1                      |
+                | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>    | DIS-339                         | 123456789     | 2                       | =W03689834180800,=W03689834180900 | =<E2488V00, =<E2488V00 | RP_NONINJECTABLE_LIQUID_RT, RP_NONINJECTABLE_LIQUID_RT | 1                      |
 
 
         Rule: I should not be able to enter a unit number that doesn’t exist in the system and be notified.
