@@ -271,27 +271,7 @@ export class RecoveredPlasmaShippingDetailsComponent
         }
     }
 
-    // implement styles for shipment status
-    getStatusInformationCard(status: keyof typeof RecoveredPlasmaShipmentStatus) {
-        switch (status) {
-            case 'OPEN':
-                return 'text-sm font-bold py-1.5 px-2 badge rounded-full bg-blue-100 text-blue-700';
-            case 'IN_PROGRESS':
-                // Our current Tailwind version does not support text-orange-* and bg-orange-* shades.
-                // After updating Tailwind version, replace to bg-orange-100 text-orange-700
-                return 'text-sm font-bold py-1.5 px-2 badge rounded-full bg-[#FFEDD5] text-[#C2410C]';
-            case 'CLOSED':
-                return 'text-sm font-bold py-1.5 px-2 badge rounded-full bg-green-100 text-green-700';
-            default:
-                return '';
-        }
-    }
-
-    verifyProducts(id: number){
-        this.router.navigate([`recovered-plasma/${id}/verify-carton`])
-    }
-
-    handleCompleteShipmentContinue(result){
+    handleCloseShipmentContinue(result){
         if (result) {
             const formatShipDate = formatDate(
                 result,
@@ -323,14 +303,13 @@ export class RecoveredPlasmaShippingDetailsComponent
                 });
         }
     }
-
     onClickCloseShipment() {
         this.matDialog.open(CloseShipmentDailogComponent, {
             width: '24rem',
             disableClose: true,
             data: {
                 shipmentDate: this.shipmentDetailsSignal().shipmentDate,
-                continueFn: this.handleCompleteShipmentContinue.bind(this)
+                continueFn: this.handleCloseShipmentContinue.bind(this)
             }
         })
     }

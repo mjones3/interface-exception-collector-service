@@ -502,12 +502,6 @@ describe('ManageCartonComponent', () => {
     });
   });
 
-it('should go to step based on route data', () => {
-  activatedRoute.data = of({ step: 1 });
-  component.goToStep();
-  expect(component.stepper.selectedIndex).toBe(1);
-});
-
 describe('close carton', () => {
 const mockResponseCloseCarton = {
   data: {

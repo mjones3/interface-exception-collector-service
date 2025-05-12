@@ -42,12 +42,12 @@
                     <mat-step [completed]="cartonDetailsSignal()?.canVerify">
                         <ng-template matStepLabel>Add Products</ng-template>
                             <biopro-add-recovered-plasma-products
-                                #addProductsControl
-                                [cartonDetails]="cartonDetailsSignal()"
-                                (unitNumberProductCode)="
-                                enterAndVerifyProduct($event)
-                            "
-                            ></biopro-add-recovered-plasma-products>
+                            #addProductsControl
+                            [cartonDetails]="cartonDetailsSignal()"
+                            (unitNumberProductCode)="
+                            enterAndVerifyProduct($event)
+                        "
+                        ></biopro-add-recovered-plasma-products>
                         <div class="flex justify-end">
                         <button
                             mat-button
@@ -63,15 +63,18 @@
                     </mat-step>
                     <mat-step>
                         <ng-template matStepLabel>Verify Products</ng-template>
-                            <biopro-verify-recovered-plasma-products
+                                @if(canShowStep(1)){
+                                    <biopro-verify-recovered-plasma-products
                                 #verifyProductsControl
                                 [cartonDetails]="cartonDetailsSignal()"
                                 (verifyUnitNumberProductCode)="verifyProducts($event)"
-                            >
-                            </biopro-verify-recovered-plasma-products>
+                                >
+                                </biopro-verify-recovered-plasma-products>
+                                }
                         <div class="flex justify-end">
                             <button
                                 mat-button
+                                matStepperPrevious
                                 class="mat-primary text-primary-900"
                                 (click)="onClickPrevious({index: 0})"
                              >
