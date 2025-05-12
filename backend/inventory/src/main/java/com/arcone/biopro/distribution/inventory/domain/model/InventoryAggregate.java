@@ -238,5 +238,10 @@ public class InventoryAggregate {
         inventory.transitionStatus(InventoryStatus.SHIPPED, null);
         return this;
     }
+
+    public InventoryAggregate modifyProduct() {
+        inventory.transitionStatus(InventoryStatus.MODIFIED, "Product modified");
+        return this;
+    }
 }
 

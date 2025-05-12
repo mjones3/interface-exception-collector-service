@@ -2,8 +2,8 @@ package com.arcone.biopro.distribution.inventory.domain.model;
 
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
-import com.arcone.biopro.distribution.inventory.domain.model.vo.*;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.Volume;
+import com.arcone.biopro.distribution.inventory.domain.model.vo.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -73,6 +73,10 @@ public class Inventory {
     String temperatureCategory;
 
     String cartonNumber;
+
+    String modificationLocation;
+
+    ZonedDateTime productModificationDate;
 
 
     @Builder.Default

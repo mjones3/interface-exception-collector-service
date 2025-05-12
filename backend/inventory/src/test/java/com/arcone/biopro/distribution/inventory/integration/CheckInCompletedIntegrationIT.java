@@ -4,9 +4,7 @@ import com.arcone.biopro.distribution.inventory.application.dto.CheckInCompleted
 import com.arcone.biopro.distribution.inventory.application.usecase.CheckInCompletedUseCase;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.verification.utils.KafkaHelper;
-import com.arcone.biopro.distribution.inventory.verification.utils.LogMonitor;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -46,12 +44,6 @@ public class CheckInCompletedIntegrationIT {
 
     @MockBean
     private CheckInCompletedUseCase checkInCompletedUseCase;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private LogMonitor logMonitor;
 
     @BeforeEach
     void setUp() {
