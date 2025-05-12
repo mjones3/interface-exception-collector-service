@@ -37,7 +37,7 @@
 
     <div class="flex w-full flex-row gap-4 p-4">
         <div class="flex w-9/12 flex-col gap-4">
-            @if(!shipmentDetailsSignal()?.canModify){
+            @if(shipmentDetailsSignal()?.status === 'PROCESSING'){
                 <biopro-global-message
                     [messageType]="messageTypeSignal()"
                     [message]="messageSignal()"

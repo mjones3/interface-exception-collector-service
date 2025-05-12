@@ -58,8 +58,8 @@ export class RecoveredPlasmaShippingDetailsComponent
     extends RecoveredPlasmaShipmentCommon
     implements OnInit
 {
-    messageSignal = signal<string>('Close Shipment is in progress.');
-    messageTypeSignal = signal<FuseAlertType>('info');
+    messageSignal = signal<string>(null);
+    messageTypeSignal = signal<FuseAlertType>(null);
     statusTemplateRef = viewChild<TemplateRef<Element>>('statusTemplateRef');
     expandTemplateRef = viewChild<TemplateRef<Element>>('expandTemplateRef');
     actionsTemplateRef = viewChild<TemplateRef<Element>>('actionsTemplateRef');
@@ -130,19 +130,28 @@ export class RecoveredPlasmaShippingDetailsComponent
     }
 
     ngOnInit(): void {
-        this.fetchShipmentData(this.routeIdComputed())
+        this.fetchShipmentData(this.routeIdComputed());
     }
 
-    fetchShipmentData(id: number){
+    fetchShipmentData(id: number, print: boolean = true){
         this.loadRecoveredPlasmaShippingDetails(id)
             .pipe(
                 tap(() => {
-                    if (this.shouldPrintCartonPackingSlip) {
+                    if (this.shouldPrintCartonPackingSlip && print) {
                         this.printCarton(null, this.shipmentCloseCartonId);
                     }
+                    this.setStaticMessage();
                 })
             )
-            .subscribe();
+        .subscribe();
+    }
+
+    setStaticMessage(){
+        if(this.shipmentDetailsSignal()?.status === 'PROCESSING'){
+            this.messageSignal.set('Close Shipment is in progress.');
+            this.messageTypeSignal.set('info');
+        
+        }
     }
 
     loadCartonPackedProduct(carton: CartonDTO): void {
@@ -299,11 +308,12 @@ export class RecoveredPlasmaShippingDetailsComponent
                 )
                 .subscribe((response) => {
                     if (response?.data?.closeShipment?.data) {
-                        this.fetchShipmentData(response.data.closeShipment.data.id)
+                        this.fetchShipmentData(response.data.closeShipment.data.id, false)
                     }
                 });
         }
     }
+
     onClickCloseShipment() {
         this.matDialog.open(CloseShipmentDailogComponent, {
             width: '24rem',

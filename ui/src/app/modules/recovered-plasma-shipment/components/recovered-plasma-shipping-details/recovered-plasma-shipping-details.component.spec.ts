@@ -13,7 +13,6 @@ import { UseCaseResponseDTO } from '../../../../shared/models/use-case-response.
 import { CartonDTO, RecoveredPlasmaShipmentResponseDTO } from '../../models/recovered-plasma.dto';
 import { RecoveredPlasmaService } from '../../services/recovered-plasma.service';
 import { RecoveredPlasmaShippingDetailsComponent } from './recovered-plasma-shipping-details.component';
-import { CloseShipmentDailogComponent } from '../close-shipment-dailog/close-shipment-dailog.component';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { BrowserPrintingService } from '../../../../core/services/browser-printing/browser-printing.service';
 import { ViewShippingCartonPackingSlipComponent } from '../view-shipping-carton-packing-slip/view-shipping-carton-packing-slip.component';
@@ -539,7 +538,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         
         component.handleCloseShipmentContinue(mockDate);
         
-        expect(fetchShipmentDataSpy).toHaveBeenCalledWith(1);
+        expect(fetchShipmentDataSpy).toHaveBeenCalledWith(1, false);
     });
 
 
@@ -573,5 +572,20 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
             component.ngOnInit();
             expect(fetchSpy).toHaveBeenCalledWith(component.routeIdComputed());
         });
+    });
+
+    it('should open CloseShipmentDailogComponent', () => {
+        const mockDate = '2026-12-26';
+        const mockShipmentData = {
+            id: 456,
+            shipmentNumber: 'S456',
+            status: 'OPEN',
+            customerName: 'Test Customer',
+            shipmentDate: mockDate
+          };
+        component.shipmentDetailsSignal.set(mockShipmentData);
+        component.onClickCloseShipment();
+        jest.spyOn(mockMatDialog, 'open');
+        expect(mockMatDialog.open).toHaveBeenCalled();
     });
 });
