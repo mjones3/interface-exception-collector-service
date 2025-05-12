@@ -141,6 +141,9 @@ public class ShipmentDetailsSteps {
             cartonResponseList.forEach(carton -> {
                 Assert.assertTrue(carton.get("cartonNumber").toString().contains(utils.getCommaSeparatedList(table.get("Carton Number Prefix"))[index.get()]));
                 Assert.assertEquals(carton.get("cartonSequence").toString(),utils.getCommaSeparatedList(table.get("Sequence Number"))[index.get()]);
+                if(table.get("Carton Status") != null){
+                    Assert.assertEquals(carton.get("status").toString(),utils.getCommaSeparatedList(table.get("Carton Status"))[index.get()]);
+                }
                 index.getAndSet(index.get() + 1);
             });
         }
@@ -202,7 +205,7 @@ public class ShipmentDetailsSteps {
         }
 
         if(table.get("Unit Number") != null){
-            Assert.assertEquals(products.stream().map(s -> ((LinkedHashMap) s ).get("unitNumber")).collect(Collectors.joining(",")),table.get("Unit Number"));
+            Assert.assertEquals(products.stream().map(s -> ((LinkedHashMap) s ).get("unitNumber")).sorted().collect(Collectors.joining(",")),table.get("Unit Number"));
         }
 
         if(table.get("Product Code") != null){
@@ -220,5 +223,17 @@ public class ShipmentDetailsSteps {
         if(table.get("Reason for Failure") != null){
             Assert.assertEquals(products.stream().map(s -> ((LinkedHashMap) s ).get("failureReason")).collect(Collectors.joining(",")),table.get("Reason for Failure"));
         }
+    }
+
+    @Then("I should a message {string} indicating there are not unacceptable products in the shipment.")
+    public void iShouldSeeAMessageIndicatingThereAreNotUnacceptableProductsInTheShipment(String message) {
+        var reportResponse = sharedContext.getLastUnacceptableUnitsReportResponse();
+
+        var products = (List) reportResponse.get("failedProducts");
+
+        Assert.assertTrue(products.isEmpty());
+
+        Assert.assertEquals(reportResponse.get("noProductsFlaggedMessage"),message);
+
     }
 }

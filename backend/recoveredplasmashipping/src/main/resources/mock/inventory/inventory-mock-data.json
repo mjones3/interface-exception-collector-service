@@ -1219,6 +1219,35 @@
           "unit": "MILLILITERS"
         }
       ]
+    },
+    {
+      "id": "dd8af54c-a40a-438c-a870-b9619447e91f",
+      "locationCode": "123456789_DIS356",
+      "unitNumber": "W036898356800",
+      "temperatureCategory": "FROZEN",
+      "productCode": "E6022V00",
+      "productDescription": "CP2D PLS MI 120H",
+      "expirationDate": "2024-09-03T10:15:30",
+      "aboRh": "AP",
+      "weight": 150,
+      "productFamily": "PLASMA_MFG_INJECTABLE",
+      "collectionDate": "2011-12-03T10:15:30+01:00",
+      "storageLocation": "FREEZER 1, RACK 1, SHELF 1",
+      "createDate": "2011-12-03T10:15:30+01:00",
+      "modificationDate": "2011-12-03T10:15:30+01:00",
+      "status": "AVAILABLE",
+      "volumes": [
+        {
+          "type": "volume",
+          "value": 229,
+          "unit": "MILLILITERS"
+        },
+        {
+          "type": "anticoagulantVolume",
+          "value": 2,
+          "unit": "MILLILITERS"
+        }
+      ]
     }
   ]
 }
