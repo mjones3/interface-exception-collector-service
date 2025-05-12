@@ -52,6 +52,7 @@ public class RecoveredPlasmaShipment implements Validatable {
     @Setter(AccessLevel.PRIVATE)
     private boolean canAddCartons;
     private List<Carton> cartonList;
+    private ZonedDateTime lastUnsuitableReportRunDate;
 
     private static final String SHIPMENT_LOCATION_CODE_KEY = "RPS_LOCATION_SHIPMENT_CODE";
     private static final String SHIPMENT_USE_PREFIX_KEY = "RPS_USE_PARTNER_PREFIX";
@@ -60,6 +61,7 @@ public class RecoveredPlasmaShipment implements Validatable {
     private static final String OPEN_STATUS = "OPEN";
     private static final String IN_PROGRESS_STATUS = "IN_PROGRESS";
     private static final String CLOSED_STATUS = "CLOSED";
+    private static final String PROCESSING_STATUS = "PROCESSING";
 
     public static RecoveredPlasmaShipment createNewShipment(CreateShipmentCommand command, CustomerService customerService
         , RecoveredPlasmaShippingRepository recoveredPlasmaShippingRepository
@@ -120,7 +122,7 @@ public class RecoveredPlasmaShipment implements Validatable {
         , String customerAddressPhoneNumber, String customerAddressDepartmentName,
 
                                                          ZonedDateTime createDate,
-                                                         ZonedDateTime modificationDate , List<Carton> cartonList) {
+                                                         ZonedDateTime modificationDate , ZonedDateTime lastUnsuitableReportRunDate , List<Carton> cartonList) {
         var shipment = RecoveredPlasmaShipment
             .builder()
             .id(id)
@@ -140,6 +142,7 @@ public class RecoveredPlasmaShipment implements Validatable {
             .createDate(createDate)
             .modificationDate(modificationDate)
             .cartonList(cartonList)
+            .lastUnsuitableReportRunDate(lastUnsuitableReportRunDate)
             .build();
 
         shipment.checkValid();
@@ -222,6 +225,10 @@ public class RecoveredPlasmaShipment implements Validatable {
         if (this.cartonTareWeight == null) {
             throw new IllegalArgumentException("Carton tare weight is required");
         }
+
+        if(this.unsuitableUnitReportDocumentStatus != null && lastUnsuitableReportRunDate == null){
+            throw new IllegalArgumentException("Last run date is required");
+        }
     }
 
 
@@ -263,5 +270,33 @@ public class RecoveredPlasmaShipment implements Validatable {
         }
 
        return this;
+    }
+
+    public RecoveredPlasmaShipment markAsProcessing(final CloseShipmentCommand closeShipmentCommand){
+
+        if(!canClose()){
+           throw new IllegalArgumentException("Shipment cannot be closed");
+       }
+
+        this.status = PROCESSING_STATUS;
+        this.shipmentDate = closeShipmentCommand.getShipDate();
+        this.closeEmployeeId = closeShipmentCommand.getEmployeeId();
+        this.unsuitableUnitReportDocumentStatus = null;
+        this.lastUnsuitableReportRunDate = null;
+
+        return this;
+    }
+
+    public boolean canClose(){
+        if(this.cartonList == null || this.cartonList.isEmpty()){
+            return false;
+        }
+        var allCartonsAreClosed = this.cartonList.stream().allMatch(carton -> CLOSED_STATUS.equals(carton.getStatus()));
+
+        return !PROCESSING_STATUS.equals(this.status) && !CLOSED_STATUS.equals(this.status) && allCartonsAreClosed ;
+    }
+
+    public boolean canModify(){
+        return !PROCESSING_STATUS.equals(this.status);
     }
 }

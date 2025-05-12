@@ -1,5 +1,5 @@
-import { AsyncPipe } from '@angular/common';
-import { Component, computed, OnInit, signal, TemplateRef, viewChild } from '@angular/core';
+import { AsyncPipe, formatDate } from '@angular/common';
+import { Component, computed, Inject, LOCALE_ID, OnInit, signal, TemplateRef, viewChild } from '@angular/core';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -31,6 +31,10 @@ import {
     ViewShippingCartonPackingSlipComponent
 } from '../view-shipping-carton-packing-slip/view-shipping-carton-packing-slip.component';
 import { CartonPackingSlipDTO } from '../../graphql/query-definitions/generate-carton-packing-slip.graphql';
+import { CloseShipmentDailogComponent } from '../close-shipment-dailog/close-shipment-dailog.component';
+import { GlobalMessageComponent } from 'app/shared/components/global-message/global-message.component';
+import { FuseAlertType } from '@fuse/components/alert/public-api';
+import { UnsuitableUnitReportComponent } from '../../shared/unsuitable-unit-report/unsuitable-unit-report.component';
 
 @Component({
     selector: 'biopro-recovered-plasma-shipping-details',
@@ -45,6 +49,8 @@ import { CartonPackingSlipDTO } from '../../graphql/query-definitions/generate-c
         TableComponent,
         MatDividerModule,
         MatIcon,
+        GlobalMessageComponent,
+        UnsuitableUnitReportComponent
     ],
     templateUrl: './recovered-plasma-shipping-details.component.html',
 })
@@ -52,6 +58,8 @@ export class RecoveredPlasmaShippingDetailsComponent
     extends RecoveredPlasmaShipmentCommon
     implements OnInit
 {
+    messageSignal = signal<string>('Close Shipment is in progress.');
+    messageTypeSignal = signal<FuseAlertType>('info');
     statusTemplateRef = viewChild<TemplateRef<Element>>('statusTemplateRef');
     expandTemplateRef = viewChild<TemplateRef<Element>>('expandTemplateRef');
     actionsTemplateRef = viewChild<TemplateRef<Element>>('actionsTemplateRef');
@@ -108,6 +116,7 @@ export class RecoveredPlasmaShippingDetailsComponent
         protected productIconService: ProductIconsService,
         protected browserPrintingService: BrowserPrintingService,
         protected matDialog: MatDialog,
+        @Inject(LOCALE_ID) public locale: string
     ) {
         super(
             route,
@@ -121,7 +130,11 @@ export class RecoveredPlasmaShippingDetailsComponent
     }
 
     ngOnInit(): void {
-        this.loadRecoveredPlasmaShippingDetails(this.routeIdComputed())
+        this.fetchShipmentData(this.routeIdComputed())
+    }
+
+    fetchShipmentData(id: number){
+        this.loadRecoveredPlasmaShippingDetails(id)
             .pipe(
                 tap(() => {
                     if (this.shouldPrintCartonPackingSlip) {
@@ -258,7 +271,46 @@ export class RecoveredPlasmaShippingDetailsComponent
         }
     }
 
-    verifyProducts(id: number){
-        this.router.navigate([`recovered-plasma/${id}/verify-carton`])
+    handleCloseShipmentContinue(result){
+        if (result) {
+            const formatShipDate = formatDate(
+                result,
+                'yyyy-MM-dd',
+                this.locale
+            );
+            this.recoveredPlasmaService
+                .closeShipment({
+                    locationCode: this.locationCodeComputed(),
+                    shipmentId: this.shipmentId,
+                    shipDate: formatShipDate,
+                    employeeId: this.employeeIdSignal(),
+                })
+                .pipe(
+                    catchError((error: ApolloError) => {
+                        handleApolloError(this.toastr, error);
+                    }),
+                    tap((response) =>
+                        consumeUseCaseNotifications(
+                            this.toastr,
+                            response.data?.closeShipment?.notifications
+                        )
+                    )
+                )
+                .subscribe((response) => {
+                    if (response?.data?.closeShipment?.data) {
+                        this.fetchShipmentData(response.data.closeShipment.data.id)
+                    }
+                });
+        }
+    }
+    onClickCloseShipment() {
+        this.matDialog.open(CloseShipmentDailogComponent, {
+            width: '24rem',
+            disableClose: true,
+            data: {
+                shipmentDate: this.shipmentDetailsSignal().shipmentDate,
+                continueFn: this.handleCloseShipmentContinue.bind(this)
+            }
+        })
     }
 }

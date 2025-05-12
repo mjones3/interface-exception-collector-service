@@ -32,15 +32,7 @@ export default [
                 data: {
                     subTitle: 'Manage Carton Products',
                 },
-            },
-            {
-                path: ':id/verify-carton',
-                component: ManageCartonComponent,
-                data: {
-                    subTitle: 'Manage Carton Products',
-                    step: 1,
-                },
-            },
+            }
         ],
     },
 ] as Routes;

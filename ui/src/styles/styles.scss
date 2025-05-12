@@ -400,6 +400,22 @@ biopro-process-header {
         }
     }
 
+    &.bg-green {
+        @apply bg-green-700;
+
+        &[disabled='true'] {
+            color: rgba(var(--fuse-accent-rgb), 0.6) !important;
+
+            &.mat-primary {
+                background-color: rgba(var(--fuse-accent-rgb), 0.15) !important;
+            }
+        }
+
+        &:hover {
+            @apply bg-green-600;
+        }
+    }
+
     &.mat-primary-action {
         background-color: rgba(var(--fuse-primary-rgb), 0.9);
 
@@ -457,4 +473,20 @@ biopro-process-header {
         }
     }
 }
+
+// spinner
+.custom-spinner{
+    width: 60px;
+    height: 60px;
+    border: 6px solid map.get($primary, DEFAULT);
+    border-top: 6px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin{
+    0% { transform:  rotate(0deg);}
+    100% { transform:  rotate(360deg);}
+}
+
 

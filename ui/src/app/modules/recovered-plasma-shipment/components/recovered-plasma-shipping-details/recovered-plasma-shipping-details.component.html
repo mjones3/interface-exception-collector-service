@@ -22,15 +22,35 @@
                 icon="heroicons_outline:arrow-uturn-left"
                 (clickEvent)="backToSearch()"
             />
+
+            <biopro-action-button
+                id="completeId"
+                btnId="closeShipmentBtnId"
+                [disabled]="!shipmentDetailsSignal()?.canClose"
+                label="Close Shipment"
+                color="primary"
+                icon="check_circle_outline"
+                (clickEvent)="onClickCloseShipment()"
+        />
         </div>
     </ng-template>
 
     <div class="flex w-full flex-row gap-4 p-4">
         <div class="flex w-9/12 flex-col gap-4">
+            @if(!shipmentDetailsSignal()?.canModify){
+                <biopro-global-message
+                    [messageType]="messageTypeSignal()"
+                    [message]="messageSignal()"
+                    [appearance]="'border'"
+                >
+                </biopro-global-message>
+            }
             @if (shipmentDetailsSignal()?.canAddCartons) {
                 <div class="col flex justify-end">
                     <biopro-basic-button
                         id="btnAddCarton"
+                        [disabled]="!shipmentDetailsSignal()?.canModify"
+                        color="primary"
                         label="Add Carton"
                         class="mat-primary-flat text-primary-900"
                         (buttonClicked)="addCarton()"
@@ -97,8 +117,15 @@
                 </div>
             </ng-template>
         </div>
+
+
         <div class="flex w-3/12 flex-col gap-4">
+            <biopro-unsuitable-unit-report
+                [loading]="shipmentDetailsSignal()?.status === 'PROCESSING'"
+            >  
+            </biopro-unsuitable-unit-report>
             <biopro-shipping-information-card
+                [isButtonDisabled]="!shipmentDetailsSignal()?.canModify"
                 [showBasicButton]="true"
                 [shippingInput]="shipmentDetailsSignal()"
             />

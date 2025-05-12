@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.mapper;
 
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.CloseCartonRequestDTO;
+import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.CloseShipmentRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.CreateCartonRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.FindShipmentRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.GenerateCartonPackingSlipRequestDTO;
@@ -9,6 +10,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.RecoveredPlasmaShipmentQueryCommandRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.VerifyCartonItemRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.CloseCartonCommandInput;
+import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.CloseShipmentCommandInput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.CreateCartonCommandInput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.FindShipmentCommandInput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.GenerateCartonPackingSlipCommandInput;
@@ -40,4 +42,6 @@ public interface CommandRequestDTOMapper {
     CloseCartonCommandInput toInputCommand(CloseCartonRequestDTO closeCartonRequestDTO);
 
     GenerateCartonPackingSlipCommandInput toInputCommand(GenerateCartonPackingSlipRequestDTO generateCartonPackingSlipRequestDTO);
+
+    CloseShipmentCommandInput toInputCommand(CloseShipmentRequestDTO closeShipmentRequestDTO);
 }

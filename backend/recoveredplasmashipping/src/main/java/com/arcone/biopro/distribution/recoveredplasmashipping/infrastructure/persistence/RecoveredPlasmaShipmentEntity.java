@@ -106,4 +106,9 @@ public class RecoveredPlasmaShipmentEntity {
 
     @Column("delete_date")
     private ZonedDateTime deleteDate;
+
+    @Column("last_unsuitable_report_run_date")
+    private ZonedDateTime lastUnsuitableReportRunDate;
+
+
 }

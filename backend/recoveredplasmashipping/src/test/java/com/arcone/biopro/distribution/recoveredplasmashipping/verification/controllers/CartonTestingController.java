@@ -88,6 +88,8 @@ public class CartonTestingController {
         String payload = GraphQLMutationMapper.verifyCarton(Integer.parseInt(cartonId), unitNumber, productCode, locationCode);
         var response = apiHelper.graphQlRequest(payload, "verifyCarton");
 
+        log.debug("VERIFY RESPONSE {}",response);
+
         var verifiedProducts = (List) ((Map) response.get("data")).get("verifiedProducts");
         sharedContext.setVerifiedProductsList(verifiedProducts);
 

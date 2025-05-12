@@ -7,6 +7,7 @@ export enum RecoveredPlasmaShipmentStatus {
     OPEN,
     IN_PROGRESS,
     CLOSED,
+    PROCESSING
 }
 
 export const RecoveredPlasmaShipmentStatusMap: Record<
@@ -16,6 +17,7 @@ export const RecoveredPlasmaShipmentStatusMap: Record<
     OPEN: 'OPEN',
     IN_PROGRESS: 'IN PROGRESS',
     CLOSED: 'CLOSED',
+    PROCESSING: 'PROCESSING',
 };
 
 export interface RecoveredPlasmaShipmentReportDTO {

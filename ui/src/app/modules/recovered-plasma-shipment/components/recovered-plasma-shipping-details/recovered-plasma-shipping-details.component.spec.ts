@@ -1,4 +1,4 @@
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule, DatePipe, formatDate } from '@angular/common';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { By } from '@angular/platform-browser';
@@ -13,6 +13,11 @@ import { UseCaseResponseDTO } from '../../../../shared/models/use-case-response.
 import { CartonDTO, RecoveredPlasmaShipmentResponseDTO } from '../../models/recovered-plasma.dto';
 import { RecoveredPlasmaService } from '../../services/recovered-plasma.service';
 import { RecoveredPlasmaShippingDetailsComponent } from './recovered-plasma-shipping-details.component';
+import { CloseShipmentDailogComponent } from '../close-shipment-dailog/close-shipment-dailog.component';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { BrowserPrintingService } from '../../../../core/services/browser-printing/browser-printing.service';
+import { ViewShippingCartonPackingSlipComponent } from '../view-shipping-carton-packing-slip/view-shipping-carton-packing-slip.component';
+import { CartonPackingSlipDTO } from '../../graphql/query-definitions/generate-carton-packing-slip.graphql';
 
 describe('RecoveredPlasmaShippingDetailsComponent', () => {
     let component: RecoveredPlasmaShippingDetailsComponent;
@@ -22,7 +27,11 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
     let mockToastrService: jest.Mocked<ToastrImplService>;
     let mockStore: jest.Mocked<Store>;
     let cookieService: jest.Mocked<CookieService>;
-
+    let mockMatDialog: jest.Mocked<MatDialog>;
+    let mockBrowserPrintingService: jest.Mocked<BrowserPrintingService>;
+    let mockDialogRef: jest.Mocked<MatDialogRef<ViewShippingCartonPackingSlipComponent, CartonPackingSlipDTO>>;
+    let mockActivatedRoute: any;
+    
     beforeEach(async () => {
         mockRouter = {
             navigate: jest.fn(),
@@ -30,16 +39,32 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
             url: '/test-url',
         } as Partial<Router> as jest.Mocked<Router>;
 
+        mockDialogRef = {
+            afterOpened: jest.fn().mockReturnValue(of({})),
+            close: jest.fn(),
+        } as Partial<MatDialogRef<ViewShippingCartonPackingSlipComponent, CartonPackingSlipDTO>> as jest.Mocked<MatDialogRef<ViewShippingCartonPackingSlipComponent, CartonPackingSlipDTO>>;
+
+        mockMatDialog = {
+            open: jest.fn().mockReturnValue(mockDialogRef),
+        } as Partial<MatDialog> as jest.Mocked<MatDialog>;
+
+        mockBrowserPrintingService = {
+            print: jest.fn(),
+        } as Partial<BrowserPrintingService> as jest.Mocked<BrowserPrintingService>;
+
         mockRecoveredPlasmaService = {
             getShipmentById: jest.fn(),
             createCarton: jest.fn(),
             getCartonById: jest.fn(),
+            closeShipment: jest.fn(),
+            generateCartonPackingSlip: jest.fn(),
         } as Partial<RecoveredPlasmaService> as jest.Mocked<RecoveredPlasmaService>;
 
         mockToastrService = {
             error: jest.fn(),
             success: jest.fn(),
             warning: jest.fn(),
+            show: jest.fn(),
         } as Partial<ToastrImplService> as jest.Mocked<ToastrImplService>;
 
         mockStore = {
@@ -50,6 +75,23 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
             get: jest.fn(),
         } as Partial<CookieService> as jest.Mocked<CookieService>;
 
+        mockActivatedRoute = {
+            paramMap: of({}),
+            snapshot: {
+                params: { id: 1 },
+                queryParams: {},
+            },
+        };
+
+        const matDailogMockData = {
+                width: '24rem',
+                disableClose: true,
+                data: {
+                    shipmentDate: '2024-12-24',
+                    continueFn: ()=> {}
+            }
+        }
+
         await TestBed.configureTestingModule({
             imports: [
                 RecoveredPlasmaShippingDetailsComponent,
@@ -59,23 +101,15 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
             ],
             providers: [
                 DatePipe,
-                {
-                    provide: ActivatedRoute,
-                    useValue: {
-                        paramMap: of({}),
-                        snapshot: {
-                            params: { id: 1 },
-                        },
-                    },
-                },
+                { provide: ActivatedRoute, useValue: mockActivatedRoute },
                 { provide: Router, useValue: mockRouter },
-                {
-                    provide: RecoveredPlasmaService,
-                    useValue: mockRecoveredPlasmaService,
-                },
+                { provide: RecoveredPlasmaService, useValue: mockRecoveredPlasmaService },
                 { provide: ToastrImplService, useValue: mockToastrService },
                 { provide: CookieService, useValue: cookieService },
                 { provide: Store, useValue: mockStore },
+                { provide: MatDialog, useValue: mockMatDialog },
+                { provide: BrowserPrintingService, useValue: mockBrowserPrintingService },
+                {provide: MAT_DIALOG_DATA, useValue: matDailogMockData}
             ],
         }).compileComponents();
 
@@ -445,12 +479,99 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         expect(button).toBeFalsy();
     });
 
-    it('should navigate to verify product page when click on verify product button', () => {
-        const id = 1;
-        jest.spyOn(mockRouter, 'navigate');
-        component.verifyProducts(id);
-        expect(mockRouter.navigate).toHaveBeenCalledWith([
-            `recovered-plasma/${id}/verify-carton`,
-        ]);
+    it('should not call closeShipment service when result is falsy', () => {
+        component.handleCloseShipmentContinue(null);
+        expect(mockRecoveredPlasmaService.closeShipment).not.toHaveBeenCalled();
+    });
+
+    it('should call closeShipment service with formatted date when result is truthy', () => {
+        const mockDate = new Date(2024, 11, 26);
+        mockRecoveredPlasmaService.closeShipment.mockReturnValue(
+            of({
+                data: {
+                    closeShipment: {
+                        data: { id: 1 },
+                        notifications: [{ type: 'SUCCESS', message: 'Shipment closed successfully' }]
+                    }
+                }
+            })
+        );
+
+        component.handleCloseShipmentContinue(mockDate);
+        
+        expect(mockRecoveredPlasmaService.closeShipment).toHaveBeenCalledWith({
+            locationCode: '123456789',
+            shipmentId: 1,
+            shipDate: '2024-12-26',
+            employeeId: 'emp123',
+        });
+    });
+
+    it('should handle error when closeShipment fails', () => {
+        const mockDate = new Date(2026, 11, 26);
+        const mockError = new ApolloError({
+            errorMessage: 'Network error',
+        });
+
+        mockRecoveredPlasmaService.closeShipment.mockReturnValue(
+            throwError(() => mockError)
+        );
+
+        expect(() => {
+            component.handleCloseShipmentContinue(mockDate);
+        }).not.toThrow();
+    });
+
+    it('should fetch shipment data when closeShipment succeeds', () => {
+        const mockDate = new Date(2026, 11, 26);
+        const mockResponse = {
+            data: {
+                closeShipment: {
+                    data: { id: 1 },
+                    notifications: [{ type: 'SUCCESS', message: 'Shipment closed successfully' }]
+                }
+            }
+        };
+
+        mockRecoveredPlasmaService.closeShipment.mockReturnValue(of(mockResponse));
+        
+        const fetchShipmentDataSpy = jest.spyOn(component, 'fetchShipmentData');
+        
+        component.handleCloseShipmentContinue(mockDate);
+        
+        expect(fetchShipmentDataSpy).toHaveBeenCalledWith(1);
+    });
+
+
+    describe('fetchShipmentData', () => {
+        it('should call loadRecoveredPlasmaShippingDetails with the provided id', () => {
+            const shipmentId = 123;
+            const loadSpy = jest.spyOn(component, 'loadRecoveredPlasmaShippingDetails').mockReturnValue(of({}));
+            
+            component.fetchShipmentData(shipmentId);
+            
+            expect(loadSpy).toHaveBeenCalledWith(shipmentId);
+        });
+
+        it('should print carton when shouldPrintCartonPackingSlip is true', () => {
+            const shipmentId = 123;
+            const cartonId = 456;
+            mockActivatedRoute.snapshot.queryParams = { print: 'true', closeCartonId: cartonId.toString() };
+            const loadSpy = jest.spyOn(component, 'loadRecoveredPlasmaShippingDetails').mockReturnValue(of({}));
+            const printSpy = jest.spyOn(component, 'printCarton').mockImplementation();
+            
+            component.fetchShipmentData(shipmentId);
+            
+            expect(loadSpy).toHaveBeenCalledWith(shipmentId);
+            expect(printSpy).toHaveBeenCalledWith(null, cartonId);
+        });
+    });
+
+    describe('ngOnInit', () => {
+        it('should call fetchShipmentData with routeIdComputed value', () => {
+            const fetchSpy = jest.spyOn(component, 'fetchShipmentData').mockImplementation();
+            component.ngOnInit();
+            expect(fetchSpy).toHaveBeenCalledWith(component.routeIdComputed());
+        });
     });
 });

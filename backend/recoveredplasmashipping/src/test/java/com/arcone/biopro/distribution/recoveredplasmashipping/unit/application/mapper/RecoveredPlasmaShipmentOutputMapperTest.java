@@ -48,6 +48,8 @@ class RecoveredPlasmaShipmentOutputMapperTest {
         Mockito.when(shipment.getStatus()).thenReturn("OPEN");
         Mockito.when(shipment.isCanAddCartons()).thenReturn(true);
         Mockito.when(shipment.getShipmentCustomer()).thenReturn(shipmentCustomer);
+        Mockito.when(shipment.canClose()).thenReturn(true);
+        Mockito.when(shipment.canModify()).thenReturn(true);
 
         // When
         RecoveredPlasmaShipmentOutput output = mapper.toRecoveredPlasmaShipmentOutput(shipment);
@@ -69,6 +71,8 @@ class RecoveredPlasmaShipmentOutputMapperTest {
         assertEquals("John Doe", output.customerAddressContactName());
         assertEquals("123-456-7890", output.customerAddressPhoneNumber());
         assertEquals("Shipping Dept", output.customerAddressDepartmentName());
+        assertTrue(output.canClose());
+        assertTrue(output.canModify());
     }
 
 }

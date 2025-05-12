@@ -36,6 +36,7 @@ import {
     GENERATE_CARTON_PACKING_SLIP,
     GenerateCartonPackingSlipRequestDTO
 } from '../graphql/query-definitions/generate-carton-packing-slip.graphql';
+import { CLOSE_SHIPMENT, CloseShipmentRequestDTO } from '../graphql/mutation-definitions/close-shipment.graphql';
 
 @Injectable({
     providedIn: 'root',
@@ -192,6 +193,15 @@ export class RecoveredPlasmaService {
             generateCartonPackingSlipRequestDTO
         );
     }
+
+    public closeShipment(closeShipment: CloseShipmentRequestDTO)
+    : Observable<MutationResult<{ closeShipment: UseCaseResponseDTO<RecoveredPlasmaShipmentResponseDTO> }>> {
+    return this.dynamicGraphqlPathService.executeMutation(
+        this.servicePath,
+        CLOSE_SHIPMENT,
+        closeShipment
+    );
+}
 
     //Handles INFO notifications and triggers discard if needed
     public handleInfoNotificationAndDiscard(
