@@ -14,7 +14,10 @@ import { catchError, map, of, switchMap, tap } from 'rxjs';
 import { TableComponent } from '../../../../shared/components/table/table.component';
 import handleApolloError from '../../../../shared/utils/apollo-error-handling';
 import { consumeUseCaseNotifications } from '../../../../shared/utils/notification.handling';
-import { RecoveredPlasmaShipmentStatus } from '../../graphql/query-definitions/shipment.graphql';
+import {
+    RecoveredPlasmaCartonStatusCssMap,
+    RecoveredPlasmaCartonStatusMap
+} from '../../graphql/query-definitions/shipment.graphql';
 import { CartonDTO, CartonPackedItemResponseDTO } from '../../models/recovered-plasma.dto';
 import { RecoveredPlasmaShipmentCommon } from '../../recovered-plasma-shipment.common';
 import { RecoveredPlasmaService } from '../../services/recovered-plasma.service';
@@ -58,6 +61,9 @@ export class RecoveredPlasmaShippingDetailsComponent
     extends RecoveredPlasmaShipmentCommon
     implements OnInit
 {
+    protected readonly RecoveredPlasmaCartonStatusMap = RecoveredPlasmaCartonStatusMap;
+    protected readonly RecoveredPlasmaCartonStatusCssMap = RecoveredPlasmaCartonStatusCssMap;
+
     messageSignal = signal<string>(null);
     messageTypeSignal = signal<FuseAlertType>(null);
     statusTemplateRef = viewChild<TemplateRef<Element>>('statusTemplateRef');
@@ -133,11 +139,11 @@ export class RecoveredPlasmaShippingDetailsComponent
         this.fetchShipmentData(this.routeIdComputed());
     }
 
-    fetchShipmentData(id: number, print: boolean = true){
+    fetchShipmentData(id: number) {
         this.loadRecoveredPlasmaShippingDetails(id)
             .pipe(
                 tap(() => {
-                    if (this.shouldPrintCartonPackingSlip && print) {
+                    if (this.shouldPrintCartonPackingSlip) {
                         this.printCarton(null, this.shipmentCloseCartonId);
                     }
                     this.setStaticMessage();
@@ -150,7 +156,6 @@ export class RecoveredPlasmaShippingDetailsComponent
         if(this.shipmentDetailsSignal()?.status === 'PROCESSING'){
             this.messageSignal.set('Close Shipment is in progress.');
             this.messageTypeSignal.set('info');
-        
         }
     }
 
@@ -266,21 +271,6 @@ export class RecoveredPlasmaShippingDetailsComponent
             });
     }
 
-    getStatusBadgeCssClass(status: keyof typeof RecoveredPlasmaShipmentStatus) {
-        switch (status) {
-            case 'OPEN':
-                return 'text-sm font-bold py-1.5 px-2 badge rounded-full bg-blue-100 text-blue-700';
-            case 'IN_PROGRESS':
-                // Our current Tailwind version does not support text-orange-* and bg-orange-* shades.
-                // After updating Tailwind version, replace to bg-orange-100 text-orange-700
-                return 'text-sm font-bold py-1.5 px-2 badge rounded-full bg-[#FFEDD5] text-[#C2410C]';
-            case 'CLOSED':
-                return 'text-sm font-bold py-1.5 px-2 badge rounded-full bg-green-100 text-green-700';
-            default:
-                return '';
-        }
-    }
-
     handleCloseShipmentContinue(result){
         if (result) {
             const formatShipDate = formatDate(
@@ -308,7 +298,7 @@ export class RecoveredPlasmaShippingDetailsComponent
                 )
                 .subscribe((response) => {
                     if (response?.data?.closeShipment?.data) {
-                        this.fetchShipmentData(response.data.closeShipment.data.id, false)
+                        this.fetchShipmentData(response.data.closeShipment.data.id)
                     }
                 });
         }
@@ -324,4 +314,5 @@ export class RecoveredPlasmaShippingDetailsComponent
             }
         })
     }
+
 }

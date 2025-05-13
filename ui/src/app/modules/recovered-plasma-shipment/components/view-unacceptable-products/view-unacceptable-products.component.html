@@ -1,12 +1,10 @@
-<div class="modal-body-width">
-    <div id="viewShippingCartonUnnaceptableProductsReport" class="px-6 py-0" style="font-family: sans-serif;">
+<div class="modal-body-width relative h-full overflow-auto m-6">
+    <div id="viewShippingCartonUnacceptableProductsReport" style="font-family: sans-serif;">
         <div class="flex flex-col">
             @if (reportModel(); as report) {
-            <h2 class="text-3xl text-blue-900 border-b-2 border-b-blue-700">
-                Unacceptable Products Report
-            </h2>
+            <h2 class="text-3xl text-blue-900 border-b-2 border-b-blue-700">{{ report.reportTitle }}</h2>
             <table
-                id="unnaceptableProductsTable"
+                id="unacceptableProductsTable"
                 class="w-full grid-borders"
             >
                 <thead>
@@ -25,18 +23,28 @@
                 </thead>
 
                 <tbody>
-                    @for (product of report?.products; track $index) {
+                    @for (product of report?.failedProducts; track $index) {
                         <tr class="even:bg-blue-50">
                             <td class="text-center">{{ product?.unitNumber }}</td>
                             <td class="text-center">{{ product?.productCode }}</td>
                             <td class="text-center">{{ product?.cartonNumber }}</td>
-                            <td class="text-center">{{ product?.cartonSequence }}</td>
-                            <td class="text-center">{{ product?.reasonForFailure }}</td>
+                            <td class="text-center">{{ product?.cartonSequenceNumber }}</td>
+                            <td class="text-center">{{ product?.failureReason }}</td>
                         </tr>
                     }
                 </tbody>
             </table>
             }
         </div>
+    </div>
+    <div class="fixed inset-x-0 bottom-0 mb-12 text-center">
+        <biopro-action-button
+            id="viewShippingCartonUnacceptableProductsReportPrintBtn"
+            btnId="viewShippingCartonUnacceptableProductsReportPrintBtnId"
+            label="Print"
+            icon="hi_outline:printer"
+            (clickEvent)="print()"
+            class="opacity-75 hover:opacity-100 transition-opacity"
+        />
     </div>
 </div>
