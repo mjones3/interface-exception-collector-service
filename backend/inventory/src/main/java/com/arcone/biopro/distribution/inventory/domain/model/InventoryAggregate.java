@@ -192,10 +192,17 @@ public class InventoryAggregate {
         return !this.inventory.getInputProducts().isEmpty();
     }
 
-    public InventoryAggregate label(Boolean isLicensed, String finalProductCode) {
+    public InventoryAggregate label(Boolean isLicensed, String finalProductCode, LocalDateTime expirationDate) {
         inventory.setIsLabeled(true);
         inventory.setIsLicensed(isLicensed);
         inventory.setProductCode(new ProductCode(finalProductCode));
+        inventory.setExpirationDate(expirationDate);
+        return this;
+    }
+
+    public InventoryAggregate invalidLabel() {
+        inventory.setIsLabeled(false);
+        inventory.setIsLicensed(false);
         return this;
     }
 

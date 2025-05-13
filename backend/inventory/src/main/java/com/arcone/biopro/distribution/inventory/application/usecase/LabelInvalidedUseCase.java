@@ -1,12 +1,10 @@
 package com.arcone.biopro.distribution.inventory.application.usecase;
 
-import com.arcone.biopro.distribution.inventory.adapter.output.producer.InventoryUpdatedProducer;
-import com.arcone.biopro.distribution.inventory.application.dto.InventoryInput;
 import com.arcone.biopro.distribution.inventory.application.dto.InventoryOutput;
+import com.arcone.biopro.distribution.inventory.application.dto.LabelInvalidedInput;
 import com.arcone.biopro.distribution.inventory.application.mapper.InventoryOutputMapper;
 import com.arcone.biopro.distribution.inventory.domain.event.InventoryEventPublisher;
 import com.arcone.biopro.distribution.inventory.domain.event.InventoryUpdatedApplicationEvent;
-import com.arcone.biopro.distribution.inventory.domain.exception.InventoryAlreadyExistsException;
 import com.arcone.biopro.distribution.inventory.domain.exception.InventoryNotFoundException;
 import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryUpdateType;
@@ -23,21 +21,20 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class LabelAppliedUseCase implements UseCase<Mono<InventoryOutput>, InventoryInput> {
+public class LabelInvalidedUseCase implements UseCase<Mono<InventoryOutput>, LabelInvalidedInput> {
 
     InventoryAggregateRepository inventoryAggregateRepository;
     InventoryEventPublisher inventoryEventPublisher;
     InventoryOutputMapper mapper;
 
     @Override
-    public Mono<InventoryOutput> execute(InventoryInput input) {
+    public Mono<InventoryOutput> execute(LabelInvalidedInput input) {
         var productCode = ProductCodeUtil.retrieveFinalProductCodeWithoutSixthDigit(input.productCode());
         return inventoryAggregateRepository.findByUnitNumberAndProductCode(input.unitNumber(), productCode)
             .switchIfEmpty(Mono.error(InventoryNotFoundException::new))
-            .flatMap(inventoryAggregate -> inventoryAggregateRepository.saveInventory(inventoryAggregate.label(input.isLicensed(), input.productCode(), input.expirationDate()))
+            .flatMap(inventoryAggregate -> inventoryAggregateRepository.saveInventory(inventoryAggregate.invalidLabel())
                 .map(InventoryAggregate::getInventory)
-                .doOnSuccess(inventory -> inventoryEventPublisher.publish(new InventoryUpdatedApplicationEvent(inventory, InventoryUpdateType.LABEL_APPLIED)))
+                .doOnSuccess(inventory -> inventoryEventPublisher.publish(new InventoryUpdatedApplicationEvent(inventory, InventoryUpdateType.LABEL_INVALIDED)))
                 .map(mapper::toOutput));
-
     }
 }
