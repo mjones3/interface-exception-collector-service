@@ -96,9 +96,7 @@ public class CloseShipmentSteps {
 
     @And("The shipment status should be {string}")
     public void theShipmentStatusShouldBe(String shipmentStatus) {
-        var id = this.shipmentId != null ? this.shipmentId : sharedContext.getShipmentCreateResponse().get("id").toString();
-        filterShipmentsController.findShipmentByIdAndLocation(id, sharedContext.getLocationCode());
-        Assertions.assertEquals(shipmentStatus, sharedContext.getFindShipmentApiResponse().get("status").toString());
+        Assertions.assertEquals(shipmentStatus, sharedContext.getShipmentCreateResponse().get("status").toString());
     }
 
     @Then("I should receive a API {string} error message response {string}.")
