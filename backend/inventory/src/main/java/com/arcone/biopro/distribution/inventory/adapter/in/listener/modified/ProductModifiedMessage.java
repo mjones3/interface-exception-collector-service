@@ -8,7 +8,7 @@ import java.time.ZonedDateTime;
 public record ProductModifiedMessage(
     String unitNumber,
     String productCode,
-    String shortDescription,
+    String productDescription,
     String parentProductCode,
     String productFamily,
     String expirationDate,

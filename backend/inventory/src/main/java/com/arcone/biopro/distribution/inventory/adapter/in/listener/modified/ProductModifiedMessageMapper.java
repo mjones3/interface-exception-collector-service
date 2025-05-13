@@ -10,5 +10,6 @@ public interface ProductModifiedMessageMapper extends MessageMapper<ProductModif
 
     @Mapping(target = "volume", source = "volume.value")
     @Mapping(target = "weight", source = "weight.value")
+    @Mapping(target = "shortDescription", source = "productDescription")
     ProductModifiedInput toInput(ProductModifiedMessage message);
 }
