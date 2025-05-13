@@ -203,6 +203,7 @@ export class RecoveredPlasmaShippingDetailsComponent
                     return of({});
                 }),
                 tap(() => {
+                    this.router.navigate([`recovered-plasma/${this.shipmentId}/shipment-details`]);
                     this.browserPrintingService
                         .print('viewShippingCartonPackingSlipReport', { pageSize: DEFAULT_PAGE_SIZE });
                     dialogRef?.close();
