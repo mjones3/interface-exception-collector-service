@@ -8,5 +8,7 @@ public enum InventoryUpdateType {
     DISCARDED,
     STORED,
     PACKED,
-    UNPACKED
+    UNPACKED,
+    MODIFIED,
+    CREATED
 }

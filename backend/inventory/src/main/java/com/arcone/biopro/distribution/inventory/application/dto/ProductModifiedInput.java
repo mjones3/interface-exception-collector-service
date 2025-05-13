@@ -11,7 +11,6 @@ public record ProductModifiedInput(
     String productFamily,
     String expirationDate,
     String expirationTime,
-    String expirationTimeZone,
     String modificationLocation,
     ZonedDateTime modificationDate,
     Integer volume,

@@ -5,8 +5,10 @@ import com.arcone.biopro.distribution.inventory.application.dto.ProductModifiedI
 import com.arcone.biopro.distribution.inventory.application.mapper.InventoryOutputMapper;
 import com.arcone.biopro.distribution.inventory.application.service.ConfigurationService;
 import com.arcone.biopro.distribution.inventory.domain.event.InventoryEventPublisher;
+import com.arcone.biopro.distribution.inventory.domain.event.InventoryUpdatedApplicationEvent;
 import com.arcone.biopro.distribution.inventory.domain.exception.InventoryNotFoundException;
 import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryUpdateType;
 import com.arcone.biopro.distribution.inventory.domain.repository.InventoryAggregateRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,8 @@ public class ProductModifiedUseCase implements UseCase<Mono<InventoryOutput>, Pr
     InventoryAggregateRepository inventoryAggregateRepository;
     InventoryOutputMapper mapper;
     ConfigurationService configurationService;
+    InventoryEventPublisher publisher;
+
 
 
     @Override
@@ -40,6 +44,8 @@ public class ProductModifiedUseCase implements UseCase<Mono<InventoryOutput>, Pr
             .flatMap(this::updateTemperatureCategory)
             .flatMap(inventoryAggregateRepository::saveInventory)
             .map(InventoryAggregate::getInventory)
+            .doOnSuccess(inventory -> publisher.publish(new InventoryUpdatedApplicationEvent(inventory, InventoryUpdateType.MODIFIED)))
+
             .map(mapper::toOutput);
     }
 

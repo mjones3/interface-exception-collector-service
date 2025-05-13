@@ -19,6 +19,10 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static com.arcone.biopro.distribution.inventory.verification.steps.KafkaListenersSteps.*;
@@ -292,6 +296,15 @@ public class RepositorySteps {
                     .map(v -> Objects.equals(v.value(), Integer.valueOf(inventory.get("Volume"))))
                     .orElse(false));
             }
+
+            if(inventory.containsKey("Weight")){
+                assertEquals(Integer.valueOf(inventory.get("Weight")), inventoryEntity.getWeight());
+            }
+
+            if(inventory.containsKey("Modification Location")){
+                assertEquals(inventory.get("Modification Location"), inventoryEntity.getModificationLocation());
+            }
+
             if(inventory.containsKey("Anticoagulant Volume")){
                 assertTrue(volumes.stream()
                     .filter(v -> v.type().equals("anticoagulantVolume"))
@@ -299,6 +312,17 @@ public class RepositorySteps {
                     .map(v -> Objects.equals(v.value(), Integer.valueOf(inventory.get("Anticoagulant Volume"))))
                     .orElse(false));
             }
+
+            if(inventory.containsKey("Expiration Date")){
+                assertNotNull(inventoryEntity.getExpirationDate());
+                assertEquals(inventory.get("Expiration Date"), inventoryEntity.getExpirationDate().toString());
+
+            }
+
+            if(inventory.containsKey("Modification Date")) {
+                assertEquals(inventory.get("Modification Date"),inventoryEntity.getProductModificationDate().withZoneSameInstant(ZoneOffset.UTC).format(DateTimeFormatter.ISO_ZONED_DATE_TIME));
+            }
+
             assertEquals(expectedStatus, inventoryEntity.getInventoryStatus().name());
         }
     }

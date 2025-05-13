@@ -16,6 +16,9 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +54,8 @@ public class UseCaseSteps {
     private final RecoveredPlasmaShipmentClosedUseCase recoveredPlasmaShipmentClosedUseCase;
 
     private final ProductCompletedUseCase productCompletedUseCase;
+
+    private final ProductModifiedUseCase productModifiedUseCase;
 
     private final ScenarioContext scenarioContext;
 
@@ -307,6 +312,9 @@ public class UseCaseSteps {
                 case "Recovered Plasma Carton Closed":
                     iReceivedARecoveredPlasmaShipmentClosedEvent(dataTable);
                     break;
+                case "Product Modified":
+                    iReceivedAProductModifiedEventForTheFollowingProducts(dataTable);
+                    break;
                 default:
                     break;
             }
@@ -348,5 +356,65 @@ public class UseCaseSteps {
             .shipmentNumber("CN001")
             .build();
         recoveredPlasmaShipmentClosedUseCase.execute(input).block();
+    }
+
+    @When("I received a Product Modified event for the following products:")
+    public void iReceivedAProductModifiedEventForTheFollowingProducts(DataTable dataTable) {
+        List<Map<String, String>> products = dataTable.asMaps(String.class, String.class);
+        for (Map<String, String> product : products) {
+            String unitNumber = product.get("Unit Number");
+            String productCode = product.get("Product Code");
+            String productDescription = product.get("Product Description");
+            String parentProductCode = product.get("Parent Product Code");
+            String productFamily = product.get("Product Family");
+            String expirationDate = product.get("Expiration Date");
+            String expirationTime = product.get("Expiration Time");
+            String modificationLocation = product.get("Modification Location");
+            String modificationDateStr = product.get("Modification Date");
+            Integer volume = null;
+            Integer weight = null;
+
+            if (product.containsKey("Volume")) {
+                volume = Integer.valueOf(product.get("Volume"));
+            }
+
+            if (product.containsKey("Weight")) {
+                weight = Integer.valueOf(product.get("Weight"));
+            }
+
+            // Parse the modification date
+            ZonedDateTime modificationDate;
+            try {
+                // Parse the date in MM/dd/yyyy format
+                java.time.LocalDate localDate = java.time.LocalDate.parse(
+                    modificationDateStr,
+                    java.time.format.DateTimeFormatter.ofPattern("MM/dd/yyyy")
+                );
+                // Convert to ZonedDateTime
+                modificationDate = localDate.atStartOfDay(ZoneOffset.UTC);
+            } catch (Exception e) {
+                // Fallback to current time if parsing fails
+                modificationDate = java.time.ZonedDateTime.now();
+                log.warn("Failed to parse modification date: {}, using current time instead", modificationDateStr, e);
+            }
+
+            // Create ProductModifiedInput object
+            ProductModifiedInput productModifiedInput = new ProductModifiedInput(
+                unitNumber,
+                productCode,
+                productDescription,
+                parentProductCode,
+                productFamily,
+                expirationDate,
+                expirationTime,
+                modificationLocation,
+                modificationDate,
+                volume,
+                weight
+            );
+
+            // Execute the use case
+            productModifiedUseCase.execute(productModifiedInput).block();
+        }
     }
 }
