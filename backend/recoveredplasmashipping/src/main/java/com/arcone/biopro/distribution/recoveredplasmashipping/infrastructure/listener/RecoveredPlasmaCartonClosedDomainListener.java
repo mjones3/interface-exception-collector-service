@@ -4,6 +4,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.domain.event.Recov
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.config.KafkaConfiguration;
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.event.RecoveredPlasmaCartonPackedOutputEvent;
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.mapper.RecoveredPlasmaCartonEventMapper;
+import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.persistence.RecoveredPlasmaShipmentEntityRepository;
 import io.github.springwolf.bindings.kafka.annotations.KafkaAsyncOperationBinding;
 import io.github.springwolf.core.asyncapi.annotations.AsyncMessage;
 import io.github.springwolf.core.asyncapi.annotations.AsyncOperation;
@@ -16,6 +17,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.EventListener;
 import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
 
 import static org.springframework.kafka.support.mapping.AbstractJavaTypeMapper.DEFAULT_CLASSID_FIELD_NAME;
 
@@ -27,12 +29,15 @@ public class RecoveredPlasmaCartonClosedDomainListener {
     private final ReactiveKafkaProducerTemplate<String, RecoveredPlasmaCartonPackedOutputEvent> producerTemplate;
     private final String topicName;
     private final RecoveredPlasmaCartonEventMapper recoveredPlasmaCartonEventMapper;
+    private final RecoveredPlasmaShipmentEntityRepository recoveredPlasmaShipmentEntityRepository;
 
     public RecoveredPlasmaCartonClosedDomainListener(@Qualifier(KafkaConfiguration.RPS_CARTON_CLOSED_PRODUCER) ReactiveKafkaProducerTemplate<String, RecoveredPlasmaCartonPackedOutputEvent> producerTemplate,
-                                                     @Value("${topics.recovered-plasma-shipment.carton-closed.topic-name:RecoveredPlasmaCartonPacked}") String topicName , RecoveredPlasmaCartonEventMapper recoveredPlasmaCartonEventMapper) {
+                                                     @Value("${topics.recovered-plasma-shipment.carton-closed.topic-name:RecoveredPlasmaCartonPacked}") String topicName , RecoveredPlasmaCartonEventMapper recoveredPlasmaCartonEventMapper , RecoveredPlasmaShipmentEntityRepository recoveredPlasmaShipmentEntityRepository) {
         this.producerTemplate = producerTemplate;
         this.topicName = topicName;
         this.recoveredPlasmaCartonEventMapper = recoveredPlasmaCartonEventMapper;
+        this.recoveredPlasmaShipmentEntityRepository = recoveredPlasmaShipmentEntityRepository;
+
     }
 
     @AsyncPublisher(operation = @AsyncOperation(
@@ -51,16 +56,21 @@ public class RecoveredPlasmaCartonClosedDomainListener {
     ))
     @KafkaAsyncOperationBinding
     @EventListener
-    public void handleCartonClosedEvent(RecoveredPlasmaCartonClosedEvent event) {
+    public Mono<Void> handleCartonClosedEvent(RecoveredPlasmaCartonClosedEvent event) {
         log.debug("Carton Packed event trigger Event ID {}", event);
 
-        var message =  new RecoveredPlasmaCartonPackedOutputEvent(recoveredPlasmaCartonEventMapper.modelToPackedEventDTO(event.getPayload()));
+        var payload = event.getPayload();
 
-        log.debug("Carton Packed event sent {}",message);
+        return recoveredPlasmaShipmentEntityRepository.findById(payload.getShipmentId())
+            .map(recoveredPlasmaShipmentEntity -> new RecoveredPlasmaCartonPackedOutputEvent(recoveredPlasmaCartonEventMapper.modelToPackedEventDTO(event.getPayload(), recoveredPlasmaShipmentEntity.getLocationCode())))
+            .map(eventPayload -> {
+                log.debug("Carton Packed event sent {}",eventPayload);
+                var producerRecord = new ProducerRecord<>(topicName, String.format("%s", eventPayload.getEventId()), eventPayload);
+                return producerTemplate.send(producerRecord)
+                    .log()
+                    .subscribe();
+            })
+            .then();
 
-        var producerRecord = new ProducerRecord<>(topicName, String.format("%s", message.getEventId()), message);
-        producerTemplate.send(producerRecord)
-            .log()
-            .subscribe();
     }
 }
