@@ -14,6 +14,7 @@ import java.util.List;
 )
 public record RecoveredPlasmaCartonPackedOutputDTO(
     String cartonNumber,
+    String locationCode,
     Integer cartonSequence,
     String closeEmployeeId,
     ZonedDateTime closeDate,

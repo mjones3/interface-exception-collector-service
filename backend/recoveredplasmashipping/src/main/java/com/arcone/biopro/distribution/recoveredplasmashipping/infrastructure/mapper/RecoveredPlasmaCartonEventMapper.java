@@ -14,8 +14,9 @@ import java.util.List;
 public interface RecoveredPlasmaCartonEventMapper {
 
     @Mapping(target ="productType" , expression = "java(carton.getProducts().getFirst().getProductType())")
-    @Mapping(source ="products" , target = "packedProducts")
-    RecoveredPlasmaCartonPackedOutputDTO modelToPackedEventDTO(Carton carton);
+    @Mapping(source ="locationCode" , target = "locationCode")
+    @Mapping(source ="carton.products" , target = "packedProducts")
+    RecoveredPlasmaCartonPackedOutputDTO modelToPackedEventDTO(Carton carton , String locationCode);
 
     @Mapping(source = "createDate",target = "packedDate")
     RecoveredPlasmaCartonItemPackedOutputDTO modelToItemPackedEventDTO(CartonItem  cartonItem);
