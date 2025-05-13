@@ -28,6 +28,13 @@ public class ShipmentDetailsPage extends CommonPageFactory {
     private final By closeShipmentBtn = By.id("closeShipmentBtnId");
     private final By confirmationShipmentDate = By.id("shipmentDateId");
     private final By confirmCloseShipmentBtn = By.id("btnContinue");
+    private final By unacceptableReportLastRunDate = By.id("informationDetails-Last-Run-value");
+    private final By unacceptableReportBtn = By.id("reportBtnId");
+    private final By viewUnacceptableProductsDialog = By.id("viewUnacceptableProductsDialog");
+    private final By viewUnacceptableProductsDialogHeader = By.xpath("//h2[contains(text(),'Unacceptable Product Report')]");
+    private final By unacceptableProductsTable = By.id("unacceptableProductsTable");
+
+
 
     private By addedCartonRow(String cartonNumberPrefix, String sequence, String status) {
         return By.xpath(
@@ -48,6 +55,13 @@ public class ShipmentDetailsPage extends CommonPageFactory {
             String.format(
                 "//td[contains(@id,'cartonSequenceRow')]//*[.='%s']/ancestor::tr/following-sibling::tr//*[contains(text(),'%s')]",
                 cartonSequence, unitNumber));
+    }
+
+    private By unacceptableReportRow(String unitNumber , String productCode , String cartonNumberPrefix, String sequence, String reason) {
+        return By.xpath(
+            String.format(
+                "//table[@id='unacceptableProductsTable']//td[contains(.,'%s')]/following-sibling::td[contains(.,'%s')]/following-sibling::td[contains(.,'%s')]/following-sibling::td[contains(.,'%s')]/following-sibling::td[contains(.,'%s')]",
+                unitNumber, productCode, cartonNumberPrefix,sequence,reason));
     }
 
     @Autowired
@@ -139,6 +153,8 @@ public class ShipmentDetailsPage extends CommonPageFactory {
         sharedActions.waitForVisible(addedCartonRow(cartonNumberPrefix, sequence, status));
     }
 
+
+
     public void verifyCartonsAreVisible(List<Map> createCartonResponseList) {
         for (Map carton : createCartonResponseList) {
             verifyCartonIsListed(carton.get("cartonNumber").toString(), carton.get("cartonSequence").toString(), carton.get("status").toString());
@@ -188,5 +204,34 @@ public class ShipmentDetailsPage extends CommonPageFactory {
 
     public void clickConfirmCloseShipment() {
         sharedActions.click(confirmCloseShipmentBtn);
+    }
+
+    public String getLastUnacceptableRunDate() {
+        return sharedActions.getText(unacceptableReportLastRunDate);
+    }
+
+    public boolean isUnacceptableReportButtonEnabled() {
+        sharedActions.waitForVisible(unacceptableReportBtn);
+        return sharedActions.isElementEnabled(driver, unacceptableReportBtn);
+    }
+
+    public void clickUnacceptableReportButton() {
+        sharedActions.click(unacceptableReportBtn);
+    }
+
+    public void verifyUnacceptableProductsReportIsVisible() {
+        sharedActions.isElementVisible(viewUnacceptableProductsDialog);
+        sharedActions.isElementVisible(viewUnacceptableProductsDialogHeader);
+        sharedActions.isElementVisible(unacceptableProductsTable);
+    }
+
+    public String getUnacceptableTableHeader() {
+        var productsTable = driver.findElement(unacceptableProductsTable);
+        var rows = productsTable.getText().split("\n");
+        return rows[0];
+    }
+
+    public void verifyProductIsListed(String unitNumber , String productCode , String cartonNumberPrefix, String sequence, String reason) {
+        sharedActions.waitForVisible(unacceptableReportRow(unitNumber,productCode,cartonNumberPrefix,sequence,reason));
     }
 }

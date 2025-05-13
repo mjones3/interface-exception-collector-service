@@ -50,7 +50,7 @@ public class RecoveredPlasmaShipmentProcessingUseCase {
            }).doOnSuccess(recoveredPlasmaShipment -> {
                if("CLOSED".equals(recoveredPlasmaShipment.getStatus())){
                 log.debug("Publishing Recovered Plasma Shipment Closed event {}",recoveredPlasmaShipment);
-                applicationEventPublisher.publishEvent(new RecoveredPlasmaShipmentClosedEvent(recoveredPlasmaShipment));
+                   applicationEventPublisher.publishEvent(new RecoveredPlasmaShipmentClosedEvent(recoveredPlasmaShipment));
                }
            })
            .onErrorResume(error -> {

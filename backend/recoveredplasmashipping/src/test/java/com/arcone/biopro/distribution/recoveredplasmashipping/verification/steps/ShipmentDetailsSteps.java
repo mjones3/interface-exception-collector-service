@@ -63,7 +63,10 @@ public class ShipmentDetailsSteps {
         Assert.assertTrue(shipmentDetailsPage.getShipmentDate().equalsIgnoreCase(expectedDate));
         Assert.assertTrue(shipmentDetailsPage.getTotalCartons().equalsIgnoreCase(table.get("Total Cartons")));
         Assert.assertTrue(shipmentDetailsPage.getTransportationNumber().equalsIgnoreCase(table.get("Transportation Ref. Number")));
-
+        if(table.get("Carton Status") != null){
+            var cartonDetailsSplit = table.get("Carton Status").split(",");
+            shipmentDetailsPage.verifyCartonIsListed(cartonDetailsSplit[0],cartonDetailsSplit[1],cartonDetailsSplit[2]);
+        }
     }
 
     @And("I should have an option to add a carton to the shipment.")
@@ -221,7 +224,7 @@ public class ShipmentDetailsSteps {
         }
 
         if(table.get("Reason for Failure") != null){
-            Assert.assertEquals(products.stream().map(s -> ((LinkedHashMap) s ).get("failureReason")).collect(Collectors.joining(",")),table.get("Reason for Failure"));
+            Assert.assertEquals(products.stream().map(s -> ((LinkedHashMap) s ).get("failureReason")).sorted().collect(Collectors.joining(",")),table.get("Reason for Failure"));
         }
     }
 
@@ -235,5 +238,60 @@ public class ShipmentDetailsSteps {
 
         Assert.assertEquals(reportResponse.get("noProductsFlaggedMessage"),message);
 
+    }
+
+    @And("I should see the unacceptable units report information:")
+    public void iShouldSeeTheUnacceptableUnitsReportInformation(DataTable dataTable) {
+
+        Assertions.assertNotNull(dataTable);
+        Map<String, String> table = dataTable.asMap(String.class, String.class);
+
+        if(table.get("Last Run") != null){
+            var expectedDate = table.get("Last Run").equals("<today>")
+                ? LocalDate.now().format(DateTimeFormatter.ofPattern("MM/dd/yyyy"))
+                : table.get("Last Run");
+
+            var pageDateSplit = shipmentDetailsPage.getLastUnacceptableRunDate().split(" ");
+            Assert.assertEquals(pageDateSplit[0],expectedDate);
+        }
+
+        if(table.get("View  Icon") != null){
+            if(table.get("View  Icon").equalsIgnoreCase("enabled")){
+                Assert.assertTrue(shipmentDetailsPage.isUnacceptableReportButtonEnabled());
+            }else if(table.get("View  Icon").equalsIgnoreCase("disabled")){
+                Assert.assertFalse(shipmentDetailsPage.isUnacceptableReportButtonEnabled());
+            }
+        }
+
+    }
+
+    @When("I choose to open the unacceptable units report.")
+    public void iChooseToOpenTheUnacceptableUnitsReport() {
+        shipmentDetailsPage.clickUnacceptableReportButton();
+    }
+
+    @Then("I should see the following unacceptable units report information:")
+    public void iShouldSeeTheFollowingUnacceptableUnitsReportInformation(DataTable dataTable) {
+        Assertions.assertNotNull(dataTable);
+        Map<String, String> table = dataTable.asMap(String.class, String.class);
+
+        shipmentDetailsPage.verifyUnacceptableProductsReportIsVisible();
+
+        if(table.get("Shipment Number Prefix") != null){
+            Assert.assertTrue(shipmentDetailsPage.getUnacceptableTableHeader().contains(table.get("Shipment Number Prefix")));
+        }
+
+    }
+
+    @And("I should see the following rows in the units report information:")
+    public void iShouldSeeTheFollowingRowsInTheUnitsReportInformation(DataTable dataTable) {
+        var tableHeaders = dataTable.row(0);
+        for (int i = 1; i < dataTable.height(); i++) {
+            var row = dataTable.row(i);
+            var line = row.get(tableHeaders.indexOf("Row Content")).split(",");
+            log.debug("checking the report row line {}",row.get(tableHeaders.indexOf("Row Number")));
+            log.debug("checking the report row content {}",line);
+            shipmentDetailsPage.verifyProductIsListed(line[0],line[1],line[2],line[3],line[4]);
+        }
     }
 }

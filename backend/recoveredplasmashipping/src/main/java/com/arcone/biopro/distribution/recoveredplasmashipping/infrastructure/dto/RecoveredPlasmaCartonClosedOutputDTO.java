@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -13,6 +14,7 @@ import java.util.List;
     description = "Recovered Plasma Carton Closed Event Payload"
 )
 
+@Builder
 public record RecoveredPlasmaCartonClosedOutputDTO(
     String cartonNumber,
     String locationCode,

@@ -65,9 +65,7 @@ Feature: Generate the Unacceptable Products Report
                 | Product Code           | E6022V00,E6022V00,E6022V00,E6022V00                                                                                                                                                                                                        |
                 | Carton Number Prefix   | BPMMH,BPMMH,BPMMH,BPMMH                                                                                                                                                                                                                |
                 | Carton Sequence        | 1,1,1,1                                                                                                                                                                                                                                    |
-                | Reason for Failure     | This product is not in the inventory and cannot be shipped,This product is discarded and cannot be shipped,This product is quarantined and cannot be shipped,This product is expired and has been discarded. Place in biohazard container. |
-
-
+                | Reason for Failure     | This product is discarded and cannot be shipped,This product is expired and has been discarded. Place in biohazard container.,This product is not in the inventory and cannot be shipped,This product is quarantined and cannot be shipped |
 
 
     Rule: I should not be able to close a shipment with products flagged as unacceptable.
@@ -86,7 +84,10 @@ Feature: Generate the Unacceptable Products Report
             | Customer Code | Product Type               | Carton Tare Weight | Shipment Date | Transportation Reference Number | Location Code    | configured_min_products | unit_number                 | product_code       | product_type                                         | Shipment Date |
             | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>    | DIS-356                         | 123456789_DIS356 | 2                       | W036898356905,W036898356757 | E6022V00,E6022V00 | RP_NONINJECTABLE_LIQUID_RT,RP_NONINJECTABLE_LIQUID_RT | <tomorrow>    |
 
-       Rule: The shipment status must be updated to Closed if there are no unacceptable products after running the unsuitable report.
+
+
+
+    Rule: The shipment status must be updated to Closed if there are no unacceptable products after running the unsuitable report.
        Rule: I should be able to see a message indicating that are no unacceptable products if the unsuitable report is passed successfully.
        @api @DIS-356
        Scenario: Generate report for shipment with no unacceptable products
@@ -123,44 +124,46 @@ Feature: Generate the Unacceptable Products Report
         Rule: I should not be able to close a shipment with quarantined products.
         Rule: I should not be able to close a shipment with expired products.
         @ui @DIS-356
-        Scenario: Generate unacceptable summary report with flagged products
-            Given I have a shipment created with the Customer Code as "409" , Product Type as "RP_FROZEN_WITHIN_120_HOURS", Carton Tare Weight as "100", Shipment Date as "<tomorrow>", Transportation Reference Number as "DIS-356" and Location Code as "123456789_DIS356".
-            And The Minimum Number of Units in Carton is configured as "4" products for the customer code "409" and product type "RP_FROZEN_WITHIN_120_HOURS".
-            And I have a closed carton with the unit numbers as "W036898786905,W036898786757,W036898786758,W036898786756" and product codes as "E6022V00,E6022V00,E6022V00,E6022V00" which become unacceptable.
-            When I request to close the shipment with ship date as "<ship_date>"
+        Scenario: Print unacceptable summary report with flagged products
+            Given I have a shipment created with the Customer Code as "409" , Product Type as "RP_NONINJECTABLE_LIQUID_RT", Carton Tare Weight as "100", Shipment Date as "<tomorrow>", Transportation Reference Number as "DIS-356" and Location Code as "123456789_DIS356".
+            And The Minimum Number of Units in Carton is configured as "4" products for the customer code "409" and product type "RP_NONINJECTABLE_LIQUID_RT".
+            And I have a closed carton with the unit numbers as "W036898356905,W036898356757,W036898356758,W036898356756" and product codes as "E6022V00,E6022V00,E6022V00,E6022V00" and product types "RP_NONINJECTABLE_LIQUID_RT,RP_NONINJECTABLE_LIQUID_RT,RP_NONINJECTABLE_LIQUID_RT,RP_NONINJECTABLE_LIQUID_RT" which become unacceptable.
+            When I request to close the shipment with ship date as "<tomorrow>"
             Then I should receive a "SUCCESS" message response "Close Shipment is in progress".
             And The shipment status should be "PROCESSING"
             And The system process the unacceptable units report.
             When I navigate to the shipment details page for the last shipment created.
             Then I should see the following shipment information:
-                | Field                      | Value                         |
-                | Shipment Number Prefix     | BPM2765                       |
-                | Customer Code              | 410                           |
-                | Customer Name              | BIO PRODUCTS                  |
-                | Product Type               | RP NONINJECTABLE REFRIGERATED |
-                | Shipment Status            | IN_PROGRESS                   |
-                | Shipment Date              | <tomorrow>                    |
-                | Transportation Ref. Number | DIS335                        |
-                | Total Cartons              | 1                             |
-                | Carton Status              | REPACK                        |
+                | Field                      | Value                      |
+                | Shipment Number Prefix     | DIS_356DIS356              |
+                | Customer Code              | 409                        |
+                | Customer Name              | SOUTHERN BIOLOGICS         |
+                | Product Type               | RP NONINJECTABLE LIQUID RT |
+                | Shipment Status            | IN PROGRESS                |
+                | Shipment Date              | <tomorrow>                 |
+                | Transportation Ref. Number | DIS-356                    |
+                | Total Cartons              | 1                          |
+                | Carton Status              | BPMMH1,1,REPACK            |
             And I should see the unacceptable units report information:
-                | Field      | Value            |
-                | Last Run   | 12/08/2023 13:30 |
-                | View  Icon | enabled          |
+                | Field      | Value   |
+                | Last Run   | <today> |
+                | View  Icon | enabled |
             When I choose to open the unacceptable units report.
             Then I should see the following unacceptable units report information:
-                | Information Type       | Information Value                                                                                                                                                                                                                          |
-                | Report Title           | Unacceptable Product Report                                                                                                                                                                                                                |
-                | Shipment Number Prefix | BPMMH                                                                                                                                                                                                                                      |
-                | Unit Number            | W036898786905,W036898786757,W036898786758,W036898786756                                                                                                                                                                                    |
-                | Product Code           | E6022V00,E6022V00,E6022V00,E6022V00                                                                                                                                                                                                        |
-                | Carton Number Prefix   | BPMMH1,BPMMH1,BPMMH1,BPMMH1                                                                                                                                                                                                                                    |
-                | Carton Sequence        | 1,1,1,1                                                                                                                                                                                                                                    |
-                | Reason for Failure     | This product is not in the inventory and cannot be shipped,This product is discarded and cannot be shipped,This product is quarantined and cannot be shipped,This product is expired and has been discarded. Place in biohazard container. |
+                | Information Type       | Information Value                                                                  |
+                | Report Title           | Unacceptable Product Report                                                                                   |
+                | Shipment Number Prefix | Shipment Number: DIS_356DIS356                                                                                |
+            And I should see the following rows in the units report information:
+                | Row Number  | Row Content                                                                                                   |
+                | 1           | W036898356905,E6022V00,BPMMH1,1,This product is not in the inventory and cannot be shipped                    |
+                | 2           | W036898356757,E6022V00,BPMMH1,1,This product is discarded and cannot be shipped                               |
+                | 3           | W036898356758,E6022V00,BPMMH1,1,This product is quarantined and cannot be shipped                             |
+                | 4           | W036898356756,E6022V00,BPMMH1,1,This product is expired and has been discarded. Place in biohazard container. |
 
 
 
-            Scenario: Reset default configurations
+
+        Scenario: Reset default configurations
             Given I have reset the shipment product criteria to have the following values:
                 | recovered_plasma_shipment_criteria_id | type                    | value | message                                   | message_type |
                 | 1                                     | MINIMUM_VOLUME          | 165   | Product Volume does not match criteria    | WARN         |
@@ -177,4 +180,3 @@ Feature: Generate the Unacceptable Products Report
                 | 4                                     | MINIMUM_UNITS_BY_CARTON | 15    | Minimum number of products does not match | WARN         |
                 | 1                                     | MINIMUM_UNITS_BY_CARTON | 20    | Minimum number of products does not match | WARN         |
                 | 6                                     | MINIMUM_UNITS_BY_CARTON | 15    | Minimum number of products does not match | WARN         |
-
