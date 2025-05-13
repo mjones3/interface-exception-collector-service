@@ -62,7 +62,7 @@ public class ProductModifiedListenerIntegrationIT {
         assertThat(capturedInput).isNotNull();
         assertThat(capturedInput.unitNumber()).isEqualTo(payloadJson.path(PAYLOAD).path(UNIT_NUMBER).asText());
         assertThat(capturedInput.productCode()).isEqualTo(payloadJson.path(PAYLOAD).path(PRODUCT_CODE).asText());
-        assertThat(capturedInput.shortDescription()).isEqualTo(payloadJson.path(PAYLOAD).path("shortDescription").asText());
+        assertThat(capturedInput.shortDescription()).isEqualTo(payloadJson.path(PAYLOAD).path("productDescription").asText());
         assertThat(capturedInput.parentProductCode()).isEqualTo(payloadJson.path(PAYLOAD).path("parentProductCode").asText());
         assertThat(capturedInput.productFamily()).isEqualTo(payloadJson.path(PAYLOAD).path("productFamily").asText());
         assertThat(capturedInput.expirationDate()).isEqualTo(payloadJson.path(PAYLOAD).path("expirationDate").asText());
