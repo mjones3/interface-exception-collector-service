@@ -38,5 +38,7 @@ public interface BioProConstants {
     String UNLICENSED = "UNLICENSED";
     String INVENTORY_STATUS = "inventoryStatus";
     String INPUT_PRODUCTS = "inputProducts";
+    String PRODUCT_VOLUME_TYPE = "volume";
+    String PRODUCT_VOLUME_UNIT = "MILLILITERS";
 
 }
