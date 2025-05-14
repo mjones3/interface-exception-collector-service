@@ -212,20 +212,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         it('should hide "add carton button" when canAddCartons is false', () => {
             const buttonIdCssSelector = By.css('#btnAddCarton');
             const root = fixture.debugElement;
-            mockRecoveredPlasmaService.getShipmentById.mockReturnValue(
-                of({
-                    data: {
-                        findShipmentById: {
-                            data: {
-                                canAddCartons: false,
-                            },
-                        },
-                    },
-                } as unknown as ApolloQueryResult<{
-                    findShipmentById: UseCaseResponseDTO<RecoveredPlasmaShipmentResponseDTO>;
-                }>)
-            );
-
+            jest.spyOn(component, 'shipmentDetailsSignal').mockReturnValue({ canAddCartons: false })
             fixture.detectChanges();
             const button = root.query(buttonIdCssSelector)?.nativeElement;
             expect(button).toBeFalsy();
@@ -234,20 +221,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         it('should show "add carton button" when canAddCartons is true', () => {
             const buttonIdCssSelector = By.css('#btnAddCarton');
             const root = fixture.debugElement;
-            mockRecoveredPlasmaService.getShipmentById.mockReturnValue(
-                of({
-                    data: {
-                        findShipmentById: {
-                            data: {
-                                canAddCartons: true,
-                            },
-                        },
-                    },
-                } as unknown as ApolloQueryResult<{
-                    findShipmentById: UseCaseResponseDTO<RecoveredPlasmaShipmentResponseDTO>;
-                }>)
-            );
-
+            jest.spyOn(component, 'shipmentDetailsSignal').mockReturnValue({ canAddCartons: true })
             fixture.detectChanges();
             const button = root.query(buttonIdCssSelector)?.nativeElement;
             expect(button).toBeTruthy();
@@ -413,16 +387,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
     });
 
     it('should show carton print button when canPrint is true', () => {
-        mockRecoveredPlasmaService.getShipmentById.mockReturnValue(
-            of({
-                data: {
-                    findShipmentById: {
-                        data: { cartonList: [ { canPrint: true } ] } as RecoveredPlasmaShipmentResponseDTO,
-                    },
-                },
-            } as unknown as ApolloQueryResult<{ findShipmentById: UseCaseResponseDTO<RecoveredPlasmaShipmentResponseDTO> }>)
-        );
-
+        jest.spyOn(component, 'cartonsComputed').mockReturnValue([ { canPrint: true } ]);
         fixture.detectChanges();
         const button = fixture.debugElement
             ?.query(By.css('button[data-testid=view-shipping-carton-packing-slip]'))
@@ -432,16 +397,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
     });
 
     it('should hide carton print button when canPrint is false', () => {
-        mockRecoveredPlasmaService.getShipmentById.mockReturnValue(
-            of({
-                data: {
-                    findShipmentById: {
-                        data: { cartonList: [ { canPrint: false } ] } as RecoveredPlasmaShipmentResponseDTO,
-                    },
-                },
-            } as unknown as ApolloQueryResult<{ findShipmentById: UseCaseResponseDTO<RecoveredPlasmaShipmentResponseDTO> }>)
-        );
-
+        jest.spyOn(component, 'cartonsComputed').mockReturnValue([ { canPrint: false } ]);
         fixture.detectChanges();
         const button = fixture.debugElement
             ?.query(By.css('button[data-testid=view-shipping-carton-packing-slip]'))
@@ -510,21 +466,27 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
 
         component.handleCloseShipmentContinue(mockDate);
 
-        expect(fetchShipmentDataSpy).toHaveBeenCalledWith(1, false);
+        expect(fetchShipmentDataSpy).toHaveBeenCalledWith(1);
     });
 
 
     describe('fetchShipmentData', () => {
+        jest.useFakeTimers();
         it('should call loadRecoveredPlasmaShippingDetails with the provided id', () => {
+            jest.clearAllTimers();
+
             const shipmentId = 123;
             const loadSpy = jest.spyOn(component, 'loadRecoveredPlasmaShippingDetails').mockReturnValue(of({}));
 
             component.fetchShipmentData(shipmentId);
+            jest.advanceTimersByTime(500);
 
             expect(loadSpy).toHaveBeenCalledWith(shipmentId);
         });
 
         it('should print carton when shouldPrintCartonPackingSlip is true', () => {
+            jest.clearAllTimers();
+
             const shipmentId = 123;
             const cartonId = 456;
             mockActivatedRoute.snapshot.queryParams = { print: 'true', closeCartonId: cartonId.toString() };
@@ -532,6 +494,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
             const printSpy = jest.spyOn(component, 'printCarton').mockImplementation();
 
             component.fetchShipmentData(shipmentId);
+            jest.advanceTimersByTime(500);
 
             expect(loadSpy).toHaveBeenCalledWith(shipmentId);
             expect(printSpy).toHaveBeenCalledWith(null, cartonId);
@@ -539,9 +502,13 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
     });
 
     describe('ngOnInit', () => {
+        jest.useFakeTimers();
         it('should call fetchShipmentData with routeIdComputed value', () => {
+            jest.clearAllTimers();
+
             const fetchSpy = jest.spyOn(component, 'fetchShipmentData').mockImplementation();
             component.ngOnInit();
+            jest.advanceTimersByTime(500);
             expect(fetchSpy).toHaveBeenCalledWith(component.routeIdComputed());
         });
     });
