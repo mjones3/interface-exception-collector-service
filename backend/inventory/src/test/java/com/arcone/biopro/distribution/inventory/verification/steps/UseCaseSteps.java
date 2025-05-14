@@ -30,7 +30,7 @@ public class UseCaseSteps {
 
     private final LabelAppliedUseCase labelAppliedUseCase;
 
-    private final LabelInvalidedUseCase labelInvalidedUseCase;
+    private final LabelInvalidatedUseCase labelInvalidatedUseCase;
 
     private final RemoveQuarantinedUseCase removeQuarantinedUseCase;
 
@@ -118,15 +118,15 @@ public class UseCaseSteps {
         }
     }
 
-    @When("I received a Label Invalided event for the following products:")
-    public void iReceivedALabelInvalidedEventForTheFollowingProducts(DataTable dataTable) {
+    @When("I received a Label Invalidated event for the following products:")
+    public void iReceivedALabelInvalidatedEventForTheFollowingProducts(DataTable dataTable) {
         List<Map<String, String>> products = dataTable.asMaps(String.class, String.class);
         for (Map<String, String> product : products) {
             String unitNumber = product.get("Unit Number");
             String productCode = product.get("Product Code");
 
-            LabelInvalidedInput input = LabelInvalidedInput.builder().unitNumber(unitNumber).productCode(productCode).build();
-            labelInvalidedUseCase.execute(input).block();
+            LabelInvalidatedInput input = LabelInvalidatedInput.builder().unitNumber(unitNumber).productCode(productCode).build();
+            labelInvalidatedUseCase.execute(input).block();
         }
     }
 
@@ -299,8 +299,8 @@ public class UseCaseSteps {
                 case "Label Applied":
                     iReceivedALabelAppliedEventForTheFollowingProducts(dataTable);
                     break;
-                case "Label Invalided":
-                    iReceivedALabelInvalidedEventForTheFollowingProducts(dataTable);
+                case "Label Invalidated":
+                    iReceivedALabelInvalidatedEventForTheFollowingProducts(dataTable);
                     break;
                 case "Apply Quarantine":
                     iReceiveApplyQuarantineWithReasonToTheUnitAndTheProduct(unitNumber, productCode, reason, reasonId);

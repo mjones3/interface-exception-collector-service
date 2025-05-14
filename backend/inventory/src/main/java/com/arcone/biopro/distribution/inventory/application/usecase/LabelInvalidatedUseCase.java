@@ -1,7 +1,7 @@
 package com.arcone.biopro.distribution.inventory.application.usecase;
 
 import com.arcone.biopro.distribution.inventory.application.dto.InventoryOutput;
-import com.arcone.biopro.distribution.inventory.application.dto.LabelInvalidedInput;
+import com.arcone.biopro.distribution.inventory.application.dto.LabelInvalidatedInput;
 import com.arcone.biopro.distribution.inventory.application.mapper.InventoryOutputMapper;
 import com.arcone.biopro.distribution.inventory.domain.event.InventoryEventPublisher;
 import com.arcone.biopro.distribution.inventory.domain.event.InventoryUpdatedApplicationEvent;
@@ -21,20 +21,20 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class LabelInvalidedUseCase implements UseCase<Mono<InventoryOutput>, LabelInvalidedInput> {
+public class LabelInvalidatedUseCase implements UseCase<Mono<InventoryOutput>, LabelInvalidatedInput> {
 
     InventoryAggregateRepository inventoryAggregateRepository;
     InventoryEventPublisher inventoryEventPublisher;
     InventoryOutputMapper mapper;
 
     @Override
-    public Mono<InventoryOutput> execute(LabelInvalidedInput input) {
+    public Mono<InventoryOutput> execute(LabelInvalidatedInput input) {
         var productCode = ProductCodeUtil.retrieveFinalProductCodeWithoutSixthDigit(input.productCode());
         return inventoryAggregateRepository.findByUnitNumberAndProductCode(input.unitNumber(), productCode)
             .switchIfEmpty(Mono.error(InventoryNotFoundException::new))
             .flatMap(inventoryAggregate -> inventoryAggregateRepository.saveInventory(inventoryAggregate.invalidLabel())
                 .map(InventoryAggregate::getInventory)
-                .doOnSuccess(inventory -> inventoryEventPublisher.publish(new InventoryUpdatedApplicationEvent(inventory, InventoryUpdateType.LABEL_INVALIDED)))
+                .doOnSuccess(inventory -> inventoryEventPublisher.publish(new InventoryUpdatedApplicationEvent(inventory, InventoryUpdateType.LABEL_INVALIDATED)))
                 .map(mapper::toOutput));
     }
 }

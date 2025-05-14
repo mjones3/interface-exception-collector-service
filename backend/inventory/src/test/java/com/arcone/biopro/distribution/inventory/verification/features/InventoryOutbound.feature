@@ -44,6 +44,6 @@ Feature: Inventory Outbound Interface
             @LAB-433
             Examples:
                 | Event            | Unit Number   | Product Code | Final Product Code | Is licensed | Shipment type | Reason | Reason Id | Device Storage | Storage Location | Location | Update Type     |
-                | Label  Invalided | W036825004011 | E067800      | E510600            | false       |               |        |           |                |                  |          | LABEL_INVALIDED |
+                | Label  Invalidated | W036825004011 | E067800      | E510600            | false       |               |        |           |                |                  |          | LABEL_INVALIDATED |
 
 

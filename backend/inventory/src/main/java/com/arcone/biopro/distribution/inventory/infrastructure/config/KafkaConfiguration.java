@@ -6,7 +6,7 @@ import com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.Pr
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.discarded.ProductDiscardedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.label.LabelAppliedMessage;
-import com.arcone.biopro.distribution.inventory.adapter.in.listener.labelinvalided.LabelInvalidedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.labelinvalidated.LabelInvalidatedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.modified.ProductModifiedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.AddQuarantinedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.RemoveQuarantinedMessage;
@@ -117,8 +117,8 @@ class KafkaConfiguration {
     @Value("${topic.product-modified.name}")
     private String productModifiedTopic;
 
-    @Value("${topic.label-invalided.name}")
-    private String labelInvalidedTopic;
+    @Value("${topic.label-invalidated.name}")
+    private String labelInvalidatedTopic;
 
     @Bean
     @Qualifier("UNSUITABLE")
@@ -156,10 +156,10 @@ class KafkaConfiguration {
     }
 
     @Bean
-    @Qualifier("LABEL_INVALIDED")
-    ReceiverOptions<String, String> labelInvalidedReceiverOptions(KafkaProperties kafkaProperties) {
+    @Qualifier("LABEL_INVALIDATED")
+    ReceiverOptions<String, String> labelInvalidatedReceiverOptions(KafkaProperties kafkaProperties) {
         return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
-            .subscription(List.of(labelInvalidedTopic));
+            .subscription(List.of(labelInvalidatedTopic));
     }
 
     @Bean
@@ -307,13 +307,13 @@ class KafkaConfiguration {
     }
 
     @AsyncListener(operation = @AsyncOperation(
-        channelName = "Label Invalided",
-        description = "Label was invalided",
-        payloadType = LabelInvalidedMessage.class
+        channelName = "Label Invalidated",
+        description = "Label was invalidated",
+        payloadType = LabelInvalidatedMessage.class
     ))
-    @Bean(name = "LABEL_INVALIDED_CONSUMER")
-    ReactiveKafkaConsumerTemplate<String, String> labelInvalidedConsumerTemplate(
-        @Qualifier("LABEL_INVALIDED") ReceiverOptions<String, String> receiverOptions
+    @Bean(name = "LABEL_INVALIDATED_CONSUMER")
+    ReactiveKafkaConsumerTemplate<String, String> labelInvalidatedConsumerTemplate(
+        @Qualifier("LABEL_INVALIDATED") ReceiverOptions<String, String> receiverOptions
     ) {
         return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
     }

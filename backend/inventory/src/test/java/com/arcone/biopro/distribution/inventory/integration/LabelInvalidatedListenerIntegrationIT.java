@@ -1,7 +1,7 @@
 package com.arcone.biopro.distribution.inventory.integration;
 
-import com.arcone.biopro.distribution.inventory.application.dto.LabelInvalidedInput;
-import com.arcone.biopro.distribution.inventory.application.usecase.LabelInvalidedUseCase;
+import com.arcone.biopro.distribution.inventory.application.dto.LabelInvalidatedInput;
+import com.arcone.biopro.distribution.inventory.application.usecase.LabelInvalidatedUseCase;
 import com.arcone.biopro.distribution.inventory.verification.utils.KafkaHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -35,29 +35,29 @@ import static org.mockito.Mockito.*;
     })
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @EmbeddedKafka(partitions = 1, brokerProperties = {"listeners=PLAINTEXT://localhost:9083", "port=9083"})
-public class LabelInvalidedListenerIntegrationIT {
+public class LabelInvalidatedListenerIntegrationIT {
 
     @Autowired
     private KafkaHelper kafkaHelper;
 
     @MockBean
-    private LabelInvalidedUseCase useCase;
+    private LabelInvalidatedUseCase useCase;
 
-    @Value("${topic.label-invalided.name}")
-    private String labelInvalidedTopic;
+    @Value("${topic.label-invalidated.name}")
+    private String labelInvalidatedTopic;
 
     @BeforeEach
     void setUp() {
-        when(useCase.execute(any(LabelInvalidedInput.class))).thenReturn(Mono.empty());
+        when(useCase.execute(any(LabelInvalidatedInput.class))).thenReturn(Mono.empty());
     }
 
     @Test
     @DisplayName("should publish, listen product modified event")
     public void test1() throws InterruptedException, IOException {
-        var payloadJson = kafkaHelper.publishEvent("json/label_invalided.json", labelInvalidedTopic);
-        ArgumentCaptor<LabelInvalidedInput> captor = ArgumentCaptor.forClass(LabelInvalidedInput.class);
+        var payloadJson = kafkaHelper.publishEvent("json/label_invalidated.json", labelInvalidatedTopic);
+        ArgumentCaptor<LabelInvalidatedInput> captor = ArgumentCaptor.forClass(LabelInvalidatedInput.class);
         verify(useCase, times(1)).execute(captor.capture());
-        LabelInvalidedInput capturedInput = captor.getValue();
+        LabelInvalidatedInput capturedInput = captor.getValue();
 
         assertThat(capturedInput).isNotNull();
         assertThat(capturedInput.unitNumber()).isEqualTo(payloadJson.path(PAYLOAD).path(UNIT_NUMBER).asText());

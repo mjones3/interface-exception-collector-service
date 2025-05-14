@@ -2,7 +2,7 @@ package com.arcone.biopro.distribution.inventory.domain.model.enumeration;
 
 public enum InventoryUpdateType {
     LABEL_APPLIED,
-    LABEL_INVALIDED,
+    LABEL_INVALIDATED,
     QUARANTINE_APPLIED,
     QUARANTINE_REMOVED,
     SHIPPED,

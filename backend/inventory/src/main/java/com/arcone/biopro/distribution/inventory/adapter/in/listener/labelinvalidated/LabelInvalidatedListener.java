@@ -1,10 +1,11 @@
-package com.arcone.biopro.distribution.inventory.adapter.in.listener.labelinvalided;
+package com.arcone.biopro.distribution.inventory.adapter.in.listener.labelinvalidated;
 
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.AbstractListener;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.EventMessage;
 import com.arcone.biopro.distribution.inventory.application.dto.InventoryOutput;
-import com.arcone.biopro.distribution.inventory.application.dto.LabelInvalidedInput;
+import com.arcone.biopro.distribution.inventory.application.dto.LabelInvalidatedInput;
 import com.arcone.biopro.distribution.inventory.application.usecase.UseCase;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
@@ -19,18 +20,18 @@ import reactor.core.publisher.Mono;
 @Service
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class LabelInvalidedListener extends AbstractListener<LabelInvalidedInput, InventoryOutput, LabelInvalidedMessage> {
+public class LabelInvalidatedListener extends AbstractListener<LabelInvalidatedInput, InventoryOutput, LabelInvalidatedMessage> {
 
-    public LabelInvalidedListener(@Qualifier("LABEL_INVALIDED_CONSUMER") ReactiveKafkaConsumerTemplate<String, String> consumer,
+    public LabelInvalidatedListener(@Qualifier("LABEL_INVALIDATED_CONSUMER") ReactiveKafkaConsumerTemplate<String, String> consumer,
                                   ObjectMapper objectMapper,
                                   ReactiveKafkaProducerTemplate<String, String> producerDLQTemplate,
-                                  LabelInvalidedMessageMapper mapper,
-                                  UseCase<Mono<InventoryOutput>, LabelInvalidedInput> useCase) {
+                                  LabelInvalidatedMessageMapper mapper,
+                                  UseCase<Mono<InventoryOutput>, LabelInvalidatedInput> useCase) {
         super(consumer, objectMapper, producerDLQTemplate, useCase, mapper);
     }
 
     @Override
-    protected TypeReference<EventMessage<LabelInvalidedMessage>> getMessageTypeReference() {
-        return new TypeReference<EventMessage<LabelInvalidedMessage>>() {};
+    protected TypeReference<EventMessage<LabelInvalidatedMessage>> getMessageTypeReference() {
+        return new TypeReference<EventMessage<LabelInvalidatedMessage>>() {};
     }
 }

@@ -1,7 +1,7 @@
 {
   "eventId":"30d0dfe8-f7fd-40ac-bf98-ac4d187605a6",
   "occurredOn":"2025-05-09T18:30:17.640956Z",
-  "eventType":"LabelInvalided",
+  "eventType":"LabelInvalidated",
   "eventVersion":"1.0",
   "payload":{
     "unitNumber":"W036825014001",

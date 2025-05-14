@@ -299,8 +299,8 @@ topic:
         name: ApheresisRBCProductCompleted
   label-applied:
     name: LabelApplied
-  label-invalided:
-    name: LabelInvalided
+  label-invalidated:
+    name: LabelInvalidated
   shipment-completed:
     name: ShipmentCompleted
   product-stored:

@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
 @Builder
-public record LabelInvalidedInput(
+public record LabelInvalidatedInput(
     String unitNumber,
     String productCode) {
 }
