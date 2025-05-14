@@ -43,6 +43,8 @@ public class CloseShipmentSteps {
 
     private String shipmentId;
 
+    private Map apiResponse;
+
     @Autowired
     private ShipmentDetailsPage shipmentDetailsPage;
 
@@ -86,17 +88,21 @@ public class CloseShipmentSteps {
 
     @When("I request to close the shipment with ship date as {string}")
     public void iRequestToCloseTheShipmentWithShipDateAs(String shipDate) {
-
-        createShipmentController.closeShipment(sharedContext.getShipmentCreateResponse().get("id").toString()
+        apiResponse = createShipmentController.closeShipment(sharedContext.getShipmentCreateResponse().get("id").toString()
            ,employeeId,sharedContext.getLocationCode() , testUtils.parseDataKeyword(shipDate));
 
-        Assertions.assertNotNull(sharedContext.getLastShipmentCloseResponse());
+        Assertions.assertNotNull(apiResponse);
+    }
 
+    @When("I request the last created shipment data again.")
+    public void iRequestTheLastCreatedShipmentData() {
+        apiResponse = filterShipmentsController.findShipmentByIdAndLocation(sharedContext.getShipmentCreateResponse().get("id").toString(), sharedContext.getLocationCode());
     }
 
     @And("The shipment status should be {string}")
     public void theShipmentStatusShouldBe(String shipmentStatus) {
-        Assertions.assertEquals(shipmentStatus, sharedContext.getShipmentCreateResponse().get("status").toString());
+        var data = (Map) apiResponse.get("data");
+        Assertions.assertEquals(shipmentStatus, data.get("status").toString());
     }
 
     @Then("I should receive a API {string} error message response {string}.")

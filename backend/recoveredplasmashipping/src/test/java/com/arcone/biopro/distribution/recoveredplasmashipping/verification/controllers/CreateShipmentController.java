@@ -130,7 +130,7 @@ public class CreateShipmentController {
         return lastShipmentId < currentShipmentId;
     }
 
-    public void closeShipment(String id, String employeeId, String locationCode , String shipDate ) {
+    public Map closeShipment(String id, String employeeId, String locationCode , String shipDate ) {
         String payload = GraphQLMutationMapper.closeShipment(id, employeeId, locationCode ,shipDate);
         var response = apiHelper.graphQlRequest(payload, "closeShipment");
         sharedContext.setLastShipmentCloseResponse((Map) response);
@@ -140,6 +140,7 @@ public class CreateShipmentController {
         if(response.get("errors") != null){
             sharedContext.setApiErrorResponse((Map) ((List) response.get("errors")).getFirst());
         }
+        return response;
     }
 
     public void printUnacceptableUnitsReport(String shipmentId, String locationCode) {

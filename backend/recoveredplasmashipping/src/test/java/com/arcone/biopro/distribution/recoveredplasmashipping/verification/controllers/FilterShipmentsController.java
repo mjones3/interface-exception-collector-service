@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -114,7 +113,7 @@ public class FilterShipmentsController {
         log.info("Response: {}", response);
     }
 
-    public void findShipmentByIdAndLocation(String id, String locationCode) {
+    public Map findShipmentByIdAndLocation(String id, String locationCode) {
         var response = apiHelper.graphQlRequest(GraphQLQueryMapper.findShipmentByIdAndLocation(id, locationCode), "findShipmentById");
         sharedContext.setApiListMessageResponse((List<Map>) (response.get("notifications")));
         if (response.get("data") != null) {
@@ -124,5 +123,6 @@ public class FilterShipmentsController {
             sharedContext.setFindShipmentApiResponse(Map.of());
         }
         log.info("Response: {}", response);
+        return response;
     }
 }
