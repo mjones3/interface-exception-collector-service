@@ -7,6 +7,7 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -19,6 +20,9 @@ public class CommonSteps {
 
     @Autowired
     SharedContext context;
+
+    @Value("${report.process.waiting.time}")
+    private int reportWaitingTime;
 
     @Then("I should see a {string} message: {string}.")
     public void iShouldSeeAMessage(String header, String message) throws InterruptedException {
@@ -69,4 +73,8 @@ public class CommonSteps {
         sharedActions.closeAcknowledgment();
     }
 
+    @And("The system process the unacceptable units report.")
+    public void theSystemProcessTheUnacceptableUnitsReport() throws InterruptedException {
+        Thread.sleep(reportWaitingTime);
+    }
 }

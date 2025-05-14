@@ -28,6 +28,8 @@ import { StorageRsa } from './rsa/StorageRsa';
 import { SubmitSecRsa } from './rsa/SubmitSecRsa';
 import { WholeBloodPrepRsa } from './rsa/WholeBloodPrepRsa';
 import { ArchiveBoxXMarkOutline } from './hi_outline/ArchiveBoxXMarkOutline';
+import { DocumentArrowDownHeroiconsOutline } from './hi_outline/DocumentArrowDownHeroIconsOutline';
+import { PrinterHeroiconsOutline } from './hi_outline/PrinterHeroiconsOutline';
 
 export const RSA_ICONS = [
     CheckInRsa,
@@ -61,6 +63,8 @@ export const HEROIC_ICONS = [
     ClipboardListHeroiconsOutline,
     ClockHeroiconsOutline,
     ArchiveBoxXMarkOutline,
+    PrinterHeroiconsOutline,
+    DocumentArrowDownHeroiconsOutline,
 ];
 
 export const DRIP_ICONS = [WarningDripicons, ChevronDownDripicons];

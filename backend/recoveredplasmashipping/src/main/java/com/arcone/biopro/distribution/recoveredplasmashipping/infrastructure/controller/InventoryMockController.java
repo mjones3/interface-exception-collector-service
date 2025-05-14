@@ -14,9 +14,11 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Controller;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -35,7 +37,11 @@ public class InventoryMockController {
     @MessageMapping("validateInventory")
     public Mono<InventoryValidationResponseDTO> validateInventory(@Payload InventoryValidationRequest request) {
         log.info("Checking inventory {} , {} , {} ", request.unitNumber(), request.productCode(), request.locationCode());
+        return mockValidateInventory(request);
 
+    }
+
+    private Mono<InventoryValidationResponseDTO> mockValidateInventory(InventoryValidationRequest request) {
         if (inventoryResponseDTOList == null) {
             initInventoryMockList();
         }
@@ -64,7 +70,7 @@ public class InventoryMockController {
     }
 
 
-    private Mono<InventoryValidationResponseDTO> defineInventoryResponse(InventoryResponseDTO inventoryResponseDTO) {
+        private Mono<InventoryValidationResponseDTO> defineInventoryResponse(InventoryResponseDTO inventoryResponseDTO) {
 
         return switch (inventoryResponseDTO.status()) {
             case "EXPIRED" -> Mono.just(InventoryValidationResponseDTO
@@ -201,6 +207,19 @@ public class InventoryMockController {
             log.error(e.getMessage());
             throw new RuntimeException(e);
         }
+    }
+
+    @MessageMapping("validateInventoryBatch")
+    public Flux<InventoryValidationResponseDTO> validateInventoryBatch(Flux<InventoryValidationRequest> requests) {
+        return requests
+            .windowTimeout(1000, Duration.ofSeconds(1)) // batch size of 1000 or 1 second
+            .flatMap(window -> window
+                .doOnNext(request ->
+                    log.debug("Processing inventory validation request: {}", request))
+                .flatMap(this::mockValidateInventory)
+                .doOnError(error ->
+                    log.error("Error processing inventory validation: {}", error.getMessage()))
+            );
     }
 
 }

@@ -137,7 +137,7 @@ class PackCartonItemUseCaseTest {
 
         var notification = Mockito.mock(InventoryNotification.class);
 
-        Mockito.when(inventoryValidation.getFistNotification()).thenReturn(notification);
+        Mockito.when(inventoryValidation.getFirstNotification()).thenReturn(notification);
         Mockito.when(notification.getAction()).thenReturn("ACTION");
         Mockito.when(notification.getReason()).thenReturn("REASON");
         Mockito.when(notification.getErrorMessage()).thenReturn("ERROR_MESSAGE");

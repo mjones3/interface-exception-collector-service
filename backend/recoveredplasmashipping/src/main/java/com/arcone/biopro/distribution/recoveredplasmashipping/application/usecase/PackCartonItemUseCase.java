@@ -78,7 +78,7 @@ public class PackCartonItemUseCase implements PackCartonItemService {
 
         return cartonRepository.findOneById(cartonId).flatMap(carton -> {
             if(error instanceof ProductValidationException productValidationException) {
-                var notification = Optional.ofNullable(productValidationException.getInventoryValidation()).map(InventoryValidation::getFistNotification).orElse(null);
+                var notification = Optional.ofNullable(productValidationException.getInventoryValidation()).map(InventoryValidation::getFirstNotification).orElse(null);
                 return Mono.just(new UseCaseOutput<>(List.of(UseCaseNotificationOutput
                     .builder()
                     .useCaseMessage(

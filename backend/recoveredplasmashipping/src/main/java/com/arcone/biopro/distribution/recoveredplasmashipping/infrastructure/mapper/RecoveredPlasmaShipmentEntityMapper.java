@@ -26,7 +26,6 @@ public interface RecoveredPlasmaShipmentEntityMapper {
             entity.getCustomerAddressDepartmentName(),entity.getCreateDate(), entity.getModificationDate() , entity.getLastUnsuitableReportRunDate(), cartonEntityMapper.toModelList(cartonEntityList) );
     }
 
-
     @Mapping(target = "customerCode", source = "shipmentCustomer.customerCode")
     @Mapping(target = "customerName", source = "shipmentCustomer.customerName")
     @Mapping(target = "customerState", source = "shipmentCustomer.customerState")
@@ -41,6 +40,7 @@ public interface RecoveredPlasmaShipmentEntityMapper {
     @Mapping(target = "customerAddressPhoneNumber", source = "shipmentCustomer.customerAddressPhoneNumber")
     @Mapping(target = "customerAddressDepartmentName", source = "shipmentCustomer.customerAddressDepartmentName")
     RecoveredPlasmaShipmentEntity toEntity(RecoveredPlasmaShipment recoveredPlasmaShipment);
+
 }
 
 

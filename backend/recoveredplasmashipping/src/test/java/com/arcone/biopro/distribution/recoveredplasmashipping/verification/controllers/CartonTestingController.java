@@ -84,6 +84,10 @@ public class CartonTestingController {
         databaseService.executeSql(DatabaseQueries.INSERT_PACKED_PRODUCT(cartonId, unitNumber, productCode, productType)).block();
     }
 
+    public void insertVerifiedProduct(String cartonId, String unitNumber, String productCode, String productType) {
+        databaseService.executeSql(DatabaseQueries.INSERT_VERIFIED_PRODUCT(cartonId, unitNumber, productCode, productType)).block();
+    }
+
     public void verifyCartonProduct(String cartonId, String unitNumber, String productCode, String locationCode) {
         String payload = GraphQLMutationMapper.verifyCarton(Integer.parseInt(cartonId), unitNumber, productCode, locationCode);
         var response = apiHelper.graphQlRequest(payload, "verifyCarton");
@@ -114,5 +118,9 @@ public class CartonTestingController {
         String payload = GraphQLQueryMapper.generateCartonPackingSlip(Integer.parseInt(cartonId), sharedContext.getEmployeeId(),locationCode);
         var response = apiHelper.graphQlRequest(payload, "generateCartonPackingSlip");
         sharedContext.setLastCartonPackingSlipResponse((Map) response.get("data"));
+    }
+
+    public void updateCartonStatus(String cartonId, String status) {
+        databaseService.executeSql(DatabaseQueries.UPDATE_CARTON_STATUS(cartonId, status)).block();
     }
 }

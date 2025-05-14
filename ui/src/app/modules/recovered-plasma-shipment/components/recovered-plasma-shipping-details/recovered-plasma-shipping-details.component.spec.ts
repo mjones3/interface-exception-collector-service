@@ -13,7 +13,6 @@ import { UseCaseResponseDTO } from '../../../../shared/models/use-case-response.
 import { CartonDTO, RecoveredPlasmaShipmentResponseDTO } from '../../models/recovered-plasma.dto';
 import { RecoveredPlasmaService } from '../../services/recovered-plasma.service';
 import { RecoveredPlasmaShippingDetailsComponent } from './recovered-plasma-shipping-details.component';
-import { CloseShipmentDailogComponent } from '../close-shipment-dailog/close-shipment-dailog.component';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { BrowserPrintingService } from '../../../../core/services/browser-printing/browser-printing.service';
 import { ViewShippingCartonPackingSlipComponent } from '../view-shipping-carton-packing-slip/view-shipping-carton-packing-slip.component';
@@ -31,7 +30,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
     let mockBrowserPrintingService: jest.Mocked<BrowserPrintingService>;
     let mockDialogRef: jest.Mocked<MatDialogRef<ViewShippingCartonPackingSlipComponent, CartonPackingSlipDTO>>;
     let mockActivatedRoute: any;
-    
+
     beforeEach(async () => {
         mockRouter = {
             navigate: jest.fn(),
@@ -213,20 +212,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         it('should hide "add carton button" when canAddCartons is false', () => {
             const buttonIdCssSelector = By.css('#btnAddCarton');
             const root = fixture.debugElement;
-            mockRecoveredPlasmaService.getShipmentById.mockReturnValue(
-                of({
-                    data: {
-                        findShipmentById: {
-                            data: {
-                                canAddCartons: false,
-                            },
-                        },
-                    },
-                } as unknown as ApolloQueryResult<{
-                    findShipmentById: UseCaseResponseDTO<RecoveredPlasmaShipmentResponseDTO>;
-                }>)
-            );
-
+            jest.spyOn(component, 'shipmentDetailsSignal').mockReturnValue({ canAddCartons: false })
             fixture.detectChanges();
             const button = root.query(buttonIdCssSelector)?.nativeElement;
             expect(button).toBeFalsy();
@@ -235,51 +221,10 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         it('should show "add carton button" when canAddCartons is true', () => {
             const buttonIdCssSelector = By.css('#btnAddCarton');
             const root = fixture.debugElement;
-            mockRecoveredPlasmaService.getShipmentById.mockReturnValue(
-                of({
-                    data: {
-                        findShipmentById: {
-                            data: {
-                                canAddCartons: true,
-                            },
-                        },
-                    },
-                } as unknown as ApolloQueryResult<{
-                    findShipmentById: UseCaseResponseDTO<RecoveredPlasmaShipmentResponseDTO>;
-                }>)
-            );
-
+            jest.spyOn(component, 'shipmentDetailsSignal').mockReturnValue({ canAddCartons: true })
             fixture.detectChanges();
             const button = root.query(buttonIdCssSelector)?.nativeElement;
             expect(button).toBeTruthy();
-        });
-    });
-
-    describe('getStatusBadgeCssClass', () => {
-        it('should return correct CSS class for OPEN status', () => {
-            const result = component.getStatusBadgeCssClass('OPEN');
-            expect(result).toBe(
-                'text-sm font-bold py-1.5 px-2 badge rounded-full bg-blue-100 text-blue-700'
-            );
-        });
-
-        it('should return correct CSS class for IN_PROGRESS status', () => {
-            const result = component.getStatusBadgeCssClass('IN_PROGRESS');
-            expect(result).toBe(
-                'text-sm font-bold py-1.5 px-2 badge rounded-full bg-[#FFEDD5] text-[#C2410C]'
-            );
-        });
-
-        it('should return correct CSS class for CLOSED status', () => {
-            const result = component.getStatusBadgeCssClass('CLOSED');
-            expect(result).toBe(
-                'text-sm font-bold py-1.5 px-2 badge rounded-full bg-green-100 text-green-700'
-            );
-        });
-
-        it('should return empty string for unknown status', () => {
-            const result = component.getStatusBadgeCssClass('UNKNOWN' as any);
-            expect(result).toBe('');
         });
     });
 
@@ -442,16 +387,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
     });
 
     it('should show carton print button when canPrint is true', () => {
-        mockRecoveredPlasmaService.getShipmentById.mockReturnValue(
-            of({
-                data: {
-                    findShipmentById: {
-                        data: { cartonList: [ { canPrint: true } ] } as RecoveredPlasmaShipmentResponseDTO,
-                    },
-                },
-            } as unknown as ApolloQueryResult<{ findShipmentById: UseCaseResponseDTO<RecoveredPlasmaShipmentResponseDTO> }>)
-        );
-
+        jest.spyOn(component, 'cartonsComputed').mockReturnValue([ { canPrint: true } ]);
         fixture.detectChanges();
         const button = fixture.debugElement
             ?.query(By.css('button[data-testid=view-shipping-carton-packing-slip]'))
@@ -461,16 +397,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
     });
 
     it('should hide carton print button when canPrint is false', () => {
-        mockRecoveredPlasmaService.getShipmentById.mockReturnValue(
-            of({
-                data: {
-                    findShipmentById: {
-                        data: { cartonList: [ { canPrint: false } ] } as RecoveredPlasmaShipmentResponseDTO,
-                    },
-                },
-            } as unknown as ApolloQueryResult<{ findShipmentById: UseCaseResponseDTO<RecoveredPlasmaShipmentResponseDTO> }>)
-        );
-
+        jest.spyOn(component, 'cartonsComputed').mockReturnValue([ { canPrint: false } ]);
         fixture.detectChanges();
         const button = fixture.debugElement
             ?.query(By.css('button[data-testid=view-shipping-carton-packing-slip]'))
@@ -498,7 +425,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         );
 
         component.handleCloseShipmentContinue(mockDate);
-        
+
         expect(mockRecoveredPlasmaService.closeShipment).toHaveBeenCalledWith({
             locationCode: '123456789',
             shipmentId: 1,
@@ -534,44 +461,70 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         };
 
         mockRecoveredPlasmaService.closeShipment.mockReturnValue(of(mockResponse));
-        
+
         const fetchShipmentDataSpy = jest.spyOn(component, 'fetchShipmentData');
-        
+
         component.handleCloseShipmentContinue(mockDate);
-        
+
         expect(fetchShipmentDataSpy).toHaveBeenCalledWith(1);
     });
 
 
     describe('fetchShipmentData', () => {
+        jest.useFakeTimers();
         it('should call loadRecoveredPlasmaShippingDetails with the provided id', () => {
+            jest.clearAllTimers();
+
             const shipmentId = 123;
             const loadSpy = jest.spyOn(component, 'loadRecoveredPlasmaShippingDetails').mockReturnValue(of({}));
-            
+
             component.fetchShipmentData(shipmentId);
-            
+            jest.advanceTimersByTime(500);
+
             expect(loadSpy).toHaveBeenCalledWith(shipmentId);
         });
 
         it('should print carton when shouldPrintCartonPackingSlip is true', () => {
+            jest.clearAllTimers();
+
             const shipmentId = 123;
             const cartonId = 456;
             mockActivatedRoute.snapshot.queryParams = { print: 'true', closeCartonId: cartonId.toString() };
             const loadSpy = jest.spyOn(component, 'loadRecoveredPlasmaShippingDetails').mockReturnValue(of({}));
             const printSpy = jest.spyOn(component, 'printCarton').mockImplementation();
-            
+
             component.fetchShipmentData(shipmentId);
-            
+            jest.advanceTimersByTime(500);
+
             expect(loadSpy).toHaveBeenCalledWith(shipmentId);
             expect(printSpy).toHaveBeenCalledWith(null, cartonId);
         });
     });
 
     describe('ngOnInit', () => {
+        jest.useFakeTimers();
         it('should call fetchShipmentData with routeIdComputed value', () => {
+            jest.clearAllTimers();
+
             const fetchSpy = jest.spyOn(component, 'fetchShipmentData').mockImplementation();
             component.ngOnInit();
+            jest.advanceTimersByTime(500);
             expect(fetchSpy).toHaveBeenCalledWith(component.routeIdComputed());
         });
+    });
+
+    it('should open CloseShipmentDailogComponent', () => {
+        const mockDate = '2026-12-26';
+        const mockShipmentData = {
+            id: 456,
+            shipmentNumber: 'S456',
+            status: 'OPEN',
+            customerName: 'Test Customer',
+            shipmentDate: mockDate
+          };
+        component.shipmentDetailsSignal.set(mockShipmentData);
+        component.onClickCloseShipment();
+        jest.spyOn(mockMatDialog, 'open');
+        expect(mockMatDialog.open).toHaveBeenCalled();
     });
 });

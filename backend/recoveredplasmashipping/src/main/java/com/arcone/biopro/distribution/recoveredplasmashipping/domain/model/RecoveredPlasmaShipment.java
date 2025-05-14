@@ -1,9 +1,12 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.domain.model;
 
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.exception.DomainNotFoundForKeyException;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.vo.UnacceptableUnitReportItem;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.LocationRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShipmentCriteriaRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShippingRepository;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.SystemProcessPropertyRepository;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.UnacceptableUnitReportRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.CustomerService;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -62,16 +65,20 @@ public class RecoveredPlasmaShipment implements Validatable {
     private static final String IN_PROGRESS_STATUS = "IN_PROGRESS";
     private static final String CLOSED_STATUS = "CLOSED";
     private static final String PROCESSING_STATUS = "PROCESSING";
+    private static final String STATUS_COMPLETED = "COMPLETED";
+    private static final String STATUS_COMPLETED_FAILED = "COMPLETED_FAILED";
+    private static final String ERROR_PROCESSING = "ERROR_PROCESSING";
+
 
     public static RecoveredPlasmaShipment createNewShipment(CreateShipmentCommand command, CustomerService customerService
         , RecoveredPlasmaShippingRepository recoveredPlasmaShippingRepository
-        , LocationRepository locationRepository , RecoveredPlasmaShipmentCriteriaRepository recoveredPlasmaShipmentCriteriaRepository) {
+        , LocationRepository locationRepository, RecoveredPlasmaShipmentCriteriaRepository recoveredPlasmaShipmentCriteriaRepository) {
 
         var location = getLocation(command.getLocationCode(), locationRepository);
 
         var customer = ShipmentCustomer.fromCustomerCode(command.getCustomerCode(), customerService);
 
-        var productCriteria = getProductTypeCriteria(command.getCustomerCode(), command.getProductType(),recoveredPlasmaShipmentCriteriaRepository );
+        var productCriteria = getProductTypeCriteria(command.getCustomerCode(), command.getProductType(), recoveredPlasmaShipmentCriteriaRepository);
 
         var shipmentId = getNextShipmentId(recoveredPlasmaShippingRepository);
 
@@ -96,9 +103,9 @@ public class RecoveredPlasmaShipment implements Validatable {
 
     }
 
-    public static RecoveredPlasmaShipment fromFindByCommand(FindShipmentCommand findShipmentCommand , RecoveredPlasmaShippingRepository recoveredPlasmaShippingRepository){
+    public static RecoveredPlasmaShipment fromFindByCommand(FindShipmentCommand findShipmentCommand, RecoveredPlasmaShippingRepository recoveredPlasmaShippingRepository) {
         return recoveredPlasmaShippingRepository.findOneById(findShipmentCommand.getShipmentId())
-            .switchIfEmpty(Mono.error( ()-> new DomainNotFoundForKeyException(String.format("%s", findShipmentCommand.getShipmentId()))))
+            .switchIfEmpty(Mono.error(() -> new DomainNotFoundForKeyException(String.format("%s", findShipmentCommand.getShipmentId()))))
             .flatMap(recoveredPlasmaShipment -> {
                 recoveredPlasmaShipment.setCanAddCartons(recoveredPlasmaShipment.getLocationCode().equals(findShipmentCommand.getLocationCode()));
                 return Mono.just(recoveredPlasmaShipment);
@@ -122,12 +129,12 @@ public class RecoveredPlasmaShipment implements Validatable {
         , String customerAddressPhoneNumber, String customerAddressDepartmentName,
 
                                                          ZonedDateTime createDate,
-                                                         ZonedDateTime modificationDate , ZonedDateTime lastUnsuitableReportRunDate , List<Carton> cartonList) {
+                                                         ZonedDateTime modificationDate, ZonedDateTime lastUnsuitableReportRunDate, List<Carton> cartonList) {
         var shipment = RecoveredPlasmaShipment
             .builder()
             .id(id)
-            .shipmentCustomer(ShipmentCustomer.fromShipmentDetails(customerCode,customerName,customerState,customerPostalCode,customerCountry,customerCountryCode
-                ,customerCity,customerDistrict,customerAddressLine1,customerAddressLine2,customerAddressContactName,customerAddressPhoneNumber,customerAddressDepartmentName))
+            .shipmentCustomer(ShipmentCustomer.fromShipmentDetails(customerCode, customerName, customerState, customerPostalCode, customerCountry, customerCountryCode
+                , customerCity, customerDistrict, customerAddressLine1, customerAddressLine2, customerAddressContactName, customerAddressPhoneNumber, customerAddressDepartmentName))
             .locationCode(locationCode)
             .productType(productType)
             .shipmentNumber(shipmentNumber)
@@ -157,14 +164,14 @@ public class RecoveredPlasmaShipment implements Validatable {
         }
 
         return recoveredPlasmaShippingRepository.getNextShipmentId()
-            .switchIfEmpty(Mono.error( ()-> new IllegalArgumentException("Shipment Number is required")))
+            .switchIfEmpty(Mono.error(() -> new IllegalArgumentException("Shipment Number is required")))
             .block();
     }
 
     private static Location getLocation(String locationCode, LocationRepository locationRepository) {
-            return locationRepository.findOneByCode(locationCode)
-                .switchIfEmpty(Mono.error( ()-> new IllegalArgumentException("Location is required")))
-                .block();
+        return locationRepository.findOneByCode(locationCode)
+            .switchIfEmpty(Mono.error(() -> new IllegalArgumentException("Location is required")))
+            .block();
     }
 
     private static String generateShipmentNumber(Long shipmentId, Location location) {
@@ -190,7 +197,7 @@ public class RecoveredPlasmaShipment implements Validatable {
             throw new IllegalArgumentException("Location configuration is missing the setup for  " + SHIPMENT_LOCATION_CODE_KEY + " property");
         }
 
-        shipmentNumber = String.format("%s%s%s",shipmentNumber,shipmentLocationCode.get().getPropertyValue(),shipmentId);
+        shipmentNumber = String.format("%s%s%s", shipmentNumber, shipmentLocationCode.get().getPropertyValue(), shipmentId);
 
         return shipmentNumber;
 
@@ -226,13 +233,13 @@ public class RecoveredPlasmaShipment implements Validatable {
             throw new IllegalArgumentException("Carton tare weight is required");
         }
 
-        if(this.unsuitableUnitReportDocumentStatus != null && lastUnsuitableReportRunDate == null){
+        if (this.unsuitableUnitReportDocumentStatus != null && lastUnsuitableReportRunDate == null) {
             throw new IllegalArgumentException("Last run date is required");
         }
     }
 
 
-    private static RecoveredPlasmaShipmentCriteria getProductTypeCriteria(String customerCode , String productType ,RecoveredPlasmaShipmentCriteriaRepository recoveredPlasmaShipmentCriteriaRepository) {
+    private static RecoveredPlasmaShipmentCriteria getProductTypeCriteria(String customerCode, String productType, RecoveredPlasmaShipmentCriteriaRepository recoveredPlasmaShipmentCriteriaRepository) {
         if (recoveredPlasmaShipmentCriteriaRepository == null) {
             throw new IllegalArgumentException("RecoveredPlasmaShipmentCriteriaRepository is required");
         }
@@ -244,39 +251,39 @@ public class RecoveredPlasmaShipment implements Validatable {
 
 
     public int getTotalCartons() {
-        if(this.cartonList == null){
+        if (this.cartonList == null) {
             return 0;
         }
 
         return this.cartonList.size();
     }
 
-    public int getTotalProducts(){
-        if (this.cartonList == null){
+    public int getTotalProducts() {
+        if (this.cartonList == null) {
             return 0;
         }
 
         return this.cartonList.stream()
-            .reduce(0, (partialTotalProducts, carton ) -> partialTotalProducts + carton.getTotalProducts(), Integer::sum);
+            .reduce(0, (partialTotalProducts, carton) -> partialTotalProducts + carton.getTotalProducts(), Integer::sum);
     }
 
-    public RecoveredPlasmaShipment markAsInProgress(){
-        if(CLOSED_STATUS.equals(this.status)){
+    public RecoveredPlasmaShipment markAsInProgress() {
+        if (CLOSED_STATUS.equals(this.status)) {
             throw new IllegalArgumentException("Shipment is closed and cannot be reopen");
         }
 
-        if(this.status.equals(OPEN_STATUS)){
-               this.status = "IN_PROGRESS";
+        if (this.status.equals(OPEN_STATUS)) {
+            this.status = "IN_PROGRESS";
         }
 
-       return this;
+        return this;
     }
 
-    public RecoveredPlasmaShipment markAsProcessing(final CloseShipmentCommand closeShipmentCommand){
+    public RecoveredPlasmaShipment markAsProcessing(final CloseShipmentCommand closeShipmentCommand) {
 
-        if(!canClose()){
-           throw new IllegalArgumentException("Shipment cannot be closed");
-       }
+        if (!canClose()) {
+            throw new IllegalArgumentException("Shipment cannot be closed");
+        }
 
         this.status = PROCESSING_STATUS;
         this.shipmentDate = closeShipmentCommand.getShipDate();
@@ -287,16 +294,54 @@ public class RecoveredPlasmaShipment implements Validatable {
         return this;
     }
 
-    public boolean canClose(){
-        if(this.cartonList == null || this.cartonList.isEmpty()){
+    public boolean canClose() {
+        if (this.cartonList == null || this.cartonList.isEmpty()) {
             return false;
         }
         var allCartonsAreClosed = this.cartonList.stream().allMatch(carton -> CLOSED_STATUS.equals(carton.getStatus()));
 
-        return !PROCESSING_STATUS.equals(this.status) && !CLOSED_STATUS.equals(this.status) && allCartonsAreClosed ;
+        return !PROCESSING_STATUS.equals(this.status) && !CLOSED_STATUS.equals(this.status) && allCartonsAreClosed;
     }
 
-    public boolean canModify(){
+    public boolean canModify() {
         return !PROCESSING_STATUS.equals(this.status);
+    }
+
+    public UnacceptableUnitReport printUnacceptableUnitReport(final PrintUnacceptableUnitReportCommand printUnacceptableUnitReportCommand, UnacceptableUnitReportRepository unacceptableUnitReportRepository
+        , LocationRepository locationRepository, SystemProcessPropertyRepository systemProcessPropertyRepository) {
+
+        if (this.unsuitableUnitReportDocumentStatus == null || this.unsuitableUnitReportDocumentStatus.isBlank()) {
+            throw new IllegalArgumentException("Unacceptable units report not available");
+        }
+
+        if (PROCESSING_STATUS.equals(this.status)) {
+            throw new IllegalArgumentException("Unacceptable units report still running");
+        }
+        return UnacceptableUnitReport.createReport(this, unacceptableUnitReportRepository, locationRepository, systemProcessPropertyRepository, printUnacceptableUnitReportCommand.getLocationCode());
+    }
+
+    public RecoveredPlasmaShipment completeProcessing(final List<UnacceptableUnitReportItem> unacceptableUnitReportItemList) {
+        if (unacceptableUnitReportItemList == null || unacceptableUnitReportItemList.isEmpty()) {
+            this.status = CLOSED_STATUS;
+            this.closeDate = ZonedDateTime.now();
+            this.unsuitableUnitReportDocumentStatus = STATUS_COMPLETED;
+        } else {
+            this.status = IN_PROGRESS_STATUS;
+            this.closeDate = null;
+            this.closeEmployeeId = null;
+            this.unsuitableUnitReportDocumentStatus = STATUS_COMPLETED_FAILED;
+        }
+        this.lastUnsuitableReportRunDate = ZonedDateTime.now();
+
+        return this;
+    }
+
+    public RecoveredPlasmaShipment markAsProcessingError() {
+        this.status = IN_PROGRESS_STATUS;
+        this.closeDate = null;
+        this.closeEmployeeId = null;
+        this.unsuitableUnitReportDocumentStatus = ERROR_PROCESSING;
+        this.lastUnsuitableReportRunDate = ZonedDateTime.now();
+        return this;
     }
 }
