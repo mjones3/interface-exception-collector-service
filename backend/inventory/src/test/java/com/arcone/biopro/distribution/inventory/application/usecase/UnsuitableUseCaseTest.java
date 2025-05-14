@@ -148,7 +148,7 @@ class UnsuitableUseCaseTest {
                 .id(UUID.randomUUID())
                 .unitNumber(new UnitNumber(UNIT_NUMBER))
                 .productCode(new ProductCode(PRODUCT_CODE))
-                .location(LOCATION_1)
+                .inventoryLocation(LOCATION_1)
                 .inventoryStatus(status)
                 .expirationDate(expirationDate)
                 .build())

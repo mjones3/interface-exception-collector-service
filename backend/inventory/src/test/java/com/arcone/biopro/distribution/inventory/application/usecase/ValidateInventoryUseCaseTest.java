@@ -62,7 +62,7 @@ class ValidateInventoryUseCaseTest {
         InventoryInput input = InventoryInput.builder()
             .unitNumber(UNIT_NUMBER)
             .productCode(PRODUCT_CODE)
-            .location(LOCATION_1)
+            .inventoryLocation(LOCATION_1)
             .build();
 
         when(inventoryAggregateRepository.findByUnitNumberAndProductCode(any(), any()))
@@ -84,7 +84,7 @@ class ValidateInventoryUseCaseTest {
         InventoryInput input = InventoryInput.builder()
             .unitNumber(UNIT_NUMBER)
             .productCode(PRODUCT_CODE)
-            .location(LOCATION_1)
+            .inventoryLocation(LOCATION_1)
             .build();
 
         when(inventoryAggregateRepository.findByUnitNumberAndProductCode(any(), any()))
@@ -108,7 +108,7 @@ class ValidateInventoryUseCaseTest {
         InventoryInput input = InventoryInput.builder()
             .unitNumber(UNIT_NUMBER)
             .productCode(PRODUCT_CODE)
-            .location(LOCATION_1)
+            .inventoryLocation(LOCATION_1)
             .build();
 
         var inventoryAggregate = createInventoryAggregate(InventoryStatus.SHIPPED, LocalDateTime.now().plusDays(1));
@@ -131,7 +131,7 @@ class ValidateInventoryUseCaseTest {
 
     @Test
     void execute_shouldValidate_inventory_is_not_found() {
-        InventoryInput input = new InventoryInput(UNIT_NUMBER, PRODUCT_CODE, null, null, true, 300, null, LOCATION_1, null, null);
+        InventoryInput input = new InventoryInput(UNIT_NUMBER, PRODUCT_CODE, null, null, true, 300, null, LOCATION_1, LOCATION_1, null, null, null);
 
         when(inventoryAggregateRepository.findByUnitNumberAndProductCode(any(), any()))
             .thenReturn(Mono.empty());
@@ -153,7 +153,7 @@ class ValidateInventoryUseCaseTest {
                     .id(UUID.randomUUID())
                     .unitNumber(new UnitNumber(UNIT_NUMBER))
                     .productCode(new ProductCode(PRODUCT_CODE))
-                    .location(LOCATION_1)
+                    .inventoryLocation(LOCATION_1)
                     .inventoryStatus(status)
                     .expirationDate(expirationDate)
                     .isLabeled(Boolean.TRUE)

@@ -42,7 +42,9 @@ public class Inventory {
 
     Integer weight;
 
-    String location;
+    String inventoryLocation;
+
+    String collectionLocation;
 
     String productFamily;
 
@@ -53,6 +55,8 @@ public class Inventory {
     ZonedDateTime createDate;
 
     ZonedDateTime modificationDate;
+
+    String collectionTimeZone;
 
     @Builder.Default
     List<Quarantine> quarantines = new ArrayList<>();

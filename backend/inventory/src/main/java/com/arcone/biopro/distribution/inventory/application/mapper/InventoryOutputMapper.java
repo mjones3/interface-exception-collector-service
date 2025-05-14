@@ -33,6 +33,7 @@ public abstract class InventoryOutputMapper {
 
     @Mapping(target = "unitNumber", source = "unitNumber.value")
     @Mapping(target = "productCode", source = "productCode.value")
+    @Mapping(target = "location", source = "inventoryLocation")
     public abstract InventoryOutput toOutput(Inventory domain);
 
     @Mapping(target = "productFamily", source = "productFamily")
@@ -85,7 +86,7 @@ public abstract class InventoryOutputMapper {
     @Mapping(target = "inventory.collectionDate", source = "collectionDate")
     @Mapping(target = "inventory.isLicensed", source = "isLicensed")
     @Mapping(target = "inventory.weight", source = "weight")
-    @Mapping(target = "inventory.location", source = "location")
+    @Mapping(target = "inventory.inventoryLocation", source = "inventoryLocation")
     @Mapping(target = "inventory.productFamily", source = "productFamily")
     @Mapping(target = "inventory.aboRh", source = "aboRh")
     @Mapping(target = "inventory.id", expression = "java(java.util.UUID.randomUUID())")
@@ -100,7 +101,9 @@ public abstract class InventoryOutputMapper {
     @Mapping(target = "inventory.expirationDate", expression = "java(createExpirationDate(productCreatedInput.expirationDate(), productCreatedInput.expirationTime()))")
     @Mapping(target = "inventory.collectionDate", source = "collectionDate")
     @Mapping(target = "inventory.weight", source = "weight")
-    @Mapping(target = "inventory.location", source = "location")
+    @Mapping(target = "inventory.inventoryLocation", source = "inventoryLocation")
+    @Mapping(target = "inventory.collectionLocation", source = "collectionLocation")
+    @Mapping(target = "inventory.collectionTimeZone", source = "collectionTimeZone")
     @Mapping(target = "inventory.productFamily", source = "productFamily")
     @Mapping(target = "inventory.aboRh", source = "aboRh")
     @Mapping(target = "inventory.id", expression = "java(java.util.UUID.randomUUID())")
@@ -125,7 +128,9 @@ public abstract class InventoryOutputMapper {
     @Mapping(target = "inventory.productCode.value", source = "productCode")
     @Mapping(target = "inventory.shortDescription", source = "productDescription")
     @Mapping(target = "inventory.collectionDate", source = "collectionDate")
-    @Mapping(target = "inventory.location", source = "location")
+    @Mapping(target = "inventory.inventoryLocation", source = "inventoryLocation")
+    @Mapping(target = "inventory.collectionLocation", source = "collectionLocation")
+    @Mapping(target = "inventory.collectionTimeZone", source = "collectionTimeZone")
     @Mapping(target = "inventory.productFamily", source = "productFamily")
     @Mapping(target = "inventory.aboRh", source = "aboRh")
     @Mapping(target = "inventory.id", expression = "java(java.util.UUID.randomUUID())")

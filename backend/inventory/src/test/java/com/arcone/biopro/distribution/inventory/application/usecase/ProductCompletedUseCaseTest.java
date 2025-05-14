@@ -70,6 +70,7 @@ class ProductCompletedUseCaseTest {
             .unitNumber(UNIT_NUMBER)
             .productCode(PRODUCT_CODE)
             .volumes(List.of())
+            .aboRh(AboRhType.ABN)
             .build();
 
         Mono<InventoryOutput> result = productCompletedUseCase.execute(input);
@@ -92,7 +93,7 @@ class ProductCompletedUseCaseTest {
             .inventoryStatus(InventoryStatus.AVAILABLE)
             .expirationDate(LocalDateTime.now().plusMonths(2))
             .collectionDate(ZonedDateTime.now())
-            .location(LOCATION)
+            .inventoryLocation(LOCATION)
             .productFamily(PRODUCT_FAMILY)
             .aboRh(AboRhType.ABN)
             .isLabeled(false)
@@ -125,6 +126,7 @@ class ProductCompletedUseCaseTest {
             .unitNumber(UNIT_NUMBER)
             .productCode(PRODUCT_CODE)
             .volumes(List.of())
+            .aboRh(AboRhType.ABN)
             .build();
 
         Mono<InventoryOutput> result = productCompletedUseCase.execute(input);
@@ -146,7 +148,7 @@ class ProductCompletedUseCaseTest {
             .inventoryStatus(InventoryStatus.AVAILABLE)
             .expirationDate(LocalDateTime.now().plusMonths(2))
             .collectionDate(ZonedDateTime.now())
-            .location(LOCATION)
+            .inventoryLocation(LOCATION)
             .productFamily(PRODUCT_FAMILY)
             .aboRh(AboRhType.ABN)
             .isLabeled(false)
@@ -189,6 +191,7 @@ class ProductCompletedUseCaseTest {
             .unitNumber(UNIT_NUMBER)
             .productCode(PRODUCT_CODE)
             .volumes(List.of(volumeInput, anticoagulantVolumeInput))
+            .aboRh(AboRhType.ABN)
             .build();
 
         Mono<InventoryOutput> result = productCompletedUseCase.execute(input);

@@ -75,7 +75,7 @@ public class LabelAppliedIntegrationIT {
         assertThat(capturedInput.isLicensed().toString()).isEqualTo(payloadJson.path(PAYLOAD).path("isLicensed").asText());
         assertThat(capturedInput.weight()).isEqualTo(payloadJson.path(PAYLOAD).path("weight").asInt());
         assertThat(capturedInput.collectionDate()).isEqualTo(payloadJson.path(PAYLOAD).path("collectionDate").asText());
-        assertThat(capturedInput.location()).isEqualTo(payloadJson.path(PAYLOAD).path("location").asText());
+        assertThat(capturedInput.inventoryLocation()).isEqualTo(payloadJson.path(PAYLOAD).path("location").asText());
         assertThat(capturedInput.productFamily()).isEqualTo(payloadJson.path(PAYLOAD).path("productFamily").asText());
         assertThat(capturedInput.aboRh()).isEqualTo(AboRhType.valueOf(payloadJson.path(PAYLOAD).path("aboRh").asText()));
     }

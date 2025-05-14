@@ -13,7 +13,7 @@
     "collectionDate" : "2024-10-30T16:02:48.179494Z",
     "isLicensed" : true,
     "weight" : 123,
-    "location" : "LOCATION_2",
+    "inventoryLocation" : "LOCATION_2",
     "productFamily" : "PLASMA_TRANSFUSABLE",
     "statusReason" : "ACTIVE_DEFERRAL",
     "aboRh" : "OP",

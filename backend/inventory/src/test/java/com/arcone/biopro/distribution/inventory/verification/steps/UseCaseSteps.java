@@ -172,7 +172,9 @@ public class UseCaseSteps {
         for (Map<String, String> product : products) {
             String unitNumber = product.get("Unit Number");
             String productCode = product.get("Product Code");
-            checkInCompletedUseCase.execute(inventoryUtil.newCheckInCompletedInput(unitNumber, productCode)).block();
+            String collectionLocation = product.get("Collection Location");
+            String collectionTimeZone = product.get("Collection TimeZone");
+            checkInCompletedUseCase.execute(inventoryUtil.newCheckInCompletedInput(unitNumber, productCode, collectionLocation, collectionTimeZone)).block();
         }
     }
 

@@ -68,7 +68,7 @@ class LabelAppliedUseCaseTest {
             .inventoryStatus(InventoryStatus.AVAILABLE)
             .expirationDate(LocalDateTime.parse("2025-01-08T02:05:45.231"))
             .collectionDate(ZonedDateTime.now())
-            .location("LOCATION_1")
+            .inventoryLocation("LOCATION_1")
             .productFamily("PLASMA_TRANSFUSABLE")
             .aboRh(AboRhType.ABN)
             .isLabeled(false)
@@ -80,7 +80,7 @@ class LabelAppliedUseCaseTest {
             .shortDescription("APH PLASMA 24H")
             .expirationDate(LocalDateTime.parse("2025-01-08T02:05:45.231"))
             .collectionDate(ZonedDateTime.now())
-            .location("LOCATION_1")
+            .inventoryLocation("LOCATION_1")
             .productFamily("PLASMA_TRANSFUSABLE")
             .aboRh(AboRhType.ABN)
             .isLicensed(isLicensed)
@@ -116,7 +116,7 @@ class LabelAppliedUseCaseTest {
         assertTrue(savedAggregate.getInventory().getIsLabeled());
         assertEquals(isLicensed, savedAggregate.getInventory().getIsLicensed());
         assertEquals("2025-01-08T02:05:45.231", savedAggregate.getInventory().getExpirationDate().toString());
-        assertEquals("LOCATION_1", savedAggregate.getInventory().getLocation());
+        assertEquals("LOCATION_1", savedAggregate.getInventory().getInventoryLocation());
     }
 
     private static Stream<Arguments> provideLabelAppliedUseCase() {
@@ -138,6 +138,8 @@ class LabelAppliedUseCaseTest {
             300,
             ZonedDateTime.now(),
             "MIAMI",
+            "MIAMI",
+            ZonedDateTime.now().getZone().getId(),
             "PLASMA_TRANSFUSABLE",
             AboRhType.ABN);
 

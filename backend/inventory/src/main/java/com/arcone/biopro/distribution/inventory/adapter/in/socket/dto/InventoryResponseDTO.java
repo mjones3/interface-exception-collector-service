@@ -25,6 +25,8 @@ public record InventoryResponseDTO(
     String productFamily,
     ZonedDateTime collectionDate,
     String storageLocation,
+    String collectionLocation,
+    String collectionTimeZone,
     ZonedDateTime createDate,
     ZonedDateTime modificationDate,
     List<Volume> volumes

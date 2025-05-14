@@ -12,10 +12,11 @@ public record ProductCreatedMessage(
     String productDescription,
     String expirationDate,
     String expirationTime,
-    String expirationTimeZone,
     ValueUnit weight,
     ZonedDateTime drawTime,
     String manufacturingLocation,
+    String collectionLocation,
+    String collectionTimeZone,
     String productFamily,
     AboRhType aboRh,
     List<InputProduct> inputProducts) {

@@ -100,7 +100,7 @@ public class ProductCreatedIntegrationIT {
         assertThat(capturedInput.expirationDate()).isEqualTo(payloadJson.path(PAYLOAD).path("expirationDate").asText());
         assertThat(capturedInput.weight()).isEqualTo(payloadJson.path(PAYLOAD).path("weight").path("value").asInt());
         assertThat(capturedInput.collectionDate()).isEqualTo(payloadJson.path(PAYLOAD).path("drawTime").asText());
-        assertThat(capturedInput.location()).isEqualTo(payloadJson.path(PAYLOAD).path("manufacturingLocation").asText());
+        assertThat(capturedInput.inventoryLocation()).isEqualTo(payloadJson.path(PAYLOAD).path("manufacturingLocation").asText());
         assertThat(capturedInput.productFamily()).isEqualTo(payloadJson.path(PAYLOAD).path("productFamily").asText());
         assertThat(capturedInput.aboRh()).isEqualTo(AboRhType.valueOf(payloadJson.path(PAYLOAD).path("aboRh").asText()));
 
