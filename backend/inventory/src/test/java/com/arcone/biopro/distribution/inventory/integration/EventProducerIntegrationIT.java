@@ -88,7 +88,7 @@ public class EventProducerIntegrationIT {
             .inventoryStatus(InventoryStatus.AVAILABLE)
             .expirationDate(LocalDateTime.parse("2025-01-08T02:05:45.231"))
             .collectionDate(ZonedDateTime.now())
-            .location("LOCATION_1")
+            .inventoryLocation("LOCATION_1")
             .productFamily("PLASMA_TRANSFUSABLE")
             .aboRh(AboRhType.ABN)
             .isLabeled(false)

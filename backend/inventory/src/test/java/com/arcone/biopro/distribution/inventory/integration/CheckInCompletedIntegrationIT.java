@@ -65,7 +65,9 @@ public class CheckInCompletedIntegrationIT {
         assertThat(capturedInput.productCode()).isEqualTo(payloadJson.path(PAYLOAD).path("productCode").asText());
         assertThat(capturedInput.productDescription()).isEqualTo(payloadJson.path(PAYLOAD).path("productDescription").asText());
         assertThat(capturedInput.collectionDate()).isEqualTo(payloadJson.path(PAYLOAD).path("drawTime").asText());
-        assertThat(capturedInput.location()).isEqualTo(payloadJson.path(PAYLOAD).path("collectionLocation").asText());
+        assertThat(capturedInput.inventoryLocation()).isEqualTo(payloadJson.path(PAYLOAD).path("collectionLocation").asText());
+        assertThat(capturedInput.collectionLocation()).isEqualTo(payloadJson.path(PAYLOAD).path("collectionLocation").asText());
+        assertThat(capturedInput.collectionTimeZone()).isEqualTo(payloadJson.path(PAYLOAD).path("collectionTimeZone").asText());
         assertThat(capturedInput.productFamily()).isEqualTo(payloadJson.path(PAYLOAD).path("productFamily").asText());
         assertThat(capturedInput.aboRh()).isEqualTo(AboRhType.valueOf(payloadJson.path(PAYLOAD).path("aboRh").asText()));
     }

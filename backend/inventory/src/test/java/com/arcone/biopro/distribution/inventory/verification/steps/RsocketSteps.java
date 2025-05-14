@@ -157,6 +157,9 @@ public class RsocketSteps {
 
                     if (!MessageType.INVENTORY_NOT_FOUND_IN_LOCATION.getCode().equals(errorCode)) {
                         assertThat(message.inventoryResponseDTO().locationCode()).isEqualTo(location);
+                        if (row.get("Collection Location") != null) {
+                            assertThat(message.inventoryResponseDTO().collectionLocation()).isEqualTo(row.get("Collection Location"));
+                        }
                     }
 
                     if (row.containsKey("Volumes") && row.get("Volumes") != null) {
@@ -169,6 +172,10 @@ public class RsocketSteps {
                                 .map(v -> Objects.equals(v.value(), Integer.parseInt(volumeFields[1].trim())))
                                 .orElse(false));
                         }
+                    }
+
+                    if (row.get("Collection TimeZone") != null) {
+                        assertThat(message.inventoryResponseDTO().collectionTimeZone()).isEqualTo(row.get("Collection TimeZone"));
                     }
 
                 } else {

@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.inventory.domain.model;
 
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.MessageType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ShipmentType;
@@ -25,7 +26,7 @@ class InventoryAggregateTest {
     @BeforeEach
     void setUp() {
         inventoryMock = mock(Inventory.class);
-        when(inventoryMock.getLocation()).thenReturn("LOCATION_1");
+        when(inventoryMock.getInventoryLocation()).thenReturn("LOCATION_1");
         when(inventoryMock.getExpirationDate()).thenReturn(LocalDateTime.now().plusDays(1));
 
         inventoryAggregate = InventoryAggregate.builder()
@@ -63,11 +64,11 @@ class InventoryAggregateTest {
     void testCheckIfIsValidToShip_ShouldAddNotification_WhenLocationDoesNotMatch() {
         when(inventoryMock.getInventoryStatus()).thenReturn(InventoryStatus.AVAILABLE);
         when(inventoryMock.getExpirationDate()).thenReturn(LocalDateTime.now().plusDays(1));
-        when(inventoryMock.getLocation()).thenReturn("LOCATION_2");
+        when(inventoryMock.getInventoryLocation()).thenReturn("LOCATION_2");
 
         inventoryAggregate.checkIfIsValidToShip("LOCATION_1");
 
-        assertFalse(inventoryAggregate.getNotificationMessages().isEmpty(), "Expected notification messages when location does not match");
+        assertFalse(inventoryAggregate.getNotificationMessages().isEmpty(), "Expected notification messages when inventoryLocation does not match");
         NotificationMessage message = inventoryAggregate.getNotificationMessages().get(0);
         assertEquals(MessageType.INVENTORY_NOT_FOUND_IN_LOCATION.name(), message.name());
     }
@@ -113,7 +114,7 @@ class InventoryAggregateTest {
     @Test
     @DisplayName("Should Add Volumes")
     void shouldAddVolumes() {
-        inventoryAggregate.completeProduct(List.of(new Volume("volume", 50, "MILLILITERS")));
+        inventoryAggregate.completeProduct(List.of(new Volume("volume", 50, "MILLILITERS")), AboRhType.OP);
         verify(inventoryMock).addVolume("volume", 50, "MILLILITERS");
     }
 

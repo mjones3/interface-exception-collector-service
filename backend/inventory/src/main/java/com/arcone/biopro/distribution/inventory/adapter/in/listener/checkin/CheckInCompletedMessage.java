@@ -26,6 +26,9 @@ public record CheckInCompletedMessage(
     @Schema(description = "Collection location")
     String collectionLocation,
 
+    @Schema(description = "Collection TimeZone")
+    String collectionTimeZone,
+
     @Schema(description = "Time when the draw was performed", format = "date-time")
     ZonedDateTime drawTime,
 

@@ -26,7 +26,6 @@ import org.mockito.MockitoAnnotations;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -104,8 +103,8 @@ public class InventoryOutputMapperTest {
         var storageLocation = inventoryAggregate.getInventory().getStorageLocation();
         var aboRh = inventoryAggregate.getInventory().getAboRh();
         var families = List.of(new InventoryFamily("a-product-family", AboRhCriteria.A, 1L, List.of(new Product(unitNumber, productCode, storageLocation, aboRh))));
-        GetAllAvailableInventoriesOutput output = mapper.toOutput("a-location", families);
-        assertEquals("a-location", output.location());
+        GetAllAvailableInventoriesOutput output = mapper.toOutput("a-inventoryLocation", families);
+        assertEquals("a-inventoryLocation", output.location());
         assertEquals(families, output.inventories());
     }
 
@@ -174,7 +173,7 @@ public class InventoryOutputMapperTest {
             .collectionDate(ZonedDateTime.now().minusHours(2))
             .isLicensed(true)
             .weight(5)
-            .location("Storage A")
+            .inventoryLocation("Storage A")
             .productFamily("Family X")
             .aboRh(AboRhType.ABN)
             .build();
@@ -189,7 +188,7 @@ public class InventoryOutputMapperTest {
         assertEquals(input.collectionDate(), aggregate.getInventory().getCollectionDate());
         assertEquals(input.isLicensed(), aggregate.getInventory().getIsLicensed());
         assertEquals(input.weight(), aggregate.getInventory().getWeight());
-        assertEquals(input.location(), aggregate.getInventory().getLocation());
+        assertEquals(input.inventoryLocation(), aggregate.getInventory().getInventoryLocation());
         assertEquals(input.productFamily(), aggregate.getInventory().getProductFamily());
         assertEquals(input.aboRh(), aggregate.getInventory().getAboRh());
 

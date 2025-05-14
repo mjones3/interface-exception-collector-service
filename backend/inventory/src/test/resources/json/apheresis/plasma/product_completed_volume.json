@@ -24,7 +24,8 @@
     "volume":{
       "value":200,
       "unit":"MILLILITERS"
-    }
+    },
+    "aboRh":"ABP"
 
   }
 }

@@ -29,6 +29,7 @@ public record InventoryOutput(
     ZonedDateTime createDate,
     ZonedDateTime modificationDate,
     String storageLocation,
+    String collectionLocation,
+    String collectionTimeZone,
     List<Volume> volumes) {
 }
-

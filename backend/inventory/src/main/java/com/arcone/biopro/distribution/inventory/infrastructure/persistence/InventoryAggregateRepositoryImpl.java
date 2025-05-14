@@ -73,7 +73,7 @@ public class InventoryAggregateRepositoryImpl implements InventoryAggregateRepos
 
     @Override
     public Mono<InventoryAggregate> findByLocationAndUnitNumberAndProductCode(String location, String unitNumber, String productCode) {
-        return inventoryEntityRepository.findByUnitNumberAndProductCodeLikeAndLocation(unitNumber, createProductCodePattern(productCode), location)
+        return inventoryEntityRepository.findByUnitNumberAndProductCodeLikeAndInventoryLocation(unitNumber, createProductCodePattern(productCode), location)
             .map(inventoryEntityMapper::toDomain)
             .flatMap(inventory -> Mono.just(InventoryAggregate.builder().inventory(inventory).build()));
     }
