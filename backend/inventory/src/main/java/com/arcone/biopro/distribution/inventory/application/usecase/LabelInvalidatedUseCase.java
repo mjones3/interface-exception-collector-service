@@ -3,11 +3,8 @@ package com.arcone.biopro.distribution.inventory.application.usecase;
 import com.arcone.biopro.distribution.inventory.application.dto.InventoryOutput;
 import com.arcone.biopro.distribution.inventory.application.dto.LabelInvalidatedInput;
 import com.arcone.biopro.distribution.inventory.application.mapper.InventoryOutputMapper;
-import com.arcone.biopro.distribution.inventory.domain.event.InventoryEventPublisher;
-import com.arcone.biopro.distribution.inventory.domain.event.InventoryUpdatedApplicationEvent;
 import com.arcone.biopro.distribution.inventory.domain.exception.InventoryNotFoundException;
 import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
-import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryUpdateType;
 import com.arcone.biopro.distribution.inventory.domain.repository.InventoryAggregateRepository;
 import com.arcone.biopro.distribution.inventory.domain.util.ProductCodeUtil;
 import lombok.AccessLevel;
@@ -24,7 +21,6 @@ import reactor.core.publisher.Mono;
 public class LabelInvalidatedUseCase implements UseCase<Mono<InventoryOutput>, LabelInvalidatedInput> {
 
     InventoryAggregateRepository inventoryAggregateRepository;
-    InventoryEventPublisher inventoryEventPublisher;
     InventoryOutputMapper mapper;
 
     @Override
@@ -34,7 +30,6 @@ public class LabelInvalidatedUseCase implements UseCase<Mono<InventoryOutput>, L
             .switchIfEmpty(Mono.error(InventoryNotFoundException::new))
             .flatMap(inventoryAggregate -> inventoryAggregateRepository.saveInventory(inventoryAggregate.invalidLabel())
                 .map(InventoryAggregate::getInventory)
-                .doOnSuccess(inventory -> inventoryEventPublisher.publish(new InventoryUpdatedApplicationEvent(inventory, InventoryUpdateType.LABEL_INVALIDATED)))
                 .map(mapper::toOutput));
     }
 }
