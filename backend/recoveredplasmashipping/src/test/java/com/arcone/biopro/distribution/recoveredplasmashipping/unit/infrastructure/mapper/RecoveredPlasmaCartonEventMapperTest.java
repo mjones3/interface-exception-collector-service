@@ -37,7 +37,7 @@ class RecoveredPlasmaCartonEventMapperTest {
         Carton carton = createSampleCarton();
 
         // When
-        RecoveredPlasmaCartonPackedOutputDTO result = mapper.modelToPackedEventDTO(carton);
+        RecoveredPlasmaCartonPackedOutputDTO result = mapper.modelToPackedEventDTO(carton,"LOCATION_CODE");
 
         // Then
         assertNotNull(result);
@@ -50,6 +50,7 @@ class RecoveredPlasmaCartonEventMapperTest {
         assertEquals(carton.getTotalWeight(), result.totalWeight());
         assertEquals(carton.getTotalVolume(), result.totalVolume());
         assertEquals("PRODUCT_TYPE", result.productType());
+        assertEquals("LOCATION_CODE", result.locationCode());
         assertEquals(carton.getTotalProducts(), result.packedProducts().size());
 
     }
@@ -58,7 +59,7 @@ class RecoveredPlasmaCartonEventMapperTest {
     @DisplayName("Should return null when mapping null Carton")
     void shouldReturnNullWhenMappingNullCarton() {
         // When
-        RecoveredPlasmaCartonPackedOutputDTO result = mapper.modelToPackedEventDTO(null);
+        RecoveredPlasmaCartonPackedOutputDTO result = mapper.modelToPackedEventDTO(null,null);
 
         // Then
         assertNull(result);

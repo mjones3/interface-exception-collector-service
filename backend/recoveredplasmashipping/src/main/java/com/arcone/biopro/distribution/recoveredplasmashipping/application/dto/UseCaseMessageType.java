@@ -21,7 +21,8 @@ public enum UseCaseMessageType {
     CARTON_CLOSED_SUCCESS(11,  UseCaseNotificationType.SUCCESS, "Carton closed successfully"),
     CARTON_CLOSED_ERROR(12,  UseCaseNotificationType.SYSTEM, "Close Carton error. Contact Support."),
     CARTON_PACKING_SLIP_GENERATED_SUCCESS(13,  UseCaseNotificationType.SUCCESS, "Carton Packing Slip generated successfully"),
-    CARTON_PACKING_SLIP_GENERATED_ERROR(14,  UseCaseNotificationType.SYSTEM, "Carton Packing Slip generation error. Contact Support.");
+    CARTON_PACKING_SLIP_GENERATED_ERROR(14,  UseCaseNotificationType.SYSTEM, "Carton Packing Slip generation error. Contact Support."),
+    SHIPMENT_PROCESSING_SUCCESS(15,  UseCaseNotificationType.SUCCESS, "Close Shipment is in progress");
 
     Integer code;
     UseCaseNotificationType type;

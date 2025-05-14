@@ -53,7 +53,7 @@ Feature: Verify Recovered Plasma Products
                 | BPMMH1               | 1        | CLOSED |
             Examples:
                 | Customer Code | Product Type               | Carton Tare Weight | Shipment Date | Transportation Reference Number | Location Code | configured_min_products | unit_number                       | product_code           | product_type                                           | Carton Sequence Number |
-                | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>    | DIS-339                         | 123456789     | 2                       | =W03689878680800,=W03689878680900 | =<E2488V00, =<E2488V00 | RP_NONINJECTABLE_LIQUID_RT, RP_NONINJECTABLE_LIQUID_RT | 1                      |
+                | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>    | DIS-339                         | 123456789     | 2                       | =W03689834180800,=W03689834180900 | =<E2488V00, =<E2488V00 | RP_NONINJECTABLE_LIQUID_RT, RP_NONINJECTABLE_LIQUID_RT | 1                      |
 
 
         Rule: I should not be able to enter a unit number that doesn’t exist in the system and be notified.
@@ -74,14 +74,15 @@ Feature: Verify Recovered Plasma Products
             And The product unit number "<verify_unit_number>" and product code "<product_code>" "should not" be packed in the carton.
             And The product unit number "<pack_unit_number>" and product code "<product_code>" "should not" be verified in the carton.
             And I should receive a "CAUTION" static message response "Products removed due to failure, repeat process".
+
             Examples:
                 | Customer Code | Product Type               | Carton Tare Weight | Shipment Date | Transportation Reference Number | Location Code    | pack_unit_number | verify_unit_number | product_code | product_type               | error_type | error_message                                                                                 | configured_min_products |
-                | 408           | RP_FROZEN_WITHIN_120_HOURS | 1000               | <tomorrow>    | DIS-341                         | 123456789_DIS341 | W036898786905    | W036898786905      | E6022V00     | RP_FROZEN_WITHIN_120_HOURS | WARN       | This product is not in the inventory and cannot be shipped                                    | 1                       |
-                | 408           | RP_FROZEN_WITHIN_120_HOURS | 1000               | <tomorrow>    | DIS-341                         | 123456789_DIS341 | W036898786757    | W036898786757      | E6022V00     | RP_FROZEN_WITHIN_120_HOURS | INFO       | This product is discarded and cannot be shipped                                               | 1                       |
-                | 408           | RP_FROZEN_WITHIN_120_HOURS | 1000               | <tomorrow>    | DIS-341                         | 123456789_DIS341 | W036898786758    | W036898786758      | E6022V00     | RP_FROZEN_WITHIN_120_HOURS | INFO       | This product is quarantined and cannot be shipped                                             | 1                       |
-                | 408           | RP_FROZEN_WITHIN_120_HOURS | 1000               | <tomorrow>    | DIS-341                         | 123456789_DIS341 | W036898786756    | W036898786756      | E6022V00     | RP_FROZEN_WITHIN_120_HOURS | INFO       | This product is expired and has been discarded. Place in biohazard container.                 | 1                       |
-                | 408           | RP_FROZEN_WITHIN_120_HOURS | 1000               | <tomorrow>    | DIS-341                         | 123456789_DIS341 | W036898786804    | W036898786804      | E5880V00     | RP_FROZEN_WITHIN_72_HOURS  | WARN       | Product Type does not match                                                                   | 1                       |
-                | 408           | RP_FROZEN_WITHIN_120_HOURS | 1000               | <tomorrow>    | DIS-341                         | 123456789_DIS341 | W036898786701    | W036898786700      | E6022V00     | RP_FROZEN_WITHIN_120_HOURS | WARN       | The verification does not match all products in this carton. Please re-scan all the products. | 1                       |
+                | 408           | RP_FROZEN_WITHIN_120_HOURS | 1000               | <tomorrow>    | DIS-341                         | 123456789_DIS341 | W036898341905    | W036898341905      | E6022V00     | RP_FROZEN_WITHIN_120_HOURS | WARN       | This product is not in the inventory and cannot be shipped                                    | 1                       |
+                | 408           | RP_FROZEN_WITHIN_120_HOURS | 1000               | <tomorrow>    | DIS-341                         | 123456789_DIS341 | W036898341757    | W036898341757      | E6022V00     | RP_FROZEN_WITHIN_120_HOURS | INFO       | This product is discarded and cannot be shipped                                               | 1                       |
+                | 408           | RP_FROZEN_WITHIN_120_HOURS | 1000               | <tomorrow>    | DIS-341                         | 123456789_DIS341 | W036898341758    | W036898341758      | E6022V00     | RP_FROZEN_WITHIN_120_HOURS | INFO       | This product is quarantined and cannot be shipped                                             | 1                       |
+                | 408           | RP_FROZEN_WITHIN_120_HOURS | 1000               | <tomorrow>    | DIS-341                         | 123456789_DIS341 | W036898341756    | W036898341756      | E6022V00     | RP_FROZEN_WITHIN_120_HOURS | INFO       | This product is expired and has been discarded. Place in biohazard container.                 | 1                       |
+                | 408           | RP_FROZEN_WITHIN_120_HOURS | 1000               | <tomorrow>    | DIS-341                         | 123456789_DIS341 | W036898341804    | W036898341804      | E5880V00     | RP_FROZEN_WITHIN_72_HOURS  | WARN       | Product Type does not match                                                                   | 1                       |
+                | 408           | RP_FROZEN_WITHIN_120_HOURS | 1000               | <tomorrow>    | DIS-341                         | 123456789_DIS341 | W036898786701    | W036898341701      | E6022V00     | RP_FROZEN_WITHIN_120_HOURS | WARN       | The verification does not match all products in this carton. Please re-scan all the products. | 1                       |
 
 
         Rule: The system should automatically remove all the products from the carton when there is an unacceptable product.
@@ -90,10 +91,10 @@ Feature: Verify Recovered Plasma Products
         Scenario: Attempt to verify products which are already verified.
             Given I have an empty carton created with the Customer Code as "408" , Product Type as "RP_FROZEN_WITHIN_120_HOURS", Carton Tare Weight as "1000", Shipment Date as "<tomorrow>", Transportation Reference Number as "DIS-341" and Location Code as "123456789".
             And The Minimum Number of Units in Carton is configured as "1" products for the customer code "408" and product type "RP_FROZEN_WITHIN_120_HOURS".
-            And I pack an "acceptable" product with the unit number "W036898786800", product code "E6022V00" and product type "RP_FROZEN_WITHIN_120_HOURS".
-            When I verify an "acceptable" product with the unit number "W036898786800", product code "E6022V00" and product type "RP_FROZEN_WITHIN_120_HOURS".
-            Then The product unit number "W036898786800" and product code "E6022V00" "should" be verified in the carton.
-            When I verify an "acceptable" product with the unit number "W036898786800", product code "E6022V00" and product type "RP_FROZEN_WITHIN_120_HOURS".
+            And I pack an "acceptable" product with the unit number "W036898341800", product code "E6022V00" and product type "RP_FROZEN_WITHIN_120_HOURS".
+            When I verify an "acceptable" product with the unit number "W036898341800", product code "E6022V00" and product type "RP_FROZEN_WITHIN_120_HOURS".
+            Then The product unit number "W036898341800" and product code "E6022V00" "should" be verified in the carton.
+            When I verify an "acceptable" product with the unit number "W036898341800", product code "E6022V00" and product type "RP_FROZEN_WITHIN_120_HOURS".
             Then I should receive a "WARN" message response "This product has already been verified. Please re-scan all the products in the carton.".
             And The product unit number "<verify_unit_number>" and product code "<product_code>" "should not" be packed in the carton.
             And The product unit number "<pack_unit_number>" and product code "<product_code>" "should not" be verified in the carton.
@@ -105,11 +106,11 @@ Feature: Verify Recovered Plasma Products
         Scenario: Attempt to verify products which are not packed into the carton.
             Given I have 2 empty cartons created with the Customer Code as "408" , Product Type as "RP_FROZEN_WITHIN_120_HOURS", Carton Tare Weight as "1000", Shipment Date as "<tomorrow>", Transportation Reference Number as "DIS-341" and Location Code as "123456789".
             And The Minimum Number of Units in Carton is configured as "1" products for the customer code "408" and product type "RP_FROZEN_WITHIN_120_HOURS".
-            And I pack a product with the unit number "W036898786800" and product code "E6022V00" into the carton sequence 1.
-            And I pack a product with the unit number "W036898786813" and product code "E6022V00" into the carton sequence 2.
-            When I verify an "acceptable" product with the unit number "W036898786800", product code "E6022V00" and product type "RP_FROZEN_WITHIN_120_HOURS" into the carton sequence 2.
+            And I pack a product with the unit number "W036898341800" and product code "E6022V00" into the carton sequence 1.
+            And I pack a product with the unit number "W036898734113" and product code "E6022V00" into the carton sequence 2.
+            When I verify an "acceptable" product with the unit number "W036898341800", product code "E6022V00" and product type "RP_FROZEN_WITHIN_120_HOURS" into the carton sequence 2.
             Then I should receive a "WARN" message response "The verification does not match all products in this carton. Please re-scan all the products.".
-            And The product unit number "W036898786800" and product code "E6022V00" "should not" be verified in the carton.
+            And The product unit number "W036898341800" and product code "E6022V00" "should not" be verified in the carton.
             And The product unit number "W036898786801" and product code "E6022V00" "should not" be packed in the carton.
             And I should receive a "CAUTION" static message response "Products removed due to failure, repeat process".
 

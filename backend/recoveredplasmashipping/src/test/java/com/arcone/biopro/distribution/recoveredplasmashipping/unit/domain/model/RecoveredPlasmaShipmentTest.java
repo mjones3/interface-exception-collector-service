@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.recoveredplasmashipping.unit.domain.model
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.CustomerOutput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.exception.DomainNotFoundForKeyException;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Carton;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.CloseShipmentCommand;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.CreateShipmentCommand;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.FindShipmentCommand;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Location;
@@ -14,6 +15,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShippingRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.CustomerService;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -28,9 +30,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
@@ -47,6 +51,11 @@ class RecoveredPlasmaShipmentTest {
 
     @Mock
     private RecoveredPlasmaShipmentCriteriaRepository recoveredPlasmaShipmentCriteriaRepository;
+
+    private CloseShipmentCommand closeShipmentCommand;
+    private static final String CLOSED_STATUS = "CLOSED";
+    private static final String PROCESSING_STATUS = "PROCESSING";
+    private static final String OPEN_STATUS = "OPEN";
 
     @Test
     public void shouldNotCreateNewShipmentWhenLocationIsInvalid() {
@@ -315,7 +324,7 @@ class RecoveredPlasmaShipmentTest {
             customerCode, customerName, customerState, customerPostalCode, customerCountry,
             customerCountryCode, customerCity, customerDistrict, customerAddressLine1,
             customerAddressLine2, customerAddressContactName, customerAddressPhoneNumber,
-            customerAddressDepartmentName, createDate, modificationDate , cartonList
+            customerAddressDepartmentName, createDate, modificationDate , ZonedDateTime.now() , cartonList
         );
 
         // Assert
@@ -370,7 +379,7 @@ class RecoveredPlasmaShipmentTest {
                 "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
                 "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
                 "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
-                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), null
+                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), null,null
             );
         });
     }
@@ -385,7 +394,7 @@ class RecoveredPlasmaShipmentTest {
             "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
             "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
             "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
-            "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), null
+            "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), ZonedDateTime.now(),null
         ));
     }
 
@@ -399,7 +408,7 @@ class RecoveredPlasmaShipmentTest {
                 "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
                 "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
                 "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
-                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), null
+                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), ZonedDateTime.now(),null
             ));
         assertEquals("Shipment Number is required", exception.getMessage());
     }
@@ -414,7 +423,7 @@ class RecoveredPlasmaShipmentTest {
                 "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
                 "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
                 "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
-                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), null
+                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), ZonedDateTime.now(),null
             ));
         assertEquals("Shipment Number is required", exception.getMessage());
     }
@@ -429,7 +438,7 @@ class RecoveredPlasmaShipmentTest {
                 null, "customerName", "customerState", "customerPostalCode", "customerCountry",
                 "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
                 "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
-                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), null
+                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), ZonedDateTime.now(),null
             ));
         assertEquals("Customer code cannot be null or blank", exception.getMessage());
     }
@@ -444,7 +453,7 @@ class RecoveredPlasmaShipmentTest {
                 "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
                 "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
                 "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
-                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), null
+                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), ZonedDateTime.now(),null
             ));
         assertEquals("Location code is required", exception.getMessage());
     }
@@ -459,7 +468,7 @@ class RecoveredPlasmaShipmentTest {
                 "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
                 "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
                 "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
-                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), null
+                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), ZonedDateTime.now(),null
             ));
         assertEquals("Location code is required", exception.getMessage());
     }
@@ -475,7 +484,7 @@ class RecoveredPlasmaShipmentTest {
                 "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
                 "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
                 "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
-                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), null
+                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), ZonedDateTime.now(),null
             ));
         assertEquals("Product type is required", exception.getMessage());
     }
@@ -491,7 +500,7 @@ class RecoveredPlasmaShipmentTest {
                 "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
                 "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
                 "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
-                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), null
+                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), ZonedDateTime.now(),null
             ));
         assertEquals("Create employee ID is required", exception.getMessage());
     }
@@ -506,7 +515,7 @@ class RecoveredPlasmaShipmentTest {
                 "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
                 "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
                 "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
-                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), null
+                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), ZonedDateTime.now(),null
             ));
     }
 
@@ -520,7 +529,7 @@ class RecoveredPlasmaShipmentTest {
                 "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
                 "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
                 "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
-                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), null
+                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), ZonedDateTime.now(),null
             ));
         assertEquals("Status is required", exception.getMessage());
     }
@@ -535,11 +544,26 @@ class RecoveredPlasmaShipmentTest {
                 "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
                 "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
                 "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
-                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), null
+                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), ZonedDateTime.now(),null
             ));
         assertEquals("Carton tare weight is required", exception.getMessage());
     }
 
+
+    @Test
+    void checkValid_WithLastRunDateNull_ShouldThrowException() {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            () ->RecoveredPlasmaShipment.fromRepository(
+                1L, "locationCode", "productType", "123", "CLOSED", "createEmployeeId",
+                "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
+                LocalDate.now(), BigDecimal.ONE, "unsuitableUnitReportDocumentStatus",
+                "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
+                "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
+                "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
+                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), null,null
+            ));
+        assertEquals("Last run date is required", exception.getMessage());
+    }
 
     @Test
     public void shouldNotFindByIdWhenShipmentDoesNotExists() {
@@ -625,6 +649,7 @@ class RecoveredPlasmaShipmentTest {
         String customerAddressDepartmentName = "Test Department";
         ZonedDateTime createDate = ZonedDateTime.now();
         ZonedDateTime modificationDate = ZonedDateTime.now();
+        ZonedDateTime lastRunDate = ZonedDateTime.now();
 
         // Act
         return  RecoveredPlasmaShipment.fromRepository(
@@ -633,7 +658,7 @@ class RecoveredPlasmaShipmentTest {
             customerCode, customerName, customerState, customerPostalCode, customerCountry,
             customerCountryCode, customerCity, customerDistrict, customerAddressLine1,
             customerAddressLine2, customerAddressContactName, customerAddressPhoneNumber,
-            customerAddressDepartmentName, createDate, modificationDate , Collections.emptyList()
+            customerAddressDepartmentName, createDate, modificationDate,lastRunDate , Collections.emptyList()
         );
     }
 
@@ -656,7 +681,7 @@ class RecoveredPlasmaShipmentTest {
             "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
             "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
             "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
-            "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), cartonList
+            "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(),ZonedDateTime.now(), cartonList
         );
 
         // Assert
@@ -676,7 +701,7 @@ class RecoveredPlasmaShipmentTest {
             "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
             "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
             "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
-            "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), Collections.emptyList()
+            "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(),ZonedDateTime.now(), Collections.emptyList()
         );
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
@@ -694,7 +719,7 @@ class RecoveredPlasmaShipmentTest {
             "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
             "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
             "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
-            "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), Collections.emptyList()
+            "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(),ZonedDateTime.now(), Collections.emptyList()
         );
 
        var result = shipment.markAsInProgress();
@@ -711,7 +736,7 @@ class RecoveredPlasmaShipmentTest {
             "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
             "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
             "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
-            "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), Collections.emptyList()
+            "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(),ZonedDateTime.now(), Collections.emptyList()
         );
 
         var result = shipment.markAsInProgress();
@@ -719,4 +744,209 @@ class RecoveredPlasmaShipmentTest {
         assertEquals("IN_PROGRESS", result.getStatus());
 
     }
+
+
+
+
+
+
+        void setUpCloseCommand() {
+            // Initialize a command with valid data
+            closeShipmentCommand = new CloseShipmentCommand(
+                1L,
+                "EMP123",
+                "LOC456",
+                LocalDate.now().plusDays(1)
+            );
+        }
+
+        @Test
+        @DisplayName("Should mark shipment as processing when status is open")
+        void shouldMarkShipmentAsProcessingWhenStatusIsOpen() {
+
+            var carton1 = Mockito.mock(Carton.class);
+            Mockito.when(carton1.getStatus()).thenReturn("CLOSED");
+
+
+            List<Carton> cartonList = List.of(carton1);
+
+            // Given
+            var shipment = RecoveredPlasmaShipment.fromRepository(
+                1L, "locationCode", "productType", "123", OPEN_STATUS, "createEmployeeId",
+                "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
+                LocalDate.now(), BigDecimal.TEN, "unsuitableUnitReportDocumentStatus",
+                "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
+                "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
+                "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
+                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(),ZonedDateTime.now(), cartonList
+            );
+
+            setUpCloseCommand();
+
+            // When
+            RecoveredPlasmaShipment result = shipment.markAsProcessing(closeShipmentCommand);
+
+            // Then
+            assertAll(
+                () -> assertEquals(PROCESSING_STATUS, result.getStatus()),
+                () -> assertEquals(closeShipmentCommand.getShipDate(), result.getShipmentDate()),
+                () -> assertEquals(closeShipmentCommand.getEmployeeId(), result.getCloseEmployeeId()),
+                () -> assertNull(result.getUnsuitableUnitReportDocumentStatus()),
+                () -> assertNull(result.getLastUnsuitableReportRunDate())
+            );
+        }
+
+        @Test
+        @DisplayName("Should throw exception when shipment is already closed")
+        void shouldThrowExceptionWhenShipmentIsClosed() {
+            // Given
+            var shipment = RecoveredPlasmaShipment.fromRepository(
+                1L, "locationCode", "productType", "123", CLOSED_STATUS, "createEmployeeId",
+                "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
+                LocalDate.now(), BigDecimal.TEN, "unsuitableUnitReportDocumentStatus",
+                "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
+                "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
+                "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
+                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(),ZonedDateTime.now(), Collections.emptyList()
+            );
+
+            setUpCloseCommand();
+
+            // When/Then
+            IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> shipment.markAsProcessing(closeShipmentCommand)
+            );
+            assertEquals("Shipment cannot be closed", exception.getMessage());
+        }
+
+        @Test
+        @DisplayName("Should throw exception when shipment is already processing")
+        void shouldThrowExceptionWhenShipmentIsAlreadyProcessing() {
+            // Given
+            var shipment = RecoveredPlasmaShipment.fromRepository(
+                1L, "locationCode", "productType", "123", PROCESSING_STATUS, "createEmployeeId",
+                "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
+                LocalDate.now(), BigDecimal.TEN, "unsuitableUnitReportDocumentStatus",
+                "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
+                "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
+                "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
+                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(),ZonedDateTime.now(), Collections.emptyList()
+            );
+
+            setUpCloseCommand();
+
+            // When/Then
+            IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> shipment.markAsProcessing(closeShipmentCommand)
+            );
+            assertEquals("Shipment cannot be closed", exception.getMessage());
+        }
+
+        @Test
+        @DisplayName("Should clear unsuitable report fields when marking as processing")
+        void shouldClearUnsuitableReportFieldsWhenMarkingAsProcessing() {
+            // Given
+            var carton1 = Mockito.mock(Carton.class);
+            Mockito.when(carton1.getStatus()).thenReturn("CLOSED");
+
+
+            List<Carton> cartonList = List.of(carton1);
+
+            var shipment = RecoveredPlasmaShipment.fromRepository(
+                1L, "locationCode", "productType", "123", OPEN_STATUS, "createEmployeeId",
+                "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
+                LocalDate.now(), BigDecimal.TEN, "unsuitableUnitReportDocumentStatus",
+                "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
+                "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
+                "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
+                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(),ZonedDateTime.now(), cartonList
+            );
+
+
+            setUpCloseCommand();
+
+            // When
+            RecoveredPlasmaShipment result = shipment.markAsProcessing(closeShipmentCommand);
+
+            // Then
+            assertAll(
+                () -> assertNull(result.getUnsuitableUnitReportDocumentStatus()),
+                () -> assertNull(result.getLastUnsuitableReportRunDate())
+            );
+        }
+
+
+        @Test
+        public void shouldNotAllowClose(){
+                var shipment = RecoveredPlasmaShipment.fromRepository(
+                1L, "locationCode", "productType", "123", PROCESSING_STATUS, "createEmployeeId",
+                "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
+                LocalDate.now(), BigDecimal.TEN, "unsuitableUnitReportDocumentStatus",
+                "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
+                "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
+                "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
+                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(),ZonedDateTime.now(), Collections.emptyList()
+            );
+
+            Assertions.assertFalse(shipment.canClose());
+
+            var shipment2 = RecoveredPlasmaShipment.fromRepository(
+                1L, "locationCode", "productType", "123", CLOSED_STATUS, "createEmployeeId",
+                "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
+                LocalDate.now(), BigDecimal.TEN, "unsuitableUnitReportDocumentStatus",
+                "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
+                "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
+                "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
+                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(),ZonedDateTime.now(), Collections.emptyList()
+            );
+
+            Assertions.assertFalse(shipment2.canClose());
+
+
+            var carton1 = Mockito.mock(Carton.class);
+            Mockito.when(carton1.getStatus()).thenReturn("OPEN");
+
+
+            List<Carton> cartonList = List.of(carton1);
+
+            var shipment3 = RecoveredPlasmaShipment.fromRepository(
+                1L, "locationCode", "productType", "123", OPEN_STATUS, "createEmployeeId",
+                "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
+                LocalDate.now(), BigDecimal.TEN, "unsuitableUnitReportDocumentStatus",
+                "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
+                "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
+                "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
+                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(),ZonedDateTime.now(), cartonList
+            );
+
+            Assertions.assertFalse(shipment3.canClose());
+
+
+        }
+
+        @Test
+        public void shouldAllowClose(){
+            var carton1 = Mockito.mock(Carton.class);
+            Mockito.when(carton1.getStatus()).thenReturn("CLOSED");
+
+
+            List<Carton> cartonList = List.of(carton1);
+
+            var shipment = RecoveredPlasmaShipment.fromRepository(
+                1L, "locationCode", "productType", "123", OPEN_STATUS, "createEmployeeId",
+                "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
+                LocalDate.now(), BigDecimal.TEN, "unsuitableUnitReportDocumentStatus",
+                "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
+                "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
+                "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
+                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(),ZonedDateTime.now(), cartonList
+            );
+
+            Assertions.assertTrue(shipment.canClose());
+        }
+
 }
+
+

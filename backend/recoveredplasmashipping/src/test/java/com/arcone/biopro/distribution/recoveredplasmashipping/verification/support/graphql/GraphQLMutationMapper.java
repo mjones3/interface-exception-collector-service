@@ -118,4 +118,26 @@ public class GraphQLMutationMapper {
             }
             """, cartonId, employeeId, locationCode);
     }
+
+    public static String closeShipment (String shipmentId, String employeeId, String locationCode , String shipDate) {
+        return String.format("""
+            mutation CloseShipment {
+                closeShipment(
+                    closeShipmentRequest: { shipmentId: %s, employeeId: "%s", locationCode: "%s" , shipDate:"%s" }
+                ) {
+                    _links
+                    data
+                    notifications {
+                        message
+                        type
+                        code
+                        action
+                        reason
+                        details
+                        name
+                    }
+                }
+            }
+            """, shipmentId, employeeId, locationCode , shipDate);
+    }
 }

@@ -26,6 +26,12 @@ public class CommonSteps {
         sharedActions.verifyMessage(header, message);
     }
 
+    @Then("I should see a {string} static message: {string}.")
+    public void iShouldSeeAStaticMessage(String type, String message) throws InterruptedException {
+        log.debug("I should see a static message: {}", message);
+        sharedActions.verifyStaticMessage(type, message);
+    }
+
     @Then("I should receive a {string} message response {string}.")
     public void iShouldReceiveAMessage(String messageType, String message) {
         // Step to verify the notifications response from the last API call. This is a common step that can be reused in other scenarios.

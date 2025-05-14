@@ -50,6 +50,9 @@ public class AddCartonProductsSteps {
 
     @And("The product unit number {string} and product code {string} {string} be packed in the carton.")
     public void theProductUnitNumberAndProductCodeBePackedInTheCarton(String unitNumber, String productCode, String option) {
+        log.debug("PACKED PRODUCTS {}", sharedContext.getPackedProductsList());
+        log.debug("CARTON Response {}", sharedContext.getLastCartonResponse());
+
         if (option.equals("should")) {
             Assert.assertTrue(cartonTestingController.checkProductIsPacked(unitNumber, productCode));
         } else if (option.equals("should not")) {

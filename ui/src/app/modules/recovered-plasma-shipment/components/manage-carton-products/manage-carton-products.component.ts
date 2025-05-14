@@ -14,7 +14,7 @@ import { Store } from '@ngrx/store';
 import { ProductIconsService } from 'app/shared/services/product-icon.service';
 import { CookieService } from 'ngx-cookie-service';
 import { RecoveredPlasmaService } from '../../services/recovered-plasma.service';
-import { catchError, map, Observable, switchMap, take, tap } from 'rxjs';
+import { catchError, map, Observable, switchMap, tap } from 'rxjs';
 import { CartonDTO } from '../../models/recovered-plasma.dto';
 import { ApolloError } from '@apollo/client/errors';
 import handleApolloError from 'app/shared/utils/apollo-error-handling';
@@ -72,7 +72,9 @@ implements OnInit {
   cartonDetailsSignal = signal<CartonDTO>(null);
   @ViewChild('verifyProductsControl') verifyProductsControl: VerifyRecoveredPlasmaProductsComponent;
   @ViewChild('addProductsControl') addProductsControl: AddRecoveredPlasmaProductsComponent;
-  @ViewChild('stepper') stepper: MatStepper;
+  @ViewChild('stepper') stepper!: MatStepper;
+  selectIndex: number;
+
   constructor(
     public header: ProcessHeaderService,
     protected fb: FormBuilder,
@@ -94,6 +96,7 @@ implements OnInit {
       cookieService
   );
   }
+ 
 
 ngOnInit(): void {
     this.loadRecoveredPlasmaShippingCartonDetails(this.routeIdComputed())
@@ -101,20 +104,8 @@ ngOnInit(): void {
             switchMap((carton) =>
                 this.loadRecoveredPlasmaShippingDetails(carton.shipmentId)
             )
-        ).pipe(
-            tap(() => {
-               this.goToStep();
-            })
         )
     .subscribe();
-}
-
-goToStep(): void {
-    this.route.data.pipe(take(1)).subscribe(data => {
-        if (data && data['step']) {
-            this.stepper.selectedIndex = data['step'];
-        }
-    });
 }
 
 loadRecoveredPlasmaShippingCartonDetails(
@@ -140,6 +131,12 @@ loadRecoveredPlasmaShippingCartonDetails(
 
 setCartonDetails(data: CartonDTO){
     this.cartonDetailsSignal.set(data);
+}
+
+
+canShowStep(index: number): boolean{
+    this.selectIndex = this.stepper?.selectedIndex || 0;
+    return this.selectIndex === index;
 }
 
 onClickPrevious(data) {

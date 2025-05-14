@@ -23,7 +23,7 @@ public interface RecoveredPlasmaShipmentEntityMapper {
             entity.getCustomerCode(), entity.getCustomerName(), entity.getCustomerState(), entity.getCustomerPostalCode(), entity.getCustomerCountry(),
             entity.getCustomerCountry(), entity.getCustomerCity(), entity.getCustomerDistrict(), entity.getCustomerAddressLine1(),
             entity.getCustomerAddressLine2(), entity.getCustomerAddressContactName(), entity.getCustomerAddressPhoneNumber(),
-            entity.getCustomerAddressDepartmentName(),entity.getCreateDate(), entity.getModificationDate(), cartonEntityMapper.toModelList(cartonEntityList) );
+            entity.getCustomerAddressDepartmentName(),entity.getCreateDate(), entity.getModificationDate() , entity.getLastUnsuitableReportRunDate(), cartonEntityMapper.toModelList(cartonEntityList) );
     }
 
 
