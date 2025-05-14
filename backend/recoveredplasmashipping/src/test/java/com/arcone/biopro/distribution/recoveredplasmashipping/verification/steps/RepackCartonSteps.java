@@ -1,11 +1,9 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.verification.steps;
 
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.controllers.CartonTestingController;
-import com.arcone.biopro.distribution.recoveredplasmashipping.verification.pages.ShipmentDetailsPage;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.SharedContext;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.TestUtils;
 import io.cucumber.java.en.And;
-import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
@@ -31,9 +29,6 @@ public class RepackCartonSteps {
     private String employeeId;
 
     private Map apiResponse;
-
-    @Autowired
-    private ShipmentDetailsPage shipmentDetailsPage;
 
 
     @And("I have a closed carton with the unit numbers as {string} and product codes as {string} and product types {string} which were flagged as repack.")
@@ -106,35 +101,4 @@ public class RepackCartonSteps {
             }
         }
     }
-
-    @And("The repack option should be available for the carton number prefix {string} and sequence number {string} and status {string}.")
-    public void theRepackOptionShouldBeAvailableForTheCartonSequenceNumber(String cartonPrefix , String cartonNumber , String status) {
-        Assert.assertTrue(shipmentDetailsPage.isRepackButtonEnabled(cartonPrefix,cartonNumber,status) );
-    }
-
-    @When("I choose to repack the carton number prefix {string} and sequence number {string} and status {string}.")
-    public void iChooseToRepackTheCartonNumberPrefixAndSequenceNumberAndStatus(String cartonPrefix , String cartonNumber , String status) {
-        shipmentDetailsPage.clickRepackButton(cartonPrefix,cartonNumber,status);
-    }
-
-    @When("I choose cancel the repack carton.")
-    public void iChooseCancelTheRepackCarton() {
-        shipmentDetailsPage.clickCancelButton();
-    }
-
-    @Then("The status of the carton number prefix {string} and sequence number {string} should be {string}.")
-    public void theStatusOfTheCartonNumberPrefixAndSequenceNumberShouldBe(String cartonPrefix , String cartonNumber , String status) {
-        Assert.assertEquals(shipmentDetailsPage.getCartonStatus(cartonPrefix,cartonNumber), status );
-    }
-
-    @And("I enter reason comments {string}.")
-    public void iEnterReasonComments(String comments) {
-    shipmentDetailsPage.enterRepackComments(comments);
-    }
-
-    @When("I confirm to repack the carton.")
-    public void iConfirmToRepackTheCarton() {
-    shipmentDetailsPage.clickConfirmRepackCarton();
-    }
 }
-
