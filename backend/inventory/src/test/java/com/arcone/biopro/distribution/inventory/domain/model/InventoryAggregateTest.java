@@ -191,8 +191,9 @@ class InventoryAggregateTest {
     void testLabel() {
         String finalProductCode = "E1234V12";
         Boolean isLicensed = true;
+        LocalDateTime expirationDate = LocalDateTime.now();
 
-        InventoryAggregate result = inventoryAggregate.label(isLicensed, finalProductCode);
+        InventoryAggregate result = inventoryAggregate.label(isLicensed, finalProductCode, expirationDate);
 
         verify(inventoryMock).setIsLabeled(true);
         verify(inventoryMock).setIsLicensed(isLicensed);
@@ -207,8 +208,9 @@ class InventoryAggregateTest {
     void testLabel_Unlicensed() {
         String finalProductCode = "E1234V12";
         Boolean isLicensed = false;
+        LocalDateTime expirationDate = LocalDateTime.now();
 
-        InventoryAggregate result = inventoryAggregate.label(isLicensed, finalProductCode);
+        InventoryAggregate result = inventoryAggregate.label(isLicensed, finalProductCode,expirationDate);
 
         verify(inventoryMock).setIsLabeled(true);
         verify(inventoryMock).setIsLicensed(false);

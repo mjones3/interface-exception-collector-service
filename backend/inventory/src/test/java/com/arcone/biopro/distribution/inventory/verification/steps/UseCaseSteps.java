@@ -16,7 +16,6 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -30,6 +29,8 @@ public class UseCaseSteps {
     private final AddQuarantinedUseCase addQuarantinedUseCase;
 
     private final LabelAppliedUseCase labelAppliedUseCase;
+
+    private final LabelInvalidatedUseCase labelInvalidatedUseCase;
 
     private final RemoveQuarantinedUseCase removeQuarantinedUseCase;
 
@@ -117,6 +118,18 @@ public class UseCaseSteps {
         }
     }
 
+    @When("I received a Label Invalidated event for the following products:")
+    public void iReceivedALabelInvalidatedEventForTheFollowingProducts(DataTable dataTable) {
+        List<Map<String, String>> products = dataTable.asMaps(String.class, String.class);
+        for (Map<String, String> product : products) {
+            String unitNumber = product.get("Unit Number");
+            String productCode = product.get("Product Code");
+
+            LabelInvalidatedInput input = LabelInvalidatedInput.builder().unitNumber(unitNumber).productCode(productCode).build();
+            labelInvalidatedUseCase.execute(input).block();
+        }
+    }
+
     @When("I received a Shipment Completed event with shipment type {string} for the following units:")
     public void iReceivedAShipmentCompletedEventForTheFollowingUnits(String shipmentType, DataTable dataTable) {
         List<ShipmentCompletedInput.LineItem> lines = new ArrayList<>();
@@ -198,7 +211,6 @@ public class UseCaseSteps {
             productDiscardedUseCase.execute(inventoryUtil.newProductDiscardedInput(unitNumber, productCode, reason, comments)).block();
         }
     }
-
 
 
     @When("I received a Unit Unsuitable event with unit number {string} and reason {string}")
@@ -287,6 +299,9 @@ public class UseCaseSteps {
                 case "Label Applied":
                     iReceivedALabelAppliedEventForTheFollowingProducts(dataTable);
                     break;
+                case "Label Invalidated":
+                    iReceivedALabelInvalidatedEventForTheFollowingProducts(dataTable);
+                    break;
                 case "Apply Quarantine":
                     iReceiveApplyQuarantineWithReasonToTheUnitAndTheProduct(unitNumber, productCode, reason, reasonId);
                     break;
@@ -351,7 +366,7 @@ public class UseCaseSteps {
             .cartonNumber("CN001")
             .packedProducts(packedProducts)
             .build());
-        RecoveredPlasmaShipmentClosedInput input =  RecoveredPlasmaShipmentClosedInput.builder()
+        RecoveredPlasmaShipmentClosedInput input = RecoveredPlasmaShipmentClosedInput.builder()
             .cartonList(cartons)
             .shipmentNumber("CN001")
             .build();
