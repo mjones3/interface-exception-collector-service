@@ -40,167 +40,155 @@ public class InventoryMockController {
             initInventoryMockList();
         }
 
-            /*| Expired            | W036898786756  | E0701V00    Expired error message     |
-            | Discarded            | =W03689878675700 | =<E0713V00  Discarded error message   |
-            | Discarded            | W036898786759 | E0713V00  Discarded error message plus discard comments  |
-            | Quarantined          | W036898786758    | E0707V00    Quarantined error message |
-            | Non existent         | =W03689878675900 | =<E0701V00  Non existent error        |
-            | Different Location   | =W03689878676300 | =<E0703V00  Product not found error   |
-            | Already Shipped      | W036898786700    | E0707V00                                */
+        var inventoryResponse = inventoryResponseDTOList.stream().filter(inventory -> {
+                return inventory.unitNumber().equals(request.unitNumber())
+                    && inventory.productCode().equals(request.productCode())
+                    && inventory.locationCode().equals(request.locationCode());
+            }
+        ).findAny();
+        if (inventoryResponse.isPresent()) {
 
-
-        switch (request.unitNumber()) {
-            case "W036898786756":
-                return Mono.just(InventoryValidationResponseDTO
+            return defineInventoryResponse(inventoryResponse.get());
+        } else {
+            return Mono.just(InventoryValidationResponseDTO
+                .builder()
+                .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
                     .builder()
-                    .inventoryResponseDTO(InventoryResponseDTO
-                        .builder()
-                        .productFamily("PLASMA_TRANSFUSABLE")
-                        .id(UUID.randomUUID())
-                        .aboRh("AB")
-                        .locationCode("123456789")
-                        .productCode("E0701V00")
-                        .collectionDate(ZonedDateTime.now())
-                        .unitNumber("W036898786756")
-                        .expirationDate(LocalDateTime.now())
-                        .productDescription("PRODUCT_DESCRIPTION")
-                        .build())
-                    .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
-                        .builder()
-                        .errorName("INVENTORY_IS_EXPIRED")
-                        .errorType("INFO")
-                        .errorCode(2)
-                        .errorMessage(RecoveredPlasmaShippingServiceMessages.INVENTORY_EXPIRED_ERROR)
-                        .action("TRIGGER_DISCARD")
-                        .reason("EXPIRED")
-                        .build())).build()
-                );
-            case "W036898786757":
-                return Mono.just(InventoryValidationResponseDTO
-                    .builder()
-                    .inventoryResponseDTO(InventoryResponseDTO
-                        .builder()
-                        .productFamily("PLASMA_TRANSFUSABLE")
-                        .id(UUID.randomUUID())
-                        .aboRh("AB")
-                        .locationCode("123456789")
-                        .productCode("E0713V00")
-                        .collectionDate(ZonedDateTime.now())
-                        .unitNumber("W036898786757")
-                        .expirationDate(LocalDateTime.now())
-                        .productDescription("PRODUCT_DESCRIPTION")
-                        .build())
-                    .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
-                        .builder()
-                        .errorName("INVENTORY_IS_DISCARDED")
-                        .errorCode(3)
-                        .errorType("INFO")
-                        .errorMessage(RecoveredPlasmaShippingServiceMessages.INVENTORY_DISCARDED_ERROR)
-                        .build()))
-                    .build());
-            case "W036898786759":
-                return Mono.just(InventoryValidationResponseDTO
-                    .builder()
-                    .inventoryResponseDTO(InventoryResponseDTO
-                        .builder()
-                        .productFamily("PLASMA_TRANSFUSABLE")
-                        .id(UUID.randomUUID())
-                        .aboRh("AB")
-                        .locationCode("123456789")
-                        .productCode("E0713V00")
-                        .collectionDate(ZonedDateTime.now())
-                        .unitNumber("W036898786759")
-                        .expirationDate(LocalDateTime.now())
-                        .productDescription("PRODUCT_DESCRIPTION")
-                        .build())
-                    .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
-                        .builder()
-                        .errorName("INVENTORY_IS_DISCARDED")
-                        .errorCode(3)
-                        .errorType("INFO")
-                        .errorMessage(RecoveredPlasmaShippingServiceMessages.INVENTORY_DISCARDED_ERROR + DISCARD_COMMENTS_250_CHARS)
-                        .build()))
-                    .build());
-            case "W036898786758":
-
-
-                return Mono.just(InventoryValidationResponseDTO
-                    .builder()
-                    .inventoryResponseDTO(InventoryResponseDTO
-                        .builder()
-                        .productFamily("PLASMA_TRANSFUSABLE")
-                        .id(UUID.randomUUID())
-                        .aboRh("AB")
-                        .locationCode("123456789")
-                        .productCode("E0707V00")
-                        .collectionDate(ZonedDateTime.now())
-                        .unitNumber("W036898786758")
-                        .expirationDate(LocalDateTime.now())
-                        .productDescription("PRODUCT_DESCRIPTION")
-                        .build())
-                    .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
-                        .builder()
-                        .errorType("INFO")
-                        .errorName("INVENTORY_IS_QUARANTINED")
-                        .errorCode(4)
-                        .errorMessage(RecoveredPlasmaShippingServiceMessages.INVENTORY_QUARANTINED_ERROR)
-                        .details(List.of("ABS Positive", "BCA Unit Needed", "CCP Eligible", "Failed Visual Inspection"
-                            , "Hold Until Expiration", "In Process Hold", "Pending Further Review Inspection",
-                            "Save Plasma for CTS", "Other", "Under Investigation"))
-                        .build()))
-                    .build());
-            case "W036898786700":
-                return Mono.just(InventoryValidationResponseDTO
-                    .builder()
-                    .inventoryResponseDTO(InventoryResponseDTO
-                        .builder()
-                        .productFamily("PLASMA_TRANSFUSABLE")
-                        .id(UUID.randomUUID())
-                        .aboRh("AB")
-                        .locationCode("123456789")
-                        .productCode("E0707V00")
-                        .collectionDate(ZonedDateTime.now())
-                        .unitNumber("W036898786700")
-                        .expirationDate(LocalDateTime.now())
-                        .productDescription("PRODUCT_DESCRIPTION")
-                        .build())
-                    .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
-                        .builder()
-                        .errorType("WARN")
-                        .errorName("INVENTORY_IS_SHIPPED")
-                        .errorCode(4)
-                        .errorMessage(RecoveredPlasmaShippingServiceMessages.INVENTORY_SHIPPED_ERROR)
-                        .build()))
-                    .build());
-            case "W036898786812":
-                return Mono.error(new RuntimeException("Testing Exception Handlers"));
-            default:
-                var inventoryResponse = inventoryResponseDTOList.stream().filter(inventory -> {
-                        return inventory.unitNumber().equals(request.unitNumber())
-                            && inventory.productCode().equals(request.productCode())
-                            && inventory.locationCode().equals(request.locationCode());
-                    }
-                ).findAny();
-                if (inventoryResponse.isPresent()) {
-
-                    return Mono.just(InventoryValidationResponseDTO
-                        .builder()
-                        .inventoryResponseDTO(inventoryResponse.get())
-                        .build());
-                } else {
-                    return Mono.just(InventoryValidationResponseDTO
-                        .builder()
-                        .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
-                            .builder()
-                            .errorName("INVENTORY_NOT_FOUND_IN_LOCATION")
-                            .errorType("WARN")
-                            .errorCode(1)
-                            .errorMessage(RecoveredPlasmaShippingServiceMessages.INVENTORY_NOT_FOUND_ERROR)
-                            .build()))
-                        .build());
-                }
-
+                    .errorName("INVENTORY_NOT_FOUND_IN_LOCATION")
+                    .errorType("WARN")
+                    .errorCode(1)
+                    .errorMessage(RecoveredPlasmaShippingServiceMessages.INVENTORY_NOT_FOUND_ERROR)
+                    .build()))
+                .build());
         }
+    }
+
+
+    private Mono<InventoryValidationResponseDTO> defineInventoryResponse(InventoryResponseDTO inventoryResponseDTO) {
+
+        return switch (inventoryResponseDTO.status()) {
+            case "EXPIRED" -> Mono.just(InventoryValidationResponseDTO
+                .builder()
+                .inventoryResponseDTO(InventoryResponseDTO
+                    .builder()
+                    .productFamily(inventoryResponseDTO.productFamily())
+                    .id(UUID.randomUUID())
+                    .aboRh(inventoryResponseDTO.aboRh())
+                    .locationCode(inventoryResponseDTO.locationCode())
+                    .productCode(inventoryResponseDTO.productCode())
+                    .collectionDate(ZonedDateTime.now())
+                    .unitNumber(inventoryResponseDTO.unitNumber())
+                    .expirationDate(LocalDateTime.now())
+                    .productDescription(inventoryResponseDTO.productDescription())
+                    .build())
+                .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
+                    .builder()
+                    .errorName("INVENTORY_IS_EXPIRED")
+                    .errorType("INFO")
+                    .errorCode(2)
+                    .errorMessage(RecoveredPlasmaShippingServiceMessages.INVENTORY_EXPIRED_ERROR)
+                    .action("TRIGGER_DISCARD")
+                    .reason("EXPIRED")
+                    .build())).build()
+            );
+            case "DISCARDED" -> Mono.just(InventoryValidationResponseDTO
+                .builder()
+                .inventoryResponseDTO(InventoryResponseDTO
+                    .builder()
+                    .productFamily(inventoryResponseDTO.productFamily())
+                    .id(UUID.randomUUID())
+                    .aboRh(inventoryResponseDTO.aboRh())
+                    .locationCode(inventoryResponseDTO.locationCode())
+                    .productCode(inventoryResponseDTO.productCode())
+                    .collectionDate(ZonedDateTime.now())
+                    .unitNumber(inventoryResponseDTO.unitNumber())
+                    .expirationDate(LocalDateTime.now())
+                    .productDescription(inventoryResponseDTO.productDescription())
+                    .build())
+                .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
+                    .builder()
+                    .errorName("INVENTORY_IS_DISCARDED")
+                    .errorCode(3)
+                    .errorType("INFO")
+                    .errorMessage(RecoveredPlasmaShippingServiceMessages.INVENTORY_DISCARDED_ERROR)
+                    .build()))
+                .build());
+            case "DISCARDED_COMMENTS" -> Mono.just(InventoryValidationResponseDTO
+                .builder()
+                .inventoryResponseDTO(InventoryResponseDTO
+                    .builder()
+                    .productFamily(inventoryResponseDTO.productFamily())
+                    .id(UUID.randomUUID())
+                    .aboRh(inventoryResponseDTO.aboRh())
+                    .locationCode(inventoryResponseDTO.locationCode())
+                    .productCode(inventoryResponseDTO.productCode())
+                    .collectionDate(ZonedDateTime.now())
+                    .unitNumber(inventoryResponseDTO.unitNumber())
+                    .expirationDate(LocalDateTime.now())
+                    .productDescription(inventoryResponseDTO.productDescription())
+                    .build())
+                .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
+                    .builder()
+                    .errorName("INVENTORY_IS_DISCARDED")
+                    .errorCode(3)
+                    .errorType("INFO")
+                    .errorMessage(RecoveredPlasmaShippingServiceMessages.INVENTORY_DISCARDED_ERROR + DISCARD_COMMENTS_250_CHARS)
+                    .build()))
+                .build());
+            case "QUARANTINED" -> Mono.just(InventoryValidationResponseDTO
+                .builder()
+                .inventoryResponseDTO(InventoryResponseDTO
+                    .builder()
+                    .productFamily(inventoryResponseDTO.productFamily())
+                    .id(UUID.randomUUID())
+                    .aboRh(inventoryResponseDTO.aboRh())
+                    .locationCode(inventoryResponseDTO.locationCode())
+                    .productCode(inventoryResponseDTO.productCode())
+                    .collectionDate(ZonedDateTime.now())
+                    .unitNumber(inventoryResponseDTO.unitNumber())
+                    .expirationDate(LocalDateTime.now())
+                    .productDescription(inventoryResponseDTO.productDescription())
+                    .build())
+                .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
+                    .builder()
+                    .errorType("INFO")
+                    .errorName("INVENTORY_IS_QUARANTINED")
+                    .errorCode(4)
+                    .errorMessage(RecoveredPlasmaShippingServiceMessages.INVENTORY_QUARANTINED_ERROR)
+                    .details(List.of("ABS Positive", "BCA Unit Needed", "CCP Eligible", "Failed Visual Inspection"
+                        , "Hold Until Expiration", "In Process Hold", "Pending Further Review Inspection",
+                        "Save Plasma for CTS", "Other", "Under Investigation"))
+                    .build()))
+                .build());
+            case "SHIPPED" -> Mono.just(InventoryValidationResponseDTO
+                .builder()
+                .inventoryResponseDTO(InventoryResponseDTO
+                    .builder()
+                    .productFamily(inventoryResponseDTO.productFamily())
+                    .id(UUID.randomUUID())
+                    .aboRh(inventoryResponseDTO.aboRh())
+                    .locationCode(inventoryResponseDTO.locationCode())
+                    .productCode(inventoryResponseDTO.productCode())
+                    .collectionDate(ZonedDateTime.now())
+                    .unitNumber(inventoryResponseDTO.unitNumber())
+                    .expirationDate(LocalDateTime.now())
+                    .productDescription(inventoryResponseDTO.productDescription())
+                    .build())
+                .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
+                    .builder()
+                    .errorType("WARN")
+                    .errorName("INVENTORY_IS_SHIPPED")
+                    .errorCode(4)
+                    .errorMessage(RecoveredPlasmaShippingServiceMessages.INVENTORY_SHIPPED_ERROR)
+                    .build()))
+                .build());
+            case "SYSTEM_DOW" -> Mono.error(new RuntimeException("Testing Exception Handlers"));
+            default -> Mono.just(InventoryValidationResponseDTO
+                .builder()
+                .inventoryResponseDTO(inventoryResponseDTO)
+                .build());
+        };
+
     }
 
     private void initInventoryMockList() {

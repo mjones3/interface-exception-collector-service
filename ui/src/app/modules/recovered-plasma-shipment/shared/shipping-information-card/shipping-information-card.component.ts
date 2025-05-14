@@ -27,9 +27,8 @@ import { RecoveredPlasmaShipmentStatusMap } from '../../graphql/query-definition
 })
 export class ShippingInformationCardComponent {
     datePipe = inject(DatePipe);
-
     @Input() showBasicButton = false;
-    @Input() isButtonDisabled = true;
+    @Input() isButtonDisabled = false;
     @Output() handleClick = new EventEmitter<void>();
 
     protected shippingInput =

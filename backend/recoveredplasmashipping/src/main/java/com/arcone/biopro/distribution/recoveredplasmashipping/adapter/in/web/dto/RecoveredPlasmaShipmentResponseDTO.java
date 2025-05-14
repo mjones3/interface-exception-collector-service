@@ -41,7 +41,10 @@ public record RecoveredPlasmaShipmentResponseDTO(
     int totalCartons,
     int totalProducts,
     boolean canAddCartons,
-    List<CartonDTO> cartonList
+    List<CartonDTO> cartonList,
+    boolean canClose,
+    ZonedDateTime lastUnsuitableReportRunDate,
+    boolean canModify
 
 ) implements Serializable {
 

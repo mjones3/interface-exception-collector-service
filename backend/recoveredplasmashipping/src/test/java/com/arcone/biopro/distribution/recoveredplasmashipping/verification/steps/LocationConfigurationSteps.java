@@ -83,7 +83,7 @@ public class LocationConfigurationSteps {
 
     @Given("I have removed from the database all the configurations for the location {string}.")
     public void iHaveRemovedFromTheDatabaseAllTheConfigurationsForTheLocation(String external_id) {
-        var deletePropertySQL = "DELETE FROM lk_location_property WHERE location_id = (SELECT max(id) FROM lk_location WHERE external_id = '" + external_id + "');";
+        var deletePropertySQL = "DELETE FROM lk_location_property WHERE location_id = (SELECT id FROM lk_location WHERE external_id = '" + external_id + "');";
         databaseService.executeSql(deletePropertySQL).block();
 
         var deleteConfigurationSQL = "DELETE FROM lk_location WHERE external_id = '" + external_id + "';";

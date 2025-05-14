@@ -21,5 +21,7 @@ public interface RecoveredPlasmaShipmentOutputMapper {
     @Mapping(target = "customerAddressContactName", source = "shipmentCustomer.customerAddressContactName")
     @Mapping(target = "customerAddressPhoneNumber", source = "shipmentCustomer.customerAddressPhoneNumber")
     @Mapping(target = "customerAddressDepartmentName", source = "shipmentCustomer.customerAddressDepartmentName")
+    @Mapping(target = "canClose", expression = "java(recoveredPlasmaShipment.canClose())")
+    @Mapping(target = "canModify", expression = "java(recoveredPlasmaShipment.canModify())")
     RecoveredPlasmaShipmentOutput toRecoveredPlasmaShipmentOutput(RecoveredPlasmaShipment recoveredPlasmaShipment);
 }

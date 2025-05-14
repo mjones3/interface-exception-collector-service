@@ -70,20 +70,20 @@ public class VerifyCartonItemUseCase implements VerifyCartonService {
                             , null);
                     });
             } )
-            .doOnError(error -> {
-                log.warn("resetting verification {}", error.getMessage());
-                this.resetVerification(error,verifyItemCommandInput.cartonId());
-            })
             .publishOn(Schedulers.boundedElastic())
             .onErrorResume(error -> {
                 log.error("Not able to verify carton Item {}", error.getMessage());
-                return buildVerifyErrorResponse(error , verifyItemCommandInput.cartonId());
+                return this.resetVerification(error,verifyItemCommandInput.cartonId())
+                    .then(Mono.defer(() -> buildVerifyErrorResponse(error , verifyItemCommandInput.cartonId())));
             });
     }
 
-    private void resetVerification(Throwable error , Long cartonId){
+    private Mono<Void> resetVerification(Throwable error , Long cartonId){
         if(!(error instanceof ProductValidationException productValidationException) || !SYSTEM_ERROR_TYPE.equals(productValidationException.getErrorType())) {
-            cartonItemRepository.deleteAllByCartonId(cartonId).subscribe();
+            log.warn("resetting verification {}", error.getMessage());
+            return cartonItemRepository.deleteAllByCartonId(cartonId);
+        }else{
+            return Mono.empty();
         }
     }
 
