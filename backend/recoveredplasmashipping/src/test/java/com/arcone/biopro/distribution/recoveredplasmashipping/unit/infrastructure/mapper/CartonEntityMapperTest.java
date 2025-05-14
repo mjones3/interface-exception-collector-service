@@ -38,6 +38,10 @@ class CartonEntityMapperTest {
         Mockito.when(cartonModel.getModificationDate()).thenReturn(ZonedDateTime.now());
         Mockito.when(cartonModel.getCreateEmployeeId()).thenReturn("create-id");
         Mockito.when(cartonModel.getCloseEmployeeId()).thenReturn("close-id");
+        Mockito.when(cartonModel.getRepackComments()).thenReturn("comments");
+        Mockito.when(cartonModel.getRepackEmployeeId()).thenReturn("repack-id");
+        Mockito.when(cartonModel.getRepackDate()).thenReturn(ZonedDateTime.now());
+
 
         var entity = mapper.toEntity(cartonModel);
 
@@ -52,6 +56,9 @@ class CartonEntityMapperTest {
         Assertions.assertEquals(cartonModel.getModificationDate(), entity.getModificationDate());
         Assertions.assertEquals(cartonModel.getCreateEmployeeId(), entity.getCreateEmployeeId());
         Assertions.assertEquals(cartonModel.getCloseEmployeeId(), entity.getCloseEmployeeId());
+        Assertions.assertEquals(cartonModel.getRepackComments(), entity.getRepackComments());
+        Assertions.assertEquals(cartonModel.getRepackEmployeeId(), entity.getRepackEmployeeId());
+        Assertions.assertEquals(cartonModel.getRepackDate(), entity.getRepackDate());
 
     }
 

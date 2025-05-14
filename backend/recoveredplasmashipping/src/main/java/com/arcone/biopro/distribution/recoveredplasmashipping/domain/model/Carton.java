@@ -48,6 +48,9 @@ public class Carton implements Validatable {
     private List<CartonItem> products;
     private Integer maxNumberOfProducts;
     private Integer minNumberOfProducts;
+    private String repackEmployeeId;
+    private ZonedDateTime repackDate;
+    private String repackComments;
 
     private static final String STATUS_OPEN = "OPEN";
     private static final String CARTON_PARTNER_PREFIX_KEY = "RPS_CARTON_PARTNER_PREFIX";
@@ -280,6 +283,24 @@ public class Carton implements Validatable {
         this.closeDate = null;
         this.closeEmployeeId = null;
 
+        return this;
+    }
+
+    public Carton markAsReopen(final RepackCartonCommand repackCartonCommand){
+        if(repackCartonCommand == null){
+            throw new IllegalArgumentException("RepackCartonCommand is required");
+        }
+
+        if(!STATUS_REPACK.equals(this.status)){
+            throw new IllegalArgumentException("Carton cannot be repacked");
+        }
+
+        this.status = STATUS_OPEN;
+        this.closeDate = null;
+        this.closeEmployeeId = null;
+        this.repackDate = ZonedDateTime.now();
+        this.repackEmployeeId = repackCartonCommand.getEmployeeId();
+        this.repackComments = repackCartonCommand.getReasonComments();
         return this;
     }
 }
