@@ -9,7 +9,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatIconButton } from '@angular/material/button';
 
 @Component({
-  selector: 'app-view-unacceptable-products',
+  selector: 'biopro-view-unacceptable-products',
   standalone: true,
     imports: [
         ActionButtonComponent,

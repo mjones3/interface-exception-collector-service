@@ -81,7 +81,7 @@ export class RecoveredPlasmaShippingDetailsComponent
     protected readonly RecoveredPlasmaCartonStatusCssMap = RecoveredPlasmaCartonStatusCssMap;
 
     protected static readonly POLLING_INTERVAL = 10 * 1000; // 10 seconds
-    protected static readonly POLLING_MAX_TIMEOUT = 60 * 1000; // 60 seconds
+    protected static readonly POLLING_MAX_TIMEOUT = 120 * 1000; // 120 seconds
 
     messageSignal = signal<string>(null);
     messageTypeSignal = signal<FuseAlertType>(null);
