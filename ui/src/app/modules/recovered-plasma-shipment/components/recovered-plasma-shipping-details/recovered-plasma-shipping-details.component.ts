@@ -1,5 +1,15 @@
 import { AsyncPipe, formatDate } from '@angular/common';
-import { Component, computed, Inject, LOCALE_ID, OnInit, signal, TemplateRef, viewChild } from '@angular/core';
+import {
+    Component,
+    computed,
+    Inject,
+    LOCALE_ID,
+    OnDestroy,
+    OnInit,
+    signal,
+    TemplateRef,
+    viewChild
+} from '@angular/core';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -10,7 +20,7 @@ import { ActionButtonComponent } from 'app/shared/components/buttons/action-butt
 import { BasicButtonComponent } from 'app/shared/components/buttons/basic-button.component';
 import { ProductIconsService } from 'app/shared/services/product-icon.service';
 import { CookieService } from 'ngx-cookie-service';
-import { catchError, map, of, switchMap, tap } from 'rxjs';
+import { catchError, map, of, Subscription, switchMap, take, takeWhile, tap, timer } from 'rxjs';
 import { TableComponent } from '../../../../shared/components/table/table.component';
 import handleApolloError from '../../../../shared/utils/apollo-error-handling';
 import { consumeUseCaseNotifications } from '../../../../shared/utils/notification.handling';
@@ -18,7 +28,11 @@ import {
     RecoveredPlasmaCartonStatusCssMap,
     RecoveredPlasmaCartonStatusMap
 } from '../../graphql/query-definitions/shipment.graphql';
-import { CartonDTO, CartonPackedItemResponseDTO } from '../../models/recovered-plasma.dto';
+import {
+    CartonDTO,
+    CartonPackedItemResponseDTO,
+    RecoveredPlasmaShipmentResponseDTO
+} from '../../models/recovered-plasma.dto';
 import { RecoveredPlasmaShipmentCommon } from '../../recovered-plasma-shipment.common';
 import { RecoveredPlasmaService } from '../../services/recovered-plasma.service';
 import {
@@ -37,7 +51,9 @@ import { CartonPackingSlipDTO } from '../../graphql/query-definitions/generate-c
 import { CloseShipmentDailogComponent } from '../close-shipment-dailog/close-shipment-dailog.component';
 import { GlobalMessageComponent } from 'app/shared/components/global-message/global-message.component';
 import { FuseAlertType } from '@fuse/components/alert/public-api';
-import { UnsuitableUnitReportComponent } from '../../shared/unsuitable-unit-report/unsuitable-unit-report.component';
+import {
+    UnacceptableProductsReportWidgetComponent
+} from '../../shared/unacceptable-products-report-widget/unacceptable-products-report-widget.component';
 
 @Component({
     selector: 'biopro-recovered-plasma-shipping-details',
@@ -53,16 +69,19 @@ import { UnsuitableUnitReportComponent } from '../../shared/unsuitable-unit-repo
         MatDividerModule,
         MatIcon,
         GlobalMessageComponent,
-        UnsuitableUnitReportComponent
+        UnacceptableProductsReportWidgetComponent
     ],
     templateUrl: './recovered-plasma-shipping-details.component.html',
 })
 export class RecoveredPlasmaShippingDetailsComponent
     extends RecoveredPlasmaShipmentCommon
-    implements OnInit
+    implements OnInit, OnDestroy
 {
     protected readonly RecoveredPlasmaCartonStatusMap = RecoveredPlasmaCartonStatusMap;
     protected readonly RecoveredPlasmaCartonStatusCssMap = RecoveredPlasmaCartonStatusCssMap;
+
+    protected static readonly POLLING_INTERVAL = 10 * 1000; // 10 seconds
+    protected static readonly POLLING_MAX_TIMEOUT = 60 * 1000; // 60 seconds
 
     messageSignal = signal<string>(null);
     messageTypeSignal = signal<FuseAlertType>(null);
@@ -111,6 +130,8 @@ export class RecoveredPlasmaShippingDetailsComponent
         ],
     }));
 
+    pollingSubscription: Subscription;
+
     constructor(
         public header: ProcessHeaderService,
         protected store: Store,
@@ -139,24 +160,46 @@ export class RecoveredPlasmaShippingDetailsComponent
         this.fetchShipmentData(this.routeIdComputed());
     }
 
+    ngOnDestroy() {
+        if (this.pollingSubscription && !this.pollingSubscription.closed) {
+            this.pollingSubscription.unsubscribe();
+        }
+    }
+
     fetchShipmentData(id: number) {
-        this.loadRecoveredPlasmaShippingDetails(id)
+        this.pollingSubscription = timer(0, RecoveredPlasmaShippingDetailsComponent.POLLING_INTERVAL)
             .pipe(
-                tap(() => {
+                take(RecoveredPlasmaShippingDetailsComponent.POLLING_MAX_TIMEOUT / RecoveredPlasmaShippingDetailsComponent.POLLING_INTERVAL),
+                switchMap(() => this.loadRecoveredPlasmaShippingDetails(id)),
+                tap((shipping: RecoveredPlasmaShipmentResponseDTO) => {
                     if (this.shouldPrintCartonPackingSlip) {
                         this.printCarton(null, this.shipmentCloseCartonId);
                     }
-                    this.setStaticMessage();
-                })
+                    this.configureUnacceptableProductsReportStatusMessage();
+                }),
+                takeWhile((shipping: RecoveredPlasmaShipmentResponseDTO) => shipping.status === 'PROCESSING', true)
             )
-        .subscribe();
+            .subscribe();
     }
 
-    setStaticMessage(){
-        if(this.shipmentDetailsSignal()?.status === 'PROCESSING'){
+    configureUnacceptableProductsReportStatusMessage(){
+        // Processing unacceptable products report
+        if (this.shipmentDetailsSignal()?.status === 'PROCESSING') {
             this.messageSignal.set('Close Shipment is in progress.');
             this.messageTypeSignal.set('info');
+            return;
         }
+
+        // No more processing, check if has any processing error
+        if (this.shipmentDetailsSignal()?.unsuitableUnitReportDocumentStatus === 'ERROR_PROCESSING') {
+            this.messageSignal.set('Unacceptable Products report generation error. Contact Support.');
+            this.messageTypeSignal.set('info');
+            return;
+        }
+
+        // Nothing to process and no error
+        this.messageSignal.set(null);
+        this.messageTypeSignal.set(null);
     }
 
     loadCartonPackedProduct(carton: CartonDTO): void {

@@ -6,18 +6,15 @@ import { ToastrImplService } from '@shared';
 import { Cookie } from 'app/shared/types/cookie.enum';
 import handleApolloError from 'app/shared/utils/apollo-error-handling';
 import { CookieService } from 'ngx-cookie-service';
-import { Observable, catchError, map, take, tap } from 'rxjs';
+import { catchError, map, Observable, take, tap } from 'rxjs';
 import { getAuthState } from '../../core/state/auth/auth.selectors';
 import { ProductIconsService } from '../../shared/services/product-icon.service';
 import { consumeUseCaseNotifications } from '../../shared/utils/notification.handling';
-import { RecoveredPlasmaShipmentStatusMap } from './graphql/query-definitions/shipment.graphql';
 import { FindShipmentRequestDTO } from './graphql/query-definitions/shipmentDetails.graphql';
 import { RecoveredPlasmaShipmentResponseDTO } from './models/recovered-plasma.dto';
 import { RecoveredPlasmaService } from './services/recovered-plasma.service';
 
 export class RecoveredPlasmaShipmentCommon {
-    protected readonly RecoveredPlasmaShipmentStatusMap =
-        RecoveredPlasmaShipmentStatusMap;
 
     routeIdComputed = computed(() => Number(this.route?.snapshot?.params?.id));
     employeeIdSignal = signal<string>(null);

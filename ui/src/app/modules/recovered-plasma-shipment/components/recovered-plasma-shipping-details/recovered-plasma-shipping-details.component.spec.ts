@@ -30,7 +30,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
     let mockBrowserPrintingService: jest.Mocked<BrowserPrintingService>;
     let mockDialogRef: jest.Mocked<MatDialogRef<ViewShippingCartonPackingSlipComponent, CartonPackingSlipDTO>>;
     let mockActivatedRoute: any;
-    
+
     beforeEach(async () => {
         mockRouter = {
             navigate: jest.fn(),
@@ -254,34 +254,6 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         });
     });
 
-    describe('getStatusBadgeCssClass', () => {
-        it('should return correct CSS class for OPEN status', () => {
-            const result = component.getStatusBadgeCssClass('OPEN');
-            expect(result).toBe(
-                'text-sm font-bold py-1.5 px-2 badge rounded-full bg-blue-100 text-blue-700'
-            );
-        });
-
-        it('should return correct CSS class for IN_PROGRESS status', () => {
-            const result = component.getStatusBadgeCssClass('IN_PROGRESS');
-            expect(result).toBe(
-                'text-sm font-bold py-1.5 px-2 badge rounded-full bg-[#FFEDD5] text-[#C2410C]'
-            );
-        });
-
-        it('should return correct CSS class for CLOSED status', () => {
-            const result = component.getStatusBadgeCssClass('CLOSED');
-            expect(result).toBe(
-                'text-sm font-bold py-1.5 px-2 badge rounded-full bg-green-100 text-green-700'
-            );
-        });
-
-        it('should return empty string for unknown status', () => {
-            const result = component.getStatusBadgeCssClass('UNKNOWN' as any);
-            expect(result).toBe('');
-        });
-    });
-
     it('should handle error when loadCartonPackedProduct fails', () => {
         const mockError = new ApolloError({
             errorMessage: 'Network error',
@@ -497,7 +469,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         );
 
         component.handleCloseShipmentContinue(mockDate);
-        
+
         expect(mockRecoveredPlasmaService.closeShipment).toHaveBeenCalledWith({
             locationCode: '123456789',
             shipmentId: 1,
@@ -533,11 +505,11 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         };
 
         mockRecoveredPlasmaService.closeShipment.mockReturnValue(of(mockResponse));
-        
+
         const fetchShipmentDataSpy = jest.spyOn(component, 'fetchShipmentData');
-        
+
         component.handleCloseShipmentContinue(mockDate);
-        
+
         expect(fetchShipmentDataSpy).toHaveBeenCalledWith(1, false);
     });
 
@@ -546,9 +518,9 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         it('should call loadRecoveredPlasmaShippingDetails with the provided id', () => {
             const shipmentId = 123;
             const loadSpy = jest.spyOn(component, 'loadRecoveredPlasmaShippingDetails').mockReturnValue(of({}));
-            
+
             component.fetchShipmentData(shipmentId);
-            
+
             expect(loadSpy).toHaveBeenCalledWith(shipmentId);
         });
 
@@ -558,9 +530,9 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
             mockActivatedRoute.snapshot.queryParams = { print: 'true', closeCartonId: cartonId.toString() };
             const loadSpy = jest.spyOn(component, 'loadRecoveredPlasmaShippingDetails').mockReturnValue(of({}));
             const printSpy = jest.spyOn(component, 'printCarton').mockImplementation();
-            
+
             component.fetchShipmentData(shipmentId);
-            
+
             expect(loadSpy).toHaveBeenCalledWith(shipmentId);
             expect(printSpy).toHaveBeenCalledWith(null, cartonId);
         });

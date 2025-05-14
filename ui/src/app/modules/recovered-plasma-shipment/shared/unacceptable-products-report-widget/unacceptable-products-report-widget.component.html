@@ -1,9 +1,9 @@
 <div class="flex flex-col">
     <rsa-common-widget
         [title]="'Unacceptable Products Report'"
-        [templateRef]="unsuitableReportInfoTpl"
+        [templateRef]="reportInfoTpl"
     >
-        <ng-template #unsuitableReportInfoTpl>
+        <ng-template #reportInfoTpl>
             @if(loading()) {
                 <div class="flex flex-col gap-2">
                     <biopro-loading-spinner [textLabel]="loaderMessage" />
@@ -14,6 +14,7 @@
                         id="unsuitableReportInfoDescriptions"
                         [descriptions]="unsuitableReportInfo()"
                     />
+                    @if (['COMPLETED_FAILED', 'COMPLETED'].includes(shipment()?.unsuitableUnitReportDocumentStatus)) {
                     <div class="flex flex-1 justify-center">
                         <biopro-action-button
                             id="reportBtn"
@@ -24,6 +25,7 @@
                             (clickEvent)="viewReport()"
                         />
                     </div>
+                    }
                 </div>
             }
         </ng-template>

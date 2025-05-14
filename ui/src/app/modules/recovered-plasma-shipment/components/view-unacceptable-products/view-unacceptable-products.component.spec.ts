@@ -8,6 +8,7 @@ import {
     UnacceptableUnitReportOutput
 } from '../../graphql/query-definitions/print-unacceptable-units-report.graphql';
 import { DateTime } from 'luxon';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('ViewUnacceptableProductsComponent', () => {
   let component: ViewUnacceptableProductsComponent;
@@ -24,9 +25,9 @@ describe('ViewUnacceptableProductsComponent', () => {
     };
   }
 
-  function createUnacceptableProductsReport(): UnacceptableUnitReportOutput {
+  function createUnacceptableProductsReport(amountOfFlaggedProducts: number): UnacceptableUnitReportOutput {
     const products: UnacceptableUnitReportItemOutput[] = [];
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < amountOfFlaggedProducts; i++) {
       products.push(createProduct(i));
     }
 
@@ -40,11 +41,14 @@ describe('ViewUnacceptableProductsComponent', () => {
   }
 
   describe('with provided data', () => {
-    const unacceptableProductsReport = createUnacceptableProductsReport();
+    const unacceptableProductsReport = createUnacceptableProductsReport(10);
 
     beforeEach(async () => {
       await TestBed.configureTestingModule({
-        imports: [ViewUnacceptableProductsComponent],
+        imports: [
+            ViewUnacceptableProductsComponent,
+            MatIconTestingModule,
+        ],
         providers: [
           { provide: MAT_DIALOG_DATA, useValue: unacceptableProductsReport }
         ]
@@ -94,6 +98,30 @@ describe('ViewUnacceptableProductsComponent', () => {
       expect(headerCells[3].nativeElement.textContent).toBe('Carton Sequence');
       expect(headerCells[4].nativeElement.textContent).toBe('Reason for Failure');
     });
+  });
 
+  describe('with provided data but no products flagged', () => {
+    const unacceptableProductsReport = createUnacceptableProductsReport(0);
+    beforeEach(async () => {
+      await TestBed.configureTestingModule({
+        imports: [
+          ViewUnacceptableProductsComponent,
+          MatIconTestingModule,
+        ],
+        providers: [
+          { provide: MAT_DIALOG_DATA, useValue: unacceptableProductsReport }
+        ]
+      }).compileComponents();
+
+      fixture = TestBed.createComponent(ViewUnacceptableProductsComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+    });
+
+    it('should display the correct message when no products are found', () => {
+      expect(component.reportModel().failedProducts.length).toBe(0);
+      const noProductsMessageElement = fixture.debugElement.query(By.css('#viewUnacceptableProductsNoProductsFlaggedMessage'));
+      expect(noProductsMessageElement.nativeElement.textContent).toBe(unacceptableProductsReport.noProductsFlaggedMessage);
+    });
   });
 });

@@ -20,7 +20,7 @@ import {
 } from '../../../../core/models/browser-printing.model';
 
 @Component({
-    selector: 'biopro-unsuitable-unit-report',
+    selector: 'biopro-unacceptable-products-report-widget',
     standalone: true,
     imports: [
         WidgetComponent,
@@ -28,9 +28,9 @@ import {
         DescriptionCardComponent,
         ActionButtonComponent,
     ],
-    templateUrl: './unsuitable-unit-report.component.html'
+    templateUrl: './unacceptable-products-report-widget.component.html'
 })
-export class UnsuitableUnitReportComponent {
+export class UnacceptableProductsReportWidgetComponent {
 
     readonly loaderMessage = 'Unacceptable Products Report is in progress';
 
@@ -71,7 +71,7 @@ export class UnsuitableUnitReportComponent {
                                 id: 'viewUnacceptableProductsDialog',
                                 width: DEFAULT_PAGE_SIZE_DIALOG_PORTRAIT_WIDTH,
                                 height: DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
-                                data: response.data?.printUnacceptableUnitsReport?.data
+                                data: response.data?.printUnacceptableUnitsReport?.data,
                             });
                         return dialogRef.afterOpened();
                     }

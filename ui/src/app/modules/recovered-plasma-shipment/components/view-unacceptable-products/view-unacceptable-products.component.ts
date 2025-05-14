@@ -1,16 +1,23 @@
 import { Component, inject, Inject, signal } from '@angular/core';
 import { PrintableReportComponent } from '../../../../shared/components/printable-report.component';
 import { DomSanitizer } from '@angular/platform-browser';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogClose, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
 import { UnacceptableUnitReportOutput } from '../../graphql/query-definitions/print-unacceptable-units-report.graphql';
 import { ActionButtonComponent } from '../../../../shared/components/buttons/action-button.component';
 import { BrowserPrintingService } from '../../../../core/services/browser-printing/browser-printing.service';
+import { MatIcon } from '@angular/material/icon';
+import { MatIconButton } from '@angular/material/button';
 
 @Component({
   selector: 'app-view-unacceptable-products',
   standalone: true,
     imports: [
-        ActionButtonComponent
+        ActionButtonComponent,
+        MatIcon,
+        MatDialogClose,
+        MatIconButton,
+        MatDialogTitle,
+        MatDialogContent
     ],
   templateUrl: './view-unacceptable-products.component.html',
   styleUrl: './view-unacceptable-products.component.scss'
@@ -30,7 +37,7 @@ export class ViewUnacceptableProductsComponent extends PrintableReportComponent 
     }
 
     print() {
-        this.browserPrintingService.print('viewShippingCartonUnacceptableProductsReport');
+        this.browserPrintingService.print('viewUnacceptableProductsReport');
     }
 
 }
