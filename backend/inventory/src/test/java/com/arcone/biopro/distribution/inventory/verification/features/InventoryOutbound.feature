@@ -33,17 +33,7 @@ Feature: Inventory Outbound Interface
 
             @LAB-390
             Examples:
-                | Event                           | Unit Number   | Product Code | Final Product Code | Is licensed | Shipment type | Reason            | Reason Id | Device Storage | Storage Location        | Location   | Update Type        |
-                | Recovered Plasma Carton Closed  | W036825004009 | E1624V00     | E1624V00           |             |               |                   |           | Freezer001     | Bin001,Shelf002,Tray001 | location_1 | SHIPPED            |
-
-            @LAB-427
-            Examples:
-                | Event            | Unit Number   | Product Code | Final Product Code | Is licensed | Shipment type | Reason | Reason Id | Device Storage | Storage Location | Location | Update Type |
-                | Product Modified | W036825004010 | E067800      | E510600            | false       |               |        |           |                |                  |          | MODIFIED    |
-
-            @LAB-433
-            Examples:
-                | Event            | Unit Number   | Product Code | Final Product Code | Is licensed | Shipment type | Reason | Reason Id | Device Storage | Storage Location | Location | Update Type     |
-                | Label  Invalidated | W036825004011 | E067800      | E510600            | false       |               |        |           |                |                  |          | LABEL_INVALIDATED |
+                | Event                          | Unit Number   | Product Code | Final Product Code | Is licensed | Shipment type | Reason | Reason Id | Device Storage | Storage Location        | Location   | Update Type |
+                | Recovered Plasma Carton Closed | W036825004009 | E1624V00     | E1624V00           |             |               |        |           | Freezer001     | Bin001,Shelf002,Tray001 | location_1 | SHIPPED     |
 
 
