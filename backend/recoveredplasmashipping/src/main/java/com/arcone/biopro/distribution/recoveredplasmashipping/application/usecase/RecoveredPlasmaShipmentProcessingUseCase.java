@@ -69,8 +69,8 @@ public class RecoveredPlasmaShipmentProcessingUseCase {
             .flatMap(cartonItem -> {
                 return inventoryService.validateInventoryBatch(Flux.just(new ValidateInventoryCommand(cartonItem.getUnitNumber(), cartonItem.getProductCode(), recoveredPlasmaShipment.getLocationCode())))
                     .flatMap(inventoryValidation -> {
-                        if (inventoryValidation.getFistNotification() != null) {
-                            var notification = inventoryValidation.getFistNotification();
+                        if (inventoryValidation.getFirstNotification() != null) {
+                            var notification = inventoryValidation.getFirstNotification();
                             return cartonRepository.findOneById(cartonItem.getCartonId())
                                 .flatMap(carton -> cartonRepository.update(carton.markAsRepack()))
                                 .flatMap(cartonRepacked -> unacceptableUnitReportRepository.save(new UnacceptableUnitReportItem(recoveredPlasmaShipment.getId()

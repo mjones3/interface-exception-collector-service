@@ -167,7 +167,7 @@ class RecoveredPlasmaShipmentProcessingUseCaseTest {
         InventoryNotification notification = Mockito.mock(InventoryNotification.class);
         Mockito.when(notification.getErrorMessage()).thenReturn("ERROR_MESSAGE");
 
-        Mockito.when(validation.getFistNotification()).thenReturn(notification);
+        Mockito.when(validation.getFirstNotification()).thenReturn(notification);
         return validation;
     }
 }
