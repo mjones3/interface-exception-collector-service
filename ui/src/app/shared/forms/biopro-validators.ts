@@ -80,3 +80,13 @@ export function cartonWeightValidator(): ValidatorFn {
         return valid ? null : { invalidWeight: true };
     };
 }
+
+export function pastDateValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+        if (!control.value) {
+            return null;
+        }
+        const valid = commonRegex.cartonWeightRegex.test(control.value);
+        return valid ? null : { invalidWeight: true };
+    };
+}
