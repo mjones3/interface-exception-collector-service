@@ -54,6 +54,7 @@ import { FuseAlertType } from '@fuse/components/alert/public-api';
 import {
     UnacceptableProductsReportWidgetComponent
 } from '../../shared/unacceptable-products-report-widget/unacceptable-products-report-widget.component';
+import { RepackCartonDialogComponent } from '../repack-carton-dialog/repack-carton-dialog.component';
 
 @Component({
     selector: 'biopro-recovered-plasma-shipping-details',
@@ -131,7 +132,6 @@ export class RecoveredPlasmaShippingDetailsComponent
     }));
 
     pollingSubscription: Subscription;
-
     constructor(
         public header: ProcessHeaderService,
         protected store: Store,
@@ -358,4 +358,45 @@ export class RecoveredPlasmaShippingDetailsComponent
         })
     }
 
+
+    // Opens dialog confirmation for repack
+    repackCarton(cartonId: number){
+        this.matDialog.open(RepackCartonDialogComponent, {
+            width: '24rem',
+            disableClose: true
+        })
+        .afterClosed()
+        .subscribe((req) => {
+            console.log(req)
+           if(req !== undefined){
+            this.recoveredPlasmaService
+            .repackCarton({
+                locationCode: this.locationCodeComputed(),
+                cartonId: cartonId,
+                comments: req,
+                employeeId: this.employeeIdSignal(),
+            })
+            .pipe(
+                catchError((error: ApolloError) => {
+                    handleApolloError(this.toastr, error);
+                }),
+                tap((response) =>
+                    consumeUseCaseNotifications(
+                        this.toastr,
+                        response.data.repackCarton.notifications
+                    )
+                )
+            )
+            .subscribe((response) => {
+                if (response?.data?.repackCarton) {
+                    const nextUrl = response.data.repackCarton._links?.next;
+                    if (nextUrl) {
+                        this.router.navigateByUrl(nextUrl);
+                    }
+                }
+            });
+            }
+           }
+        )
+    }
 }

@@ -17,6 +17,7 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dial
 import { BrowserPrintingService } from '../../../../core/services/browser-printing/browser-printing.service';
 import { ViewShippingCartonPackingSlipComponent } from '../view-shipping-carton-packing-slip/view-shipping-carton-packing-slip.component';
 import { CartonPackingSlipDTO } from '../../graphql/query-definitions/generate-carton-packing-slip.graphql';
+import { RepackCartonDialogComponent } from '../repack-carton-dialog/repack-carton-dialog.component';
 
 describe('RecoveredPlasmaShippingDetailsComponent', () => {
     let component: RecoveredPlasmaShippingDetailsComponent;
@@ -28,7 +29,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
     let cookieService: jest.Mocked<CookieService>;
     let mockMatDialog: jest.Mocked<MatDialog>;
     let mockBrowserPrintingService: jest.Mocked<BrowserPrintingService>;
-    let mockDialogRef: jest.Mocked<MatDialogRef<ViewShippingCartonPackingSlipComponent, CartonPackingSlipDTO>>;
+    let mockDialogRef: jest.Mocked<MatDialogRef<ViewShippingCartonPackingSlipComponent, CartonPackingSlipDTO | string>>;
     let mockActivatedRoute: any;
 
     beforeEach(async () => {
@@ -40,6 +41,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
 
         mockDialogRef = {
             afterOpened: jest.fn().mockReturnValue(of({})),
+            afterClosed: jest.fn().mockReturnValue(of()),
             close: jest.fn(),
         } as Partial<MatDialogRef<ViewShippingCartonPackingSlipComponent, CartonPackingSlipDTO>> as jest.Mocked<MatDialogRef<ViewShippingCartonPackingSlipComponent, CartonPackingSlipDTO>>;
 
@@ -56,6 +58,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
             createCarton: jest.fn(),
             getCartonById: jest.fn(),
             closeShipment: jest.fn(),
+            repackCarton: jest.fn(),
             generateCartonPackingSlip: jest.fn(),
         } as Partial<RecoveredPlasmaService> as jest.Mocked<RecoveredPlasmaService>;
 
@@ -505,7 +508,6 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         jest.useFakeTimers();
         it('should call fetchShipmentData with routeIdComputed value', () => {
             jest.clearAllTimers();
-
             const fetchSpy = jest.spyOn(component, 'fetchShipmentData').mockImplementation();
             component.ngOnInit();
             jest.advanceTimersByTime(500);
@@ -527,4 +529,127 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         jest.spyOn(mockMatDialog, 'open');
         expect(mockMatDialog.open).toHaveBeenCalled();
     });
+
+
+    describe('repackCarton', () => {
+        const cartonId = 1;
+        const req = 'demo';
+        const repackRequestMock = {
+            locationCode: '123456789',
+            cartonId: cartonId,
+            comments: req,
+            employeeId: 'emp123',
+        }
+
+        const repackMockData = {
+            data : {
+              repackCarton : {
+                notifications : [ {
+                  message : "Products successfully removed",
+                  type : "SUCCESS",
+                  code : 18,
+                } ],
+                data : {
+                  id : 1,
+                  cartonNumber : "BPMMH11",
+                  shipmentId : 1,
+                  cartonSequence : 1,
+                  packedProducts : [ ],
+                  maxNumberOfProducts : 20,
+                  minNumberOfProducts: 1,
+                  canVerify : false,
+                  canClose : false,
+                  canPrint : false,
+                  verifiedProducts : [ ],
+                  failedCartonItem : null
+                },
+                _links : {
+                  next : "/test-url"
+                }
+              }
+            }
+          }
+
+        beforeEach(() => {
+            // Reset mocks before each test
+            mockMatDialog.open.mockClear();
+            mockRecoveredPlasmaService.repackCarton.mockClear();
+            mockRouter.navigateByUrl.mockClear();
+            mockDialogRef.afterClosed.mockClear();
+        });
+
+        it('should open RepackCartonDialogComponent', () => {
+            component.repackCarton(cartonId);
+            expect(mockMatDialog.open).toHaveBeenCalled();
+        });
+
+        it('should make API call with correct parameters when dialog is closed with comments', () => {
+            // Setup the dialog to return comments when closed
+            mockDialogRef.afterClosed.mockReturnValue(of(req));
+            component.repackCarton(cartonId);
+            mockRecoveredPlasmaService.repackCarton.mockReturnValue(of(repackMockData));
+            expect(mockMatDialog.open).toHaveBeenCalled();
+            expect(mockRecoveredPlasmaService.repackCarton).toHaveBeenCalledWith(repackRequestMock);
+        });
+
+        it('should navigate to next URL when repackCarton API call succeeds', () => {
+            mockDialogRef.afterClosed.mockReturnValue(of(req));
+            
+            mockRecoveredPlasmaService.repackCarton.mockReturnValue(of(repackMockData));
+            component.repackCarton(cartonId);
+            expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('/test-url');
+        });
+
+        it('should not navigate when repackCarton API call succeeds but no next URL is provided', () => {
+            mockDialogRef.afterClosed.mockReturnValue(of(req));
+            const responseWithoutNextUrl = {
+                data: {
+                    repackCarton: {
+                        notifications: [{ 
+                            message: "Products successfully removed",
+                            type: "SUCCESS",
+                            code: 18
+                        }],
+                        data: {
+                            id: 1,
+                            cartonNumber: "BPMMH11"
+                        },
+                        _links: {} 
+                    }
+                }
+            };
+            
+            mockRecoveredPlasmaService.repackCarton.mockReturnValue(of(responseWithoutNextUrl));
+            component.repackCarton(cartonId);
+            expect(mockRouter.navigateByUrl).not.toHaveBeenCalled();
+        });
+
+        it('should not make API call when dialog is closed without comments (undefined)', () => {
+            // Setup the dialog to return undefined when closed (cancel button)
+            mockDialogRef.afterClosed.mockReturnValue(of(undefined));
+            
+            component.repackCarton(cartonId);
+            expect(mockMatDialog.open).toHaveBeenCalled();
+            expect(mockRecoveredPlasmaService.repackCarton).not.toHaveBeenCalled();
+        });
+
+        it('should handle error when repackCarton API call fails', () => {
+            mockDialogRef.afterClosed.mockReturnValue(of(req));
+            const mockError = new ApolloError({
+                errorMessage: 'Network error',
+            });
+            mockRecoveredPlasmaService.repackCarton.mockReturnValue(throwError(() => mockError));
+            
+            component.repackCarton(cartonId);
+            expect(mockToastrService.error).toHaveBeenCalled();
+        });
+
+        it('should display notifications from API response', () => {
+            mockDialogRef.afterClosed.mockReturnValue(of(req));
+            mockRecoveredPlasmaService.repackCarton.mockReturnValue(of(repackMockData));
+            
+            component.repackCarton(cartonId);
+            expect(mockToastrService.show).toHaveBeenCalled();
+        });
+    })
 });

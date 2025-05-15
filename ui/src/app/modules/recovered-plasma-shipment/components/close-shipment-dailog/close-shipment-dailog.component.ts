@@ -1,5 +1,5 @@
-import { Component, EventEmitter, Inject, inject, Output } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, EventEmitter, Inject, inject, OnInit, Output } from '@angular/core';
+import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDialogActions, MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -19,26 +19,40 @@ import { BasicButtonComponent } from 'app/shared/components/buttons/basic-button
   ],
   templateUrl: './close-shipment-dailog.component.html'
 })
-export class CloseShipmentDailogComponent  {
+export class CloseShipmentDailogComponent implements OnInit  {
   minDate = new Date();
   readonly dialog = inject(MatDialog);
   continueFn: Function;
     
-  closeShipmentForm: FormGroup;
+  shipmentDate = new FormControl('', [Validators.required])
+
 
   constructor(
     public dialogRef: MatDialogRef<CloseShipmentDailogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: {shipmentDate: Date, continueFn: Function}
+    @Inject(MAT_DIALOG_DATA) public data: {shipmentDate: string, continueFn: Function}
   ) {
-    this.closeShipmentForm = new FormGroup({
-      shipmentDate: new FormControl(data.shipmentDate, [Validators.required])
-    });
     this.continueFn = data.continueFn;
   }
+
+  ngOnInit(): void {
+    if(this.data.shipmentDate){
+      this.shipmentDate.setValue(this.data.shipmentDate);
+      this.shipmentDate.markAsTouched();
+    }
+  }
+
+  pastDateValidator = (control: FormControl) => {
+    const selectedDate = new Date(control.value);
+    const today = this.minDate;
+    if(selectedDate > today){
+      return {pastDate: true}
+    }
+    return null;
+  }
+  
   
   onClickContinue(){    
-    const formControl = this.closeShipmentForm.controls;
-    const res = formControl.shipmentDate?.value ?? '';
+    const res = this.shipmentDate?.value ?? '';
     this.dialogRef.close();
     this.continueFn(res);
   }

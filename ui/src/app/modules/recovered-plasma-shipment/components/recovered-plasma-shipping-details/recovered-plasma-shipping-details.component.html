@@ -76,13 +76,23 @@
             </ng-template>
             <ng-template #actionsTemplateRef let-element="element">
                 @if (element?.status === 'OPEN') {
-                    <button id="editBtn" (click)="editCarton(element?.id)" class="edit-button-mat-icon">
+                    <button id="editBtn" (click)="editCarton(element?.id)" class="button-mat-icon mt-2">
                         <mat-icon>edit</mat-icon>
                     </button>
                 }
 
+                @if (element?.status === 'REPACK') {
+                    <biopro-basic-button
+                        id="repackCartonBtn"
+                        color="primary"
+                        class="text-primary"
+                        label="Repack"
+                        (buttonClicked)="repackCarton(element?.id)"
+                    />
+                }
+
                 @if (element?.canPrint) {
-                    <button data-testid="view-shipping-carton-packing-slip" (click)="printCarton($event, element?.id)" class="edit-button-mat-icon">
+                    <button data-testid="view-shipping-carton-packing-slip" (click)="printCarton($event, element?.id)" class="button-mat-icon">
                         <mat-icon>print</mat-icon>
                     </button>
                 }

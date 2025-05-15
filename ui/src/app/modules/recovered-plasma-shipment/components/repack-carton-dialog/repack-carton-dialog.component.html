@@ -1,0 +1,58 @@
+<ng-container>
+    <h1 mat-dialog-title class="p-4 pb-0 text-3xl">Repack Confirmation</h1>
+    <div class="p-4">
+        <div class="text-secondary mb-4">
+            <span>All units will be removed from carton. <b>Are you sure you want to continue?</b></span>
+        </div>
+
+            <div class="flex flex-col space-y-4">
+                    <mat-form-field>
+                        <mat-label>Repack reason</mat-label>
+                        <textarea
+                            id="reasonCommentsId"
+                            matInput
+                            [formControl]="reasonComments"
+                            [maxLength]="commentsMaxLength"
+                            placeholder="Enter repack reason"
+                            row="6"
+                            autocomplete="off"
+                        >
+                        </textarea>
+                        <mat-hint align="end">
+                            {{ reasonComments.value?.length }} /
+                            {{ commentsMaxLength }}
+                        </mat-hint>
+
+                        @if (
+                            reasonComments
+                                 .hasError('required')
+                         ) {
+                             <mat-error
+                                 >Comments is required</mat-error
+                             >
+                         }
+                    </mat-form-field>
+            </div>
+    </div>
+
+    <mat-dialog-actions align="end" class="flex items-center justify-center space-x-3 bg-gray-50 px-6 py-4 dark:bg-black dark:bg-opacity-10 sm:justify-end">
+        <biopro-basic-button
+            id="btnCancel"
+            label="Cancel"
+            (buttonClicked)="dialogRef.close()"
+            color="secondary"
+        ></biopro-basic-button>
+        
+        <biopro-basic-button
+            id="btnContinue"
+            [disabled]="reasonComments.invalid"
+            class="bg-green text-white"
+            color="primary"
+            label="Continue"
+            (buttonClicked)="onClickContinue()"
+        ></biopro-basic-button>
+    </mat-dialog-actions>
+</ng-container>
+
+
+
