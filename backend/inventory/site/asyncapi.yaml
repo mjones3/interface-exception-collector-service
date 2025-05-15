@@ -15,8 +15,8 @@
   "channels": {
     "ApheresisPlasmaProductCompleted": {
       "messages": {
-        "com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage": {
-          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage"
+        "ApheresisPlasmaProductCompleted": {
+          "$ref": "#/components/messages/ApheresisPlasmaProductCompleted"
         }
       }
     },
@@ -29,8 +29,8 @@
     },
     "ApheresisPlateletProductCompleted": {
       "messages": {
-        "com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage": {
-          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage"
+        "ApheresisPlasmaProductCompleted": {
+          "$ref": "#/components/messages/ApheresisPlasmaProductCompleted"
         }
       }
     },
@@ -43,8 +43,8 @@
     },
     "ApheresisRBCProductCompleted": {
       "messages": {
-        "com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage": {
-          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage"
+        "ApheresisPlasmaProductCompleted": {
+          "$ref": "#/components/messages/ApheresisPlasmaProductCompleted"
         }
       }
     },
@@ -176,8 +176,8 @@
     },
     "WholeBloodProductCompleted": {
       "messages": {
-        "com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage": {
-          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage"
+        "ApheresisPlasmaProductCompleted": {
+          "$ref": "#/components/messages/ApheresisPlasmaProductCompleted"
         }
       }
     },
@@ -241,6 +241,56 @@
             "reason": "string",
             "stopsManufacturing": true,
             "unitNumber": "string"
+          }
+        ]
+      },
+      "ApheresisPlasmaProductCompleted": {
+        "title": "ApheresisPlasmaProductCompleted",
+        "type": "object",
+        "properties": {
+          "aboRh": {
+            "type": "string",
+            "description": "Abo RH Type of the product",
+            "enum": [
+              "ON",
+              "OP",
+              "AN",
+              "AP",
+              "BN",
+              "BP",
+              "ABN",
+              "ABP"
+            ]
+          },
+          "anticoagulantVolume": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.common.Volume"
+          },
+          "productCode": {
+            "type": "string",
+            "description": "Product code"
+          },
+          "unitNumber": {
+            "type": "string",
+            "description": "Unit number identifier"
+          },
+          "volume": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.common.Volume"
+          }
+        },
+        "description": "Message for completed ApheresisPlasmaProductCompleted process",
+        "examples": [
+          {
+            "aboRh": "ON",
+            "anticoagulantVolume": {
+              "unit": "string",
+              "value": 0
+            },
+            "productCode": "string",
+            "unitNumber": "string",
+            "volume": {
+              "unit": "string",
+              "value": 0
+            }
           }
         ]
       },
@@ -1021,68 +1071,12 @@
             "format": "int32"
           }
         },
-        "description": "Volume of the product",
+        "description": "Anticoagulant volume of the product",
         "examples": [
           {
             "unit": "string",
             "value": 0
           }
-        ]
-      },
-      "com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage": {
-        "discriminator": "type",
-        "type": "object",
-        "properties": {
-          "aboRh": {
-            "type": "string",
-            "description": "Abo RH Type of the product",
-            "enum": [
-              "ON",
-              "OP",
-              "AN",
-              "AP",
-              "BN",
-              "BP",
-              "ABN",
-              "ABP"
-            ]
-          },
-          "anticoagulantVolume": {
-            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.common.Volume"
-          },
-          "productCode": {
-            "type": "string",
-            "description": "Product code"
-          },
-          "type": {
-            "type": "string"
-          },
-          "unitNumber": {
-            "type": "string",
-            "description": "Unit number identifier"
-          },
-          "volume": {
-            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.common.Volume"
-          }
-        },
-        "examples": [
-          {
-            "aboRh": "ON",
-            "anticoagulantVolume": {
-              "unit": "string",
-              "value": 0
-            },
-            "productCode": "string",
-            "type": "string",
-            "unitNumber": "string",
-            "volume": {
-              "unit": "string",
-              "value": 0
-            }
-          }
-        ],
-        "required": [
-          "type"
         ]
       },
       "com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage": {
@@ -1247,7 +1241,6 @@
             "type": "string"
           }
         },
-        "description": "List of packed products in the carton",
         "examples": [
           {
             "productCode": "string",
@@ -1404,6 +1397,21 @@
         "name": "AddQuarantined",
         "title": "AddQuarantinedMessage",
         "description": "Message for adding product to quarantine",
+        "bindings": {}
+      },
+      "ApheresisPlasmaProductCompleted": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/ApheresisPlasmaProductCompleted"
+          }
+        },
+        "name": "ApheresisPlasmaProductCompleted",
+        "title": "ProductCompletedMessage",
+        "description": "Message for completed ApheresisPlasmaProductCompleted process",
         "bindings": {}
       },
       "CheckInCompleted": {
@@ -1586,20 +1594,6 @@
         "description": "Message for updating quarantined product",
         "bindings": {}
       },
-      "com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage": {
-        "headers": {
-          "$ref": "#/components/schemas/HeadersNotDocumented"
-        },
-        "payload": {
-          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
-          "schema": {
-            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage"
-          }
-        },
-        "name": "com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage",
-        "title": "ProductCompletedMessage",
-        "bindings": {}
-      },
       "com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage": {
         "headers": {
           "$ref": "#/components/schemas/HeadersNotDocumented"
@@ -1655,7 +1649,7 @@
       "bindings": {},
       "messages": [
         {
-          "$ref": "#/channels/ApheresisPlasmaProductCompleted/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage"
+          "$ref": "#/channels/ApheresisPlasmaProductCompleted/messages/ApheresisPlasmaProductCompleted"
         }
       ]
     },
@@ -1683,7 +1677,7 @@
       "bindings": {},
       "messages": [
         {
-          "$ref": "#/channels/ApheresisPlateletProductCompleted/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage"
+          "$ref": "#/channels/ApheresisPlateletProductCompleted/messages/ApheresisPlasmaProductCompleted"
         }
       ]
     },
@@ -1711,7 +1705,7 @@
       "bindings": {},
       "messages": [
         {
-          "$ref": "#/channels/ApheresisRBCProductCompleted/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage"
+          "$ref": "#/channels/ApheresisRBCProductCompleted/messages/ApheresisPlasmaProductCompleted"
         }
       ]
     },
@@ -1977,7 +1971,7 @@
       "bindings": {},
       "messages": [
         {
-          "$ref": "#/channels/WholeBloodProductCompleted/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage"
+          "$ref": "#/channels/WholeBloodProductCompleted/messages/ApheresisPlasmaProductCompleted"
         }
       ]
     },
