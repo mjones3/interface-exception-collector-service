@@ -1,5 +1,5 @@
-import { Component, EventEmitter, Inject, inject, OnInit, Output } from '@angular/core';
-import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
+import { Component, Inject, inject, OnInit } from '@angular/core';
+import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDialogActions, MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -23,9 +23,7 @@ export class CloseShipmentDailogComponent implements OnInit  {
   minDate = new Date();
   readonly dialog = inject(MatDialog);
   continueFn: Function;
-    
   shipmentDate = new FormControl('', [Validators.required])
-
 
   constructor(
     public dialogRef: MatDialogRef<CloseShipmentDailogComponent>,
@@ -41,16 +39,6 @@ export class CloseShipmentDailogComponent implements OnInit  {
     }
   }
 
-  pastDateValidator = (control: FormControl) => {
-    const selectedDate = new Date(control.value);
-    const today = this.minDate;
-    if(selectedDate > today){
-      return {pastDate: true}
-    }
-    return null;
-  }
-  
-  
   onClickContinue(){    
     const res = this.shipmentDate?.value ?? '';
     this.dialogRef.close();

@@ -127,4 +127,14 @@ public class RepackCartonSteps {
         Assert.assertEquals(shipmentDetailsPage.getCartonStatus(cartonPrefix,cartonNumber), status );
     }
 
+    @And("I enter reason comments {string}.")
+    public void iEnterReasonComments(String comments) {
+    shipmentDetailsPage.enterRepackComments(comments);
+    }
+
+    @When("I confirm to repack the carton.")
+    public void iConfirmToRepackTheCarton() {
+    shipmentDetailsPage.clickConfirmRepackCarton();
+    }
 }
+

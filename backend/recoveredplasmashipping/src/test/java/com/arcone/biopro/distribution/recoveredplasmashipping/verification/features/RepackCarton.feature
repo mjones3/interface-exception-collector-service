@@ -36,17 +36,17 @@ Feature: Repack Carton
             And The Minimum Number of Units in Carton is configured as "2" products for the customer code "409" and product type "RP_NONINJECTABLE_LIQUID_RT".
             And I have a closed carton with the unit numbers as "W036898355905,W036898355757" and product codes as "E6022V00,E6022V00" and product types "RP_NONINJECTABLE_LIQUID_RT,RP_NONINJECTABLE_LIQUID_RT" which were flagged as repack.
             And I navigate to the shipment details page for the last shipment created.
-#            Then I should see the following shipment information:
-#                | Field                      | Value                      |
-#                | Shipment Number Prefix     | DIS_355DIS355              |
-#                | Customer Code              | 409                        |
-#                | Customer Name              | SOUTHERN BIOLOGICS         |
-#                | Product Type               | RP NONINJECTABLE LIQUID RT |
-#                | Shipment Status            | IN PROGRESS                |
-#                | Shipment Date              | <tomorrow>                 |
-#                | Transportation Ref. Number | DIS-355                    |
-#                | Total Cartons              | 1                          |
-#                | Carton Status              | BPMMH1,1,REPACK            |
+            Then I should see the following shipment information:
+                | Field                      | Value                      |
+                | Shipment Number Prefix     | DIS_355DIS355              |
+                | Customer Code              | 409                        |
+                | Customer Name              | SOUTHERN BIOLOGICS         |
+                | Product Type               | RP NONINJECTABLE LIQUID RT |
+                | Shipment Status            | IN PROGRESS                |
+                | Shipment Date              | <tomorrow>                 |
+                | Transportation Ref. Number | DIS-355                    |
+                | Total Cartons              | 1                          |
+                | Carton Status              | BPMMH1,1,REPACK            |
 
             And The repack option should be available for the carton number prefix "BPMMH1" and sequence number "1" and status "REPACK".
             When I choose to repack the carton number prefix "BPMMH1" and sequence number "1" and status "REPACK".

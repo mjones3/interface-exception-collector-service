@@ -28,12 +28,14 @@ public class ShipmentDetailsPage extends CommonPageFactory {
     private final By closeShipmentBtn = By.id("closeShipmentBtnId");
     private final By confirmationShipmentDate = By.id("shipmentDateId");
     private final By confirmCloseShipmentBtn = By.id("btnContinue");
+    private final By confirmRepackCartonBtn = By.id("btnContinue");
     private final By unacceptableReportLastRunDate = By.id("informationDetails-Last-Run-value");
     private final By unacceptableReportBtn = By.id("reportBtnId");
     private final By viewUnacceptableProductsDialog = By.id("viewUnacceptableProductsDialog");
     private final By viewUnacceptableProductsDialogHeader = By.xpath("//h2[contains(text(),'Unacceptable Product Report')]");
     private final By unacceptableProductsTable = By.id("unacceptableProductsTable");
     private final By cancelBtn = By.id("btnCancel");
+    private final By repackComments = By.id("reasonCommentsId");
 
 
 
@@ -268,6 +270,14 @@ public class ShipmentDetailsPage extends CommonPageFactory {
         var cartonRow = cartonStatusRow(cartonNumberPrefix, sequence);
         sharedActions.waitForVisible(cartonRow);
         return sharedActions.getText(cartonRow);
+    }
+
+    public void enterRepackComments(String comments) {
+        sharedActions.sendKeys(repackComments, comments);
+    }
+
+    public void clickConfirmRepackCarton() {
+        sharedActions.click(confirmRepackCartonBtn);
     }
 
 }
