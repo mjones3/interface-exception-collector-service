@@ -33,6 +33,7 @@ public class ShipmentDetailsPage extends CommonPageFactory {
     private final By viewUnacceptableProductsDialog = By.id("viewUnacceptableProductsDialog");
     private final By viewUnacceptableProductsDialogHeader = By.xpath("//h2[contains(text(),'Unacceptable Product Report')]");
     private final By unacceptableProductsTable = By.id("unacceptableProductsTable");
+    private final By cancelBtn = By.id("btnCancel");
 
 
 
@@ -40,6 +41,13 @@ public class ShipmentDetailsPage extends CommonPageFactory {
         return By.xpath(
             String.format(
                 "//table[@id='cartonListTableId']//td[contains(.,'%s')]/following-sibling::td[contains(.,'%s')]/following-sibling::td[contains(.,'%s')]",
+                cartonNumberPrefix, sequence, status));
+    }
+
+    private By repackCartonButton(String cartonNumberPrefix, String sequence, String status) {
+        return By.xpath(
+            String.format(
+                "//table[@id='cartonListTableId']//td[contains(.,'%s')]/following-sibling::td[contains(.,'%s')]/following-sibling::td[contains(.,'%s')]/following-sibling::td/*[@id='repackCartonBtn']",
                 cartonNumberPrefix, sequence, status));
     }
 
@@ -62,6 +70,13 @@ public class ShipmentDetailsPage extends CommonPageFactory {
             String.format(
                 "//table[@id='unacceptableProductsTable']//td[contains(.,'%s')]/following-sibling::td[contains(.,'%s')]/following-sibling::td[contains(.,'%s')]/following-sibling::td[contains(.,'%s')]/following-sibling::td[contains(.,'%s')]",
                 unitNumber, productCode, cartonNumberPrefix,sequence,reason));
+    }
+
+    private By cartonStatusRow(String cartonNumberPrefix, String sequence) {
+        return By.xpath(
+            String.format(
+                "//table[@id='cartonListTableId']//td[contains(.,'%s')]/following-sibling::td[contains(.,'%s')]/following-sibling::td[starts-with(@id,'statusRow')]",
+                cartonNumberPrefix, sequence, status));
     }
 
     @Autowired
@@ -234,4 +249,25 @@ public class ShipmentDetailsPage extends CommonPageFactory {
     public void verifyProductIsListed(String unitNumber , String productCode , String cartonNumberPrefix, String sequence, String reason) {
         sharedActions.waitForVisible(unacceptableReportRow(unitNumber,productCode,cartonNumberPrefix,sequence,reason));
     }
+
+    public boolean isRepackButtonEnabled(String cartonNumberPrefix, String sequence, String status) {
+        var id = repackCartonButton(cartonNumberPrefix, sequence, status);
+        sharedActions.waitForVisible(id);
+        return sharedActions.isElementVisible(id);
+    }
+
+    public void clickRepackButton(String cartonNumberPrefix, String sequence, String status) {
+        sharedActions.click(repackCartonButton(cartonNumberPrefix, sequence, status));
+    }
+
+    public void clickCancelButton() {
+        sharedActions.click(cancelBtn);
+    }
+
+    public String getCartonStatus(String cartonNumberPrefix, String sequence) {
+        var cartonRow = cartonStatusRow(cartonNumberPrefix, sequence);
+        sharedActions.waitForVisible(cartonRow);
+        return sharedActions.getText(cartonRow);
+    }
+
 }
