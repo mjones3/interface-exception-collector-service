@@ -24,6 +24,8 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -132,6 +134,43 @@ class RecoveredPlasmaShipmentProcessingUseCaseTest {
             // Then
             .expectNext(shipment)
             .verifyComplete();
+    }
+
+    @Test
+    void shouldProcessShipmentSuccessfullyWithInventoryPackedIssue() {
+
+        // Given
+        Long shipmentId = 123L;
+        RecoveredPlasmaShipmentProcessingEvent event = createEvent(shipmentId);
+        RecoveredPlasmaShipment shipment = createShipment(shipmentId);
+        CartonItem cartonItem = createCartonItem(shipmentId);
+
+
+        InventoryValidation inventoryValidation = Mockito.mock(InventoryValidation.class);
+        InventoryNotification notification = Mockito.mock(InventoryNotification.class);
+
+        Mockito.when(notification.getErrorName()).thenReturn("INVENTORY_IS_PACKED");
+
+        Mockito.when(inventoryValidation.getFirstNotification()).thenReturn(notification);
+
+
+        when(recoveredPlasmaShippingRepository.findOneById(shipmentId)).thenReturn(Mono.just(shipment));
+        when(unacceptableUnitReportRepository.deleteAllByShipmentId(shipmentId)).thenReturn(Mono.empty());
+        when(cartonItemRepository.findAllByShipmentId(shipmentId)).thenReturn(Flux.just(cartonItem));
+        when(inventoryService.validateInventoryBatch(any())).thenReturn(Flux.just(inventoryValidation));
+
+        when(recoveredPlasmaShippingRepository.update(any())).thenReturn(Mono.just(shipment));
+
+        // When
+        StepVerifier.create(useCase.onRecoveredPlasmaShipmentProcessing(event))
+            // Then
+            .expectNext(shipment)
+            .verifyComplete();
+
+        verify(cartonRepository, never()).findOneById(any());
+        verify(cartonRepository, never()).update(any());
+        verify(unacceptableUnitReportRepository, never()).save(any());
+
     }
 
     // Helper methods to create test objects
