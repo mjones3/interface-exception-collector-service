@@ -304,7 +304,7 @@ public class RecoveredPlasmaShipment implements Validatable {
     }
 
     public boolean canModify() {
-        return !PROCESSING_STATUS.equals(this.status);
+        return !PROCESSING_STATUS.equals(this.status) && !CLOSED_STATUS.equals(this.status);
     }
 
     public UnacceptableUnitReport printUnacceptableUnitReport(final PrintUnacceptableUnitReportCommand printUnacceptableUnitReportCommand, UnacceptableUnitReportRepository unacceptableUnitReportRepository

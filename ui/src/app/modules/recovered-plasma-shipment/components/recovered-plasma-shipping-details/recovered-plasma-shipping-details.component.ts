@@ -367,36 +367,34 @@ export class RecoveredPlasmaShippingDetailsComponent
         })
         .afterClosed()
         .subscribe((req) => {
-            console.log(req)
            if(req !== undefined){
-            this.recoveredPlasmaService
-            .repackCarton({
-                locationCode: this.locationCodeComputed(),
-                cartonId: cartonId,
-                comments: req,
-                employeeId: this.employeeIdSignal(),
-            })
-            .pipe(
-                catchError((error: ApolloError) => {
-                    handleApolloError(this.toastr, error);
-                }),
-                tap((response) =>
-                    consumeUseCaseNotifications(
-                        this.toastr,
-                        response.data.repackCarton.notifications
+                this.recoveredPlasmaService
+                .repackCarton({
+                    locationCode: this.locationCodeComputed(),
+                    cartonId: cartonId,
+                    comments: req,
+                    employeeId: this.employeeIdSignal(),
+                })
+                .pipe(
+                    catchError((error: ApolloError) => {
+                        handleApolloError(this.toastr, error);
+                    }),
+                    tap((response) =>
+                        consumeUseCaseNotifications(
+                            this.toastr,
+                            response.data.repackCarton.notifications
+                        )
                     )
                 )
-            )
-            .subscribe((response) => {
-                if (response?.data?.repackCarton) {
-                    const nextUrl = response.data.repackCarton._links?.next;
-                    if (nextUrl) {
-                        this.router.navigateByUrl(nextUrl);
+                .subscribe((response) => {
+                    if (response?.data?.repackCarton) {
+                        const nextUrl = response.data.repackCarton._links?.next;
+                        if (nextUrl) {
+                            this.router.navigateByUrl(nextUrl);
+                        }
                     }
-                }
-            });
+                });
             }
-           }
-        )
+        })
     }
 }
