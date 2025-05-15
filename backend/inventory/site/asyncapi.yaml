@@ -71,50 +71,50 @@
     },
     "Label Invalidated": {
       "messages": {
-        "com.arcone.biopro.distribution.inventory.adapter.in.listener.labelinvalidated.LabelInvalidatedMessage": {
-          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.labelinvalidated.LabelInvalidatedMessage"
+        "LabelInvalidated": {
+          "$ref": "#/components/messages/LabelInvalidated"
         }
       }
     },
     "LabelApplied": {
       "messages": {
-        "com.arcone.biopro.distribution.inventory.adapter.in.listener.label.LabelAppliedMessage": {
-          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.label.LabelAppliedMessage"
+        "LabelApplied": {
+          "$ref": "#/components/messages/LabelApplied"
         }
       }
     },
     "ProductDiscarded": {
       "messages": {
-        "com.arcone.biopro.distribution.inventory.adapter.in.listener.discarded.ProductDiscardedMessage": {
-          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.discarded.ProductDiscardedMessage"
+        "ProductDiscarded": {
+          "$ref": "#/components/messages/ProductDiscarded"
         }
       }
     },
     "ProductModified": {
       "messages": {
-        "com.arcone.biopro.distribution.inventory.adapter.in.listener.modified.ProductModifiedMessage": {
-          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.modified.ProductModifiedMessage"
+        "ProductModified": {
+          "$ref": "#/components/messages/ProductModified"
         }
       }
     },
     "ProductQuarantined": {
       "messages": {
-        "com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.AddQuarantinedMessage": {
-          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.AddQuarantinedMessage"
+        "AddQuarantined": {
+          "$ref": "#/components/messages/AddQuarantined"
         }
       }
     },
     "ProductRecovered": {
       "messages": {
-        "com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.ProductRecoveredMessage": {
-          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.ProductRecoveredMessage"
+        "ProductRecovered": {
+          "$ref": "#/components/messages/ProductRecovered"
         }
       }
     },
     "ProductStored": {
       "messages": {
-        "com.arcone.biopro.distribution.inventory.adapter.in.listener.label.LabelAppliedMessage": {
-          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.label.LabelAppliedMessage"
+        "LabelApplied": {
+          "$ref": "#/components/messages/LabelApplied"
         }
       }
     },
@@ -127,36 +127,36 @@
     },
     "QuarantineRemoved": {
       "messages": {
-        "com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.RemoveQuarantinedMessage": {
-          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.RemoveQuarantinedMessage"
+        "RemoveQuarantined": {
+          "$ref": "#/components/messages/RemoveQuarantined"
         }
       }
     },
     "QuarantineUpdated": {
       "messages": {
-        "com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.UpdateQuarantinedMessage": {
-          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.UpdateQuarantinedMessage"
+        "UpdateQuarantined": {
+          "$ref": "#/components/messages/UpdateQuarantined"
         }
       }
     },
     "RecoveredPlasmaCartonPacked": {
       "messages": {
-        "com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.RecoveredPlasmaCartonPackedMessage": {
-          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.RecoveredPlasmaCartonPackedMessage"
+        "RecoveredPlasmaCartonPacked": {
+          "$ref": "#/components/messages/RecoveredPlasmaCartonPacked"
         }
       }
     },
     "RecoveredPlasmaCartonRemoved": {
       "messages": {
-        "com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.RecoveredPlasmaCartonRemovedMessage": {
-          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.RecoveredPlasmaCartonRemovedMessage"
+        "RecoveredPlasmaCartonRemoved": {
+          "$ref": "#/components/messages/RecoveredPlasmaCartonRemoved"
         }
       }
     },
     "RecoveredPlasmaShipmentClosed": {
       "messages": {
-        "com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.RecoveredPlasmaShipmentClosedMessage": {
-          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.RecoveredPlasmaShipmentClosedMessage"
+        "RecoveredPlasmaShipmentClosed": {
+          "$ref": "#/components/messages/RecoveredPlasmaShipmentClosed"
         }
       }
     },
@@ -191,6 +191,59 @@
   },
   "components": {
     "schemas": {
+      "AddQuarantined": {
+        "title": "AddQuarantined",
+        "type": "object",
+        "properties": {
+          "comments": {
+            "type": "string",
+            "description": "Additional comments"
+          },
+          "createDate": {
+            "type": "string",
+            "description": "Date and time when quarantine was created",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "integer",
+            "description": "Quarantine identifier",
+            "format": "int64"
+          },
+          "performedBy": {
+            "type": "string",
+            "description": "User who performed the quarantine"
+          },
+          "productCode": {
+            "type": "string",
+            "description": "Product code"
+          },
+          "reason": {
+            "type": "string",
+            "description": "Reason for quarantine"
+          },
+          "stopsManufacturing": {
+            "type": "boolean",
+            "description": "Indicates if quarantine stops manufacturing process"
+          },
+          "unitNumber": {
+            "type": "string",
+            "description": "Unit number identifier"
+          }
+        },
+        "description": "Message for adding product to quarantine",
+        "examples": [
+          {
+            "comments": "string",
+            "createDate": "2015-07-20T15:49:04-07:00",
+            "id": 0,
+            "performedBy": "string",
+            "productCode": "string",
+            "reason": "string",
+            "stopsManufacturing": true,
+            "unitNumber": "string"
+          }
+        ]
+      },
       "CheckInCompleted": {
         "title": "CheckInCompleted",
         "type": "object",
@@ -212,6 +265,10 @@
           "collectionLocation": {
             "type": "string",
             "description": "Collection location"
+          },
+          "collectionTimeZone": {
+            "type": "string",
+            "description": "Collection TimeZone"
           },
           "drawTime": {
             "type": "string",
@@ -240,6 +297,7 @@
           {
             "aboRh": "ON",
             "collectionLocation": "string",
+            "collectionTimeZone": "string",
             "drawTime": "2015-07-20T15:49:04-07:00",
             "productCode": "string",
             "productDescription": "string",
@@ -424,226 +482,54 @@
           "updateType"
         ]
       },
-      "com.arcone.biopro.distribution.inventory.adapter.in.listener.common.Volume": {
-        "type": "object",
-        "properties": {
-          "unit": {
-            "type": "string"
-          },
-          "value": {
-            "type": "integer",
-            "format": "int32"
-          }
-        },
-        "examples": [
-          {
-            "unit": "string",
-            "value": 0
-          }
-        ]
-      },
-      "com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage": {
-        "type": "object",
-        "properties": {
-          "anticoagulantVolume": {
-            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.common.Volume"
-          },
-          "productCode": {
-            "type": "string"
-          },
-          "unitNumber": {
-            "type": "string"
-          },
-          "volume": {
-            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.common.Volume"
-          }
-        },
-        "examples": [
-          {
-            "anticoagulantVolume": {
-              "unit": "string",
-              "value": 0
-            },
-            "productCode": "string",
-            "unitNumber": "string",
-            "volume": {
-              "unit": "string",
-              "value": 0
-            }
-          }
-        ]
-      },
-      "com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage": {
+      "LabelApplied": {
+        "title": "LabelApplied",
         "type": "object",
         "properties": {
           "aboRh": {
             "type": "string",
-            "enum": [
-              "ON",
-              "OP",
-              "AN",
-              "AP",
-              "BN",
-              "BP",
-              "ABN",
-              "ABP"
-            ]
-          },
-          "drawTime": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "expirationDate": {
-            "type": "string"
-          },
-          "expirationTime": {
-            "type": "string"
-          },
-          "expirationTimeZone": {
-            "type": "string"
-          },
-          "inputProducts": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.domain.model.vo.InputProduct"
-            }
-          },
-          "manufacturingLocation": {
-            "type": "string"
-          },
-          "productCode": {
-            "type": "string"
-          },
-          "productDescription": {
-            "type": "string"
-          },
-          "productFamily": {
-            "type": "string"
-          },
-          "unitNumber": {
-            "type": "string"
-          },
-          "weight": {
-            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ValueUnit"
-          }
-        },
-        "examples": [
-          {
-            "aboRh": "ON",
-            "drawTime": "2015-07-20T15:49:04-07:00",
-            "expirationDate": "string",
-            "expirationTime": "string",
-            "expirationTimeZone": "string",
-            "inputProducts": [
-              {
-                "productCode": "string",
-                "unitNumber": "string"
-              }
-            ],
-            "manufacturingLocation": "string",
-            "productCode": "string",
-            "productDescription": "string",
-            "productFamily": "string",
-            "unitNumber": "string",
-            "weight": {
-              "unit": "string",
-              "value": 0
-            }
-          }
-        ]
-      },
-      "com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ValueUnit": {
-        "type": "object",
-        "properties": {
-          "unit": {
-            "type": "string"
-          },
-          "value": {
-            "type": "integer",
-            "format": "int32"
-          }
-        },
-        "examples": [
-          {
-            "unit": "string",
-            "value": 0
-          }
-        ]
-      },
-      "com.arcone.biopro.distribution.inventory.adapter.in.listener.discarded.ProductDiscardedMessage": {
-        "type": "object",
-        "properties": {
-          "comments": {
-            "type": "string"
-          },
-          "createDate": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "performedBy": {
-            "type": "string"
-          },
-          "productCode": {
-            "type": "string"
-          },
-          "reasonDescriptionKey": {
-            "type": "string"
-          },
-          "triggeredBy": {
-            "type": "string"
-          },
-          "unitNumber": {
-            "type": "string"
-          }
-        },
-        "examples": [
-          {
-            "comments": "string",
-            "createDate": "2015-07-20T15:49:04-07:00",
-            "performedBy": "string",
-            "productCode": "string",
-            "reasonDescriptionKey": "string",
-            "triggeredBy": "string",
-            "unitNumber": "string"
-          }
-        ]
-      },
-      "com.arcone.biopro.distribution.inventory.adapter.in.listener.label.LabelAppliedMessage": {
-        "type": "object",
-        "properties": {
-          "aboRh": {
-            "type": "string"
+            "description": "Blood type ABO/Rh"
           },
           "collectionDate": {
             "type": "string",
+            "description": "Collection date and time",
             "format": "date-time"
           },
           "expirationDate": {
-            "type": "string"
+            "type": "string",
+            "description": "Expiration date"
           },
           "isLicensed": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Indicates if the product is licensed"
           },
           "location": {
-            "type": "string"
+            "type": "string",
+            "description": "Location"
           },
           "productCode": {
-            "type": "string"
+            "type": "string",
+            "description": "Product code"
           },
           "productDescription": {
-            "type": "string"
+            "type": "string",
+            "description": "Product description"
           },
           "productFamily": {
-            "type": "string"
+            "type": "string",
+            "description": "Product family"
           },
           "unitNumber": {
-            "type": "string"
+            "type": "string",
+            "description": "Unit number identifier"
           },
           "weight": {
             "type": "integer",
+            "description": "Weight of the product",
             "format": "int32"
           }
         },
+        "description": "Message for label application process",
         "examples": [
           {
             "aboRh": "string",
@@ -659,16 +545,20 @@
           }
         ]
       },
-      "com.arcone.biopro.distribution.inventory.adapter.in.listener.labelinvalidated.LabelInvalidatedMessage": {
+      "LabelInvalidated": {
+        "title": "LabelInvalidated",
         "type": "object",
         "properties": {
           "productCode": {
-            "type": "string"
+            "type": "string",
+            "description": "Product code"
           },
           "unitNumber": {
-            "type": "string"
+            "type": "string",
+            "description": "Unit number identifier"
           }
         },
+        "description": "Message for label invalidation process",
         "examples": [
           {
             "productCode": "string",
@@ -676,36 +566,93 @@
           }
         ]
       },
-      "com.arcone.biopro.distribution.inventory.adapter.in.listener.modified.ProductModifiedMessage": {
+      "ProductDiscarded": {
+        "title": "ProductDiscarded",
+        "type": "object",
+        "properties": {
+          "comments": {
+            "type": "string",
+            "description": "Additional comments"
+          },
+          "createDate": {
+            "type": "string",
+            "description": "Date and time when the discard was created",
+            "format": "date-time"
+          },
+          "performedBy": {
+            "type": "string",
+            "description": "User who performed the discard"
+          },
+          "productCode": {
+            "type": "string",
+            "description": "Product code"
+          },
+          "reasonDescriptionKey": {
+            "type": "string",
+            "description": "Key for the reason description"
+          },
+          "triggeredBy": {
+            "type": "string",
+            "description": "User who triggered the discard"
+          },
+          "unitNumber": {
+            "type": "string",
+            "description": "Unit number identifier"
+          }
+        },
+        "description": "Message for discarded product process",
+        "examples": [
+          {
+            "comments": "string",
+            "createDate": "2015-07-20T15:49:04-07:00",
+            "performedBy": "string",
+            "productCode": "string",
+            "reasonDescriptionKey": "string",
+            "triggeredBy": "string",
+            "unitNumber": "string"
+          }
+        ]
+      },
+      "ProductModified": {
+        "title": "ProductModified",
         "type": "object",
         "properties": {
           "expirationDate": {
-            "type": "string"
+            "type": "string",
+            "description": "Expiration date"
           },
           "expirationTime": {
-            "type": "string"
+            "type": "string",
+            "description": "Expiration time"
           },
           "modificationDate": {
             "type": "string",
+            "description": "Date and time of modification",
             "format": "date-time"
           },
           "modificationLocation": {
-            "type": "string"
+            "type": "string",
+            "description": "Location where modification was performed"
           },
           "parentProductCode": {
-            "type": "string"
+            "type": "string",
+            "description": "Parent product code"
           },
           "productCode": {
-            "type": "string"
+            "type": "string",
+            "description": "Product code"
           },
           "productDescription": {
-            "type": "string"
+            "type": "string",
+            "description": "Product description"
           },
           "productFamily": {
-            "type": "string"
+            "type": "string",
+            "description": "Product family"
           },
           "unitNumber": {
-            "type": "string"
+            "type": "string",
+            "description": "Unit number identifier"
           },
           "volume": {
             "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.common.Volume"
@@ -714,6 +661,7 @@
             "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ValueUnit"
           }
         },
+        "description": "Message for modified product process",
         "examples": [
           {
             "expirationDate": "string",
@@ -736,39 +684,269 @@
           }
         ]
       },
-      "com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.AddQuarantinedMessage": {
+      "ProductRecovered": {
+        "title": "ProductRecovered",
         "type": "object",
         "properties": {
-          "comments": {
-            "type": "string"
-          },
           "createDate": {
             "type": "string",
+            "description": "Date and time when recovery was created",
+            "format": "date-time"
+          },
+          "performedBy": {
+            "type": "string",
+            "description": "User who performed the recovery"
+          },
+          "productCode": {
+            "type": "string",
+            "description": "Product code"
+          },
+          "unitNumber": {
+            "type": "string",
+            "description": "Unit number identifier"
+          }
+        },
+        "description": "Message for recovered product process",
+        "examples": [
+          {
+            "createDate": "2015-07-20T15:49:04-07:00",
+            "performedBy": "string",
+            "productCode": "string",
+            "unitNumber": "string"
+          }
+        ]
+      },
+      "RecoveredPlasmaCartonPacked": {
+        "title": "RecoveredPlasmaCartonPacked",
+        "type": "object",
+        "properties": {
+          "cartonNumber": {
+            "type": "string",
+            "description": "Carton number identifier"
+          },
+          "cartonSequence": {
+            "type": "integer",
+            "description": "Sequence number of the carton",
+            "format": "int32"
+          },
+          "closeDate": {
+            "type": "string",
+            "description": "Date when carton was closed"
+          },
+          "closeEmployeeId": {
+            "type": "string",
+            "description": "ID of employee who closed the carton"
+          },
+          "locationCode": {
+            "type": "string",
+            "description": "Location code where carton is packed"
+          },
+          "packedProducts": {
+            "type": "array",
+            "description": "List of packed products in the carton",
+            "items": {
+              "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.PackedProductMessage"
+            }
+          },
+          "productType": {
+            "type": "string",
+            "description": "Type of product"
+          },
+          "status": {
+            "type": "string",
+            "description": "Status of the carton"
+          },
+          "totalProducts": {
+            "type": "integer",
+            "description": "Total number of products in carton",
+            "format": "int32"
+          },
+          "totalVolume": {
+            "type": "number",
+            "description": "Total volume of carton",
+            "format": "double"
+          },
+          "totalWeight": {
+            "type": "number",
+            "description": "Total weight of carton",
+            "format": "double"
+          }
+        },
+        "description": "Message for packed recovered plasma carton",
+        "examples": [
+          {
+            "cartonNumber": "string",
+            "cartonSequence": 0,
+            "closeDate": "string",
+            "closeEmployeeId": "string",
+            "locationCode": "string",
+            "packedProducts": [
+              {
+                "productCode": "string",
+                "status": "string",
+                "unitNumber": "string"
+              }
+            ],
+            "productType": "string",
+            "status": "string",
+            "totalProducts": 0,
+            "totalVolume": 1.1,
+            "totalWeight": 1.1
+          }
+        ]
+      },
+      "RecoveredPlasmaCartonRemoved": {
+        "title": "RecoveredPlasmaCartonRemoved",
+        "type": "object",
+        "properties": {
+          "cartonNumber": {
+            "type": "string",
+            "description": "Carton number identifier"
+          },
+          "cartonSequence": {
+            "type": "integer",
+            "description": "Sequence number of the carton",
+            "format": "int32"
+          },
+          "locationCode": {
+            "type": "string",
+            "description": "Location code where carton was removed from"
+          },
+          "packedProducts": {
+            "type": "array",
+            "description": "List of packed products in the carton",
+            "items": {
+              "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.PackedProductMessage"
+            }
+          },
+          "productType": {
+            "type": "string",
+            "description": "Type of product"
+          },
+          "removeDate": {
+            "type": "string",
+            "description": "Date when carton was removed"
+          },
+          "removeEmployeeId": {
+            "type": "string",
+            "description": "ID of employee who removed the carton"
+          },
+          "status": {
+            "type": "string",
+            "description": "Status of the carton"
+          },
+          "totalProducts": {
+            "type": "integer",
+            "description": "Total number of products in carton",
+            "format": "int32"
+          },
+          "totalVolume": {
+            "type": "number",
+            "description": "Total volume of carton",
+            "format": "double"
+          },
+          "totalWeight": {
+            "type": "number",
+            "description": "Total weight of carton",
+            "format": "double"
+          }
+        },
+        "description": "Message for removed recovered plasma carton",
+        "examples": [
+          {
+            "cartonNumber": "string",
+            "cartonSequence": 0,
+            "locationCode": "string",
+            "packedProducts": [
+              {
+                "productCode": "string",
+                "status": "string",
+                "unitNumber": "string"
+              }
+            ],
+            "productType": "string",
+            "removeDate": "string",
+            "removeEmployeeId": "string",
+            "status": "string",
+            "totalProducts": 0,
+            "totalVolume": 1.1,
+            "totalWeight": 1.1
+          }
+        ]
+      },
+      "RecoveredPlasmaShipmentClosed": {
+        "title": "RecoveredPlasmaShipmentClosed",
+        "type": "object",
+        "properties": {
+          "cartonList": {
+            "type": "array",
+            "description": "List of cartons in the shipment",
+            "items": {
+              "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.CartonMessage"
+            }
+          },
+          "shipmentNumber": {
+            "type": "string",
+            "description": "Shipment number identifier"
+          }
+        },
+        "description": "Message for closed recovered plasma shipment",
+        "examples": [
+          {
+            "cartonList": [
+              {
+                "cartonNumber": "string",
+                "packedProducts": [
+                  {
+                    "productCode": "string",
+                    "status": "string",
+                    "unitNumber": "string"
+                  }
+                ]
+              }
+            ],
+            "shipmentNumber": "string"
+          }
+        ]
+      },
+      "RemoveQuarantined": {
+        "title": "RemoveQuarantined",
+        "type": "object",
+        "properties": {
+          "createDate": {
+            "type": "string",
+            "description": "Date and time when quarantine removal was created",
             "format": "date-time"
           },
           "id": {
             "type": "integer",
+            "description": "Quarantine identifier",
             "format": "int64"
           },
           "performedBy": {
-            "type": "string"
+            "type": "string",
+            "description": "User who performed the quarantine removal"
           },
           "productCode": {
-            "type": "string"
+            "type": "string",
+            "description": "Product code"
           },
           "reason": {
-            "type": "string"
+            "type": "string",
+            "description": "Reason for removing from quarantine"
           },
           "stopsManufacturing": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Indicates if quarantine stops manufacturing process"
           },
           "unitNumber": {
-            "type": "string"
+            "type": "string",
+            "description": "Unit number identifier"
           }
         },
+        "description": "Message for removing product from quarantine",
         "examples": [
           {
-            "comments": "string",
             "createDate": "2015-07-20T15:49:04-07:00",
             "id": 0,
             "performedBy": "string",
@@ -779,75 +957,46 @@
           }
         ]
       },
-      "com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.RemoveQuarantinedMessage": {
-        "type": "object",
-        "properties": {
-          "createDate": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "performedBy": {
-            "type": "string"
-          },
-          "productCode": {
-            "type": "string"
-          },
-          "reason": {
-            "type": "string"
-          },
-          "stopsManufacturing": {
-            "type": "boolean"
-          },
-          "unitNumber": {
-            "type": "string"
-          }
-        },
-        "examples": [
-          {
-            "createDate": "2015-07-20T15:49:04-07:00",
-            "id": 0,
-            "performedBy": "string",
-            "productCode": "string",
-            "reason": "string",
-            "stopsManufacturing": true,
-            "unitNumber": "string"
-          }
-        ]
-      },
-      "com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.UpdateQuarantinedMessage": {
+      "UpdateQuarantined": {
+        "title": "UpdateQuarantined",
         "type": "object",
         "properties": {
           "comments": {
-            "type": "string"
+            "type": "string",
+            "description": "Additional comments"
           },
           "createDate": {
             "type": "string",
+            "description": "Date and time when quarantine update was created",
             "format": "date-time"
           },
           "id": {
             "type": "integer",
+            "description": "Quarantine identifier",
             "format": "int64"
           },
           "newReason": {
-            "type": "string"
+            "type": "string",
+            "description": "New reason for quarantine"
           },
           "performedBy": {
-            "type": "string"
+            "type": "string",
+            "description": "User who performed the quarantine update"
           },
           "productCode": {
-            "type": "string"
+            "type": "string",
+            "description": "Product code"
           },
           "stopsManufacturing": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Indicates if quarantine stops manufacturing process"
           },
           "unitNumber": {
-            "type": "string"
+            "type": "string",
+            "description": "Unit number identifier"
           }
         },
+        "description": "Message for updating quarantined product",
         "examples": [
           {
             "comments": "string",
@@ -858,6 +1007,203 @@
             "productCode": "string",
             "stopsManufacturing": true,
             "unitNumber": "string"
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.inventory.adapter.in.listener.common.Volume": {
+        "type": "object",
+        "properties": {
+          "unit": {
+            "type": "string"
+          },
+          "value": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "Volume of the product",
+        "examples": [
+          {
+            "unit": "string",
+            "value": 0
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage": {
+        "discriminator": "type",
+        "type": "object",
+        "properties": {
+          "aboRh": {
+            "type": "string",
+            "description": "Abo RH Type of the product",
+            "enum": [
+              "ON",
+              "OP",
+              "AN",
+              "AP",
+              "BN",
+              "BP",
+              "ABN",
+              "ABP"
+            ]
+          },
+          "anticoagulantVolume": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.common.Volume"
+          },
+          "productCode": {
+            "type": "string",
+            "description": "Product code"
+          },
+          "type": {
+            "type": "string"
+          },
+          "unitNumber": {
+            "type": "string",
+            "description": "Unit number identifier"
+          },
+          "volume": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.common.Volume"
+          }
+        },
+        "examples": [
+          {
+            "aboRh": "ON",
+            "anticoagulantVolume": {
+              "unit": "string",
+              "value": 0
+            },
+            "productCode": "string",
+            "type": "string",
+            "unitNumber": "string",
+            "volume": {
+              "unit": "string",
+              "value": 0
+            }
+          }
+        ],
+        "required": [
+          "type"
+        ]
+      },
+      "com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage": {
+        "discriminator": "type",
+        "type": "object",
+        "properties": {
+          "aboRh": {
+            "type": "string",
+            "description": "Blood type and RH factor",
+            "enum": [
+              "ON",
+              "OP",
+              "AN",
+              "AP",
+              "BN",
+              "BP",
+              "ABN",
+              "ABP"
+            ]
+          },
+          "collectionLocation": {
+            "type": "string",
+            "description": "Collection location"
+          },
+          "collectionTimeZone": {
+            "type": "string",
+            "description": "Collection time zone"
+          },
+          "drawTime": {
+            "type": "string",
+            "description": "Draw time of the product",
+            "format": "date-time"
+          },
+          "expirationDate": {
+            "type": "string",
+            "description": "Expiration date"
+          },
+          "expirationTime": {
+            "type": "string",
+            "description": "Expiration time"
+          },
+          "inputProduct": {
+            "type": "array",
+            "description": "List of input products used",
+            "items": {
+              "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.domain.model.vo.InputProduct"
+            }
+          },
+          "manufacturingLocation": {
+            "type": "string",
+            "description": "Manufacturing location"
+          },
+          "productCode": {
+            "type": "string",
+            "description": "Product code"
+          },
+          "productDescription": {
+            "type": "string",
+            "description": "Product description"
+          },
+          "productFamily": {
+            "type": "string",
+            "description": "Product family"
+          },
+          "type": {
+            "type": "string"
+          },
+          "unitNumber": {
+            "type": "string",
+            "description": "Unit number identifier"
+          },
+          "weight": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ValueUnit"
+          }
+        },
+        "examples": [
+          {
+            "aboRh": "ON",
+            "collectionLocation": "string",
+            "collectionTimeZone": "string",
+            "drawTime": "2015-07-20T15:49:04-07:00",
+            "expirationDate": "string",
+            "expirationTime": "string",
+            "inputProduct": [
+              {
+                "productCode": "string",
+                "unitNumber": "string"
+              }
+            ],
+            "manufacturingLocation": "string",
+            "productCode": "string",
+            "productDescription": "string",
+            "productFamily": "string",
+            "type": "string",
+            "unitNumber": "string",
+            "weight": {
+              "unit": "string",
+              "value": 0
+            }
+          }
+        ],
+        "required": [
+          "type"
+        ]
+      },
+      "com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ValueUnit": {
+        "type": "object",
+        "properties": {
+          "unit": {
+            "type": "string"
+          },
+          "value": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "Weight of the product",
+        "examples": [
+          {
+            "unit": "string",
+            "value": 0
           }
         ]
       },
@@ -874,6 +1220,7 @@
             }
           }
         },
+        "description": "List of cartons in the shipment",
         "examples": [
           {
             "cartonNumber": "string",
@@ -900,222 +1247,45 @@
             "type": "string"
           }
         },
+        "description": "List of packed products in the carton",
         "examples": [
           {
             "productCode": "string",
             "status": "string",
             "unitNumber": "string"
-          }
-        ]
-      },
-      "com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.ProductRecoveredMessage": {
-        "type": "object",
-        "properties": {
-          "createDate": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "performedBy": {
-            "type": "string"
-          },
-          "productCode": {
-            "type": "string"
-          },
-          "unitNumber": {
-            "type": "string"
-          }
-        },
-        "examples": [
-          {
-            "createDate": "2015-07-20T15:49:04-07:00",
-            "performedBy": "string",
-            "productCode": "string",
-            "unitNumber": "string"
-          }
-        ]
-      },
-      "com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.RecoveredPlasmaCartonPackedMessage": {
-        "type": "object",
-        "properties": {
-          "cartonNumber": {
-            "type": "string"
-          },
-          "cartonSequence": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "closeDate": {
-            "type": "string"
-          },
-          "closeEmployeeId": {
-            "type": "string"
-          },
-          "locationCode": {
-            "type": "string"
-          },
-          "packedProducts": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.PackedProductMessage"
-            }
-          },
-          "productType": {
-            "type": "string"
-          },
-          "status": {
-            "type": "string"
-          },
-          "totalProducts": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalVolume": {
-            "type": "number",
-            "format": "double"
-          },
-          "totalWeight": {
-            "type": "number",
-            "format": "double"
-          }
-        },
-        "examples": [
-          {
-            "cartonNumber": "string",
-            "cartonSequence": 0,
-            "closeDate": "string",
-            "closeEmployeeId": "string",
-            "locationCode": "string",
-            "packedProducts": [
-              {
-                "productCode": "string",
-                "status": "string",
-                "unitNumber": "string"
-              }
-            ],
-            "productType": "string",
-            "status": "string",
-            "totalProducts": 0,
-            "totalVolume": 1.1,
-            "totalWeight": 1.1
-          }
-        ]
-      },
-      "com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.RecoveredPlasmaCartonRemovedMessage": {
-        "type": "object",
-        "properties": {
-          "cartonNumber": {
-            "type": "string"
-          },
-          "cartonSequence": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "locationCode": {
-            "type": "string"
-          },
-          "packedProducts": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.PackedProductMessage"
-            }
-          },
-          "productType": {
-            "type": "string"
-          },
-          "removeDate": {
-            "type": "string"
-          },
-          "removeEmployeeId": {
-            "type": "string"
-          },
-          "status": {
-            "type": "string"
-          },
-          "totalProducts": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalVolume": {
-            "type": "number",
-            "format": "double"
-          },
-          "totalWeight": {
-            "type": "number",
-            "format": "double"
-          }
-        },
-        "examples": [
-          {
-            "cartonNumber": "string",
-            "cartonSequence": 0,
-            "locationCode": "string",
-            "packedProducts": [
-              {
-                "productCode": "string",
-                "status": "string",
-                "unitNumber": "string"
-              }
-            ],
-            "productType": "string",
-            "removeDate": "string",
-            "removeEmployeeId": "string",
-            "status": "string",
-            "totalProducts": 0,
-            "totalVolume": 1.1,
-            "totalWeight": 1.1
-          }
-        ]
-      },
-      "com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.RecoveredPlasmaShipmentClosedMessage": {
-        "type": "object",
-        "properties": {
-          "cartonList": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.CartonMessage"
-            }
-          },
-          "shipmentNumber": {
-            "type": "string"
-          }
-        },
-        "examples": [
-          {
-            "cartonList": [
-              {
-                "cartonNumber": "string",
-                "packedProducts": [
-                  {
-                    "productCode": "string",
-                    "status": "string",
-                    "unitNumber": "string"
-                  }
-                ]
-              }
-            ],
-            "shipmentNumber": "string"
           }
         ]
       },
       "com.arcone.biopro.distribution.inventory.adapter.in.listener.unsuitable.UnsuitableMessage": {
+        "discriminator": "type",
         "type": "object",
         "properties": {
           "productCode": {
-            "type": "string"
+            "type": "string",
+            "description": "Product code"
           },
           "reasonKey": {
+            "type": "string",
+            "description": "Key identifying the reason for unsuitability"
+          },
+          "type": {
             "type": "string"
           },
           "unitNumber": {
-            "type": "string"
+            "type": "string",
+            "description": "Unit number identifier"
           }
         },
         "examples": [
           {
             "productCode": "string",
             "reasonKey": "string",
+            "type": "string",
             "unitNumber": "string"
           }
+        ],
+        "required": [
+          "type"
         ]
       },
       "com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput": {
@@ -1211,6 +1381,7 @@
             "type": "string"
           }
         },
+        "description": "List of input products used",
         "examples": [
           {
             "productCode": "string",
@@ -1220,6 +1391,21 @@
       }
     },
     "messages": {
+      "AddQuarantined": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/AddQuarantined"
+          }
+        },
+        "name": "AddQuarantined",
+        "title": "AddQuarantinedMessage",
+        "description": "Message for adding product to quarantine",
+        "bindings": {}
+      },
       "CheckInCompleted": {
         "headers": {
           "$ref": "#/components/schemas/HeadersNotDocumented"
@@ -1250,6 +1436,156 @@
         "description": "Inventory Updated payload",
         "bindings": {}
       },
+      "LabelApplied": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/LabelApplied"
+          }
+        },
+        "name": "LabelApplied",
+        "title": "LabelAppliedMessage",
+        "description": "Message for label application process",
+        "bindings": {}
+      },
+      "LabelInvalidated": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/LabelInvalidated"
+          }
+        },
+        "name": "LabelInvalidated",
+        "title": "LabelInvalidatedMessage",
+        "description": "Message for label invalidation process",
+        "bindings": {}
+      },
+      "ProductDiscarded": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/ProductDiscarded"
+          }
+        },
+        "name": "ProductDiscarded",
+        "title": "ProductDiscardedMessage",
+        "description": "Message for discarded product process",
+        "bindings": {}
+      },
+      "ProductModified": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/ProductModified"
+          }
+        },
+        "name": "ProductModified",
+        "title": "ProductModifiedMessage",
+        "description": "Message for modified product process",
+        "bindings": {}
+      },
+      "ProductRecovered": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/ProductRecovered"
+          }
+        },
+        "name": "ProductRecovered",
+        "title": "ProductRecoveredMessage",
+        "description": "Message for recovered product process",
+        "bindings": {}
+      },
+      "RecoveredPlasmaCartonPacked": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/RecoveredPlasmaCartonPacked"
+          }
+        },
+        "name": "RecoveredPlasmaCartonPacked",
+        "title": "RecoveredPlasmaCartonPackedMessage",
+        "description": "Message for packed recovered plasma carton",
+        "bindings": {}
+      },
+      "RecoveredPlasmaCartonRemoved": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/RecoveredPlasmaCartonRemoved"
+          }
+        },
+        "name": "RecoveredPlasmaCartonRemoved",
+        "title": "RecoveredPlasmaCartonRemovedMessage",
+        "description": "Message for removed recovered plasma carton",
+        "bindings": {}
+      },
+      "RecoveredPlasmaShipmentClosed": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/RecoveredPlasmaShipmentClosed"
+          }
+        },
+        "name": "RecoveredPlasmaShipmentClosed",
+        "title": "RecoveredPlasmaShipmentClosedMessage",
+        "description": "Message for closed recovered plasma shipment",
+        "bindings": {}
+      },
+      "RemoveQuarantined": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/RemoveQuarantined"
+          }
+        },
+        "name": "RemoveQuarantined",
+        "title": "RemoveQuarantinedMessage",
+        "description": "Message for removing product from quarantine",
+        "bindings": {}
+      },
+      "UpdateQuarantined": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/UpdateQuarantined"
+          }
+        },
+        "name": "UpdateQuarantined",
+        "title": "UpdateQuarantinedMessage",
+        "description": "Message for updating quarantined product",
+        "bindings": {}
+      },
       "com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage": {
         "headers": {
           "$ref": "#/components/schemas/HeadersNotDocumented"
@@ -1276,160 +1612,6 @@
         },
         "name": "com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage",
         "title": "ProductCreatedMessage",
-        "bindings": {}
-      },
-      "com.arcone.biopro.distribution.inventory.adapter.in.listener.discarded.ProductDiscardedMessage": {
-        "headers": {
-          "$ref": "#/components/schemas/HeadersNotDocumented"
-        },
-        "payload": {
-          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
-          "schema": {
-            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.discarded.ProductDiscardedMessage"
-          }
-        },
-        "name": "com.arcone.biopro.distribution.inventory.adapter.in.listener.discarded.ProductDiscardedMessage",
-        "title": "ProductDiscardedMessage",
-        "bindings": {}
-      },
-      "com.arcone.biopro.distribution.inventory.adapter.in.listener.label.LabelAppliedMessage": {
-        "headers": {
-          "$ref": "#/components/schemas/HeadersNotDocumented"
-        },
-        "payload": {
-          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
-          "schema": {
-            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.label.LabelAppliedMessage"
-          }
-        },
-        "name": "com.arcone.biopro.distribution.inventory.adapter.in.listener.label.LabelAppliedMessage",
-        "title": "LabelAppliedMessage",
-        "bindings": {}
-      },
-      "com.arcone.biopro.distribution.inventory.adapter.in.listener.labelinvalidated.LabelInvalidatedMessage": {
-        "headers": {
-          "$ref": "#/components/schemas/HeadersNotDocumented"
-        },
-        "payload": {
-          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
-          "schema": {
-            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.labelinvalidated.LabelInvalidatedMessage"
-          }
-        },
-        "name": "com.arcone.biopro.distribution.inventory.adapter.in.listener.labelinvalidated.LabelInvalidatedMessage",
-        "title": "LabelInvalidatedMessage",
-        "bindings": {}
-      },
-      "com.arcone.biopro.distribution.inventory.adapter.in.listener.modified.ProductModifiedMessage": {
-        "headers": {
-          "$ref": "#/components/schemas/HeadersNotDocumented"
-        },
-        "payload": {
-          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
-          "schema": {
-            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.modified.ProductModifiedMessage"
-          }
-        },
-        "name": "com.arcone.biopro.distribution.inventory.adapter.in.listener.modified.ProductModifiedMessage",
-        "title": "ProductModifiedMessage",
-        "bindings": {}
-      },
-      "com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.AddQuarantinedMessage": {
-        "headers": {
-          "$ref": "#/components/schemas/HeadersNotDocumented"
-        },
-        "payload": {
-          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
-          "schema": {
-            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.AddQuarantinedMessage"
-          }
-        },
-        "name": "com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.AddQuarantinedMessage",
-        "title": "AddQuarantinedMessage",
-        "bindings": {}
-      },
-      "com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.RemoveQuarantinedMessage": {
-        "headers": {
-          "$ref": "#/components/schemas/HeadersNotDocumented"
-        },
-        "payload": {
-          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
-          "schema": {
-            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.RemoveQuarantinedMessage"
-          }
-        },
-        "name": "com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.RemoveQuarantinedMessage",
-        "title": "RemoveQuarantinedMessage",
-        "bindings": {}
-      },
-      "com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.UpdateQuarantinedMessage": {
-        "headers": {
-          "$ref": "#/components/schemas/HeadersNotDocumented"
-        },
-        "payload": {
-          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
-          "schema": {
-            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.UpdateQuarantinedMessage"
-          }
-        },
-        "name": "com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.UpdateQuarantinedMessage",
-        "title": "UpdateQuarantinedMessage",
-        "bindings": {}
-      },
-      "com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.ProductRecoveredMessage": {
-        "headers": {
-          "$ref": "#/components/schemas/HeadersNotDocumented"
-        },
-        "payload": {
-          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
-          "schema": {
-            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.ProductRecoveredMessage"
-          }
-        },
-        "name": "com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.ProductRecoveredMessage",
-        "title": "ProductRecoveredMessage",
-        "bindings": {}
-      },
-      "com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.RecoveredPlasmaCartonPackedMessage": {
-        "headers": {
-          "$ref": "#/components/schemas/HeadersNotDocumented"
-        },
-        "payload": {
-          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
-          "schema": {
-            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.RecoveredPlasmaCartonPackedMessage"
-          }
-        },
-        "name": "com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.RecoveredPlasmaCartonPackedMessage",
-        "title": "RecoveredPlasmaCartonPackedMessage",
-        "bindings": {}
-      },
-      "com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.RecoveredPlasmaCartonRemovedMessage": {
-        "headers": {
-          "$ref": "#/components/schemas/HeadersNotDocumented"
-        },
-        "payload": {
-          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
-          "schema": {
-            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.RecoveredPlasmaCartonRemovedMessage"
-          }
-        },
-        "name": "com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.RecoveredPlasmaCartonRemovedMessage",
-        "title": "RecoveredPlasmaCartonRemovedMessage",
-        "bindings": {}
-      },
-      "com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.RecoveredPlasmaShipmentClosedMessage": {
-        "headers": {
-          "$ref": "#/components/schemas/HeadersNotDocumented"
-        },
-        "payload": {
-          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
-          "schema": {
-            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.RecoveredPlasmaShipmentClosedMessage"
-          }
-        },
-        "name": "com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.RecoveredPlasmaShipmentClosedMessage",
-        "title": "RecoveredPlasmaShipmentClosedMessage",
         "bindings": {}
       },
       "com.arcone.biopro.distribution.inventory.adapter.in.listener.unsuitable.UnsuitableMessage": {
@@ -1585,7 +1767,7 @@
       "bindings": {},
       "messages": [
         {
-          "$ref": "#/channels/Label Invalidated/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.labelinvalidated.LabelInvalidatedMessage"
+          "$ref": "#/channels/Label Invalidated/messages/LabelInvalidated"
         }
       ]
     },
@@ -1599,7 +1781,7 @@
       "bindings": {},
       "messages": [
         {
-          "$ref": "#/channels/LabelApplied/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.label.LabelAppliedMessage"
+          "$ref": "#/channels/LabelApplied/messages/LabelApplied"
         }
       ]
     },
@@ -1613,7 +1795,7 @@
       "bindings": {},
       "messages": [
         {
-          "$ref": "#/channels/ProductDiscarded/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.discarded.ProductDiscardedMessage"
+          "$ref": "#/channels/ProductDiscarded/messages/ProductDiscarded"
         }
       ]
     },
@@ -1627,7 +1809,7 @@
       "bindings": {},
       "messages": [
         {
-          "$ref": "#/channels/ProductModified/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.modified.ProductModifiedMessage"
+          "$ref": "#/channels/ProductModified/messages/ProductModified"
         }
       ]
     },
@@ -1641,7 +1823,7 @@
       "bindings": {},
       "messages": [
         {
-          "$ref": "#/channels/ProductQuarantined/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.AddQuarantinedMessage"
+          "$ref": "#/channels/ProductQuarantined/messages/AddQuarantined"
         }
       ]
     },
@@ -1655,7 +1837,7 @@
       "bindings": {},
       "messages": [
         {
-          "$ref": "#/channels/ProductRecovered/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.ProductRecoveredMessage"
+          "$ref": "#/channels/ProductRecovered/messages/ProductRecovered"
         }
       ]
     },
@@ -1669,7 +1851,7 @@
       "bindings": {},
       "messages": [
         {
-          "$ref": "#/channels/ProductStored/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.label.LabelAppliedMessage"
+          "$ref": "#/channels/ProductStored/messages/LabelApplied"
         }
       ]
     },
@@ -1697,7 +1879,7 @@
       "bindings": {},
       "messages": [
         {
-          "$ref": "#/channels/QuarantineRemoved/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.RemoveQuarantinedMessage"
+          "$ref": "#/channels/QuarantineRemoved/messages/RemoveQuarantined"
         }
       ]
     },
@@ -1711,7 +1893,7 @@
       "bindings": {},
       "messages": [
         {
-          "$ref": "#/channels/QuarantineUpdated/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.UpdateQuarantinedMessage"
+          "$ref": "#/channels/QuarantineUpdated/messages/UpdateQuarantined"
         }
       ]
     },
@@ -1725,7 +1907,7 @@
       "bindings": {},
       "messages": [
         {
-          "$ref": "#/channels/RecoveredPlasmaCartonPacked/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.RecoveredPlasmaCartonPackedMessage"
+          "$ref": "#/channels/RecoveredPlasmaCartonPacked/messages/RecoveredPlasmaCartonPacked"
         }
       ]
     },
@@ -1739,7 +1921,7 @@
       "bindings": {},
       "messages": [
         {
-          "$ref": "#/channels/RecoveredPlasmaCartonRemoved/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.RecoveredPlasmaCartonRemovedMessage"
+          "$ref": "#/channels/RecoveredPlasmaCartonRemoved/messages/RecoveredPlasmaCartonRemoved"
         }
       ]
     },
@@ -1753,7 +1935,7 @@
       "bindings": {},
       "messages": [
         {
-          "$ref": "#/channels/RecoveredPlasmaShipmentClosed/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.RecoveredPlasmaShipmentClosedMessage"
+          "$ref": "#/channels/RecoveredPlasmaShipmentClosed/messages/RecoveredPlasmaShipmentClosed"
         }
       ]
     },
