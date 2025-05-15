@@ -34,6 +34,7 @@ public class RecoveredPlasmaShipmentProcessingUseCase {
     private final UnacceptableUnitReportRepository unacceptableUnitReportRepository;
     private final CartonRepository cartonRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private static  final String  INVENTORY_PACKED_ERROR_TYPE = "INVENTORY_IS_PACKED";
 
     @EventListener
     @Transactional
@@ -69,8 +70,8 @@ public class RecoveredPlasmaShipmentProcessingUseCase {
             .flatMap(cartonItem -> {
                 return inventoryService.validateInventoryBatch(Flux.just(new ValidateInventoryCommand(cartonItem.getUnitNumber(), cartonItem.getProductCode(), recoveredPlasmaShipment.getLocationCode())))
                     .flatMap(inventoryValidation -> {
-                        if (inventoryValidation.getFirstNotification() != null) {
-                            var notification = inventoryValidation.getFirstNotification();
+                        var notification = inventoryValidation.getFirstNotification();
+                        if (notification != null && !INVENTORY_PACKED_ERROR_TYPE.equals(notification.getErrorName()) ) {
                             return cartonRepository.findOneById(cartonItem.getCartonId())
                                 .flatMap(carton -> cartonRepository.update(carton.markAsRepack()))
                                 .flatMap(cartonRepacked -> unacceptableUnitReportRepository.save(new UnacceptableUnitReportItem(recoveredPlasmaShipment.getId()
