@@ -56,7 +56,7 @@ class ProductConvertedUseCaseTest {
             .shortDescription("APH PLASMA 24H")
             .inventoryStatus(InventoryStatus.AVAILABLE)
             .expirationDate(LocalDateTime.parse("2025-01-08T02:05:45.231"))
-            .location("LOCATION_1")
+            .inventoryLocation("LOCATION_1")
             .build();
 
         var convertedInventory = Inventory.builder()
@@ -66,7 +66,7 @@ class ProductConvertedUseCaseTest {
             .shortDescription("APH PLASMA 24H")
             .inventoryStatus(InventoryStatus.CONVERTED)
             .expirationDate(LocalDateTime.parse("2025-01-08T02:05:45.231"))
-            .location("LOCATION_1")
+            .inventoryLocation("LOCATION_1")
             .build();
 
         var aggregate = InventoryAggregate.builder()

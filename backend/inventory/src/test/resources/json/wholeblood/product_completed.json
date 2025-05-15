@@ -28,6 +28,7 @@
     "anticoagulantVolume":{
       "value":50,
       "unit":"MILLILITERS"
-    }
+    },
+    "aboRh":"ABP"
   }
 }

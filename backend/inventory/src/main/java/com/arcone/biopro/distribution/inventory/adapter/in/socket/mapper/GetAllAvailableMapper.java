@@ -18,12 +18,14 @@ public interface GetAllAvailableMapper {
 
     GetAvailableInventoryResponseDTO toResponse(GetAllAvailableInventoriesOutput output);
 
-    @Mapping(target = "location", source = "locationCode")
+    @Mapping(target = "inventoryLocation", source = "locationCode")
     @Mapping(target = "shortDescription", ignore = true)
     @Mapping(target = "expirationDate", ignore = true)
     @Mapping(target = "collectionDate", ignore = true)
     @Mapping(target = "productFamily", ignore = true)
     @Mapping(target = "aboRh", ignore = true)
+    @Mapping(target = "collectionTimeZone", ignore = true)
+    @Mapping(target = "collectionLocation", ignore = true)
     InventoryInput toInput(InventoryValidationRequest dto);
 
     @Mapping(target = "inventoryResponseDTO", source = "inventoryOutput")

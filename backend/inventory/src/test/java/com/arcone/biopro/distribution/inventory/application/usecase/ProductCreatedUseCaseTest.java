@@ -14,7 +14,6 @@ import com.arcone.biopro.distribution.inventory.domain.model.enumeration.Invento
 import com.arcone.biopro.distribution.inventory.domain.model.vo.ProductCode;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.UnitNumber;
 import com.arcone.biopro.distribution.inventory.domain.repository.InventoryAggregateRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -63,7 +62,7 @@ class ProductCreatedUseCaseTest {
             .expirationDate("01/20/2025")
             .expirationTime("00:00")
             .collectionDate(ZonedDateTime.now())
-            .location("LOCATION_1")
+            .inventoryLocation("LOCATION_1")
             .productFamily("PLASMA_TRANSFUSABLE")
             .aboRh(AboRhType.ABN)
             .build();
@@ -76,7 +75,7 @@ class ProductCreatedUseCaseTest {
             .inventoryStatus(InventoryStatus.AVAILABLE)
             .expirationDate(LocalDateTime.parse("2025-01-08T02:05:45.231"))
             .collectionDate(ZonedDateTime.now())
-            .location("LOCATION_1")
+            .inventoryLocation("LOCATION_1")
             .productFamily("PLASMA_TRANSFUSABLE")
             .aboRh(AboRhType.ABN)
             .isLabeled(false)
@@ -123,7 +122,7 @@ class ProductCreatedUseCaseTest {
             .expirationDate("01/20/2025")
             .expirationTime("00:00")
             .collectionDate(ZonedDateTime.now())
-            .location("LOCATION_1")
+            .inventoryLocation("LOCATION_1")
             .productFamily("PLASMA_TRANSFUSABLE")
             .aboRh(AboRhType.ABN)
             .build();

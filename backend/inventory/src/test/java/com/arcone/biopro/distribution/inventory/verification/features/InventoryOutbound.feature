@@ -8,8 +8,8 @@ Feature: Inventory Outbound Interface
                 | <Unit Number> | <Product Code> | <Location> |
 
             When I received a "<Event>" event for the following products:
-                | Unit Number   | Product Code         | Is licensed   | Reason   | Reason Id   | Shipment type   | Device Storage   | Storage Location   | Location   |
-                | <Unit Number> | <Final Product Code> | <Is licensed> | <Reason> | <Reason Id> | <Shipment type> | <Device Storage> | <Storage Location> | <Location> |
+                | Unit Number   | Product Code         | Is licensed   | Reason   | Reason Id   | Shipment type   | Device Storage   | Storage Location   | Location   | Expiration Date | Expiration Time | Modification Location | Modification Date | Volume | Weight | Product Description | Parent Product Code | Product Family               |
+                | <Unit Number> | <Final Product Code> | <Is licensed> | <Reason> | <Reason Id> | <Shipment type> | <Device Storage> | <Storage Location> | <Location> | 02/15/2026      | 23:59           | 1FS                   | 02/15/2025        | 250    | 234    | APH LR RBC FRZ C1   | <Product Code>      | RED_BLOOD_CELLS_LEUKOREDUCED |
 
             Then the inventory updated event should be produced with the "<Update Type>" value in the payload for the following units:
                 | Unit Number   | Final Product Code   |
@@ -33,6 +33,7 @@ Feature: Inventory Outbound Interface
 
             @LAB-390
             Examples:
-                | Event                           | Unit Number   | Product Code | Final Product Code | Is licensed | Shipment type | Reason            | Reason Id | Device Storage | Storage Location        | Location   | Update Type        |
-                | Recovered Plasma Carton Closed  | W036825004009 | E1624V00     | E1624V00           |             |               |                   |           | Freezer001     | Bin001,Shelf002,Tray001 | location_1 | SHIPPED            |
+                | Event                          | Unit Number   | Product Code | Final Product Code | Is licensed | Shipment type | Reason | Reason Id | Device Storage | Storage Location        | Location   | Update Type |
+                | Recovered Plasma Carton Closed | W036825004009 | E1624V00     | E1624V00           |             |               |        |           | Freezer001     | Bin001,Shelf002,Tray001 | location_1 | SHIPPED     |
+
 
