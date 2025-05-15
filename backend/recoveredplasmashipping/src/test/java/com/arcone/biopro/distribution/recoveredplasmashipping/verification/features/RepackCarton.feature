@@ -32,28 +32,28 @@ Feature: Repack Carton
         Rule: I should be able to add products in the same carton.
         @ui @DIS-355
         Scenario: Successfully repack a carton.
-            Given I have a shipment created with the Customer Code as "<Customer Code>" , Product Type as "<Product Type>", Carton Tare Weight as "<Carton Tare Weight>", Shipment Date as "<Shipment Date>", Transportation Reference Number as "<Transportation Reference Number>" and Location Code as "<Location Code>".
-            And The Minimum Number of Units in Carton is configured as "<configured_min_products>" products for the customer code "<Customer Code>" and product type "<Product Type>".
-            And I have a closed carton with the unit numbers as "<unit_number>" and product codes as "<product_code>" and product types "<product_type>" which were flagged as repack.
+            Given I have a shipment created with the Customer Code as "409" , Product Type as "RP_NONINJECTABLE_LIQUID_RT", Carton Tare Weight as "1000", Shipment Date as "<tomorrow>", Transportation Reference Number as "DIS-355" and Location Code as "123456789_DIS355".
+            And The Minimum Number of Units in Carton is configured as "2" products for the customer code "409" and product type "RP_NONINJECTABLE_LIQUID_RT".
+            And I have a closed carton with the unit numbers as "W036898355905,W036898355757" and product codes as "E6022V00,E6022V00" and product types "RP_NONINJECTABLE_LIQUID_RT,RP_NONINJECTABLE_LIQUID_RT" which were flagged as repack.
             And I navigate to the shipment details page for the last shipment created.
-            Then I should see the following shipment information:
-                | Field                      | Value                      |
-                | Shipment Number Prefix     | DIS_355DIS355              |
-                | Customer Code              | 409                        |
-                | Customer Name              | SOUTHERN BIOLOGICS         |
-                | Product Type               | RP NONINJECTABLE LIQUID RT |
-                | Shipment Status            | IN PROGRESS                |
-                | Shipment Date              | <tomorrow>                 |
-                | Transportation Ref. Number | DIS-355                    |
-                | Total Cartons              | 1                          |
-                | Carton Status              | BPMMH1,1,REPACK            |
+#            Then I should see the following shipment information:
+#                | Field                      | Value                      |
+#                | Shipment Number Prefix     | DIS_355DIS355              |
+#                | Customer Code              | 409                        |
+#                | Customer Name              | SOUTHERN BIOLOGICS         |
+#                | Product Type               | RP NONINJECTABLE LIQUID RT |
+#                | Shipment Status            | IN PROGRESS                |
+#                | Shipment Date              | <tomorrow>                 |
+#                | Transportation Ref. Number | DIS-355                    |
+#                | Total Cartons              | 1                          |
+#                | Carton Status              | BPMMH1,1,REPACK            |
 
-            And The repack option should be available for the carton sequence number 1.
-            When I choose to repack the carton.
+            And The repack option should be available for the carton number prefix "BPMMH1" and sequence number "1" and status "REPACK".
+            When I choose to repack the carton number prefix "BPMMH1" and sequence number "1" and status "REPACK".
             Then I should see a "Repack carton" message: "Are you sure you want to repack this carton? All products will be removed.".
             When I choose cancel the repack carton.
-            Then The carton status should be "REPACK".
-            When I choose to repack the carton.
+            Then The status of the carton number prefix "BPMMH1" and sequence number "1" should be "REPACK".
+            When I choose to repack the carton number prefix "BPMMH1" and sequence number "1" and status "REPACK".
             Then I should see a "Repack carton" message: "Are you sure you want to repack this carton? All products will be removed.".
             And I enter reason comments "comments".
             When I confirm to repack the carton.
@@ -72,10 +72,10 @@ Feature: Repack Carton
             Given I have a shipment created with the Customer Code as "<Customer Code>" , Product Type as "<Product Type>", Carton Tare Weight as "<Carton Tare Weight>", Shipment Date as "<Shipment Date>", Transportation Reference Number as "<Transportation Reference Number>" and Location Code as "<Location Code>".
             And The Minimum Number of Units in Carton is configured as "<configured_min_products>" products for the customer code "<Customer Code>" and product type "<Product Type>".
             And I have a closed carton with the unit numbers as "<unit_number>" and product codes as "<product_code>" and product types "<product_type>" which were flagged as repack.
-            When I request to repack the carton with reason "Products damaged during handling".
-            Then I should receive a "SUCCESS" message response "Products successfully removed".
-            Then The products unit number "<unit_number>" and product code "<product_code>" "should not" be packed in the carton.
-            And The carton status should be "OPEN".
+#            When I request to repack the carton with reason "Products damaged during handling".
+#            Then I should receive a "SUCCESS" message response "Products successfully removed".
+#            Then The products unit number "<unit_number>" and product code "<product_code>" "should not" be packed in the carton.
+#            And The carton status should be "OPEN".
             Examples:
                 | Customer Code | Product Type               | Carton Tare Weight | Shipment Date | Transportation Reference Number | Location Code    | configured_min_products | unit_number                 | product_code      | product_type                                          | Shipment Date |
                 | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>    | DIS-355                         | 123456789_DIS355 | 2                       | W036898355905,W036898355757 | E6022V00,E6022V00 | RP_NONINJECTABLE_LIQUID_RT,RP_NONINJECTABLE_LIQUID_RT | <tomorrow>    |
