@@ -225,7 +225,9 @@ public class InventoryAggregate {
        if (Objects.nonNull(volumes) && !volumes.isEmpty()) {
            volumes.forEach(item -> inventory.addVolume(item.getType(), item.getValue(), item.getUnit()));
        }
-        inventory.setAboRh(aboRh);
+        if(Objects.nonNull(aboRh)) {
+            inventory.setAboRh(aboRh);
+        }
        return this;
     }
 
