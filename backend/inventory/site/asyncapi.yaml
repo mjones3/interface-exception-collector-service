@@ -1080,7 +1080,6 @@
         ]
       },
       "com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage": {
-        "discriminator": "type",
         "type": "object",
         "properties": {
           "aboRh": {
@@ -1118,7 +1117,7 @@
             "type": "string",
             "description": "Expiration time"
           },
-          "inputProduct": {
+          "inputProducts": {
             "type": "array",
             "description": "List of input products used",
             "items": {
@@ -1141,9 +1140,6 @@
             "type": "string",
             "description": "Product family"
           },
-          "type": {
-            "type": "string"
-          },
           "unitNumber": {
             "type": "string",
             "description": "Unit number identifier"
@@ -1160,7 +1156,7 @@
             "drawTime": "2015-07-20T15:49:04-07:00",
             "expirationDate": "string",
             "expirationTime": "string",
-            "inputProduct": [
+            "inputProducts": [
               {
                 "productCode": "string",
                 "unitNumber": "string"
@@ -1170,16 +1166,12 @@
             "productCode": "string",
             "productDescription": "string",
             "productFamily": "string",
-            "type": "string",
             "unitNumber": "string",
             "weight": {
               "unit": "string",
               "value": 0
             }
           }
-        ],
-        "required": [
-          "type"
         ]
       },
       "com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ValueUnit": {
@@ -1250,7 +1242,6 @@
         ]
       },
       "com.arcone.biopro.distribution.inventory.adapter.in.listener.unsuitable.UnsuitableMessage": {
-        "discriminator": "type",
         "type": "object",
         "properties": {
           "productCode": {
@@ -1261,9 +1252,6 @@
             "type": "string",
             "description": "Key identifying the reason for unsuitability"
           },
-          "type": {
-            "type": "string"
-          },
           "unitNumber": {
             "type": "string",
             "description": "Unit number identifier"
@@ -1273,12 +1261,8 @@
           {
             "productCode": "string",
             "reasonKey": "string",
-            "type": "string",
             "unitNumber": "string"
           }
-        ],
-        "required": [
-          "type"
         ]
       },
       "com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput": {
