@@ -1,4 +1,4 @@
-TRUNCATE TABLE recoveredplasmashipping.lk_system_process_property;
+DELETE FROM recoveredplasmashipping.lk_system_process_property WHERE system_process_type = 'RPS_CARTON_PACKING_SLIP';
 
 INSERT INTO recoveredplasmashipping.lk_system_process_property (system_process_type,property_key,property_value)
 VALUES ('RPS_CARTON_PACKING_SLIP','BLOOD_CENTER_NAME','American Red Cross'),
