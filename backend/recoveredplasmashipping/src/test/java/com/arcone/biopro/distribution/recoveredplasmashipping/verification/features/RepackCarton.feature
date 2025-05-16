@@ -72,10 +72,10 @@ Feature: Repack Carton
             Given I have a shipment created with the Customer Code as "<Customer Code>" , Product Type as "<Product Type>", Carton Tare Weight as "<Carton Tare Weight>", Shipment Date as "<Shipment Date>", Transportation Reference Number as "<Transportation Reference Number>" and Location Code as "<Location Code>".
             And The Minimum Number of Units in Carton is configured as "<configured_min_products>" products for the customer code "<Customer Code>" and product type "<Product Type>".
             And I have a closed carton with the unit numbers as "<unit_number>" and product codes as "<product_code>" and product types "<product_type>" which were flagged as repack.
-#            When I request to repack the carton with reason "Products damaged during handling".
-#            Then I should receive a "SUCCESS" message response "Products successfully removed".
-#            Then The products unit number "<unit_number>" and product code "<product_code>" "should not" be packed in the carton.
-#            And The carton status should be "OPEN".
+            When I request to repack the carton with reason "Products damaged during handling".
+            Then I should receive a "SUCCESS" message response "Products successfully removed".
+            Then The products unit number "<unit_number>" and product code "<product_code>" "should not" be packed in the carton.
+            And The carton status should be "OPEN".
             Examples:
                 | Customer Code | Product Type               | Carton Tare Weight | Shipment Date | Transportation Reference Number | Location Code    | configured_min_products | unit_number                 | product_code      | product_type                                          | Shipment Date |
                 | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>    | DIS-355                         | 123456789_DIS355 | 2                       | W036898355905,W036898355757 | E6022V00,E6022V00 | RP_NONINJECTABLE_LIQUID_RT,RP_NONINJECTABLE_LIQUID_RT | <tomorrow>    |
