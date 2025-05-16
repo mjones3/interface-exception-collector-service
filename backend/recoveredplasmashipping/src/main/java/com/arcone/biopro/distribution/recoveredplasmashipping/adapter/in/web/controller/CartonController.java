@@ -5,6 +5,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.CloseCartonRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.CreateCartonRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.GenerateCartonPackingSlipRequestDTO;
+import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.RepackCartonRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.UseCaseResponseDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.mapper.CommandRequestDTOMapper;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.mapper.UseCaseResponseMapper;
@@ -12,6 +13,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.Car
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.CartonService;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.CloseCartonService;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.CreateCartonService;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.RepackCartonService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -31,6 +33,7 @@ public class CartonController {
     private final CartonService cartonService;
     private final CloseCartonService closeCartonService;
     private final CartonPackingSlipService cartonPackingSlipService;
+    private final RepackCartonService repackCartonService;
 
 
     @MutationMapping("createCarton")
@@ -59,5 +62,12 @@ public class CartonController {
         log.debug("Request to generate carton packing slip : {}", generateCartonPackingSlipRequestDTO);
         return cartonPackingSlipService.generateCartonPackingSlip(commandRequestDTOMapper.toInputCommand(generateCartonPackingSlipRequestDTO))
             .map(useCaseResponseMapper::toUseCaseGenerateCartonPackingSlipDTO);
+    }
+
+    @MutationMapping("repackCarton")
+    public Mono<UseCaseResponseDTO<CartonDTO>> repackCarton(@Argument("repackCartonRequest") RepackCartonRequestDTO repackCartonRequest) {
+        log.debug("Request to Repack Carton: {}", repackCartonRequest);
+        return repackCartonService.repackCarton(commandRequestDTOMapper.toInputCommand(repackCartonRequest))
+            .map(useCaseResponseMapper::toUseCaseCreateCartonDTO);
     }
 }

@@ -190,4 +190,23 @@ public class GraphQLQueryMapper {
                }
                """, shipmentId, locationCode, employeeId);
     }
+
+    public static String findCartonById(int cartonId) {
+        return String.format("""
+                query{
+                    findCartonById(cartonId:%s){
+                    data
+                    notifications{
+                        message
+                        type
+                        code
+                        reason
+                        action
+                        details
+                     }
+                    _links
+                    }
+               }
+               """, cartonId);
+    }
 }

@@ -3,7 +3,9 @@ package com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.ma
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Carton;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.CartonItem;
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.dto.RecoveredPlasmaCartonItemPackedOutputDTO;
+import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.dto.RecoveredPlasmaCartonItemUnpackedOutputDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.dto.RecoveredPlasmaCartonPackedOutputDTO;
+import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.dto.RecoveredPlasmaCartonUnpackedOutputDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
@@ -23,5 +25,16 @@ public interface RecoveredPlasmaCartonEventMapper {
 
     List<RecoveredPlasmaCartonItemPackedOutputDTO> modelToItemPackedEventDTO(List<CartonItem> cartonItems);
 
+    @Mapping(target ="productType" , expression = "java(carton.getProducts().getFirst().getProductType())")
+    @Mapping(source ="locationCode" , target = "locationCode")
+    @Mapping(source ="carton.products" , target = "unpackedProducts")
+    @Mapping(source ="carton.repackEmployeeId" , target = "unpackEmployeeId")
+    @Mapping(source ="carton.repackDate" , target = "unpackDate")
+    RecoveredPlasmaCartonUnpackedOutputDTO modelToUnPackedEventDTO(Carton carton , String locationCode);
+
+    @Mapping(target = "status" , constant = "REMOVED")
+    RecoveredPlasmaCartonItemUnpackedOutputDTO modelToItemUnPackedEventDTO(CartonItem  cartonItem);
+
+    List<RecoveredPlasmaCartonItemUnpackedOutputDTO> modelToItemUnpackedEventDTO(List<CartonItem> cartonItems);
 
 }

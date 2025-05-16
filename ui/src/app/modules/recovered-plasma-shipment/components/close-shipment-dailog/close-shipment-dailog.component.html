@@ -5,14 +5,13 @@
             <span>The shipment will be closed. Are you sure you want to continue?</span>
         </div>
 
-        <form [formGroup]="closeShipmentForm">
             <div class="flex flex-col space-y-4">
                     <mat-form-field>
                         <mat-label>Shipment Date</mat-label>
                         <input
                             id="shipmentDateId"
                             matInput
-                            formControlName="shipmentDate"
+                            [formControl]="shipmentDate"
                             placeholder="Enter Shipment Date"
                             [min]="minDate"
                             autocomplete="off"
@@ -25,35 +24,15 @@
                         <mat-datepicker
                             #shipmentDatePicker
                         ></mat-datepicker>
-                        @if (
-                            closeShipmentForm
-                                .get('shipmentDate')
-                                .hasError('matDatepickerMin')
-                        ) {
-                            <mat-error
-                                >Shipment Date cannot be in the
-                                past</mat-error
-                            >
-                        } @else if (
-                            closeShipmentForm
-                                .get('shipmentDate')
-                                .hasError('matDatepickerParse')
-                        ) {
-                            <mat-error
-                                >Shipment Date is invalid</mat-error
-                            >
-                        } @else if (
-                            closeShipmentForm
-                                .get('shipmentDate')
-                                .hasError('required')
-                        ) {
-                            <mat-error
-                                >Shipment Date is required</mat-error
-                            >
+                        @if (shipmentDate.hasError('matDatepickerMin')) {
+                            <mat-error>Shipment Date cannot be in the past</mat-error>
+                        } @else if (shipmentDate.hasError('matDatepickerParse')) {
+                            <mat-error>Shipment Date is invalid</mat-error>
+                        } @else if (shipmentDate.hasError('required')) {
+                            <mat-error>Shipment Date is required</mat-error>
                         }
                     </mat-form-field>
             </div>
-        </form>
     </div>
 
     <mat-dialog-actions align="end" class="flex items-center justify-center space-x-3 bg-gray-50 px-6 py-4 dark:bg-black dark:bg-opacity-10 sm:justify-end">
@@ -66,7 +45,7 @@
         
         <biopro-basic-button
             id="btnContinue"
-            [disabled]="!closeShipmentForm.valid"
+            [disabled]="!shipmentDate.valid"
             class="bg-green text-white"
             color="primary"
             label="Continue"

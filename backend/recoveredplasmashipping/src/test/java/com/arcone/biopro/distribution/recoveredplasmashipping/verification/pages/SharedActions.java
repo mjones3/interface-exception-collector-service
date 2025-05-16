@@ -211,7 +211,7 @@ public class SharedActions {
         String bannerMessageLocator;
         String msg;
 
-        if(header.startsWith("Confirmation") || header.startsWith("Close")){
+        if(header.startsWith("Confirmation") || header.startsWith("Close") || header.startsWith("Repack")){
             bannerMessageLocator = "//mat-dialog-container[starts-with(@id,'mat-mdc-dialog')]";
             waitForVisible(By.xpath(bannerMessageLocator));
             msg = wait.until(e -> e.findElement(By.xpath(bannerMessageLocator))).getText();

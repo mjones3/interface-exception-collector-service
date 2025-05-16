@@ -42,6 +42,7 @@ import {
     PrintUnacceptableUnitReportRequestDTO,
     UnacceptableUnitReportOutput
 } from '../graphql/query-definitions/print-unacceptable-units-report.graphql';
+import { REPACK_CARTON, RepackCartonDTO } from '../graphql/mutation-definitions/repack-carton.graphql';
 
 @Injectable({
     providedIn: 'root',
@@ -114,6 +115,18 @@ export class RecoveredPlasmaService {
         return this.dynamicGraphqlPathService.executeMutation(
             this.servicePath,
             CREATE_CARTON,
+            request
+        );
+    }
+
+    public repackCarton(
+        request: RepackCartonDTO
+    ): Observable<
+        MutationResult<{ repackCarton: UseCaseResponseDTO<CartonDTO> }>
+    > {
+        return this.dynamicGraphqlPathService.executeMutation(
+            this.servicePath,
+            REPACK_CARTON,
             request
         );
     }
