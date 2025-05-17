@@ -5,6 +5,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.mapper.CartonEntityMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Repository
@@ -53,5 +54,15 @@ public class CartonRepositoryImpl implements CartonRepository {
     public Mono<Carton> update(Carton carton) {
         return cartonEntityRepository.save(cartonEntityMapper.toEntity(carton))
             .flatMap(cartonEntity -> findOneById(cartonEntity.getId()));
+    }
+
+    @Override
+    public Flux<Carton> findAllByShipment(Long shipmentId) {
+        return cartonEntityRepository.findAllByShipmentIdAndDeleteDateIsNullOrderByCartonSequenceNumberAsc(shipmentId)
+            .flatMap(cartonEntity -> {
+                    return cartonItemEntityRepository.findAllByCartonIdOrderByCreateDateAsc(cartonEntity.getId())
+                        .collectList()
+                           .map(cartonItemEntityList -> cartonEntityMapper.entityToModel(cartonEntity,cartonItemEntityList,null,null));
+            });
     }
 }

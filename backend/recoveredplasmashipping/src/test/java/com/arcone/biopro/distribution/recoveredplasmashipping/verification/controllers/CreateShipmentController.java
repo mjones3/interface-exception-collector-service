@@ -149,5 +149,16 @@ public class CreateShipmentController {
         sharedContext.setLastUnacceptableUnitsReportResponse((Map) response.get("data"));
     }
 
+    public void updateShipmentStatus(String shipmentId, String status) {
+        databaseService.executeSql(DatabaseQueries.UPDATE_SHIPMENT_STATUS(shipmentId, status)).block();
+    }
+
+    public Map printShippingSummaryReport(String shipmentId, String locationCode) {
+        String payload = GraphQLQueryMapper.printShippingSummaryReport(Integer.parseInt(shipmentId), sharedContext.getEmployeeId(),locationCode);
+        var response = apiHelper.graphQlRequest(payload, "printShippingSummaryReport");
+        sharedContext.setLastShippingSummaryReportResponse((Map) response.get("data"));
+        return (Map) response.get("data");
+    }
+
 
 }

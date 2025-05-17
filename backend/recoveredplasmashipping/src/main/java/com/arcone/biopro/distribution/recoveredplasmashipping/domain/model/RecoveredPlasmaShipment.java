@@ -2,6 +2,7 @@ package com.arcone.biopro.distribution.recoveredplasmashipping.domain.model;
 
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.exception.DomainNotFoundForKeyException;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.vo.UnacceptableUnitReportItem;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.CartonRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.LocationRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShipmentCriteriaRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShippingRepository;
@@ -343,5 +344,15 @@ public class RecoveredPlasmaShipment implements Validatable {
         this.unsuitableUnitReportDocumentStatus = ERROR_PROCESSING;
         this.lastUnsuitableReportRunDate = ZonedDateTime.now();
         return this;
+    }
+
+    public ShippingSummaryReport printShippingSummaryReport(final PrintShippingSummaryCommand command ,  final CartonRepository cartonRepository ,  final SystemProcessPropertyRepository systemProcessPropertyRepository, final RecoveredPlasmaShipmentCriteriaRepository recoveredPlasmaShipmentCriteriaRepository
+        ,final LocationRepository locationRepository) {
+
+        if (!CLOSED_STATUS.equals(this.status)) {
+            throw new IllegalArgumentException("Shipment is not closed and cannot be printed");
+        }
+
+        return ShippingSummaryReport.generateReport(this, cartonRepository,systemProcessPropertyRepository,recoveredPlasmaShipmentCriteriaRepository,locationRepository);
     }
 }

@@ -1,9 +1,11 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.unit.application.usecase;
 
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.usecase.RecoveredPlasmaShipmentProcessingUseCase;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.event.RecoveredPlasmaShipmentClosedEvent;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.event.RecoveredPlasmaShipmentProcessingEvent;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Carton;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.CartonItem;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Inventory;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.InventoryNotification;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.InventoryValidation;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.RecoveredPlasmaShipment;
@@ -13,17 +15,22 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShippingRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.UnacceptableUnitReportRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.InventoryService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -39,173 +46,241 @@ class RecoveredPlasmaShipmentProcessingUseCaseTest {
     private UnacceptableUnitReportRepository unacceptableUnitReportRepository;
     @Mock
     private CartonRepository cartonRepository;
+    @Mock
+    private ApplicationEventPublisher applicationEventPublisher;
 
     @InjectMocks
     private RecoveredPlasmaShipmentProcessingUseCase useCase;
 
-    @Test
-    void shouldProcessShipmentSuccessfullyWithNoInventoryIssues() {
-        // Given
-        Long shipmentId = 1L;
-        RecoveredPlasmaShipmentProcessingEvent event = createEvent(shipmentId);
-        RecoveredPlasmaShipment shipment = createShipment(shipmentId);
-        CartonItem cartonItem = createCartonItem(shipmentId);
 
-        when(recoveredPlasmaShippingRepository.findOneById(shipmentId)).thenReturn(Mono.just(shipment));
-        when(unacceptableUnitReportRepository.deleteAllByShipmentId(shipmentId)).thenReturn(Mono.empty());
-        when(cartonItemRepository.findAllByShipmentId(shipmentId)).thenReturn(Flux.just(cartonItem));
 
-        InventoryValidation inventoryValidation = Mockito.mock(InventoryValidation.class);
+        @BeforeEach
+        void setUp() {
+            useCase = new RecoveredPlasmaShipmentProcessingUseCase(
+                recoveredPlasmaShippingRepository,
+                inventoryService,
+                cartonItemRepository,
+                unacceptableUnitReportRepository,
+                cartonRepository,
+                applicationEventPublisher
+            );
+        }
 
-        when(inventoryService.validateInventoryBatch(any())).thenReturn(Flux.just(inventoryValidation));
-        when(recoveredPlasmaShippingRepository.update(any())).thenReturn(Mono.just(shipment));
+        @Test
+        void shouldProcessShipmentSuccessfullyWithInventoryValidation() {
+            // Given
+            Long shipmentId = 123L;
+            RecoveredPlasmaShipment shipmentMock = Mockito.mock(RecoveredPlasmaShipment.class);
+            when(shipmentMock.getId()).thenReturn(shipmentId);
 
-        // When
-        StepVerifier.create(useCase.onRecoveredPlasmaShipmentProcessing(event))
+            RecoveredPlasmaShipmentProcessingEvent event = new RecoveredPlasmaShipmentProcessingEvent(shipmentMock);
+
+            CartonItem cartonItem = createCartonItem();
+            InventoryValidation inventoryValidation = createInventoryValidation("EXPIRED");
+
+            when(recoveredPlasmaShippingRepository.findOneById(shipmentId)).thenReturn(Mono.just(shipmentMock));
+            when(unacceptableUnitReportRepository.deleteAllByShipmentId(shipmentId)).thenReturn(Mono.empty());
+            when(cartonItemRepository.findAllByShipmentId(shipmentId)).thenReturn(Flux.just(cartonItem));
+            when(inventoryService.validateInventoryBatch(any())).thenReturn(Flux.just(inventoryValidation));
+            when(recoveredPlasmaShippingRepository.update(any())).thenReturn(Mono.just(shipmentMock));
+            when(cartonItemRepository.findOneByShipmentIdAndProduct(Mockito.anyLong(),Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just(cartonItem));
+
+            var reportItem = Mockito.mock(UnacceptableUnitReportItem.class, RETURNS_DEEP_STUBS);
+
+            when(unacceptableUnitReportRepository.save(Mockito.any())).thenReturn(Mono.just(reportItem));
+
+            var carton = Mockito.mock(Carton.class, RETURNS_DEEP_STUBS);
+            when(carton.getCartonNumber()).thenReturn("ABC123");
+            when(carton.getCartonSequence()).thenReturn(1);
+
+
+
+
+            when(cartonRepository.findOneById(Mockito.anyLong())).thenReturn(Mono.just(carton));
+            when(cartonRepository.update(Mockito.any())).thenReturn(Mono.just(carton));
+
+            // When
+            Mono<RecoveredPlasmaShipment> result = useCase.onRecoveredPlasmaShipmentProcessing(event);
+
             // Then
-            .expectNext(shipment)
-            .verifyComplete();
-    }
+            StepVerifier.create(result)
+                .expectNext(shipmentMock)
+                .verifyComplete();
+
+            verify(recoveredPlasmaShippingRepository,times(1)).findOneById(shipmentId);
+            verify(unacceptableUnitReportRepository).deleteAllByShipmentId(shipmentId);
+            verify(cartonItemRepository).findAllByShipmentId(shipmentId);
+            verify(inventoryService).validateInventoryBatch(any());
+            verify(recoveredPlasmaShippingRepository,times(1)).update(any());
+        }
 
     @Test
-    void shouldProcessShipmentWithInventoryIssues() {
+    void shouldProcessShipmentSuccessfullyWithInventoryValidationPacked() {
         // Given
         Long shipmentId = 123L;
-        RecoveredPlasmaShipmentProcessingEvent event = createEvent(shipmentId);
-        RecoveredPlasmaShipment shipment = createShipment(shipmentId);
-        CartonItem cartonItem = createCartonItem(shipmentId);
-        Carton carton = createCarton();
-        InventoryValidation inventoryValidation = createInventoryValidationWithError();
+        RecoveredPlasmaShipment shipmentMock = Mockito.mock(RecoveredPlasmaShipment.class);
+        when(shipmentMock.getId()).thenReturn(shipmentId);
 
-        when(recoveredPlasmaShippingRepository.findOneById(shipmentId))
-            .thenReturn(Mono.just(shipment));
-        when(unacceptableUnitReportRepository.deleteAllByShipmentId(shipmentId))
-            .thenReturn(Mono.empty());
-        when(cartonItemRepository.findAllByShipmentId(shipmentId)).thenReturn(Flux.just(cartonItem));
-        when(inventoryService.validateInventoryBatch(any()))
-            .thenReturn(Flux.just(inventoryValidation));
-        when(cartonRepository.findOneById(any()))
-            .thenReturn(Mono.just(carton));
-        when(cartonRepository.update(any()))
-            .thenReturn(Mono.just(carton));
+        RecoveredPlasmaShipmentProcessingEvent event = new RecoveredPlasmaShipmentProcessingEvent(shipmentMock);
 
-        UnacceptableUnitReportItem item = Mockito.mock(UnacceptableUnitReportItem.class);
-        when(unacceptableUnitReportRepository.save(any())).thenReturn(Mono.just(item));
-        when(recoveredPlasmaShippingRepository.update(any()))
-            .thenReturn(Mono.just(shipment));
-
-        // When
-        StepVerifier.create(useCase.onRecoveredPlasmaShipmentProcessing(event))
-            // Then
-            .expectNext(shipment)
-            .verifyComplete();
-    }
-
-    @Test
-    void shouldHandleShipmentNotFound() {
-        // Given
-        Long shipmentId = 123L;
-        RecoveredPlasmaShipmentProcessingEvent event = createEvent(shipmentId);
-
-        when(recoveredPlasmaShippingRepository.findOneById(shipmentId)).thenReturn(Mono.empty());
-
-        // When
-        StepVerifier.create(useCase.onRecoveredPlasmaShipmentProcessing(event))
-            .expectNextCount(0)
-            .verifyComplete();
-    }
-
-    @Test
-    void shouldHandleErrorAndMarkShipmentAsProcessingError() {
-        // Given
-        Long shipmentId = 123L;
-        RecoveredPlasmaShipmentProcessingEvent event = createEvent(shipmentId);
-        RecoveredPlasmaShipment shipment = Mockito.mock(RecoveredPlasmaShipment.class);
-        Mockito.when(shipment.getId()).thenReturn(shipmentId);
-
-        when(recoveredPlasmaShippingRepository.findOneById(shipmentId)).thenReturn(Mono.just(shipment));
-        when(unacceptableUnitReportRepository.deleteAllByShipmentId(shipmentId)).thenReturn(Mono.error(new RuntimeException("Test error")));
-        when(recoveredPlasmaShippingRepository.update(any())).thenReturn(Mono.just(shipment));
-
-        // When
-        StepVerifier.create(useCase.onRecoveredPlasmaShipmentProcessing(event))
-            // Then
-            .expectNext(shipment)
-            .verifyComplete();
-    }
-
-    @Test
-    void shouldProcessShipmentSuccessfullyWithInventoryPackedIssue() {
-
-        // Given
-        Long shipmentId = 123L;
-        RecoveredPlasmaShipmentProcessingEvent event = createEvent(shipmentId);
-        RecoveredPlasmaShipment shipment = createShipment(shipmentId);
-        CartonItem cartonItem = createCartonItem(shipmentId);
-
-
-        InventoryValidation inventoryValidation = Mockito.mock(InventoryValidation.class);
-        InventoryNotification notification = Mockito.mock(InventoryNotification.class);
-
-        Mockito.when(notification.getErrorName()).thenReturn("INVENTORY_IS_PACKED");
-
-        Mockito.when(inventoryValidation.getFirstNotification()).thenReturn(notification);
-
-
-        when(recoveredPlasmaShippingRepository.findOneById(shipmentId)).thenReturn(Mono.just(shipment));
-        when(unacceptableUnitReportRepository.deleteAllByShipmentId(shipmentId)).thenReturn(Mono.empty());
-        when(cartonItemRepository.findAllByShipmentId(shipmentId)).thenReturn(Flux.just(cartonItem));
-        when(inventoryService.validateInventoryBatch(any())).thenReturn(Flux.just(inventoryValidation));
-
-        when(recoveredPlasmaShippingRepository.update(any())).thenReturn(Mono.just(shipment));
-
-        // When
-        StepVerifier.create(useCase.onRecoveredPlasmaShipmentProcessing(event))
-            // Then
-            .expectNext(shipment)
-            .verifyComplete();
-
-        verify(cartonRepository, never()).findOneById(any());
-        verify(cartonRepository, never()).update(any());
-        verify(unacceptableUnitReportRepository, never()).save(any());
-
-    }
-
-    // Helper methods to create test objects
-    private RecoveredPlasmaShipmentProcessingEvent createEvent(Long shipmentId) {
-        RecoveredPlasmaShipment  payload = Mockito.mock(RecoveredPlasmaShipment.class);
-        Mockito.when(payload.getId()).thenReturn(shipmentId);
-        return new RecoveredPlasmaShipmentProcessingEvent(payload);
-    }
-
-    private RecoveredPlasmaShipment createShipment(Long shipmentId) {
-        RecoveredPlasmaShipment shipment = Mockito.mock(RecoveredPlasmaShipment.class);
-        Mockito.when(shipment.getId()).thenReturn(shipmentId);
-        Mockito.when(shipment.getLocationCode()).thenReturn("LocationCode");
-        return shipment;
-    }
-
-    private CartonItem createCartonItem(Long shipmentId) {
         CartonItem cartonItem = Mockito.mock(CartonItem.class);
-        Mockito.when(cartonItem.getUnitNumber()).thenReturn("UNIT_NUMBER");
-        Mockito.when(cartonItem.getProductCode()).thenReturn("PRODUCT_CODE");
-        return cartonItem;
+
+        InventoryValidation inventoryValidation = Mockito.mock(InventoryValidation.class, RETURNS_DEEP_STUBS);
+        InventoryNotification notification = Mockito.mock(InventoryNotification.class , RETURNS_DEEP_STUBS);
+        when(notification.getErrorName()).thenReturn("INVENTORY_IS_PACKED");
+        when(inventoryValidation.getFirstNotification()).thenReturn(notification);
+
+
+
+        when(recoveredPlasmaShippingRepository.findOneById(shipmentId)).thenReturn(Mono.just(shipmentMock));
+        when(unacceptableUnitReportRepository.deleteAllByShipmentId(shipmentId)).thenReturn(Mono.empty());
+        when(cartonItemRepository.findAllByShipmentId(shipmentId)).thenReturn(Flux.just(cartonItem));
+
+        when(inventoryService.validateInventoryBatch(any())).thenReturn(Flux.just(inventoryValidation));
+        when(recoveredPlasmaShippingRepository.update(any())).thenReturn(Mono.just(shipmentMock));
+
+        // When
+        Mono<RecoveredPlasmaShipment> result = useCase.onRecoveredPlasmaShipmentProcessing(event);
+
+        // Then
+        StepVerifier.create(result)
+            .expectNext(shipmentMock)
+            .verifyComplete();
+
+        verify(recoveredPlasmaShippingRepository,times(1)).findOneById(shipmentId);
+        verify(unacceptableUnitReportRepository).deleteAllByShipmentId(shipmentId);
+        verify(cartonItemRepository).findAllByShipmentId(shipmentId);
+        verify(inventoryService).validateInventoryBatch(any());
+        verify(unacceptableUnitReportRepository,times(0)).save(Mockito.any());
+        verify(recoveredPlasmaShippingRepository,times(1)).update(any());
+        verify(cartonItemRepository,times(0)).findOneByShipmentIdAndProduct(Mockito.anyLong(),Mockito.anyString(),Mockito.anyString());
     }
 
-    private Carton createCarton() {
-        Carton carton = Mockito.mock(Carton.class);
-        Mockito.when(carton.getCartonNumber()).thenReturn("CARTON_NUMBER");
-        Mockito.when(carton.getCartonSequence()).thenReturn(1);
-        return carton;
+    @Test
+    void shouldProcessShipmentSuccessfullyAndCloseWhenNoInventoryIssue() {
+        // Given
+        Long shipmentId = 123L;
+        RecoveredPlasmaShipment shipmentMock = Mockito.mock(RecoveredPlasmaShipment.class);
+        when(shipmentMock.getId()).thenReturn(shipmentId);
+
+        RecoveredPlasmaShipmentProcessingEvent event = new RecoveredPlasmaShipmentProcessingEvent(shipmentMock);
+
+        CartonItem cartonItem = Mockito.mock(CartonItem.class);
+
+        when(recoveredPlasmaShippingRepository.findOneById(shipmentId)).thenReturn(Mono.just(shipmentMock));
+        when(unacceptableUnitReportRepository.deleteAllByShipmentId(shipmentId)).thenReturn(Mono.empty());
+        when(cartonItemRepository.findAllByShipmentId(shipmentId)).thenReturn(Flux.just(cartonItem));
+
+        when(inventoryService.validateInventoryBatch(any())).thenReturn(Flux.empty());
+
+        RecoveredPlasmaShipment shipmentUpdateMock = Mockito.mock(RecoveredPlasmaShipment.class);
+        when(shipmentUpdateMock.getStatus()).thenReturn("CLOSED");
+
+        Mockito.when(shipmentMock.completeProcessing(Mockito.any())).thenReturn(shipmentUpdateMock);
+
+        when(recoveredPlasmaShippingRepository.update(any())).thenReturn(Mono.just(shipmentUpdateMock));
+
+        // When
+        Mono<RecoveredPlasmaShipment> result = useCase.onRecoveredPlasmaShipmentProcessing(event);
+
+        // Then
+        StepVerifier.create(result)
+            .expectNext(shipmentUpdateMock)
+            .verifyComplete();
+
+        verify(recoveredPlasmaShippingRepository,times(1)).findOneById(shipmentId);
+        verify(unacceptableUnitReportRepository).deleteAllByShipmentId(shipmentId);
+        verify(cartonItemRepository).findAllByShipmentId(shipmentId);
+        verify(inventoryService).validateInventoryBatch(any());
+        verify(unacceptableUnitReportRepository,times(0)).save(Mockito.any());
+        verify(recoveredPlasmaShippingRepository,times(1)).update(any());
+        verify(cartonItemRepository,times(0)).findOneByShipmentIdAndProduct(Mockito.anyLong(),Mockito.anyString(),Mockito.anyString());
+        verify(applicationEventPublisher,times(1)).publishEvent(Mockito.any(RecoveredPlasmaShipmentClosedEvent.class));
     }
 
-    private InventoryValidation createInventoryValidationWithError() {
-        InventoryValidation validation = Mockito.mock(InventoryValidation.class);
-        InventoryNotification notification = Mockito.mock(InventoryNotification.class);
-        Mockito.when(notification.getErrorMessage()).thenReturn("ERROR_MESSAGE");
+        @Test
+        void shouldHandleShipmentNotFound() {
+            // Given
+            Long shipmentId = 1L;
+            RecoveredPlasmaShipment shipmentMock = Mockito.mock(RecoveredPlasmaShipment.class);
+            when(shipmentMock.getId()).thenReturn(shipmentId);
 
-        Mockito.when(validation.getFirstNotification()).thenReturn(notification);
-        return validation;
-    }
+            RecoveredPlasmaShipmentProcessingEvent event = new RecoveredPlasmaShipmentProcessingEvent(shipmentMock);
+
+            when(recoveredPlasmaShippingRepository.findOneById(shipmentId))
+                .thenReturn(Mono.empty());
+
+            // When
+            Mono<RecoveredPlasmaShipment> result = useCase.onRecoveredPlasmaShipmentProcessing(event);
+
+            // Then
+            StepVerifier.create(result)
+                .verifyComplete();
+        }
+
+        @Test
+        void shouldHandleProcessingError() {
+            // Given
+            Long shipmentId = 456L;
+
+            var mockShipment = Mockito.mock(RecoveredPlasmaShipment.class);
+            when(mockShipment.getId()).thenReturn(shipmentId);
+
+            RecoveredPlasmaShipmentProcessingEvent event = new RecoveredPlasmaShipmentProcessingEvent(mockShipment);
+            RuntimeException processingError = new RuntimeException("Processing failed");
+
+            when(recoveredPlasmaShippingRepository.findOneById(shipmentId)).thenReturn(Mono.just(mockShipment));
+            when(unacceptableUnitReportRepository.deleteAllByShipmentId(shipmentId)).thenReturn(Mono.error(processingError));
+            when(recoveredPlasmaShippingRepository.update(any())).thenReturn(Mono.just(mockShipment));
+
+            // When
+            Mono<RecoveredPlasmaShipment> result = useCase.onRecoveredPlasmaShipmentProcessing(event);
+
+            // Then
+            StepVerifier.create(result)
+                .expectNext(mockShipment)
+                .verifyComplete();
+
+            verify(recoveredPlasmaShippingRepository).update(any());
+        }
+
+        // Helper methods to create test objects
+        private RecoveredPlasmaShipmentProcessingEvent createProcessingEvent(Long shipmentId) {
+            return new RecoveredPlasmaShipmentProcessingEvent(createShipment(shipmentId));
+        }
+
+        private RecoveredPlasmaShipment createShipment(Long shipmentId) {
+            RecoveredPlasmaShipment recoveredPlasmaShipment = Mockito.mock(RecoveredPlasmaShipment.class);
+            when(recoveredPlasmaShipment.getId()).thenReturn(shipmentId);
+            when(recoveredPlasmaShipment.getStatus()).thenReturn("PROCESSING");
+            when(recoveredPlasmaShipment.getLocationCode()).thenReturn("LOC123");
+
+            return recoveredPlasmaShipment;
+        }
+
+        private CartonItem createCartonItem() {
+            CartonItem cartonItem = Mockito.mock(CartonItem.class, RETURNS_DEEP_STUBS);
+            when(cartonItem.getUnitNumber()).thenReturn("UNIT123");
+            when(cartonItem.getProductCode()).thenReturn("PROD123");
+           return cartonItem;
+
+        }
+
+        private InventoryValidation createInventoryValidation(String errorName) {
+            InventoryValidation inventoryValidation = Mockito.mock(InventoryValidation.class, RETURNS_DEEP_STUBS);
+            Inventory inventory = Mockito.mock(Inventory.class , RETURNS_DEEP_STUBS);
+            when(inventory.getUnitNumber()).thenReturn("UNIT123");
+            when(inventory.getProductCode()).thenReturn("PROD123");
+
+            when(inventoryValidation.getInventory()).thenReturn(inventory);
+
+            InventoryNotification notification = Mockito.mock(InventoryNotification.class , RETURNS_DEEP_STUBS);
+            when(notification.getErrorName()).thenReturn(errorName);
+            when(notification.getErrorMessage()).thenReturn("Error message");
+            when(inventoryValidation.getFirstNotification()).thenReturn(notification);
+
+           return  inventoryValidation;
+        }
+
 }
 

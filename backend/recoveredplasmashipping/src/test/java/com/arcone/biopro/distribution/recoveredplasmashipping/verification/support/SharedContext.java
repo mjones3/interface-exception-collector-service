@@ -61,4 +61,6 @@ public class SharedContext {
     private Map lastCartonPackingSlipResponse;
 
     private Map lastUnacceptableUnitsReportResponse;
+
+    private Map lastShippingSummaryReportResponse;
 }

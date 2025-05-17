@@ -1,7 +1,5 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.vo;
 
-import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Carton;
-import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.CartonItem;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.ProductType;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.RecoveredPlasmaShipment;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Validatable;
@@ -12,7 +10,6 @@ import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Getter
@@ -22,7 +19,6 @@ import java.util.List;
 public class ShippingSummaryShipmentDetail implements Validatable {
 
     private String shipmentNumber;
-    private LocalDate shipmentDate;
     private String productType;
     private final String productCode;
     private final int totalNumberOfCartons;
@@ -30,7 +26,7 @@ public class ShippingSummaryShipmentDetail implements Validatable {
     private final String transportationReferenceNumber;
     private final boolean displayTransportationNumber;
 
-    public ShippingSummaryShipmentDetail(final RecoveredPlasmaShipment recoveredPlasmaShipment, final List<Carton> cartonList , String displayTransportationNumberConfiguration , RecoveredPlasmaShipmentCriteriaRepository recoveredPlasmaShipmentCriteriaRepository ) {
+    public ShippingSummaryShipmentDetail(final RecoveredPlasmaShipment recoveredPlasmaShipment, final List<ShippingSummaryCartonItem> cartonList , String displayTransportationNumberConfiguration , RecoveredPlasmaShipmentCriteriaRepository recoveredPlasmaShipmentCriteriaRepository ) {
 
         this.setShipmentDetails(recoveredPlasmaShipment);
         this.productType = getProductType(recoveredPlasmaShipment.getProductType(), recoveredPlasmaShipmentCriteriaRepository);
@@ -53,10 +49,6 @@ public class ShippingSummaryShipmentDetail implements Validatable {
             throw new IllegalArgumentException("Shipment Number is required");
         }
 
-        if(shipmentDate == null){
-            throw new IllegalArgumentException("Shipment Date is required");
-        }
-
         if(productType == null || productType.isBlank()){
             throw new IllegalArgumentException("Product Type is required");
         }
@@ -69,24 +61,22 @@ public class ShippingSummaryShipmentDetail implements Validatable {
         }
 
         this.shipmentNumber = recoveredPlasmaShipment.getShipmentNumber();
-        this.shipmentDate = recoveredPlasmaShipment.getShipmentDate();
         this.productType = recoveredPlasmaShipment.getProductType();
     }
 
-    private int getTotalNumberOfProducts(List<Carton> cartonList) {
+    private int getTotalNumberOfProducts(List<ShippingSummaryCartonItem> cartonList) {
         if(cartonList == null || cartonList.isEmpty()){
             return 0;
         }
-        return cartonList.stream().mapToInt(Carton::getTotalProducts).sum();
+        return cartonList.stream().mapToInt(ShippingSummaryCartonItem::getTotalProducts).sum();
     }
 
-    private String getProductCodes(final List<Carton> cartonList) {
+    private String getProductCodes(final List<ShippingSummaryCartonItem> cartonList) {
         if(cartonList == null || cartonList.isEmpty()){
             return "";
         }
         return cartonList.stream()
-            .flatMap(carton -> carton.getProducts().stream())
-            .map(CartonItem::getProductCode)
+            .map(ShippingSummaryCartonItem::getProductCode)
             .distinct()
             .reduce((productCode1, productCode2) -> productCode1 + ", " + productCode2)
             .orElse("");
@@ -104,3 +94,4 @@ public class ShippingSummaryShipmentDetail implements Validatable {
             .block();
     }
 }
+
