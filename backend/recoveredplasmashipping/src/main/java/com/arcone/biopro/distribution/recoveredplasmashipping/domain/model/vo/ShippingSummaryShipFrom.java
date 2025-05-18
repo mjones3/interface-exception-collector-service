@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.vo;
 
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Location;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.LocationProperty;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Validatable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -16,12 +17,14 @@ public class ShippingSummaryShipFrom implements Validatable {
     private final String bloodCenterName;
     private final String addressFormat;
     private final String locationAddress;
+    private final String phoneNumber;
 
 
     public ShippingSummaryShipFrom(String bloodCenterName, Location location, String addressFormat) {
         this.bloodCenterName = bloodCenterName;
         this.addressFormat = addressFormat;
         this.locationAddress = getLocationAddressFormatted(location);
+        this.phoneNumber = getLocationPhoneNumber(location);
         checkValid();
     }
 
@@ -48,5 +51,15 @@ public class ShippingSummaryShipFrom implements Validatable {
             .replace("{state}", location.getState())
             .replace("{zipCode}", location.getPostalCode())
             .replace("{country}","USA");
+    }
+
+    private String getLocationPhoneNumber(Location location){
+        if(location == null){
+            throw new IllegalArgumentException("Location is required");
+        }
+
+        return location.findProperty("PHONE_NUMBER")
+            .map(LocationProperty::getPropertyValue)
+            .orElse(null);
     }
 }

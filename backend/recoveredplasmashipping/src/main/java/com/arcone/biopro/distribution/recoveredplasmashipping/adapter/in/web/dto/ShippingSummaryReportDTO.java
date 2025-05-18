@@ -24,6 +24,7 @@ public record ShippingSummaryReportDTO(
     String shipToCustomerName,
     String shipFromBloodCenterName,
     String shipFromLocationAddress,
+    String shipFromPhoneNumber,
     String testingStatement,
     boolean displayHeader,
     String headerStatement,

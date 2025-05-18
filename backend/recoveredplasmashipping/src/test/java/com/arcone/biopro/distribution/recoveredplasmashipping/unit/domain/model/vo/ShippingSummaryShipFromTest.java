@@ -1,9 +1,12 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.unit.domain.model.vo;
 
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Location;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.LocationProperty;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.vo.ShippingSummaryShipFrom;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -25,6 +28,7 @@ class ShippingSummaryShipFromTest {
         when(location.getCity()).thenReturn("Boston");
         when(location.getState()).thenReturn("MA");
         when(location.getPostalCode()).thenReturn("02108");
+        when(location.findProperty("PHONE_NUMBER")).thenReturn(Optional.of(new LocationProperty(1L,"PHONE_NUMBER","123-456-7894")));
 
         // Act
         ShippingSummaryShipFrom shipFrom = new ShippingSummaryShipFrom(
@@ -38,6 +42,7 @@ class ShippingSummaryShipFromTest {
         // Verify the formatted address
         String expectedAddress = "123 Main St, Boston, MA 02108 USA";
         assertEquals(expectedAddress, shipFrom.getLocationAddress());
+        assertEquals("123-456-7894", shipFrom.getPhoneNumber());
     }
 
     @Test

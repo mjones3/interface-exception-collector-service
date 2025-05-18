@@ -78,6 +78,7 @@ public class ShippingSummaryShipmentDetail implements Validatable {
         return cartonList.stream()
             .map(ShippingSummaryCartonItem::getProductCode)
             .distinct()
+            .sorted()
             .reduce((productCode1, productCode2) -> productCode1 + ", " + productCode2)
             .orElse("");
     }

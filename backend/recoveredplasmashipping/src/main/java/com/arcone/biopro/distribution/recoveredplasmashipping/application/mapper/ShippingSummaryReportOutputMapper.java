@@ -23,6 +23,7 @@ public interface ShippingSummaryReportOutputMapper {
     @Mapping(source = "shippingSummaryReport.shipTo.customerName", target = "shipToCustomerName")
     @Mapping(source = "shippingSummaryReport.shipFrom.bloodCenterName", target = "shipFromBloodCenterName")
     @Mapping(source = "shippingSummaryReport.shipFrom.locationAddress", target = "shipFromLocationAddress")
+    @Mapping(source = "shippingSummaryReport.shipFrom.phoneNumber", target = "shipFromPhoneNumber")
     ShippingSummaryReportOutput toOutput(ShippingSummaryReport shippingSummaryReport);
 
     ShippingSummaryCartonItemOutput toOutput(ShippingSummaryCartonItem shippingSummaryCartonItem);

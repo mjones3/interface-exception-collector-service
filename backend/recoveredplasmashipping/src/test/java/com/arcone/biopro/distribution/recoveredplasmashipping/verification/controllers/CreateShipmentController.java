@@ -157,7 +157,7 @@ public class CreateShipmentController {
         String payload = GraphQLQueryMapper.printShippingSummaryReport(Integer.parseInt(shipmentId), sharedContext.getEmployeeId(),locationCode);
         var response = apiHelper.graphQlRequest(payload, "printShippingSummaryReport");
         sharedContext.setLastShippingSummaryReportResponse((Map) response.get("data"));
-        return (Map) response.get("data");
+        return response;
     }
 
 
