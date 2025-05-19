@@ -18,7 +18,6 @@ import { ShippingSummaryReportDTO } from '../../graphql/query-definitions/print-
         MatDialogClose,
         MatIconButton,
         MatDialogTitle,
-        DatePipe
     ],
   templateUrl: './view-shipping-summary.component.html',
   styleUrl: './view-shipping-summary.component.scss'
@@ -30,7 +29,7 @@ export class ViewShippingSummaryComponent extends PrintableReportComponent {
 
     constructor(
         protected domSanitizer: DomSanitizer,
-        @Inject(MAT_DIALOG_DATA) protected data: ShippingSummaryReportDTO
+        @Inject(MAT_DIALOG_DATA) public data: ShippingSummaryReportDTO
     ) {
         super(domSanitizer);
     }
