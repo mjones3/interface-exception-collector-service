@@ -71,7 +71,7 @@ class ShippingSummaryReportTest {
             createSystemProperty(1L,"RPS_SHIPPING_SUMMARY_REPORT","USE_TRANSPORTATION_NUMBER", "Y"),
             createSystemProperty(1L,"RPS_SHIPPING_SUMMARY_REPORT","USE_HEADER_SECTION", "Y"),
             createSystemProperty(1L,"RPS_SHIPPING_SUMMARY_REPORT","DATE_FORMAT", "MM/dd/yyyy"),
-            createSystemProperty(1L,"RPS_SHIPPING_SUMMARY_REPORT","DATE_TIME_FORMAT", "MM/dd/yyyy HH:mm:ss"),
+            createSystemProperty(1L,"RPS_SHIPPING_SUMMARY_REPORT","DATE_TIME_FORMAT", "MM/dd/yyyy HH:mm z"),
             createSystemProperty(1L,"RPS_SHIPPING_SUMMARY_REPORT","TESTING_STATEMENT_TXT", "Test Statement"),
             createSystemProperty(1L,"RPS_SHIPPING_SUMMARY_REPORT","USE_TESTING_STATEMENT", "Y"),
             createSystemProperty(1L,"RPS_SHIPPING_SUMMARY_REPORT","ADDRESS_FORMAT", "{address} {city}, {state}, {zipCode} {country}"),

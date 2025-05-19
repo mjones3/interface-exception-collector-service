@@ -159,7 +159,7 @@ public class PrintShippingSummarySteps {
             Assert.assertEquals(printSummaryResponseData.get("employeeName").toString(), table.get("Shipment Closing Details Employee Name"));
         }
         if(table.get("Shipment Closing Details Date") != null){
-            Assert.assertEquals(printSummaryResponseData.get("shipDate").toString(), testUtils.parseDataKeyword(table.get("Shipment Closing Details Date")));
+            Assert.assertEquals(printSummaryResponseData.get("closeDate").toString(), testUtils.parseDataKeyword(table.get("Shipment Closing Details Date")));
         }
     }
 

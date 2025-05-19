@@ -65,7 +65,7 @@ Feature: Print Shipment Summary
                 | Carton Information Total Number of Products       | 1,1,1                                                                                                                                  |
                 | Testing Statement                                 | All products in this shipment meet FDA and ARC-One Solutions testing requirements. These units are acceptable for further manufacture. |
                 | Shipment Closing Details Employee Name           | 5db1da0b-6392-45ff-86d0-17265ea33226                                                                                                   |
-                | Shipment Closing Details Date                    | <tomorrow_formatted>                                                                                                                      |
+                | Shipment Closing Details Date                    | <today_formatted>                                                                                                                      |
 
 
     Rule: I should not be able to print a shipping summary when the shipment status is not CLOSED.
