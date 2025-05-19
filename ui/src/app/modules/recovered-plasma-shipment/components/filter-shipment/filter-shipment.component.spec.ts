@@ -16,7 +16,6 @@ import { MultipleSelectComponent } from '../../../../shared/components/multiple-
 import { DateRangePickerComponent } from '../../../../shared/components/date-range-picker/date-range-picker.component';
 import { MatNativeDateModule } from '@angular/material/core';
 import { AuthState } from 'app/core/state/auth/auth.reducer';
-import { ToastrModule } from 'ngx-toastr';
 
 describe('FilterShipmentComponent', () => {
     let component: FilterShipmentComponent;
@@ -45,9 +44,8 @@ describe('FilterShipmentComponent', () => {
                 MultipleSelectComponent,
                 DateRangePickerComponent,
                 MatNativeDateModule,
-                ToastrModule.forRoot()
             ],
-            providers: [provideHttpClient(), provideMockStore({}), FormBuilder],
+            providers: [provideHttpClient(), provideMockStore({initialState}), FormBuilder],
         }).compileComponents();
 
         fixture = TestBed.createComponent(FilterShipmentComponent);
