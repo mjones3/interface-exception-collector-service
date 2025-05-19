@@ -7,7 +7,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ApolloError, NetworkStatus } from '@apollo/client';
 import { ProcessHeaderService } from '@shared';
 import { CookieService } from 'ngx-cookie-service';
-import { ToastrService } from 'ngx-toastr';
+import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { of, throwError } from 'rxjs';
 import { DateRangePickerComponent } from '../../../../shared/components/date-range-picker/date-range-picker.component';
 import { MultipleSelectComponent } from '../../../../shared/components/multiple-select/multiple-select.component';
@@ -55,6 +55,7 @@ describe('SearchShipmentComponent', () => {
                 MultipleSelectComponent,
                 DateRangePickerComponent,
                 MatNativeDateModule,
+                ToastrModule.forRoot()
             ],
             providers: [
                 ProcessHeaderService,

@@ -6,7 +6,6 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApolloError, ApolloQueryResult } from '@apollo/client';
 import { Store } from '@ngrx/store';
-import { ToastrImplService } from '@shared';
 import { CookieService } from 'ngx-cookie-service';
 import { of, throwError } from 'rxjs';
 import { UseCaseResponseDTO } from '../../../../shared/models/use-case-response.dto';
@@ -18,13 +17,14 @@ import { BrowserPrintingService } from '../../../../core/services/browser-printi
 import { ViewShippingCartonPackingSlipComponent } from '../view-shipping-carton-packing-slip/view-shipping-carton-packing-slip.component';
 import { CartonPackingSlipDTO } from '../../graphql/query-definitions/generate-carton-packing-slip.graphql';
 import { RepackCartonDialogComponent } from '../repack-carton-dialog/repack-carton-dialog.component';
+import { ToastrModule, ToastrService } from 'ngx-toastr';
 
 describe('RecoveredPlasmaShippingDetailsComponent', () => {
     let component: RecoveredPlasmaShippingDetailsComponent;
     let fixture: ComponentFixture<RecoveredPlasmaShippingDetailsComponent>;
     let mockRouter: jest.Mocked<Router>;
     let mockRecoveredPlasmaService: jest.Mocked<RecoveredPlasmaService>;
-    let mockToastrService: jest.Mocked<ToastrImplService>;
+    let mockToastrService: jest.Mocked<ToastrService>;
     let mockStore: jest.Mocked<Store>;
     let cookieService: jest.Mocked<CookieService>;
     let mockMatDialog: jest.Mocked<MatDialog>;
@@ -67,7 +67,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
             success: jest.fn(),
             warning: jest.fn(),
             show: jest.fn(),
-        } as Partial<ToastrImplService> as jest.Mocked<ToastrImplService>;
+        } as Partial<ToastrService> as jest.Mocked<ToastrService>;
 
         mockStore = {
             select: jest.fn(),
@@ -100,13 +100,14 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
                 NoopAnimationsModule,
                 CommonModule,
                 MatIconTestingModule,
+                ToastrModule.forRoot()
             ],
             providers: [
                 DatePipe,
                 { provide: ActivatedRoute, useValue: mockActivatedRoute },
                 { provide: Router, useValue: mockRouter },
                 { provide: RecoveredPlasmaService, useValue: mockRecoveredPlasmaService },
-                { provide: ToastrImplService, useValue: mockToastrService },
+                { provide: ToastrService, useValue: mockToastrService },
                 { provide: CookieService, useValue: cookieService },
                 { provide: Store, useValue: mockStore },
                 { provide: MatDialog, useValue: mockMatDialog },

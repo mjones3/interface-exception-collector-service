@@ -15,7 +15,7 @@ import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApolloError } from '@apollo/client';
 import { Store } from '@ngrx/store';
-import { ProcessHeaderComponent, ProcessHeaderService, TableConfiguration, ToastrImplService } from '@shared';
+import { ProcessHeaderComponent, ProcessHeaderService, TableConfiguration } from '@shared';
 import { ActionButtonComponent } from 'app/shared/components/buttons/action-button.component';
 import { BasicButtonComponent } from 'app/shared/components/buttons/basic-button.component';
 import { ProductIconsService } from 'app/shared/services/product-icon.service';
@@ -55,6 +55,7 @@ import {
     UnacceptableProductsReportWidgetComponent
 } from '../../shared/unacceptable-products-report-widget/unacceptable-products-report-widget.component';
 import { RepackCartonDialogComponent } from '../repack-carton-dialog/repack-carton-dialog.component';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
     selector: 'biopro-recovered-plasma-shipping-details',
@@ -137,7 +138,7 @@ export class RecoveredPlasmaShippingDetailsComponent
         protected store: Store,
         protected route: ActivatedRoute,
         protected router: Router,
-        protected toastr: ToastrImplService,
+        protected toastr: ToastrService,
         protected recoveredPlasmaService: RecoveredPlasmaService,
         protected cookieService: CookieService,
         protected productIconService: ProductIconsService,

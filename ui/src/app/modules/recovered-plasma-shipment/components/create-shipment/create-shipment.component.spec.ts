@@ -11,10 +11,9 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
 import { MutationResult, QueryResult } from '@apollo/client';
 import { provideMockStore } from '@ngrx/store/testing';
-import { ToastrImplService } from '@shared';
 import { ApolloTestingModule } from 'apollo-angular/testing';
 import { UseCaseResponseDTO } from 'app/shared/models/use-case-response.dto';
-import { ToastrModule } from 'ngx-toastr';
+import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { of } from 'rxjs';
 import { RecoveredPlasmaShipmentResponseDTO } from '../../models/recovered-plasma.dto';
 import { RecoveredPlasmaShipmentService } from '../../services/recovered-plasma-shipment.service';
@@ -26,7 +25,7 @@ describe('CreateShipmentComponent', () => {
     let fixture: ComponentFixture<CreateShipmentComponent>;
     let shipmentService: RecoveredPlasmaShipmentService;
     let recoveredPlasmaService: RecoveredPlasmaService;
-    let toastr: ToastrImplService;
+    let toastr: ToastrService;
     let router: Router;
     let dialogRef: MatDialogRef<CreateShipmentComponent>;
 
@@ -64,7 +63,7 @@ describe('CreateShipmentComponent', () => {
         dialogRef = TestBed.inject(MatDialogRef<CreateShipmentComponent>);
         router = TestBed.inject(Router);
         recoveredPlasmaService = TestBed.inject(RecoveredPlasmaService);
-        toastr = TestBed.inject(ToastrImplService);
+        toastr = TestBed.inject(ToastrService);
         jest.spyOn(shipmentService, 'getProductTypeOptions').mockReturnValue(
             of()
         );

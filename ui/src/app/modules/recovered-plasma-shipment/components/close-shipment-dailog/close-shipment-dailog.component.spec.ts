@@ -5,6 +5,7 @@ import { By } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatNativeDateModule } from '@angular/material/core';
+import { ToastrModule } from 'ngx-toastr';
 
 describe('CloseShipmentDailogComponent', () => {
   let component: CloseShipmentDailogComponent;
@@ -19,7 +20,8 @@ describe('CloseShipmentDailogComponent', () => {
         CloseShipmentDailogComponent,
         NoopAnimationsModule,
         ReactiveFormsModule,
-        MatNativeDateModule
+        MatNativeDateModule,
+        ToastrModule.forRoot()
       ],
       providers: [
         { 

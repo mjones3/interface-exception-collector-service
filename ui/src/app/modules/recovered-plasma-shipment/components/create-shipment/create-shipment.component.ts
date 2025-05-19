@@ -26,7 +26,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { Router } from '@angular/router';
 import { ApolloError } from '@apollo/client';
 import { Store } from '@ngrx/store';
-import { ToastrImplService } from '@shared';
 import { ERROR_MESSAGE } from 'app/core/data/common-labels';
 import { getAuthState } from 'app/core/state/auth/auth.selectors';
 import { BasicButtonComponent } from 'app/shared/components/buttons/basic-button.component';
@@ -49,6 +48,7 @@ import { RecoveredPlasmaCustomerDTO } from '../../graphql/query-definitions/cust
 import { CreateShipmentRequestDTO } from '../../models/recovered-plasma.dto';
 import { RecoveredPlasmaShipmentService } from '../../services/recovered-plasma-shipment.service';
 import { RecoveredPlasmaService } from '../../services/recovered-plasma.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
     selector: 'biopro-create-shipment',
@@ -80,7 +80,7 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
         private fb: FormBuilder,
         public dialogRef: MatDialogRef<CreateShipmentComponent>,
         private router: Router,
-        private toastr: ToastrImplService,
+        private toastr: ToastrService,
         private store: Store,
         private cookieService: CookieService,
         private shipmentService: RecoveredPlasmaShipmentService,

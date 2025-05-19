@@ -3,11 +3,10 @@ import { VerifyRecoveredPlasmaProductsComponent } from './verify-recovered-plasm
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
-import { ToastrModule } from 'ngx-toastr';
+import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ScanUnitNumberProductCodeComponent } from 'app/shared/components/scan-unit-number-product-code/scan-unit-number-product-code.component';
 import { CookieService } from 'ngx-cookie-service';
-import { ToastrImplService } from '@shared';
 import { ProductIconsService } from 'app/shared/services/product-icon.service';
 import { RecoveredPlasmaService } from '../../services/recovered-plasma.service';
 import { MatDividerModule } from '@angular/material/divider';
@@ -18,7 +17,7 @@ describe('VerifyRecoveredPlasmaProductsComponent', () => {
   let mockStore: MockStore;
   let mockRecoveredPlasmaService: jest.Mocked<RecoveredPlasmaService>;
   let mockRouter: jest.Mocked<Router>;
-  let mockToastr: jest.Mocked<ToastrImplService>;
+  let mockToastr: jest.Mocked<ToastrService>;
   let mockProductIconsService: jest.Mocked<ProductIconsService>;
   let mockCookieService: jest.Mocked<CookieService>;
 
@@ -34,7 +33,7 @@ describe('VerifyRecoveredPlasmaProductsComponent', () => {
     mockToastr = {
       success: jest.fn(),
       error: jest.fn()
-    } as Partial<ToastrImplService> as jest.Mocked<ToastrImplService>;
+    } as Partial<ToastrService> as jest.Mocked<ToastrService>;
     
     mockProductIconsService = {
       getIconByProductFamily: jest.fn().mockReturnValue('plasma-icon')
@@ -64,7 +63,7 @@ describe('VerifyRecoveredPlasmaProductsComponent', () => {
           },
         },
         { provide: Router, useValue: mockRouter },
-        { provide: ToastrImplService, useValue: mockToastr },
+        { provide: ToastrService, useValue: mockToastr },
         { provide: ProductIconsService, useValue: mockProductIconsService },
         { provide: RecoveredPlasmaService, useValue: mockRecoveredPlasmaService },
         { provide: CookieService, useValue: mockCookieService }
