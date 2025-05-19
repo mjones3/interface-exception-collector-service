@@ -4,13 +4,13 @@ import { FormBuilder } from '@angular/forms';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ProcessHeaderService, ToastrImplService } from '@shared';
+import { ProcessHeaderService } from '@shared';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { ApolloTestingModule } from 'apollo-angular/testing';
 import { ScanUnitNumberProductCodeComponent } from 'app/shared/components/scan-unit-number-product-code/scan-unit-number-product-code.component';
 import { ProductIconsService } from 'app/shared/services/product-icon.service';
 import { CookieService } from 'ngx-cookie-service';
-import { ToastrModule } from 'ngx-toastr';
+import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { of } from 'rxjs';
 import { AddRecoveredPlasmaProductsComponent } from './add-recovered-plasma-products.component';
 import { RecoveredPlasmaService } from '../../services/recovered-plasma.service';
@@ -22,7 +22,7 @@ describe('AddRecoveredPlasmaProductsComponent', () => {
     let mockStore: MockStore;
     let mockRouter: jest.Mocked<Router>;
     let mockRecoveredPlasmaService: jest.Mocked<RecoveredPlasmaService>;
-    let mockToastrService: jest.Mocked<ToastrImplService>;
+    let mockToastrService: jest.Mocked<ToastrService>;
     let mockProductIconsService: jest.Mocked<ProductIconsService>;
     let mockCookieService: jest.Mocked<CookieService>;
     let mockProcessHeaderService: jest.Mocked<ProcessHeaderService>;
@@ -84,7 +84,7 @@ describe('AddRecoveredPlasmaProductsComponent', () => {
         mockToastrService = {
             success: jest.fn(),
             error: jest.fn()
-        } as Partial<ToastrImplService> as jest.Mocked<ToastrImplService>;
+        } as Partial<ToastrService> as jest.Mocked<ToastrService>;
         
         mockProductIconsService = {
             getIconByProductFamily: jest.fn().mockReturnValue('plasma-icon')
@@ -125,7 +125,7 @@ describe('AddRecoveredPlasmaProductsComponent', () => {
                 }),
                 { provide: Router, useValue: mockRouter },
                 { provide: RecoveredPlasmaService, useValue: mockRecoveredPlasmaService },
-                { provide: ToastrImplService, useValue: mockToastrService },
+                { provide: ToastrService, useValue: mockToastrService },
                 { provide: ProductIconsService, useValue: mockProductIconsService },
                 { provide: CookieService, useValue: mockCookieService },
                 { provide: ProcessHeaderService, useValue: mockProcessHeaderService },
