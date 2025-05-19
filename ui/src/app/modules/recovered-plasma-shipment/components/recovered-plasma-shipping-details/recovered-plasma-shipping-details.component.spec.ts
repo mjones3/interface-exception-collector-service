@@ -1,4 +1,4 @@
-import { CommonModule, DatePipe, formatDate } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { By } from '@angular/platform-browser';
@@ -595,7 +595,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
 
         it('should navigate to next URL when repackCarton API call succeeds', () => {
             mockDialogRef.afterClosed.mockReturnValue(of(req));
-            
+
             mockRecoveredPlasmaService.repackCarton.mockReturnValue(of(repackMockData));
             component.repackCarton(cartonId);
             expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('/test-url');
@@ -606,7 +606,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
             const responseWithoutNextUrl = {
                 data: {
                     repackCarton: {
-                        notifications: [{ 
+                        notifications: [{
                             message: "Products successfully removed",
                             type: "SUCCESS",
                             code: 18
@@ -615,11 +615,11 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
                             id: 1,
                             cartonNumber: "BPMMH11"
                         },
-                        _links: {} 
+                        _links: {}
                     }
                 }
             };
-            
+
             mockRecoveredPlasmaService.repackCarton.mockReturnValue(of(responseWithoutNextUrl));
             component.repackCarton(cartonId);
             expect(mockRouter.navigateByUrl).not.toHaveBeenCalled();
@@ -628,7 +628,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         it('should not make API call when dialog is closed without comments (undefined)', () => {
             // Setup the dialog to return undefined when closed (cancel button)
             mockDialogRef.afterClosed.mockReturnValue(of(undefined));
-            
+
             component.repackCarton(cartonId);
             expect(mockMatDialog.open).toHaveBeenCalled();
             expect(mockRecoveredPlasmaService.repackCarton).not.toHaveBeenCalled();
@@ -640,7 +640,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
                 errorMessage: 'Network error',
             });
             mockRecoveredPlasmaService.repackCarton.mockReturnValue(throwError(() => mockError));
-            
+
             component.repackCarton(cartonId);
             expect(mockToastrService.error).toHaveBeenCalled();
         });
@@ -648,7 +648,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         it('should display notifications from API response', () => {
             mockDialogRef.afterClosed.mockReturnValue(of(req));
             mockRecoveredPlasmaService.repackCarton.mockReturnValue(of(repackMockData));
-            
+
             component.repackCarton(cartonId);
             expect(mockToastrService.show).toHaveBeenCalled();
         });

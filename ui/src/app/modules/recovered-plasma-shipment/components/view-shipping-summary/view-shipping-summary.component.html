@@ -1,0 +1,161 @@
+<div class="relative" mat-dialog-title>
+    <button
+        title="Close"
+        class="absolute top-0 right-0 pr-6 pt-6"
+        mat-icon-button
+        mat-dialog-close
+    >
+        <mat-icon svgIcon="close"></mat-icon>
+    </button>
+</div>
+<div id="viewShippingSummaryReport" class="h-full mx-6 mb-6 overflow-auto" style="font-family: sans-serif;">
+    @if (data; as report) {
+    <div class="text-center text-xl mb-4">{{ report.shipFromBloodCenterName }}</div>
+    <div class="mx-10 mb-6 text-3xl text-blue-900 border-b-2 border-b-blue-700">
+        Plasma Shipment Summary Report
+    </div>
+    <div class="flex flex-col gap-8">
+        <!-- Ship From/To Section -->
+        <div class="flex flex-row gap-10 mx-10">
+            <div class="flex flex-col flex-1 gap-2">
+                <strong class="block">Ship To:</strong>
+                <table data-testid="ship-to-blood-center" class="w-full grid-borders">
+                    <tbody>
+                        <tr><td><strong>{{ report.shipToCustomerName }}</strong></td></tr>
+                        <tr><td><strong>{{ report.shipToAddress }}</strong></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="flex flex-col flex-1 gap-2">
+                <strong class="block">Ship From:</strong>
+                <table data-testid="ship-from-blood-center" class="w-full grid-borders">
+                    <tbody>
+                    <tr><td><strong>{{ report.shipFromBloodCenterName }}</strong></td></tr>
+                    <tr><td><strong>{{ report.shipFromLocationAddress }}</strong></td></tr>
+                    <tr><td><strong>{{ report.shipFromPhoneNumber }}</strong></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Shipment Details Section -->
+        <div class="flex flex-col flex-1 gap-2 mx-10">
+            <strong class="block">Shipment Details:</strong>
+            <table data-testid="shipment-details" class="w-full table-fixed grid-borders">
+                <tbody>
+                <tr>
+                    <td><strong>Transportation Reference Number:</strong></td>
+                    <td>{{ report.shipmentDetailTransportationReferenceNumber }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Shipment Number:</strong></td>
+                    <td>{{ report.shipmentDetailShipmentNumber }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Shipment Date/Time:</strong></td>
+                    <td>{{ report.closeDateTime | date: 'MM/dd/yyyy HH:mm' }} {{ localTimezone }}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Product Shipped Section -->
+        <div class="flex flex-col flex-1 gap-2 mx-10">
+            <strong class="block">Product Shipped:</strong>
+            <table data-testid="product-shipped" class="w-full table-fixed grid-borders">
+                <tbody>
+                <tr>
+                    <td><strong>Product Type:</strong></td>
+                    <td>{{ report.shipmentDetailProductType }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Product Code:</strong></td>
+                    <td>{{ report.shipmentDetailProductCode }}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Shipment Information Section -->
+        <div class="flex flex-col flex-1 gap-2 mx-10">
+            <strong class="block">Shipment Information:</strong>
+            <table data-testid="shipment-information" class="w-full table-fixed grid-borders">
+                <tbody>
+                <tr>
+                    <td><strong>Total Number of Cartons:</strong></td>
+                    <td>{{ report.shipmentDetailTotalNumberOfCartons }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Total Number of Products:</strong></td>
+                    <td>{{ report.shipmentDetailTotalNumberOfProducts }}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Carton Information Section -->
+        <div class="flex flex-col flex-1 gap-2 px-1">
+            <strong class="block">Carton Information:</strong>
+            <table data-testid="carton-information" class="w-full table-auto grid-borders">
+                <thead>
+                <tr>
+                    <th><strong>Carton Number</strong></th>
+                    <th><strong>Product Code</strong></th>
+                    <th><strong>Product Description</strong></th>
+                    <th><strong>Total Number of Products</strong></th>
+                </tr>
+                </thead>
+
+                <tbody>
+                    @for (carton of report.cartonList; track $index) {
+                        <tr>
+                            <td class="text-center">{{ carton.cartonNumber }}</td>
+                            <td class="text-center">{{ carton.productCode }}</td>
+                            <td class="text-center">{{ carton.productDescription }}</td>
+                            <td class="text-center">{{ carton.totalProducts }}</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Testing Statement Section -->
+        <div class="flex flex-col flex-1 gap-2 mx-10">
+            <strong class="block">Testing Statement:</strong>
+            <div data-testid="testing-statement">{{ report?.testingStatement }}</div>
+        </div>
+
+        <!-- Shipment Closing Details Section -->
+        <div class="flex flex-col flex-1 gap-2 mx-10">
+            <strong class="block">Shipment Closing Details:</strong>
+            <table data-testid="shipment-closing-details" class="w-full table-fixed grid-borders">
+                <tbody>
+                <tr>
+                    <td><strong>Employee Name:</strong></td>
+                    <td>{{ report.employeeName }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Employee Signature:</strong></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><strong>Date:</strong></td>
+                    <td>{{ today }}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    }
+</div>
+<div class="fixed inset-x-0 bottom-0 mb-12 text-center">
+    <biopro-action-button
+        id="viewShippingSummaryReportPrintBtn"
+        btnId="viewShippingSummaryReportPrintBtnId"
+        label="Print"
+        icon="hi_outline:printer"
+        (clickEvent)="print()"
+        class="opacity-75 hover:opacity-100 transition-opacity"
+    />
+</div>

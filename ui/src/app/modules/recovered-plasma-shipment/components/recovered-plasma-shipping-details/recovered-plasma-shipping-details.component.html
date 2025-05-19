@@ -23,15 +23,26 @@
                 (clickEvent)="backToSearch()"
             />
 
+            @if(shipmentDetailsSignal()?.canClose) {
             <biopro-action-button
                 id="completeId"
                 btnId="closeShipmentBtnId"
-                [disabled]="!shipmentDetailsSignal()?.canClose"
                 label="Close Shipment"
                 color="primary"
                 icon="check_circle_outline"
                 (clickEvent)="onClickCloseShipment()"
-        />
+            />
+            }
+            @if (shipmentDetailsSignal()?.status === 'CLOSED') {
+            <biopro-action-button
+                id="reportsDialogActionBtn"
+                btnId="reportsDialogBtnId"
+                label="Reports"
+                color="primary"
+                icon="heroicons_outline:document-arrow-down"
+                (clickEvent)="openReportsDialog()"
+            />
+            }
         </div>
     </ng-template>
 
@@ -130,12 +141,14 @@
 
 
         <div class="flex w-3/12 flex-col gap-4">
+            @if (shipmentDetailsSignal()?.status === 'PROCESSING' || shipmentDetailsSignal()?.lastUnsuitableReportRunDate) {
             <biopro-unacceptable-products-report-widget
                 [loading]="shipmentDetailsSignal()?.status === 'PROCESSING'"
                 [shipment]="shipmentDetailsSignal()"
                 [employeeId]="employeeIdSignal()"
                 [locationCode]="locationCodeComputed()"
             />
+            }
             <biopro-shipping-information-card
                 [isButtonDisabled]="true"
                 [showBasicButton]="true"
