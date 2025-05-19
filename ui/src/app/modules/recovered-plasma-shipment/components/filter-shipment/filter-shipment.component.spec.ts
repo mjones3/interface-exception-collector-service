@@ -15,11 +15,18 @@ import { FiltersComponent } from '../../../../shared/components/filters/filters.
 import { MultipleSelectComponent } from '../../../../shared/components/multiple-select/multiple-select.component';
 import { DateRangePickerComponent } from '../../../../shared/components/date-range-picker/date-range-picker.component';
 import { MatNativeDateModule } from '@angular/material/core';
+import { AuthState } from 'app/core/state/auth/auth.reducer';
 import { ToastrModule } from 'ngx-toastr';
 
 describe('FilterShipmentComponent', () => {
     let component: FilterShipmentComponent;
     let fixture: ComponentFixture<FilterShipmentComponent>;
+
+    const initialState: AuthState = {
+        id: 'mock-user-id',
+        loaded: true,
+    };
+
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({

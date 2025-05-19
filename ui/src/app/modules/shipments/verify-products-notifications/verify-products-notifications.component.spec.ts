@@ -1,16 +1,15 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router } from '@angular/router';
 import { provideMockStore } from '@ngrx/store/testing';
-import { ApolloModule } from 'apollo-angular';
 import { ApolloTestingModule } from 'apollo-angular/testing';
 import { ToastrModule } from 'ngx-toastr';
 import { of } from 'rxjs';
 import { ShipmentService } from '../services/shipment.service';
 import { VerifyProductsNotificationsComponent } from './verify-products-notifications.component';
+import { AuthState } from 'app/core/state/auth/auth.reducer';
 
 const SHIPMENT_ID = 1;
 describe('VerifyProductsNotificationsComponent', () => {
@@ -19,6 +18,11 @@ describe('VerifyProductsNotificationsComponent', () => {
     let shipmentService: ShipmentService;
     let router: Router;
 
+    const initialState: AuthState = {
+        id: 'mock-user-id',
+        loaded: true,
+    };
+
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [
@@ -26,12 +30,11 @@ describe('VerifyProductsNotificationsComponent', () => {
                 ApolloTestingModule,
                 NoopAnimationsModule,
                 MatIconTestingModule,
-                ApolloModule,
                 ToastrModule.forRoot(),
             ],
             providers: [
                 provideHttpClientTesting(),
-                provideMockStore({}),
+                provideMockStore({initialState}),
                 {
                     provide: ActivatedRoute,
                     useValue: {

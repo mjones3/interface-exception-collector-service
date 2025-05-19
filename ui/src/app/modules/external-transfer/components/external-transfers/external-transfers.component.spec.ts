@@ -23,6 +23,7 @@ import { of } from 'rxjs';
 import { ExternalTransferItemDTO } from '../../models/external-transfer.dto';
 import { ExternalTransferService } from '../../services/external-transfer.service';
 import { ExternalTransfersComponent } from './external-transfers.component';
+import { AuthState } from 'app/core/state/auth/auth.reducer';
 
 describe('ExternalTransfersComponent', () => {
     let component: ExternalTransfersComponent;
@@ -44,6 +45,11 @@ describe('ExternalTransfersComponent', () => {
         externalTransferId: 1,
     };
 
+    const initialState: AuthState = {
+        id: 'mock-user-id',
+        loaded: true,
+    };
+
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [
@@ -60,7 +66,7 @@ describe('ExternalTransfersComponent', () => {
             ],
             providers: [
                 ExternalTransferService,
-                provideMockStore({}),
+                provideMockStore({initialState}),
                 {
                     provide: MAT_DATE_FORMATS,
                     useValue: MAT_NATIVE_DATE_FORMATS,

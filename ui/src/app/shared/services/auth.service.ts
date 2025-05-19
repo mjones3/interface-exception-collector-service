@@ -2,7 +2,6 @@ import { HttpClient, HttpHeaders, HttpRequest } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { loadAuthSuccess } from 'app/core/state/auth/auth.actions';
-import Keycloak from 'keycloak-js';
 import { Subject, from } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {
@@ -13,6 +12,7 @@ import {
     ExcludedUrl,
     ExcludedUrlRegex,
 } from '../models';
+import Keycloak from 'keycloak-js';
 
 declare let dT_: any;
 
