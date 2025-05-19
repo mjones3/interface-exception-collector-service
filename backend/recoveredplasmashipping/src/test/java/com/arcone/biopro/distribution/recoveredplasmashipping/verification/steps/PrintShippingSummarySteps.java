@@ -3,10 +3,12 @@ package com.arcone.biopro.distribution.recoveredplasmashipping.verification.step
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.controllers.CartonTestingController;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.controllers.CreateShipmentController;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.pages.ShipmentDetailsPage;
+import com.arcone.biopro.distribution.recoveredplasmashipping.verification.pages.ShippingSummaryReportPage;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.DatabaseService;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.SharedContext;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.TestUtils;
 import io.cucumber.datatable.DataTable;
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -42,6 +44,9 @@ public class PrintShippingSummarySteps {
 
     @Autowired
     private CartonTestingController cartonTestingController;
+
+    @Autowired
+    private ShippingSummaryReportPage shippingSummaryReportPage;
 
     private Map printSummaryResponse;
     private Map printSummaryResponseData;
@@ -191,5 +196,98 @@ public class PrintShippingSummarySteps {
     public void theElementForThePropertyShouldHaveTheInTheShippingSummaryReport(String element, String elementProperty, String propertyValue) {
         this.printSummaryResponseData = (Map)  printSummaryResponse.get("data");
         Assert.assertEquals(printSummaryResponseData.get(elementProperty).toString(), propertyValue);
+    }
+
+    @Then("I should see the following information in the shipping summary report:")
+    public void iShouldSeeTheFollowingInformationInTheShippingSummaryReport(DataTable dataTable) {
+        Assert.assertNotNull(dataTable);
+
+        shippingSummaryReportPage.verifyShippingSummaryReportIsVisible();
+
+        Map<String, String> table = dataTable.asMap(String.class, String.class);
+
+
+        if(table.get("Report Title") != null){
+            Assert.assertTrue(shippingSummaryReportPage.verifyShippingSummaryReportTitle(table.get("Report Title")));
+        }
+
+        if(table.get("Header Section") != null){
+            Assert.assertTrue(shippingSummaryReportPage.verifyShippingSummaryReportHeader(table.get("Header Section")));
+        }
+
+        if(table.get("Testing Statement") != null){
+            Assert.assertEquals(shippingSummaryReportPage.getShippingSummaryReportTestingStatement(),table.get("Testing Statement"));
+        }
+
+        if(table.get("Ship To Customer Name") != null){
+            Assert.assertEquals(shippingSummaryReportPage.getShippingSummaryReportShipToCustomerName(),table.get("Ship To Customer Name"));
+        }
+
+        if(table.get("Ship To Customer Address") != null){
+            Assert.assertEquals(shippingSummaryReportPage.getShippingSummaryReportShipToAddress(),table.get("Ship To Customer Address"));
+        }
+
+        if(table.get("Ship From Facility Name") != null){
+            Assert.assertEquals(shippingSummaryReportPage.getShippingSummaryReportShipFromBloodCenterName(),table.get("Ship From Facility Name"));
+
+        }
+        if(table.get("Ship From Facility Address") != null){
+            Assert.assertEquals(shippingSummaryReportPage.getShippingSummaryReportShipFromAddress(),table.get("Ship From Facility Address"));
+
+        }
+        if(table.get("Ship From Phone") != null){
+            Assert.assertEquals(shippingSummaryReportPage.getShippingSummaryReportShipFromPhoneNumber(),table.get("Ship From Phone"));
+        }
+
+        if(table.get("Shipment Details Transportation Reference Number") != null){
+            Assert.assertEquals(shippingSummaryReportPage.getShipmentDetailsTransportationNumber(),table.get("Shipment Details Transportation Reference Number"));
+        }
+        if(table.get("Shipment Details Shipment Number Prefix") != null){
+            Assert.assertTrue(shippingSummaryReportPage.getShipmentDetailsShipNumber().contains(table.get("Shipment Details Shipment Number Prefix")));
+        }
+        if(table.get("Shipment Closed Date/Time") != null){
+            Assert.assertNotNull(shippingSummaryReportPage.getShipmentDetailsShipDateTime());
+        }
+
+        if(table.get("Shipment Details Product Type") != null){
+            Assert.assertEquals(shippingSummaryReportPage.getProductShippedProductType(),table.get("Shipment Details Product Type"));
+        }
+        if(table.get("Shipment Details Product Code") != null){
+            Assert.assertEquals(shippingSummaryReportPage.getProductShippedProductCode(),table.get("Shipment Details Product Code"));
+
+        }
+
+        if(table.get("Shipment Details Total Number of Cartons") != null){
+            Assert.assertEquals(shippingSummaryReportPage.getShipmentInformationTotalCartons(),table.get("Shipment Details Total Number of Cartons"));
+        }
+        if(table.get("Shipment Details Total Number of Products") != null){
+            Assert.assertEquals(shippingSummaryReportPage.getShipmentInformationTotalProducts(),table.get("Shipment Details Total Number of Products"));
+        }
+
+        if(table.get("Shipment Closing Details Employee Name") != null){
+            Assert.assertEquals(shippingSummaryReportPage.getClosingDetailsEmployeeName(),table.get("Shipment Closing Details Employee Name"));
+        }
+
+        if(table.get("Shipment Closing Employee Signature") != null){
+            Assert.assertEquals(shippingSummaryReportPage.getClosingDetailsEmployeeSignature(),table.get("Shipment Closing Employee Signature"));
+        }
+
+        if(table.get("Shipment Closing Details Date") != null){
+            var tableValue = table.get("Shipment Closing Details Date").replace("<today_formatted>",testUtils.parseDataKeyword("<today_formatted>"));
+            Assert.assertEquals(shippingSummaryReportPage.getClosingDetailsDate(),tableValue);
+        }
+    }
+
+    @And("I should see the following Carton Information information in the shipping summary report:")
+    public void iShouldSeeTheFollowingCartonInformationInformationInTheShippingSummaryReport(DataTable dataTable) {
+        Assert.assertNotNull(dataTable);
+        var headers = dataTable.row(0);
+        for (int i = 1; i < dataTable.height(); i++) {
+            var row = dataTable.row(i);
+            Assert.assertTrue(shippingSummaryReportPage.verifyCartonDetailRow(row.get(headers.indexOf("Carton Number Prefix"))
+                ,row.get(headers.indexOf("Product Code")),row.get(headers.indexOf("Product Description")),row.get(headers.indexOf("Total Number of Products"))));
+
+        }
+
     }
 }

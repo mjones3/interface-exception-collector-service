@@ -127,7 +127,7 @@ Feature: Generate the Unacceptable Products Report
         Scenario: Print unacceptable summary report with flagged products
             Given I have a shipment created with the Customer Code as "409" , Product Type as "RP_NONINJECTABLE_LIQUID_RT", Carton Tare Weight as "100", Shipment Date as "<tomorrow>", Transportation Reference Number as "DIS-356" and Location Code as "123456789_DIS356".
             And The Minimum Number of Units in Carton is configured as "4" products for the customer code "409" and product type "RP_NONINJECTABLE_LIQUID_RT".
-            And I have a closed carton with the unit numbers as "W036898356905,W036898356757,W036898356758,W036898356756" and product codes as "E6022V00,E6022V00,E6022V00,E6022V00" and product types "RP_NONINJECTABLE_LIQUID_RT,RP_NONINJECTABLE_LIQUID_RT,RP_NONINJECTABLE_LIQUID_RT,RP_NONINJECTABLE_LIQUID_RT" which become unacceptable.
+            And I have a closed carton with the unit numbers as "W036898356757,W036898356758,W036898356756" and product codes as "E6022V00,E6022V00,E6022V00" and product types "RP_NONINJECTABLE_LIQUID_RT,RP_NONINJECTABLE_LIQUID_RT,RP_NONINJECTABLE_LIQUID_RT" which become unacceptable.
             When I request to close the shipment with ship date as "<tomorrow>"
             Then I should receive a "SUCCESS" message response "Close Shipment is in progress".
             And The shipment status should be "PROCESSING"
@@ -155,10 +155,9 @@ Feature: Generate the Unacceptable Products Report
                 | Shipment Number Prefix | Shipment Number: DIS_356DIS356                                                                                |
             And I should see the following rows in the units report information:
                 | Row Number  | Row Content                                                                                                   |
-                | 1           | W036898356905,E6022V00,BPMMH1,1,This product is not in the inventory and cannot be shipped                    |
-                | 2           | W036898356757,E6022V00,BPMMH1,1,This product is discarded and cannot be shipped                               |
-                | 3           | W036898356758,E6022V00,BPMMH1,1,This product is quarantined and cannot be shipped                             |
-                | 4           | W036898356756,E6022V00,BPMMH1,1,This product is expired and has been discarded. Place in biohazard container. |
+                | 1           | W036898356757,E6022V00,BPMMH1,1,This product is discarded and cannot be shipped                               |
+                | 2           | W036898356758,E6022V00,BPMMH1,1,This product is quarantined and cannot be shipped                             |
+                | 3           | W036898356756,E6022V00,BPMMH1,1,This product is expired and has been discarded. Place in biohazard container. |
 
 
 

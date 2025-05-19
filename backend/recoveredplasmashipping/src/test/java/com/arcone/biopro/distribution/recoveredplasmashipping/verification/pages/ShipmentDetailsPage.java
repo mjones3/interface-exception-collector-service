@@ -36,7 +36,7 @@ public class ShipmentDetailsPage extends CommonPageFactory {
     private final By unacceptableProductsTable = By.id("unacceptableProductsTable");
     private final By cancelBtn = By.id("btnCancel");
     private final By repackComments = By.id("reasonCommentsId");
-
+    private final By reportsBtn = By.id("reportsDialogBtnId");
 
 
     private By addedCartonRow(String cartonNumberPrefix, String sequence, String status) {
@@ -80,6 +80,9 @@ public class ShipmentDetailsPage extends CommonPageFactory {
                 "//table[@id='cartonListTableId']//td[contains(.,'%s')]/following-sibling::td[contains(.,'%s')]/following-sibling::td[starts-with(@id,'statusRow')]",
                 cartonNumberPrefix, sequence, status));
     }
+
+
+
 
     @Autowired
     private SharedActions sharedActions;
@@ -279,5 +282,15 @@ public class ShipmentDetailsPage extends CommonPageFactory {
     public void clickConfirmRepackCarton() {
         sharedActions.click(confirmRepackCartonBtn);
     }
+
+    public boolean isReportsButtonEnabled() {
+        sharedActions.waitForVisible(reportsBtn);
+        return sharedActions.isElementVisible(reportsBtn);
+    }
+
+    public void clickPrintReportBtn() {
+        sharedActions.click(reportsBtn);
+    }
+
 
 }
