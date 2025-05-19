@@ -49,4 +49,5 @@ public class CloseCartonSteps {
             Assert.fail("Product status invalid for comparison");
         }
     }
+
 }

@@ -69,4 +69,13 @@ public class CartonEntity {
     @LastModifiedDate
     private ZonedDateTime modificationDate;
 
+    @Column("repack_employee_id")
+    private String repackEmployeeId;
+
+    @Column("repack_comments")
+    private String repackComments;
+
+    @Column("repack_date")
+    private ZonedDateTime repackDate;
+
 }

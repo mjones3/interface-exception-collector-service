@@ -203,7 +203,6 @@
                 mat-row
                 *matRowDef="let element; columns: columnsId()"
                 [class.expanded-row]="expandedElement === element"
-                (click)="expandCollapseRow(element)"
             ></tr>
 
             <!-- Row shown when there is no results -->

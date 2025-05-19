@@ -33,6 +33,15 @@ public class DatabaseQueries {
         return "DELETE FROM bld_recovered_plasma_shipment_carton_item WHERE carton_id IN (SELECT id FROM bld_recovered_plasma_shipment_carton WHERE recovered_plasma_shipment_id IN (SELECT id FROM bld_recovered_plasma_shipment WHERE location_code = '" + location + "' AND transportation_reference_number = '" + transportationRefNumber + "'))";
     }
 
+    public static String REMOVE_UNACCEPTABLE_UNIT_REPORT_BY_LOCATION_AND_TRANSPORTATION_REF_NUMBER(String location, String transportationRefNumber) {
+        return "DELETE FROM bld_unacceptable_units_report WHERE shipment_id IN (SELECT id FROM bld_recovered_plasma_shipment WHERE location_code = '" + location + "' AND transportation_reference_number = '" + transportationRefNumber + "')";
+    }
+
+
+    public static String REMOVE_UNACCEPTABLE_UNIT_REPORT_BY_SHIPMENT_CODE(String code) {
+        return "DELETE FROM bld_unacceptable_units_report WHERE shipment_id IN (SELECT id FROM bld_recovered_plasma_shipment WHERE shipment_number LIKE '%" + code + "%')";
+    }
+
     public static String INSERT_SHIPMENT(String customerCode, String locationCode, String productType, String status, String shipmentNumber, String scheduleDate) {
         return String.format(
             """
@@ -200,6 +209,47 @@ public class DatabaseQueries {
         );
     }
 
+    public static String INSERT_VERIFIED_PRODUCT(String cartonId, String unitNumber, String productCode, String productType) {
+        return String.format(
+            """
+                INSERT INTO bld_recovered_plasma_shipment_carton_item (
+                    carton_id,
+                    unit_number,
+                    product_code,
+                    product_type,
+                    product_description,
+                    create_date,
+                    modification_date,
+                    packed_by_employee_id,
+                    volume,
+                    status,
+                    weight,
+                    expiration_date,
+                    abo_rh,
+                    verification_date,
+                    verified_by_employee_id
+                ) VALUES (
+                    '%s',              -- carton_id
+                    '%s',              -- unit_number
+                    '%s',              -- product_code
+                    '%s',              -- product_type
+                    (select product_type_description from lk_recovered_plasma_product_type where product_type = '%s'), -- product_description
+                    CURRENT_TIMESTAMP, -- create_date
+                    CURRENT_TIMESTAMP,  -- modification_date,
+                    '5db1da0b-6392-45ff-86d0-17265ea33226',
+                    250,
+                    'VERIFIED',
+                    100,
+                    CURRENT_TIMESTAMP,
+                    'AP',
+                    CURRENT_TIMESTAMP,
+                    '5db1da0b-6392-45ff-86d0-17265ea33226'
+                )
+                """
+            , cartonId, unitNumber, productCode, productType, productType
+        );
+    }
+
     public static String UPDATE_SYSTEM_CONFIGURATION(String processType , String propertyKey, String propertyValue) {
         return String.format(
             """
@@ -208,6 +258,17 @@ public class DatabaseQueries {
                 WHERE system_process_type = '%s' AND property_key = '%s'
                 """
             , propertyValue, processType, propertyKey
+        );
+    }
+
+    public static String UPDATE_CARTON_STATUS(String cartonId, String status) {
+        return String.format(
+            """
+                UPDATE bld_recovered_plasma_shipment_carton
+                SET status = '%s' , close_date = CURRENT_TIMESTAMP , close_employee_id = '5db1da0b-6392-45ff-86d0-17265ea33226'
+                WHERE id = %s
+                """
+            , status, cartonId
         );
     }
 }

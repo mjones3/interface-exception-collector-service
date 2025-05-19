@@ -4,7 +4,6 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Carto
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.CartonItem;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.CartonPackingSlip;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Location;
-import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.LocationProperty;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.ProductType;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.RecoveredPlasmaShipment;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.ShipmentCustomer;
@@ -26,7 +25,6 @@ import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -351,8 +349,7 @@ class CartonPackingSlipTest {
 
     private Location createMockLocation() {
         Location location = Mockito.mock(Location.class);
-        Mockito.when(location.findProperty("TZ")).thenReturn(Optional.of(new LocationProperty(1L, "TZ", "America/New_York")));
-
+        Mockito.when(location.getTimeZone()).thenReturn("America/New_York");
         return  location;
     }
 }

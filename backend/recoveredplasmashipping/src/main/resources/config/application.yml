@@ -297,3 +297,11 @@ topics:
       partitions: 1
       replicas: 1
       topic-name: RecoveredPlasmaCartonPacked
+    shipment-closed:
+      partitions: 1
+      replicas: 1
+      topic-name: RecoveredPlasmaShipmentClosed
+    carton-unpacked:
+      partitions: 1
+      replicas: 1
+      topic-name: RecoveredPlasmaCartonUnpacked

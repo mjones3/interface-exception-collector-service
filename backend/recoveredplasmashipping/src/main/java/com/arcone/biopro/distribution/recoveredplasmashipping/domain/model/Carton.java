@@ -48,12 +48,16 @@ public class Carton implements Validatable {
     private List<CartonItem> products;
     private Integer maxNumberOfProducts;
     private Integer minNumberOfProducts;
+    private String repackEmployeeId;
+    private ZonedDateTime repackDate;
+    private String repackComments;
 
     private static final String STATUS_OPEN = "OPEN";
     private static final String CARTON_PARTNER_PREFIX_KEY = "RPS_CARTON_PARTNER_PREFIX";
     private static final String RPS_LOCATION_CARTON_CODE_KEY = "RPS_LOCATION_CARTON_CODE";
     private static final String STATUS_VERIFIED = "VERIFIED";
     private static final String STATUS_CLOSED = "CLOSED";
+    private static final String STATUS_REPACK = "REPACK";
 
 
     public static Carton createNewCarton(CreateCartonCommand createCartonCommand , RecoveredPlasmaShippingRepository recoveredPlasmaShippingRepository, CartonRepository cartonRepository, LocationRepository locationRepository) {
@@ -272,5 +276,31 @@ public class Carton implements Validatable {
         }
 
         return CartonPackingSlip.generatePackingSlip(this,locationRepository , systemProcessPropertyRepository , recoveredPlasmaShippingRepository , recoveredPlasmaShipmentCriteriaRepository);
+    }
+
+    public Carton markAsRepack(){
+        this.status = STATUS_REPACK;
+        this.closeDate = null;
+        this.closeEmployeeId = null;
+
+        return this;
+    }
+
+    public Carton markAsReopen(final RepackCartonCommand repackCartonCommand){
+        if(repackCartonCommand == null){
+            throw new IllegalArgumentException("RepackCartonCommand is required");
+        }
+
+        if(!STATUS_REPACK.equals(this.status)){
+            throw new IllegalArgumentException("Carton cannot be repacked");
+        }
+
+        this.status = STATUS_OPEN;
+        this.closeDate = null;
+        this.closeEmployeeId = null;
+        this.repackDate = ZonedDateTime.now();
+        this.repackEmployeeId = repackCartonCommand.getEmployeeId();
+        this.repackComments = repackCartonCommand.getReasonComments();
+        return this;
     }
 }

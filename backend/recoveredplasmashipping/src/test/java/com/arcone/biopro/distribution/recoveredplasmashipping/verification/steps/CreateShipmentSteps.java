@@ -50,6 +50,11 @@ public class CreateShipmentSteps {
         var deleteCartonsQuery = DatabaseQueries.DELETE_CARTONS_BY_SHIPMENT_CODE(code);
         databaseService.executeSql(deleteCartonsQuery).block();
         log.info("Removing cartons from shipments containing code: {}", code);
+
+        // Delete Reports
+        var deleteReports = DatabaseQueries.REMOVE_UNACCEPTABLE_UNIT_REPORT_BY_SHIPMENT_CODE(code);
+        databaseService.executeSql(deleteReports).block();
+
         // Delete Shipments
         var deleteShipmentsQuery = DatabaseQueries.DELETE_SHIPMENTS_BY_CODE(code);
         databaseService.executeSql(deleteShipmentsQuery).block();
@@ -222,6 +227,10 @@ public class CreateShipmentSteps {
         // Delete Cartons
         var deleteCartonsQuery = DatabaseQueries.REMOVE_CARTONS_BY_LOCATION_AND_TRANSPORTATION_REF_NUMBER(location, transportationRefNumber);
         databaseService.executeSql(deleteCartonsQuery).block();
+
+        // Delete Reports
+        var deleteReports = DatabaseQueries.REMOVE_UNACCEPTABLE_UNIT_REPORT_BY_LOCATION_AND_TRANSPORTATION_REF_NUMBER(location,transportationRefNumber);
+        databaseService.executeSql(deleteReports).block();
 
         // Delete shipments
         var deleteShipmentsQuery = DatabaseQueries.REMOVE_SHIPMENTS_BY_LOCATION_AND_TRANSPORTATION_REF_NUMBER(location, transportationRefNumber);

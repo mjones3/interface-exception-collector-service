@@ -56,7 +56,7 @@ public class CartonTestingController {
 
     public boolean checkProductIsPacked(String unitNumber, String productCode) {
         var packedList = sharedContext.getPackedProductsList();
-        if (packedList.isEmpty()) {
+        if (packedList == null || packedList.isEmpty()) {
             return false;
         } else {
             return packedList.stream().anyMatch(packedProduct -> {
@@ -82,6 +82,10 @@ public class CartonTestingController {
 
     public void insertPackedProduct(String cartonId, String unitNumber, String productCode, String productType) {
         databaseService.executeSql(DatabaseQueries.INSERT_PACKED_PRODUCT(cartonId, unitNumber, productCode, productType)).block();
+    }
+
+    public void insertVerifiedProduct(String cartonId, String unitNumber, String productCode, String productType) {
+        databaseService.executeSql(DatabaseQueries.INSERT_VERIFIED_PRODUCT(cartonId, unitNumber, productCode, productType)).block();
     }
 
     public void verifyCartonProduct(String cartonId, String unitNumber, String productCode, String locationCode) {
@@ -114,5 +118,33 @@ public class CartonTestingController {
         String payload = GraphQLQueryMapper.generateCartonPackingSlip(Integer.parseInt(cartonId), sharedContext.getEmployeeId(),locationCode);
         var response = apiHelper.graphQlRequest(payload, "generateCartonPackingSlip");
         sharedContext.setLastCartonPackingSlipResponse((Map) response.get("data"));
+    }
+
+    public void updateCartonStatus(String cartonId, String status) {
+        databaseService.executeSql(DatabaseQueries.UPDATE_CARTON_STATUS(cartonId, status)).block();
+    }
+
+    public Map repackCarton(String id, String employeeId, String locationCode , String comments) {
+        String payload = GraphQLMutationMapper.repackCarton(id, employeeId, locationCode,comments);
+        var response = apiHelper.graphQlRequest(payload, "repackCarton");
+        sharedContext.setLastCloseCartonResponse((Map) response.get("data"));
+        if (response.get("data") != null) {
+            sharedContext.setLastCartonResponse((Map) response.get("data"));
+            var packedProducts = (List) ((Map) response.get("data")).get("packedProducts");
+            sharedContext.setPackedProductsList(packedProducts);
+        }
+        return response;
+    }
+
+    public Map findCartonById(int id) {
+        String payload = GraphQLQueryMapper.findCartonById(id);
+        var response = apiHelper.graphQlRequest(payload, "findCartonById");
+        sharedContext.setLastCloseCartonResponse((Map) response.get("data"));
+        if (response.get("data") != null) {
+            sharedContext.setLastCartonResponse((Map) response.get("data"));
+            var packedProducts = (List) ((Map) response.get("data")).get("packedProducts");
+            sharedContext.setPackedProductsList(packedProducts);
+        }
+        return response;
     }
 }

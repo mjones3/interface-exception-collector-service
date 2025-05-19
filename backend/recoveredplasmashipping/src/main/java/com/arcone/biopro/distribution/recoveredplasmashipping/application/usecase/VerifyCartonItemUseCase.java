@@ -91,7 +91,7 @@ public class VerifyCartonItemUseCase implements VerifyCartonService {
 
         return cartonRepository.findOneById(cartonId).flatMap(carton -> {
             if(error instanceof ProductValidationException productValidationException) {
-                var notification = Optional.ofNullable(productValidationException.getInventoryValidation()).map(InventoryValidation::getFistNotification).orElse(null);
+                var notification = Optional.ofNullable(productValidationException.getInventoryValidation()).map(InventoryValidation::getFirstNotification).orElse(null);
                 var linksNext = SYSTEM_ERROR_TYPE.equals(productValidationException.getErrorType()) ? null : Map.of("next", String.format(CARTON_DETAILS_PAGE, carton.getId()));
                 return Mono.just(new UseCaseOutput<>(List.of(UseCaseNotificationOutput
                     .builder()

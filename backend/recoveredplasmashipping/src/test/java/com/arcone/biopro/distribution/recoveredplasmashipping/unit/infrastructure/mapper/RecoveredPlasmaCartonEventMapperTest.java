@@ -3,7 +3,9 @@ package com.arcone.biopro.distribution.recoveredplasmashipping.unit.infrastructu
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Carton;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.CartonItem;
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.dto.RecoveredPlasmaCartonItemPackedOutputDTO;
+import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.dto.RecoveredPlasmaCartonItemUnpackedOutputDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.dto.RecoveredPlasmaCartonPackedOutputDTO;
+import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.dto.RecoveredPlasmaCartonUnpackedOutputDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.mapper.RecoveredPlasmaCartonEventMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -143,6 +145,56 @@ class RecoveredPlasmaCartonEventMapperTest {
         // Then
         assertNotNull(result);
         assertTrue(result.isEmpty());
+    }
+
+    @Test
+    @DisplayName("Should map Carton to RecoveredPlasmaCartonUnPackedOutputDTO successfully")
+    void shouldMapCartonToUnPackedEventDTO() {
+        // Given
+        Carton carton = createSampleCarton();
+
+        // When
+        RecoveredPlasmaCartonUnpackedOutputDTO result = mapper.modelToUnPackedEventDTO(carton,"LOCATION_CODE");
+
+        // Then
+        assertNotNull(result);
+        assertEquals(carton.getStatus(), result.status());
+        assertEquals(carton.getRepackEmployeeId(), result.unpackEmployeeId());
+        assertEquals(carton.getRepackDate(), result.unpackDate());
+        assertEquals(carton.getCartonNumber(), result.cartonNumber());
+        assertEquals(carton.getCartonSequence(), result.cartonSequence());
+        assertEquals(carton.getTotalProducts(), result.totalProducts());
+        assertEquals("PRODUCT_TYPE", result.productType());
+        assertEquals("LOCATION_CODE", result.locationCode());
+        assertEquals(carton.getTotalProducts(), result.unpackedProducts().size());
+
+    }
+
+    @Test
+    @DisplayName("Should map List of CartonItems to List of RecoveredPlasmaCartonItemUnPackedOutputDTO successfully")
+    void shouldMapCartonItemListToItemUnPackedEventDTOList() {
+        // Given
+        List<CartonItem> cartonItems = Arrays.asList(
+            createSampleCartonItem(),
+            createSampleCartonItem()
+        );
+
+        // When
+        List<RecoveredPlasmaCartonItemUnpackedOutputDTO> result = mapper.modelToItemUnpackedEventDTO(cartonItems);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(cartonItems.size(), result.size());
+
+        for (int i = 0; i < cartonItems.size(); i++) {
+            CartonItem cartonItem = cartonItems.get(i);
+            RecoveredPlasmaCartonItemUnpackedOutputDTO dto = result.get(i);
+
+            assertEquals(cartonItem.getUnitNumber(), dto.unitNumber());
+            assertEquals(cartonItem.getProductCode(), dto.productCode());
+            assertEquals("REMOVED", dto.status());
+
+        }
     }
 
     private Carton createSampleCarton() {

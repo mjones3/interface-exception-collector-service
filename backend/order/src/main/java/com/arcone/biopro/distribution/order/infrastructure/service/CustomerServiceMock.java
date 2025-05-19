@@ -6,6 +6,7 @@ import com.arcone.biopro.distribution.order.infrastructure.service.dto.CustomerD
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -19,6 +20,7 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
+@Profile("customer-mock")
 public class CustomerServiceMock implements CustomerService {
 
     private static final List<CustomerDTO> CUSTOMERS = new ArrayList<>();

@@ -72,6 +72,7 @@ public class LocationConfigurationSteps {
             " ((" + randomId + "), 'RPS_LOCATION_SHIPMENT_CODE', '" + shippingCode + "'), " +
             " ((" + randomId + "), 'RPS_LOCATION_CARTON_CODE', '" + "MH1" + "'), " +
             " ((" + randomId + "), 'RPS_CARTON_PARTNER_PREFIX', '" + cartonPrefix + "'), " +
+            " ((" + randomId + "), 'TZ', 'America/New_York'), " +
             " ((" + randomId + "), 'RPS_USE_PARTNER_PREFIX', '" + prefixConfig + "');";
         databaseService.executeSql(locationPropertySQL).block();
 
