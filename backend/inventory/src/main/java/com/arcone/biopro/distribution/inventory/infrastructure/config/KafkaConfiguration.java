@@ -20,6 +20,7 @@ import com.arcone.biopro.distribution.inventory.adapter.output.producer.event.In
 import com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.springwolf.core.asyncapi.annotations.AsyncListener;
+import io.github.springwolf.core.asyncapi.annotations.AsyncMessage;
 import io.github.springwolf.core.asyncapi.annotations.AsyncOperation;
 import io.github.springwolf.core.asyncapi.annotations.AsyncPublisher;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -254,6 +255,16 @@ class KafkaConfiguration {
         channelName = "ApheresisPlateletProductCreated",
         description = "Apheresis Platelet Product has been created.",
         payloadType = ProductCreatedMessage.class
+    ))
+
+    @AsyncPublisher(operation = @AsyncOperation(
+        channelName = "ApheresisPlasmaProductCreated",
+        description = "Apheresis Plasma Product Created Event",
+        message = @AsyncMessage(
+            name = "ApheresisPlasmaProductCreated",
+            title = "ApheresisPlasmaProductCreated",
+            description = "Apheresis Plasma Product Created Event Payload"
+        ),payloadType = ProductCreatedMessage.class
     ))
     @AsyncListener(operation = @AsyncOperation(
         channelName = "WholeBloodProductCreated",
