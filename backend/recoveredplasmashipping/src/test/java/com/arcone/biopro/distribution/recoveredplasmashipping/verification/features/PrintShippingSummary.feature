@@ -52,10 +52,9 @@ Feature: Print Shipment Summary
                 | Ship From Facility Name                           | ARC-One Solutions                                                                                                                      |
                 | Ship From Facility Address                        | address_line_1 city, state, 000000 USA                                                                                                 |
                 | Ship From Phone                                   | 123-456-7894                                                                                                                           |
-                | Shipment Details Transportation Reference Number | DIS-346                                                                                                                                 |
+                | Shipment Details Transportation Reference Number  | DIS-346                                                                                                                                 |
                 | Shipment Details Shipment Number Prefix           | DIS_346DIS34600                                                                                                                        |
-                ### TODO check with PO the date format for ship date and close date
-#                | Shipment Details	Shipment Date/Time              |                                                                                                                                        |
+                | Shipment Closed Date/Time                         | <tomorrow_formatted>                                                                                                                                     |
                 | Shipment Details Product Type                    | RP NONINJECTABLE LIQUID RT                                                                                                              |
                 | Shipment Details Product Code                    | E2534V00, E5880V00, E6022V00                                                                                                            |
                 | Shipment Details Total Number of Cartons         | 3                                                                                                                                       |
@@ -66,7 +65,6 @@ Feature: Print Shipment Summary
                 | Carton Information Total Number of Products       | 1,1,1                                                                                                                                  |
                 | Testing Statement                                 | All products in this shipment meet FDA and ARC-One Solutions testing requirements. These units are acceptable for further manufacture. |
                 | Shipment Closing Details Employee Name           | 5db1da0b-6392-45ff-86d0-17265ea33226                                                                                                   |
-                ### TODO check with PO the date format for ship date and close date
                 | Shipment Closing Details Date                    | <tomorrow_formatted>                                                                                                                      |
 
 

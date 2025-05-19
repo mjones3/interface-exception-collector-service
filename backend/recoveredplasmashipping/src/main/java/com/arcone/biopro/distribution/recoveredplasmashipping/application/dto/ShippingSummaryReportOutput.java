@@ -11,7 +11,7 @@ public record ShippingSummaryReportOutput(
     String reportTitle,
     String employeeName,
     String employeeId,
-    String shipDate,
+    String closeDateTime,
     String closeDate,
     String shipmentDetailShipmentNumber,
     String shipmentDetailProductType,

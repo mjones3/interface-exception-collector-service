@@ -20,7 +20,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -60,7 +59,6 @@ class ShippingSummaryReportTest {
         // Setup basic mocked data
         when(recoveredPlasmaShipment.getCloseEmployeeId()).thenReturn("EMP123");
         when(recoveredPlasmaShipment.getLocationCode()).thenReturn("LOC001");
-        when(recoveredPlasmaShipment.getShipmentDate()).thenReturn(LocalDate.now());
         when(recoveredPlasmaShipment.getCloseDate()).thenReturn(ZonedDateTime.now());
         when(recoveredPlasmaShipment.getProductType()).thenReturn("PRODUCT_TYPE");
         when(recoveredPlasmaShipment.getShipmentNumber()).thenReturn("SHIPMENT_NUMBER");
@@ -137,7 +135,7 @@ class ShippingSummaryReportTest {
         assertEquals("Test Statement",report.getTestingStatement());
         assertEquals("HEADER",report.getHeaderStatement());
         assertNotNull(report.getCloseDate());
-        assertNotNull(report.getShipDate());
+        assertNotNull(report.getCloseDateTime());
         assertEquals("AddressLine1 CITY, state, portalCode USA",report.getShipFrom().getLocationAddress());
 
 

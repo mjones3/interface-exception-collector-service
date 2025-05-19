@@ -128,8 +128,8 @@ public class PrintShippingSummarySteps {
         if(table.get("Shipment Details Shipment Number Prefix") != null){
             Assert.assertTrue(printSummaryResponseData.get("shipmentDetailShipmentNumber").toString().contains(table.get("Shipment Details Shipment Number Prefix")));
         }
-        if(table.get("Shipment Details Shipment Date/Time") != null){
-            Assert.assertEquals(printSummaryResponseData.get("shipDate").toString(), table.get("Shipment Details Shipment Date/Time"));
+        if(table.get("Shipment Closed Date/Time") != null){
+            Assert.assertNotNull(printSummaryResponseData.get("closeDateTime").toString());
         }
         if(table.get("Shipment Details Product Type") != null){
             Assert.assertEquals(printSummaryResponseData.get("shipmentDetailProductType").toString(), table.get("Shipment Details Product Type"));

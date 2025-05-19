@@ -17,7 +17,6 @@ import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
-import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -36,7 +35,7 @@ public class ShippingSummaryReport implements Validatable {
     private String reportTitle;
     private String employeeName;
     private String employeeId;
-    private String shipDate;
+    private String closeDateTime;
     private String closeDate;
     private ShippingSummaryShipmentDetail shipmentDetail;
     private ShipTo shipTo;
@@ -63,8 +62,8 @@ public class ShippingSummaryReport implements Validatable {
             .employeeName(recoveredPlasmaShipment.getCloseEmployeeId())
             .employeeId(recoveredPlasmaShipment.getCloseEmployeeId())
             .testingStatement(buildTestingStatement(systemProperties))
-            .closeDate(formatDateTime(recoveredPlasmaShipment.getCloseDate(), systemProperties, location))
-            .shipDate(formatDate(recoveredPlasmaShipment.getShipmentDate(), systemProperties))
+            .closeDate(formatDate(recoveredPlasmaShipment.getCloseDate(), systemProperties))
+            .closeDateTime(formatDateTime(recoveredPlasmaShipment.getCloseDate(), systemProperties, location))
             .shipmentDetail(new ShippingSummaryShipmentDetail(recoveredPlasmaShipment, cartonList, getSystemPropertyByKey(systemProperties, "USE_TRANSPORTATION_NUMBER"), recoveredPlasmaShipmentCriteriaRepository))
             .shipTo(buildShipTo(recoveredPlasmaShipment, systemProperties))
             .shipFrom(buildShipFrom(systemProperties, location))
@@ -92,7 +91,7 @@ public class ShippingSummaryReport implements Validatable {
             throw new IllegalArgumentException("Employee Id is required");
         }
 
-        if (shipDate == null || shipDate.isBlank()) {
+        if (closeDateTime == null || closeDateTime.isBlank()) {
             throw new IllegalArgumentException("Ship Date is required");
         }
 
@@ -175,15 +174,15 @@ public class ShippingSummaryReport implements Validatable {
         }
     }
 
-    private static String formatDate(LocalDate localDate, List<SystemProcessProperty> systemProcessProperties) {
+    private static String formatDate(ZonedDateTime zonedDateTime, List<SystemProcessProperty> systemProcessProperties) {
 
         if (systemProcessProperties == null || systemProcessProperties.isEmpty()) {
             throw new IllegalArgumentException("System Property is required");
         }
         try {
-            return DateTimeFormatter.ofPattern(getSystemPropertyByKey(systemProcessProperties, "DATE_FORMAT")).format(localDate);
+            return DateTimeFormatter.ofPattern(getSystemPropertyByKey(systemProcessProperties, "DATE_FORMAT")).format(zonedDateTime);
         } catch (Exception e) {
-            log.error("Not able to format date {} {}", localDate, e.getMessage());
+            log.error("Not able to format date {} {}", zonedDateTime, e.getMessage());
             throw new IllegalArgumentException("Date is required");
         }
     }
