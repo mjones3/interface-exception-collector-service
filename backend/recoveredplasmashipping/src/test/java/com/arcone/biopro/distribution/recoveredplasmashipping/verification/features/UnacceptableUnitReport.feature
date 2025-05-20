@@ -58,14 +58,14 @@ Feature: Generate the Unacceptable Products Report
             When I request to print the Unacceptable Products Report.
             Then The Unacceptable Products Report status should be "COMPLETED_FAILED"
             And The Unacceptable Products Report should contain:
-                | Information Type       | Information Value                                                                                                                                                                                                                          |
-                | Report Title           | Unacceptable Product Report                                                                                                                                                                                                                |
-                | Shipment Number Prefix | DIS_356DIS356                                                                                                                                                                                                                              |
-                | Unit Number            | W036898356756,W036898356757,W036898356758                                                                                                                                                                                                  |
-                | Product Code           | E6022V00,E6022V00,E6022V00                                                                                                                                                                                                        |
-                | Carton Number Prefix   | BPMMH,BPMMH,BPMMH                                                                                                                                                                                                                    |
-                | Carton Sequence        | 1,1,1                                                                                                                                                                                                                                    |
-                | Reason for Failure     | This product is discarded and cannot be shipped,This product is expired and has been discarded. Place in biohazard container.,This product is quarantined and cannot be shipped                                                          |
+                | Information Type       | Information Value                                                                                                                                                               |
+                | Report Title           | Unacceptable Products Report                                                                                                                                                    |
+                | Shipment Number Prefix | DIS_356DIS356                                                                                                                                                                   |
+                | Unit Number            | W036898356756,W036898356757,W036898356758                                                                                                                                       |
+                | Product Code           | E6022V00,E6022V00,E6022V00                                                                                                                                                      |
+                | Carton Number Prefix   | BPMMH,BPMMH,BPMMH                                                                                                                                                               |
+                | Carton Sequence        | 1,1,1                                                                                                                                                                           |
+                | Reason for Failure     | This product is discarded and cannot be shipped,This product is expired and has been discarded. Place in biohazard container.,This product is quarantined and cannot be shipped |
 
 
     Rule: I should not be able to close a shipment with products flagged as unacceptable.
@@ -150,9 +150,9 @@ Feature: Generate the Unacceptable Products Report
                 | View  Icon | enabled |
             When I choose to open the unacceptable units report.
             Then I should see the following unacceptable units report information:
-                | Information Type       | Information Value                                                                  |
-                | Report Title           | Unacceptable Product Report                                                                                   |
-                | Shipment Number Prefix | Shipment Number: DIS_356DIS356                                                                                |
+                | Information Type       | Information Value              |
+                | Report Title           | Unacceptable Products Report   |
+                | Shipment Number Prefix | Shipment Number: DIS_356DIS356 |
             And I should see the following rows in the units report information:
                 | Row Number  | Row Content                                                                                                   |
                 | 1           | W036898356757,E6022V00,BPMMH1,1,This product is discarded and cannot be shipped                               |
