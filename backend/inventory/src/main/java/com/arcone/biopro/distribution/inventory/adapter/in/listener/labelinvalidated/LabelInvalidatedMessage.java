@@ -3,8 +3,8 @@ package com.arcone.biopro.distribution.inventory.adapter.in.listener.labelinvali
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(
-    name = "LabelInvalidated",
-    title = "LabelInvalidated",
+    name = "LabelInvalidatedEvent",
+    title = "LabelInvalidatedEvent",
     description = "Message for label invalidation process"
 )
 public record LabelInvalidatedMessage(
