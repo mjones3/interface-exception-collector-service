@@ -34,7 +34,7 @@ public class ShipmentDetailsPage extends CommonPageFactory {
     private final By unacceptableReportLastRunDate = By.id("informationDetails-Last-Run-value");
     private final By unacceptableReportBtn = By.id("reportBtnId");
     private final By viewUnacceptableProductsDialog = By.id("viewUnacceptableProductsDialog");
-    private final By viewUnacceptableProductsDialogHeader = By.xpath("//h2[contains(text(),'Unacceptable Product Report')]");
+    private final By viewUnacceptableProductsDialogHeader = By.xpath("//h2[contains(text(),'Unacceptable Products Report')]");
     private final By unacceptableProductsTable = By.id("unacceptableProductsTable");
     private final By cancelBtn = By.id("btnCancel");
     private final By repackComments = By.id("reasonCommentsId");

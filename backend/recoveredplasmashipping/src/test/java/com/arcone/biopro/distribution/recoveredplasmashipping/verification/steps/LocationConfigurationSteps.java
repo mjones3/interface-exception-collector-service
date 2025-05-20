@@ -60,7 +60,7 @@ public class LocationConfigurationSteps {
     @Given("The location {string} is configured with prefix {string}, shipping code {string}, carton prefix {string} and prefix configuration {string}.")
     public void configureLocation(String location, String prefix, String shippingCode , String cartonPrefix, String prefixConfig) {
 
-        int randomId = (int) (Math.random() * 1000) +1;
+        int randomId = (int) (Math.random() * 10000) +1;
         // lk_location
         var createConfigurationSQL = "INSERT INTO lk_location (id, external_id, code, name, city, state, postal_code, address_line_1, active, create_date, modification_date) " +
             "VALUES ("+ randomId + ", '" + location + "', '" + location + "', '" + location + "', 'city', 'state', '000000', 'address_line_1', true, now(), now())";
