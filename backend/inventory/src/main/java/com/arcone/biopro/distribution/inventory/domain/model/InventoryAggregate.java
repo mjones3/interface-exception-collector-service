@@ -44,14 +44,14 @@ public class InventoryAggregate {
         if (!inventory.getInventoryLocation().equals(location)) {
             notificationMessages.add(createNotificationMessage(MessageType.INVENTORY_NOT_FOUND_IN_LOCATION, null));
         }
+        else if (inventory.getInventoryStatus().equals(InventoryStatus.DISCARDED)) {
+            notificationMessages.addAll(createNotificationMessage());
+        }
         else if (isUnsuitable()) {
             notificationMessages.addAll(createUnsuitableNotificationMessage());
         }
         else if (isQuarantined()) {
             notificationMessages.addAll(createQuarantinesNotificationMessage());
-        }
-        else if (!inventory.getInventoryStatus().equals(InventoryStatus.AVAILABLE)) {
-            notificationMessages.addAll(createNotificationMessage());
         }
         else if (!inventory.getIsLabeled()) {
             notificationMessages.add(createNotificationMessage(MessageType.INVENTORY_IS_UNLABELED, null));
@@ -59,6 +59,10 @@ public class InventoryAggregate {
         else if (isExpired()) {
             notificationMessages.add(createNotificationMessage(MessageType.INVENTORY_IS_EXPIRED, EXPIRED));
         }
+        else if (!inventory.getInventoryStatus().equals(InventoryStatus.AVAILABLE)) {
+            notificationMessages.addAll(createNotificationMessage());
+        }
+
         return this;
     }
 
