@@ -271,4 +271,15 @@ public class DatabaseQueries {
             , status, cartonId
         );
     }
+
+    public static String UPDATE_SHIPMENT_STATUS(String shipmentId, String status) {
+        return String.format(
+            """
+                UPDATE bld_recovered_plasma_shipment
+                SET status = '%s' , close_date = CURRENT_TIMESTAMP , close_employee_id = '5db1da0b-6392-45ff-86d0-17265ea33226'
+                WHERE id = %s
+                """
+            , status, shipmentId
+        );
+    }
 }

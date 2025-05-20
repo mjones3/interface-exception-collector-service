@@ -64,7 +64,7 @@ describe('ViewUnacceptableProductsComponent', () => {
     });
 
     it('should set reportModel property from injected data', () => {
-      expect(component.reportModel()).toEqual(unacceptableProductsReport);
+      expect(component.data).toEqual(unacceptableProductsReport);
     });
 
     it('should display the shipment number correctly', () => {
@@ -119,7 +119,7 @@ describe('ViewUnacceptableProductsComponent', () => {
     });
 
     it('should display the correct message when no products are found', () => {
-      expect(component.reportModel().failedProducts.length).toBe(0);
+      expect(component.data.failedProducts.length).toBe(0);
       const noProductsMessageElement = fixture.debugElement.query(By.css('#viewUnacceptableProductsNoProductsFlaggedMessage'));
       expect(noProductsMessageElement.nativeElement.textContent).toBe(unacceptableProductsReport.noProductsFlaggedMessage);
     });

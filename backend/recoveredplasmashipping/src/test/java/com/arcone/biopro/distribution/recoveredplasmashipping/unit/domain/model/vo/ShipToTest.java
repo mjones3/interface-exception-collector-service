@@ -1,14 +1,14 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.unit.domain.model.vo;
 
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.ShipmentCustomer;
-import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.vo.PackingSlipShipTo;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.vo.ShipTo;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-class PackingSlipShipToTest {
+class ShipToTest {
 
     private ShipmentCustomer mockCustomer;
     private String validAddressFormat;
@@ -32,7 +32,7 @@ class PackingSlipShipToTest {
     @DisplayName("Should create PackingSlipShipTo successfully with valid parameters")
     void shouldCreatePackingSlipShipToSuccessfully() {
         // When
-        PackingSlipShipTo shipTo = new PackingSlipShipTo(mockCustomer, validAddressFormat);
+        ShipTo shipTo = new ShipTo(mockCustomer, validAddressFormat);
 
         // Then
         Assertions.assertNotNull(shipTo);
@@ -44,7 +44,7 @@ class PackingSlipShipToTest {
     @DisplayName("Should format address correctly")
     void shouldFormatAddressCorrectly() {
         // Given
-        PackingSlipShipTo shipTo = new PackingSlipShipTo(mockCustomer, validAddressFormat);
+        ShipTo shipTo = new ShipTo(mockCustomer, validAddressFormat);
 
         // When
         String formattedAddress = shipTo.getFormattedAddress();
@@ -58,7 +58,7 @@ class PackingSlipShipToTest {
     @DisplayName("Should return correct customer name")
     void shouldReturnCorrectCustomerName() {
         // Given
-        PackingSlipShipTo shipTo = new PackingSlipShipTo(mockCustomer, validAddressFormat);
+        ShipTo shipTo = new ShipTo(mockCustomer, validAddressFormat);
 
         // When
         String customerName = shipTo.getCustomerName();
@@ -73,7 +73,7 @@ class PackingSlipShipToTest {
         // When/Then
         IllegalArgumentException exception = Assertions.assertThrows(
             IllegalArgumentException.class,
-            () -> new PackingSlipShipTo(null, validAddressFormat)
+            () -> new ShipTo(null, validAddressFormat)
         );
         Assertions.assertEquals("Ship Customer is required", exception.getMessage());
     }
@@ -84,7 +84,7 @@ class PackingSlipShipToTest {
         // When/Then
         IllegalArgumentException exception = Assertions.assertThrows(
             IllegalArgumentException.class,
-            () -> new PackingSlipShipTo(mockCustomer, null)
+            () -> new ShipTo(mockCustomer, null)
         );
         Assertions.assertEquals("Address Format is required", exception.getMessage());
     }
@@ -95,7 +95,7 @@ class PackingSlipShipToTest {
         // When/Then
         IllegalArgumentException exception = Assertions.assertThrows(
             IllegalArgumentException.class,
-            () -> new PackingSlipShipTo(mockCustomer, "   ")
+            () -> new ShipTo(mockCustomer, "   ")
         );
         Assertions.assertEquals("Address Format is required", exception.getMessage());
     }
@@ -105,7 +105,7 @@ class PackingSlipShipToTest {
     void shouldHandleDifferentAddressFormatPatterns() {
         // Given
         String customFormat = "{address} {city}, {state} {zipCode} {country}";
-        PackingSlipShipTo shipTo = new PackingSlipShipTo(mockCustomer, customFormat);
+        ShipTo shipTo = new ShipTo(mockCustomer, customFormat);
 
         // When
         String formattedAddress = shipTo.getFormattedAddress();
@@ -120,7 +120,7 @@ class PackingSlipShipToTest {
     void shouldHandleAddressFormatWithMissingPlaceholders() {
         // Given
         String incompleteFormat = "{address}, {city}";
-        PackingSlipShipTo shipTo = new PackingSlipShipTo(mockCustomer, incompleteFormat);
+        ShipTo shipTo = new ShipTo(mockCustomer, incompleteFormat);
 
         // When
         String formattedAddress = shipTo.getFormattedAddress();

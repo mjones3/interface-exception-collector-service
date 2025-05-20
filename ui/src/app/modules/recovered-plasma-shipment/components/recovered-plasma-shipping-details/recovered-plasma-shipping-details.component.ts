@@ -43,11 +43,16 @@ import {
 } from '../recovered-plasma-shipment-details-navbar/recovered-plasma-shipment-details-navbar.component';
 import { BrowserPrintingService } from '../../../../core/services/browser-printing/browser-printing.service';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { DEFAULT_PAGE_SIZE } from '../../../../core/models/browser-printing.model';
+import {
+    DEFAULT_PAGE_SIZE,
+    DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
+    DEFAULT_PAGE_SIZE_DIALOG_PORTRAIT_WIDTH
+} from '../../../../core/models/browser-printing.model';
 import {
     ViewShippingCartonPackingSlipComponent
 } from '../view-shipping-carton-packing-slip/view-shipping-carton-packing-slip.component';
 import { CartonPackingSlipDTO } from '../../graphql/query-definitions/generate-carton-packing-slip.graphql';
+import { ViewShippingSummaryComponent } from '../view-shipping-summary/view-shipping-summary.component';
 import { CloseShipmentDailogComponent } from '../close-shipment-dailog/close-shipment-dailog.component';
 import { GlobalMessageComponent } from 'app/shared/components/global-message/global-message.component';
 import { FuseAlertType } from '@fuse/components/alert/public-api';
@@ -56,6 +61,7 @@ import {
 } from '../../shared/unacceptable-products-report-widget/unacceptable-products-report-widget.component';
 import { RepackCartonDialogComponent } from '../repack-carton-dialog/repack-carton-dialog.component';
 import { ToastrService } from 'ngx-toastr';
+import { ShippingSummaryReportDTO } from '../../graphql/query-definitions/print-shipping-summary-report.graphql';
 
 @Component({
     selector: 'biopro-recovered-plasma-shipping-details',
@@ -287,6 +293,34 @@ export class RecoveredPlasmaShippingDetailsComponent
         const hasValidCartonId = !isNaN(parseInt(this.route.snapshot.queryParams?.closeCartonId))
         return shouldPrint && hasValidCartonId;
     }
+
+    openReportsDialog(): void {
+        let dialogRef: MatDialogRef<ViewShippingSummaryComponent, ShippingSummaryReportDTO>;
+        this.recoveredPlasmaService
+            .printShippingSummaryReport({
+                shipmentId: this.shipmentIdComputed(),
+                employeeId: this.employeeIdSignal(),
+                locationCode: this.locationCodeComputed()
+            })
+            .pipe(
+                catchError((error: ApolloError) => handleApolloError(this.toastr, error)),
+                tap(response => {
+                    if (response?.data?.printShippingSummaryReport?.notifications?.[0]?.type === 'SUCCESS') {
+                        dialogRef = this.matDialog
+                            .open(ViewShippingSummaryComponent, {
+                                id: 'ViewShippingSummaryDialog',
+                                width: DEFAULT_PAGE_SIZE_DIALOG_PORTRAIT_WIDTH,
+                                height: DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
+                                data: response.data?.printShippingSummaryReport?.data,
+                            });
+                        return dialogRef.afterOpened();
+                    }
+                    consumeUseCaseNotifications(this.toastr, response.data?.printShippingSummaryReport?.notifications);
+                    return of({});
+                }),
+            )
+            .subscribe();
+   }
 
     backToSearch() {
         this.router.navigate(['/recovered-plasma']);

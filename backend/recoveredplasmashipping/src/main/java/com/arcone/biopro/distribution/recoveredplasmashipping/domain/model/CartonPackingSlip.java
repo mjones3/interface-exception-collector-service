@@ -2,8 +2,8 @@ package com.arcone.biopro.distribution.recoveredplasmashipping.domain.model;
 
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.vo.PackingSlipProduct;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.vo.PackingSlipShipFrom;
-import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.vo.PackingSlipShipTo;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.vo.PackingSlipShipment;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.vo.ShipTo;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.LocationRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShipmentCriteriaRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShippingRepository;
@@ -40,7 +40,7 @@ public class CartonPackingSlip implements Validatable {
     private String dateTimePacked;
     private String packedByEmployeeId;
     private PackingSlipShipFrom shipFrom;
-    private PackingSlipShipTo shipTo;
+    private ShipTo shipTo;
     private PackingSlipShipment packingSlipShipment;
     private String testingStatement;
     private boolean displaySignature;
@@ -223,12 +223,12 @@ public class CartonPackingSlip implements Validatable {
         return new PackingSlipShipFrom(getSystemPropertyByKey(systemProcessProperties,"BLOOD_CENTER_NAME") , location, getSystemPropertyByKey(systemProcessProperties,"ADDRESS_FORMAT"));
     }
 
-    private static PackingSlipShipTo buildShipTo(RecoveredPlasmaShipment shipment , List<SystemProcessProperty> systemProcessProperties) {
+    private static ShipTo buildShipTo(RecoveredPlasmaShipment shipment , List<SystemProcessProperty> systemProcessProperties) {
         if(shipment == null){
             throw new IllegalArgumentException("Shipment is required");
         }
 
-        return new PackingSlipShipTo(shipment.getShipmentCustomer(), getSystemPropertyByKey(systemProcessProperties,"ADDRESS_FORMAT") );
+        return new ShipTo(shipment.getShipmentCustomer(), getSystemPropertyByKey(systemProcessProperties,"ADDRESS_FORMAT") );
     }
 
     private static String formatDateTime(ZonedDateTime zonedDateTime ,  List<SystemProcessProperty> systemProcessProperties , Location location){

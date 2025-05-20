@@ -209,4 +209,27 @@ public class GraphQLQueryMapper {
                }
                """, cartonId);
     }
+
+    public static String printShippingSummaryReport(int shipmentId,String employeeId ,String locationCode) {
+        return String.format("""
+                query{
+                    printShippingSummaryReport(printShippingSummaryReportRequest:{
+                    shipmentId:%s
+                    locationCode:"%s"
+                    employeeId:"%s"
+                   }){
+                    data
+                    notifications{
+                        message
+                        type
+                        code
+                        reason
+                        action
+                        details
+                     }
+                    _links
+                    }
+               }
+               """, shipmentId, locationCode, employeeId);
+    }
 }

@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.verification.pages;
 
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.TestUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 @Component
+@Slf4j
 public class ShipmentDetailsPage extends CommonPageFactory {
 
     private final By shipmentDetailsHeader = By.xpath("//h3//span[contains(text(),'Shipment Details')]");
@@ -36,7 +38,7 @@ public class ShipmentDetailsPage extends CommonPageFactory {
     private final By unacceptableProductsTable = By.id("unacceptableProductsTable");
     private final By cancelBtn = By.id("btnCancel");
     private final By repackComments = By.id("reasonCommentsId");
-
+    private final By reportsBtn = By.id("reportsDialogBtnId");
 
 
     private By addedCartonRow(String cartonNumberPrefix, String sequence, String status) {
@@ -56,7 +58,7 @@ public class ShipmentDetailsPage extends CommonPageFactory {
     private By addedCartonRow(String sequence) {
         return By.xpath(
             String.format(
-                "//td[contains(@id,'cartonSequenceRow')]//*[.='%s']",
+                "//td[contains(@id,'cartonSequenceRow')]//*[.='%s']/../parent::tr/td/button[contains(@id, 'ExpandBtn')]",
                 sequence));
     }
 
@@ -80,6 +82,9 @@ public class ShipmentDetailsPage extends CommonPageFactory {
                 "//table[@id='cartonListTableId']//td[contains(.,'%s')]/following-sibling::td[contains(.,'%s')]/following-sibling::td[starts-with(@id,'statusRow')]",
                 cartonNumberPrefix, sequence, status));
     }
+
+
+
 
     @Autowired
     private SharedActions sharedActions;
@@ -119,6 +124,7 @@ public class ShipmentDetailsPage extends CommonPageFactory {
     }
 
     public String getShipmentStatus() {
+        sharedActions.waitForVisible(status);
         return sharedActions.getText(status);
     }
 
@@ -279,5 +285,15 @@ public class ShipmentDetailsPage extends CommonPageFactory {
     public void clickConfirmRepackCarton() {
         sharedActions.click(confirmRepackCartonBtn);
     }
+
+    public boolean isReportsButtonEnabled() {
+        sharedActions.waitForVisible(reportsBtn);
+        return sharedActions.isElementVisible(reportsBtn);
+    }
+
+    public void clickPrintReportBtn() {
+        sharedActions.click(reportsBtn);
+    }
+
 
 }

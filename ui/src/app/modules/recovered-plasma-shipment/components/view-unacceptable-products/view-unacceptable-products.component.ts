@@ -1,7 +1,7 @@
-import { Component, inject, Inject, signal } from '@angular/core';
+import { Component, inject, Inject } from '@angular/core';
 import { PrintableReportComponent } from '../../../../shared/components/printable-report.component';
 import { DomSanitizer } from '@angular/platform-browser';
-import { MAT_DIALOG_DATA, MatDialogClose, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogClose, MatDialogTitle } from '@angular/material/dialog';
 import { UnacceptableUnitReportOutput } from '../../graphql/query-definitions/print-unacceptable-units-report.graphql';
 import { ActionButtonComponent } from '../../../../shared/components/buttons/action-button.component';
 import { BrowserPrintingService } from '../../../../core/services/browser-printing/browser-printing.service';
@@ -16,8 +16,7 @@ import { MatIconButton } from '@angular/material/button';
         MatIcon,
         MatDialogClose,
         MatIconButton,
-        MatDialogTitle,
-        MatDialogContent
+        MatDialogTitle
     ],
   templateUrl: './view-unacceptable-products.component.html',
   styleUrl: './view-unacceptable-products.component.scss'
@@ -26,14 +25,11 @@ export class ViewUnacceptableProductsComponent extends PrintableReportComponent 
 
     browserPrintingService = inject(BrowserPrintingService);
 
-    reportModel = signal<Partial<UnacceptableUnitReportOutput>>(null);
-
     constructor(
         protected domSanitizer: DomSanitizer,
-        @Inject(MAT_DIALOG_DATA) protected data: UnacceptableUnitReportOutput
+        @Inject(MAT_DIALOG_DATA) public data: UnacceptableUnitReportOutput
     ) {
         super(domSanitizer);
-        this.reportModel.set(this.data);
     }
 
     print() {
