@@ -288,7 +288,7 @@ public class ShipmentDetailsPage extends CommonPageFactory {
 
     public boolean isReportsButtonEnabled() {
         sharedActions.waitForVisible(reportsBtn);
-        return sharedActions.isElementVisible(reportsBtn);
+        return sharedActions.isElementEnabled(driver, reportsBtn);
     }
 
     public void clickPrintReportBtn() {
