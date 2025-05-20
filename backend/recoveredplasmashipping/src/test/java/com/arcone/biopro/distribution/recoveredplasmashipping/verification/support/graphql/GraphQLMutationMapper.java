@@ -140,4 +140,49 @@ public class GraphQLMutationMapper {
             }
             """, shipmentId, employeeId, locationCode , shipDate);
     }
+
+    public static String repackCarton (String cartonId, String employeeId, String locationCode , String comments) {
+
+        if(comments == null){
+            return String.format("""
+            mutation RepackCarton {
+                repackCarton(
+                    repackCartonRequest: { cartonId: %s, employeeId: "%s", locationCode: "%s" , comments: null }
+                ) {
+                    _links
+                    data
+                    notifications {
+                        message
+                        type
+                        code
+                        action
+                        reason
+                        details
+                        name
+                    }
+                }
+            }
+            """, cartonId, employeeId, locationCode);
+        }else{
+            return String.format("""
+            mutation RepackCarton {
+                repackCarton(
+                    repackCartonRequest: { cartonId: %s, employeeId: "%s", locationCode: "%s" , comments: "%s" }
+                ) {
+                    _links
+                    data
+                    notifications {
+                        message
+                        type
+                        code
+                        action
+                        reason
+                        details
+                        name
+                    }
+                }
+            }
+            """, cartonId, employeeId, locationCode , comments);
+        }
+    }
 }

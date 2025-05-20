@@ -13,7 +13,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.ZonedDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -66,6 +65,9 @@ class RecoveredPlasmaShipmentEventMapperTest {
 
     }
 
+
+
+
     @Test
     void modelToEventDTO_ShouldHandleNullValues() {
         // Given
@@ -117,6 +119,7 @@ class RecoveredPlasmaShipmentEventMapperTest {
         Mockito.when(customer.getCustomerAddressPhoneNumber()).thenReturn("123-456-7890");
         Mockito.when(customer.getCustomerAddressDepartmentName()).thenReturn("Test Department");
         Mockito.when(model.getShipmentCustomer()).thenReturn(customer);
+
         return model;
     }
 }

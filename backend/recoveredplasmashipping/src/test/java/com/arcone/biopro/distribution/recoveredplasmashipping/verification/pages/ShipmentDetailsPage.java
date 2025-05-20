@@ -28,11 +28,28 @@ public class ShipmentDetailsPage extends CommonPageFactory {
     private final By closeShipmentBtn = By.id("closeShipmentBtnId");
     private final By confirmationShipmentDate = By.id("shipmentDateId");
     private final By confirmCloseShipmentBtn = By.id("btnContinue");
+    private final By confirmRepackCartonBtn = By.id("btnContinue");
+    private final By unacceptableReportLastRunDate = By.id("informationDetails-Last-Run-value");
+    private final By unacceptableReportBtn = By.id("reportBtnId");
+    private final By viewUnacceptableProductsDialog = By.id("viewUnacceptableProductsDialog");
+    private final By viewUnacceptableProductsDialogHeader = By.xpath("//h2[contains(text(),'Unacceptable Product Report')]");
+    private final By unacceptableProductsTable = By.id("unacceptableProductsTable");
+    private final By cancelBtn = By.id("btnCancel");
+    private final By repackComments = By.id("reasonCommentsId");
+
+
 
     private By addedCartonRow(String cartonNumberPrefix, String sequence, String status) {
         return By.xpath(
             String.format(
                 "//table[@id='cartonListTableId']//td[contains(.,'%s')]/following-sibling::td[contains(.,'%s')]/following-sibling::td[contains(.,'%s')]",
+                cartonNumberPrefix, sequence, status));
+    }
+
+    private By repackCartonButton(String cartonNumberPrefix, String sequence, String status) {
+        return By.xpath(
+            String.format(
+                "//table[@id='cartonListTableId']//td[contains(.,'%s')]/following-sibling::td[contains(.,'%s')]/following-sibling::td[contains(.,'%s')]/following-sibling::td/*[@id='repackCartonBtn']",
                 cartonNumberPrefix, sequence, status));
     }
 
@@ -48,6 +65,20 @@ public class ShipmentDetailsPage extends CommonPageFactory {
             String.format(
                 "//td[contains(@id,'cartonSequenceRow')]//*[.='%s']/ancestor::tr/following-sibling::tr//*[contains(text(),'%s')]",
                 cartonSequence, unitNumber));
+    }
+
+    private By unacceptableReportRow(String unitNumber , String productCode , String cartonNumberPrefix, String sequence, String reason) {
+        return By.xpath(
+            String.format(
+                "//table[@id='unacceptableProductsTable']//td[contains(.,'%s')]/following-sibling::td[contains(.,'%s')]/following-sibling::td[contains(.,'%s')]/following-sibling::td[contains(.,'%s')]/following-sibling::td[contains(.,'%s')]",
+                unitNumber, productCode, cartonNumberPrefix,sequence,reason));
+    }
+
+    private By cartonStatusRow(String cartonNumberPrefix, String sequence) {
+        return By.xpath(
+            String.format(
+                "//table[@id='cartonListTableId']//td[contains(.,'%s')]/following-sibling::td[contains(.,'%s')]/following-sibling::td[starts-with(@id,'statusRow')]",
+                cartonNumberPrefix, sequence, status));
     }
 
     @Autowired
@@ -139,6 +170,8 @@ public class ShipmentDetailsPage extends CommonPageFactory {
         sharedActions.waitForVisible(addedCartonRow(cartonNumberPrefix, sequence, status));
     }
 
+
+
     public void verifyCartonsAreVisible(List<Map> createCartonResponseList) {
         for (Map carton : createCartonResponseList) {
             verifyCartonIsListed(carton.get("cartonNumber").toString(), carton.get("cartonSequence").toString(), carton.get("status").toString());
@@ -189,4 +222,62 @@ public class ShipmentDetailsPage extends CommonPageFactory {
     public void clickConfirmCloseShipment() {
         sharedActions.click(confirmCloseShipmentBtn);
     }
+
+    public String getLastUnacceptableRunDate() {
+        return sharedActions.getText(unacceptableReportLastRunDate);
+    }
+
+    public boolean isUnacceptableReportButtonEnabled() {
+        sharedActions.waitForVisible(unacceptableReportBtn);
+        return sharedActions.isElementEnabled(driver, unacceptableReportBtn);
+    }
+
+    public void clickUnacceptableReportButton() {
+        sharedActions.click(unacceptableReportBtn);
+    }
+
+    public void verifyUnacceptableProductsReportIsVisible() {
+        sharedActions.isElementVisible(viewUnacceptableProductsDialog);
+        sharedActions.isElementVisible(viewUnacceptableProductsDialogHeader);
+        sharedActions.isElementVisible(unacceptableProductsTable);
+    }
+
+    public String getUnacceptableTableHeader() {
+        var productsTable = driver.findElement(unacceptableProductsTable);
+        var rows = productsTable.getText().split("\n");
+        return rows[0];
+    }
+
+    public void verifyProductIsListed(String unitNumber , String productCode , String cartonNumberPrefix, String sequence, String reason) {
+        sharedActions.waitForVisible(unacceptableReportRow(unitNumber,productCode,cartonNumberPrefix,sequence,reason));
+    }
+
+    public boolean isRepackButtonEnabled(String cartonNumberPrefix, String sequence, String status) {
+        var id = repackCartonButton(cartonNumberPrefix, sequence, status);
+        sharedActions.waitForVisible(id);
+        return sharedActions.isElementVisible(id);
+    }
+
+    public void clickRepackButton(String cartonNumberPrefix, String sequence, String status) {
+        sharedActions.click(repackCartonButton(cartonNumberPrefix, sequence, status));
+    }
+
+    public void clickCancelButton() {
+        sharedActions.click(cancelBtn);
+    }
+
+    public String getCartonStatus(String cartonNumberPrefix, String sequence) {
+        var cartonRow = cartonStatusRow(cartonNumberPrefix, sequence);
+        sharedActions.waitForVisible(cartonRow);
+        return sharedActions.getText(cartonRow);
+    }
+
+    public void enterRepackComments(String comments) {
+        sharedActions.sendKeys(repackComments, comments);
+    }
+
+    public void clickConfirmRepackCarton() {
+        sharedActions.click(confirmRepackCartonBtn);
+    }
+
 }

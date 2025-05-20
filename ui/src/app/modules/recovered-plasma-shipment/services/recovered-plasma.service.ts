@@ -37,6 +37,12 @@ import {
     GenerateCartonPackingSlipRequestDTO
 } from '../graphql/query-definitions/generate-carton-packing-slip.graphql';
 import { CLOSE_SHIPMENT, CloseShipmentRequestDTO } from '../graphql/mutation-definitions/close-shipment.graphql';
+import {
+    PRINT_UNACCEPTABLE_UNITS_REPORT,
+    PrintUnacceptableUnitReportRequestDTO,
+    UnacceptableUnitReportOutput
+} from '../graphql/query-definitions/print-unacceptable-units-report.graphql';
+import { REPACK_CARTON, RepackCartonDTO } from '../graphql/mutation-definitions/repack-carton.graphql';
 
 @Injectable({
     providedIn: 'root',
@@ -109,6 +115,18 @@ export class RecoveredPlasmaService {
         return this.dynamicGraphqlPathService.executeMutation(
             this.servicePath,
             CREATE_CARTON,
+            request
+        );
+    }
+
+    public repackCarton(
+        request: RepackCartonDTO
+    ): Observable<
+        MutationResult<{ repackCarton: UseCaseResponseDTO<CartonDTO> }>
+    > {
+        return this.dynamicGraphqlPathService.executeMutation(
+            this.servicePath,
+            REPACK_CARTON,
             request
         );
     }
@@ -191,6 +209,16 @@ export class RecoveredPlasmaService {
             this.servicePath,
             GENERATE_CARTON_PACKING_SLIP,
             generateCartonPackingSlipRequestDTO
+        );
+    }
+
+    public printUnacceptableUnitsReport(printUnacceptableUnitReportRequest: PrintUnacceptableUnitReportRequestDTO)
+        : Observable<ApolloQueryResult<{ printUnacceptableUnitsReport: UseCaseResponseDTO<UnacceptableUnitReportOutput> }>> {
+
+        return this.dynamicGraphqlPathService.executeQuery(
+            this.servicePath,
+            PRINT_UNACCEPTABLE_UNITS_REPORT,
+            printUnacceptableUnitReportRequest
         );
     }
 

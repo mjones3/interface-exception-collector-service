@@ -85,7 +85,7 @@ describe('ViewShippingCartonPackingSlipComponent', () => {
       expect(component).toBeTruthy();
     });
 
-    it('should set reportModel computed property from injected data', () => {
+    it('should set reportModel property from injected data', () => {
       expect(component.reportModel()).toEqual(mockCartonPackingSlip);
     });
 

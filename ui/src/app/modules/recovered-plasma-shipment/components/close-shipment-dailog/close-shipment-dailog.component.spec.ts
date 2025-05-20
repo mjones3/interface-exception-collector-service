@@ -46,7 +46,7 @@ describe('CloseShipmentDailogComponent', () => {
   });
   
   it('should initialize the form with the provided shipment date', () => {
-    expect(component.closeShipmentForm.get('shipmentDate').value).toEqual(mockShipmentDate);
+    expect(component.shipmentDate.value).toEqual(mockShipmentDate);
   });
   
   it('should set minDate to current date', () => {
@@ -57,12 +57,12 @@ describe('CloseShipmentDailogComponent', () => {
   });
   
   it('should have the form invalid when shipment date is cleared', () => {
-    component.closeShipmentForm.get('shipmentDate').setValue(null);
-    expect(component.closeShipmentForm.valid).toBeFalsy();
+    component.shipmentDate.setValue(null);
+    expect(component.shipmentDate.valid).toBeFalsy();
   });
   
   it('should disable Continue button when form is invalid', () => {
-    component.closeShipmentForm.get('shipmentDate').setValue('3434343');
+    component.shipmentDate.setValue('3434343');
     fixture.detectChanges();
     
     const continueButton = fixture.debugElement.query(By.css('#btnContinue'));
@@ -70,7 +70,7 @@ describe('CloseShipmentDailogComponent', () => {
   });
   
   it('should enable Continue button when form is valid', () => {
-    component.closeShipmentForm.get('shipmentDate').setValue(new Date());
+    component.shipmentDate.setValue(new Date().toDateString());
     fixture.detectChanges();
     const continueButton = fixture.debugElement.query(By.css('#btnContinue'));
     expect(continueButton.nativeElement.disabled).toBeFalsy();
@@ -79,7 +79,7 @@ describe('CloseShipmentDailogComponent', () => {
   
   it('should call onClickContinue when Continue button is clicked', () => {
     jest.spyOn(component, 'onClickContinue');
-    component.closeShipmentForm.get('shipmentDate').setValue(new Date());
+    component.shipmentDate.setValue(new Date().toDateString());
     fixture.detectChanges();
     const continueButton = fixture.debugElement.query(By.css('#btnContinue'));
     continueButton.triggerEventHandler('buttonClicked');
@@ -87,8 +87,8 @@ describe('CloseShipmentDailogComponent', () => {
   });
   
   it('should display error message when shipment date is required', () => {
-    component.closeShipmentForm.get('shipmentDate').setValue(null);
-    component.closeShipmentForm.get('shipmentDate').markAsTouched();
+    component.shipmentDate.setValue(null);
+    component.shipmentDate.markAsTouched();
     fixture.detectChanges();
     
     const errorElement = fixture.debugElement.query(By.css('mat-error'));

@@ -168,4 +168,45 @@ public class GraphQLQueryMapper {
                }
                """, cartonId, locationCode, employeeId);
     }
+    public static String printUnacceptalbleUnitsReport(int shipmentId,String employeeId ,String locationCode) {
+        return String.format("""
+                query{
+                    printUnacceptableUnitsReport(printUnacceptableUnitReportRequest:{
+                    shipmentId:%s
+                    locationCode:"%s"
+                    employeeId:"%s"
+                   }){
+                    data
+                    notifications{
+                        message
+                        type
+                        code
+                        reason
+                        action
+                        details
+                     }
+                    _links
+                    }
+               }
+               """, shipmentId, locationCode, employeeId);
+    }
+
+    public static String findCartonById(int cartonId) {
+        return String.format("""
+                query{
+                    findCartonById(cartonId:%s){
+                    data
+                    notifications{
+                        message
+                        type
+                        code
+                        reason
+                        action
+                        details
+                     }
+                    _links
+                    }
+               }
+               """, cartonId);
+    }
 }

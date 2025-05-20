@@ -1,7 +1,9 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.application.mapper;
 
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.RecoveredPlasmaShipmentOutput;
+import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.UnacceptableUnitReportOutput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.RecoveredPlasmaShipment;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.UnacceptableUnitReport;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -24,4 +26,6 @@ public interface RecoveredPlasmaShipmentOutputMapper {
     @Mapping(target = "canClose", expression = "java(recoveredPlasmaShipment.canClose())")
     @Mapping(target = "canModify", expression = "java(recoveredPlasmaShipment.canModify())")
     RecoveredPlasmaShipmentOutput toRecoveredPlasmaShipmentOutput(RecoveredPlasmaShipment recoveredPlasmaShipment);
+
+    UnacceptableUnitReportOutput toUnacceptableUnitReportOutput(UnacceptableUnitReport unacceptableUnitReport);
 }

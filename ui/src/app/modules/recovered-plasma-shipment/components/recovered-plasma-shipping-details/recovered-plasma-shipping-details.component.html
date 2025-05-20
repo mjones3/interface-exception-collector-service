@@ -37,7 +37,7 @@
 
     <div class="flex w-full flex-row gap-4 p-4">
         <div class="flex w-9/12 flex-col gap-4">
-            @if(!shipmentDetailsSignal()?.canModify){
+            @if(messageSignal() && messageTypeSignal()){
                 <biopro-global-message
                     [messageType]="messageTypeSignal()"
                     [message]="messageSignal()"
@@ -70,19 +70,29 @@
             >
             </biopro-table>
             <ng-template #statusTemplateRef let-element="element">
-                <span [class]="getStatusBadgeCssClass(element.status)">
-                    {{ RecoveredPlasmaShipmentStatusMap[element.status] }}
+                <span [class]="RecoveredPlasmaCartonStatusCssMap[element.status]">
+                    {{ RecoveredPlasmaCartonStatusMap[element.status] }}
                 </span>
             </ng-template>
             <ng-template #actionsTemplateRef let-element="element">
-                @if (element?.status !== 'CLOSED') {
-                    <button id="editBtn" (click)="editCarton(element?.id)" class="edit-button-mat-icon">
+                @if (element?.status === 'OPEN') {
+                    <button id="editBtn" (click)="editCarton(element?.id)" class="button-mat-icon mt-2">
                         <mat-icon>edit</mat-icon>
                     </button>
                 }
 
+                @if (element?.status === 'REPACK') {
+                    <biopro-basic-button
+                        id="repackCartonBtn"
+                        color="primary"
+                        class="text-primary"
+                        label="Repack"
+                        (buttonClicked)="repackCarton(element?.id)"
+                    />
+                }
+
                 @if (element?.canPrint) {
-                    <button data-testid="view-shipping-carton-packing-slip" (click)="printCarton($event, element?.id)" class="edit-button-mat-icon">
+                    <button data-testid="view-shipping-carton-packing-slip" (click)="printCarton($event, element?.id)" class="button-mat-icon">
                         <mat-icon>print</mat-icon>
                     </button>
                 }
@@ -120,10 +130,12 @@
 
 
         <div class="flex w-3/12 flex-col gap-4">
-            <biopro-unsuitable-unit-report
+            <biopro-unacceptable-products-report-widget
                 [loading]="shipmentDetailsSignal()?.status === 'PROCESSING'"
-            >  
-            </biopro-unsuitable-unit-report>
+                [shipment]="shipmentDetailsSignal()"
+                [employeeId]="employeeIdSignal()"
+                [locationCode]="locationCodeComputed()"
+            />
             <biopro-shipping-information-card
                 [isButtonDisabled]="!shipmentDetailsSignal()?.canModify"
                 [showBasicButton]="true"

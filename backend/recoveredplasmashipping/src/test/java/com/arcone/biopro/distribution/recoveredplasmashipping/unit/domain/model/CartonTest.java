@@ -8,6 +8,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Creat
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Location;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.LocationProperty;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.RecoveredPlasmaShipment;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.RepackCartonCommand;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.VerifyItemCommand;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.CartonItemRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.CartonRepository;
@@ -520,6 +521,56 @@ class CartonTest {
         Assertions.assertNotNull(response.getCloseDate());
         Assertions.assertEquals("close-employee-id", response.getCloseEmployeeId());
 
+    }
+
+    @Test
+    public void shouldNotMarkAsReopenWenStatusNotPack(){
+
+        Carton carton = Carton.fromRepository(1L,"number",1L,1,"employee-id","close-employee-id"
+            , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO, Collections.emptyList(),2 ,2 );
+
+        var repackCommand = Mockito.mock(RepackCartonCommand.class);
+
+        // When/Then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            () -> carton.markAsReopen(repackCommand));
+        assertEquals("Carton cannot be repacked",
+            exception.getMessage());
+
+    }
+
+    @Test
+    public void shouldNotMarkAsReopenWenInvalidCommand(){
+
+        Carton carton = Carton.fromRepository(1L,"number",1L,1,"employee-id","close-employee-id"
+            , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"REPACK", BigDecimal.ZERO,BigDecimal.ZERO, Collections.emptyList(),2 ,2 );
+
+        // When/Then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            () -> carton.markAsReopen(null));
+        assertEquals("RepackCartonCommand is required",
+            exception.getMessage());
+
+    }
+
+    @Test
+    public void shouldMarkAsReopen(){
+
+        Carton carton = Carton.fromRepository(1L,"number",1L,1,"employee-id","close-employee-id"
+            , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"REPACK", BigDecimal.ZERO,BigDecimal.ZERO, Collections.emptyList(),2 ,2 );
+
+        var repackCommand = Mockito.mock(RepackCartonCommand.class);
+        Mockito.when(repackCommand.getEmployeeId()).thenReturn("employee-id");
+        Mockito.when(repackCommand.getReasonComments()).thenReturn("comments");
+
+        var response = carton.markAsReopen(repackCommand);
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals("OPEN", response.getStatus());
+        Assertions.assertNull(response.getCloseDate());
+        Assertions.assertNull(response.getCloseEmployeeId());
+        Assertions.assertNotNull(response.getRepackDate());
+        Assertions.assertEquals("employee-id", response.getRepackEmployeeId());
+        Assertions.assertEquals("comments", response.getRepackComments());
     }
 
 

@@ -61,11 +61,13 @@ Feature: Close Shipment
         And I should have the shipment date as "<Shipment Date>".
         When I confirm to close the shipment.
         Then I should see a "SUCCESS" message: "Close Shipment is in progress".
+        And I close the acknowledgment message.
         And The shipment status should be updated to "PROCESSING"
+        And I should see a "SYSTEM" static message: "Close Shipment is in progress.".
+        And The system process the unacceptable units report.
+        And The shipment status should be updated to "CLOSED"
         And The close shipment option should be "disabled".
         And The Add Carton button should be "disabled".
-        And I close the acknowledgment message.
-        And I should see a "SYSTEM" static message: "Close Shipment is in progress.".
         Examples:
             | Customer Code | Product Type              | Carton Tare Weight | Shipment Date | Transportation Reference Number | Location Code | configured_min_products | unit_number                 | product_code       | Shipment Date|
             | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>    | DIS-347                         | 123456789     | 2                      | W036898347808,W036898347809 | E2488V00, E2488V00 | <tomorrow>   |
@@ -81,7 +83,7 @@ Feature: Close Shipment
         And I have a closed carton with the unit numbers as "<unit_number>" and product codes as "<product_code>".
         When I request to close the shipment with ship date as "<ship_date>"
         Then I should receive a API "<error_type>" error message response "<error_message>".
-        When I request the last created shipment data.
+        When I request the last created shipment data again.
         Then The shipment status should be "IN_PROGRESS"
         Examples:
             | error_type       | error_message                   | ship_date   | Customer Code | Product Type              | Carton Tare Weight | Shipment Date | Transportation Reference Number | Location Code | configured_min_products | unit_number                 | product_code      | Shipment Date|
@@ -97,6 +99,7 @@ Feature: Close Shipment
         And I pack an "acceptable" product with the unit number "W036898786800", product code "E6022V00" and product type "RP_FROZEN_WITHIN_120_HOURS".
         When I request to close the shipment with ship date as "<tomorrow>"
         Then I should receive a "WARN" message response "Shipment cannot be closed".
+        When I request the last created shipment data again.
         And The shipment status should be "IN_PROGRESS"
 
     Scenario: Reset default configurations

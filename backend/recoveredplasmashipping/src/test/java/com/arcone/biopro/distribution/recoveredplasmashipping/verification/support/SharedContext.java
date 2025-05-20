@@ -59,4 +59,6 @@ public class SharedContext {
     private String recoveredPlasmaCriteriaConfigurationCustomerCode;
 
     private Map lastCartonPackingSlipResponse;
+
+    private Map lastUnacceptableUnitsReportResponse;
 }

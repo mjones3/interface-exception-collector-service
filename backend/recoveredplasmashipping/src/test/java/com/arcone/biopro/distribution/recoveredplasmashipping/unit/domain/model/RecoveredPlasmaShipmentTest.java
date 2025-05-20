@@ -8,11 +8,15 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Creat
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.FindShipmentCommand;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Location;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.LocationProperty;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.PrintUnacceptableUnitReportCommand;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.RecoveredPlasmaShipment;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.RecoveredPlasmaShipmentCriteria;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.vo.UnacceptableUnitReportItem;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.LocationRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShipmentCriteriaRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShippingRepository;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.SystemProcessPropertyRepository;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.UnacceptableUnitReportRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.CustomerService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -946,6 +950,119 @@ class RecoveredPlasmaShipmentTest {
 
             Assertions.assertTrue(shipment.canClose());
         }
+
+    @Test
+    public void shouldMarkAsProcessingError(){
+        var shipment = RecoveredPlasmaShipment.fromRepository(
+            1L, "locationCode", "productType", "123", OPEN_STATUS, "createEmployeeId",
+            "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
+            LocalDate.now(), BigDecimal.TEN, "unsuitableUnitReportDocumentStatus",
+            "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
+            "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
+            "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
+            "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(),ZonedDateTime.now(), Collections.emptyList()
+        );
+
+        var response = shipment.markAsProcessingError();
+
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals("IN_PROGRESS", response.getStatus());
+        Assertions.assertNull(response.getCloseEmployeeId());
+        Assertions.assertNull(response.getCloseDate());
+        Assertions.assertEquals("ERROR_PROCESSING", response.getUnsuitableUnitReportDocumentStatus());
+        Assertions.assertNotNull(response.getLastUnsuitableReportRunDate());
+
+    }
+
+    @Test
+    public void shouldCompleteProcessingWhenNoErrors(){
+        var shipment = RecoveredPlasmaShipment.fromRepository(
+            1L, "locationCode", "productType", "123", OPEN_STATUS, "createEmployeeId",
+            "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
+            LocalDate.now(), BigDecimal.TEN, "unsuitableUnitReportDocumentStatus",
+            "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
+            "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
+            "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
+            "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(),ZonedDateTime.now(), Collections.emptyList()
+        );
+
+        var response = shipment.completeProcessing(Collections.emptyList());
+
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals("CLOSED", response.getStatus());
+        Assertions.assertEquals("closeEmployeeId",response.getCloseEmployeeId());
+        Assertions.assertNotNull(response.getCloseDate());
+        Assertions.assertEquals("COMPLETED", response.getUnsuitableUnitReportDocumentStatus());
+        Assertions.assertNotNull(response.getLastUnsuitableReportRunDate());
+
+    }
+
+    @Test
+    public void shouldCompleteProcessingWhenErrors(){
+        var shipment = RecoveredPlasmaShipment.fromRepository(
+            1L, "locationCode", "productType", "123", OPEN_STATUS, "createEmployeeId",
+            "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
+            LocalDate.now(), BigDecimal.TEN, "unsuitableUnitReportDocumentStatus",
+            "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
+            "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
+            "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
+            "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(),ZonedDateTime.now(), Collections.emptyList()
+        );
+
+        var response = shipment.completeProcessing(List.of(Mockito.mock(UnacceptableUnitReportItem.class)));
+
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals("IN_PROGRESS", response.getStatus());
+        Assertions.assertNull(response.getCloseEmployeeId());
+        Assertions.assertNull(response.getCloseDate());
+        Assertions.assertEquals("COMPLETED_FAILED", response.getUnsuitableUnitReportDocumentStatus());
+        Assertions.assertNotNull(response.getLastUnsuitableReportRunDate());
+
+    }
+
+    // test method printUnacceptableUnitReport
+    @Test
+    public void shouldNotPrintUnacceptableUnitReportWhenReportIsNotAvailable(){
+        var shipment = RecoveredPlasmaShipment.fromRepository(
+            1L, "locationCode", "productType", "123", OPEN_STATUS, "createEmployeeId",
+            "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
+            LocalDate.now(), BigDecimal.TEN, null,
+            "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
+            "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
+            "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
+            "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(),ZonedDateTime.now(), Collections.emptyList()
+        );
+
+        // When/Then
+        IllegalArgumentException exception = assertThrows(
+            IllegalArgumentException.class,
+            () -> shipment.printUnacceptableUnitReport(Mockito.mock(PrintUnacceptableUnitReportCommand.class), Mockito.mock(UnacceptableUnitReportRepository.class) , Mockito.mock(LocationRepository.class) ,Mockito.mock(SystemProcessPropertyRepository.class) )
+        );
+
+        assertEquals("Unacceptable units report not available", exception.getMessage());
+    }
+
+    @Test
+    public void shouldNotPrintUnacceptableUnitReportWhenShippingIsProcessing(){
+        var shipment = RecoveredPlasmaShipment.fromRepository(
+            1L, "locationCode", "productType", "123", PROCESSING_STATUS, "createEmployeeId",
+            "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
+            LocalDate.now(), BigDecimal.TEN, "TEST",
+            "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
+            "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
+            "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
+            "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(),ZonedDateTime.now(), Collections.emptyList()
+        );
+
+        // When/Then
+        IllegalArgumentException exception = assertThrows(
+            IllegalArgumentException.class,
+            () -> shipment.printUnacceptableUnitReport(Mockito.mock(PrintUnacceptableUnitReportCommand.class), Mockito.mock(UnacceptableUnitReportRepository.class) , Mockito.mock(LocationRepository.class) ,Mockito.mock(SystemProcessPropertyRepository.class) )
+        );
+
+        assertEquals("Unacceptable units report still running", exception.getMessage());
+    }
+
 
 }
 

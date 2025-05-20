@@ -151,7 +151,7 @@ public class CartonPackingSlip implements Validatable {
 
         return carton.getVerifiedProducts().stream()
             .map(cartonItem -> new PackingSlipProduct(cartonItem.getUnitNumber(), cartonItem.getCollectionDate() , cartonItem.getVolume()
-                , getSystemPropertyByKey(systemProcessProperties,"DATE_FORMAT"), getTimeZone(location)))
+                , getSystemPropertyByKey(systemProcessProperties,"DATE_FORMAT"), location.getTimeZone()))
             .collect(Collectors.toList());
     }
 
@@ -231,20 +231,6 @@ public class CartonPackingSlip implements Validatable {
         return new PackingSlipShipTo(shipment.getShipmentCustomer(), getSystemPropertyByKey(systemProcessProperties,"ADDRESS_FORMAT") );
     }
 
-   private static String getTimeZone(Location location){
-       if(location == null){
-           throw new IllegalArgumentException("Location is required");
-       }
-
-       var timeZone = location.findProperty("TZ");
-       if(timeZone.isEmpty()){
-           log.error("Location Timezone is missing {}", location);
-           throw new IllegalArgumentException("Timezone is required");
-       }
-
-       return timeZone.get().getPropertyValue();
-   }
-
     private static String formatDateTime(ZonedDateTime zonedDateTime ,  List<SystemProcessProperty> systemProcessProperties , Location location){
 
         if(zonedDateTime == null){
@@ -260,7 +246,7 @@ public class CartonPackingSlip implements Validatable {
         }
 
         try{
-            return DateTimeFormatter.ofPattern(getSystemPropertyByKey(systemProcessProperties,"DATE_TIME_FORMAT")).withZone(ZoneId.of(getTimeZone(location))).format(zonedDateTime);
+            return DateTimeFormatter.ofPattern(getSystemPropertyByKey(systemProcessProperties,"DATE_TIME_FORMAT")).withZone(ZoneId.of(location.getTimeZone())).format(zonedDateTime);
         }catch (Exception e){
             log.error("Not able to format date time {} {}", zonedDateTime , e.getMessage());
             throw  new IllegalArgumentException("Date Time is required");
