@@ -1,5 +1,5 @@
 # Feature Unit Number reference: W036825014000
-@api @LAB-116 @AOA-75 @LAB-185 @LAB-254 @LAB-379 @LAB-408
+@api @LAB-116 @AOA-75 @LAB-185 @LAB-254 @LAB-379 @LAB-408 @LAB-518
 Feature: Validate Inventory
 
     Scenario Outline: Validate Inventory
@@ -16,6 +16,8 @@ Feature: Validate Inventory
             | W036825014008 | E0869VD0     | LOCATION_1 | AVAILABLE | LOCATION_1          | America/New_York    | false      | 5               |                                                        |                          |                   |                           |                                  |
             | W036825014009 | E0869VD0     | LOCATION_1 | PACKED    | LOCATION_1          | America/New_York    | true       | 5               |                                                        |                          |                   |                           |                                  |
             | W036825014010 | E0869VD0     | LOCATION_1 | SHIPPED   | LOCATION_1          | America/New_York    | true       | 5               |                                                        |                          |                   |                           |                                  |
+            | W036825014011 | E0869VD0     | LOCATION_1 | PACKED    | LOCATION_1          | America/New_York    | true       | -1              |                                                        |                          |                   |                           |                                  |
+
         When I request "<Unit Number>" with "<Product Code>" in the "<Location>"
         Then I receive the following:
             | Unit Number   | Product Code   | Temperature Category   | Location   | Collection Location   | Collection TimeZone   | Volumes   | RESPONSE ERROR   | ACTION   | REASON   | MESSAGE   | DETAILS   |
@@ -36,4 +38,5 @@ Feature: Validate Inventory
             | W036825014008 | E0869VD0     | FROZEN               | LOCATION_1 |                                  | LOCATION_1          | America/New_York    | INVENTORY_IS_UNLABELED          | BACK_TO_STORAGE    |                 | This product is not labeled and cannot be shipped.                                                                   |                                                                                     |
             | W036825014009 | E0869VD0     | FROZEN               | LOCATION_1 |                                  | LOCATION_1          | America/New_York    | INVENTORY_IS_PACKED             | BACK_TO_STORAGE    |                 | This product is part of a carton and cannot be added.                                                                |                                                                                     |
             | W036825014010 | E0869VD0     | FROZEN               | LOCATION_1 |                                  | LOCATION_1          | America/New_York    | INVENTORY_IS_SHIPPED            | BACK_TO_STORAGE    |                 | This product was previously shipped.                                                                                 |                                                                                     |
+            | W036825014011 | E0869VD0     | FROZEN               | LOCATION_1 |                                  | LOCATION_1          | America/New_York    | INVENTORY_IS_EXPIRED            | TRIGGER_DISCARD    | EXPIRED         | This product is expired and has been discarded. Place in biohazard container.                                        |                                                                                     |
 

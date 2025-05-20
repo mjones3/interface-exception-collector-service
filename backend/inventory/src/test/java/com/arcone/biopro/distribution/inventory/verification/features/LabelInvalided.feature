@@ -1,5 +1,5 @@
 # Feature Unit Number reference: W036825006000
-@api @LAB-433
+@api @LAB-433 @LAB-436
 Feature: Label Invalidated Event
     Rule: As an inventory service I want to listen to label invalidated event so that I can update the inventory removing label and licensing flag
         Scenario Outline: Update the inventory information about label adn license flags after receiving a Label Invalidated Event.

@@ -7,6 +7,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.ZonedDateTime;
 import java.util.List;
 
+@Schema(
+    name = "ApheresisRBCProductCreated",
+    title = "ApheresisRBCProductCreated",
+    description = "Message for completed ApheresisRBCProductCreated process"
+)
 public record ProductCreatedMessage(
     @Schema(description = "Unit number identifier")
     String unitNumber,

@@ -22,8 +22,11 @@
     },
     "ApheresisPlasmaProductCreated": {
       "messages": {
-        "com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage": {
-          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage"
+        "ApheresisPlasmaProductCreated": {
+          "$ref": "#/components/messages/ApheresisPlasmaProductCreated"
+        },
+        "ApheresisRBCProductCreated": {
+          "$ref": "#/components/messages/ApheresisRBCProductCreated"
         }
       }
     },
@@ -36,8 +39,8 @@
     },
     "ApheresisPlateletProductCreated": {
       "messages": {
-        "com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage": {
-          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage"
+        "ApheresisRBCProductCreated": {
+          "$ref": "#/components/messages/ApheresisRBCProductCreated"
         }
       }
     },
@@ -50,8 +53,8 @@
     },
     "ApheresisRBCProductCreated": {
       "messages": {
-        "com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage": {
-          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage"
+        "ApheresisRBCProductCreated": {
+          "$ref": "#/components/messages/ApheresisRBCProductCreated"
         }
       }
     },
@@ -183,8 +186,8 @@
     },
     "WholeBloodProductCreated": {
       "messages": {
-        "com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage": {
-          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage"
+        "ApheresisRBCProductCreated": {
+          "$ref": "#/components/messages/ApheresisRBCProductCreated"
         }
       }
     }
@@ -288,6 +291,103 @@
             "productCode": "string",
             "unitNumber": "string",
             "volume": {
+              "unit": "string",
+              "value": 0
+            }
+          }
+        ]
+      },
+      "ApheresisRBCProductCreated": {
+        "title": "ApheresisRBCProductCreated",
+        "type": "object",
+        "properties": {
+          "aboRh": {
+            "type": "string",
+            "description": "Blood type and RH factor",
+            "enum": [
+              "ON",
+              "OP",
+              "AN",
+              "AP",
+              "BN",
+              "BP",
+              "ABN",
+              "ABP"
+            ]
+          },
+          "collectionLocation": {
+            "type": "string",
+            "description": "Collection location"
+          },
+          "collectionTimeZone": {
+            "type": "string",
+            "description": "Collection time zone"
+          },
+          "drawTime": {
+            "type": "string",
+            "description": "Draw time of the product",
+            "format": "date-time"
+          },
+          "expirationDate": {
+            "type": "string",
+            "description": "Expiration date"
+          },
+          "expirationTime": {
+            "type": "string",
+            "description": "Expiration time"
+          },
+          "inputProducts": {
+            "type": "array",
+            "description": "List of input products used",
+            "items": {
+              "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.domain.model.vo.InputProduct"
+            }
+          },
+          "manufacturingLocation": {
+            "type": "string",
+            "description": "Manufacturing location"
+          },
+          "productCode": {
+            "type": "string",
+            "description": "Product code"
+          },
+          "productDescription": {
+            "type": "string",
+            "description": "Product description"
+          },
+          "productFamily": {
+            "type": "string",
+            "description": "Product family"
+          },
+          "unitNumber": {
+            "type": "string",
+            "description": "Unit number identifier"
+          },
+          "weight": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ValueUnit"
+          }
+        },
+        "description": "Message for completed ApheresisRBCProductCreated process",
+        "examples": [
+          {
+            "aboRh": "ON",
+            "collectionLocation": "string",
+            "collectionTimeZone": "string",
+            "drawTime": "2015-07-20T15:49:04-07:00",
+            "expirationDate": "string",
+            "expirationTime": "string",
+            "inputProducts": [
+              {
+                "productCode": "string",
+                "unitNumber": "string"
+              }
+            ],
+            "manufacturingLocation": "string",
+            "productCode": "string",
+            "productDescription": "string",
+            "productFamily": "string",
+            "unitNumber": "string",
+            "weight": {
               "unit": "string",
               "value": 0
             }
@@ -1079,101 +1179,6 @@
           }
         ]
       },
-      "com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage": {
-        "type": "object",
-        "properties": {
-          "aboRh": {
-            "type": "string",
-            "description": "Blood type and RH factor",
-            "enum": [
-              "ON",
-              "OP",
-              "AN",
-              "AP",
-              "BN",
-              "BP",
-              "ABN",
-              "ABP"
-            ]
-          },
-          "collectionLocation": {
-            "type": "string",
-            "description": "Collection location"
-          },
-          "collectionTimeZone": {
-            "type": "string",
-            "description": "Collection time zone"
-          },
-          "drawTime": {
-            "type": "string",
-            "description": "Draw time of the product",
-            "format": "date-time"
-          },
-          "expirationDate": {
-            "type": "string",
-            "description": "Expiration date"
-          },
-          "expirationTime": {
-            "type": "string",
-            "description": "Expiration time"
-          },
-          "inputProducts": {
-            "type": "array",
-            "description": "List of input products used",
-            "items": {
-              "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.domain.model.vo.InputProduct"
-            }
-          },
-          "manufacturingLocation": {
-            "type": "string",
-            "description": "Manufacturing location"
-          },
-          "productCode": {
-            "type": "string",
-            "description": "Product code"
-          },
-          "productDescription": {
-            "type": "string",
-            "description": "Product description"
-          },
-          "productFamily": {
-            "type": "string",
-            "description": "Product family"
-          },
-          "unitNumber": {
-            "type": "string",
-            "description": "Unit number identifier"
-          },
-          "weight": {
-            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ValueUnit"
-          }
-        },
-        "examples": [
-          {
-            "aboRh": "ON",
-            "collectionLocation": "string",
-            "collectionTimeZone": "string",
-            "drawTime": "2015-07-20T15:49:04-07:00",
-            "expirationDate": "string",
-            "expirationTime": "string",
-            "inputProducts": [
-              {
-                "productCode": "string",
-                "unitNumber": "string"
-              }
-            ],
-            "manufacturingLocation": "string",
-            "productCode": "string",
-            "productDescription": "string",
-            "productFamily": "string",
-            "unitNumber": "string",
-            "weight": {
-              "unit": "string",
-              "value": 0
-            }
-          }
-        ]
-      },
       "com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ValueUnit": {
         "type": "object",
         "properties": {
@@ -1233,6 +1238,7 @@
             "type": "string"
           }
         },
+        "description": "List of packed products in the carton",
         "examples": [
           {
             "productCode": "string",
@@ -1396,6 +1402,36 @@
         "name": "ApheresisPlasmaProductCompleted",
         "title": "ProductCompletedMessage",
         "description": "Message for completed ApheresisPlasmaProductCompleted process",
+        "bindings": {}
+      },
+      "ApheresisPlasmaProductCreated": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/ApheresisRBCProductCreated"
+          }
+        },
+        "name": "ApheresisPlasmaProductCreated",
+        "title": "ApheresisPlasmaProductCreated",
+        "description": "Apheresis Plasma Product Created Event Payload",
+        "bindings": {}
+      },
+      "ApheresisRBCProductCreated": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/ApheresisRBCProductCreated"
+          }
+        },
+        "name": "ApheresisRBCProductCreated",
+        "title": "ProductCreatedMessage",
+        "description": "Message for completed ApheresisRBCProductCreated process",
         "bindings": {}
       },
       "CheckInCompleted": {
@@ -1578,20 +1614,6 @@
         "description": "Message for updating quarantined product",
         "bindings": {}
       },
-      "com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage": {
-        "headers": {
-          "$ref": "#/components/schemas/HeadersNotDocumented"
-        },
-        "payload": {
-          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
-          "schema": {
-            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage"
-          }
-        },
-        "name": "com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage",
-        "title": "ProductCreatedMessage",
-        "bindings": {}
-      },
       "com.arcone.biopro.distribution.inventory.adapter.in.listener.unsuitable.UnsuitableMessage": {
         "headers": {
           "$ref": "#/components/schemas/HeadersNotDocumented"
@@ -1647,7 +1669,21 @@
       "bindings": {},
       "messages": [
         {
-          "$ref": "#/channels/ApheresisPlasmaProductCreated/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage"
+          "$ref": "#/channels/ApheresisPlasmaProductCreated/messages/ApheresisRBCProductCreated"
+        }
+      ]
+    },
+    "ApheresisPlasmaProductCreated_send_productCreatedConsumerTemplate": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/ApheresisPlasmaProductCreated"
+      },
+      "title": "ApheresisPlasmaProductCreated_send",
+      "description": "Apheresis Plasma Product Created Event",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/ApheresisPlasmaProductCreated/messages/ApheresisPlasmaProductCreated"
         }
       ]
     },
@@ -1675,7 +1711,7 @@
       "bindings": {},
       "messages": [
         {
-          "$ref": "#/channels/ApheresisPlateletProductCreated/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage"
+          "$ref": "#/channels/ApheresisPlateletProductCreated/messages/ApheresisRBCProductCreated"
         }
       ]
     },
@@ -1703,7 +1739,7 @@
       "bindings": {},
       "messages": [
         {
-          "$ref": "#/channels/ApheresisRBCProductCreated/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage"
+          "$ref": "#/channels/ApheresisRBCProductCreated/messages/ApheresisRBCProductCreated"
         }
       ]
     },
@@ -1969,7 +2005,7 @@
       "bindings": {},
       "messages": [
         {
-          "$ref": "#/channels/WholeBloodProductCreated/messages/com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage"
+          "$ref": "#/channels/WholeBloodProductCreated/messages/ApheresisRBCProductCreated"
         }
       ]
     }
