@@ -8,9 +8,9 @@ include:
     inputs:
       service: distribution
       build_cmd: | 
+        npm run build:prod
         npm run test >/dev/null 2>&1 || true
         npm run test
-        npm run build:prod
   - project: arc-one/infrastructure/gitlab-ci
     ref: main
     file: spec.backend.pipeline.yml
