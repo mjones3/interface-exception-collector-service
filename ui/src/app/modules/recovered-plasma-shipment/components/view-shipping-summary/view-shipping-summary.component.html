@@ -10,7 +10,9 @@
 </div>
 <div id="viewShippingSummaryReport" class="h-full mx-6 mb-6 overflow-auto" style="font-family: sans-serif;">
     @if (data; as report) {
-    <div class="text-center text-xl mb-4">{{ report.shipFromBloodCenterName }}</div>
+    @if (report?.displayHeader) {
+    <div class="text-center text-xl mb-4">{{ report.headerStatement }}</div>
+    }
     <div class="mx-10 mb-6 text-3xl text-blue-900 border-b-2 border-b-blue-700">
         Plasma Shipment Summary Report
     </div>

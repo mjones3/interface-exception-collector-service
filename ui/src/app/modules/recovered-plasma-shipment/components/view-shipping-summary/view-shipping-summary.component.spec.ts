@@ -78,9 +78,9 @@ describe('ViewShippingSummaryComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should display blood center name in header', () => {
+    it('should display the header title', () => {
         const headerElement = fixture.debugElement.query(By.css('.text-center.text-xl'));
-        expect(headerElement.nativeElement.textContent).toBe('Sending Blood Center');
+        expect(headerElement.nativeElement.textContent).toBe('Plasma Shipment Summary');
     });
 
     describe('Ship To/From Section', () => {
