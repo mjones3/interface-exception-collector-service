@@ -146,7 +146,7 @@ public class SharedActions {
         element.sendKeys(text);
     }
 
-    public void sendKeys (By locator, String text) {
+    public void sendKeys(By locator, String text) {
         waitForVisible(locator);
         wait.until(e -> {
             log.debug("Sending keys {} to element {}.", text, locator);
@@ -211,7 +211,7 @@ public class SharedActions {
         String bannerMessageLocator;
         String msg;
 
-        if(header.startsWith("Confirmation") || header.startsWith("Close") || header.startsWith("Repack")){
+        if (header.startsWith("Confirmation") || header.startsWith("Close") || header.startsWith("Repack")) {
             bannerMessageLocator = "//mat-dialog-container[starts-with(@id,'mat-mdc-dialog')]";
             waitForVisible(By.xpath(bannerMessageLocator));
             msg = wait.until(e -> e.findElement(By.xpath(bannerMessageLocator))).getText();
@@ -242,7 +242,6 @@ public class SharedActions {
         Assert.assertEquals(header.toUpperCase(), msgParts[0].toUpperCase());
         Assert.assertEquals(message.toUpperCase(), msgParts[1].toUpperCase());
     }
-
 
 
     public void waitLoadingAnimation() throws InterruptedException {
@@ -307,7 +306,7 @@ public class SharedActions {
 
     public void navigateTo(String url) {
         wait.until(e -> {
-            log.debug("Navigating to URL: {}", baseUrl+url);
+            log.debug("Navigating to URL: {}", baseUrl + url);
             e.get(baseUrl + url);
             return true;
         });
@@ -343,13 +342,26 @@ public class SharedActions {
         }
     }
 
-    public void pressESC() {
-        wait.until(e -> {
-        Actions actions = new Actions(e);
-        actions.sendKeys(Keys.ESCAPE).build().perform();
-        return true;
+    public boolean pressESC() {
+        return wait.until(e -> {
+            Actions actions = new Actions(e);
+            actions.sendKeys(Keys.ESCAPE).build().perform();
+            return true;
         });
     }
+
+    public void pressEscOnSecondTab(WebDriver driver) {
+        if (driver == null) {
+            throw new IllegalArgumentException("Driver cannot be null when switchTab is true.");
+        }
+        driver.switchTo().window(driver.getWindowHandles().toArray(new String[0])[1]);
+        if (pressESC()) {
+            driver.switchTo().window(driver.getWindowHandles().toArray(new String[0])[0]);
+            log.debug("URL: {}", driver.getCurrentUrl());
+            log.debug("WindowHandle: {}", driver.getWindowHandle());
+        }
+    }
+
 
     public void moveToNewTab(WebDriver driver, int expectedWindowsNumber) {
         wait.until(numberOfWindowsToBe(expectedWindowsNumber));

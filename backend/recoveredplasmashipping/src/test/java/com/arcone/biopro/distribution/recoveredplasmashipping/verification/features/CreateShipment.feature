@@ -13,12 +13,12 @@ Feature: Shipment Creation
         And I close the acknowledgment message.
         When I choose to create a shipment.
         And I have entered all the fields:
-            | Field                           | Value                         |
-            | Customer                        | Bio Products                  |
-            | Product Type                    | RP NONINJECTABLE REFRIGERATED |
-            | Carton Tare Weight              | 1000                          |
-            | Shipment Date                   | <tomorrow>                    |
-            | Transportation Reference Number | 111222333                     |
+            | Field                           | Value                      |
+            | Customer                        | Prothya                    |
+            | Product Type                    | RP FROZEN WITHIN 120 HOURS |
+            | Carton Tare Weight              | 1000                       |
+            | Shipment Date                   | <tomorrow>                 |
+            | Transportation Reference Number | 111222333                  |
         When I choose to submit the shipment.
         Then I should see a "SUCCESS" message: "Shipment created successfully".
         And I should be redirected to the Shipment Details page.

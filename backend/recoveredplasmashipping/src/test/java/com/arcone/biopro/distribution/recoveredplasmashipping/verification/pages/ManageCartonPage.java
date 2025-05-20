@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.recoveredplasmashipping.verification.page
 import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -14,6 +15,9 @@ public class ManageCartonPage extends CommonPageFactory {
     private SharedActions sharedActions;
     @Autowired
     private HomePage homePage;
+
+    @Value("${selenium.headless.execution}")
+    private boolean headless;
 
     private final By manageCartonHeader = By.xpath("//h3//span[contains(text(),'Manage Carton Products')]");
     private final By cartonNumber = By.id("informationDetails-Carton-Number-value");
@@ -124,5 +128,12 @@ public class ManageCartonPage extends CommonPageFactory {
 
     public void closeCarton() {
         sharedActions.click(closeCartonButton);
+    }
+
+    public void closePrintTab() throws InterruptedException {
+        if (!headless){
+        Thread.sleep(2000);
+        sharedActions.pressEscOnSecondTab(driver);
+        }
     }
 }
