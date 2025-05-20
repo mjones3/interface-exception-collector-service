@@ -6,7 +6,10 @@
     "scripts": {
         "ng": "ng",
         "start": "ng serve --proxy-config proxy.conf.json --open",
+        "start:local": "ng serve --proxy-config local-proxy.conf.json --open",
         "build": "ng build",
+        "build:prod": "ng build --configuration production",
+        "build:development": "ng build --configuration development",
         "watch": "ng build --watch --configuration development",
         "test": "jest",
         "test:failures": "jest --only-failures",
