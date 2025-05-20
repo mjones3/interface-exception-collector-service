@@ -11,6 +11,8 @@ import { ShipmentService } from '../services/shipment.service';
 import { VerifyProductsNotificationsComponent } from './verify-products-notifications.component';
 import { AuthState } from 'app/core/state/auth/auth.reducer';
 
+jest.mock('keycloak-js');
+
 const SHIPMENT_ID = 1;
 describe('VerifyProductsNotificationsComponent', () => {
     let component: VerifyProductsNotificationsComponent;

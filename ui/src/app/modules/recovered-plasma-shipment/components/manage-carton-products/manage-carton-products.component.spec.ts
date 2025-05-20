@@ -23,6 +23,8 @@ import { ApolloQueryResult } from '@apollo/client';
 import { UseCaseResponseDTO } from 'app/shared/models/use-case-response.dto';
 import { VerifyProductsComponent } from 'app/modules/shipments/verify-products/verify-products.component';
 
+jest.mock('keycloak-js');
+
 // Mock child components
 @Component({
   selector: 'biopro-add-recovered-plasma-products',
