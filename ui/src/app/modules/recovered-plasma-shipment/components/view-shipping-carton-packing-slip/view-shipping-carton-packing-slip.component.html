@@ -1,6 +1,6 @@
 <div class="modal-body-width">
     <div id="viewShippingCartonPackingSlipReport" class="px-6 py-0" style="font-family: sans-serif;">
-        @if (reportModel(); as report) {
+        @if (data; as report) {
             <p class="text-center font-bold">
                 <span data-testid="blood-center-name" class="text-xl">{{ report?.shipFromBloodCenterName }}</span>
                 @if (report?.displayLicenceNumber) {
@@ -73,7 +73,7 @@
                 </table>
 
                 <!-- Products Table with 3 columns -->
-                @if (reportModelProductsCount() <= splitGroupsTableRowsCount) {
+                @if ((report.products?.length ?? 0) <= splitGroupsTableRowsCount) {
                 <table
                     id="packingSlipUnitsTable"
                     class="w-full grid-borders"
@@ -102,7 +102,7 @@
                 }
 
                 <!-- Products Table with 6 columns -->
-                @if (reportModelProductsCount() > splitGroupsTableRowsCount) {
+                @if ((report.products?.length ?? 0) > splitGroupsTableRowsCount) {
                 <table
                     id="packingSlipUnitGroupsTable"
                     class="w-full grid-borders"
@@ -122,7 +122,7 @@
                     </thead>
 
                     <tbody>
-                        @for (group of reportModelProductsByGroups(); track $index) {
+                        @for (group of reportModelProductsByGroups; track $index) {
                             <tr>
                                 <td class="text-center">{{ group?.leftSide?.unitNumber }}</td>
                                 <td class="text-center">{{ group?.leftSide?.collectionDate }}</td>

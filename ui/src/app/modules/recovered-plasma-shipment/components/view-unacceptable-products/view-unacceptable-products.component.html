@@ -10,7 +10,7 @@
 </div>
 <div id="viewUnacceptableProductsReport" class="h-full mx-6 mb-6 overflow-auto" style="font-family: sans-serif;">
     <div class="flex flex-col gap-4">
-        @if (reportModel(); as report) {
+        @if (data; as report) {
             <h2 class="text-3xl text-blue-900 border-b-2 border-b-blue-700">{{ report.reportTitle }}</h2>
 
             @if (report?.failedProducts?.length) {

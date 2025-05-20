@@ -14,9 +14,10 @@ import { RecoveredPlasmaService } from '../../services/recovered-plasma.service'
 import { RecoveredPlasmaShippingDetailsComponent } from './recovered-plasma-shipping-details.component';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { BrowserPrintingService } from '../../../../core/services/browser-printing/browser-printing.service';
-import { ViewShippingCartonPackingSlipComponent } from '../view-shipping-carton-packing-slip/view-shipping-carton-packing-slip.component';
+import {
+    ViewShippingCartonPackingSlipComponent
+} from '../view-shipping-carton-packing-slip/view-shipping-carton-packing-slip.component';
 import { CartonPackingSlipDTO } from '../../graphql/query-definitions/generate-carton-packing-slip.graphql';
-import { RepackCartonDialogComponent } from '../repack-carton-dialog/repack-carton-dialog.component';
 import { ToastrModule, ToastrService } from 'ngx-toastr';
 
 describe('RecoveredPlasmaShippingDetailsComponent', () => {
@@ -405,6 +406,46 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         fixture.detectChanges();
         const button = fixture.debugElement
             ?.query(By.css('button[data-testid=view-shipping-carton-packing-slip]'))
+            ?.nativeElement;
+
+        expect(button).toBeFalsy();
+    });
+
+    it('should show shipment close button when canClose is true', () => {
+        jest.spyOn(component, 'shipmentDetailsSignal').mockReturnValue({ canClose: true });
+        fixture.detectChanges();
+        const button = fixture.debugElement
+            ?.query(By.css('button#closeShipmentBtnId'))
+            ?.nativeElement;
+
+        expect(button).toBeTruthy();
+    });
+
+    it('should hide shipment close button when canClose is false', () => {
+        jest.spyOn(component, 'shipmentDetailsSignal').mockReturnValue({ canClose: false });
+        fixture.detectChanges();
+        const button = fixture.debugElement
+            ?.query(By.css('button#closeShipmentBtnId'))
+            ?.nativeElement;
+
+        expect(button).toBeFalsy();
+    });
+
+    it('should show reports button when shipment status is "CLOSED"', () => {
+        jest.spyOn(component, 'shipmentDetailsSignal').mockReturnValue({ status: 'CLOSED' });
+        fixture.detectChanges();
+        const button = fixture.debugElement
+            ?.query(By.css('button#reportsDialogBtnId'))
+            ?.nativeElement;
+
+        expect(button).toBeTruthy();
+    });
+
+    it('should hide reports button when shipment status is not "CLOSED"', () => {
+        jest.spyOn(component, 'shipmentDetailsSignal').mockReturnValue({ status: 'OPEN' });
+        fixture.detectChanges();
+        const button = fixture.debugElement
+            ?.query(By.css('button#reportsDialogBtnId'))
             ?.nativeElement;
 
         expect(button).toBeFalsy();
