@@ -6,7 +6,6 @@ import { ActionButtonComponent } from '../../../../shared/components/buttons/act
 import { MatIcon } from '@angular/material/icon';
 import { MatIconButton } from '@angular/material/button';
 import { BrowserPrintingService } from '../../../../core/services/browser-printing/browser-printing.service';
-import { DatePipe } from '@angular/common';
 import { ShippingSummaryReportDTO } from '../../graphql/query-definitions/print-shipping-summary-report.graphql';
 
 @Component({
@@ -24,7 +23,6 @@ import { ShippingSummaryReportDTO } from '../../graphql/query-definitions/print-
 })
 export class ViewShippingSummaryComponent extends PrintableReportComponent {
 
-    datePipe = inject(DatePipe);
     browserPrintingService = inject(BrowserPrintingService);
 
     constructor(
@@ -36,10 +34,6 @@ export class ViewShippingSummaryComponent extends PrintableReportComponent {
 
     print() {
         this.browserPrintingService.print('viewShippingSummaryReport');
-    }
-
-    get today(): string {
-        return this.datePipe.transform(new Date(), 'MM/dd/yyyy')
     }
 
 }
