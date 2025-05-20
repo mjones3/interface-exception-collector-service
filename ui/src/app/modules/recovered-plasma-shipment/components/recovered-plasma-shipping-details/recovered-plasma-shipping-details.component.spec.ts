@@ -1,4 +1,4 @@
-import { CommonModule, DatePipe, formatDate } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { By } from '@angular/platform-browser';
@@ -6,7 +6,6 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApolloError, ApolloQueryResult } from '@apollo/client';
 import { Store } from '@ngrx/store';
-import { ToastrImplService } from '@shared';
 import { CookieService } from 'ngx-cookie-service';
 import { of, throwError } from 'rxjs';
 import { UseCaseResponseDTO } from '../../../../shared/models/use-case-response.dto';
@@ -15,16 +14,18 @@ import { RecoveredPlasmaService } from '../../services/recovered-plasma.service'
 import { RecoveredPlasmaShippingDetailsComponent } from './recovered-plasma-shipping-details.component';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { BrowserPrintingService } from '../../../../core/services/browser-printing/browser-printing.service';
-import { ViewShippingCartonPackingSlipComponent } from '../view-shipping-carton-packing-slip/view-shipping-carton-packing-slip.component';
+import {
+    ViewShippingCartonPackingSlipComponent
+} from '../view-shipping-carton-packing-slip/view-shipping-carton-packing-slip.component';
 import { CartonPackingSlipDTO } from '../../graphql/query-definitions/generate-carton-packing-slip.graphql';
-import { RepackCartonDialogComponent } from '../repack-carton-dialog/repack-carton-dialog.component';
+import { ToastrModule, ToastrService } from 'ngx-toastr';
 
 describe('RecoveredPlasmaShippingDetailsComponent', () => {
     let component: RecoveredPlasmaShippingDetailsComponent;
     let fixture: ComponentFixture<RecoveredPlasmaShippingDetailsComponent>;
     let mockRouter: jest.Mocked<Router>;
     let mockRecoveredPlasmaService: jest.Mocked<RecoveredPlasmaService>;
-    let mockToastrService: jest.Mocked<ToastrImplService>;
+    let mockToastrService: jest.Mocked<ToastrService>;
     let mockStore: jest.Mocked<Store>;
     let cookieService: jest.Mocked<CookieService>;
     let mockMatDialog: jest.Mocked<MatDialog>;
@@ -67,7 +68,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
             success: jest.fn(),
             warning: jest.fn(),
             show: jest.fn(),
-        } as Partial<ToastrImplService> as jest.Mocked<ToastrImplService>;
+        } as Partial<ToastrService> as jest.Mocked<ToastrService>;
 
         mockStore = {
             select: jest.fn(),
@@ -100,13 +101,14 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
                 NoopAnimationsModule,
                 CommonModule,
                 MatIconTestingModule,
+                ToastrModule.forRoot()
             ],
             providers: [
                 DatePipe,
                 { provide: ActivatedRoute, useValue: mockActivatedRoute },
                 { provide: Router, useValue: mockRouter },
                 { provide: RecoveredPlasmaService, useValue: mockRecoveredPlasmaService },
-                { provide: ToastrImplService, useValue: mockToastrService },
+                { provide: ToastrService, useValue: mockToastrService },
                 { provide: CookieService, useValue: cookieService },
                 { provide: Store, useValue: mockStore },
                 { provide: MatDialog, useValue: mockMatDialog },
@@ -409,6 +411,46 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         expect(button).toBeFalsy();
     });
 
+    it('should show shipment close button when canClose is true', () => {
+        jest.spyOn(component, 'shipmentDetailsSignal').mockReturnValue({ canClose: true });
+        fixture.detectChanges();
+        const button = fixture.debugElement
+            ?.query(By.css('button#closeShipmentBtnId'))
+            ?.nativeElement;
+
+        expect(button).toBeTruthy();
+    });
+
+    it('should hide shipment close button when canClose is false', () => {
+        jest.spyOn(component, 'shipmentDetailsSignal').mockReturnValue({ canClose: false });
+        fixture.detectChanges();
+        const button = fixture.debugElement
+            ?.query(By.css('button#closeShipmentBtnId'))
+            ?.nativeElement;
+
+        expect(button).toBeFalsy();
+    });
+
+    it('should show reports button when shipment status is "CLOSED"', () => {
+        jest.spyOn(component, 'shipmentDetailsSignal').mockReturnValue({ status: 'CLOSED' });
+        fixture.detectChanges();
+        const button = fixture.debugElement
+            ?.query(By.css('button#reportsDialogBtnId'))
+            ?.nativeElement;
+
+        expect(button).toBeTruthy();
+    });
+
+    it('should hide reports button when shipment status is not "CLOSED"', () => {
+        jest.spyOn(component, 'shipmentDetailsSignal').mockReturnValue({ status: 'OPEN' });
+        fixture.detectChanges();
+        const button = fixture.debugElement
+            ?.query(By.css('button#reportsDialogBtnId'))
+            ?.nativeElement;
+
+        expect(button).toBeFalsy();
+    });
+
     it('should not call closeShipment service when result is falsy', () => {
         component.handleCloseShipmentContinue(null);
         expect(mockRecoveredPlasmaService.closeShipment).not.toHaveBeenCalled();
@@ -594,7 +636,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
 
         it('should navigate to next URL when repackCarton API call succeeds', () => {
             mockDialogRef.afterClosed.mockReturnValue(of(req));
-            
+
             mockRecoveredPlasmaService.repackCarton.mockReturnValue(of(repackMockData));
             component.repackCarton(cartonId);
             expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('/test-url');
@@ -605,7 +647,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
             const responseWithoutNextUrl = {
                 data: {
                     repackCarton: {
-                        notifications: [{ 
+                        notifications: [{
                             message: "Products successfully removed",
                             type: "SUCCESS",
                             code: 18
@@ -614,11 +656,11 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
                             id: 1,
                             cartonNumber: "BPMMH11"
                         },
-                        _links: {} 
+                        _links: {}
                     }
                 }
             };
-            
+
             mockRecoveredPlasmaService.repackCarton.mockReturnValue(of(responseWithoutNextUrl));
             component.repackCarton(cartonId);
             expect(mockRouter.navigateByUrl).not.toHaveBeenCalled();
@@ -627,7 +669,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         it('should not make API call when dialog is closed without comments (undefined)', () => {
             // Setup the dialog to return undefined when closed (cancel button)
             mockDialogRef.afterClosed.mockReturnValue(of(undefined));
-            
+
             component.repackCarton(cartonId);
             expect(mockMatDialog.open).toHaveBeenCalled();
             expect(mockRecoveredPlasmaService.repackCarton).not.toHaveBeenCalled();
@@ -639,7 +681,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
                 errorMessage: 'Network error',
             });
             mockRecoveredPlasmaService.repackCarton.mockReturnValue(throwError(() => mockError));
-            
+
             component.repackCarton(cartonId);
             expect(mockToastrService.error).toHaveBeenCalled();
         });
@@ -647,7 +689,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         it('should display notifications from API response', () => {
             mockDialogRef.afterClosed.mockReturnValue(of(req));
             mockRecoveredPlasmaService.repackCarton.mockReturnValue(of(repackMockData));
-            
+
             component.repackCarton(cartonId);
             expect(mockToastrService.show).toHaveBeenCalled();
         });

@@ -6,6 +6,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.verification.suppo
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.SharedContext;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.graphql.GraphQLMutationMapper;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.graphql.GraphQLQueryMapper;
+import io.cucumber.spring.ScenarioScope;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import java.util.Map;
 
 @Slf4j
 @Component
+@ScenarioScope
 public class CreateShipmentController {
 
     @Autowired
@@ -147,6 +149,17 @@ public class CreateShipmentController {
         String payload = GraphQLQueryMapper.printUnacceptalbleUnitsReport(Integer.parseInt(shipmentId), sharedContext.getEmployeeId(),locationCode);
         var response = apiHelper.graphQlRequest(payload, "printUnacceptableUnitsReport");
         sharedContext.setLastUnacceptableUnitsReportResponse((Map) response.get("data"));
+    }
+
+    public void updateShipmentStatus(String shipmentId, String status) {
+        databaseService.executeSql(DatabaseQueries.UPDATE_SHIPMENT_STATUS(shipmentId, status)).block();
+    }
+
+    public Map printShippingSummaryReport(String shipmentId, String locationCode) {
+        String payload = GraphQLQueryMapper.printShippingSummaryReport(Integer.parseInt(shipmentId), sharedContext.getEmployeeId(),locationCode);
+        var response = apiHelper.graphQlRequest(payload, "printShippingSummaryReport");
+        sharedContext.setLastShippingSummaryReportResponse((Map) response.get("data"));
+        return response;
     }
 
 

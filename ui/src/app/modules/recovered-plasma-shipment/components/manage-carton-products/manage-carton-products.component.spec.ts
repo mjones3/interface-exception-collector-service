@@ -4,11 +4,11 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { of, throwError } from 'rxjs';
-import { ToastrModule } from 'ngx-toastr';
+import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { ApolloTestingModule } from 'apollo-angular/testing';
 import { DatePipe } from '@angular/common';
 import { RecoveredPlasmaService } from '../../services/recovered-plasma.service';
-import { ProcessHeaderService, ToastrImplService } from '@shared';
+import { ProcessHeaderService } from '@shared';
 import { CookieService } from 'ngx-cookie-service';
 import { ProductIconsService } from 'app/shared/services/product-icon.service';
 import { ApolloError } from '@apollo/client/errors';
@@ -49,7 +49,7 @@ describe('ManageCartonComponent', () => {
   let fixture: ComponentFixture<ManageCartonComponent>;
   let router: Router;
   let service: RecoveredPlasmaService;
-  let toastr: ToastrImplService;
+  let toastr: ToastrService;
   let cookieService: CookieService;
   let store: MockStore;
   let activatedRoute: ActivatedRoute;
@@ -141,12 +141,12 @@ describe('ManageCartonComponent', () => {
           }
         },
         {
-          provide: ToastrImplService,
+          provide: ToastrService,
           useValue: {
             error: jest.fn(),
             success: jest.fn(),
             show: jest.fn()
-          } as Partial<ToastrImplService> as jest.Mocked<ToastrImplService>
+          } as Partial<ToastrService> as jest.Mocked<ToastrService>
         },
         {
           provide: CookieService,
@@ -175,7 +175,7 @@ describe('ManageCartonComponent', () => {
     component = fixture.componentInstance;
     router = TestBed.inject(Router);
     service = TestBed.inject(RecoveredPlasmaService);
-    toastr = TestBed.inject(ToastrImplService);
+    toastr = TestBed.inject(ToastrService);
     cookieService = TestBed.inject(CookieService);
     store = TestBed.inject(MockStore);
     activatedRoute = TestBed.inject(ActivatedRoute);

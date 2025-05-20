@@ -13,6 +13,7 @@ type Query {
     findCartonById(cartonId:ID!): UseCaseResponseDTO!
     generateCartonPackingSlip(generateCartonPackingSlipRequest:GenerateCartonPackingSlipRequestDTO!): UseCaseResponseDTO!
     printUnacceptableUnitsReport(printUnacceptableUnitReportRequest:PrintUnacceptableUnitReportRequestDTO!): UseCaseResponseDTO!
+    printShippingSummaryReport(printShippingSummaryReportRequest:PrintShippingSummaryReportRequestDTO!): UseCaseResponseDTO!
 }
 
 type Mutation {
@@ -112,6 +113,12 @@ input RepackCartonRequestDTO {
     employeeId:String!
     locationCode:String!
     comments:String
+}
+
+input PrintShippingSummaryReportRequestDTO {
+    shipmentId:Int!
+    employeeId:String!
+    locationCode:String!
 }
 
 type OutputQuerySortDTO {

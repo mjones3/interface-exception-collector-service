@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.recoveredplasmashipping.application.useca
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.exception.DomainNotFoundForKeyException;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.event.RecoveredPlasmaShipmentClosedEvent;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.event.RecoveredPlasmaShipmentProcessingEvent;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.InventoryValidation;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.RecoveredPlasmaShipment;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.ValidateInventoryCommand;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.vo.UnacceptableUnitReportItem;
@@ -66,21 +67,32 @@ public class RecoveredPlasmaShipmentProcessingUseCase {
 
 
     private Flux<UnacceptableUnitReportItem> processCartonItems(RecoveredPlasmaShipment recoveredPlasmaShipment){
+        return inventoryService.validateInventoryBatch(this.getValidateCommand(recoveredPlasmaShipment))
+            .flatMap(inventoryValidation -> this.processInventoryResponse(inventoryValidation,recoveredPlasmaShipment));
+    }
+
+    private Flux<ValidateInventoryCommand> getValidateCommand(RecoveredPlasmaShipment recoveredPlasmaShipment){
         return cartonItemRepository.findAllByShipmentId(recoveredPlasmaShipment.getId())
-            .flatMap(cartonItem -> {
-                return inventoryService.validateInventoryBatch(Flux.just(new ValidateInventoryCommand(cartonItem.getUnitNumber(), cartonItem.getProductCode(), recoveredPlasmaShipment.getLocationCode())))
-                    .flatMap(inventoryValidation -> {
-                        var notification = inventoryValidation.getFirstNotification();
-                        if (notification != null && !INVENTORY_PACKED_ERROR_TYPE.equals(notification.getErrorName()) ) {
-                            return cartonRepository.findOneById(cartonItem.getCartonId())
-                                .flatMap(carton -> cartonRepository.update(carton.markAsRepack()))
-                                .flatMap(cartonRepacked -> unacceptableUnitReportRepository.save(new UnacceptableUnitReportItem(recoveredPlasmaShipment.getId()
-                                    , cartonRepacked.getCartonNumber(), cartonRepacked.getCartonSequence()
-                                    , cartonItem.getUnitNumber(), cartonItem.getProductCode(), notification.getErrorMessage(), ZonedDateTime.now())));
-                        } else {
-                            return Mono.empty();
-                        }
-                    });
-            });
+            .map(cartonItem -> {
+                return new ValidateInventoryCommand(cartonItem.getUnitNumber()
+                    , cartonItem.getProductCode(), recoveredPlasmaShipment.getLocationCode());
+            }
+        );
+    }
+
+    private Mono<UnacceptableUnitReportItem> processInventoryResponse(InventoryValidation inventoryValidation , RecoveredPlasmaShipment recoveredPlasmaShipment){
+
+        var notification = inventoryValidation.getFirstNotification();
+        if (notification != null && !INVENTORY_PACKED_ERROR_TYPE.equals(notification.getErrorName()) ) {
+            var inventory = inventoryValidation.getInventory();
+            return cartonItemRepository.findOneByShipmentIdAndProduct(recoveredPlasmaShipment.getId(), inventory.getUnitNumber(),inventory.getProductCode())
+                .flatMap(cartonItem -> cartonRepository.findOneById(cartonItem.getCartonId())
+                    .flatMap(carton -> cartonRepository.update(carton.markAsRepack()))
+                    .flatMap(cartonRepacked -> unacceptableUnitReportRepository.save(new UnacceptableUnitReportItem(recoveredPlasmaShipment.getId()
+                        , cartonRepacked.getCartonNumber(), cartonRepacked.getCartonSequence()
+                        , cartonItem.getUnitNumber(), cartonItem.getProductCode(), notification.getErrorMessage(), ZonedDateTime.now()))));
+        } else {
+            return Mono.empty();
+        }
     }
 }

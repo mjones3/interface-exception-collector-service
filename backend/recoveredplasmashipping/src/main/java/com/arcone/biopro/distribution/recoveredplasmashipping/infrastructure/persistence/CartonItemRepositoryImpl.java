@@ -41,4 +41,10 @@ public class CartonItemRepositoryImpl implements CartonItemRepository {
        return cartonItemEntityRepository.findAllByShipmentId(shipmentId)
             .map(cartonItemEntityMapper::entityToModel);
     }
+
+    @Override
+    public Mono<CartonItem> findOneByShipmentIdAndProduct(Long shipmentId, String unitNumber, String productCode) {
+        return cartonItemEntityRepository.findByShipmentIdAndProduct(shipmentId,unitNumber,productCode)
+            .map(cartonItemEntityMapper::entityToModel);
+    }
 }

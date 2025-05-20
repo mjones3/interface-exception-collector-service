@@ -3,8 +3,8 @@ import { By } from '@angular/platform-browser';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ViewShippingCartonPackingSlipComponent } from './view-shipping-carton-packing-slip.component';
 import {
-  CartonPackingSlipDTO,
-  PackingSlipProductDTO
+    CartonPackingSlipDTO,
+    PackingSlipProductDTO
 } from '../../graphql/query-definitions/generate-carton-packing-slip.graphql';
 
 describe('ViewShippingCartonPackingSlipComponent', () => {
@@ -86,7 +86,7 @@ describe('ViewShippingCartonPackingSlipComponent', () => {
     });
 
     it('should set reportModel property from injected data', () => {
-      expect(component.reportModel()).toEqual(mockCartonPackingSlip);
+      expect(component.data).toEqual(mockCartonPackingSlip);
     });
 
     it('should display blood center name and license number', () => {

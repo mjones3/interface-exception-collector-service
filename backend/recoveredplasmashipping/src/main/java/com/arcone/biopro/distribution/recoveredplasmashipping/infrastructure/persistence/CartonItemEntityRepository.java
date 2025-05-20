@@ -18,4 +18,7 @@ public interface CartonItemEntityRepository extends ReactiveCrudRepository<Carto
     @Query("select * from bld_recovered_plasma_shipment_carton_item where carton_id in (select id from bld_recovered_plasma_shipment_carton where recovered_plasma_shipment_id = :shipmentId) ")
     Flux<CartonItemEntity> findAllByShipmentId(@Param("shipmentId") Long shipmentId);
 
+    @Query("select * from bld_recovered_plasma_shipment_carton_item where unit_number = :unitNumber and product_code = :productCode and carton_id in (select id from bld_recovered_plasma_shipment_carton where recovered_plasma_shipment_id = :shipmentId) ")
+    Mono<CartonItemEntity> findByShipmentIdAndProduct(@Param("shipmentId") Long shipmentId , @Param("unitNumber") String unitNumber , @Param("productCode") String productCode);
+
 }

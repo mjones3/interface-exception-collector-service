@@ -1,7 +1,6 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.verification.steps;
 
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.controllers.CartonTestingController;
-import com.arcone.biopro.distribution.recoveredplasmashipping.verification.controllers.CreateShipmentController;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.pages.ManageCartonPage;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.SharedContext;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.TestUtils;
@@ -18,8 +17,6 @@ public class VerifyCartonProductSteps {
     private SharedContext sharedContext;
     @Autowired
     private TestUtils testUtils;
-    @Autowired
-    private CreateShipmentController createShipmentController;
     @Autowired
     private ManageCartonPage manageCartonPage;
     @Autowired
@@ -71,6 +68,7 @@ public class VerifyCartonProductSteps {
     @And("I choose to close the carton.")
     public void closeCarton() throws InterruptedException {
         manageCartonPage.closeCarton();
+        manageCartonPage.closePrintTab();
     }
 
     @And("I have verified product with the unit number {string}, product code {string} and product type {string}.")

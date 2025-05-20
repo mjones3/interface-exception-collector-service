@@ -27,7 +27,7 @@ import java.util.List;
 public class UnacceptableUnitReport implements Validatable {
 
     private String shipmentNumber;
-    private static final String REPORT_TITLE = "Unacceptable Product Report";
+    private static final String REPORT_TITLE = "Unacceptable Products Report";
     private String dateTimeExported;
     private List<UnacceptableUnitReportItem> failedProducts;
     private static final String NO_PRODUCTS_FLAGGED_MESSAGE = "The shipment contains no defective products";

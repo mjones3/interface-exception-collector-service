@@ -5,7 +5,6 @@ import { ScanUnitNumberProductCodeComponent } from 'app/shared/components/scan-u
 import { CookieService } from 'ngx-cookie-service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { ToastrImplService } from '@shared';
 import { ProductIconsService } from 'app/shared/services/product-icon.service';
 import { RecoveredPlasmaService } from '../../services/recovered-plasma.service';
 import { MatDividerModule } from '@angular/material/divider';
@@ -14,6 +13,7 @@ import { UnitNumberCardComponent } from 'app/shared/components/unit-number-card/
 import { ShippingCartonInformationCardComponent } from '../../shared/shipping-carton-information-card/shipping-carton-information-card.component';
 import { ShippingInformationCardComponent } from '../../shared/shipping-information-card/shipping-information-card.component';
 import { FuseCardComponent } from '@fuse/components/card/public-api';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'biopro-verify-recovered-plasma-products',
@@ -41,7 +41,7 @@ constructor(
     protected router: Router,
     protected route: ActivatedRoute,
     protected store: Store,
-    protected toastr: ToastrImplService,
+    protected toastr: ToastrService,
     protected productIconService: ProductIconsService,
     protected recoveredPlasmaService: RecoveredPlasmaService,
     protected cookieService: CookieService,

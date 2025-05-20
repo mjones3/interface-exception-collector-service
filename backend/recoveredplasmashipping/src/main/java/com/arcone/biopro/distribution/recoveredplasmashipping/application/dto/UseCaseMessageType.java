@@ -25,7 +25,9 @@ public enum UseCaseMessageType {
     SHIPMENT_PROCESSING_SUCCESS(15,  UseCaseNotificationType.SUCCESS, "Close Shipment is in progress"),
     UNACCEPTABLE_UNITS_REPORT_PRINT_SUCCESS(16,  UseCaseNotificationType.SUCCESS, "Unacceptable Products report generated successfully"),
     UNACCEPTABLE_UNITS_REPORT_PRINT_ERROR(17,  UseCaseNotificationType.SYSTEM, "Unacceptable Products report generation error. Contact Support."),
-    CARTON_REPACKED_SUCCESS(18,  UseCaseNotificationType.SUCCESS, "Products successfully removed");
+    CARTON_REPACKED_SUCCESS(18,  UseCaseNotificationType.SUCCESS, "Products successfully removed"),
+    PRINT_SHIPPING_SUMMARY_REPORT_SUCCESS(19,  UseCaseNotificationType.SUCCESS, "Shipping Summary Report generated successfully"),
+    PRINT_SHIPPING_SUMMARY_REPORT_ERROR(20,  UseCaseNotificationType.SYSTEM, "Shipping Summary Report generation error. Contact Support.");
 
     Integer code;
     UseCaseNotificationType type;
