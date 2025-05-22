@@ -312,4 +312,9 @@ public class ShipmentDetailsSteps {
     public void iChooseToPrintTheShippingSummaryReport() {
         shipmentDetailsPage.clickPrintReportBtn();
     }
+
+    @And("The last shipment status should be {string}")
+    public void theLastShipmentStatusShouldBe(String status) {
+        Assertions.assertEquals(sharedContext.getFindShipmentApiResponse().get("status").toString(), status);
+    }
 }

@@ -367,4 +367,16 @@ public class SharedActions {
         wait.until(numberOfWindowsToBe(expectedWindowsNumber));
         driver.switchTo().window(driver.getWindowHandles().toArray(new String[0])[1]);
     }
+
+    public void verifyAcknowledgment(String title, String message) {
+        try {
+            String acknowledgmentLocator = "//fuse-confirmation-dialog";
+            waitForVisible(By.xpath(acknowledgmentLocator));
+
+            Assert.assertEquals(title, getText(By.id("ack-title")));
+            Assert.assertEquals(message, getText(By.id("ack-message")));
+        } catch (Exception e) {
+            throw new NoSuchElementException("Acknowledgment message not found");
+        }
+    }
 }
