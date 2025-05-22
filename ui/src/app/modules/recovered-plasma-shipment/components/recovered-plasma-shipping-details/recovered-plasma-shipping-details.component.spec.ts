@@ -21,7 +21,6 @@ import { CartonPackingSlipDTO } from '../../graphql/query-definitions/generate-c
 import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { ShipmentResponseDTO } from 'app/modules/shipments/models/shipment-info.dto';
-import { FuseConfirmationDialogComponent } from '@fuse/services/confirmation/dialog/dialog.component';
 
 describe('RecoveredPlasmaShippingDetailsComponent', () => {
     let component: RecoveredPlasmaShippingDetailsComponent;
@@ -36,7 +35,6 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
     let mockDialogRef: jest.Mocked<MatDialogRef<ViewShippingCartonPackingSlipComponent, CartonPackingSlipDTO | string>>;
     let mockConfirmationDialog: jest.Mocked<MatDialog>;
     let mockActivatedRoute: any;
-    let confirmationService: FuseConfirmationService;
 
     beforeEach(async () => {
         mockRouter = {
@@ -45,18 +43,20 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
             url: '/test-url',
         } as Partial<Router> as jest.Mocked<Router>;
 
-        mockConfirmationDialog = {
-            open: jest.fn().mockReturnValue(mockDialogRef),
-            } as Partial<MatDialog> as jest.Mocked<MatDialog>;;
-
         mockDialogRef = {
             afterOpened: jest.fn().mockReturnValue(of({})),
             afterClosed: jest.fn().mockReturnValue(of()),
             close: jest.fn(),
         } as Partial<MatDialogRef<ViewShippingCartonPackingSlipComponent, CartonPackingSlipDTO>> as jest.Mocked<MatDialogRef<ViewShippingCartonPackingSlipComponent, CartonPackingSlipDTO>>;
-
+        
         mockMatDialog = {
             open: jest.fn().mockReturnValue(mockDialogRef),
+        } as Partial<MatDialog> as jest.Mocked<MatDialog>;
+
+        mockConfirmationDialog = {
+            open: jest.fn().mockReturnValue({
+                afterClosed: () => of('confirmed')
+            }),
         } as Partial<MatDialog> as jest.Mocked<MatDialog>;
 
         mockBrowserPrintingService = {
@@ -122,6 +122,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
                 { provide: CookieService, useValue: cookieService },
                 { provide: Store, useValue: mockStore },
                 { provide: MatDialog, useValue: mockMatDialog },
+                { provide: FuseConfirmationService, useValue: mockConfirmationDialog },
                 { provide: BrowserPrintingService, useValue: mockBrowserPrintingService },
                 {provide: MAT_DIALOG_DATA, useValue: matDailogMockData}
             ],
@@ -698,12 +699,160 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         });
 
         it('should hide "remove carton button" when canAddCartons is false', () => {
-            const buttonIdCssSelector = By.css('#removeCarton + element.id');
+            jest.spyOn(component, 'cartonsComputed').mockReturnValue([{canRemove: false, id: 3}])
+            const buttonIdCssSelector = By.css('#removeCarton3');
             const root = fixture.debugElement;
-            jest.spyOn(component, 'cartonsComputed').mockReturnValue([{canRemove: true}])
             fixture.detectChanges();
             const button = root.query(buttonIdCssSelector)?.nativeElement;
-            expect(button).toBeFalsy();
+            expect(button).not.toBeTruthy();
         });
-    })
+    });
+
+    describe('removeCarton', () => {
+        const mockCartonId = 123;
+        const mockEmployeeId = 'emp123';
+
+        beforeEach(() => {
+            jest.clearAllMocks();
+        });
+
+        it('should open confirmation dialog with correct configuration', () => {
+            const expectedConfig = {
+                title: 'Remove Confirmation',
+                message: 'Carton will be removed. <b>Are you sure you want to continue?</b>',
+                dismissible: false,
+                icon: {
+                    show: false,
+                },
+                actions: {
+                    confirm: {
+                        label: 'Continue',
+                        class: 'bg-red-700 text-white',
+                    },
+                    cancel: {
+                        class: 'mat-secondary',
+                    },
+                },
+            };
+            
+            component.removeCarton(mockCartonId);
+
+            expect(mockConfirmationDialog.open).toHaveBeenCalledWith(expectedConfig);
+        });
+        
+        it('should remove carton and update shipment data when confirmed', () => {
+            const mockShipmentData = {
+                id: 1,
+                cartonList: [
+                    { id: 123, cartonNumber: 'C123' },
+                    { id: 456, cartonNumber: 'C456' }
+                ]
+            };
+            
+            const mockResponse = {
+                data: {
+                    removeCarton: {
+                        notifications: [{
+                            type: 'SUCCESS',
+                            message: 'Carton removed successfully'
+                        }]
+                    }
+                }
+            } as ApolloQueryResult<{ removeCarton: UseCaseResponseDTO<ShipmentResponseDTO> }>;
+        
+            const mockDialogRef = {
+                afterClosed: () => of('confirmed')
+            };
+        
+            mockConfirmationDialog.open.mockReturnValue(mockDialogRef as any);
+            mockRecoveredPlasmaService.removeLastCarton.mockReturnValue(of(mockResponse));
+            
+            component.shipmentDetailsSignal.set(mockShipmentData);
+            component.removeCarton(mockCartonId);
+        
+            expect(mockRecoveredPlasmaService.removeLastCarton).toHaveBeenCalledWith({
+                cartonId: mockCartonId,
+                employeeId: mockEmployeeId
+            });
+            expect(mockToastrService.show).toHaveBeenCalledWith(
+                'Carton removed successfully',
+                null,
+                {},
+                'success'
+            );
+            expect(component.shipmentDetailsSignal()).toEqual(mockResponse.data.removeCarton.data);
+        });
+     
+        it('should not remove carton when dialog is cancelled', () => {
+            const mockDialogRef = {
+                afterClosed: () => of('cancelled')
+            };
+     
+            mockConfirmationDialog.open.mockReturnValue(mockDialogRef as any);
+            
+            component.removeCarton(mockCartonId);
+     
+            expect(mockConfirmationDialog.open).toHaveBeenCalled();
+            expect(mockRecoveredPlasmaService.removeLastCarton).not.toHaveBeenCalled();
+        });
+     
+        it('should handle Apollo error when removing carton', () => {
+            const mockDialogRef = {
+                afterClosed: () => of('confirmed')
+            };
+     
+            const mockError = new ApolloError({
+                errorMessage: 'Network error',
+                networkError: new Error('Network error')
+            });
+     
+            mockConfirmationDialog.open.mockReturnValue(mockDialogRef as any);
+            mockRecoveredPlasmaService.removeLastCarton.mockReturnValue(throwError(() => mockError));
+     
+            component.removeCarton(mockCartonId);
+     
+            expect(mockToastrService.error).toHaveBeenCalledWith(
+                'Network error'
+            );
+        });
+
+        it('should not update shipment data when response has no data', () => {
+            const mockShipmentData = {
+                id: 1,
+                cartonList: [
+                    { id: 123, cartonNumber: 'C123' }
+                ]
+            };
+            
+            const mockResponse = {
+                data: {
+                    removeCarton: {
+                        notifications: [{
+                            type: 'ERROR',
+                            message: 'Failed to remove carton'
+                        }],
+                        data: null
+                    }
+                }
+            } as ApolloQueryResult<{ removeCarton: UseCaseResponseDTO<ShipmentResponseDTO> }>;
+        
+            const mockDialogRef = {
+                afterClosed: () => of('confirmed')
+            };
+        
+            mockConfirmationDialog.open.mockReturnValue(mockDialogRef as any);
+            mockRecoveredPlasmaService.removeLastCarton.mockReturnValue(of(mockResponse));
+            
+            component.shipmentDetailsSignal.set(mockShipmentData);
+            component.removeCarton(mockCartonId);
+        
+            expect(component.shipmentDetailsSignal()).toEqual(mockShipmentData);
+            expect(mockToastrService.show).toHaveBeenCalledWith(
+                'Failed to remove carton',
+                null,
+                {},
+                'error'
+            );
+        });
+      })
 })

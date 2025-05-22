@@ -457,8 +457,6 @@ export class RecoveredPlasmaShippingDetailsComponent
         dialogRef.afterClosed()
         .pipe(filter((value) => 'confirmed' === value)) 
         .subscribe(() => {
-            console.log('remove carton');
-
                 this.recoveredPlasmaService
                 .removeLastCarton({
                     cartonId: id,
