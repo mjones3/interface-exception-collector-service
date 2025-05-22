@@ -111,13 +111,18 @@
                     </button>
                 }
                 <!--Remove carton Button-->
-                <!-- @if (element?.canPrint) { -->
-                    <button data-testid="remove-carton" (click)="removeCarton($event, element?.id)" class="button-remove-mat-icon">
+                @if (element?.canRemove) {
+                    <button 
+                        [id]="'removeCarton' + element.id"
+                        data-testid="remove-carton" 
+                        (click)="removeCarton(element?.id)" 
+                        class="button-remove-mat-icon"
+                    >
                         <mat-icon
                         [svgIcon]="'heroicons_outline:delete'"
                     ></mat-icon>
                     </button>
-                <!-- } -->
+                }
             </ng-template>
 
             <!--Expand row for added products-->

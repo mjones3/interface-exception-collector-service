@@ -400,22 +400,6 @@ biopro-process-header {
         @apply text-primary hover:bg-primary/10 disabled:text-accent/10;
     }
 
-    &.mat-primary-flat {
-        background-color: rgba(var(--fuse-primary-rgb), 0.8);
-
-        &[disabled='true'] {
-            color: rgba(var(--fuse-accent-rgb), 0.6) !important;
-
-            &.mat-primary {
-                background-color: rgba(var(--fuse-accent-rgb), 0.15) !important;
-            }
-        }
-
-        &:hover {
-            background-color: rgba(var(--fuse-primary-rgb), 0.9);
-        }
-    }
-
     &.bg-green {
         @apply bg-green-700;
 

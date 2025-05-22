@@ -48,6 +48,8 @@ import {
     PrintShippingSummaryReportRequestDTO,
     ShippingSummaryReportDTO
 } from '../graphql/query-definitions/print-shipping-summary-report.graphql';
+import { REMOVE_CARTON, RemoveCartonDTO } from '../graphql/mutation-definitions/remove-carton.graphql';
+import { ShipmentResponseDTO } from 'app/modules/shipments/models/shipment-info.dto';
 
 @Injectable({
     providedIn: 'root',
@@ -197,15 +199,15 @@ export class RecoveredPlasmaService {
         );
     }
 
-    // public removeLastCarton(removeCarton: CloseCartonDTO)
-    //     : Observable<MutationResult<{ removeCarton: UseCaseResponseDTO<CartonDTO> }>> {
+    public removeLastCarton(removeCarton: RemoveCartonDTO)
+        : Observable<MutationResult<{ removeCarton: UseCaseResponseDTO<ShipmentResponseDTO> }>> {
 
-    //     return this.dynamicGraphqlPathService.executeMutation(
-    //         this.servicePath,
-    //         CLOSE_CARTON,
-    //         closeCarton
-    //     );
-    // }
+        return this.dynamicGraphqlPathService.executeMutation(
+            this.servicePath,
+            REMOVE_CARTON,
+            removeCarton
+        );
+    }
 
     public verifyCartonProducts(cartonProducts: VerifyCartonItemsDTO)
         : Observable<MutationResult<{ verifyCarton: UseCaseResponseDTO<CartonDTO> }>> {

@@ -20,7 +20,7 @@ import { ActionButtonComponent } from 'app/shared/components/buttons/action-butt
 import { BasicButtonComponent } from 'app/shared/components/buttons/basic-button.component';
 import { ProductIconsService } from 'app/shared/services/product-icon.service';
 import { CookieService } from 'ngx-cookie-service';
-import { catchError, map, of, Subscription, switchMap, take, takeWhile, tap, timer } from 'rxjs';
+import { catchError, filter, map, of, Subscription, switchMap, take, takeWhile, tap, timer } from 'rxjs';
 import { TableComponent } from '../../../../shared/components/table/table.component';
 import handleApolloError from '../../../../shared/utils/apollo-error-handling';
 import { consumeUseCaseNotifications } from '../../../../shared/utils/notification.handling';
@@ -435,11 +435,11 @@ export class RecoveredPlasmaShippingDetailsComponent
         })
     }
 
-
+    // Opens remove carton confirmation dialog
     removeCarton(id: number){
-         this.fuseConfirmationService.open({
+        const dialogRef = this.fuseConfirmationService.open({
             title: 'Remove Confirmation',
-            message: 'Carton and all added units will be removed. <b>Are you sure you want to continue?</b>',
+            message: 'Carton will be removed. <b>Are you sure you want to continue?</b>',
             dismissible: false,
             icon: {
                 show: false,
@@ -453,6 +453,34 @@ export class RecoveredPlasmaShippingDetailsComponent
                     class: 'mat-secondary',
                 },
             },
+        })
+        dialogRef.afterClosed()
+        .pipe(filter((value) => 'confirmed' === value)) 
+        .subscribe(() => {
+            console.log('remove carton');
+
+                this.recoveredPlasmaService
+                .removeLastCarton({
+                    cartonId: id,
+                    employeeId: this.employeeIdSignal(),
+                })
+                .pipe(
+                    catchError((error: ApolloError) => {
+                        handleApolloError(this.toastr, error);
+                    }),
+                    tap((response) =>
+                        consumeUseCaseNotifications(
+                            this.toastr,
+                            response.data.removeCarton.notifications
+                        )
+                    )
+                )
+                .subscribe((response) => {
+                    const res = response?.data?.removeCarton.notifications[0].type === 'SUCCESS';
+                    if(res){
+                        this.shipmentDetailsSignal.set(response.data.removeCarton.data);
+                    }
+                });
         })
 
     }

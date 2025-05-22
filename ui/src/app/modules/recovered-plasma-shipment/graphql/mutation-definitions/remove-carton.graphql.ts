@@ -1,29 +1,25 @@
 import { gql } from 'apollo-angular';
 import { UseCaseResponseDTO } from 'app/shared/models/use-case-response.dto';
-import { CartonDTO } from '../../models/recovered-plasma.dto';
+import { ShipmentResponseDTO } from 'app/modules/shipments/models/shipment-info.dto';
 
 export interface RemoveCartonDTO {
     cartonId: number;
-    locationCode: string;
     employeeId: string;
 }
 
 export const REMOVE_CARTON = gql<
     {
-        removeCarton: UseCaseResponseDTO<CartonDTO>;
+        removeCarton: UseCaseResponseDTO<ShipmentResponseDTO>;
     },
     RemoveCartonDTO
 >`
     mutation removeCarton(
         $cartonId: Int!
-        $locationCode: String!
         $employeeId: String!
-        $comments: String!
     ) {
         removeCarton(
             removeCartonRequest: {
                 cartonId: $cartonId
-                locationCode: $locationCode
                 employeeId: $employeeId
             }
         ) {

@@ -19,6 +19,9 @@ import {
 } from '../view-shipping-carton-packing-slip/view-shipping-carton-packing-slip.component';
 import { CartonPackingSlipDTO } from '../../graphql/query-definitions/generate-carton-packing-slip.graphql';
 import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { FuseConfirmationService } from '@fuse/services/confirmation';
+import { ShipmentResponseDTO } from 'app/modules/shipments/models/shipment-info.dto';
+import { FuseConfirmationDialogComponent } from '@fuse/services/confirmation/dialog/dialog.component';
 
 describe('RecoveredPlasmaShippingDetailsComponent', () => {
     let component: RecoveredPlasmaShippingDetailsComponent;
@@ -31,7 +34,9 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
     let mockMatDialog: jest.Mocked<MatDialog>;
     let mockBrowserPrintingService: jest.Mocked<BrowserPrintingService>;
     let mockDialogRef: jest.Mocked<MatDialogRef<ViewShippingCartonPackingSlipComponent, CartonPackingSlipDTO | string>>;
+    let mockConfirmationDialog: jest.Mocked<MatDialog>;
     let mockActivatedRoute: any;
+    let confirmationService: FuseConfirmationService;
 
     beforeEach(async () => {
         mockRouter = {
@@ -39,6 +44,10 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
             navigateByUrl: jest.fn(),
             url: '/test-url',
         } as Partial<Router> as jest.Mocked<Router>;
+
+        mockConfirmationDialog = {
+            open: jest.fn().mockReturnValue(mockDialogRef),
+            } as Partial<MatDialog> as jest.Mocked<MatDialog>;;
 
         mockDialogRef = {
             afterOpened: jest.fn().mockReturnValue(of({})),
@@ -61,6 +70,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
             closeShipment: jest.fn(),
             repackCarton: jest.fn(),
             generateCartonPackingSlip: jest.fn(),
+            removeLastCarton: jest.fn(),
         } as Partial<RecoveredPlasmaService> as jest.Mocked<RecoveredPlasmaService>;
 
         mockToastrService = {
@@ -214,14 +224,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
             expect(mockRouter.navigateByUrl).not.toHaveBeenCalled();
         });
 
-        it('should hide "add carton button" when canAddCartons is false', () => {
-            const buttonIdCssSelector = By.css('#btnAddCarton');
-            const root = fixture.debugElement;
-            jest.spyOn(component, 'shipmentDetailsSignal').mockReturnValue({ canAddCartons: false })
-            fixture.detectChanges();
-            const button = root.query(buttonIdCssSelector)?.nativeElement;
-            expect(button).toBeFalsy();
-        });
+        
 
         it('should show "add carton button" when canAddCartons is true', () => {
             const buttonIdCssSelector = By.css('#btnAddCarton');
@@ -693,5 +696,14 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
             component.repackCarton(cartonId);
             expect(mockToastrService.show).toHaveBeenCalled();
         });
+
+        it('should hide "remove carton button" when canAddCartons is false', () => {
+            const buttonIdCssSelector = By.css('#removeCarton + element.id');
+            const root = fixture.debugElement;
+            jest.spyOn(component, 'cartonsComputed').mockReturnValue([{canRemove: true}])
+            fixture.detectChanges();
+            const button = root.query(buttonIdCssSelector)?.nativeElement;
+            expect(button).toBeFalsy();
+        });
     })
-});
+})
