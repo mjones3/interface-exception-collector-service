@@ -10,17 +10,23 @@ Feature: Remove Last Carton from Shipment
 
     Rule: I should only be able to remove the last carton of a shipment.
     Rule: I should see a success message when the carton is removed.
-    Rule: The system should update the status of the shipment back to OPEN when there is only one carton and it is removed.
     @api @DIS-357
     Scenario: Successfully removing the carton from a shipment
-        Given I have a "OPEN" shipment with the Customer Code as "409" , Product Type as "RP_NONINJECTABLE_LIQUID_RT", Carton Tare Weight as "100", Shipment Date as "<tomorrow>", Transportation Reference Number as "DIS-357", Location Code as "123456789_DIS357" and the unit numbers as "W036898346757,W036898346758,W036898346756" and product codes as "E6022V00,E2534V00,E5880V00" and product types "RP_NONINJECTABLE_LIQUID_RT,RP_NONINJECTABLE_FROZEN,RP_FROZEN_WITHIN_72_HOURS".
+        Given I have a "IN_PROGRESS" shipment with the Customer Code as "409" , Product Type as "RP_NONINJECTABLE_LIQUID_RT", Carton Tare Weight as "100", Shipment Date as "<tomorrow>", Transportation Reference Number as "DIS-357", Location Code as "123456789_DIS357" and the unit numbers as "W036898346757,W036898346758,W036898346756" and product codes as "E6022V00,E2534V00,E5880V00" and product types "RP_NONINJECTABLE_LIQUID_RT,RP_NONINJECTABLE_FROZEN,RP_FROZEN_WITHIN_72_HOURS".
         And The carton sequence "1, 2, 3" has status as "CLOSED, OPEN, OPEN ".
         When I request to remove the carton sequence "1" from the shipment.
         Then I should receive a "SYSTEM" message response "Carton remove error. Contact Support.".
-        # And I should have "3" cartons.
+        When I request the last created shipment data.
+        Then The find shipment response should have the following information:
+            | Information          | Value                |
+            | Total Cartons        | 3                    |
+            | Carton Number Prefix | BPMMH1,BPMMH1,BPMMH1 |
+            | Sequence Number      | 1,2,3                |
+            | Carton Status        | CLOSED,OPEN,OPEN     |
+
         When I request to remove the carton sequence "3" from the shipment.
         Then I should receive a "SUCCESS" message response "Carton successfully removed".
-        And The shipment status should be "OPEN"
+        And The shipment status should be "IN_PROGRESS"
 
 
     Rule: I should not be able to remove a carton when the shipment status is closed.
@@ -31,10 +37,10 @@ Feature: Remove Last Carton from Shipment
         Then I should receive a "SYSTEM" message response "Carton remove error. Contact Support.".
         When I request the last created shipment data.
         Then The find shipment response should have the following information:
-            | Information          | Value          |
-            | Total Cartons        | 3              |
+            | Information          | Value                |
+            | Total Cartons        | 3                    |
             | Carton Number Prefix | BPMMH1,BPMMH1,BPMMH1 |
-            | Sequence Number      | 1,2,3          |
+            | Sequence Number      | 1,2,3                |
             | Carton Status        | CLOSED,CLOSED,CLOSED |
 
 
@@ -42,7 +48,7 @@ Feature: Remove Last Carton from Shipment
     Rule: I should not be able to remove a closed carton
         @api @DIS-357
         Scenario: Attempt to remove a closed carton
-            Given I have a "OPEN" shipment with the Customer Code as "409" , Product Type as "RP_NONINJECTABLE_LIQUID_RT", Carton Tare Weight as "100", Shipment Date as "<tomorrow>", Transportation Reference Number as "DIS-357", Location Code as "123456789_DIS357" and the unit numbers as "W036898346757,W036898346758,W036898346756" and product codes as "E6022V00,E2534V00,E5880V00" and product types "RP_NONINJECTABLE_LIQUID_RT,RP_NONINJECTABLE_FROZEN,RP_FROZEN_WITHIN_72_HOURS".
+            Given I have a "IN_PROGRESS" shipment with the Customer Code as "409" , Product Type as "RP_NONINJECTABLE_LIQUID_RT", Carton Tare Weight as "100", Shipment Date as "<tomorrow>", Transportation Reference Number as "DIS-357", Location Code as "123456789_DIS357" and the unit numbers as "W036898346757,W036898346758,W036898346756" and product codes as "E6022V00,E2534V00,E5880V00" and product types "RP_NONINJECTABLE_LIQUID_RT,RP_NONINJECTABLE_FROZEN,RP_FROZEN_WITHIN_72_HOURS".
             And The carton sequence "1, 2, 3" has status as "CLOSED, CLOSED, CLOSED ".
             When I request to remove the carton sequence "1" from the shipment.
             Then I should receive a "SYSTEM" message response "Carton remove error. Contact Support.".
@@ -55,15 +61,13 @@ Feature: Remove Last Carton from Shipment
                 | Carton Status        | CLOSED,CLOSED,CLOSED |
 
 
-            ## confirm with Archana to remove this AC
     Rule: I should be requested to confirm the removal of a carton.
-        Rule: I should only be able to remove the last carton of a shipment.
+    Rule: I should only be able to remove the last carton of a shipment.
     Rule: I should see a success message when the carton is removed.
-        Rule: The system should update the status of the shipment back to OPEN when there is only one carton and it is removed.
-
+    Rule: The system should update the status of the shipment back to OPEN when there is only one carton and it is removed.
         @ui @DIS-357
         Scenario: Successfully removing the last carton from a shipment.
-            Given I have a "OPEN" shipment with the Customer Code as "409" , Product Type as "RP_NONINJECTABLE_LIQUID_RT", Carton Tare Weight as "100", Shipment Date as "<tomorrow>", Transportation Reference Number as "DIS-357", Location Code as "123456789_DIS357" and the unit numbers as "W036898346757" and product codes as "E6022V00" and product types "RP_NONINJECTABLE_LIQUID_RT".
+            Given I have a "IN_PROGRESS" shipment with the Customer Code as "409" , Product Type as "RP_NONINJECTABLE_LIQUID_RT", Carton Tare Weight as "100", Shipment Date as "<tomorrow>", Transportation Reference Number as "DIS-357", Location Code as "123456789_DIS357" and the unit numbers as "W036898346757" and product codes as "E6022V00" and product types "RP_NONINJECTABLE_LIQUID_RT".
             And The carton sequence "1" has status as "OPEN ".
             And I navigate to the shipment details page for the last shipment created.
             Then I should see the following shipment information:
@@ -80,7 +84,7 @@ Feature: Remove Last Carton from Shipment
 
             And The remove option should be available for the carton number prefix "BPMMH1" and sequence number "1" and status "OPEN".
             When I choose to remove the carton number prefix "BPMMH1" and sequence number "1" and status "OPEN".
-            Then I should see a "Remove Confirmation" message: "Carton and all added products will be removed. Are you sure you want to continue?".
+            Then I should see a "Remove Confirmation" message: "Carton will be removed. Are you sure you want to continue?".
             When I confirm to remove the carton.
             Then I should see a "SUCCESS" message: "Carton successfully removed".
             When I request the last created shipment data.
