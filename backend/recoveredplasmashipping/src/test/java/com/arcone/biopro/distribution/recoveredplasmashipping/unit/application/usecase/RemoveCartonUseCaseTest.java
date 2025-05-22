@@ -59,12 +59,14 @@ class RemoveCartonUseCaseTest {
         RemoveCartonCommandInput commandInput = new RemoveCartonCommandInput(cartonId, employeeId);
         Carton carton = mock(Carton.class);
         RecoveredPlasmaShipment shipment = mock(RecoveredPlasmaShipment.class);
+
         RecoveredPlasmaShipmentOutput shipmentOutput = mock(RecoveredPlasmaShipmentOutput.class);
 
         when(carton.getId()).thenReturn(cartonId);
         when(carton.getShipmentId()).thenReturn(shipmentId);
         when(carton.removeCarton(any(), any())).thenReturn(carton);
         when(shipment.getId()).thenReturn(shipmentId);
+        when(shipment.getLocationCode()).thenReturn("LOCATION_CODE");
         when(shipment.markAsReopen()).thenReturn(shipment);
 
         when(cartonRepository.findOneById(cartonId)).thenReturn(Mono.just(carton));

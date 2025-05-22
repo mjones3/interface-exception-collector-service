@@ -9,6 +9,8 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.Us
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.exception.DomainNotFoundForKeyException;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.mapper.RecoveredPlasmaShipmentOutputMapper;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.event.RecoveredPlasmaCartonRemovedEvent;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.FindShipmentCommand;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.RecoveredPlasmaShipment;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.RemoveCartonCommand;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.CartonItemRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.CartonRepository;
@@ -49,7 +51,9 @@ public class RemoveCartonUseCase implements RemoveCartonService {
             .doOnSuccess(carton ->  applicationEventPublisher.publishEvent(new RecoveredPlasmaCartonRemovedEvent(carton)))
                 .flatMap(carton -> recoveredPlasmaShippingRepository.findOneById(carton.getShipmentId())
                     .flatMap(recoveredPlasmaShipment -> recoveredPlasmaShippingRepository.update(recoveredPlasmaShipment.markAsReopen())))
-            .flatMap(recoveredPlasmaShipment -> recoveredPlasmaShippingRepository.findOneById(recoveredPlasmaShipment.getId())
+            .flatMap(recoveredPlasmaShipment -> Mono.fromCallable(() -> RecoveredPlasmaShipment.fromFindByCommand(new FindShipmentCommand(recoveredPlasmaShipment.getId(),recoveredPlasmaShipment.getLocationCode(),removeCartonCommandInput.employeeId())
+                ,recoveredPlasmaShippingRepository))
+                .publishOn(Schedulers.boundedElastic())
                 .map(recoveredPlasmaShipmentOutputMapper::toRecoveredPlasmaShipmentOutput)
                 .map(recoveredPlasmaShipmentOutput -> new UseCaseOutput<>(List.of(UseCaseNotificationOutput
                     .builder()

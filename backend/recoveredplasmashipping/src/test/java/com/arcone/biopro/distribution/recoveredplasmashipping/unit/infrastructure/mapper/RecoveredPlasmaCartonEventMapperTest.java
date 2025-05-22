@@ -205,7 +205,7 @@ class RecoveredPlasmaCartonEventMapperTest {
         Carton carton = createSampleCarton();
 
         // When
-        RecoveredPlasmaCartonRemovedOutputDTO result = mapper.modelToRemovedEventDTO(carton,"LOCATION_CODE");
+        RecoveredPlasmaCartonRemovedOutputDTO result = mapper.modelToRemovedEventDTO(carton,"LOCATION_CODE" , "PRODUCT_TYPE");
 
         // Then
         assertNotNull(result);

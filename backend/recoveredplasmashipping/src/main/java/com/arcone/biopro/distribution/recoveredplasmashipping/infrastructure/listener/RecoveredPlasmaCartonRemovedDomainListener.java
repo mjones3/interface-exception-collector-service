@@ -62,7 +62,7 @@ public class RecoveredPlasmaCartonRemovedDomainListener {
         var payload = event.getPayload();
 
         return recoveredPlasmaShipmentEntityRepository.findById(payload.getShipmentId())
-            .map(recoveredPlasmaShipmentEntity -> new RecoveredPlasmaCartonRemovedOutputEvent(recoveredPlasmaCartonEventMapper.modelToRemovedEventDTO(event.getPayload(), recoveredPlasmaShipmentEntity.getLocationCode())))
+            .map(recoveredPlasmaShipmentEntity -> new RecoveredPlasmaCartonRemovedOutputEvent(recoveredPlasmaCartonEventMapper.modelToRemovedEventDTO(event.getPayload(), recoveredPlasmaShipmentEntity.getLocationCode() , recoveredPlasmaShipmentEntity.getProductType())))
             .map(eventPayload -> {
                 log.debug("Carton Removed event sent {}",eventPayload);
                 var producerRecord = new ProducerRecord<>(topicName, String.format("%s", eventPayload.getEventId()), eventPayload);

@@ -39,10 +39,10 @@ public interface RecoveredPlasmaCartonEventMapper {
     List<RecoveredPlasmaCartonItemUnpackedOutputDTO> modelToItemUnpackedEventDTO(List<CartonItem> cartonItems);
 
 
-    @Mapping(target ="productType" , expression = "java(carton.getProducts().getFirst().getProductType())")
+    @Mapping(target ="productType" , source = "productType")
     @Mapping(source ="locationCode" , target = "locationCode")
     @Mapping(source ="carton.products" , target = "unpackedProducts")
     @Mapping(source ="carton.deleteEmployeeId" , target = "removeEmployeeId")
     @Mapping(source ="carton.deleteDate" , target = "removeDate")
-    RecoveredPlasmaCartonRemovedOutputDTO modelToRemovedEventDTO(Carton carton , String locationCode);
+    RecoveredPlasmaCartonRemovedOutputDTO modelToRemovedEventDTO(Carton carton , String locationCode , String productType);
 }
