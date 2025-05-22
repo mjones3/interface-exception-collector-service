@@ -19,7 +19,7 @@ public interface InventoryUpdatedMapper {
     @Mapping(target = "productFamily", source = "inventory.productFamily")
     @Mapping(target = "bloodType", source = "inventory.aboRh")
     @Mapping(target = "expirationDate", source = "inventory.expirationDate")
-    @Mapping(target = "locationCode", source = "inventory.location")
+    @Mapping(target = "locationCode", source = "inventory.inventoryLocation")
     @Mapping(
         target = "storageLocation",
         expression = "java(getStorageLocation(inventory))"

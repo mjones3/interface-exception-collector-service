@@ -5,9 +5,7 @@ import com.arcone.biopro.distribution.inventory.application.usecase.LabelApplied
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntityRepository;
 import com.arcone.biopro.distribution.inventory.verification.utils.KafkaHelper;
-import com.arcone.biopro.distribution.inventory.verification.utils.LogMonitor;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -53,12 +51,6 @@ public class LabelAppliedIntegrationIT {
     @MockBean
     private InventoryEntityRepository inventoryEntityRepository;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private LogMonitor logMonitor;
-
     @BeforeEach
     void setUp() {
         when(labelAppliedUseCase.execute(any(InventoryInput.class))).thenReturn(Mono.empty());
@@ -83,7 +75,7 @@ public class LabelAppliedIntegrationIT {
         assertThat(capturedInput.isLicensed().toString()).isEqualTo(payloadJson.path(PAYLOAD).path("isLicensed").asText());
         assertThat(capturedInput.weight()).isEqualTo(payloadJson.path(PAYLOAD).path("weight").asInt());
         assertThat(capturedInput.collectionDate()).isEqualTo(payloadJson.path(PAYLOAD).path("collectionDate").asText());
-        assertThat(capturedInput.location()).isEqualTo(payloadJson.path(PAYLOAD).path("location").asText());
+        assertThat(capturedInput.inventoryLocation()).isEqualTo(payloadJson.path(PAYLOAD).path("location").asText());
         assertThat(capturedInput.productFamily()).isEqualTo(payloadJson.path(PAYLOAD).path("productFamily").asText());
         assertThat(capturedInput.aboRh()).isEqualTo(AboRhType.valueOf(payloadJson.path(PAYLOAD).path("aboRh").asText()));
     }

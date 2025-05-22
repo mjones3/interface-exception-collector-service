@@ -71,8 +71,8 @@ public class InventoryEntity implements Serializable, Persistable<UUID> {
     Integer weight;
 
     @NotNull
-    @Column("location")
-    String location;
+    @Column("inventory_location")
+    String inventoryLocation;
 
     @NotNull
     @Column("product_family")
@@ -124,6 +124,18 @@ public class InventoryEntity implements Serializable, Persistable<UUID> {
 
     @Column("carton_number")
     String cartonNumber;
+
+    @Column("collection_location")
+    String collectionLocation;
+
+    @Column("collection_timezone")
+    String collectionTimeZone;
+
+    @Column("modification_location")
+    String modificationLocation;
+
+    @Column("product_modification_date")
+    ZonedDateTime productModificationDate;
 
     @Column("volumes")
     List<Volume> volumes;

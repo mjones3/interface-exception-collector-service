@@ -6,6 +6,8 @@ import com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.Pr
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.discarded.ProductDiscardedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.label.LabelAppliedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.labelinvalidated.LabelInvalidatedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.modified.ProductModifiedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.AddQuarantinedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.RemoveQuarantinedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.UpdateQuarantinedMessage;
@@ -18,6 +20,7 @@ import com.arcone.biopro.distribution.inventory.adapter.output.producer.event.In
 import com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.springwolf.core.asyncapi.annotations.AsyncListener;
+import io.github.springwolf.core.asyncapi.annotations.AsyncMessage;
 import io.github.springwolf.core.asyncapi.annotations.AsyncOperation;
 import io.github.springwolf.core.asyncapi.annotations.AsyncPublisher;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -112,6 +115,12 @@ class KafkaConfiguration {
     @Value("${topic.product-quarantined.name}")
     private String addQuarantinedTopic;
 
+    @Value("${topic.product-modified.name}")
+    private String productModifiedTopic;
+
+    @Value("${topic.label-invalidated.name}")
+    private String labelInvalidatedTopic;
+
     @Bean
     @Qualifier("UNSUITABLE")
     ReceiverOptions<String, String> unsuitableReceiverOptions(KafkaProperties kafkaProperties) {
@@ -145,6 +154,13 @@ class KafkaConfiguration {
     ReceiverOptions<String, String> labelAppliedReceiverOptions(KafkaProperties kafkaProperties) {
         return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
             .subscription(List.of(labelAppliedTopic));
+    }
+
+    @Bean
+    @Qualifier("LABEL_INVALIDATED")
+    ReceiverOptions<String, String> labelInvalidatedReceiverOptions(KafkaProperties kafkaProperties) {
+        return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
+            .subscription(List.of(labelInvalidatedTopic));
     }
 
     @Bean
@@ -240,6 +256,16 @@ class KafkaConfiguration {
         description = "Apheresis Platelet Product has been created.",
         payloadType = ProductCreatedMessage.class
     ))
+
+    @AsyncPublisher(operation = @AsyncOperation(
+        channelName = "ApheresisPlasmaProductCreated",
+        description = "Apheresis Plasma Product Created Event",
+        message = @AsyncMessage(
+            name = "ApheresisPlasmaProductCreated",
+            title = "ApheresisPlasmaProductCreated",
+            description = "Apheresis Plasma Product Created Event Payload"
+        ),payloadType = ProductCreatedMessage.class
+    ))
     @AsyncListener(operation = @AsyncOperation(
         channelName = "WholeBloodProductCreated",
         description = "Wholeblood Product has been created.",
@@ -287,6 +313,18 @@ class KafkaConfiguration {
     @Bean(name = "LABEL_APPLIED_CONSUMER")
     ReactiveKafkaConsumerTemplate<String, String> labelAppliedConsumerTemplate(
         @Qualifier("LABEL_APPLIED") ReceiverOptions<String, String> receiverOptions
+    ) {
+        return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
+    }
+
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "Label Invalidated",
+        description = "Label was invalidated",
+        payloadType = LabelInvalidatedMessage.class
+    ))
+    @Bean(name = "LABEL_INVALIDATED_CONSUMER")
+    ReactiveKafkaConsumerTemplate<String, String> labelInvalidatedConsumerTemplate(
+        @Qualifier("LABEL_INVALIDATED") ReceiverOptions<String, String> receiverOptions
     ) {
         return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
     }
@@ -396,6 +434,13 @@ class KafkaConfiguration {
             .subscription(List.of(addQuarantinedTopic));
     }
 
+    @Bean
+    @Qualifier("PRODUCT_MODIFIED")
+    ReceiverOptions<String, String> productModifiedReceiverOptions(KafkaProperties kafkaProperties) {
+        return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
+            .subscription(List.of(productModifiedTopic));
+    }
+
     @AsyncListener(operation = @AsyncOperation(
         channelName = "QuarantineRemoved",
         description = "Product Quarantine is removed.",
@@ -428,6 +473,18 @@ class KafkaConfiguration {
     @Bean(name = "PRODUCT_ADD_QUARANTINED_CONSUMER")
     ReactiveKafkaConsumerTemplate<String, String> productAddQuarantinedConsumerTemplate(
         @Qualifier("PRODUCT_ADD_QUARANTINED") ReceiverOptions<String, String> receiverOptions
+    ) {
+        return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
+    }
+
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "ProductModified",
+        description = "Product was modified.",
+        payloadType = ProductModifiedMessage.class
+    ))
+    @Bean(name = "PRODUCT_MODIFIED_CONSUMER")
+    ReactiveKafkaConsumerTemplate<String, String> productModifiedConsumerTemplate(
+        @Qualifier("PRODUCT_MODIFIED") ReceiverOptions<String, String> receiverOptions
     ) {
         return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
     }

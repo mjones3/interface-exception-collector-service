@@ -7,5 +7,6 @@ public enum InventoryStatus {
     SHIPPED,
     IN_TRANSIT,
     CONVERTED,
-    PACKED
+    PACKED,
+    MODIFIED
 }

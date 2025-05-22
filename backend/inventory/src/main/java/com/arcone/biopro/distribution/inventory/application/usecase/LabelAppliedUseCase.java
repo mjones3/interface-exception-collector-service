@@ -34,7 +34,7 @@ public class LabelAppliedUseCase implements UseCase<Mono<InventoryOutput>, Inven
         var productCode = ProductCodeUtil.retrieveFinalProductCodeWithoutSixthDigit(input.productCode());
         return inventoryAggregateRepository.findByUnitNumberAndProductCode(input.unitNumber(), productCode)
             .switchIfEmpty(Mono.error(InventoryNotFoundException::new))
-            .flatMap(inventoryAggregate -> inventoryAggregateRepository.saveInventory(inventoryAggregate.label(input.isLicensed(), input.productCode()))
+            .flatMap(inventoryAggregate -> inventoryAggregateRepository.saveInventory(inventoryAggregate.label(input.isLicensed(), input.productCode(), input.expirationDate()))
                 .map(InventoryAggregate::getInventory)
                 .doOnSuccess(inventory -> inventoryEventPublisher.publish(new InventoryUpdatedApplicationEvent(inventory, InventoryUpdateType.LABEL_APPLIED)))
                 .map(mapper::toOutput));

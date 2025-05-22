@@ -252,8 +252,10 @@ public class KafkaListenersSteps {
 
         var inventory = inventoryUtil.newInventoryEntity(unitNumber, productCode, status);
         inventory.setAboRh(aboRhType);
-        inventory.setLocation(location);
+        inventory.setInventoryLocation(location);
+        inventory.setCollectionLocation(location);
         inventory.setCollectionDate(ZonedDateTime.now());
+        inventory.setCollectionTimeZone(ZonedDateTime.now().getZone().getId());
         inventory.setExpirationDate(LocalDateTime.now().plusDays(daysToExpire));
         inventory.setProductFamily(productFamily);
         inventory.setQuarantines(quarantines);

@@ -16,6 +16,8 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +29,8 @@ public class UseCaseSteps {
     private final AddQuarantinedUseCase addQuarantinedUseCase;
 
     private final LabelAppliedUseCase labelAppliedUseCase;
+
+    private final LabelInvalidatedUseCase labelInvalidatedUseCase;
 
     private final RemoveQuarantinedUseCase removeQuarantinedUseCase;
 
@@ -51,6 +55,8 @@ public class UseCaseSteps {
     private final RecoveredPlasmaShipmentClosedUseCase recoveredPlasmaShipmentClosedUseCase;
 
     private final ProductCompletedUseCase productCompletedUseCase;
+
+    private final ProductModifiedUseCase productModifiedUseCase;
 
     private final ScenarioContext scenarioContext;
 
@@ -112,6 +118,18 @@ public class UseCaseSteps {
         }
     }
 
+    @When("I received a Label Invalidated event for the following products:")
+    public void iReceivedALabelInvalidatedEventForTheFollowingProducts(DataTable dataTable) {
+        List<Map<String, String>> products = dataTable.asMaps(String.class, String.class);
+        for (Map<String, String> product : products) {
+            String unitNumber = product.get("Unit Number");
+            String productCode = product.get("Product Code");
+
+            LabelInvalidatedInput input = LabelInvalidatedInput.builder().unitNumber(unitNumber).productCode(productCode).build();
+            labelInvalidatedUseCase.execute(input).block();
+        }
+    }
+
     @When("I received a Shipment Completed event with shipment type {string} for the following units:")
     public void iReceivedAShipmentCompletedEventForTheFollowingUnits(String shipmentType, DataTable dataTable) {
         List<ShipmentCompletedInput.LineItem> lines = new ArrayList<>();
@@ -154,7 +172,9 @@ public class UseCaseSteps {
         for (Map<String, String> product : products) {
             String unitNumber = product.get("Unit Number");
             String productCode = product.get("Product Code");
-            checkInCompletedUseCase.execute(inventoryUtil.newCheckInCompletedInput(unitNumber, productCode)).block();
+            String collectionLocation = product.get("Collection Location");
+            String collectionTimeZone = product.get("Collection TimeZone");
+            checkInCompletedUseCase.execute(inventoryUtil.newCheckInCompletedInput(unitNumber, productCode, collectionLocation, collectionTimeZone)).block();
         }
     }
 
@@ -193,7 +213,6 @@ public class UseCaseSteps {
             productDiscardedUseCase.execute(inventoryUtil.newProductDiscardedInput(unitNumber, productCode, reason, comments)).block();
         }
     }
-
 
 
     @When("I received a Unit Unsuitable event with unit number {string} and reason {string}")
@@ -282,6 +301,9 @@ public class UseCaseSteps {
                 case "Label Applied":
                     iReceivedALabelAppliedEventForTheFollowingProducts(dataTable);
                     break;
+                case "Label Invalidated":
+                    iReceivedALabelInvalidatedEventForTheFollowingProducts(dataTable);
+                    break;
                 case "Apply Quarantine":
                     iReceiveApplyQuarantineWithReasonToTheUnitAndTheProduct(unitNumber, productCode, reason, reasonId);
                     break;
@@ -303,6 +325,12 @@ public class UseCaseSteps {
                     break;
                 case "Recovered Plasma Carton Removed":
                     iReceivedRecoveredPlasmaCartonRemoved("CN001", dataTable);
+                    break;
+                case "Recovered Plasma Carton Closed":
+                    iReceivedARecoveredPlasmaShipmentClosedEvent(dataTable);
+                    break;
+                case "Product Modified":
+                    iReceivedAProductModifiedEventForTheFollowingProducts(dataTable);
                     break;
                 default:
                     break;
@@ -340,9 +368,70 @@ public class UseCaseSteps {
             .cartonNumber("CN001")
             .packedProducts(packedProducts)
             .build());
-        RecoveredPlasmaShipmentClosedInput input =  RecoveredPlasmaShipmentClosedInput.builder()
+        RecoveredPlasmaShipmentClosedInput input = RecoveredPlasmaShipmentClosedInput.builder()
             .cartonList(cartons)
+            .shipmentNumber("CN001")
             .build();
         recoveredPlasmaShipmentClosedUseCase.execute(input).block();
+    }
+
+    @When("I received a Product Modified event for the following products:")
+    public void iReceivedAProductModifiedEventForTheFollowingProducts(DataTable dataTable) {
+        List<Map<String, String>> products = dataTable.asMaps(String.class, String.class);
+        for (Map<String, String> product : products) {
+            String unitNumber = product.get("Unit Number");
+            String productCode = product.get("Product Code");
+            String productDescription = product.get("Product Description");
+            String parentProductCode = product.get("Parent Product Code");
+            String productFamily = product.get("Product Family");
+            String expirationDate = product.get("Expiration Date");
+            String expirationTime = product.get("Expiration Time");
+            String modificationLocation = product.get("Modification Location");
+            String modificationDateStr = product.get("Modification Date");
+            Integer volume = null;
+            Integer weight = null;
+
+            if (product.containsKey("Volume")) {
+                volume = Integer.valueOf(product.get("Volume"));
+            }
+
+            if (product.containsKey("Weight")) {
+                weight = Integer.valueOf(product.get("Weight"));
+            }
+
+            // Parse the modification date
+            ZonedDateTime modificationDate;
+            try {
+                // Parse the date in MM/dd/yyyy format
+                java.time.LocalDate localDate = java.time.LocalDate.parse(
+                    modificationDateStr,
+                    java.time.format.DateTimeFormatter.ofPattern("MM/dd/yyyy")
+                );
+                // Convert to ZonedDateTime
+                modificationDate = localDate.atStartOfDay(ZoneOffset.UTC);
+            } catch (Exception e) {
+                // Fallback to current time if parsing fails
+                modificationDate = java.time.ZonedDateTime.now();
+                log.warn("Failed to parse modification date: {}, using current time instead", modificationDateStr, e);
+            }
+
+            // Create ProductModifiedInput object
+            ProductModifiedInput productModifiedInput = new ProductModifiedInput(
+                unitNumber,
+                productCode,
+                productDescription,
+                parentProductCode,
+                productFamily,
+                expirationDate,
+                expirationTime,
+                modificationLocation,
+                modificationDate,
+                volume,
+                weight
+            );
+
+            // Execute the use case
+            productModifiedUseCase.execute(productModifiedInput).block();
+        }
     }
 }

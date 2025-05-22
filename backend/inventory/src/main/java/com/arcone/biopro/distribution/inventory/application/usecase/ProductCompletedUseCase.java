@@ -25,17 +25,16 @@ public class ProductCompletedUseCase implements UseCase<Mono<InventoryOutput>, P
     VolumeInputMapper volumeInputMapper;
 
     @Override
-    public Mono<InventoryOutput> execute(ProductCompletedInput productCreatedInput) {
+    public Mono<InventoryOutput> execute(ProductCompletedInput productCompletedInput) {
 
-        return inventoryAggregateRepository.findByUnitNumberAndProductCode(productCreatedInput.unitNumber(), productCreatedInput.productCode())
+        return inventoryAggregateRepository.findByUnitNumberAndProductCode(productCompletedInput.unitNumber(), productCompletedInput.productCode())
             .switchIfEmpty(Mono.error(InventoryNotFoundException::new))
             .flatMap(inventoryAggregate -> inventoryAggregateRepository
-                .saveInventory(inventoryAggregate.completeProduct(volumeInputMapper.toDomain(productCreatedInput.volumes())))
+                .saveInventory(inventoryAggregate.completeProduct(volumeInputMapper.toDomain(productCompletedInput.volumes()), productCompletedInput.aboRh()))
             .map(InventoryAggregate::getInventory)
             .map(inventoryOutputMapper::toOutput)
             .doOnSuccess(response -> log.info("Product volume was updated to completed: {}", response))
-            .doOnError(e -> log.error("Error occurred during product completed. Input: {}, error: {}", productCreatedInput, e.getMessage(), e)));
+            .doOnError(e -> log.error("Error occurred during product completed. Input: {}, error: {}", productCompletedInput, e.getMessage(), e)));
 
     }
-
 }

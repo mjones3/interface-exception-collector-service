@@ -15,10 +15,15 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static com.arcone.biopro.distribution.inventory.verification.steps.KafkaListenersSteps.*;
@@ -192,7 +197,21 @@ public class RepositorySteps {
             if (headers.contains("Location")) {
                 String location = inventory.get("Location");
                 if (location != null && !location.isEmpty()) {
-                    inventoryEntity.setLocation(location);
+                    inventoryEntity.setInventoryLocation(location);
+                }
+            }
+
+            if (headers.contains("Collection Location")) {
+                String location = inventory.get("Collection Location");
+                if (StringUtils.isNotBlank(location)) {
+                    inventoryEntity.setCollectionLocation(location);
+                }
+            }
+
+            if(headers.contains("Collection TimeZone")){
+                String timeZone = inventory.get("Collection TimeZone");
+                if(StringUtils.isNotBlank(timeZone)){
+                    inventoryEntity.setCollectionTimeZone(timeZone);
                 }
             }
 
@@ -210,9 +229,13 @@ public class RepositorySteps {
 
             if(headers.contains("Quarantine Reasons") && inventory.get("Quarantine Reasons")!=null ){
                 String quarantineReasons = inventory.get("Quarantine Reasons");
-                String comments = inventory.get("Comments");
-                List<Quarantine> quarantines = Arrays.stream(quarantineReasons.split(",")).map(String::trim).map(reason -> new Quarantine(1L, reason, comments)).toList();
-                inventoryEntity.setQuarantines(quarantines);
+                if(quarantineReasons.equalsIgnoreCase("EMPTY")) {
+                    inventoryEntity.setQuarantines(new ArrayList<>());
+                } else {
+                    String comments = inventory.get("Comments");
+                    List<Quarantine> quarantines = Arrays.stream(quarantineReasons.split(",")).map(String::trim).map(reason -> new Quarantine(1L, reason, comments)).toList();
+                    inventoryEntity.setQuarantines(quarantines);
+                }
             }
 
             if(headers.contains("Discard Reason") && inventory.get("Discard Reason")!=null){
@@ -288,6 +311,15 @@ public class RepositorySteps {
                     .map(v -> Objects.equals(v.value(), Integer.valueOf(inventory.get("Volume"))))
                     .orElse(false));
             }
+
+            if(inventory.containsKey("Weight")){
+                assertEquals(Integer.valueOf(inventory.get("Weight")), inventoryEntity.getWeight());
+            }
+
+            if(inventory.containsKey("Modification Location")){
+                assertEquals(inventory.get("Modification Location"), inventoryEntity.getModificationLocation());
+            }
+
             if(inventory.containsKey("Anticoagulant Volume")){
                 assertTrue(volumes.stream()
                     .filter(v -> v.type().equals("anticoagulantVolume"))
@@ -295,6 +327,26 @@ public class RepositorySteps {
                     .map(v -> Objects.equals(v.value(), Integer.valueOf(inventory.get("Anticoagulant Volume"))))
                     .orElse(false));
             }
+            if(inventory.containsKey("Location")){
+                assertEquals(inventory.get("Location"), inventoryEntity.getInventoryLocation());
+            }
+            if(inventory.containsKey("Collection Location")){
+                assertEquals(inventory.get("Collection Location"), inventoryEntity.getCollectionLocation());
+            }
+            if(inventory.containsKey("Collection TimeZone")){
+                assertEquals(inventory.get("Collection TimeZone"), inventoryEntity.getCollectionTimeZone());
+            }
+
+            if(inventory.containsKey("Expiration Date")){
+                assertNotNull(inventoryEntity.getExpirationDate());
+                assertEquals(inventory.get("Expiration Date"), inventoryEntity.getExpirationDate().toString());
+
+            }
+
+            if(inventory.containsKey("Modification Date")) {
+                assertEquals(inventory.get("Modification Date"),inventoryEntity.getProductModificationDate().withZoneSameInstant(ZoneOffset.UTC).format(DateTimeFormatter.ISO_ZONED_DATE_TIME));
+            }
+
             assertEquals(expectedStatus, inventoryEntity.getInventoryStatus().name());
         }
     }
@@ -331,7 +383,8 @@ public class RepositorySteps {
 
     private void createInventory(String unitNumber, String productCode, String productFamily, AboRhType aboRhType, String location, Integer daysToExpire, InventoryStatus status, String temperatureCategory, Boolean isLabeled, String statusReason, String comments) {
         var inventory = inventoryUtil.newInventoryEntity(unitNumber, productCode, status);
-        inventory.setLocation(location);
+        inventory.setInventoryLocation(location);
+        inventory.setCollectionLocation(location);
         inventory.setExpirationDate(LocalDateTime.now().plusDays(daysToExpire));
         inventory.setProductFamily(productFamily);
         inventory.setAboRh(aboRhType);

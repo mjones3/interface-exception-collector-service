@@ -52,8 +52,6 @@ public class DatabaseConfiguration {
         converters.add(BitSetReadConverter.INSTANCE);
         converters.add(DurationWriteConverter.INSTANCE);
         converters.add(DurationReadConverter.INSTANCE);
-        converters.add(ZonedDateTimeReadConverter.INSTANCE);
-        converters.add(ZonedDateTimeWriteConverter.INSTANCE);
         converters.add(JsonToQuarantineListConverter.INSTANCE);
         converters.add(JsonToVolumeListConverter.INSTANCE);
         converters.add(QuarantineListToJsonConverter.INSTANCE);
