@@ -49,6 +49,7 @@ class CartonOutputMapperTest {
             Mockito.when(carton.canClose()).thenReturn(true);
             Mockito.when(carton.canVerify()).thenReturn(true);
             Mockito.when(carton.canPrint()).thenReturn(true);
+            Mockito.when(carton.isCanRemove()).thenReturn(true);
 
             CartonItem cartonItem = Mockito.mock(CartonItem.class);
             Mockito.when(cartonItem.getStatus()).thenReturn("VERIFIED");
@@ -64,6 +65,7 @@ class CartonOutputMapperTest {
             assertTrue(result.canPrint());
             assertNotNull(result.verifiedProducts());
             assertTrue(result.verifiedProducts().size() > 0);
+            assertTrue(result.canRemove());
         }
 
 

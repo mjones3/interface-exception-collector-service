@@ -51,6 +51,9 @@ public class Carton implements Validatable {
     private String repackEmployeeId;
     private ZonedDateTime repackDate;
     private String repackComments;
+    private boolean canRemove;
+    private String deleteEmployeeId;
+    private ZonedDateTime deleteDate;
 
     private static final String STATUS_OPEN = "OPEN";
     private static final String CARTON_PARTNER_PREFIX_KEY = "RPS_CARTON_PARTNER_PREFIX";
@@ -302,5 +305,37 @@ public class Carton implements Validatable {
         this.repackEmployeeId = repackCartonCommand.getEmployeeId();
         this.repackComments = repackCartonCommand.getReasonComments();
         return this;
+    }
+
+    public Carton marForRemoval(){
+        this.canRemove = Boolean.TRUE;
+        return  this;
+    }
+
+    public Carton removeCarton(RemoveCartonCommand removeCartonCommand , RecoveredPlasmaShippingRepository recoveredPlasmaShippingRepository){
+
+        if(STATUS_CLOSED.equals(this.status)){
+            throw new IllegalArgumentException("Carton is closed and cannot be removed");
+        }
+
+        var shipment = getShipment(this.shipmentId, recoveredPlasmaShippingRepository);
+        if(shipment == null){
+            throw new IllegalArgumentException("Shipment not found");
+        }
+
+        if(!shipment.canModify()){
+            throw new IllegalArgumentException("Shipment is closed and cannot be modified");
+        }
+
+        if(this.cartonSequence != shipment.getTotalCartons()){
+            throw new IllegalArgumentException("Carton is not the last one and cannot be removed");
+        }
+
+        this.deleteEmployeeId = removeCartonCommand.getEmployeeI();
+        this.deleteDate = ZonedDateTime.now();
+        this.status = "REMOVED";
+
+        return this;
+
     }
 }

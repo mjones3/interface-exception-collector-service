@@ -22,6 +22,7 @@ import reactor.core.publisher.Mono;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.util.Collections;
 import java.util.List;
 
 @Getter
@@ -131,6 +132,7 @@ public class RecoveredPlasmaShipment implements Validatable {
 
                                                          ZonedDateTime createDate,
                                                          ZonedDateTime modificationDate, ZonedDateTime lastUnsuitableReportRunDate, List<Carton> cartonList) {
+
         var shipment = RecoveredPlasmaShipment
             .builder()
             .id(id)
@@ -149,7 +151,7 @@ public class RecoveredPlasmaShipment implements Validatable {
             .unsuitableUnitReportDocumentStatus(unsuitableUnitReportDocumentStatus)
             .createDate(createDate)
             .modificationDate(modificationDate)
-            .cartonList(cartonList)
+            .cartonList(flagRemovalCartons(status,cartonList))
             .lastUnsuitableReportRunDate(lastUnsuitableReportRunDate)
             .build();
 
@@ -354,5 +356,27 @@ public class RecoveredPlasmaShipment implements Validatable {
         }
 
         return ShippingSummaryReport.generateReport(this, cartonRepository,systemProcessPropertyRepository,recoveredPlasmaShipmentCriteriaRepository,locationRepository);
+    }
+
+    private static List<Carton> flagRemovalCartons(String shipmentStatus , List<Carton> cartonList){
+        if(cartonList == null || cartonList.isEmpty()){
+            return Collections.emptyList();
+        }
+
+        return cartonList.stream().map(carton -> {
+            if(!CLOSED_STATUS.equals(shipmentStatus) && !CLOSED_STATUS.equals(carton.getStatus()) && carton.getCartonSequence() == cartonList.size()){
+                return carton.marForRemoval();
+            }else{
+                return carton;
+            }
+        } ).toList();
+    }
+
+    public RecoveredPlasmaShipment markAsReopen() {
+        if (this.getTotalCartons() == 0){
+            this.status = OPEN_STATUS;
+        }
+        return this;
+
     }
 }
