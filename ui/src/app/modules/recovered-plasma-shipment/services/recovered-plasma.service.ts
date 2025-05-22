@@ -197,6 +197,16 @@ export class RecoveredPlasmaService {
         );
     }
 
+    // public removeLastCarton(removeCarton: CloseCartonDTO)
+    //     : Observable<MutationResult<{ removeCarton: UseCaseResponseDTO<CartonDTO> }>> {
+
+    //     return this.dynamicGraphqlPathService.executeMutation(
+    //         this.servicePath,
+    //         CLOSE_CARTON,
+    //         closeCarton
+    //     );
+    // }
+
     public verifyCartonProducts(cartonProducts: VerifyCartonItemsDTO)
         : Observable<MutationResult<{ verifyCarton: UseCaseResponseDTO<CartonDTO> }>> {
 

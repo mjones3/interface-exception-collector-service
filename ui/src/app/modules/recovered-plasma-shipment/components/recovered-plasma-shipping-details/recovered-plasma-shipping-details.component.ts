@@ -62,6 +62,7 @@ import {
 import { RepackCartonDialogComponent } from '../repack-carton-dialog/repack-carton-dialog.component';
 import { ToastrService } from 'ngx-toastr';
 import { ShippingSummaryReportDTO } from '../../graphql/query-definitions/print-shipping-summary-report.graphql';
+import { FuseConfirmationService } from '@fuse/services/confirmation';
 
 @Component({
     selector: 'biopro-recovered-plasma-shipping-details',
@@ -150,6 +151,7 @@ export class RecoveredPlasmaShippingDetailsComponent
         protected productIconService: ProductIconsService,
         protected browserPrintingService: BrowserPrintingService,
         protected matDialog: MatDialog,
+        private fuseConfirmationService: FuseConfirmationService,
         @Inject(LOCALE_ID) public locale: string
     ) {
         super(
@@ -431,5 +433,27 @@ export class RecoveredPlasmaShippingDetailsComponent
                 });
             }
         })
+    }
+
+
+    removeCarton(id: number){
+         this.fuseConfirmationService.open({
+            title: 'Remove Confirmation',
+            message: 'Carton and all added units will be removed. <b>Are you sure you want to continue?</b>',
+            dismissible: false,
+            icon: {
+                show: false,
+            },
+            actions: {
+                confirm: {
+                    label: 'Continue',
+                    class: 'bg-red-700 text-white',
+                },
+                cancel: {
+                    class: 'mat-secondary',
+                },
+            },
+        })
+
     }
 }
