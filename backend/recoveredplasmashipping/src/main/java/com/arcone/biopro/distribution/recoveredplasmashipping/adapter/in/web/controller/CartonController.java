@@ -4,13 +4,16 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.CartonPackingSlipDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.CloseCartonRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.CreateCartonRequestDTO;
+import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.GenerateCartonLabelRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.GenerateCartonPackingSlipRequestDTO;
+import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.LabelDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.RecoveredPlasmaShipmentResponseDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.RemoveCartonRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.RepackCartonRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.UseCaseResponseDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.mapper.CommandRequestDTOMapper;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.mapper.UseCaseResponseMapper;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.CartonLabelService;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.CartonPackingSlipService;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.CartonService;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.CloseCartonService;
@@ -38,6 +41,7 @@ public class CartonController {
     private final CartonPackingSlipService cartonPackingSlipService;
     private final RepackCartonService repackCartonService;
     private final RemoveCartonService removeCartonService;
+    private final CartonLabelService cartonLabelService;
 
 
     @MutationMapping("createCarton")
@@ -80,5 +84,12 @@ public class CartonController {
         log.debug("Request to Remove Carton: {}", removeCartonRequest);
         return removeCartonService.removeCarton(commandRequestDTOMapper.toInputCommand(removeCartonRequest))
             .map(useCaseResponseMapper::toUseCaseRecoveredPlasmaShipmentResponseDTO);
+    }
+
+    @QueryMapping("generateCartonLabel")
+    public Mono<UseCaseResponseDTO<LabelDTO>> generateCartonLabel(@Argument("generateCartonLabelRequest") GenerateCartonLabelRequestDTO generateCartonLabelRequest) {
+        log.debug("Request to generate carton label : {}", generateCartonLabelRequest);
+        return cartonLabelService.generateCartonLabel(commandRequestDTOMapper.toInputCommand(generateCartonLabelRequest))
+            .map(useCaseResponseMapper::toUseCaseLabelDto);
     }
 }

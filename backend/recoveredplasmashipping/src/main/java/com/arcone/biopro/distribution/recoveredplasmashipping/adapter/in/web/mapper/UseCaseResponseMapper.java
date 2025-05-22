@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.ma
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.CartonDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.CartonPackingSlipDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.CustomerDTO;
+import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.LabelDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.PageDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.RecoveredPlasmaShipmentReportDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.RecoveredPlasmaShipmentResponseDTO;
@@ -12,6 +13,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.CartonOutput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.CartonPackingSlipOutput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.CustomerOutput;
+import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.LabelOutput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.PageOutput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.RecoveredPlasmaShipmentOutput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.RecoveredPlasmaShipmentReportOutput;
@@ -31,6 +33,8 @@ public interface UseCaseResponseMapper {
     UseCaseResponseDTO<CartonPackingSlipDTO> toUseCaseGenerateCartonPackingSlipDTO(UseCaseOutput<CartonPackingSlipOutput> useCaseOutput);
     UseCaseResponseDTO<UnacceptableUnitReportDTO> toUseCaseUnacceptableUnitReportDTO(UseCaseOutput<UnacceptableUnitReportOutput> useCaseOutput);
     UseCaseResponseDTO<ShippingSummaryReportDTO> toUseCaseShippingSummaryReportDTO(UseCaseOutput<ShippingSummaryReportOutput> useCaseOutput);
+    UseCaseResponseDTO<LabelDTO> toUseCaseLabelDto(UseCaseOutput<LabelOutput> useCaseOutput);
+
 
 
 
