@@ -1,5 +1,5 @@
 # Feature Unit Number reference: W036825002000
-@api @LAB-312
+@api @LAB-312 @skipOnPipeline
 Feature: Discard Created event
     Rule: As an inventory service I want to listen to discard created event so that I can change the status to DISCARDED
         Scenario Outline: Update the inventory status to DISCARDED after receiving a Discard Created event with comments

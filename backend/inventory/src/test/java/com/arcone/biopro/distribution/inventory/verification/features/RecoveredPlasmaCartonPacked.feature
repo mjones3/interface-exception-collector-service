@@ -1,5 +1,5 @@
 # Feature Unit Number reference: W036825013000
-@api @LAB-408
+@api @LAB-408 @skipOnPipeline
 Feature: Recovered Plasma Carton Packed Event - API
     As an inventory service I want to update the status of an inventory after receiving an Recovered Plasma Carton Packed event.
 

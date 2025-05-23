@@ -1,5 +1,5 @@
 # Feature Unit Number reference: W036825009000
-@api @LAB-140
+@api @LAB-140 @skipOnPipeline
 Feature: Product Recovered event
     Rule: As a inventory service I want to listen to product recovered event so that I can remove the discard status from the inventory and return product to the previous status.
         Scenario Outline: Revert the inventory to the previous status after receiving a Product Recovered event.

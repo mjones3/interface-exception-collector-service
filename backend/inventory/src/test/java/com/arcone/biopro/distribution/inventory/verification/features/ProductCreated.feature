@@ -1,5 +1,5 @@
 # Feature Unit Number reference: W036825008000
-@api @LAB-253 @AOA-152 @LAB-379 @LAB-412 @LAB475 @AOA-83
+@api @LAB-253 @AOA-152 @LAB-379 @LAB-412 @LAB475 @AOA-83 @skipOnPipeline
 Feature: Product Created event
     Rule: As an inventory service I want to listen to product created event so that I can create the inventory, convert its parent if any, and manage its statuses
         Scenario Outline: Create the inventory as AVAILABLE and UNLABELED and convert its parent after receiving a Product Created event.

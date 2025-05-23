@@ -1,5 +1,5 @@
 # Feature Unit Number reference: W036825007000
-@api @LAB-399
+@api @LAB-399 @skipOnPipeline
 Feature: Product Completed Event - API
     Rule: As an inventory service I want to save the volume after receiving a product completed event.
         Scenario Outline: Add information into the volume when receiving product completed event

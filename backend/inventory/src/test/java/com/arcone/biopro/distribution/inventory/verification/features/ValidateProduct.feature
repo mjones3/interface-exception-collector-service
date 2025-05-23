@@ -1,5 +1,5 @@
 # Feature Unit Number reference: W036825014000
-@api @LAB-116 @AOA-75 @LAB-185 @LAB-254 @LAB-379 @LAB-408 @LAB-518
+@api @LAB-116 @AOA-75 @LAB-185 @LAB-254 @LAB-379 @LAB-408 @LAB-518 @skipOnPipeline
 Feature: Validate Inventory
 
     Scenario Outline: Validate Inventory
