@@ -12,11 +12,11 @@ import lombok.extern.slf4j.Slf4j;
 public class RemoveCartonCommand implements Validatable {
 
     private Long cartonId;
-    private String employeeI;
+    private String employeeId;
 
-    public RemoveCartonCommand(Long cartonId, String employeeI) {
+    public RemoveCartonCommand(Long cartonId, String employeeId) {
         this.cartonId = cartonId;
-        this.employeeI = employeeI;
+        this.employeeId = employeeId;
         checkValid();
     }
 
@@ -26,7 +26,7 @@ public class RemoveCartonCommand implements Validatable {
             throw new IllegalArgumentException("Carton id is required");
         }
 
-        if (employeeI == null || employeeI.isBlank()) {
+        if (employeeId == null || employeeId.isBlank()) {
             throw new IllegalArgumentException("Employee id is required");
         }
     }

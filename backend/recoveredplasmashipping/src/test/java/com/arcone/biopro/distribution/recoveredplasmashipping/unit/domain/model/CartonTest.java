@@ -676,7 +676,7 @@ class CartonTest {
             , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO, Collections.emptyList(),2 ,2 );
 
         var removeCommand = Mockito.mock(RemoveCartonCommand.class);
-        Mockito.when(removeCommand.getEmployeeI()).thenReturn("employee-id");
+        Mockito.when(removeCommand.getEmployeeId()).thenReturn("employee-id");
 
         // When/Then
         var response =  carton.removeCarton(removeCommand,shipRepository);

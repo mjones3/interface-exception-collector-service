@@ -331,7 +331,7 @@ public class Carton implements Validatable {
             throw new IllegalArgumentException("Carton is not the last one and cannot be removed");
         }
 
-        this.deleteEmployeeId = removeCartonCommand.getEmployeeI();
+        this.deleteEmployeeId = removeCartonCommand.getEmployeeId();
         this.deleteDate = ZonedDateTime.now();
         this.status = "REMOVED";
 
