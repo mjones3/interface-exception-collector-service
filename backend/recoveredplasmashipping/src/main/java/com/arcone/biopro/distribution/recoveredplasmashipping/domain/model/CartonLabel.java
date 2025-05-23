@@ -21,6 +21,8 @@ import java.util.Map;
 public class CartonLabel implements Validatable {
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("MM/dd/yyyy", Locale.US);
+    private static final String CARTON_SEQUENCE_TXT = "Carton Sequence in Shipment %s";
+    private static final String CARTON_SEQUENCE_TOTAL_CARTONS_TXT = "Carton Sequence in Shipment %s of ____";
 
     private ShipmentCustomer shipmentCustomer;
     private String cartonNumber;
@@ -31,9 +33,11 @@ public class CartonLabel implements Validatable {
     private String transportationReferenceNumber;
     private String shipmentNumber;
     private String productCode;
+    private boolean displayTransportationNumber;
+    private boolean displayTotalCartons;
 
     public CartonLabel(ShipmentCustomer shipmentCustomer, String cartonNumber, Integer cartonSequenceNumber, ZonedDateTime cartonCloseDate
-        , String bloodCenterName, Location location , String transportationReferenceNumber, String shipmentNumber, String productCode) {
+        , String bloodCenterName, Location location , String transportationReferenceNumber, String shipmentNumber, String productCode , boolean displayTransportationNumber , boolean displayTotalCartons) {
         this.shipmentCustomer = shipmentCustomer;
         this.cartonNumber = cartonNumber;
         this.cartonSequenceNumber = cartonSequenceNumber;
@@ -43,7 +47,8 @@ public class CartonLabel implements Validatable {
         this.transportationReferenceNumber = transportationReferenceNumber;
         this.shipmentNumber = shipmentNumber;
         this.productCode = productCode;
-
+        this.displayTransportationNumber = displayTransportationNumber;
+        this.displayTotalCartons = displayTotalCartons;
         checkValid();
     }
 
@@ -65,6 +70,9 @@ public class CartonLabel implements Validatable {
         values.put("ZIPCODE", location.getPostalCode());
         values.put("COUNTRY", "USA");
         values.put("TRANSPORTATION_NUMBER", transportationReferenceNumber);
+        if(displayTransportationNumber){
+            values.put("DISPLAY_TRANSPORTATION_NUMBER","Y");
+        }
     }
 
     private void upperLeftQuadrant(Map<String, Object> values) {
@@ -81,7 +89,11 @@ public class CartonLabel implements Validatable {
 
     private void lowerQuadrant(HashMap<String, Object> values) {
         values.put("PRODUCT_CODE", productCode);
-        values.put("CARTON_SEQUENCE", cartonSequenceNumber);
+        if(displayTotalCartons){
+            values.put("CARTON_SEQUENCE", String.format(CARTON_SEQUENCE_TOTAL_CARTONS_TXT, cartonSequenceNumber));
+        }else{
+            values.put("CARTON_SEQUENCE", String.format(CARTON_SEQUENCE_TXT, cartonSequenceNumber));
+        }
         values.put("SHIPMENT_NUMBER", shipmentNumber);
     }
 

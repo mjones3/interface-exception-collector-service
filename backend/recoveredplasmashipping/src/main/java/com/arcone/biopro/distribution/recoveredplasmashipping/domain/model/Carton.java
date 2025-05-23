@@ -63,7 +63,7 @@ public class Carton implements Validatable {
     private static final String STATUS_CLOSED = "CLOSED";
     private static final String STATUS_REPACK = "REPACK";
     private static final String CARTON_LABEL_TEMPLATE_TYPE = "RPS_CARTON_LABEL";
-    private static final String RPS_SYSTEM_PROCESS_TYPE = "RPS_CARTON_PACKING_SLIP";
+    private static final String RPS_SYSTEM_PROCESS_TYPE = "RPS_CARTON_LABEL";
 
 
     public static Carton createNewCarton(CreateCartonCommand createCartonCommand , RecoveredPlasmaShippingRepository recoveredPlasmaShippingRepository, CartonRepository cartonRepository, LocationRepository locationRepository) {
@@ -361,9 +361,12 @@ public class Carton implements Validatable {
         var productCode = this.getProducts().getFirst().getProductCode();
 
         var bloodCenterName = getSystemPropertyByKey(getSystemProperties(systemProcessPropertyRepository),"BLOOD_CENTER_NAME");
+        var displayTransportationNumber = "Y".equals(getSystemPropertyByKey(getSystemProperties(systemProcessPropertyRepository),"USE_TRANSPORTATION_NUMBER"));
+        var displayTotalCartons = "Y".equals(getSystemPropertyByKey(getSystemProperties(systemProcessPropertyRepository),"USE_TOTAL_CARTONS"));
+
 
         var label = new CartonLabel(shipment.getShipmentCustomer(),this.cartonNumber,this.cartonSequence,this.closeDate,bloodCenterName,location
-            , shipment.getTransportationReferenceNumber(), shipment.getShipmentNumber(), productCode );
+            , shipment.getTransportationReferenceNumber(), shipment.getShipmentNumber(), productCode, displayTransportationNumber, displayTotalCartons );
 
         return labelTemplateService.processTemplate(CARTON_LABEL_TEMPLATE_TYPE, label.toMap() ).block();
 

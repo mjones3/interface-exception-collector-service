@@ -33,6 +33,7 @@ import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -717,10 +718,15 @@ class CartonTest {
         var location = Mockito.mock(Location.class);
         when(locationRepository.findOneByCode(Mockito.anyString())).thenReturn(Mono.just(location));
 
-        var property = new SystemProcessProperty(4L, "RPS_CARTON_PACKING_SLIP", "BLOOD_CENTER_NAME", "Test Blood Center");
+        List<SystemProcessProperty> properties = new ArrayList<>();
+        properties.add(new SystemProcessProperty(4L, "RPS_CARTON_LABEL", "BLOOD_CENTER_NAME", "Test Blood Center"));
+        properties.add(new SystemProcessProperty(4L, "RPS_CARTON_LABEL", "USE_TRANSPORTATION_NUMBER", "Y"));
+        properties.add(new SystemProcessProperty(4L, "RPS_CARTON_LABEL", "USE_TOTAL_CARTONS", "Y"));
 
 
-        Mockito.when(systemProcessPropertyRepository.findAllByType(Mockito.anyString())).thenReturn(Flux.just(property));
+
+
+        Mockito.when(systemProcessPropertyRepository.findAllByType(Mockito.anyString())).thenReturn(Flux.fromIterable(properties));
 
         CartonItem cartonItem = Mockito.mock(CartonItem.class);
         Mockito.when(cartonItem.getProductCode()).thenReturn("PRODUCT_CODE");
