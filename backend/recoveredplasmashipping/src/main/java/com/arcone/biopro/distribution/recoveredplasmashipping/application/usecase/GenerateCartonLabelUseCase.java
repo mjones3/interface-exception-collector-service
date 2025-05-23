@@ -50,7 +50,7 @@ public class GenerateCartonLabelUseCase implements CartonLabelService {
                             .type(UseCaseMessageType.CARTON_LABEL_GENERATED_SUCCESS.getType())
                             .build())
                     .build())
-                    , LabelOutput.builder().zpl(cartonLabel).build()
+                    , LabelOutput.builder().labelContent(cartonLabel).build()
                     , null));
             })
             .onErrorResume(error -> {

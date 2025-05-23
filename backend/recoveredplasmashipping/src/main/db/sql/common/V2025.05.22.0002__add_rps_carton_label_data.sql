@@ -1,5 +1,6 @@
+DELETE FROM recoveredplasmashipping.lk_label_template where template_type = 'RPS_CARTON_LABEL';
 
-INSERT INTO recoveredplasmashipping.lk_label_template (id, type, template, order_number, create_date, modification_date, active) VALUES (1, 'RPS_CARTON_LABEL', e'
+INSERT INTO recoveredplasmashipping.lk_label_template (id, template_type, template, order_number, create_date, modification_date, active) VALUES (1, 'RPS_CARTON_LABEL', e'
 ^XA
 ^PQ1
 ^CI28
@@ -15,7 +16,7 @@ INSERT INTO recoveredplasmashipping.lk_label_template (id, type, template, order
 ^FO80,40
 ^A0N,30,30
 ^FB580,5,,L,0
-^FD${CUSTOMER_CODE}\&${CUSTOMER_NAME}\&${CUSTOMER_ADDRESS}\&${CUSTOMER_CITY}, ${CUSTOMER_STATE}, ${CUSTOMER_ZIP_CODE}\&${CUSTOMER_COUNTRY}^FS
+^FD${CUSTOMER_CODE}\\&${CUSTOMER_NAME}\\&${CUSTOMER_ADDRESS}\\&${CUSTOMER_CITY}, ${CUSTOMER_STATE}, ${CUSTOMER_ZIP_CODE}\\&${CUSTOMER_COUNTRY}^FS
 ^FO60,300^A0N,40,40^FD${CARTON_NUMBER}^FS
 ^FO40,360
 ^BY3,2.0,100
@@ -28,7 +29,7 @@ INSERT INTO recoveredplasmashipping.lk_label_template (id, type, template, order
 ^FO620,40^A0N,30,30^FDFrom:^FS
 ^FO620,120^A0N,44,44
 ^FB560,360,20,C,0
-^FD${BLOOD_CENTER_NAME}\&${ADDRESS_LINE}\&${CITY}, ${STATE},${ZIPCODE}\& ${COUNTRY}\&^FS
+^FD${BLOOD_CENTER_NAME}\\&${ADDRESS_LINE}\\&${CITY}, ${STATE},${ZIPCODE}\\& ${COUNTRY}\\&^FS
 ^FO620,530^A0N,30,30^FDTransportation Reference Number: ${TRANSPORTATION_NUMBER}^FS
 
 ^FX LOWER QUADRANT

@@ -199,3 +199,5 @@ flyway:
         secretKeyRef:
           name: flyway-configuration
           key: locations
+    - name: FLYWAY_PLACEHOLDER_REPLACEMENT
+      value: "false"

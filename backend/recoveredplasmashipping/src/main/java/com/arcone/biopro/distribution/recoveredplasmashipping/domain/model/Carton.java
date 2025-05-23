@@ -345,21 +345,27 @@ public class Carton implements Validatable {
     public String generateCartonLabel(LabelTemplateService labelTemplateService , LocationRepository locationRepository
         , RecoveredPlasmaShippingRepository recoveredPlasmaShippingRepository , SystemProcessPropertyRepository systemProcessPropertyRepository ){
 
+        if(!STATUS_CLOSED.equals(this.status)){
+            throw new IllegalArgumentException("Carton is not closed");
+        }
+
         var shipment = getShipment(this.shipmentId, recoveredPlasmaShippingRepository);
         if(shipment == null){
             throw new IllegalArgumentException("Shipment not found");
         }
 
         var location = locationRepository.findOneByCode(shipment.getLocationCode())
-            .switchIfEmpty(Mono.error(()-> new DomainNotFoundForKeyException(String.format("%s", shipment.getLocationCode()))))
+            .switchIfEmpty(Mono.error(()-> new IllegalArgumentException("Location is required to generate the carton label")))
             .block();
 
         var productCode = this.getProducts().getFirst().getProductCode();
 
         var bloodCenterName = getSystemPropertyByKey(getSystemProperties(systemProcessPropertyRepository),"BLOOD_CENTER_NAME");
 
-        return labelTemplateService.processTemplate(CARTON_LABEL_TEMPLATE_TYPE, new CartonLabel(shipment.getShipmentCustomer(),this.cartonNumber,this.cartonSequence,this.closeDate,bloodCenterName,location
-            , shipment.getTransportationReferenceNumber(), shipment.getShipmentNumber(), productCode )).block();
+        var label = new CartonLabel(shipment.getShipmentCustomer(),this.cartonNumber,this.cartonSequence,this.closeDate,bloodCenterName,location
+            , shipment.getTransportationReferenceNumber(), shipment.getShipmentNumber(), productCode );
+
+        return labelTemplateService.processTemplate(CARTON_LABEL_TEMPLATE_TYPE, label.toMap() ).block();
 
     }
 

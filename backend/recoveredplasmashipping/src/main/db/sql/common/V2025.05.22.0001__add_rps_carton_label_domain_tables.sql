@@ -1,6 +1,6 @@
 CREATE TABLE recoveredplasmashipping.lk_label_template (
     id int4 NOT NULL,
-    "template" varchar(1000) NOT NULL,
+    "template" TEXT NOT NULL,
     order_number int4 NOT NULL,
     create_date timestamptz NOT NULL,
     modification_date timestamptz NOT NULL,

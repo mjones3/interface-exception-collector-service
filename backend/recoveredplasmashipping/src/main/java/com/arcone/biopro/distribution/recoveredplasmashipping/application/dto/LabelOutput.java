@@ -6,6 +6,6 @@ import java.io.Serializable;
 
 @Builder
 public record LabelOutput(
-   String zpl
+   String labelContent
 ) implements Serializable {
 }
