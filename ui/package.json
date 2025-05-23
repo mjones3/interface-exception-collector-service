@@ -6,17 +6,18 @@
     "scripts": {
         "ng": "ng",
         "start": "ng serve --proxy-config proxy.conf.json --open",
-        "start:local": "ng serve --proxy-config local-proxy.conf.json --open",
+        "start-local": "ng serve --proxy-config local-proxy.conf.json --open",
         "build": "ng build",
         "build:prod": "ng build --configuration production",
         "build:development": "ng build --configuration development",
         "watch": "ng build --watch --configuration development",
-        "test": "jest --maxWorker=50%",
+        "test": "jest --runInBand",
         "test:failures": "jest --only-failures",
         "test:watch": "jest —-watch",
         "test:cov": "jest --coverage"
     },
     "dependencies": {
+        "@angular-eslint/schematics": "^18.0.1",
         "@angular/animations": "18.0.1",
         "@angular/cdk": "18.0.1",
         "@angular/common": "18.0.1",
