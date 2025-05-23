@@ -16,6 +16,7 @@ public interface BioProConstants {
     String QUARANTINE_UPDATED_TOPIC = "QuarantineUpdated";
     String RECOVER_PLASMA_CARTON_PACKED_TOPIC = "RecoveredPlasmaCartonPacked";
     String RECOVER_PLASMA_CARTON_REMOVED_TOPIC = "RecoveredPlasmaCartonRemoved";
+    String RECOVER_PLASMA_CARTON_UNPACKED_TOPIC = "RecoveredPlasmaCartonUnpacked";
     String SHIPMENT_COMPLETED_TOPIC = "ShipmentCompleted";
     String LABEL_APPLIED_TOPIC = "LabelApplied";
     String CHECK_IN_COMPLETED_TOPIC = "CheckInCompleted";

@@ -1,8 +1,7 @@
 package com.arcone.biopro.distribution.inventory.application.usecase;
 
 import com.arcone.biopro.distribution.inventory.application.dto.InventoryOutput;
-import com.arcone.biopro.distribution.inventory.application.dto.PackedProductInput;
-import com.arcone.biopro.distribution.inventory.application.dto.RecoveredPlasmaCartonRemovedInput;
+import com.arcone.biopro.distribution.inventory.application.dto.RecoveredPlasmaCartonUnpackedInput;
 import com.arcone.biopro.distribution.inventory.application.mapper.InventoryOutputMapper;
 import com.arcone.biopro.distribution.inventory.domain.event.InventoryEventPublisher;
 import com.arcone.biopro.distribution.inventory.domain.event.InventoryUpdatedApplicationEvent;
@@ -23,7 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class RecoveredPlasmaCartonRemovedUseCase implements UseCase<Mono<InventoryOutput>, RecoveredPlasmaCartonRemovedInput> {
+public class RecoveredPlasmaCartonUnpackedUseCase implements UseCase<Mono<InventoryOutput>, RecoveredPlasmaCartonUnpackedInput> {
 
     InventoryAggregateRepository inventoryAggregateRepository;
 
@@ -31,17 +30,16 @@ public class RecoveredPlasmaCartonRemovedUseCase implements UseCase<Mono<Invento
 
     InventoryEventPublisher inventoryEventPublisher;
 
-
     @Override
-    public Mono<InventoryOutput> execute(RecoveredPlasmaCartonRemovedInput input) {
-        log.info("Processing RecoveredPlasmaCartonRemoved event for carton: {}", input.cartonNumber());
+    public Mono<InventoryOutput> execute(RecoveredPlasmaCartonUnpackedInput input) {
+        log.info("Processing RecoveredPlasmaCartonUnpacked event for carton: {}", input.cartonNumber());
 
-        if (input.packedProducts() == null || input.packedProducts().isEmpty()) {
-            log.warn("No packed products found in carton: {}", input.cartonNumber());
+        if (input.unpackedProducts() == null || input.unpackedProducts().isEmpty()) {
+            log.warn("No unpacked products found in carton: {}", input.cartonNumber());
             return Mono.empty();
         }
 
-        return Flux.fromIterable(input.packedProducts())
+        return Flux.fromIterable(input.unpackedProducts())
             .flatMap(packedProduct -> inventoryAggregateRepository.findByUnitNumberAndProductCode(packedProduct.unitNumber(), packedProduct.productCode()))
             .map(inventoryAggregate -> inventoryAggregate.removeFromCarton(input.cartonNumber()))
             .flatMap(inventoryAggregateRepository::saveInventory)
@@ -51,5 +49,4 @@ public class RecoveredPlasmaCartonRemovedUseCase implements UseCase<Mono<Invento
             .doOnSuccess(inventory -> inventoryEventPublisher.publish(new InventoryUpdatedApplicationEvent(inventory, InventoryUpdateType.UNPACKED)))
             .map(inventoryOutputMapper::toOutput);
     }
-
 }

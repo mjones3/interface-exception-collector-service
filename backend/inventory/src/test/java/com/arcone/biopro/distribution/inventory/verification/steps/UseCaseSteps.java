@@ -52,6 +52,8 @@ public class UseCaseSteps {
 
     private final RecoveredPlasmaCartonRemovedUseCase recoveredPlasmaCartonRemovedUseCase;
 
+    private final RecoveredPlasmaCartonUnpackedUseCase recoveredPlasmaCartonUnpackedUseCase;
+
     private final RecoveredPlasmaShipmentClosedUseCase recoveredPlasmaShipmentClosedUseCase;
 
     private final ProductCompletedUseCase productCompletedUseCase;
@@ -265,6 +267,29 @@ public class UseCaseSteps {
             .build();
         recoveredPlasmaCartonRemovedUseCase.execute(input).block();
     }
+    
+    @When("I received a Recovered Plasma Carton Unpacked Event for carton number {string}")
+    public void iReceivedRecoveredPlasmaCartonUnpacked(String cartonNumber, DataTable dataTable) {
+
+        List<Map<String, String>> products = dataTable.asMaps(String.class, String.class);
+        List<PackedProductInput> unpackedProducts = new ArrayList<>();
+        for (Map<String, String> product : products) {
+
+            var unitNumber = product.get("Unit Number");
+            var productCode = product.get("Product Code");
+            unpackedProducts.add(PackedProductInput.builder()
+                .unitNumber(unitNumber)
+                .productCode(productCode)
+                .status("UNPACKED")
+                .build());
+        }
+
+        RecoveredPlasmaCartonUnpackedInput input = RecoveredPlasmaCartonUnpackedInput.builder()
+            .cartonNumber(cartonNumber)
+            .unpackedProducts(unpackedProducts)
+            .build();
+        recoveredPlasmaCartonUnpackedUseCase.execute(input).block();
+    }
 
 
     @When("I received a Product Unsuitable event with unit number {string}, product code {string} and reason {string}")
@@ -325,6 +350,9 @@ public class UseCaseSteps {
                     break;
                 case "Recovered Plasma Carton Removed":
                     iReceivedRecoveredPlasmaCartonRemoved("CN001", dataTable);
+                    break;
+                case "Recovered Plasma Carton Unpacked":
+                    iReceivedRecoveredPlasmaCartonUnpacked("CN001", dataTable);
                     break;
                 case "Recovered Plasma Carton Closed":
                     iReceivedARecoveredPlasmaShipmentClosedEvent(dataTable);

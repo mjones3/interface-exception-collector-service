@@ -14,6 +14,7 @@ import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.U
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.ProductRecoveredMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.RecoveredPlasmaCartonPackedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.RecoveredPlasmaCartonRemovedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.RecoveredPlasmaCartonUnpackedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.RecoveredPlasmaShipmentClosedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.unsuitable.UnsuitableMessage;
 import com.arcone.biopro.distribution.inventory.adapter.output.producer.event.InventoryUpdatedEvent;
@@ -105,6 +106,9 @@ class KafkaConfiguration {
 
     @Value("${topic.recovered-plasma-carton-removed.name}")
     private String recoveredPlasmaCartonRemovedTopic;
+    
+    @Value("${topic.recovered-plasma-carton-unpacked.name}")
+    private String recoveredPlasmaCartonUnpackedTopic;
 
     @Value("${topic.product-remove-quarantined.name}")
     private String removeQuarantinedTopic;
@@ -203,6 +207,13 @@ class KafkaConfiguration {
     ReceiverOptions<String, String> recoveredPlasmaCartonRemovedReceiverOptions(KafkaProperties kafkaProperties) {
         return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
             .subscription(List.of(recoveredPlasmaCartonRemovedTopic));
+    }
+    
+    @Bean
+    @Qualifier("RECOVERED_PLASMA_CARTON_UNPACKED")
+    ReceiverOptions<String, String> recoveredPlasmaCartonUnpackedReceiverOptions(KafkaProperties kafkaProperties) {
+        return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
+            .subscription(List.of(recoveredPlasmaCartonUnpackedTopic));
     }
 
     @Bean
@@ -409,6 +420,18 @@ class KafkaConfiguration {
     @Bean(name = "RECOVERED_PLASMA_CARTON_REMOVED_CONSUMER")
     ReactiveKafkaConsumerTemplate<String, String> recoveredPlasmaCartonRemovedConsumerTemplate(
         @Qualifier("RECOVERED_PLASMA_CARTON_REMOVED") ReceiverOptions<String, String> receiverOptions
+    ) {
+        return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
+    }
+    
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "RecoveredPlasmaCartonUnpacked",
+        description = "Recovered Plasma Carton Unpacked event has been listened and inventory status was updated",
+        payloadType = RecoveredPlasmaCartonUnpackedMessage.class
+    ))
+    @Bean(name = "RECOVERED_PLASMA_CARTON_UNPACKED_CONSUMER")
+    ReactiveKafkaConsumerTemplate<String, String> recoveredPlasmaCartonUnpackedConsumerTemplate(
+        @Qualifier("RECOVERED_PLASMA_CARTON_UNPACKED") ReceiverOptions<String, String> receiverOptions
     ) {
         return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
     }
