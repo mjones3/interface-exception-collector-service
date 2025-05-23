@@ -1,5 +1,6 @@
 {
     "serverApiURL": "http://localhost:4200",
+    "agentApiURL": "http://localhost:8282",
     "clientId": "web_app",
     "environment": "DEVELOPMENT",
     "url": "http://id.local.gd",
