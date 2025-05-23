@@ -30,6 +30,7 @@ public record CartonDTO(
     boolean canClose,
     boolean canPrint,
     List<CartonItemDTO> verifiedProducts,
-    CartonItemOutput failedCartonItem
+    CartonItemOutput failedCartonItem,
+    boolean canRemove
 ) implements Serializable {
 }

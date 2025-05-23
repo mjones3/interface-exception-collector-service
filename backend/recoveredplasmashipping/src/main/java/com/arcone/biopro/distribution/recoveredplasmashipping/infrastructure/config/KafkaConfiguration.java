@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.config;
 
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.event.RecoveredPlasmaCartonPackedOutputEvent;
+import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.event.RecoveredPlasmaCartonRemovedOutputEvent;
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.event.RecoveredPlasmaCartonUnpackedOutputEvent;
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.event.RecoveredPlasmaShipmentClosedOutputEvent;
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.event.RecoveredPlasmaShipmentCreatedOutputEvent;
@@ -38,6 +39,7 @@ public class KafkaConfiguration {
     public static final String RPS_CARTON_CLOSED_PRODUCER = "rps-carton-closed-producer";
     public static final String RPS_SHIPMENT_CLOSED_PRODUCER = "rps-shipment-closed-producer";
     public static final String RPS_CARTON_UNPACKED_PRODUCER = "rps-carton-unpacked-producer";
+    public static final String RPS_CARTON_REMOVED_PRODUCER = "rps-carton-removed-producer";
 
 
     @Bean
@@ -72,6 +74,15 @@ public class KafkaConfiguration {
         @Value("${topics.recovered-plasma-shipment.carton-unpacked.partitions:1}") Integer partitions,
         @Value("${topics.recovered-plasma-shipment.carton-unpacked.replicas:1}") Integer replicas,
         @Value("${topics.recovered-plasma-shipment.carton-unpacked.topic-name:RecoveredPlasmaCartonUnpacked}") String topicName
+    ) {
+        return TopicBuilder.name(topicName).partitions(partitions).replicas(replicas).build();
+    }
+
+    @Bean
+    NewTopic cartonRemovedTopic(
+        @Value("${topics.recovered-plasma-shipment.carton-removed.partitions:1}") Integer partitions,
+        @Value("${topics.recovered-plasma-shipment.carton-removed.replicas:1}") Integer replicas,
+        @Value("${topics.recovered-plasma-shipment.carton-removed.topic-name:RecoveredPlasmaCartonRemoved}") String topicName
     ) {
         return TopicBuilder.name(topicName).partitions(partitions).replicas(replicas).build();
     }
@@ -170,6 +181,25 @@ public class KafkaConfiguration {
     ReactiveKafkaProducerTemplate<String, RecoveredPlasmaCartonUnpackedOutputEvent> cartonUnpackedProducerTemplate(
         SenderOptions<String, RecoveredPlasmaCartonUnpackedOutputEvent> cartonUnpackedSenderOptions) {
         return new ReactiveKafkaProducerTemplate<>(cartonUnpackedSenderOptions);
+    }
+
+    @Bean
+    SenderOptions<String, RecoveredPlasmaCartonRemovedOutputEvent> cartonRemovedSenderOptions(
+        KafkaProperties kafkaProperties,
+        ObjectMapper objectMapper,
+        MeterRegistry meterRegistry) {
+        var props = kafkaProperties.buildProducerProperties(null);
+        props.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, TracingProducerInterceptor.class.getName());
+        return SenderOptions.<String, RecoveredPlasmaCartonRemovedOutputEvent>create(props)
+            .withValueSerializer(new JsonSerializer<>(objectMapper))
+            .maxInFlight(1) // to keep ordering, prevent duplicate messages (and avoid data loss)
+            .producerListener(new MicrometerProducerListener(meterRegistry)); // we want standard Kafka metrics
+    }
+
+    @Bean(name = RPS_CARTON_REMOVED_PRODUCER )
+    ReactiveKafkaProducerTemplate<String, RecoveredPlasmaCartonRemovedOutputEvent> cartonRemovedProducerTemplate(
+        SenderOptions<String, RecoveredPlasmaCartonRemovedOutputEvent> cartonRemovedSenderOptions) {
+        return new ReactiveKafkaProducerTemplate<>(cartonRemovedSenderOptions);
     }
 
 }

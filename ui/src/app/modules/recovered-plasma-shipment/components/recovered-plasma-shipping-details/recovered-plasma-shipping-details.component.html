@@ -63,7 +63,7 @@
                         [disabled]="!shipmentDetailsSignal()?.canModify"
                         color="primary"
                         label="Add Carton"
-                        class="mat-primary-flat text-primary-900"
+                        class="mat-primary-action"
                         (buttonClicked)="addCarton()"
                     />
                 </div>
@@ -86,12 +86,15 @@
                 </span>
             </ng-template>
             <ng-template #actionsTemplateRef let-element="element">
+                <!--Edit Carton Button-->
                 @if (element?.status === 'OPEN') {
-                    <button id="editBtn" (click)="editCarton(element?.id)" class="button-mat-icon mt-2">
-                        <mat-icon>edit</mat-icon>
+                    <button id="editBtn" (click)="editCarton(element?.id)" class="button-mat-icon">
+                        <mat-icon
+                            [svgIcon]="'heroicons_outline:edit_square'"
+                        ></mat-icon>
                     </button>
                 }
-
+                <!--Repack Carton Button-->
                 @if (element?.status === 'REPACK') {
                     <biopro-basic-button
                         id="repackCartonBtn"
@@ -101,10 +104,23 @@
                         (buttonClicked)="repackCarton(element?.id)"
                     />
                 }
-
+                <!--Print carton packing slip Button-->
                 @if (element?.canPrint) {
                     <button data-testid="view-shipping-carton-packing-slip" (click)="printCarton($event, element?.id)" class="button-mat-icon">
                         <mat-icon>print</mat-icon>
+                    </button>
+                }
+                <!--Remove carton Button-->
+                @if (element?.canRemove) {
+                    <button 
+                        [id]="'removeCarton' + element.id"
+                        data-testid="remove-carton" 
+                        (click)="removeCarton(element?.id)" 
+                        class="button-remove-mat-icon"
+                    >
+                        <mat-icon
+                        [svgIcon]="'heroicons_outline:delete'"
+                    ></mat-icon>
                     </button>
                 }
             </ng-template>

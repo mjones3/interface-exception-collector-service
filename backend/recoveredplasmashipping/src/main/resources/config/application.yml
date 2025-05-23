@@ -305,3 +305,7 @@ topics:
       partitions: 1
       replicas: 1
       topic-name: RecoveredPlasmaCartonUnpacked
+    carton-removed:
+      partitions: 1
+      replicas: 1
+      topic-name: RecoveredPlasmaCartonRemoved

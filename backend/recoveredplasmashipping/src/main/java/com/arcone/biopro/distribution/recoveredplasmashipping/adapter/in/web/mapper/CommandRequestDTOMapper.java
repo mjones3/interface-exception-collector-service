@@ -10,6 +10,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.PrintUnacceptableUnitReportRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.QuerySortDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.RecoveredPlasmaShipmentQueryCommandRequestDTO;
+import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.RemoveCartonRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.RepackCartonRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.VerifyCartonItemRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.CloseCartonCommandInput;
@@ -23,6 +24,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.Pr
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.QueryOrderByOutput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.QuerySortOutput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.RecoveredPlasmaShipmentQueryCommandInput;
+import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.RemoveCartonCommandInput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.RepackCartonCommandInput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.VerifyItemCommandInput;
 import org.mapstruct.Mapper;
@@ -56,4 +58,6 @@ public interface CommandRequestDTOMapper {
     RepackCartonCommandInput toInputCommand(RepackCartonRequestDTO repackCartonRequestDTO);
 
     PrintShippingSummaryReportCommandInput toInputCommand(PrintShippingSummaryReportRequestDTO printShippingSummaryReportRequestDTO);
+
+    RemoveCartonCommandInput toInputCommand(RemoveCartonRequestDTO removeCartonRequestDTO);
 }

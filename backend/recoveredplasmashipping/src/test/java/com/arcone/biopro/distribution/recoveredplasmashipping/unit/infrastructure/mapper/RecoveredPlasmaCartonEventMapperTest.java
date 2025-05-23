@@ -5,6 +5,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Carto
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.dto.RecoveredPlasmaCartonItemPackedOutputDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.dto.RecoveredPlasmaCartonItemUnpackedOutputDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.dto.RecoveredPlasmaCartonPackedOutputDTO;
+import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.dto.RecoveredPlasmaCartonRemovedOutputDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.dto.RecoveredPlasmaCartonUnpackedOutputDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.mapper.RecoveredPlasmaCartonEventMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -195,6 +196,29 @@ class RecoveredPlasmaCartonEventMapperTest {
             assertEquals("REMOVED", dto.status());
 
         }
+    }
+
+    @Test
+    @DisplayName("Should map Carton to RecoveredPlasmaCartonRemovedOutputDTO successfully")
+    void shouldMapCartonToRemovedEventDTO() {
+        // Given
+        Carton carton = createSampleCarton();
+
+        // When
+        RecoveredPlasmaCartonRemovedOutputDTO result = mapper.modelToRemovedEventDTO(carton,"LOCATION_CODE" , "PRODUCT_TYPE");
+
+        // Then
+        assertNotNull(result);
+        assertEquals(carton.getStatus(), result.status());
+        assertEquals(carton.getDeleteEmployeeId(), result.removeEmployeeId());
+        assertEquals(carton.getDeleteDate(), result.removeDate());
+        assertEquals(carton.getCartonNumber(), result.cartonNumber());
+        assertEquals(carton.getCartonSequence(), result.cartonSequence());
+        assertEquals(carton.getTotalProducts(), result.totalProducts());
+        assertEquals("PRODUCT_TYPE", result.productType());
+        assertEquals("LOCATION_CODE", result.locationCode());
+        assertEquals(carton.getTotalProducts(), result.unpackedProducts().size());
+
     }
 
     private Carton createSampleCarton() {

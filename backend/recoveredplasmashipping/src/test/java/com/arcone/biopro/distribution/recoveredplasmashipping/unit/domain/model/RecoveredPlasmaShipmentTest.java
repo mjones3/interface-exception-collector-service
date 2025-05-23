@@ -1063,6 +1063,119 @@ class RecoveredPlasmaShipmentTest {
         assertEquals("Unacceptable units report still running", exception.getMessage());
     }
 
+    @Test
+    public void shouldFlagForRemove(){
+        var carton1 = Carton.fromRepository(1L,"number",1L,1,"employee-id","close-employee-id"
+            , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO,Collections.emptyList(),0,0);
+
+
+        List<Carton> cartonList = List.of(carton1);
+
+        var shipment = RecoveredPlasmaShipment.fromRepository(
+            1L, "locationCode", "productType", "123", OPEN_STATUS, "createEmployeeId",
+            "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
+            LocalDate.now(), BigDecimal.TEN, "unsuitableUnitReportDocumentStatus",
+            "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
+            "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
+            "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
+            "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(),ZonedDateTime.now(), cartonList
+        );
+
+        Assertions.assertTrue(shipment.getCartonList().getFirst().isCanRemove());
+    }
+
+    @Test
+    public void shouldNotFlagForRemoveWhenCartonIsClosed(){
+        var carton1 = Carton.fromRepository(1L,"number",1L,1,"employee-id","close-employee-id"
+            , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"CLOSED", BigDecimal.ZERO,BigDecimal.ZERO,Collections.emptyList(),0,0);
+
+
+        List<Carton> cartonList = List.of(carton1);
+
+        var shipment = RecoveredPlasmaShipment.fromRepository(
+            1L, "locationCode", "productType", "123", OPEN_STATUS, "createEmployeeId",
+            "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
+            LocalDate.now(), BigDecimal.TEN, "unsuitableUnitReportDocumentStatus",
+            "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
+            "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
+            "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
+            "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(),ZonedDateTime.now(), cartonList
+        );
+
+        Assertions.assertFalse(shipment.getCartonList().getFirst().isCanRemove());
+    }
+
+    @Test
+    public void shouldFlagForRemoveOnlyLast(){
+        var carton1 = Carton.fromRepository(1L,"number",1L,1,"employee-id","close-employee-id"
+            , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO,Collections.emptyList(),0,0);
+
+        var carton2 = Carton.fromRepository(1L,"number",1L,2,"employee-id","close-employee-id"
+            , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO,Collections.emptyList(),0,0);
+
+        List<Carton> cartonList = List.of(carton1,carton2);
+
+        var shipment = RecoveredPlasmaShipment.fromRepository(
+            1L, "locationCode", "productType", "123", OPEN_STATUS, "createEmployeeId",
+            "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
+            LocalDate.now(), BigDecimal.TEN, "unsuitableUnitReportDocumentStatus",
+            "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
+            "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
+            "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
+            "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(),ZonedDateTime.now(), cartonList
+        );
+
+        var cartonFlagged1 = shipment.getCartonList().stream().filter(carton -> carton.getCartonSequence() == 1 ).findFirst();
+        var cartonFlagged2 = shipment.getCartonList().stream().filter(carton -> carton.getCartonSequence() == 2 ).findFirst();
+
+        Assertions.assertFalse(cartonFlagged1.get().isCanRemove());
+        Assertions.assertTrue(cartonFlagged2.get().isCanRemove());
+    }
+
+    @Test
+    public void shouldMarkAsReopen(){
+        var shipment = RecoveredPlasmaShipment.fromRepository(
+            1L, "locationCode", "productType", "123", PROCESSING_STATUS , "createEmployeeId",
+            "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
+            LocalDate.now(), BigDecimal.TEN, "unsuitableUnitReportDocumentStatus",
+            "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
+            "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
+            "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
+            "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(),ZonedDateTime.now(), Collections.emptyList()
+        );
+
+        var response = shipment.markAsReopen();
+
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals("OPEN", response.getStatus());
+    }
+
+    @Test
+    public void shouldNotMarkAsReopenWhenCartonListIsNotZero(){
+
+        var carton1 = Carton.fromRepository(1L,"number",1L,1,"employee-id","close-employee-id"
+            , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO,Collections.emptyList(),0,0);
+
+        List<Carton> cartonList = List.of(carton1);
+
+        var shipment = RecoveredPlasmaShipment.fromRepository(
+            1L, "locationCode", "productType", "123", PROCESSING_STATUS , "createEmployeeId",
+            "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
+            LocalDate.now(), BigDecimal.TEN, "unsuitableUnitReportDocumentStatus",
+            "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
+            "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
+            "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
+            "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(),ZonedDateTime.now(), cartonList
+        );
+
+        var response = shipment.markAsReopen();
+
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(PROCESSING_STATUS, response.getStatus());
+    }
+
+
+
 
 }
 

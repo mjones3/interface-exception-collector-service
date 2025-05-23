@@ -58,6 +58,9 @@ public class CartonEntity {
     @Column("delete_date")
     private ZonedDateTime deleteDate;
 
+    @Column("delete_employee_id")
+    private String deleteEmployeeId;
+
     @NotNull
     @Column("create_date")
     @CreatedDate

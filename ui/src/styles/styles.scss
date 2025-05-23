@@ -160,7 +160,23 @@ button {
         width: 48px;
 
         &:hover {
-            background-color: rgba(var(--fuse-accent-rgb), 0.15) !important;
+            @apply bg-gray-700;
+            mat-icon{
+                color: white !important;
+            }
+        }
+    }
+
+    &.button-remove-mat-icon{
+        height: 48px;
+        width: 48px;
+        fill: white;
+
+        &:hover {
+            @apply bg-warn-700;
+            mat-icon {
+                color: white !important;
+            }
         }
     }
 
@@ -384,22 +400,6 @@ biopro-process-header {
         @apply text-primary hover:bg-primary/10 disabled:text-accent/10;
     }
 
-    &.mat-primary-flat {
-        background-color: rgba(var(--fuse-primary-rgb), 0.5);
-
-        &[disabled='true'] {
-            color: rgba(var(--fuse-accent-rgb), 0.6) !important;
-
-            &.mat-primary {
-                background-color: rgba(var(--fuse-accent-rgb), 0.15) !important;
-            }
-        }
-
-        &:hover {
-            background-color: rgba(var(--fuse-primary-rgb), 0.7);
-        }
-    }
-
     &.bg-green {
         @apply bg-green-700;
 
@@ -417,7 +417,7 @@ biopro-process-header {
     }
 
     &.mat-primary-action {
-        background-color: rgba(var(--fuse-primary-rgb), 0.9);
+        background-color: rgba(var(--fuse-primary-rgb), 0.8);
 
         &[disabled='true'] {
             color: rgba(var(--fuse-accent-rgb), 0.6) !important;
@@ -428,7 +428,7 @@ biopro-process-header {
         }
 
         &:hover {
-            background-color: rgba(var(--fuse-primary-rgb), 0.8);
+            background-color: rgba(var(--fuse-primary-rgb), 0.9);
         }
     }
 
