@@ -60,6 +60,10 @@ Here's how you can run tests:
     ```bash
     mvn verify  -Dcucumber.filter.tags="@tag1 or @tag2 and not @tag3"
     ```
+    
+    By default, the tests will exclude scenarios tagged with `@disabled` and `@skipOnPipeline`. This is configured in the `CucumberSuite.java` file.
+    
+    The command line tags specified with `-Dcucumber.filter.tags` will take precedence over the default tags in `CucumberSuite.java`.
 
 - To only trigger unit tests, use the following command:
 

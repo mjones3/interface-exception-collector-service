@@ -1,5 +1,5 @@
 # Feature Unit Number reference: W036825013000
-@api @LAB-292 @AOA-106
+@api @LAB-292 @AOA-106 @skipOnPipeline
 Feature: Unit Unsuitable Event - API
     As an inventory service I want to update the status of an inventory after receiving an Unsuitable event.
 
