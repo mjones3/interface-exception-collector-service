@@ -28,6 +28,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -440,6 +441,97 @@ class CartonItemTest {
             () -> CartonItem.createNewCartonItem(packItemCommand, carton, inventoryService, cartonItemRepository, recoveredPlasmaShippingRepository , recoveredPlasmaShipmentCriteriaRepository));
         assertEquals("Product Type does not match", exception.getMessage());
         assertEquals("WARN", exception.getErrorType());
+    }
+
+    @Test
+    public void shouldNotAllowItemsWithDifferentProductCode(){
+
+        var cartonMock = Mockito.mock(Carton.class);
+
+        var cartonItem = Mockito.mock(CartonItem.class);
+        Mockito.when(cartonItem.getProductCode()).thenReturn("PRODUCT_CODE_1");
+
+        Mockito.when(cartonMock.getProducts()).thenReturn(List.of(cartonItem));
+
+        var exception = assertThrows(ProductValidationException.class,
+            () -> CartonItem.createNewCartonItem(packItemCommand, cartonMock , inventoryService, cartonItemRepository, recoveredPlasmaShippingRepository , recoveredPlasmaShipmentCriteriaRepository));
+        assertEquals("The product code does not match the products in the carton", exception.getMessage());
+        assertEquals("WARN", exception.getErrorType());
+
+    }
+
+    @Test
+    public void shouldAllowItemsWithSameProductCode(){
+
+        var cartonMock = Mockito.mock(Carton.class);
+        Mockito.when(cartonMock.getId()).thenReturn(1L);
+
+        var cartonItemSameProductCode = Mockito.mock(CartonItem.class);
+        Mockito.when(cartonItemSameProductCode.getProductCode()).thenReturn("PRODUCT_CODE");
+
+        Mockito.when(cartonMock.getProducts()).thenReturn(List.of(cartonItemSameProductCode));
+
+        var shipment = Mockito.mock(RecoveredPlasmaShipment.class);
+
+        var mockCustomer = Mockito.mock(ShipmentCustomer.class);
+        Mockito.when(mockCustomer.getCustomerCode()).thenReturn("CUSTOMER_CODE");
+        Mockito.when(shipment.getShipmentCustomer()).thenReturn(mockCustomer);
+
+        Mockito.when(shipment.getProductType()).thenReturn("PRODUCT_TYPE");
+        var productType = Mockito.mock(ProductType.class);
+        Mockito.when(productType.getProductType()).thenReturn("PRODUCT_TYPE");
+
+        var inventoryValidation = Mockito.mock(InventoryValidation.class);
+        var inventory = Mockito.mock(Inventory.class);
+        Mockito.when(inventory.getUnitNumber()).thenReturn("UNIT_NUMBER");
+        Mockito.when(inventory.getProductCode()).thenReturn("PRODUCT_CODE");
+        Mockito.when(inventory.getVolumeByType("volume")).thenReturn(Optional.of(new InventoryVolume("volume",160,"ML")));
+        Mockito.when(inventory.getWeight()).thenReturn(10);
+        Mockito.when(inventory.getProductDescription()).thenReturn("DESCRIPTION");
+        Mockito.when(inventory.getAboRh()).thenReturn("AP");
+        Mockito.when(inventory.getExpirationDate()).thenReturn(LocalDateTime.now());
+        Mockito.when(inventory.getCollectionDate()).thenReturn(ZonedDateTime.now());
+
+        Mockito.when(inventoryValidation.getInventory()).thenReturn(inventory);
+
+        var productCriteria = Mockito.mock(RecoveredPlasmaShipmentCriteria.class);
+
+        var criteriaItemVolume = Mockito.mock(RecoveredPlasmaShipmentCriteriaItem.class);
+        Mockito.when(criteriaItemVolume.getValue()).thenReturn("150");
+
+        var criteriaItemMaxUnits = Mockito.mock(RecoveredPlasmaShipmentCriteriaItem.class);
+        Mockito.when(criteriaItemMaxUnits.getValue()).thenReturn("10");
+
+        Mockito.when(productCriteria.findCriteriaItemByType("MINIMUM_VOLUME")).thenReturn(Optional.of(criteriaItemVolume));
+        Mockito.when(productCriteria.findCriteriaItemByType("MAXIMUM_UNITS_BY_CARTON")).thenReturn(Optional.of(criteriaItemMaxUnits));
+
+        Mockito.when(cartonItemRepository.countByProduct(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just(0));
+        Mockito.when(recoveredPlasmaShippingRepository.findOneById(Mockito.anyLong())).thenReturn(Mono.just(shipment));
+        Mockito.when(recoveredPlasmaShipmentCriteriaRepository.findProductTypeByProductCode(Mockito.anyString())).thenReturn(Mono.just(productType));
+        Mockito.when(inventoryService.validateInventory(Mockito.any())).thenReturn(Mono.just(inventoryValidation));
+        Mockito.when(recoveredPlasmaShipmentCriteriaRepository.findProductCriteriaByCustomerCode(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just(productCriteria));
+
+
+
+        var response = CartonItem.createNewCartonItem(packItemCommand, cartonMock , inventoryService, cartonItemRepository, recoveredPlasmaShippingRepository , recoveredPlasmaShipmentCriteriaRepository);
+
+        Assertions.assertNotNull(response);
+        Assertions.assertNull(response.getId());
+        Assertions.assertEquals(1L, response.getCartonId());
+        Assertions.assertEquals("UNIT_NUMBER", response.getUnitNumber());
+        Assertions.assertEquals("PRODUCT_CODE", response.getProductCode());
+        Assertions.assertEquals("DESCRIPTION", response.getProductDescription());
+        Assertions.assertEquals("PRODUCT_TYPE", response.getProductType());
+        Assertions.assertEquals(160, response.getVolume(), 0.001);
+        Assertions.assertEquals(10, response.getWeight(), 0.001);
+        Assertions.assertEquals("PACKED", response.getStatus());
+        Assertions.assertEquals("EMPLOYEE_ID", response.getPackedByEmployeeId());
+        Assertions.assertEquals("AP", response.getAboRh());
+        Assertions.assertNotNull(response.getExpirationDate());
+        Assertions.assertNotNull(response.getCollectionDate());
+        Assertions.assertNotNull(response.getCreateDate());
+        Assertions.assertNull(response.getModificationDate());
+
     }
 
 }

@@ -40,7 +40,8 @@ Feature: Print Shipment Summary
         Rule: I should be able to print the shipping summary if needed when the shipment status is CLOSED.
         Rule: I should be able to view the Customer details, Shipment Details, Product Details and Carton Information on the Shipment summary Report.
         Rule: The header section content displayed on the shipment summary is configurable.
-        @api @DIS-346
+        Rule: I should be able to see all the product codes that are part of the shipment in the Shipment Summary Report.
+        @api @DIS-346 @DIS-370
         Scenario: Print shipment summary for closed shipment
             Given I have a "CLOSED" shipment with the Customer Code as "409" , Product Type as "RP_NONINJECTABLE_LIQUID_RT", Carton Tare Weight as "100", Shipment Date as "<tomorrow>", Transportation Reference Number as "DIS-346", Location Code as "123456789_DIS346" and the unit numbers as "W036898346757,W036898346758,W036898346756" and product codes as "E6022V00,E2534V00,E5880V00" and product types "RP_NONINJECTABLE_LIQUID_RT,RP_NONINJECTABLE_FROZEN,RP_FROZEN_WITHIN_72_HOURS".
             When I request to print the shipping summary report.
