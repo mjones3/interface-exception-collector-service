@@ -4,7 +4,7 @@ DELETE FROM recoveredplasmashipping.lk_system_process_property WHERE system_proc
 INSERT INTO recoveredplasmashipping.lk_system_process_property (system_process_type,property_key,property_value)
 VALUES ('RPS_CARTON_LABEL','USE_TRANSPORTATION_NUMBER','Y'),
        ('RPS_CARTON_LABEL','BLOOD_CENTER_NAME','ARC-One Solutions'),
-       ('RPS_CARTON_LABEL','USE_TOTAL_CARTONS','Y');
+       ('RPS_CARTON_LABEL','USE_TOTAL_CARTONS','N');
 
 INSERT INTO recoveredplasmashipping.lk_label_template (id, template_type, template, order_number, create_date, modification_date, active) VALUES (1, 'RPS_CARTON_LABEL', e'
 ^XA
