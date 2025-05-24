@@ -38,6 +38,11 @@ include:
     file: spec.backend.pipeline.yml
     inputs:
       service: recoveredplasmashipping
+  - project: arc-one/infrastructure/gitlab-ci
+    ref: main
+    file: spec.backend.pipeline.yml
+    inputs:
+      service: receiving
 
 .use-cache-ui:
   image: artifactory.sha.ao.arc-one.com/docker/system/build-cicd/nodejs/main:20.16.0-ba97ad57
