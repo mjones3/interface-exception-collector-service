@@ -12,10 +12,10 @@ public class LoginPage extends CommonPageFactory {
     @Autowired
     private SharedActions sharedActions;
 
-    @Value("${UI_KC_USERNAME}")
+    @Value("${UI_KC_USERNAME:admin}")
     private String username;
 
-    @Value("${UI_KC_PASSWORD}")
+    @Value("${UI_KC_PASSWORD:admin}")
     private String password;
 
     //    Page Locators
