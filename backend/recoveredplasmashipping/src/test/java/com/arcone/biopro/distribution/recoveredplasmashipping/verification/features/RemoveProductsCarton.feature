@@ -70,6 +70,8 @@ Feature: Remove Products from Carton
                 | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>    | DIS-385                         | 123456789_DIS385 | W036898385816   | E2488V00    | RP_NONINJECTABLE_LIQUID_RT |
                 | 408           | RP_FROZEN_WITHIN_120_HOURS | 1000               | <tomorrow>    | DIS-385                         | 123456789_DIS385 | W036898385818   | E6022V00    | RP_FROZEN_WITHIN_120_HOURS |
 
+        Rule: I should be able to remove one or more products from the selected carton.
+        Rule: I should receive a success message once the products are successfully removed.
         @ui @DIS-385
         Scenario Outline: Remove products from carton
             Given I have a shipment created with the Customer Code as "<Customer Code>" , Product Type as "<Product Type>", Carton Tare Weight as "<Carton Tare Weight>", Shipment Date as "<Shipment Date>", Transportation Reference Number as "<Transportation Reference Number>" and Location Code as "<Location Code>".
