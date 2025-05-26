@@ -28,6 +28,7 @@ public class ProductConsequence implements Validatable {
         this.resultValue = resultValue;
         this.consequenceType = consequenceType;
         this.consequenceReason = consequenceReason;
+        checkValid();
     }
 
     @Override

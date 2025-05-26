@@ -6,4 +6,5 @@ import reactor.core.publisher.Flux;
 public interface ProductConsequenceRepository {
 
     Flux<ProductConsequence> findAllByProductCategoryAndResultProperty(final String productCategory, final String resultProperty);
+    Flux<ProductConsequence> findAllByProductCategory(final String productCategory);
 }

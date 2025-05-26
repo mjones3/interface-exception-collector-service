@@ -10,8 +10,7 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.util.Collections;
 import java.util.List;
 
 @Getter
@@ -23,16 +22,7 @@ import java.util.List;
 public class ShippingInformation {
 
    private String productCategory;
-   private LocalDate startTransitDate;
-   private LocalDate endTransitDate;
-   private LocalTime startTransitTime;
-   private LocalTime endTransitTime;
-   private String startTransitTimeZone;
-   private String endTransitTimeZone;
-   private Integer temperature;
    private String temperatureUnit;
-   private String thermometerCode;
-   private String comments;
    private boolean displayTransitInformation;
    private boolean displayTemperature;
    private List<Lookup> transitTimeZoneList;
@@ -40,14 +30,39 @@ public class ShippingInformation {
 
    public static  ShippingInformation fromNewImportBatch(EnterShippingInformationCommand enterShippingInformationCommand , LookupRepository lookupRepository , ProductConsequenceRepository productConsequenceRepository){
 
+       validateProductCategory(enterShippingInformationCommand,productConsequenceRepository);
+
+       var requireTransitInformation = isTransitTimeRequired(enterShippingInformationCommand.getProductCategory(), productConsequenceRepository);
+
        return ShippingInformation.builder()
                .productCategory(enterShippingInformationCommand.getProductCategory())
-               .displayTransitInformation(true)
                .temperatureUnit("celsius")
-               .transitTimeZoneList(getTransitTimeZoneList(lookupRepository))
+               .transitTimeZoneList(requireTransitInformation ? getTransitTimeZoneList(lookupRepository) : Collections.emptyList())
                .visualInspectionList(getVisualInspectionList(lookupRepository))
+               .displayTransitInformation(requireTransitInformation)
                .displayTemperature(isTemperatureRequired(enterShippingInformationCommand.getProductCategory(), productConsequenceRepository))
                .build();
+   }
+
+   private static void validateProductCategory(EnterShippingInformationCommand enterShippingInformationCommand , ProductConsequenceRepository productConsequenceRepository){
+       if(enterShippingInformationCommand == null){
+           throw new IllegalArgumentException("EnterShippingInformationCommand is required");
+       }
+       if(enterShippingInformationCommand.getProductCategory() == null || enterShippingInformationCommand.getProductCategory().isBlank()){
+           throw new IllegalArgumentException("Product category is required");
+       }
+
+       if(productConsequenceRepository == null){
+           throw new IllegalArgumentException("ProductConsequenceRepository is required");
+       }
+
+       var productConsequence = productConsequenceRepository.findAllByProductCategory(enterShippingInformationCommand.getProductCategory())
+           .collectList()
+           .block();
+
+       if(productConsequence == null || productConsequence.isEmpty()){
+           throw new IllegalArgumentException("Product category is not configured");
+       }
    }
 
    private static List<Lookup> getTransitTimeZoneList(LookupRepository lookupRepository){
@@ -65,6 +80,14 @@ public class ShippingInformation {
    }
 
    private static boolean isTemperatureRequired(String productCategory, ProductConsequenceRepository productConsequenceRepository){
+       return isProductConsequenceConfigured(productCategory,"TEMPERATURE",productConsequenceRepository);
+   }
+
+   private static boolean isTransitTimeRequired(String productCategory, ProductConsequenceRepository productConsequenceRepository){
+       return isProductConsequenceConfigured(productCategory,"TRANSIT_TIME",productConsequenceRepository);
+   }
+
+   private static boolean isProductConsequenceConfigured(String productCategory , String property , ProductConsequenceRepository productConsequenceRepository){
        if(productCategory == null || productCategory.isBlank()){
            throw new IllegalArgumentException("Product category is required");
        }
@@ -72,15 +95,11 @@ public class ShippingInformation {
            throw new IllegalArgumentException("ProductConsequenceRepository is required");
        }
 
-       var productConsequence = productConsequenceRepository.findAllByProductCategoryAndResultProperty(productCategory, "TEMPERATURE")
-               .collectList()
-               .block();
+       var productConsequence = productConsequenceRepository.findAllByProductCategoryAndResultProperty(productCategory, property)
+           .collectList()
+           .block();
 
-       if(productConsequence == null || productConsequence.isEmpty()){
-           return false;
-       }
-
-       return true;
+       return productConsequence != null && !productConsequence.isEmpty();
    }
 
 

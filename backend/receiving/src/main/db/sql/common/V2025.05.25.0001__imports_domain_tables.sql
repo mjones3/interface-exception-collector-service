@@ -9,8 +9,8 @@ CREATE TABLE receiving.lk_product_consequence (
     consequence_reason VARCHAR(255) NOT NULL,
     order_number INT NOT NULL DEFAULT 1,
     active boolean NOT NULL DEFAULT true,
-    create_date DATETIME NOT NULL,
-    modification_date DATETIME NOT NULL,
+    create_date  TIMESTAMP WITH TIME ZONE           NOT NULL,
+    modification_date  TIMESTAMP WITH TIME ZONE           NOT NULL,
     PRIMARY KEY (id)
 );
 
@@ -23,7 +23,7 @@ COMMENT ON COLUMN receiving.lk_product_consequence.result_property IS 'Product c
 COMMENT ON COLUMN receiving.lk_product_consequence.result_type IS 'Product consequence result type';
 COMMENT ON COLUMN receiving.lk_product_consequence.result_value IS 'Product consequence result value';
 COMMENT ON COLUMN receiving.lk_product_consequence.consequence_type IS 'Product consequence type';
-COMMENT ON COLUMN receiving.lk_product_consequence.consequence_reason_key IS 'Product consequence reason';
+COMMENT ON COLUMN receiving.lk_product_consequence.consequence_reason IS 'Product consequence reason';
 COMMENT ON COLUMN receiving.lk_product_consequence.order_number IS 'Display order for this table';
 COMMENT ON COLUMN receiving.lk_product_consequence.active IS 'Is the product consequence active? true/false values';
 COMMENT ON COLUMN receiving.lk_product_consequence.create_date IS 'Date the product consequence was created';
