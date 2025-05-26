@@ -1,6 +1,5 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.verification.pages;
 
-import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.CustomerService;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.TestUtils;
 import org.openqa.selenium.By;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,11 +55,6 @@ public class CreateShipmentPage extends CommonPageFactory {
         return By.xpath(String.format("//td/span[contains(text(),'%s')]/../../td/span[contains(text(),'%s')]/../../td/span[contains(text(),'%s')]/../../td/span[contains(text(),'%s')]/../../td/span[contains(text(),'%s')]", location, transportationRefNumber, customer, productType, status.toUpperCase()));
 
     }
-
-
-    @Autowired
-    private CustomerService customerService;
-
 
     private By selectInputOption(String customer) {
         return By.xpath(String.format("//mat-option//*[contains(text() , '%s')]", customer));
