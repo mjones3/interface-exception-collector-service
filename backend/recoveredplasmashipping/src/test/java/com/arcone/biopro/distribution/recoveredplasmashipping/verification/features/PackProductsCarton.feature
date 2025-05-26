@@ -3,9 +3,13 @@ Feature: Add Products to Carton
 
     Background:
         Given I have removed from the database all the configurations for the location "123456789_DIS339".
+        Given I have removed from the database all the configurations for the location "123456789_DIS370".
         And I have removed from the database all shipments which code contains with "DIS33900".
+        And I have removed from the database all shipments which code contains with "DIS37000".
         And I have removed from the database all shipments from location "123456789" with transportation ref number "DIS-339".
+        And I have removed from the database all shipments from location "123456789" with transportation ref number "DIS-370".
         And The location "123456789_DIS339" is configured with prefix "DIS_339", shipping code "DIS33900", carton prefix "BPM" and prefix configuration "Y".
+        And The location "123456789_DIS370" is configured with prefix "DIS_370", shipping code "DIS37000", carton prefix "BPM" and prefix configuration "Y".
         And I have reset the shipment product criteria to have the following values:
             | recovered_plasma_shipment_criteria_id | type                    | value | message                                   | message_type |
             | 1                                     | MINIMUM_VOLUME          | 165   | Product Volume does not match criteria    | WARN         |
@@ -136,7 +140,36 @@ Feature: Add Products to Carton
                 | Customer Code | Product Type                  | Carton Tare Weight | Shipment Date | Transportation Reference Number | Location Code | unit_number   | product_code | product_volume |
                 | 410           | RP_NONINJECTABLE_REFRIGERATED | 1000               | <tomorrow>    | DIS-339                         | 123456789     | W036898786805 | E6170V00     | 259            |
 
-            Scenario: Reset default configurations
+
+    Rule: I should not be able to add different product codes in the same carton and be notified.
+    @api @DIS-370
+    Scenario Outline: Prevent having a carton with different products
+        Given I have an empty carton created with the Customer Code as "<Customer Code>" , Product Type as "<Product Type>", Carton Tare Weight as "<Carton Tare Weight>", Shipment Date as "<Shipment Date>", Transportation Reference Number as "<Transportation Reference Number>" and Location Code as "<Location Code>".
+        When I fill an "acceptable" product with the unit number "<unit_number1>", product code "<product_code1>" and product type "<Product Type>".
+        Then The product unit number "<unit_number1>" and product code "<product_code1>" "should" be packed in the carton.
+        When I fill an "acceptable" product with the unit number "<unit_number2>", product code "<product_code2>" and product type "<Product Type>".
+        Then I should receive a "<error_type>" message response "<error_message>".
+        And The product unit number "<unit_number2>" and product code "<product_code2>" "should not" be packed in the carton.
+        Examples:
+            | Customer Code | Product Type               | Carton Tare Weight   | Shipment Date | Transportation Reference Number | Location Code    | unit_number1  | product_code1 | unit_number2  | product_code2 | error_type | error_message                                              |
+            | 409           | RP_FROZEN_WITHIN_72_HOURS  | 1000                 | <tomorrow>    | DIS-370                         | 123456789_DIS370 | W036898370805 | E5622V00      | W036898370804 | E5880V00      | WARN       | The product code does not match the products in the carton |
+
+
+
+        Rule: I should be able to add different product codes that belong to the same product type in different cartons from the same shipment.
+        @api @DIS-370
+        Scenario Outline: Having cartons with different products in the same shipment
+            Given I have 2 empty cartons created with the Customer Code as "<Customer Code>" , Product Type as "<Product Type>", Carton Tare Weight as "<Carton Tare Weight>", Shipment Date as "<Shipment Date>", Transportation Reference Number as "<Transportation Reference Number>" and Location Code as "<Location Code>".
+            When I pack a product with the unit number "<unit_number1>" and product code "<product_code1>" into the carton sequence 1.
+            Then The product unit number "<unit_number1>" and product code "<product_code1>" "should" be packed in the carton.
+            When I pack a product with the unit number "<unit_number2>" and product code "<product_code2>" into the carton sequence 2.
+            Then The product unit number "<unit_number2>" and product code "<product_code2>" "should" be packed in the carton.
+            Examples:
+                | Customer Code | Product Type               | Carton Tare Weight   | Shipment Date | Transportation Reference Number | Location Code    | unit_number1  | product_code1 | unit_number2  | product_code2 |
+                | 409           | RP_FROZEN_WITHIN_72_HOURS  | 1000                 | <tomorrow>    | DIS-370                         | 123456789_DIS370 | W036898370805 | E5622V00      | W036898370804 | E5880V00      |
+
+
+        Scenario: Reset default configurations
                 Given I have reset the shipment product criteria to have the following values:
                     | recovered_plasma_shipment_criteria_id | type                    | value | message                                   | message_type |
                     | 1                                     | MINIMUM_VOLUME          | 165   | Product Volume does not match criteria    | WARN         |
