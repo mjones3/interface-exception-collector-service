@@ -1,5 +1,7 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.graphql;
 
+import java.util.List;
+
 public class GraphQLMutationMapper {
 
     public static String createShipment(String customerCode, String productType, Float cartonTareWeight, String shipmentDate, String TransportationRefNumber, String locationCode) {
@@ -204,5 +206,27 @@ public class GraphQLMutationMapper {
                 }
             }
             """, cartonId, employeeId);
+    }
+
+    public static String removeCartonItems(int cartonId, String employeeId, List<Integer> cartonProductToRemoveIds) {
+        return String.format("""
+            mutation RemoveCartonItems {
+                removeCartonItems(
+                    removeCartonItemRequest: { cartonId: %s, employeeId: "%s", cartonItemIds: %s }
+                ) {
+                    _links
+                    data
+                    notifications {
+                        message
+                        type
+                        code
+                        action
+                        reason
+                        details
+                        name
+                    }
+                }
+            }
+            """, cartonId, employeeId, cartonProductToRemoveIds);
     }
 }

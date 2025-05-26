@@ -22,8 +22,6 @@ public class AddCartonProductsSteps {
     @Autowired
     private ManageCartonPage manageCartonPage;
     @Autowired
-    private CreateShipmentController createShipmentController;
-    @Autowired
     private SharedContext sharedContext;
     @Autowired
     private TestUtils testUtils;
@@ -161,5 +159,29 @@ public class AddCartonProductsSteps {
         for (int i = 0; i < unitNumbersArray.length; i++) {
             cartonTestingController.insertPackedProduct(cartonId, unitNumbersArray[i], productCodesArray[i], productTypesArray[i]);
         }
+    }
+
+    @And("I have a {string} carton with the {string} unit numbers as {string} and product codes as {string} and product types {string}.")
+    public void iHaveACartonWithTheUnitNumbersAsAndProductCodesAsAndProductTypes(String cartonStatus, String unitStatus, String arg2unitNumbers, String productCodes, String productTypes) {
+        String[] unitNumbersArray = testUtils.getCommaSeparatedList(arg2unitNumbers);
+        String[] productCodesArray = testUtils.getCommaSeparatedList(productCodes);
+        String[] productTypesArray = testUtils.getCommaSeparatedList(productTypes);
+
+        var cartonCreated = cartonTestingController.createCarton(sharedContext.getShipmentCreateResponse().get("id").toString());
+        Assert.assertNotNull(cartonCreated);
+        Map data = (Map) cartonCreated.get("data");
+        var cartonId = data.get("id").toString();
+
+        for (int i = 0; i < unitNumbersArray.length; i++) {
+            if (unitStatus.equalsIgnoreCase("PACKED")) {
+                cartonTestingController.insertPackedProduct(cartonId, unitNumbersArray[i], productCodesArray[i], productTypesArray[i]);
+            } else if (unitStatus.equalsIgnoreCase("VERIFIED")) {
+                cartonTestingController.insertVerifiedProduct(cartonId, unitNumbersArray[i], productCodesArray[i], productTypesArray[i]);
+            } else {
+                throw new RuntimeException("Invalid unit status");
+            }
+
+        }
+        cartonTestingController.updateCartonStatus(cartonId, cartonStatus);
     }
 }
