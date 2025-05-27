@@ -323,10 +323,11 @@ public class RecoveredPlasmaShipment implements Validatable {
         return UnacceptableUnitReport.createReport(this, unacceptableUnitReportRepository, locationRepository, systemProcessPropertyRepository, printUnacceptableUnitReportCommand.getLocationCode());
     }
 
-    public RecoveredPlasmaShipment completeProcessing(final List<UnacceptableUnitReportItem> unacceptableUnitReportItemList) {
+    public RecoveredPlasmaShipment completeProcessing(final List<UnacceptableUnitReportItem> unacceptableUnitReportItemList, String closeEmployeeId) {
         if (unacceptableUnitReportItemList == null || unacceptableUnitReportItemList.isEmpty()) {
             this.status = CLOSED_STATUS;
             this.closeDate = ZonedDateTime.now();
+            this.closeEmployeeId = closeEmployeeId;
             this.unsuitableUnitReportDocumentStatus = STATUS_COMPLETED;
         } else {
             this.status = IN_PROGRESS_STATUS;
