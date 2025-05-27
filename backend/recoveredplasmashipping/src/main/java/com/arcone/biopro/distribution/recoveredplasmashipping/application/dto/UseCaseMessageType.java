@@ -29,7 +29,9 @@ public enum UseCaseMessageType {
     PRINT_SHIPPING_SUMMARY_REPORT_SUCCESS(19,  UseCaseNotificationType.SUCCESS, "Shipping Summary Report generated successfully"),
     PRINT_SHIPPING_SUMMARY_REPORT_ERROR(20,  UseCaseNotificationType.SYSTEM, "Shipping Summary Report generation error. Contact Support."),
     CARTON_REMOVED_SUCCESS(21,  UseCaseNotificationType.SUCCESS, "Carton successfully removed"),
-    CARTON_REMOVED_ERROR(22,  UseCaseNotificationType.SYSTEM, "Carton remove error. Contact Support.");
+    CARTON_REMOVED_ERROR(22,  UseCaseNotificationType.SYSTEM, "Carton remove error. Contact Support."),
+    CARTON_LABEL_GENERATED_SUCCESS(23,  UseCaseNotificationType.SUCCESS, "Carton Label generated successfully"),
+    CARTON_LABEL_GENERATED_ERROR(24,  UseCaseNotificationType.SYSTEM, "Carton Label generation error. Contact Support.");
 
     Integer code;
     UseCaseNotificationType type;

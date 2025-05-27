@@ -10,13 +10,17 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Locat
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.RecoveredPlasmaShipment;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.RemoveCartonCommand;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.RepackCartonCommand;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.ShipmentCustomer;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.SystemProcessProperty;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.VerifyItemCommand;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.CartonItemRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.CartonRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.LocationRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShipmentCriteriaRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShippingRepository;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.SystemProcessPropertyRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.InventoryService;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.LabelTemplateService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,10 +28,12 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -689,7 +695,70 @@ class CartonTest {
     }
 
 
+    @Test
+    public void shouldGenerateCartonLabel(){
 
+        var labelTemplateService = Mockito.mock(LabelTemplateService.class);
+        Mockito.when(labelTemplateService.processTemplate(Mockito.anyString(), Mockito.anyMap())).thenReturn(Mono.just("LABEL"));
+
+        var systemProcessPropertyRepository = Mockito.mock(SystemProcessPropertyRepository.class);
+        var recoveredPlasmaShippingRepository = Mockito.mock(RecoveredPlasmaShippingRepository.class);
+
+        var shipment = Mockito.mock(RecoveredPlasmaShipment.class);
+        Mockito.when(shipment.getShipmentNumber()).thenReturn("NUMBER");
+        Mockito.when(shipment.getLocationCode()).thenReturn("location-code");
+
+        var shipmentCustomer = Mockito.mock(ShipmentCustomer.class);
+        Mockito.when(shipment.getShipmentCustomer()).thenReturn(shipmentCustomer);
+
+        when(recoveredPlasmaShippingRepository.findOneById(Mockito.anyLong())).thenReturn(Mono.just(shipment));
+
+
+        var locationRepository = Mockito.mock(LocationRepository.class);
+        var location = Mockito.mock(Location.class);
+        when(locationRepository.findOneByCode(Mockito.anyString())).thenReturn(Mono.just(location));
+
+        List<SystemProcessProperty> properties = new ArrayList<>();
+        properties.add(new SystemProcessProperty(4L, "RPS_CARTON_LABEL", "BLOOD_CENTER_NAME", "Test Blood Center"));
+        properties.add(new SystemProcessProperty(4L, "RPS_CARTON_LABEL", "USE_TRANSPORTATION_NUMBER", "Y"));
+        properties.add(new SystemProcessProperty(4L, "RPS_CARTON_LABEL", "USE_TOTAL_CARTONS", "Y"));
+
+
+
+
+        Mockito.when(systemProcessPropertyRepository.findAllByType(Mockito.anyString())).thenReturn(Flux.fromIterable(properties));
+
+        CartonItem cartonItem = Mockito.mock(CartonItem.class);
+        Mockito.when(cartonItem.getProductCode()).thenReturn("PRODUCT_CODE");
+
+        var carton = Carton.fromRepository(1L,"number",1L,1,"employee-id","close-employee-id"
+            , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"CLOSED", BigDecimal.ZERO,BigDecimal.ZERO, List.of(cartonItem),2 ,2 );
+
+        var response = carton.generateCartonLabel(labelTemplateService,locationRepository, recoveredPlasmaShippingRepository, systemProcessPropertyRepository);
+
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals("LABEL", response);
+
+    }
+
+    @Test
+    public void shouldNotGenerateCartonLabelWhenStatusIsNotClosed(){
+
+        var labelTemplateService = Mockito.mock(LabelTemplateService.class);
+        var systemProcessPropertyRepository = Mockito.mock(SystemProcessPropertyRepository.class);
+        var recoveredPlasmaShippingRepository = Mockito.mock(RecoveredPlasmaShippingRepository.class);
+        var locationRepository = Mockito.mock(LocationRepository.class);
+
+        var carton = Carton.fromRepository(1L,"number",1L,1,"employee-id","close-employee-id"
+            , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO, Collections.emptyList(),2 ,2 );
+
+        // When/Then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            () -> carton.generateCartonLabel(labelTemplateService, locationRepository, recoveredPlasmaShippingRepository, systemProcessPropertyRepository));
+        assertEquals("Carton is not closed",
+            exception.getMessage());
+
+    }
 
 
 }

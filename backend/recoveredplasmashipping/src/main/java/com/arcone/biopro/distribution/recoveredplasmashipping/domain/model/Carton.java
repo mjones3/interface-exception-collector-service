@@ -9,6 +9,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.RecoveredPlasmaShippingRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.SystemProcessPropertyRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.InventoryService;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.LabelTemplateService;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -61,6 +62,8 @@ public class Carton implements Validatable {
     private static final String STATUS_VERIFIED = "VERIFIED";
     private static final String STATUS_CLOSED = "CLOSED";
     private static final String STATUS_REPACK = "REPACK";
+    private static final String CARTON_LABEL_TEMPLATE_TYPE = "RPS_CARTON_LABEL";
+    private static final String RPS_SYSTEM_PROCESS_TYPE = "RPS_CARTON_LABEL";
 
 
     public static Carton createNewCarton(CreateCartonCommand createCartonCommand , RecoveredPlasmaShippingRepository recoveredPlasmaShippingRepository, CartonRepository cartonRepository, LocationRepository locationRepository) {
@@ -337,5 +340,52 @@ public class Carton implements Validatable {
 
         return this;
 
+    }
+
+    public String generateCartonLabel(LabelTemplateService labelTemplateService , LocationRepository locationRepository
+        , RecoveredPlasmaShippingRepository recoveredPlasmaShippingRepository , SystemProcessPropertyRepository systemProcessPropertyRepository ){
+
+        if(!STATUS_CLOSED.equals(this.status)){
+            throw new IllegalArgumentException("Carton is not closed");
+        }
+
+        var shipment = getShipment(this.shipmentId, recoveredPlasmaShippingRepository);
+        if(shipment == null){
+            throw new IllegalArgumentException("Shipment not found");
+        }
+
+        var location = locationRepository.findOneByCode(shipment.getLocationCode())
+            .switchIfEmpty(Mono.error(()-> new IllegalArgumentException("Location is required to generate the carton label")))
+            .block();
+
+        var productCode = this.getProducts().getFirst().getProductCode();
+
+        var bloodCenterName = getSystemPropertyByKey(getSystemProperties(systemProcessPropertyRepository),"BLOOD_CENTER_NAME");
+        var displayTransportationNumber = "Y".equals(getSystemPropertyByKey(getSystemProperties(systemProcessPropertyRepository),"USE_TRANSPORTATION_NUMBER"));
+        var displayTotalCartons = "Y".equals(getSystemPropertyByKey(getSystemProperties(systemProcessPropertyRepository),"USE_TOTAL_CARTONS"));
+
+
+        var label = new CartonLabel(shipment.getShipmentCustomer(),this.cartonNumber,this.cartonSequence,this.closeDate,bloodCenterName,location
+            , shipment.getTransportationReferenceNumber(), shipment.getShipmentNumber(), productCode, displayTransportationNumber, displayTotalCartons );
+
+        return labelTemplateService.processTemplate(CARTON_LABEL_TEMPLATE_TYPE, label.toMap() ).block();
+
+    }
+
+
+    private static String getSystemPropertyByKey(List<SystemProcessProperty> systemProcessProperties , String key) {
+        return systemProcessProperties.stream()
+            .filter(systemProcessProperty -> key.equals(systemProcessProperty.getPropertyKey()))
+            .map(SystemProcessProperty::getPropertyValue)
+            .findFirst()
+            .orElseThrow(()-> new IllegalArgumentException("System Property value is required for the Key : "+key));
+    }
+
+
+    private static List<SystemProcessProperty> getSystemProperties(SystemProcessPropertyRepository systemProcessPropertyRepository) {
+        return systemProcessPropertyRepository.findAllByType(RPS_SYSTEM_PROCESS_TYPE)
+            .switchIfEmpty(Mono.error( ()-> new IllegalArgumentException("System Property is required: "+RPS_SYSTEM_PROCESS_TYPE)))
+            .collectList()
+            .block();
     }
 }

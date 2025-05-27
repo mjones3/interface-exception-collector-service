@@ -4,6 +4,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.CloseShipmentRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.CreateCartonRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.FindShipmentRequestDTO;
+import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.GenerateCartonLabelRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.GenerateCartonPackingSlipRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.PackCartonItemRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.PrintShippingSummaryReportRequestDTO;
@@ -17,6 +18,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.Cl
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.CloseShipmentCommandInput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.CreateCartonCommandInput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.FindShipmentCommandInput;
+import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.GenerateCartonLabelCommandInput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.GenerateCartonPackingSlipCommandInput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.PackCartonItemCommandInput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.PrintShippingSummaryReportCommandInput;
@@ -60,4 +62,6 @@ public interface CommandRequestDTOMapper {
     PrintShippingSummaryReportCommandInput toInputCommand(PrintShippingSummaryReportRequestDTO printShippingSummaryReportRequestDTO);
 
     RemoveCartonCommandInput toInputCommand(RemoveCartonRequestDTO removeCartonRequestDTO);
+
+    GenerateCartonLabelCommandInput toInputCommand(GenerateCartonLabelRequestDTO generateCartonLabelRequestDTO);
 }
