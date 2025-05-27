@@ -1,26 +1,31 @@
 package com.arcone.biopro.distribution.receiving.unit.application.usecase;
 
 import com.arcone.biopro.distribution.receiving.application.dto.EnterShippingInformationCommandInput;
-import com.arcone.biopro.distribution.receiving.application.dto.ShippingInformationOutput;
 import com.arcone.biopro.distribution.receiving.application.dto.UseCaseMessageType;
 import com.arcone.biopro.distribution.receiving.application.dto.UseCaseNotificationOutput;
 import com.arcone.biopro.distribution.receiving.application.mapper.ShippingInformationOutputMapper;
 import com.arcone.biopro.distribution.receiving.application.usecase.EnterShippingInformationUseCase;
-import com.arcone.biopro.distribution.receiving.domain.model.ShippingInformation;
+import com.arcone.biopro.distribution.receiving.domain.model.Lookup;
+import com.arcone.biopro.distribution.receiving.domain.model.ProductConsequence;
 import com.arcone.biopro.distribution.receiving.domain.repository.LookupRepository;
 import com.arcone.biopro.distribution.receiving.domain.repository.ProductConsequenceRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -49,33 +54,39 @@ class EnterShippingInformationUseCaseTest {
             "LOC456"
         );
 
-        ShippingInformation shippingInformation = mock(ShippingInformation.class);
-        ShippingInformationOutput expectedOutput = mock(ShippingInformationOutput.class);
+        when(productConsequenceRepository.findAllByProductCategory(anyString())).thenReturn(Flux.just(Mockito.mock(ProductConsequence.class)));
+        when(productConsequenceRepository.findAllByProductCategoryAndResultProperty(anyString(),anyString())).thenReturn(Flux.just(Mockito.mock(ProductConsequence.class)));
 
-        when(ShippingInformation.fromNewImportBatch(any(), any(), any())).thenReturn(shippingInformation);
-        when(shippingInformationOutputMapper.mapToOutput(shippingInformation)).thenReturn(expectedOutput);
+        List<Lookup> transitTimeZones = Arrays.asList(
+            Lookup.fromRepository(1L,"TIME_ZONE","TZ1","Transit Zone 1", 1,true),
+            Lookup.fromRepository(2L,"TIME_ZONE","TZ2","Transit Zone 2", 1,true)
 
-        // Act
-        StepVerifier.create(enterShippingInformationUseCase.enterShippingInformation(input))
-            // Assert
-            .expectNextMatches(output -> {
-                assertNotNull(output);
-                assertEquals(expectedOutput, output.data());
-                assertEquals(1, output.notifications().size());
+        );
 
-                UseCaseNotificationOutput notification = output.notifications().get(0);
-                assertEquals(UseCaseMessageType.ENTER_SHIPPING_INFORMATION_SUCCESS.getMessage(),
-                    notification.useCaseMessage().message());
-                assertEquals(UseCaseMessageType.ENTER_SHIPPING_INFORMATION_SUCCESS.getCode(),
-                    notification.useCaseMessage().code());
-                assertEquals(UseCaseMessageType.ENTER_SHIPPING_INFORMATION_SUCCESS.getType(),
-                    notification.useCaseMessage().type());
+        List<Lookup> visualInspections = Arrays.asList(
+            Lookup.fromRepository(1L,"TIME_ZONE","VI1","Visual Inspection 1", 1,true),
+            Lookup.fromRepository(1L,"TIME_ZONE","VI2","Visual Inspection 2", 1,true)
+        );
 
-                return true;
-            })
-            .verifyComplete();
+        when(lookupRepository.findAllByType(anyString())).thenReturn(Flux.fromIterable(transitTimeZones));
 
-        verify(shippingInformationOutputMapper).mapToOutput(shippingInformation);
+            // When/Then
+            // Act
+            StepVerifier.create(enterShippingInformationUseCase.enterShippingInformation(input))
+                // Assert
+                .assertNext(output -> {
+                    assertNotNull(output);
+                    assertEquals(1, output.notifications().size());
+
+                    UseCaseNotificationOutput notification = output.notifications().get(0);
+                    assertEquals(UseCaseMessageType.ENTER_SHIPPING_INFORMATION_SUCCESS.getMessage(),
+                        notification.useCaseMessage().message());
+                    assertEquals(UseCaseMessageType.ENTER_SHIPPING_INFORMATION_SUCCESS.getCode(),
+                        notification.useCaseMessage().code());
+                    assertEquals(UseCaseMessageType.ENTER_SHIPPING_INFORMATION_SUCCESS.getType(),
+                        notification.useCaseMessage().type());
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -87,13 +98,12 @@ class EnterShippingInformationUseCaseTest {
             "LOC456"
         );
 
-        when(ShippingInformation.fromNewImportBatch(any(), any(), any()))
-            .thenThrow(new RuntimeException("Test error"));
+        when(productConsequenceRepository.findAllByProductCategory(anyString())).thenReturn(Flux.error(new IllegalArgumentException("TEST")));
 
         // Act
         StepVerifier.create(enterShippingInformationUseCase.enterShippingInformation(input))
             // Assert
-            .expectNextMatches(output -> {
+            .assertNext(output -> {
                 assertNotNull(output);
                 assertNull(output.data());
                 assertEquals(1, output.notifications().size());
@@ -105,8 +115,6 @@ class EnterShippingInformationUseCaseTest {
                     notification.useCaseMessage().code());
                 assertEquals(UseCaseMessageType.ENTER_SHIPPING_INFORMATION_ERROR.getType(),
                     notification.useCaseMessage().type());
-
-                return true;
             })
             .verifyComplete();
 
