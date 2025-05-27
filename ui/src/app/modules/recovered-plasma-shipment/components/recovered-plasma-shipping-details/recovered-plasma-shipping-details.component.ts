@@ -4,6 +4,7 @@ import {
     computed,
     Inject,
     LOCALE_ID,
+    NgZone,
     OnDestroy,
     OnInit,
     signal,
@@ -24,6 +25,7 @@ import {
     catchError,
     EMPTY,
     filter,
+    first,
     map,
     Observable,
     of,
@@ -80,6 +82,7 @@ import { LabelPrinterResponseDTO, PrintLabelService } from '../../../../shared/s
 import {
     CartonPrintActionsDialogComponent
 } from '../carton-print-actions-dialog/carton-print-actions-dialog.component';
+import { fromPromise } from 'rxjs/internal/observable/innerFrom';
 
 @Component({
     selector: 'biopro-recovered-plasma-shipping-details',
@@ -108,6 +111,7 @@ export class RecoveredPlasmaShippingDetailsComponent
 
     protected static readonly POLLING_INTERVAL = 10 * 1000; // 10 seconds
     protected static readonly POLLING_MAX_TIMEOUT = 120 * 1000; // 120 seconds
+    protected static readonly PRINT_PACKING_SLIP_DELAY = 300;
 
     messageSignal = signal<string>(null);
     messageTypeSignal = signal<FuseAlertType>(null);
@@ -168,6 +172,7 @@ export class RecoveredPlasmaShippingDetailsComponent
         protected productIconService: ProductIconsService,
         protected printLabelService: PrintLabelService,
         protected browserPrintingService: BrowserPrintingService,
+        protected ngZone: NgZone,
         protected matDialog: MatDialog,
         private fuseConfirmationService: FuseConfirmationService,
         @Inject(LOCALE_ID) public locale: string
@@ -194,17 +199,16 @@ export class RecoveredPlasmaShippingDetailsComponent
     }
 
     fetchShipmentData(id: number) {
+        if (this.shouldPrintCartonPackingSlipAndLabel) {
+            this.printCartonLabel(this.shipmentCloseCartonId);
+            this.printCartonPackingSlip(this.shipmentCloseCartonId);
+        }
+
         this.pollingSubscription = timer(0, RecoveredPlasmaShippingDetailsComponent.POLLING_INTERVAL)
             .pipe(
                 take(RecoveredPlasmaShippingDetailsComponent.POLLING_MAX_TIMEOUT / RecoveredPlasmaShippingDetailsComponent.POLLING_INTERVAL),
                 switchMap(() => this.loadRecoveredPlasmaShippingDetails(id)),
-                tap((shipping: RecoveredPlasmaShipmentResponseDTO) => {
-                    if (this.shouldPrintCartonPackingSlipAndLabel) {
-                        this.printCartonLabel(this.shipmentCloseCartonId);
-                        this.printCartonPackingSlip(this.shipmentCloseCartonId);
-                    }
-                    this.configureUnacceptableProductsReportStatusMessage();
-                }),
+                tap((shipping: RecoveredPlasmaShipmentResponseDTO) => this.configureUnacceptableProductsReportStatusMessage()),
                 takeWhile((shipping: RecoveredPlasmaShipmentResponseDTO) => shipping.status === 'PROCESSING', true)
             )
             .subscribe();
@@ -293,26 +297,33 @@ export class RecoveredPlasmaShippingDetailsComponent
                     handleApolloError(this.toastr, error);
                 }),
                 switchMap(response => {
-                    if (response?.data?.generateCartonPackingSlip?.notifications?.[0]?.type === 'SUCCESS') {
-                        dialogRef = this.matDialog
-                            .open(ViewShippingCartonPackingSlipComponent, {
-                                id: 'ViewShippingCartonPackingSlipDialog',
-                                hasBackdrop: false,
-                                panelClass: 'hidden',
-                                data: response.data.generateCartonPackingSlip?.data
-                            });
-                        return dialogRef.afterOpened();
-                    }
                     consumeUseCaseNotifications(
                         this.toastr,
                         response.data.generateCartonPackingSlip?.notifications
                     )
-                    return of({});
+                    if (response?.data?.generateCartonPackingSlip?.notifications?.[0]?.type === 'SUCCESS') {
+                        return fromPromise(this.router.navigate([`recovered-plasma/${this.shipmentId}/shipment-details`]))
+                            .pipe(switchMap(() => of(response)));
+                    }
+                    return EMPTY;
                 }),
+                switchMap((response) => {
+                    dialogRef = this.matDialog
+                        .open(ViewShippingCartonPackingSlipComponent, {
+                            id: 'ViewShippingCartonPackingSlipDialog',
+                            hasBackdrop: false,
+                            panelClass: 'hidden',
+                            data: response.data.generateCartonPackingSlip?.data
+                        });
+                    return dialogRef.afterOpened();
+                }),
+                switchMap(() => this.ngZone.onStable), // Makes sure Angular updates DOM
+                first(), // Takes only the first emission of "ngZone.onStable"
                 tap(() => {
-                    this.router.navigate([`recovered-plasma/${this.shipmentId}/shipment-details`]);
-                    this.browserPrintingService
-                        .print('viewShippingCartonPackingSlipReport', { pageSize: DEFAULT_PAGE_SIZE });
+                    this.browserPrintingService.print('viewShippingCartonPackingSlipReport', {
+                        pageSize: DEFAULT_PAGE_SIZE,
+                        printDelay: RecoveredPlasmaShippingDetailsComponent.PRINT_PACKING_SLIP_DELAY
+                    });
                     dialogRef?.close();
                 }),
             )
@@ -320,9 +331,7 @@ export class RecoveredPlasmaShippingDetailsComponent
     }
 
     printerAgentUnavailableErrorHandler(details?: Error | LabelPrinterResponseDTO): Observable<never> {
-        const errorMsg = `Something went wrong with the printer integration, please try again later.`;
-        console.error(errorMsg, details);
-        this.toastr.error(errorMsg);
+        this.toastr.error('Something went wrong with the printer integration, please try again later.');
         return EMPTY;
     }
 
@@ -335,7 +344,6 @@ export class RecoveredPlasmaShippingDetailsComponent
                     if (!agentInstallationResponse) {
                         return this.printerAgentUnavailableErrorHandler();
                     }
-                    console.debug('BioPro Agent available: triggering carton label generation')
                     return this.recoveredPlasmaService
                         .generateCartonLabel({
                             cartonId: cartonId,
@@ -344,14 +352,12 @@ export class RecoveredPlasmaShippingDetailsComponent
                 }),
                 catchError((error: ApolloError) => handleApolloError(this.toastr, error)),
                 switchMap(cartonLabelGenerationResponse => {
-                    console.debug('Carton Label generated: triggering label printer');
                     return this.printLabelService
                         .print({ labelToPrint: cartonLabelGenerationResponse.data?.generateCartonLabel?.data?.labelContent })
                         .pipe(
                             catchError(this.printerAgentUnavailableErrorHandler),
                             switchMap((agentResponse: LabelPrinterResponseDTO) => {
                                 if (agentResponse.status === 200) {
-                                    console.debug('Carton Label printed');
                                     consumeUseCaseNotifications(
                                         this.toastr,
                                         cartonLabelGenerationResponse.data?.generateCartonLabel?.notifications
