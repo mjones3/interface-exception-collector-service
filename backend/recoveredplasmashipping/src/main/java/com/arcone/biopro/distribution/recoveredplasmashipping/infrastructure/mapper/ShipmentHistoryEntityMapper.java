@@ -8,6 +8,7 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface ShipmentHistoryEntityMapper {
     ShipmentHistory toModel(ShipmentHistoryEntity shipmentHistoryEntity);
+    ShipmentHistoryEntity toEntity(ShipmentHistory shipmentHistory);
 }
 
 

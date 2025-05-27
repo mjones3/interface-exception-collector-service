@@ -8,6 +8,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Creat
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.FindShipmentCommand;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Location;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.LocationProperty;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.ModifyShipmentCommand;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.PrintUnacceptableUnitReportCommand;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.RecoveredPlasmaShipment;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.RecoveredPlasmaShipmentCriteria;
@@ -1172,6 +1173,109 @@ class RecoveredPlasmaShipmentTest {
 
         Assertions.assertNotNull(response);
         Assertions.assertEquals(PROCESSING_STATUS, response.getStatus());
+    }
+
+    @Test
+    public void shouldNotModifyWhenStatusProcessing(){
+
+        var shipment = RecoveredPlasmaShipment.fromRepository(
+            1L, "locationCode", "productType", "123", PROCESSING_STATUS, "createEmployeeId",
+            "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
+            LocalDate.now(), BigDecimal.TEN, "TEST",
+            "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
+            "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
+            "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
+            "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(),ZonedDateTime.now(), Collections.emptyList()
+        );
+
+        // When/Then
+        IllegalArgumentException exception = assertThrows(
+            IllegalArgumentException.class,
+            () -> shipment.modifyShipment(Mockito.mock(ModifyShipmentCommand.class),Mockito.mock(CustomerService.class),Mockito.mock(RecoveredPlasmaShipmentCriteriaRepository.class) )
+        );
+
+        assertEquals("Shipment is processing and cannot be modified", exception.getMessage());
+    }
+
+    @Test
+    public void shouldModifyWhenStatusClosed(){
+
+        var shipment = RecoveredPlasmaShipment.fromRepository(
+            1L, "locationCode", "productType", "123", CLOSED_STATUS, "createEmployeeId",
+            "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
+            LocalDate.now(), BigDecimal.TEN, "TEST",
+            "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
+            "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
+            "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
+            "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(),ZonedDateTime.now(), Collections.emptyList()
+        );
+
+       var modifyCommand = Mockito.mock(ModifyShipmentCommand.class);
+       Mockito.when(modifyCommand.getShipmentDate()).thenReturn(LocalDate.now());
+       Mockito.when(modifyCommand.getComments()).thenReturn("MODIFY-COMMENTS");
+       Mockito.when(modifyCommand.getTransportationReferenceNumber()).thenReturn("MODIFY-TR-NUMBER");
+       Mockito.when(modifyCommand.getModifyEmployeeId()).thenReturn("modify-emp-id");
+
+       var response =  shipment.modifyShipment(modifyCommand,customerService,recoveredPlasmaShipmentCriteriaRepository);
+
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(LocalDate.now(),response.getShipmentDate());
+        Assertions.assertEquals("MODIFY-TR-NUMBER",response.getTransportationReferenceNumber());
+        Assertions.assertEquals(CLOSED_STATUS, response.getStatus());
+        Assertions.assertNotNull(response.getShipmentHistory());
+        Assertions.assertEquals("MODIFY-COMMENTS",response.getShipmentHistory().getComments());
+        Assertions.assertEquals("modify-emp-id",response.getShipmentHistory().getCreateEmployeeId());
+        Assertions.assertNotNull(response.getShipmentHistory().getCreateDate());
+
+        Mockito.verifyNoInteractions(customerService);
+        Mockito.verifyNoInteractions(recoveredPlasmaShipmentCriteriaRepository);
+
+
+    }
+
+    @Test
+    public void shouldModifyWhenStatusOpen(){
+
+        var shipment = RecoveredPlasmaShipment.fromRepository(
+            1L, "locationCode", "productType", "123", OPEN_STATUS, "createEmployeeId",
+            "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
+            LocalDate.now(), BigDecimal.TEN, "TEST",
+            "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
+            "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
+            "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
+            "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(),ZonedDateTime.now(), Collections.emptyList()
+        );
+
+        var modifyCommand = Mockito.mock(ModifyShipmentCommand.class);
+        Mockito.when(modifyCommand.getShipmentDate()).thenReturn(LocalDate.now());
+        Mockito.when(modifyCommand.getComments()).thenReturn("MODIFY-COMMENTS");
+        Mockito.when(modifyCommand.getTransportationReferenceNumber()).thenReturn("MODIFY-TR-NUMBER");
+        Mockito.when(modifyCommand.getModifyEmployeeId()).thenReturn("modify-emp-id");
+        Mockito.when(modifyCommand.getModifyEmployeeId()).thenReturn("modify-emp-id");
+        Mockito.when(modifyCommand.getCustomerCode()).thenReturn("MOD_CUSTOMER_CODE");
+        Mockito.when(modifyCommand.getProductType()).thenReturn("MOD_PROD_TYPE");
+
+        var productTypeMock = Mockito.mock(RecoveredPlasmaShipmentCriteria.class);
+        Mockito.when(productTypeMock.getProductType()).thenReturn("MOD_PROD_TYPE");
+        Mockito.when(recoveredPlasmaShipmentCriteriaRepository.findProductCriteriaByCustomerCode(Mockito.any(), Mockito.any())).thenReturn(Mono.just(productTypeMock));
+        Mockito.when(customerService.findByCode(Mockito.any())).thenReturn(Mono.just(CustomerOutput.builder()
+            .code("MOD_CUSTOMER_CODE")
+            .name("MOD_CUSTOMER_CODE")
+            .build()));
+
+        var response =  shipment.modifyShipment(modifyCommand,customerService,recoveredPlasmaShipmentCriteriaRepository);
+
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(LocalDate.now(),response.getShipmentDate());
+        Assertions.assertEquals(OPEN_STATUS, response.getStatus());
+        Assertions.assertNotNull(response.getShipmentHistory());
+        Assertions.assertEquals("MODIFY-TR-NUMBER",response.getTransportationReferenceNumber());
+        Assertions.assertEquals("MOD_PROD_TYPE",response.getProductType());
+        Assertions.assertEquals("MOD_CUSTOMER_CODE",response.getShipmentCustomer().getCustomerCode());
+        Assertions.assertEquals("MODIFY-COMMENTS",response.getShipmentHistory().getComments());
+        Assertions.assertEquals("modify-emp-id",response.getShipmentHistory().getCreateEmployeeId());
+        Assertions.assertNotNull(response.getShipmentHistory().getCreateDate());
+
     }
 
 

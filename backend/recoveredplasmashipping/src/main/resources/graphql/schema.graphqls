@@ -28,6 +28,7 @@ type Mutation {
     repackCarton(repackCartonRequest:RepackCartonRequestDTO!): UseCaseResponseDTO!
     removeCarton(removeCartonRequest:RemoveCartonRequestDTO!): UseCaseResponseDTO!
     removeCartonItems(removeCartonItemRequest:RemoveCartonItemRequestDTO!): UseCaseResponseDTO!
+    modifyShipment(modifyShipmentRequest:ModifyShipmentRequestDTO!): UseCaseResponseDTO!
 
 }
 
@@ -139,6 +140,18 @@ input RemoveCartonItemRequestDTO{
     cartonId:Int!
     employeeId:String!
     cartonItemIds:[Int]
+}
+
+input ModifyShipmentRequestDTO {
+    shipmentId:ID!
+    customerCode:String!
+    productType:String!
+    transportationReferenceNumber:String
+    shipmentDate:Date!
+    cartonTareWeight:Float
+    modifyEmployeeId:String!
+    comments:String!
+
 }
 
 type OutputQuerySortDTO {

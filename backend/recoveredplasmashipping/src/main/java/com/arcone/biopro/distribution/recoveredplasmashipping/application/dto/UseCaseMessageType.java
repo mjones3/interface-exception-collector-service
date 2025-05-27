@@ -34,6 +34,8 @@ public enum UseCaseMessageType {
     CARTON_LABEL_GENERATED_ERROR(24,  UseCaseNotificationType.SYSTEM, "Carton Label generation error. Contact Support."),
     CARTON_ITEM_REMOVED_SUCCESS(25,  UseCaseNotificationType.SUCCESS, "Products successfully removed"),
     CARTON_ITEM_REMOVED_ERROR(26,  UseCaseNotificationType.SYSTEM, "Products cannot be removed. Contact Support.");
+    CARTON_LABEL_GENERATED_ERROR(24,  UseCaseNotificationType.SYSTEM, "Carton Label generation error. Contact Support."),
+    SHIPMENT_MODIFIED_SUCCESS(25,  UseCaseNotificationType.SUCCESS, "Shipment updated successfully");
 
     Integer code;
     UseCaseNotificationType type;

@@ -6,6 +6,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.FindShipmentRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.GenerateCartonLabelRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.GenerateCartonPackingSlipRequestDTO;
+import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.ModifyShipmentRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.PackCartonItemRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.PrintShippingSummaryReportRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.PrintUnacceptableUnitReportRequestDTO;
@@ -21,6 +22,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.Cr
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.FindShipmentCommandInput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.GenerateCartonLabelCommandInput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.GenerateCartonPackingSlipCommandInput;
+import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.ModifyShipmentCommandInput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.PackCartonItemCommandInput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.PrintShippingSummaryReportCommandInput;
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.dto.PrintUnacceptableUnitReportCommandInput;
@@ -68,4 +70,6 @@ public interface CommandRequestDTOMapper {
     GenerateCartonLabelCommandInput toInputCommand(GenerateCartonLabelRequestDTO generateCartonLabelRequestDTO);
 
     RemoveCartonItemCommandInput toInputCommand(RemoveCartonItemRequestDTO removeCartonItemRequestDTO);
+
+    ModifyShipmentCommandInput toInputCommand(ModifyShipmentRequestDTO modifyShipmentRequestDTO);
 }
