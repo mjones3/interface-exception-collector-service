@@ -12,13 +12,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
-import io.r2dbc.spi.ConnectionFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.kafka.test.context.EmbeddedKafka;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -26,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-@EmbeddedKafka(partitions = 1, brokerProperties = {"listeners=PLAINTEXT://localhost:9099", "port=9099"})
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class KafkaListenersSteps {
 

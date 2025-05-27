@@ -19,7 +19,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @Slf4j
-@SpringBootTest
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class EventPublisherSteps {
 
