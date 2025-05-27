@@ -19,8 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.kafka.test.context.EmbeddedKafka;
-import org.springframework.r2dbc.connection.init.ResourceDatabasePopulator;
-import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -59,12 +57,6 @@ public class KafkaListenersSteps {
     private final ObjectMapper objectMapper;
 
     private final KafkaHelper kafkaHelper;
-
-
-    @Value("classpath:/db/data.sql")
-    private Resource testDataSql;
-
-    private final ConnectionFactory connectionFactory;
 
     private static final String PRODUCT_STORED_MESSAGE = """
         {
@@ -189,7 +181,6 @@ public class KafkaListenersSteps {
 
     @Before
     public void before() {
-        populateTestData();
         topicsMap = Map.of(
             EVENT_PRODUCT_STORED, productStoredTopic,
             EVENT_PRODUCT_DISCARDED, productDiscardedTopic,
@@ -277,12 +268,6 @@ public class KafkaListenersSteps {
         var payloadObject = objectMapper.readValue(message, Object.class);
         kafkaHelper.sendEvent(topicName, scenarioContext.getUnitNumber() + "-" + scenarioContext.getProductCode(), payloadObject).block();
         logMonitor.await("successfully consumed.*" + scenarioContext.getUnitNumber());
-    }
-
-    public void populateTestData() {
-        ResourceDatabasePopulator resourceDatabasePopulator = new ResourceDatabasePopulator();
-        resourceDatabasePopulator.addScript(testDataSql);
-        Mono.from(resourceDatabasePopulator.populate(connectionFactory)).block();
     }
 
     public String buildMessage(String eventType, String unitNumber, String productCode, String location) {
