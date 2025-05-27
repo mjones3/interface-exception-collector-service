@@ -1,5 +1,5 @@
 # Feature Unit Number reference: W777725003000
-@api @skipOnPipeline @inventoryAvailability
+@api @skipOnPipeline
 Feature: Get all available inventories
 
     Scenario Outline: Get all available inventories

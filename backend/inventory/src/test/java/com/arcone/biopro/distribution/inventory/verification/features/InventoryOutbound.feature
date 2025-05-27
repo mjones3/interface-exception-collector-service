@@ -1,5 +1,5 @@
 # Feature Unit Number reference: W777725004000
-@api @skipOnPipeline
+@api
 Feature: Inventory Outbound Interface
     Rule: As an inventory service I want to create an inventory update event every time an inventory is created/updated
         Scenario Outline: Produce an inventory updated event every time an inventory is create/update

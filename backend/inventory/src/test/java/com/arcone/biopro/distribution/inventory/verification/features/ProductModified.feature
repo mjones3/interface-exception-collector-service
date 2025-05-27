@@ -1,5 +1,5 @@
 # Feature Unit Number reference: W777725008000
-@api @LAB-427 @skipOnPipeline
+@api @LAB-427
 Feature: Product Modified event
     Rule: As an inventory service I want to listen to product modified event so that I can modified and create a new inventory and manage it's statuses
         Scenario Outline: Create the inventory as AVAILABLE and UNLABELED and modified it's parent after receiving a Product Modified event.
