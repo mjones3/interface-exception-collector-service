@@ -2,6 +2,8 @@ package com.arcone.biopro.distribution.inventory.application.dto;
 
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
+import com.arcone.biopro.distribution.inventory.domain.model.vo.InputProduct;
+import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.Volume;
 import lombok.Builder;
 
@@ -31,5 +33,16 @@ public record InventoryOutput(
     String storageLocation,
     String collectionLocation,
     String collectionTimeZone,
-    List<Volume> volumes) {
+    Boolean isLabeled,
+    String statusReason,
+    String comments,
+    String deviceStored,
+    String unsuitableReason,
+    String cartonNumber,
+    String modificationLocation,
+    ZonedDateTime productModificationDate,
+    Boolean expired,
+    List<Volume> volumes,
+    List<InputProduct> inputProducts,
+    List<Quarantine> quarantines) {
 }
