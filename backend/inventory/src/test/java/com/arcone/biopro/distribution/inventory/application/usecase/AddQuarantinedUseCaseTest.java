@@ -22,6 +22,7 @@ import org.mockito.Spy;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -63,6 +64,7 @@ class AddQuarantinedUseCaseTest {
         Inventory inventory = Inventory.builder()
             .unitNumber(new UnitNumber("W036824111111"))
             .productCode(new ProductCode("E1624V00"))
+            .expirationDate(LocalDateTime.now().plusDays(1))
             .inventoryStatus(InventoryStatus.AVAILABLE)
             .build();
 

@@ -34,6 +34,7 @@ public abstract class InventoryOutputMapper {
     @Mapping(target = "unitNumber", source = "unitNumber.value")
     @Mapping(target = "productCode", source = "productCode.value")
     @Mapping(target = "location", source = "inventoryLocation")
+    @Mapping(target = "productDescription", source = "shortDescription")
     public abstract InventoryOutput toOutput(Inventory domain);
 
     @Mapping(target = "productFamily", source = "productFamily")

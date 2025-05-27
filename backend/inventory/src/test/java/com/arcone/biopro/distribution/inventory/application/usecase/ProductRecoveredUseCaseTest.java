@@ -21,6 +21,7 @@ import org.mockito.Spy;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,6 +58,7 @@ class ProductRecoveredUseCaseTest {
             .productCode(new ProductCode("E1624V00"))
             .inventoryStatus(InventoryStatus.DISCARDED)
             .statusReason("EXPIRED")
+            .expirationDate(LocalDateTime.now().minusDays(1))
             .comments("Some comments")
             .histories(new ArrayList<>(List.of(new History(InventoryStatus.AVAILABLE, null, null))))
             .build();

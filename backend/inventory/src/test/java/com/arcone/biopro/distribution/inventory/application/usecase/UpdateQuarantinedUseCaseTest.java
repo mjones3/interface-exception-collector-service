@@ -24,6 +24,7 @@ import org.mockito.Spy;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -63,6 +64,7 @@ class UpdateQuarantinedUseCaseTest {
             .unitNumber(new UnitNumber("W036824111111"))
             .productCode(new ProductCode("E1624V00"))
             .histories(new ArrayList<>(List.of(new History(InventoryStatus.AVAILABLE, null, null))))
+            .expirationDate(LocalDateTime.now().plusDays(1))
             .quarantines(new ArrayList<>(List.of(
                 new Quarantine(1L, "Contamination", "Suspected contamination")
             )))

@@ -137,4 +137,9 @@ public class Inventory {
     public void addVolume(String type, Integer value, String unit) {
         volumes.add(new Volume(type, value, unit));
     }
+
+    public Boolean isExpired() {
+        return expirationDate != null && expirationDate.isBefore(LocalDateTime.now());
+    }
+
 }
