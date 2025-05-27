@@ -55,6 +55,8 @@ import {
     GenerateCartonLabelRequestDTO,
     LabelDTO
 } from '../graphql/query-definitions/generate-carton-label.graphql';
+import { REMOVE_CARTON_PRODUCTS } from '../graphql/mutation-definitions/remove-packed-products.graphql';
+import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
     providedIn: 'root',
@@ -66,7 +68,7 @@ export class RecoveredPlasmaService {
         private dynamicGraphqlPathService: DynamicGraphqlPathService,
         private discardService: DiscardService,
         private confirmationAcknowledgmentService: ConfirmationAcknowledgmentService,
-        private toastr: ToastrImplService
+        private toastr: ToastrService
     ) {}
 
     public searchRecoveredPlasmaShipments(
@@ -211,6 +213,16 @@ export class RecoveredPlasmaService {
             this.servicePath,
             REMOVE_CARTON,
             removeCarton
+        );
+    }
+
+    public removeCartonItems(removePackedProducts: RemoveCartonDTO)
+        : Observable<MutationResult<{ removeCartonItems: UseCaseResponseDTO<CartonDTO> }>> {
+
+        return this.dynamicGraphqlPathService.executeMutation(
+            this.servicePath,
+            REMOVE_CARTON_PRODUCTS,
+            removePackedProducts
         );
     }
 
