@@ -5,6 +5,8 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.CloseCartonRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.CreateCartonRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.GenerateCartonPackingSlipRequestDTO;
+import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.RecoveredPlasmaShipmentResponseDTO;
+import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.RemoveCartonRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.RepackCartonRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.UseCaseResponseDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.mapper.CommandRequestDTOMapper;
@@ -13,6 +15,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.Car
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.CartonService;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.CloseCartonService;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.CreateCartonService;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.RemoveCartonService;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.RepackCartonService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +37,7 @@ public class CartonController {
     private final CloseCartonService closeCartonService;
     private final CartonPackingSlipService cartonPackingSlipService;
     private final RepackCartonService repackCartonService;
+    private final RemoveCartonService removeCartonService;
 
 
     @MutationMapping("createCarton")
@@ -69,5 +73,12 @@ public class CartonController {
         log.debug("Request to Repack Carton: {}", repackCartonRequest);
         return repackCartonService.repackCarton(commandRequestDTOMapper.toInputCommand(repackCartonRequest))
             .map(useCaseResponseMapper::toUseCaseCreateCartonDTO);
+    }
+
+    @MutationMapping("removeCarton")
+    public Mono<UseCaseResponseDTO<RecoveredPlasmaShipmentResponseDTO>> removeCarton(@Argument("removeCartonRequest") RemoveCartonRequestDTO removeCartonRequest) {
+        log.debug("Request to Remove Carton: {}", removeCartonRequest);
+        return removeCartonService.removeCarton(commandRequestDTOMapper.toInputCommand(removeCartonRequest))
+            .map(useCaseResponseMapper::toUseCaseRecoveredPlasmaShipmentResponseDTO);
     }
 }

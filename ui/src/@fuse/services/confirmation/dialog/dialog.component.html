@@ -53,6 +53,7 @@
                 @if (data.title) {
                     <div
                         class="text-xl font-medium leading-6"
+                        id="ack-title"
                         [innerHTML]="data.title"
                     ></div>
                 }
@@ -62,6 +63,7 @@
                     <div
                         class="text-secondary"
                         [innerHTML]="data.message"
+                        id="ack-message"
                     ></div>
                 }
             </div>

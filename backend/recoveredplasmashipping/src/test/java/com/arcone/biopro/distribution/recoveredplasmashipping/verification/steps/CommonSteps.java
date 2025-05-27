@@ -78,4 +78,9 @@ public class CommonSteps {
     public void theSystemProcessTheUnacceptableUnitsReport() {
         sharedActions.waitForNotVisible(By.id("loading-spinner"));
     }
+
+    @Then("I should see a {string} acknowledgment message: {string}.")
+    public void iShouldSeeADialog(String title, String message) {
+        sharedActions.verifyAcknowledgment(title, message);
+    }
 }

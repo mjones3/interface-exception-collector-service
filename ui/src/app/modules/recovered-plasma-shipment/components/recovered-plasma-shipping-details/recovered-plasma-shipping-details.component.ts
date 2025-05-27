@@ -20,7 +20,7 @@ import { ActionButtonComponent } from 'app/shared/components/buttons/action-butt
 import { BasicButtonComponent } from 'app/shared/components/buttons/basic-button.component';
 import { ProductIconsService } from 'app/shared/services/product-icon.service';
 import { CookieService } from 'ngx-cookie-service';
-import { catchError, map, of, Subscription, switchMap, take, takeWhile, tap, timer } from 'rxjs';
+import { catchError, filter, map, of, Subscription, switchMap, take, takeWhile, tap, timer } from 'rxjs';
 import { TableComponent } from '../../../../shared/components/table/table.component';
 import handleApolloError from '../../../../shared/utils/apollo-error-handling';
 import { consumeUseCaseNotifications } from '../../../../shared/utils/notification.handling';
@@ -62,6 +62,7 @@ import {
 import { RepackCartonDialogComponent } from '../repack-carton-dialog/repack-carton-dialog.component';
 import { ToastrService } from 'ngx-toastr';
 import { ShippingSummaryReportDTO } from '../../graphql/query-definitions/print-shipping-summary-report.graphql';
+import { FuseConfirmationService } from '@fuse/services/confirmation';
 
 @Component({
     selector: 'biopro-recovered-plasma-shipping-details',
@@ -150,6 +151,7 @@ export class RecoveredPlasmaShippingDetailsComponent
         protected productIconService: ProductIconsService,
         protected browserPrintingService: BrowserPrintingService,
         protected matDialog: MatDialog,
+        private fuseConfirmationService: FuseConfirmationService,
         @Inject(LOCALE_ID) public locale: string
     ) {
         super(
@@ -431,5 +433,53 @@ export class RecoveredPlasmaShippingDetailsComponent
                 });
             }
         })
+    }
+
+    // Opens remove carton confirmation dialog
+    removeCarton(id: number){
+        const dialogRef = this.fuseConfirmationService.open({
+            title: 'Remove Confirmation',
+            message: 'Carton will be removed. <b>Are you sure you want to continue?</b>',
+            dismissible: false,
+            icon: {
+                show: false,
+            },
+            actions: {
+                confirm: {
+                    label: 'Continue',
+                    class: 'bg-red-700 text-white',
+                },
+                cancel: {
+                    class: 'mat-secondary',
+                },
+            },
+        })
+        dialogRef.afterClosed()
+        .pipe(filter((value) => 'confirmed' === value)) 
+        .subscribe(() => {
+                this.recoveredPlasmaService
+                .removeLastCarton({
+                    cartonId: id,
+                    employeeId: this.employeeIdSignal(),
+                })
+                .pipe(
+                    catchError((error: ApolloError) => {
+                        handleApolloError(this.toastr, error);
+                    }),
+                    tap((response) =>
+                        consumeUseCaseNotifications(
+                            this.toastr,
+                            response.data.removeCarton.notifications
+                        )
+                    )
+                )
+                .subscribe((response) => {
+                    const res = response?.data?.removeCarton.notifications[0].type === 'SUCCESS';
+                    if(res){
+                        this.shipmentDetailsSignal.set(response.data.removeCarton.data);
+                    }
+                });
+        })
+
     }
 }

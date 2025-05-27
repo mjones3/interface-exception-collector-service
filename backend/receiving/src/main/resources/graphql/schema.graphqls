@@ -1,0 +1,47 @@
+scalar DateTime
+scalar Date
+scalar JSON
+
+type Query {
+    findAllLookupsByType(type: String!): [LookupDTO]!
+}
+
+input InputQuerySortDTO {
+    orderByList: [InputQueryOrderByDTO]
+}
+
+type OutputQuerySortDTO {
+    orderByList: [OutputQueryOrderByDTO]
+}
+
+input InputQueryOrderByDTO {
+    property:String
+    direction:String
+}
+
+type OutputQueryOrderByDTO {
+    property:String
+    direction:String
+}
+
+type PageDTO {
+    content: JSON
+    pageNumber: Int!
+    pageSize: Int!
+    totalRecords: Int!
+    querySort: OutputQuerySortDTO!
+    hasPrevious: Boolean!
+    hasNext: Boolean!
+    isFirst: Boolean!
+    isLast: Boolean!
+    totalPages: Int!
+}
+
+type LookupDTO {
+    id: Int!
+    type: String!
+    optionValue: String!
+    descriptionKey: String!
+    orderNumber: Int!
+    active: Boolean!
+}

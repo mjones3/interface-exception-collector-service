@@ -8,6 +8,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Creat
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Location;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.LocationProperty;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.RecoveredPlasmaShipment;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.RemoveCartonCommand;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.RepackCartonCommand;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.VerifyItemCommand;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.CartonItemRepository;
@@ -572,6 +573,123 @@ class CartonTest {
         Assertions.assertEquals("employee-id", response.getRepackEmployeeId());
         Assertions.assertEquals("comments", response.getRepackComments());
     }
+
+    @Test
+    public void shouldNotRemoveWhenStatusIsClosed(){
+
+        Carton carton = Carton.fromRepository(1L,"number",1L,1,"employee-id","close-employee-id"
+            , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"CLOSED", BigDecimal.ZERO,BigDecimal.ZERO, Collections.emptyList(),2 ,2 );
+
+        var removeCommand = Mockito.mock(RemoveCartonCommand.class);
+
+        // When/Then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            () -> carton.removeCarton(removeCommand,Mockito.mock(RecoveredPlasmaShippingRepository.class)));
+        assertEquals("Carton is closed and cannot be removed",
+            exception.getMessage());
+
+    }
+
+    @Test
+    public void shouldNotRemoveWhenIsNotLastCarton(){
+
+        var shipRepository = Mockito.mock(RecoveredPlasmaShippingRepository.class);
+
+        var shipMock = Mockito.mock(RecoveredPlasmaShipment.class);
+        Mockito.when(shipMock.getTotalCartons()).thenReturn(2);
+        Mockito.when(shipMock.canModify()).thenReturn(true);
+
+        Mockito.when(shipRepository.findOneById(Mockito.anyLong())).thenReturn(Mono.just(shipMock));
+
+
+        Carton carton = Carton.fromRepository(1L,"number",1L,1,"employee-id","close-employee-id"
+            , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO, Collections.emptyList(),2 ,2 );
+
+        var removeCommand = Mockito.mock(RemoveCartonCommand.class);
+
+        // When/Then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            () -> carton.removeCarton(removeCommand,shipRepository));
+        assertEquals("Carton is not the last one and cannot be removed",
+            exception.getMessage());
+
+    }
+
+    @Test
+    public void shouldNotRemoveWhenShipmentIsClosed(){
+
+        var shipRepository = Mockito.mock(RecoveredPlasmaShippingRepository.class);
+
+        var shipMock = Mockito.mock(RecoveredPlasmaShipment.class);
+        Mockito.when(shipMock.canModify()).thenReturn(false);
+
+        Mockito.when(shipRepository.findOneById(Mockito.anyLong())).thenReturn(Mono.just(shipMock));
+
+
+        Carton carton = Carton.fromRepository(1L,"number",1L,1,"employee-id","close-employee-id"
+            , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO, Collections.emptyList(),2 ,2 );
+
+        var removeCommand = Mockito.mock(RemoveCartonCommand.class);
+
+        // When/Then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            () -> carton.removeCarton(removeCommand,shipRepository));
+        assertEquals("Shipment is closed and cannot be modified",
+            exception.getMessage());
+
+    }
+
+    @Test
+    public void shouldNotRemoveWhenShipmentNotFound(){
+
+        var shipRepository = Mockito.mock(RecoveredPlasmaShippingRepository.class);
+
+        Mockito.when(shipRepository.findOneById(Mockito.anyLong())).thenReturn(Mono.empty());
+
+        Carton carton = Carton.fromRepository(1L,"number",1L,1,"employee-id","close-employee-id"
+            , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO, Collections.emptyList(),2 ,2 );
+
+        var removeCommand = Mockito.mock(RemoveCartonCommand.class);
+
+        // When/Then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            () -> carton.removeCarton(removeCommand,shipRepository));
+        assertEquals("Shipment is required",
+            exception.getMessage());
+
+    }
+
+
+    @Test
+    public void shouldNotRemoveLastCarton(){
+
+        var shipRepository = Mockito.mock(RecoveredPlasmaShippingRepository.class);
+
+        var shipMock = Mockito.mock(RecoveredPlasmaShipment.class);
+        Mockito.when(shipMock.getTotalCartons()).thenReturn(1);
+        Mockito.when(shipMock.canModify()).thenReturn(true);
+
+        Mockito.when(shipRepository.findOneById(Mockito.anyLong())).thenReturn(Mono.just(shipMock));
+
+
+        Carton carton = Carton.fromRepository(1L,"number",1L,1,"employee-id","close-employee-id"
+            , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO, Collections.emptyList(),2 ,2 );
+
+        var removeCommand = Mockito.mock(RemoveCartonCommand.class);
+        Mockito.when(removeCommand.getEmployeeId()).thenReturn("employee-id");
+
+        // When/Then
+        var response =  carton.removeCarton(removeCommand,shipRepository);
+
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals("REMOVED", response.getStatus());
+        Assertions.assertNotNull(response.getDeleteDate());
+        Assertions.assertEquals("employee-id", response.getDeleteEmployeeId());
+
+    }
+
+
+
 
 
 }

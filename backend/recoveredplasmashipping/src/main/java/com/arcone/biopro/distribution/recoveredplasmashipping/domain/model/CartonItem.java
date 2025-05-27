@@ -61,6 +61,8 @@ public class CartonItem implements Validatable {
         , RecoveredPlasmaShippingRepository recoveredPlasmaShippingRepository
         , RecoveredPlasmaShipmentCriteriaRepository recoveredPlasmaShipmentCriteriaRepository) {
 
+        validateProductCodeUnique(carton,packItemCommand);
+
         validateProductAlreadyPacked(packItemCommand,cartonItemRepository);
 
         var shipment = getShipment(carton.getShipmentId(), recoveredPlasmaShippingRepository);
@@ -337,6 +339,20 @@ public class CartonItem implements Validatable {
 
         return item;
 
+    }
+
+    private static void validateProductCodeUnique(Carton carton , PackItemCommand packItemCommand){
+        if(carton == null){
+            throw new IllegalArgumentException("Carton is required");
+        }
+        if(packItemCommand == null){
+            throw new IllegalArgumentException("PackItemCommand is required");
+        }
+
+        if(carton.getProducts() != null && !carton.getProducts().isEmpty() && carton.getProducts().stream().noneMatch(cartonItem -> cartonItem.getProductCode().equals(packItemCommand.getProductCode()))){
+            log.warn("Preventing Mixing products in a carton {}",packItemCommand);
+            throw new ProductValidationException("The product code does not match the products in the carton",WARN_ERROR_TYPE);
+        }
     }
 }
 
