@@ -1,7 +1,7 @@
 package com.arcone.biopro.distribution.inventory.verification.steps;
 
 import com.arcone.biopro.distribution.inventory.adapter.in.socket.dto.*;
-import com.arcone.biopro.distribution.inventory.application.dto.GetInventoryBYUnitNumberAndProductInput;
+import com.arcone.biopro.distribution.inventory.application.dto.GetInventoryByUnitNumberAndProductInput;
 import com.arcone.biopro.distribution.inventory.application.dto.InventoryOutput;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhCriteria;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.MessageType;
@@ -106,10 +106,10 @@ public class RsocketSteps {
     }
 
     @When("I request a inventory with unit number {string} and product code {string}")
-    public void iRequestGetInventoryByUnitNumber(String unitNumber, String productCode) {
+    public void iRequestGetInventoryByUnitNumberAndProductCode(String unitNumber, String productCode) {
         getInventoryByUnitNumberAndProductCodeMonoResult = requester
-            .route("getInventoryByUnitNumber")
-            .data(new GetInventoryBYUnitNumberAndProductInput(unitNumber, productCode))
+            .route("getInventoryByUnitNumberAndProductCode")
+            .data(new GetInventoryByUnitNumberAndProductInput(unitNumber, productCode))
             .retrieveMono(InventoryOutput.class);
     }
 
@@ -236,70 +236,87 @@ public class RsocketSteps {
     @Then("I receive the following from get inventory by unit number:")
     public void iReceiveTheFollowingFromGetInventoryByUnitNumber(DataTable dataTable) {
         var row = dataTable.asMaps(String.class, String.class).getFirst();
-        String unitNumber = row.get("Unit Number");
-        String productCode = row.get("Product Code");
 
         Publisher<? extends InventoryOutput> publisher = getInventoryByUnitNumberFluxResult != null ? getInventoryByUnitNumberFluxResult : getInventoryByUnitNumberAndProductCodeMonoResult;
 
-
         StepVerifier
             .create(publisher)
-            .consumeNextWith(message -> {
-                assertThat(message.unitNumber()).isEqualTo(unitNumber);
-                assertThat(message.productCode()).isEqualTo(productCode);
+            .thenConsumeWhile(message -> {
+                assertInventoryOutput(message, row);
 
-                if (row.containsKey("Temperature Category")) {
-                    assertThat(message.temperatureCategory()).isEqualTo(row.get("Temperature Category"));
+                return true;
+            }).verifyComplete();
+    }
 
+    @Then("I receive the following from get inventory by unit number and Product Code:")
+    public void iReceiveTheFollowingFromGetInventoryByUnitNumberAndProductCode(DataTable dataTable) {
+        var row = dataTable.asMaps(String.class, String.class).getFirst();
+
+        StepVerifier
+            .create(getInventoryByUnitNumberAndProductCodeMonoResult)
+            .assertNext(message -> {
+                assertInventoryOutput(message, row);
+            }).verifyComplete();
+    }
+
+    private static void assertInventoryOutput(InventoryOutput message, Map<String, String> row) {
+
+        String unitNumber = row.get("Unit Number");
+        String productCode = row.get("Product Code");
+        assertThat(message.unitNumber()).isEqualTo(unitNumber);
+        assertThat(productCode).contains(message.productCode());
+
+        if (row.containsKey("Temperature Category")) {
+            assertThat(message.temperatureCategory()).isEqualTo(row.get("Temperature Category"));
+
+        }
+
+        if (row.get("Location") != null) {
+            assertThat(message.location()).isEqualTo(row.get("Location"));
+        }
+
+        if (row.get("Unsuitable Reason") != null) {
+            assertThat(message.unsuitableReason()).isEqualTo(row.get("Unsuitable Reason"));
+        }
+
+        if (row.get("Discard Reason") != null) {
+            assertThat(message.statusReason()).isEqualTo(row.get("Discard Reason"));
+        }
+
+        if (row.get("Quarantine Reasons") != null) {
+
+            assertNotNull(message.quarantines());
+            assertFalse(message.quarantines().isEmpty());
+
+            message.quarantines().forEach(
+                quarantine -> {
+                    assertTrue(row.get("Quarantine Reasons").contains(quarantine.reason()));
                 }
+            );
+        }
 
-                if (row.get("Location") != null) {
-                    assertThat(message.location()).isEqualTo(row.get("Location"));
-                }
+        if (row.get("Collection Location") != null) {
+            assertThat(message.collectionLocation()).isEqualTo(row.get("Collection Location"));
+        }
 
-                if (row.get("Unsuitable Reason") != null) {
-                    assertThat(message.unsuitableReason()).isEqualTo(row.get("Unsuitable Reason"));
-                }
+        if (row.containsKey("Volumes") && row.get("Volumes") != null) {
+            var volumes = row.get("Volumes").split(",");
+            for(String volume: volumes) {
+                var volumeFields = volume.split("-");
+                assertTrue( message.volumes().stream()
+                    .filter(v -> v.type().equals(volumeFields[0].trim().toUpperCase()))
+                    .findFirst()
+                    .map(v -> Objects.equals(v.value(), Integer.parseInt(volumeFields[1].trim())))
+                    .orElse(false));
+            }
+        }
 
-                if (row.get("Discard Reason") != null) {
-                    assertThat(message.statusReason()).isEqualTo(row.get("Discard Reason"));
-                }
+        if (row.get("Collection TimeZone") != null) {
+            assertThat(message.collectionTimeZone()).isEqualTo(row.get("Collection TimeZone"));
+        }
 
-                if (row.get("Quarantine Reasons") != null) {
-
-                    assertNotNull(message.quarantines());
-                    assertFalse(message.quarantines().isEmpty());
-
-                    message.quarantines().forEach(
-                        quarantine -> {
-                            assertTrue(row.get("Quarantine Reasons").contains(quarantine.reason()));
-                        }
-                    );
-                }
-
-                if (row.get("Collection Location") != null) {
-                    assertThat(message.collectionLocation()).isEqualTo(row.get("Collection Location"));
-                }
-
-                if (row.containsKey("Volumes") && row.get("Volumes") != null) {
-                    var volumes = row.get("Volumes").split(",");
-                    for(String volume: volumes) {
-                        var volumeFields = volume.split("-");
-                        assertTrue( message.volumes().stream()
-                            .filter(v -> v.type().equals(volumeFields[0].trim().toUpperCase()))
-                            .findFirst()
-                            .map(v -> Objects.equals(v.value(), Integer.parseInt(volumeFields[1].trim())))
-                            .orElse(false));
-                    }
-                }
-
-                if (row.get("Collection TimeZone") != null) {
-                    assertThat(message.collectionTimeZone()).isEqualTo(row.get("Collection TimeZone"));
-                }
-
-                if(row.containsKey("Expired")) {
-                    assertThat(message.expired()).isEqualTo(Boolean.valueOf(row.get("Expired").toLowerCase()));
-                }
-            });
+        if(row.containsKey("Expired")) {
+            assertThat(message.expired()).isEqualTo(Boolean.valueOf(row.get("Expired").toLowerCase()));
+        }
     }
 }

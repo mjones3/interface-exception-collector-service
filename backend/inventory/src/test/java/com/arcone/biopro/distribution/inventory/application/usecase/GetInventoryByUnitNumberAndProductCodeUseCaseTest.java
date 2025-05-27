@@ -1,6 +1,6 @@
 package com.arcone.biopro.distribution.inventory.application.usecase;
 
-import com.arcone.biopro.distribution.inventory.application.dto.GetInventoryBYUnitNumberAndProductInput;
+import com.arcone.biopro.distribution.inventory.application.dto.GetInventoryByUnitNumberAndProductInput;
 import com.arcone.biopro.distribution.inventory.application.dto.InventoryOutput;
 import com.arcone.biopro.distribution.inventory.application.mapper.InventoryOutputMapper;
 import com.arcone.biopro.distribution.inventory.domain.model.Inventory;
@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class GetInventoryByUnitNumberAndProductCodeUseCaseTest {
@@ -29,7 +28,7 @@ public class GetInventoryByUnitNumberAndProductCodeUseCaseTest {
 
         String unitNumber = "W036800000012";
         String productCode = "E04400";
-        GetInventoryBYUnitNumberAndProductInput input = new GetInventoryBYUnitNumberAndProductInput(unitNumber, productCode);
+        GetInventoryByUnitNumberAndProductInput input = new GetInventoryByUnitNumberAndProductInput(unitNumber, productCode);
 
         InventoryAggregate aggregate = mock(InventoryAggregate.class);
         Inventory inventory = mock(Inventory.class);

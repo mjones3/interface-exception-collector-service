@@ -1,6 +1,6 @@
 package com.arcone.biopro.distribution.inventory.integration;
 
-import com.arcone.biopro.distribution.inventory.application.dto.GetInventoryBYUnitNumberAndProductInput;
+import com.arcone.biopro.distribution.inventory.application.dto.GetInventoryByUnitNumberAndProductInput;
 import com.arcone.biopro.distribution.inventory.application.dto.InventoryOutput;
 import com.arcone.biopro.distribution.inventory.application.usecase.GetInventoryByUnitNumberAndProductCodeUseCase;
 import com.arcone.biopro.distribution.inventory.application.usecase.GetInventoryByUnitNumberUseCase;
@@ -101,8 +101,8 @@ class GetInventoryByUnitNumberSocketServerIT {
         when(getByUnitNumberAndProductCodeUseCase.execute(any()))
             .thenReturn(Mono.just(mockInventory));
 
-        GetInventoryBYUnitNumberAndProductInput input =
-            new GetInventoryBYUnitNumberAndProductInput(UNIT_NUMBER, PRODUCT_CODE);
+        GetInventoryByUnitNumberAndProductInput input =
+            new GetInventoryByUnitNumberAndProductInput(UNIT_NUMBER, PRODUCT_CODE);
 
         // When
         Mono<InventoryOutput> result = requester
@@ -124,8 +124,8 @@ class GetInventoryByUnitNumberSocketServerIT {
         when(getByUnitNumberAndProductCodeUseCase.execute(any()))
             .thenReturn(Mono.empty());
 
-        GetInventoryBYUnitNumberAndProductInput input =
-            new GetInventoryBYUnitNumberAndProductInput(UNIT_NUMBER, PRODUCT_CODE);
+        GetInventoryByUnitNumberAndProductInput input =
+            new GetInventoryByUnitNumberAndProductInput(UNIT_NUMBER, PRODUCT_CODE);
 
         // When
         Mono<InventoryOutput> result = requester

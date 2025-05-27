@@ -1,6 +1,6 @@
 package com.arcone.biopro.distribution.inventory.adapter.in.socket;
 
-import com.arcone.biopro.distribution.inventory.application.dto.GetInventoryBYUnitNumberAndProductInput;
+import com.arcone.biopro.distribution.inventory.application.dto.GetInventoryByUnitNumberAndProductInput;
 import com.arcone.biopro.distribution.inventory.application.dto.InventoryOutput;
 import com.arcone.biopro.distribution.inventory.application.usecase.UseCase;
 import lombok.AccessLevel;
@@ -22,7 +22,7 @@ import reactor.core.publisher.Mono;
 public class GetInventoryByUnitNumberSocketServer {
 
     UseCase<Flux<InventoryOutput>, String> getByUnitNumberUseCase;
-    UseCase<Mono<InventoryOutput>, GetInventoryBYUnitNumberAndProductInput> getByUnitNumberAndProductCodeUseCase;
+    UseCase<Mono<InventoryOutput>, GetInventoryByUnitNumberAndProductInput> getByUnitNumberAndProductCodeUseCase;
 
     @MessageMapping("getInventoryByUnitNumber")
     public Flux<InventoryOutput> getInventoryByUnitNumber(String unitNumber) {
@@ -32,7 +32,7 @@ public class GetInventoryByUnitNumberSocketServer {
     }
 
     @MessageMapping("getInventoryByUnitNumberAndProductCode")
-    public Mono<InventoryOutput> getInventoryByUnitNumberAndProductCode(GetInventoryBYUnitNumberAndProductInput input) {
+    public Mono<InventoryOutput> getInventoryByUnitNumberAndProductCode(GetInventoryByUnitNumberAndProductInput input) {
         log.info("Getting inventory for unit number: {} and product code: {}", input.unitNumber(), input.productCode());
         return getByUnitNumberAndProductCodeUseCase.execute(input)
             .doOnNext(response -> log.debug("Found inventory: {}", response.toString()));
