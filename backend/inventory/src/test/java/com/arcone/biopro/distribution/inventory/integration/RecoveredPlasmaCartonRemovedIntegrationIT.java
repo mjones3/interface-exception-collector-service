@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.kafka.test.context.EmbeddedKafka;
@@ -45,11 +46,8 @@ public class RecoveredPlasmaCartonRemovedIntegrationIT {
     @MockBean
     private RecoveredPlasmaCartonRemovedUseCase useCase;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private LogMonitor logMonitor;
+    @Value("${topic.recovered-plasma-carton-removed.name}")
+    private String recoveredPlasmaCartonRemovedTopic;
 
     @BeforeEach
     void setUp() {
@@ -59,7 +57,7 @@ public class RecoveredPlasmaCartonRemovedIntegrationIT {
     @Test
     @DisplayName("should publish, listen recovery plasma carton removed event")
     public void test1() throws InterruptedException, IOException {
-        var payloadJson = kafkaHelper.publishEvent("json/recovered_plasma_carton_removed.json", RECOVER_PLASMA_CARTON_REMOVED_TOPIC);
+        var payloadJson = kafkaHelper.publishEvent("json/recovered_plasma_carton_removed.json", recoveredPlasmaCartonRemovedTopic);
         ArgumentCaptor<RecoveredPlasmaCartonRemovedInput> captor = ArgumentCaptor.forClass(RecoveredPlasmaCartonRemovedInput.class);
         verify(useCase, times(1)).execute(captor.capture());
         RecoveredPlasmaCartonRemovedInput capturedInput = captor.getValue();
