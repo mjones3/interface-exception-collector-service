@@ -380,4 +380,65 @@ public class RecoveredPlasmaShipment implements Validatable {
         return this;
 
     }
+
+    public RecoveredPlasmaShipment modifyShipment(ModifyShipmentCommand command, CustomerService customerService
+        , RecoveredPlasmaShippingRepository recoveredPlasmaShippingRepository
+        , RecoveredPlasmaShipmentCriteriaRepository recoveredPlasmaShipmentCriteriaRepository) {
+
+
+        /*I should be able to modify the customer, product type, transportation number and ship date when the status is OPEN.
+
+            I should not be able to modify the customer, product type when the status is not OPEN.
+
+            I should be able to modify the ship date and transportation number when the status is not OPEN.
+
+            I should be required to provide a comment for modifying the shipment.
+
+            I should be able to see the history of modifications from a shipment.
+
+        I should not be able to modify the shipment when the status is PROCESSING.*/
+
+
+        if(PROCESSING_STATUS.equals(this.status)){
+            throw new IllegalArgumentException("Shipment is processing and cannot be modified");
+        }
+
+        this.modificationDate = ZonedDateTime.now();
+        this.shipmentDate = command.getShipmentDate();
+
+        if(OPEN_STATUS.equals(this.status)){
+
+            var productCriteria = getProductTypeCriteria(command.getCustomerCode(), command.getProductType(), recoveredPlasmaShipmentCriteriaRepository);
+            this.productType = productCriteria.getProductType();
+            this.shipmentCustomer = ShipmentCustomer.fromCustomerCode(command.getCustomerCode(), customerService);
+            this.transportationReferenceNumber = command.getTransportationReferenceNumber();
+
+        }else if(){
+
+        }
+
+
+
+
+
+        var shipment = RecoveredPlasmaShipment
+            .builder()
+            .id(null)
+            .shipmentNumber(generateShipmentNumber(shipmentId, location))
+            .shipmentCustomer(customer)
+            .productType(productCriteria.getProductType())
+            .status(OPEN_STATUS)
+            .locationCode(location.getCode())
+            .createDate(ZonedDateTime.now())
+            .shipmentDate(command.getShipmentDate())
+            .cartonTareWeight(command.getCartonTareWeight())
+            .createEmployeeId(command.getCreateEmployeeId())
+            .transportationReferenceNumber(command.getTransportationReferenceNumber())
+            .build();
+
+        shipment.checkValid();
+
+        return shipment;
+
+    }
 }

@@ -15,6 +15,7 @@ type Query {
     printUnacceptableUnitsReport(printUnacceptableUnitReportRequest:PrintUnacceptableUnitReportRequestDTO!): UseCaseResponseDTO!
     printShippingSummaryReport(printShippingSummaryReportRequest:PrintShippingSummaryReportRequestDTO!): UseCaseResponseDTO!
     generateCartonLabel(generateCartonLabelRequest:GenerateCartonLabelRequestDTO!): UseCaseResponseDTO!
+    findAllShipmentHistoryByShipmentId(shipmentId: ID!): [ShipmentHistoryDTO]!
 }
 
 type Mutation {
@@ -233,4 +234,12 @@ type ProductTypeDTO{
     id:ID!
     productType:String
     productTypeDescription:String
+}
+
+type ShipmentHistoryDTO {
+    id:ID!
+    shipmentId:Int!
+    comments:String
+    createEmployeeId:String!
+    createDate:DateTime!
 }

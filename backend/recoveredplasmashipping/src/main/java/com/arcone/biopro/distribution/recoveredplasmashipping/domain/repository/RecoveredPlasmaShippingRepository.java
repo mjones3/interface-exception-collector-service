@@ -9,4 +9,5 @@ public interface RecoveredPlasmaShippingRepository {
     Mono<RecoveredPlasmaShipment> create(RecoveredPlasmaShipment recoveredPlasmaShipment);
     Mono<RecoveredPlasmaShipment> findOneById(Long id);
     Mono<RecoveredPlasmaShipment> update(RecoveredPlasmaShipment recoveredPlasmaShipment);
+
 }
