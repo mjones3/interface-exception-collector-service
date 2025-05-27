@@ -100,8 +100,8 @@ public class RecoveredPlasmaShipmentClosedIntegrationIT {
         kafkaHelper.publishEvent(jsonPath, RECOVERED_PLASMA_SHIPMENT_CLOSED);
         RecoveredPlasmaShipmentClosedInput capturedInput = generalAssertions(1, 1000, "BPM4565", "BPM4565");
 
-        assertThat(capturedInput.cartonList().getFirst().packedProducts().getFirst().unitNumber()).isEqualTo("W036825100000");
-        assertThat(capturedInput.cartonList().getFirst().packedProducts().getLast().unitNumber()).isEqualTo("W036825100999");
+        assertThat(capturedInput.cartonList().getFirst().packedProducts().getFirst().unitNumber()).isEqualTo("W777725100000");
+        assertThat(capturedInput.cartonList().getFirst().packedProducts().getLast().unitNumber()).isEqualTo("W777725100999");
         capturedInput.cartonList().getFirst().packedProducts().forEach(product -> {
             assertThat(product.status()).isEqualTo(InventoryStatus.SHIPPED.name());
         });
@@ -114,8 +114,8 @@ public class RecoveredPlasmaShipmentClosedIntegrationIT {
         kafkaHelper.publishEvent(jsonPath, RECOVERED_PLASMA_SHIPMENT_CLOSED);
         RecoveredPlasmaShipmentClosedInput capturedInput = generalAssertions(1, 10000, "BPM4565", "BPM4565");
 
-        assertThat(capturedInput.cartonList().getFirst().packedProducts().getFirst().unitNumber()).isEqualTo("W036825100000");
-        assertThat(capturedInput.cartonList().getFirst().packedProducts().getLast().unitNumber()).isEqualTo("W036825109999");
+        assertThat(capturedInput.cartonList().getFirst().packedProducts().getFirst().unitNumber()).isEqualTo("W777725100000");
+        assertThat(capturedInput.cartonList().getFirst().packedProducts().getLast().unitNumber()).isEqualTo("W777725109999");
 
         capturedInput.cartonList().getFirst().packedProducts().forEach(product -> {
             assertThat(product.status()).isEqualTo(InventoryStatus.SHIPPED.name());
@@ -147,7 +147,7 @@ public class RecoveredPlasmaShipmentClosedIntegrationIT {
         String cartons = IntStream.range(0, cartonsAmount)
             .mapToObj(i -> {
                 String cartonNumber = "BPM" + (4000 + i);
-                String unitNumber = "W0368251" + String.format("%05d", i);
+                String unitNumber = "W7777251" + String.format("%05d", i);
                 return String.format(
                     "{\"cartonNumber\": \"%s\", \"packedProducts\": [{\"unitNumber\": \"%s\", \"productCode\": \"E0685V00\", \"status\": \"SHIPPED\"}]}",
                     cartonNumber, unitNumber
@@ -173,7 +173,7 @@ public class RecoveredPlasmaShipmentClosedIntegrationIT {
 
         String products = IntStream.range(0, productsAmount)
             .mapToObj(i -> {
-                String unitNumber = "W0368251" + String.format("%05d", i);
+                String unitNumber = "W7777251" + String.format("%05d", i);
                 return String.format(
                     "{\"unitNumber\": \"%s\", \"productCode\": \"E0685V00\", \"status\": \"SHIPPED\"}",
                     unitNumber

@@ -2,7 +2,7 @@
   "eventType": "ProductStored",
   "eventVersion": "1.0",
   "payload": {
-    "unitNumber": "W036825005006",
+    "unitNumber": "W777725005006",
     "productCode": "E0869VA0",
     "deviceStored": "Freezer001",
     "deviceUse": "Initial Freezer",

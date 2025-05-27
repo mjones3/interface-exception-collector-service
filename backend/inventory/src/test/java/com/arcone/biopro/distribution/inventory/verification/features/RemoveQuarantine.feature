@@ -1,5 +1,5 @@
-# Feature Unit Number reference: W036825011000
-@api @LAB-79 @AOA-75 @LAB-254 @skipOnPipeline
+# Feature Unit Number reference: W777725011000
+@api @LAB-79 @AOA-75 @LAB-254
 Feature: Remove Quarantine Event - API
     As a lab specialist I want the system is able to restore the previous inventory status after receiving a Remove Quarantine event.
 
@@ -18,7 +18,7 @@ Feature: Remove Quarantine Event - API
         Then The inventory status is "AVAILABLE"
         Examples:
             | Unit Number   |
-            | W036825011001 |
+            | W777725011001 |
 
 
     Scenario Outline: Remove the correct quarantine reason received in the remove quarantine event.
@@ -36,4 +36,4 @@ Feature: Remove Quarantine Event - API
         Then The inventory status has quarantine
         Examples:
             | Unit Number   |
-            | W036825011002 |
+            | W777725011002 |

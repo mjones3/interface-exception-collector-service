@@ -14,7 +14,6 @@ import static io.cucumber.junit.platform.engine.Constants.JUNIT_PLATFORM_NAMING_
 
 /**
  * Cucumber test suite configuration.
- * 
  * Tags can be specified via command line using -Dcucumber.filter.tags="@tag1 or @tag2 and not @tag3"
  * The default tags "not @disabled and not @skipOnPipeline" will be used if no command line tags are specified.
  * Command line tags will override the default tags when provided.

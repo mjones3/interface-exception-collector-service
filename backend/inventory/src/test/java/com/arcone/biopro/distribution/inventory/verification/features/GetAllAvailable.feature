@@ -1,33 +1,33 @@
-# Feature Unit Number reference: W036825003000
+# Feature Unit Number reference: W777725003000
 @api @skipOnPipeline
 Feature: Get all available inventories
 
     Scenario Outline: Get all available inventories
         Given I have the following units of products in inventory
             | Unit Number   | Units | Family                           | ABORh | Location   | Expires In Days | Temperature Category |
-            | W036825003001 | 2     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_1 | 2               | FROZEN               |
-            | W036825003002 | 3     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_2 | 2               | FROZEN               |
-            | W036825003003 | 5     | RED_BLOOD_CELLS                  | OP    | LOCATION_1 | 2               | FROZEN               |
-            | W036825003004 | 5     | RED_BLOOD_CELLS_LEUKOREDUCED     | OP    | LOCATION_1 | 2               | FROZEN               |
-            | W036825003005 | 8     | PLASMA_TRANSFUSABLE              | ON    | LOCATION_1 | 2               | FROZEN               |
-            | W036825003006 | 13    | PLASMA_TRANSFUSABLE              | ABN   | LOCATION_1 | 2               | FROZEN               |
-            | W036825003007 | 21    | PLASMA_TRANSFUSABLE              | ABP   | LOCATION_1 | 31              | FROZEN               |
-            | W036825003008 | 44    | PLASMA_TRANSFUSABLE              | OP    | LOCATION_1 | -1              | FROZEN               |
-            | W036825003009 | 4     | WHOLE_BLOOD                      | OP    | LOCATION_1 | 5               | FROZEN               |
-            | W036825003010 | 5     | WHOLE_BLOOD_LEUKOREDUCED         | OP    | LOCATION_2 | 5               | FROZEN               |
-            | W036825003011 | 10    | WHOLE_BLOOD                      | ABN   | LOCATION_2 | 2               | FROZEN               |
-            | W036825003012 | 12    | WHOLE_BLOOD_LEUKOREDUCED         | ABN   | LOCATION_1 | 2               | FROZEN               |
-            | W036825003013 | 18    | WHOLE_BLOOD                      | ABP   | LOCATION_1 | 30              | FROZEN               |
-            | W036825003014 | 7     | WHOLE_BLOOD_LEUKOREDUCED         | ABP   | LOCATION_1 | 30              | FROZEN               |
-            | W036825003015 | 3     | WHOLE_BLOOD                      | ABN   | LOCATION_2 | -1              | FROZEN               |
-            | W036825003016 | 1     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_3 | 2               | REFRIGERATED         |
-            | W036825003017 | 1     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_3 | 31              | REFRIGERATED         |
-            | W036825003018 | 1     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_3 | 2               | FROZEN               |
-            | W036825003019 | 1     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_3 | 31              | FROZEN               |
-            | W036825003020 | 1     | PLASMA_MFG_NONINJECTABLE         | OP    | LOCATION_4 | 1               | FROZEN               |
-            | W036825003021 | 1     | PLASMA_MFG_INJECTABLE            | OP    | LOCATION_4 | 1               | FROZEN               |
-            | W036825003022 | 1     | PRT_APHERESIS_PLATELETS          | OP    | LOCATION_5 | 2               | ROOM_TEMPERATURE     |
-            | W036825003023 | 1     | APHERESIS_PLATELETS_LEUKOREDUCED | OP    | LOCATION_5 | 2               | ROOM_TEMPERATURE     |
+            | W777725003001 | 2     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_1 | 2               | FROZEN               |
+            | W777725003002 | 3     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_2 | 2               | FROZEN               |
+            | W777725003003 | 5     | RED_BLOOD_CELLS                  | OP    | LOCATION_1 | 2               | FROZEN               |
+            | W777725003004 | 5     | RED_BLOOD_CELLS_LEUKOREDUCED     | OP    | LOCATION_1 | 2               | FROZEN               |
+            | W777725003005 | 8     | PLASMA_TRANSFUSABLE              | ON    | LOCATION_1 | 2               | FROZEN               |
+            | W777725003006 | 13    | PLASMA_TRANSFUSABLE              | ABN   | LOCATION_1 | 2               | FROZEN               |
+            | W777725003007 | 21    | PLASMA_TRANSFUSABLE              | ABP   | LOCATION_1 | 31              | FROZEN               |
+            | W777725003008 | 44    | PLASMA_TRANSFUSABLE              | OP    | LOCATION_1 | -1              | FROZEN               |
+            | W777725003009 | 4     | WHOLE_BLOOD                      | OP    | LOCATION_1 | 5               | FROZEN               |
+            | W777725003010 | 5     | WHOLE_BLOOD_LEUKOREDUCED         | OP    | LOCATION_2 | 5               | FROZEN               |
+            | W777725003011 | 10    | WHOLE_BLOOD                      | ABN   | LOCATION_2 | 2               | FROZEN               |
+            | W777725003012 | 12    | WHOLE_BLOOD_LEUKOREDUCED         | ABN   | LOCATION_1 | 2               | FROZEN               |
+            | W777725003013 | 18    | WHOLE_BLOOD                      | ABP   | LOCATION_1 | 30              | FROZEN               |
+            | W777725003014 | 7     | WHOLE_BLOOD_LEUKOREDUCED         | ABP   | LOCATION_1 | 30              | FROZEN               |
+            | W777725003015 | 3     | WHOLE_BLOOD                      | ABN   | LOCATION_2 | -1              | FROZEN               |
+            | W777725003016 | 1     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_3 | 2               | REFRIGERATED         |
+            | W777725003017 | 1     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_3 | 31              | REFRIGERATED         |
+            | W777725003018 | 1     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_3 | 2               | FROZEN               |
+            | W777725003019 | 1     | PLASMA_TRANSFUSABLE              | OP    | LOCATION_3 | 31              | FROZEN               |
+            | W777725003020 | 1     | PLASMA_MFG_NONINJECTABLE         | OP    | LOCATION_4 | 1               | FROZEN               |
+            | W777725003021 | 1     | PLASMA_MFG_INJECTABLE            | OP    | LOCATION_4 | 1               | FROZEN               |
+            | W777725003022 | 1     | PRT_APHERESIS_PLATELETS          | OP    | LOCATION_5 | 2               | ROOM_TEMPERATURE     |
+            | W777725003023 | 1     | APHERESIS_PLATELETS_LEUKOREDUCED | OP    | LOCATION_5 | 2               | ROOM_TEMPERATURE     |
 
         When I request available inventories for family with the following parameters:
             | Product Family   | Abo Rh Type   | Location   | Temperature Category   |
@@ -80,18 +80,18 @@ Feature: Get all available inventories
     Scenario: Get all available inventories grouped
         Given I have the following units of products in inventory
             | Unit Number   | Units | Family                       | ABORh | Location   | Expires In Days |
-            | W036825003016 | 2     | PLASMA_TRANSFUSABLE          | OP    | LOCATION_1 | 2               |
-            | W036825003017 | 3     | PLASMA_TRANSFUSABLE          | OP    | LOCATION_2 | 2               |
-            | W036825003018 | 5     | RED_BLOOD_CELLS              | OP    | LOCATION_1 | 2               |
-            | W036825003019 | 5     | RED_BLOOD_CELLS_LEUKOREDUCED | OP    | LOCATION_1 | 2               |
-            | W036825003020 | 8     | PLASMA_TRANSFUSABLE          | ON    | LOCATION_1 | 2               |
-            | W036825003021 | 13    | PLASMA_TRANSFUSABLE          | ABN   | LOCATION_1 | 2               |
-            | W036825003022 | 21    | PLASMA_TRANSFUSABLE          | ABP   | LOCATION_1 | 31              |
-            | W036825003023 | 4     | WHOLE_BLOOD                  | OP    | LOCATION_1 | 3               |
-            | W036825003024 | 5     | WHOLE_BLOOD_LEUKOREDUCED     | OP    | LOCATION_1 | 3               |
-            | W036825003025 | 10    | WHOLE_BLOOD                  | ABN   | LOCATION_1 | 6               |
-            | W036825003026 | 12    | WHOLE_BLOOD_LEUKOREDUCED     | ABN   | LOCATION_1 | 6               |
-            | W036825003027 | 3     | WHOLE_BLOOD                  | ABN   | LOCATION_1 | -1              |
+            | W777725003016 | 2     | PLASMA_TRANSFUSABLE          | OP    | LOCATION_1 | 2               |
+            | W777725003017 | 3     | PLASMA_TRANSFUSABLE          | OP    | LOCATION_2 | 2               |
+            | W777725003018 | 5     | RED_BLOOD_CELLS              | OP    | LOCATION_1 | 2               |
+            | W777725003019 | 5     | RED_BLOOD_CELLS_LEUKOREDUCED | OP    | LOCATION_1 | 2               |
+            | W777725003020 | 8     | PLASMA_TRANSFUSABLE          | ON    | LOCATION_1 | 2               |
+            | W777725003021 | 13    | PLASMA_TRANSFUSABLE          | ABN   | LOCATION_1 | 2               |
+            | W777725003022 | 21    | PLASMA_TRANSFUSABLE          | ABP   | LOCATION_1 | 31              |
+            | W777725003023 | 4     | WHOLE_BLOOD                  | OP    | LOCATION_1 | 3               |
+            | W777725003024 | 5     | WHOLE_BLOOD_LEUKOREDUCED     | OP    | LOCATION_1 | 3               |
+            | W777725003025 | 10    | WHOLE_BLOOD                  | ABN   | LOCATION_1 | 6               |
+            | W777725003026 | 12    | WHOLE_BLOOD_LEUKOREDUCED     | ABN   | LOCATION_1 | 6               |
+            | W777725003027 | 3     | WHOLE_BLOOD                  | ABN   | LOCATION_1 | -1              |
 
         When I select "PLASMA_TRANSFUSABLE" of the blood type "O"
         And I select "PLASMA_TRANSFUSABLE" of the blood type "AB"
@@ -113,15 +113,15 @@ Feature: Get all available inventories
     Scenario: Get all available inventories not considering the other statuses
         Given I have the following inventories:
             | Unit Number   | Product Code | Status     | Unsuitable Reason              | Quarantine Reasons |
-            | W036825003001 | E1624V00     | AVAILABLE  |                                | EMPTY              |
-            | W036825003002 | E1624V00     | AVAILABLE  |                                |                    |
-            | W036825003003 | E1624V00     | CONVERTED  |                                | EMPTY              |
-            | W036825003004 | E1624V00     | DISCARDED  |                                |                    |
-            | W036825003005 | E1624V00     | SHIPPED    |                                |                    |
-            | W036825003006 | E1624V00     | IN_TRANSIT |                                | EMPTY              |
-            | W036825003007 | E1624V00     | PACKED     |                                | EMPTY              |
-            | W036825003008 | E1624V00     | AVAILABLE  | POSITIVE_REACTIVE_TEST_RESULTS |                    |
-            | W036825003009 | E1624V00     | AVAILABLE  |                                | ABS_POSITIVE       |
+            | W777725003001 | E1624V00     | AVAILABLE  |                                | EMPTY              |
+            | W777725003002 | E1624V00     | AVAILABLE  |                                |                    |
+            | W777725003003 | E1624V00     | CONVERTED  |                                | EMPTY              |
+            | W777725003004 | E1624V00     | DISCARDED  |                                |                    |
+            | W777725003005 | E1624V00     | SHIPPED    |                                |                    |
+            | W777725003006 | E1624V00     | IN_TRANSIT |                                | EMPTY              |
+            | W777725003007 | E1624V00     | PACKED     |                                | EMPTY              |
+            | W777725003008 | E1624V00     | AVAILABLE  | POSITIVE_REACTIVE_TEST_RESULTS |                    |
+            | W777725003009 | E1624V00     | AVAILABLE  |                                | ABS_POSITIVE       |
 
         When I select "PLASMA_TRANSFUSABLE" of the blood type "OP"
         And I request available inventories in location "123456789"
