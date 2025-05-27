@@ -18,7 +18,7 @@ import org.springframework.test.context.TestPropertySource;
 @ActiveProfiles("test")
 @EmbeddedKafka(partitions = 1,
     brokerProperties = {
-        "listeners=PLAINTEXT://localhost:9092",
+        "listeners=PLAINTEXT://localhost:9099", "port=9099",
         "port=9092",
         // allow up to 500 MB messages
         "socket.request.max.bytes=524288000",
