@@ -15,8 +15,8 @@ public class CucumberHooks {
             .cleanUpAll();
     }
 
-    @After
-    public static void after() {
+    @After("@inventoryAvailability")
+    public static void afterInventoryAvailabilityScenarios() {
         log.info("Running @After each Inventory Availability Scenario");
         ApplicationContextProvider
             .getBean(TestDataCleanUp.class)
