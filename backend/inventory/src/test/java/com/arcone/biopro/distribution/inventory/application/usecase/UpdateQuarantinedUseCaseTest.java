@@ -55,12 +55,12 @@ class UpdateQuarantinedUseCaseTest {
         openMocks(this);
 
         updateQuarantineInput = new UpdateQuarantineInput(
-            Product.builder().unitNumber("W036824111111").productCode("E1624V00").build(),
+            Product.builder().unitNumber("W777724111111").productCode("E1624V00").build(),
             1L, "OTHER", "Other comment"
         );
 
         Inventory inventory = Inventory.builder()
-            .unitNumber(new UnitNumber("W036824111111"))
+            .unitNumber(new UnitNumber("W777724111111"))
             .productCode(new ProductCode("E1624V00"))
             .histories(new ArrayList<>(List.of(new History(InventoryStatus.AVAILABLE, null, null))))
             .quarantines(new ArrayList<>(List.of(
@@ -95,7 +95,7 @@ class UpdateQuarantinedUseCaseTest {
 
         assertThat(inventoryAggregate.getInventory().getQuarantines()).isNotEmpty();
 
-        verify(inventoryAggregateRepository).findByUnitNumberAndProductCode("W036824111111", "E1624V00");
+        verify(inventoryAggregateRepository).findByUnitNumberAndProductCode("W777724111111", "E1624V00");
         verify(inventoryAggregateRepository, times(1)).saveInventory(inventoryAggregate);
     }
 
@@ -113,7 +113,7 @@ class UpdateQuarantinedUseCaseTest {
             .expectError(InventoryNotFoundException.class)
             .verify();
 
-        verify(inventoryAggregateRepository).findByUnitNumberAndProductCode("W036824111111", "E1624V00");
+        verify(inventoryAggregateRepository).findByUnitNumberAndProductCode("W777724111111", "E1624V00");
         verify(inventoryAggregateRepository, never()).saveInventory(any());
         verify(mapper, never()).toOutput(any(Inventory.class));
     }

@@ -37,7 +37,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class ProductCompletedUseCaseTest {
 
-    private static final String UNIT_NUMBER = "W036825111110";
+    private static final String UNIT_NUMBER = "W777725111110";
     private static final String PRODUCT_CODE = "E123412";
     private static final String SHORT_DESCRIPTION = "APH PLASMA 24H";
     private static final String LOCATION = "LOCATION_1";

@@ -5,7 +5,7 @@
   "eventType": "ProductQuarantined",
   "payload": {
     "id": 1,
-    "unitNumber": "W036825005004",
+    "unitNumber": "W777725005004",
     "productCode": "E0869A0",
     "reason": "OTHER",
     "comments": "a comment",

@@ -50,10 +50,10 @@ class ProductRecoveredUseCaseTest {
     void setUp() {
         openMocks(this);
 
-        productRecoveredInput = new ProductRecoveredInput("W036824111111","E1624V00");
+        productRecoveredInput = new ProductRecoveredInput("W777724111111","E1624V00");
 
         Inventory inventory = Inventory.builder()
-            .unitNumber(new UnitNumber("W036824111111"))
+            .unitNumber(new UnitNumber("W777724111111"))
             .productCode(new ProductCode("E1624V00"))
             .inventoryStatus(InventoryStatus.DISCARDED)
             .statusReason("EXPIRED")
@@ -87,7 +87,7 @@ class ProductRecoveredUseCaseTest {
             })
             .verifyComplete();
 
-        verify(inventoryAggregateRepository).findByUnitNumberAndProductCode("W036824111111", "E1624V00");
+        verify(inventoryAggregateRepository).findByUnitNumberAndProductCode("W777724111111", "E1624V00");
         verify(inventoryAggregateRepository).saveInventory(inventoryAggregate);
     }
 
@@ -105,7 +105,7 @@ class ProductRecoveredUseCaseTest {
             .expectError(InventoryNotFoundException.class)
             .verify();
 
-        verify(inventoryAggregateRepository).findByUnitNumberAndProductCode("W036824111111", "E1624V00");
+        verify(inventoryAggregateRepository).findByUnitNumberAndProductCode("W777724111111", "E1624V00");
         verify(inventoryAggregateRepository, never()).saveInventory(any());
         verify(mapper, never()).toOutput(any(Inventory.class));
     }

@@ -1,4 +1,4 @@
-# Feature Unit Number reference: W036825008000
+# Feature Unit Number reference: W777725008000
 @api @LAB-253 @AOA-152 @LAB-379 @LAB-412 @LAB475 @AOA-83 @skipOnPipeline
 Feature: Product Created event
     Rule: As an inventory service I want to listen to product created event so that I can create the inventory, convert its parent if any, and manage its statuses
@@ -21,11 +21,11 @@ Feature: Product Created event
 
             Examples:
                 | Unit Number   | Parent Product Code | Product Code | Has Expiration Date | Temperature Category | Collection Location | Collection TimeZone |
-                | W036825008001 | PLASAPHP            | E765000      | Yes                 | FROZEN               | LOCATION_1          | America/New_York    |
-                | W036825008002 | RBCAPH              | E453200      | Yes                 | REFRIGERATED         | LOCATION_1          | America/New_York    |
-                | W036825008003 | WHOLEBLOOD          | E011200      | Yes                 | REFRIGERATED         |                     |                     |
-                | W036825008004 | WHOLEBLOOD          | RBC          | No                  |                      |                     |                     |
-                | W036825008005 | WHOLEBLOOD          | PLASMA       | No                  |                      |                     |                     |
-                | W036825008006 | RBC                 | E016700      | Yes                 | REFRIGERATED         |                     |                     |
-                | W036825008007 | PLASMA              | E070100      | Yes                 | FROZEN               |                     |                     |
-                | W036825008008 | APLTAPHP            | E834000      | Yes                 | ROOM_TEMPERATURE     |                     |                     |
+                | W777725008001 | PLASAPHP            | E765000      | Yes                 | FROZEN               | LOCATION_1          | America/New_York    |
+                | W777725008002 | RBCAPH              | E453200      | Yes                 | REFRIGERATED         | LOCATION_1          | America/New_York    |
+                | W777725008003 | WHOLEBLOOD          | E011200      | Yes                 | REFRIGERATED         |                     |                     |
+                | W777725008004 | WHOLEBLOOD          | RBC          | No                  |                      |                     |                     |
+                | W777725008005 | WHOLEBLOOD          | PLASMA       | No                  |                      |                     |                     |
+                | W777725008006 | RBC                 | E016700      | Yes                 | REFRIGERATED         |                     |                     |
+                | W777725008007 | PLASMA              | E070100      | Yes                 | FROZEN               |                     |                     |
+                | W777725008008 | APLTAPHP            | E834000      | Yes                 | ROOM_TEMPERATURE     |                     |                     |

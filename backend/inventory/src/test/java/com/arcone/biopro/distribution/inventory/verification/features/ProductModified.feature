@@ -1,4 +1,4 @@
-# Feature Unit Number reference: W036825008000
+# Feature Unit Number reference: W777725008000
 @api @LAB-427 @skipOnPipeline
 Feature: Product Modified event
     Rule: As an inventory service I want to listen to product modified event so that I can modified and create a new inventory and manage it's statuses
@@ -21,5 +21,5 @@ Feature: Product Modified event
 
             Examples:
                 | Unit Number   | Parent Product Code | Product Code |
-                | W036825008001 | E067800             | E510600      |
-                | W036825008002 | E0678V00            | E510500      |
+                | W777725008001 | E067800             | E510600      |
+                | W777725008002 | E0678V00            | E510500      |

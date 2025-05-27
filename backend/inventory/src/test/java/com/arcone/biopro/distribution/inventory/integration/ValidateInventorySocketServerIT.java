@@ -50,7 +50,7 @@ public class ValidateInventorySocketServerIT {
 
     private RSocketRequester requester;
 
-    private static final String UNIT_NUMBER = "W036825015001";
+    private static final String UNIT_NUMBER = "W777725015001";
     private static final String PRODUCT_CODE = "E0869V02";
     private static final String LOCATION_CODE = "LOCATION_1";
 
@@ -298,7 +298,7 @@ public class ValidateInventorySocketServerIT {
         // - 100 quarantined items
         // - 100 not found items
         for (int i = 0; i < BATCH_SIZE; i++) {
-            String unitNumber = String.format("W0368250%05d", i); // Generate unique unit numbers
+            String unitNumber = String.format("W7777250%05d", i); // Generate unique unit numbers
 
             if (i < 9700) {
                 // Successful validation
@@ -376,7 +376,7 @@ public class ValidateInventorySocketServerIT {
         // Create a flux of 10,000 inventory validation requests
         Flux<InventoryValidationRequest> requestFlux = Flux.range(0, BATCH_SIZE)
             .map(i -> {
-                String unitNumber = String.format("W0368250%05d", i);
+                String unitNumber = String.format("W7777250%05d", i);
                 return InventoryValidationRequest.builder()
                     .unitNumber(unitNumber)
                     .productCode(PRODUCT_CODE)
