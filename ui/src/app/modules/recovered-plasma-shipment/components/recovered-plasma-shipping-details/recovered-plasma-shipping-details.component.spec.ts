@@ -21,6 +21,7 @@ import { CartonPackingSlipDTO } from '../../graphql/query-definitions/generate-c
 import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { ShipmentResponseDTO } from 'app/modules/shipments/models/shipment-info.dto';
+import { LabelPrinterResponseDTO, PrintLabelService } from '../../../../shared/services/print-label.service';
 
 describe('RecoveredPlasmaShippingDetailsComponent', () => {
     let component: RecoveredPlasmaShippingDetailsComponent;
@@ -31,6 +32,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
     let mockStore: jest.Mocked<Store>;
     let cookieService: jest.Mocked<CookieService>;
     let mockMatDialog: jest.Mocked<MatDialog>;
+    let mockPrintLabelService: jest.Mocked<PrintLabelService>;
     let mockBrowserPrintingService: jest.Mocked<BrowserPrintingService>;
     let mockDialogRef: jest.Mocked<MatDialogRef<ViewShippingCartonPackingSlipComponent, CartonPackingSlipDTO | string>>;
     let mockConfirmationDialog: jest.Mocked<MatDialog>;
@@ -48,7 +50,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
             afterClosed: jest.fn().mockReturnValue(of()),
             close: jest.fn(),
         } as Partial<MatDialogRef<ViewShippingCartonPackingSlipComponent, CartonPackingSlipDTO>> as jest.Mocked<MatDialogRef<ViewShippingCartonPackingSlipComponent, CartonPackingSlipDTO>>;
-        
+
         mockMatDialog = {
             open: jest.fn().mockReturnValue(mockDialogRef),
         } as Partial<MatDialog> as jest.Mocked<MatDialog>;
@@ -58,6 +60,15 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
                 afterClosed: () => of('confirmed')
             }),
         } as Partial<MatDialog> as jest.Mocked<MatDialog>;
+
+        mockPrintLabelService = {
+            installed: jest.fn().mockReturnValue(of(true)),
+            print: jest.fn().mockReturnValue(of<LabelPrinterResponseDTO>({
+                type: 'success',
+                message: 'Printed successfully',
+                status: 200,
+            })),
+        } as Partial<PrintLabelService> as jest.Mocked<PrintLabelService>;
 
         mockBrowserPrintingService = {
             print: jest.fn(),
@@ -123,6 +134,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
                 { provide: Store, useValue: mockStore },
                 { provide: MatDialog, useValue: mockMatDialog },
                 { provide: FuseConfirmationService, useValue: mockConfirmationDialog },
+                { provide: PrintLabelService, useValue: mockPrintLabelService },
                 { provide: BrowserPrintingService, useValue: mockBrowserPrintingService },
                 {provide: MAT_DIALOG_DATA, useValue: matDailogMockData}
             ],
@@ -225,7 +237,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
             expect(mockRouter.navigateByUrl).not.toHaveBeenCalled();
         });
 
-        
+
 
         it('should show "add carton button" when canAddCartons is true', () => {
             const buttonIdCssSelector = By.css('#btnAddCarton');
@@ -533,20 +545,22 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
             expect(loadSpy).toHaveBeenCalledWith(shipmentId);
         });
 
-        it('should print carton when shouldPrintCartonPackingSlip is true', () => {
+        it('should print both carton packing slip and label when shouldPrintCartonPackingSlipAndLabel is true', () => {
             jest.clearAllTimers();
 
             const shipmentId = 123;
             const cartonId = 456;
             mockActivatedRoute.snapshot.queryParams = { print: 'true', closeCartonId: cartonId.toString() };
             const loadSpy = jest.spyOn(component, 'loadRecoveredPlasmaShippingDetails').mockReturnValue(of({}));
-            const printSpy = jest.spyOn(component, 'printCarton').mockImplementation();
+            const printLabelSpy = jest.spyOn(component, 'printCartonLabel').mockImplementation();
+            const printPackingSlipSpy = jest.spyOn(component, 'printCartonPackingSlip').mockImplementation();
 
             component.fetchShipmentData(shipmentId);
             jest.advanceTimersByTime(500);
 
             expect(loadSpy).toHaveBeenCalledWith(shipmentId);
-            expect(printSpy).toHaveBeenCalledWith(null, cartonId);
+            expect(printLabelSpy).toHaveBeenCalledWith(cartonId);
+            expect(printPackingSlipSpy).toHaveBeenCalledWith(cartonId);
         });
     });
 
@@ -734,12 +748,12 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
                     },
                 },
             };
-            
+
             component.removeCarton(mockCartonId);
 
             expect(mockConfirmationDialog.open).toHaveBeenCalledWith(expectedConfig);
         });
-        
+
         it('should remove carton and update shipment data when confirmed', () => {
             const mockShipmentData = {
                 id: 1,
@@ -748,7 +762,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
                     { id: 456, cartonNumber: 'C456' }
                 ]
             };
-            
+
             const mockResponse = {
                 data: {
                     removeCarton: {
@@ -759,17 +773,17 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
                     }
                 }
             } as ApolloQueryResult<{ removeCarton: UseCaseResponseDTO<ShipmentResponseDTO> }>;
-        
+
             const mockDialogRef = {
                 afterClosed: () => of('confirmed')
             };
-        
+
             mockConfirmationDialog.open.mockReturnValue(mockDialogRef as any);
             mockRecoveredPlasmaService.removeLastCarton.mockReturnValue(of(mockResponse));
-            
+
             component.shipmentDetailsSignal.set(mockShipmentData);
             component.removeCarton(mockCartonId);
-        
+
             expect(mockRecoveredPlasmaService.removeLastCarton).toHaveBeenCalledWith({
                 cartonId: mockCartonId,
                 employeeId: mockEmployeeId
@@ -782,35 +796,35 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
             );
             expect(component.shipmentDetailsSignal()).toEqual(mockResponse.data.removeCarton.data);
         });
-     
+
         it('should not remove carton when dialog is cancelled', () => {
             const mockDialogRef = {
                 afterClosed: () => of('cancelled')
             };
-     
+
             mockConfirmationDialog.open.mockReturnValue(mockDialogRef as any);
-            
+
             component.removeCarton(mockCartonId);
-     
+
             expect(mockConfirmationDialog.open).toHaveBeenCalled();
             expect(mockRecoveredPlasmaService.removeLastCarton).not.toHaveBeenCalled();
         });
-     
+
         it('should handle Apollo error when removing carton', () => {
             const mockDialogRef = {
                 afterClosed: () => of('confirmed')
             };
-     
+
             const mockError = new ApolloError({
                 errorMessage: 'Network error',
                 networkError: new Error('Network error')
             });
-     
+
             mockConfirmationDialog.open.mockReturnValue(mockDialogRef as any);
             mockRecoveredPlasmaService.removeLastCarton.mockReturnValue(throwError(() => mockError));
-     
+
             component.removeCarton(mockCartonId);
-     
+
             expect(mockToastrService.error).toHaveBeenCalledWith(
                 'Network error'
             );
@@ -823,7 +837,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
                     { id: 123, cartonNumber: 'C123' }
                 ]
             };
-            
+
             const mockResponse = {
                 data: {
                     removeCarton: {
@@ -835,17 +849,17 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
                     }
                 }
             } as ApolloQueryResult<{ removeCarton: UseCaseResponseDTO<ShipmentResponseDTO> }>;
-        
+
             const mockDialogRef = {
                 afterClosed: () => of('confirmed')
             };
-        
+
             mockConfirmationDialog.open.mockReturnValue(mockDialogRef as any);
             mockRecoveredPlasmaService.removeLastCarton.mockReturnValue(of(mockResponse));
-            
+
             component.shipmentDetailsSignal.set(mockShipmentData);
             component.removeCarton(mockCartonId);
-        
+
             expect(component.shipmentDetailsSignal()).toEqual(mockShipmentData);
             expect(mockToastrService.show).toHaveBeenCalledWith(
                 'Failed to remove carton',

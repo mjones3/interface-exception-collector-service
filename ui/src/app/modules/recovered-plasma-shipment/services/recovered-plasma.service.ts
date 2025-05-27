@@ -50,6 +50,11 @@ import {
 } from '../graphql/query-definitions/print-shipping-summary-report.graphql';
 import { REMOVE_CARTON, RemoveCartonDTO } from '../graphql/mutation-definitions/remove-carton.graphql';
 import { ShipmentResponseDTO } from 'app/modules/shipments/models/shipment-info.dto';
+import {
+    GENERATE_CARTON_LABEL,
+    GenerateCartonLabelRequestDTO,
+    LabelDTO
+} from '../graphql/query-definitions/generate-carton-label.graphql';
 
 @Injectable({
     providedIn: 'root',
@@ -246,6 +251,16 @@ export class RecoveredPlasmaService {
             this.servicePath,
             PRINT_SHIPPING_SUMMARY_REPORT,
             printShippingSummaryReportRequest
+        );
+    }
+
+    public generateCartonLabel(generateCartonLabelRequestDTO: GenerateCartonLabelRequestDTO)
+        : Observable<ApolloQueryResult<{ generateCartonLabel: UseCaseResponseDTO<LabelDTO> }>> {
+
+        return this.dynamicGraphqlPathService.executeQuery(
+            this.servicePath,
+            GENERATE_CARTON_LABEL,
+            generateCartonLabelRequestDTO
         );
     }
 
