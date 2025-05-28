@@ -1,6 +1,8 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.verification.pages;
 
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.TestUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 @Component
+@Slf4j
 public class ShipmentDetailsPage extends CommonPageFactory {
 
     private final By shipmentDetailsHeader = By.xpath("//h3//span[contains(text(),'Shipment Details')]");
@@ -32,17 +35,24 @@ public class ShipmentDetailsPage extends CommonPageFactory {
     private final By unacceptableReportLastRunDate = By.id("informationDetails-Last-Run-value");
     private final By unacceptableReportBtn = By.id("reportBtnId");
     private final By viewUnacceptableProductsDialog = By.id("viewUnacceptableProductsDialog");
-    private final By viewUnacceptableProductsDialogHeader = By.xpath("//h2[contains(text(),'Unacceptable Product Report')]");
+    private final By viewUnacceptableProductsDialogHeader = By.xpath("//h2[contains(text(),'Unacceptable Products Report')]");
     private final By unacceptableProductsTable = By.id("unacceptableProductsTable");
     private final By cancelBtn = By.id("btnCancel");
     private final By repackComments = By.id("reasonCommentsId");
-
+    private final By reportsBtn = By.id("reportsDialogBtnId");
+    private final By confirmRemoveCartonBtn = By.id("confirmation-dialog-confirm-btn");
 
 
     private By addedCartonRow(String cartonNumberPrefix, String sequence, String status) {
         return By.xpath(
             String.format(
                 "//table[@id='cartonListTableId']//td[contains(.,'%s')]/following-sibling::td[contains(.,'%s')]/following-sibling::td[contains(.,'%s')]",
+                cartonNumberPrefix, sequence, status));
+    }
+ private By removeCartonButton(String cartonNumberPrefix, String sequence, String status) {
+        return By.xpath(
+            String.format(
+                "//table[@id='cartonListTableId']//td[contains(.,'%s')]/following-sibling::td[contains(.,'%s')]/following-sibling::td[contains(.,'%s')]/parent::tr//button[@data-testid='remove-carton']",
                 cartonNumberPrefix, sequence, status));
     }
 
@@ -56,7 +66,7 @@ public class ShipmentDetailsPage extends CommonPageFactory {
     private By addedCartonRow(String sequence) {
         return By.xpath(
             String.format(
-                "//td[contains(@id,'cartonSequenceRow')]//*[.='%s']",
+                "//td[contains(@id,'cartonSequenceRow')]//*[.='%s']/../parent::tr/td/button[contains(@id, 'ExpandBtn')]",
                 sequence));
     }
 
@@ -80,6 +90,9 @@ public class ShipmentDetailsPage extends CommonPageFactory {
                 "//table[@id='cartonListTableId']//td[contains(.,'%s')]/following-sibling::td[contains(.,'%s')]/following-sibling::td[starts-with(@id,'statusRow')]",
                 cartonNumberPrefix, sequence, status));
     }
+
+
+
 
     @Autowired
     private SharedActions sharedActions;
@@ -107,6 +120,7 @@ public class ShipmentDetailsPage extends CommonPageFactory {
     }
 
     public String getShipmentNumber() {
+        sharedActions.waitForVisible(shipmentNumber);
         return sharedActions.getText(shipmentNumber);
     }
 
@@ -119,6 +133,7 @@ public class ShipmentDetailsPage extends CommonPageFactory {
     }
 
     public String getShipmentStatus() {
+        sharedActions.waitForVisible(status);
         return sharedActions.getText(status);
     }
 
@@ -280,4 +295,26 @@ public class ShipmentDetailsPage extends CommonPageFactory {
         sharedActions.click(confirmRepackCartonBtn);
     }
 
+    public boolean isReportsButtonEnabled() {
+        sharedActions.waitForVisible(reportsBtn);
+        return sharedActions.isElementEnabled(driver, reportsBtn);
+    }
+
+    public void clickPrintReportBtn() {
+        sharedActions.click(reportsBtn);
+    }
+
+
+    public void checkRemoveCartonOptionIsAvailable(String prefix, String sequenceNumber, String status) {
+        sharedActions.waitForVisible(removeCartonButton(prefix, sequenceNumber, status));
+        Assert.assertTrue(sharedActions.isElementEnabled(driver, removeCartonButton(prefix, sequenceNumber, status)));
+    }
+
+    public void removeCarton(String prefix, String sequenceNumber, String status) {
+        sharedActions.click(removeCartonButton(prefix, sequenceNumber, status));
+    }
+
+    public void confirmRemoveCarton() {
+        sharedActions.click(confirmRemoveCartonBtn);
+    }
 }

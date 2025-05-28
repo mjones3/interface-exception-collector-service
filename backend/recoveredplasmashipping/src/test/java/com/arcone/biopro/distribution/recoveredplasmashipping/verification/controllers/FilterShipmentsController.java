@@ -4,6 +4,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.verification.suppo
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.SharedContext;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.TestUtils;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.graphql.GraphQLQueryMapper;
+import io.cucumber.spring.ScenarioScope;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,7 @@ import java.util.Map;
 
 @Slf4j
 @Component
+@ScenarioScope
 public class FilterShipmentsController {
     @Autowired
     private ApiHelper apiHelper;

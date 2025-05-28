@@ -47,6 +47,7 @@ public class SharedContext {
     private List<Map> verifiedProductsList;
     private Map lastCartonResponse;
     private Map lastCloseCartonResponse;
+    private Map lastRemoveCartonResponse;
     private Map linksResponse;
 
     // Shipment data
@@ -61,4 +62,6 @@ public class SharedContext {
     private Map lastCartonPackingSlipResponse;
 
     private Map lastUnacceptableUnitsReportResponse;
+
+    private Map lastShippingSummaryReportResponse;
 }

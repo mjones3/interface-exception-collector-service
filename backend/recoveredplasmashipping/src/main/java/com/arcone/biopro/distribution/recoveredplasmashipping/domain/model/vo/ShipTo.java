@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 @EqualsAndHashCode
 @ToString
 @Slf4j
-public class PackingSlipShipTo implements Validatable {
+public class ShipTo implements Validatable {
 
     private ShipmentCustomer shipmentCustomer;
     private String addressFormat;
@@ -21,7 +21,7 @@ public class PackingSlipShipTo implements Validatable {
     @Getter(AccessLevel.NONE)
     private String customerName;
 
-    public PackingSlipShipTo(ShipmentCustomer shipmentCustomer, String addressFormat) {
+    public ShipTo(ShipmentCustomer shipmentCustomer, String addressFormat) {
         this.shipmentCustomer = shipmentCustomer;
         this.addressFormat = addressFormat;
         checkValid();

@@ -45,7 +45,7 @@ public class ShipmentDetailsSteps {
     }
 
     @Then("I should see the following shipment information:")
-    public void iShouldSeeTheFollowingShipmentInformation(DataTable dataTable) {
+    public void iShouldSeeTheFollowingShipmentInformation(DataTable dataTable) throws InterruptedException {
         // Expected values
         Map<String, String> table = dataTable.asMap(String.class, String.class);
 
@@ -55,6 +55,7 @@ public class ShipmentDetailsSteps {
             : table.get("Shipment Date");
 
         // Verify
+        Thread.sleep(2000);
         Assert.assertTrue(shipmentDetailsPage.getShipmentNumber().contains(table.get("Shipment Number Prefix")));
         Assert.assertTrue(shipmentDetailsPage.getCustomerCode().equalsIgnoreCase(table.get("Customer Code")));
         Assert.assertTrue(shipmentDetailsPage.getCustomerName().equalsIgnoreCase(table.get("Customer Name")));
@@ -293,5 +294,27 @@ public class ShipmentDetailsSteps {
             log.debug("checking the report row content {}",line);
             shipmentDetailsPage.verifyProductIsListed(line[0],line[1],line[2],line[3],line[4]);
         }
+    }
+
+    @Then("The print reports option should be {string}.")
+    public void thePrintReportsOptionShouldBe(String enableDisable) {
+        if("enabled".equals(enableDisable)){
+            Assert.assertTrue(shipmentDetailsPage.isReportsButtonEnabled());
+        }else if("disabled".equals(enableDisable)){
+            Assert.assertFalse(shipmentDetailsPage.isReportsButtonEnabled());
+        }else{
+            Assert.fail("Wrong option for button enabledDisabled");
+        }
+
+    }
+
+    @When("I choose to print the shipping summary report.")
+    public void iChooseToPrintTheShippingSummaryReport() {
+        shipmentDetailsPage.clickPrintReportBtn();
+    }
+
+    @And("The last shipment status should be {string}")
+    public void theLastShipmentStatusShouldBe(String status) {
+        Assertions.assertEquals(sharedContext.getFindShipmentApiResponse().get("status").toString(), status);
     }
 }

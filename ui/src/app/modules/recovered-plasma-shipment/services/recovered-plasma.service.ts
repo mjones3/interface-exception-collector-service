@@ -43,6 +43,13 @@ import {
     UnacceptableUnitReportOutput
 } from '../graphql/query-definitions/print-unacceptable-units-report.graphql';
 import { REPACK_CARTON, RepackCartonDTO } from '../graphql/mutation-definitions/repack-carton.graphql';
+import {
+    PRINT_SHIPPING_SUMMARY_REPORT,
+    PrintShippingSummaryReportRequestDTO,
+    ShippingSummaryReportDTO
+} from '../graphql/query-definitions/print-shipping-summary-report.graphql';
+import { REMOVE_CARTON, RemoveCartonDTO } from '../graphql/mutation-definitions/remove-carton.graphql';
+import { ShipmentResponseDTO } from 'app/modules/shipments/models/shipment-info.dto';
 
 @Injectable({
     providedIn: 'root',
@@ -192,6 +199,16 @@ export class RecoveredPlasmaService {
         );
     }
 
+    public removeLastCarton(removeCarton: RemoveCartonDTO)
+        : Observable<MutationResult<{ removeCarton: UseCaseResponseDTO<ShipmentResponseDTO> }>> {
+
+        return this.dynamicGraphqlPathService.executeMutation(
+            this.servicePath,
+            REMOVE_CARTON,
+            removeCarton
+        );
+    }
+
     public verifyCartonProducts(cartonProducts: VerifyCartonItemsDTO)
         : Observable<MutationResult<{ verifyCarton: UseCaseResponseDTO<CartonDTO> }>> {
 
@@ -219,6 +236,16 @@ export class RecoveredPlasmaService {
             this.servicePath,
             PRINT_UNACCEPTABLE_UNITS_REPORT,
             printUnacceptableUnitReportRequest
+        );
+    }
+
+    public printShippingSummaryReport(printShippingSummaryReportRequest: PrintShippingSummaryReportRequestDTO)
+        : Observable<ApolloQueryResult<{ printShippingSummaryReport: UseCaseResponseDTO<ShippingSummaryReportDTO> }>> {
+
+        return this.dynamicGraphqlPathService.executeQuery(
+            this.servicePath,
+            PRINT_SHIPPING_SUMMARY_REPORT,
+            printShippingSummaryReportRequest
         );
     }
 

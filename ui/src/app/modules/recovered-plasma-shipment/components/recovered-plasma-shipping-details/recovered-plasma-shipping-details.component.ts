@@ -15,12 +15,12 @@ import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApolloError } from '@apollo/client';
 import { Store } from '@ngrx/store';
-import { ProcessHeaderComponent, ProcessHeaderService, TableConfiguration, ToastrImplService } from '@shared';
+import { ProcessHeaderComponent, ProcessHeaderService, TableConfiguration } from '@shared';
 import { ActionButtonComponent } from 'app/shared/components/buttons/action-button.component';
 import { BasicButtonComponent } from 'app/shared/components/buttons/basic-button.component';
 import { ProductIconsService } from 'app/shared/services/product-icon.service';
 import { CookieService } from 'ngx-cookie-service';
-import { catchError, map, of, Subscription, switchMap, take, takeWhile, tap, timer } from 'rxjs';
+import { catchError, filter, map, of, Subscription, switchMap, take, takeWhile, tap, timer } from 'rxjs';
 import { TableComponent } from '../../../../shared/components/table/table.component';
 import handleApolloError from '../../../../shared/utils/apollo-error-handling';
 import { consumeUseCaseNotifications } from '../../../../shared/utils/notification.handling';
@@ -43,11 +43,16 @@ import {
 } from '../recovered-plasma-shipment-details-navbar/recovered-plasma-shipment-details-navbar.component';
 import { BrowserPrintingService } from '../../../../core/services/browser-printing/browser-printing.service';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { DEFAULT_PAGE_SIZE } from '../../../../core/models/browser-printing.model';
+import {
+    DEFAULT_PAGE_SIZE,
+    DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
+    DEFAULT_PAGE_SIZE_DIALOG_PORTRAIT_WIDTH
+} from '../../../../core/models/browser-printing.model';
 import {
     ViewShippingCartonPackingSlipComponent
 } from '../view-shipping-carton-packing-slip/view-shipping-carton-packing-slip.component';
 import { CartonPackingSlipDTO } from '../../graphql/query-definitions/generate-carton-packing-slip.graphql';
+import { ViewShippingSummaryComponent } from '../view-shipping-summary/view-shipping-summary.component';
 import { CloseShipmentDailogComponent } from '../close-shipment-dailog/close-shipment-dailog.component';
 import { GlobalMessageComponent } from 'app/shared/components/global-message/global-message.component';
 import { FuseAlertType } from '@fuse/components/alert/public-api';
@@ -55,6 +60,9 @@ import {
     UnacceptableProductsReportWidgetComponent
 } from '../../shared/unacceptable-products-report-widget/unacceptable-products-report-widget.component';
 import { RepackCartonDialogComponent } from '../repack-carton-dialog/repack-carton-dialog.component';
+import { ToastrService } from 'ngx-toastr';
+import { ShippingSummaryReportDTO } from '../../graphql/query-definitions/print-shipping-summary-report.graphql';
+import { FuseConfirmationService } from '@fuse/services/confirmation';
 
 @Component({
     selector: 'biopro-recovered-plasma-shipping-details',
@@ -137,12 +145,13 @@ export class RecoveredPlasmaShippingDetailsComponent
         protected store: Store,
         protected route: ActivatedRoute,
         protected router: Router,
-        protected toastr: ToastrImplService,
+        protected toastr: ToastrService,
         protected recoveredPlasmaService: RecoveredPlasmaService,
         protected cookieService: CookieService,
         protected productIconService: ProductIconsService,
         protected browserPrintingService: BrowserPrintingService,
         protected matDialog: MatDialog,
+        private fuseConfirmationService: FuseConfirmationService,
         @Inject(LOCALE_ID) public locale: string
     ) {
         super(
@@ -287,6 +296,34 @@ export class RecoveredPlasmaShippingDetailsComponent
         return shouldPrint && hasValidCartonId;
     }
 
+    openReportsDialog(): void {
+        let dialogRef: MatDialogRef<ViewShippingSummaryComponent, ShippingSummaryReportDTO>;
+        this.recoveredPlasmaService
+            .printShippingSummaryReport({
+                shipmentId: this.shipmentIdComputed(),
+                employeeId: this.employeeIdSignal(),
+                locationCode: this.locationCodeComputed()
+            })
+            .pipe(
+                catchError((error: ApolloError) => handleApolloError(this.toastr, error)),
+                tap(response => {
+                    if (response?.data?.printShippingSummaryReport?.notifications?.[0]?.type === 'SUCCESS') {
+                        dialogRef = this.matDialog
+                            .open(ViewShippingSummaryComponent, {
+                                id: 'ViewShippingSummaryDialog',
+                                width: DEFAULT_PAGE_SIZE_DIALOG_PORTRAIT_WIDTH,
+                                height: DEFAULT_PAGE_SIZE_DIALOG_HEIGHT,
+                                data: response.data?.printShippingSummaryReport?.data,
+                            });
+                        return dialogRef.afterOpened();
+                    }
+                    consumeUseCaseNotifications(this.toastr, response.data?.printShippingSummaryReport?.notifications);
+                    return of({});
+                }),
+            )
+            .subscribe();
+   }
+
     backToSearch() {
         this.router.navigate(['/recovered-plasma']);
     }
@@ -396,5 +433,53 @@ export class RecoveredPlasmaShippingDetailsComponent
                 });
             }
         })
+    }
+
+    // Opens remove carton confirmation dialog
+    removeCarton(id: number){
+        const dialogRef = this.fuseConfirmationService.open({
+            title: 'Remove Confirmation',
+            message: 'Carton will be removed. <b>Are you sure you want to continue?</b>',
+            dismissible: false,
+            icon: {
+                show: false,
+            },
+            actions: {
+                confirm: {
+                    label: 'Continue',
+                    class: 'bg-red-700 text-white',
+                },
+                cancel: {
+                    class: 'mat-secondary',
+                },
+            },
+        })
+        dialogRef.afterClosed()
+        .pipe(filter((value) => 'confirmed' === value)) 
+        .subscribe(() => {
+                this.recoveredPlasmaService
+                .removeLastCarton({
+                    cartonId: id,
+                    employeeId: this.employeeIdSignal(),
+                })
+                .pipe(
+                    catchError((error: ApolloError) => {
+                        handleApolloError(this.toastr, error);
+                    }),
+                    tap((response) =>
+                        consumeUseCaseNotifications(
+                            this.toastr,
+                            response.data.removeCarton.notifications
+                        )
+                    )
+                )
+                .subscribe((response) => {
+                    const res = response?.data?.removeCarton.notifications[0].type === 'SUCCESS';
+                    if(res){
+                        this.shipmentDetailsSignal.set(response.data.removeCarton.data);
+                    }
+                });
+        })
+
     }
 }

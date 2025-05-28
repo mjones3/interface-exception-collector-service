@@ -3,8 +3,10 @@ package com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.co
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.CloseShipmentRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.CreateShipmentRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.FindShipmentRequestDTO;
+import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.PrintShippingSummaryReportRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.PrintUnacceptableUnitReportRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.RecoveredPlasmaShipmentResponseDTO;
+import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.ShippingSummaryReportDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.UnacceptableUnitReportDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.UseCaseResponseDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.mapper.CommandRequestDTOMapper;
@@ -13,6 +15,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.map
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.CloseShipmentService;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.CreateShipmentService;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.RecoveredPlasmaShipmentService;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.ShippingSummaryReportService;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.UnacceptableUnitReportService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +36,7 @@ public class RecoveredPlasmaShippingController {
     private final UseCaseResponseMapper useCaseResponseDtoMapper;
     private final CloseShipmentService closeShipmentService;
     private final UnacceptableUnitReportService unacceptableUnitReportService;
+    private final ShippingSummaryReportService shippingSummaryReportService;
 
     @MutationMapping("createShipment")
     public Mono<UseCaseResponseDTO<RecoveredPlasmaShipmentResponseDTO>> createShipment(@Argument("createShipmentRequest") CreateShipmentRequestDTO createShipmentRequestDTO) {
@@ -60,5 +64,12 @@ public class RecoveredPlasmaShippingController {
         log.debug("Request to print Unacceptable Units Report for Shipment : {}", printUnacceptableUnitReportRequestDTO);
         return unacceptableUnitReportService.printUnacceptableUnitReport(commandRequestDTOMapper.toInputCommand(printUnacceptableUnitReportRequestDTO))
             .map(useCaseResponseDtoMapper::toUseCaseUnacceptableUnitReportDTO);
+    }
+
+    @QueryMapping("printShippingSummaryReport")
+    public Mono<UseCaseResponseDTO<ShippingSummaryReportDTO>> printShippingSummaryReport(@Argument("printShippingSummaryReportRequest") PrintShippingSummaryReportRequestDTO printShippingSummaryReportRequestDTO) {
+        log.debug("Request to print Shipping Summary Report for Shipment : {}", printShippingSummaryReportRequestDTO);
+        return shippingSummaryReportService.printShippingSummaryReport(commandRequestDTOMapper.toInputCommand(printShippingSummaryReportRequestDTO))
+            .map(useCaseResponseDtoMapper::toUseCaseShippingSummaryReportDTO);
     }
 }

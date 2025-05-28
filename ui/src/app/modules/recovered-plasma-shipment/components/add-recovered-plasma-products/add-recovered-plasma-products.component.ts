@@ -9,7 +9,6 @@ import {
     ProcessHeaderComponent,
     ProcessHeaderService,
     ScanUnitNumberCheckDigitComponent,
-    ToastrImplService,
 } from '@shared';
 import { ActionButtonComponent } from 'app/shared/components/buttons/action-button.component';
 import { ScanUnitNumberProductCodeComponent } from 'app/shared/components/scan-unit-number-product-code/scan-unit-number-product-code.component';
@@ -23,6 +22,7 @@ import { RecoveredPlasmaShipmentCommon } from '../../recovered-plasma-shipment.c
 import { RecoveredPlasmaService } from '../../services/recovered-plasma.service';
 import { ShippingCartonInformationCardComponent } from '../../shared/shipping-carton-information-card/shipping-carton-information-card.component';
 import { ShippingInformationCardComponent } from '../../shared/shipping-information-card/shipping-information-card.component';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
     selector: 'biopro-add-recovered-plasma-products',
@@ -61,7 +61,7 @@ export class AddRecoveredPlasmaProductsComponent
         protected router: Router,
         protected route: ActivatedRoute,
         protected store: Store,
-        protected toastr: ToastrImplService,
+        protected toastr: ToastrService,
         protected productIconService: ProductIconsService,
         protected recoveredPlasmaService: RecoveredPlasmaService,
         protected cookieService: CookieService

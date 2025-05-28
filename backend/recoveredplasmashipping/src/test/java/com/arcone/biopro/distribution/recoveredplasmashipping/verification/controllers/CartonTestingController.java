@@ -6,8 +6,10 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.verification.suppo
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.SharedContext;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.graphql.GraphQLMutationMapper;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.graphql.GraphQLQueryMapper;
+import io.cucumber.spring.ScenarioScope;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -16,6 +18,7 @@ import java.util.Map;
 
 @Component
 @Slf4j
+@ScenarioScope
 public class CartonTestingController {
 
     @Autowired
@@ -24,6 +27,9 @@ public class CartonTestingController {
     private SharedContext sharedContext;
     @Autowired
     private DatabaseService databaseService;
+
+    @Value("${default.employee.id}")
+    private String employeeId;
 
     public Map createCarton(String shipmentId) {
         String payload = GraphQLMutationMapper.createCarton(shipmentId);
@@ -146,5 +152,11 @@ public class CartonTestingController {
             sharedContext.setPackedProductsList(packedProducts);
         }
         return response;
+    }
+
+    public void removeCarton(int cartonId) {
+        String payload = GraphQLMutationMapper.removeCarton(cartonId, employeeId);
+        var response = apiHelper.graphQlRequest(payload, "removeCarton");
+        sharedContext.setLastRemoveCartonResponse((Map) response.get("data"));
     }
 }

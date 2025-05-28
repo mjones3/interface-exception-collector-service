@@ -13,8 +13,8 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Carto
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Inventory;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.InventoryValidation;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.vo.PackingSlipShipFrom;
-import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.vo.PackingSlipShipTo;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.vo.PackingSlipShipment;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.vo.ShipTo;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -49,6 +49,7 @@ class CartonOutputMapperTest {
             Mockito.when(carton.canClose()).thenReturn(true);
             Mockito.when(carton.canVerify()).thenReturn(true);
             Mockito.when(carton.canPrint()).thenReturn(true);
+            Mockito.when(carton.isCanRemove()).thenReturn(true);
 
             CartonItem cartonItem = Mockito.mock(CartonItem.class);
             Mockito.when(cartonItem.getStatus()).thenReturn("VERIFIED");
@@ -64,6 +65,7 @@ class CartonOutputMapperTest {
             assertTrue(result.canPrint());
             assertNotNull(result.verifiedProducts());
             assertTrue(result.verifiedProducts().size() > 0);
+            assertTrue(result.canRemove());
         }
 
 
@@ -161,7 +163,7 @@ class CartonOutputMapperTest {
 
 
 
-            PackingSlipShipTo shipTo = Mockito.mock(PackingSlipShipTo.class);
+            ShipTo shipTo = Mockito.mock(ShipTo.class);
             Mockito.when(shipTo.getFormattedAddress()).thenReturn("456 Dest St");
             Mockito.when(cartonPackingSlip.getShipTo()).thenReturn(shipTo);
 

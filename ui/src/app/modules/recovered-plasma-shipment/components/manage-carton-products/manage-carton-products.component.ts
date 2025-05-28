@@ -2,7 +2,7 @@ import { Component, OnInit, signal, ViewChild } from '@angular/core';
 import { RecoveredPlasmaShipmentCommon } from '../../recovered-plasma-shipment.common';
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { MatDividerModule } from '@angular/material/divider';
-import { ProcessHeaderComponent, ProcessHeaderService, ScanUnitNumberCheckDigitComponent, ToastrImplService } from '@shared';
+import { ProcessHeaderComponent, ProcessHeaderService, ScanUnitNumberCheckDigitComponent } from '@shared';
 import { ActionButtonComponent } from 'app/shared/components/buttons/action-button.component';
 import { ScanUnitNumberProductCodeComponent } from 'app/shared/components/scan-unit-number-product-code/scan-unit-number-product-code.component';
 import { UnitNumberCardComponent } from 'app/shared/components/unit-number-card/unit-number-card.component';
@@ -33,6 +33,7 @@ import { UseCaseNotificationDTO } from 'app/shared/models/use-case-response.dto'
 import { VerifyCartonItemsDTO } from '../../graphql/mutation-definitions/verify-products.graphql';
 import { AddRecoveredPlasmaProductsComponent } from '../add-recovered-plasma-products/add-recovered-plasma-products.component';
 import { CloseCartonDTO } from '../../graphql/mutation-definitions/close-carton.graphql';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'biopro-manage-carton-products',
@@ -81,7 +82,7 @@ implements OnInit {
     protected router: Router,
     protected route: ActivatedRoute,
     protected store: Store,
-    protected toastr: ToastrImplService,
+    protected toastr: ToastrService,
     protected productIconService: ProductIconsService,
     protected recoveredPlasmaService: RecoveredPlasmaService,
     protected cookieService: CookieService,

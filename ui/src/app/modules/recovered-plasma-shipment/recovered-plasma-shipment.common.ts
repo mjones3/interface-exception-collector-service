@@ -13,6 +13,7 @@ import { consumeUseCaseNotifications } from '../../shared/utils/notification.han
 import { FindShipmentRequestDTO } from './graphql/query-definitions/shipmentDetails.graphql';
 import { RecoveredPlasmaShipmentResponseDTO } from './models/recovered-plasma.dto';
 import { RecoveredPlasmaService } from './services/recovered-plasma.service';
+import { ToastrService } from 'ngx-toastr';
 
 export class RecoveredPlasmaShipmentCommon {
 
@@ -31,7 +32,7 @@ export class RecoveredPlasmaShipmentCommon {
         protected router: Router,
         protected store: Store,
         protected recoveredPlasmaService: RecoveredPlasmaService,
-        protected toastr: ToastrImplService,
+        protected toastr: ToastrService,
         protected productIconService: ProductIconsService,
         protected cookieService: CookieService
     ) {

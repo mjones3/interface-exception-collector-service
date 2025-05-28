@@ -185,4 +185,24 @@ public class GraphQLMutationMapper {
             """, cartonId, employeeId, locationCode , comments);
         }
     }
+
+    public static String removeCarton(int cartonId, String employeeId) {
+        return String.format("""
+            mutation RemoveCarton {
+                removeCarton(removeCartonRequest: { cartonId: %s, employeeId: "%s" }) {
+                    _links
+                    data
+                    notifications {
+                        message
+                        type
+                        code
+                        action
+                        reason
+                        details
+                        name
+                    }
+                }
+            }
+            """, cartonId, employeeId);
+    }
 }

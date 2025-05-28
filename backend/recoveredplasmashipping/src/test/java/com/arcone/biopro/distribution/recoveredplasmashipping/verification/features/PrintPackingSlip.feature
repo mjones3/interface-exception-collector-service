@@ -104,4 +104,31 @@ Feature: Carton Packing Slip Printing
                 | USE_TRANSPORTATION_NUMBER | N                          | displayTransportationReferenceNumber | Transportation Reference Number | should not        | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>    | DIS-343                         | 123456789     | 2                       | W036898786808,W036898786809 | E2488V00, E2488V00 | RP_FROZEN_WITHIN_120_HOURS, RP_FROZEN_WITHIN_120_HOURS |
                 | USE_LICENSE_NUMBER        | N                          | displayLicenceNumber                 | License number                  | should not        | 409           | RP_NONINJECTABLE_LIQUID_RT | 1000               | <tomorrow>    | DIS-343                         | 123456789     | 2                       | W036898786808,W036898786809 | E2488V00, E2488V00 | RP_FROZEN_WITHIN_120_HOURS, RP_FROZEN_WITHIN_120_HOURS |
 
+        Scenario: Reset default configurations
+            Given I have reset the shipment product criteria to have the following values:
+                | recovered_plasma_shipment_criteria_id | type                    | value | message                                   | message_type |
+                | 1                                     | MINIMUM_VOLUME          | 165   | Product Volume does not match criteria    | WARN         |
+                | 2                                     | MINIMUM_VOLUME          | 200   | Product Volume does not match criteria    | WARN         |
+                | 1                                     | MAXIMUM_UNITS_BY_CARTON | 20    | Maximum number of products exceeded       | WARN         |
+                | 2                                     | MAXIMUM_UNITS_BY_CARTON | 20    | Maximum number of products exceeded       | WARN         |
+                | 3                                     | MAXIMUM_UNITS_BY_CARTON | 30    | Maximum number of products exceeded       | WARN         |
+                | 4                                     | MAXIMUM_UNITS_BY_CARTON | 20    | Maximum number of products exceeded       | WARN         |
+                | 5                                     | MAXIMUM_UNITS_BY_CARTON | 20    | Maximum number of products exceeded       | WARN         |
+                | 6                                     | MAXIMUM_UNITS_BY_CARTON | 20    | Maximum number of products exceeded       | WARN         |
+                | 5                                     | MINIMUM_UNITS_BY_CARTON | 15    | Minimum number of products does not match | WARN         |
+                | 2                                     | MINIMUM_UNITS_BY_CARTON | 20    | Minimum number of products does not match | WARN         |
+                | 3                                     | MINIMUM_UNITS_BY_CARTON | 25    | Minimum number of products does not match | WARN         |
+                | 4                                     | MINIMUM_UNITS_BY_CARTON | 15    | Minimum number of products does not match | WARN         |
+                | 1                                     | MINIMUM_UNITS_BY_CARTON | 20    | Minimum number of products does not match | WARN         |
+                | 6                                     | MINIMUM_UNITS_BY_CARTON | 15    | Minimum number of products does not match | WARN         |
+            And I have reset the carton packing slip system configurations following values:
+                | system_configuration_key  | system_configuration_value                                            | process_type            |
+                | TESTING_STATEMENT_TXT     | Products packed, inspected and found satisfactory by: {employeeName}  | RPS_CARTON_PACKING_SLIP |
+                | USE_SIGNATURE             | Y                                                                     | RPS_CARTON_PACKING_SLIP |
+                | USE_TRANSPORTATION_NUMBER | Y                                                                     | RPS_CARTON_PACKING_SLIP |
+                | USE_LICENSE_NUMBER        | Y                                                                     | RPS_CARTON_PACKING_SLIP |
+                | USE_TESTING_STATEMENT     | Y                                                                     | RPS_CARTON_PACKING_SLIP |
+
+
+
 

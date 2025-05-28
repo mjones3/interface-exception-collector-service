@@ -23,15 +23,26 @@
                 (clickEvent)="backToSearch()"
             />
 
+            @if(shipmentDetailsSignal()?.canClose) {
             <biopro-action-button
                 id="completeId"
                 btnId="closeShipmentBtnId"
-                [disabled]="!shipmentDetailsSignal()?.canClose"
                 label="Close Shipment"
                 color="primary"
                 icon="check_circle_outline"
                 (clickEvent)="onClickCloseShipment()"
-        />
+            />
+            }
+            @if (shipmentDetailsSignal()?.status === 'CLOSED') {
+            <biopro-action-button
+                id="reportsDialogActionBtn"
+                btnId="reportsDialogBtnId"
+                label="Reports"
+                color="primary"
+                icon="heroicons_outline:document-arrow-down"
+                (clickEvent)="openReportsDialog()"
+            />
+            }
         </div>
     </ng-template>
 
@@ -52,7 +63,7 @@
                         [disabled]="!shipmentDetailsSignal()?.canModify"
                         color="primary"
                         label="Add Carton"
-                        class="mat-primary-flat text-primary-900"
+                        class="mat-primary-action"
                         (buttonClicked)="addCarton()"
                     />
                 </div>
@@ -75,12 +86,15 @@
                 </span>
             </ng-template>
             <ng-template #actionsTemplateRef let-element="element">
+                <!--Edit Carton Button-->
                 @if (element?.status === 'OPEN') {
-                    <button id="editBtn" (click)="editCarton(element?.id)" class="button-mat-icon mt-2">
-                        <mat-icon>edit</mat-icon>
+                    <button id="editBtn" (click)="editCarton(element?.id)" class="button-mat-icon">
+                        <mat-icon
+                            [svgIcon]="'heroicons_outline:edit_square'"
+                        ></mat-icon>
                     </button>
                 }
-
+                <!--Repack Carton Button-->
                 @if (element?.status === 'REPACK') {
                     <biopro-basic-button
                         id="repackCartonBtn"
@@ -90,10 +104,23 @@
                         (buttonClicked)="repackCarton(element?.id)"
                     />
                 }
-
+                <!--Print carton packing slip Button-->
                 @if (element?.canPrint) {
                     <button data-testid="view-shipping-carton-packing-slip" (click)="printCarton($event, element?.id)" class="button-mat-icon">
                         <mat-icon>print</mat-icon>
+                    </button>
+                }
+                <!--Remove carton Button-->
+                @if (element?.canRemove) {
+                    <button 
+                        [id]="'removeCarton' + element.id"
+                        data-testid="remove-carton" 
+                        (click)="removeCarton(element?.id)" 
+                        class="button-remove-mat-icon"
+                    >
+                        <mat-icon
+                        [svgIcon]="'heroicons_outline:delete'"
+                    ></mat-icon>
                     </button>
                 }
             </ng-template>
@@ -130,14 +157,16 @@
 
 
         <div class="flex w-3/12 flex-col gap-4">
+            @if (shipmentDetailsSignal()?.status === 'PROCESSING' || shipmentDetailsSignal()?.lastUnsuitableReportRunDate) {
             <biopro-unacceptable-products-report-widget
                 [loading]="shipmentDetailsSignal()?.status === 'PROCESSING'"
                 [shipment]="shipmentDetailsSignal()"
                 [employeeId]="employeeIdSignal()"
                 [locationCode]="locationCodeComputed()"
             />
+            }
             <biopro-shipping-information-card
-                [isButtonDisabled]="!shipmentDetailsSignal()?.canModify"
+                [isButtonDisabled]="true"
                 [showBasicButton]="true"
                 [shippingInput]="shipmentDetailsSignal()"
             />

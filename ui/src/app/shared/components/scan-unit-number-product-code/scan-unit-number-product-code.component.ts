@@ -98,10 +98,12 @@ export class ScanUnitNumberProductCodeComponent implements OnDestroy {
         return this.unitProductGroup.controls['productCode'];
     }
 
-    enableProductCode(): void {
+    enableProductCode(): void {        
         if (this.unitProductGroup.controls.unitNumber.valid) {
             this.unitProductGroup.controls.productCode.enable();
-            this.focusProductCode();
+            requestAnimationFrame(() => {
+                this.focusProductCode();
+            });        
         } else {
             this.unitProductGroup.controls.productCode.disable();
             this.unitProductGroup.controls.productCode.reset();

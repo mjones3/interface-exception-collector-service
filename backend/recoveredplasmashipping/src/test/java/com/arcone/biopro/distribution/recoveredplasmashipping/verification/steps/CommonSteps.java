@@ -6,6 +6,7 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
+import org.openqa.selenium.By;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -74,7 +75,12 @@ public class CommonSteps {
     }
 
     @And("The system process the unacceptable units report.")
-    public void theSystemProcessTheUnacceptableUnitsReport() throws InterruptedException {
-        Thread.sleep(reportWaitingTime);
+    public void theSystemProcessTheUnacceptableUnitsReport() {
+        sharedActions.waitForNotVisible(By.id("loading-spinner"));
+    }
+
+    @Then("I should see a {string} acknowledgment message: {string}.")
+    public void iShouldSeeADialog(String title, String message) {
+        sharedActions.verifyAcknowledgment(title, message);
     }
 }

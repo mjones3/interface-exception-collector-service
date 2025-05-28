@@ -11,4 +11,5 @@ public interface CartonItemRepository {
     Mono<CartonItem> findByCartonAndProduct(Long cartonId, String unitNumber , String productCode);
     Mono<Void> deleteAllByCartonId(Long cartonId);
     Flux<CartonItem> findAllByShipmentId(Long shipmentId);
+    Mono<CartonItem> findOneByShipmentIdAndProduct(Long shipmentId ,String unitNumber , String productCode );
 }

@@ -30,7 +30,6 @@ public class AddCartonProductsSteps {
     @Autowired
     private CartonTestingController cartonTestingController;
 
-
     @Given("I should be redirected to the Manage Carton Products page.")
     public void iShouldBeRedirectedToTheAddCartonProductsPage() {
         manageCartonPage.waitForLoad();
