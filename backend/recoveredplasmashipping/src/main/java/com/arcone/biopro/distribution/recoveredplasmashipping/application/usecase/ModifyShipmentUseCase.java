@@ -39,12 +39,14 @@ public class ModifyShipmentUseCase implements ModifyShipmentService {
     @Transactional
     public Mono<UseCaseOutput<RecoveredPlasmaShipmentOutput>> modifyShipment(ModifyShipmentCommandInput modifyShipmentCommandInput) {
         return Mono.fromCallable(() -> modifyShipmentInputMapper.toModifyCommand(modifyShipmentCommandInput))
-            .subscribeOn(Schedulers.boundedElastic())
             .flatMap(modifyCommand -> recoveredPlasmaShippingRepository.findOneById(modifyCommand.getShipmentId())
+            .publishOn(Schedulers.boundedElastic())
             .switchIfEmpty(Mono.error(() -> new DomainNotFoundForKeyException(String.format("%s", modifyCommand.getShipmentId()))))
                 .flatMap(recoveredPlasmaShipment -> Mono.fromSupplier(() -> recoveredPlasmaShipment.modifyShipment(modifyCommand,customerService,recoveredPlasmaShipmentCriteriaRepository)))
-                .flatMap(recoveredPlasmaShipment -> recoveredPlasmaShippingRepository.createShipmentHistory(recoveredPlasmaShipment.getShipmentHistory())
-                    .then(recoveredPlasmaShippingRepository.update(recoveredPlasmaShipment)))
+                .flatMap(recoveredPlasmaShipment -> {
+                    return recoveredPlasmaShippingRepository.createShipmentHistory(recoveredPlasmaShipment.getShipmentHistory())
+                        .flatMap(shipmentHistory -> recoveredPlasmaShippingRepository.update(recoveredPlasmaShipment));
+                })
                 .flatMap(modifiedShipment -> {
                     return Mono.just(new UseCaseOutput<>(List.of(UseCaseNotificationOutput
                         .builder()

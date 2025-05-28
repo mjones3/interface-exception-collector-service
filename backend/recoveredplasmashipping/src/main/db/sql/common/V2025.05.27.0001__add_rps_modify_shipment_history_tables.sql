@@ -13,5 +13,4 @@ COMMENT ON COLUMN recoveredplasmashipping.bld_recovered_plasma_shipment_history.
 COMMENT ON COLUMN recoveredplasmashipping.bld_recovered_plasma_shipment_history.create_employee_id IS 'Employee ID who made the change';
 COMMENT ON COLUMN recoveredplasmashipping.bld_recovered_plasma_shipment_history.create_date IS 'Date the history was created';
 
-
-
+ALTER TABLE recoveredplasmashipping.bld_recovered_plasma_shipment ALTER COLUMN carton_tare_weight DROP NOT NULL;

@@ -234,10 +234,6 @@ public class RecoveredPlasmaShipment implements Validatable {
             throw new IllegalArgumentException("Status is required");
         }
 
-        if (this.cartonTareWeight == null) {
-            throw new IllegalArgumentException("Carton tare weight is required");
-        }
-
         if (this.unsuitableUnitReportDocumentStatus != null && lastUnsuitableReportRunDate == null) {
             throw new IllegalArgumentException("Last run date is required");
         }

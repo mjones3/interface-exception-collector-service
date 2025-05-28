@@ -540,22 +540,6 @@ class RecoveredPlasmaShipmentTest {
     }
 
     @Test
-    void checkValid_WithNullCartonTareWeight_ShouldThrowException() {
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-            () -> RecoveredPlasmaShipment.fromRepository(
-                1L, "locationCode", "productType", "123", "status", "createEmployeeId",
-                "closeEmployeeId", ZonedDateTime.now(), "transportationReferenceNumber",
-                LocalDate.now(), null, "unsuitableUnitReportDocumentStatus",
-                "customerCode", "customerName", "customerState", "customerPostalCode", "customerCountry",
-                "customerCountryCode", "customerCity", "customerDistrict", "customerAddressLine1",
-                "customerAddressLine2", "customerAddressContactName", "customerAddressPhoneNumber",
-                "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(), ZonedDateTime.now(),null
-            ));
-        assertEquals("Carton tare weight is required", exception.getMessage());
-    }
-
-
-    @Test
     void checkValid_WithLastRunDateNull_ShouldThrowException() {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
             () ->RecoveredPlasmaShipment.fromRepository(
