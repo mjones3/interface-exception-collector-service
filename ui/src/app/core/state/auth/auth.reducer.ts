@@ -1,5 +1,6 @@
 import { Action, createReducer, on } from '@ngrx/store';
 import * as AuthActions from './auth.actions';
+import { KeycloakProfile } from 'keycloak-js';
 
 export const AUTH_FEATURE_KEY = 'auth';
 
@@ -7,7 +8,7 @@ export interface AuthState {
   id?: string;
   loaded: boolean; // has the Auth list been loaded
   error?: string | null; // last known error (if any)
-  user?: Keycloak.KeycloakProfile; // Logged in user
+  user?: KeycloakProfile; // Logged in user
   accessToken?: string; // Access Token
 }
 
