@@ -47,4 +47,9 @@ public class CartonItemRepositoryImpl implements CartonItemRepository {
         return cartonItemEntityRepository.findByShipmentIdAndProduct(shipmentId,unitNumber,productCode)
             .map(cartonItemEntityMapper::entityToModel);
     }
+
+    @Override
+    public Mono<Void> deleteOneById(Long cartonItemId) {
+        return cartonItemEntityRepository.deleteById(cartonItemId);
+    }
 }

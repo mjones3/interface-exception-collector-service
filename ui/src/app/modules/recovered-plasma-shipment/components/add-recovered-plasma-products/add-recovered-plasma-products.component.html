@@ -12,19 +12,49 @@
         class="mb-4 flex flex-col px-4 pb-4"
         id="filledProduct-container"
     >
-        <div class="mb-2 mt-2 flex flex-row justify-between">
-            <div class="flex items-center text-lg font-bold">
-                <span>
-                    Added Products (
-                    <span id="numberOfProductsAdded">{{
-                        cartonDetails()?.packedProducts?.length
-                    }}</span>
-                    of
-                    <span id="prodQtyId">{{
-                        cartonDetails()?.maxNumberOfProducts
-                    }}</span
-                    >)
-                </span>
+        <div class="mt-2 flex flex-row justify-between">
+            <div class="flex flex-col p-2">
+                <div>
+                    <span class="font-bold text-lg">
+                        Added Products (<span id="numberOfProductsAdded">{{
+                            cartonDetails()?.packedProducts?.length
+                        }}</span>/<span id="prodQtyId">{{
+                            cartonDetails()?.maxNumberOfProducts
+                        }}</span
+                        >)
+                    </span>
+                </div>
+                @if (selectedProducts.length > 0) {
+                    <div>
+                       <span class="text-lg text-gray-400"> {{ selectedProducts.length}}
+                        selected</span>
+                    </div>
+                }
+            </div>
+            <div class="flex flex-row gap-5 p-2">
+                <biopro-basic-button
+                    id="select-all-btn"
+                    [label]="
+                        selectAllTextRule
+                            ? 'Select All'
+                            : 'Unselect All'
+                    "
+                    [disabled]="numberOfProducts === 0"
+                    color="primary"
+                    class="text-primary"
+                    (buttonClicked)="selectAllProducts()"
+                >
+                </biopro-basic-button>
+
+                <biopro-basic-button
+                    id="remove-btn"
+                    label="Remove"
+                    class="text-accent"
+                    [disabled]="numberOfSelectedProducts === 0"
+                    color="secondary"
+                    (buttonClicked)="removeSelectedProducts()"
+                >
+                </biopro-basic-button>
             </div>
         </div>
         <mat-divider></mat-divider>
@@ -41,7 +71,8 @@
                     class="max-h-24"
                     [unitNumber]="option.unitNumber"
                     [productName]="option.productCode"
-                    [disableActive]="false"
+                    [active]="selectedProducts.includes(option)"
+                    (clickEvent)="toggleProduct(option)"
                     [iconName]="getItemIcon(option.productType)"
                 ></biopro-unit-number-card>
             }

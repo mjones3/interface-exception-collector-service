@@ -10,6 +10,7 @@ import { ToastrModule } from 'ngx-toastr';
 import { of } from 'rxjs';
 import { OrderService } from '../../../services/order.service';
 import { SearchOrderFilterComponent } from './search-order-filter.component';
+import { AuthState } from 'app/core/state/auth/auth.reducer';
 
 const SINGLE_SEARCH_FILTER_KEYS: string[] = ['orderNumber'];
 
@@ -17,6 +18,11 @@ describe('SearchOrderFilterComponent', () => {
     let component: SearchOrderFilterComponent;
     let fixture: ComponentFixture<SearchOrderFilterComponent>;
     let orderService: OrderService;
+
+    const initialState: AuthState = {
+        id: 'mock-user-id',
+        loaded: true,
+    };
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
@@ -28,7 +34,7 @@ describe('SearchOrderFilterComponent', () => {
             ],
             providers: [
                 provideHttpClient(),
-                provideMockStore({}),
+                provideMockStore({initialState }),
                 Apollo,
                 {
                     provide: ActivatedRoute,

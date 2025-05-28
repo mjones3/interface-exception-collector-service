@@ -3,8 +3,9 @@ import { Apollo, ApolloBase, MutationResult } from 'apollo-angular';
 import { Observable } from 'rxjs';
 import type { DocumentNode } from 'graphql/index';
 import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
-import { EmptyObject } from 'apollo-angular/types';
 import { ApolloQueryResult, OperationVariables, QueryOptions, MutationOptions } from '@apollo/client';
+
+export type EmptyObject = Record<string, any>;
 
 @Injectable({
     providedIn: 'root',

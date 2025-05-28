@@ -21,6 +21,9 @@ import { ManageCartonComponent } from './manage-carton-products.component';
 import { By } from '@angular/platform-browser';
 import { ApolloQueryResult } from '@apollo/client';
 import { UseCaseResponseDTO } from 'app/shared/models/use-case-response.dto';
+import { VerifyProductsComponent } from 'app/modules/shipments/verify-products/verify-products.component';
+
+jest.mock('keycloak-js');
 
 // Mock child components
 @Component({
@@ -54,6 +57,10 @@ describe('ManageCartonComponent', () => {
   let store: MockStore;
   let activatedRoute: ActivatedRoute;
   let headerService: ProcessHeaderService;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
   // Mock data
   const mockCartonData: CartonDTO = {
@@ -137,7 +144,8 @@ describe('ManageCartonComponent', () => {
             addCartonProducts: jest.fn(),
             verifyCartonProducts: jest.fn(),
             displayNotificationMessage: jest.fn(),
-            handleInfoNotificationAndDiscard: jest.fn()
+            handleInfoNotificationAndDiscard: jest.fn(),
+            removeCartonItems: jest.fn()
           }
         },
         {
@@ -541,4 +549,62 @@ const mockResponseCloseCarton = {
     expect(router.navigateByUrl).not.toHaveBeenCalled();
   });
 })
+
+it('should remove selected products when user choose remove option', () => {
+  const mockCartonDetails =  {
+        id : 1,
+        cartonNumber : "BPMMH11",
+        shipmentId : 1,
+        cartonSequence : 1,
+        packedProducts : [ {
+          id : 11,
+          cartonId : '1',
+          unitNumber : "W036898786801",
+          productCode : "E2534V00",
+          productDescription : "CPD PLS MI 24H",
+          verifiedProducts : [ 
+            {
+              id : 11,
+              cartonId : '1',
+              unitNumber : "W036898786801",
+              productCode : "E2534V00",
+              productDescription : "CPD PLS MI 24H"
+            }
+          ]
+        } ],
+  };
+
+
+  const removeItemsResponse =  {
+    removeCartonItems : {
+      notifications : [ {
+        message : "Products successfully removed",
+        type : "SUCCESS",
+        code : 25
+      } ],
+      data : {
+        id : 1,
+        packedProducts : [],
+        verifiedProducts : []
+      }
+    }
+  } as any;
+
+  const removeReq = {
+    cartonId: 123,
+    employeeId: 'EMP123',
+    cartonItemIds: [11],
+  }
+
+  component.setCartonDetails(mockCartonDetails);
+  const spyService = jest.spyOn(service, 'removeCartonItems').mockReturnValue(of(removeItemsResponse));
+
+  component.removeCartonProducts([11]);
+  fixture.detectChanges();
+  expect(spyService).toHaveBeenCalled();
+  expect(toastr.show).toHaveBeenCalled();
+  expect(component.cartonDetailsSignal().packedProducts).toEqual(removeItemsResponse.removeCartonItems.data.packedProducts);
+  expect(spyService).toHaveBeenCalledWith(removeReq);
+  expect(removeItemsResponse.removeCartonItems.data.verifiedProducts).toStrictEqual([]);
+  });
 });

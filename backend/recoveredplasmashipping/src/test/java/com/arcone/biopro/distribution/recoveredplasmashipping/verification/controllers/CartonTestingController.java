@@ -150,6 +150,8 @@ public class CartonTestingController {
             sharedContext.setLastCartonResponse((Map) response.get("data"));
             var packedProducts = (List) ((Map) response.get("data")).get("packedProducts");
             sharedContext.setPackedProductsList(packedProducts);
+            var verifiedProducts = (List) ((Map) response.get("data")).get("verifiedProducts");
+            sharedContext.setVerifiedProductsList(verifiedProducts);
         }
         return response;
     }
@@ -158,5 +160,11 @@ public class CartonTestingController {
         String payload = GraphQLMutationMapper.removeCarton(cartonId, employeeId);
         var response = apiHelper.graphQlRequest(payload, "removeCarton");
         sharedContext.setLastRemoveCartonResponse((Map) response.get("data"));
+    }
+
+    public void removeCartonItem(int cartonId, List<Integer> cartonProductToRemoveIds) {
+        String payload = GraphQLMutationMapper.removeCartonItems(cartonId, employeeId, cartonProductToRemoveIds);
+        var response = apiHelper.graphQlRequest(payload, "removeCartonItems");
+        sharedContext.setLastRemoveCartonItemResponse((Map) response.get("data"));
     }
 }

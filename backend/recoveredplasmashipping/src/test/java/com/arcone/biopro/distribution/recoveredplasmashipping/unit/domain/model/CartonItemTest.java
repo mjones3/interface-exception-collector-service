@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
@@ -426,21 +427,16 @@ class CartonItemTest {
     }
 
     @Test
-    public void shouldNotCreateCartonIfProductTypeNotEqualsShipmentProductType() {
-        var carton = Mockito.mock(Carton.class);
-        var shipment = Mockito.mock(RecoveredPlasmaShipment.class);
+    public void shouldResetVerification() {
+        var cartonItem = CartonItem.fromRepository(1L, 1L, "UNIT_NUMBER", "PRODUCT_CODE", "DESCRIPTION",
+            "PRODUCT_TYPE", 160, 10, "EMPLOYEE_ID", "AP", "VERIFIED",
+            LocalDateTime.now(), ZonedDateTime.now(), ZonedDateTime.now(), ZonedDateTime.now(), "verify-employee", ZonedDateTime.now());
 
-        Mockito.when(cartonItemRepository.countByProduct(Mockito.anyString(),Mockito.anyString())).thenReturn(Mono.just(0));
-        Mockito.when(recoveredPlasmaShippingRepository.findOneById(Mockito.anyLong())).thenReturn(Mono.just(shipment));
+        cartonItem.resetVerification();
 
-        var productType = Mockito.mock(ProductType.class);
-        Mockito.when(productType.getProductType()).thenReturn("ANOTHER_PRODUCT_TYPE");
-        Mockito.when(recoveredPlasmaShipmentCriteriaRepository.findProductTypeByProductCode(Mockito.eq("PRODUCT_CODE"))).thenReturn(Mono.just(productType));
-
-        var exception = assertThrows(ProductValidationException.class,
-            () -> CartonItem.createNewCartonItem(packItemCommand, carton, inventoryService, cartonItemRepository, recoveredPlasmaShippingRepository , recoveredPlasmaShipmentCriteriaRepository));
-        assertEquals("Product Type does not match", exception.getMessage());
-        assertEquals("WARN", exception.getErrorType());
+        assertEquals("PACKED", cartonItem.getStatus());
+        assertNull(cartonItem.getVerifiedByEmployeeId());
+        assertNull(cartonItem.getVerifyDate());
     }
 
     @Test

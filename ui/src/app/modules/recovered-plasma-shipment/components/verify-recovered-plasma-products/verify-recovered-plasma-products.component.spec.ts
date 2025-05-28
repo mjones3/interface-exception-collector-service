@@ -11,6 +11,8 @@ import { ProductIconsService } from 'app/shared/services/product-icon.service';
 import { RecoveredPlasmaService } from '../../services/recovered-plasma.service';
 import { MatDividerModule } from '@angular/material/divider';
 
+jest.mock('keycloak-js');
+
 describe('VerifyRecoveredPlasmaProductsComponent', () => {
   let component: VerifyRecoveredPlasmaProductsComponent;
   let fixture: ComponentFixture<VerifyRecoveredPlasmaProductsComponent>;

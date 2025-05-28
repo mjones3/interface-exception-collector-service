@@ -48,7 +48,7 @@ public class RecoveredPlasmaShipmentProcessingUseCase {
            .flatMap(recoveredPlasmaShipment -> {
                return processCartonItems(recoveredPlasmaShipment)
                    .collectList()
-                   .flatMap(unacceptableUnitReportItemList -> recoveredPlasmaShippingRepository.update(recoveredPlasmaShipment.completeProcessing(unacceptableUnitReportItemList)));
+                   .flatMap(unacceptableUnitReportItemList -> recoveredPlasmaShippingRepository.update(recoveredPlasmaShipment.completeProcessing(unacceptableUnitReportItemList, recoveredPlasmaShipmentProcessingEvent.getPayload().getCloseEmployeeId())));
            }).doOnSuccess(recoveredPlasmaShipment -> {
                if("CLOSED".equals(recoveredPlasmaShipment.getStatus())){
                 log.debug("Publishing Recovered Plasma Shipment Closed event {}",recoveredPlasmaShipment);

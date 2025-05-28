@@ -154,7 +154,7 @@ public class CloseShipmentSteps {
 
     @And("The shipment status should be updated to {string}")
     public void theShipmentStatusShouldBeUpdatedTo(String shipmentStatus) {
-        Assertions.assertEquals(shipmentDetailsPage.getShipmentStatus(),shipmentStatus);
+        Assertions.assertEquals(shipmentStatus, shipmentDetailsPage.getShipmentStatus());
     }
 
     @And("I have a closed carton with the unit numbers as {string} and product codes as {string} and product types {string} which become unacceptable.")

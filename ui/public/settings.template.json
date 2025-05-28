@@ -1,6 +1,6 @@
 {
     "serverApiURL": "https://api.${DOMAIN}",
-    "agentApiURL": "https://${AGENT}",
+    "agentApiURL": "http://localhost:8282",
     "clientId": "distribution-client",
     "environment": "${ENVIRONMENT}",
     "url": "https://id.${DOMAIN}/auth",

@@ -13,6 +13,8 @@ import { VerifyFilledProductDto } from '../../models/shipment-info.dto';
 import { ShipmentService } from '../../services/shipment.service';
 import { EnterUnitNumberProductCodeComponent } from './enter-unit-number-product-code.component';
 
+jest.mock('keycloak-js');
+
 describe('EnterUnitNumberProductCodeComponent', () => {
     let component: EnterUnitNumberProductCodeComponent;
     let fixture: ComponentFixture<EnterUnitNumberProductCodeComponent>;

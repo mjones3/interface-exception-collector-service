@@ -30,3 +30,5 @@ spec:
               value: 'recoveredplasmashipping'
             - name: FLYWAY_LOCATIONS
               value: 'filesystem:/flyway/db/sql/common'
+            - name: FLYWAY_PLACEHOLDER_REPLACEMENT
+              value: "false"

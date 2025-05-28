@@ -15,6 +15,7 @@ import { of } from 'rxjs';
 import { AddRecoveredPlasmaProductsComponent } from './add-recovered-plasma-products.component';
 import { RecoveredPlasmaService } from '../../services/recovered-plasma.service';
 import { CartonDTO, CartonPackedItemResponseDTO } from '../../models/recovered-plasma.dto';
+import { By } from '@angular/platform-browser';
 
 describe('AddRecoveredPlasmaProductsComponent', () => {
     let component: AddRecoveredPlasmaProductsComponent;
@@ -266,5 +267,61 @@ describe('AddRecoveredPlasmaProductsComponent', () => {
         });
         expect(component.maxProductsComputed()).toBe(30);
         expect(component.minProductsComputed()).toBe(5);
+    });
+
+    it('should increment selected units card length', () => {
+        const products = {
+            unitNumber: 'W036898786811',
+            productCode: 'E4701V00'
+        };
+        component.selectedProducts = [];
+        component.toggleProduct(products);
+        fixture.detectChanges();
+        expect(component.selectedProducts.length).toBe(1);
+    });
+
+    it('should decrement selected units card length from selectedProducts', () => {
+        const products = {
+            unitNumber: 'W036898786811',
+            productCode: 'E4701V00',
+        };
+        component.selectedProducts = [];
+        component.toggleProduct(products);
+        fixture.detectChanges();
+        expect(component.selectedProducts.length).toBe(1);
+        component.toggleProduct(products);
+        fixture.detectChanges();
+        expect(component.selectedProducts.length).toBe(0);
+    });
+
+    it('should enable selecte all button when at least one product is added on the list', () => {
+        component.cartonDetails().packedProducts = [{}];
+        fixture.detectChanges();
+        const selectAllBtn = fixture.debugElement.query(
+            By.css('#select-all-btn')
+        ).nativeElement;
+        expect(selectAllBtn.disabled).toBeFalsy();
+    });
+
+    it('should enable remove button when at least one product is selected', () => {
+        component.selectedProducts = [
+            {
+                unitNumber: 'W12121212121',
+                productCode: 'E121212V44',
+            },
+        ];
+        fixture.detectChanges();
+        const selectAllBtn = fixture.debugElement.query(
+            By.css('#remove-btn')
+        ).nativeElement;
+        expect(selectAllBtn.disabled).toBeFalsy();
+    });
+
+
+    it('should emit removeCartonProducts', () => {
+        const emitSpy = jest.spyOn(component.removeCartonProducts, 'emit');
+        fixture.detectChanges();
+        component.removeSelectedProducts();
+        expect(emitSpy).toHaveBeenCalled();
     });
 });
