@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.inventory.verification.steps;
 
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.imported.ProductsImportedMessage;
 import com.arcone.biopro.distribution.inventory.application.dto.*;
 import com.arcone.biopro.distribution.inventory.application.usecase.*;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ShipmentType;
@@ -39,6 +40,8 @@ public class UseCaseSteps {
     private final ShipmentCompletedUseCase shipmentCompletedUseCase;
 
     private final ProductCreatedUseCase productCreatedUseCase;
+
+    private final ProductsImportedUseCase productImportedUseCase;
 
     private final CheckInCompletedUseCase checkInCompletedUseCase;
 
@@ -168,6 +171,21 @@ public class UseCaseSteps {
         }
     }
 
+    @When("I received a Product Imported event for the following products:")
+    public void iReceivedAProductImportedEventForTheFollowingProducts(DataTable dataTable) throws InterruptedException {
+        List<Map<String, String>> products = dataTable.asMaps(String.class, String.class);
+        for (Map<String, String> product : products) {
+            String unitNumber = product.get("Unit Number");
+            String productCode = product.get("Product Code");
+
+
+
+            ProductCreatedInput productCreatedInput = inventoryUtil.newProductCreatedInput(unitNumber, productCode, List.of(), false);
+            productImportedUseCase.execute(ProductsImportedInput.builder().products(List.of(productCreatedInput)).build()).block();
+            logMonitor.await("Product converted.*");
+        }
+    }
+
     @When("I received a CheckIn Completed event for the following products:")
     public void iReceivedACheckInCompletedEventForTheFollowingProducts(DataTable dataTable) {
         List<Map<String, String>> products = dataTable.asMaps(String.class, String.class);
@@ -267,7 +285,7 @@ public class UseCaseSteps {
             .build();
         recoveredPlasmaCartonRemovedUseCase.execute(input).block();
     }
-    
+
     @When("I received a Recovered Plasma Carton Unpacked Event for carton number {string}")
     public void iReceivedRecoveredPlasmaCartonUnpacked(String cartonNumber, DataTable dataTable) {
 

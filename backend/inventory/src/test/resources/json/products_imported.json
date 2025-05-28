@@ -1,0 +1,41 @@
+{
+  "eventId": "2eb7c47e-034b-4a44-8119-984cce80aed3",
+  "eventType": "ProductsImported",
+  "eventVersion": "1.0",
+  "occurredOn": "2025-05-13T15:06:40.284945111Z",
+  "payload": {
+    "locationCode": "123456789_DIS356",
+    "createEmployeeId": "4c973896-5761-41fc-8217-07c5d13a004b",
+    "temperatureCategory": "FROZEN",
+    "createDate": "2025-05-13T15:06:38.880074Z",
+    "temperature": 10,
+    "temperatureUnit": "celcius",
+    "transitTime": 15,
+    "thermometerCode": "",
+    "comments": "",
+    "products": [
+      {
+        "unitNumber": "W036898356800",
+        "productCode": "E6022V00",
+        "productFamily": "RP_FROZEN_WITHIN_120_HOURS",
+        "productDescription": "CP2D PLS MI 120H",
+        "aboRh": "AP",
+        "expirationDate": "2011-12-03T09:15:30Z",
+        "properties": {
+          "LICENSED": "true",
+          "VISUAL_INSPECTION": "SATISFACTORY",
+          "REGISTRATION_NUMBER":"132356-5656"
+        },
+        "consequences": [
+          {
+            "consequenceType": "QUARANTINE",
+            "consequenceReasons": [
+              "OTHER",
+              "HEMOLYSIS"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
