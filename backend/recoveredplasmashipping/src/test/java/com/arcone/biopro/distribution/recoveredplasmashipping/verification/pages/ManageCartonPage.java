@@ -35,6 +35,7 @@ public class ManageCartonPage extends CommonPageFactory {
     private final By closeCartonButton = By.id("closeCartonBtnId");
     private final By backShipmentDetailsBtn = By.id("backActionBtnId");
     private final By backSearchBtn = By.id("backToSearchBtnId");
+    private final By removeButton = By.id("remove-btn");
 
     private By addedProductCard(String unitNumber, String productCode) {
         return By.xpath(String.format("//biopro-unit-number-card//div[contains(text(),'%s')]/following-sibling::div/span[contains(text(),'%s')]", unitNumber, productCode));
@@ -135,5 +136,13 @@ public class ManageCartonPage extends CommonPageFactory {
         Thread.sleep(2000);
         sharedActions.pressEscOnSecondTab(driver);
         }
+    }
+
+    public void selectProduct(String unitNumber, String productCode) {
+        sharedActions.click(addedProductCard(unitNumber, productCode));
+    }
+
+    public void clickRemoveProducts() {
+        sharedActions.click(removeButton);
     }
 }

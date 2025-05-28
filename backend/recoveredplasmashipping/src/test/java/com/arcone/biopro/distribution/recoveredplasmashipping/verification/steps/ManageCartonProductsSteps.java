@@ -1,7 +1,6 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.verification.steps;
 
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.controllers.CartonTestingController;
-import com.arcone.biopro.distribution.recoveredplasmashipping.verification.controllers.CreateShipmentController;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.pages.ManageCartonPage;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.SharedContext;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.TestUtils;
@@ -17,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Map;
 
 @Slf4j
-public class AddCartonProductsSteps {
+public class ManageCartonProductsSteps {
 
     @Autowired
     private ManageCartonPage manageCartonPage;
@@ -115,14 +114,20 @@ public class AddCartonProductsSteps {
         }
     }
 
-    @Then("I should see the product in the packed/verified list with unit number {string} and product code {string}.")
-    public void iShouldSeeTheProductInThePackedListWithUnitNumberAndProductCode(String unitNumber, String productCode) {
+    @Then("I {string} see the product in the packed/verified list with unit number {string} and product code {string}.")
+    public void iShouldSeeTheProductInThePackedListWithUnitNumberAndProductCode(String option, String unitNumber, String productCode) {
         var unitList = testUtils.getCommaSeparatedList(unitNumber);
         var productList = testUtils.getCommaSeparatedList(productCode);
         Assert.assertEquals(unitList.length, productList.length);
 
         for (var i = 0; i > productList.length; i++) {
-            Assert.assertTrue(manageCartonPage.verifyProductIsPacked(testUtils.removeUnitNumberScanDigits(unitNumber), testUtils.removeProductCodeScanDigits(productCode)));
+            if (option.equals("should")) {
+                Assert.assertTrue(manageCartonPage.verifyProductIsPacked(testUtils.removeUnitNumberScanDigits(unitNumber), testUtils.removeProductCodeScanDigits(productCode)));
+            } else if (option.equals("should not")) {
+                Assert.assertFalse(manageCartonPage.verifyProductIsPacked(testUtils.removeUnitNumberScanDigits(unitNumber), testUtils.removeProductCodeScanDigits(productCode)));
+            } else {
+                Assert.fail("The option " + option + " is not valid.");
+            }
         }
     }
 
@@ -161,7 +166,7 @@ public class AddCartonProductsSteps {
         }
     }
 
-    @And("I have a {string} carton with the {string} unit numbers as {string} and product codes as {string} and product types {string}.")
+    @And("I have a(n) {string} carton with the {string} unit numbers as {string} and product codes as {string} and product types {string}.")
     public void iHaveACartonWithTheUnitNumbersAsAndProductCodesAsAndProductTypes(String cartonStatus, String unitStatus, String arg2unitNumbers, String productCodes, String productTypes) {
         String[] unitNumbersArray = testUtils.getCommaSeparatedList(arg2unitNumbers);
         String[] productCodesArray = testUtils.getCommaSeparatedList(productCodes);
@@ -183,5 +188,16 @@ public class AddCartonProductsSteps {
 
         }
         cartonTestingController.updateCartonStatus(cartonId, cartonStatus);
+    }
+
+    @When("I select the product {string} with product code {string}.")
+    public void iSelectTheProductWithProductCode(String unitNumber, String productCode) {
+        log.info("bp");
+        manageCartonPage.selectProduct(unitNumber, productCode);
+    }
+
+    @And("I choose to remove products from the carton.")
+    public void iChooseToRemoveProductsFromTheCarton() {
+        manageCartonPage.clickRemoveProducts();
     }
 }
