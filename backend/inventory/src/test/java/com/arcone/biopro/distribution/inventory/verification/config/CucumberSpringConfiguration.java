@@ -16,15 +16,16 @@ import org.springframework.test.context.TestPropertySource;
 @SpringBootTest(classes = BioProApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(locations = "classpath:application-test.properties")
 @ActiveProfiles("test")
-@EmbeddedKafka(partitions = 1,
+@EmbeddedKafka(
+    partitions = 1,
     brokerProperties = {
-        "listeners=PLAINTEXT://localhost:9099", "port=9099",
-        "port=9092",
-        // allow up to 500 MB messages
+        "num.io.threads=1",
+        "num.network.threads=1",
         "socket.request.max.bytes=524288000",
         "message.max.bytes=524288000",
         "replica.fetch.max.bytes=524288000"
-    })
+    }
+)
 public class CucumberSpringConfiguration {
 
     @Autowired
