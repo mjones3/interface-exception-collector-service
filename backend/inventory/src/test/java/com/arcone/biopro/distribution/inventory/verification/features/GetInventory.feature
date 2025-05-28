@@ -1,5 +1,5 @@
 # Feature Unit Number reference: W777725016000
-@api @LAB-440 @skipOnPipeline
+@api @LAB-440 @getInventory
 Feature: Get Inventory
 
     Scenario Outline: Inventory by Unit Number
