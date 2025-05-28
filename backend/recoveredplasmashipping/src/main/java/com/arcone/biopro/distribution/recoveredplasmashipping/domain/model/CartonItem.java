@@ -354,5 +354,13 @@ public class CartonItem implements Validatable {
             throw new ProductValidationException("The product code does not match the products in the carton",WARN_ERROR_TYPE);
         }
     }
+
+    public CartonItem resetVerification(){
+        this.status = PACKED_STATUS;
+        this.verifyDate = null;
+        this.verifiedByEmployeeId = null;
+        this.modificationDate = ZonedDateTime.now();
+        return this;
+    }
 }
 

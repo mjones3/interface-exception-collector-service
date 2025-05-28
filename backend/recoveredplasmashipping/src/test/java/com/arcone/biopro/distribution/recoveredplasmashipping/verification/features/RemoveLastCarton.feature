@@ -4,7 +4,6 @@ Feature: Remove Last Carton from Shipment
     Background:
         Given I have removed from the database all the configurations for the location "123456789_DIS357".
         And I have removed from the database all shipments which code contains with "DIS35700".
-        #And I have removed from the database all shipments from location "123456789_DIS357" with transportation ref number "DIS-357".
         And The location "123456789_DIS357" is configured with prefix "DIS_357", shipping code "DIS35700", carton prefix "BPM" and prefix configuration "Y".
 
 

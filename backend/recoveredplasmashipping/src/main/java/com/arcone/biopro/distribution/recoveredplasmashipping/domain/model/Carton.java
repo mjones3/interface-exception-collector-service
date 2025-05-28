@@ -388,4 +388,23 @@ public class Carton implements Validatable {
             .collectList()
             .block();
     }
+
+    public List<CartonItem> removeCartonItem(RemoveCartonItemCommand removeCartonItemCommand){
+
+        if(STATUS_CLOSED.equals(this.status)){
+            throw new IllegalArgumentException("Carton is closed and cannot be modified");
+        }
+
+        if(this.products == null || this.products.isEmpty()){
+            throw new IllegalArgumentException("Carton does not have products");
+        }
+
+        var cartonItems = this.products.stream().filter(product -> removeCartonItemCommand.getCartonItemIds().contains(product.getId())).toList();
+
+        if(cartonItems.isEmpty()){
+            throw new IllegalArgumentException("Items to be removed are not found :"+removeCartonItemCommand.getCartonItemIds());
+        }
+
+        return cartonItems;
+    }
 }

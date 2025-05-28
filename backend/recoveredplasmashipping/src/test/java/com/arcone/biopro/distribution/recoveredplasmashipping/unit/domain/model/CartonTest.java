@@ -9,6 +9,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.Locat
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.LocationProperty;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.RecoveredPlasmaShipment;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.RemoveCartonCommand;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.RemoveCartonItemCommand;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.RepackCartonCommand;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.ShipmentCustomer;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.SystemProcessProperty;
@@ -760,5 +761,59 @@ class CartonTest {
 
     }
 
+    @Test
+    public void shouldNotRemoveCartonItemWhenStatusIsNotOpen() {
+        var carton = Carton.fromRepository(1L,"number",1L,1,"employee-id","close-employee-id"
+            , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"CLOSED", BigDecimal.ZERO,BigDecimal.ZERO, Collections.emptyList(),2 ,2 );
 
+        // When/Then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            () -> carton.removeCartonItem( new RemoveCartonItemCommand(1L, "employee-id",List.of(1L,2L))));
+        assertEquals("Carton is closed and cannot be modified",
+            exception.getMessage());
+    }
+
+    @Test
+    public void shouldNotRemoveCartonItemWhenEmptyProducts() {
+        var carton = Carton.fromRepository(1L,"number",1L,1,"employee-id","close-employee-id"
+            , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO, Collections.emptyList(),2 ,2 );
+
+        // When/Then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            () -> carton.removeCartonItem( new RemoveCartonItemCommand(1L, "employee-id",List.of(1L,2L))));
+        assertEquals("Carton does not have products",
+            exception.getMessage());
+    }
+
+    @Test
+    public void shouldNotRemoveCartonItemWhenCartonItemDoesNotExist() {
+
+        CartonItem cartonItem = Mockito.mock(CartonItem.class);
+        Mockito.when(cartonItem.getId()).thenReturn(5L);
+
+        var carton = Carton.fromRepository(1L,"number",1L,1,"employee-id","close-employee-id"
+            , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO, List.of(cartonItem),2 ,2 );
+
+        // When/Then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            () -> carton.removeCartonItem( new RemoveCartonItemCommand(1L, "employee-id",List.of(1L,2L))));
+        assertEquals("Items to be removed are not found :[1, 2]",
+            exception.getMessage());
+    }
+
+    @Test
+    public void shouldRemoveCartonItem() {
+
+        CartonItem cartonItem = Mockito.mock(CartonItem.class);
+        Mockito.when(cartonItem.getId()).thenReturn(1L);
+
+        var carton = Carton.fromRepository(1L,"number",1L,1,"employee-id","close-employee-id"
+            , ZonedDateTime.now(),ZonedDateTime.now(),ZonedDateTime.now(),"OPEN", BigDecimal.ZERO,BigDecimal.ZERO, List.of(cartonItem),2 ,2 );
+
+        // When/Then
+        var response = carton.removeCartonItem( new RemoveCartonItemCommand(1L, "employee-id",List.of(1L)));
+
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(1, response.size());
+    }
 }

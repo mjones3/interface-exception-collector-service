@@ -34,6 +34,7 @@ import { VerifyCartonItemsDTO } from '../../graphql/mutation-definitions/verify-
 import { AddRecoveredPlasmaProductsComponent } from '../add-recovered-plasma-products/add-recovered-plasma-products.component';
 import { CloseCartonDTO } from '../../graphql/mutation-definitions/close-carton.graphql';
 import { ToastrService } from 'ngx-toastr';
+import { RemovePackedProductsDTO } from '../../graphql/mutation-definitions/remove-packed-products.graphql';
 
 @Component({
   selector: 'biopro-manage-carton-products',
@@ -366,4 +367,41 @@ private closeCartonRequest(): CloseCartonDTO {
         employeeId: this.employeeIdSignal(),
     };
   }
+
+
+  // Remove Carton Products
+  removeCartonProducts(selectedItems: number[]) {
+    this.recoveredPlasmaService
+    .removeCartonItems(this.removeItemReq(selectedItems))
+    .pipe(
+        catchError((error: ApolloError) => {
+            handleApolloError(this.toastr, error);
+        }),
+    )
+    .subscribe((response) => {
+        const ruleResult = response?.data?.removeCartonItems;
+        if (ruleResult) {
+            const notifications: UseCaseNotificationDTO = ruleResult?.notifications[0];
+            this.recoveredPlasmaService.displayNotificationMessage(
+                [notifications],
+                this.addProductsControl.resetProductGroup.bind(this)
+            );
+            if (notifications.type === 'SUCCESS') {
+                this.setCartonDetails(ruleResult.data);
+                this.addProductsControl.selectedProducts = [];
+                this.addProductsControl.resetProductGroup();
+            }
+        }
+    });
+  }
+
+  private removeItemReq(
+    items: number[]
+): RemovePackedProductsDTO {
+    return {
+            cartonId: this.routeIdComputed(),
+            employeeId: this.employeeIdSignal(),
+            cartonItemIds: items,
+        };
+    }
 }

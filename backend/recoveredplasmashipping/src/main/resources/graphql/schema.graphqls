@@ -26,6 +26,7 @@ type Mutation {
     closeShipment(closeShipmentRequest:CloseShipmentRequestDTO!): UseCaseResponseDTO!
     repackCarton(repackCartonRequest:RepackCartonRequestDTO!): UseCaseResponseDTO!
     removeCarton(removeCartonRequest:RemoveCartonRequestDTO!): UseCaseResponseDTO!
+    removeCartonItems(removeCartonItemRequest:RemoveCartonItemRequestDTO!): UseCaseResponseDTO!
 
 }
 
@@ -131,6 +132,12 @@ input RemoveCartonRequestDTO {
 input GenerateCartonLabelRequestDTO {
     cartonId:Int!
     employeeId:String!
+}
+
+input RemoveCartonItemRequestDTO{
+    cartonId:Int!
+    employeeId:String!
+    cartonItemIds:[Int]
 }
 
 type OutputQuerySortDTO {
