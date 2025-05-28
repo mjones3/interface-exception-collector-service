@@ -41,8 +41,7 @@ import { BasicButtonComponent } from 'app/shared/components/buttons/basic-button
         ActionButtonComponent,
         FuseCardComponent,
         BasicButtonComponent,
-        ScanUnitNumberProductCodeComponent,
-        JsonPipe
+        ScanUnitNumberProductCodeComponent
     ],
     templateUrl: './add-recovered-plasma-products.component.html',
 })

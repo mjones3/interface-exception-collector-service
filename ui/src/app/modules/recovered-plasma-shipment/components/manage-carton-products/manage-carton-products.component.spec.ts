@@ -143,7 +143,7 @@ describe('ManageCartonComponent', () => {
             verifyCartonProducts: jest.fn(),
             displayNotificationMessage: jest.fn(),
             handleInfoNotificationAndDiscard: jest.fn(),
-            removePackedItems: jest.fn()
+            removeCartonItems: jest.fn()
           }
         },
         {
