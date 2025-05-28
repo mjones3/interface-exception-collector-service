@@ -4,6 +4,7 @@ import { EmptyLayoutComponent } from 'app/layout/layouts/empty/empty.component';
 import { RecoveredPlasmaShippingDetailsComponent } from './components/recovered-plasma-shipping-details/recovered-plasma-shipping-details.component';
 import { SearchShipmentComponent } from './components/search-shipment/search-shipment.component';
 import { ManageCartonComponent } from './components/manage-carton-products/manage-carton-products.component';
+import { ShipmentCommentsComponent } from './components/shipment-comments/shipment-comments.component';
 
 export default [
     {
@@ -32,7 +33,14 @@ export default [
                 data: {
                     subTitle: 'Manage Carton Products',
                 },
-            }
+            },
+            {
+                path: ':id/shipment-details/comments',
+                component: ShipmentCommentsComponent,
+                data: {
+                    subTitle: 'Verify Products',
+                },
+            },
         ],
     },
 ] as Routes;

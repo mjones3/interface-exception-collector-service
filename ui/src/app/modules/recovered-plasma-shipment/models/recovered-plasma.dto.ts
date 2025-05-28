@@ -2,10 +2,12 @@ export interface CreateShipmentRequestDTO {
     customerCode: string;
     shipmentDate?: string;
     productType: string;
-    cartonTareWeight: number;
+    cartonTareWeight?: number;
     createEmployeeId: string;
     transportationReferenceNumber?: string;
     locationCode: string;
+    shipmentId?: number;
+    editShipmentComments?: string;
 }
 
 export interface CartonDTO {

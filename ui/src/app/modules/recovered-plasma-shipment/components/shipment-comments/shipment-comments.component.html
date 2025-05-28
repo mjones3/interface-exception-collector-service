@@ -1,0 +1,23 @@
+
+<div class="flex flex-auto flex-col space-y-1">
+    <biopro-recovered-plasma-shipment-details-navbar
+        [links]="{ 
+            Cartons: cartonRoutesComputed(),
+            Comments: currentRouteComputed()
+        }"
+        [activeLinkRoute]="currentRouteComputed()"
+        style="margin-top: 1px !important"
+    >
+    </biopro-recovered-plasma-shipment-details-navbar> 
+    <div class="w-full p-4">
+        <biopro-table
+            #shipmentInfoCommentsTable
+            tableId="shipmentInfoCommentsTableId"
+            [dataSource]="shipmentDetails()"
+            [configuration]="shipmentInfoCommentsTableConfigComputed()"
+            [pageIndex]="0"
+            [serverPagination]="false"
+        >
+        </biopro-table>
+    </div>
+</div>

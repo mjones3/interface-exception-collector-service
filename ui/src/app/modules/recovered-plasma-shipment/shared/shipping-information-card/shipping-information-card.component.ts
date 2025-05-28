@@ -63,10 +63,6 @@ export class ShippingInformationCardComponent {
             ),
         },
         {
-            label: 'Carton Tare Weight (g)',
-            value: this.shippingInput()?.cartonTareWeight,
-        },
-        {
             label: 'Total Cartons',
             value: this.shippingInput()?.totalCartons,
         },

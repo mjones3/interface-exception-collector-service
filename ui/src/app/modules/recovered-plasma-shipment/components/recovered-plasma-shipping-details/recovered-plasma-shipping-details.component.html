@@ -6,8 +6,11 @@
     ></biopro-process-header>
 
     <biopro-recovered-plasma-shipment-details-navbar
-        [links]="{ Cartons: cartonsRoute }"
-        [activeLinkRoute]="cartonsRoute"
+        [links]="{ 
+            Cartons: currentRouteComputed,
+            Comments: shipmentCommentsRouteComputed()
+        }"
+        [activeLinkRoute]="currentRouteComputed"
         style="margin-top: 1px !important"
     >
     </biopro-recovered-plasma-shipment-details-navbar>
@@ -169,7 +172,8 @@
             />
             }
             <biopro-shipping-information-card
-                [isButtonDisabled]="true"
+                [isButtonDisabled]="shipmentDetailsSignal()?.status === 'PROCESSING'"
+                (handleClick)="onClickEditShipment()"
                 [showBasicButton]="true"
                 [shippingInput]="shipmentDetailsSignal()"
             />

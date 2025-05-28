@@ -10,6 +10,7 @@ import {
 } from '../models/recovered-plasma.dto';
 import { GET_PRODUCT_TYPE_OPTIONS, productTypeOptionResponse } from '../graphql/query-definitions/create-rp-shipment.graphql';
 import { CREATE_RECOVERED_PLASMA_SHIPMENT } from '../graphql/mutation-definitions/create-recovered-plasma-shipment.graphql';
+import { FIND_SHIPMENT_HISTORY_BY_ID, ShipmentHistoryDTO } from '../graphql/query-definitions/shipment-comments-history.graphql';
 
 @Injectable({
     providedIn: 'root',
@@ -42,6 +43,20 @@ export class RecoveredPlasmaShipmentService {
             this.servicePath,
             CREATE_RECOVERED_PLASMA_SHIPMENT,
             createShipmentRequest
+        );
+    }
+
+    public getShipmentHistory(
+        shipmentId: number
+    ): Observable<
+        MutationResult<{
+            findAllShipmentHistoryByShipmentId: UseCaseResponseDTO<ShipmentHistoryDTO>;
+        }>
+    > {
+        return this.dynamicGraphqlPathService.executeMutation(
+            this.servicePath,
+            FIND_SHIPMENT_HISTORY_BY_ID,
+            {shipmentId}
         );
     }
 }

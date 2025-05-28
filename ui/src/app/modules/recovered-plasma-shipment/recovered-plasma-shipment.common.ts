@@ -16,7 +16,7 @@ import { RecoveredPlasmaService } from './services/recovered-plasma.service';
 import { ToastrService } from 'ngx-toastr';
 
 export class RecoveredPlasmaShipmentCommon {
-
+    protected currentRouteComputed = computed(() => this.router.url);
     routeIdComputed = computed(() => Number(this.route?.snapshot?.params?.id));
     employeeIdSignal = signal<string>(null);
     shipmentDetailsSignal = signal<RecoveredPlasmaShipmentResponseDTO>(null);

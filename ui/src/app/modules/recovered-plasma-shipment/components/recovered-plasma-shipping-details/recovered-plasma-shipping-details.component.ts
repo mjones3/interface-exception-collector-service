@@ -83,6 +83,7 @@ import {
     CartonPrintActionsDialogComponent
 } from '../carton-print-actions-dialog/carton-print-actions-dialog.component';
 import { fromPromise } from 'rxjs/internal/observable/innerFrom';
+import { CreateShipmentComponent } from '../create-shipment/create-shipment.component';
 
 @Component({
     selector: 'biopro-recovered-plasma-shipping-details',
@@ -118,6 +119,11 @@ export class RecoveredPlasmaShippingDetailsComponent
     statusTemplateRef = viewChild<TemplateRef<Element>>('statusTemplateRef');
     expandTemplateRef = viewChild<TemplateRef<Element>>('expandTemplateRef');
     actionsTemplateRef = viewChild<TemplateRef<Element>>('actionsTemplateRef');
+
+    protected shipmentCommentsRouteComputed = computed(
+        () =>
+            `/recovered-plasma/${this.route.snapshot.params?.id}/shipment-details/comments`
+    );
 
     // Signal to store expanded row data
     expandedRowDataSignal = signal<CartonPackedItemResponseDTO[]>([]);
@@ -372,10 +378,6 @@ export class RecoveredPlasmaShippingDetailsComponent
             .subscribe();
     }
 
-    get cartonsRoute(): string {
-        return this.router.url;
-    }
-
     get shipmentId(): number {
         return parseInt(this.route.snapshot.params?.id);
     }
@@ -575,5 +577,14 @@ export class RecoveredPlasmaShippingDetailsComponent
                 });
         })
 
+    }
+
+
+    onClickEditShipment(){
+        this.matDialog.open(CreateShipmentComponent, {
+            width: '50rem',
+            disableClose: true,
+            data:  this.shipmentDetailsSignal()
+        });
     }
 }
