@@ -35,7 +35,7 @@ public class InventoryAggregate {
     List<NotificationMessage> notificationMessages;
 
     public Boolean isExpired() {
-        return inventory.getExpirationDate().isBefore(LocalDateTime.now());
+        return inventory.isExpired();
     }
 
     public InventoryAggregate checkIfIsValidToShip(String location) {

@@ -1,0 +1,28 @@
+{
+  "eventId": "b230e402-1450-4f73-9b4d-c5dcd21a6bda",
+  "occurredOn": "2025-05-15T11:53:23.260522678Z",
+  "eventType": "RecoveredPlasmaCartonUnpacked",
+  "eventVersion": "1.0",
+  "payload": {
+    "cartonNumber": "BPMMH130",
+    "locationCode": "123456789_DIS355",
+    "cartonSequence": 1,
+    "unpackEmployeeId": "5db1da0b-6392-45ff-86d0-17265ea33226",
+    "unpackDate": "2025-05-15T11:53:23.255588844Z",
+    "productType": "RP_NONINJECTABLE_LIQUID_RT",
+    "status": "OPEN",
+    "totalProducts": 2,
+    "unpackedProducts": [
+      {
+        "unitNumber": "W036898355905",
+        "productCode": "E6022V00",
+        "status": "REMOVED"
+      },
+      {
+        "unitNumber": "W036898355757",
+        "productCode": "E6022V00",
+        "status": "REMOVED"
+      }
+    ]
+  }
+}

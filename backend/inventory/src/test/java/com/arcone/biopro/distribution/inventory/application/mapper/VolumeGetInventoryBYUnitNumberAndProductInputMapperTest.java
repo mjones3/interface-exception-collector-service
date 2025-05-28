@@ -15,7 +15,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class VolumeInputMapperTest {
+public class VolumeGetInventoryBYUnitNumberAndProductInputMapperTest {
 
     private static final String TYPE = "volume";
     private static final int VALUE = 50;
