@@ -986,11 +986,11 @@ class RecoveredPlasmaShipmentTest {
             "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(),ZonedDateTime.now(), Collections.emptyList()
         );
 
-        var response = shipment.completeProcessing(Collections.emptyList());
+        var response = shipment.completeProcessing(Collections.emptyList(),"close-emp-id");
 
         Assertions.assertNotNull(response);
         Assertions.assertEquals("CLOSED", response.getStatus());
-        Assertions.assertEquals("closeEmployeeId",response.getCloseEmployeeId());
+        Assertions.assertEquals("close-emp-id",response.getCloseEmployeeId());
         Assertions.assertNotNull(response.getCloseDate());
         Assertions.assertEquals("COMPLETED", response.getUnsuitableUnitReportDocumentStatus());
         Assertions.assertNotNull(response.getLastUnsuitableReportRunDate());
@@ -1009,7 +1009,7 @@ class RecoveredPlasmaShipmentTest {
             "customerAddressDepartmentName", ZonedDateTime.now(), ZonedDateTime.now(),ZonedDateTime.now(), Collections.emptyList()
         );
 
-        var response = shipment.completeProcessing(List.of(Mockito.mock(UnacceptableUnitReportItem.class)));
+        var response = shipment.completeProcessing(List.of(Mockito.mock(UnacceptableUnitReportItem.class)),"close-emp-id");
 
         Assertions.assertNotNull(response);
         Assertions.assertEquals("IN_PROGRESS", response.getStatus());

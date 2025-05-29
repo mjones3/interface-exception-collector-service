@@ -50,6 +50,13 @@ import {
 } from '../graphql/query-definitions/print-shipping-summary-report.graphql';
 import { REMOVE_CARTON, RemoveCartonDTO } from '../graphql/mutation-definitions/remove-carton.graphql';
 import { ShipmentResponseDTO } from 'app/modules/shipments/models/shipment-info.dto';
+import {
+    GENERATE_CARTON_LABEL,
+    GenerateCartonLabelRequestDTO,
+    LabelDTO
+} from '../graphql/query-definitions/generate-carton-label.graphql';
+import { REMOVE_CARTON_PRODUCTS } from '../graphql/mutation-definitions/remove-packed-products.graphql';
+import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
     providedIn: 'root',
@@ -61,7 +68,7 @@ export class RecoveredPlasmaService {
         private dynamicGraphqlPathService: DynamicGraphqlPathService,
         private discardService: DiscardService,
         private confirmationAcknowledgmentService: ConfirmationAcknowledgmentService,
-        private toastr: ToastrImplService
+        private toastr: ToastrService
     ) {}
 
     public searchRecoveredPlasmaShipments(
@@ -209,6 +216,16 @@ export class RecoveredPlasmaService {
         );
     }
 
+    public removeCartonItems(removePackedProducts: RemoveCartonDTO)
+        : Observable<MutationResult<{ removeCartonItems: UseCaseResponseDTO<CartonDTO> }>> {
+
+        return this.dynamicGraphqlPathService.executeMutation(
+            this.servicePath,
+            REMOVE_CARTON_PRODUCTS,
+            removePackedProducts
+        );
+    }
+
     public verifyCartonProducts(cartonProducts: VerifyCartonItemsDTO)
         : Observable<MutationResult<{ verifyCarton: UseCaseResponseDTO<CartonDTO> }>> {
 
@@ -246,6 +263,16 @@ export class RecoveredPlasmaService {
             this.servicePath,
             PRINT_SHIPPING_SUMMARY_REPORT,
             printShippingSummaryReportRequest
+        );
+    }
+
+    public generateCartonLabel(generateCartonLabelRequestDTO: GenerateCartonLabelRequestDTO)
+        : Observable<ApolloQueryResult<{ generateCartonLabel: UseCaseResponseDTO<LabelDTO> }>> {
+
+        return this.dynamicGraphqlPathService.executeQuery(
+            this.servicePath,
+            GENERATE_CARTON_LABEL,
+            generateCartonLabelRequestDTO
         );
     }
 

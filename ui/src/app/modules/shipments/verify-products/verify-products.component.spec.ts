@@ -1,5 +1,4 @@
 import { ComponentFixture, fakeAsync, TestBed } from '@angular/core/testing';
-
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
@@ -17,6 +16,7 @@ import { FuseConfirmationService } from '../../../../@fuse/services/confirmation
 import { RuleResponseDTO } from '../../../shared/models/rule.model';
 import { ShipmentService } from '../services/shipment.service';
 import { VerifyProductsComponent } from './verify-products.component';
+import { AuthState } from 'app/core/state/auth/auth.reducer';
 
 const SHIPMENT_ID = 1;
 describe('VerifyProductsComponent', () => {
@@ -26,6 +26,11 @@ describe('VerifyProductsComponent', () => {
     let fuseConfirmationService: FuseConfirmationService;
     let toastr: ToastrService;
     let router: Router;
+    
+    const initialState: AuthState = {
+        id: 'mock-user-id',
+        loaded: true,
+    };
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
@@ -41,7 +46,7 @@ describe('VerifyProductsComponent', () => {
             ],
             providers: [
                 provideHttpClientTesting(),
-                provideMockStore({}),
+                provideMockStore({initialState}),
                 {
                     provide: ActivatedRoute,
                     useValue: {

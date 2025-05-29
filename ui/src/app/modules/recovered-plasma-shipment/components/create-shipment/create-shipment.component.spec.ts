@@ -19,6 +19,7 @@ import { RecoveredPlasmaShipmentResponseDTO } from '../../models/recovered-plasm
 import { RecoveredPlasmaShipmentService } from '../../services/recovered-plasma-shipment.service';
 import { RecoveredPlasmaService } from '../../services/recovered-plasma.service';
 import { CreateShipmentComponent } from './create-shipment.component';
+import { AuthState } from 'app/core/state/auth/auth.reducer';
 
 describe('CreateShipmentComponent', () => {
     let component: CreateShipmentComponent;
@@ -28,6 +29,11 @@ describe('CreateShipmentComponent', () => {
     let toastr: ToastrService;
     let router: Router;
     let dialogRef: MatDialogRef<CreateShipmentComponent>;
+
+    const initialState: AuthState = {
+        id: 'mock-user-id',
+        loaded: true,
+    };
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
@@ -39,7 +45,7 @@ describe('CreateShipmentComponent', () => {
                 ToastrModule.forRoot(),
             ],
             providers: [
-                provideMockStore({}),
+                provideMockStore({ initialState}),
                 { provide: MAT_DIALOG_DATA, useValue: {} },
                 {
                     provide: RecoveredPlasmaShipmentService,

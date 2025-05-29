@@ -1,4 +1,6 @@
 import { HttpRequest } from '@angular/common/http';
+// import * as Keycloak from 'keycloak-js';
+import { KeycloakConfig, KeycloakInitOptions } from 'keycloak-js';
 
 /**
  * HTTP Methods
@@ -50,11 +52,11 @@ export interface AuthOptions {
    * realm, clientId. This is usefull if you have different configurations for production, stage
    * and development environments. Hint: Make use of Angular environment configuration.
    */
-  config?: string | Keycloak.KeycloakConfig;
+  config?: string | KeycloakConfig;
   /**
    * Options to initialize the Keycloak adapter, matches the options as provided by Keycloak itself.
    */
-  initOptions?: Keycloak.KeycloakInitOptions;
+  initOptions?: KeycloakInitOptions;
   /**
    * By default all requests made by Angular HttpClient will be intercepted in order to
    * add the bearer in the Authorization Http Header. However, if this is a not desired

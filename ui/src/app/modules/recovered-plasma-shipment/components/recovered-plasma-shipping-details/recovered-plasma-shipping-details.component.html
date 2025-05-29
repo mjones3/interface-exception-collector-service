@@ -106,16 +106,19 @@
                 }
                 <!--Print carton packing slip Button-->
                 @if (element?.canPrint) {
-                    <button data-testid="view-shipping-carton-packing-slip" (click)="printCarton($event, element?.id)" class="button-mat-icon">
+                    <button data-testid="view-shipping-carton-packing-slip"
+                            (click)="openCartonPrintActionsDialog($event, element)"
+                            class="button-mat-icon"
+                    >
                         <mat-icon>print</mat-icon>
                     </button>
                 }
                 <!--Remove carton Button-->
                 @if (element?.canRemove) {
-                    <button 
+                    <button
                         [id]="'removeCarton' + element.id"
-                        data-testid="remove-carton" 
-                        (click)="removeCarton(element?.id)" 
+                        data-testid="remove-carton"
+                        (click)="removeCarton(element?.id)"
                         class="button-remove-mat-icon"
                     >
                         <mat-icon

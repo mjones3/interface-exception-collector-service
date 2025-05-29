@@ -162,6 +162,7 @@ class RecoveredPlasmaShipmentProcessingUseCaseTest {
         Long shipmentId = 123L;
         RecoveredPlasmaShipment shipmentMock = Mockito.mock(RecoveredPlasmaShipment.class);
         when(shipmentMock.getId()).thenReturn(shipmentId);
+        when(shipmentMock.getCloseEmployeeId()).thenReturn("close-emp-id");
 
         RecoveredPlasmaShipmentProcessingEvent event = new RecoveredPlasmaShipmentProcessingEvent(shipmentMock);
 
@@ -176,7 +177,7 @@ class RecoveredPlasmaShipmentProcessingUseCaseTest {
         RecoveredPlasmaShipment shipmentUpdateMock = Mockito.mock(RecoveredPlasmaShipment.class);
         when(shipmentUpdateMock.getStatus()).thenReturn("CLOSED");
 
-        Mockito.when(shipmentMock.completeProcessing(Mockito.any())).thenReturn(shipmentUpdateMock);
+        Mockito.when(shipmentMock.completeProcessing(Mockito.any(),Mockito.anyString())).thenReturn(shipmentUpdateMock);
 
         when(recoveredPlasmaShippingRepository.update(any())).thenReturn(Mono.just(shipmentUpdateMock));
 

@@ -39,7 +39,7 @@ Feature: Add Products to Carton
         Given I have an empty carton created with the Customer Code as "<Customer Code>" , Product Type as "<Product Type>", Carton Tare Weight as "<Carton Tare Weight>", Shipment Date as "<Shipment Date>", Transportation Reference Number as "<Transportation Reference Number>" and Location Code as "<Location Code>".
         And I navigate to the Manage Carton Products page for the carton sequence number <Carton Sequence Number>.
         When I add an "acceptable" product with the unit number "<unit_number>", product code "<product_code>" and product type "<product_type>".
-        Then I should see the product in the packed list with unit number "<unit_number>" and product code "<product_code>".
+        Then I "should" see the product in the packed list with unit number "<unit_number>" and product code "<product_code>".
         When I choose to navigate back to Shipment Details page.
         Then I should see a list of all cartons.
         And I should see the unit "<unit_number>" added to the carton sequence "<Carton Sequence Number>".
