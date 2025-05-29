@@ -27,7 +27,7 @@
       "type": "string"
     },
     "customerType": {
-      "type": "string"
+      "type": ["null","string"]
     },
     "shipmentDate": {
       "type": "string"
