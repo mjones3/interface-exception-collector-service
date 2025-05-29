@@ -10,8 +10,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public enum UseCaseMessageType {
 
-    ENTER_SHIPPING_INFORMATION_SUCCESS(1,  UseCaseNotificationType.SUCCESS, "Shipping Information successfully created"),
-    ENTER_SHIPPING_INFORMATION_ERROR(2,  UseCaseNotificationType.SYSTEM, "Not able to get Shipping Information. Contact Support.");
+    ENTER_SHIPPING_INFORMATION_ERROR(1,  UseCaseNotificationType.SYSTEM, "Not able to get Shipping Information. Contact Support.");
 
     Integer code;
     UseCaseNotificationType type;

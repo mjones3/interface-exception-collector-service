@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -34,20 +35,8 @@ public class EnterShippingInformationUseCase implements ShippingInformationServi
         return Mono.fromCallable(() -> ShippingInformation.fromNewImportBatch(new EnterShippingInformationCommand(enterShippingInformationCommandInput.productCategory()
                 , enterShippingInformationCommandInput.employeeId() , enterShippingInformationCommandInput.locationCode()),lookupRepository,productConsequenceRepository))
             .subscribeOn(Schedulers.boundedElastic())
-            .flatMap(shippingInformation -> {
-                return Mono.just(new UseCaseOutput<>(List.of(UseCaseNotificationOutput
-                    .builder()
-                    .useCaseMessage(
-                        UseCaseMessage
-                            .builder()
-                            .message(UseCaseMessageType.ENTER_SHIPPING_INFORMATION_SUCCESS.getMessage())
-                            .code(UseCaseMessageType.ENTER_SHIPPING_INFORMATION_SUCCESS.getCode())
-                            .type(UseCaseMessageType.ENTER_SHIPPING_INFORMATION_SUCCESS.getType())
-                            .build())
-                    .build())
-                    , shippingInformationOutputMapper.mapToOutput(shippingInformation)
-                    , null));
-            }).onErrorResume(error -> {
+            .flatMap(shippingInformation -> Mono.just(new UseCaseOutput<>(Collections.emptyList(), shippingInformationOutputMapper.mapToOutput(shippingInformation), null)))
+            .onErrorResume(error -> {
                 log.error("Not able create shipping information {}",error.getMessage());
                 return Mono.just(new UseCaseOutput<>(List.of(UseCaseNotificationOutput
                     .builder()

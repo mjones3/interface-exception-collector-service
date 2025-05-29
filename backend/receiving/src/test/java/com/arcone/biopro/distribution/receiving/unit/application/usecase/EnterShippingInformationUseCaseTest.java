@@ -24,6 +24,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
@@ -76,15 +77,7 @@ class EnterShippingInformationUseCaseTest {
                 // Assert
                 .assertNext(output -> {
                     assertNotNull(output);
-                    assertEquals(1, output.notifications().size());
-
-                    UseCaseNotificationOutput notification = output.notifications().get(0);
-                    assertEquals(UseCaseMessageType.ENTER_SHIPPING_INFORMATION_SUCCESS.getMessage(),
-                        notification.useCaseMessage().message());
-                    assertEquals(UseCaseMessageType.ENTER_SHIPPING_INFORMATION_SUCCESS.getCode(),
-                        notification.useCaseMessage().code());
-                    assertEquals(UseCaseMessageType.ENTER_SHIPPING_INFORMATION_SUCCESS.getType(),
-                        notification.useCaseMessage().type());
+                    assertTrue(output.notifications().isEmpty());
                 })
                 .verifyComplete();
     }
