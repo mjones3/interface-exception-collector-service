@@ -4,7 +4,7 @@
   "eventType":"ApheresisPlasmaProductCreated",
   "eventVersion":"1.0",
   "payload":{
-    "unitNumber":"W036824009002",
+    "unitNumber":"W777724009002",
     "productCode":"E086900",
     "productDescription":"APH FFP",
     "productFamily":"PLASMA_TRANSFUSABLE",

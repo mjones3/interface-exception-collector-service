@@ -5,7 +5,7 @@
   "eventType": "QuarantineUpdated",
   "payload": {
     "id": 1,
-    "unitNumber": "W036825005005",
+    "unitNumber": "W777725005005",
     "productCode": "E0869A0",
     "oldReason": "OTHER",
     "newReason": "UNDER_INVESTIGATION",

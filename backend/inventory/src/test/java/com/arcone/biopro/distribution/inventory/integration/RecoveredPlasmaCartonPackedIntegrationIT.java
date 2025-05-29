@@ -3,25 +3,23 @@ package com.arcone.biopro.distribution.inventory.integration;
 import com.arcone.biopro.distribution.inventory.application.dto.RecoveredPlasmaCartonPackedInput;
 import com.arcone.biopro.distribution.inventory.application.usecase.RecoveredPlasmaCartonPackedUseCase;
 import com.arcone.biopro.distribution.inventory.verification.utils.KafkaHelper;
-import com.arcone.biopro.distribution.inventory.verification.utils.LogMonitor;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 
-import static com.arcone.biopro.distribution.inventory.BioProConstants.*;
+import static com.arcone.biopro.distribution.inventory.BioProConstants.PAYLOAD;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -45,11 +43,8 @@ public class RecoveredPlasmaCartonPackedIntegrationIT {
     @MockBean
     private RecoveredPlasmaCartonPackedUseCase useCase;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private LogMonitor logMonitor;
+    @Value("${topic.recovered-plasma-carton-packed.name}")
+    private String recoveredPlasmaCartonPackedTopic;
 
     @BeforeEach
     void setUp() {
@@ -59,7 +54,7 @@ public class RecoveredPlasmaCartonPackedIntegrationIT {
     @Test
     @DisplayName("should publish, listen recovery plasma carton packed event")
     public void test1() throws InterruptedException, IOException {
-        var payloadJson = kafkaHelper.publishEvent("json/recovered_plasma_carton_packed.json", RECOVER_PLASMA_CARTON_PACKED_TOPIC);
+        var payloadJson = kafkaHelper.publishEvent("json/recovered_plasma_carton_packed.json", recoveredPlasmaCartonPackedTopic);
         ArgumentCaptor<RecoveredPlasmaCartonPackedInput> captor = ArgumentCaptor.forClass(RecoveredPlasmaCartonPackedInput.class);
         verify(useCase, times(1)).execute(captor.capture());
         RecoveredPlasmaCartonPackedInput capturedInput = captor.getValue();

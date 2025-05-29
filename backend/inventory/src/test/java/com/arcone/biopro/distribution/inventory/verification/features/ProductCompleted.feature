@@ -1,4 +1,4 @@
-# Feature Unit Number reference: W036825007000
+# Feature Unit Number reference: W777725007000
 @api @LAB-399
 Feature: Product Completed Event - API
     Rule: As an inventory service I want to save the volume after receiving a product completed event.
@@ -17,7 +17,7 @@ Feature: Product Completed Event - API
 
             Examples:
                 | Unit Number   | Product Code | Volume | Anticoagulant Volume |
-                | W036825007001 | E765000      | 450    | 50                   |
+                | W777725007001 | E765000      | 450    | 50                   |
 
     @LAB475 @AOA-83
     Rule: As an inventory service I want to map ABO/Rh for product labels to the test result included in the product completed event.
@@ -36,4 +36,4 @@ Feature: Product Completed Event - API
 
             Examples:
                 | Unit Number   | Product Code | Volume | Anticoagulant Volume | ABO/Rh |
-                | W036825007001 | E765000      | 450    | 50                   | OP     |
+                | W777725007002 | E765000      | 450    | 50                   | OP     |
