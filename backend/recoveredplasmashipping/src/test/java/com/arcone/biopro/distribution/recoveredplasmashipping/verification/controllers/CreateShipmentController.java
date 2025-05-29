@@ -4,6 +4,7 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.verification.suppo
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.DatabaseQueries;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.DatabaseService;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.SharedContext;
+import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.TestUtils;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.graphql.GraphQLMutationMapper;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.graphql.GraphQLQueryMapper;
 import io.cucumber.spring.ScenarioScope;
@@ -29,6 +30,8 @@ public class CreateShipmentController {
 
     @Autowired
     private SharedContext sharedContext;
+    @Autowired
+    private TestUtils testUtils;
 
     public Map createShipment(String customerCode, String productType, Float cartonTareWeight, String shipmentDate, String transportationRefNumber, String locationCode) {
         saveLastShipmentId();
@@ -163,4 +166,20 @@ public class CreateShipmentController {
     }
 
 
+    public Map modifyShipment(int shipmentId, String customerCode, String productType, String transpRefNumber, String shipmentDate, int cartonTareWeight, String employeeId, String comments) {
+        shipmentDate = testUtils.parseDataKeyword(shipmentDate);
+        transpRefNumber = transpRefNumber.equalsIgnoreCase("<null>") ? null : "\"" + transpRefNumber + "\"";
+        comments = comments.equalsIgnoreCase("<null>") ? null : "\"" + comments + "\"";
+
+        String payload = GraphQLMutationMapper.modifyShipment(shipmentId, customerCode, productType, transpRefNumber, shipmentDate, cartonTareWeight, employeeId, comments);
+        var response = apiHelper.graphQlRequest(payload, "modifyShipment");
+        sharedContext.setLastShipmentModifyResponse((Map) response.get("data"));
+        return response;
+    }
+
+    public void requestShipmentModifyHistory(int id) {
+        String payload = GraphQLQueryMapper.requestShipmentModifyHistory(id);
+        var response = apiHelper.graphQlListRequest(payload, "findAllShipmentHistoryByShipmentId");
+        sharedContext.setLastShipmentModifyHistoryResponse(response);
+    }
 }

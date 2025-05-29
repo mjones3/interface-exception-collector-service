@@ -69,6 +69,10 @@ public class TestUtils {
             LocalDate today = LocalDate.now();
             log.info("Today's date is {}", today);
             return today.toString();
+        } else if (keyword.equals("<next_week>")) {
+            LocalDate nextWeek = LocalDate.now().plusWeeks(1);
+            log.info("Next week's date is {}", nextWeek);
+            return nextWeek.toString();
         } else if(keyword.equals("<null>")) {
             log.info("Shipment date in unset");
             return null;

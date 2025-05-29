@@ -55,6 +55,11 @@ public class CreateShipmentSteps {
         var deleteReports = DatabaseQueries.REMOVE_UNACCEPTABLE_UNIT_REPORT_BY_SHIPMENT_CODE(code);
         databaseService.executeSql(deleteReports).block();
 
+        // Delete modify History
+        var deleteModifyHistory = DatabaseQueries.REMOVE_MODIFY_HISTORY_BY_SHIPMENT_CODE(code);
+        databaseService.executeSql(deleteModifyHistory).block();
+        log.info("Removing modify history from shipments containing code: {}", code);
+
         // Delete Shipments
         var deleteShipmentsQuery = DatabaseQueries.DELETE_SHIPMENTS_BY_CODE(code);
         databaseService.executeSql(deleteShipmentsQuery).block();
