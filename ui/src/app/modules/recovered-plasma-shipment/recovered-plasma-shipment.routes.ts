@@ -38,7 +38,7 @@ export default [
                 path: ':id/shipment-details/comments',
                 component: ShipmentCommentsComponent,
                 data: {
-                    subTitle: 'Verify Products',
+                    subTitle: 'Shipment Details',
                 },
             },
         ],

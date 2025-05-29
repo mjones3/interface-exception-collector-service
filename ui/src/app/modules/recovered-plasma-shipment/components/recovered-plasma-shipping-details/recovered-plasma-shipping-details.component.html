@@ -7,13 +7,14 @@
 
     <biopro-recovered-plasma-shipment-details-navbar
         [links]="{ 
-            Cartons: currentRouteComputed,
+            Cartons: currentRouteComputed(),
             Comments: shipmentCommentsRouteComputed()
         }"
-        [activeLinkRoute]="currentRouteComputed"
+        [activeLinkRoute]="currentRouteComputed()"
         style="margin-top: 1px !important"
     >
     </biopro-recovered-plasma-shipment-details-navbar>
+
 
     <ng-template #actionButtonsTpl>
         <div class="flex flex-row space-x-2">

@@ -127,7 +127,7 @@ export class AddRecoveredPlasmaProductsComponent
     }
 
     get numberOfProducts() {
-        return this.cartonDetails()?.packedProducts.length;
+        return this.cartonDetails()?.packedProducts?.length || 0;
     }
 
     get numberOfSelectedProducts() {

@@ -1,5 +1,9 @@
 <ng-container>
-    <h1 mat-dialog-title class="p-4 pb-0 text-3xl">Create Shipment</h1>
+    @if(data !== null){
+        <h1 mat-dialog-title class="p-4 pb-0 text-3xl">Edit Shipment</h1>
+    }@else{
+        <h1 mat-dialog-title class="p-4 pb-0 text-3xl">Create Shipment</h1>
+    }
     <div class="p-4 pb-0">
         <form [formGroup]="createShipmentForm">
             <div class="flex w-full flex-col">
@@ -33,7 +37,7 @@
                     </div>
 
                     <div class="flex w-full flex-row gap-4">
-                       <!-- @if(showCartonTareWeight){ -->
+                       @if(showCartonTareWeight){
                         <div class="w-full flex-row">
                             <mat-form-field class="block">
                                 <mat-label>Carton Tare Weight (g)</mat-label>
@@ -65,7 +69,7 @@
                                 }
                             </mat-form-field>
                         </div>
-                       <!-- } -->
+                       }
 
                         <div class="w-full flex-row">
                             <mat-form-field class="block">
@@ -128,24 +132,24 @@
                         />
                     </mat-form-field>
 
-                    @if(data !== null){
+                    @if(data?.id){
                         <mat-form-field>
                             <mat-label>Comment</mat-label>
                             <textarea
                                 data-testid="edit-shipment-comments"
-                                formControlName="editShipmentComments"
+                                formControlName="comments"
                                 rows="5"
                                 maxlength="{{ commentsMaxLength }}"
                                 matInput
                             ></textarea>
                             <mat-hint align="end">
-                                {{ createShipmentForm.controls['editShipmentComments'].value?.length }} /
+                                {{ createShipmentForm.controls['comments'].value?.length }} /
                                 {{ commentsMaxLength }}
                             </mat-hint>
 
                             
                         @if (
-                            createShipmentForm.controls['editShipmentComments']
+                            createShipmentForm.controls['comments']
                                  .hasError('required')
                          ) {
                              <mat-error

@@ -9,6 +9,7 @@ import {
     OnInit,
     signal,
     TemplateRef,
+    ViewChild,
     viewChild
 } from '@angular/core';
 import { MatDividerModule } from '@angular/material/divider';
@@ -34,6 +35,7 @@ import {
     take,
     takeWhile,
     tap,
+    throwError,
     timer
 } from 'rxjs';
 import { TableComponent } from '../../../../shared/components/table/table.component';
@@ -84,6 +86,9 @@ import {
 } from '../carton-print-actions-dialog/carton-print-actions-dialog.component';
 import { fromPromise } from 'rxjs/internal/observable/innerFrom';
 import { CreateShipmentComponent } from '../create-shipment/create-shipment.component';
+import { RecoveredPlasmaShipmentService } from '../../services/recovered-plasma-shipment.service';
+import { ERROR_MESSAGE } from 'app/core/data/common-labels';
+import { ShipmentCommentsComponent } from '../shipment-comments/shipment-comments.component';
 
 @Component({
     selector: 'biopro-recovered-plasma-shipping-details',
@@ -99,7 +104,8 @@ import { CreateShipmentComponent } from '../create-shipment/create-shipment.comp
         MatDividerModule,
         MatIcon,
         GlobalMessageComponent,
-        UnacceptableProductsReportWidgetComponent
+        UnacceptableProductsReportWidgetComponent,
+        ShipmentCommentsComponent
     ],
     templateUrl: './recovered-plasma-shipping-details.component.html',
 })
@@ -181,6 +187,7 @@ export class RecoveredPlasmaShippingDetailsComponent
         protected ngZone: NgZone,
         protected matDialog: MatDialog,
         private fuseConfirmationService: FuseConfirmationService,
+        private shipmentService: RecoveredPlasmaShipmentService,
         @Inject(LOCALE_ID) public locale: string
     ) {
         super(
@@ -585,6 +592,34 @@ export class RecoveredPlasmaShippingDetailsComponent
             width: '50rem',
             disableClose: true,
             data:  this.shipmentDetailsSignal()
-        });
+        })
+        .afterClosed()
+        .subscribe((request) => {
+            if(request !== undefined){
+                this.shipmentService.editRecoveredPlasmaShipment(request)
+            .pipe(
+                catchError((err) => {
+                    this.toastr.error(ERROR_MESSAGE);
+                    return throwError(() => err);
+                })
+            )
+            .subscribe({
+                next: (response) => {
+                    const modifyResult = response?.data?.modifyShipment;
+                    const notifications = modifyResult.notifications;
+                    if (notifications?.length > 0) {
+                        consumeUseCaseNotifications(
+                            this.toastr,
+                            notifications
+                        );
+                        if (notifications[0].type === 'SUCCESS') {
+                            this.loadRecoveredPlasmaShippingDetails(modifyResult.data.id)
+                            .subscribe()
+                        }
+                    }
+                },
+            });
+            }
+        })
     }
 }

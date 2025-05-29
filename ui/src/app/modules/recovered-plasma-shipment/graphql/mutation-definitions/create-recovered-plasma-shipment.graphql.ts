@@ -11,7 +11,7 @@ export const CREATE_RECOVERED_PLASMA_SHIPMENT = gql<
         $customerCode: String!
         $locationCode: String!
         $productType: String!
-        $cartonTareWeight: Float!
+        $cartonTareWeight: Float
         $shipmentDate: Date
         $transportationReferenceNumber: String
         $createEmployeeId: String!

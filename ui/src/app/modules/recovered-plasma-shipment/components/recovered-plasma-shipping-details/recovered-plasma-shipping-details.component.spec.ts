@@ -22,6 +22,7 @@ import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { ShipmentResponseDTO } from 'app/modules/shipments/models/shipment-info.dto';
 import { LabelPrinterResponseDTO, PrintLabelService } from '../../../../shared/services/print-label.service';
+import { ApolloTestingModule } from 'apollo-angular/testing';
 
 describe('RecoveredPlasmaShippingDetailsComponent', () => {
     let component: RecoveredPlasmaShippingDetailsComponent;
@@ -120,6 +121,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
             imports: [
                 RecoveredPlasmaShippingDetailsComponent,
                 NoopAnimationsModule,
+                ApolloTestingModule,
                 CommonModule,
                 MatIconTestingModule,
                 ToastrModule.forRoot()

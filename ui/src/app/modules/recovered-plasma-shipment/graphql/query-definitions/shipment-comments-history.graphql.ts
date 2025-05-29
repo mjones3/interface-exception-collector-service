@@ -4,7 +4,7 @@ import { UseCaseResponseDTO } from '../../../../shared/models/use-case-response.
 
 export interface ShipmentHistoryDTO{
     id:number,
-    shipmentId:number,
+    shipmentId?:number,
     comments:string,
     createEmployeeId:string,
     createDate:string
@@ -12,7 +12,7 @@ export interface ShipmentHistoryDTO{
 
 export const FIND_SHIPMENT_HISTORY_BY_ID = gql<
     {
-        findAllShipmentHistoryByShipmentId: UseCaseResponseDTO<ShipmentHistoryDTO>;
+        findAllShipmentHistoryByShipmentId: ShipmentHistoryDTO;
     },
     {
         shipmentId: number;
@@ -20,13 +20,10 @@ export const FIND_SHIPMENT_HISTORY_BY_ID = gql<
 >`
     query findAllShipmentHistoryByShipmentId($shipmentId: ID!) {
         findAllShipmentHistoryByShipmentId(shipmentId: $shipmentId) {
-            _links
-            data
-            notifications {
-                message
-                type
-                code
-            }
+            id
+            createDate
+            createEmployeeId
+            comments
         }
     }
 `;

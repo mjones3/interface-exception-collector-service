@@ -1,8 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, input, OnInit, signal } from '@angular/core';
+import { Component, computed, Inject, LOCALE_ID, OnInit, signal, TemplateRef, viewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TableConfiguration } from '@shared';
-import { ShipmentDetailResponseDTO } from 'app/modules/shipments/models/shipment-info.dto';
+import { ProcessHeaderComponent, ProcessHeaderService, TableConfiguration } from '@shared';
 import { TableComponent } from 'app/shared/components/table/table.component';
 import { RecoveredPlasmaShipmentCommon } from '../../recovered-plasma-shipment.common';
 import { Store } from '@ngrx/store';
@@ -13,8 +12,6 @@ import { ProductIconsService } from 'app/shared/services/product-icon.service';
 import { RecoveredPlasmaShipmentDetailsNavbarComponent } from '../recovered-plasma-shipment-details-navbar/recovered-plasma-shipment-details-navbar.component';
 import { RecoveredPlasmaShipmentService } from '../../services/recovered-plasma-shipment.service';
 import { ShipmentHistoryDTO } from '../../graphql/query-definitions/shipment-comments-history.graphql';
-import { ApolloError } from '@apollo/client';
-import { ERROR_MESSAGE } from 'app/core/data/common-labels';
 
 @Component({
   selector: 'biopro-shipment-comments',
@@ -22,43 +19,45 @@ import { ERROR_MESSAGE } from 'app/core/data/common-labels';
   imports: [
     TableComponent, 
     CommonModule, 
+    ProcessHeaderComponent,
     RecoveredPlasmaShipmentDetailsNavbarComponent
   ],
   templateUrl: './shipment-comments.component.html'
 })
 export class ShipmentCommentsComponent extends RecoveredPlasmaShipmentCommon implements OnInit{
-  shipmentDetails = input<ShipmentDetailResponseDTO>();
-
-  shipmentHistoryData= signal<ShipmentHistoryDTO[]>([])
+  shipmentHistoryData= signal<ShipmentHistoryDTO[]>(null)
 
   protected cartonRoutesComputed = computed(
     () => `/recovered-plasma/${this.route.snapshot.params?.id}/shipment-details`
   );
 
+  createDateTemplateRef = viewChild<TemplateRef<Element>>('createDateTemplateRef');
+
   shipmentInfoCommentsTableConfigComputed = computed<TableConfiguration>(() => ({
-      title: 'Shipment Comments',
       showPagination: false,
       columns: [
           {
-              id: 'employeeId',
+              id: 'createEmployeeId',
               header: 'Staff',
               sort: false,
           },
           {
-            id: 'dateAndTime',
+            id: 'createDate',
             header: 'Date and Time',
             sort: false,
+            columnTempRef: this.createDateTemplateRef(),
           },
           {
-              id: 'comments',
-              header: 'Comments',
-              sort: false,
+            id: 'comments',
+            header: 'Comments',
+            sort: false,
           }
       ],
   }));
 
   constructor(
     protected route: ActivatedRoute,
+    public header: ProcessHeaderService,
     protected store: Store,
     protected router: Router,
     protected toastr: ToastrService,
@@ -81,24 +80,20 @@ export class ShipmentCommentsComponent extends RecoveredPlasmaShipmentCommon imp
     this.fetchShipmentCommentsHistory()
   }
 
-
-  get shipmentId(): number{
-    return this.shipmentDetails()?.id;
+  get shipmentId(): number {
+    return parseInt(this.route.snapshot.params?.id);
   }
 
   fetchShipmentCommentsHistory(){
     this.shipmentService.getShipmentHistory(this.shipmentId).subscribe({
       next: (response) => {
         if (Array.isArray(response?.data?.findAllShipmentHistoryByShipmentId)) {
-            this.shipmentHistoryData.set(response?.data.findAllShipmentHistoryByShipmentId);
+            const data = response.data.findAllShipmentHistoryByShipmentId;
+            this.shipmentHistoryData.set(data);
         } else {
             this.shipmentHistoryData.set([]);
         }
-    },
-    error: (error: ApolloError) => {
-        this.toastr.error(ERROR_MESSAGE);
-        throw error;
-    },
-  });
+    }
+    });
   }
 }

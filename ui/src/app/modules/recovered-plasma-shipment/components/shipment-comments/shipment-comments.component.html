@@ -1,5 +1,10 @@
 
 <div class="flex flex-auto flex-col space-y-1">
+    <biopro-process-header
+        [subTitle]="header.subTitle | async"
+        [title]="header.title | async"
+    ></biopro-process-header> 
+
     <biopro-recovered-plasma-shipment-details-navbar
         [links]="{ 
             Cartons: cartonRoutesComputed(),
@@ -13,11 +18,15 @@
         <biopro-table
             #shipmentInfoCommentsTable
             tableId="shipmentInfoCommentsTableId"
-            [dataSource]="shipmentDetails()"
+            [dataSource]="shipmentHistoryData()"
             [configuration]="shipmentInfoCommentsTableConfigComputed()"
             [pageIndex]="0"
             [serverPagination]="false"
         >
         </biopro-table>
+
+        <ng-template #createDateTemplateRef let-element="element">
+            {{ element?.createDate | date: 'MM/dd/yyyy HH:mm' }}
+        </ng-template>
     </div>
 </div>

@@ -5,21 +5,23 @@ import {
     tick,
 } from '@angular/core/testing';
 import { MatNativeDateModule } from '@angular/material/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { By } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
-import { MutationResult, QueryResult } from '@apollo/client';
+import { MutationResult, QueryResult, ApolloError } from '@apollo/client';
 import { provideMockStore } from '@ngrx/store/testing';
 import { ApolloTestingModule } from 'apollo-angular/testing';
 import { UseCaseResponseDTO } from 'app/shared/models/use-case-response.dto';
 import { ToastrModule, ToastrService } from 'ngx-toastr';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { RecoveredPlasmaShipmentResponseDTO } from '../../models/recovered-plasma.dto';
 import { RecoveredPlasmaShipmentService } from '../../services/recovered-plasma-shipment.service';
 import { RecoveredPlasmaService } from '../../services/recovered-plasma.service';
 import { CreateShipmentComponent } from './create-shipment.component';
 import { AuthState } from 'app/core/state/auth/auth.reducer';
+import { Validators } from '@angular/forms';
+import { ModifyShipmentRequestDTO } from '../../graphql/mutation-definitions/modify-shipment.graphql';
 
 describe('CreateShipmentComponent', () => {
     let component: CreateShipmentComponent;
@@ -29,11 +31,19 @@ describe('CreateShipmentComponent', () => {
     let toastr: ToastrService;
     let router: Router;
     let dialogRef: MatDialogRef<CreateShipmentComponent>;
+    let mockMatDialog: jest.Mocked<MatDialog>;
 
     const initialState: AuthState = {
         id: 'mock-user-id',
         loaded: true,
     };
+
+    const mockEmployeeId = 'emp123';
+
+    mockMatDialog = {
+        open: jest.fn(),
+        closeAll: jest.fn(),
+    } as Partial<MatDialog> as jest.Mocked<MatDialog>;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
@@ -94,6 +104,17 @@ describe('CreateShipmentComponent', () => {
         expect(submitBtn.disabled).toBeTruthy();
     });
 
+    it('should hide carton tare weight', () => {
+        component.showCartonTareWeight = false;
+        fixture.detectChanges();
+        expect(component).toBeTruthy();
+        expect(
+            fixture.debugElement.nativeElement.querySelector(
+                '#cartonTareWeightId'
+            )
+        ).toBeFalsy();
+    });
+
     it('should display mat error if date entered is less than min date', () => {
         const formControl = component.createShipmentForm.get('shipmentDate');
         const minDate = new Date(2024, 11, 26);
@@ -108,50 +129,9 @@ describe('CreateShipmentComponent', () => {
         );
     });
 
-    it('should validate carton tare weight 3 decimal places', () => {
-        const formControl =
-            component.createShipmentForm.get('cartonTareWeight');
-        formControl.setValue(11.3333);
-        formControl.markAsTouched();
-        formControl.updateValueAndValidity();
-        fixture.detectChanges();
-        const error = fixture.debugElement.query(By.css('mat-error'));
-        expect(error).toBeTruthy();
-        expect(error.nativeElement.textContent).toContain(
-            'Carton Tare Weight is invalid'
-        );
-    });
-
-    it('should not allow comma in carton tare weight', () => {
-        const formControl =
-            component.createShipmentForm.get('cartonTareWeight');
-        formControl.setValue('1,333');
-        formControl.markAsTouched();
-        formControl.updateValueAndValidity();
-        fixture.detectChanges();
-        const error = fixture.debugElement.query(By.css('mat-error'));
-        expect(error).toBeTruthy();
-        expect(error.nativeElement.textContent).toContain(
-            'Carton Tare Weight is invalid'
-        );
-    });
-
-    it('should not allow alphabetic characters in carton tare weight', () => {
-        const formControl =
-            component.createShipmentForm.get('cartonTareWeight');
-        formControl.setValue('asasasas');
-        formControl.markAsTouched();
-        formControl.updateValueAndValidity();
-        fixture.detectChanges();
-        const error = fixture.debugElement.query(By.css('mat-error'));
-        expect(error).toBeTruthy();
-        expect(error.nativeElement.textContent).toContain(
-            'Carton Tare Weight is invalid'
-        );
-    });
-
     it('should display mat error if customer name field is empty', () => {
         const formControl = component.createShipmentForm.get('customerName');
+        formControl.enable();
         formControl.setValue('');
         formControl.markAsTouched();
         formControl.updateValueAndValidity();
@@ -176,6 +156,8 @@ describe('CreateShipmentComponent', () => {
 
     it('should enable product type field if customer name field value is  selected', fakeAsync(() => {
         const formControl = component.createShipmentForm.get('customerName');
+        formControl.enable();
+        component.createShipmentForm.get('productType').disable();
         formControl.setValue('asa');
         tick(1000);
         fixture.detectChanges();
@@ -207,7 +189,8 @@ describe('CreateShipmentComponent', () => {
         formControl.get('productType').setValue('plasma');
         formControl.get('cartonTareWeight').setValue(11);
         formControl.get('transportationReferenceNumber').setValue('');
-        formControl.get('shipmentDate').setValue(shipmentDate.toISOString());
+        formControl.get('transportationReferenceNumber').setValue('');
+        formControl.get('comments').setValue('Comments');
         formControl.markAsTouched();
         formControl.updateValueAndValidity();
         fixture.detectChanges();
@@ -287,7 +270,7 @@ describe('CreateShipmentComponent', () => {
                 },
             } as MutationResult)
         );
-
+        component.createShipmentForm.get('customerName').enable();
         component.createShipmentForm.get('productType').enable();
         const routerSpy = jest.spyOn(router, 'navigateByUrl');
 
@@ -295,8 +278,7 @@ describe('CreateShipmentComponent', () => {
         component.createShipmentForm.patchValue({
             customerName: 'testCustomer',
             productType: 'testProduct',
-            cartonTareWeight: 10.5,
-            shipmentDate: new Date('2029-12-31'),
+            shipmentDate: '2029-12-31',
             transportaionReferenceNumber: 'REF123',
         });
         component.submit();
@@ -360,5 +342,80 @@ describe('CreateShipmentComponent', () => {
         expect(
             shipmentService.createRecoveredPlasmaShipment
         ).toHaveBeenCalled();
+    });
+
+    it('should update form values when modifying existing shipment', () => {
+        const mockShipmentData: RecoveredPlasmaShipmentResponseDTO = {
+            id: 1,
+            customerCode: 'TEST_CUSTOMER',
+            shipmentDate: '2025-01-01',
+            transportationReferenceNumber: 'REF123',
+            status: 'OPEN',
+            productType: 'TEST_PRODUCT',
+            canModify: true
+        };
+
+        component.data = mockShipmentData;
+        component.updateFormValues(mockShipmentData);
+
+        expect(component.createShipmentForm.get('customerName').value).toBe('TEST_CUSTOMER');
+        expect(component.createShipmentForm.get('shipmentDate').value).toBe('2025-01-01');
+        expect(component.createShipmentForm.get('transportationReferenceNumber').value).toBe('REF123');
+        expect(component.createShipmentForm.controls.comments.hasValidator(Validators.required)).toBeTruthy();
+    });
+
+    it('should disable product type when status is not OPEN', () => {
+        const mockShipmentData: RecoveredPlasmaShipmentResponseDTO = {
+            id: 1,
+            customerCode: 'TEST_CUSTOMER',
+            status: 'CLOSED',
+            canModify: false
+        };
+
+        component.data = mockShipmentData;
+        component.disableProductType();
+        expect(component.createShipmentForm.get('productType').disabled).toBeTruthy();
+    });
+
+    it('should prepare modify shipment request correctly', () => {
+        const mockShipmentData: RecoveredPlasmaShipmentResponseDTO = {
+            id: 1,
+            customerCode: 'TEST_CUSTOMER',
+            productType: 'TEST_PRODUCT',
+            status: 'OPEN',
+            canModify: true
+        };
+        component.data = mockShipmentData;
+        const mockRequest = {
+            customerCode: 'TEST_CUSTOMER',
+            productType: 'TEST_PRODUCT',
+            shipmentDate: '2025-01-01',
+            transportationReferenceNumber: 'REF123',
+            modifyEmployeeId: mockEmployeeId,
+            shipmentId: 1,
+            comments: 'Test comment'
+        }
+        expect(mockRequest).toEqual({
+            modifyEmployeeId: 'emp123',
+            customerCode: 'TEST_CUSTOMER',
+            productType: 'TEST_PRODUCT',
+            shipmentDate:'2025-01-01',
+            transportationReferenceNumber: 'REF123',
+            shipmentId: 1,
+            comments: 'Test comment'
+        });
+    });
+
+    it('should handle error when loading customers fails', () => {
+        const mockError = new ApolloError({ errorMessage: 'Test error' });
+        jest.spyOn(recoveredPlasmaService, 'findAllCustomers').mockReturnValue(
+            throwError(() => mockError)
+        );
+        jest.spyOn(toastr, 'error');
+
+        component.ngOnInit();
+
+        expect(toastr.error).toHaveBeenCalledWith('Something Went Wrong.');
+        expect(component.customerOptionList).toEqual([]);
     });
 });

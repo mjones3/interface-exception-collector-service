@@ -1,6 +1,7 @@
-import { CommonModule, formatDate } from '@angular/common';
+import { CommonModule, formatDate, JsonPipe } from '@angular/common';
 import {
     Component,
+    inject,
     Inject,
     LOCALE_ID,
     OnDestroy,
@@ -31,7 +32,6 @@ import { ERROR_MESSAGE } from 'app/core/data/common-labels';
 import { getAuthState } from 'app/core/state/auth/auth.selectors';
 import { BasicButtonComponent } from 'app/shared/components/buttons/basic-button.component';
 import { SearchSelectComponent } from 'app/shared/components/search-select/search-select.component';
-import { cartonWeightValidator } from 'app/shared/forms/biopro-validators';
 import { OptionDTO } from 'app/shared/models/option.dto';
 import { Cookie } from 'app/shared/types/cookie.enum';
 import { consumeUseCaseNotifications } from 'app/shared/utils/notification.handling';
@@ -50,6 +50,7 @@ import { CreateShipmentRequestDTO, RecoveredPlasmaShipmentResponseDTO } from '..
 import { RecoveredPlasmaShipmentService } from '../../services/recovered-plasma-shipment.service';
 import { RecoveredPlasmaService } from '../../services/recovered-plasma.service';
 import { ToastrService } from 'ngx-toastr';
+import { ModifyShipmentRequestDTO } from '../../graphql/mutation-definitions/modify-shipment.graphql';
 
 @Component({
     selector: 'biopro-create-shipment',
@@ -65,7 +66,7 @@ import { ToastrService } from 'ngx-toastr';
         MatDialogModule,
         MatDialogActions,
         BasicButtonComponent,
-        SearchSelectComponent
+        SearchSelectComponent,
     ],
     templateUrl: './create-shipment.component.html',
 })
@@ -77,7 +78,7 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
     minDate = new Date();
     loggedUserId: string;
     isSubmitting = signal(false);
-    showCartonTareWeight: boolean = false;  //replace the value when implement carton tare weight
+    showCartonTareWeight: boolean = false;  //refactor when implement carton tare weight
     readonly commentsMaxLength = 250;
     constructor(
         private fb: FormBuilder,
@@ -96,7 +97,6 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.initializeForm();
-        this.setupCustomerValueChangeSubscription();
         this.loadCustomers();
         if(this.data !== null){
             this.updateFormValues(this.data);
@@ -119,14 +119,23 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
         this.createShipmentForm = this.fb.group({
             customerName: ['', [Validators.required]],
             productType: [{ value: '', disabled: true }, [Validators.required]],
-            cartonTareWeight: [
-                '',
-                [Validators.required, cartonWeightValidator()],
-            ],
+            cartonTareWeight: [''], //add Validators.required, cartonWeightValidator() when implement carton tare weight 
             shipmentDate: [''],
             transportationReferenceNumber: [''],
-            editShipmentComments: ['']
+            comments: ['']
         });
+        this.disableFormField();
+    }
+
+    disableFormField(){
+        if(this.data !== null){
+            if(this.data.status !== 'OPEN'){
+                this.createShipmentForm.get('productType').disable();
+                this.createShipmentForm.get('customerName').disable();
+            }
+        }else{
+            this.setupCustomerValueChangeSubscription();
+        }
     }
 
     private setupCustomerValueChangeSubscription() {
@@ -140,11 +149,7 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
                     this.shipmentService
                         .getProductTypeOptions(value)
                         .subscribe((result) => {
-                            if (
-                                Array.isArray(
-                                    result?.data?.findAllProductTypeByCustomer
-                                )
-                            ) {
+                            if (Array.isArray(result?.data?.findAllProductTypeByCustomer)) {
                                 this.productTypeOptions = map(
                                     result.data.findAllProductTypeByCustomer,
                                     (item) => {
@@ -155,24 +160,21 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
                                     }
                                 );
                                 if (this.productTypeOptions.length === 1) {
-                                    const singleOption =
-                                        this.productTypeOptions[0];
-                                    this.createShipmentForm
-                                        .get('productType')
-                                        .setValue(singleOption.code);
+                                    const singleOption =this.productTypeOptions[0];
+                                    this.createShipmentForm.get('productType').setValue(singleOption.code);
                                 }
-                                if(this.data !== null){
-                                    this.createShipmentForm.get('productType').setValue(this.data.productType);
-                                    this.disableProductType();
-                                }
-                            } else {
+                              }else{
                                 this.productTypeOptions = [];
                             }
                         });
-                } else {
-                    this.createShipmentForm.get('productType').disable();
-                    this.createShipmentForm.get('productType').setValue('');
-                    this.productTypeOptions = [];
+                    if(this.data !== null && this.data.customerCode === value){
+                            this.createShipmentForm.get('productType').setValue(this.data.productType);
+                            if(this.data.status !== 'OPEN'){
+                                this.createShipmentForm.get('productType').disable();
+                            }   
+                    }else{
+                        this.createShipmentForm.get('productType').setValue('');
+                    }
                 }
             });
     }
@@ -207,39 +209,60 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
         if (!this.createShipmentForm.valid) {
             return;
         }
-        if (this.createShipmentForm.valid) {
+        if(this.createShipmentForm.valid){
             this.isSubmitting.set(true);
+            if(this.data?.canModify){
+                this.isSubmitting.set(false);
+                this.dialogRef.close(this.modifyShipmentRequest());
+            } else {
             this.shipmentService
-                .createRecoveredPlasmaShipment(this.prepareShipmentData())
-                .pipe(
-                    finalize(() => {
-                        this.isSubmitting.set(false);
-                    }),
-                    catchError((err) => {
-                        this.toastr.error(ERROR_MESSAGE);
-                        return throwError(() => err);
-                    })
-                )
-                .subscribe({
-                    next: (response) => {
-                        const ruleResult = response?.data?.createShipment;
-                        const url = ruleResult._links?.next;
-                        const notifications = ruleResult.notifications;
-                        if (notifications?.length) {
-                            consumeUseCaseNotifications(
-                                this.toastr,
-                                notifications
-                            );
-                            this.dialogRef.close(true);
-                            if (notifications[0].type === 'SUCCESS') {
-                                if (url) {
-                                    this.handleNavigation(url);
-                                }
+            .createRecoveredPlasmaShipment(this.prepareShipmentData())
+            .pipe(
+                finalize(() => {
+                    this.isSubmitting.set(false);
+                }),
+                catchError((err) => {
+                    this.toastr.error(ERROR_MESSAGE);
+                    return throwError(() => err);
+                })
+            )
+            .subscribe({
+                next: (response) => {
+                    const ruleResult = response?.data?.createShipment;
+                    const url = ruleResult._links?.next;
+                    const notifications = ruleResult.notifications;
+                    if (notifications?.length) {
+                        consumeUseCaseNotifications(
+                            this.toastr,
+                            notifications
+                        );
+                        this.dialogRef.close(true);
+                        if (notifications[0].type === 'SUCCESS') {
+                            if (url) {
+                                this.handleNavigation(url);
                             }
                         }
-                    },
-                });
+                    }
+                },
+            });
+            }
         }
+    }
+
+    private modifyShipmentRequest(): ModifyShipmentRequestDTO{
+        const shipmentDate = this.createShipmentFormControl.shipmentDate.value
+        ? this.formatShipmentDate(this.createShipmentFormControl.shipmentDate.value)
+        : null;
+
+        return {
+            modifyEmployeeId: this.loggedUserId,
+            customerCode: this.createShipmentFormControl.customerName?.value ?? '',
+            productType: this.createShipmentFormControl.productType?.value ?? '',
+            ...(shipmentDate ? { shipmentDate } : {}),
+            transportationReferenceNumber: this.createShipmentFormControl.transportationReferenceNumber?.value ?? '',
+            shipmentId: this.data.id,
+            comments: this.createShipmentFormControl.comments?.value ?? ''
+        };
     }
 
     private prepareShipmentData(): CreateShipmentRequestDTO {
@@ -256,13 +279,6 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
             ...(shipmentDate ? { shipmentDate } : {}),
             transportationReferenceNumber: this.createShipmentFormControl.transportationReferenceNumber?.value ?? '',
         };
-        if(this.data !== null){
-            req = {
-                ...req,
-                shipmentId: this.data.id,
-                editShipmentComments: this.createShipmentFormControl.editShipmentComments?.value ?? ''
-            }
-        }
         return req;
     }
 
@@ -282,22 +298,18 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
 
 
     updateFormValues(data){
+        this.createShipmentForm.get('productType').setValue('');
+        this.setupCustomerValueChangeSubscription();
         this.createShipmentForm.patchValue({
             customerName: data.customerCode,
+            productType: data.productType,
             shipmentDate: data.shipmentDate,
             transportationReferenceNumber: data.transportationReferenceNumber,
         });
-        this.disableCustomerName();
-        this.createShipmentForm.controls.editShipmentComments.addValidators(Validators.required);
+        this.createShipmentForm.controls.comments.addValidators(Validators.required);
     }
 
     canSubmit(){
-        return !this.createShipmentForm.valid  || this.createShipmentForm.controls.productType.value === '' || this.isSubmitting()
-    }
-
-    disableCustomerName(){
-        if(this.data.status !== 'OPEN'){
-            this.createShipmentForm.get('customerName').disable();
-        }
+        return !this.createShipmentForm.valid
     }
 }

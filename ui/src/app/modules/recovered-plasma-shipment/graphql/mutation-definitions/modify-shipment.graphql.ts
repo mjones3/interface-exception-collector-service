@@ -3,7 +3,7 @@ import { UseCaseResponseDTO } from "app/shared/models/use-case-response.dto";
 import { RecoveredPlasmaShipmentResponseDTO } from "../../models/recovered-plasma.dto";
 
 
-export interface ModifyShipmentDTO{
+export interface ModifyShipmentRequestDTO{
     shipmentId: number,
     customerCode:string,
     productType:string,
@@ -16,17 +16,17 @@ export interface ModifyShipmentDTO{
 
 export const MODIFY_RECOVERED_PLASMA_SHIPMENT = gql<
     { modifyShipment: UseCaseResponseDTO<RecoveredPlasmaShipmentResponseDTO> },
-    ModifyShipmentDTO
+    ModifyShipmentRequestDTO
 >`
     mutation modifyShipment(
         $customerCode: String!
         $productType: String!
         $cartonTareWeight: Float
-        $shipmentDate: Date
+        $shipmentDate: Date!
         $transportationReferenceNumber: String
         $modifyEmployeeId: String!
         $comments: String!
-        $shipmentId: Int!
+        $shipmentId: ID!
     ) {
         modifyShipment(
             modifyShipmentRequest: {

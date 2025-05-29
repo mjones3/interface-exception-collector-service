@@ -6,8 +6,6 @@ export interface CreateShipmentRequestDTO {
     createEmployeeId: string;
     transportationReferenceNumber?: string;
     locationCode: string;
-    shipmentId?: number;
-    editShipmentComments?: string;
 }
 
 export interface CartonDTO {
