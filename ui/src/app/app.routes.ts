@@ -50,6 +50,13 @@ export const appRoutes: Route[] = [
                     ),
             },
 
+            {
+                path: 'imports',
+                canActivate: [AuthGuard],
+                loadChildren: () =>
+                    import('app/modules/imports/imports.routes'),
+            },
+
             // 404 & Catch all
             { path: '**', redirectTo: 'errors/404' },
         ],

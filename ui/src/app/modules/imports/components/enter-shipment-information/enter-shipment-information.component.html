@@ -1,0 +1,184 @@
+<div class="flex flex-auto flex-col">
+    <biopro-process-header
+        [subTitle]="header.subTitle | async"
+        [title]="header.title | async"
+        [buttons]="actionButtonsTpl"
+    />
+
+    <ng-template #actionButtonsTpl>
+        <div class="flex flex-row gap-2">
+            <biopro-action-button
+                id="importsEnterShipmentInformationCancelAction"
+                btnId="importsEnterShipmentInformationCancelActionButton"
+                label="Cancel"
+                color="secondary"
+                icon="heroicons_outline:x-circle"
+                (clickEvent)="cancel()"
+            />
+            <biopro-action-button
+                id="importsEnterShipmentInformationContinueAction"
+                btnId="importsEnterShipmentInformationContinueActionButton"
+                label="Continue"
+                color="primary"
+                icon="heroicons_outline:arrow-right-circle"
+                [disabled]="form.invalid"
+            />
+        </div>
+    </ng-template>
+
+    @if (productCategoriesSignal()?.length) {
+    <div class="flex flex-col md:flex-row gap-4 md:gap-6 p-4 md:p-6 items-start min-h-[calc(100vh-240px)]">
+        <!-- SELECT TEMPERATURE PRODUCT CATEGORY -->
+        <fuse-card class="flex flex-col w-full md:w-3/12">
+            <div class="border-b text-lg font-bold p-4">Temperature Product Category</div>
+            <div class="flex flex-col p-4 md:p-8 gap-4 md:gap-8 justify-center">
+                @for (productCategory of productCategoriesSignal(); track $index) {
+                    <button type="button"
+                            mat-fab
+                            class="flex flex-row flex-1 justify-start gap-2 m-0 px-4 py-8 overflow-hidden"
+                            [attr.data-testid]="'select-temperature-category-' + productCategory.optionValue"
+                            [class.selected]="form.controls.productCategory?.value === productCategory.optionValue"
+                            [extended]="true"
+                            (click)="selectCategory(productCategory.optionValue)"
+                    >
+                        <mat-icon [svgIcon]="TemperatureProductCategoryIconMap[productCategory.optionValue]" class="!min-w-[48px] !w-[48px] !min-h-[48px] !h-[48px]" />
+                        <span class="whitespace-nowrap">{{ productCategory.descriptionKey }}</span>
+                    </button>
+                }
+            </div>
+        </fuse-card>
+
+
+        <!-- PACKING INFORMATION AND CONDITIONS -->
+        <fuse-card class="flex flex-col w-full md:w-9/12 h-full">
+            <div class="border-b text-lg font-bold p-4">Packing Information</div>
+            @if (!form.controls.productCategory?.value || !shippingInformationSignal()) {
+            <span data-testid="no-category-selected-message" class="flex flex-col items-center justify-center w-full h-full text-secondary">Select Temperature Category</span>
+            } @else {
+            <div class="grid grid-cols-1 md:grid-cols-6 gap-4 p-4 md:p-8">
+                @if (shippingInformationSignal()?.displayTransitInformation) {
+                <!-- START TRANSIT TIME -->
+                <mat-form-field class="md:col-span-2" [formGroup]="form.controls.transitTime">
+                    <mat-label>Transit Start Date</mat-label>
+                    <input data-testid="transit-time-start-date"
+                           formControlName="startDate"
+                           [matDatepicker]="transitTimeStartDatePicker"
+                           [max]="now"
+                           matInput
+                           required
+                    />
+                    <mat-hint>MM/DD/YYYY</mat-hint>
+                    <mat-datepicker-toggle matIconSuffix [for]="transitTimeStartDatePicker"></mat-datepicker-toggle>
+                    <mat-datepicker #transitTimeStartDatePicker></mat-datepicker>
+                </mat-form-field>
+                <mat-form-field class="md:col-span-2" [formGroup]="form.controls.transitTime">
+                    <mat-label>Start Time</mat-label>
+                    <input data-testid="transit-time-start-time"
+                           type="time"
+                           formControlName="startTime"
+                           matInput
+                           required
+                    />
+                    <mat-icon matIconSuffix>schedule</mat-icon>
+                    <mat-hint>HH:MM</mat-hint>
+                </mat-form-field>
+                <mat-form-field class="md:col-span-2" [formGroup]="form.controls.transitTime">
+                    <mat-label>Start Time Zone</mat-label>
+                    <mat-select data-testid="transit-time-start-zone" formControlName="startZone" required>
+                        @for (timeZone of availableTimeZonesSignal(); track $index) {
+                            <mat-option [value]="timeZone">{{timeZone}}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+
+
+                <!-- END TRANSIT TIME -->
+                <mat-form-field class="md:col-span-2" [formGroup]="form.controls.transitTime">
+                    <mat-label>Transit End Date</mat-label>
+                    <input data-testid="transit-time-end-date"
+                           formControlName="endDate"
+                           [matDatepicker]="transitTimeEndDatePicker"
+                           [min]="form.controls.transitTime.controls?.startDate?.value || now"
+                           matInput
+                           required
+                    />
+                    <mat-hint>MM/DD/YYYY</mat-hint>
+                    <mat-datepicker-toggle matIconSuffix [for]="transitTimeEndDatePicker"></mat-datepicker-toggle>
+                    <mat-datepicker #transitTimeEndDatePicker></mat-datepicker>
+                </mat-form-field>
+                <mat-form-field class="md:col-span-2" [formGroup]="form.controls.transitTime">
+                    <mat-label>End Time</mat-label>
+                    <input data-testid="transit-time-end-time"
+                           type="time"
+                           formControlName="endTime"
+                           matInput
+                           required
+                    />
+                    <mat-icon matIconSuffix>schedule</mat-icon>
+                    <mat-hint>HH:MM</mat-hint>
+                </mat-form-field>
+                <mat-form-field class="md:col-span-2" [formGroup]="form.controls.transitTime">
+                    <mat-label>End Time Zone</mat-label>
+                    <mat-select data-testid="transit-time-end-zone" formControlName="endZone" required>
+                        @for (timeZone of availableTimeZonesSignal(); track $index) {
+                            <mat-option [value]="timeZone">{{timeZone}}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+
+
+                <!-- Total Transit Time -->
+                @if (
+                        form.controls.transitTime.controls.startDate?.value && form.controls.transitTime.controls.endDate?.value &&
+                        form.controls.transitTime.controls.startTime?.value && form.controls.transitTime.controls.endTime?.value &&
+                        form.controls.transitTime.controls.startZone?.value && form.controls.transitTime.controls.endZone?.value
+                ) {
+                <div class="md:col-span-6 rounded-md bg-blue-100 p-6 text-center mb-2">
+                    <b>Total Transit Time:</b> 00h 00m
+                </div>
+                }
+                }
+
+
+                @if (shippingInformationSignal()?.displayTemperature) {
+                <!-- Temperature -->
+                <mat-form-field class="md:col-span-3" [formGroup]="form">
+                    <mat-label>Temperature</mat-label>
+                    <input data-testid="temperature"
+                           type="number"
+                           formControlName="temperature"
+                           matInput
+                           required
+                    />
+                    <span matTextSuffix>&deg; C</span>
+                </mat-form-field>
+                <!-- Thermometer ID -->
+                <mat-form-field class="md:col-span-3" [formGroup]="form">
+                    <mat-label>Thermometer ID</mat-label>
+                    <input data-testid="thermometer-id"
+                           type="text"
+                           formControlName="thermometerId"
+                           matInput
+                           required
+                    />
+                </mat-form-field>
+                }
+
+
+                <!-- Comments -->
+                <mat-form-field class="md:col-span-6" [formGroup]="form">
+                    <mat-label>Comments</mat-label>
+                    <textarea
+                        data-testid="comments"
+                        formControlName="comments"
+                        matInput
+                        rows="3"
+                        autocomplete="off"
+                    ></textarea>
+                </mat-form-field>
+            </div>
+            }
+        </fuse-card>
+    </div>
+    }
+</div>
