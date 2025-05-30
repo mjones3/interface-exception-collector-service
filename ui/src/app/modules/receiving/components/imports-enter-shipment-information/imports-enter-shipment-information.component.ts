@@ -7,10 +7,10 @@ import { Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFabButton } from '@angular/material/button';
 import { MatDatepicker, MatDatepickerInput, MatDatepickerToggle } from '@angular/material/datepicker';
-import { MatFormField, MatHint, MatLabel, MatSuffix } from '@angular/material/form-field';
+import { MatError, MatFormField, MatHint, MatLabel, MatSuffix } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatIcon } from '@angular/material/icon';
-import { ImportsService } from '../../service/imports.service';
+import { ReceivingService } from '../../service/receiving.service';
 import { Store } from '@ngrx/store';
 import { getAuthState } from '../../../../core/state/auth/auth.selectors';
 import { catchError, map, Observable, tap } from 'rxjs';
@@ -19,7 +19,7 @@ import { ApolloError } from '@apollo/client';
 import {
     ShippingInformationDTO,
     TemperatureProductCategoryIconMap
-} from '../../graphql/query-definitions/enter-shipping-information.graphql';
+} from '../../graphql/query-definitions/imports-enter-shipping-information.graphql';
 import handleApolloError from '../../../../shared/utils/apollo-error-handling';
 import { consumeUseCaseNotifications } from '../../../../shared/utils/notification.handling';
 import { Cookie } from '../../../../shared/types/cookie.enum';
@@ -27,7 +27,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { MatOption, MatSelect } from '@angular/material/select';
 
 @Component({
-  selector: 'app-enter-shipment-information',
+  selector: 'biopro-imports-enter-shipment-information',
   standalone: true,
     imports: [
         ActionButtonComponent,
@@ -46,12 +46,13 @@ import { MatOption, MatSelect } from '@angular/material/select';
         MatIcon,
         MatFabButton,
         MatSelect,
-        MatOption
+        MatOption,
+        MatError,
     ],
-  templateUrl: './enter-shipment-information.component.html',
-    styleUrls: [ './enter-shipment-information.component.scss' ],
+  templateUrl: './imports-enter-shipment-information.component.html',
+    styleUrls: [ './imports-enter-shipment-information.component.scss' ],
 })
-export class EnterShipmentInformationComponent implements OnInit {
+export class ImportsEnterShipmentInformationComponent implements OnInit {
 
     protected readonly TemperatureProductCategoryIconMap = TemperatureProductCategoryIconMap;
 
@@ -60,7 +61,7 @@ export class EnterShipmentInformationComponent implements OnInit {
     toastr = inject(ToastrImplService);
     header = inject(ProcessHeaderService);
     store = inject(Store);
-    importsService = inject(ImportsService);
+    receivingService = inject(ReceivingService);
     cookieService = inject(CookieService);
 
     form = this.formBuilder.group({
@@ -96,7 +97,7 @@ export class EnterShipmentInformationComponent implements OnInit {
     }
 
     fetchLookups(): Observable<LookUpDto[]> {
-        return this.importsService
+        return this.receivingService
             .findAllLookupsByType('TEMPERATURE_PRODUCT_CATEGORY')
             .pipe(
                 catchError((error: ApolloError) => handleApolloError(this.toastr, error)),
@@ -108,7 +109,7 @@ export class EnterShipmentInformationComponent implements OnInit {
     }
 
     fetchEnterShippingInformation(productCategory: string): Observable<ShippingInformationDTO> {
-        return this.importsService
+        return this.receivingService
             .queryEnterShippingInformation({
                 productCategory: productCategory,
                 employeeId: this.employeeIdComputed(),

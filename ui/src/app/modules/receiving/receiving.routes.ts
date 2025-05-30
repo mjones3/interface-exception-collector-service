@@ -2,8 +2,8 @@ import { Routes } from '@angular/router';
 import { initialDataResolver } from 'app/app.resolvers';
 import { EmptyLayoutComponent } from 'app/layout/layouts/empty/empty.component';
 import {
-    EnterShipmentInformationComponent
-} from './components/enter-shipment-information/enter-shipment-information.component';
+    ImportsEnterShipmentInformationComponent
+} from './components/imports-enter-shipment-information/imports-enter-shipment-information.component';
 
 export default [
     {
@@ -13,8 +13,8 @@ export default [
         resolve: { initialData: initialDataResolver },
         children: [
             {
-                path: 'enter-shipment-information',
-                component: EnterShipmentInformationComponent,
+                path: 'imports-enter-shipment-information',
+                component: ImportsEnterShipmentInformationComponent,
                 data: {
                     subTitle: 'Shipment Information',
                 },

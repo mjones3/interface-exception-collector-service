@@ -1,27 +1,26 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { EnterShipmentInformationComponent } from './enter-shipment-information.component';
+import { ImportsEnterShipmentInformationComponent } from './imports-enter-shipment-information.component';
 import { Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ProcessHeaderService, ToastrImplService } from '@shared';
-import { ImportsService } from '../../service/imports.service';
+import { ReceivingService } from '../../service/receiving.service';
 import { CookieService } from 'ngx-cookie-service';
 import { of, throwError } from 'rxjs';
 import { ApolloError, ApolloQueryResult } from '@apollo/client';
 import { Cookie } from '../../../../shared/types/cookie.enum';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { ShippingInformationDTO } from '../../graphql/query-definitions/enter-shipping-information.graphql';
+import { ShippingInformationDTO } from '../../graphql/query-definitions/imports-enter-shipping-information.graphql';
 import { UseCaseResponseDTO } from '../../../../shared/models/use-case-response.dto';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { MockStore, provideMockStore } from '@ngrx/store/testing';
+import { provideMockStore } from '@ngrx/store/testing';
 
-describe('EnterShipmentInformationComponent', () => {
-  let component: EnterShipmentInformationComponent;
-  let fixture: ComponentFixture<EnterShipmentInformationComponent>;
+describe('ImportsEnterShipmentInformationComponent', () => {
+  let component: ImportsEnterShipmentInformationComponent;
+  let fixture: ComponentFixture<ImportsEnterShipmentInformationComponent>;
   let mockRouter: jest.Mocked<Router>;
   let mockToastr: jest.Mocked<ToastrImplService>;
   let mockHeader: jest.Mocked<ProcessHeaderService>;
-  let mockStore: MockStore;
-  let mockImportsService: jest.Mocked<ImportsService>;
+  let mockReceivingService: jest.Mocked<ReceivingService>;
   let mockCookieService: jest.Mocked<CookieService>;
 
   const mockLookups = [
@@ -46,7 +45,7 @@ describe('EnterShipmentInformationComponent', () => {
       warning: jest.fn()
     } as any;
     mockHeader = {} as any;
-    mockImportsService = {
+    mockReceivingService = {
       findAllLookupsByType: jest.fn().mockReturnValue(of({ data: { findAllLookupsByType: mockLookups } })),
       queryEnterShippingInformation: jest.fn().mockReturnValue(of({
         data: {
@@ -63,7 +62,7 @@ describe('EnterShipmentInformationComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [
-        EnterShipmentInformationComponent,
+        ImportsEnterShipmentInformationComponent,
         ReactiveFormsModule,
         BrowserAnimationsModule,
         MatIconTestingModule,
@@ -80,13 +79,12 @@ describe('EnterShipmentInformationComponent', () => {
         { provide: Router, useValue: mockRouter },
         { provide: ToastrImplService, useValue: mockToastr },
         { provide: ProcessHeaderService, useValue: mockHeader },
-        { provide: ImportsService, useValue: mockImportsService },
+        { provide: ReceivingService, useValue: mockReceivingService },
         { provide: CookieService, useValue: mockCookieService }
       ]
     }).compileComponents();
 
-    mockStore = TestBed.inject(MockStore);
-    fixture = TestBed.createComponent(EnterShipmentInformationComponent);
+    fixture = TestBed.createComponent(ImportsEnterShipmentInformationComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -105,13 +103,13 @@ describe('EnterShipmentInformationComponent', () => {
 
   it('should fetch lookups on init', () => {
     component.ngOnInit();
-    expect(mockImportsService.findAllLookupsByType).toHaveBeenCalledWith('TEMPERATURE_PRODUCT_CATEGORY');
+    expect(mockReceivingService.findAllLookupsByType).toHaveBeenCalledWith('TEMPERATURE_PRODUCT_CATEGORY');
     expect(component.productCategoriesSignal()).toEqual(mockLookups);
   });
 
   it('should handle lookup fetching error', () => {
     const error = new ApolloError({ graphQLErrors: [{ message: 'Test error' }] });
-    mockImportsService.findAllLookupsByType.mockReturnValueOnce(throwError(() => error));
+    mockReceivingService.findAllLookupsByType.mockReturnValueOnce(throwError(() => error));
 
     component.ngOnInit();
 
@@ -122,7 +120,7 @@ describe('EnterShipmentInformationComponent', () => {
     const productCategory = 'CAT1';
     component.selectCategory(productCategory);
 
-    expect(mockImportsService.queryEnterShippingInformation).toHaveBeenCalledWith({
+    expect(mockReceivingService.queryEnterShippingInformation).toHaveBeenCalledWith({
       productCategory,
       employeeId: 'testEmployeeId',
       locationCode: 'testFacility'
@@ -143,7 +141,7 @@ describe('EnterShipmentInformationComponent', () => {
   });
 
   it('should clear form validators when display flags are false', () => {
-    mockImportsService.queryEnterShippingInformation.mockReturnValueOnce(of({
+    mockReceivingService.queryEnterShippingInformation.mockReturnValueOnce(of({
       data: {
         enterShippingInformation: {
           data: {
@@ -185,7 +183,7 @@ describe('EnterShipmentInformationComponent', () => {
 
   it('should handle shipping information fetching error', () => {
     const error = new ApolloError({ graphQLErrors: [{ message: 'Test error' }] });
-    mockImportsService.queryEnterShippingInformation.mockReturnValueOnce(throwError(() => error));
+    mockReceivingService.queryEnterShippingInformation.mockReturnValueOnce(throwError(() => error));
 
     component.selectCategory('CAT1');
 

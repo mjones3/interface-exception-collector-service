@@ -7,14 +7,14 @@ import {
     ENTER_SHIPPING_INFORMATION,
     EnterShippingInformationRequestDTO,
     ShippingInformationDTO
-} from '../graphql/query-definitions/enter-shipping-information.graphql';
+} from '../graphql/query-definitions/imports-enter-shipping-information.graphql';
 import { LookUpDto } from '@shared';
 import { FIND_ALL_LOOKUPS_BY_TYPE } from '../../recovered-plasma-shipment/graphql/query-definitions/lookup.graphql';
 
 @Injectable({
     providedIn: 'root',
 })
-export class ImportsService {
+export class ReceivingService {
 
     private readonly servicePath = '/receiving/graphql';
 

@@ -114,7 +114,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
         id: 13,
         title: 'Imports',
         type: 'basic',
-        link: 'imports/enter-shipment-information',
+        link: 'receiving/imports-enter-shipment-information',
         icon: 'local_shipping',
         disabled: false,
     },

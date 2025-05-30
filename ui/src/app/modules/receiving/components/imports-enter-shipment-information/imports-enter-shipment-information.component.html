@@ -70,9 +70,10 @@
                     <mat-hint>MM/DD/YYYY</mat-hint>
                     <mat-datepicker-toggle matIconSuffix [for]="transitTimeStartDatePicker"></mat-datepicker-toggle>
                     <mat-datepicker #transitTimeStartDatePicker></mat-datepicker>
+                    @if (form.controls.transitTime.controls.startDate.hasError('required')) { <mat-error>Transit Start Date is required</mat-error> }
                 </mat-form-field>
                 <mat-form-field class="md:col-span-2" [formGroup]="form.controls.transitTime">
-                    <mat-label>Start Time</mat-label>
+                    <mat-label>Transit Start Time</mat-label>
                     <input data-testid="transit-time-start-time"
                            type="time"
                            formControlName="startTime"
@@ -81,6 +82,7 @@
                     />
                     <mat-icon matIconSuffix>schedule</mat-icon>
                     <mat-hint>HH:MM</mat-hint>
+                    @if (form.controls.transitTime.controls.startTime.hasError('required')) { <mat-error>Transit Start Time is required</mat-error> }
                 </mat-form-field>
                 <mat-form-field class="md:col-span-2" [formGroup]="form.controls.transitTime">
                     <mat-label>Start Time Zone</mat-label>
@@ -89,6 +91,7 @@
                             <mat-option [value]="timeZone">{{timeZone}}</mat-option>
                         }
                     </mat-select>
+                    @if (form.controls.transitTime.controls.startZone.hasError('required')) { <mat-error>Start Time Zone is required</mat-error> }
                 </mat-form-field>
 
 
@@ -105,6 +108,7 @@
                     <mat-hint>MM/DD/YYYY</mat-hint>
                     <mat-datepicker-toggle matIconSuffix [for]="transitTimeEndDatePicker"></mat-datepicker-toggle>
                     <mat-datepicker #transitTimeEndDatePicker></mat-datepicker>
+                    @if (form.controls.transitTime.controls.endDate.hasError('required')) { <mat-error>Transit End Date is required</mat-error> }
                 </mat-form-field>
                 <mat-form-field class="md:col-span-2" [formGroup]="form.controls.transitTime">
                     <mat-label>End Time</mat-label>
@@ -116,6 +120,7 @@
                     />
                     <mat-icon matIconSuffix>schedule</mat-icon>
                     <mat-hint>HH:MM</mat-hint>
+                    @if (form.controls.transitTime.controls.endTime.hasError('required')) { <mat-error>Transit End Time is required</mat-error> }
                 </mat-form-field>
                 <mat-form-field class="md:col-span-2" [formGroup]="form.controls.transitTime">
                     <mat-label>End Time Zone</mat-label>
@@ -124,6 +129,7 @@
                             <mat-option [value]="timeZone">{{timeZone}}</mat-option>
                         }
                     </mat-select>
+                    @if (form.controls.transitTime.controls.endZone.hasError('required')) { <mat-error>End Time Zone is required</mat-error> }
                 </mat-form-field>
 
 
@@ -151,6 +157,7 @@
                            required
                     />
                     <span matTextSuffix>&deg; C</span>
+                    @if (form.controls.temperature.hasError('required')) { <mat-error>Temperature is required</mat-error> }
                 </mat-form-field>
                 <!-- Thermometer ID -->
                 <mat-form-field class="md:col-span-3" [formGroup]="form">
@@ -161,6 +168,7 @@
                            matInput
                            required
                     />
+                    @if (form.controls.thermometerId.hasError('required')) { <mat-error>Thermometer ID is required</mat-error> }
                 </mat-form-field>
                 }
 
