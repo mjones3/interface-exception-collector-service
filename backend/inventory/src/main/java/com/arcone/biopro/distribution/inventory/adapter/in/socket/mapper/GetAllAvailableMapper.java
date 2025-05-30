@@ -26,6 +26,8 @@ public interface GetAllAvailableMapper {
     @Mapping(target = "aboRh", ignore = true)
     @Mapping(target = "collectionTimeZone", ignore = true)
     @Mapping(target = "collectionLocation", ignore = true)
+    @Mapping(target = "isLicensed", ignore = true)
+    @Mapping(target = "weight", ignore = true)
     InventoryInput toInput(InventoryValidationRequest dto);
 
     @Mapping(target = "inventoryResponseDTO", source = "inventoryOutput")

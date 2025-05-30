@@ -242,4 +242,19 @@ class InventoryAggregateTest {
         assertSame(inventoryAggregate, result, "Should return the same instance");
     }
 
+    @Test
+    @DisplayName(("Should Add and Remove Quarantine Flag"))
+    void shouldAddAndRemoveQuarantineFlag() {
+
+        InventoryAggregate aggregate =InventoryAggregate.builder().inventory(Inventory.builder().build()).build();
+
+        aggregate.addQuarantine(1L, "REASON", null);
+
+        assertTrue(aggregate.isQuarantined());
+
+        aggregate.removeQuarantine(1L);
+
+        assertFalse(aggregate.isQuarantined());
+    }
+
 }

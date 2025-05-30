@@ -6,6 +6,7 @@ import com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.Pr
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.created.wholeblood.WholeBloodProductCreatedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.discarded.ProductDiscardedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.imported.ProductsImportedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.label.LabelAppliedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.labelinvalidated.LabelInvalidatedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.modified.ProductModifiedMessage;
@@ -126,6 +127,9 @@ class KafkaConfiguration {
 
     @Value("${topic.label-invalidated.name}")
     private String labelInvalidatedTopic;
+
+    @Value("${topic.products-imported.name}")
+    private String productsImportedTopic;
 
     @Bean
     @Qualifier("UNSUITABLE")
@@ -511,6 +515,25 @@ class KafkaConfiguration {
     @Bean(name = "PRODUCT_MODIFIED_CONSUMER")
     ReactiveKafkaConsumerTemplate<String, String> productModifiedConsumerTemplate(
         @Qualifier("PRODUCT_MODIFIED") ReceiverOptions<String, String> receiverOptions
+    ) {
+        return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
+    }
+
+    @Bean
+    @Qualifier("PRODUCTS_IMPORTED")
+    ReceiverOptions<String, String> productsImportedReceiverOptions(KafkaProperties kafkaProperties) {
+        return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
+            .subscription(List.of(productsImportedTopic));
+    }
+
+    @AsyncListener(operation = @AsyncOperation(
+        channelName = "ProductsImported",
+        description = "Products have been imported.",
+        payloadType = ProductsImportedMessage.class
+    ))
+    @Bean(name = "PRODUCTS_IMPORTED_CONSUMER")
+    ReactiveKafkaConsumerTemplate<String, String> productsImportedConsumerTemplate(
+        @Qualifier("PRODUCTS_IMPORTED") ReceiverOptions<String, String> receiverOptions
     ) {
         return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
     }
