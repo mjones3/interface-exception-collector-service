@@ -4,6 +4,7 @@ import com.arcone.biopro.distribution.inventory.adapter.in.listener.EventMessage
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.checkin.CheckInCompletedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.created.wholeblood.WholeBloodProductCreatedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.discarded.ProductDiscardedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.label.LabelAppliedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.labelinvalidated.LabelInvalidatedMessage;
@@ -24,6 +25,7 @@ import io.github.springwolf.core.asyncapi.annotations.AsyncListener;
 import io.github.springwolf.core.asyncapi.annotations.AsyncMessage;
 import io.github.springwolf.core.asyncapi.annotations.AsyncOperation;
 import io.github.springwolf.core.asyncapi.annotations.AsyncPublisher;
+import io.github.springwolf.plugins.kafka.asyncapi.annotations.KafkaAsyncOperationBinding;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.opentelemetry.instrumentation.kafkaclients.v2_6.TracingProducerInterceptor;
 import lombok.RequiredArgsConstructor;
@@ -106,7 +108,7 @@ class KafkaConfiguration {
 
     @Value("${topic.recovered-plasma-carton-removed.name}")
     private String recoveredPlasmaCartonRemovedTopic;
-    
+
     @Value("${topic.recovered-plasma-carton-unpacked.name}")
     private String recoveredPlasmaCartonUnpackedTopic;
 
@@ -208,7 +210,7 @@ class KafkaConfiguration {
         return ReceiverOptions.<String, String>create(kafkaProperties.buildConsumerProperties(null))
             .subscription(List.of(recoveredPlasmaCartonRemovedTopic));
     }
-    
+
     @Bean
     @Qualifier("RECOVERED_PLASMA_CARTON_UNPACKED")
     ReceiverOptions<String, String> recoveredPlasmaCartonUnpackedReceiverOptions(KafkaProperties kafkaProperties) {
@@ -269,18 +271,19 @@ class KafkaConfiguration {
     ))
 
     @AsyncPublisher(operation = @AsyncOperation(
-        channelName = "ApheresisPlasmaProductCreated",
+        channelName = "WholeBloodProductCreated",
         description = "Apheresis Plasma Product Created Event",
         message = @AsyncMessage(
-            name = "ApheresisPlasmaProductCreated",
-            title = "ApheresisPlasmaProductCreated",
-            description = "Apheresis Plasma Product Created Event Payload"
-        ),payloadType = ProductCreatedMessage.class
+            name = "WholeBloodProductCreated",
+            title = "WholeBloodProductCreated",
+            description = "Whole Blood Product Created Event Payload"
+        ),payloadType = WholeBloodProductCreatedMessage.class
     ))
+    @KafkaAsyncOperationBinding
     @AsyncListener(operation = @AsyncOperation(
         channelName = "WholeBloodProductCreated",
-        description = "Wholeblood Product has been created.",
-        payloadType = ProductCreatedMessage.class
+        description = "Whole Blood Product Created Event Payload",
+        payloadType = WholeBloodProductCreatedMessage.class
     ))
     @Bean(name = "PRODUCT_CREATED_CONSUMER")
     ReactiveKafkaConsumerTemplate<String, String> productCreatedConsumerTemplate(
@@ -423,7 +426,7 @@ class KafkaConfiguration {
     ) {
         return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
     }
-    
+
     @AsyncListener(operation = @AsyncOperation(
         channelName = "RecoveredPlasmaCartonUnpacked",
         description = "Recovered Plasma Carton Unpacked event has been listened and inventory status was updated",
