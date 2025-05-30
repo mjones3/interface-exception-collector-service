@@ -10,7 +10,7 @@ Feature: Product Imported event
 
             Then the inventory statuses should be updated as follows:
                 | Status    | Temperature Category   |  | Location   | Unit Number   | Product Code   | Product Family   | Expiration Date   | Product Description   | Abo Rh   | Licensed   | Is Labeled | Is licensed |
-                | AVAILABLE | <Temperature Category> |  | <Location> | <Unit Number> | <Product Code> | <Product Family> | <Expiration Date> | <Product Description> | <Abo Rh> | <Licensed> | false      | <Licensed>  |
+                | AVAILABLE | <Temperature Category> |  | <Location> | <Unit Number> | <Product Code> | <Product Family> | <Expiration Date> | <Product Description> | <Abo Rh> | <Licensed> | true          | <Licensed>  |
             And the properties should be added:
                 | Unit Number   | Product Code   | Properties            |
                 | <Unit Number> | <Product Code> | IMPORTED, QUARANTINED |
@@ -28,7 +28,7 @@ Feature: Product Imported event
 
             Then the inventory statuses should be updated as follows:
                 | Status    | Temperature Category   |  | Location   | Unit Number   | Product Code   | Product Family   | Expiration Date   | Product Description   | Abo Rh   | Is Labeled | Is licensed   |
-                | AVAILABLE | <Temperature Category> |  | <Location> | <Unit Number> | <Product Code> | <Product Family> | <Expiration Date> | <Product Description> | <Abo Rh> | false      | <Is Licensed> |
+                | AVAILABLE | <Temperature Category> |  | <Location> | <Unit Number> | <Product Code> | <Product Family> | <Expiration Date> | <Product Description> | <Abo Rh> | true          | <Is Licensed> |
             And the properties should be added:
                 | Unit Number   | Product Code   | Properties            |
                 | <Unit Number> | <Product Code> | IMPORTED, QUARANTINED |
