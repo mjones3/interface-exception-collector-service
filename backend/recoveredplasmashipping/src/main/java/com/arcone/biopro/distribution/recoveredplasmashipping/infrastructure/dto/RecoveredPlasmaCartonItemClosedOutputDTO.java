@@ -23,7 +23,9 @@ public record RecoveredPlasmaCartonItemClosedOutputDTO(
     String aboRh,
     ZonedDateTime donationDate,
     LocalDateTime drawBeginTime,
-    String collectionFacility
+    String collectionFacility,
+    String collectionTimeZone
+
 
 ) implements Serializable {
 }

@@ -120,6 +120,8 @@ class RecoveredPlasmaShipmentClosedEventMapperTest {
         assertEquals(10, cartonResult.volume());
         assertEquals(15, cartonResult.weight());
         assertNotNull(cartonResult.donationDate());
+        assertEquals("LOCATION", cartonResult.collectionFacility());
+        assertEquals("TZ", cartonResult.collectionTimeZone());
 
     }
 
@@ -218,6 +220,8 @@ class RecoveredPlasmaShipmentClosedEventMapperTest {
             .volume(10)
             .weight(15)
             .collectionDate(ZonedDateTime.now())
+                .collectionLocation("LOCATION")
+                .collectionTimeZone("TZ")
             .build());
     }
 
