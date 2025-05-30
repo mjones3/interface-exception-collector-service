@@ -9,9 +9,9 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 @Schema(
-    name = "ApheresisPlasmaProductCreated",
-    title = "ApheresisPlasmaProductCreated",
-    description = "Apheresis Plasma Product Created Event"
+    name = "WholeBloodProductCreated",
+    title = "WholeBloodProductCreated",
+    description = "Whole Blood Product Created Event"
 )
 public record WholeBloodProductCreatedMessage(
     @Schema(description = "Unit number identifier")

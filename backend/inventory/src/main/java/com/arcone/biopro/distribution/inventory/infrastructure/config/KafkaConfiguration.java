@@ -271,17 +271,17 @@ class KafkaConfiguration {
     ))
 
     @AsyncPublisher(operation = @AsyncOperation(
-        channelName = "ApheresisPlasmaProductCreated",
+        channelName = "WholeBloodProductCreated",
         description = "Apheresis Plasma Product Created Event",
         message = @AsyncMessage(
-            name = "ApheresisPlasmaProductCreated",
-            title = "ApheresisPlasmaProductCreated",
-            description = "Apheresis Plasma Product Created Event Payload"
-        ),payloadType = ProductCreatedMessage.class
+            name = "WholeBloodProductCreated",
+            title = "WholeBloodProductCreated",
+            description = "Whole Blood Product Created Event Payload"
+        ),payloadType = WholeBloodProductCreatedMessage.class
     ))
     @KafkaAsyncOperationBinding
     @AsyncListener(operation = @AsyncOperation(
-        channelName = "ApheresisPlasmaProductCreated",
+        channelName = "WholeBloodProductCreated",
         description = "Whole Blood Product Created Event Payload",
         payloadType = WholeBloodProductCreatedMessage.class
     ))
