@@ -157,7 +157,7 @@ public class InventoryAggregate {
     public InventoryAggregate removeQuarantine(Long quarantineId) {
         inventory.removeQuarantine(quarantineId);
 
-        if (!isQuarantined()) {
+        if (inventory.getQuarantines().isEmpty()) {
             removeProperty(PropertyKey.QUARANTINED);
         }
         return this;
