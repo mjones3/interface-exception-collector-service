@@ -22,6 +22,7 @@ public record ProductCreatedInput(String unitNumber,
                                   String productFamily,
                                   AboRhType aboRh,
                                   Boolean licensed,
+                                  String temperatureCategory,
                                   List<InputProduct> inputProducts,
                                   List<AddQuarantineInput> quarantines) {
 }

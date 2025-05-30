@@ -7,8 +7,7 @@ import com.arcone.biopro.distribution.inventory.application.dto.ProductsImported
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
@@ -31,6 +30,7 @@ public interface ProductsImportedMessageMapper extends MessageMapper<ProductsImp
     @Mapping(target = "productDescription", source = "product.productDescription")
     @Mapping(target = "expirationDate", expression = "java(extractDate(product.getExpirationDate()))")
     @Mapping(target = "expirationTime", expression = "java(extractTime(product.getExpirationDate()))")
+    @Mapping(target = "temperatureCategory", source = "message.temperatureCategory")
     @Mapping(target = "expirationTimeZone", ignore = true)
     @Mapping(target = "weight", ignore = true)
     @Mapping(target = "collectionDate", ignore = true)
@@ -46,6 +46,10 @@ public interface ProductsImportedMessageMapper extends MessageMapper<ProductsImp
 
 
     default List<AddQuarantineInput> toAddQuarantineInput(List<ProductsImportedMessage.ImportedConsequence> consequences) {
+        if (consequences == null) {
+            return null;
+        }
+
         AtomicLong id = new AtomicLong(0);
         return consequences.stream()
             .filter(c -> "QUARANTINE".equals(c.getConsequenceType()))
@@ -58,16 +62,14 @@ public interface ProductsImportedMessageMapper extends MessageMapper<ProductsImp
         return Objects.nonNull(product.getProperties()) && "true".equals(product.getProperties().get("LICENSED"));
     }
 
-    default String extractDate(ZonedDateTime date) {
+    default String extractDate(LocalDateTime date) {
         return date != null ? date
-            .withZoneSameInstant(ZoneOffset.UTC)
-            .toLocalDate().format(DateTimeFormatter.ofPattern("MM/dd/yyyy")) : null;
+            .format(DateTimeFormatter.ofPattern("MM/dd/yyyy")) : null;
     }
 
-    default String extractTime(ZonedDateTime date) {
+    default String extractTime(LocalDateTime date) {
         return date != null ? date
-            .withZoneSameInstant(ZoneOffset.UTC)
-            .toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm")) : null;
+            .toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm:ss")) : null;
     }
 
 

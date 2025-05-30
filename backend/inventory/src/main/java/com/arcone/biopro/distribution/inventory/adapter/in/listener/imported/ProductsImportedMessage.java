@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -37,7 +37,7 @@ public class ProductsImportedMessage {
         private String productFamily;
         private String productDescription;
         private AboRhType aboRh;
-        private ZonedDateTime expirationDate;
+        private LocalDateTime expirationDate;
         private Map<String, String> properties;
         private List<ImportedConsequence> consequences;
     }

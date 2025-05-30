@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -34,13 +36,14 @@ public class ProductsImportedUseCase implements UseCase<Mono<InventoryOutput>, P
             .flatMap(productCreatedInput -> inventoryAggregateRepository
                 .findByUnitNumberAndProductCode(productCreatedInput.unitNumber(), productCreatedInput.productCode())
                 .switchIfEmpty(Mono.defer(() -> buildAggregate(productCreatedInput)))
-                .map(inventoryAggregate -> addQuarantines(inventoryAggregate, productCreatedInput))
+                .map(inventoryAggregate -> addProperties(inventoryAggregate, productCreatedInput))
                 .flatMap(inventoryAggregateRepository::saveInventory)
-                .doOnSuccess(aggregate -> publisher.publish(new InventoryCreatedEvent(aggregate)))
+               // .doOnSuccess(aggregate -> publisher.publish(new InventoryCreatedEvent(aggregate)))
                 .doOnSuccess(response -> log.info("Product imported: {}", response))
                 .doOnError(e -> log.error("Error occurred during import product. Input: {}, error: {}", productCreatedInput, e.getMessage(), e))
             )
-            .last()
+            .collectList()
+            .map(List::getLast)
             .map(InventoryAggregate::getInventory)
             .map(mapper::toOutput);
 
@@ -51,13 +54,12 @@ public class ProductsImportedUseCase implements UseCase<Mono<InventoryOutput>, P
         return Mono.just(mapper.toAggregate(productCreatedInput));
     }
 
-    private InventoryAggregate addQuarantines(InventoryAggregate inventoryAggregate, ProductCreatedInput productCreatedInput) {
-        if (productCreatedInput.quarantines() == null) {
-            return inventoryAggregate;
-        }
+    private InventoryAggregate addProperties(InventoryAggregate inventoryAggregate, ProductCreatedInput productCreatedInput) {
+        inventoryAggregate.addImportedFlag();
 
-        productCreatedInput.quarantines().forEach(quarantine -> inventoryAggregate
-            .addQuarantine(quarantine.quarantineId(),quarantine.reason(), quarantine.comments()));
+        if (productCreatedInput.quarantines() != null && !productCreatedInput.quarantines().isEmpty()) {
+            inventoryAggregate.addQuarantineFlag();
+        }
 
         return inventoryAggregate;
 

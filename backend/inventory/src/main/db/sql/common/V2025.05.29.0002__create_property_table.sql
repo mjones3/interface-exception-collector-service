@@ -8,3 +8,9 @@ CREATE TABLE inventory.bld_inventory_property
     modification_date           TIMESTAMP WITH TIME ZONE NOT NULL,
     CONSTRAINT pk_bld_inventory_property PRIMARY KEY (id)
 );
+
+ALTER TABLE inventory.bld_inventory_property
+ADD CONSTRAINT fk_inventory_property_inventory
+FOREIGN KEY (inventory_id)
+REFERENCES inventory.bld_inventory (id)
+ON DELETE CASCADE;
