@@ -270,6 +270,7 @@ public class InventoryAggregate {
 
     public void addImportedFlag() {
         addProperty(PropertyKey.IMPORTED, "Y");
+        inventory.setIsLabeled(true);
     }
 
     private void addProperty(PropertyKey key, String value) {
