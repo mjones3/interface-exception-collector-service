@@ -23,6 +23,13 @@ import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { ShipmentResponseDTO } from 'app/modules/shipments/models/shipment-info.dto';
 import { LabelPrinterResponseDTO, PrintLabelService } from '../../../../shared/services/print-label.service';
 import { ApolloTestingModule } from 'apollo-angular/testing';
+import { AuthState } from 'app/core/state/auth/auth.reducer';
+import { RecoveredPlasmaShipmentService } from '../../services/recovered-plasma-shipment.service';
+import { provideMockStore } from '@ngrx/store/testing';
+import { ShipmentHistoryDTO } from '../../graphql/query-definitions/shipment-comments-history.graphql';
+import { CreateShipmentComponent } from '../create-shipment/create-shipment.component';
+import { ModifyShipmentRequestDTO } from '../../graphql/mutation-definitions/modify-shipment.graphql';
+
 
 describe('RecoveredPlasmaShippingDetailsComponent', () => {
     let component: RecoveredPlasmaShippingDetailsComponent;
@@ -35,8 +42,10 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
     let mockMatDialog: jest.Mocked<MatDialog>;
     let mockPrintLabelService: jest.Mocked<PrintLabelService>;
     let mockBrowserPrintingService: jest.Mocked<BrowserPrintingService>;
+    let mockEditDialogRef: jest.Mocked<MatDialogRef<CreateShipmentComponent, any>>;
     let mockDialogRef: jest.Mocked<MatDialogRef<ViewShippingCartonPackingSlipComponent, CartonPackingSlipDTO | string>>;
     let mockConfirmationDialog: jest.Mocked<MatDialog>;
+    let mockShipmentService: jest.Mocked<RecoveredPlasmaShipmentService>;
     let mockActivatedRoute: any;
 
     beforeEach(async () => {
@@ -45,6 +54,12 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
             navigateByUrl: jest.fn(),
             url: '/test-url',
         } as Partial<Router> as jest.Mocked<Router>;
+
+        mockEditDialogRef = {
+            afterOpened: jest.fn(),
+            afterClosed: jest.fn(),
+            close: jest.fn(),
+        } as Partial<MatDialogRef<CreateShipmentComponent, ModifyShipmentRequestDTO>> as jest.Mocked<MatDialogRef<CreateShipmentComponent, ModifyShipmentRequestDTO>>;
 
         mockDialogRef = {
             afterOpened: jest.fn().mockReturnValue(of({})),
@@ -61,6 +76,11 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
                 afterClosed: () => of('confirmed')
             }),
         } as Partial<MatDialog> as jest.Mocked<MatDialog>;
+
+        mockShipmentService = {
+            getShipmentHistory: jest.fn().mockReturnValue({}),
+            editRecoveredPlasmaShipment: jest.fn(),
+        } as Partial<RecoveredPlasmaShipmentService> as jest.Mocked<RecoveredPlasmaShipmentService>;
 
         mockPrintLabelService = {
             installed: jest.fn().mockReturnValue(of(true)),
@@ -102,11 +122,18 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
 
         mockActivatedRoute = {
             paramMap: of({}),
+            queryParams: of({}),
+            params: of({ id: 1 }),
             snapshot: {
                 params: { id: 1 },
                 queryParams: {},
             },
         };
+
+        const initialState: AuthState = {
+            id: 'mock-user-id',
+            loaded: true,
+          };
 
         const matDailogMockData = {
                 width: '24rem',
@@ -127,10 +154,12 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
                 ToastrModule.forRoot()
             ],
             providers: [
+                provideMockStore({ initialState}),
                 DatePipe,
                 { provide: ActivatedRoute, useValue: mockActivatedRoute },
                 { provide: Router, useValue: mockRouter },
                 { provide: RecoveredPlasmaService, useValue: mockRecoveredPlasmaService },
+                { provide: RecoveredPlasmaShipmentService, useValue: mockShipmentService },
                 { provide: ToastrService, useValue: mockToastrService },
                 { provide: CookieService, useValue: cookieService },
                 { provide: Store, useValue: mockStore },
@@ -870,5 +899,256 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
                 'error'
             );
         });
-      })
+    })
+
+
+    describe('Query Parameters Handling', () => {
+        beforeEach(() => {
+            jest.clearAllMocks();
+        });
+
+        it('should show comments when type query param is present', () => {
+            mockActivatedRoute.queryParams = of({ type: 'comments' });
+            const fetchSpy = jest.spyOn(component, 'fetchShipmentCommentsHistory');
+
+            component.subscribeQueryParams();
+
+            expect(component.showComments()).toBe(true);
+            expect(fetchSpy).toHaveBeenCalled();
+        });
+
+        it('should hide comments when type query param is not present', () => {
+            mockActivatedRoute.queryParams = of({});
+
+            component.subscribeQueryParams();
+
+            expect(component.showComments()).toBe(false);
+        });
+    });
+
+    describe('Status Message Configuration', () => {
+        beforeEach(() => {
+            jest.clearAllMocks();
+        });
+
+        it('should set processing message when shipment status is PROCESSING', () => {
+            const mockShipmentData = {
+                status: 'PROCESSING'
+            };
+            component.shipmentDetailsSignal.set(mockShipmentData);
+
+            component.configureUnacceptableProductsReportStatusMessage();
+
+            expect(component.messageSignal()).toBe('Close Shipment is in progress.');
+            expect(component.messageTypeSignal()).toBe('info');
+        });
+
+        it('should set error message when report has processing error', () => {
+            const mockShipmentData = {
+                status: 'CLOSED',
+                unsuitableUnitReportDocumentStatus: 'ERROR_PROCESSING'
+            };
+            component.shipmentDetailsSignal.set(mockShipmentData);
+
+            component.configureUnacceptableProductsReportStatusMessage();
+
+            expect(component.messageSignal()).toBe('Unacceptable Products report generation error. Contact Support.');
+            expect(component.messageTypeSignal()).toBe('info');
+        });
+
+        it('should clear messages when no processing or error', () => {
+            const mockShipmentData = {
+                status: 'CLOSED',
+                unsuitableUnitReportDocumentStatus: 'COMPLETED'
+            };
+            component.shipmentDetailsSignal.set(mockShipmentData);
+
+            component.configureUnacceptableProductsReportStatusMessage();
+
+            expect(component.messageSignal()).toBeNull();
+            expect(component.messageTypeSignal()).toBeNull();
+        });
+    });
+
+    describe('Edit Shipment Functionality', () => {
+        beforeEach(() => {
+            jest.clearAllMocks();
+        });
+
+        const mockEditRequest: ModifyShipmentRequestDTO = {
+            shipmentId: 123,
+            comments: 'Updated shipment',
+            modifyEmployeeId: '123',
+            customerCode: '231',
+            productType: 'plasma',
+            transportationReferenceNumber: '111',
+        };
+
+        it('should open CreateShipmentComponent dialog with current shipment data', () => {
+            const mockShipmentData = {
+                id: 123,
+                shipmentNumber: 'TEST123'
+            };
+            component.shipmentDetailsSignal.set(mockShipmentData);
+
+            component.onClickEditShipment();
+
+            expect(mockMatDialog.open).toHaveBeenCalledWith(
+                CreateShipmentComponent,
+                expect.objectContaining({
+                    width: '50rem',
+                    disableClose: true,
+                    data: mockShipmentData
+                })
+            );
+        });
+
+        it('should update shipment data when edit is successful', () => {
+            const mockResponse = {
+                data: {
+                    modifyShipment: {
+                        notifications: [
+                            { type: 'SUCCESS', message: 'Shipment updated successfully' }
+                        ],
+                        data: {
+                            id: 123,
+                            shipmentNumber: 'TEST123-UPDATED'
+                        }
+                    }
+                }
+            };
+            // mockEditDialogRef.afterClosed.mockReturnValue(of(mockEditRequest));
+            mockShipmentService.editRecoveredPlasmaShipment.mockReturnValue(of(mockResponse));
+            const loadSpy = jest.spyOn(component, 'loadRecoveredPlasmaShippingDetails').mockReturnValue(of({}));
+
+            component.onClickEditShipment();
+
+            expect(mockToastrService.show).toHaveBeenCalledWith(
+                'Shipment updated successfully',
+                null,
+                {},
+                'success'
+            );
+            expect(loadSpy).toHaveBeenCalledWith(123);
+        });
+
+        it('should handle error when editing shipment fails', () => {
+            mockEditDialogRef.afterClosed.mockReturnValue(of());
+
+            mockShipmentService.editRecoveredPlasmaShipment.mockReturnValue(throwError(() => new Error('Network error')));
+
+            component.onClickEditShipment();
+
+            expect(mockToastrService.error).toHaveBeenCalledWith('Something Went Wrong.');
+        });
+
+        it('should not make API call when dialog is closed without changes', () => {
+            mockDialogRef.afterClosed.mockReturnValue(of(undefined));
+
+            component.onClickEditShipment();
+
+            expect(mockShipmentService.editRecoveredPlasmaShipment).not.toHaveBeenCalled();
+        });
+
+        it('should handle unsuccessful edit response', () => {
+            const mockResponse = {
+                data: {
+                    modifyShipment: {
+                        notifications: [
+                            { type: 'ERROR', message: 'Failed to update shipment' }
+                        ],
+                        data: null
+                    }
+                }
+            };
+
+            mockShipmentService.editRecoveredPlasmaShipment.mockReturnValue(of(mockResponse));
+
+            component.onClickEditShipment();
+
+            expect(mockToastrService.show).toHaveBeenCalledWith(
+                'Failed to update shipment',
+                null,
+                {},
+                'error'
+            );
+        });
+    });
+
+    describe('fetchCommentsHistoryData', () => {
+          const mockShipmentId = 1;
+          const mockShipmentHistoryData = [
+            {
+              createEmployeeId: 'EMP001',
+              createDate: '2024-01-01T10:00:00Z',
+              comments: 'Test comment 1'
+            },
+            {
+              createEmployeeId: 'EMP002',
+              createDate: '2024-01-02T11:00:00Z',
+              comments: 'Test comment 2'
+            }
+          ];
+                
+        it('should initialize with correct shipment ID from route params', () => {
+        expect(component.shipmentId).toBe(mockShipmentId);
+        });
+    
+        it('should have correct table configuration', () => {
+        const tableConfig = component.shipmentInfoCommentsTableConfigComputed();
+        
+        expect(tableConfig.showPagination).toBe(false);
+        expect(tableConfig.columns).toHaveLength(3);
+        
+        const [staffCol, dateCol, commentsCol] = tableConfig.columns;
+        
+        expect(staffCol.id).toBe('createEmployeeId');
+        expect(staffCol.header).toBe('Staff');
+        
+        expect(dateCol.id).toBe('createDate');
+        expect(dateCol.header).toBe('Date and Time');
+        
+        expect(commentsCol.id).toBe('comments');
+        expect(commentsCol.header).toBe('Comments');
+        });
+    
+        it('should fetch and set shipment history data successfully', () => {
+            const mockQueryParams = of({ type: 'comments' });
+            const mockResponse = {
+            data: {
+                findAllShipmentHistoryByShipmentId : [
+                {
+                    createEmployeeId: 'EMP001',
+                    createDate: '2024-01-01T10:00:00Z',
+                    comments: 'Test comment 1'
+                },
+                {
+                    createEmployeeId: 'EMP002',
+                    createDate: '2024-01-02T11:00:00Z',
+                    comments: 'Test comment 2'
+                }
+            ]
+            }
+            } as any as ApolloQueryResult<{ findAllShipmentHistoryByShipmentId: ShipmentHistoryDTO}>
+    
+            mockShipmentService.getShipmentHistory.mockReturnValue(of(mockResponse));
+            jest.spyOn(mockActivatedRoute, 'queryParams').mockReturnValue(mockQueryParams);
+            component.fetchShipmentCommentsHistory(); 
+            expect(component.subscribeQueryParams).toHaveBeenCalled();
+            expect(mockShipmentService.getShipmentHistory).toHaveBeenCalledWith(mockShipmentId);
+            // expect(component.shipmentHistoryData()).toEqual(mockShipmentHistoryData);
+        });
+    
+        it('should set empty array when no data is returned', () => {
+            const mockResponse = {
+            data: {
+                findAllShipmentHistoryByShipmentId : []
+            }
+            } as any as ApolloQueryResult<{ findAllShipmentHistoryByShipmentId: ShipmentHistoryDTO}>
+    
+            mockShipmentService.getShipmentHistory.mockReturnValue(of(mockResponse));
+            component.ngOnInit();
+            expect(component.shipmentHistoryData()).toEqual([]);
+        });
+    });
 })

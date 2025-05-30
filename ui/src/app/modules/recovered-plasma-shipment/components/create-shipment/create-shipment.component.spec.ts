@@ -156,6 +156,7 @@ describe('CreateShipmentComponent', () => {
 
     it('should enable product type field if customer name field value is  selected', fakeAsync(() => {
         const formControl = component.createShipmentForm.get('customerName');
+        component.data = null;
         formControl.enable();
         component.createShipmentForm.get('productType').disable();
         formControl.setValue('asa');
@@ -235,14 +236,18 @@ describe('CreateShipmentComponent', () => {
             .get('customerName')
             .setValue('Test Customer');
         tick(300); // Wait for debounceTime
+        fixture.detectChanges();
         expect(
             component.createShipmentForm.get('productType').enabled
         ).toBeTruthy();
         expect(shipmentService.getProductTypeOptions).toHaveBeenCalledWith(
             'Test Customer'
         );
+        expect(component.productTypeOptions).toEqual([
+            { code: 'type1', name: 'Type 1' },
+            { code: 'type2', name: 'Type 2' }
+        ]);
     }));
-
     it('should close dialog and not navigate if no success notification', () => {
         jest.spyOn(toastr, 'show');
         jest.spyOn(
@@ -288,60 +293,65 @@ describe('CreateShipmentComponent', () => {
 
     it('should handle successful shipment creation', () => {
         jest.spyOn(toastr, 'show');
+        const mockShipmentResponse = {
+            data: {
+                createShipment: {
+                    _links: {
+                        next: '/recovered-plasma/:11/shipment-details',
+                    },
+                    data: {
+                        cartonTareWeight: 11,
+                        createDate: '2025-04-02T15:14:45.35109748Z',
+                        createEmployeeId: '4c973896-5761-41fc-8217-07c5d13a004b',
+                        customerName: 'Bio Products',
+                        id: 4,
+                        locationCode: '123456789',
+                        productType: 'RP_NONINJECTABLE_REFRIGERATED',
+                        shipmentDate: '2025-04-23',
+                        shipmentNumber: '27654',
+                        status: 'OPEN',
+                    },
+                    notifications: [
+                        {
+                            type: 'SUCCESS',
+                            message: 'Shipment created successfully',
+                        },
+                    ],
+                },
+            },
+        } as MutationResult;
+
         jest.spyOn(
             shipmentService,
             'createRecoveredPlasmaShipment'
-        ).mockReturnValue(
-            of<
-                MutationResult<{
-                    createShipment: UseCaseResponseDTO<RecoveredPlasmaShipmentResponseDTO>;
-                }>
-            >({
-                data: {
-                    createShipment: {
-                        _links: {
-                            next: '/recovered-plasma/:11/shipment-details',
-                        },
-                        data: {
-                            cartonTareWeight: 11,
-                            createDate: '2025-04-02T15:14:45.35109748Z',
-                            createEmployeeId:
-                                '4c973896-5761-41fc-8217-07c5d13a004b',
-                            customerName: 'Bio Products',
-                            id: 4,
-                            locationCode: '123456789',
-                            productType: 'RP_NONINJECTABLE_REFRIGERATED',
-                            shipmentDate: '2025-04-23',
-                            shipmentNumber: '27654',
-                            status: 'OPEN',
-                        },
-                        notifications: [
-                            {
-                                type: 'SUCCESS',
-                                message: 'Shipment created successfully',
-                            },
-                        ],
-                    },
-                },
-            } as MutationResult)
-        );
+        ).mockReturnValue(of(mockShipmentResponse));
 
         jest.spyOn(dialogRef, 'close');
+        jest.spyOn(router, 'navigateByUrl');
+
+        component.createShipmentForm.get('customerName').setValue('Bio Products');
         component.createShipmentForm.get('productType').enable();
 
-        // Set valid form values
         component.createShipmentForm.patchValue({
-            customerName: 'testCustomer',
-            productType: 'testProduct',
-            cartonTareWeight: 10.5,
-            shipmentDate: new Date('2029-12-31'),
-            transportaionReferenceNumber: 'REF123',
+            customerName: 'Bio Products',
+            productType: 'RP_NONINJECTABLE_REFRIGERATED',
+            cartonTareWeight: 11,
+            shipmentDate: new Date('2025-04-23'),
+            transportationReferenceNumber: 'REF123',
         });
         component.submit();
-        expect(component.dialogRef.close).toHaveBeenCalled();
-        expect(
-            shipmentService.createRecoveredPlasmaShipment
-        ).toHaveBeenCalled();
+        expect(component.createShipmentForm.valid).toBeTruthy();
+        expect(shipmentService.createRecoveredPlasmaShipment).toHaveBeenCalledWith({
+            locationCode: expect.any(String),
+            createEmployeeId: expect.any(String),
+            customerCode: 'Bio Products',
+            productType: 'RP_NONINJECTABLE_REFRIGERATED',
+            cartonTareWeight: 11,
+            shipmentDate: '2025-04-23',
+            transportationReferenceNumber: 'REF123'
+        });
+        expect(component.dialogRef.close).toHaveBeenCalledWith(true);
+        expect(router.navigateByUrl).toHaveBeenCalledWith('/recovered-plasma/:11/shipment-details');
     });
 
     it('should update form values when modifying existing shipment', () => {

@@ -1,4 +1,4 @@
-import { AsyncPipe, formatDate } from '@angular/common';
+import { AsyncPipe, DatePipe, formatDate } from '@angular/common';
 import {
     Component,
     computed,
@@ -88,7 +88,7 @@ import { fromPromise } from 'rxjs/internal/observable/innerFrom';
 import { CreateShipmentComponent } from '../create-shipment/create-shipment.component';
 import { RecoveredPlasmaShipmentService } from '../../services/recovered-plasma-shipment.service';
 import { ERROR_MESSAGE } from 'app/core/data/common-labels';
-import { ShipmentCommentsComponent } from '../shipment-comments/shipment-comments.component';
+import { ShipmentHistoryDTO } from '../../graphql/query-definitions/shipment-comments-history.graphql';
 
 @Component({
     selector: 'biopro-recovered-plasma-shipping-details',
@@ -105,7 +105,7 @@ import { ShipmentCommentsComponent } from '../shipment-comments/shipment-comment
         MatIcon,
         GlobalMessageComponent,
         UnacceptableProductsReportWidgetComponent,
-        ShipmentCommentsComponent
+        DatePipe
     ],
     templateUrl: './recovered-plasma-shipping-details.component.html',
 })
@@ -126,10 +126,19 @@ export class RecoveredPlasmaShippingDetailsComponent
     expandTemplateRef = viewChild<TemplateRef<Element>>('expandTemplateRef');
     actionsTemplateRef = viewChild<TemplateRef<Element>>('actionsTemplateRef');
 
-    protected shipmentCommentsRouteComputed = computed(
+    showComments = signal<boolean>(false);
+    protected commentsRouteComputed = computed(
         () =>
-            `/recovered-plasma/${this.route.snapshot.params?.id}/shipment-details/comments`
+            `/recovered-plasma/${this.route.snapshot.params?.id}/shipment-details?type=comments`
     );
+
+    protected cartonsRouteComputed = computed(
+        () =>
+            `/recovered-plasma/${this.route.snapshot.params?.id}/shipment-details`
+    );
+
+    protected currentRouteComputed = computed(() => this.showComments() ? this.commentsRouteComputed() : this.cartonsRouteComputed());
+
 
     // Signal to store expanded row data
     expandedRowDataSignal = signal<CartonPackedItemResponseDTO[]>([]);
@@ -137,6 +146,10 @@ export class RecoveredPlasmaShippingDetailsComponent
     cartonsComputed = computed(
         () => this.shipmentDetailsSignal()?.cartonList ?? []
     );
+
+    shipmentHistoryData= signal<ShipmentHistoryDTO[]>([])
+
+    createDateTemplateRef = viewChild<TemplateRef<Element>>('createDateTemplateRef');
 
     cartonTableConfigComputed = computed<TableConfiguration>(() => ({
         title: 'Carton Details',
@@ -172,6 +185,30 @@ export class RecoveredPlasmaShippingDetailsComponent
         ],
     }));
 
+    shipmentInfoCommentsTableConfigComputed = computed<TableConfiguration>(() => ({
+        showPagination: false,
+        columns: [
+            {
+                id: 'createEmployeeId',
+                header: 'Staff',
+                sort: false,
+            },
+            {
+              id: 'createDate',
+              header: 'Date and Time',
+              sort: false,
+              columnTempRef: this.createDateTemplateRef(),
+            },
+            {
+              id: 'comments',
+              header: 'Comments',
+              headerClass: 'w-[50ch]', 
+              class: 'w-[50ch]',
+              sort: false,
+            }
+        ],
+    }));
+
     pollingSubscription: Subscription;
     constructor(
         public header: ProcessHeaderService,
@@ -203,6 +240,7 @@ export class RecoveredPlasmaShippingDetailsComponent
 
     ngOnInit(): void {
         this.fetchShipmentData(this.routeIdComputed());
+        this.subscribeQueryParams();
     }
 
     ngOnDestroy() {
@@ -210,6 +248,19 @@ export class RecoveredPlasmaShippingDetailsComponent
             this.pollingSubscription.unsubscribe();
         }
     }
+    
+    subscribeQueryParams(){
+        this.route.queryParams.subscribe((params) => {
+            const type = params['type'];
+            if (type) {
+                this.showComments.set(true);
+                this.fetchShipmentCommentsHistory();
+            }else{
+                this.showComments.set(false);
+            }
+        });
+    }
+
 
     fetchShipmentData(id: number) {
         if (this.shouldPrintCartonPackingSlipAndLabel) {
@@ -621,5 +672,21 @@ export class RecoveredPlasmaShippingDetailsComponent
             });
             }
         })
+    }
+
+    fetchShipmentCommentsHistory(){
+        this.shipmentService.getShipmentHistory(this.shipmentId).subscribe({
+          next: (response) => {
+                if (Array.isArray(response?.data?.findAllShipmentHistoryByShipmentId)) {
+                    const data = response.data.findAllShipmentHistoryByShipmentId;
+                    this.shipmentHistoryData.set(data);
+                } else {
+                    this.shipmentHistoryData.set([]);
+                }
+            },
+            error: (error) => {
+                return throwError(() => error);
+            }
+        });
     }
 }
