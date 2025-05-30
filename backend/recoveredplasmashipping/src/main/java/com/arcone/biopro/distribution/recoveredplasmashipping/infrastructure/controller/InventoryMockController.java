@@ -86,6 +86,8 @@ public class InventoryMockController {
                     .unitNumber(inventoryResponseDTO.unitNumber())
                     .expirationDate(LocalDateTime.now())
                     .productDescription(inventoryResponseDTO.productDescription())
+                    .collectionLocation("2FSM")
+                    .collectionTimeZone("America/New_York")
                     .build())
                 .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
                     .builder()
@@ -110,6 +112,8 @@ public class InventoryMockController {
                     .unitNumber(inventoryResponseDTO.unitNumber())
                     .expirationDate(LocalDateTime.now())
                     .productDescription(inventoryResponseDTO.productDescription())
+                    .collectionLocation("2FSM")
+                    .collectionTimeZone("America/New_York")
                     .build())
                 .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
                     .builder()
@@ -132,6 +136,8 @@ public class InventoryMockController {
                     .unitNumber(inventoryResponseDTO.unitNumber())
                     .expirationDate(LocalDateTime.now())
                     .productDescription(inventoryResponseDTO.productDescription())
+                    .collectionLocation("2FSM")
+                    .collectionTimeZone("America/New_York")
                     .build())
                 .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
                     .builder()
@@ -154,6 +160,8 @@ public class InventoryMockController {
                     .unitNumber(inventoryResponseDTO.unitNumber())
                     .expirationDate(LocalDateTime.now())
                     .productDescription(inventoryResponseDTO.productDescription())
+                    .collectionLocation("2FSM")
+                    .collectionTimeZone("America/New_York")
                     .build())
                 .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
                     .builder()
@@ -179,6 +187,8 @@ public class InventoryMockController {
                     .unitNumber(inventoryResponseDTO.unitNumber())
                     .expirationDate(LocalDateTime.now())
                     .productDescription(inventoryResponseDTO.productDescription())
+                    .collectionLocation("2FSM")
+                    .collectionTimeZone("America/New_York")
                     .build())
                 .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
                     .builder()

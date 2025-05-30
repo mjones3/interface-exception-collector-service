@@ -72,5 +72,11 @@ public class CartonItemEntity {
     @Column("verified_by_employee_id")
     private String verifiedByEmployeeId;
 
+    @Column("collection_location")
+    private String collectionLocation;
+
+    @Column("collection_timezone")
+    private String collectionTimeZone;
+
 
 }
