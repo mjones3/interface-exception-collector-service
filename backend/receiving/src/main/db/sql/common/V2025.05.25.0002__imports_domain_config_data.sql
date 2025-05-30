@@ -12,9 +12,9 @@ INSERT INTO lk_lookup (type, description_key, option_value, order_number, active
 VALUES ('TRANSIT_TIME_ZONE', 'ET', 'America/New_York', 1, true),
        ('TRANSIT_TIME_ZONE', 'CT', 'America/Chicago', 2, true),
        ('TRANSIT_TIME_ZONE', 'MT', 'America/Denver', 3, true),
-    ('TRANSIT_TIME_ZONE', 'MST', 'America/Phoenix', 4, true),
-('TRANSIT_TIME_ZONE', 'MST', 'America/Los_Angeles', 5, true),
-('TRANSIT_TIME_ZONE', 'AST', 'America/Puerto_Rico', 6, true);
+       ('TRANSIT_TIME_ZONE', 'MST', 'America/Phoenix', 4, true),
+       ('TRANSIT_TIME_ZONE', 'PT', 'America/Los_Angeles', 5, true),
+       ('TRANSIT_TIME_ZONE', 'AST', 'America/Puerto_Rico', 6, true);
 
 -- Visual Inspection
 INSERT INTO lk_lookup (type, description_key, option_value, order_number, active)
