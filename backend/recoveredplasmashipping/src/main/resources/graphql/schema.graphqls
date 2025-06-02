@@ -147,7 +147,7 @@ input ModifyShipmentRequestDTO {
     customerCode:String!
     productType:String!
     transportationReferenceNumber:String
-    shipmentDate:Date!
+    shipmentDate:Date
     cartonTareWeight:Float
     modifyEmployeeId:String!
     comments:String!
