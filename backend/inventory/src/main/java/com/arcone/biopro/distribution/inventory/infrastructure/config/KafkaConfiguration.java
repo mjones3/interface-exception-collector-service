@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.inventory.infrastructure.config;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.EventMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.checkin.CheckInCompletedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.WholeBloodProductCompletedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.created.wholeblood.WholeBloodProductCreatedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.discarded.ProductDiscardedMessage;
@@ -13,11 +14,7 @@ import com.arcone.biopro.distribution.inventory.adapter.in.listener.modified.Pro
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.AddQuarantinedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.RemoveQuarantinedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.UpdateQuarantinedMessage;
-import com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.ProductRecoveredMessage;
-import com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.RecoveredPlasmaCartonPackedMessage;
-import com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.RecoveredPlasmaCartonRemovedMessage;
-import com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.RecoveredPlasmaCartonUnpackedMessage;
-import com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.RecoveredPlasmaShipmentClosedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.*;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.unsuitable.UnsuitableMessage;
 import com.arcone.biopro.distribution.inventory.adapter.output.producer.event.InventoryUpdatedEvent;
 import com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput;
@@ -313,8 +310,8 @@ class KafkaConfiguration {
     ))
     @AsyncListener(operation = @AsyncOperation(
         channelName = "WholeBloodProductCompleted",
-        description = "Wholeblood Product has been completed.",
-        payloadType = ProductCompletedMessage.class
+        description = "Whole blood Product has been completed.",
+        payloadType = WholeBloodProductCompletedMessage.class
     ))
     @Bean(name = "PRODUCT_COMPLETED_CONSUMER")
     ReactiveKafkaConsumerTemplate<String, String> productCompletedConsumerTemplate(
