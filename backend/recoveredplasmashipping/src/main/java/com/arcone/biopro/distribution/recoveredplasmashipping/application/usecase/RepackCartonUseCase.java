@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -36,6 +37,7 @@ public class RepackCartonUseCase implements RepackCartonService {
 
 
     @Override
+    @Transactional
     public Mono<UseCaseOutput<CartonOutput>> repackCarton(RepackCartonCommandInput repackCartonCommandInput) {
         return cartonRepository.findOneById(repackCartonCommandInput.cartonId())
             .switchIfEmpty(Mono.error(() -> new DomainNotFoundForKeyException(String.format("%s", repackCartonCommandInput.cartonId()))))

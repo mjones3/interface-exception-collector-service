@@ -282,4 +282,14 @@ public class DatabaseQueries {
             , status, shipmentId
         );
     }
+
+    public static String REMOVE_MODIFY_HISTORY_BY_SHIPMENT_CODE(String code) {
+        return String.format(
+            """
+                DELETE FROM bld_recovered_plasma_shipment_history
+                WHERE shipment_id in (SELECT id FROM bld_recovered_plasma_shipment WHERE shipment_number like '%s')
+                """
+            , "%" + code + "%"
+        );
+    }
 }

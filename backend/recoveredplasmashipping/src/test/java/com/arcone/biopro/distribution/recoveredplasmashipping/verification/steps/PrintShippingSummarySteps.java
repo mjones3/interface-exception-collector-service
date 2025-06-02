@@ -57,7 +57,7 @@ public class PrintShippingSummarySteps {
         , String shipmentDate, String transportationRefNumber, String locationCode, String unitNumbers, String productCodes, String productTypes) {
 
 
-        createShipmentController.createShipment(customerCode, productType, Float.parseFloat(cartonTare), testUtils.parseDataKeyword(shipmentDate), transportationRefNumber, locationCode);
+        createShipmentController.createShipment(customerCode, productType, Float.parseFloat(cartonTare), testUtils.parseDateKeyword(shipmentDate), transportationRefNumber, locationCode);
 
         Assertions.assertNotNull(sharedContext.getShipmentCreateResponse());
 
@@ -175,7 +175,7 @@ public class PrintShippingSummarySteps {
             Assert.assertEquals(printSummaryResponseData.get("employeeName").toString(), table.get("Shipment Closing Details Employee Name"));
         }
         if (table.get("Shipment Closing Details Date") != null) {
-            Assert.assertEquals(printSummaryResponseData.get("closeDate").toString(), testUtils.parseDataKeyword(table.get("Shipment Closing Details Date")));
+            Assert.assertEquals(printSummaryResponseData.get("closeDate").toString(), testUtils.parseDateKeyword(table.get("Shipment Closing Details Date")));
         }
     }
 
@@ -284,7 +284,7 @@ public class PrintShippingSummarySteps {
         }
 
         if (table.get("Shipment Closing Details Date") != null) {
-            var tableValue = table.get("Shipment Closing Details Date").replace("<today_formatted>", testUtils.parseDataKeyword("<today_formatted>"));
+            var tableValue = table.get("Shipment Closing Details Date").replace("<today_formatted>", testUtils.parseDateKeyword("<today_formatted>"));
             Assert.assertEquals(shippingSummaryReportPage.getClosingDetailsDate(), tableValue);
         }
     }

@@ -41,6 +41,14 @@ public class ShipmentDetailsPage extends CommonPageFactory {
     private final By repackComments = By.id("reasonCommentsId");
     private final By reportsBtn = By.id("reportsDialogBtnId");
     private final By confirmRemoveCartonBtn = By.id("confirmation-dialog-confirm-btn");
+    private final By editShipmentBtn = By.xpath("//button//*[contains(text(),'Edit')]");
+    private final By customerNameEditSelect = By.id("customerSelectIdSelect");
+    private final By searchCustomerNameEditSelect = By.xpath("//biopro-search-select[@id='customerNameId']/mat-form-field");
+    private final By productTypeEditSelect = By.id("productTypeSelectIdSelect");
+    private final By searchProductTypeEditSelect = By.xpath("//biopro-search-select/mat-form-field[@id='productTypeSelectId']");
+    private final By transportationNumberEditInput = By.id("transportationReferenceNumberId");
+    private final By shipmentDateEditInput = By.id("shipmentDateId");
+    private final By commentsTab = By.xpath("//a/span[contains(.,'Comments')]");
 
 
     private By addedCartonRow(String cartonNumberPrefix, String sequence, String status) {
@@ -91,7 +99,12 @@ public class ShipmentDetailsPage extends CommonPageFactory {
                 cartonNumberPrefix, sequence, status));
     }
 
-
+    private By shipmentHistoryRow(String user, String Date, String comments) {
+        return By.xpath(
+            String.format(
+                "//table[@id='shipmentInfoCommentsTableId']//td[contains(., '%s')]/following-sibling::td[contains(., '%s')]/following-sibling::td[contains(., '%s')]",
+                user, Date, comments));
+    }
 
 
     @Autowired
@@ -316,5 +329,51 @@ public class ShipmentDetailsPage extends CommonPageFactory {
 
     public void confirmRemoveCarton() {
         sharedActions.click(confirmRemoveCartonBtn);
+    }
+
+    public boolean isEditShipmentButtonEnabled() {
+        sharedActions.waitForVisible(editShipmentBtn);
+        return sharedActions.isElementEnabled(driver, editShipmentBtn);
+    }
+
+    public void clickEditShipmentButton() {
+        sharedActions.click(editShipmentBtn);
+    }
+
+    public void verifyEditShipmentFields(String field, String value, String status) throws InterruptedException {
+        boolean expectEnabled = status.equals("enabled");
+
+        // Wait for items to load in the form
+        Thread.sleep(500);
+        switch (field) {
+            case "Customer":
+                Assert.assertEquals(value, sharedActions.getText(customerNameEditSelect));
+                Assert.assertEquals(expectEnabled, !sharedActions.hasElementCssClass(searchCustomerNameEditSelect, "mat-form-field-disabled"));
+                break;
+            case "Product Type":
+                Assert.assertEquals(value, sharedActions.getText(productTypeEditSelect));
+                Assert.assertEquals(expectEnabled, !sharedActions.hasElementCssClass(searchProductTypeEditSelect, "mat-form-field-disabled"));
+                break;
+            case "Transportation Reference Number":
+                Assert.assertEquals(value, sharedActions.getInputValue(transportationNumberEditInput));
+                Assert.assertEquals(expectEnabled, sharedActions.isElementEnabled(driver, transportationNumberEditInput));
+                break;
+            case "Shipment Date":
+                Assert.assertEquals(testUtils.parseDateKeyword(value), sharedActions.getInputValue(shipmentDateEditInput));
+                Assert.assertEquals(expectEnabled, sharedActions.isElementEnabled(driver, shipmentDateEditInput));
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid field: " + field);
+        }
+
+    }
+
+    public void switchToCommentsTab() {
+        sharedActions.click(commentsTab);
+    }
+
+    public void verifyShipmentHistoryRow(String user, String date, String comments) {
+        var row = shipmentHistoryRow(user, testUtils.parseDateKeyword(date), comments);
+        sharedActions.waitForVisible(row);
     }
 }
