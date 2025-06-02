@@ -22,9 +22,6 @@
     },
     "ApheresisPlasmaProductCreated": {
       "messages": {
-        "ApheresisPlasmaProductCreated": {
-          "$ref": "#/components/messages/ApheresisPlasmaProductCreated"
-        },
         "ApheresisRBCProductCreated": {
           "$ref": "#/components/messages/ApheresisRBCProductCreated"
         }
@@ -74,15 +71,15 @@
     },
     "Label Invalidated": {
       "messages": {
-        "LabelInvalidated": {
-          "$ref": "#/components/messages/LabelInvalidated"
+        "LabelInvalidatedEvent": {
+          "$ref": "#/components/messages/LabelInvalidatedEvent"
         }
       }
     },
     "LabelApplied": {
       "messages": {
-        "LabelApplied": {
-          "$ref": "#/components/messages/LabelApplied"
+        "LabelAppliedEvent": {
+          "$ref": "#/components/messages/LabelAppliedEvent"
         }
       }
     },
@@ -116,8 +113,8 @@
     },
     "ProductStored": {
       "messages": {
-        "LabelApplied": {
-          "$ref": "#/components/messages/LabelApplied"
+        "LabelAppliedEvent": {
+          "$ref": "#/components/messages/LabelAppliedEvent"
         }
       }
     },
@@ -156,6 +153,13 @@
         }
       }
     },
+    "RecoveredPlasmaCartonUnpacked": {
+      "messages": {
+        "RecoveredPlasmaCartonUnpacked": {
+          "$ref": "#/components/messages/RecoveredPlasmaCartonUnpacked"
+        }
+      }
+    },
     "RecoveredPlasmaShipmentClosed": {
       "messages": {
         "RecoveredPlasmaShipmentClosed": {
@@ -186,8 +190,8 @@
     },
     "WholeBloodProductCreated": {
       "messages": {
-        "ApheresisRBCProductCreated": {
-          "$ref": "#/components/messages/ApheresisRBCProductCreated"
+        "WholeBloodProductCreated": {
+          "$ref": "#/components/messages/WholeBloodProductCreated"
         }
       }
     }
@@ -632,8 +636,8 @@
           "updateType"
         ]
       },
-      "LabelApplied": {
-        "title": "LabelApplied",
+      "LabelAppliedEvent": {
+        "title": "LabelAppliedEvent",
         "type": "object",
         "properties": {
           "aboRh": {
@@ -695,8 +699,8 @@
           }
         ]
       },
-      "LabelInvalidated": {
-        "title": "LabelInvalidated",
+      "LabelInvalidatedEvent": {
+        "title": "LabelInvalidatedEvent",
         "type": "object",
         "properties": {
           "productCode": {
@@ -1024,6 +1028,73 @@
           }
         ]
       },
+      "RecoveredPlasmaCartonUnpacked": {
+        "title": "RecoveredPlasmaCartonUnpacked",
+        "type": "object",
+        "properties": {
+          "cartonNumber": {
+            "type": "string",
+            "description": "Carton number identifier"
+          },
+          "cartonSequence": {
+            "type": "integer",
+            "description": "Sequence number of the carton",
+            "format": "int32"
+          },
+          "locationCode": {
+            "type": "string",
+            "description": "Location code where carton was unpacked"
+          },
+          "productType": {
+            "type": "string",
+            "description": "Type of product"
+          },
+          "status": {
+            "type": "string",
+            "description": "Status of the carton"
+          },
+          "totalProducts": {
+            "type": "integer",
+            "description": "Total number of products in carton",
+            "format": "int32"
+          },
+          "unpackDate": {
+            "type": "string",
+            "description": "Date when carton was unpacked"
+          },
+          "unpackEmployeeId": {
+            "type": "string",
+            "description": "ID of employee who unpacked the carton"
+          },
+          "unpackedProducts": {
+            "type": "array",
+            "description": "List of unpacked products in the carton",
+            "items": {
+              "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.PackedProductMessage"
+            }
+          }
+        },
+        "description": "Message for unpacked recovered plasma carton",
+        "examples": [
+          {
+            "cartonNumber": "string",
+            "cartonSequence": 0,
+            "locationCode": "string",
+            "productType": "string",
+            "status": "string",
+            "totalProducts": 0,
+            "unpackDate": "string",
+            "unpackEmployeeId": "string",
+            "unpackedProducts": [
+              {
+                "productCode": "string",
+                "status": "string",
+                "unitNumber": "string"
+              }
+            ]
+          }
+        ]
+      },
       "RecoveredPlasmaShipmentClosed": {
         "title": "RecoveredPlasmaShipmentClosed",
         "type": "object",
@@ -1160,6 +1231,103 @@
           }
         ]
       },
+      "WholeBloodProductCreated": {
+        "title": "WholeBloodProductCreated",
+        "type": "object",
+        "properties": {
+          "aboRh": {
+            "type": "string",
+            "description": "Blood type and RH factor",
+            "enum": [
+              "ON",
+              "OP",
+              "AN",
+              "AP",
+              "BN",
+              "BP",
+              "ABN",
+              "ABP"
+            ]
+          },
+          "collectionLocation": {
+            "type": "string",
+            "description": "Collection location"
+          },
+          "collectionTimeZone": {
+            "type": "string",
+            "description": "Collection time zone"
+          },
+          "drawTime": {
+            "type": "string",
+            "description": "Draw time of the product",
+            "format": "date-time"
+          },
+          "expirationDate": {
+            "type": "string",
+            "description": "Expiration date"
+          },
+          "expirationTime": {
+            "type": "string",
+            "description": "Expiration time"
+          },
+          "inputProducts": {
+            "type": "array",
+            "description": "List of input products used",
+            "items": {
+              "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.domain.model.vo.InputProduct"
+            }
+          },
+          "manufacturingLocation": {
+            "type": "string",
+            "description": "Manufacturing location"
+          },
+          "productCode": {
+            "type": "string",
+            "description": "Product code"
+          },
+          "productDescription": {
+            "type": "string",
+            "description": "Product description"
+          },
+          "productFamily": {
+            "type": "string",
+            "description": "Product family"
+          },
+          "unitNumber": {
+            "type": "string",
+            "description": "Unit number identifier"
+          },
+          "weight": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ValueUnit"
+          }
+        },
+        "description": "Whole Blood Product Created Event",
+        "examples": [
+          {
+            "aboRh": "ON",
+            "collectionLocation": "string",
+            "collectionTimeZone": "string",
+            "drawTime": "2015-07-20T15:49:04-07:00",
+            "expirationDate": "string",
+            "expirationTime": "string",
+            "inputProducts": [
+              {
+                "productCode": "string",
+                "unitNumber": "string"
+              }
+            ],
+            "manufacturingLocation": "string",
+            "productCode": "string",
+            "productDescription": "string",
+            "productFamily": "string",
+            "unitNumber": "string",
+            "weight": {
+              "unit": "string",
+              "value": 0
+            }
+          }
+        ]
+      },
       "com.arcone.biopro.distribution.inventory.adapter.in.listener.common.Volume": {
         "type": "object",
         "properties": {
@@ -1171,7 +1339,7 @@
             "format": "int32"
           }
         },
-        "description": "Anticoagulant volume of the product",
+        "description": "Volume of the product",
         "examples": [
           {
             "unit": "string",
@@ -1238,7 +1406,6 @@
             "type": "string"
           }
         },
-        "description": "List of packed products in the carton",
         "examples": [
           {
             "productCode": "string",
@@ -1404,21 +1571,6 @@
         "description": "Message for completed ApheresisPlasmaProductCompleted process",
         "bindings": {}
       },
-      "ApheresisPlasmaProductCreated": {
-        "headers": {
-          "$ref": "#/components/schemas/HeadersNotDocumented"
-        },
-        "payload": {
-          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
-          "schema": {
-            "$ref": "#/components/schemas/ApheresisRBCProductCreated"
-          }
-        },
-        "name": "ApheresisPlasmaProductCreated",
-        "title": "ApheresisPlasmaProductCreated",
-        "description": "Apheresis Plasma Product Created Event Payload",
-        "bindings": {}
-      },
       "ApheresisRBCProductCreated": {
         "headers": {
           "$ref": "#/components/schemas/HeadersNotDocumented"
@@ -1432,7 +1584,11 @@
         "name": "ApheresisRBCProductCreated",
         "title": "ProductCreatedMessage",
         "description": "Message for completed ApheresisRBCProductCreated process",
-        "bindings": {}
+        "bindings": {
+          "kafka": {
+            "bindingVersion": "0.5.0"
+          }
+        }
       },
       "CheckInCompleted": {
         "headers": {
@@ -1464,32 +1620,32 @@
         "description": "Inventory Updated payload",
         "bindings": {}
       },
-      "LabelApplied": {
+      "LabelAppliedEvent": {
         "headers": {
           "$ref": "#/components/schemas/HeadersNotDocumented"
         },
         "payload": {
           "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
           "schema": {
-            "$ref": "#/components/schemas/LabelApplied"
+            "$ref": "#/components/schemas/LabelAppliedEvent"
           }
         },
-        "name": "LabelApplied",
+        "name": "LabelAppliedEvent",
         "title": "LabelAppliedMessage",
         "description": "Message for label application process",
         "bindings": {}
       },
-      "LabelInvalidated": {
+      "LabelInvalidatedEvent": {
         "headers": {
           "$ref": "#/components/schemas/HeadersNotDocumented"
         },
         "payload": {
           "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
           "schema": {
-            "$ref": "#/components/schemas/LabelInvalidated"
+            "$ref": "#/components/schemas/LabelInvalidatedEvent"
           }
         },
-        "name": "LabelInvalidated",
+        "name": "LabelInvalidatedEvent",
         "title": "LabelInvalidatedMessage",
         "description": "Message for label invalidation process",
         "bindings": {}
@@ -1569,6 +1725,21 @@
         "description": "Message for removed recovered plasma carton",
         "bindings": {}
       },
+      "RecoveredPlasmaCartonUnpacked": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/RecoveredPlasmaCartonUnpacked"
+          }
+        },
+        "name": "RecoveredPlasmaCartonUnpacked",
+        "title": "RecoveredPlasmaCartonUnpackedMessage",
+        "description": "Message for unpacked recovered plasma carton",
+        "bindings": {}
+      },
       "RecoveredPlasmaShipmentClosed": {
         "headers": {
           "$ref": "#/components/schemas/HeadersNotDocumented"
@@ -1613,6 +1784,25 @@
         "title": "UpdateQuarantinedMessage",
         "description": "Message for updating quarantined product",
         "bindings": {}
+      },
+      "WholeBloodProductCreated": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/WholeBloodProductCreated"
+          }
+        },
+        "name": "WholeBloodProductCreated",
+        "title": "WholeBloodProductCreatedMessage",
+        "description": "Whole Blood Product Created Event",
+        "bindings": {
+          "kafka": {
+            "bindingVersion": "0.5.0"
+          }
+        }
       },
       "com.arcone.biopro.distribution.inventory.adapter.in.listener.unsuitable.UnsuitableMessage": {
         "headers": {
@@ -1666,24 +1856,14 @@
       },
       "title": "ApheresisPlasmaProductCreated_receive",
       "description": "Apheresis Plasma Product has been created.",
-      "bindings": {},
+      "bindings": {
+        "kafka": {
+          "bindingVersion": "0.5.0"
+        }
+      },
       "messages": [
         {
           "$ref": "#/channels/ApheresisPlasmaProductCreated/messages/ApheresisRBCProductCreated"
-        }
-      ]
-    },
-    "ApheresisPlasmaProductCreated_send_productCreatedConsumerTemplate": {
-      "action": "send",
-      "channel": {
-        "$ref": "#/channels/ApheresisPlasmaProductCreated"
-      },
-      "title": "ApheresisPlasmaProductCreated_send",
-      "description": "Apheresis Plasma Product Created Event",
-      "bindings": {},
-      "messages": [
-        {
-          "$ref": "#/channels/ApheresisPlasmaProductCreated/messages/ApheresisPlasmaProductCreated"
         }
       ]
     },
@@ -1708,7 +1888,11 @@
       },
       "title": "ApheresisPlateletProductCreated_receive",
       "description": "Apheresis Platelet Product has been created.",
-      "bindings": {},
+      "bindings": {
+        "kafka": {
+          "bindingVersion": "0.5.0"
+        }
+      },
       "messages": [
         {
           "$ref": "#/channels/ApheresisPlateletProductCreated/messages/ApheresisRBCProductCreated"
@@ -1736,7 +1920,11 @@
       },
       "title": "ApheresisRBCProductCreated_receive",
       "description": "Apheresis RBC Product has been created.",
-      "bindings": {},
+      "bindings": {
+        "kafka": {
+          "bindingVersion": "0.5.0"
+        }
+      },
       "messages": [
         {
           "$ref": "#/channels/ApheresisRBCProductCreated/messages/ApheresisRBCProductCreated"
@@ -1781,7 +1969,7 @@
       "bindings": {},
       "messages": [
         {
-          "$ref": "#/channels/Label Invalidated/messages/LabelInvalidated"
+          "$ref": "#/channels/Label Invalidated/messages/LabelInvalidatedEvent"
         }
       ]
     },
@@ -1795,7 +1983,7 @@
       "bindings": {},
       "messages": [
         {
-          "$ref": "#/channels/LabelApplied/messages/LabelApplied"
+          "$ref": "#/channels/LabelApplied/messages/LabelAppliedEvent"
         }
       ]
     },
@@ -1865,7 +2053,7 @@
       "bindings": {},
       "messages": [
         {
-          "$ref": "#/channels/ProductStored/messages/LabelApplied"
+          "$ref": "#/channels/ProductStored/messages/LabelAppliedEvent"
         }
       ]
     },
@@ -1939,6 +2127,20 @@
         }
       ]
     },
+    "RecoveredPlasmaCartonUnpacked_receive_recoveredPlasmaCartonUnpackedConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/RecoveredPlasmaCartonUnpacked"
+      },
+      "title": "RecoveredPlasmaCartonUnpacked_receive",
+      "description": "Recovered Plasma Carton Unpacked event has been listened and inventory status was updated",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/RecoveredPlasmaCartonUnpacked/messages/RecoveredPlasmaCartonUnpacked"
+        }
+      ]
+    },
     "RecoveredPlasmaShipmentClosed_receive_recoveredPlasmaShipmentClosedConsumerTemplate": {
       "action": "receive",
       "channel": {
@@ -2001,11 +2203,33 @@
         "$ref": "#/channels/WholeBloodProductCreated"
       },
       "title": "WholeBloodProductCreated_receive",
-      "description": "Wholeblood Product has been created.",
-      "bindings": {},
+      "description": "Whole Blood Product Created Event Payload",
+      "bindings": {
+        "kafka": {
+          "bindingVersion": "0.5.0"
+        }
+      },
       "messages": [
         {
-          "$ref": "#/channels/WholeBloodProductCreated/messages/ApheresisRBCProductCreated"
+          "$ref": "#/channels/WholeBloodProductCreated/messages/WholeBloodProductCreated"
+        }
+      ]
+    },
+    "WholeBloodProductCreated_send_productCreatedConsumerTemplate": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/WholeBloodProductCreated"
+      },
+      "title": "WholeBloodProductCreated_send",
+      "description": "Apheresis Plasma Product Created Event",
+      "bindings": {
+        "kafka": {
+          "bindingVersion": "0.5.0"
+        }
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/WholeBloodProductCreated/messages/WholeBloodProductCreated"
         }
       ]
     }

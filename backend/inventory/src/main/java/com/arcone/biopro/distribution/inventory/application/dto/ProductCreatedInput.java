@@ -21,5 +21,8 @@ public record ProductCreatedInput(String unitNumber,
                                   String collectionTimeZone,
                                   String productFamily,
                                   AboRhType aboRh,
-                                  List<InputProduct> inputProducts) {
+                                  Boolean licensed,
+                                  String temperatureCategory,
+                                  List<InputProduct> inputProducts,
+                                  List<AddQuarantineInput> quarantines) {
 }

@@ -15,6 +15,8 @@ public interface LabelAppliedMessageMapper extends MessageMapper<InventoryInput,
 
     @Mapping(target = "shortDescription", source = "productDescription")
     @Mapping(target = "inventoryLocation", source = "location")
+    @Mapping(target = "collectionLocation", ignore = true)
+    @Mapping(target = "collectionTimeZone", ignore = true)
     InventoryInput toInput(LabelAppliedMessage message);
 
     default  LocalDateTime toLocalDateTime(String dateTimeString) {

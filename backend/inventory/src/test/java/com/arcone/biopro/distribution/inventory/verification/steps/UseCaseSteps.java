@@ -1,7 +1,10 @@
 package com.arcone.biopro.distribution.inventory.verification.steps;
 
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.imported.ProductsImportedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.imported.ProductsImportedMessageMapper;
 import com.arcone.biopro.distribution.inventory.application.dto.*;
 import com.arcone.biopro.distribution.inventory.application.usecase.*;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ShipmentType;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.InputProduct;
 import com.arcone.biopro.distribution.inventory.verification.common.ScenarioContext;
@@ -16,9 +19,12 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +45,8 @@ public class UseCaseSteps {
     private final ShipmentCompletedUseCase shipmentCompletedUseCase;
 
     private final ProductCreatedUseCase productCreatedUseCase;
+
+    private final ProductsImportedUseCase productImportedUseCase;
 
     private final CheckInCompletedUseCase checkInCompletedUseCase;
 
@@ -65,6 +73,8 @@ public class UseCaseSteps {
     private final InventoryUtil inventoryUtil;
 
     private final LogMonitor logMonitor;
+
+    private final ProductsImportedMessageMapper importedMessageMapper;
 
     @Value("${default.location}")
     private String defaultLocation;
@@ -168,6 +178,45 @@ public class UseCaseSteps {
         }
     }
 
+    @When("I received a Product Imported event for the following products:")
+    public void iReceivedAProductImportedEventForTheFollowingProducts(DataTable dataTable) throws InterruptedException {
+        List<Map<String, String>> products = dataTable.asMaps(String.class, String.class);
+        for (Map<String, String> product : products) {
+
+            List<ProductsImportedMessage.ImportedConsequence> consequences = null;
+            if (product.get("Quarantines") != null) {
+                consequences = List.of(ProductsImportedMessage.ImportedConsequence.builder()
+                    .consequenceType("QUARANTINE")
+                    .consequenceReasons(Arrays.stream(product.get("Quarantines").split(",")).map(String::trim).toList())
+                    .build());
+
+            }
+
+            Map<String, String> properties = null;
+            if(product.get("Licensed") != null) {
+                properties = Map.of("LICENSED", product.get("Licensed"));
+            }
+
+            ProductsImportedMessage.ImportedProduct importedProduct = ProductsImportedMessage.ImportedProduct.builder()
+                .unitNumber(product.get("Unit Number"))
+                .productCode(product.get("Product Code"))
+                .aboRh(AboRhType.valueOf(product.get("Abo Rh")))
+                .productDescription(product.get("Product Description"))
+                .productFamily(product.get("Product Family"))
+                .expirationDate(LocalDateTime.parse(product.get("Expiration Date"), DateTimeFormatter.ISO_LOCAL_DATE_TIME))
+                .consequences(consequences)
+                .properties(properties)
+                .build();
+            ProductsImportedMessage message = ProductsImportedMessage.builder()
+                .products(List.of(importedProduct))
+                .temperatureCategory(product.get("Temperature Category"))
+                .locationCode(product.get("Location"))
+                .build();
+
+            productImportedUseCase.execute(importedMessageMapper.toInput(message)).block();
+        }
+    }
+
     @When("I received a CheckIn Completed event for the following products:")
     public void iReceivedACheckInCompletedEventForTheFollowingProducts(DataTable dataTable) {
         List<Map<String, String>> products = dataTable.asMaps(String.class, String.class);
@@ -267,7 +316,7 @@ public class UseCaseSteps {
             .build();
         recoveredPlasmaCartonRemovedUseCase.execute(input).block();
     }
-    
+
     @When("I received a Recovered Plasma Carton Unpacked Event for carton number {string}")
     public void iReceivedRecoveredPlasmaCartonUnpacked(String cartonNumber, DataTable dataTable) {
 
