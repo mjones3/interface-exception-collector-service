@@ -42,9 +42,13 @@ the [official website](https://helm.sh/).
 ### Rsocket
 Download the rsocket client (rsc) from https://github.com/making/rsc/releases
 - getAvailableInventoryWithShortDatedProducts
-run the command: java -jar rsc-0.9.1.jar --debug --request --data "{\"locationCode\":\"LOCATION_1\",\"availableInventoryCriteriaDTOS\": [{\"productFamily\":\"PLASMA_TRANSFUSABLE\", \"bloodType\":\"O\"}]}" --route getAvailableInventoryWithShortDatedProducts tcp://api.local.gd:7002
+  run the command: java -jar rsc-0.9.1.jar --debug --request --data "{\"locationCode\":\"LOCATION_1\",\"availableInventoryCriteriaDTOS\": [{\"productFamily\":\"PLASMA_TRANSFUSABLE\", \"bloodType\":\"O\"}]}" --route getAvailableInventoryWithShortDatedProducts tcp://api.local.gd:7002
 - validateInventory
   run the command: java -jar rsc-0.9.1.jar --debug --request --data "{\"unitNumber\":\"W012345678903\", \"productCode\":\"E0869V02\", \"locationCode\":\"LOCATION_2\"}" --route validateInventory tcp://api.local.gd:7002
+- getInventoryByUnitNumber
+  run the command: java -jar rsc-0.9.1.jar --debug --stream --data "W036825016017" --route getInventoryByUnitNumber tcp://api.local.gd:7002
+- getInventoryByUnitNumberAndProductCode
+  run the command: java -jar rsc-0.9.1.jar --debug --request --data "{\"unitNumber\":\"W036825016017\", \"productCode\":\"E1624V00\"}" --route getInventoryByUnitNumberAndProductCode tcp://api.local.gd:7002
 
 ## Running Tests
 
@@ -60,6 +64,10 @@ Here's how you can run tests:
     ```bash
     mvn verify  -Dcucumber.filter.tags="@tag1 or @tag2 and not @tag3"
     ```
+    
+    By default, the tests will exclude scenarios tagged with `@disabled` and `@skipOnPipeline`. This is configured in the `CucumberSuite.java` file.
+    
+    The command line tags specified with `-Dcucumber.filter.tags` will take precedence over the default tags in `CucumberSuite.java`.
 
 - To only trigger unit tests, use the following command:
 

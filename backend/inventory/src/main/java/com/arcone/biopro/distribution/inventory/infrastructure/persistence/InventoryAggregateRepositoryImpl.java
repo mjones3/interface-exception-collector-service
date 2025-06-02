@@ -13,6 +13,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @RequiredArgsConstructor
 @GraphQlRepository
@@ -21,28 +22,44 @@ public class InventoryAggregateRepositoryImpl implements InventoryAggregateRepos
 
     InventoryEntityRepository inventoryEntityRepository;
 
-    InventoryEntityMapper inventoryEntityMapper;
+    InventoryEntityMapper mapper;
 
     ProductFamilyEntityRepository productFamilyEntityRepository;
+    private final PropertyEntityRepository propertyEntityRepository;
 
     @Override
     public Flux<InventoryAggregate> findByUnitNumber(String unitNumber) {
         return inventoryEntityRepository.findByUnitNumber(unitNumber)
-            .map(inventoryEntityMapper::toAggregate);
+            .map(mapper::toAggregate)
+            .flatMap(this::populateProperties);
     }
 
     @Override
     public Mono<InventoryAggregate> findByUnitNumberAndProductCode(String unitNumber, String productCode) {
         return inventoryEntityRepository.findByUnitNumberAndProductCodeLike(unitNumber, createProductCodePattern(productCode))
-            .map(inventoryEntityMapper::toDomain)
-            .flatMap(inventory -> Mono.just(InventoryAggregate.builder().inventory(inventory).build()));
+            .map(mapper::toDomain)
+            .flatMap(inventory -> Mono.just(InventoryAggregate.builder().inventory(inventory).build()))
+            .flatMap(this::populateProperties);
     }
 
     @Override
     public Mono<InventoryAggregate> saveInventory(InventoryAggregate inventoryAggregate) {
         return inventoryEntityRepository
-            .save(inventoryEntityMapper.toEntity(inventoryAggregate.getInventory()))
+            .save(mapper.toEntity(inventoryAggregate.getInventory()))
+            .flatMap(inventoryEntity -> this.saveProperties(inventoryEntity, inventoryAggregate))
             .then(Mono.just(inventoryAggregate));
+    }
+
+    private Mono<InventoryAggregate> saveProperties(InventoryEntity inventoryEntity, InventoryAggregate inventoryAggregate) {
+        if (Objects.isNull(inventoryAggregate.getProperties())) {
+            return Mono.just(inventoryAggregate);
+        }
+
+        return propertyEntityRepository.deleteAll(propertyEntityRepository.findByInventoryId(inventoryEntity.getId()))
+                .then(propertyEntityRepository.saveAll(inventoryAggregate.getProperties().stream()
+                    .map(p -> mapper.toEntity(p, inventoryEntity))
+                    .toList())
+                    .then(Mono.just(inventoryAggregate)));
     }
 
     @Override
@@ -56,7 +73,7 @@ public class InventoryAggregateRepositoryImpl implements InventoryAggregateRepos
                 temperatureCategory,
                 LocalDateTime.now(),
                 getFinalDateTime(pf)))
-            .map(inventoryEntityMapper::toAggregate);
+            .map(mapper::toAggregate);
     }
 
     @Override
@@ -74,8 +91,9 @@ public class InventoryAggregateRepositoryImpl implements InventoryAggregateRepos
     @Override
     public Mono<InventoryAggregate> findByLocationAndUnitNumberAndProductCode(String location, String unitNumber, String productCode) {
         return inventoryEntityRepository.findByUnitNumberAndProductCodeLikeAndInventoryLocation(unitNumber, createProductCodePattern(productCode), location)
-            .map(inventoryEntityMapper::toDomain)
-            .flatMap(inventory -> Mono.just(InventoryAggregate.builder().inventory(inventory).build()));
+            .map(mapper::toDomain)
+            .flatMap(inventory -> Mono.just(InventoryAggregate.builder().inventory(inventory).build()))
+            .flatMap(this::populateProperties);
     }
 
     private String createProductCodePattern(String productCode) {
@@ -88,6 +106,13 @@ public class InventoryAggregateRepositoryImpl implements InventoryAggregateRepos
 
     private LocalDateTime getFinalDateTime(ProductFamilyEntity productFamily) {
         return LocalDateTime.now().plusDays(productFamily.getTimeFrame());
+    }
+
+    private Mono<InventoryAggregate> populateProperties(InventoryAggregate inventoryAggregate) {
+        return propertyEntityRepository.findByInventoryId(inventoryAggregate.getInventory().getId())
+            .map(mapper::toDomain)
+            .collectList()
+            .map(inventoryAggregate::populateProperties);
     }
 
 }

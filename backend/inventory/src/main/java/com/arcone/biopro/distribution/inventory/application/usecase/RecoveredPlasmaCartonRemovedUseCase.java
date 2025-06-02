@@ -42,7 +42,6 @@ public class RecoveredPlasmaCartonRemovedUseCase implements UseCase<Mono<Invento
         }
 
         return Flux.fromIterable(input.packedProducts())
-            .filter(this::isUnpacked)
             .flatMap(packedProduct -> inventoryAggregateRepository.findByUnitNumberAndProductCode(packedProduct.unitNumber(), packedProduct.productCode()))
             .map(inventoryAggregate -> inventoryAggregate.removeFromCarton(input.cartonNumber()))
             .flatMap(inventoryAggregateRepository::saveInventory)
@@ -53,7 +52,4 @@ public class RecoveredPlasmaCartonRemovedUseCase implements UseCase<Mono<Invento
             .map(inventoryOutputMapper::toOutput);
     }
 
-    private boolean isUnpacked(PackedProductInput packedProductInput) {
-        return "UNPACKED".equals(packedProductInput.status());
-    }
 }

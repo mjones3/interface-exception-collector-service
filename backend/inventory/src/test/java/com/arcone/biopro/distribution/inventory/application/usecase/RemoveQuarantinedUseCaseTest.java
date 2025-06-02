@@ -24,6 +24,7 @@ import org.mockito.Spy;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,14 +58,15 @@ class RemoveQuarantinedUseCaseTest {
         openMocks(this);
 
         removeQuarantineInput = new RemoveQuarantineInput(
-            Product.builder().unitNumber("W036824111111").productCode("E1624V00").build(),
+            Product.builder().unitNumber("W777724111111").productCode("E1624V00").build(),
             1L
         );
 
         Inventory inventory = Inventory.builder()
-            .unitNumber(new UnitNumber("W036824111111"))
+            .unitNumber(new UnitNumber("W777724111111"))
             .productCode(new ProductCode("E1624V00"))
             .histories(new ArrayList<>(List.of(new History(InventoryStatus.AVAILABLE, null, null))))
+            .expirationDate(LocalDateTime.now().plusDays(1))
             .quarantines(new ArrayList<>(List.of(
                 new Quarantine(1L, "Contamination", "Suspected contamination")
             )))
@@ -98,7 +100,7 @@ class RemoveQuarantinedUseCaseTest {
 
         assertThat(inventoryAggregate.getInventory().getQuarantines()).isEmpty();
 
-        verify(inventoryAggregateRepository).findByUnitNumberAndProductCode("W036824111111", "E1624V00");
+        verify(inventoryAggregateRepository).findByUnitNumberAndProductCode("W777724111111", "E1624V00");
         verify(inventoryAggregateRepository).saveInventory(inventoryAggregate);
     }
 
@@ -116,7 +118,7 @@ class RemoveQuarantinedUseCaseTest {
             .expectError(InventoryNotFoundException.class)
             .verify();
 
-        verify(inventoryAggregateRepository).findByUnitNumberAndProductCode("W036824111111", "E1624V00");
+        verify(inventoryAggregateRepository).findByUnitNumberAndProductCode("W777724111111", "E1624V00");
         verify(inventoryAggregateRepository, never()).saveInventory(any());
         verify(mapper, never()).toOutput(any(Inventory.class));
     }

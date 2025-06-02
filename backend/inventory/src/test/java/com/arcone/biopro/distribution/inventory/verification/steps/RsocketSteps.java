@@ -1,6 +1,8 @@
 package com.arcone.biopro.distribution.inventory.verification.steps;
 
 import com.arcone.biopro.distribution.inventory.adapter.in.socket.dto.*;
+import com.arcone.biopro.distribution.inventory.application.dto.GetInventoryByUnitNumberAndProductInput;
+import com.arcone.biopro.distribution.inventory.application.dto.InventoryOutput;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhCriteria;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.MessageType;
 import io.cucumber.datatable.DataTable;
@@ -9,20 +11,18 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
+import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.rsocket.RSocketRequester;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @Slf4j
 public class RsocketSteps {
@@ -38,6 +38,11 @@ public class RsocketSteps {
     GetAvailableInventoryResponseDTO getAvailableInventoryResponseDTOResult;
 
     Mono<InventoryValidationResponseDTO> inventoryValidationResponseDTOMonoResult;
+
+    Flux<InventoryOutput> getInventoryByUnitNumberFluxResult;
+
+    Mono<InventoryOutput> getInventoryByUnitNumberAndProductCodeMonoResult;
+
 
     private static RSocketRequester requester;
 
@@ -90,6 +95,22 @@ public class RsocketSteps {
             .route("validateInventory")
             .data(new InventoryValidationRequest(unitNumber, productCode, location))
             .retrieveMono(InventoryValidationResponseDTO.class);
+    }
+
+    @When("I request a inventory with unit number {string}")
+    public void iRequestGetInventoryByUnitNumber(String unitNumber) {
+        getInventoryByUnitNumberFluxResult = requester
+            .route("getInventoryByUnitNumber")
+            .data(unitNumber)
+            .retrieveFlux(InventoryOutput.class);
+    }
+
+    @When("I request a inventory with unit number {string} and product code {string}")
+    public void iRequestGetInventoryByUnitNumberAndProductCode(String unitNumber, String productCode) {
+        getInventoryByUnitNumberAndProductCodeMonoResult = requester
+            .route("getInventoryByUnitNumberAndProductCode")
+            .data(new GetInventoryByUnitNumberAndProductInput(unitNumber, productCode))
+            .retrieveMono(InventoryOutput.class);
     }
 
     @Then("I receive {string} of total products and {string} of short date")
@@ -147,6 +168,7 @@ public class RsocketSteps {
         String messageError = row.get("MESSAGE");
         String details = row.get("DETAILS");
         Integer errorCode = Objects.isNull(errorType) ? null : MessageType.valueOf(errorType).getCode();
+
         StepVerifier
             .create(inventoryValidationResponseDTOMonoResult)
             .consumeNextWith(message -> {
@@ -209,5 +231,92 @@ public class RsocketSteps {
                 log.debug("Received message from validate inventory {}", message);
             })
             .verifyComplete();
+    }
+
+    @Then("I receive the following from get inventory by unit number:")
+    public void iReceiveTheFollowingFromGetInventoryByUnitNumber(DataTable dataTable) {
+        var row = dataTable.asMaps(String.class, String.class).getFirst();
+
+        Publisher<? extends InventoryOutput> publisher = getInventoryByUnitNumberFluxResult != null ? getInventoryByUnitNumberFluxResult : getInventoryByUnitNumberAndProductCodeMonoResult;
+
+        StepVerifier
+            .create(publisher)
+            .thenConsumeWhile(message -> {
+                assertInventoryOutput(message, row);
+
+                return true;
+            }).verifyComplete();
+    }
+
+    @Then("I receive the following from get inventory by unit number and Product Code:")
+    public void iReceiveTheFollowingFromGetInventoryByUnitNumberAndProductCode(DataTable dataTable) {
+        var row = dataTable.asMaps(String.class, String.class).getFirst();
+
+        StepVerifier
+            .create(getInventoryByUnitNumberAndProductCodeMonoResult)
+            .assertNext(message -> {
+                assertInventoryOutput(message, row);
+            }).verifyComplete();
+    }
+
+    private static void assertInventoryOutput(InventoryOutput message, Map<String, String> row) {
+
+        String unitNumber = row.get("Unit Number");
+        String productCode = row.get("Product Code");
+        assertThat(message.unitNumber()).isEqualTo(unitNumber);
+        assertThat(productCode).contains(message.productCode());
+
+        if (row.containsKey("Temperature Category")) {
+            assertThat(message.temperatureCategory()).isEqualTo(row.get("Temperature Category"));
+
+        }
+
+        if (row.get("Location") != null) {
+            assertThat(message.location()).isEqualTo(row.get("Location"));
+        }
+
+        if (row.get("Unsuitable Reason") != null) {
+            assertThat(message.unsuitableReason()).isEqualTo(row.get("Unsuitable Reason"));
+        }
+
+        if (row.get("Discard Reason") != null) {
+            assertThat(message.statusReason()).isEqualTo(row.get("Discard Reason"));
+        }
+
+        if (row.get("Quarantine Reasons") != null) {
+
+            assertNotNull(message.quarantines());
+            assertFalse(message.quarantines().isEmpty());
+
+            message.quarantines().forEach(
+                quarantine -> {
+                    assertTrue(row.get("Quarantine Reasons").contains(quarantine.reason()));
+                }
+            );
+        }
+
+        if (row.get("Collection Location") != null) {
+            assertThat(message.collectionLocation()).isEqualTo(row.get("Collection Location"));
+        }
+
+        if (row.containsKey("Volumes") && row.get("Volumes") != null) {
+            var volumes = row.get("Volumes").split(",");
+            for(String volume: volumes) {
+                var volumeFields = volume.split("-");
+                assertTrue( message.volumes().stream()
+                    .filter(v -> v.type().equals(volumeFields[0].trim().toUpperCase()))
+                    .findFirst()
+                    .map(v -> Objects.equals(v.value(), Integer.parseInt(volumeFields[1].trim())))
+                    .orElse(false));
+            }
+        }
+
+        if (row.get("Collection TimeZone") != null) {
+            assertThat(message.collectionTimeZone()).isEqualTo(row.get("Collection TimeZone"));
+        }
+
+        if(row.containsKey("Expired")) {
+            assertThat(message.expired()).isEqualTo(Boolean.valueOf(row.get("Expired").toLowerCase()));
+        }
     }
 }

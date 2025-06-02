@@ -34,6 +34,7 @@ public abstract class InventoryOutputMapper {
     @Mapping(target = "unitNumber", source = "unitNumber.value")
     @Mapping(target = "productCode", source = "productCode.value")
     @Mapping(target = "location", source = "inventoryLocation")
+    @Mapping(target = "productDescription", source = "shortDescription")
     public abstract InventoryOutput toOutput(Inventory domain);
 
     @Mapping(target = "productFamily", source = "productFamily")
@@ -93,6 +94,7 @@ public abstract class InventoryOutputMapper {
     @Mapping(target = "inventory.inventoryStatus", expression = "java(InventoryStatus.AVAILABLE)")
     @Mapping(target = "notificationMessages", ignore = true)
     @Mapping(target = "inventory.isLabeled", expression = "java(java.lang.Boolean.TRUE)")
+    @Mapping(target = "properties", ignore = true)
     public abstract InventoryAggregate toAggregate(InventoryInput input);
 
     @Mapping(target = "inventory.unitNumber.value", source = "unitNumber")
@@ -109,8 +111,11 @@ public abstract class InventoryOutputMapper {
     @Mapping(target = "inventory.id", expression = "java(java.util.UUID.randomUUID())")
     @Mapping(target = "inventory.inputProducts", source = "inputProducts")
     @Mapping(target = "inventory.isLabeled", expression = "java(java.lang.Boolean.FALSE)")
+    @Mapping(target = "inventory.isLicensed", source = "licensed")
     @Mapping(target = "inventory.inventoryStatus", expression = "java(InventoryStatus.AVAILABLE)")
+    @Mapping(target = "inventory.temperatureCategory", source = "temperatureCategory")
     @Mapping(target = "notificationMessages", ignore = true)
+    @Mapping(target = "properties", ignore = true)
     public abstract InventoryAggregate toAggregate(ProductCreatedInput productCreatedInput);
 
     List<String> toDetails(List<String> details, String context) {
@@ -137,12 +142,14 @@ public abstract class InventoryOutputMapper {
     @Mapping(target = "inventory.isLabeled", expression = "java(java.lang.Boolean.FALSE)")
     @Mapping(target = "inventory.inventoryStatus", expression = "java(InventoryStatus.AVAILABLE)")
     @Mapping(target = "notificationMessages", ignore = true)
+    @Mapping(target = "properties", ignore = true)
     public abstract InventoryAggregate toAggregate(CheckInCompletedInput checkInCompletedInput);
 
 
 
     @Mapping(target = "inventory",  expression = "java(toInventory(productModifiedInput, parent))")
     @Mapping(target = "notificationMessages", ignore = true)
+    @Mapping(target = "properties", ignore = true)
     public abstract InventoryAggregate toAggregate(ProductModifiedInput productModifiedInput, Inventory parent);
 
 

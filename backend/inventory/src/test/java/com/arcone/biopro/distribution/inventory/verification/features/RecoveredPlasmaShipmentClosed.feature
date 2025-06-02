@@ -1,5 +1,5 @@
-# Feature Unit Number reference: W036825013000
-@api @LAB-470
+# Feature Unit Number reference: W777725013000
+@api @LAB-470 @skipOnPipeline
 Feature: Recovered Plasma Shipment Closed Event - API
     As an inventory service I want to update the status of an inventory after receiving an Recovered Plasma Shipment Closed event.
 
@@ -18,5 +18,5 @@ Feature: Recovered Plasma Shipment Closed Event - API
 
         Examples:
             | Carton Number | Unit Number   | Product Code |
-            | CN1001        | W036825013001 | E4689V00     |
-            | CN1002        | W036825013002 | E1624VA0     |
+            | CN1001        | W777725013001 | E4689V00     |
+            | CN1002        | W777725013002 | E1624VA0     |

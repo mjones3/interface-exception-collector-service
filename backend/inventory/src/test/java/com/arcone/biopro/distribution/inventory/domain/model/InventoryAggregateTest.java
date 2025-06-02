@@ -37,7 +37,7 @@ class InventoryAggregateTest {
 
     @Test
     void testIsExpired_ShouldReturnTrue_WhenExpirationDateIsBeforeNow() {
-        when(inventoryMock.getExpirationDate()).thenReturn(LocalDateTime.now().minusDays(1));
+        when(inventoryMock.isExpired()).thenReturn(true);
         assertTrue(inventoryAggregate.isExpired(), "Expected inventory to be expired");
     }
 
@@ -51,6 +51,7 @@ class InventoryAggregateTest {
     void testCheckIfIsValidToShip_ShouldAddNotification_WhenInventoryIsExpired() {
         when(inventoryMock.getInventoryStatus()).thenReturn(InventoryStatus.AVAILABLE);
         when(inventoryMock.getExpirationDate()).thenReturn(LocalDateTime.now().minusDays(1));
+        when(inventoryMock.isExpired()).thenReturn(true);
         when(inventoryMock.getIsLabeled()).thenReturn(Boolean.TRUE);
 
         inventoryAggregate.checkIfIsValidToShip("LOCATION_1");
@@ -239,6 +240,21 @@ class InventoryAggregateTest {
         InventoryAggregate result = inventoryAggregate.cartonShipped();
         verify(inventoryMock).transitionStatus(InventoryStatus.SHIPPED, null);
         assertSame(inventoryAggregate, result, "Should return the same instance");
+    }
+
+    @Test
+    @DisplayName(("Should Add and Remove Quarantine Flag"))
+    void shouldAddAndRemoveQuarantineFlag() {
+
+        InventoryAggregate aggregate =InventoryAggregate.builder().inventory(Inventory.builder().build()).build();
+
+        aggregate.addQuarantine(1L, "REASON", null);
+
+        assertTrue(aggregate.isQuarantined());
+
+        aggregate.removeQuarantine(1L);
+
+        assertFalse(aggregate.isQuarantined());
     }
 
 }

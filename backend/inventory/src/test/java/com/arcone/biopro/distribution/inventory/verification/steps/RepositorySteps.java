@@ -7,6 +7,8 @@ import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.Volume;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntity;
 import com.arcone.biopro.distribution.inventory.infrastructure.persistence.InventoryEntityRepository;
+import com.arcone.biopro.distribution.inventory.infrastructure.persistence.PropertyEntity;
+import com.arcone.biopro.distribution.inventory.infrastructure.persistence.PropertyEntityRepository;
 import com.arcone.biopro.distribution.inventory.verification.common.ScenarioContext;
 import com.arcone.biopro.distribution.inventory.verification.utils.InventoryUtil;
 import io.cucumber.datatable.DataTable;
@@ -20,9 +22,7 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -40,6 +40,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class RepositorySteps {
     private final InventoryEntityRepository inventoryEntityRepository;
+
+    private final PropertyEntityRepository propertyEntityRepository;
 
     private final ScenarioContext scenarioContext;
 
@@ -281,70 +283,70 @@ public class RepositorySteps {
     @Then("the inventory statuses should be updated as follows:")
     @Then("the inventories should be:")
     public void theInventoryStatusesShouldBeUpdatedAsFollows(DataTable dataTable) {
-        List<Map<String, String>> inventories = dataTable.asMaps(String.class, String.class);
-        for (Map<String, String> inventory : inventories) {
-            String unitNumber = inventory.get("Unit Number");
-            String productCode = inventory.get("Product Code");
-            String expectedStatus = inventory.get("Status");
+        List<Map<String, String>> table = dataTable.asMaps(String.class, String.class);
+        for (Map<String, String> row : table) {
+            String unitNumber = row.get("Unit Number");
+            String productCode = row.get("Product Code");
+            String expectedStatus = row.get("Status");
             var inventoryEntity = this.getInventory(unitNumber, productCode);
-            if (inventory.containsKey("Is Labeled")) {
-                assertEquals(Boolean.valueOf(inventory.get("Is Labeled")), inventoryEntity.getIsLabeled());
+            if (row.containsKey("Is Labeled")) {
+                assertEquals(Boolean.valueOf(row.get("Is Labeled")), inventoryEntity.getIsLabeled());
             }
-            if (inventory.containsKey("Is licensed")) {
-                assertEquals(Boolean.valueOf(inventory.get("Is licensed")), inventoryEntity.getIsLicensed());
+            if (row.containsKey("Is licensed")) {
+                assertEquals(Boolean.valueOf(row.get("Is licensed")), inventoryEntity.getIsLicensed());
             }
-            if (inventory.containsKey("Temperature Category") && Strings.isNotBlank(inventory.get("Temperature Category"))) {
-                assertEquals(inventory.get("Temperature Category"), inventoryEntity.getTemperatureCategory());
+            if (row.containsKey("Temperature Category") && Strings.isNotBlank(row.get("Temperature Category"))) {
+                assertEquals(row.get("Temperature Category"), inventoryEntity.getTemperatureCategory());
             }
-            if (inventory.containsKey("Unsuitable reason")) {
-                if (inventory.get("Unsuitable reason").equalsIgnoreCase("Empty")) {
+            if (row.containsKey("Unsuitable reason")) {
+                if (row.get("Unsuitable reason").equalsIgnoreCase("Empty")) {
                     assertNull(inventoryEntity.getUnsuitableReason());
                 } else {
-                    assertEquals(inventory.get("Unsuitable reason"), inventoryEntity.getUnsuitableReason());
+                    assertEquals(row.get("Unsuitable reason"), inventoryEntity.getUnsuitableReason());
                 }
             }
             List<Volume> volumes = inventoryEntity.getVolumes();
-            if(inventory.containsKey("Volume")){
+            if(row.containsKey("Volume")){
                 assertTrue(volumes.stream()
                     .filter(v -> v.type().equals("volume"))
                     .findFirst()
-                    .map(v -> Objects.equals(v.value(), Integer.valueOf(inventory.get("Volume"))))
+                    .map(v -> Objects.equals(v.value(), Integer.valueOf(row.get("Volume"))))
                     .orElse(false));
             }
 
-            if(inventory.containsKey("Weight")){
-                assertEquals(Integer.valueOf(inventory.get("Weight")), inventoryEntity.getWeight());
+            if(row.containsKey("Weight")){
+                assertEquals(Integer.valueOf(row.get("Weight")), inventoryEntity.getWeight());
             }
 
-            if(inventory.containsKey("Modification Location")){
-                assertEquals(inventory.get("Modification Location"), inventoryEntity.getModificationLocation());
+            if(row.containsKey("Modification Location")){
+                assertEquals(row.get("Modification Location"), inventoryEntity.getModificationLocation());
             }
 
-            if(inventory.containsKey("Anticoagulant Volume")){
+            if(row.containsKey("Anticoagulant Volume")){
                 assertTrue(volumes.stream()
                     .filter(v -> v.type().equals("anticoagulantVolume"))
                     .findFirst()
-                    .map(v -> Objects.equals(v.value(), Integer.valueOf(inventory.get("Anticoagulant Volume"))))
+                    .map(v -> Objects.equals(v.value(), Integer.valueOf(row.get("Anticoagulant Volume"))))
                     .orElse(false));
             }
-            if(inventory.containsKey("Location")){
-                assertEquals(inventory.get("Location"), inventoryEntity.getInventoryLocation());
+            if(row.containsKey("Location")){
+                assertEquals(row.get("Location"), inventoryEntity.getInventoryLocation());
             }
-            if(inventory.containsKey("Collection Location")){
-                assertEquals(inventory.get("Collection Location"), inventoryEntity.getCollectionLocation());
+            if(row.containsKey("Collection Location")){
+                assertEquals(row.get("Collection Location"), inventoryEntity.getCollectionLocation());
             }
-            if(inventory.containsKey("Collection TimeZone")){
-                assertEquals(inventory.get("Collection TimeZone"), inventoryEntity.getCollectionTimeZone());
+            if(row.containsKey("Collection TimeZone")){
+                assertEquals(row.get("Collection TimeZone"), inventoryEntity.getCollectionTimeZone());
             }
 
-            if(inventory.containsKey("Expiration Date")){
+            if(row.containsKey("Expiration Date")){
                 assertNotNull(inventoryEntity.getExpirationDate());
-                assertEquals(inventory.get("Expiration Date"), inventoryEntity.getExpirationDate().toString());
+                assertEquals(row.get("Expiration Date"), inventoryEntity.getExpirationDate().toString());
 
             }
 
-            if(inventory.containsKey("Modification Date")) {
-                assertEquals(inventory.get("Modification Date"),inventoryEntity.getProductModificationDate().withZoneSameInstant(ZoneOffset.UTC).format(DateTimeFormatter.ISO_ZONED_DATE_TIME));
+            if(row.containsKey("Modification Date")) {
+                assertEquals(row.get("Modification Date"),inventoryEntity.getProductModificationDate().withZoneSameInstant(ZoneOffset.UTC).format(DateTimeFormatter.ISO_ZONED_DATE_TIME));
             }
 
             assertEquals(expectedStatus, inventoryEntity.getInventoryStatus().name());
@@ -400,6 +402,18 @@ public class RepositorySteps {
 
         for (int i = 0; i < quantity; i++) {
             createInventory(unitNumber, productCode, productFamily, aboRhType, location, daysToExpire, status, temperatureCategory, true, null, null);
+        }
+    }
+
+    @Then("the properties should be added:")
+    public void thePropertiesShouldBeAdded(DataTable dataTable) {
+        List<Map<String, String>> table = dataTable.asMaps(String.class, String.class);
+        for (Map<String, String> row : table) {
+            InventoryEntity inventory = inventoryEntityRepository.findByUnitNumberAndProductCode(row.get("Unit Number"), row.get("Product Code")).block();
+            assert inventory != null;
+            List<PropertyEntity> properties = propertyEntityRepository.findByInventoryId(inventory.getId()).collectList().block();
+            assert properties != null;
+            properties.stream().map(PropertyEntity::getKey).forEach(p -> assertTrue(row.get("Properties").contains(p)));
         }
     }
 }
