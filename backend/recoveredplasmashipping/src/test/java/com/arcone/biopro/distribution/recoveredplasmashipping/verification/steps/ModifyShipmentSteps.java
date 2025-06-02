@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.verification.steps;
 
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.controllers.CreateShipmentController;
+import com.arcone.biopro.distribution.recoveredplasmashipping.verification.pages.ShipmentDetailsPage;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.SharedContext;
 import com.arcone.biopro.distribution.recoveredplasmashipping.verification.support.TestUtils;
 import io.cucumber.datatable.DataTable;
@@ -23,6 +24,8 @@ public class ModifyShipmentSteps {
     private TestUtils testUtils;
     @Autowired
     CreateShipmentController createShipmentController;
+    @Autowired
+    ShipmentDetailsPage shipmentDetailsPage;
 
     @Value("${default.employee.id}")
     String employeeId;
@@ -72,9 +75,49 @@ public class ModifyShipmentSteps {
             log.debug("History response: {}", historyResponse);
             Assert.assertTrue(
                 historyResponse.stream().anyMatch(e -> e.get("createEmployeeId").equals(historyEntryValues[0])
-                    && e.get("createDate").toString().contains(testUtils.parseDataKeyword(historyEntryValues[1]))
+                    && e.get("createDate").toString().contains(testUtils.parseDateKeyword(historyEntryValues[1]))
                 &&  e.get("comments").equals(historyEntryValues[2]))
             );
+        }
+    }
+
+    @And("The edit shipment option should be {string}.")
+    public void theEditShipmentOptionShouldBeEnabled(String option) {
+        if (option.equals("enabled")) {
+            Assert.assertTrue(shipmentDetailsPage.isEditShipmentButtonEnabled());
+        } else if (option.equals("disabled")) {
+            Assert.assertFalse(shipmentDetailsPage.isEditShipmentButtonEnabled());
+        } else {
+            throw new RuntimeException("Invalid option");
+        }
+    }
+
+
+    @When("I choose to edit the shipment.")
+    public void iChooseToEditTheShipment() {
+        shipmentDetailsPage.clickEditShipmentButton();
+    }
+
+    @Then("I should see the following fields in edit form:")
+    public void iShouldSeeTheFollowingFields(DataTable dataTable) throws InterruptedException {
+        var headers = dataTable.row(0);
+        for (int i = 1; i < dataTable.height(); i++) {
+            var row = dataTable.row(i);
+            shipmentDetailsPage.verifyEditShipmentFields(row.get(headers.indexOf("Field")), row.get(headers.indexOf("Value")), row.get(headers.indexOf("Status")));
+        }
+    }
+
+    @When("I switch to the Shipment History tab.")
+    public void iSwitchToTheShipmentHistoryTab() {
+        shipmentDetailsPage.switchToCommentsTab();
+    }
+
+    @Then("I should see the following rows in the history table:")
+    public void iShouldSeeTheFollowingRowsInTheHistoryTable(DataTable dataTable) {
+        var headers = dataTable.row(0);
+        for (int i = 1; i < dataTable.height(); i++) {
+            var row = dataTable.row(i);
+            shipmentDetailsPage.verifyShipmentHistoryRow(row.get(headers.indexOf("User")), row.get(headers.indexOf("Date")), row.get(headers.indexOf("Comments")));
         }
     }
 }

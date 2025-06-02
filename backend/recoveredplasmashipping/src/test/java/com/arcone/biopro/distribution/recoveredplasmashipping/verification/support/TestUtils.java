@@ -60,7 +60,7 @@ public class TestUtils {
         return String.format("[\"%s\"]", formattedParam);
     }
 
-    public String parseDataKeyword(String keyword) {
+    public String parseDateKeyword(String keyword) {
         if (keyword.equals("<tomorrow>")) {
             LocalDate tomorrow = LocalDate.now().plusDays(1);
             log.info("Tomorrow's date is {}", tomorrow);

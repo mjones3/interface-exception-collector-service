@@ -83,11 +83,16 @@ public class CreateShipmentSteps {
         Map<String, String> fields = dataTable.asMap(String.class, String.class);
 
         String customer = fields.get("Customer");
-        createShipmentPage.selectCustomer(customer);
+        if (customer != null) {
+            createShipmentPage.selectCustomer(customer);
+        }
 
+        /*
+        * Element hidden from the page. Might be back in the future
+            String cartonTareWeight = fields.get("Carton Tare Weight");
+            createShipmentPage.setCartonTareWeight(cartonTareWeight);
+        */
 
-        String cartonTareWeight = fields.get("Carton Tare Weight");
-        createShipmentPage.setCartonTareWeight(cartonTareWeight);
 
         String shipmentDate = fields.get("Shipment Date");
         if (shipmentDate.equals("<tomorrow>")) {
@@ -95,11 +100,21 @@ public class CreateShipmentSteps {
             shipmentDate = tomorrow.format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
             createShipmentPage.setShipmentDate(shipmentDate);
         }
+
         String productType = fields.get("Product Type");
-        createShipmentPage.selectProductType(productType);
+        if (productType != null) {
+            createShipmentPage.selectProductType(productType);
+        }
 
         String transportationRefNumber = fields.get("Transportation Reference Number");
-        createShipmentPage.setTransportationRefNumber(transportationRefNumber);
+        if (transportationRefNumber != null) {
+            createShipmentPage.setTransportationRefNumber(transportationRefNumber);
+        }
+
+        String comments = fields.get("Comments");
+        if (comments != null) {
+            createShipmentPage.setEditComments(comments);
+        }
     }
 
     @When("I choose to submit the shipment.")
@@ -119,7 +134,7 @@ public class CreateShipmentSteps {
 
 
         String shipmentDate = fields.get("Shipment Date");
-        shipmentDate = testUtils.parseDataKeyword(shipmentDate);
+        shipmentDate = testUtils.parseDateKeyword(shipmentDate);
 
         sharedContext.setLocationCode(fields.get("Location Code"));
 
@@ -234,7 +249,7 @@ public class CreateShipmentSteps {
         databaseService.executeSql(deleteCartonsQuery).block();
 
         // Delete Reports
-        var deleteReports = DatabaseQueries.REMOVE_UNACCEPTABLE_UNIT_REPORT_BY_LOCATION_AND_TRANSPORTATION_REF_NUMBER(location,transportationRefNumber);
+        var deleteReports = DatabaseQueries.REMOVE_UNACCEPTABLE_UNIT_REPORT_BY_LOCATION_AND_TRANSPORTATION_REF_NUMBER(location, transportationRefNumber);
         databaseService.executeSql(deleteReports).block();
 
         // Delete shipments
@@ -258,9 +273,10 @@ public class CreateShipmentSteps {
     public void createShipmentAndCarton(String customerCode, String productType, String cartonTare, String shipmentDate, String transportationRefNumber, String locationCode) {
         createShipmentAndMultipleCarton(1, customerCode, productType, cartonTare, shipmentDate, transportationRefNumber, locationCode);
     }
+
     @Given("I have {int} empty carton(s) created with the Customer Code as {string} , Product Type as {string}, Carton Tare Weight as {string}, Shipment Date as {string}, Transportation Reference Number as {string} and Location Code as {string}.")
     public void createShipmentAndMultipleCarton(int qtyCartons, String customerCode, String productType, String cartonTare, String shipmentDate, String transportationRefNumber, String locationCode) {
-        createShipmentController.createShipment(customerCode, productType, Float.parseFloat(cartonTare), testUtils.parseDataKeyword(shipmentDate), transportationRefNumber, locationCode);
+        createShipmentController.createShipment(customerCode, productType, Float.parseFloat(cartonTare), testUtils.parseDateKeyword(shipmentDate), transportationRefNumber, locationCode);
         iRequestToAddCartonsToTheShipment(qtyCartons);
     }
 

@@ -167,7 +167,7 @@ public class CreateShipmentController {
 
 
     public Map modifyShipment(int shipmentId, String customerCode, String productType, String transpRefNumber, String shipmentDate, int cartonTareWeight, String employeeId, String comments) {
-        shipmentDate = testUtils.parseDataKeyword(shipmentDate);
+        shipmentDate = testUtils.parseDateKeyword(shipmentDate);
         transpRefNumber = transpRefNumber.equalsIgnoreCase("<null>") ? null : "\"" + transpRefNumber + "\"";
         comments = comments.equalsIgnoreCase("<null>") ? null : "\"" + comments + "\"";
 
