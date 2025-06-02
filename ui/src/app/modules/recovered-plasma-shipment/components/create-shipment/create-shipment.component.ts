@@ -214,7 +214,7 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
         }
         if(this.createShipmentForm.valid){
             this.isSubmitting.set(true);
-            if(this.data?.canModify){
+            if(this.data?.id){
                 this.isSubmitting.set(false);
                 this.dialogRef.close(this.modifyShipmentRequest());
             } else {
@@ -312,6 +312,7 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
     }
 
     canSubmit(){
-        return !this.createShipmentForm.valid
+        return !this.createShipmentForm.valid ||
+        this.createShipmentForm.get('productType').value === ''
     }
 }
