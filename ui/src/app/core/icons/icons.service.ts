@@ -91,6 +91,35 @@ export class IconsService {
             )
         );
 
+        matIconRegistry.addSvgIconInNamespace(
+            'biopro',
+            'temperature-deep-freeze',
+            domSanitizer.bypassSecurityTrustResourceUrl(
+                'icons/biopro/biopro-temperature-deep-freeze.svg'
+            )
+        );
+        matIconRegistry.addSvgIconInNamespace(
+            'biopro',
+            'temperature-freeze',
+            domSanitizer.bypassSecurityTrustResourceUrl(
+                'icons/biopro/biopro-temperature-freeze.svg'
+            )
+        );
+        matIconRegistry.addSvgIconInNamespace(
+            'biopro',
+            'temperature-refrigerator',
+            domSanitizer.bypassSecurityTrustResourceUrl(
+                'icons/biopro/biopro-temperature-refrigerator.svg'
+            )
+        );
+        matIconRegistry.addSvgIconInNamespace(
+            'biopro',
+            'temperature-room-temperature',
+            domSanitizer.bypassSecurityTrustResourceUrl(
+                'icons/biopro/biopro-temperature-room-temperature.svg'
+            )
+        );
+
         // Adding icons
         [...RSA_ICONS, ...DRIP_ICONS, ...HEROIC_ICONS].forEach((icon) => {
             matIconRegistry.addSvgIconLiteralInNamespace(

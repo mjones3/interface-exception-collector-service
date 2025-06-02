@@ -54,6 +54,15 @@
         }
     },
     {
+        "context": ["/receiving/graphql"],
+        "target": "http://api.local.gd/receiving/graphql",
+        "secure": true,
+        "changeOrigin": true,
+        "pathRewrite": {
+            "^/receiving/graphql": ""
+        }
+    },
+    {
         "context": ["/discard/graphql"],
         "target": "http://api.local.gd/discard/graphql",
         "secure": true,

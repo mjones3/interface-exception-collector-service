@@ -36,4 +36,5 @@ public class HealthCheckSteps {
         assertEquals(200, result.getStatus().value(), "Health check response status is not 200.");
     }
 
+
 }
