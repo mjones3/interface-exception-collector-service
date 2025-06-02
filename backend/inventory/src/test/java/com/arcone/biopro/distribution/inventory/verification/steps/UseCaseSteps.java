@@ -179,7 +179,7 @@ public class UseCaseSteps {
     }
 
     @When("I received a Product Imported event for the following products:")
-    public void iReceivedAProductImportedEventForTheFollowingProducts(DataTable dataTable) throws InterruptedException {
+    public void iReceivedAProductImportedEventForTheFollowingProducts(DataTable dataTable) {
         List<Map<String, String>> products = dataTable.asMaps(String.class, String.class);
         for (Map<String, String> product : products) {
 
@@ -408,6 +408,9 @@ public class UseCaseSteps {
                     break;
                 case "Product Modified":
                     iReceivedAProductModifiedEventForTheFollowingProducts(dataTable);
+                    break;
+                case "Product Imported":
+                    iReceivedAProductImportedEventForTheFollowingProducts(dataTable);
                     break;
                 default:
                     break;
