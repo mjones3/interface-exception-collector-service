@@ -4,9 +4,10 @@ import com.arcone.biopro.distribution.inventory.application.dto.InventoryOutput;
 import com.arcone.biopro.distribution.inventory.application.dto.ProductCreatedInput;
 import com.arcone.biopro.distribution.inventory.application.dto.ProductsImportedInput;
 import com.arcone.biopro.distribution.inventory.application.mapper.InventoryOutputMapper;
-import com.arcone.biopro.distribution.inventory.domain.event.InventoryCreatedEvent;
 import com.arcone.biopro.distribution.inventory.domain.event.InventoryEventPublisher;
+import com.arcone.biopro.distribution.inventory.domain.event.InventoryUpdatedApplicationEvent;
 import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryUpdateType;
 import com.arcone.biopro.distribution.inventory.domain.repository.InventoryAggregateRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +39,7 @@ public class ProductsImportedUseCase implements UseCase<Mono<InventoryOutput>, P
                 .switchIfEmpty(Mono.defer(() -> buildAggregate(productCreatedInput)))
                 .map(inventoryAggregate -> addProperties(inventoryAggregate, productCreatedInput))
                 .flatMap(inventoryAggregateRepository::saveInventory)
-               // .doOnSuccess(aggregate -> publisher.publish(new InventoryCreatedEvent(aggregate)))
+                .doOnSuccess(inventoryAggregateSaved -> publisher.publish(new InventoryUpdatedApplicationEvent(inventoryAggregateSaved.getInventory(), InventoryUpdateType.LABEL_APPLIED)))
                 .doOnSuccess(response -> log.info("Product imported: {}", response))
                 .doOnError(e -> log.error("Error occurred during import product. Input: {}, error: {}", productCreatedInput, e.getMessage(), e))
             )
