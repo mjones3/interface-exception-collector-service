@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import {
     FormBuilder,
+    FormControl,
     FormGroup,
     ReactiveFormsModule,
     Validators,
@@ -122,8 +123,10 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
             cartonTareWeight: [''], //add Validators.required, cartonWeightValidator() when implement carton tare weight 
             shipmentDate: [''],
             transportationReferenceNumber: [''],
-            comments: ['']
         });
+        if(this.data?.id){
+            this.createShipmentForm.addControl('comments', new FormControl('', [Validators.required]))
+        };
         this.disableFormField();
     }
 
@@ -138,7 +141,7 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
         }
     }
 
-    private setupCustomerValueChangeSubscription() {
+    setupCustomerValueChangeSubscription() {
         this.customerValueChange = this.createShipmentForm
             .get('customerName')
             .valueChanges.pipe(debounceTime(300))
@@ -306,7 +309,6 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
             shipmentDate: data.shipmentDate,
             transportationReferenceNumber: data.transportationReferenceNumber,
         });
-        this.createShipmentForm.controls.comments.addValidators(Validators.required);
     }
 
     canSubmit(){

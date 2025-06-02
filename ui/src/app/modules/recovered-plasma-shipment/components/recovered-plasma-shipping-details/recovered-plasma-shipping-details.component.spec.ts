@@ -28,8 +28,6 @@ import { RecoveredPlasmaShipmentService } from '../../services/recovered-plasma-
 import { provideMockStore } from '@ngrx/store/testing';
 import { ShipmentHistoryDTO } from '../../graphql/query-definitions/shipment-comments-history.graphql';
 import { CreateShipmentComponent } from '../create-shipment/create-shipment.component';
-import { ModifyShipmentRequestDTO } from '../../graphql/mutation-definitions/modify-shipment.graphql';
-
 
 describe('RecoveredPlasmaShippingDetailsComponent', () => {
     let component: RecoveredPlasmaShippingDetailsComponent;
@@ -42,7 +40,6 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
     let mockMatDialog: jest.Mocked<MatDialog>;
     let mockPrintLabelService: jest.Mocked<PrintLabelService>;
     let mockBrowserPrintingService: jest.Mocked<BrowserPrintingService>;
-    let mockEditDialogRef: jest.Mocked<MatDialogRef<CreateShipmentComponent, any>>;
     let mockDialogRef: jest.Mocked<MatDialogRef<ViewShippingCartonPackingSlipComponent, CartonPackingSlipDTO | string>>;
     let mockConfirmationDialog: jest.Mocked<MatDialog>;
     let mockShipmentService: jest.Mocked<RecoveredPlasmaShipmentService>;
@@ -54,12 +51,6 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
             navigateByUrl: jest.fn(),
             url: '/test-url',
         } as Partial<Router> as jest.Mocked<Router>;
-
-        mockEditDialogRef = {
-            afterOpened: jest.fn(),
-            afterClosed: jest.fn(),
-            close: jest.fn(),
-        } as Partial<MatDialogRef<CreateShipmentComponent, ModifyShipmentRequestDTO>> as jest.Mocked<MatDialogRef<CreateShipmentComponent, ModifyShipmentRequestDTO>>;
 
         mockDialogRef = {
             afterOpened: jest.fn().mockReturnValue(of({})),
@@ -123,7 +114,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         mockActivatedRoute = {
             paramMap: of({}),
             queryParams: of({}),
-            params: of({ id: 1 }),
+            params: of(),
             snapshot: {
                 params: { id: 1 },
                 queryParams: {},
@@ -133,7 +124,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         const initialState: AuthState = {
             id: 'mock-user-id',
             loaded: true,
-          };
+        };
 
         const matDailogMockData = {
                 width: '24rem',
@@ -173,12 +164,8 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
 
         mockStore.select.mockReturnValue(of({ id: 'emp123' }));
         jest.spyOn(cookieService, 'get').mockReturnValue('123456789');
-        fixture = TestBed.createComponent(
-            RecoveredPlasmaShippingDetailsComponent
-        );
-        cookieService = TestBed.inject(
-            CookieService
-        ) as jest.Mocked<CookieService>;
+        fixture = TestBed.createComponent(RecoveredPlasmaShippingDetailsComponent);
+        cookieService = TestBed.inject(CookieService) as jest.Mocked<CookieService>;
         component = fixture.componentInstance;
     });
 
@@ -191,10 +178,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
     });
 
     it('should handle error when fetching shipment details fails', () => {
-        const mockError = new ApolloError({
-            errorMessage: 'Network error',
-        });
-
+        const mockError = new ApolloError({errorMessage: 'Network error'});
         mockRecoveredPlasmaService.getShipmentById.mockReturnValue(
             throwError(() => mockError)
         );
@@ -220,15 +204,10 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
                 },
             };
 
-            mockRecoveredPlasmaService.createCarton.mockReturnValue(
-                of(mockResponse)
-            );
-
+            mockRecoveredPlasmaService.createCarton.mockReturnValue(of(mockResponse));
             component.addCarton();
 
-            expect(
-                mockRecoveredPlasmaService.createCarton
-            ).toHaveBeenCalledWith({
+            expect(mockRecoveredPlasmaService.createCarton).toHaveBeenCalledWith({
                 shipmentId: 1,
                 employeeId: 'emp123',
             });
@@ -236,16 +215,9 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         });
 
         it('should handle error when creating carton fails', () => {
-            const mockError = new ApolloError({
-                errorMessage: 'Network error',
-            });
-
-            mockRecoveredPlasmaService.createCarton.mockReturnValue(
-                throwError(() => mockError)
-            );
-
+            const mockError = new ApolloError({errorMessage: 'Network error'});
+            mockRecoveredPlasmaService.createCarton.mockReturnValue(throwError(() => mockError));
             component.addCarton();
-
             expect(mockToastrService.error).toHaveBeenCalled();
         });
 
@@ -259,16 +231,10 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
                 },
             };
 
-            mockRecoveredPlasmaService.createCarton.mockReturnValue(
-                of(mockResponse)
-            );
-
+            mockRecoveredPlasmaService.createCarton.mockReturnValue(of(mockResponse));
             component.addCarton();
-
             expect(mockRouter.navigateByUrl).not.toHaveBeenCalled();
         });
-
-
 
         it('should show "add carton button" when canAddCartons is true', () => {
             const buttonIdCssSelector = By.css('#btnAddCarton');
@@ -281,9 +247,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
     });
 
     it('should handle error when loadCartonPackedProduct fails', () => {
-        const mockError = new ApolloError({
-            errorMessage: 'Network error',
-        });
+        const mockError = new ApolloError({errorMessage: 'Network error'});
         const carton = {
             id: 1,
             cartonNumber: '123',
@@ -303,12 +267,8 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
             packedProducts: [],
         };
 
-        mockRecoveredPlasmaService.getCartonById.mockReturnValue(
-            throwError(() => mockError)
-        );
-
+        mockRecoveredPlasmaService.getCartonById.mockReturnValue(throwError(() => mockError));
         component.loadCartonPackedProduct(carton);
-
         expect(mockToastrService.error).toHaveBeenCalled();
     });
 
@@ -372,38 +332,22 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
                     notifications: [],
                 },
             },
-        } as any as ApolloQueryResult<{
-            findCartonById: UseCaseResponseDTO<CartonDTO>;
-        }>;
-        mockRecoveredPlasmaService.getCartonById.mockReturnValue(
-            of(mockResponse)
-        );
+        } as any as ApolloQueryResult<{findCartonById: UseCaseResponseDTO<CartonDTO>}>;
+        mockRecoveredPlasmaService.getCartonById.mockReturnValue(of(mockResponse));
         component.loadCartonPackedProduct(carton);
         jest.spyOn(mockRecoveredPlasmaService, 'getCartonById');
-
-        expect(mockRecoveredPlasmaService.getCartonById).toHaveBeenCalledWith(
-            2
-        );
-        expect(component.expandedRowDataSignal()).toEqual(
-            mockResponse.data.findCartonById.data.packedProducts
-        );
+        expect(mockRecoveredPlasmaService.getCartonById).toHaveBeenCalledWith(2);
+        expect(component.expandedRowDataSignal()).toEqual(mockResponse.data.findCartonById.data.packedProducts);
     });
 
     it('should not update signal if packed products data is null', () => {
         const carton: CartonDTO = { id: 123 };
         const mockResponse = {
             packedProducts: [],
-        } as any as ApolloQueryResult<{
-            findCartonById: UseCaseResponseDTO<CartonDTO>;
-        }>;
-
-        mockRecoveredPlasmaService.getCartonById.mockReturnValue(
-            of(mockResponse)
-        );
+        } as any as ApolloQueryResult<{findCartonById: UseCaseResponseDTO<CartonDTO>}>;
+        mockRecoveredPlasmaService.getCartonById.mockReturnValue(of(mockResponse));
         component.loadCartonPackedProduct(carton);
-        expect(mockRecoveredPlasmaService.getCartonById).toHaveBeenCalledWith(
-            123
-        );
+        expect(mockRecoveredPlasmaService.getCartonById).toHaveBeenCalledWith(123);
         expect(component.expandedRowDataSignal()).toEqual([]);
     });
 
@@ -419,9 +363,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
                         },
                     },
                 },
-            } as unknown as ApolloQueryResult<{
-                findShipmentById: UseCaseResponseDTO<RecoveredPlasmaShipmentResponseDTO>;
-            }>)
+            } as unknown as ApolloQueryResult<{findShipmentById: UseCaseResponseDTO<RecoveredPlasmaShipmentResponseDTO>}>)
         );
 
         fixture.detectChanges();
@@ -517,7 +459,6 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         );
 
         component.handleCloseShipmentContinue(mockDate);
-
         expect(mockRecoveredPlasmaService.closeShipment).toHaveBeenCalledWith({
             locationCode: '123456789',
             shipmentId: 1,
@@ -532,13 +473,8 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
             errorMessage: 'Network error',
         });
 
-        mockRecoveredPlasmaService.closeShipment.mockReturnValue(
-            throwError(() => mockError)
-        );
-
-        expect(() => {
-            component.handleCloseShipmentContinue(mockDate);
-        }).not.toThrow();
+        mockRecoveredPlasmaService.closeShipment.mockReturnValue(throwError(() => mockError));
+        expect(() => {component.handleCloseShipmentContinue(mockDate)}).not.toThrow();
     });
 
     it('should fetch shipment data when closeShipment succeeds', () => {
@@ -553,11 +489,8 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         };
 
         mockRecoveredPlasmaService.closeShipment.mockReturnValue(of(mockResponse));
-
         const fetchShipmentDataSpy = jest.spyOn(component, 'fetchShipmentData');
-
         component.handleCloseShipmentContinue(mockDate);
-
         expect(fetchShipmentDataSpy).toHaveBeenCalledWith(1);
     });
 
@@ -566,29 +499,23 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         jest.useFakeTimers();
         it('should call loadRecoveredPlasmaShippingDetails with the provided id', () => {
             jest.clearAllTimers();
-
             const shipmentId = 123;
             const loadSpy = jest.spyOn(component, 'loadRecoveredPlasmaShippingDetails').mockReturnValue(of({}));
-
             component.fetchShipmentData(shipmentId);
             jest.advanceTimersByTime(500);
-
             expect(loadSpy).toHaveBeenCalledWith(shipmentId);
         });
 
         it('should print both carton packing slip and label when shouldPrintCartonPackingSlipAndLabel is true', () => {
             jest.clearAllTimers();
-
             const shipmentId = 123;
             const cartonId = 456;
             mockActivatedRoute.snapshot.queryParams = { print: 'true', closeCartonId: cartonId.toString() };
             const loadSpy = jest.spyOn(component, 'loadRecoveredPlasmaShippingDetails').mockReturnValue(of({}));
             const printLabelSpy = jest.spyOn(component, 'printCartonLabel').mockImplementation();
             const printPackingSlipSpy = jest.spyOn(component, 'printCartonPackingSlip').mockImplementation();
-
             component.fetchShipmentData(shipmentId);
             jest.advanceTimersByTime(500);
-
             expect(loadSpy).toHaveBeenCalledWith(shipmentId);
             expect(printLabelSpy).toHaveBeenCalledWith(cartonId);
             expect(printPackingSlipSpy).toHaveBeenCalledWith(cartonId);
@@ -685,7 +612,6 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
 
         it('should navigate to next URL when repackCarton API call succeeds', () => {
             mockDialogRef.afterClosed.mockReturnValue(of(req));
-
             mockRecoveredPlasmaService.repackCarton.mockReturnValue(of(repackMockData));
             component.repackCarton(cartonId);
             expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('/test-url');
@@ -718,7 +644,6 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         it('should not make API call when dialog is closed without comments (undefined)', () => {
             // Setup the dialog to return undefined when closed (cancel button)
             mockDialogRef.afterClosed.mockReturnValue(of(undefined));
-
             component.repackCarton(cartonId);
             expect(mockMatDialog.open).toHaveBeenCalled();
             expect(mockRecoveredPlasmaService.repackCarton).not.toHaveBeenCalled();
@@ -726,11 +651,8 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
 
         it('should handle error when repackCarton API call fails', () => {
             mockDialogRef.afterClosed.mockReturnValue(of(req));
-            const mockError = new ApolloError({
-                errorMessage: 'Network error',
-            });
+            const mockError = new ApolloError({errorMessage: 'Network error'});
             mockRecoveredPlasmaService.repackCarton.mockReturnValue(throwError(() => mockError));
-
             component.repackCarton(cartonId);
             expect(mockToastrService.error).toHaveBeenCalled();
         });
@@ -738,7 +660,6 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         it('should display notifications from API response', () => {
             mockDialogRef.afterClosed.mockReturnValue(of(req));
             mockRecoveredPlasmaService.repackCarton.mockReturnValue(of(repackMockData));
-
             component.repackCarton(cartonId);
             expect(mockToastrService.show).toHaveBeenCalled();
         });
@@ -756,7 +677,6 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
     describe('removeCarton', () => {
         const mockCartonId = 123;
         const mockEmployeeId = 'emp123';
-
         beforeEach(() => {
             jest.clearAllMocks();
         });
@@ -781,7 +701,6 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
             };
 
             component.removeCarton(mockCartonId);
-
             expect(mockConfirmationDialog.open).toHaveBeenCalledWith(expectedConfig);
         });
 
@@ -804,17 +723,11 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
                     }
                 }
             } as ApolloQueryResult<{ removeCarton: UseCaseResponseDTO<ShipmentResponseDTO> }>;
-
-            const mockDialogRef = {
-                afterClosed: () => of('confirmed')
-            };
-
+            const mockDialogRef = {afterClosed: () => of('confirmed')};
             mockConfirmationDialog.open.mockReturnValue(mockDialogRef as any);
             mockRecoveredPlasmaService.removeLastCarton.mockReturnValue(of(mockResponse));
-
             component.shipmentDetailsSignal.set(mockShipmentData);
             component.removeCarton(mockCartonId);
-
             expect(mockRecoveredPlasmaService.removeLastCarton).toHaveBeenCalledWith({
                 cartonId: mockCartonId,
                 employeeId: mockEmployeeId
@@ -834,9 +747,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
             };
 
             mockConfirmationDialog.open.mockReturnValue(mockDialogRef as any);
-
             component.removeCarton(mockCartonId);
-
             expect(mockConfirmationDialog.open).toHaveBeenCalled();
             expect(mockRecoveredPlasmaService.removeLastCarton).not.toHaveBeenCalled();
         });
@@ -853,12 +764,8 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
 
             mockConfirmationDialog.open.mockReturnValue(mockDialogRef as any);
             mockRecoveredPlasmaService.removeLastCarton.mockReturnValue(throwError(() => mockError));
-
             component.removeCarton(mockCartonId);
-
-            expect(mockToastrService.error).toHaveBeenCalledWith(
-                'Network error'
-            );
+            expect(mockToastrService.error).toHaveBeenCalledWith('Network error');
         });
 
         it('should not update shipment data when response has no data', () => {
@@ -881,16 +788,11 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
                 }
             } as ApolloQueryResult<{ removeCarton: UseCaseResponseDTO<ShipmentResponseDTO> }>;
 
-            const mockDialogRef = {
-                afterClosed: () => of('confirmed')
-            };
-
+            const mockDialogRef = {afterClosed: () => of('confirmed')};
             mockConfirmationDialog.open.mockReturnValue(mockDialogRef as any);
             mockRecoveredPlasmaService.removeLastCarton.mockReturnValue(of(mockResponse));
-
             component.shipmentDetailsSignal.set(mockShipmentData);
             component.removeCarton(mockCartonId);
-
             expect(component.shipmentDetailsSignal()).toEqual(mockShipmentData);
             expect(mockToastrService.show).toHaveBeenCalledWith(
                 'Failed to remove carton',
@@ -901,7 +803,6 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         });
     })
 
-
     describe('Query Parameters Handling', () => {
         beforeEach(() => {
             jest.clearAllMocks();
@@ -910,18 +811,14 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         it('should show comments when type query param is present', () => {
             mockActivatedRoute.queryParams = of({ type: 'comments' });
             const fetchSpy = jest.spyOn(component, 'fetchShipmentCommentsHistory');
-
             component.subscribeQueryParams();
-
             expect(component.showComments()).toBe(true);
             expect(fetchSpy).toHaveBeenCalled();
         });
 
         it('should hide comments when type query param is not present', () => {
             mockActivatedRoute.queryParams = of({});
-
             component.subscribeQueryParams();
-
             expect(component.showComments()).toBe(false);
         });
     });
@@ -936,9 +833,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
                 status: 'PROCESSING'
             };
             component.shipmentDetailsSignal.set(mockShipmentData);
-
             component.configureUnacceptableProductsReportStatusMessage();
-
             expect(component.messageSignal()).toBe('Close Shipment is in progress.');
             expect(component.messageTypeSignal()).toBe('info');
         });
@@ -949,9 +844,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
                 unsuitableUnitReportDocumentStatus: 'ERROR_PROCESSING'
             };
             component.shipmentDetailsSignal.set(mockShipmentData);
-
             component.configureUnacceptableProductsReportStatusMessage();
-
             expect(component.messageSignal()).toBe('Unacceptable Products report generation error. Contact Support.');
             expect(component.messageTypeSignal()).toBe('info');
         });
@@ -962,9 +855,7 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
                 unsuitableUnitReportDocumentStatus: 'COMPLETED'
             };
             component.shipmentDetailsSignal.set(mockShipmentData);
-
             component.configureUnacceptableProductsReportStatusMessage();
-
             expect(component.messageSignal()).toBeNull();
             expect(component.messageTypeSignal()).toBeNull();
         });
@@ -974,25 +865,14 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         beforeEach(() => {
             jest.clearAllMocks();
         });
-
-        const mockEditRequest: ModifyShipmentRequestDTO = {
-            shipmentId: 123,
-            comments: 'Updated shipment',
-            modifyEmployeeId: '123',
-            customerCode: '231',
-            productType: 'plasma',
-            transportationReferenceNumber: '111',
-        };
-
+        const req = 'done'
         it('should open CreateShipmentComponent dialog with current shipment data', () => {
             const mockShipmentData = {
                 id: 123,
                 shipmentNumber: 'TEST123'
             };
             component.shipmentDetailsSignal.set(mockShipmentData);
-
             component.onClickEditShipment();
-
             expect(mockMatDialog.open).toHaveBeenCalledWith(
                 CreateShipmentComponent,
                 expect.objectContaining({
@@ -1017,12 +897,11 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
                     }
                 }
             };
-            // mockEditDialogRef.afterClosed.mockReturnValue(of(mockEditRequest));
+            mockDialogRef.afterClosed.mockReturnValue(of(req));
+
             mockShipmentService.editRecoveredPlasmaShipment.mockReturnValue(of(mockResponse));
             const loadSpy = jest.spyOn(component, 'loadRecoveredPlasmaShippingDetails').mockReturnValue(of({}));
-
             component.onClickEditShipment();
-
             expect(mockToastrService.show).toHaveBeenCalledWith(
                 'Shipment updated successfully',
                 null,
@@ -1033,20 +912,15 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
         });
 
         it('should handle error when editing shipment fails', () => {
-            mockEditDialogRef.afterClosed.mockReturnValue(of());
-
+            mockDialogRef.afterClosed.mockReturnValue(of(req));
             mockShipmentService.editRecoveredPlasmaShipment.mockReturnValue(throwError(() => new Error('Network error')));
-
             component.onClickEditShipment();
-
             expect(mockToastrService.error).toHaveBeenCalledWith('Something Went Wrong.');
         });
 
         it('should not make API call when dialog is closed without changes', () => {
             mockDialogRef.afterClosed.mockReturnValue(of(undefined));
-
             component.onClickEditShipment();
-
             expect(mockShipmentService.editRecoveredPlasmaShipment).not.toHaveBeenCalled();
         });
 
@@ -1061,11 +935,9 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
                     }
                 }
             };
-
+            mockDialogRef.afterClosed.mockReturnValue(of(req));
             mockShipmentService.editRecoveredPlasmaShipment.mockReturnValue(of(mockResponse));
-
             component.onClickEditShipment();
-
             expect(mockToastrService.show).toHaveBeenCalledWith(
                 'Failed to update shipment',
                 null,
@@ -1077,43 +949,24 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
 
     describe('fetchCommentsHistoryData', () => {
           const mockShipmentId = 1;
-          const mockShipmentHistoryData = [
-            {
-              createEmployeeId: 'EMP001',
-              createDate: '2024-01-01T10:00:00Z',
-              comments: 'Test comment 1'
-            },
-            {
-              createEmployeeId: 'EMP002',
-              createDate: '2024-01-02T11:00:00Z',
-              comments: 'Test comment 2'
-            }
-          ];
-                
         it('should initialize with correct shipment ID from route params', () => {
         expect(component.shipmentId).toBe(mockShipmentId);
         });
     
         it('should have correct table configuration', () => {
         const tableConfig = component.shipmentInfoCommentsTableConfigComputed();
-        
         expect(tableConfig.showPagination).toBe(false);
         expect(tableConfig.columns).toHaveLength(3);
-        
         const [staffCol, dateCol, commentsCol] = tableConfig.columns;
-        
         expect(staffCol.id).toBe('createEmployeeId');
         expect(staffCol.header).toBe('Staff');
-        
         expect(dateCol.id).toBe('createDate');
         expect(dateCol.header).toBe('Date and Time');
-        
         expect(commentsCol.id).toBe('comments');
         expect(commentsCol.header).toBe('Comments');
         });
     
         it('should fetch and set shipment history data successfully', () => {
-            const mockQueryParams = of({ type: 'comments' });
             const mockResponse = {
             data: {
                 findAllShipmentHistoryByShipmentId : [
@@ -1132,11 +985,8 @@ describe('RecoveredPlasmaShippingDetailsComponent', () => {
             } as any as ApolloQueryResult<{ findAllShipmentHistoryByShipmentId: ShipmentHistoryDTO}>
     
             mockShipmentService.getShipmentHistory.mockReturnValue(of(mockResponse));
-            jest.spyOn(mockActivatedRoute, 'queryParams').mockReturnValue(mockQueryParams);
-            component.fetchShipmentCommentsHistory(); 
-            expect(component.subscribeQueryParams).toHaveBeenCalled();
-            expect(mockShipmentService.getShipmentHistory).toHaveBeenCalledWith(mockShipmentId);
-            // expect(component.shipmentHistoryData()).toEqual(mockShipmentHistoryData);
+            component.fetchShipmentCommentsHistory();
+            expect(component.shipmentHistoryData()).toEqual(mockResponse.data.findAllShipmentHistoryByShipmentId);
         });
     
         it('should set empty array when no data is returned', () => {

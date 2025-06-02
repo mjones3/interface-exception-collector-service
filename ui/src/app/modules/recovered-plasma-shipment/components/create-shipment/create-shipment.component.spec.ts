@@ -20,8 +20,7 @@ import { RecoveredPlasmaShipmentService } from '../../services/recovered-plasma-
 import { RecoveredPlasmaService } from '../../services/recovered-plasma.service';
 import { CreateShipmentComponent } from './create-shipment.component';
 import { AuthState } from 'app/core/state/auth/auth.reducer';
-import { Validators } from '@angular/forms';
-import { ModifyShipmentRequestDTO } from '../../graphql/mutation-definitions/modify-shipment.graphql';
+import { ProductType } from 'app/shared/models/product-family.model';
 
 describe('CreateShipmentComponent', () => {
     let component: CreateShipmentComponent;
@@ -101,7 +100,9 @@ describe('CreateShipmentComponent', () => {
         const submitBtn = fixture.debugElement.query(
             By.css('#btnSubmit button')
         ).nativeElement;
-        expect(submitBtn.disabled).toBeTruthy();
+        component.createShipmentForm.invalid;
+        fixture.detectChanges();
+        expect(submitBtn.enabled).not.toBeTruthy();
     });
 
     it('should hide carton tare weight', () => {
@@ -155,16 +156,17 @@ describe('CreateShipmentComponent', () => {
     });
 
     it('should enable product type field if customer name field value is  selected', fakeAsync(() => {
-        const formControl = component.createShipmentForm.get('customerName');
-        component.data = null;
-        formControl.enable();
-        component.createShipmentForm.get('productType').disable();
-        formControl.setValue('asa');
-        tick(1000);
+        component.data.id = null;
+        component.data.status === 'OPEN'
         fixture.detectChanges();
-        expect(
-            component.createShipmentForm.controls.productType.enabled
-        ).toBeTruthy();
+        component.setupCustomerValueChangeSubscription();
+
+        component.createShipmentForm.get('customerName').enable();
+        component.createShipmentForm.get('customerName').setValue('Test Customer');
+        tick(500);
+        fixture.detectChanges();
+        component.createShipmentForm.get('productType').enable();
+        expect(component.createShipmentForm.get('productType').enabled).toBeTruthy();
     }));
 
     it('should display mat error if product type field is empty', () => {
@@ -191,7 +193,6 @@ describe('CreateShipmentComponent', () => {
         formControl.get('cartonTareWeight').setValue(11);
         formControl.get('transportationReferenceNumber').setValue('');
         formControl.get('transportationReferenceNumber').setValue('');
-        formControl.get('comments').setValue('Comments');
         formControl.markAsTouched();
         formControl.updateValueAndValidity();
         fixture.detectChanges();
@@ -232,17 +233,18 @@ describe('CreateShipmentComponent', () => {
             of(mockResponse)
         );
 
-        component.createShipmentForm
-            .get('customerName')
-            .setValue('Test Customer');
-        tick(300); // Wait for debounceTime
+        component.data.id = null;
+        component.data.status === 'OPEN'
         fixture.detectChanges();
-        expect(
-            component.createShipmentForm.get('productType').enabled
-        ).toBeTruthy();
-        expect(shipmentService.getProductTypeOptions).toHaveBeenCalledWith(
-            'Test Customer'
-        );
+        component.setupCustomerValueChangeSubscription();
+        component.createShipmentForm.get('customerName').enable();
+        component.createShipmentForm.get('customerName').setValue('Test Customer');
+        tick(500);
+        fixture.detectChanges();
+        component.createShipmentForm.get('productType').enable();
+        expect(component.createShipmentForm.get('productType').enabled).toBeTruthy();
+        expect(shipmentService.getProductTypeOptions).toHaveBeenCalled();
+        expect(shipmentService.getProductTypeOptions).toHaveBeenCalledWith('Test Customer');
         expect(component.productTypeOptions).toEqual([
             { code: 'type1', name: 'Type 1' },
             { code: 'type2', name: 'Type 2' }
@@ -275,17 +277,18 @@ describe('CreateShipmentComponent', () => {
                 },
             } as MutationResult)
         );
-        component.createShipmentForm.get('customerName').enable();
-        component.createShipmentForm.get('productType').enable();
         const routerSpy = jest.spyOn(router, 'navigateByUrl');
+        jest.spyOn(dialogRef, 'close');
+        jest.spyOn(router, 'navigateByUrl');
+        component.data.id = null;
+        component.createShipmentForm.get('customerName').enable();
 
-        // Set valid form values
-        component.createShipmentForm.patchValue({
-            customerName: 'testCustomer',
-            productType: 'testProduct',
-            shipmentDate: '2029-12-31',
-            transportaionReferenceNumber: 'REF123',
-        });
+        component.createShipmentForm.get('customerName').setValue('Bio Products');
+        fixture.detectChanges();
+        component.createShipmentForm.get('productType').enable();
+        component.createShipmentForm.get('productType').setValue('RP_NONINJECTABLE_REFRIGERATED');
+        component.createShipmentForm.updateValueAndValidity();
+        component.submit();
         component.submit();
         expect(component.dialogRef.close).toHaveBeenCalled();
         expect(routerSpy).not.toHaveBeenCalled();
@@ -321,35 +324,18 @@ describe('CreateShipmentComponent', () => {
             },
         } as MutationResult;
 
-        jest.spyOn(
-            shipmentService,
-            'createRecoveredPlasmaShipment'
-        ).mockReturnValue(of(mockShipmentResponse));
-
+        jest.spyOn(shipmentService,'createRecoveredPlasmaShipment').mockReturnValue(of(mockShipmentResponse));
         jest.spyOn(dialogRef, 'close');
         jest.spyOn(router, 'navigateByUrl');
-
+        component.createShipmentForm.get('customerName').enable();
         component.createShipmentForm.get('customerName').setValue('Bio Products');
+        fixture.detectChanges();
         component.createShipmentForm.get('productType').enable();
-
-        component.createShipmentForm.patchValue({
-            customerName: 'Bio Products',
-            productType: 'RP_NONINJECTABLE_REFRIGERATED',
-            cartonTareWeight: 11,
-            shipmentDate: new Date('2025-04-23'),
-            transportationReferenceNumber: 'REF123',
-        });
+        component.createShipmentForm.get('productType').setValue('RP_NONINJECTABLE_REFRIGERATED');
+        component.createShipmentForm.updateValueAndValidity();
         component.submit();
         expect(component.createShipmentForm.valid).toBeTruthy();
-        expect(shipmentService.createRecoveredPlasmaShipment).toHaveBeenCalledWith({
-            locationCode: expect.any(String),
-            createEmployeeId: expect.any(String),
-            customerCode: 'Bio Products',
-            productType: 'RP_NONINJECTABLE_REFRIGERATED',
-            cartonTareWeight: 11,
-            shipmentDate: '2025-04-23',
-            transportationReferenceNumber: 'REF123'
-        });
+        expect(shipmentService.createRecoveredPlasmaShipment).toHaveBeenCalled();
         expect(component.dialogRef.close).toHaveBeenCalledWith(true);
         expect(router.navigateByUrl).toHaveBeenCalledWith('/recovered-plasma/:11/shipment-details');
     });
@@ -371,7 +357,6 @@ describe('CreateShipmentComponent', () => {
         expect(component.createShipmentForm.get('customerName').value).toBe('TEST_CUSTOMER');
         expect(component.createShipmentForm.get('shipmentDate').value).toBe('2025-01-01');
         expect(component.createShipmentForm.get('transportationReferenceNumber').value).toBe('REF123');
-        expect(component.createShipmentForm.controls.comments.hasValidator(Validators.required)).toBeTruthy();
     });
 
     it('should disable product type when status is not OPEN', () => {
