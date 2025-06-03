@@ -3,7 +3,6 @@ package com.arcone.biopro.distribution.inventory.infrastructure.config;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.EventMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.checkin.CheckInCompletedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage;
-import com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.WholeBloodProductCompletedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.created.wholeblood.WholeBloodProductCreatedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.discarded.ProductDiscardedMessage;
@@ -307,11 +306,6 @@ class KafkaConfiguration {
         channelName = "ApheresisPlateletProductCompleted",
         description = "Apheresis Platelet Product has been completed.",
         payloadType = ProductCompletedMessage.class
-    ))
-    @AsyncListener(operation = @AsyncOperation(
-        channelName = "WholeBloodProductCompleted",
-        description = "Whole blood Product has been completed.",
-        payloadType = WholeBloodProductCompletedMessage.class
     ))
     @Bean(name = "PRODUCT_COMPLETED_CONSUMER")
     ReactiveKafkaConsumerTemplate<String, String> productCompletedConsumerTemplate(

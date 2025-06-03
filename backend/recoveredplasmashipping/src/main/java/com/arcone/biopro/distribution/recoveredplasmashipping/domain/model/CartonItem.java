@@ -45,6 +45,8 @@ public class CartonItem implements Validatable {
     private ZonedDateTime modificationDate;
     private String verifiedByEmployeeId;
     private ZonedDateTime verifyDate;
+    private String collectionLocation;
+    private String collectionTimeZone;
 
     private static final String PACKED_STATUS = "PACKED";
     private static final String VOLUME_TYPE = "volume";
@@ -85,6 +87,8 @@ public class CartonItem implements Validatable {
             .aboRh(inventoryValidation.getInventory().getAboRh())
             .expirationDate(inventoryValidation.getInventory().getExpirationDate())
             .collectionDate(inventoryValidation.getInventory().getCollectionDate())
+            .collectionLocation(inventoryValidation.getInventory().getCollectionLocation())
+            .collectionTimeZone(inventoryValidation.getInventory().getCollectionTimeZone())
             .createDate(ZonedDateTime.now())
             .modificationDate(null)
             .build();
@@ -307,6 +311,8 @@ public class CartonItem implements Validatable {
             .aboRh(cartonItem.getAboRh())
             .expirationDate(inventoryValidation.getInventory().getExpirationDate())
             .collectionDate(inventoryValidation.getInventory().getCollectionDate())
+            .collectionTimeZone(inventoryValidation.getInventory().getCollectionTimeZone())
+            .collectionLocation(inventoryValidation.getInventory().getCollectionLocation())
             .createDate(cartonItem.getCreateDate())
             .modificationDate(ZonedDateTime.now())
             .status(VERIFIED_STATUS)

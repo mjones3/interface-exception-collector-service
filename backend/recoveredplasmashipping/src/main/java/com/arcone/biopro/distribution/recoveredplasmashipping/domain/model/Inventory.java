@@ -32,9 +32,11 @@ public class Inventory implements Validatable  {
     private final ZonedDateTime modificationDate;
     private final Integer weight;
     private final List<InventoryVolume> volumes;
+    private final String collectionLocation;
+    private final String collectionTimeZone;
 
     public Inventory(UUID id, String locationCode, String unitNumber, String productCode, String productDescription, LocalDateTime expirationDate, String aboRh, String productFamily
-        , ZonedDateTime collectionDate, String storageLocation, ZonedDateTime createDate, ZonedDateTime modificationDate , Integer weight , List<InventoryVolume> volumes) {
+        , ZonedDateTime collectionDate, String storageLocation, ZonedDateTime createDate, ZonedDateTime modificationDate , Integer weight , List<InventoryVolume> volumes , String collectionLocation , String collectionTimeZone ) {
         this.id = id;
         this.locationCode = locationCode;
         this.unitNumber = unitNumber;
@@ -49,6 +51,8 @@ public class Inventory implements Validatable  {
         this.modificationDate = modificationDate;
         this.weight = weight;
         this.volumes = volumes;
+        this.collectionLocation = collectionLocation;
+        this.collectionTimeZone = collectionTimeZone;
 
         checkValid();
     }

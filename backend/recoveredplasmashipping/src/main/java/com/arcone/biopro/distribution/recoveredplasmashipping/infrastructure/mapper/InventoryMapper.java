@@ -17,32 +17,35 @@ import java.util.List;
 public interface InventoryMapper {
 
     default Inventory toInventoryModel(InventoryResponseDTO inventoryResponseDTO) {
-        if(inventoryResponseDTO == null){
+        if (inventoryResponseDTO == null) {
             return null;
         }
         return new Inventory(
-                inventoryResponseDTO.id(),
-                inventoryResponseDTO.locationCode(),
-                inventoryResponseDTO.unitNumber(),
-                inventoryResponseDTO.productCode(),
-                inventoryResponseDTO.productDescription(),
-                inventoryResponseDTO.expirationDate(),
-                inventoryResponseDTO.aboRh(),
-                inventoryResponseDTO.productFamily(),
-                inventoryResponseDTO.collectionDate(),
-                inventoryResponseDTO.storageLocation(),
-                inventoryResponseDTO.createDate(),
-                inventoryResponseDTO.modificationDate(),
-                inventoryResponseDTO.weight(),
-                toVolumeModel(inventoryResponseDTO.volumes())
+            inventoryResponseDTO.id(),
+            inventoryResponseDTO.locationCode(),
+            inventoryResponseDTO.unitNumber(),
+            inventoryResponseDTO.productCode(),
+            inventoryResponseDTO.productDescription(),
+            inventoryResponseDTO.expirationDate(),
+            inventoryResponseDTO.aboRh(),
+            inventoryResponseDTO.productFamily(),
+            inventoryResponseDTO.collectionDate(),
+            inventoryResponseDTO.storageLocation(),
+            inventoryResponseDTO.createDate(),
+            inventoryResponseDTO.modificationDate(),
+            inventoryResponseDTO.weight(),
+            toVolumeModel(inventoryResponseDTO.volumes()),
+            inventoryResponseDTO.collectionLocation(),
+            inventoryResponseDTO.collectionTimeZone()
+
 
         );
     }
 
     InventoryNotification toNotificationModel(InventoryNotificationDTO inventoryNotificationDTO);
 
-    @Mapping(source = "inventoryResponseDTO" , target = "inventory")
-    @Mapping(source = "inventoryNotificationsDTO" , target = "notifications")
+    @Mapping(source = "inventoryResponseDTO", target = "inventory")
+    @Mapping(source = "inventoryNotificationsDTO", target = "notifications")
     InventoryValidation toValidationModel(InventoryValidationResponseDTO inventoryValidationResponseDTO);
 
     List<InventoryVolume> toVolumeModel(List<InventoryVolumeDTO> inventoryVolumeDTO);

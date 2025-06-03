@@ -83,6 +83,8 @@ class CartonItemTest {
         Mockito.when(inventory.getAboRh()).thenReturn("AP");
         Mockito.when(inventory.getExpirationDate()).thenReturn(LocalDateTime.now());
         Mockito.when(inventory.getCollectionDate()).thenReturn(ZonedDateTime.now());
+        Mockito.when(inventory.getCollectionLocation()).thenReturn("LOCATION");
+        Mockito.when(inventory.getCollectionTimeZone()).thenReturn("TZ");
 
         Mockito.when(inventoryValidation.getInventory()).thenReturn(inventory);
 
@@ -123,6 +125,9 @@ class CartonItemTest {
         Assertions.assertNotNull(cartonItem.getCollectionDate());
         Assertions.assertNotNull(cartonItem.getCreateDate());
         Assertions.assertNull(cartonItem.getModificationDate());
+        Assertions.assertEquals("LOCATION", cartonItem.getCollectionLocation());
+        Assertions.assertEquals("TZ", cartonItem.getCollectionTimeZone());
+
 
     }
 

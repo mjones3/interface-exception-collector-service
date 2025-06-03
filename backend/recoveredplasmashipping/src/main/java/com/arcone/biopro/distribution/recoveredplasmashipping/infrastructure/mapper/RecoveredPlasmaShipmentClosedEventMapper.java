@@ -40,6 +40,8 @@ public interface RecoveredPlasmaShipmentClosedEventMapper {
     }
 
     @Mapping(target = "donationDate", source = "collectionDate")
+    @Mapping(target = "collectionFacility", source = "collectionLocation")
+    @Mapping(target = "collectionTimeZone", source = "collectionTimeZone")
     RecoveredPlasmaCartonItemClosedOutputDTO productModelToEventDTO(CartonItemEntity cartonItem);
 
     default int mapTotalSize(List list) {

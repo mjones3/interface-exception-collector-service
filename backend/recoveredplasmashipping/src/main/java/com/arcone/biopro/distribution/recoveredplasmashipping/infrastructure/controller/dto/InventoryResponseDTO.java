@@ -24,7 +24,10 @@ public record InventoryResponseDTO(
     ZonedDateTime modificationDate,
     Integer weight,
     List<InventoryVolumeDTO> volumes,
-    String status
+    String status,
+    String collectionLocation,
+    String collectionTimeZone
+
 
 ) implements Serializable {
 }

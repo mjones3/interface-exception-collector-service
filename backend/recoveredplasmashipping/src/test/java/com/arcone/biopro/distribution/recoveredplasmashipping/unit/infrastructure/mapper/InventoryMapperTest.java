@@ -46,6 +46,8 @@ class InventoryMapperTest {
                 .storageLocation("Storage Location")
                 .createDate(ZonedDateTime.now())
                 .modificationDate(ZonedDateTime.now())
+                .collectionTimeZone("TZ")
+                .collectionLocation("LOCATION")
                 .volumes(List.of(InventoryVolumeDTO.builder()
                     .type("volume")
                     .value(150)
@@ -96,6 +98,8 @@ class InventoryMapperTest {
         assertEquals(dto.inventoryNotificationsDTO().get(0).reason(), result.getNotifications().get(0).getReason());
         assertEquals(dto.inventoryNotificationsDTO().get(0).details().size(), result.getNotifications().get(0).getDetails().size());
         assertEquals(dto.inventoryNotificationsDTO().get(0).details().get(0), result.getNotifications().get(0).getDetails().get(0));
+        assertEquals(dto.inventoryResponseDTO().collectionLocation(), result.getInventory().getCollectionLocation());
+        assertEquals(dto.inventoryResponseDTO().collectionTimeZone(), result.getInventory().getCollectionTimeZone());
 
 
 

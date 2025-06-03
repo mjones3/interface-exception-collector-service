@@ -16,6 +16,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "AVAILABLE",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -45,6 +47,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "AVAILABLE",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -74,6 +78,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "AVAILABLE",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -103,6 +109,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "AVAILABLE",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -132,6 +140,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "AVAILABLE",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -161,6 +171,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "AVAILABLE",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -190,6 +202,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "AVAILABLE",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -219,6 +233,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "AVAILABLE",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -248,6 +264,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "AVAILABLE",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -277,6 +295,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "AVAILABLE",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -306,6 +326,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "AVAILABLE",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -335,6 +357,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "AVAILABLE",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -364,6 +388,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "AVAILABLE",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -393,6 +419,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "EXPIRED",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -422,6 +450,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "DISCARDED",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -451,6 +481,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "DISCARDED_COMMENTS",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -480,6 +512,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "QUARANTINED",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -510,6 +544,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "SHIPPED",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -540,6 +576,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "SYSTEM_DOW",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -569,6 +607,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "DISCARDED",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -598,6 +638,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "QUARANTINED",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -627,6 +669,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "EXPIRED",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -656,6 +700,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "AVAILABLE",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -685,6 +731,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "AVAILABLE",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -714,6 +762,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "AVAILABLE",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -743,6 +793,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "AVAILABLE",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -772,6 +824,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "AVAILABLE",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -801,6 +855,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "AVAILABLE",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -830,6 +886,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "AVAILABLE",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -859,6 +917,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "AVAILABLE",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -888,6 +948,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "AVAILABLE",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -917,6 +979,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "AVAILABLE",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -946,6 +1010,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "AVAILABLE",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -975,6 +1041,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "AVAILABLE",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -1004,6 +1072,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "AVAILABLE",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -1033,6 +1103,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "AVAILABLE",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -1062,6 +1134,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "AVAILABLE",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -1091,6 +1165,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "AVAILABLE",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -1120,6 +1196,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "AVAILABLE",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -1149,6 +1227,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "DISCARDED",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -1178,6 +1258,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "QUARANTINED",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -1207,6 +1289,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "EXPIRED",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -1236,6 +1320,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "AVAILABLE",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -1265,6 +1351,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "AVAILABLE",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -1294,6 +1382,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "AVAILABLE",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
@@ -1323,6 +1413,8 @@
       "createDate": "2011-12-03T10:15:30+01:00",
       "modificationDate": "2011-12-03T10:15:30+01:00",
       "status": "AVAILABLE",
+      "collectionLocation":"2FSM",
+      "collectionTimeZone":"America/New_York",
       "volumes": [
         {
           "type": "volume",
