@@ -107,14 +107,6 @@
                                     <mat-error
                                         >Shipment Date is invalid</mat-error
                                     >
-                                } @else if (
-                                    createShipmentForm
-                                        .get('shipmentDate')
-                                        .hasError('required')
-                                ) {
-                                    <mat-error
-                                        >Shipment Date is required</mat-error
-                                    >
                                 }
                             </mat-form-field>
                         </div>
@@ -147,7 +139,7 @@
                                 {{ commentsMaxLength }}
                             </mat-hint>
 
-                            
+
                         @if (
                             createShipmentForm.controls['comments']
                                  .hasError('required')
