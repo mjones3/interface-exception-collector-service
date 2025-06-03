@@ -2,8 +2,12 @@ package com.arcone.biopro.distribution.inventory.infrastructure.config;
 
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.EventMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.checkin.CheckInCompletedMessage;
-import com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.ProductCompletedMessage;
-import com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ProductCreatedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.apheresis.ApheresisPlasmaProductCompletedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.apheresis.ApheresisPlateletProductCompletedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.completed.apheresis.ApheresisRBCProductCompletedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.created.apheresis.ApheresisPlasmaProductCreatedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.created.apheresis.ApheresisPlateletProductCreatedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.created.apheresis.ApheresisRBCProductCreatedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.created.wholeblood.WholeBloodProductCreatedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.discarded.ProductDiscardedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.imported.ProductsImportedMessage;
@@ -14,15 +18,15 @@ import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.A
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.RemoveQuarantinedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.quarantine.UpdateQuarantinedMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.*;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.storage.ProductStoredMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.unsuitable.ProductUnsuitableMessage;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.unsuitable.UnsuitableMessage;
 import com.arcone.biopro.distribution.inventory.adapter.output.producer.event.InventoryUpdatedEvent;
 import com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.springwolf.core.asyncapi.annotations.AsyncListener;
-import io.github.springwolf.core.asyncapi.annotations.AsyncMessage;
 import io.github.springwolf.core.asyncapi.annotations.AsyncOperation;
 import io.github.springwolf.core.asyncapi.annotations.AsyncPublisher;
-import io.github.springwolf.plugins.kafka.asyncapi.annotations.KafkaAsyncOperationBinding;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.opentelemetry.instrumentation.kafkaclients.v2_6.TracingProducerInterceptor;
 import lombok.RequiredArgsConstructor;
@@ -228,7 +232,7 @@ class KafkaConfiguration {
     @AsyncListener(operation = @AsyncOperation(
         channelName = "ProductUnsuitable",
         description = "Product Unsuitable event to change inventory status to UNSUITABLE",
-        payloadType = UnsuitableMessage.class
+        payloadType = ProductUnsuitableMessage.class
     ))
     @AsyncListener(operation = @AsyncOperation(
         channelName = "UnitUnsuitable",
@@ -257,29 +261,18 @@ class KafkaConfiguration {
     @AsyncListener(operation = @AsyncOperation(
         channelName = "ApheresisPlasmaProductCreated",
         description = "Apheresis Plasma Product has been created.",
-        payloadType = ProductCreatedMessage.class
+        payloadType = ApheresisPlasmaProductCreatedMessage.class
     ))
     @AsyncListener(operation = @AsyncOperation(
         channelName = "ApheresisRBCProductCreated",
         description = "Apheresis RBC Product has been created.",
-        payloadType = ProductCreatedMessage.class
+        payloadType = ApheresisRBCProductCreatedMessage.class
     ))
     @AsyncListener(operation = @AsyncOperation(
         channelName = "ApheresisPlateletProductCreated",
         description = "Apheresis Platelet Product has been created.",
-        payloadType = ProductCreatedMessage.class
+        payloadType = ApheresisPlateletProductCreatedMessage.class
     ))
-
-    @AsyncPublisher(operation = @AsyncOperation(
-        channelName = "WholeBloodProductCreated",
-        description = "Apheresis Plasma Product Created Event",
-        message = @AsyncMessage(
-            name = "WholeBloodProductCreated",
-            title = "WholeBloodProductCreated",
-            description = "Whole Blood Product Created Event Payload"
-        ),payloadType = WholeBloodProductCreatedMessage.class
-    ))
-    @KafkaAsyncOperationBinding
     @AsyncListener(operation = @AsyncOperation(
         channelName = "WholeBloodProductCreated",
         description = "Whole Blood Product Created Event Payload",
@@ -295,17 +288,17 @@ class KafkaConfiguration {
     @AsyncListener(operation = @AsyncOperation(
         channelName = "ApheresisPlasmaProductCompleted",
         description = "Apheresis Plasma Product has been completed.",
-        payloadType = ProductCompletedMessage.class
+        payloadType = ApheresisPlasmaProductCompletedMessage.class
     ))
     @AsyncListener(operation = @AsyncOperation(
         channelName = "ApheresisRBCProductCompleted",
         description = "Apheresis RBC Product has been completed.",
-        payloadType = ProductCompletedMessage.class
+        payloadType = ApheresisRBCProductCompletedMessage.class
     ))
     @AsyncListener(operation = @AsyncOperation(
         channelName = "ApheresisPlateletProductCompleted",
         description = "Apheresis Platelet Product has been completed.",
-        payloadType = ProductCompletedMessage.class
+        payloadType = ApheresisPlateletProductCompletedMessage.class
     ))
     @Bean(name = "PRODUCT_COMPLETED_CONSUMER")
     ReactiveKafkaConsumerTemplate<String, String> productCompletedConsumerTemplate(
@@ -327,7 +320,7 @@ class KafkaConfiguration {
     }
 
     @AsyncListener(operation = @AsyncOperation(
-        channelName = "Label Invalidated",
+        channelName = "LabelInvalidated",
         description = "Label was invalidated",
         payloadType = LabelInvalidatedMessage.class
     ))
@@ -353,7 +346,7 @@ class KafkaConfiguration {
     @AsyncListener(operation = @AsyncOperation(
         channelName = "ProductStored",
         description = "Product Stored has been listened and an storage is created",
-        payloadType = LabelAppliedMessage.class
+        payloadType = ProductStoredMessage.class
     ))
     @Bean(name = "PRODUCT_STORED_CONSUMER")
     ReactiveKafkaConsumerTemplate<String, String> productStoredConsumerTemplate(

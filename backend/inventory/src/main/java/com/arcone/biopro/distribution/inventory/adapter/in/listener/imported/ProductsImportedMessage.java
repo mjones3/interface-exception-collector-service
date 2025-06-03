@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.inventory.adapter.in.listener.imported;
 
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,6 +16,11 @@ import java.util.Map;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(
+    name = "ProductsImported",
+    title = "ProductsImported",
+    description = "ProductsImported"
+)
 public class ProductsImportedMessage {
     private String locationCode;
     private String createEmployeeId;
@@ -31,6 +37,11 @@ public class ProductsImportedMessage {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    @Schema(
+        name = "ImportedProduct",
+        title = "ImportedProduct",
+        description = "Imported Product"
+    )
     public static class ImportedProduct {
         private String unitNumber;
         private String productCode;
@@ -46,6 +57,11 @@ public class ProductsImportedMessage {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    @Schema(
+        name = "ImportedConsequence",
+        title = "ImportedConsequence",
+        description = "Imported Consequence"
+    )
     public static class ImportedConsequence {
         private String consequenceType;
         private List<String> consequenceReasons;

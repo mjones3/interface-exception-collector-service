@@ -5,8 +5,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.ZonedDateTime;
 
 @Schema(
-    name = "UpdateQuarantined",
-    title = "UpdateQuarantined",
+    name = "QuarantineUpdated",
+    title = "QuarantineUpdated",
     description = "Message for updating quarantined product"
 )
 public record UpdateQuarantinedMessage(

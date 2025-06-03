@@ -5,8 +5,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.ZonedDateTime;
 
 @Schema(
-    name = "LabelAppliedEvent",
-    title = "LabelAppliedEvent",
+    name = "LabelApplied",
+    title = "LabelApplied",
     description = "Message for label application process"
 )
 public record LabelAppliedMessage(
