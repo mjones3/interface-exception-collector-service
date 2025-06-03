@@ -1,0 +1,247 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "eventId": {
+      "type": "string"
+    },
+    "occurredOn": {
+      "type": "string"
+    },
+    "eventVersion": {
+      "type": "string"
+    },
+    "eventType": {
+      "type": "string"
+    },
+
+    "payload": {
+      "type": "object",
+      "properties": {
+        "shipmentNumber": {
+          "type": "string"
+        },
+        "locationCode": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "createEmployeeId": {
+          "type": "string"
+        },
+        "productType": {
+          "type": "string"
+        },
+        "transportationReferenceNumber": {
+          "type": "string"
+        },
+        "shipmentDate": {
+          "type": "string"
+        },
+        "cartonTareWeight": {
+          "type": "number"
+        },
+        "createDate": {
+          "type": "string"
+        },
+        "modificationDate": {
+          "type": "string"
+        },
+        "closedEmployeeId": {
+          "type": "string"
+        },
+        "closeDate": {
+          "type": "string"
+        },
+        "customerCode": {
+          "type": "string"
+        },
+        "customerName": {
+          "type": "string"
+        },
+        "customerState": {
+          "type": "string"
+        },
+        "customerPostalCode": {
+          "type": "string"
+        },
+        "customerCountry":{
+          "type": "string"
+        },
+        "customerCountryCode":{
+          "type": "string"
+        },
+        "customerCity": {
+          "type": "string"
+        },
+        "customerDistrict": {
+          "type": "string"
+        },
+        "customerAddressLine1": {
+          "type": "string"
+        },
+        "customerAddressLine2": {
+          "type": "string"
+        },
+        "customerAddressContactName": {
+          "type": "string"
+        },
+        "customerAddressPhoneNumber":{
+          "type": "string"
+        },
+        "customerAddressDepartmentName": {
+          "type": "string"
+        },
+        "totalCartons": {
+          "type": "integer"
+        },
+        "locationShipmentCode": {
+          "type": "string"
+        },
+        "locationCartonCode":  {
+          "type": "string"
+        },
+        "cartonList": {
+          "type": "array",
+          "items": [
+            {
+              "type": "object",
+              "properties": {
+              "cartonNumber": {
+                "type": "string"
+              },
+              "locationCode": {
+                "type": "string"
+              },
+              "cartonSequence": {
+                "type": "integer"
+              },
+              "closeEmployeeId": {
+                "type": "string"
+              },
+              "closeDate": {
+                "type": "string"
+              },
+              "productType": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "totalProducts": {
+                "type": "integer"
+              },
+              "totalWeight": {
+                "type": "number"
+              },
+              "totalVolume": {
+                "type": "number"
+              },
+                "packedProducts": {
+                  "type": "array",
+                  "items": [
+                    {
+                      "type": "object",
+                      "properties": {
+
+                      "unitNumber":  {
+                        "type": "string"
+                      },
+                      "productCode":  {
+                        "type": "string"
+                      },
+                      "packedByEmployeeId":  {
+                        "type": "string"
+                      },
+                      "productType":  {
+                        "type": "string"
+                      },
+                      "volume":  {
+                        "type": "number"
+                      },
+                      "weight":  {
+                        "type": "number"
+                      },
+                      "aboRh":  {
+                        "type": "string"
+                      },
+                      "donationDate":  {
+                        "type": "string"
+                      },
+                      "drawBeginTime":  {
+                        "type": "string"
+                      },
+                      "collectionFacility":  {
+                        "type": "string"
+                      },
+                      "collectionTimeZone":  {
+                        "type": "string"
+                      }
+                      },
+                      "required": [
+                        "unitNumber",
+                        "productCode",
+                        "packedByEmployeeId",
+                        "productType",
+                        "aboRh",
+                        "donationDate",
+                        "collectionFacility",
+                        "collectionTimeZone"
+                      ]
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "cartonNumber",
+                "locationCode",
+                "cartonSequence",
+                "closeEmployeeId",
+                "closeDate",
+                "productType",
+                "status",
+                "totalProducts",
+                "packedProducts"
+              ]
+            }
+          ]
+        }
+     },
+      "required": [
+        "shipmentNumber",
+        "locationCode",
+        "status",
+        "createEmployeeId",
+        "productType",
+        "createDate",
+        "modificationDate",
+        "closedEmployeeId",
+        "closeDate",
+        "customerCode",
+        "customerName",
+        "customerState",
+        "customerPostalCode",
+        "customerCountry",
+        "customerCountryCode",
+        "customerCity",
+        "customerDistrict",
+        "customerAddressLine1",
+        "customerAddressLine2",
+        "customerAddressContactName",
+        "customerAddressPhoneNumber",
+        "customerAddressDepartmentName",
+        "totalCartons",
+        "locationShipmentCode",
+        "locationCartonCode",
+        "cartonList"
+      ]
+    }
+  },
+  "required": [
+    "eventId",
+    "occurredOn",
+    "eventVersion",
+    "eventType"
+  ]
+}

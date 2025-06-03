@@ -11,6 +11,8 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.per
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.persistence.CartonEntityRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.persistence.CartonItemEntity;
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.persistence.CartonItemEntityRepository;
+import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.persistence.LocationPropertyEntity;
+import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.persistence.LocationPropertyEntityRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.persistence.RecoveredPlasmaShipmentEntity;
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.persistence.RecoveredPlasmaShipmentEntityRepository;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -29,6 +31,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -49,6 +52,9 @@ class RecoveredPlasmaShipmentClosedListenerTest {
     private CartonEntityRepository cartonEntityRepository;
 
     @Mock
+    private LocationPropertyEntityRepository locationPropertyEntityRepository;
+
+    @Mock
     private RecoveredPlasmaShipmentEntityRepository recoveredPlasmaShippingRepository;
 
     private RecoveredPlasmaShipmentClosedListener listener;
@@ -62,7 +68,8 @@ class RecoveredPlasmaShipmentClosedListenerTest {
             recoveredPlasmaShipmentEventMapper,
             cartonItemEntityRepository,
             recoveredPlasmaShippingRepository,
-            cartonEntityRepository
+            cartonEntityRepository,
+            locationPropertyEntityRepository
         );
     }
 
@@ -72,6 +79,8 @@ class RecoveredPlasmaShipmentClosedListenerTest {
         Long shipmentId = 1L;
         RecoveredPlasmaShipment shipment = Mockito.mock(RecoveredPlasmaShipment.class);
         Mockito.when(shipment.getId()).thenReturn(shipmentId);
+        Mockito.when(shipment.getLocationCode()).thenReturn("LOCATION_CODE");
+
 
 
         RecoveredPlasmaShipmentClosedEvent event = new RecoveredPlasmaShipmentClosedEvent(shipment);
@@ -92,7 +101,18 @@ class RecoveredPlasmaShipmentClosedListenerTest {
         RecoveredPlasmaShipmentClosedOutputDTO outputDTO = RecoveredPlasmaShipmentClosedOutputDTO.builder().build();
         RecoveredPlasmaShipmentClosedOutputEvent outputEvent = new RecoveredPlasmaShipmentClosedOutputEvent(outputDTO);
 
+        LocationPropertyEntity locationPropertyEntity1 = Mockito.mock(LocationPropertyEntity.class);
+        Mockito.when(locationPropertyEntity1.getPropertyKey()).thenReturn("RPS_LOCATION_SHIPMENT_CODE");
+        Mockito.when(locationPropertyEntity1.getPropertyValue()).thenReturn("RPS_LOCATION_SHIPMENT_CODE");
+        LocationPropertyEntity locationPropertyEntity2 = Mockito.mock(LocationPropertyEntity.class);
+        Mockito.when(locationPropertyEntity2.getPropertyKey()).thenReturn("RPS_LOCATION_CARTON_CODE");
+        Mockito.when(locationPropertyEntity2.getPropertyValue()).thenReturn("RPS_LOCATION_SHIPMENT_CODE");
+
+
+
         // Mock repository calls
+        when(locationPropertyEntityRepository.findAllByLocationCode(anyString())).thenReturn(Flux.just(locationPropertyEntity1,locationPropertyEntity2));
+
         when(recoveredPlasmaShippingRepository.findById(shipmentId))
             .thenReturn(Mono.just(shipmentEntity));
 
@@ -102,16 +122,15 @@ class RecoveredPlasmaShipmentClosedListenerTest {
         when(cartonItemEntityRepository.findAllByCartonIdOrderByCreateDateAsc(cartonEntity.getId()))
             .thenReturn(Flux.fromIterable(cartonItems));
 
+
+
         when(recoveredPlasmaShipmentEventMapper.cartonModelToEventDTO(
             any(CartonEntity.class),
             any(RecoveredPlasmaShipment.class),
             anyList()))
             .thenReturn(cartonDTO);
 
-        when(recoveredPlasmaShipmentEventMapper.entityToCloseEventDTO(
-            any(RecoveredPlasmaShipmentEntity.class),
-            anyList()))
-            .thenReturn(outputDTO);
+        when(recoveredPlasmaShipmentEventMapper.entityToCloseEventDTO(any(RecoveredPlasmaShipmentEntity.class),anyList() , anyString() , anyString())).thenReturn(outputDTO);
 
         when(producerTemplate.send(any(ProducerRecord.class)))
             .thenReturn(Mono.empty());
@@ -127,7 +146,7 @@ class RecoveredPlasmaShipmentClosedListenerTest {
         verify(cartonItemEntityRepository)
             .findAllByCartonIdOrderByCreateDateAsc(cartonEntity.getId());
         verify(recoveredPlasmaShipmentEventMapper)
-            .entityToCloseEventDTO(any(RecoveredPlasmaShipmentEntity.class), anyList());
+            .entityToCloseEventDTO(any(RecoveredPlasmaShipmentEntity.class), anyList() , anyString() , anyString());
         verify(producerTemplate).send(any(ProducerRecord.class));
     }
 
@@ -140,6 +159,7 @@ class RecoveredPlasmaShipmentClosedListenerTest {
 
 
         RecoveredPlasmaShipmentClosedEvent event = new RecoveredPlasmaShipmentClosedEvent(shipment);
+        when(locationPropertyEntityRepository.findAllByLocationCode(any())).thenReturn(Flux.empty());
 
         when(recoveredPlasmaShippingRepository.findById(shipmentId)).thenReturn(Mono.error(new RuntimeException("Test error")));
 
