@@ -30,7 +30,7 @@ public class UnacceptableUnitReport implements Validatable {
     private static final String REPORT_TITLE = "Unacceptable Products Report";
     private String dateTimeExported;
     private List<UnacceptableUnitReportItem> failedProducts;
-    private static final String NO_PRODUCTS_FLAGGED_MESSAGE = "The shipment contains no defective products";
+    private static final String NO_PRODUCTS_FLAGGED_MESSAGE = "The shipment contains no unacceptable products";
     private String noProductsFlaggedMessage;
     private String reportTitle;
     private static final String UNACCEPTABLE_UNIT_REPORT_PROCESS_ID = "RPS_UNACCEPTABLE_UNITS_REPORT";
