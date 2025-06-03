@@ -60,6 +60,9 @@ public class CreateShipmentPage extends CommonPageFactory {
         return By.xpath(String.format("//mat-option//*[contains(text() , '%s')]", customer));
     }
 
+    // Edit panel
+    private final By editCommentsTextArea = By.cssSelector("textarea[data-testid='edit-shipment-comments']");
+
     @Autowired
     public CreateShipmentPage(SharedActions sharedActions) {
         this.sharedActions = sharedActions;
@@ -90,11 +93,11 @@ public class CreateShipmentPage extends CommonPageFactory {
     }
 
     public void setShipmentDate(String date) {
-        sharedActions.sendKeys(shipmentDate, date);
+        sharedActions.clearAndSendKeys(shipmentDate, date);
     }
 
     public void setTransportationRefNumber(String refNumber) {
-        sharedActions.sendKeys(transportationRefNumberInput, refNumber);
+        sharedActions.clearAndSendKeys(transportationRefNumberInput, refNumber);
     }
 
     public void submitShipment() {
@@ -184,5 +187,9 @@ public class CreateShipmentPage extends CommonPageFactory {
 
     public void verifyFilterCriteriaApplied(int quantity) {
         sharedActions.waitForVisible(filtersAppliedCount(quantity));
+    }
+
+    public void setEditComments(String comments) {
+        sharedActions.sendKeys(editCommentsTextArea, comments);
     }
 }

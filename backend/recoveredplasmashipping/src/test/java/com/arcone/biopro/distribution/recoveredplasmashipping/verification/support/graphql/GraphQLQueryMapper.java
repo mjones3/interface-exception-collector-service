@@ -232,4 +232,18 @@ public class GraphQLQueryMapper {
                }
                """, shipmentId, locationCode, employeeId);
     }
+
+    public static String requestShipmentModifyHistory(int id) {
+        return String.format("""
+                query FindAllShipmentHistoryByShipmentId {
+                 findAllShipmentHistoryByShipmentId(shipmentId: %s) {
+                     id
+                     shipmentId
+                     comments
+                     createEmployeeId
+                     createDate
+                 }
+             }
+             """, id);
+    }
 }

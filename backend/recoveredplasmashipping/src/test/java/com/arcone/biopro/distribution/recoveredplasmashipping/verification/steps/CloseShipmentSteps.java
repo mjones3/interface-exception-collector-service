@@ -52,7 +52,7 @@ public class CloseShipmentSteps {
     @Given("I have a shipment created with the Customer Code as {string} , Product Type as {string}, Carton Tare Weight as {string}, Shipment Date as {string}, Transportation Reference Number as {string} and Location Code as {string}.")
     public void iHaveAShipmentCreatedWithTheCustomerCodeAsProductTypeAsCartonTareWeightAsShipmentDateAsTransportationReferenceNumberAsAndLocationCodeAs(String customerCode, String productType, String cartonTare
         , String shipmentDate, String transportationRefNumber, String locationCode) {
-        createShipmentController.createShipment(customerCode, productType, Float.parseFloat(cartonTare), testUtils.parseDataKeyword(shipmentDate), transportationRefNumber, locationCode);
+        createShipmentController.createShipment(customerCode, productType, Float.parseFloat(cartonTare), testUtils.parseDateKeyword(shipmentDate), transportationRefNumber, locationCode);
 
         Assertions.assertNotNull(sharedContext.getShipmentCreateResponse());
 
@@ -89,7 +89,7 @@ public class CloseShipmentSteps {
     @When("I request to close the shipment with ship date as {string}")
     public void iRequestToCloseTheShipmentWithShipDateAs(String shipDate) {
         apiResponse = createShipmentController.closeShipment(sharedContext.getShipmentCreateResponse().get("id").toString()
-           ,employeeId,sharedContext.getLocationCode() , testUtils.parseDataKeyword(shipDate));
+           ,employeeId,sharedContext.getLocationCode() , testUtils.parseDateKeyword(shipDate));
 
         Assertions.assertNotNull(apiResponse);
     }

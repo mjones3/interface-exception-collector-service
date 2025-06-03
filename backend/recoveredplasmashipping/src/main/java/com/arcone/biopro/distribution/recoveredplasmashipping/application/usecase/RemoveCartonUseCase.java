@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -37,6 +38,7 @@ public class RemoveCartonUseCase implements RemoveCartonService {
     private final CartonItemRepository cartonItemRepository;
 
     @Override
+    @Transactional
     public Mono<UseCaseOutput<RecoveredPlasmaShipmentOutput>> removeCarton(RemoveCartonCommandInput removeCartonCommandInput) {
         return cartonRepository.findOneById(removeCartonCommandInput.cartonId())
             .switchIfEmpty(Mono.error(() -> new DomainNotFoundForKeyException(String.format("%s", removeCartonCommandInput.cartonId()))))

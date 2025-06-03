@@ -10,6 +10,8 @@ import {
 } from '../models/recovered-plasma.dto';
 import { GET_PRODUCT_TYPE_OPTIONS, productTypeOptionResponse } from '../graphql/query-definitions/create-rp-shipment.graphql';
 import { CREATE_RECOVERED_PLASMA_SHIPMENT } from '../graphql/mutation-definitions/create-recovered-plasma-shipment.graphql';
+import { FIND_SHIPMENT_HISTORY_BY_ID, ShipmentHistoryDTO } from '../graphql/query-definitions/shipment-comments-history.graphql';
+import { MODIFY_RECOVERED_PLASMA_SHIPMENT, ModifyShipmentRequestDTO } from '../graphql/mutation-definitions/modify-shipment.graphql';
 
 @Injectable({
     providedIn: 'root',
@@ -42,6 +44,35 @@ export class RecoveredPlasmaShipmentService {
             this.servicePath,
             CREATE_RECOVERED_PLASMA_SHIPMENT,
             createShipmentRequest
+        );
+    }
+
+
+    public editRecoveredPlasmaShipment(
+        modifyShipmentRequest: ModifyShipmentRequestDTO
+    ): Observable<
+        MutationResult<{
+            modifyShipment: UseCaseResponseDTO<RecoveredPlasmaShipmentResponseDTO>;
+        }>
+    > {
+        return this.dynamicGraphqlPathService.executeMutation(
+            this.servicePath,
+            MODIFY_RECOVERED_PLASMA_SHIPMENT,
+            modifyShipmentRequest
+        );
+    }
+
+    public getShipmentHistory(
+        shipmentId: number
+    ): Observable<
+    ApolloQueryResult<{
+            findAllShipmentHistoryByShipmentId: ShipmentHistoryDTO;
+        }>
+    > {
+        return this.dynamicGraphqlPathService.executeQuery(
+            this.servicePath,
+            FIND_SHIPMENT_HISTORY_BY_ID,
+            {shipmentId}
         );
     }
 }

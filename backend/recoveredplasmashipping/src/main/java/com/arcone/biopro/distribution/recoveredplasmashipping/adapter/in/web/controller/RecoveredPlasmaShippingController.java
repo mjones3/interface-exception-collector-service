@@ -3,18 +3,23 @@ package com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.co
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.CloseShipmentRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.CreateShipmentRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.FindShipmentRequestDTO;
+import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.ModifyShipmentRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.PrintShippingSummaryReportRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.PrintUnacceptableUnitReportRequestDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.RecoveredPlasmaShipmentResponseDTO;
+import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.ShipmentHistoryDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.ShippingSummaryReportDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.UnacceptableUnitReportDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.dto.UseCaseResponseDTO;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.mapper.CommandRequestDTOMapper;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.mapper.CreateShipmentRequestDtoMapper;
+import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.mapper.ShipmentHistoryDtoMapper;
 import com.arcone.biopro.distribution.recoveredplasmashipping.adapter.in.web.mapper.UseCaseResponseMapper;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.CloseShipmentService;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.CreateShipmentService;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.ModifyShipmentService;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.RecoveredPlasmaShipmentService;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.ShipmentHistoryService;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.ShippingSummaryReportService;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.service.UnacceptableUnitReportService;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +28,7 @@ import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Controller
@@ -37,6 +43,9 @@ public class RecoveredPlasmaShippingController {
     private final CloseShipmentService closeShipmentService;
     private final UnacceptableUnitReportService unacceptableUnitReportService;
     private final ShippingSummaryReportService shippingSummaryReportService;
+    private final ShipmentHistoryService shipmentHistoryService;
+    private final ShipmentHistoryDtoMapper shipmentHistoryDtoMapper;
+    private final ModifyShipmentService modifyShipmentService;
 
     @MutationMapping("createShipment")
     public Mono<UseCaseResponseDTO<RecoveredPlasmaShipmentResponseDTO>> createShipment(@Argument("createShipmentRequest") CreateShipmentRequestDTO createShipmentRequestDTO) {
@@ -71,5 +80,19 @@ public class RecoveredPlasmaShippingController {
         log.debug("Request to print Shipping Summary Report for Shipment : {}", printShippingSummaryReportRequestDTO);
         return shippingSummaryReportService.printShippingSummaryReport(commandRequestDTOMapper.toInputCommand(printShippingSummaryReportRequestDTO))
             .map(useCaseResponseDtoMapper::toUseCaseShippingSummaryReportDTO);
+    }
+
+    @QueryMapping("findAllShipmentHistoryByShipmentId")
+    public Flux<ShipmentHistoryDTO> findAllShipmentHistoryByShipmentId(@Argument("shipmentId") Long shipmentId) {
+        log.debug("Request to find all Shipment History for Shipment : {}", shipmentId);
+        return shipmentHistoryService.findAllByShipmentId(shipmentId)
+            .map(shipmentHistoryDtoMapper::toDto);
+    }
+
+    @MutationMapping("modifyShipment")
+    public Mono<UseCaseResponseDTO<RecoveredPlasmaShipmentResponseDTO>> modifyShipment(@Argument("modifyShipmentRequest") ModifyShipmentRequestDTO modifyShipmentRequestDTO) {
+        log.debug("Request to Modify Shipment: {}", modifyShipmentRequestDTO);
+        return modifyShipmentService.modifyShipment(commandRequestDTOMapper.toInputCommand(modifyShipmentRequestDTO))
+            .map(useCaseResponseDtoMapper::toUseCaseRecoveredPlasmaShipmentResponseDTO);
     }
 }

@@ -91,6 +91,8 @@ export interface TableColumn {
     header?: string;
     sort?: boolean;
     icon?: boolean;
+    class?: string;
+    headerClass?: string;
     headerTempRef?: TemplateRef<Element>;
     columnTempRef?: TemplateRef<Element>;
 }

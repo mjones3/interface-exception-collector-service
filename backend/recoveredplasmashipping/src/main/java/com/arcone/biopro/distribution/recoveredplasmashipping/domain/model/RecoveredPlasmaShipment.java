@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.recoveredplasmashipping.domain.model;
 
 import com.arcone.biopro.distribution.recoveredplasmashipping.application.exception.DomainNotFoundForKeyException;
+import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.vo.ShipmentHistory;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.model.vo.UnacceptableUnitReportItem;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.CartonRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.domain.repository.LocationRepository;
@@ -58,6 +59,7 @@ public class RecoveredPlasmaShipment implements Validatable {
     private boolean canAddCartons;
     private List<Carton> cartonList;
     private ZonedDateTime lastUnsuitableReportRunDate;
+    private ShipmentHistory shipmentHistory;
 
     private static final String SHIPMENT_LOCATION_CODE_KEY = "RPS_LOCATION_SHIPMENT_CODE";
     private static final String SHIPMENT_USE_PREFIX_KEY = "RPS_USE_PARTNER_PREFIX";
@@ -232,10 +234,6 @@ public class RecoveredPlasmaShipment implements Validatable {
             throw new IllegalArgumentException("Status is required");
         }
 
-        if (this.cartonTareWeight == null) {
-            throw new IllegalArgumentException("Carton tare weight is required");
-        }
-
         if (this.unsuitableUnitReportDocumentStatus != null && lastUnsuitableReportRunDate == null) {
             throw new IllegalArgumentException("Last run date is required");
         }
@@ -377,6 +375,30 @@ public class RecoveredPlasmaShipment implements Validatable {
         if (this.getTotalCartons() == 0){
             this.status = OPEN_STATUS;
         }
+        return this;
+
+    }
+
+    public RecoveredPlasmaShipment modifyShipment(ModifyShipmentCommand command, CustomerService customerService
+        , RecoveredPlasmaShipmentCriteriaRepository recoveredPlasmaShipmentCriteriaRepository) {
+
+        if(PROCESSING_STATUS.equals(this.status)){
+            throw new IllegalArgumentException("Shipment is processing and cannot be modified");
+        }
+
+        this.modificationDate = ZonedDateTime.now();
+        this.shipmentDate = command.getShipmentDate();
+        this.transportationReferenceNumber = command.getTransportationReferenceNumber();
+
+        if(OPEN_STATUS.equals(this.status)){
+            var productCriteria = getProductTypeCriteria(command.getCustomerCode(), command.getProductType(), recoveredPlasmaShipmentCriteriaRepository);
+            this.productType = productCriteria.getProductType();
+            this.shipmentCustomer = ShipmentCustomer.fromCustomerCode(command.getCustomerCode(), customerService);
+            this.cartonTareWeight = command.getCartonTareWeight();
+        }
+
+        this.shipmentHistory = new ShipmentHistory(null,this.getId(),command.getComments(),command.getModifyEmployeeId(),ZonedDateTime.now());
+
         return this;
 
     }

@@ -39,6 +39,7 @@
                         mat-header-cell
                         *matHeaderCellDef
                         [mat-sort-header]="column.sort ? column.id : null"
+                        [class]="column.headerClass"
                         [disabled]="
                             !tableDataSource?.data?.length ||
                             !configuration().showSorting ||
@@ -58,6 +59,7 @@
                         [id]="column.id + 'Row' + i"
                         mat-cell
                         *matCellDef="let element; let i = dataIndex"
+                        [class]="column.class"
                         [ngClass]="{
                             'border-b-0': isExpanded(element, expandedElement),
                         }"

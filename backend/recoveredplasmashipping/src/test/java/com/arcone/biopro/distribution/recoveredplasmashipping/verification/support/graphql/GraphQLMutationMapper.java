@@ -229,4 +229,35 @@ public class GraphQLMutationMapper {
             }
             """, cartonId, employeeId, cartonProductToRemoveIds);
     }
+
+    public static String modifyShipment(int shipmentId, String customerCode, String productType, String transpRefNumber, String shipmentDate, int cartonTareWeight, String employeeId, String comments) {
+        return (String.format("""
+            mutation ModifyShipment {
+                    modifyShipment(
+                        modifyShipmentRequest: {
+                            shipmentId: %s
+                            customerCode: "%s"
+                            productType: "%s"
+                            transportationReferenceNumber: %s
+                            shipmentDate: "%s"
+                            cartonTareWeight: %s
+                            modifyEmployeeId: "%s"
+                            comments: %s
+                        }
+                    ) {
+                        _links
+                        data
+                        notifications {
+                            message
+                            type
+                            code
+                            action
+                            reason
+                            details
+                            name
+                        }
+                    }
+                }
+        """, shipmentId, customerCode, productType, transpRefNumber, shipmentDate, cartonTareWeight, employeeId, comments));
+    }
 }
