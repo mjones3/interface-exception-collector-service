@@ -91,7 +91,7 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
         private shipmentService: RecoveredPlasmaShipmentService,
         private recoveredPlasmaService: RecoveredPlasmaService,
         @Inject(LOCALE_ID) public locale: string,
-        @Inject (MAT_DIALOG_DATA) public data: RecoveredPlasmaShipmentResponseDTO 
+        @Inject (MAT_DIALOG_DATA) public data: RecoveredPlasmaShipmentResponseDTO
     ) {
         this.setLoggedUserId();
     }
@@ -120,7 +120,7 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
         this.createShipmentForm = this.fb.group({
             customerName: ['', [Validators.required]],
             productType: [{ value: '', disabled: true }, [Validators.required]],
-            cartonTareWeight: [''], //add Validators.required, cartonWeightValidator() when implement carton tare weight 
+            cartonTareWeight: [''], //add Validators.required, cartonWeightValidator() when implement carton tare weight
             shipmentDate: [''],
             transportationReferenceNumber: [''],
         });
@@ -174,7 +174,7 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
                             this.createShipmentForm.get('productType').setValue(this.data.productType);
                             if(this.data.status !== 'OPEN'){
                                 this.createShipmentForm.get('productType').disable();
-                            }   
+                            }
                     }else{
                         this.createShipmentForm.get('productType').setValue('');
                     }
@@ -261,7 +261,7 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
             modifyEmployeeId: this.loggedUserId,
             customerCode: this.createShipmentFormControl.customerName?.value ?? '',
             productType: this.createShipmentFormControl.productType?.value ?? '',
-            ...(shipmentDate ? { shipmentDate } : {}),
+            shipmentDate: shipmentDate,
             transportationReferenceNumber: this.createShipmentFormControl.transportationReferenceNumber?.value ?? '',
             shipmentId: this.data.id,
             comments: this.createShipmentFormControl.comments?.value ?? ''
@@ -279,7 +279,7 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
             customerCode: this.createShipmentFormControl.customerName?.value ?? '',
             productType: this.createShipmentFormControl.productType?.value ?? '',
             cartonTareWeight: this.parseCartonWeight(),
-            ...(shipmentDate ? { shipmentDate } : {}),
+            shipmentDate: shipmentDate,
             transportationReferenceNumber: this.createShipmentFormControl.transportationReferenceNumber?.value ?? '',
         };
         return req;
@@ -305,10 +305,11 @@ export class CreateShipmentComponent implements OnInit, OnDestroy {
         this.setupCustomerValueChangeSubscription();
         this.createShipmentForm.patchValue({
             customerName: data.customerCode,
-            productType: data.productType,
             shipmentDate: data.shipmentDate,
+            productType: data.productType,
             transportationReferenceNumber: data.transportationReferenceNumber,
         });
+        this.createShipmentForm.get('shipmentDate').markAsTouched();
     }
 
     canSubmit(){
