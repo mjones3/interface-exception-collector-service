@@ -1,22 +1,15 @@
 package com.arcone.biopro.distribution.inventory.verification.steps;
 
 import com.arcone.biopro.distribution.inventory.domain.event.InventoryEventPublisher;
-import com.arcone.biopro.distribution.inventory.domain.event.InventoryUpdatedApplicationEvent;
 import com.arcone.biopro.distribution.inventory.verification.utils.LogMonitor;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Then;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
 import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
