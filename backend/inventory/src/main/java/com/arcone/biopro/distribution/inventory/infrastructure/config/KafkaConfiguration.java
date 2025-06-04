@@ -553,7 +553,7 @@ class KafkaConfiguration {
     }
 
     @AsyncPublisher(operation = @AsyncOperation(
-        channelName = "InventoryUpdatedEvent",
+        channelName = "InventoryUpdated",
         description = "An inventory was created/updated.",
         payloadType = InventoryUpdatedEvent.class
     ))
