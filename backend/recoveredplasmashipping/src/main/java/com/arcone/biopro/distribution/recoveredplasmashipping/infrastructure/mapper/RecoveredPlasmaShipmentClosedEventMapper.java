@@ -17,12 +17,11 @@ import java.util.List;
 public interface RecoveredPlasmaShipmentClosedEventMapper {
 
     @Mapping(target = "closedEmployeeId", source = "recoveredPlasmaShipment.closeEmployeeId")
-    @Mapping(target = "closeDate", source = "recoveredPlasmaShipment.modificationDate")
+    @Mapping(target = "closeDate", source = "recoveredPlasmaShipment.closeDate")
     @Mapping(target = "cartonList", source = "cartonList")
     @Mapping(target = "totalCartons", expression = "java(mapTotalSize(cartonList))")
     @Mapping(target = "locationShipmentCode", source = "locationShipmentCodeParam")
     @Mapping(target = "locationCartonCode", source = "locationCartonCodeParam")
-    @Mapping(target = "status", constant = "CLOSED")
     RecoveredPlasmaShipmentClosedOutputDTO entityToCloseEventDTO(RecoveredPlasmaShipmentEntity recoveredPlasmaShipment, List<RecoveredPlasmaCartonClosedOutputDTO> cartonList , String locationShipmentCodeParam , String locationCartonCodeParam );
 
     @Mapping(target = "productType", source = "recoveredPlasmaShipment.productType")

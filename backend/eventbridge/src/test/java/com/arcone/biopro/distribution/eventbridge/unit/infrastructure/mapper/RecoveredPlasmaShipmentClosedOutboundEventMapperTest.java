@@ -1,10 +1,8 @@
 package com.arcone.biopro.distribution.eventbridge.unit.infrastructure.mapper;
 
 import com.arcone.biopro.distribution.eventbridge.domain.model.RecoveredPlasmaShipmentClosedCartonItemOutbound;
-import com.arcone.biopro.distribution.eventbridge.domain.model.RecoveredPlasmaShipmentClosedCartonOutbound;
 import com.arcone.biopro.distribution.eventbridge.domain.model.RecoveredPlasmaShipmentClosedOutbound;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.dto.RecoveredPlasmaShipmentClosedCartonItemOutboundPayload;
-import com.arcone.biopro.distribution.eventbridge.infrastructure.dto.RecoveredPlasmaShipmentClosedCartonOutboundPayload;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.dto.RecoveredPlasmaShipmentClosedOutboundPayload;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.mapper.RecoveredPlasmaShipmentClosedOutboundEventMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -61,20 +59,6 @@ class RecoveredPlasmaShipmentClosedOutboundEventMapperTest {
         assertThat(result.cartonList().getFirst().packedProducts().getFirst().collectionTimeZone()).isEqualTo(source.getCartonOutboundList().getFirst().getPackedProducts().getFirst().getCollectionTimeZone());
         assertThat(result.cartonList().getFirst().packedProducts().getFirst().collectionDate()).isEqualTo(source.getCartonOutboundList().getFirst().getPackedProducts().getFirst().getCollectionDateFormatted());
     }
-
-    /*@Test
-    void cartonModelToEventDTO_ShouldMapAllFields() {
-        // Arrange
-        RecoveredPlasmaShipmentClosedCartonOutbound source = null;
-
-        // Act
-        RecoveredPlasmaShipmentClosedCartonOutboundPayload result = mapper.cartonModelToEventDTO(source);
-
-        // Assert
-        assertThat(result).isNotNull();
-        assertThat(result.cartonNumber()).isEqualTo(source.getCartonNumber());
-        assertThat(result.packedProducts()).hasSize(source.getPackedProducts().size());
-    }*/
 
     @Test
     void mapClosedProducts_WithNullInput_ShouldReturnNull() {
