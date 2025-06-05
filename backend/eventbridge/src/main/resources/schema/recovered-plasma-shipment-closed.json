@@ -34,13 +34,13 @@
           "type": "string"
         },
         "transportationReferenceNumber": {
-          "type": "string"
+          "type": ["string","null"]
         },
         "shipmentDate": {
           "type": "string"
         },
         "cartonTareWeight": {
-          "type": "number"
+          "type": ["number","null"]
         },
         "createDate": {
           "type": "string"
@@ -76,22 +76,22 @@
           "type": "string"
         },
         "customerDistrict": {
-          "type": "string"
+          "type": ["string","null"]
         },
         "customerAddressLine1": {
           "type": "string"
         },
         "customerAddressLine2": {
-          "type": "string"
+          "type": ["string","null"]
         },
         "customerAddressContactName": {
-          "type": "string"
+          "type": ["string","null"]
         },
         "customerAddressPhoneNumber":{
-          "type": "string"
+          "type": ["string","null"]
         },
         "customerAddressDepartmentName": {
-          "type": "string"
+          "type": ["string","null"]
         },
         "totalCartons": {
           "type": "integer"
@@ -158,10 +158,10 @@
                         "type": "string"
                       },
                       "volume":  {
-                        "type": "number"
+                        "type": ["number","null"]
                       },
                       "weight":  {
-                        "type": "number"
+                        "type": ["number","null"]
                       },
                       "aboRh":  {
                         "type": "string"
@@ -170,7 +170,7 @@
                         "type": "string"
                       },
                       "drawBeginTime":  {
-                        "type": "string"
+                        "type": ["string","null"]
                       },
                       "collectionFacility":  {
                         "type": "string"
@@ -214,23 +214,9 @@
         "status",
         "createEmployeeId",
         "productType",
-        "createDate",
-        "modificationDate",
         "closedEmployeeId",
         "closeDate",
         "customerCode",
-        "customerName",
-        "customerState",
-        "customerPostalCode",
-        "customerCountry",
-        "customerCountryCode",
-        "customerCity",
-        "customerDistrict",
-        "customerAddressLine1",
-        "customerAddressLine2",
-        "customerAddressContactName",
-        "customerAddressPhoneNumber",
-        "customerAddressDepartmentName",
         "totalCartons",
         "locationShipmentCode",
         "locationCartonCode",
