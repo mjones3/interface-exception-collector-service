@@ -38,13 +38,13 @@ Feature: Import products
     Scenario Outline: Validate different thermometer scenarios
         Given I have a thermometer configured as location "<Device Location Code>", Device ID as "<Device ID>", Category as "<Device Category>" and Device Type as "<Device Type>".
         When I enter thermometer ID "<thermometer ID>" for the location code "<Imports Location Code>" and Temperature Category "<Temperature Category>".
-        Then I should receive a "<error_type>" message response "<error_message>".
+        Then I should receive a "<message_type>" message response "<message>".
         Examples:
-        |Imports Location Code | Device Location Code | thermometer ID | Device ID | Temperature Category | Device Type | Device Category   | error_type | error_message                    |
-        | 123456789            |   123456789          | THERM-001      | THERM-001 |  ROOM_TEMPERATURE    | THERMOMETER | TEMPERATURE       | SUCCESS    | Valid Device                     |
-        | 5678910              |   123456789          | THERM-001      | THERM-001 |  ROOM_TEMPERATURE    | THERMOMETER | TEMPERATURE       | WARN       | Device different location error  |
-        | 123456789            |   123456789          | THERM-001      | THERM-002 |  ROOM_TEMPERATURE    | THERMOMETER | TEMPERATURE       | WARN       | Device does not exist error      |
-        | 123456789            |   123456789          | THERM-001      | THERM-001 |  ROOM_TEMPERATURE    | FREEZER     | SECONDARY_STORAGE | WARN       | Device different category error  |
+        |Imports Location Code | Device Location Code | thermometer ID | Device ID | Temperature Category | Device Type | Device Category   | message_type | message                          |
+        | 123456789            |   123456789          | THERM-001      | THERM-001 |  ROOM_TEMPERATURE    | THERMOMETER | TEMPERATURE       | SUCCESS      | Valid Device                     |
+        | 5678910              |   123456789          | THERM-001      | THERM-001 |  ROOM_TEMPERATURE    | THERMOMETER | TEMPERATURE       | WARN         | Device different location error  |
+        | 123456789            |   123456789          | THERM-001      | THERM-002 |  ROOM_TEMPERATURE    | THERMOMETER | TEMPERATURE       | WARN         | Device does not exist error      |
+        | 123456789            |   123456789          | THERM-001      | THERM-001 |  ROOM_TEMPERATURE    | FREEZER     | SECONDARY_STORAGE | WARN         | Device different category error  |
 
 
     Rule: I should be able to enter the thermometer ID configured for location where products are imported.
