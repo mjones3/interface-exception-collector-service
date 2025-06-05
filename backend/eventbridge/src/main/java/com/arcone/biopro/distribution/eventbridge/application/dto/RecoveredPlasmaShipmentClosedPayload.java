@@ -1,10 +1,10 @@
-package com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.dto;
+package com.arcone.biopro.distribution.eventbridge.application.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -15,15 +15,16 @@ import java.util.List;
     description = "Recovered Plasma Shipment Closed Event Payload"
 )
 @Builder
-public record RecoveredPlasmaShipmentClosedOutputDTO(
+public record RecoveredPlasmaShipmentClosedPayload(
     String locationCode,
     String productType,
     String shipmentNumber,
     String status,
     String createEmployeeId,
     String transportationReferenceNumber,
+    @JsonFormat(pattern = "yyyy-MM-dd")
     LocalDate shipmentDate,
-    BigDecimal cartonTareWeight,
+    Integer cartonTareWeight,
     ZonedDateTime createDate,
     ZonedDateTime modificationDate,
     String closedEmployeeId,
@@ -42,8 +43,9 @@ public record RecoveredPlasmaShipmentClosedOutputDTO(
     String customerAddressPhoneNumber,
     String customerAddressDepartmentName,
     Integer totalCartons,
-    List<RecoveredPlasmaCartonClosedOutputDTO> cartonList,
     String locationShipmentCode,
-    String locationCartonCode
+    String locationCartonCode,
+    List<RecoveredPlasmaShipmentCartonClosedDTO> cartonList
 ) implements Serializable {
+
 }

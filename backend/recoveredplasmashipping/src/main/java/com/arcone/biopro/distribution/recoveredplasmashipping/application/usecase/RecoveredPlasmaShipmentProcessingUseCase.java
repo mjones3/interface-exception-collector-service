@@ -17,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -38,7 +37,6 @@ public class RecoveredPlasmaShipmentProcessingUseCase {
     private static  final String  INVENTORY_PACKED_ERROR_TYPE = "INVENTORY_IS_PACKED";
 
     @EventListener
-    @Transactional
     public Mono<RecoveredPlasmaShipment> onRecoveredPlasmaShipmentProcessing(RecoveredPlasmaShipmentProcessingEvent recoveredPlasmaShipmentProcessingEvent){
        log.debug("Processing RecoveredPlasmaShipmentProcessing Event {}",recoveredPlasmaShipmentProcessingEvent);
        return recoveredPlasmaShippingRepository.findOneById(recoveredPlasmaShipmentProcessingEvent.getPayload().getId())
