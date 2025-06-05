@@ -1,0 +1,2847 @@
+{
+  "asyncapi": "3.0.0",
+  "info": {
+    "title": "inventory",
+    "version": "0.0.1",
+    "x-generator": "springwolf"
+  },
+  "defaultContentType": "application/json",
+  "servers": {
+    "kafka": {
+      "host": "localhost:29092",
+      "protocol": "kafka"
+    }
+  },
+  "channels": {
+    "ApheresisPlasmaProductCompleted": {
+      "messages": {
+        "ApheresisPlasmaProductCompleted": {
+          "$ref": "#/components/messages/ApheresisPlasmaProductCompleted"
+        }
+      }
+    },
+    "ApheresisPlasmaProductCreated": {
+      "messages": {
+        "ApheresisPlasmaProductCreated": {
+          "$ref": "#/components/messages/ApheresisPlasmaProductCreated"
+        }
+      }
+    },
+    "ApheresisPlateletProductCompleted": {
+      "messages": {
+        "ApheresisPlateletProductCompleted": {
+          "$ref": "#/components/messages/ApheresisPlateletProductCompleted"
+        }
+      }
+    },
+    "ApheresisPlateletProductCreated": {
+      "messages": {
+        "ApheresisPlateletProductCreated": {
+          "$ref": "#/components/messages/ApheresisPlateletProductCreated"
+        }
+      }
+    },
+    "ApheresisRBCProductCompleted": {
+      "messages": {
+        "ApheresisRBCProductCompleted": {
+          "$ref": "#/components/messages/ApheresisRBCProductCompleted"
+        }
+      }
+    },
+    "ApheresisRBCProductCreated": {
+      "messages": {
+        "ApheresisRBCProductCreated": {
+          "$ref": "#/components/messages/ApheresisRBCProductCreated"
+        }
+      }
+    },
+    "CheckInCompleted": {
+      "messages": {
+        "CheckInCompleted": {
+          "$ref": "#/components/messages/CheckInCompleted"
+        }
+      }
+    },
+    "InventoryUpdated": {
+      "messages": {
+        "InventoryUpdated": {
+          "$ref": "#/components/messages/InventoryUpdated"
+        }
+      }
+    },
+    "LabelApplied": {
+      "messages": {
+        "LabelApplied": {
+          "$ref": "#/components/messages/LabelApplied"
+        }
+      }
+    },
+    "LabelInvalidated": {
+      "messages": {
+        "LabelInvalidated": {
+          "$ref": "#/components/messages/LabelInvalidated"
+        }
+      }
+    },
+    "ProductDiscarded": {
+      "messages": {
+        "ProductDiscarded": {
+          "$ref": "#/components/messages/ProductDiscarded"
+        }
+      }
+    },
+    "ProductModified": {
+      "messages": {
+        "ProductModified": {
+          "$ref": "#/components/messages/ProductModified"
+        }
+      }
+    },
+    "ProductQuarantined": {
+      "messages": {
+        "ProductQuarantined": {
+          "$ref": "#/components/messages/ProductQuarantined"
+        }
+      }
+    },
+    "ProductRecovered": {
+      "messages": {
+        "ProductRecovered": {
+          "$ref": "#/components/messages/ProductRecovered"
+        }
+      }
+    },
+    "ProductStored": {
+      "messages": {
+        "ProductStored": {
+          "$ref": "#/components/messages/ProductStored"
+        }
+      }
+    },
+    "ProductUnsuitable": {
+      "messages": {
+        "ProductUnsuitable": {
+          "$ref": "#/components/messages/ProductUnsuitable"
+        }
+      }
+    },
+    "ProductsImported": {
+      "messages": {
+        "ProductsImported": {
+          "$ref": "#/components/messages/ProductsImported"
+        }
+      }
+    },
+    "QuarantineRemoved": {
+      "messages": {
+        "QuarantineRemoved": {
+          "$ref": "#/components/messages/QuarantineRemoved"
+        }
+      }
+    },
+    "QuarantineUpdated": {
+      "messages": {
+        "QuarantineUpdated": {
+          "$ref": "#/components/messages/QuarantineUpdated"
+        }
+      }
+    },
+    "RecoveredPlasmaCartonPacked": {
+      "messages": {
+        "RecoveredPlasmaCartonPacked": {
+          "$ref": "#/components/messages/RecoveredPlasmaCartonPacked"
+        }
+      }
+    },
+    "RecoveredPlasmaCartonRemoved": {
+      "messages": {
+        "RecoveredPlasmaCartonRemoved": {
+          "$ref": "#/components/messages/RecoveredPlasmaCartonRemoved"
+        }
+      }
+    },
+    "RecoveredPlasmaCartonUnpacked": {
+      "messages": {
+        "RecoveredPlasmaCartonUnpacked": {
+          "$ref": "#/components/messages/RecoveredPlasmaCartonUnpacked"
+        }
+      }
+    },
+    "RecoveredPlasmaShipmentClosed": {
+      "messages": {
+        "RecoveredPlasmaShipmentClosed": {
+          "$ref": "#/components/messages/RecoveredPlasmaShipmentClosed"
+        }
+      }
+    },
+    "ShipmentCompleted": {
+      "messages": {
+        "com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput": {
+          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput"
+        }
+      }
+    },
+    "UnitUnsuitable": {
+      "messages": {
+        "UnitUnsuitable": {
+          "$ref": "#/components/messages/UnitUnsuitable"
+        }
+      }
+    },
+    "WholeBloodProductCreated": {
+      "messages": {
+        "WholeBloodProductCreated": {
+          "$ref": "#/components/messages/WholeBloodProductCreated"
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ApheresisPlasmaProductCompleted": {
+        "title": "ApheresisPlasmaProductCompleted",
+        "type": "object",
+        "properties": {
+          "aboRh": {
+            "type": "string",
+            "description": "Abo RH Type of the product",
+            "enum": [
+              "ON",
+              "OP",
+              "AN",
+              "AP",
+              "BN",
+              "BP",
+              "ABN",
+              "ABP"
+            ]
+          },
+          "anticoagulantVolume": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.common.Volume"
+          },
+          "productCode": {
+            "type": "string",
+            "description": "Product code"
+          },
+          "unitNumber": {
+            "type": "string",
+            "description": "Unit number identifier"
+          },
+          "volume": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.common.Volume"
+          }
+        },
+        "description": "Message for completed ApheresisPlasmaProductCompleted process",
+        "examples": [
+          {
+            "aboRh": "ON",
+            "anticoagulantVolume": {
+              "unit": "string",
+              "value": 0
+            },
+            "productCode": "string",
+            "unitNumber": "string",
+            "volume": {
+              "unit": "string",
+              "value": 0
+            }
+          }
+        ]
+      },
+      "ApheresisPlasmaProductCreated": {
+        "title": "ApheresisPlasmaProductCreated",
+        "type": "object",
+        "properties": {
+          "aboRh": {
+            "type": "string",
+            "description": "Blood type and RH factor",
+            "enum": [
+              "ON",
+              "OP",
+              "AN",
+              "AP",
+              "BN",
+              "BP",
+              "ABN",
+              "ABP"
+            ]
+          },
+          "collectionLocation": {
+            "type": "string",
+            "description": "Collection location"
+          },
+          "collectionTimeZone": {
+            "type": "string",
+            "description": "Collection time zone"
+          },
+          "drawTime": {
+            "type": "string",
+            "description": "Draw time of the product",
+            "format": "date-time"
+          },
+          "expirationDate": {
+            "type": "string",
+            "description": "Expiration date"
+          },
+          "expirationTime": {
+            "type": "string",
+            "description": "Expiration time"
+          },
+          "inputProducts": {
+            "type": "array",
+            "description": "List of input products used",
+            "items": {
+              "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.domain.model.vo.InputProduct"
+            }
+          },
+          "manufacturingLocation": {
+            "type": "string",
+            "description": "Manufacturing location"
+          },
+          "productCode": {
+            "type": "string",
+            "description": "Product code"
+          },
+          "productDescription": {
+            "type": "string",
+            "description": "Product description"
+          },
+          "productFamily": {
+            "type": "string",
+            "description": "Product family"
+          },
+          "unitNumber": {
+            "type": "string",
+            "description": "Unit number identifier"
+          },
+          "weight": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ValueUnit"
+          }
+        },
+        "description": "Apheresis Plasma Product Created Event",
+        "examples": [
+          {
+            "aboRh": "ON",
+            "collectionLocation": "string",
+            "collectionTimeZone": "string",
+            "drawTime": "2015-07-20T15:49:04-07:00",
+            "expirationDate": "string",
+            "expirationTime": "string",
+            "inputProducts": [
+              {
+                "productCode": "string",
+                "unitNumber": "string"
+              }
+            ],
+            "manufacturingLocation": "string",
+            "productCode": "string",
+            "productDescription": "string",
+            "productFamily": "string",
+            "unitNumber": "string",
+            "weight": {
+              "unit": "string",
+              "value": 0
+            }
+          }
+        ]
+      },
+      "ApheresisPlateletProductCompleted": {
+        "title": "ApheresisPlateletProductCompleted",
+        "type": "object",
+        "properties": {
+          "aboRh": {
+            "type": "string",
+            "description": "Abo RH Type of the product",
+            "enum": [
+              "ON",
+              "OP",
+              "AN",
+              "AP",
+              "BN",
+              "BP",
+              "ABN",
+              "ABP"
+            ]
+          },
+          "anticoagulantVolume": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.common.Volume"
+          },
+          "productCode": {
+            "type": "string",
+            "description": "Product code"
+          },
+          "unitNumber": {
+            "type": "string",
+            "description": "Unit number identifier"
+          },
+          "volume": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.common.Volume"
+          }
+        },
+        "description": "Message for completed ApheresisPlateletProductCompleted process",
+        "examples": [
+          {
+            "aboRh": "ON",
+            "anticoagulantVolume": {
+              "unit": "string",
+              "value": 0
+            },
+            "productCode": "string",
+            "unitNumber": "string",
+            "volume": {
+              "unit": "string",
+              "value": 0
+            }
+          }
+        ]
+      },
+      "ApheresisPlateletProductCreated": {
+        "title": "ApheresisPlateletProductCreated",
+        "type": "object",
+        "properties": {
+          "aboRh": {
+            "type": "string",
+            "description": "Blood type and RH factor",
+            "enum": [
+              "ON",
+              "OP",
+              "AN",
+              "AP",
+              "BN",
+              "BP",
+              "ABN",
+              "ABP"
+            ]
+          },
+          "collectionLocation": {
+            "type": "string",
+            "description": "Collection location"
+          },
+          "collectionTimeZone": {
+            "type": "string",
+            "description": "Collection time zone"
+          },
+          "drawTime": {
+            "type": "string",
+            "description": "Draw time of the product",
+            "format": "date-time"
+          },
+          "expirationDate": {
+            "type": "string",
+            "description": "Expiration date"
+          },
+          "expirationTime": {
+            "type": "string",
+            "description": "Expiration time"
+          },
+          "inputProducts": {
+            "type": "array",
+            "description": "List of input products used",
+            "items": {
+              "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.domain.model.vo.InputProduct"
+            }
+          },
+          "manufacturingLocation": {
+            "type": "string",
+            "description": "Manufacturing location"
+          },
+          "productCode": {
+            "type": "string",
+            "description": "Product code"
+          },
+          "productDescription": {
+            "type": "string",
+            "description": "Product description"
+          },
+          "productFamily": {
+            "type": "string",
+            "description": "Product family"
+          },
+          "unitNumber": {
+            "type": "string",
+            "description": "Unit number identifier"
+          },
+          "weight": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ValueUnit"
+          }
+        },
+        "description": "Apheresis Platelet Product Created Event",
+        "examples": [
+          {
+            "aboRh": "ON",
+            "collectionLocation": "string",
+            "collectionTimeZone": "string",
+            "drawTime": "2015-07-20T15:49:04-07:00",
+            "expirationDate": "string",
+            "expirationTime": "string",
+            "inputProducts": [
+              {
+                "productCode": "string",
+                "unitNumber": "string"
+              }
+            ],
+            "manufacturingLocation": "string",
+            "productCode": "string",
+            "productDescription": "string",
+            "productFamily": "string",
+            "unitNumber": "string",
+            "weight": {
+              "unit": "string",
+              "value": 0
+            }
+          }
+        ]
+      },
+      "ApheresisRBCProductCompleted": {
+        "title": "ApheresisRBCProductCompleted",
+        "type": "object",
+        "properties": {
+          "aboRh": {
+            "type": "string",
+            "description": "Abo RH Type of the product",
+            "enum": [
+              "ON",
+              "OP",
+              "AN",
+              "AP",
+              "BN",
+              "BP",
+              "ABN",
+              "ABP"
+            ]
+          },
+          "anticoagulantVolume": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.common.Volume"
+          },
+          "productCode": {
+            "type": "string",
+            "description": "Product code"
+          },
+          "unitNumber": {
+            "type": "string",
+            "description": "Unit number identifier"
+          },
+          "volume": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.common.Volume"
+          }
+        },
+        "description": "Message for completed ApheresisRBCProductCompleted process",
+        "examples": [
+          {
+            "aboRh": "ON",
+            "anticoagulantVolume": {
+              "unit": "string",
+              "value": 0
+            },
+            "productCode": "string",
+            "unitNumber": "string",
+            "volume": {
+              "unit": "string",
+              "value": 0
+            }
+          }
+        ]
+      },
+      "ApheresisRBCProductCreated": {
+        "title": "ApheresisRBCProductCreated",
+        "type": "object",
+        "properties": {
+          "aboRh": {
+            "type": "string",
+            "description": "Blood type and RH factor",
+            "enum": [
+              "ON",
+              "OP",
+              "AN",
+              "AP",
+              "BN",
+              "BP",
+              "ABN",
+              "ABP"
+            ]
+          },
+          "collectionLocation": {
+            "type": "string",
+            "description": "Collection location"
+          },
+          "collectionTimeZone": {
+            "type": "string",
+            "description": "Collection time zone"
+          },
+          "drawTime": {
+            "type": "string",
+            "description": "Draw time of the product",
+            "format": "date-time"
+          },
+          "expirationDate": {
+            "type": "string",
+            "description": "Expiration date"
+          },
+          "expirationTime": {
+            "type": "string",
+            "description": "Expiration time"
+          },
+          "inputProducts": {
+            "type": "array",
+            "description": "List of input products used",
+            "items": {
+              "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.domain.model.vo.InputProduct"
+            }
+          },
+          "manufacturingLocation": {
+            "type": "string",
+            "description": "Manufacturing location"
+          },
+          "productCode": {
+            "type": "string",
+            "description": "Product code"
+          },
+          "productDescription": {
+            "type": "string",
+            "description": "Product description"
+          },
+          "productFamily": {
+            "type": "string",
+            "description": "Product family"
+          },
+          "unitNumber": {
+            "type": "string",
+            "description": "Unit number identifier"
+          },
+          "weight": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ValueUnit"
+          }
+        },
+        "description": "Apheresis RBC Product Created Event",
+        "examples": [
+          {
+            "aboRh": "ON",
+            "collectionLocation": "string",
+            "collectionTimeZone": "string",
+            "drawTime": "2015-07-20T15:49:04-07:00",
+            "expirationDate": "string",
+            "expirationTime": "string",
+            "inputProducts": [
+              {
+                "productCode": "string",
+                "unitNumber": "string"
+              }
+            ],
+            "manufacturingLocation": "string",
+            "productCode": "string",
+            "productDescription": "string",
+            "productFamily": "string",
+            "unitNumber": "string",
+            "weight": {
+              "unit": "string",
+              "value": 0
+            }
+          }
+        ]
+      },
+      "CheckInCompleted": {
+        "title": "CheckInCompleted",
+        "type": "object",
+        "properties": {
+          "aboRh": {
+            "type": "string",
+            "description": "Blood type ABO and RH factor",
+            "enum": [
+              "ON",
+              "OP",
+              "AN",
+              "AP",
+              "BN",
+              "BP",
+              "ABN",
+              "ABP"
+            ]
+          },
+          "collectionLocation": {
+            "type": "string",
+            "description": "Collection location"
+          },
+          "collectionTimeZone": {
+            "type": "string",
+            "description": "Collection TimeZone"
+          },
+          "drawTime": {
+            "type": "string",
+            "description": "Time when the draw was performed",
+            "format": "date-time"
+          },
+          "productCode": {
+            "type": "string",
+            "description": "Product code"
+          },
+          "productDescription": {
+            "type": "string",
+            "description": "Product description"
+          },
+          "productFamily": {
+            "type": "string",
+            "description": "Product family type"
+          },
+          "unitNumber": {
+            "type": "string",
+            "description": "Unit number identifier"
+          }
+        },
+        "description": "Message for completed check-in process",
+        "examples": [
+          {
+            "aboRh": "ON",
+            "collectionLocation": "string",
+            "collectionTimeZone": "string",
+            "drawTime": "2015-07-20T15:49:04-07:00",
+            "productCode": "string",
+            "productDescription": "string",
+            "productFamily": "string",
+            "unitNumber": "string"
+          }
+        ]
+      },
+      "HeadersNotDocumented": {
+        "type": "object",
+        "properties": {},
+        "description": "There can be headers, but they are not explicitly documented.",
+        "examples": [
+          {}
+        ]
+      },
+      "ImportedConsequence": {
+        "title": "ImportedConsequence",
+        "type": "object",
+        "properties": {
+          "consequenceReasons": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "consequenceType": {
+            "type": "string"
+          }
+        },
+        "description": "Imported Consequence",
+        "examples": [
+          {
+            "consequenceReasons": [
+              "string"
+            ],
+            "consequenceType": "string"
+          }
+        ]
+      },
+      "ImportedProduct": {
+        "title": "ImportedProduct",
+        "type": "object",
+        "properties": {
+          "aboRh": {
+            "type": "string",
+            "enum": [
+              "ON",
+              "OP",
+              "AN",
+              "AP",
+              "BN",
+              "BP",
+              "ABN",
+              "ABP"
+            ]
+          },
+          "consequences": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImportedConsequence"
+            }
+          },
+          "expirationDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "productCode": {
+            "type": "string"
+          },
+          "productDescription": {
+            "type": "string"
+          },
+          "productFamily": {
+            "type": "string"
+          },
+          "properties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "unitNumber": {
+            "type": "string"
+          }
+        },
+        "description": "Imported Product",
+        "examples": [
+          {
+            "aboRh": "ON",
+            "consequences": [
+              {
+                "consequenceReasons": [
+                  "string"
+                ],
+                "consequenceType": "string"
+              }
+            ],
+            "expirationDate": "2015-07-20T15:49:04-07:00",
+            "productCode": "string",
+            "productDescription": "string",
+            "productFamily": "string",
+            "properties": {},
+            "unitNumber": "string"
+          }
+        ]
+      },
+      "InventoryUpdated": {
+        "title": "InventoryUpdated",
+        "type": "object",
+        "properties": {
+          "bloodType": {
+            "title": "Blood Type",
+            "type": "string",
+            "description": "Blood Type of the updated inventory",
+            "examples": [
+              "AP"
+            ]
+          },
+          "expirationDate": {
+            "title": "Expiration Date",
+            "type": "string",
+            "description": "Expiration Date of the updated inventory",
+            "format": "date",
+            "examples": [
+              "2025-03-04T00:00:00.000+00:00"
+            ]
+          },
+          "inputProducts": {
+            "title": "Input Products",
+            "type": "array",
+            "description": "List of the parent product information",
+            "examples": [
+              [
+                {
+                  "productCode": "E468899",
+                  "unitNumber": "W123456748998"
+                }
+              ]
+            ],
+            "items": {
+              "title": "Input Products",
+              "type": "object",
+              "description": "List of the parent product information",
+              "examples": [
+                [
+                  {
+                    "productCode": "E468899",
+                    "unitNumber": "W123456748998"
+                  }
+                ]
+              ]
+            }
+          },
+          "inventoryStatus": {
+            "title": "Inventory Statuses",
+            "type": "array",
+            "description": "Current statuses of the updated inventory",
+            "examples": [
+              [
+                "AVAILABLE"
+              ]
+            ],
+            "items": {
+              "title": "Inventory Statuses",
+              "type": "string",
+              "description": "Current statuses of the updated inventory",
+              "examples": [
+                "[\"AVAILABLE\"]"
+              ]
+            }
+          },
+          "locationCode": {
+            "title": "Location Code",
+            "type": "string",
+            "description": "Location code of the updated inventory",
+            "examples": [
+              "123456789"
+            ]
+          },
+          "productCode": {
+            "title": "Product Code",
+            "type": "string",
+            "description": "Product Code of the updated inventory",
+            "examples": [
+              "RBCAPH1"
+            ]
+          },
+          "productDescription": {
+            "title": "Product Description",
+            "type": "string",
+            "description": "Product Description of the updated inventory",
+            "examples": [
+              "APH RBC B"
+            ]
+          },
+          "productFamily": {
+            "title": "Product Family",
+            "type": "string",
+            "description": "Product Family of the updated inventory",
+            "examples": [
+              "RED_BLOOD_CELLS_LEUKOREDUCED"
+            ]
+          },
+          "properties": {
+            "title": "Properties",
+            "type": "object",
+            "description": "Properties of the updated inventory",
+            "examples": [
+              {
+                "LICENSURE": "LICENSED"
+              }
+            ],
+            "additionalProperties": {
+              "title": "Properties",
+              "type": "object",
+              "description": "Properties of the updated inventory",
+              "examples": [
+                {
+                  "LICENSURE": "LICENSED"
+                }
+              ]
+            }
+          },
+          "storageLocation": {
+            "title": "Storage Location",
+            "type": "string",
+            "description": "Storage location of the updated inventory",
+            "examples": [
+              "FREEZER 1|RACK 1|SHELF 1"
+            ]
+          },
+          "unitNumber": {
+            "title": "Unit Number",
+            "type": "string",
+            "description": "Unit Number of the updated inventory",
+            "examples": [
+              "W036824111111"
+            ]
+          },
+          "updateType": {
+            "title": "Update Type",
+            "type": "string",
+            "description": "The use case scenario that triggered the inventory updated event",
+            "examples": [
+              "LABEL_APPLIED"
+            ]
+          }
+        },
+        "description": "Inventory Updated payload",
+        "examples": [
+          {
+            "bloodType": "AP",
+            "expirationDate": "2025-03-03",
+            "inputProducts": "[{unitNumber=W123456748998, productCode=E468899}]",
+            "inventoryStatus": "[AVAILABLE]",
+            "locationCode": "123456789",
+            "productCode": "RBCAPH1",
+            "productDescription": "APH RBC B",
+            "productFamily": "RED_BLOOD_CELLS_LEUKOREDUCED",
+            "properties": {},
+            "storageLocation": "FREEZER 1|RACK 1|SHELF 1",
+            "unitNumber": "W036824111111",
+            "updateType": "LABEL_APPLIED"
+          }
+        ],
+        "required": [
+          "bloodType",
+          "productCode",
+          "productDescription",
+          "productFamily",
+          "unitNumber",
+          "updateType"
+        ]
+      },
+      "LabelApplied": {
+        "title": "LabelApplied",
+        "type": "object",
+        "properties": {
+          "aboRh": {
+            "type": "string",
+            "description": "Blood type ABO/Rh"
+          },
+          "collectionDate": {
+            "type": "string",
+            "description": "Collection date and time",
+            "format": "date-time"
+          },
+          "expirationDate": {
+            "type": "string",
+            "description": "Expiration date"
+          },
+          "isLicensed": {
+            "type": "boolean",
+            "description": "Indicates if the product is licensed"
+          },
+          "location": {
+            "type": "string",
+            "description": "Location"
+          },
+          "productCode": {
+            "type": "string",
+            "description": "Product code"
+          },
+          "productDescription": {
+            "type": "string",
+            "description": "Product description"
+          },
+          "productFamily": {
+            "type": "string",
+            "description": "Product family"
+          },
+          "unitNumber": {
+            "type": "string",
+            "description": "Unit number identifier"
+          },
+          "weight": {
+            "type": "integer",
+            "description": "Weight of the product",
+            "format": "int32"
+          }
+        },
+        "description": "Message for label application process",
+        "examples": [
+          {
+            "aboRh": "string",
+            "collectionDate": "2015-07-20T15:49:04-07:00",
+            "expirationDate": "string",
+            "isLicensed": true,
+            "location": "string",
+            "productCode": "string",
+            "productDescription": "string",
+            "productFamily": "string",
+            "unitNumber": "string",
+            "weight": 0
+          }
+        ]
+      },
+      "LabelInvalidated": {
+        "title": "LabelInvalidated",
+        "type": "object",
+        "properties": {
+          "productCode": {
+            "type": "string",
+            "description": "Product code"
+          },
+          "unitNumber": {
+            "type": "string",
+            "description": "Unit number identifier"
+          }
+        },
+        "description": "Message for label invalidation process",
+        "examples": [
+          {
+            "productCode": "string",
+            "unitNumber": "string"
+          }
+        ]
+      },
+      "PackedProductMessage": {
+        "title": "PackedProductMessage",
+        "type": "object",
+        "properties": {
+          "productCode": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "unitNumber": {
+            "type": "string"
+          }
+        },
+        "description": "Packed Product Message",
+        "examples": [
+          {
+            "productCode": "string",
+            "status": "string",
+            "unitNumber": "string"
+          }
+        ]
+      },
+      "ProductDiscarded": {
+        "title": "ProductDiscarded",
+        "type": "object",
+        "properties": {
+          "comments": {
+            "type": "string",
+            "description": "Additional comments"
+          },
+          "createDate": {
+            "type": "string",
+            "description": "Date and time when the discard was created",
+            "format": "date-time"
+          },
+          "performedBy": {
+            "type": "string",
+            "description": "User who performed the discard"
+          },
+          "productCode": {
+            "type": "string",
+            "description": "Product code"
+          },
+          "reasonDescriptionKey": {
+            "type": "string",
+            "description": "Key for the reason description"
+          },
+          "triggeredBy": {
+            "type": "string",
+            "description": "User who triggered the discard"
+          },
+          "unitNumber": {
+            "type": "string",
+            "description": "Unit number identifier"
+          }
+        },
+        "description": "Message for discarded product process",
+        "examples": [
+          {
+            "comments": "string",
+            "createDate": "2015-07-20T15:49:04-07:00",
+            "performedBy": "string",
+            "productCode": "string",
+            "reasonDescriptionKey": "string",
+            "triggeredBy": "string",
+            "unitNumber": "string"
+          }
+        ]
+      },
+      "ProductModified": {
+        "title": "ProductModified",
+        "type": "object",
+        "properties": {
+          "expirationDate": {
+            "type": "string",
+            "description": "Expiration date"
+          },
+          "expirationTime": {
+            "type": "string",
+            "description": "Expiration time"
+          },
+          "modificationDate": {
+            "type": "string",
+            "description": "Date and time of modification",
+            "format": "date-time"
+          },
+          "modificationLocation": {
+            "type": "string",
+            "description": "Location where modification was performed"
+          },
+          "parentProductCode": {
+            "type": "string",
+            "description": "Parent product code"
+          },
+          "productCode": {
+            "type": "string",
+            "description": "Product code"
+          },
+          "productDescription": {
+            "type": "string",
+            "description": "Product description"
+          },
+          "productFamily": {
+            "type": "string",
+            "description": "Product family"
+          },
+          "unitNumber": {
+            "type": "string",
+            "description": "Unit number identifier"
+          },
+          "volume": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.common.Volume"
+          },
+          "weight": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ValueUnit"
+          }
+        },
+        "description": "Message for modified product process",
+        "examples": [
+          {
+            "expirationDate": "string",
+            "expirationTime": "string",
+            "modificationDate": "2015-07-20T15:49:04-07:00",
+            "modificationLocation": "string",
+            "parentProductCode": "string",
+            "productCode": "string",
+            "productDescription": "string",
+            "productFamily": "string",
+            "unitNumber": "string",
+            "volume": {
+              "unit": "string",
+              "value": 0
+            },
+            "weight": {
+              "unit": "string",
+              "value": 0
+            }
+          }
+        ]
+      },
+      "ProductQuarantined": {
+        "title": "ProductQuarantined",
+        "type": "object",
+        "properties": {
+          "comments": {
+            "type": "string",
+            "description": "Additional comments"
+          },
+          "createDate": {
+            "type": "string",
+            "description": "Date and time when quarantine was created",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "integer",
+            "description": "Quarantine identifier",
+            "format": "int64"
+          },
+          "performedBy": {
+            "type": "string",
+            "description": "User who performed the quarantine"
+          },
+          "productCode": {
+            "type": "string",
+            "description": "Product code"
+          },
+          "reason": {
+            "type": "string",
+            "description": "Reason for quarantine"
+          },
+          "stopsManufacturing": {
+            "type": "boolean",
+            "description": "Indicates if quarantine stops manufacturing process"
+          },
+          "unitNumber": {
+            "type": "string",
+            "description": "Unit number identifier"
+          }
+        },
+        "description": "Message for adding product to quarantine",
+        "examples": [
+          {
+            "comments": "string",
+            "createDate": "2015-07-20T15:49:04-07:00",
+            "id": 0,
+            "performedBy": "string",
+            "productCode": "string",
+            "reason": "string",
+            "stopsManufacturing": true,
+            "unitNumber": "string"
+          }
+        ]
+      },
+      "ProductRecovered": {
+        "title": "ProductRecovered",
+        "type": "object",
+        "properties": {
+          "createDate": {
+            "type": "string",
+            "description": "Date and time when recovery was created",
+            "format": "date-time"
+          },
+          "performedBy": {
+            "type": "string",
+            "description": "User who performed the recovery"
+          },
+          "productCode": {
+            "type": "string",
+            "description": "Product code"
+          },
+          "unitNumber": {
+            "type": "string",
+            "description": "Unit number identifier"
+          }
+        },
+        "description": "Message for recovered product process",
+        "examples": [
+          {
+            "createDate": "2015-07-20T15:49:04-07:00",
+            "performedBy": "string",
+            "productCode": "string",
+            "unitNumber": "string"
+          }
+        ]
+      },
+      "ProductStored": {
+        "title": "ProductStored",
+        "type": "object",
+        "properties": {
+          "deviceStored": {
+            "type": "string",
+            "description": "Device where product is stored"
+          },
+          "deviceUse": {
+            "type": "string",
+            "description": "Device usage type"
+          },
+          "location": {
+            "type": "string",
+            "description": "Location identifier"
+          },
+          "locationType": {
+            "type": "string",
+            "description": "Type of location"
+          },
+          "performedBy": {
+            "type": "string",
+            "description": "User who performed the storage"
+          },
+          "productCode": {
+            "type": "string",
+            "description": "Product code"
+          },
+          "storageLocation": {
+            "type": "string",
+            "description": "Storage location identifier"
+          },
+          "storageTime": {
+            "type": "string",
+            "description": "Time when product was stored"
+          },
+          "unitNumber": {
+            "type": "string",
+            "description": "Unit number identifier"
+          }
+        },
+        "description": "Message for stored product",
+        "examples": [
+          {
+            "deviceStored": "string",
+            "deviceUse": "string",
+            "location": "string",
+            "locationType": "string",
+            "performedBy": "string",
+            "productCode": "string",
+            "storageLocation": "string",
+            "storageTime": "string",
+            "unitNumber": "string"
+          }
+        ]
+      },
+      "ProductUnsuitable": {
+        "title": "ProductUnsuitable",
+        "type": "object",
+        "properties": {
+          "productCode": {
+            "type": "string",
+            "description": "Product code"
+          },
+          "reasonKey": {
+            "type": "string",
+            "description": "Key identifying the reason for unsuitability"
+          },
+          "unitNumber": {
+            "type": "string",
+            "description": "Unit number identifier"
+          }
+        },
+        "description": "Product Unsuitable Event",
+        "examples": [
+          {
+            "productCode": "string",
+            "reasonKey": "string",
+            "unitNumber": "string"
+          }
+        ]
+      },
+      "ProductsImported": {
+        "title": "ProductsImported",
+        "type": "object",
+        "properties": {
+          "comments": {
+            "type": "string"
+          },
+          "createDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createEmployeeId": {
+            "type": "string"
+          },
+          "locationCode": {
+            "type": "string"
+          },
+          "products": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImportedProduct"
+            }
+          },
+          "temperature": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "temperatureCategory": {
+            "type": "string"
+          },
+          "temperatureUnit": {
+            "type": "string"
+          },
+          "thermometerCode": {
+            "type": "string"
+          },
+          "transitTime": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "ProductsImported",
+        "examples": [
+          {
+            "comments": "string",
+            "createDate": "2015-07-20T15:49:04-07:00",
+            "createEmployeeId": "string",
+            "locationCode": "string",
+            "products": [
+              {
+                "aboRh": "ON",
+                "consequences": [
+                  {
+                    "consequenceReasons": [
+                      "string"
+                    ],
+                    "consequenceType": "string"
+                  }
+                ],
+                "expirationDate": "2015-07-20T15:49:04-07:00",
+                "productCode": "string",
+                "productDescription": "string",
+                "productFamily": "string",
+                "properties": {},
+                "unitNumber": "string"
+              }
+            ],
+            "temperature": 0,
+            "temperatureCategory": "string",
+            "temperatureUnit": "string",
+            "thermometerCode": "string",
+            "transitTime": 0
+          }
+        ]
+      },
+      "QuarantineRemoved": {
+        "title": "QuarantineRemoved",
+        "type": "object",
+        "properties": {
+          "createDate": {
+            "type": "string",
+            "description": "Date and time when quarantine removal was created",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "integer",
+            "description": "Quarantine identifier",
+            "format": "int64"
+          },
+          "performedBy": {
+            "type": "string",
+            "description": "User who performed the quarantine removal"
+          },
+          "productCode": {
+            "type": "string",
+            "description": "Product code"
+          },
+          "reason": {
+            "type": "string",
+            "description": "Reason for removing from quarantine"
+          },
+          "stopsManufacturing": {
+            "type": "boolean",
+            "description": "Indicates if quarantine stops manufacturing process"
+          },
+          "unitNumber": {
+            "type": "string",
+            "description": "Unit number identifier"
+          }
+        },
+        "description": "Message for removing product from quarantine",
+        "examples": [
+          {
+            "createDate": "2015-07-20T15:49:04-07:00",
+            "id": 0,
+            "performedBy": "string",
+            "productCode": "string",
+            "reason": "string",
+            "stopsManufacturing": true,
+            "unitNumber": "string"
+          }
+        ]
+      },
+      "QuarantineUpdated": {
+        "title": "QuarantineUpdated",
+        "type": "object",
+        "properties": {
+          "comments": {
+            "type": "string",
+            "description": "Additional comments"
+          },
+          "createDate": {
+            "type": "string",
+            "description": "Date and time when quarantine update was created",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "integer",
+            "description": "Quarantine identifier",
+            "format": "int64"
+          },
+          "newReason": {
+            "type": "string",
+            "description": "New reason for quarantine"
+          },
+          "performedBy": {
+            "type": "string",
+            "description": "User who performed the quarantine update"
+          },
+          "productCode": {
+            "type": "string",
+            "description": "Product code"
+          },
+          "stopsManufacturing": {
+            "type": "boolean",
+            "description": "Indicates if quarantine stops manufacturing process"
+          },
+          "unitNumber": {
+            "type": "string",
+            "description": "Unit number identifier"
+          }
+        },
+        "description": "Message for updating quarantined product",
+        "examples": [
+          {
+            "comments": "string",
+            "createDate": "2015-07-20T15:49:04-07:00",
+            "id": 0,
+            "newReason": "string",
+            "performedBy": "string",
+            "productCode": "string",
+            "stopsManufacturing": true,
+            "unitNumber": "string"
+          }
+        ]
+      },
+      "RecoveredPlasmaCartonPacked": {
+        "title": "RecoveredPlasmaCartonPacked",
+        "type": "object",
+        "properties": {
+          "cartonNumber": {
+            "type": "string",
+            "description": "Carton number identifier"
+          },
+          "cartonSequence": {
+            "type": "integer",
+            "description": "Sequence number of the carton",
+            "format": "int32"
+          },
+          "closeDate": {
+            "type": "string",
+            "description": "Date when carton was closed"
+          },
+          "closeEmployeeId": {
+            "type": "string",
+            "description": "ID of employee who closed the carton"
+          },
+          "locationCode": {
+            "type": "string",
+            "description": "Location code where carton is packed"
+          },
+          "packedProducts": {
+            "type": "array",
+            "description": "List of packed products in the carton",
+            "items": {
+              "$ref": "#/components/schemas/PackedProductMessage"
+            }
+          },
+          "productType": {
+            "type": "string",
+            "description": "Type of product"
+          },
+          "status": {
+            "type": "string",
+            "description": "Status of the carton"
+          },
+          "totalProducts": {
+            "type": "integer",
+            "description": "Total number of products in carton",
+            "format": "int32"
+          },
+          "totalVolume": {
+            "type": "number",
+            "description": "Total volume of carton",
+            "format": "double"
+          },
+          "totalWeight": {
+            "type": "number",
+            "description": "Total weight of carton",
+            "format": "double"
+          }
+        },
+        "description": "Message for packed recovered plasma carton",
+        "examples": [
+          {
+            "cartonNumber": "string",
+            "cartonSequence": 0,
+            "closeDate": "string",
+            "closeEmployeeId": "string",
+            "locationCode": "string",
+            "packedProducts": [
+              {
+                "productCode": "string",
+                "status": "string",
+                "unitNumber": "string"
+              }
+            ],
+            "productType": "string",
+            "status": "string",
+            "totalProducts": 0,
+            "totalVolume": 1.1,
+            "totalWeight": 1.1
+          }
+        ]
+      },
+      "RecoveredPlasmaCartonRemoved": {
+        "title": "RecoveredPlasmaCartonRemoved",
+        "type": "object",
+        "properties": {
+          "cartonNumber": {
+            "type": "string",
+            "description": "Carton number identifier"
+          },
+          "cartonSequence": {
+            "type": "integer",
+            "description": "Sequence number of the carton",
+            "format": "int32"
+          },
+          "locationCode": {
+            "type": "string",
+            "description": "Location code where carton was removed from"
+          },
+          "packedProducts": {
+            "type": "array",
+            "description": "List of packed products in the carton",
+            "items": {
+              "$ref": "#/components/schemas/PackedProductMessage"
+            }
+          },
+          "productType": {
+            "type": "string",
+            "description": "Type of product"
+          },
+          "removeDate": {
+            "type": "string",
+            "description": "Date when carton was removed"
+          },
+          "removeEmployeeId": {
+            "type": "string",
+            "description": "ID of employee who removed the carton"
+          },
+          "status": {
+            "type": "string",
+            "description": "Status of the carton"
+          },
+          "totalProducts": {
+            "type": "integer",
+            "description": "Total number of products in carton",
+            "format": "int32"
+          },
+          "totalVolume": {
+            "type": "number",
+            "description": "Total volume of carton",
+            "format": "double"
+          },
+          "totalWeight": {
+            "type": "number",
+            "description": "Total weight of carton",
+            "format": "double"
+          }
+        },
+        "description": "Message for removed recovered plasma carton",
+        "examples": [
+          {
+            "cartonNumber": "string",
+            "cartonSequence": 0,
+            "locationCode": "string",
+            "packedProducts": [
+              {
+                "productCode": "string",
+                "status": "string",
+                "unitNumber": "string"
+              }
+            ],
+            "productType": "string",
+            "removeDate": "string",
+            "removeEmployeeId": "string",
+            "status": "string",
+            "totalProducts": 0,
+            "totalVolume": 1.1,
+            "totalWeight": 1.1
+          }
+        ]
+      },
+      "RecoveredPlasmaCartonUnpacked": {
+        "title": "RecoveredPlasmaCartonUnpacked",
+        "type": "object",
+        "properties": {
+          "cartonNumber": {
+            "type": "string",
+            "description": "Carton number identifier"
+          },
+          "cartonSequence": {
+            "type": "integer",
+            "description": "Sequence number of the carton",
+            "format": "int32"
+          },
+          "locationCode": {
+            "type": "string",
+            "description": "Location code where carton was unpacked"
+          },
+          "productType": {
+            "type": "string",
+            "description": "Type of product"
+          },
+          "status": {
+            "type": "string",
+            "description": "Status of the carton"
+          },
+          "totalProducts": {
+            "type": "integer",
+            "description": "Total number of products in carton",
+            "format": "int32"
+          },
+          "unpackDate": {
+            "type": "string",
+            "description": "Date when carton was unpacked"
+          },
+          "unpackEmployeeId": {
+            "type": "string",
+            "description": "ID of employee who unpacked the carton"
+          },
+          "unpackedProducts": {
+            "type": "array",
+            "description": "List of unpacked products in the carton",
+            "items": {
+              "$ref": "#/components/schemas/PackedProductMessage"
+            }
+          }
+        },
+        "description": "Message for unpacked recovered plasma carton",
+        "examples": [
+          {
+            "cartonNumber": "string",
+            "cartonSequence": 0,
+            "locationCode": "string",
+            "productType": "string",
+            "status": "string",
+            "totalProducts": 0,
+            "unpackDate": "string",
+            "unpackEmployeeId": "string",
+            "unpackedProducts": [
+              {
+                "productCode": "string",
+                "status": "string",
+                "unitNumber": "string"
+              }
+            ]
+          }
+        ]
+      },
+      "RecoveredPlasmaShipmentClosed": {
+        "title": "RecoveredPlasmaShipmentClosed",
+        "type": "object",
+        "properties": {
+          "cartonList": {
+            "type": "array",
+            "description": "List of cartons in the shipment",
+            "items": {
+              "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.CartonMessage"
+            }
+          },
+          "shipmentNumber": {
+            "type": "string",
+            "description": "Shipment number identifier"
+          }
+        },
+        "description": "Message for closed recovered plasma shipment",
+        "examples": [
+          {
+            "cartonList": [
+              {
+                "cartonNumber": "string",
+                "packedProducts": [
+                  {
+                    "productCode": "string",
+                    "status": "string",
+                    "unitNumber": "string"
+                  }
+                ]
+              }
+            ],
+            "shipmentNumber": "string"
+          }
+        ]
+      },
+      "UnitUnsuitable": {
+        "title": "UnitUnsuitable",
+        "type": "object",
+        "properties": {
+          "productCode": {
+            "type": "string",
+            "description": "Product code"
+          },
+          "reasonKey": {
+            "type": "string",
+            "description": "Key identifying the reason for unsuitability"
+          },
+          "unitNumber": {
+            "type": "string",
+            "description": "Unit number identifier"
+          }
+        },
+        "description": "Unit Unsuitable Event",
+        "examples": [
+          {
+            "productCode": "string",
+            "reasonKey": "string",
+            "unitNumber": "string"
+          }
+        ]
+      },
+      "WholeBloodProductCreated": {
+        "title": "WholeBloodProductCreated",
+        "type": "object",
+        "properties": {
+          "aboRh": {
+            "type": "string",
+            "description": "Blood type and RH factor",
+            "enum": [
+              "ON",
+              "OP",
+              "AN",
+              "AP",
+              "BN",
+              "BP",
+              "ABN",
+              "ABP"
+            ]
+          },
+          "collectionLocation": {
+            "type": "string",
+            "description": "Collection location"
+          },
+          "collectionTimeZone": {
+            "type": "string",
+            "description": "Collection time zone"
+          },
+          "drawTime": {
+            "type": "string",
+            "description": "Draw time of the product",
+            "format": "date-time"
+          },
+          "expirationDate": {
+            "type": "string",
+            "description": "Expiration date"
+          },
+          "expirationTime": {
+            "type": "string",
+            "description": "Expiration time"
+          },
+          "inputProducts": {
+            "type": "array",
+            "description": "List of input products used",
+            "items": {
+              "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.domain.model.vo.InputProduct"
+            }
+          },
+          "manufacturingLocation": {
+            "type": "string",
+            "description": "Manufacturing location"
+          },
+          "productCode": {
+            "type": "string",
+            "description": "Product code"
+          },
+          "productDescription": {
+            "type": "string",
+            "description": "Product description"
+          },
+          "productFamily": {
+            "type": "string",
+            "description": "Product family"
+          },
+          "unitNumber": {
+            "type": "string",
+            "description": "Unit number identifier"
+          },
+          "weight": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ValueUnit"
+          }
+        },
+        "description": "Whole Blood Product Created Event",
+        "examples": [
+          {
+            "aboRh": "ON",
+            "collectionLocation": "string",
+            "collectionTimeZone": "string",
+            "drawTime": "2015-07-20T15:49:04-07:00",
+            "expirationDate": "string",
+            "expirationTime": "string",
+            "inputProducts": [
+              {
+                "productCode": "string",
+                "unitNumber": "string"
+              }
+            ],
+            "manufacturingLocation": "string",
+            "productCode": "string",
+            "productDescription": "string",
+            "productFamily": "string",
+            "unitNumber": "string",
+            "weight": {
+              "unit": "string",
+              "value": 0
+            }
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.inventory.adapter.in.listener.common.Volume": {
+        "type": "object",
+        "properties": {
+          "unit": {
+            "type": "string"
+          },
+          "value": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "Volume of the product",
+        "examples": [
+          {
+            "unit": "string",
+            "value": 0
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.inventory.adapter.in.listener.created.ValueUnit": {
+        "type": "object",
+        "properties": {
+          "unit": {
+            "type": "string"
+          },
+          "value": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "Weight of the product",
+        "examples": [
+          {
+            "unit": "string",
+            "value": 0
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.inventory.adapter.in.listener.recovered.CartonMessage": {
+        "type": "object",
+        "properties": {
+          "cartonNumber": {
+            "type": "string"
+          },
+          "packedProducts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PackedProductMessage"
+            }
+          }
+        },
+        "description": "List of cartons in the shipment",
+        "examples": [
+          {
+            "cartonNumber": "string",
+            "packedProducts": [
+              {
+                "productCode": "string",
+                "status": "string",
+                "unitNumber": "string"
+              }
+            ]
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput": {
+        "type": "object",
+        "properties": {
+          "lineItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput$LineItem"
+            }
+          },
+          "orderNumber": {
+            "type": "string"
+          },
+          "performedBy": {
+            "type": "string"
+          },
+          "shipmentId": {
+            "type": "string"
+          },
+          "shipmentType": {
+            "type": "string",
+            "enum": [
+              "CUSTOMER",
+              "INTERNAL_TRANSFER"
+            ]
+          }
+        },
+        "examples": [
+          {
+            "lineItems": [
+              {
+                "products": [
+                  {
+                    "productCode": "string",
+                    "unitNumber": "string"
+                  }
+                ]
+              }
+            ],
+            "orderNumber": "string",
+            "performedBy": "string",
+            "shipmentId": "string",
+            "shipmentType": "CUSTOMER"
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput$LineItem": {
+        "type": "object",
+        "properties": {
+          "products": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput$LineItem$Product"
+            }
+          }
+        },
+        "examples": [
+          {
+            "products": [
+              {
+                "productCode": "string",
+                "unitNumber": "string"
+              }
+            ]
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput$LineItem$Product": {
+        "type": "object",
+        "properties": {
+          "productCode": {
+            "type": "string"
+          },
+          "unitNumber": {
+            "type": "string"
+          }
+        },
+        "examples": [
+          {
+            "productCode": "string",
+            "unitNumber": "string"
+          }
+        ]
+      },
+      "com.arcone.biopro.distribution.inventory.domain.model.vo.InputProduct": {
+        "type": "object",
+        "properties": {
+          "productCode": {
+            "type": "string"
+          },
+          "unitNumber": {
+            "type": "string"
+          }
+        },
+        "description": "List of input products used",
+        "examples": [
+          {
+            "productCode": "string",
+            "unitNumber": "string"
+          }
+        ]
+      }
+    },
+    "messages": {
+      "ApheresisPlasmaProductCompleted": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/ApheresisPlasmaProductCompleted"
+          }
+        },
+        "name": "ApheresisPlasmaProductCompleted",
+        "title": "ApheresisPlasmaProductCompletedMessage",
+        "description": "Message for completed ApheresisPlasmaProductCompleted process",
+        "bindings": {}
+      },
+      "ApheresisPlasmaProductCreated": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/ApheresisPlasmaProductCreated"
+          }
+        },
+        "name": "ApheresisPlasmaProductCreated",
+        "title": "ApheresisPlasmaProductCreatedMessage",
+        "description": "Apheresis Plasma Product Created Event",
+        "bindings": {}
+      },
+      "ApheresisPlateletProductCompleted": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/ApheresisPlateletProductCompleted"
+          }
+        },
+        "name": "ApheresisPlateletProductCompleted",
+        "title": "ApheresisPlateletProductCompletedMessage",
+        "description": "Message for completed ApheresisPlateletProductCompleted process",
+        "bindings": {}
+      },
+      "ApheresisPlateletProductCreated": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/ApheresisPlateletProductCreated"
+          }
+        },
+        "name": "ApheresisPlateletProductCreated",
+        "title": "ApheresisPlateletProductCreatedMessage",
+        "description": "Apheresis Platelet Product Created Event",
+        "bindings": {}
+      },
+      "ApheresisRBCProductCompleted": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/ApheresisRBCProductCompleted"
+          }
+        },
+        "name": "ApheresisRBCProductCompleted",
+        "title": "ApheresisRBCProductCompletedMessage",
+        "description": "Message for completed ApheresisRBCProductCompleted process",
+        "bindings": {}
+      },
+      "ApheresisRBCProductCreated": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/ApheresisRBCProductCreated"
+          }
+        },
+        "name": "ApheresisRBCProductCreated",
+        "title": "ApheresisRBCProductCreatedMessage",
+        "description": "Apheresis RBC Product Created Event",
+        "bindings": {}
+      },
+      "CheckInCompleted": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/CheckInCompleted"
+          }
+        },
+        "name": "CheckInCompleted",
+        "title": "CheckInCompletedMessage",
+        "description": "Message for completed check-in process",
+        "bindings": {}
+      },
+      "InventoryUpdated": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/InventoryUpdated"
+          }
+        },
+        "name": "InventoryUpdated",
+        "title": "InventoryUpdatedEvent",
+        "description": "Inventory Updated payload",
+        "bindings": {}
+      },
+      "LabelApplied": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/LabelApplied"
+          }
+        },
+        "name": "LabelApplied",
+        "title": "LabelAppliedMessage",
+        "description": "Message for label application process",
+        "bindings": {}
+      },
+      "LabelInvalidated": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/LabelInvalidated"
+          }
+        },
+        "name": "LabelInvalidated",
+        "title": "LabelInvalidatedMessage",
+        "description": "Message for label invalidation process",
+        "bindings": {}
+      },
+      "ProductDiscarded": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/ProductDiscarded"
+          }
+        },
+        "name": "ProductDiscarded",
+        "title": "ProductDiscardedMessage",
+        "description": "Message for discarded product process",
+        "bindings": {}
+      },
+      "ProductModified": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/ProductModified"
+          }
+        },
+        "name": "ProductModified",
+        "title": "ProductModifiedMessage",
+        "description": "Message for modified product process",
+        "bindings": {}
+      },
+      "ProductQuarantined": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/ProductQuarantined"
+          }
+        },
+        "name": "ProductQuarantined",
+        "title": "AddQuarantinedMessage",
+        "description": "Message for adding product to quarantine",
+        "bindings": {}
+      },
+      "ProductRecovered": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/ProductRecovered"
+          }
+        },
+        "name": "ProductRecovered",
+        "title": "ProductRecoveredMessage",
+        "description": "Message for recovered product process",
+        "bindings": {}
+      },
+      "ProductStored": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/ProductStored"
+          }
+        },
+        "name": "ProductStored",
+        "title": "ProductStoredMessage",
+        "description": "Message for stored product",
+        "bindings": {}
+      },
+      "ProductUnsuitable": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/ProductUnsuitable"
+          }
+        },
+        "name": "ProductUnsuitable",
+        "title": "ProductUnsuitableMessage",
+        "description": "Product Unsuitable Event",
+        "bindings": {}
+      },
+      "ProductsImported": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/ProductsImported"
+          }
+        },
+        "name": "ProductsImported",
+        "title": "ProductsImportedMessage",
+        "description": "ProductsImported",
+        "bindings": {}
+      },
+      "QuarantineRemoved": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/QuarantineRemoved"
+          }
+        },
+        "name": "QuarantineRemoved",
+        "title": "RemoveQuarantinedMessage",
+        "description": "Message for removing product from quarantine",
+        "bindings": {}
+      },
+      "QuarantineUpdated": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/QuarantineUpdated"
+          }
+        },
+        "name": "QuarantineUpdated",
+        "title": "UpdateQuarantinedMessage",
+        "description": "Message for updating quarantined product",
+        "bindings": {}
+      },
+      "RecoveredPlasmaCartonPacked": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/RecoveredPlasmaCartonPacked"
+          }
+        },
+        "name": "RecoveredPlasmaCartonPacked",
+        "title": "RecoveredPlasmaCartonPackedMessage",
+        "description": "Message for packed recovered plasma carton",
+        "bindings": {}
+      },
+      "RecoveredPlasmaCartonRemoved": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/RecoveredPlasmaCartonRemoved"
+          }
+        },
+        "name": "RecoveredPlasmaCartonRemoved",
+        "title": "RecoveredPlasmaCartonRemovedMessage",
+        "description": "Message for removed recovered plasma carton",
+        "bindings": {}
+      },
+      "RecoveredPlasmaCartonUnpacked": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/RecoveredPlasmaCartonUnpacked"
+          }
+        },
+        "name": "RecoveredPlasmaCartonUnpacked",
+        "title": "RecoveredPlasmaCartonUnpackedMessage",
+        "description": "Message for unpacked recovered plasma carton",
+        "bindings": {}
+      },
+      "RecoveredPlasmaShipmentClosed": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/RecoveredPlasmaShipmentClosed"
+          }
+        },
+        "name": "RecoveredPlasmaShipmentClosed",
+        "title": "RecoveredPlasmaShipmentClosedMessage",
+        "description": "Message for closed recovered plasma shipment",
+        "bindings": {}
+      },
+      "UnitUnsuitable": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/UnitUnsuitable"
+          }
+        },
+        "name": "UnitUnsuitable",
+        "title": "UnsuitableMessage",
+        "description": "Unit Unsuitable Event",
+        "bindings": {}
+      },
+      "WholeBloodProductCreated": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/WholeBloodProductCreated"
+          }
+        },
+        "name": "WholeBloodProductCreated",
+        "title": "WholeBloodProductCreatedMessage",
+        "description": "Whole Blood Product Created Event",
+        "bindings": {}
+      },
+      "com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput"
+          }
+        },
+        "name": "com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput",
+        "title": "ShipmentCompletedInput",
+        "bindings": {}
+      }
+    }
+  },
+  "operations": {
+    "ApheresisPlasmaProductCompleted_receive_productCompletedConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/ApheresisPlasmaProductCompleted"
+      },
+      "title": "ApheresisPlasmaProductCompleted_receive",
+      "description": "Apheresis Plasma Product has been completed.",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/ApheresisPlasmaProductCompleted/messages/ApheresisPlasmaProductCompleted"
+        }
+      ]
+    },
+    "ApheresisPlasmaProductCreated_receive_productCreatedConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/ApheresisPlasmaProductCreated"
+      },
+      "title": "ApheresisPlasmaProductCreated_receive",
+      "description": "Apheresis Plasma Product has been created.",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/ApheresisPlasmaProductCreated/messages/ApheresisPlasmaProductCreated"
+        }
+      ]
+    },
+    "ApheresisPlateletProductCompleted_receive_productCompletedConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/ApheresisPlateletProductCompleted"
+      },
+      "title": "ApheresisPlateletProductCompleted_receive",
+      "description": "Apheresis Platelet Product has been completed.",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/ApheresisPlateletProductCompleted/messages/ApheresisPlateletProductCompleted"
+        }
+      ]
+    },
+    "ApheresisPlateletProductCreated_receive_productCreatedConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/ApheresisPlateletProductCreated"
+      },
+      "title": "ApheresisPlateletProductCreated_receive",
+      "description": "Apheresis Platelet Product has been created.",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/ApheresisPlateletProductCreated/messages/ApheresisPlateletProductCreated"
+        }
+      ]
+    },
+    "ApheresisRBCProductCompleted_receive_productCompletedConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/ApheresisRBCProductCompleted"
+      },
+      "title": "ApheresisRBCProductCompleted_receive",
+      "description": "Apheresis RBC Product has been completed.",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/ApheresisRBCProductCompleted/messages/ApheresisRBCProductCompleted"
+        }
+      ]
+    },
+    "ApheresisRBCProductCreated_receive_productCreatedConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/ApheresisRBCProductCreated"
+      },
+      "title": "ApheresisRBCProductCreated_receive",
+      "description": "Apheresis RBC Product has been created.",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/ApheresisRBCProductCreated/messages/ApheresisRBCProductCreated"
+        }
+      ]
+    },
+    "CheckInCompleted_receive_checkInCompletedConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/CheckInCompleted"
+      },
+      "title": "CheckInCompleted_receive",
+      "description": "CheckIn completed product has been created.",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/CheckInCompleted/messages/CheckInCompleted"
+        }
+      ]
+    },
+    "InventoryUpdated_send_producerInventoryUpdatedTemplate": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/InventoryUpdated"
+      },
+      "title": "InventoryUpdated_send",
+      "description": "An inventory was created/updated.",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/InventoryUpdated/messages/InventoryUpdated"
+        }
+      ]
+    },
+    "LabelApplied_receive_labelAppliedConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/LabelApplied"
+      },
+      "title": "LabelApplied_receive",
+      "description": "Label Applied has been listened and an inventory was created",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/LabelApplied/messages/LabelApplied"
+        }
+      ]
+    },
+    "LabelInvalidated_receive_labelInvalidatedConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/LabelInvalidated"
+      },
+      "title": "LabelInvalidated_receive",
+      "description": "Label was invalidated",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/LabelInvalidated/messages/LabelInvalidated"
+        }
+      ]
+    },
+    "ProductDiscarded_receive_productDiscardedConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/ProductDiscarded"
+      },
+      "title": "ProductDiscarded_receive",
+      "description": "Product Discarded has been listened and an inventory status was updated to discarded",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/ProductDiscarded/messages/ProductDiscarded"
+        }
+      ]
+    },
+    "ProductModified_receive_productModifiedConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/ProductModified"
+      },
+      "title": "ProductModified_receive",
+      "description": "Product was modified.",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/ProductModified/messages/ProductModified"
+        }
+      ]
+    },
+    "ProductQuarantined_receive_productAddQuarantinedConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/ProductQuarantined"
+      },
+      "title": "ProductQuarantined_receive",
+      "description": "Product Quarantine is added.",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/ProductQuarantined/messages/ProductQuarantined"
+        }
+      ]
+    },
+    "ProductRecovered_receive_productRecoveredConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/ProductRecovered"
+      },
+      "title": "ProductRecovered_receive",
+      "description": "Product Recovered has been listened and an inventory status was restored",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/ProductRecovered/messages/ProductRecovered"
+        }
+      ]
+    },
+    "ProductStored_receive_productStoredConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/ProductStored"
+      },
+      "title": "ProductStored_receive",
+      "description": "Product Stored has been listened and an storage is created",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/ProductStored/messages/ProductStored"
+        }
+      ]
+    },
+    "ProductUnsuitable_receive_unsuitableConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/ProductUnsuitable"
+      },
+      "title": "ProductUnsuitable_receive",
+      "description": "Product Unsuitable event to change inventory status to UNSUITABLE",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/ProductUnsuitable/messages/ProductUnsuitable"
+        }
+      ]
+    },
+    "ProductsImported_receive_productsImportedConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/ProductsImported"
+      },
+      "title": "ProductsImported_receive",
+      "description": "Products have been imported.",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/ProductsImported/messages/ProductsImported"
+        }
+      ]
+    },
+    "QuarantineRemoved_receive_productRemoveQuarantinedConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/QuarantineRemoved"
+      },
+      "title": "QuarantineRemoved_receive",
+      "description": "Product Quarantine is removed.",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/QuarantineRemoved/messages/QuarantineRemoved"
+        }
+      ]
+    },
+    "QuarantineUpdated_receive_productUpdateQuarantinedConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/QuarantineUpdated"
+      },
+      "title": "QuarantineUpdated_receive",
+      "description": "Product Quarantine is Updated.",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/QuarantineUpdated/messages/QuarantineUpdated"
+        }
+      ]
+    },
+    "RecoveredPlasmaCartonPacked_receive_recoveredPlasmaCartonPackedConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/RecoveredPlasmaCartonPacked"
+      },
+      "title": "RecoveredPlasmaCartonPacked_receive",
+      "description": "Recovered Plasma Carton Packed event has been listened and inventory status was updated",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/RecoveredPlasmaCartonPacked/messages/RecoveredPlasmaCartonPacked"
+        }
+      ]
+    },
+    "RecoveredPlasmaCartonRemoved_receive_recoveredPlasmaCartonRemovedConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/RecoveredPlasmaCartonRemoved"
+      },
+      "title": "RecoveredPlasmaCartonRemoved_receive",
+      "description": "Recovered Plasma Carton Removed event has been listened and inventory status was updated",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/RecoveredPlasmaCartonRemoved/messages/RecoveredPlasmaCartonRemoved"
+        }
+      ]
+    },
+    "RecoveredPlasmaCartonUnpacked_receive_recoveredPlasmaCartonUnpackedConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/RecoveredPlasmaCartonUnpacked"
+      },
+      "title": "RecoveredPlasmaCartonUnpacked_receive",
+      "description": "Recovered Plasma Carton Unpacked event has been listened and inventory status was updated",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/RecoveredPlasmaCartonUnpacked/messages/RecoveredPlasmaCartonUnpacked"
+        }
+      ]
+    },
+    "RecoveredPlasmaShipmentClosed_receive_recoveredPlasmaShipmentClosedConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/RecoveredPlasmaShipmentClosed"
+      },
+      "title": "RecoveredPlasmaShipmentClosed_receive",
+      "description": "Recovered Plasma Shipment Closed event has been listened and inventory status was updated",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/RecoveredPlasmaShipmentClosed/messages/RecoveredPlasmaShipmentClosed"
+        }
+      ]
+    },
+    "ShipmentCompleted_receive_shipmentCompletedConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/ShipmentCompleted"
+      },
+      "title": "ShipmentCompleted_receive",
+      "description": "Shipment Completed has been listened and an inventory status was updated to SHIPPED",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/ShipmentCompleted/messages/com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput"
+        }
+      ]
+    },
+    "UnitUnsuitable_receive_unsuitableConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/UnitUnsuitable"
+      },
+      "title": "UnitUnsuitable_receive",
+      "description": "Unit Unsuitable event to change inventories statuses to UNSUITABLE",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/UnitUnsuitable/messages/UnitUnsuitable"
+        }
+      ]
+    },
+    "WholeBloodProductCreated_receive_productCreatedConsumerTemplate": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/WholeBloodProductCreated"
+      },
+      "title": "WholeBloodProductCreated_receive",
+      "description": "Whole Blood Product Created Event Payload",
+      "bindings": {},
+      "messages": [
+        {
+          "$ref": "#/channels/WholeBloodProductCreated/messages/WholeBloodProductCreated"
+        }
+      ]
+    }
+  }
+}
