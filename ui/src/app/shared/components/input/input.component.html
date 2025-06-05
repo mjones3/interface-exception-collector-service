@@ -1,0 +1,78 @@
+<div class="flex">
+    <div
+        class="gt-xs:items-baseline flex w-full flex-col p-1"
+        [formGroup]="form"
+    >
+        <div class="flex flex-1">
+            <div
+                class="flex flex-col"
+                [ngClass]="[inputWidth ? inputWidth : 'w-full']"
+            >
+                <mat-form-field [ngClass]="inputWidth">
+                    @if (label) {
+                        <mat-label>{{ label }}</mat-label>
+                    }
+
+                    @if (inputType === inputTypeEnum.TEXT) {
+                        <div class="relative">
+                            <input
+                                matInput
+                                formControlName="input"
+                                [id]="inputId"
+                                [placeholder]="placeholder"
+                                [autocomplete]="allowAutocomplete"
+                                [tabindex]="tabindex"
+                                [allowedCharsRegex]="regex"
+                                [ngClass]="{ uppercase: upperCase }"
+                                [maxlength]="maxLength ? maxLength : null"
+                                [required]="required"
+                                [readonly]="readOnly"
+                                [(bioproAutoFocusIf)]="inputFocus"
+                                (keydown.Tab)="onTabEnterPressed()"
+                                (keydown.Enter)="onEnter($event)"
+                                (blur)="fireOnInputBlur($event)"
+                                (keyup)="handleKeyUp($event)"
+                            />
+                            @if (suffix) {
+                                <p
+                                    [innerHTML]="suffix"
+                                    class="absolute right-0 top-0 font-light text-gray-500"
+                                ></p>
+                            }
+                        </div>
+                    } @else {
+                        <textarea
+                            matInput
+                            formControlName="input"
+                            [id]="inputId"
+                            [rows]="textareaRows"
+                            [maxlength]="maxLength"
+                            [placeholder]="placeholder"
+                            [tabindex]="tabindex"
+                            [ngClass]="{ uppercase: upperCase }"
+                            [required]="required"
+                            [(bioproAutoFocusIf)]="inputFocus"
+                            (keydown.Tab)="onTabEnterPressed()"
+                            (keydown.Enter)="onEnter($event)"
+                            (keyup)="handleKeyUp($event)"
+                        ></textarea>
+                    }
+
+                    @if (form.invalid) {
+                        <mat-error>{{ errorMessage() }}</mat-error>
+                    }
+                    @if (hint) {
+                        <mat-hint>{{ hint }}</mat-hint>
+                    }
+                </mat-form-field>
+
+                @if (inputType === inputTypeEnum.TEXTAREA && maxLength) {
+                    <mat-hint class="text-right">
+                        {{ form.controls['input'].value?.trim().length }} /
+                        {{ maxLength }}
+                    </mat-hint>
+                }
+            </div>
+        </div>
+    </div>
+</div>

@@ -18,7 +18,7 @@
         </div>
     }
 
-    <section class="h-[calc(100vh-470px)] min-h-[300px] overflow-y-auto">
+    <section [ngClass]="tableContainerClass() || 'h-[calc(100vh-470px)] min-h-[300px] overflow-y-auto'">
         <table
             [id]="tableId()"
             mat-table

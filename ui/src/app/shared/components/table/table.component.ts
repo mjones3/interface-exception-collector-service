@@ -86,6 +86,7 @@ export class TableComponent<T extends TableDataSource = TableDataSource>
             merge({}, this._defaultConfig, config),
     });
     serverPagination = input(false, { transform: booleanAttribute });
+    tableContainerClass = input<string>();
     totalElements = input(0, { transform: numberAttribute });
     expandTemplateRef = input<TemplateRef<Element>>();
     footerTemplateRef = input<TemplateRef<Element>>();

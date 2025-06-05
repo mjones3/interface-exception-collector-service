@@ -8,6 +8,33 @@ enum TemperatureProductCategory {
     ROOM_TEMPERATURE,
 }
 
+export const temperatureProductCategoryCssMap: Record<keyof typeof TemperatureProductCategory, string> = {
+    FROZEN: 'text-sm font-bold py-1.5 px-2 badge rounded-full bg-blue-100 text-blue-700',
+    REFRIGERATED: 'text-sm font-bold py-1.5 px-2 badge rounded-full bg-green-100 text-green-700',
+    ROOM_TEMPERATURE: 'text-sm font-bold py-1.5 px-2 badge rounded-full bg-red-100 text-red-700',
+};
+
+export enum VisualInspection {
+    SATISFACTORY,
+    UNSATISFACTORY
+}
+
+export const visualInspectionCssMap: Record<keyof typeof VisualInspection, string> = {
+    SATISFACTORY: 'text-sm font-bold py-1.5 px-2 badge rounded-full bg-red-100 text-red-700',
+    UNSATISFACTORY: 'text-sm font-bold py-1.5 px-2 badge rounded-full bg-green-100 text-green-700',
+};
+
+export enum LicenseStatus {
+    LICENSED,
+    UNLICENSED
+}
+
+export const licenseStatusCssMap: Record<keyof typeof LicenseStatus, string> = {
+    LICENSED: 'text-sm font-bold py-1.5 px-2 badge rounded-full bg-green-100 text-green-700',
+    UNLICENSED: 'text-sm font-bold py-1.5 px-2 badge rounded-full bg-gray-100 text-gray-700',
+};
+
+
 export const TemperatureProductCategoryIconMap: Record<keyof typeof TemperatureProductCategory, string> = {
     FROZEN: 'biopro:temperature-freeze',
     REFRIGERATED: 'biopro:temperature-refrigerator',
