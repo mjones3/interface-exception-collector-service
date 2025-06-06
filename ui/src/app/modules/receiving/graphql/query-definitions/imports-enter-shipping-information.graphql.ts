@@ -39,6 +39,16 @@ export const quarantinedCssMap: Record<keyof typeof Quarantined, string> = {
     FALSE: '',
 };
 
+export const quarantinedValueMap: Record<keyof typeof Quarantined, string> = {
+    TRUE: 'YES',
+    FALSE: '-',
+};
+
+export const quarantinedCssMap: Record<keyof typeof Quarantined, string> = {
+    TRUE: 'text-sm font-bold py-1.5 px-2 badge rounded-full bg-[#FFEDD5] text-[#C2410C]',
+    FALSE: '',
+};
+
 export enum LicenseStatus {
     LICENSED,
     UNLICENSED
