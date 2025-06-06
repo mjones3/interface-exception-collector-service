@@ -50,6 +50,7 @@
                             validateOn="blur"
                             inputId="unitNumberInput"
                             formControlName="unitNumber"
+                            (inputBlur)="onTabEnter(field.UNIT_NUMBER)"
                             [inputFocus]="fieldsMap.get(field.UNIT_NUMBER)?.focus"
                             (tabOrEnterPressed)="onTabEnter(field.UNIT_NUMBER)"
                             (keydown)="onKeyDown(field.UNIT_NUMBER, $event)"
@@ -70,10 +71,11 @@
                             validateOn="blur"
                             inputId="bloodTypeInput"
                             formControlName="bloodType"
-                            [inputFocus]="fieldsMap.get(field.PRODUCT_CODE)?.focus"
-                            (tabOrEnterPressed)="onTabEnter(field.PRODUCT_CODE)"
-                            (keydown)="onKeyDown(field.PRODUCT_CODE, $event)"
-                            (paste)="onPaste(field.PRODUCT_CODE)"
+                            (inputBlur)="onTabEnter(field.BLOOD_TYPE)"
+                            [inputFocus]="fieldsMap.get(field.BLOOD_TYPE)?.focus"
+                            (tabOrEnterPressed)="onTabEnter(field.BLOOD_TYPE)"
+                            (keydown)="onKeyDown(field.BLOOD_TYPE, $event)"
+                            (paste)="onPaste(field.BLOOD_TYPE)"
                             [customErrors]="{
                             required: 'Blood Type is required',
                             invalidScannedbloodType:
@@ -91,6 +93,7 @@
                             validateOn="blur"
                             inputId="productCodeInput"
                             formControlName="productCode"
+                            (inputBlur)="onTabEnter(field.PRODUCT_CODE)"
                             [inputFocus]="fieldsMap.get(field.PRODUCT_CODE)?.focus"
                             (tabOrEnterPressed)="onTabEnter(field.PRODUCT_CODE)"
                             (keydown)="onKeyDown(field.PRODUCT_CODE, $event)"
@@ -111,6 +114,7 @@
                             validateOn="blur"
                             inputId="expirationDateInput"
                             formControlName="expirationDate"
+                            (inputBlur)="onTabEnter(field.EXPIRATION_DATE)"
                             [inputFocus]="fieldsMap.get(field.EXPIRATION_DATE)?.focus"
                             (tabOrEnterPressed)="onTabEnter(field.EXPIRATION_DATE)"
                             (keydown)="onKeyDown(field.EXPIRATION_DATE, $event)"
@@ -157,6 +161,7 @@
                             id="btnReset"
                             label="Reset"
                             [disabled]="!productInformationForm.dirty"
+                            (buttonClicked)="resetForm()"
                             color="secondary"
                         ></biopro-basic-button>
                         <biopro-basic-button
@@ -192,13 +197,9 @@
             </span>
         </ng-template>
         <ng-template #quarantinedTemplateRef let-element="element">
-            @if(element?.quarantined){
-                <span class="text-sm font-bold py-1.5 px-2 badge rounded-full bg-[#FFEDD5] text-[#C2410C]">
-                    YES
-                </span>
-            }@else{
-                <span >-</span>
-            }
+            <span [class]="getQuarantinedClass(element.quarantined)">
+                {{getQuarantinedValue(element.quarantined)}}
+            </span>
         </ng-template>
         <ng-template #licenseStatusTemplateRef let-element="element">
             <span [class]="getLicenseStatusClass(element.licenseStatus)">

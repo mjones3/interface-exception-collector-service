@@ -191,12 +191,12 @@ describe('EnterProductInformationComponent', () => {
       
       const satisfactory = component.visualInspectionOptions.find(opt => opt.value === 'Satisfactory');
       expect(satisfactory).toBeTruthy();
-      expect(satisfactory.class).toBe('success-green');
+      expect(satisfactory.class).toBe('toggle-green');
       expect(satisfactory.iconName).toBe('hand-thumb-up');
       
       const unsatisfactory = component.visualInspectionOptions.find(opt => opt.value === 'Unsatisfactory');
       expect(unsatisfactory).toBeTruthy();
-      expect(unsatisfactory.class).toBe('unsuccess-red');
+      expect(unsatisfactory.class).toBe('toggle-red');
       expect(unsatisfactory.iconName).toBe('hand-thumb-down');
     });
 

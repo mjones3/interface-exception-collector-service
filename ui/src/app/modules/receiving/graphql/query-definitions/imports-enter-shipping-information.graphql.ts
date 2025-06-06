@@ -5,12 +5,12 @@ import { LookUpDto } from '@shared';
 enum TemperatureProductCategory {
     FROZEN,
     REFRIGERATED,
-    ROOM_TEMPERATURE,
+    ROOM_TEMPERATURE
 }
 
 export const temperatureProductCategoryCssMap: Record<keyof typeof TemperatureProductCategory, string> = {
     FROZEN: 'text-sm font-bold py-1.5 px-2 badge rounded-full bg-blue-100 text-blue-700',
-    REFRIGERATED: 'text-sm font-bold py-1.5 px-2 badge rounded-full bg-green-100 text-green-700',
+    REFRIGERATED: 'text-sm font-bold py-1.5 px-2 badge rounded-full bg-purple-100 text-purple-700',
     ROOM_TEMPERATURE: 'text-sm font-bold py-1.5 px-2 badge rounded-full bg-red-100 text-red-700',
 };
 
@@ -19,9 +19,24 @@ export enum VisualInspection {
     UNSATISFACTORY
 }
 
+export enum Quarantined {
+    TRUE,
+    FALSE
+}
+
 export const visualInspectionCssMap: Record<keyof typeof VisualInspection, string> = {
     SATISFACTORY: 'text-sm font-bold py-1.5 px-2 badge rounded-full bg-red-100 text-red-700',
     UNSATISFACTORY: 'text-sm font-bold py-1.5 px-2 badge rounded-full bg-green-100 text-green-700',
+};
+
+export const quarantinedValueMap: Record<keyof typeof Quarantined, string> = {
+    TRUE: 'YES',
+    FALSE: '-',
+};
+
+export const quarantinedCssMap: Record<keyof typeof Quarantined, string> = {
+    TRUE: 'text-sm font-bold py-1.5 px-2 badge rounded-full bg-[#FFEDD5] text-[#C2410C]',
+    FALSE: '',
 };
 
 export enum LicenseStatus {

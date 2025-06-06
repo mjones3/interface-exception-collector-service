@@ -17,7 +17,7 @@ import { ButtonOption } from 'app/shared/models/custom-button-toggle.model';
 import { ToastrService } from 'ngx-toastr';
 import { ImportedProductInformationDTO } from '../../models/product-information.dto';
 import { MatIcon } from '@angular/material/icon';
-import { licenseStatusCssMap, temperatureProductCategoryCssMap, visualInspectionCssMap } from '../../graphql/query-definitions/imports-enter-shipping-information.graphql';
+import { licenseStatusCssMap, quarantinedCssMap, quarantinedValueMap, temperatureProductCategoryCssMap, visualInspectionCssMap } from '../../graphql/query-definitions/imports-enter-shipping-information.graphql';
 import { snakeCase } from 'lodash';
 import { FuseCardComponent } from '@fuse/components/card/public-api';
 
@@ -45,7 +45,6 @@ export enum Field {
     InputComponent,
     MatSelect,
     MatInputModule,
-    MatButtonToggleModule,
     MatDialogActions,
     MatButtonToggleGroup,
     BasicButtonComponent,
@@ -60,7 +59,7 @@ export enum Field {
   templateUrl: './enter-product-information.component.html'
 })
 export class EnterProductInformationComponent implements OnInit {
-  temperatureProductCategory = 'Room Temperature'
+  temperatureProductCategory: string = 'Room Temperature'
   readonly fieldsMap = new Map<Field, { focus: boolean }>();
   readonly field = Field;
   lastKeyTime = 0;
@@ -80,13 +79,13 @@ export class EnterProductInformationComponent implements OnInit {
     visualInspectionOptions: ButtonOption[] = [
       {
           value: 'Satisfactory',
-          class: 'success-green',
+          class: 'toggle-green',
           iconName: 'hand-thumb-up',
           label: 'Satisfactory'
       },
       {
           value: 'Unsatisfactory',
-          class: 'unsuccess-red',
+          class: 'toggle-red',
           iconName: 'hand-thumb-down',
           label: 'Unsatisfactory'
       }
@@ -214,6 +213,14 @@ export class EnterProductInformationComponent implements OnInit {
     return licenseStatusCssMap[licenseStatus.toUpperCase()];
   }
 
+  getQuarantinedClass(quarantined: boolean){
+    return quarantinedCssMap[quarantined.toString().toUpperCase()];
+  }
+
+  getQuarantinedValue(quarantined: boolean){
+    return quarantinedValueMap[quarantined.toString().toUpperCase()];
+  }
+
   getTemperatureProductCategoryClass(temperatureProductCategory: string){
     return temperatureProductCategoryCssMap[snakeCase(temperatureProductCategory).toUpperCase()];
   }
@@ -245,7 +252,7 @@ export class EnterProductInformationComponent implements OnInit {
         }
         this.lastKeyTime = currentTime;
     }
-}
+  }
 
 onTabEnter(control){
     // TODO
@@ -295,5 +302,9 @@ private validateSingleField(control: Field, value: string) {
           return;
       }
   }
+}
+
+resetForm(){
+  return this.productInformationForm.reset();
 }
 }
