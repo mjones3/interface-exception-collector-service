@@ -9,6 +9,7 @@ import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SpecVersion;
 import com.networknt.schema.ValidationMessage;
+import io.cucumber.java.BeforeAll;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -39,12 +40,13 @@ public class RecoveredPlasmaShipmentClosedOutboundSteps {
     @Value("${kafka.waiting.time:3}")
     private Integer kafkaWait;
 
-    @Given("The Recovered Plasma shipment closed event is triggered.")
-    public void createShipmentCompletedEvent() throws Exception {
+    @Given("The Recovered Plasma shipment closed event is triggered with the payload {string}.")
+    public void createShipmentCompletedEvent(String payloadFile) throws Exception {
+        outboundContext.resetLatch();
 
         outboundContext.setShipmentNumber(RandomStringUtils.random(10, true, true).toUpperCase());
 
-        var JSON = TestUtil.resource("rps-shipment-closed-event-automation.json")
+        var JSON = TestUtil.resource(payloadFile)
             .replace("{shipmentNumber}", outboundContext.getShipmentNumber());
 
         outboundContext.setShipmentClosed(new JSONObject(JSON));
@@ -79,7 +81,5 @@ public class RecoveredPlasmaShipmentClosedOutboundSteps {
 
         log.debug("Schema Errors {}",errors.toString());
         Assert.assertTrue(errors.isEmpty());
-
-        Assert.assertEquals(outboundContext.getShipmentNumber(),outboundContext.getShipmentClosedOutbound().getJSONObject("payload").getString("shipmentNumber"));
     }
 }

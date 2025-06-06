@@ -129,23 +129,6 @@ class RecoveredPlasmaShipmentClosedOutboundTest {
     }
 
     @Test
-    @DisplayName("Should throw IllegalStateException when shipmentDate is null")
-    void shouldThrowExceptionWhenShipmentDateIsNull() {
-        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
-            new RecoveredPlasmaShipmentClosedOutbound(
-                "SHP123",
-                "LSC456",
-                "LCC789",
-                "CUST001",
-                null,
-                validCloseDate,
-                "SLC001"
-            );
-        });
-        assertEquals("Shipment date is null", exception.getMessage());
-    }
-
-    @Test
     @DisplayName("Should correctly add carton and calculate total products")
     void shouldAddCartonAndCalculateTotalProducts() {
         // Given

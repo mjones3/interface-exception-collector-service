@@ -37,7 +37,7 @@
           "type": ["string","null"]
         },
         "shipmentDate": {
-          "type": "string"
+          "type": ["string","null"]
         },
         "cartonTareWeight": {
           "type": ["number","null"]
