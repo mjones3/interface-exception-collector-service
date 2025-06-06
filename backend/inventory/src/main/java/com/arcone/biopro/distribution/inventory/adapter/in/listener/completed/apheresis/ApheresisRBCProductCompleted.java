@@ -5,11 +5,11 @@ import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhTy
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(
-    name = "ApheresisPlasmaProductCompleted",
-    title = "ApheresisPlasmaProductCompleted",
-    description = "Message for completed ApheresisPlasmaProductCompleted process"
+    name = "ApheresisRBCProductCompleted",
+    title = "ApheresisRBCProductCompleted",
+    description = "Message for completed ApheresisRBCProductCompleted process"
 )
-public record ApheresisPlasmaProductCompletedMessage(
+public record ApheresisRBCProductCompleted(
     @Schema(description = "Unit number identifier")
     String unitNumber,
 

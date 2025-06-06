@@ -21,7 +21,7 @@ import java.util.Map;
     title = "ProductsImported",
     description = "ProductsImported"
 )
-public class ProductsImportedMessage {
+public class ProductsImported {
     private String locationCode;
     private String createEmployeeId;
     private String temperatureCategory;

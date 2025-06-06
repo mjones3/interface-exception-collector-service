@@ -14,7 +14,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
     description = "Inventory Updated payload"
 )
 @Builder
-public record InventoryUpdatedEvent(
+public record InventoryUpdated(
     @Schema(
         name = "updateType",
         title = "Update Type",

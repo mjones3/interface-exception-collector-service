@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
     title = "LabelInvalidated",
     description = "Message for label invalidation process"
 )
-public record LabelInvalidatedMessage(
+public record LabelInvalidated(
     @Schema(description = "Unit number identifier")
     String unitNumber,
 

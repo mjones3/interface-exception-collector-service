@@ -20,7 +20,7 @@ import reactor.core.publisher.Mono;
 @Service
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class LabelInvalidatedListener extends AbstractListener<LabelInvalidatedInput, InventoryOutput, LabelInvalidatedMessage> {
+public class LabelInvalidatedListener extends AbstractListener<LabelInvalidatedInput, InventoryOutput, LabelInvalidated> {
 
     public LabelInvalidatedListener(@Qualifier("LABEL_INVALIDATED_CONSUMER") ReactiveKafkaConsumerTemplate<String, String> consumer,
                                   ObjectMapper objectMapper,
@@ -31,7 +31,7 @@ public class LabelInvalidatedListener extends AbstractListener<LabelInvalidatedI
     }
 
     @Override
-    protected TypeReference<EventMessage<LabelInvalidatedMessage>> getMessageTypeReference() {
-        return new TypeReference<EventMessage<LabelInvalidatedMessage>>() {};
+    protected TypeReference<EventMessage<LabelInvalidated>> getMessageTypeReference() {
+        return new TypeReference<EventMessage<LabelInvalidated>>() {};
     }
 }

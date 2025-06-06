@@ -9,7 +9,7 @@ import java.time.ZonedDateTime;
     title = "ProductQuarantined",
     description = "Message for adding product to quarantine"
 )
-public record AddQuarantinedMessage(
+public record ProductQuarantined(
     @Schema(description = "Quarantine identifier")
     Long id,
 

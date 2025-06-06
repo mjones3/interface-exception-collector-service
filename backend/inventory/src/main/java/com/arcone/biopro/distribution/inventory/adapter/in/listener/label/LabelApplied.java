@@ -9,7 +9,7 @@ import java.time.ZonedDateTime;
     title = "LabelApplied",
     description = "Message for label application process"
 )
-public record LabelAppliedMessage(
+public record LabelApplied(
     @Schema(description = "Unit number identifier")
     String unitNumber,
 

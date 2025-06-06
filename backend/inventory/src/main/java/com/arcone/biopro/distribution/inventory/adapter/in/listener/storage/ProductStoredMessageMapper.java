@@ -5,7 +5,7 @@ import com.arcone.biopro.distribution.inventory.application.dto.ProductStorageIn
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
-public interface ProductStoredMessageMapper extends MessageMapper<ProductStorageInput, ProductStoredMessage> {
+public interface ProductStoredMessageMapper extends MessageMapper<ProductStorageInput, ProductStored> {
 
-    ProductStorageInput toInput(ProductStoredMessage message);
+    ProductStorageInput toInput(ProductStored message);
 }

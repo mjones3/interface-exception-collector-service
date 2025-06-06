@@ -9,11 +9,11 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 @Schema(
-    name = "ApheresisPlasmaProductCreated",
-    title = "ApheresisPlasmaProductCreated",
-    description = "Apheresis Plasma Product Created Event"
+    name = "ApheresisPlateletProductCreated",
+    title = "ApheresisPlateletProductCreated",
+    description = "Apheresis Platelet Product Created Event"
 )
-public record ApheresisPlasmaProductCreatedMessage(
+public record ApheresisPlateletProductCreated(
     @Schema(description = "Unit number identifier")
     String unitNumber,
 

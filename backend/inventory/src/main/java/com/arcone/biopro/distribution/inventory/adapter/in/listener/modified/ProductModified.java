@@ -11,7 +11,7 @@ import java.time.ZonedDateTime;
     title = "ProductModified",
     description = "Message for modified product process"
 )
-public record ProductModifiedMessage(
+public record ProductModified(
     @Schema(description = "Unit number identifier")
     String unitNumber,
 

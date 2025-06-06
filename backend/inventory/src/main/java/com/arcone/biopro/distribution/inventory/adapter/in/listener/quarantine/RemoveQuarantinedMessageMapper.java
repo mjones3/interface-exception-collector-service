@@ -6,10 +6,10 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
-public interface RemoveQuarantinedMessageMapper extends MessageMapper<RemoveQuarantineInput, RemoveQuarantinedMessage> {
+public interface RemoveQuarantinedMessageMapper extends MessageMapper<RemoveQuarantineInput, QuarantineRemoved> {
 
     @Mapping(target = "product.unitNumber", source = "unitNumber")
     @Mapping(target = "product.productCode", source = "productCode")
     @Mapping(target = "quarantineId", source = "id")
-    RemoveQuarantineInput toInput(RemoveQuarantinedMessage productMessage);
+    RemoveQuarantineInput toInput(QuarantineRemoved productMessage);
 }

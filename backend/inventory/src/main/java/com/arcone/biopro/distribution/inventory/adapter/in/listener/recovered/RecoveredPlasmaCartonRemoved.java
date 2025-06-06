@@ -9,7 +9,7 @@ import java.util.List;
     title = "RecoveredPlasmaCartonRemoved",
     description = "Message for removed recovered plasma carton"
 )
-public record RecoveredPlasmaCartonRemovedMessage(
+public record RecoveredPlasmaCartonRemoved(
     @Schema(description = "Carton number identifier")
     String cartonNumber,
 

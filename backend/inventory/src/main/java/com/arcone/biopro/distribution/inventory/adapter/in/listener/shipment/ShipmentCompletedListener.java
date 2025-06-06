@@ -19,7 +19,7 @@ import reactor.core.publisher.Mono;
 @Service
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class ShipmentCompletedListener extends AbstractListener<ShipmentCompletedInput, ShipmentCompletedOutput, ShipmentCompletedMessage> {
+public class ShipmentCompletedListener extends AbstractListener<ShipmentCompletedInput, ShipmentCompletedOutput, ShipmentCompleted> {
 
     public ShipmentCompletedListener(@Qualifier("SHIPMENT_COMPLETED_CONSUMER") ReactiveKafkaConsumerTemplate<String, String> consumer,
                                      ObjectMapper objectMapper,
@@ -30,7 +30,7 @@ public class ShipmentCompletedListener extends AbstractListener<ShipmentComplete
     }
 
     @Override
-    protected TypeReference<EventMessage<ShipmentCompletedMessage>> getMessageTypeReference() {
-        return new TypeReference<EventMessage<ShipmentCompletedMessage>>() {};
+    protected TypeReference<EventMessage<ShipmentCompleted>> getMessageTypeReference() {
+        return new TypeReference<EventMessage<ShipmentCompleted>>() {};
     }
 }

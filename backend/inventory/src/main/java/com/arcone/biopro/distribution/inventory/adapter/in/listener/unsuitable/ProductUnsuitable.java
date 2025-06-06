@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
     title = "ProductUnsuitable",
     description = "Product Unsuitable Event"
 )
-public record ProductUnsuitableMessage(
+public record ProductUnsuitable(
     @Schema(description = "Unit number identifier")
     String unitNumber,
 
