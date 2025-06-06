@@ -1,15 +1,16 @@
 package com.arcone.biopro.distribution.receiving.infrastructure.persistence;
 
+import com.arcone.biopro.distribution.receiving.domain.model.Device;
 import com.arcone.biopro.distribution.receiving.domain.model.vo.Barcode;
-import com.arcone.biopro.distribution.receiving.domain.model.vo.Device;
+import com.arcone.biopro.distribution.receiving.domain.model.vo.BloodCenterLocation;
 import com.arcone.biopro.distribution.receiving.domain.model.vo.DeviceType;
 import com.arcone.biopro.distribution.receiving.domain.repository.DeviceRepository;
 import com.arcone.biopro.distribution.receiving.infrastructure.mapper.DeviceMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 
-@Component
+@Repository
 @RequiredArgsConstructor
 public class DeviceRepositoryImpl implements DeviceRepository {
 
@@ -18,6 +19,12 @@ public class DeviceRepositoryImpl implements DeviceRepository {
     @Override
     public Mono<Device> findFirstByBloodCenterIdAndActiveIsTrue(Barcode barcode) {
         return deviceEntityRepository.findFirstByBloodCenterIdAndActiveIsTrue(barcode.bloodCenterId())
+            .map(DeviceMapper.INSTANCE::toDomain);
+    }
+
+    @Override
+    public Mono<Device> findFirstByBloodCenterIdAndLocationAndActiveIsTrue(Barcode barcode, BloodCenterLocation bloodCenterLocation) {
+        return deviceEntityRepository.findFirstByBloodCenterIdAndLocationAndActiveIsTrue(barcode.bloodCenterId(), bloodCenterLocation.code())
             .map(DeviceMapper.INSTANCE::toDomain);
     }
 
@@ -42,6 +49,4 @@ public class DeviceRepositoryImpl implements DeviceRepository {
         return deviceEntityRepository.findFirstByBloodCenterIdAndTypeAndActiveIsTrue(barcode.bloodCenterId(),
             type.value()).map(DeviceMapper.INSTANCE::toDomain);
     }
-
-
 }

@@ -1,9 +1,6 @@
 package com.arcone.biopro.distribution.receiving.infrastructure.mapper;
 
-import com.arcone.biopro.distribution.receiving.domain.model.vo.Barcode;
-import com.arcone.biopro.distribution.receiving.domain.model.vo.BloodCenterLocation;
-import com.arcone.biopro.distribution.receiving.domain.model.vo.Device;
-import com.arcone.biopro.distribution.receiving.domain.model.vo.DeviceType;
+import com.arcone.biopro.distribution.receiving.domain.model.Device;
 import com.arcone.biopro.distribution.receiving.infrastructure.dto.DeviceCreatedMessage;
 import com.arcone.biopro.distribution.receiving.infrastructure.dto.DevicePayload;
 import com.arcone.biopro.distribution.receiving.infrastructure.dto.DeviceUpdatedMessage;
@@ -26,49 +23,30 @@ public class DeviceMapper {
     }
 
     private Device fromPayload(Long id, DevicePayload payload) {
-        return Device.builder()
-            .id(id)
-            .barcode(new Barcode(payload.getId()))
-            .deviceCategory(payload.getDeviceCategory())
-            .serialNumber(payload.getSerialNumber())
-            .type(DeviceType.getInstance(payload.getDevice()))
-            .location(new BloodCenterLocation(payload.getLocation()))
-            .name(payload.getName())
-            .active("ACTIVE".equals(payload.getStatus()))
-            .createDate(payload.getCreateDate())
-            .modificationDate(ZonedDateTime.now())
-            .build();
+        return Device.fromEvent(id, payload.getDevice(), payload.getDeviceCategory(), payload.getId(), payload.getSerialNumber()
+            , payload.getLocation(), payload.getName(), payload.getStatus(), payload.getCreateDate(), ZonedDateTime.now());
     }
 
 
     public DeviceEntity toEntity(Device device) {
         return DeviceEntity.builder()
-            .id(device.id())
-            .serialNumber(device.serialNumber())
-            .category(device.deviceCategory())
-            .name(device.name())
-            .type(device.type().value())
-            .location(device.location().name())
-            .active(device.active())
-            .createDate(device.createDate())
+            .id(device.getId())
+            .serialNumber(device.getSerialNumber())
+            .category(device.getDeviceCategory().value())
+            .name(device.getName())
+            .type(device.getType().value())
+            .location(device.getLocation().code())
+            .active(device.getActive())
+            .createDate(device.getCreateDate())
             .modificationDate(ZonedDateTime.now())
-            .bloodCenterId(device.barcode().bloodCenterId())
+            .bloodCenterId(device.getBarcode().bloodCenterId())
             .build();
     }
 
     public Device toDomain(DeviceEntity deviceEntity) {
-        return Device.builder()
-            .id(deviceEntity.getId())
-            .barcode(new Barcode(deviceEntity.getBloodCenterId()))
-            .deviceCategory(deviceEntity.getCategory())
-            .serialNumber(deviceEntity.getSerialNumber())
-            .type(DeviceType.getInstance(deviceEntity.getType()))
-            .location(new BloodCenterLocation(deviceEntity.getLocation()))
-            .name(deviceEntity.getName())
-            .active(deviceEntity.getActive())
-            .createDate(deviceEntity.getCreateDate())
-            .modificationDate(ZonedDateTime.now())
-            .build();
+        return Device.fromRepository(deviceEntity.getId(), deviceEntity.getType(), deviceEntity.getCategory()
+            , deviceEntity.getBloodCenterId(), deviceEntity.getSerialNumber(), deviceEntity.getLocation(), deviceEntity.getName()
+            , deviceEntity.getActive(), deviceEntity.getCreateDate(), ZonedDateTime.now());
     }
 
 }

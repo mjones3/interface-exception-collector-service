@@ -4,19 +4,20 @@
   "eventType": "DeviceUpdated",
   "eventVersion": "1.0",
   "payload": {
-    "id": "{DEVICE_ID}",
+    "id": "THERM-001",
     "serialNumber": "MMT0003 90OcuaX7qK2PCQqCs",
     "name": "My Machine",
-    "deviceCategory": "STERILE_CONNECTION",
-    "device": "PQC",
-    "location": "234567891",
+    "deviceCategory": "TEMPERATURE",
+    "device": "THERMOMETER",
+    "location": "123456789",
     "locationTypes": ["lt13", "lt15"],
     "deviceUses": ["INITIAL_FREEZER", "FREEZER"],
-    "status": "ACTIVE",
-    "reason": "NEW_DEVICE",
+    "status": "INACTIVE",
+    "reason": "DISABLE_DEVICE",
     "comment": "Enter comment here KjPgO6fGJBjhd0BMTYHQ",
-    "performedBy": "temp-user",
     "buckets": 2,
-    "createDate": 1725370567.2820551
+    "performedBy": "temp-user",
+    "createDate": 1725370567.2820551,
+    "requiresReagentsAndControls":false
   }
 }

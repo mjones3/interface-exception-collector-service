@@ -13,4 +13,6 @@ public interface DeviceEntityRepository extends ReactiveCrudRepository<DeviceEnt
 
     Mono<DeviceEntity> findFirstByBloodCenterIdAndTypeAndActiveIsTrue(String bloodCenterId, String type);
 
+    Mono<DeviceEntity> findFirstByBloodCenterIdAndLocationAndActiveIsTrue(String bloodCenterId, String location);
+
 }

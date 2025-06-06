@@ -1,6 +1,7 @@
 CREATE TABLE receiving.bld_device
 (
     id                bigserial                NOT NULL,
+    blood_center_id   varchar(50)              NOT NULL,
     type              varchar(50)              NOT NULL,
     category          varchar(50)              NOT NULL,
     serial_number     varchar(50)              NOT NULL,
