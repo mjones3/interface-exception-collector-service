@@ -75,7 +75,7 @@ Feature: Import products
         And The temperature field should be "<Temperature Field Status>"
         Examples:
             |Imports Location Code | Device Location Code | thermometer ID | Device ID | Temperature Category | Device Type | Device Category | message_type | message       | Temperature Field Status |
-            | 123456789            |   123456789          | THERM-001      | THERM-001 |  ROOM_TEMPERATURE    | THERMOMETER | TEMPERATURE     | SUCCESS      | Valid Device  | disabled                 |
+            | 123456789            |   123456789          | THERM-001      | THERM-001 |  ROOM_TEMPERATURE    | THERMOMETER | TEMPERATURE     | WARN         | Valid Device  | disabled                 |
 
 
 
