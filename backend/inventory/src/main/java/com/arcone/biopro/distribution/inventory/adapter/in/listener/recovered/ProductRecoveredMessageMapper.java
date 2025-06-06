@@ -5,7 +5,7 @@ import com.arcone.biopro.distribution.inventory.application.dto.ProductRecovered
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
-public interface ProductRecoveredMessageMapper extends MessageMapper<ProductRecoveredInput, ProductRecoveredMessage> {
+public interface ProductRecoveredMessageMapper extends MessageMapper<ProductRecoveredInput, ProductRecovered> {
 
-    ProductRecoveredInput toInput(ProductRecoveredMessage message);
+    ProductRecoveredInput toInput(ProductRecovered message);
 }

@@ -5,8 +5,8 @@ import com.arcone.biopro.distribution.inventory.application.dto.ShipmentComplete
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
-public interface ShipmentCompletedMessageMapper extends MessageMapper<ShipmentCompletedInput, ShipmentCompletedMessage> {
+public interface ShipmentCompletedMessageMapper extends MessageMapper<ShipmentCompletedInput, ShipmentCompleted> {
 
-    ShipmentCompletedInput toInput(ShipmentCompletedMessage message);
+    ShipmentCompletedInput toInput(ShipmentCompleted message);
 
 }

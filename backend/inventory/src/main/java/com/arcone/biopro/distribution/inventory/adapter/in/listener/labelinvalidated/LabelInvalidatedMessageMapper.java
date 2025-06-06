@@ -5,8 +5,8 @@ import com.arcone.biopro.distribution.inventory.application.dto.LabelInvalidated
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
-public interface LabelInvalidatedMessageMapper extends MessageMapper<LabelInvalidatedInput, LabelInvalidatedMessage> {
+public interface LabelInvalidatedMessageMapper extends MessageMapper<LabelInvalidatedInput, LabelInvalidated> {
 
-    LabelInvalidatedInput toInput(LabelInvalidatedMessage message);
+    LabelInvalidatedInput toInput(LabelInvalidated message);
 
 }

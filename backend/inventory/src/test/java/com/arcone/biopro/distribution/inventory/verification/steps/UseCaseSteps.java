@@ -1,6 +1,6 @@
 package com.arcone.biopro.distribution.inventory.verification.steps;
 
-import com.arcone.biopro.distribution.inventory.adapter.in.listener.imported.ProductsImportedMessage;
+import com.arcone.biopro.distribution.inventory.adapter.in.listener.imported.ProductsImported;
 import com.arcone.biopro.distribution.inventory.adapter.in.listener.imported.ProductsImportedMessageMapper;
 import com.arcone.biopro.distribution.inventory.application.dto.*;
 import com.arcone.biopro.distribution.inventory.application.usecase.*;
@@ -183,9 +183,9 @@ public class UseCaseSteps {
         List<Map<String, String>> products = dataTable.asMaps(String.class, String.class);
         for (Map<String, String> product : products) {
 
-            List<ProductsImportedMessage.ImportedConsequence> consequences = null;
+            List<ProductsImported.ImportedConsequence> consequences = null;
             if (product.get("Quarantines") != null) {
-                consequences = List.of(ProductsImportedMessage.ImportedConsequence.builder()
+                consequences = List.of(ProductsImported.ImportedConsequence.builder()
                     .consequenceType("QUARANTINE")
                     .consequenceReasons(Arrays.stream(product.get("Quarantines").split(",")).map(String::trim).toList())
                     .build());
@@ -197,7 +197,7 @@ public class UseCaseSteps {
                 properties = Map.of("LICENSED", product.get("Licensed"));
             }
 
-            ProductsImportedMessage.ImportedProduct importedProduct = ProductsImportedMessage.ImportedProduct.builder()
+            ProductsImported.ImportedProduct importedProduct = ProductsImported.ImportedProduct.builder()
                 .unitNumber(product.get("Unit Number"))
                 .productCode(product.get("Product Code"))
                 .aboRh(AboRhType.valueOf(product.get("Abo Rh")))
@@ -207,7 +207,7 @@ public class UseCaseSteps {
                 .consequences(consequences)
                 .properties(properties)
                 .build();
-            ProductsImportedMessage message = ProductsImportedMessage.builder()
+            ProductsImported message = ProductsImported.builder()
                 .products(List.of(importedProduct))
                 .temperatureCategory(product.get("Temperature Category"))
                 .locationCode(product.get("Location"))

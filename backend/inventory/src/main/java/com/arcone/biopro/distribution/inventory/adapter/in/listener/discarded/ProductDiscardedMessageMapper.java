@@ -6,8 +6,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
-public interface ProductDiscardedMessageMapper extends MessageMapper<ProductDiscardedInput, ProductDiscardedMessage> {
+public interface ProductDiscardedMessageMapper extends MessageMapper<ProductDiscardedInput, ProductDiscarded> {
 
     @Mapping(target = "reason", source = "reasonDescriptionKey")
-    ProductDiscardedInput toInput(ProductDiscardedMessage message);
+    ProductDiscardedInput toInput(ProductDiscarded message);
 }
