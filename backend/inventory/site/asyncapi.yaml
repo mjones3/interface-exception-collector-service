@@ -176,8 +176,8 @@
     },
     "ShipmentCompleted": {
       "messages": {
-        "com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput": {
-          "$ref": "#/components/messages/com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput"
+        "ShipmentCompleted": {
+          "$ref": "#/components/messages/ShipmentCompleted"
         }
       }
     },
@@ -1052,6 +1052,29 @@
           }
         ]
       },
+      "LineItem": {
+        "type": "object",
+        "properties": {
+          "products": {
+            "type": "array",
+            "description": "List of products in the line item",
+            "items": {
+              "$ref": "#/components/schemas/Product"
+            }
+          }
+        },
+        "description": "Line item details in the shipment",
+        "examples": [
+          {
+            "products": [
+              {
+                "productCode": "string",
+                "unitNumber": "string"
+              }
+            ]
+          }
+        ]
+      },
       "PackedProductMessage": {
         "title": "PackedProductMessage",
         "type": "object",
@@ -1071,6 +1094,26 @@
           {
             "productCode": "string",
             "status": "string",
+            "unitNumber": "string"
+          }
+        ]
+      },
+      "Product": {
+        "type": "object",
+        "properties": {
+          "productCode": {
+            "type": "string",
+            "description": "Product code"
+          },
+          "unitNumber": {
+            "type": "string",
+            "description": "Unit number identifier"
+          }
+        },
+        "description": "Product details in the line item",
+        "examples": [
+          {
+            "productCode": "string",
             "unitNumber": "string"
           }
         ]
@@ -1796,6 +1839,58 @@
           }
         ]
       },
+      "ShipmentCompleted": {
+        "title": "ShipmentCompleted",
+        "type": "object",
+        "properties": {
+          "lineItems": {
+            "type": "array",
+            "description": "List of line items in the shipment",
+            "items": {
+              "$ref": "#/components/schemas/LineItem"
+            }
+          },
+          "orderNumber": {
+            "type": "string",
+            "description": "Order number associated with the shipment"
+          },
+          "performedBy": {
+            "type": "string",
+            "description": "User who performed the shipment completion"
+          },
+          "shipmentId": {
+            "type": "string",
+            "description": "Shipment identifier"
+          },
+          "shipmentType": {
+            "type": "string",
+            "description": "Type of shipment",
+            "enum": [
+              "CUSTOMER",
+              "INTERNAL_TRANSFER"
+            ]
+          }
+        },
+        "description": "Message for completed shipment",
+        "examples": [
+          {
+            "lineItems": [
+              {
+                "products": [
+                  {
+                    "productCode": "string",
+                    "unitNumber": "string"
+                  }
+                ]
+              }
+            ],
+            "orderNumber": "string",
+            "performedBy": "string",
+            "shipmentId": "string",
+            "shipmentType": "CUSTOMER"
+          }
+        ]
+      },
       "UnitUnsuitable": {
         "title": "UnitUnsuitable",
         "type": "object",
@@ -1930,7 +2025,7 @@
             "format": "int32"
           }
         },
-        "description": "Volume of the product",
+        "description": "Anticoagulant volume of the product",
         "examples": [
           {
             "unit": "string",
@@ -1984,89 +2079,6 @@
           }
         ]
       },
-      "com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput": {
-        "type": "object",
-        "properties": {
-          "lineItems": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput$LineItem"
-            }
-          },
-          "orderNumber": {
-            "type": "string"
-          },
-          "performedBy": {
-            "type": "string"
-          },
-          "shipmentId": {
-            "type": "string"
-          },
-          "shipmentType": {
-            "type": "string",
-            "enum": [
-              "CUSTOMER",
-              "INTERNAL_TRANSFER"
-            ]
-          }
-        },
-        "examples": [
-          {
-            "lineItems": [
-              {
-                "products": [
-                  {
-                    "productCode": "string",
-                    "unitNumber": "string"
-                  }
-                ]
-              }
-            ],
-            "orderNumber": "string",
-            "performedBy": "string",
-            "shipmentId": "string",
-            "shipmentType": "CUSTOMER"
-          }
-        ]
-      },
-      "com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput$LineItem": {
-        "type": "object",
-        "properties": {
-          "products": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput$LineItem$Product"
-            }
-          }
-        },
-        "examples": [
-          {
-            "products": [
-              {
-                "productCode": "string",
-                "unitNumber": "string"
-              }
-            ]
-          }
-        ]
-      },
-      "com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput$LineItem$Product": {
-        "type": "object",
-        "properties": {
-          "productCode": {
-            "type": "string"
-          },
-          "unitNumber": {
-            "type": "string"
-          }
-        },
-        "examples": [
-          {
-            "productCode": "string",
-            "unitNumber": "string"
-          }
-        ]
-      },
       "com.arcone.biopro.distribution.inventory.domain.model.vo.InputProduct": {
         "type": "object",
         "properties": {
@@ -2098,7 +2110,7 @@
           }
         },
         "name": "ApheresisPlasmaProductCompleted",
-        "title": "ApheresisPlasmaProductCompletedMessage",
+        "title": "ApheresisPlasmaProductCompleted",
         "description": "Message for completed ApheresisPlasmaProductCompleted process",
         "bindings": {}
       },
@@ -2113,7 +2125,7 @@
           }
         },
         "name": "ApheresisPlasmaProductCreated",
-        "title": "ApheresisPlasmaProductCreatedMessage",
+        "title": "ApheresisPlasmaProductCreated",
         "description": "Apheresis Plasma Product Created Event",
         "bindings": {}
       },
@@ -2128,7 +2140,7 @@
           }
         },
         "name": "ApheresisPlateletProductCompleted",
-        "title": "ApheresisPlateletProductCompletedMessage",
+        "title": "ApheresisPlateletProductCompleted",
         "description": "Message for completed ApheresisPlateletProductCompleted process",
         "bindings": {}
       },
@@ -2143,7 +2155,7 @@
           }
         },
         "name": "ApheresisPlateletProductCreated",
-        "title": "ApheresisPlateletProductCreatedMessage",
+        "title": "ApheresisPlateletProductCreated",
         "description": "Apheresis Platelet Product Created Event",
         "bindings": {}
       },
@@ -2158,7 +2170,7 @@
           }
         },
         "name": "ApheresisRBCProductCompleted",
-        "title": "ApheresisRBCProductCompletedMessage",
+        "title": "ApheresisRBCProductCompleted",
         "description": "Message for completed ApheresisRBCProductCompleted process",
         "bindings": {}
       },
@@ -2173,7 +2185,7 @@
           }
         },
         "name": "ApheresisRBCProductCreated",
-        "title": "ApheresisRBCProductCreatedMessage",
+        "title": "ApheresisRBCProductCreated",
         "description": "Apheresis RBC Product Created Event",
         "bindings": {}
       },
@@ -2188,7 +2200,7 @@
           }
         },
         "name": "CheckInCompleted",
-        "title": "CheckInCompletedMessage",
+        "title": "CheckInCompleted",
         "description": "Message for completed check-in process",
         "bindings": {}
       },
@@ -2203,7 +2215,7 @@
           }
         },
         "name": "InventoryUpdated",
-        "title": "InventoryUpdatedEvent",
+        "title": "InventoryUpdated",
         "description": "Inventory Updated payload",
         "bindings": {}
       },
@@ -2218,7 +2230,7 @@
           }
         },
         "name": "LabelApplied",
-        "title": "LabelAppliedMessage",
+        "title": "LabelApplied",
         "description": "Message for label application process",
         "bindings": {}
       },
@@ -2233,7 +2245,7 @@
           }
         },
         "name": "LabelInvalidated",
-        "title": "LabelInvalidatedMessage",
+        "title": "LabelInvalidated",
         "description": "Message for label invalidation process",
         "bindings": {}
       },
@@ -2248,7 +2260,7 @@
           }
         },
         "name": "ProductDiscarded",
-        "title": "ProductDiscardedMessage",
+        "title": "ProductDiscarded",
         "description": "Message for discarded product process",
         "bindings": {}
       },
@@ -2263,7 +2275,7 @@
           }
         },
         "name": "ProductModified",
-        "title": "ProductModifiedMessage",
+        "title": "ProductModified",
         "description": "Message for modified product process",
         "bindings": {}
       },
@@ -2278,7 +2290,7 @@
           }
         },
         "name": "ProductQuarantined",
-        "title": "AddQuarantinedMessage",
+        "title": "ProductQuarantined",
         "description": "Message for adding product to quarantine",
         "bindings": {}
       },
@@ -2293,7 +2305,7 @@
           }
         },
         "name": "ProductRecovered",
-        "title": "ProductRecoveredMessage",
+        "title": "ProductRecovered",
         "description": "Message for recovered product process",
         "bindings": {}
       },
@@ -2308,7 +2320,7 @@
           }
         },
         "name": "ProductStored",
-        "title": "ProductStoredMessage",
+        "title": "ProductStored",
         "description": "Message for stored product",
         "bindings": {}
       },
@@ -2323,7 +2335,7 @@
           }
         },
         "name": "ProductUnsuitable",
-        "title": "ProductUnsuitableMessage",
+        "title": "ProductUnsuitable",
         "description": "Product Unsuitable Event",
         "bindings": {}
       },
@@ -2338,7 +2350,7 @@
           }
         },
         "name": "ProductsImported",
-        "title": "ProductsImportedMessage",
+        "title": "ProductsImported",
         "description": "ProductsImported",
         "bindings": {}
       },
@@ -2353,7 +2365,7 @@
           }
         },
         "name": "QuarantineRemoved",
-        "title": "RemoveQuarantinedMessage",
+        "title": "QuarantineRemoved",
         "description": "Message for removing product from quarantine",
         "bindings": {}
       },
@@ -2368,7 +2380,7 @@
           }
         },
         "name": "QuarantineUpdated",
-        "title": "UpdateQuarantinedMessage",
+        "title": "QuarantineUpdated",
         "description": "Message for updating quarantined product",
         "bindings": {}
       },
@@ -2383,7 +2395,7 @@
           }
         },
         "name": "RecoveredPlasmaCartonPacked",
-        "title": "RecoveredPlasmaCartonPackedMessage",
+        "title": "RecoveredPlasmaCartonPacked",
         "description": "Message for packed recovered plasma carton",
         "bindings": {}
       },
@@ -2398,7 +2410,7 @@
           }
         },
         "name": "RecoveredPlasmaCartonRemoved",
-        "title": "RecoveredPlasmaCartonRemovedMessage",
+        "title": "RecoveredPlasmaCartonRemoved",
         "description": "Message for removed recovered plasma carton",
         "bindings": {}
       },
@@ -2413,7 +2425,7 @@
           }
         },
         "name": "RecoveredPlasmaCartonUnpacked",
-        "title": "RecoveredPlasmaCartonUnpackedMessage",
+        "title": "RecoveredPlasmaCartonUnpacked",
         "description": "Message for unpacked recovered plasma carton",
         "bindings": {}
       },
@@ -2428,8 +2440,23 @@
           }
         },
         "name": "RecoveredPlasmaShipmentClosed",
-        "title": "RecoveredPlasmaShipmentClosedMessage",
+        "title": "RecoveredPlasmaShipmentClosed",
         "description": "Message for closed recovered plasma shipment",
+        "bindings": {}
+      },
+      "ShipmentCompleted": {
+        "headers": {
+          "$ref": "#/components/schemas/HeadersNotDocumented"
+        },
+        "payload": {
+          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
+          "schema": {
+            "$ref": "#/components/schemas/ShipmentCompleted"
+          }
+        },
+        "name": "ShipmentCompleted",
+        "title": "ShipmentCompleted",
+        "description": "Message for completed shipment",
         "bindings": {}
       },
       "UnitUnsuitable": {
@@ -2443,7 +2470,7 @@
           }
         },
         "name": "UnitUnsuitable",
-        "title": "UnsuitableMessage",
+        "title": "UnitUnsuitable",
         "description": "Unit Unsuitable Event",
         "bindings": {}
       },
@@ -2458,22 +2485,8 @@
           }
         },
         "name": "WholeBloodProductCreated",
-        "title": "WholeBloodProductCreatedMessage",
+        "title": "WholeBloodProductCreated",
         "description": "Whole Blood Product Created Event",
-        "bindings": {}
-      },
-      "com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput": {
-        "headers": {
-          "$ref": "#/components/schemas/HeadersNotDocumented"
-        },
-        "payload": {
-          "schemaFormat": "application/vnd.aai.asyncapi+json;version=3.0.0",
-          "schema": {
-            "$ref": "#/components/schemas/com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput"
-          }
-        },
-        "name": "com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput",
-        "title": "ShipmentCompletedInput",
         "bindings": {}
       }
     }
@@ -2811,7 +2824,7 @@
       "bindings": {},
       "messages": [
         {
-          "$ref": "#/channels/ShipmentCompleted/messages/com.arcone.biopro.distribution.inventory.application.dto.ShipmentCompletedInput"
+          "$ref": "#/channels/ShipmentCompleted/messages/ShipmentCompleted"
         }
       ]
     },
