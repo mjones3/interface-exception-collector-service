@@ -50,6 +50,7 @@ public class RecoveredPlasmaShipmentClosedOutboundContext {
 
     public void resetLatch() {
         latchShipmentClosed = new CountDownLatch(1);
+
     }
 
 }

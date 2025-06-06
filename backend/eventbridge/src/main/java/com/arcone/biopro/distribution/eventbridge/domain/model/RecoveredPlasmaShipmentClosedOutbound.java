@@ -81,11 +81,6 @@ public class RecoveredPlasmaShipmentClosedOutbound implements Validatable {
         if (customerCode == null || customerCode.isBlank()) {
             throw new IllegalStateException("Customer code is null");
         }
-
-        if (shipmentDate == null) {
-            throw new IllegalStateException("Shipment date is null");
-        }
-
     }
 
 
