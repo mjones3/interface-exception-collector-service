@@ -19,7 +19,7 @@ public class GraphQLQueryMapper {
                            _links
                 }
             }
-            """, temperatureCategory,employeeId,temperatureCategory));
+            """, temperatureCategory,employeeId,locationCode));
     }
 
     public static String validateDevice(String bloodCenterId, String locationCode) {

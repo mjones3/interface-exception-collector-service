@@ -1,9 +1,11 @@
 package com.arcone.biopro.distribution.receiving.unit.domain.model;
 
 import com.arcone.biopro.distribution.receiving.domain.model.EnterShippingInformationCommand;
+import com.arcone.biopro.distribution.receiving.domain.model.Location;
 import com.arcone.biopro.distribution.receiving.domain.model.Lookup;
 import com.arcone.biopro.distribution.receiving.domain.model.ProductConsequence;
 import com.arcone.biopro.distribution.receiving.domain.model.ShippingInformation;
+import com.arcone.biopro.distribution.receiving.domain.repository.LocationRepository;
 import com.arcone.biopro.distribution.receiving.domain.repository.LookupRepository;
 import com.arcone.biopro.distribution.receiving.domain.repository.ProductConsequenceRepository;
 import org.junit.jupiter.api.Test;
@@ -12,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -20,6 +23,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -30,6 +34,9 @@ class ShippingInformationTest {
 
     @Mock
     private LookupRepository lookupRepository;
+
+    @Mock
+    private LocationRepository locationRepository;
 
     @Mock
     private ProductConsequenceRepository productConsequenceRepository;
@@ -78,11 +85,17 @@ class ShippingInformationTest {
         when(productConsequenceRepository.findAllByProductCategoryAndResultProperty(productCategory, "TRANSIT_TIME"))
             .thenReturn(Flux.fromIterable(transitTimeConsequences));
 
+        var location = Mockito.mock(Location.class);
+        when(location.getTimeZone()).thenReturn("America/New_York");
+
+        when(locationRepository.findOneByCode("LOC456")).thenReturn(Mono.just(location));
+
         // When
         ShippingInformation result = ShippingInformation.fromNewImportBatch(
             command,
             lookupRepository,
-            productConsequenceRepository
+            productConsequenceRepository,
+            locationRepository
         );
 
         // Then
@@ -93,6 +106,7 @@ class ShippingInformationTest {
         assertTrue(result.isDisplayTemperature());
         assertEquals(transitTimeZones, result.getTransitTimeZoneList());
         assertEquals(visualInspections, result.getVisualInspectionList());
+        assertEquals("America/New_York",result.getDefaultTimeZone());
     }
 
     @Test
@@ -121,7 +135,8 @@ class ShippingInformationTest {
         ShippingInformation result = ShippingInformation.fromNewImportBatch(
             command,
             lookupRepository,
-            productConsequenceRepository
+            productConsequenceRepository,
+            locationRepository
         );
 
         // Then
@@ -132,6 +147,7 @@ class ShippingInformationTest {
         assertFalse(result.isDisplayTemperature());
         assertTrue(result.getTransitTimeZoneList().isEmpty());
         assertEquals(visualInspections, result.getVisualInspectionList());
+        assertNull(result.getDefaultTimeZone());
     }
 
     @Test
@@ -147,7 +163,7 @@ class ShippingInformationTest {
 
         // When & Then
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-            () -> ShippingInformation.fromNewImportBatch(command, lookupRepository, productConsequenceRepository));
+            () -> ShippingInformation.fromNewImportBatch(command, lookupRepository, productConsequenceRepository,locationRepository));
         assertEquals("Product category is not configured", exception.getMessage());
 
 
@@ -167,7 +183,7 @@ class ShippingInformationTest {
         // When & Then
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-            () -> ShippingInformation.fromNewImportBatch(command, null, productConsequenceRepository));
+            () -> ShippingInformation.fromNewImportBatch(command, null, productConsequenceRepository,locationRepository));
         assertEquals("LookupRepository is required", exception.getMessage());
 
     }
@@ -183,7 +199,7 @@ class ShippingInformationTest {
 
         // When & Then
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-            () -> ShippingInformation.fromNewImportBatch(command, lookupRepository, null));
+            () -> ShippingInformation.fromNewImportBatch(command, lookupRepository, null,locationRepository));
         assertEquals("ProductConsequenceRepository is required", exception.getMessage());
 
     }
@@ -196,7 +212,7 @@ class ShippingInformationTest {
 
         // When & Then
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-            () -> ShippingInformation.fromNewImportBatch(command, lookupRepository, productConsequenceRepository));
+            () -> ShippingInformation.fromNewImportBatch(command, lookupRepository, productConsequenceRepository,locationRepository));
         assertEquals("Product category is required", exception.getMessage());
 
     }

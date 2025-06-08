@@ -17,5 +17,5 @@ public interface UseCaseResponseMapper {
 
     UseCaseResponseDTO<DeviceDTO> toDeviceValidationUseCaseResponse(UseCaseOutput<DeviceOutput> useCaseOutput);
 
-    UseCaseResponseDTO<ValidationResultDTO> toValidateTemperatureUseCaseResponse(UseCaseOutput<ValidationResultOutput> useCaseOutput);
+    UseCaseResponseDTO<ValidationResultDTO> toValidateUseCaseResponse(UseCaseOutput<ValidationResultOutput> useCaseOutput);
 }

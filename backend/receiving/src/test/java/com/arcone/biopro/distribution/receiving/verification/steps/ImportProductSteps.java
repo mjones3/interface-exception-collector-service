@@ -25,9 +25,9 @@ public class ImportProductSteps {
     private Map apiResponse;
     private boolean isValid;
 
-    @Given("I request to enter shipping data for a {string} product category.")
-    public void iRequestToEnterShippingDataForAProductCategory(String temperatureCategory) {
-        this.apiResponse = importProductsController.enterShippingInformation(temperatureCategory);
+    @Given("I request to enter shipping data for a {string} product category and location code {string}.")
+    public void iRequestToEnterShippingDataForAProductCategory(String temperatureCategory , String locationCode) {
+        this.apiResponse = importProductsController.enterShippingInformation(temperatureCategory , locationCode);
         Assert.assertNotNull(apiResponse);
     }
 
