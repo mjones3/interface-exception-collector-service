@@ -1,14 +1,6 @@
 package com.arcone.biopro.distribution.receiving.domain.model;
 
 import com.arcone.biopro.distribution.receiving.domain.model.vo.ValidationResult;
-import com.arcone.biopro.distribution.receiving.domain.repository.ProductConsequenceRepository;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.expression.MapAccessor;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
@@ -17,29 +9,24 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-@Getter
-@EqualsAndHashCode
-@ToString
-@Slf4j
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder(access = AccessLevel.PRIVATE)
-public class Import {
+public class TemperatureValidator {
 
-
-    public static ValidationResult validateTemperature(ValidateTemperatureCommand validateTemperatureCommand , ProductConsequenceRepository productConsequenceRepository){
+    public static ValidationResult validateTemperature(ValidateTemperatureCommand validateTemperatureCommand , List<ProductConsequence> productConsequenceList){
         if(validateTemperatureCommand == null){
             throw new IllegalArgumentException("Temperature Information is required");
         }
 
-        if(productConsequenceRepository == null){
-            throw new IllegalArgumentException("ProductConsequenceRepository is required");
+        if(productConsequenceList == null || productConsequenceList.isEmpty()){
+            throw new IllegalArgumentException("ProductConsequenceList is required");
         }
 
-        var productConsequence = getTemperatureConsequence(validateTemperatureCommand.getTemperatureCategory(), validateTemperatureCommand.getTemperature(), productConsequenceRepository);
+        var productConsequence = getTemperatureConsequence(validateTemperatureCommand.getTemperature(), productConsequenceList);
 
-        if(productConsequence == null){
+        if (productConsequence == null){
+
             throw new IllegalArgumentException("Product Consequence not found.");
         }
 
@@ -55,12 +42,9 @@ public class Import {
         }
     }
 
-    private static ProductConsequence getTemperatureConsequence(String temperatureCategory , BigDecimal temperature , ProductConsequenceRepository productConsequenceRepository ){
+    private static ProductConsequence getTemperatureConsequence(BigDecimal temperature , List<ProductConsequence> productConsequenceList ){
 
-        return productConsequenceRepository
-            .findAllByProductCategoryAndResultProperty(
-                temperatureCategory,
-                "TEMPERATURE")
+        return productConsequenceList.stream()
             .filter(consequence -> consequence.getResultValue() != null)
             .filter(consequence -> {
                 try {
@@ -74,9 +58,8 @@ public class Import {
                 } catch (Exception e) {
                     return false;
                 }
-            })
-            .blockFirst();
+            }).findFirst()
+            .orElse(null);
 
     }
-
 }

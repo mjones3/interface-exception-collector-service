@@ -1,67 +1,47 @@
 package com.arcone.biopro.distribution.receiving.unit.domain.model;
 
-import com.arcone.biopro.distribution.receiving.domain.model.Import;
 import com.arcone.biopro.distribution.receiving.domain.model.ProductConsequence;
+import com.arcone.biopro.distribution.receiving.domain.model.TemperatureValidator;
 import com.arcone.biopro.distribution.receiving.domain.model.ValidateTemperatureCommand;
 import com.arcone.biopro.distribution.receiving.domain.model.vo.ValidationResult;
-import com.arcone.biopro.distribution.receiving.domain.repository.ProductConsequenceRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import reactor.core.publisher.Flux;
 
 import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class ImportTest {
-
-    @Mock
-    private ProductConsequenceRepository productConsequenceRepository;
+class TemperatureValidatorTest {
 
     @Test
     void validateTemperature_WhenCommandIsNull_ThrowsException() {
         IllegalArgumentException exception = assertThrows(
             IllegalArgumentException.class,
-            () -> Import.validateTemperature(null, productConsequenceRepository)
+            () -> TemperatureValidator.validateTemperature(null, Collections.emptyList())
         );
         assertEquals("Temperature Information is required", exception.getMessage());
     }
 
     @Test
-    void validateTemperature_WhenRepositoryIsNull_ThrowsException() {
+    void validateTemperature_WhenConsequenceListIsNull_ThrowsException() {
         ValidateTemperatureCommand command = new ValidateTemperatureCommand(new BigDecimal("-18.0"),"FROZEN");
 
         IllegalArgumentException exception = assertThrows(
             IllegalArgumentException.class,
-            () -> Import.validateTemperature(command, null)
+            () -> TemperatureValidator.validateTemperature(command, null)
         );
-        assertEquals("ProductConsequenceRepository is required", exception.getMessage());
+        assertEquals("ProductConsequenceList is required", exception.getMessage());
     }
 
-    @Test
-    void validateTemperature_WhenNoConsequenceFound_ThrowsException() {
-        ValidateTemperatureCommand command = new ValidateTemperatureCommand(new BigDecimal("-18.0"),"FROZEN");
-
-        when(productConsequenceRepository.findAllByProductCategoryAndResultProperty(
-            anyString(), anyString()
-        )).thenReturn(Flux.empty());
-
-        IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> Import.validateTemperature(command, productConsequenceRepository)
-        );
-        assertEquals("Product Consequence not found.", exception.getMessage());
-    }
 
     @Test
     void validateTemperature_WhenTemperatureIsAcceptable_ReturnsValidResult() {
@@ -71,10 +51,7 @@ class ImportTest {
         Mockito.when(consequence.getResultValue()).thenReturn("TEMPERATURE >= 1 && TEMPERATURE <= 10");
         Mockito.when(consequence.isAcceptable()).thenReturn(true);
 
-
-        when(productConsequenceRepository.findAllByProductCategoryAndResultProperty("FROZEN", "TEMPERATURE")).thenReturn(Flux.just(consequence));
-
-        ValidationResult result = Import.validateTemperature(command, productConsequenceRepository);
+        ValidationResult result = TemperatureValidator.validateTemperature(command, List.of(consequence));
 
         assertTrue(result.valid());
         assertNull(result.message());
@@ -92,9 +69,7 @@ class ImportTest {
         Mockito.when(consequence2.getResultValue()).thenReturn("TEMPERATURE > 10 || TEMPERATURE < 1");
         Mockito.when(consequence2.isAcceptable()).thenReturn(false);
 
-        when(productConsequenceRepository.findAllByProductCategoryAndResultProperty(            "FROZEN", "TEMPERATURE")).thenReturn(Flux.just(consequence,consequence2));
-
-        ValidationResult result = Import.validateTemperature(command, productConsequenceRepository);
+        ValidationResult result = TemperatureValidator.validateTemperature(command, List.of(consequence,consequence2));
 
         assertFalse(result.valid());
         assertEquals("Temperature does not meet thresholds all products will be quarantined",
@@ -108,13 +83,9 @@ class ImportTest {
         ProductConsequence consequence = Mockito.mock(ProductConsequence.class);
         Mockito.when(consequence.getResultValue()).thenReturn("invalid expression");
 
-        when(productConsequenceRepository.findAllByProductCategoryAndResultProperty(
-            "FROZEN", "TEMPERATURE"
-        )).thenReturn(Flux.just(consequence));
-
         IllegalArgumentException exception = assertThrows(
             IllegalArgumentException.class,
-            () -> Import.validateTemperature(command, productConsequenceRepository)
+            () -> TemperatureValidator.validateTemperature(command, List.of(consequence))
         );
         assertEquals("Product Consequence not found.", exception.getMessage());
     }
@@ -126,13 +97,9 @@ class ImportTest {
         ProductConsequence consequence = Mockito.mock(ProductConsequence.class);
         Mockito.when(consequence.getResultValue()).thenReturn(null);
 
-        when(productConsequenceRepository.findAllByProductCategoryAndResultProperty(
-            "FROZEN", "TEMPERATURE"
-        )).thenReturn(Flux.just(consequence));
-
         IllegalArgumentException exception = assertThrows(
             IllegalArgumentException.class,
-            () -> Import.validateTemperature(command, productConsequenceRepository)
+            () -> TemperatureValidator.validateTemperature(command, List.of(consequence))
         );
         assertEquals("Product Consequence not found.", exception.getMessage());
     }
