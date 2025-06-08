@@ -52,6 +52,7 @@ public class TransitTimeValidator {
         }else{
             return ValidationResult.builder()
                 .valid(false)
+                .result(formatTime(duration))
                 .message("Total Transit Time does not meet thresholds all products will be quarantined")
                 .build();
         }

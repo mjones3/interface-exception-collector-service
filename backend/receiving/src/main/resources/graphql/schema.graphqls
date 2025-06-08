@@ -10,6 +10,11 @@ type Query {
     validateTransitTime(validateTransitTimeRequest:ValidateTransitTimeRequestDTO!): UseCaseResponseDTO!
 }
 
+type Mutation {
+    createImport(createImportRequest:CreateImportRequestDTO!): UseCaseResponseDTO!
+
+}
+
 input InputQuerySortDTO {
     orderByList: [InputQueryOrderByDTO]
 }
@@ -45,6 +50,19 @@ input ValidateTransitTimeRequestDTO {
     startTimeZone:String!
     endDateTime:DateTime!
     endTimeZone:String!
+}
+
+input CreateImportRequestDTO {
+    temperatureCategory:String!
+    transitStartDateTime:DateTime
+    transitStartTimeZone:String
+    transitEndDateTime:DateTime
+    transitEndTimeZone:String
+    temperature:Float
+    thermometerCode:String
+    locationCode:String!
+    comments:String
+    employeeId:String!
 }
 
 type UseCaseNotificationDTO {
