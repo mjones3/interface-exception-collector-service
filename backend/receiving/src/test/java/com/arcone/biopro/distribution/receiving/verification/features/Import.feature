@@ -91,7 +91,7 @@ Feature: Import products
                   | Temperature Category | Min Transit Time | Max Transit Time |
                   | ROOM_TEMPERATURE     |    1             |  24              |
             When I request to validate the total transit time of Stat date time as "<StartDateTime>", Start Time Zone as "<StartTimeZone>", End date time as "<EndDateTime>" and End Time Zone as "<EndTimeZone>"  for the Temperature Category "<Temperature Category>".
-            Then The system should accept the temperature.
+            Then The system should accept the transit time.
             And I should receive the total transit time as <totalTransitTime>
             Examples:
                 |Temperature Category | StartDateTime              | StartTimeZone    | EndDateTime              | EndTimeZone      | totalTransitTime |
@@ -107,7 +107,7 @@ Feature: Import products
             Then I should receive a "<message_type>" message response "<message>".
             Examples:
                 |Temperature Category | StartDateTime              | StartTimeZone    | EndDateTime              | EndTimeZone      |message_type | message                                                               |
-                | ROOM_TEMPERATURE    |  2025-06-02T05:22:53.108Z  | America/New_York | 2025-06-08T13:28:53.108Z | America/New_York | CAUTION     | Temperature does not meet thresholds all products will be quarantined |
+                | ROOM_TEMPERATURE    |  2025-06-02T05:22:53.108Z  | America/New_York | 2025-06-08T13:28:53.108Z | America/New_York | CAUTION     | Transit Time does not meet thresholds all products will be quarantined |
                 | FROZEN              |  2025-06-02T05:22:53.108Z  | America/New_York | 2025-06-08T13:28:53.108Z | America/New_York | SYSTEM      | Not able to validate transit time. Contact Support.                   |
                 | ROOM_TEMPERATURE    |  2025-06-02T05:22:53.108Z  | America/New_York | 2025-06-08T13:28:53.108Z | INVALID_TIME_ZONE| SYSTEM      | Not able to validate transit time. Contact Support.                   |
 
@@ -128,7 +128,6 @@ Feature: Import products
             And I select to enter information for a "<Temperature Category>" product category.
             Then I the end time zone field should be pre defined as "<defaultLocationTimeZoneSelected>".
             And I enter the Stat date time as "<StartDateTime>", Start Time Zone as "<StartTimeZone>", End date time as "<EndDateTime>".
-            ## Check with the team/PO if we should have a button to trigger the calculation or not
             When I choose calculate total transit time.
             Then The continue option should be "<continue_status>"
             And I "<should_should_not_transit>" see the total transit time as "<totalTransitTime>"
