@@ -21,7 +21,7 @@
                 label="Continue"
                 color="primary"
                 icon="heroicons_outline:arrow-right-circle"
-                [disabled]="form.invalid"
+                [disabled]="!form.valid"
             />
         </div>
     </ng-template>
@@ -147,28 +147,34 @@
 
 
                 @if (shippingInformationSignal()?.displayTemperature) {
-                <!-- Temperature -->
-                <mat-form-field class="md:col-span-3" [formGroup]="form">
-                    <mat-label>Temperature</mat-label>
-                    <input data-testid="temperature"
-                           type="number"
-                           formControlName="temperature"
-                           matInput
-                           required
-                    />
-                    <span matTextSuffix>&deg; C</span>
-                    @if (form.controls.temperature.hasError('required')) { <mat-error>Temperature is required</mat-error> }
-                </mat-form-field>
-                <!-- Thermometer ID -->
-                <mat-form-field class="md:col-span-3" [formGroup]="form">
+                <mat-form-field class="md:col-span-3" [formGroup]="form.controls.temperature">
                     <mat-label>Thermometer ID</mat-label>
-                    <input data-testid="thermometer-id"
+                    <input #thermometerId
+                           data-testid="thermometer-id"
                            type="text"
                            formControlName="thermometerId"
                            matInput
                            required
                     />
-                    @if (form.controls.thermometerId.hasError('required')) { <mat-error>Thermometer ID is required</mat-error> }
+                    @if (form.controls.temperature.controls.thermometerId.valid) { <mat-icon matIconSuffix>check</mat-icon> }
+                    @if (form.controls.temperature.controls.thermometerId.hasError('required')) { <mat-error>Thermometer ID is required</mat-error> }
+                    @if (form.controls.temperature.controls.thermometerId.hasError('deviceValidation')) { <mat-error>{{ form.controls.temperature.controls.thermometerId.getError('deviceValidation') }}</mat-error> }
+                </mat-form-field>
+
+                <!-- Temperature -->
+                <mat-form-field class="md:col-span-3" [formGroup]="form.controls.temperature">
+                    <mat-label>Temperature</mat-label>
+                    <input #temperature
+                           data-testid="temperature"
+                           type="number"
+                           formControlName="temperature"
+                           min="-273"
+                           max="999"
+                           matInput
+                           required
+                    />
+                    <span matTextSuffix>&deg; C</span>
+                    @if (form.controls.temperature.controls.temperature.hasError('required')) { <mat-error>Temperature is required</mat-error> }
                 </mat-form-field>
                 }
 

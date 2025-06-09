@@ -1,8 +1,8 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
 import { ActionButtonComponent } from '../../../../shared/components/buttons/action-button.component';
 import { AsyncPipe } from '@angular/common';
 import { FuseCardComponent } from '../../../../../@fuse';
-import { LookUpDto, ProcessHeaderComponent, ProcessHeaderService, ToastrImplService } from '@shared';
+import { LookUpDto, ProcessHeaderComponent, ProcessHeaderService } from '@shared';
 import { Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFabButton } from '@angular/material/button';
@@ -13,7 +13,7 @@ import { MatIcon } from '@angular/material/icon';
 import { ReceivingService } from '../../service/receiving.service';
 import { Store } from '@ngrx/store';
 import { getAuthState } from '../../../../core/state/auth/auth.selectors';
-import { catchError, map, Observable, tap } from 'rxjs';
+import { catchError, combineLatestWith, map, Observable, tap } from 'rxjs';
 import { CookieService } from 'ngx-cookie-service';
 import { ApolloError } from '@apollo/client';
 import {
@@ -25,6 +25,8 @@ import { consumeUseCaseNotifications } from '../../../../shared/utils/notificati
 import { Cookie } from '../../../../shared/types/cookie.enum';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatOption, MatSelect } from '@angular/material/select';
+import { DeviceValidator } from '../../validators/device.validator';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'biopro-imports-enter-shipment-information',
@@ -47,7 +49,7 @@ import { MatOption, MatSelect } from '@angular/material/select';
         MatFabButton,
         MatSelect,
         MatOption,
-        MatError,
+        MatError
     ],
   templateUrl: './imports-enter-shipment-information.component.html',
     styleUrls: [ './imports-enter-shipment-information.component.scss' ],
@@ -58,7 +60,7 @@ export class ImportsEnterShipmentInformationComponent implements OnInit {
 
     router = inject(Router);
     formBuilder = inject(FormBuilder);
-    toastr = inject(ToastrImplService);
+    toastr = inject(ToastrService);
     header = inject(ProcessHeaderService);
     store = inject(Store);
     receivingService = inject(ReceivingService);
@@ -74,8 +76,10 @@ export class ImportsEnterShipmentInformationComponent implements OnInit {
             endTime: ['', []],
             endZone: ['', []]
         }),
-        temperature: [0, []],
-        thermometerId: ['', []],
+        temperature: this.formBuilder.group({
+            thermometerId: ['', []],
+            temperature: [0, []],
+        }),
         comments: ['', []]
     });
 
@@ -86,6 +90,18 @@ export class ImportsEnterShipmentInformationComponent implements OnInit {
     employeeIdComputed = toSignal(this.store.select(getAuthState).pipe(map(auth => auth['id'])));
     shippingInformationSignal = signal<ShippingInformationDTO>(null);
     availableTimeZonesSignal = computed<string[]>(() => this.shippingInformationSignal()?.transitTimeZoneList?.map(lookUp => lookUp.descriptionKey) ?? []);
+
+    thermometerStatusWithValue = toSignal(this.form.controls.temperature.controls.thermometerId.statusChanges
+        .pipe(combineLatestWith(this.form.controls.temperature.controls.thermometerId.valueChanges)));
+
+    thermometerStatusWithValueChangeEffect = effect(() => {
+        const [ status, value ] = this.thermometerStatusWithValue();
+        if (status === 'VALID' && !!value) {
+            this.form.controls.temperature.controls.temperature.enable();
+        } else {
+            this.form.controls.temperature.controls.temperature.disable()
+        }
+    });
 
     ngOnInit() {
         this.form.reset();
@@ -160,11 +176,15 @@ export class ImportsEnterShipmentInformationComponent implements OnInit {
 
     updateFormValidationForTemperature(useTemperature: boolean) {
         if (useTemperature) {
-            this.form.controls.temperature.addValidators([ Validators.required ]);
-            this.form.controls.thermometerId.addValidators([ Validators.required ]);
+            this.form.controls.temperature.controls.thermometerId.addValidators([ Validators.required ]);
+            this.form.controls.temperature.controls.thermometerId.addAsyncValidators([ DeviceValidator.using(this.toastr, this.receivingService, this.locationCodeComputed()) ]);
+            this.form.controls.temperature.controls.temperature.addValidators([ Validators.required ]);
+            this.form.controls.temperature.controls.temperature.addAsyncValidators([ /* TODO add temperature async validator */ ]);
         } else {
-            this.form.controls.temperature.clearValidators();
-            this.form.controls.thermometerId.clearValidators();
+            this.form.controls.temperature.controls.thermometerId.clearValidators();
+            this.form.controls.temperature.controls.thermometerId.clearAsyncValidators();
+            this.form.controls.temperature.controls.temperature.clearValidators();
+            this.form.controls.temperature.controls.temperature.clearAsyncValidators();
         }
     }
 

@@ -10,6 +10,11 @@ import {
 } from '../graphql/query-definitions/imports-enter-shipping-information.graphql';
 import { LookUpDto } from '@shared';
 import { FIND_ALL_LOOKUPS_BY_TYPE } from '../../recovered-plasma-shipment/graphql/query-definitions/lookup.graphql';
+import {
+    DeviceDTO,
+    VALIDATE_DEVICE,
+    ValidateDeviceRequestDTO
+} from '../graphql/query-definitions/imports-validate-device.graphql';
 
 @Injectable({
     providedIn: 'root',
@@ -36,6 +41,16 @@ export class ReceivingService {
             this.servicePath,
             ENTER_SHIPPING_INFORMATION,
             enterShippingInformationRequestDTO
+        );
+    }
+
+    public validateDevice(validateDeviceRequestDTO: ValidateDeviceRequestDTO)
+        : Observable<ApolloQueryResult<{ validateDevice: UseCaseResponseDTO<DeviceDTO> }>> {
+
+        return this.dynamicGraphqlPathService.executeQuery(
+            this.servicePath,
+            VALIDATE_DEVICE,
+            validateDeviceRequestDTO
         );
     }
 
