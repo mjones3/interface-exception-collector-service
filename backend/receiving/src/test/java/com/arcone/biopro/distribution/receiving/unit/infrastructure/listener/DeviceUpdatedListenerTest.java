@@ -51,7 +51,7 @@ class DeviceUpdatedListenerTest {
         Mockito.when(message.getEventId()).thenReturn(UUID.randomUUID().toString());
 
         Mockito.when(receiverRecord.key()).thenReturn("test");
-        Mockito.when(receiverRecord.value()).thenReturn(TestUtil.resource("device-updated-event.json").replace("{DEVICE_ID}", "W035625205983"));
+        Mockito.when(receiverRecord.value()).thenReturn(TestUtil.resource("events/device-updated-event.json").replace("{DEVICE_ID}", "W035625205983"));
         Mockito.when(receiverRecord.topic()).thenReturn("DeviceUpdated");
         Mockito.when(receiverRecord.offset()).thenReturn(1L);
 
@@ -75,7 +75,7 @@ class DeviceUpdatedListenerTest {
         Mockito.when(message.getEventId()).thenReturn(UUID.randomUUID().toString());
 
         Mockito.when(receiverRecord.key()).thenReturn("test");
-        Mockito.when(receiverRecord.value()).thenReturn(TestUtil.resource("device-updated-event.json").replace("\"location\": \"234567891\"", ""));
+        Mockito.when(receiverRecord.value()).thenReturn(TestUtil.resource("events/device-updated-event.json").replace("\"location\": \"234567891\"", ""));
         Mockito.when(receiverRecord.topic()).thenReturn("DeviceUpdated");
         Mockito.when(receiverRecord.offset()).thenReturn(1L);
 

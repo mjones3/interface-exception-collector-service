@@ -21,4 +21,26 @@ public class GraphQLQueryMapper {
             }
             """, temperatureCategory,employeeId,temperatureCategory));
     }
+
+    public static String validateDevice(String bloodCenterId, String locationCode) {
+        return String.format("""
+            query ValidateDevice {
+                validateDevice(
+                    validateDeviceRequest: { bloodCenterId: "%s", locationCode: "%s" }
+                ) {
+                    _links
+                    data
+                    notifications {
+                        message
+                        type
+                        code
+                        action
+                        reason
+                        details
+                        name
+                    }
+                }
+            }
+            """, bloodCenterId, locationCode);
+    }
 }

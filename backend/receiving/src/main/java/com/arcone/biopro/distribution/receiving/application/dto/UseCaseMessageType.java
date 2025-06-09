@@ -11,7 +11,7 @@ import lombok.experimental.FieldDefaults;
 public enum UseCaseMessageType {
 
     ENTER_SHIPPING_INFORMATION_ERROR(1,  UseCaseNotificationType.SYSTEM, "Not able to get Shipping Information. Contact Support."),
-    VALIDATE_DEVICE_ERROR(2,  UseCaseNotificationType.WARN, "Device not found.");
+    VALIDATE_DEVICE_ERROR(2,  UseCaseNotificationType.WARN, "Thermometer does not exist.");
 
     Integer code;
     UseCaseNotificationType type;

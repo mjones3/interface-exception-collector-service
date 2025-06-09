@@ -34,6 +34,7 @@ public class SharedContext {
     private List<Map> apiListMessageResponse; // message from the response "notifications"
     private List<Map> apiShipmentListResponse; // list of shipments inside 'data' from the previous response
     private Map findShipmentApiResponse; // response of findById request
+    private List<Map> apiMessageResponse;
 
     private Map apiErrorResponse;
 
