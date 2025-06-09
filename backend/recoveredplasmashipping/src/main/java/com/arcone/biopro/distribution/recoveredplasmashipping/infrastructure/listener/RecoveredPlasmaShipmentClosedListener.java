@@ -8,6 +8,8 @@ import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.eve
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.mapper.RecoveredPlasmaShipmentClosedEventMapper;
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.persistence.CartonEntityRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.persistence.CartonItemEntityRepository;
+import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.persistence.LocationPropertyEntity;
+import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.persistence.LocationPropertyEntityRepository;
 import com.arcone.biopro.distribution.recoveredplasmashipping.infrastructure.persistence.RecoveredPlasmaShipmentEntityRepository;
 import io.github.springwolf.bindings.kafka.annotations.KafkaAsyncOperationBinding;
 import io.github.springwolf.core.asyncapi.annotations.AsyncMessage;
@@ -39,6 +41,7 @@ public class RecoveredPlasmaShipmentClosedListener {
     private final CartonItemEntityRepository cartonItemEntityRepository;
     private final CartonEntityRepository cartonEntityRepository;
     private final RecoveredPlasmaShipmentEntityRepository recoveredPlasmaShippingRepository;
+    private final LocationPropertyEntityRepository locationPropertyEntityRepository;
 
 
     public RecoveredPlasmaShipmentClosedListener(@Qualifier(KafkaConfiguration.RPS_SHIPMENT_CLOSED_PRODUCER) ReactiveKafkaProducerTemplate<String, RecoveredPlasmaShipmentClosedOutputEvent> producerTemplate,
@@ -46,13 +49,14 @@ public class RecoveredPlasmaShipmentClosedListener {
         , RecoveredPlasmaShipmentClosedEventMapper recoveredPlasmaShipmentEventMapper
         , CartonItemEntityRepository cartonItemEntityRepository
         , RecoveredPlasmaShipmentEntityRepository recoveredPlasmaShippingRepository
-        , CartonEntityRepository cartonEntityRepository) {
+        , CartonEntityRepository cartonEntityRepository , LocationPropertyEntityRepository locationPropertyEntityRepository) {
         this.producerTemplate = producerTemplate;
         this.topicName = topicName;
         this.recoveredPlasmaShipmentEventMapper = recoveredPlasmaShipmentEventMapper;
         this.cartonItemEntityRepository = cartonItemEntityRepository;
         this.recoveredPlasmaShippingRepository = recoveredPlasmaShippingRepository;
         this.cartonEntityRepository = cartonEntityRepository;
+        this.locationPropertyEntityRepository = locationPropertyEntityRepository;
     }
 
     @AsyncPublisher(operation = @AsyncOperation(
@@ -72,10 +76,10 @@ public class RecoveredPlasmaShipmentClosedListener {
     @KafkaAsyncOperationBinding
     @EventListener
     public Mono<Void> handleShipmentClosedEvent(RecoveredPlasmaShipmentClosedEvent event) {
-
         return recoveredPlasmaShippingRepository.findById(event.getPayload().getId())
+            .zipWith(locationPropertyEntityRepository.findAllByLocationCode(event.getPayload().getLocationCode()).collectList())
             .zipWhen(recoveredPlasmaShipmentEntity ->  getCartonList(event.getPayload()))
-            .map(tuple -> recoveredPlasmaShipmentEventMapper.entityToCloseEventDTO(tuple.getT1(), tuple.getT2()))
+            .map(tuple -> recoveredPlasmaShipmentEventMapper.entityToCloseEventDTO(tuple.getT1().getT1() , tuple.getT2() , getLocationProperty(tuple.getT1().getT2(),"RPS_LOCATION_SHIPMENT_CODE") , getLocationProperty(tuple.getT1().getT2(),"RPS_LOCATION_CARTON_CODE") ))
             .publishOn(Schedulers.boundedElastic())
             .map(recoveredPlasmaShipmentClosedOutputDTO -> {
                 RecoveredPlasmaShipmentClosedOutputEvent recoveredPlasmaShipmentClosedOutputEvent = new RecoveredPlasmaShipmentClosedOutputEvent(recoveredPlasmaShipmentClosedOutputDTO);
@@ -97,5 +101,14 @@ public class RecoveredPlasmaShipmentClosedListener {
                 return cartonItemEntityRepository.findAllByCartonIdOrderByCreateDateAsc(cartonEntity.getId()).collectList()
                     .map(cartonItemEntityList -> recoveredPlasmaShipmentEventMapper.cartonModelToEventDTO(cartonEntity, recoveredPlasmaShipment, cartonItemEntityList));
             }).collectList();
+    }
+
+    private String getLocationProperty(List<LocationPropertyEntity> propertyEntities , String key){
+        if(propertyEntities == null || propertyEntities.isEmpty()){
+            return null;
+        }
+        return propertyEntities.stream().filter(property -> property.getPropertyKey().equals(key)).findAny()
+            .map(LocationPropertyEntity::getPropertyValue)
+            .orElse(null);
     }
 }

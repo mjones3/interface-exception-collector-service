@@ -3,6 +3,7 @@ package com.arcone.biopro.distribution.eventbridge.infrastructure.config;
 import com.arcone.biopro.distribution.eventbridge.domain.event.EventMessage;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.dto.InventoryUpdatedOutboundPayload;
 import com.arcone.biopro.distribution.eventbridge.infrastructure.dto.ShipmentCompletedOutboundPayload;
+import com.arcone.biopro.distribution.eventbridge.infrastructure.event.RecoveredPlasmaShipmentClosedOutboundEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +34,8 @@ public class KafkaConfiguration {
     public static final String DLQ_PRODUCER = "dlq-producer";
     public static final String SHIPMENT_COMPLETED_OUTBOUND_PRODUCER = "shipment-completed-outbound";
     public static final String INVENTORY_UPDATED_OUTBOUND_PRODUCER = "inventory-updated-outbound";
+    public static final String RPS_SHIPMENT_CLOSED_CONSUMER = "recovered-plasma-shipment-closed";
+    public static final String RPS_SHIPMENT_CLOSED_OUTBOUND_PRODUCER = "recovered-plasma-shipment-closed-outbound";
 
 
     @Bean
@@ -52,6 +55,8 @@ public class KafkaConfiguration {
     ) {
         return TopicBuilder.name(topicName).partitions(partitions).replicas(replicas).build();
     }
+
+
 
 
     @Bean
@@ -78,6 +83,29 @@ public class KafkaConfiguration {
         return TopicBuilder.name(topicName).partitions(partitions).replicas(replicas).build();
     }
 
+    @Bean
+    NewTopic recoveredPlasmaShipmentClosedTopic(
+        @Value("${topics.recovered-plasma-shipment.shipment-closed.partitions:1}") Integer partitions,
+        @Value("${topics.recovered-plasma-shipment.shipment-closed.replicas:1}") Integer replicas,
+        @Value("${topics.recovered-plasma-shipment.shipment-closed.topic-name:RecoveredPlasmaShipmentClosed}") String topicName
+    ) {
+        return TopicBuilder.name(topicName).partitions(partitions).replicas(replicas).build();
+    }
+
+    @Bean
+    ReceiverOptions<String, String> recoveredPlasmaShipmentClosedReceiverOptions(KafkaProperties kafkaProperties
+        , @Value("${topics.recovered-plasma-shipment.shipment-closed.topic-name:RecoveredPlasmaShipmentClosed}") String recoveredPlasmaShipmentClosedTopicName) {
+        return buildReceiverOptions(kafkaProperties, recoveredPlasmaShipmentClosedTopicName);
+    }
+
+    @Bean
+    NewTopic recoveredPlasmaShipmentOutboundClosedTopic(
+        @Value("${topics.recovered-plasma-shipment.shipment-closed-outbound.partitions:1}") Integer partitions,
+        @Value("${topics.recovered-plasma-shipment.shipment-closed-outbound.replicas:1}") Integer replicas,
+        @Value("${topics.recovered-plasma-shipment.shipment-closed-outbound.topic-name:RecoveredPlasmaShipmentClosedOutbound}") String topicName
+    ) {
+        return TopicBuilder.name(topicName).partitions(partitions).replicas(replicas).build();
+    }
 
     @Bean
     ReceiverOptions<String, String> inventoryUpdatedReceiverOptions(KafkaProperties kafkaProperties
@@ -155,5 +183,28 @@ public class KafkaConfiguration {
     ReactiveKafkaProducerTemplate<String, EventMessage<InventoryUpdatedOutboundPayload>> inventoryUpdatedOutboundProducerTemplate(
         SenderOptions<String, EventMessage<InventoryUpdatedOutboundPayload>> senderOptionsInventoryUpdatedOutbound) {
         return new ReactiveKafkaProducerTemplate<>(senderOptionsInventoryUpdatedOutbound);
+    }
+
+    @Bean(RPS_SHIPMENT_CLOSED_CONSUMER)
+    ReactiveKafkaConsumerTemplate<String, String> recoveredPlasmaShipmentClosedConsumerTemplate(
+        ReceiverOptions<String, String> recoveredPlasmaShipmentClosedReceiverOptions
+    ) {
+        return new ReactiveKafkaConsumerTemplate<>(recoveredPlasmaShipmentClosedReceiverOptions);
+    }
+
+    @Bean
+    SenderOptions<String, com.arcone.biopro.distribution.eventbridge.infrastructure.event.RecoveredPlasmaShipmentClosedOutboundEvent> senderOptionsRecoveredPlasmaShipmentClosedOutbound(
+        KafkaProperties kafkaProperties,
+        ObjectMapper objectMapper) {
+        var props = kafkaProperties.buildProducerProperties(null);
+        return SenderOptions.<String, RecoveredPlasmaShipmentClosedOutboundEvent>create(props)
+            .withValueSerializer(new JsonSerializer<>(objectMapper))
+            .maxInFlight(1); // to keep ordering, prevent duplicate messages (and avoid data loss)
+    }
+
+    @Bean(name = RPS_SHIPMENT_CLOSED_OUTBOUND_PRODUCER )
+    ReactiveKafkaProducerTemplate<String, com.arcone.biopro.distribution.eventbridge.infrastructure.event.RecoveredPlasmaShipmentClosedOutboundEvent> recoveredPlasmaShipmentClosedOutboundProducerTemplate(
+        SenderOptions<String, com.arcone.biopro.distribution.eventbridge.infrastructure.event.RecoveredPlasmaShipmentClosedOutboundEvent> senderOptionsRecoveredPlasmaShipmentClosedOutbound) {
+        return new ReactiveKafkaProducerTemplate<>(senderOptionsRecoveredPlasmaShipmentClosedOutbound);
     }
 }

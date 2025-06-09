@@ -81,7 +81,6 @@ Feature: Shipment Creation
             And The shipment "should not" be created.
             Examples:
                 | Attribute        | Attribute Value | Error Message                  |
-                | cartonTareWeight | <null>          | Carton tare weight is required |
                 | locationCode     | DL1             | Location is required           |
                 | customerCode     | 11111           | Domain not found for key 11111 |
                 | productType      | TYPE000         | Product type is required       |

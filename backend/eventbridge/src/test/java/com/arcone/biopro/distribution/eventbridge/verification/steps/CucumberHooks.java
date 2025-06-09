@@ -16,7 +16,7 @@ public class CucumberHooks {
     @Autowired
     public ApplicationContext ctx;
 
-    @After
+    @After(value = "@ui")
     public void afterScenario() {
         this.ctx.getBean(WebDriver.class).quit();
     }
