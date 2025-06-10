@@ -11,6 +11,11 @@
         >
             @if (configuration().title) {
                 <span class="font-medium">{{ configuration().title }}</span>
+                @if(showCounts()){
+                    <div class="pl-1">
+                        <span class="font-bold">({{dataSource().length}}/{{totalCounts()}})</span>
+                    </div>
+                }
             }
             @if (configuration().menus.length) {
                 <biopro-menu [menus]="configuration().menus"></biopro-menu>

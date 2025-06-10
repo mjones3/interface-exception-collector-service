@@ -43,86 +43,79 @@
                     <form [formGroup]="productInformationForm">
                         <!--Unit Number-->
                         <biopro-input
+                            #inputUnitNumber
                             label="Unit Number"
                             id="unitNumber"
-                            placeholder="Unit Number"
+                            placeholder="Scan Unit Number"
+                            [required]="true"
                             [upperCase]="true"
                             validateOn="blur"
                             inputId="unitNumberInput"
                             formControlName="unitNumber"
-                            (inputBlur)="onTabEnter(field.UNIT_NUMBER)"
                             [inputFocus]="fieldsMap.get(field.UNIT_NUMBER)?.focus"
                             (tabOrEnterPressed)="onTabEnter(field.UNIT_NUMBER)"
-                            (keydown)="onKeyDown(field.UNIT_NUMBER, $event)"
-                            (paste)="onPaste(field.UNIT_NUMBER)"
                             [customErrors]="{
                                 required: 'Unit Number is required',
-                                invalidScannedUnitNumber: 'Unit Number is invalid',
+                                scannedValue: 'Manual entry is not allowed'
                             }"
                             [propagateParentErrors]="true"
                         ></biopro-input>
 
-                        <!--Blood Type-->
+                        <!--aboRh-->
                         <biopro-input
-                            label="Blood Type"
-                            id="bloodType"
-                            placeholder="Blood Type"
+                            #inputAboRh
+                            label="ABO/RH"
+                            id="aboRh"
+                            placeholder="Scan aboRh"
+                            [required]="true"
                             [upperCase]="true"
                             validateOn="blur"
-                            inputId="bloodTypeInput"
-                            formControlName="bloodType"
-                            (inputBlur)="onTabEnter(field.BLOOD_TYPE)"
-                            [inputFocus]="fieldsMap.get(field.BLOOD_TYPE)?.focus"
-                            (tabOrEnterPressed)="onTabEnter(field.BLOOD_TYPE)"
-                            (keydown)="onKeyDown(field.BLOOD_TYPE, $event)"
-                            (paste)="onPaste(field.BLOOD_TYPE)"
+                            inputId="aboRhInput"
+                            formControlName="aboRh"
+                            [inputFocus]="fieldsMap.get(field.ABO_RH)?.focus"
+                            (tabOrEnterPressed)="onTabEnter(field.ABO_RH)"
                             [customErrors]="{
-                            required: 'Blood Type is required',
-                            invalidScannedbloodType:
-                                'Blood Type is invalid',
+                            required: 'aboRh is required',
+                            scannedValue: 'Manual entry is not allowed'
                         }"
                         [propagateParentErrors]="true"
                     ></biopro-input>
 
                         <!--Product Code-->
                         <biopro-input
+                            #inputProductCode
                             label="Product Code"
                             id="productCode"
-                            placeholder="Product Code"
+                            placeholder="Scan Product Code"
+                            [required]="true"
                             [upperCase]="true"
                             validateOn="blur"
                             inputId="productCodeInput"
                             formControlName="productCode"
-                            (inputBlur)="onTabEnter(field.PRODUCT_CODE)"
                             [inputFocus]="fieldsMap.get(field.PRODUCT_CODE)?.focus"
                             (tabOrEnterPressed)="onTabEnter(field.PRODUCT_CODE)"
-                            (keydown)="onKeyDown(field.PRODUCT_CODE, $event)"
-                            (paste)="onPaste(field.PRODUCT_CODE)"
                             [customErrors]="{
                                 required: 'Product Code is required',
-                                invalidScannedProductCode:
-                                    'Product Code is invalid',
+                                scannedValue: 'Manual entry is not allowed'
                             }"
                             [propagateParentErrors]="true"
                         ></biopro-input>
 
                         <!--Expiration Date-->
                         <biopro-input
+                            #inputExpirationDate
                             label="Expiration Date"
                             id="expirationDate"
-                            placeholder="Expiration Date"
+                            placeholder="Scan Expiration Date"
+                            [required]="true"
                             validateOn="blur"
                             inputId="expirationDateInput"
                             formControlName="expirationDate"
-                            (inputBlur)="onTabEnter(field.EXPIRATION_DATE)"
                             [inputFocus]="fieldsMap.get(field.EXPIRATION_DATE)?.focus"
                             (tabOrEnterPressed)="onTabEnter(field.EXPIRATION_DATE)"
-                            (keydown)="onKeyDown(field.EXPIRATION_DATE, $event)"
-                            (paste)="onPaste(field.EXPIRATION_DATE)"
                             [customErrors]="{
                                 required: 'Expiration Date is required',
-                                invalidScannedExpirationDate:
-                                    'Expiration Date is invalid',
+                                scannedValue: 'Manual entry is not allowed'
                             }"
                             [propagateParentErrors]="true"
                         ></biopro-input>
@@ -131,8 +124,6 @@
                         <biopro-custom-button-toggle
                             [showLabel]="true"
                             [label]="'License Status'"
-                            [isDisabled]="false"
-                            [hideSingleSelectionIndicator]="false"
                             [required]="true"
                             toggleId="licenseStatusId"
                             [options]="licensedOptions"
@@ -145,7 +136,6 @@
                             <biopro-custom-button-toggle
                                 [showLabel]="true"
                                 [label]="'Product Visual Inspection'"
-                                [isDisabled]="false"
                                 [hideSingleSelectionIndicator]="true"
                                 [required]="true"
                                 toggleId="visualInspectionId"
@@ -181,12 +171,14 @@
                 #importedProductInformationTable
                 tableId="importedProductsTableId"
                 [tableContainerClass]="'h-[calc(100vh-350px)] min-h-[300px] overflow-auto'"
+                [totalCounts]="totalConfiguredProduct"
+                [showCounts]="true"
                 [dataSource]="importedProducts()"
                 [configuration]="importedProductsTableConfigComputed()"
                 [pageIndex]="0"
                 [serverPagination]="false"
             >
-        </biopro-table>
+            </biopro-table>
 
         <ng-template #expirationDateTemplateRef let-element="element">
             {{ element?.expirationDate | date: 'MM/dd/yyyy' }}
@@ -197,8 +189,8 @@
             </span>
         </ng-template>
         <ng-template #quarantinedTemplateRef let-element="element">
-            <span [class]="getQuarantinedClass(element.quarantined)">
-                {{getQuarantinedValue(element.quarantined)}}
+            <span [class]="getQuarantinedClass(element.isQuarantined)">
+                {{getQuarantinedValue(element.isQuarantined)}}
             </span>
         </ng-template>
         <ng-template #licenseStatusTemplateRef let-element="element">

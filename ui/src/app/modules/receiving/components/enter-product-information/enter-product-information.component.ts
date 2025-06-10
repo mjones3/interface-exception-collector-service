@@ -1,13 +1,13 @@
 import { AsyncPipe, DatePipe, NgTemplateOutlet, UpperCasePipe } from '@angular/common';
-import { Component, computed, OnInit, signal, TemplateRef, viewChild } from '@angular/core';
+import { AfterViewInit, Component, computed, OnInit, signal, TemplateRef, viewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatButtonToggleGroup, MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatButtonToggleGroup } from '@angular/material/button-toggle';
 import { MatDialogActions } from '@angular/material/dialog';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelect } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ProcessHeaderComponent, ProcessHeaderService, TableConfiguration } from '@shared';
+import { NotificationTypeMap, ProcessHeaderComponent, ProcessHeaderService, TableConfiguration } from '@shared';
 import { ActionButtonComponent } from 'app/shared/components/buttons/action-button.component';
 import { BasicButtonComponent } from 'app/shared/components/buttons/basic-button.component';
 import { CustomButtonToggleComponent } from 'app/shared/components/custom-button-toggle/custom-button-toggle.component';
@@ -20,13 +20,17 @@ import { MatIcon } from '@angular/material/icon';
 import { licenseStatusCssMap, quarantinedCssMap, quarantinedValueMap, temperatureProductCategoryCssMap, visualInspectionCssMap } from '../../graphql/query-definitions/imports-enter-shipping-information.graphql';
 import { snakeCase } from 'lodash';
 import { FuseCardComponent } from '@fuse/components/card/public-api';
-
-
+import { scannedValidatorStartWithAnd, scannedValidatorStartWithEqual } from 'app/shared/forms/biopro-validators';
+import { map } from 'rxjs';
+import { ReceivingService } from '../../service/receiving.service';
+import { ValidateBarcodeRequestDTO } from '../../graphql/query-definitions/validate-bar-code.graphql';
+import { consumeUseCaseNotifications } from 'app/shared/utils/notification.handling';
+ 
 export enum Field {
   UNIT_NUMBER = 'unitNumber',
   PRODUCT_CODE = 'productCode',
   EXPIRATION_DATE = 'expirationDate',
-  BLOOD_TYPE = 'bloodType',
+  ABO_RH = 'aboRh',
   VISUAL_INSPECTION = 'visualInspection',
   LICENSE_STATUS = 'licenseStatus'
 }
@@ -58,23 +62,29 @@ export enum Field {
   ],
   templateUrl: './enter-product-information.component.html'
 })
-export class EnterProductInformationComponent implements OnInit {
+export class EnterProductInformationComponent implements OnInit, AfterViewInit {
   temperatureProductCategory: string = 'Room Temperature'
+  readonly parseTypeMap = new Map<string, string>();
   readonly fieldsMap = new Map<Field, { focus: boolean }>();
   readonly field = Field;
+  totalConfiguredProduct = 10;  //TODO
   lastKeyTime = 0;
-  barcode = '';
   keyPressThreshold = 50;
   productInformationForm: FormGroup;
-  manualEntryAllowed: boolean;
   readonly fieldDisplayNames = {
     [Field.UNIT_NUMBER]: 'Unit Number',
     [Field.PRODUCT_CODE]: 'Product Code',
     [Field.EXPIRATION_DATE]: 'Expiration Date',
-    [Field.BLOOD_TYPE]: 'Blood Type',
+    [Field.ABO_RH]: 'ABO/RH',
     [Field.VISUAL_INSPECTION]: 'Visual Inspection',
     [Field.LICENSE_STATUS]: 'License Status'
-};
+  };
+
+  readonly nextControlMap = {
+    [Field.UNIT_NUMBER]: [Field.ABO_RH],
+    [Field.ABO_RH]: [Field.PRODUCT_CODE],
+    [Field.PRODUCT_CODE]: [Field.EXPIRATION_DATE]
+  }
 
     visualInspectionOptions: ButtonOption[] = [
       {
@@ -103,20 +113,20 @@ export class EnterProductInformationComponent implements OnInit {
         unitNumber: 'W23232323232',
         productCode: 'E232323232',
         description: 'description',
-        bloodType: 'AB Pos',
+        aboRh: 'AB Pos',
         expirationDate: '09-20-2025',
         visualInspection: 'Satisfactory',
-        quarantined: true,
+        isQuarantined: true,
         licenseStatus: 'Licensed'
       },
       {
         unitNumber: 'W23232323232',
         productCode: 'E232323232',
         description: 'description',
-        bloodType: 'AB Pos',
+        aboRh: 'AB Pos',
         expirationDate: '09-20-2025',
         visualInspection: 'Unsatisfactory',
-        quarantined: false,
+        isQuarantined: false,
         licenseStatus: 'Unlicensed'
       }
     ]
@@ -125,6 +135,17 @@ export class EnterProductInformationComponent implements OnInit {
     visualInspectionTemplateRef = viewChild<TemplateRef<Element>>('visualInspectionTemplateRef');
     quarantinedTemplateRef = viewChild<TemplateRef<Element>>('quarantinedTemplateRef');
     licenseStatusTemplateRef = viewChild<TemplateRef<Element>>('licenseStatusTemplateRef');
+    inputUnitNumber = viewChild<ElementRef>('inputProductCode');
+    inputAboRh = viewChild<ElementRef>('inputAboRh');
+    inputProductCode = viewChild<ElementRef>('inputProductCode');
+    inputExpirationDate = viewChild<ElementRef>('inputExpirationDate');
+
+    readonly nextControlFocusMap = {
+      [Field.UNIT_NUMBER]: () => this.inputAboRh()['inputFocus'] = true,
+      [Field.ABO_RH]: () => this.inputProductCode()['inputFocus'] = true,
+      [Field.PRODUCT_CODE]: () => this.inputExpirationDate()['inputFocus'] = true
+    }
+
     table = viewChild<TableComponent>('importedProductInformationTable');
     importedProductsTableConfigComputed = computed<TableConfiguration>(() => ({
       title: 'Added Products',
@@ -147,8 +168,8 @@ export class EnterProductInformationComponent implements OnInit {
             sort: false,
           },
           {
-            id: 'bloodType',
-            header: 'Blood Type',
+            id: 'aboRh',
+            header: 'ABO/RH',
             sort: false,
           },
           {
@@ -170,7 +191,7 @@ export class EnterProductInformationComponent implements OnInit {
             columnTempRef: this.visualInspectionTemplateRef(),
           },
           {
-            id: 'quarantined',
+            id: 'isQuarantined',
             header: 'Quarantined',
             sort: false,
             columnTempRef: this.quarantinedTemplateRef(),
@@ -180,29 +201,45 @@ export class EnterProductInformationComponent implements OnInit {
 
   constructor(
     readonly fb: FormBuilder,
-    private toaster: ToastrService,
+    private toastr: ToastrService,
     public header: ProcessHeaderService,
+    private service: ReceivingService,
     private router: Router,
     private activatedRoute: ActivatedRoute
 ) {}
 
+
+  ngAfterViewInit(): void {
+    this.inputUnitNumber().nativeElement?.focus();
+  }
+
   ngOnInit(): void {
     this.initializeForm();
+    this.initMaps();
     this.importedProducts.set(this.mockProductInformation)
   }
 
+  private initMaps() {
+    this.parseTypeMap.set('unitNumber', 'BARCODE_UNIT_NUMBER');
+    this.parseTypeMap.set('productCode', 'BARCODE_PRODUCT_CODE');
+    this.parseTypeMap.set('expirationDate', 'BARCODE_EXPIRATION_DATE');
+    this.parseTypeMap.set('aboRh', 'BARCODE_BLOOD_GROUP');
+
+    this.fieldsMap.set(Field.UNIT_NUMBER, { focus: true });
+    this.fieldsMap.set(Field.ABO_RH, { focus: false });
+    this.fieldsMap.set(Field.PRODUCT_CODE, { focus: false });
+    this.fieldsMap.set(Field.EXPIRATION_DATE, { focus: false });
+}
+
   private initializeForm(): void {
     this.productInformationForm = this.fb.group({
-      unitNumber: ['', [Validators.required]],
-      productCode: ['', [Validators.required]],
-      bloodType: ['', [Validators.required]],
-      expirationDate: ['', [Validators.required]],
+      unitNumber: ['', [Validators.required, scannedValidatorStartWithEqual]],
+      aboRh: [{ value: '', disabled: true }, [Validators.required, scannedValidatorStartWithEqual]],
+      productCode: [{ value: '', disabled: true }, [Validators.required, scannedValidatorStartWithEqual]],
+      expirationDate: [{ value: '', disabled: true }, [Validators.required, scannedValidatorStartWithAnd]],
       licenseStatus: ['', [Validators.required]],
       visualInspection: ['', [Validators.required]]
-  });
-  this.productInformationForm.get('productCode').disable();
-  this.productInformationForm.get('bloodType').disable();
-  this.productInformationForm.get('expirationDate').disable();
+    });
   }
 
   getVisualInspectionClass(visualInspection: string){
@@ -213,12 +250,12 @@ export class EnterProductInformationComponent implements OnInit {
     return licenseStatusCssMap[licenseStatus.toUpperCase()];
   }
 
-  getQuarantinedClass(quarantined: boolean){
-    return quarantinedCssMap[quarantined.toString().toUpperCase()];
+  getQuarantinedClass(isQuarantined: boolean){
+    return quarantinedCssMap[isQuarantined.toString().toUpperCase()];
   }
 
-  getQuarantinedValue(quarantined: boolean){
-    return quarantinedValueMap[quarantined.toString().toUpperCase()];
+  getQuarantinedValue(isQuarantined: boolean){
+    return quarantinedValueMap[isQuarantined.toString().toUpperCase()];
   }
 
   getTemperatureProductCategoryClass(temperatureProductCategory: string){
@@ -226,54 +263,21 @@ export class EnterProductInformationComponent implements OnInit {
   }
 
 
-  onKeyDown(control: Field, event: KeyboardEvent) {
-    if (!this.manualEntryAllowed) {
-        if (
-            event.key === '=' ||
-            event.key === '&' ||
-            event.key === 'Shift'
-        ) {
-            this.lastKeyTime = 0;
-        }
-
-        const currentTime = new Date().getTime();
-        const timeDiff = currentTime - this.lastKeyTime;
-
-        if (this.lastKeyTime !== 0) {
-            if (timeDiff < this.keyPressThreshold) {
-                this.barcode += event.key;
-            } else {
-                this.toaster.error('Manual Entry Not Allowed.');
-                this.productInformationForm.get(control).reset();
-            }
-            if (event.key === 'Enter') {
-                this.barcode = '';
-            }
-        }
-        this.lastKeyTime = currentTime;
-    }
-  }
-
-onTabEnter(control){
-    // TODO
+onTabEnter(control: Field){
     const value = this.productInformationForm.get(control).value;
     if (!value || !/^[=&]/.test(value)) {
         if (control === Field.UNIT_NUMBER) {
             this.productInformationForm.get(control).reset();
             this.fieldsMap.get(control).focus = true;
-            this.toaster.error(`Unit Number is invalid.`);
-        } else if (control === Field.BLOOD_TYPE) {
+        } else if (control === Field.ABO_RH) {
           this.productInformationForm.get(control).reset();
           this.fieldsMap.get(control).focus = true;
-          this.toaster.error(`Blood Type is invalid.`);
         } else if (control === Field.PRODUCT_CODE) {
             this.productInformationForm.get(control).reset();
             this.fieldsMap.get(control).focus = true;
-            this.toaster.error(`Product Type is invalid.`);
         } else if (control === Field.EXPIRATION_DATE) {
           this.productInformationForm.get(control).reset();
           this.fieldsMap.get(control).focus = true;
-          this.toaster.error(`Expiration Date is invalid.`);
       }
         else {
             this.productInformationForm.get(control).setErrors({ invalidFormat: true });
@@ -281,30 +285,58 @@ onTabEnter(control){
         this.fieldsMap.get(control).focus = true;
         return;
     }
-    this.validateSingleField(control, value);
-  }
 
-  onPaste(control: Field) {
-    if (!this.manualEntryAllowed) {
-        this.toaster.error('Manual Entry Not Allowed.');
-        this.productInformationForm.get(control).reset();
+    const controlValue = this.productInformationForm.get(control).value;
+    const matchValue = control ? controlValue: null;
+    if(matchValue && matchValue.length !== 0){
+      const validations = this.createValidationObservables(control, matchValue);
+      validations.subscribe((result) => {
+        let hasError = false;
+        const { isValid, controlKey, finalValue, notification } = result;
+            if (!isValid) {
+                consumeUseCaseNotifications(this.toastr, notification);
+                this.productInformationForm.get(controlKey).reset();
+                hasError = true;
+            } else {
+              this.productInformationForm.get(controlKey).setValue(finalValue);
+                this.productInformationForm.get(controlKey).disable();
+                if(this.nextControlMap[controlKey] !== undefined){
+                  this.productInformationForm.get(this.nextControlMap[controlKey]).enable();
+                  if(this.nextControlFocusMap[controlKey] !== undefined){
+                    this.nextControlFocusMap[controlKey]();
+                  }
+                }
+            }
+      });
     }
-}
-
-private validateSingleField(control: Field, value: string) {
-  //TODO
-  if (control === Field.EXPIRATION_DATE) {
-      const regexExpiration = /^&>\d{10}$/;
-      if (!regexExpiration.test(value)) {
-          this.productInformationForm.get(control).reset();
-          this.fieldsMap.get(control).focus = true;
-          this.toaster.error(`Expiration Date is invalid.`);
-          return;
-      }
   }
-}
 
-resetForm(){
-  return this.productInformationForm.reset();
-}
+  private createValidationObservables(
+    controlKey: Field, value: string 
+  ) {
+    return this.service
+      .validateScannedField(this.validateRequest(controlKey, value))
+      .pipe(
+          map((response) => ({
+              isValid: response.data.validateBarcode.data.valid,
+              controlKey,
+              finalValue: response.data.validateBarcode.data.resultDescription,
+              notification: response.data.validateBarcode.notifications
+          }))
+      );
+  }
+
+  validateRequest(
+    controlKey: Field, value: string 
+  ): ValidateBarcodeRequestDTO{
+    return {
+      temperatureCategory: "FROZEN",
+      barcodeValue: value,
+      barcodePattern: this.parseTypeMap.get(controlKey)
+    }
+  }
+
+  resetForm(){
+    return this.productInformationForm.reset();
+  }
 }

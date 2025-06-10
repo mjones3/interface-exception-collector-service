@@ -122,7 +122,8 @@ implements AfterViewInit {
       }
   }
 
-  onTabEnterPressed(): void {
+  onTabEnterPressed(event): void {
+      event.preventDefault();
       this.tabOrEnterPressed.emit(this.form.get('input').value);
   }
 
@@ -154,7 +155,7 @@ implements AfterViewInit {
 
   onEnter($event) {
       ($event.target as HTMLInputElement).blur();
-      this.onTabEnterPressed();
+      this.onTabEnterPressed($event);
   }
 
   normalizeValue(value: string) {

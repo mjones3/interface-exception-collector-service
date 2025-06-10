@@ -1,10 +1,25 @@
+
 export interface ImportedProductInformationDTO{
     unitNumber: string,
     productCode: string,
     description: string,
-    bloodType: string,
+    aboRh: string,
     expirationDate: string,
     visualInspection: string,
-    quarantined: boolean,
+    isQuarantined: boolean,
     licenseStatus: string
+}
+
+
+export interface CreateImportRequestDTO {
+    temperatureCategory: string,
+    transitStartDateTime:string,
+    transitStartTimeZone:string,
+    transitEndDateTime:string,
+    transitEndTimeZone:string,
+    temperature:number,
+    thermometerCode:string,
+    locationCode:string,
+    comments:string,
+    employeeId:string
 }

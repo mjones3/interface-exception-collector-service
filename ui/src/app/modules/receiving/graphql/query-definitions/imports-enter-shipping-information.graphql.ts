@@ -25,8 +25,8 @@ export enum Quarantined {
 }
 
 export const visualInspectionCssMap: Record<keyof typeof VisualInspection, string> = {
-    SATISFACTORY: 'text-sm font-bold py-1.5 px-2 badge rounded-full bg-red-100 text-red-700',
-    UNSATISFACTORY: 'text-sm font-bold py-1.5 px-2 badge rounded-full bg-green-100 text-green-700',
+    UNSATISFACTORY: 'text-sm font-bold py-1.5 px-2 badge rounded-full bg-red-100 text-red-700',
+    SATISFACTORY: 'text-sm font-bold py-1.5 px-2 badge rounded-full bg-green-100 text-green-700',
 };
 
 export const quarantinedValueMap: Record<keyof typeof Quarantined, string> = {

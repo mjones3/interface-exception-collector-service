@@ -30,6 +30,7 @@ import {
     CreateImportRequestDTO,
     ImportDTO
 } from '../graphql/mutation-definitions/create-import.graphql';
+import { vALIDATE_BAR_CODE, ValidateBarcodeRequestDTO } from '../graphql/query-definitions/validate-bar-code.graphql';
 
 @Injectable({
     providedIn: 'root',
@@ -96,6 +97,16 @@ export class ReceivingService {
             this.servicePath,
             CREATE_IMPORT,
             createImportRequestDTO
+        );
+    }
+
+
+    public validateScannedField(validateBarcode: ValidateBarcodeRequestDTO)
+        : Observable<ApolloQueryResult<{ validateBarcode: UseCaseResponseDTO<any> }>> {
+        return this.dynamicGraphqlPathService.executeQuery(
+            this.servicePath,
+            vALIDATE_BAR_CODE,
+            validateBarcode
         );
     }
 

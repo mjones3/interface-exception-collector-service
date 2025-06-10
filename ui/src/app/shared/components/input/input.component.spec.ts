@@ -104,9 +104,11 @@ describe('InputComponent', () => {
     it('should emit on tab/enter pressed', () => {
       const spy = jest.spyOn(component.tabOrEnterPressed, 'emit');
       const testValue = 'test value';
+      const mockEvent = { preventDefault: jest.fn() } as unknown as Event;
       component.form.get('input').setValue(testValue);
-      component.onTabEnterPressed();
+      component.onTabEnterPressed(mockEvent);
       expect(spy).toHaveBeenCalledWith(testValue);
+      expect(mockEvent.preventDefault).toHaveBeenCalled();
     });
 
     it('should emit on blur', () => {

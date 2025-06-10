@@ -28,7 +28,7 @@
                                 [required]="required"
                                 [readonly]="readOnly"
                                 [(bioproAutoFocusIf)]="inputFocus"
-                                (keydown.Tab)="onTabEnterPressed()"
+                                (keydown.Tab)="onTabEnterPressed($event)"
                                 (keydown.Enter)="onEnter($event)"
                                 (blur)="fireOnInputBlur($event)"
                                 (keyup)="handleKeyUp($event)"
@@ -52,7 +52,7 @@
                             [ngClass]="{ uppercase: upperCase }"
                             [required]="required"
                             [(bioproAutoFocusIf)]="inputFocus"
-                            (keydown.Tab)="onTabEnterPressed()"
+                            (keydown.Tab)="onTabEnterPressed($event)"
                             (keydown.Enter)="onEnter($event)"
                             (keyup)="handleKeyUp($event)"
                         ></textarea>
