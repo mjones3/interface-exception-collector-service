@@ -381,7 +381,16 @@ public class SharedActions {
         }
     }
 
-    public void assertToasterIsNotVisible(String header, String message) {
-        waitForNotVisible(By.cssSelector("#toast-container"));
+    public void verifyAlert(String header, String message, boolean expectVisible) {
+        By alertText = By.cssSelector("biopro-global-message");
+        if (expectVisible) {
+            waitForVisible(alertText);
+            String[] alert = getText(alertText).split("\n");
+            Assert.assertEquals(alert[0], header);
+            Assert.assertEquals(alert[1], message);
+        } else {
+            waitForNotVisible(alertText);
+        }
+
     }
 }
