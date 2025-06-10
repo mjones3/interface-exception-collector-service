@@ -15,6 +15,7 @@ type Query {
     printUnacceptableUnitsReport(printUnacceptableUnitReportRequest:PrintUnacceptableUnitReportRequestDTO!): UseCaseResponseDTO!
     printShippingSummaryReport(printShippingSummaryReportRequest:PrintShippingSummaryReportRequestDTO!): UseCaseResponseDTO!
     generateCartonLabel(generateCartonLabelRequest:GenerateCartonLabelRequestDTO!): UseCaseResponseDTO!
+    findAllShipmentHistoryByShipmentId(shipmentId: ID!): [ShipmentHistoryDTO]!
 }
 
 type Mutation {
@@ -27,6 +28,7 @@ type Mutation {
     repackCarton(repackCartonRequest:RepackCartonRequestDTO!): UseCaseResponseDTO!
     removeCarton(removeCartonRequest:RemoveCartonRequestDTO!): UseCaseResponseDTO!
     removeCartonItems(removeCartonItemRequest:RemoveCartonItemRequestDTO!): UseCaseResponseDTO!
+    modifyShipment(modifyShipmentRequest:ModifyShipmentRequestDTO!): UseCaseResponseDTO!
 
 }
 
@@ -140,6 +142,18 @@ input RemoveCartonItemRequestDTO{
     cartonItemIds:[Int]
 }
 
+input ModifyShipmentRequestDTO {
+    shipmentId:ID!
+    customerCode:String!
+    productType:String!
+    transportationReferenceNumber:String
+    shipmentDate:Date
+    cartonTareWeight:Float
+    modifyEmployeeId:String!
+    comments:String!
+
+}
+
 type OutputQuerySortDTO {
     orderByList: [OutputQueryOrderByDTO]
 }
@@ -233,4 +247,12 @@ type ProductTypeDTO{
     id:ID!
     productType:String
     productTypeDescription:String
+}
+
+type ShipmentHistoryDTO {
+    id:ID!
+    shipmentId:Int!
+    comments:String
+    createEmployeeId:String!
+    createDate:DateTime!
 }

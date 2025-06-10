@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -33,6 +34,7 @@ public class CloseCartonUseCase implements CloseCartonService {
 
 
     @Override
+    @Transactional
     public Mono<UseCaseOutput<CartonOutput>> closeCarton(CloseCartonCommandInput closeCartonCommandInput) {
         return cartonRepository.findOneById(closeCartonCommandInput.cartonId())
             .switchIfEmpty(Mono.error(() -> new DomainNotFoundForKeyException(String.format("%s", closeCartonCommandInput.cartonId()))))

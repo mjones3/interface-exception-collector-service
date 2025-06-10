@@ -103,13 +103,50 @@ describe('ViewShippingSummaryComponent', () => {
     });
 
     describe('Shipment Details Section', () => {
-        it('should display shipment details correctly', () => {
+        it('should display shipment details correctly when transportation number is enabled', () => {
             const shipmentDetailsTable = fixture.debugElement.query(By.css('[data-testid="shipment-details"]'));
             const rows = shipmentDetailsTable.queryAll(By.css('tr'));
+            const transportationRow = shipmentDetailsTable.query(By.css('tr[data-testid=transportation-reference-number]'));
 
+            expect(rows[0].nativeElement.textContent).toContain('Transportation Reference Number');
             expect(rows[0].nativeElement.textContent).toContain('TRANS-001');
             expect(rows[1].nativeElement.textContent).toContain('SHIP-001');
             expect(rows[2].nativeElement.textContent).toContain('2024-01-20T10:00:00');
+            expect(rows[0].nativeElement.textContent).toContain(transportationRow.nativeElement.textContent);
+        });
+
+        it('should not display transportation number when disabled', () => {
+            // Create new test data with transportation number disabled
+            const testData = createShippingSummaryReport();
+            testData.shipmentDetailDisplayTransportationNumber = false;
+
+            // Re-create component with new test data
+            TestBed.resetTestingModule();
+            TestBed.configureTestingModule({
+                imports: [
+                    ViewShippingSummaryComponent,
+                    MatIconTestingModule
+                ],
+                providers: [
+                    { provide: MAT_DIALOG_DATA, useValue: testData },
+                    { provide: DomSanitizer, useValue: { bypassSecurityTrustHtml: (val: string) => val } },
+                    { provide: BrowserPrintingService, useValue: browserPrintingService }
+                ]
+            });
+
+            fixture = TestBed.createComponent(ViewShippingSummaryComponent);
+            fixture.detectChanges();
+
+            const shipmentDetailsTable = fixture.debugElement.query(By.css('[data-testid="shipment-details"]'));
+            const rows = shipmentDetailsTable.queryAll(By.css('tr'));
+
+            // Should not find transportation number row
+            const transportationRow = shipmentDetailsTable.query(By.css('tr[data-testid=transportation-reference-number]'));
+            expect(transportationRow).toBeFalsy();
+
+            // Other fields should still be present
+            expect(rows[0].nativeElement.textContent).toContain('SHIP-001');
+            expect(rows[1].nativeElement.textContent).toContain('2024-01-20T10:00:00');
         });
     });
 

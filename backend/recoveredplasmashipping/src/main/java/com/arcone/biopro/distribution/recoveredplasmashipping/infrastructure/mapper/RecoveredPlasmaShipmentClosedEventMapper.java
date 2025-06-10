@@ -20,7 +20,9 @@ public interface RecoveredPlasmaShipmentClosedEventMapper {
     @Mapping(target = "closeDate", source = "recoveredPlasmaShipment.closeDate")
     @Mapping(target = "cartonList", source = "cartonList")
     @Mapping(target = "totalCartons", expression = "java(mapTotalSize(cartonList))")
-    RecoveredPlasmaShipmentClosedOutputDTO entityToCloseEventDTO(RecoveredPlasmaShipmentEntity recoveredPlasmaShipment, List<RecoveredPlasmaCartonClosedOutputDTO> cartonList);
+    @Mapping(target = "locationShipmentCode", source = "locationShipmentCodeParam")
+    @Mapping(target = "locationCartonCode", source = "locationCartonCodeParam")
+    RecoveredPlasmaShipmentClosedOutputDTO entityToCloseEventDTO(RecoveredPlasmaShipmentEntity recoveredPlasmaShipment, List<RecoveredPlasmaCartonClosedOutputDTO> cartonList , String locationShipmentCodeParam , String locationCartonCodeParam );
 
     @Mapping(target = "productType", source = "recoveredPlasmaShipment.productType")
     @Mapping(target = "locationCode", source = "recoveredPlasmaShipment.locationCode")

@@ -327,6 +327,12 @@ public class SharedActions {
         wait.until(e -> {
             log.debug("Clearing and sending keys {} to element {}.", keys, element);
             e.findElement(element).clear();
+            if (e.findElement(element).getText() != null) {
+                e.findElement(element).sendKeys(Keys.CONTROL + "a");
+                e.findElement(element).sendKeys(Keys.DELETE);
+                e.findElement(element).sendKeys(Keys.COMMAND + "a");
+                e.findElement(element).sendKeys(Keys.DELETE);
+            }
             e.findElement(element).sendKeys(keys);
             return true;
         });
@@ -377,6 +383,18 @@ public class SharedActions {
             Assert.assertEquals(message, getText(By.id("ack-message")));
         } catch (Exception e) {
             throw new NoSuchElementException("Acknowledgment message not found");
+        }
+    }
+
+    public boolean hasElementCssClass(By element, String cssClass) {
+        try {
+            return wait.until(e -> {
+                log.debug("Checking if element {} has CSS class {}.", element, cssClass);
+                return e.findElement(element).getAttribute("class").contains(cssClass);
+            });
+        } catch (Exception e) {
+            log.debug("Element {} does not have CSS class {}.", element, cssClass);
+            return false;
         }
     }
 }

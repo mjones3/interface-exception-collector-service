@@ -42,7 +42,7 @@ class RecoveredPlasmaShipmentClosedEventMapperTest {
         var cartonList = List.of(createCartonClosedOutputDto());
 
         // When
-        RecoveredPlasmaShipmentClosedOutputDTO result = mapper.entityToCloseEventDTO(recoveredPlasmaShipment, cartonList);
+        RecoveredPlasmaShipmentClosedOutputDTO result = mapper.entityToCloseEventDTO(recoveredPlasmaShipment, cartonList,"CODE1","CODE2");
 
         // Then
         assertNotNull(result);
@@ -68,6 +68,8 @@ class RecoveredPlasmaShipmentClosedEventMapperTest {
         assertEquals("CLOSED", result.status());
         assertEquals(1, result.totalCartons());
         assertEquals("closed-emp-id", result.closedEmployeeId());
+        assertEquals("CODE1",result.locationShipmentCode());
+        assertEquals("CODE2",result.locationCartonCode());
         assertNotNull(result.closeDate());
 
         // CARTON DETAILS
@@ -133,7 +135,7 @@ class RecoveredPlasmaShipmentClosedEventMapperTest {
         var list = List.of(Mockito.mock(RecoveredPlasmaCartonClosedOutputDTO.class));
 
         // When
-        RecoveredPlasmaShipmentClosedOutputDTO result = mapper.entityToCloseEventDTO(recoveredPlasmaShipment,list);
+        RecoveredPlasmaShipmentClosedOutputDTO result = mapper.entityToCloseEventDTO(recoveredPlasmaShipment,list,null,null);
 
         // Then
         assertNotNull(result);

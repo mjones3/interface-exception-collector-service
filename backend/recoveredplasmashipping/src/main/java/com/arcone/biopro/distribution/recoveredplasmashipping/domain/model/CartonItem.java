@@ -151,11 +151,11 @@ public class CartonItem implements Validatable {
         }
 
         if(volume == null || volume <= 0){
-            throw new IllegalArgumentException("Volume cannot t be null or less than zero");
+            throw new IllegalArgumentException("Volume cannot be null or less than zero");
         }
 
         if(weight == null || weight <= 0){
-            throw new IllegalArgumentException("Weight cannot t be null or less than zero");
+            throw new IllegalArgumentException("Weight cannot be null or less than zero");
         }
 
         if(productDescription == null || productDescription.isBlank()){

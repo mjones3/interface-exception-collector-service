@@ -1,21 +1,25 @@
 <ng-container>
-    <h1 mat-dialog-title class="p-4 pb-0 text-3xl">Create Shipment</h1>
+    @if(data !== null){
+        <h1 mat-dialog-title class="p-4 pb-0 text-3xl">Edit Shipment</h1>
+    }@else{
+        <h1 mat-dialog-title class="p-4 pb-0 text-3xl">Create Shipment</h1>
+    }
     <div class="p-4 pb-0">
         <form [formGroup]="createShipmentForm">
             <div class="flex w-full flex-col">
                 <div class="flex flex-col space-y-4">
                     <div class="w-full">
                         <biopro-search-select
-                            id="customerNameId"
-                            [formGroup]="createShipmentForm"
-                            controlName="customerName"
-                            [placeholder]="'Select Customer Name'"
-                            title="Customer Name"
-                            [items]="customerOptionList"
-                            required="true"
-                            matSelectId="customerSelectId"
-                        >
-                        </biopro-search-select>
+                        id="customerNameId"
+                        [formGroup]="createShipmentForm"
+                        controlName="customerName"
+                        [placeholder]="'Select Customer Name'"
+                        title="Customer Name"
+                        [items]="customerOptionList"
+                        required="true"
+                        matSelectId="customerSelectId"
+                    >
+                    </biopro-search-select>
                     </div>
 
                     <div class="w-full">
@@ -33,12 +37,12 @@
                     </div>
 
                     <div class="flex w-full flex-row gap-4">
+                       @if(showCartonTareWeight){
                         <div class="w-full flex-row">
                             <mat-form-field class="block">
                                 <mat-label>Carton Tare Weight (g)</mat-label>
                                 <input
                                     id="cartonTareWeightId"
-                                    required
                                     matInput
                                     formControlName="cartonTareWeight"
                                     placeholder="Enter Carton Tare Weight"
@@ -65,6 +69,7 @@
                                 }
                             </mat-form-field>
                         </div>
+                       }
 
                         <div class="w-full flex-row">
                             <mat-form-field class="block">
@@ -102,14 +107,6 @@
                                     <mat-error
                                         >Shipment Date is invalid</mat-error
                                     >
-                                } @else if (
-                                    createShipmentForm
-                                        .get('shipmentDate')
-                                        .hasError('required')
-                                ) {
-                                    <mat-error
-                                        >Shipment Date is required</mat-error
-                                    >
                                 }
                             </mat-form-field>
                         </div>
@@ -126,6 +123,33 @@
                             autocomplete="off"
                         />
                     </mat-form-field>
+
+                    @if(data?.id){
+                        <mat-form-field>
+                            <mat-label>Comments</mat-label>
+                            <textarea
+                                data-testid="edit-shipment-comments"
+                                formControlName="comments"
+                                rows="5"
+                                maxlength="{{ commentsMaxLength }}"
+                                matInput
+                            ></textarea>
+                            <mat-hint align="end">
+                                {{ createShipmentForm.controls['comments'].value?.length }} /
+                                {{ commentsMaxLength }}
+                            </mat-hint>
+
+
+                        @if (
+                            createShipmentForm.controls['comments']
+                                 .hasError('required')
+                         ) {
+                             <mat-error
+                                 >Comments is required</mat-error
+                             >
+                         }
+                        </mat-form-field>
+                    }
                 </div>
             </div>
         </form>
@@ -140,7 +164,7 @@
         ></biopro-basic-button>
         <biopro-basic-button
             id="btnSubmit"
-            [disabled]="!createShipmentForm.valid || isSubmitting()"
+            [disabled]="canSubmit()"
             class="mat-primary-action text-white"
             color="primary"
             label="Submit"

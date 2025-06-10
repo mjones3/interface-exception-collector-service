@@ -279,3 +279,12 @@ topics:
       partitions: 1
       replicas: 1
       topic-name: InventoryUpdatedOutbound
+  recovered-plasma-shipment:
+    shipment-closed:
+      partitions: 1
+      replicas: 1
+      topic-name: RecoveredPlasmaShipmentClosed
+    shipment-closed-outbound:
+      partitions: 1
+      replicas: 1
+      topic-name: RecoveredPlasmaShipmentClosedOutbound

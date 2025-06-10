@@ -48,10 +48,12 @@
             <strong class="block">Shipment Details:</strong>
             <table data-testid="shipment-details" class="w-full table-fixed grid-borders">
                 <tbody>
-                <tr>
+                @if (report.shipmentDetailDisplayTransportationNumber) {
+                <tr data-testid="transportation-reference-number">
                     <td><strong>Transportation Reference Number:</strong></td>
                     <td>{{ report.shipmentDetailTransportationReferenceNumber }}</td>
                 </tr>
+                }
                 <tr>
                     <td><strong>Shipment Number:</strong></td>
                     <td>{{ report.shipmentDetailShipmentNumber }}</td>

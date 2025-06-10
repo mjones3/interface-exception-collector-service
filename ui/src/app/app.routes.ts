@@ -50,6 +50,13 @@ export const appRoutes: Route[] = [
                     ),
             },
 
+            {
+                path: 'receiving',
+                canActivate: [AuthGuard],
+                loadChildren: () =>
+                    import('app/modules/receiving/receiving.routes'),
+            },
+
             // 404 & Catch all
             { path: '**', redirectTo: 'errors/404' },
         ],

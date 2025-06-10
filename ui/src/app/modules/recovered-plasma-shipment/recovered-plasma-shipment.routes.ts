@@ -32,7 +32,7 @@ export default [
                 data: {
                     subTitle: 'Manage Carton Products',
                 },
-            }
+            },
         ],
     },
 ] as Routes;
