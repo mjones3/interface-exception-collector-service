@@ -9,7 +9,6 @@ import io.cucumber.java.en.When;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Arrays;
 import java.util.Map;
 
 public class ImportProductSteps {
@@ -82,7 +81,8 @@ public class ImportProductSteps {
     }
 
     @When("I enter thermometer ID {string}.")
-    public void iEnterThermometerID(String thermometerId) {
+    public void iEnterThermometerID(String thermometerId) throws InterruptedException {
         enterShippingInformationPage.enterThermometerId(thermometerId);
+        Thread.sleep(1000);
     }
 }

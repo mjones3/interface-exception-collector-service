@@ -58,4 +58,4 @@ Feature: Device
             And The temperature field should be "disabled".
             Examples:
                 | Imports Location Code | Device Location Code | thermometer ID | Device ID     | Temperature Category | Device Type | Device Category | message_type | message                     |
-                | 123456789             | 123456789            | THERM-DST-002  | THERM-DST-001 | ROOM_TEMPERATURE     | THERMOMETER | TEMPERATURE     | WARN         | Thermometer does not exist. |
+                | 123456789             | 123456789            | THERM-DST-002  | THERM-DST-001 | ROOM_TEMPERATURE     | THERMOMETER | TEMPERATURE     | WARNING      | Thermometer does not exist. |
