@@ -2,6 +2,7 @@ package com.arcone.biopro.distribution.receiving.adapter.in.web.dto;
 
 import com.arcone.biopro.distribution.receiving.application.dto.CreateImportCommandInput;
 import com.arcone.biopro.distribution.receiving.application.dto.EnterShippingInformationCommandInput;
+import com.arcone.biopro.distribution.receiving.application.dto.ValidateBarcodeCommandInput;
 import com.arcone.biopro.distribution.receiving.application.dto.ValidateDeviceInput;
 import com.arcone.biopro.distribution.receiving.application.dto.ValidateTemperatureCommandInput;
 import com.arcone.biopro.distribution.receiving.application.dto.ValidateTransitTimeCommandInput;
@@ -15,4 +16,5 @@ public interface CommandRequestDTOMapper {
     ValidateTemperatureCommandInput toCommandInput(ValidateTemperatureRequestDTO validateTemperatureRequestDTO);
     ValidateTransitTimeCommandInput toCommandInput(ValidateTransitTimeRequestDTO validateTransitTimeRequestDTO);
     CreateImportCommandInput toCommandInput(CreateImportRequestDTO createImportRequestDTO);
+    ValidateBarcodeCommandInput toCommandInput(ValidateBarcodeRequestDTO validateBarcodeRequestDTO);
 }

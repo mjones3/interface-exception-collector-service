@@ -8,6 +8,7 @@ type Query {
     validateDevice(validateDeviceRequest:ValidateDeviceRequestDTO!): UseCaseResponseDTO!
     validateTemperature(validateTemperatureRequest:ValidateTemperatureRequestDTO!): UseCaseResponseDTO!
     validateTransitTime(validateTransitTimeRequest:ValidateTransitTimeRequestDTO!): UseCaseResponseDTO!
+    validateBarcode(validateBarcodeRequest:ValidateBarcodeRequestDTO!): UseCaseResponseDTO!
 }
 
 type Mutation {
@@ -63,6 +64,12 @@ input CreateImportRequestDTO {
     locationCode:String!
     comments:String
     employeeId:String!
+}
+
+input ValidateBarcodeRequestDTO {
+    temperatureCategory:String!
+    barcodeValue:String!
+    barcodePattern:String!
 }
 
 type UseCaseNotificationDTO {
