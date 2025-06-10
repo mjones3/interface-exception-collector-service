@@ -27,10 +27,10 @@ Feature: Import products
                 | ROOM_TEMPERATURE     | Transit Start Date, Transit Start Time,Start Time Zone,Transit End Date, Transit End Time, End Time Zone , Temperature , Thermometer, Comments |                                                                                                                                      |
                 | REFRIGERATED         | Temperature , Thermometer, Comments                                                                                                            | Transit Start Date, Transit Start Time,Start Time Zone,Transit End Date, Transit End Time, End Time Zone                             |
 
-    Rule: I should be able to enter temperature information of the imported products.
+        Rule: I should be able to enter temperature information of the imported products.
         @api @DIS-410
         Scenario Outline: Successfully record temperature within acceptable range
-            And The following temperature thresholds are configured:
+            Given The following temperature thresholds are configured:
                 | Temperature Category | Min Temperature | Max Temperature |
                 | REFRIGERATED         |    1            |  10             |
                 | ROOM_TEMPERATURE     |    20           |  24             |
@@ -41,10 +41,10 @@ Feature: Import products
                 | REFRIGERATED        |  9          |
                 | ROOM_TEMPERATURE    |  22         |
 
-    Rule: I should be notified when I enter a temperature that is out of the configured range.
+        Rule: I should be notified when I enter a temperature that is out of the configured range.
         @api @DIS-410
         Scenario Outline: Notification for out-of-range temperatures
-            And The following temperature thresholds are configured:
+            Given The following temperature thresholds are configured:
                 | Temperature Category | Min Temperature | Max Temperature |
                 | REFRIGERATED         |    1            |  10             |
                 | ROOM_TEMPERATURE     |    20           |  24             |
@@ -55,7 +55,7 @@ Feature: Import products
                 | REFRIGERATED        |  12         | CAUTION      | Temperature does not meet thresholds all products will be quarantined |
                 | ROOM_TEMPERATURE    |  25         | CAUTION      | Temperature does not meet thresholds all products will be quarantined |
 
-    Rule: I should be able to enter temperature information of the imported products.
+        Rule: I should be able to enter temperature information of the imported products.
         Rule: I should be notified when I enter a temperature that is out of the configured range.
         @ui @DIS-410
         Scenario Outline: Enter temperature within acceptable different ranges
@@ -74,6 +74,6 @@ Feature: Import products
             Then The continue option should be "<continue_status>"
             And  I "<should_should_not>" see a "CAUTION" message: "Temperature does not meet thresholds all products will be quarantined".
             Examples:
-                | Imports Location Code | Device Location Code | thermometer ID | Device ID | Temperature Category | Device Type | Device Category | Temperature Field Status | Temperature | continue_status | should_should_not |
-                | 123456789             | 123456789            | THERM-001      | THERM-001 | REFRIGERATED         | THERMOMETER | TEMPERATURE     | enabled                  | 9           | enabled         | should not        |
-                | 123456789             | 123456789            | THERM-001      | THERM-001 | REFRIGERATED         | THERMOMETER | TEMPERATURE     | enabled                  | 15          | disabled        | should            |
+                |Imports Location Code | Device Location Code | thermometer ID | Device ID | Temperature Category | Device Type | Device Category | Temperature Field Status |Temperature | continue_status |should_should_not |
+                | 123456789            |   123456789          | THERM-001      | THERM-001 |  REFRIGERATED        | THERMOMETER | TEMPERATURE     | enabled                  |   9        | enabled         |should not        |
+                | 123456789            |   123456789          | THERM-001      | THERM-001 |  REFRIGERATED        | THERMOMETER | TEMPERATURE     | enabled                  |   15       | disabled        |should            |
