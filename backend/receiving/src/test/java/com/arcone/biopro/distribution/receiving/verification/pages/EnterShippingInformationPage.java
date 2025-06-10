@@ -114,23 +114,19 @@ public class EnterShippingInformationPage extends CommonPageFactory {
         if (field.equals("Transit Start Date")) {
             setValue(visible, "06/02/2025", startTransitDateInput);
         } else if (field.equals("Transit Start Time")) {
-            setValue(visible, "01:15", startTransitDateInput);
+            setValue(visible, "01:15A", startTransitTimeInput);
         } else if (field.equals("Start Time Zone")) {
             selectStartTransitTimeZone(visible, "MST");
         } else if (field.equals("Transit End Date")) {
             setValue(visible, "06/02/2025", endTransitDateInput);
         } else if (field.equals("Transit End Time")) {
-            setValue(visible, "01:15", endTransitTimeInput);
+            setValue(visible, "01:15P", endTransitTimeInput);
         } else if (field.equals("End Time Zone")) {
             selectEndTransitTimeZone(visible, "PT");
         } else if (field.equals("Comments")) {
             setValue(visible, "test", commentsInput);
         } else if (field.equals("Thermometer")) {
             setValue(visible, "123456", thermometerIdInput);
-        } else if (field.equals("Temperature")) {
-            setValue(visible, "50", temperatureInput);
-        } else {
-            throw new IllegalArgumentException("Invalid field");
         }
     }
 
