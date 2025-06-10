@@ -5,6 +5,7 @@ scalar JSON
 type Query {
     findAllLookupsByType(type: String!): [LookupDTO]!
     enterShippingInformation(enterShippingInformationRequest:EnterShippingInformationRequestDTO!): UseCaseResponseDTO!
+    validateDevice(validateDeviceRequest:ValidateDeviceRequestDTO!): UseCaseResponseDTO!
 }
 
 input InputQuerySortDTO {
@@ -23,6 +24,11 @@ input InputQueryOrderByDTO {
 input EnterShippingInformationRequestDTO {
     productCategory:String!
     employeeId:String!
+    locationCode:String!
+}
+
+input ValidateDeviceRequestDTO {
+    bloodCenterId:String!
     locationCode:String!
 }
 

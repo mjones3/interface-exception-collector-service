@@ -1,12 +1,12 @@
 package com.arcone.biopro.distribution.receiving.verification.pages;
 
-import org.junit.Assert;
+import com.arcone.biopro.distribution.receiving.verification.support.SharedContext;
 import org.openqa.selenium.By;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class EnterShippingInformationPage extends CommonPageFactory{
+public class EnterShippingInformationPage extends CommonPageFactory {
 
     @Autowired
     private SharedActions sharedActions;
@@ -26,6 +26,8 @@ public class EnterShippingInformationPage extends CommonPageFactory{
     private final By temperatureInput = By.xpath("//input[@data-testid='temperature']");
     private final By thermometerIdInput = By.xpath("//input[@data-testid='thermometer-id']");
     private final By commentsInput = By.xpath("//textarea[@data-testid='comments']");
+    @Autowired
+    private SharedContext sharedContext;
 
 
     private By selectInputOption(String optionText) {
@@ -43,17 +45,24 @@ public class EnterShippingInformationPage extends CommonPageFactory{
     }
 
     public void navigateToEnterShippingInformation() throws InterruptedException {
-        homePage.goTo();
+        var location = sharedContext.getLocationCode();
+        if (location != null) {
+            homePage.goTo(location);
+        } else {
+            homePage.goTo();
+        }
+
         sharedActions.navigateTo("/receiving/imports-enter-shipment-information");
     }
 
-    public void selectTemperatureCategory(String temperatureCategory){
+    public void selectTemperatureCategory(String temperatureCategory) {
         sharedActions.click(temperatureCategoryCard(temperatureCategory));
     }
 
     public void setComments(String comments) {
         sharedActions.sendKeys(commentsInput, comments);
     }
+
     public void setThermometerId(String id) {
         sharedActions.sendKeys(thermometerIdInput, id);
     }
@@ -62,75 +71,83 @@ public class EnterShippingInformationPage extends CommonPageFactory{
         sharedActions.sendKeys(temperatureInput, temperature);
     }
 
-    public void setStartTransitDate(String date){
+    public void setStartTransitDate(String date) {
         sharedActions.sendKeys(startTransitDateInput, date);
     }
 
-    public void setStartTransitTime(String time){
+    public void setStartTransitTime(String time) {
         sharedActions.sendKeys(startTransitTimeInput, time);
     }
 
-    public void selectStartTransitTimeZone(boolean visible , String timeZone) {
-        if(visible){
+    public void selectStartTransitTimeZone(boolean visible, String timeZone) {
+        if (visible) {
             sharedActions.click(startTransitTimeZoneInput);
             sharedActions.sendKeys(startTransitTimeZoneInput, timeZone);
             sharedActions.click(selectInputOption(timeZone));
-        }else{
+        } else {
             sharedActions.isElementVisible(startTransitTimeZoneInput);
         }
 
     }
 
 
-    public void setEndTransitDate(String date){
+    public void setEndTransitDate(String date) {
         sharedActions.sendKeys(endTransitDateInput, date);
     }
 
-    public void setEndTransitTime(String time){
+    public void setEndTransitTime(String time) {
         sharedActions.sendKeys(endTransitTimeInput, time);
     }
 
-    public void selectEndTransitTimeZone(boolean visible , String timeZone) {
-        if(visible){
+    public void selectEndTransitTimeZone(boolean visible, String timeZone) {
+        if (visible) {
             sharedActions.click(endTransitTiZoneInput);
             sharedActions.sendKeys(endTransitTiZoneInput, timeZone);
             sharedActions.click(selectInputOption(timeZone));
-        }else{
+        } else {
             sharedActions.isElementVisible(endTransitTiZoneInput);
         }
 
     }
 
-    public void setRandomFormValue(String field , boolean visible){
-        if(field.equals("Transit Start Date")) {
-            setValue(visible,"06/02/2025",startTransitDateInput);
-        }else if(field.equals("Transit Start Time")) {
-            setValue(visible, "01:15", startTransitDateInput);
-        }else if(field.equals("Start Time Zone")) {
-            selectStartTransitTimeZone(visible,"MST");
-        }else if(field.equals("Transit End Date")) {
+    public void setRandomFormValue(String field, boolean visible) {
+        if (field.equals("Transit Start Date")) {
+            setValue(visible, "06/02/2025", startTransitDateInput);
+        } else if (field.equals("Transit Start Time")) {
+            setValue(visible, "01:15A", startTransitTimeInput);
+        } else if (field.equals("Start Time Zone")) {
+            selectStartTransitTimeZone(visible, "MST");
+        } else if (field.equals("Transit End Date")) {
             setValue(visible, "06/02/2025", endTransitDateInput);
-        }else if(field.equals("Transit End Time")) {
-            setValue(visible, "01:15", endTransitTimeInput);
-        }else if(field.equals("End Time Zone")) {
+        } else if (field.equals("Transit End Time")) {
+            setValue(visible, "01:15P", endTransitTimeInput);
+        } else if (field.equals("End Time Zone")) {
             selectEndTransitTimeZone(visible, "PT");
-        }else if(field.equals("Comments")) {
+        } else if (field.equals("Comments")) {
             setValue(visible, "test", commentsInput);
-        }else if(field.equals("Thermometer")) {
+        } else if (field.equals("Thermometer")) {
             setValue(visible, "123456", thermometerIdInput);
-        }else if(field.equals("Temperature")) {
-            setValue(visible, "50", temperatureInput);
-        }else {
-            throw new IllegalArgumentException("Invalid field");
         }
     }
 
-    private void setValue(boolean visible , String value , By fieldId) {
-        if(visible){
+    private void setValue(boolean visible, String value, By fieldId) {
+        if (visible) {
             sharedActions.sendKeys(fieldId, value);
-        }else{
-           sharedActions.waitForNotVisible(fieldId);
+        } else {
+            sharedActions.waitForNotVisible(fieldId);
         }
     }
 
+    public boolean isTemperatureFieldEnabled() {
+        sharedActions.waitForVisible(temperatureInput);
+        return sharedActions.isElementEnabled(driver, temperatureInput);
+    }
+
+    public void enterThermometerId(String thermometerId) {
+        sharedActions.sendKeys(thermometerIdInput, thermometerId);
+    }
+
+    public void waitForTemperatureFieldToBeEnabled() {
+        sharedActions.waitForEnabled(temperatureInput);
+    }
 }
