@@ -142,4 +142,16 @@ public class EnterShippingInformationPage extends CommonPageFactory {
         }
     }
 
+    public boolean isTemperatureFieldEnabled() {
+        sharedActions.waitForVisible(temperatureInput);
+        return sharedActions.isElementEnabled(driver, temperatureInput);
+    }
+
+    public void enterThermometerId(String thermometerId) {
+        sharedActions.sendKeys(thermometerIdInput, thermometerId);
+    }
+
+    public void waitForTemperatureFieldToBeEnabled() {
+        sharedActions.waitForEnabled(temperatureInput);
+    }
 }

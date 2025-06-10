@@ -68,4 +68,21 @@ public class ImportProductSteps {
             }
         }
     }
+
+    @Then("The temperature field should be {string}.")
+    public void theTemperatureFieldShouldBe(String enabledDisabled) {
+        if ("enabled".equals(enabledDisabled)) {
+            enterShippingInformationPage.waitForTemperatureFieldToBeEnabled();
+            Assert.assertTrue(enterShippingInformationPage.isTemperatureFieldEnabled());
+        } else if ("disabled".equals(enabledDisabled)) {
+            Assert.assertFalse(enterShippingInformationPage.isTemperatureFieldEnabled());
+        } else {
+            Assert.fail("The temperature field should be enabled or disabled");
+        }
+    }
+
+    @When("I enter thermometer ID {string}.")
+    public void iEnterThermometerID(String thermometerId) {
+        enterShippingInformationPage.enterThermometerId(thermometerId);
+    }
 }

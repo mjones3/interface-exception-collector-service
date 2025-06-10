@@ -30,32 +30,32 @@ Feature: Device
                 | 123456789             | 123456789            | THERM-DST-001  | THERM-DST-001 | ROOM_TEMPERATURE     | FREEZER     | SECONDARY_STORAGE | WARN         | Thermometer does not exist. |
 
 
-    Rule: I should be able to enter the thermometer ID configured for location where products are imported.
+        Rule: I should be able to enter the thermometer ID configured for location where products are imported.
         @ui @DIS-409
         Scenario Outline: Successfully enter a valid thermometer ID for the location
             Given I have a thermometer configured as location "<Device Location Code>", Device ID as "<Device ID>", Category as "<Device Category>" and Device Type as "<Device Type>".
             And The user location is "<Imports Location Code>".
             And I am at the Enter Shipping Information Page.
             And I select to enter information for a "<Temperature Category>" product category.
-            Then The temperature field should be "disabled"
-            When I enter thermometer ID "<thermometer ID>"
-            Then The temperature field should be "<Temperature Field Status>"
+            Then The temperature field should be "disabled".
+            When I enter thermometer ID "<thermometer ID>".
+            Then The temperature field should be "enabled".
             Examples:
-                | Imports Location Code | Device Location Code | thermometer ID | Device ID | Temperature Category | Device Type | Device Category | Temperature Field Status |
-                | 123456789             | 123456789            | THERM-DST-001      | THERM-DST-001 | ROOM_TEMPERATURE     | THERMOMETER | TEMPERATURE     | enabled                  |
+                | Imports Location Code | Device Location Code | thermometer ID | Device ID     | Temperature Category | Device Type | Device Category |
+                | 123456789             | 123456789            | THERM-DST-001  | THERM-DST-001 | ROOM_TEMPERATURE     | THERMOMETER | TEMPERATURE     |
 
 
-    Rule: I should not be able to enter the temperature information if the thermometer is not valid.
+        Rule: I should not be able to enter the temperature information if the thermometer is not valid.
         @ui @DIS-409
         Scenario Outline: Attempt to enter an invalid thermometer ID
             Given I have a thermometer configured as location "<Device Location Code>", Device ID as "<Device ID>", Category as "<Device Category>" and Device Type as "<Device Type>".
             And The user location is "<Imports Location Code>".
             And I am at the Enter Shipping Information Page.
             And I select to enter information for a "<Temperature Category>" product category.
-            Then The temperature field should be "disabled"
-            When I enter thermometer ID "<thermometer ID>"
+            Then The temperature field should be "disabled".
+            When I enter thermometer ID "<thermometer ID>".
             Then I should see a "<message_type>" message: "<message>".
-            And The temperature field should be "<Temperature Field Status>"
+            And The temperature field should be "disabled".
             Examples:
-                | Imports Location Code | Device Location Code | thermometer ID | Device ID | Temperature Category | Device Type | Device Category | message_type | message      | Temperature Field Status |
-                | 123456789             | 123456789            | THERM-DST-001      | THERM-DST-001 | ROOM_TEMPERATURE     | THERMOMETER | TEMPERATURE     | WARN         | Valid Device | disabled                 |
+                | Imports Location Code | Device Location Code | thermometer ID | Device ID     | Temperature Category | Device Type | Device Category | message_type | message                     |
+                | 123456789             | 123456789            | THERM-DST-001  | THERM-DST-001 | ROOM_TEMPERATURE     | THERMOMETER | TEMPERATURE     | WARN         | Thermometer does not exist. |
