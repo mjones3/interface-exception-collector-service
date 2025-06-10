@@ -5,7 +5,7 @@
   "eventVersion": "1.0",
   "payload": {
     "id": "{DEVICE_ID}",
-    "serialNumber": "MMT0003 90OcuaX7qK2PCQqCs",
+    "serialNumber": "{DEVICE_SN}",
     "name": "My Machine",
     "deviceCategory": "{DEVICE_CATEGORY}",
     "device": "{DEVICE_TYPE}",

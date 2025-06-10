@@ -1,9 +1,9 @@
 package com.arcone.biopro.distribution.receiving.verification.steps;
 
 import com.arcone.biopro.distribution.receiving.verification.support.ApiHelper;
+import com.arcone.biopro.distribution.receiving.verification.support.TestUtils;
 import com.arcone.biopro.distribution.receiving.verification.support.graphql.GraphQLQueryMapper;
 import com.arcone.biopro.distribution.receiving.verification.support.kafka.KafkaHelper;
-import com.arcone.biopro.distribution.receiving.verification.support.TestUtils;
 import com.arcone.biopro.distribution.receiving.verification.support.kafka.Topics;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.java.en.Given;
@@ -36,7 +36,8 @@ public class DeviceSteps {
             .replace("{DEVICE_ID}", deviceId)
             .replace("{DEVICE_CATEGORY}", deviceCategory)
             .replace("{DEVICE_TYPE}", deviceType)
-            .replace("{LOCATION}", location);
+            .replace("{LOCATION}", location)
+            .replace("{DEVICE_SN}", UUID.randomUUID().toString());
         log.debug("Event payload: {}", JSON);
 
         String eventId = UUID.randomUUID().toString();
