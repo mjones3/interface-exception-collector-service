@@ -1,13 +1,14 @@
 import { AbstractControl, AsyncValidatorFn, ValidationErrors } from '@angular/forms';
-import { BehaviorSubject, catchError, debounceTime, first, map, Observable, switchMap } from 'rxjs';
+import { BehaviorSubject, catchError, debounceTime, first, map, Observable, switchMap, tap } from 'rxjs';
 import { ReceivingService } from '../service/receiving.service';
 import { ToastrService } from 'ngx-toastr';
 import { ApolloError } from '@apollo/client';
 import handleApolloError from '../../../shared/utils/apollo-error-handling';
+import { consumeUseCaseNotifications } from '../../../shared/utils/notification.handling';
 
-export class DeviceValidator {
+export class DeviceIdValidator {
 
-    public static using(toastrService: ToastrService, receivingService: ReceivingService, locationCode: string, debounceTimeMillis: number = 400): AsyncValidatorFn {
+    public static using(toastrService: ToastrService, receivingService: ReceivingService, locationCode: string, debounceTimeMillis: number = 1000): AsyncValidatorFn {
         const subject = new BehaviorSubject<string>('');
         const output = subject.asObservable().pipe(
             // Waits debounce time to trigger service validation
@@ -23,17 +24,25 @@ export class DeviceValidator {
                     })
                     .pipe(catchError((error: ApolloError) => handleApolloError(toastrService, error)))
             ),
-            map(response =>
-                response.data?.validateDevice?.notifications
-                    ?.filter(n => n.type === 'WARN')
-                    ?.map(n => ({ deviceValidation: n?.message } satisfies ValidationErrors))
-                    ?.[0]
-            )
+            tap(response => {
+                const notifications = response.data
+                    ?.validateDevice
+                    ?.notifications
+                    ?.filter(n => n.type !== 'SUCCESS');
+                consumeUseCaseNotifications(toastrService, notifications);
+            }),
+            map(response => {
+                const warning = response.data
+                    ?.validateDevice
+                    ?.notifications
+                    ?.filter(n => n.type === 'WARN')?.[0];
+                return warning ? { deviceValidation: warning?.message } as ValidationErrors : null;
+            }),
         );
 
         return (control: AbstractControl<string, string>): Observable<ValidationErrors | null> => {
-            const username = control.value;
-            subject.next(username);
+            const deviceId = control.value;
+            subject.next(deviceId);
             return output;
         };
     }

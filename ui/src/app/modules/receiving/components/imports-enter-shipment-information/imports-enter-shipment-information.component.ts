@@ -25,7 +25,7 @@ import { consumeUseCaseNotifications } from '../../../../shared/utils/notificati
 import { Cookie } from '../../../../shared/types/cookie.enum';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatOption, MatSelect } from '@angular/material/select';
-import { DeviceValidator } from '../../validators/device.validator';
+import { DeviceIdValidator } from '../../validators/deviceIdValidator';
 import { ToastrService } from 'ngx-toastr';
 
 @Component({
@@ -177,7 +177,7 @@ export class ImportsEnterShipmentInformationComponent implements OnInit {
     updateFormValidationForTemperature(useTemperature: boolean) {
         if (useTemperature) {
             this.form.controls.temperature.controls.thermometerId.addValidators([ Validators.required ]);
-            this.form.controls.temperature.controls.thermometerId.addAsyncValidators([ DeviceValidator.using(this.toastr, this.receivingService, this.locationCodeComputed()) ]);
+            this.form.controls.temperature.controls.thermometerId.addAsyncValidators([ DeviceIdValidator.using(this.toastr, this.receivingService, this.locationCodeComputed()) ]);
             this.form.controls.temperature.controls.temperature.addValidators([ Validators.required ]);
             this.form.controls.temperature.controls.temperature.addAsyncValidators([ /* TODO add temperature async validator */ ]);
         } else {

@@ -13,7 +13,7 @@ import { ShippingInformationDTO } from '../../graphql/query-definitions/imports-
 import { UseCaseResponseDTO } from '../../../../shared/models/use-case-response.dto';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { provideMockStore } from '@ngrx/store/testing';
-import { DeviceValidator } from '../../validators/device.validator';
+import { DeviceIdValidator } from '../../validators/deviceIdValidator';
 import { ToastrService } from 'ngx-toastr';
 
 describe('ImportsEnterShipmentInformationComponent', () => {
@@ -64,7 +64,7 @@ describe('ImportsEnterShipmentInformationComponent', () => {
     } as any;
 
     // Mock DeviceValidator
-    jest.spyOn(DeviceValidator, 'using').mockReturnValue(() => of(null));
+    jest.spyOn(DeviceIdValidator, 'using').mockReturnValue(() => of(null));
 
     await TestBed.configureTestingModule({
       imports: [
@@ -289,7 +289,7 @@ describe('ImportsEnterShipmentInformationComponent', () => {
       const temperatureControl = component.form.get('temperature.temperature');
 
       expect(thermometerControl.hasValidator(Validators.required)).toBeTruthy();
-      expect(thermometerControl.hasAsyncValidator(DeviceValidator.using(mockToastr, mockReceivingService, 'testFacility'))).toBeTruthy();
+      expect(thermometerControl.hasAsyncValidator(DeviceIdValidator.using(mockToastr, mockReceivingService, 'testFacility'))).toBeTruthy();
       expect(temperatureControl.hasValidator(Validators.required)).toBeTruthy();
     });
 
