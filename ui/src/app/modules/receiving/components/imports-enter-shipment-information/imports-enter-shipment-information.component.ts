@@ -145,6 +145,7 @@ export class ImportsEnterShipmentInformationComponent implements OnInit {
     selectCategory(productCategory: string): void {
         this.fetchEnterShippingInformation(productCategory)
             .subscribe(shippingInformationDTO => {
+                this.form.reset();
                 this.updateFormValidators(shippingInformationDTO);
                 this.form.controls.productCategory.setValue(productCategory);
                 this.form.updateValueAndValidity();
@@ -158,33 +159,31 @@ export class ImportsEnterShipmentInformationComponent implements OnInit {
 
     updateFormValidationForTransitTime(useTransitTime: boolean) {
         if (useTransitTime) {
-            this.form.controls.transitTime.controls.startDate.addValidators([ Validators.required ]);
-            this.form.controls.transitTime.controls.startTime.addValidators([ Validators.required ]);
-            this.form.controls.transitTime.controls.startZone.addValidators([ Validators.required ]);
-            this.form.controls.transitTime.controls.endDate.addValidators([ Validators.required ]);
-            this.form.controls.transitTime.controls.endTime.addValidators([ Validators.required ]);
-            this.form.controls.transitTime.controls.endZone.addValidators([ Validators.required ]);
+            this.form.controls.transitTime.controls.startDate.setValidators([ Validators.required ]);
+            this.form.controls.transitTime.controls.startTime.setValidators([ Validators.required ]);
+            this.form.controls.transitTime.controls.startZone.setValidators([ Validators.required ]);
+            this.form.controls.transitTime.controls.endDate.setValidators([ Validators.required ]);
+            this.form.controls.transitTime.controls.endTime.setValidators([ Validators.required ]);
+            this.form.controls.transitTime.controls.endZone.setValidators([ Validators.required ]);
         } else {
-            this.form.controls.transitTime.controls.startDate.clearValidators();
-            this.form.controls.transitTime.controls.startTime.clearValidators();
-            this.form.controls.transitTime.controls.startZone.clearValidators();
-            this.form.controls.transitTime.controls.endDate.clearValidators();
-            this.form.controls.transitTime.controls.endTime.clearValidators();
-            this.form.controls.transitTime.controls.endZone.clearValidators();
+            this.form.controls.transitTime.controls.startDate.setValidators([]);
+            this.form.controls.transitTime.controls.startTime.setValidators([]);
+            this.form.controls.transitTime.controls.startZone.setValidators([]);
+            this.form.controls.transitTime.controls.endDate.setValidators([]);
+            this.form.controls.transitTime.controls.endTime.setValidators([]);
+            this.form.controls.transitTime.controls.endZone.setValidators([]);
         }
     }
 
     updateFormValidationForTemperature(useTemperature: boolean) {
         if (useTemperature) {
-            this.form.controls.temperature.controls.thermometerId.addValidators([ Validators.required ]);
-            this.form.controls.temperature.controls.thermometerId.addAsyncValidators([ DeviceIdValidator.using(this.toastr, this.receivingService, this.locationCodeComputed()) ]);
-            this.form.controls.temperature.controls.temperature.addValidators([ Validators.required ]);
-            this.form.controls.temperature.controls.temperature.addAsyncValidators([ /* TODO add temperature async validator */ ]);
+            this.form.controls.temperature.controls.thermometerId.setValidators([ Validators.required ]);
+            this.form.controls.temperature.controls.thermometerId.setAsyncValidators([ DeviceIdValidator.using(this.toastr, this.receivingService, this.locationCodeComputed()) ]);
+            this.form.controls.temperature.controls.temperature.setValidators([ Validators.required ]);
         } else {
-            this.form.controls.temperature.controls.thermometerId.clearValidators();
-            this.form.controls.temperature.controls.thermometerId.clearAsyncValidators();
-            this.form.controls.temperature.controls.temperature.clearValidators();
-            this.form.controls.temperature.controls.temperature.clearAsyncValidators();
+            this.form.controls.temperature.controls.thermometerId.setValidators([]);
+            this.form.controls.temperature.controls.thermometerId.setAsyncValidators([]);
+            this.form.controls.temperature.controls.temperature.setValidators([]);
         }
     }
 

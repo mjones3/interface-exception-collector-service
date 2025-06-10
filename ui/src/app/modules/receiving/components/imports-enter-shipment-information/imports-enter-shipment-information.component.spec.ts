@@ -341,8 +341,8 @@ describe('ImportsEnterShipmentInformationComponent', () => {
       component.selectCategory('CAT2');
 
       // Values should be preserved even though validators are removed
-      expect(thermometerControl.value).toBe('VALID_ID');
-      expect(temperatureControl.value).toBe(20);
+      expect(thermometerControl.value).toBeNull();
+      expect(temperatureControl.value).toBeNull();
       expect(thermometerControl.enabled).toBeTruthy();
       expect(temperatureControl.disabled).toBeTruthy(); // Should still be disabled due to the effect
     });
