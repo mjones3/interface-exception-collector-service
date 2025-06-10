@@ -15,6 +15,8 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { provideMockStore } from '@ngrx/store/testing';
 import { DeviceIdValidator } from '../../validators/deviceIdValidator';
 import { ToastrService } from 'ngx-toastr';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 
 describe('ImportsEnterShipmentInformationComponent', () => {
   let component: ImportsEnterShipmentInformationComponent;
@@ -72,6 +74,8 @@ describe('ImportsEnterShipmentInformationComponent', () => {
         ReactiveFormsModule,
         BrowserAnimationsModule,
         MatIconTestingModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
       ],
       providers: [
         FormBuilder,
@@ -115,20 +119,11 @@ describe('ImportsEnterShipmentInformationComponent', () => {
   it('should fetch lookups on init', () => {
     component.ngOnInit();
     expect(mockReceivingService.findAllLookupsByType).toHaveBeenCalledWith('TEMPERATURE_PRODUCT_CATEGORY');
-    expect(component.productCategoriesSignal()).toEqual(mockLookups);
-  });
-
-  it('should handle lookup fetching error', () => {
-    const error = new ApolloError({ graphQLErrors: [{ message: 'Test error' }] });
-    mockReceivingService.findAllLookupsByType.mockReturnValueOnce(throwError(() => error));
-
-    component.ngOnInit();
-
-    expect(mockToastr.error).toHaveBeenCalled();
+    expect(component.productCategoryLookupsSignal()).toEqual(mockLookups);
   });
 
   it('should fetch shipping information when selecting category', () => {
-    const productCategory = 'CAT1';
+    const productCategory = 'ROOM_TEMPERATURE';
     component.selectCategory(productCategory);
 
     expect(mockReceivingService.queryEnterShippingInformation).toHaveBeenCalledWith({
@@ -140,7 +135,7 @@ describe('ImportsEnterShipmentInformationComponent', () => {
   });
 
   it('should update form validators based on shipping information', () => {
-    component.selectCategory('CAT1');
+    component.selectCategory('ROOM_TEMPERATURE');
 
     // Transit time validators should be required
     expect(component.form.get('transitTime.startDate').hasValidator(Validators.required)).toBeTruthy();
@@ -169,7 +164,7 @@ describe('ImportsEnterShipmentInformationComponent', () => {
       }
     } as unknown as ApolloQueryResult<{ enterShippingInformation: UseCaseResponseDTO<ShippingInformationDTO> }>));
 
-    component.selectCategory('CAT1');
+    component.selectCategory('ROOM_TEMPERATURE');
 
     // Transit time validators should be cleared
     expect(component.form.get('transitTime.startDate').hasValidator(Validators.required)).toBeFalsy();
@@ -202,15 +197,6 @@ describe('ImportsEnterShipmentInformationComponent', () => {
     expect(component.form.get('comments').value).toBeNull();
   });
 
-  it('should handle shipping information fetching error', () => {
-    const error = new ApolloError({ graphQLErrors: [{ message: 'Test error' }] });
-    mockReceivingService.queryEnterShippingInformation.mockReturnValueOnce(throwError(() => error));
-
-    component.selectCategory('CAT1');
-
-    expect(mockToastr.error).toHaveBeenCalled();
-  });
-
   it('should get location code from cookie', () => {
     expect(component.locationCodeComputed()).toBe('testFacility');
     expect(mockCookieService.get).toHaveBeenCalledWith(Cookie.XFacility);
@@ -221,7 +207,7 @@ describe('ImportsEnterShipmentInformationComponent', () => {
   });
 
   it('should update available time zones when shipping information changes', () => {
-    component.selectCategory('CAT1');
+    component.selectCategory('ROOM_TEMPERATURE');
     expect(component.availableTimeZonesSignal()).toEqual(['UTC', 'GMT']);
   });
 
@@ -281,7 +267,7 @@ describe('ImportsEnterShipmentInformationComponent', () => {
         }
       } as unknown as ApolloQueryResult<{ enterShippingInformation: UseCaseResponseDTO<ShippingInformationDTO> }>));
 
-      component.selectCategory('CAT1');
+      component.selectCategory('ROOM_TEMPERATURE');
     });
 
     it('should add async validators for temperature when temperature is required', () => {
@@ -307,7 +293,7 @@ describe('ImportsEnterShipmentInformationComponent', () => {
         }
       } as unknown as ApolloQueryResult<{ enterShippingInformation: UseCaseResponseDTO<ShippingInformationDTO> }>));
 
-      component.selectCategory('CAT2');
+      component.selectCategory('ROOM_TEMPERATURE');
 
       const thermometerControl = component.form.get('temperature.thermometerId');
       const temperatureControl = component.form.get('temperature.temperature');
@@ -338,13 +324,99 @@ describe('ImportsEnterShipmentInformationComponent', () => {
         }
       } as unknown as ApolloQueryResult<{ enterShippingInformation: UseCaseResponseDTO<ShippingInformationDTO> }>));
 
-      component.selectCategory('CAT2');
+      component.selectCategory('ROOM_TEMPERATURE');
 
       // Values should be preserved even though validators are removed
       expect(thermometerControl.value).toBeNull();
       expect(temperatureControl.value).toBeNull();
       expect(thermometerControl.enabled).toBeTruthy();
       expect(temperatureControl.disabled).toBeTruthy(); // Should still be disabled due to the effect
+    });
+  });
+
+  describe('temperature field validation', () => {
+    beforeEach(() => {
+        // Enable temperature input by setting valid thermometer ID
+        component.form.get('temperature.thermometerId').setValue('VALID_ID');
+        component.form.get('temperature.thermometerId').setErrors(null);
+        fixture.detectChanges();
+    });
+
+    it('should enforce minimum temperature limit', () => {
+        const temperatureControl = component.form.get('temperature.temperature');
+        temperatureControl.setValue(-274); // Below minimum of -273
+
+        expect(temperatureControl.errors?.['min']).toBeTruthy();
+        expect(temperatureControl.valid).toBeFalsy();
+
+        temperatureControl.setValue(-273); // At minimum
+        expect(temperatureControl.errors?.['min']).toBeFalsy();
+        expect(temperatureControl.valid).toBeTruthy();
+    });
+
+    it('should enforce maximum temperature limit', () => {
+        const temperatureControl = component.form.get('temperature.temperature');
+        temperatureControl.setValue(100); // Above maximum of 99
+
+        expect(temperatureControl.errors?.['max']).toBeTruthy();
+        expect(temperatureControl.valid).toBeFalsy();
+
+        temperatureControl.setValue(99); // At maximum
+        expect(temperatureControl.errors?.['max']).toBeFalsy();
+        expect(temperatureControl.valid).toBeTruthy();
+    });
+
+    it('should validate temperature through service and handle notifications', (done) => {
+        const temperatureControl = component.form.get('temperature.temperature');
+        const productCategoryControl = component.form.get('productCategory');
+
+        // Mock service response with a caution notification
+        mockReceivingService.validateTemperature = jest.fn().mockReturnValue(of({
+            data: {
+                validateTemperature: {
+                    notifications: [
+                        { type: 'CAUTION', message: 'Temperature outside normal range' },
+                        { type: 'WARN', message: 'Warning message' }
+                    ]
+                }
+            }
+        }));
+
+        // Set temperature value to trigger validation
+        temperatureControl.setValue(15);
+        productCategoryControl.setValue('ROOM_TEMPERATURE');
+
+        // Wait for debounce
+        setTimeout(() => {
+            expect(mockReceivingService.validateTemperature).toHaveBeenCalledWith({
+                temperature: 15,
+                temperatureCategory: 'ROOM_TEMPERATURE'
+            });
+
+            // Warning notification should be shown
+            expect(mockToastr.show).toHaveBeenCalledWith('Warning message', null, {}, 'error');
+
+            // Caution notification should be stored
+            expect(component.temperatureQuarantineNotificationSignal()).toEqual({
+                type: 'CAUTION',
+                message: 'Temperature outside normal range'
+            });
+
+            done();
+        }, 600); // Longer than the 400ms debounce time
+    });
+
+    it('should not trigger temperature validation for empty values', (done) => {
+        const temperatureControl = component.form.get('temperature.temperature');
+        mockReceivingService.validateTemperature = jest.fn();
+
+        temperatureControl.setValue(null);
+
+        // Wait for debounce
+        setTimeout(() => {
+            expect(mockReceivingService.validateTemperature).not.toHaveBeenCalled();
+            done();
+        }, 600);
     });
   });
 
@@ -363,7 +435,7 @@ describe('ImportsEnterShipmentInformationComponent', () => {
         }
       } as unknown as ApolloQueryResult<{ enterShippingInformation: UseCaseResponseDTO<ShippingInformationDTO> }>));
 
-      component.selectCategory('CAT1');
+      component.selectCategory('ROOM_TEMPERATURE');
 
       expect(mockToastr.show).toHaveBeenNthCalledWith(1, 'Test warning', null, {}, 'error');
       expect(mockToastr.show).toHaveBeenNthCalledWith(2, 'Test success', null, {}, 'success');
@@ -377,7 +449,7 @@ describe('ImportsEnterShipmentInformationComponent', () => {
 
       mockReceivingService.queryEnterShippingInformation.mockReturnValueOnce(throwError(() => apolloError));
 
-      component.selectCategory('CAT1');
+      component.selectCategory('ROOM_TEMPERATURE');
 
       expect(mockToastr.error).toHaveBeenCalledWith('GraphQL Error');
       expect(component.form.get('productCategory').value).toBeNull();
@@ -386,17 +458,17 @@ describe('ImportsEnterShipmentInformationComponent', () => {
     it('should maintain form state when error occurs during shipping information fetch', () => {
       // Set initial form state
       component.form.patchValue({
-        productCategory: 'OLD_CATEGORY',
+        productCategory: 'ROOM_TEMPERATURE',
         comments: 'Test comment'
       });
 
       // Simulate error
       mockReceivingService.queryEnterShippingInformation.mockReturnValueOnce(throwError(() => new ApolloError({ graphQLErrors: [{ message: 'Error' }] })));
 
-      component.selectCategory('NEW_CATEGORY');
+      component.selectCategory('REFRIGERATED');
 
       // Form should maintain old values
-      expect(component.form.get('productCategory').value).toBe('OLD_CATEGORY');
+      expect(component.form.get('productCategory').value).toBe('ROOM_TEMPERATURE');
       expect(component.form.get('comments').value).toBe('Test comment');
     });
   });

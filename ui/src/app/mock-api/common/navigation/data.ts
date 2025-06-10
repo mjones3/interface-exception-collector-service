@@ -112,10 +112,17 @@ export const defaultNavigation: FuseNavigationItem[] = [
     },
     {
         id: 13,
+        title: 'Returns',
+        type: 'basic',
+        icon: 'upload',
+        disabled: true,
+    },
+    {
+        id: 14,
         title: 'Imports',
         type: 'basic',
         link: 'receiving/imports-enter-shipment-information',
-        icon: 'local_shipping',
+        icon: 'download',
         disabled: false,
     },
 ];
