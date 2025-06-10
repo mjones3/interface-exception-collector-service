@@ -26,6 +26,8 @@ public class EnterShippingInformationPage extends CommonPageFactory {
     private final By temperatureInput = By.xpath("//input[@data-testid='temperature']");
     private final By thermometerIdInput = By.xpath("//input[@data-testid='thermometer-id']");
     private final By commentsInput = By.xpath("//textarea[@data-testid='comments']");
+    private final By continueButton = By.id("importsEnterShipmentInformationContinueActionButton");
+
     @Autowired
     private SharedContext sharedContext;
 
@@ -149,5 +151,13 @@ public class EnterShippingInformationPage extends CommonPageFactory {
 
     public void waitForTemperatureFieldToBeEnabled() {
         sharedActions.waitForEnabled(temperatureInput);
+    }
+
+    public void waitForContinueButtonToBeEnabled() {
+        sharedActions.waitForEnabled(continueButton);
+    }
+
+    public boolean isContinueButtonEnabled() {
+        return sharedActions.isElementEnabled(driver, continueButton);
     }
 }

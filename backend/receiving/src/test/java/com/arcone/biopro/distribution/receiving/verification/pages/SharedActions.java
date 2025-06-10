@@ -380,4 +380,8 @@ public class SharedActions {
             throw new NoSuchElementException("Acknowledgment message not found");
         }
     }
+
+    public void assertToasterIsNotVisible(String header, String message) {
+        waitForNotVisible(By.cssSelector("#toast-container"));
+    }
 }

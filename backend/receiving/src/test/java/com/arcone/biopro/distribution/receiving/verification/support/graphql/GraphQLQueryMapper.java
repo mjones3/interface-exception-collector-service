@@ -43,4 +43,26 @@ public class GraphQLQueryMapper {
             }
             """, bloodCenterId, locationCode);
     }
+
+    public static String validateTemperature(String temperatureCategory, String temperatureValue) {
+        return String.format("""
+            query ValidateTemperature {
+                validateTemperature(
+                    validateTemperatureRequest: { temperature: %s, temperatureCategory: "%s" }
+                ) {
+                    _links
+                    data
+                    notifications {
+                        message
+                        type
+                        code
+                        action
+                        reason
+                        details
+                        name
+                    }
+                }
+            }
+            """, temperatureValue, temperatureCategory);
+    }
 }

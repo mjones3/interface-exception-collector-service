@@ -59,4 +59,14 @@ public class CommonSteps {
         context.setLocationCode(location);
     }
 
+    @And("I {string} see a {string} message: {string}.")
+    public void iSeeAMessage(String shouldShouldNot, String header, String message) throws InterruptedException {
+        if ("should".equalsIgnoreCase(shouldShouldNot)){
+           iShouldSeeAMessage(header, message);
+        } else if ("should not".equalsIgnoreCase(shouldShouldNot)) {
+            sharedActions.assertToasterIsNotVisible(header, message);
+        } else {
+            Assert.fail("Invalid value for should/ShouldNot");
+        }
+    }
 }

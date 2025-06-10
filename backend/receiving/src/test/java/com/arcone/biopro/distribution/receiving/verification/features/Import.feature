@@ -1,6 +1,9 @@
 @AOA-109
 Feature: Import products
 
+    Background: Clean-up
+        Given I have removed all created devices which ID contains "-DST-".
+
     Rule: I should be able to input shipping details like product category, transit date and time, temperature, thermometer ID and comments as necessary.
     Rule: The system should show the appropriate fields based on the selected product category.
     @api @DIS-406
@@ -35,7 +38,7 @@ Feature: Import products
                 | REFRIGERATED         |    1            |  10             |
                 | ROOM_TEMPERATURE     |    20           |  24             |
             When I request to validate the temperature of "<Temperature>" for the Temperature Category "<Temperature Category>".
-            Then The system should accept the temperature.
+            Then The system "should" accept the temperature.
             Examples:
                 |Temperature Category | Temperature |
                 | REFRIGERATED        |  9          |
@@ -67,13 +70,13 @@ Feature: Import products
             And The user location is "<Imports Location Code>".
             And I am at the Enter Shipping Information Page.
             And I select to enter information for a "<Temperature Category>" product category.
-            Then The temperature field should be "disabled"
-            When I enter thermometer ID "<thermometer ID>"
-            Then The temperature field should be "<Temperature Field Status>"
-            When I enter the temperature "<Temperature>"
-            Then The continue option should be "<continue_status>"
+            Then The temperature field should be "disabled".
+            When I enter thermometer ID "<thermometer ID>".
+            Then The temperature field should be "<Temperature Field Status>".
+            When I enter the temperature "<Temperature>".
+            Then The continue option should be "<continue_status>".
             And  I "<should_should_not>" see a "CAUTION" message: "Temperature does not meet thresholds all products will be quarantined".
             Examples:
-                |Imports Location Code | Device Location Code | thermometer ID | Device ID | Temperature Category | Device Type | Device Category | Temperature Field Status |Temperature | continue_status |should_should_not |
-                | 123456789            |   123456789          | THERM-001      | THERM-001 |  REFRIGERATED        | THERMOMETER | TEMPERATURE     | enabled                  |   9        | enabled         |should not        |
-                | 123456789            |   123456789          | THERM-001      | THERM-001 |  REFRIGERATED        | THERMOMETER | TEMPERATURE     | enabled                  |   15       | disabled        |should            |
+                | Imports Location Code | Device Location Code | thermometer ID | Device ID     | Temperature Category | Device Type | Device Category | Temperature Field Status | Temperature | continue_status | should_should_not |
+                | 123456789             | 123456789            | THERM-DST-001  | THERM-DST-001 | REFRIGERATED         | THERMOMETER | TEMPERATURE     | enabled                  | 9           | enabled         | should not        |
+                | 123456789             | 123456789            | THERM-DST-001  | THERM-DST-001 | REFRIGERATED         | THERMOMETER | TEMPERATURE     | enabled                  | 15          | disabled        | should            |
