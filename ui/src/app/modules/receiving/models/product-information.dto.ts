@@ -1,17 +1,31 @@
 
-export interface ImportedProductInformationDTO{
+export interface AddImportItemRequestDTO {
+    importId: number,
     unitNumber: string,
     productCode: string,
-    description: string,
     aboRh: string,
     expirationDate: string,
     visualInspection: string,
-    isQuarantined: boolean,
+    licenseStatus: string,
+    employeeId: string
+}
+
+export interface ImportedItemResponseDTO{
+    id: number,
+    importId: number,
+    unitNumber: string,
+    productCode: string,
+    productDescription: string,
+    aboRh: string,
+    expirationDate: string,
+    visualInspection: string,
+    isQuarantined?: boolean,
     licenseStatus: string
 }
 
-
-export interface CreateImportRequestDTO {
+export interface CreateImportResponsetDTO {
+    id: number,
+    maxNumberOfProducts: number,
     temperatureCategory: string,
     transitStartDateTime:string,
     transitStartTimeZone:string,
@@ -20,6 +34,8 @@ export interface CreateImportRequestDTO {
     temperature:number,
     thermometerCode:string,
     locationCode:string,
+    isQuarantined: boolean,
     comments:string,
-    employeeId:string
+    employeeId:string,
+    products: ImportedItemResponseDTO[]
 }

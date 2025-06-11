@@ -13,7 +13,7 @@
                 <span class="font-medium">{{ configuration().title }}</span>
                 @if(showCounts()){
                     <div class="pl-1">
-                        <span class="font-bold">({{dataSource().length}}/{{totalCounts()}})</span>
+                        <span class="font-bold">({{dataSource()?.length}}/{{totalCounts()}})</span>
                     </div>
                 }
             }

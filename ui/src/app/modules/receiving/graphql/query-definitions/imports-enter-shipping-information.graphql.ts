@@ -56,6 +56,13 @@ export const TemperatureProductCategoryIconMap: Record<keyof typeof TemperatureP
     ROOM_TEMPERATURE: 'biopro:temperature-room-temperature',
 }
 
+
+export const TemperatureProductCategoryValueMap: Record<keyof typeof TemperatureProductCategory, string> = {
+    FROZEN: 'FROZEN',
+    REFRIGERATED: 'REFRIGERATED',
+    ROOM_TEMPERATURE: 'ROOM TEMPERATURE',
+}
+
 export interface EnterShippingInformationRequestDTO {
     productCategory: string;
     employeeId: string;

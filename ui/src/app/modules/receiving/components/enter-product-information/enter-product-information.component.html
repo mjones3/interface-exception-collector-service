@@ -9,7 +9,7 @@
 
     <ng-template #actionLabelTpl>
         <div class="flex flex-row pb-2">
-            <h1 [class]="getTemperatureProductCategoryClass(temperatureProductCategory)">{{temperatureProductCategory | uppercase}}</h1>
+            <h1 [class]="getTemperatureProductCategoryClass(importData()?.temperatureCategory)">{{TemperatureProductCategoryValueMap[importData()?.temperatureCategory]}}</h1>
         </div>
     </ng-template>
 
@@ -64,7 +64,7 @@
                         <!--aboRh-->
                         <biopro-input
                             #inputAboRh
-                            label="ABO/RH"
+                            label="ABO/Rh"
                             id="aboRh"
                             placeholder="Scan aboRh"
                             [required]="true"
@@ -126,7 +126,7 @@
                             [label]="'License Status'"
                             [required]="true"
                             toggleId="licenseStatusId"
-                            [options]="licensedOptions"
+                            [options]="licenseOptions"
                             [control]="productInformationForm.get('licenseStatus')"
                         >
                         </biopro-custom-button-toggle>
@@ -150,7 +150,7 @@
                         <biopro-basic-button
                             id="btnReset"
                             label="Reset"
-                            [disabled]="!productInformationForm.dirty"
+                            [disabled]="!hasValues()"
                             (buttonClicked)="resetForm()"
                             color="secondary"
                         ></biopro-basic-button>
@@ -158,7 +158,8 @@
                             id="btnAdd"
                             class="mat-primary-action text-white"
                             color="primary"
-                            [disabled]="!productInformationForm.valid"
+                            [disabled]="!isFormValid()"
+                            (buttonClicked)="addImportItems()"
                             label="Add"
                         ></biopro-basic-button>
                     </mat-dialog-actions>
@@ -169,12 +170,12 @@
         <div class="flex flex-col w-full md:w-9/12">
             <biopro-table
                 #importedProductInformationTable
-                tableId="importedProductsTableId"
+                tableId="importItemsTableId"
                 [tableContainerClass]="'h-[calc(100vh-350px)] min-h-[300px] overflow-auto'"
-                [totalCounts]="totalConfiguredProduct"
+                [totalCounts]="importData()?.maxNumberOfProducts"
                 [showCounts]="true"
-                [dataSource]="importedProducts()"
-                [configuration]="importedProductsTableConfigComputed()"
+                [dataSource]="importData()?.products"
+                [configuration]="importItemsTableConfigComputed()"
                 [pageIndex]="0"
                 [serverPagination]="false"
             >

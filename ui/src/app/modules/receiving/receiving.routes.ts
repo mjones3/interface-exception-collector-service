@@ -21,7 +21,7 @@ export default [
                 },
             },
             {
-                path: 'product-information',
+                path: ':id/product-information',
                 component: EnterProductInformationComponent,
                 data: {
                     subTitle: 'Product Information'

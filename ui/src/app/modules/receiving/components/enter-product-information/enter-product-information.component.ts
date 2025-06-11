@@ -7,7 +7,7 @@ import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelect } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NotificationTypeMap, ProcessHeaderComponent, ProcessHeaderService, TableConfiguration } from '@shared';
+import { ProcessHeaderComponent, ProcessHeaderService, TableConfiguration } from '@shared';
 import { ActionButtonComponent } from 'app/shared/components/buttons/action-button.component';
 import { BasicButtonComponent } from 'app/shared/components/buttons/basic-button.component';
 import { CustomButtonToggleComponent } from 'app/shared/components/custom-button-toggle/custom-button-toggle.component';
@@ -15,16 +15,20 @@ import { InputComponent } from 'app/shared/components/input/input.component';
 import { TableComponent } from 'app/shared/components/table/table.component';
 import { ButtonOption } from 'app/shared/models/custom-button-toggle.model';
 import { ToastrService } from 'ngx-toastr';
-import { ImportedProductInformationDTO } from '../../models/product-information.dto';
+import { AddImportItemRequestDTO, CreateImportResponsetDTO, ImportedItemResponseDTO } from '../../models/product-information.dto';
 import { MatIcon } from '@angular/material/icon';
-import { licenseStatusCssMap, quarantinedCssMap, quarantinedValueMap, temperatureProductCategoryCssMap, visualInspectionCssMap } from '../../graphql/query-definitions/imports-enter-shipping-information.graphql';
+import { licenseStatusCssMap, quarantinedCssMap, quarantinedValueMap, temperatureProductCategoryCssMap, TemperatureProductCategoryValueMap, visualInspectionCssMap } from '../../graphql/query-definitions/imports-enter-shipping-information.graphql';
 import { snakeCase } from 'lodash';
 import { FuseCardComponent } from '@fuse/components/card/public-api';
 import { scannedValidatorStartWithAnd, scannedValidatorStartWithEqual } from 'app/shared/forms/biopro-validators';
-import { map } from 'rxjs';
+import { catchError, map, take, tap } from 'rxjs';
 import { ReceivingService } from '../../service/receiving.service';
 import { ValidateBarcodeRequestDTO } from '../../graphql/query-definitions/validate-bar-code.graphql';
 import { consumeUseCaseNotifications } from 'app/shared/utils/notification.handling';
+import { Store } from '@ngrx/store';
+import { getAuthState } from 'app/core/state/auth/auth.selectors';
+import { ApolloError } from '@apollo/client';
+import handleApolloError from 'app/shared/utils/apollo-error-handling';
  
 export enum Field {
   UNIT_NUMBER = 'unitNumber',
@@ -63,14 +67,15 @@ export enum Field {
   templateUrl: './enter-product-information.component.html'
 })
 export class EnterProductInformationComponent implements OnInit, AfterViewInit {
-  temperatureProductCategory: string = 'Room Temperature'
   readonly parseTypeMap = new Map<string, string>();
   readonly fieldsMap = new Map<Field, { focus: boolean }>();
+  protected readonly TemperatureProductCategoryValueMap = TemperatureProductCategoryValueMap;
   readonly field = Field;
-  totalConfiguredProduct = 10;  //TODO
-  lastKeyTime = 0;
-  keyPressThreshold = 50;
   productInformationForm: FormGroup;
+  addImportItemRequest = signal<AddImportItemRequestDTO>({} as AddImportItemRequestDTO);
+  importData = signal<CreateImportResponsetDTO>({} as CreateImportResponsetDTO) 
+  employeeId: string;
+
   readonly fieldDisplayNames = {
     [Field.UNIT_NUMBER]: 'Unit Number',
     [Field.PRODUCT_CODE]: 'Product Code',
@@ -88,54 +93,29 @@ export class EnterProductInformationComponent implements OnInit, AfterViewInit {
 
     visualInspectionOptions: ButtonOption[] = [
       {
-          value: 'Satisfactory',
+          value: 'SATISFACTORY',
           class: 'toggle-green',
           iconName: 'hand-thumb-up',
           label: 'Satisfactory'
       },
       {
-          value: 'Unsatisfactory',
+          value: 'UNSATISFACTORY',
           class: 'toggle-red',
           iconName: 'hand-thumb-down',
           label: 'Unsatisfactory'
       }
     ];
 
-    licensedOptions: ButtonOption[] = [
-      {value: 'Licensed', label: 'Licensed'},
-      {value: 'Unlicensed', label: 'Unlicensed'}
+    licenseOptions: ButtonOption[] = [
+      {value: 'LICENSED', label: 'Licensed'},
+      {value: 'UNLICENSED', label: 'Unlicensed'}
     ];
-
-    importedProducts = signal<ImportedProductInformationDTO[]>([]);
-    //TODO remove mock data
-    mockProductInformation = [
-      {
-        unitNumber: 'W23232323232',
-        productCode: 'E232323232',
-        description: 'description',
-        aboRh: 'AB Pos',
-        expirationDate: '09-20-2025',
-        visualInspection: 'Satisfactory',
-        isQuarantined: true,
-        licenseStatus: 'Licensed'
-      },
-      {
-        unitNumber: 'W23232323232',
-        productCode: 'E232323232',
-        description: 'description',
-        aboRh: 'AB Pos',
-        expirationDate: '09-20-2025',
-        visualInspection: 'Unsatisfactory',
-        isQuarantined: false,
-        licenseStatus: 'Unlicensed'
-      }
-    ]
 
     expirationDateTemplateRef = viewChild<TemplateRef<Element>>('expirationDateTemplateRef');
     visualInspectionTemplateRef = viewChild<TemplateRef<Element>>('visualInspectionTemplateRef');
     quarantinedTemplateRef = viewChild<TemplateRef<Element>>('quarantinedTemplateRef');
     licenseStatusTemplateRef = viewChild<TemplateRef<Element>>('licenseStatusTemplateRef');
-    inputUnitNumber = viewChild<ElementRef>('inputProductCode');
+    inputUnitNumber = viewChild<ElementRef>('inputUnitNumber');
     inputAboRh = viewChild<ElementRef>('inputAboRh');
     inputProductCode = viewChild<ElementRef>('inputProductCode');
     inputExpirationDate = viewChild<ElementRef>('inputExpirationDate');
@@ -147,9 +127,8 @@ export class EnterProductInformationComponent implements OnInit, AfterViewInit {
     }
 
     table = viewChild<TableComponent>('importedProductInformationTable');
-    importedProductsTableConfigComputed = computed<TableConfiguration>(() => ({
+    importItemsTableConfigComputed = computed<TableConfiguration>(() => ({
       title: 'Added Products',
-      pageSize: 20,
       showPagination: false,
       columns: [
           {
@@ -163,13 +142,13 @@ export class EnterProductInformationComponent implements OnInit, AfterViewInit {
             sort: false,
           },
           {
-            id: 'description',
+            id: 'productDescription',
             header: 'Description',
             sort: false,
           },
           {
             id: 'aboRh',
-            header: 'ABO/RH',
+            header: 'ABO/Rh',
             sort: false,
           },
           {
@@ -205,9 +184,20 @@ export class EnterProductInformationComponent implements OnInit, AfterViewInit {
     public header: ProcessHeaderService,
     private service: ReceivingService,
     private router: Router,
+    private store: Store,
     private activatedRoute: ActivatedRoute
-) {}
+  ) {
+    this.setemployeeId();
+  }
 
+  private setemployeeId() {
+    this.store
+        .select(getAuthState)
+        .pipe(take(1))
+        .subscribe((auth) => {
+            this.employeeId = auth['id'];
+        });
+  }
 
   ngAfterViewInit(): void {
     this.inputUnitNumber().nativeElement?.focus();
@@ -216,7 +206,36 @@ export class EnterProductInformationComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.initializeForm();
     this.initMaps();
-    this.importedProducts.set(this.mockProductInformation)
+    this.importData.set(
+      {
+        "id": 1,
+        "temperatureCategory": "ROOM_TEMPERATURE",
+        "transitStartDateTime": "2025-06-08T05:22:53.108",
+        "transitStartTimeZone": "America/New_York",
+        "transitEndDateTime": "2025-06-08T23:28:53.108",
+        "transitEndTimeZone": "America/New_York",
+        "thermometerCode": "THERM-001",
+        "locationCode": "123456789",
+        "comments": null,
+        "employeeId": "test",
+        "isQuarantined": true,
+        "maxNumberOfProducts": 50,
+        "products": [
+          {
+            "id": 1,
+            "importId": 1,
+            "visualInspection": "UNSATISFACTORY",
+            "licenseStatus": "LICENSED",
+            "unitNumber": "W0365898786805",
+            "productCode": "E6170V00",
+            "aboRh": "A Positive",
+            "isQuarantined": true,
+            "expirationDate": "2007-12-03T23:59:59",
+            "productDescription": "LIQ CP2D PLS MNI REF"
+          } as ImportedItemResponseDTO
+        ]
+      } as CreateImportResponsetDTO
+    )
   }
 
   private initMaps() {
@@ -225,45 +244,51 @@ export class EnterProductInformationComponent implements OnInit, AfterViewInit {
     this.parseTypeMap.set('expirationDate', 'BARCODE_EXPIRATION_DATE');
     this.parseTypeMap.set('aboRh', 'BARCODE_BLOOD_GROUP');
 
-    this.fieldsMap.set(Field.UNIT_NUMBER, { focus: true });
+    this.fieldsMap.set(Field.UNIT_NUMBER, { focus: true,});
     this.fieldsMap.set(Field.ABO_RH, { focus: false });
     this.fieldsMap.set(Field.PRODUCT_CODE, { focus: false });
     this.fieldsMap.set(Field.EXPIRATION_DATE, { focus: false });
-}
+  }
 
   private initializeForm(): void {
     this.productInformationForm = this.fb.group({
       unitNumber: ['', [Validators.required, scannedValidatorStartWithEqual]],
-      aboRh: [{ value: '', disabled: true }, [Validators.required, scannedValidatorStartWithEqual]],
-      productCode: [{ value: '', disabled: true }, [Validators.required, scannedValidatorStartWithEqual]],
-      expirationDate: [{ value: '', disabled: true }, [Validators.required, scannedValidatorStartWithAnd]],
+      aboRh: ['', [Validators.required, scannedValidatorStartWithEqual]],
+      productCode: ['', [Validators.required, scannedValidatorStartWithEqual]],
+      expirationDate: ['', [Validators.required, scannedValidatorStartWithAnd]],
       licenseStatus: ['', [Validators.required]],
       visualInspection: ['', [Validators.required]]
     });
+    this.disableField();
+  }
+
+  disableField(){
+    this.productInformationForm.get(Field.ABO_RH).disable();
+    this.productInformationForm.get(Field.PRODUCT_CODE).disable();
+    this.productInformationForm.get(Field.EXPIRATION_DATE).disable();
   }
 
   getVisualInspectionClass(visualInspection: string){
-    return visualInspectionCssMap[visualInspection.toUpperCase()];
+    return visualInspectionCssMap[visualInspection];
   }
 
   getLicenseStatusClass(licenseStatus: string){
-    return licenseStatusCssMap[licenseStatus.toUpperCase()];
+    return licenseStatusCssMap[licenseStatus];
   }
 
   getQuarantinedClass(isQuarantined: boolean){
-    return quarantinedCssMap[isQuarantined.toString().toUpperCase()];
+    return quarantinedCssMap[isQuarantined?.toString().toUpperCase()];
   }
 
   getQuarantinedValue(isQuarantined: boolean){
-    return quarantinedValueMap[isQuarantined.toString().toUpperCase()];
+    return quarantinedValueMap[isQuarantined?.toString().toUpperCase()];
   }
 
   getTemperatureProductCategoryClass(temperatureProductCategory: string){
     return temperatureProductCategoryCssMap[snakeCase(temperatureProductCategory).toUpperCase()];
   }
 
-
-onTabEnter(control: Field){
+  onTabEnter(control: Field){
     const value = this.productInformationForm.get(control).value;
     if (!value || !/^[=&]/.test(value)) {
         if (control === Field.UNIT_NUMBER) {
@@ -291,14 +316,12 @@ onTabEnter(control: Field){
     if(matchValue && matchValue.length !== 0){
       const validations = this.createValidationObservables(control, matchValue);
       validations.subscribe((result) => {
-        let hasError = false;
-        const { isValid, controlKey, finalValue, notification } = result;
+        const { isValid, controlKey, finalValue, requestValue } = result;
             if (!isValid) {
-                consumeUseCaseNotifications(this.toastr, notification);
                 this.productInformationForm.get(controlKey).reset();
-                hasError = true;
             } else {
-              this.productInformationForm.get(controlKey).setValue(finalValue);
+                this.productInformationForm.get(controlKey).setValue(finalValue);
+                this.addImportItemRequest()[controlKey] = requestValue;
                 this.productInformationForm.get(controlKey).disable();
                 if(this.nextControlMap[controlKey] !== undefined){
                   this.productInformationForm.get(this.nextControlMap[controlKey]).enable();
@@ -311,18 +334,21 @@ onTabEnter(control: Field){
     }
   }
 
-  private createValidationObservables(
-    controlKey: Field, value: string 
-  ) {
+  private createValidationObservables(controlKey: Field, value: string) {
     return this.service
       .validateScannedField(this.validateRequest(controlKey, value))
       .pipe(
-          map((response) => ({
-              isValid: response.data.validateBarcode.data.valid,
-              controlKey,
-              finalValue: response.data.validateBarcode.data.resultDescription,
-              notification: response.data.validateBarcode.notifications
-          }))
+        catchError((error: ApolloError) => {handleApolloError(this.toastr, error)}),
+        tap(data => consumeUseCaseNotifications(this.toastr, data.data?.validateBarcode.notifications)),
+        map(({ data }) => {
+          const { valid, result, resultDescription } = data.validateBarcode.data;
+          return {
+            isValid: valid,
+            controlKey,
+            finalValue: resultDescription !== null ? resultDescription : result,
+            requestValue: result,
+          };
+        })
       );
   }
 
@@ -330,13 +356,78 @@ onTabEnter(control: Field){
     controlKey: Field, value: string 
   ): ValidateBarcodeRequestDTO{
     return {
-      temperatureCategory: "FROZEN",
+      temperatureCategory: this.importData().temperatureCategory,
       barcodeValue: value,
       barcodePattern: this.parseTypeMap.get(controlKey)
     }
   }
 
   resetForm(){
-    return this.productInformationForm.reset();
+    this.productInformationForm.reset();
+    this.productInformationForm.get(Field.UNIT_NUMBER).enable();
+    this.disableField();
+    this.inputUnitNumber()['inputFocus'] = true;
+  }
+
+  hasValues(): boolean {
+    const controls = this.productInformationForm.controls;
+    for (const controlName in controls) {
+      if (controls.hasOwnProperty(controlName)) {
+        if (controls[controlName]?.value?.length > 0) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  isFormValid(): boolean {
+    const fieldValidatedWithValues = [
+      Field.UNIT_NUMBER,
+      Field.ABO_RH,
+      Field.PRODUCT_CODE,
+      Field.EXPIRATION_DATE
+    ];
+
+    const fieldsValid = fieldValidatedWithValues.every(field => {
+      const control = this.productInformationForm.get(field);
+      return control.disabled && control.value && !control.errors;
+    });
+
+    const otherFields = [
+      Field.LICENSE_STATUS,
+      Field.VISUAL_INSPECTION
+    ];
+
+    const otherFieldsValid = otherFields.every(field => {
+      const control = this.productInformationForm.get(field);
+      return control.value && !control.errors;
+    });
+
+    return fieldsValid && otherFieldsValid;
+  }
+
+  addImportItems(){
+    const req = this.prepareAddProductReq();
+    this.service.addImportItems(req).pipe(
+      catchError((error: ApolloError) => handleApolloError(this.toastr, error)),
+    ).subscribe((response) => {
+      if(response.data?.createImportItem?.notifications[0]?.type === 'SUCCESS'){
+        this.resetForm();
+        this.importData.set(response.data.createImportItem.data)
+      } else {
+        consumeUseCaseNotifications(this.toastr, response.data?.createImportItem?.notifications)
+      }
+    } );
+  }
+
+  prepareAddProductReq(): AddImportItemRequestDTO{
+    // TODO
+    this.addImportItemRequest().expirationDate = '2007-12-03T23:59:59Z';
+    this.addImportItemRequest().licenseStatus = this.productInformationForm.get('licenseStatus').value;
+    this.addImportItemRequest().visualInspection = this.productInformationForm.get('visualInspection').value;
+    this.addImportItemRequest().employeeId = this.employeeId;
+    this.addImportItemRequest().importId = 1;
+    return this.addImportItemRequest();
   }
 }

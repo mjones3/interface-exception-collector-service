@@ -1,12 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { EnterProductInformationComponent } from './enter-product-information.component';
 import { Field } from './enter-product-information.component';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { ProcessHeaderService } from '@shared';
 import { Router, ActivatedRoute } from '@angular/router';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ReceivingService } from '../../service/receiving.service';
+import { AuthState } from 'app/core/state/auth/auth.reducer';
+import { provideMockStore } from '@ngrx/store/testing';
 
 describe('EnterProductInformationComponent', () => {
   let component: EnterProductInformationComponent;
@@ -15,6 +17,11 @@ describe('EnterProductInformationComponent', () => {
   let router: jest.Mocked<Router>;
   let headerService: jest.Mocked<ProcessHeaderService>;
   let mockReceivingService: jest.Mocked<ReceivingService>
+
+  const initialState: AuthState = {
+    id: 'mock-user-id',
+    loaded: true,
+};
 
   beforeEach(async () => {
     const toastrMock = {
@@ -42,6 +49,7 @@ describe('EnterProductInformationComponent', () => {
       ],
       providers: [
         FormBuilder,
+        provideMockStore({ initialState}),
         { provide: ToastrService, useValue: toastrMock },
         { provide: Router, useValue: routerMock },
         { provide: ReceivingService, useValue: mockReceivingService },
@@ -125,21 +133,85 @@ describe('EnterProductInformationComponent', () => {
     });
 
     it('should have correctly configured license options', () => {
-      expect(component.licensedOptions).toHaveLength(2);
+      expect(component.licenseOptions).toHaveLength(2);
       
-      const licensed = component.licensedOptions.find(opt => opt.value === 'Licensed');
+      const licensed = component.licenseOptions.find(opt => opt.value === 'Licensed');
       expect(licensed).toBeTruthy();
       expect(licensed.label).toBe('Licensed');
       
-      const unlicensed = component.licensedOptions.find(opt => opt.value === 'Unlicensed');
+      const unlicensed = component.licenseOptions.find(opt => opt.value === 'Unlicensed');
       expect(unlicensed).toBeTruthy();
       expect(unlicensed.label).toBe('Unlicensed');
     });
   });
 
+  describe('Form Validation', () => {
+    it('should validate fields correctly', () => {
+      expect(component.isFormValid()).toBeFalsy();
+
+      const fieldValidatedWithValues = [
+        Field.UNIT_NUMBER,
+        Field.ABO_RH,
+        Field.PRODUCT_CODE,
+        Field.EXPIRATION_DATE
+      ];
+
+      fieldValidatedWithValues.forEach(field => {
+        const control = component.productInformationForm.get(field);
+        control.setValue(`=${field}`);
+        control.disable();
+      });
+
+      component.productInformationForm.patchValue({
+        licenseStatus: 'Licensed',
+        visualInspection: 'Satisfactory'
+      });
+
+      expect(component.isFormValid()).toBeTruthy();
+    });
+
+    it('should require backend fields to be disabled and have values', () => {
+      const fieldValidatedWithValues = [
+        Field.UNIT_NUMBER,
+        Field.ABO_RH,
+        Field.PRODUCT_CODE,
+        Field.EXPIRATION_DATE
+      ];
+
+      fieldValidatedWithValues.forEach(field => {
+        const control = component.productInformationForm.get(field);
+        control.setValue(`=${field}`); 
+      });
+
+      component.productInformationForm.patchValue({
+        licenseStatus: 'Licensed',
+        visualInspection: 'Satisfactory'
+      });
+
+      expect(component.isFormValid()).toBeFalsy();
+    });
+
+    it('should validate all required fields have validators', () => {
+      const requiredFields = [
+        Field.UNIT_NUMBER,
+        Field.ABO_RH,
+        Field.PRODUCT_CODE,
+        Field.EXPIRATION_DATE,
+        Field.LICENSE_STATUS,
+        Field.VISUAL_INSPECTION
+      ];
+
+      // Check each field is required
+      requiredFields.forEach(field => {
+        const control = component.productInformationForm.get(field);
+        expect(control.hasValidator(Validators.required)).toBeTruthy();
+      });
+    });
+  });
+
   describe('Table Configuration', () => {
     it('should have correct table configuration', () => {
-      const config = component.importedProductsTableConfigComputed();
+      const config = component.importItemsTableConfigComputed();
       
       expect(config.title).toBe('Added Products');
       expect(config.pageSize).toBe(20);

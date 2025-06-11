@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { DynamicGraphqlPathService } from '../../../core/services/dynamic-graphql-path.service';
 import { Observable } from 'rxjs';
 import { ApolloQueryResult } from '@apollo/client';
+import { MutationResult } from 'apollo-angular';
 import { UseCaseResponseDTO } from '../../../shared/models/use-case-response.dto';
 import {
     ENTER_SHIPPING_INFORMATION,
@@ -31,6 +32,8 @@ import {
     ImportDTO
 } from '../graphql/mutation-definitions/create-import.graphql';
 import { vALIDATE_BAR_CODE, ValidateBarcodeRequestDTO } from '../graphql/query-definitions/validate-bar-code.graphql';
+import { AddImportItemRequestDTO, CreateImportResponsetDTO } from '../models/product-information.dto';
+import { CREATE_IMPORT_ITEM } from '../graphql/mutation-definitions/create-import-item.graphql';
 
 @Injectable({
     providedIn: 'root',
@@ -107,6 +110,19 @@ export class ReceivingService {
             this.servicePath,
             vALIDATE_BAR_CODE,
             validateBarcode
+        );
+    }
+
+
+    public addImportItems(createImportItem: AddImportItemRequestDTO): Observable<
+        MutationResult<{
+            createImportItem: UseCaseResponseDTO<CreateImportResponsetDTO>;
+        }>
+    > {
+        return this.dynamicGraphqlPathService.executeMutation(
+            this.servicePath,
+            CREATE_IMPORT_ITEM,
+            createImportItem
         );
     }
 
