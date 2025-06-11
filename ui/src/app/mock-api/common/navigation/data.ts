@@ -111,13 +111,6 @@ export const defaultNavigation: FuseNavigationItem[] = [
         disabled: false,
     },
     {
-        id: 13,
-        title: 'Returns',
-        type: 'basic',
-        icon: 'upload',
-        disabled: true,
-    },
-    {
         id: 14,
         title: 'Imports',
         type: 'basic',
