@@ -46,8 +46,8 @@ class ImportOutputMapperTest {
 
         // Verify first product mapping
         ImportItemOutput firstProduct = result.products().get(0);
-        assertEquals(importModel.getItems().get(0).getVisualInspection().value(), firstProduct.licenseStatus());
-        assertEquals(importModel.getItems().get(0).getLicenseStatus().value(), firstProduct.visualInspection());
+        assertEquals(importModel.getItems().get(0).getVisualInspection().value(), firstProduct.visualInspection());
+        assertEquals(importModel.getItems().get(0).getLicenseStatus().value(), firstProduct.licenseStatus());
         assertEquals(importModel.getItems().get(0).getAboRh().description(), firstProduct.aboRh());
     }
 
@@ -76,8 +76,8 @@ class ImportOutputMapperTest {
 
         // Assert
         assertNotNull(result);
-        assertEquals(importItem.getVisualInspection().value(), result.licenseStatus());
-        assertEquals(importItem.getLicenseStatus().value(), result.visualInspection());
+        assertEquals(importItem.getVisualInspection().value(), result.visualInspection());
+        assertEquals(importItem.getLicenseStatus().value(), result.licenseStatus());
         assertEquals(importItem.getAboRh().description(), result.aboRh());
     }
 

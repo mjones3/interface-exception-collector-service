@@ -16,6 +16,7 @@ public record ImportItemDTO(
     String aboRh,
     LocalDateTime expirationDate,
     String productFamily,
-    String productDescription
+    String productDescription,
+    boolean isQuarantined
 ) implements Serializable {
 }

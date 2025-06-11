@@ -17,9 +17,10 @@ public interface ImportOutputMapper {
     @Mapping(expression ="java(toOutputList(importModel.getItems()))" , target = "products")
     ImportOutput toOutput(Import importModel);
 
-    @Mapping(expression ="java(importItem.getVisualInspection().value())" , target = "licenseStatus")
-    @Mapping(expression ="java(importItem.getLicenseStatus().value())" , target = "visualInspection")
+    @Mapping(expression ="java(importItem.getVisualInspection().value())" , target = "visualInspection")
+    @Mapping(expression ="java(importItem.getLicenseStatus().value())" , target = "licenseStatus")
     @Mapping(expression ="java(importItem.getAboRh().description())" , target = "aboRh")
+    @Mapping(expression ="java(importItem.isQuarantined())" , target = "isQuarantined")
     ImportItemOutput toOutput(ImportItem importItem);
 
     default  List<ImportItemOutput> toOutputList(List<ImportItem> importItemList) {
