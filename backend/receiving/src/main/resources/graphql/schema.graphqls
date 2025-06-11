@@ -9,6 +9,7 @@ type Query {
     validateTemperature(validateTemperatureRequest:ValidateTemperatureRequestDTO!): UseCaseResponseDTO!
     validateTransitTime(validateTransitTimeRequest:ValidateTransitTimeRequestDTO!): UseCaseResponseDTO!
     validateBarcode(validateBarcodeRequest:ValidateBarcodeRequestDTO!): UseCaseResponseDTO!
+    findImportById(importId:ID!): UseCaseResponseDTO!
 }
 
 type Mutation {

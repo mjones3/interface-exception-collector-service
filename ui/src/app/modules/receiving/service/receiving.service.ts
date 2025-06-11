@@ -33,7 +33,7 @@ import {
 } from '../graphql/mutation-definitions/create-import.graphql';
 import { vALIDATE_BAR_CODE, ValidateBarcodeRequestDTO } from '../graphql/query-definitions/validate-bar-code.graphql';
 import { AddImportItemRequestDTO, CreateImportResponsetDTO } from '../models/product-information.dto';
-import { CREATE_IMPORT_ITEM } from '../graphql/mutation-definitions/create-import-item.graphql';
+import { CREATE_IMPORT_ITEM, FIND_IMPORT_BY_ID } from '../graphql/mutation-definitions/create-import-item.graphql';
 
 @Injectable({
     providedIn: 'root',
@@ -123,6 +123,16 @@ export class ReceivingService {
             this.servicePath,
             CREATE_IMPORT_ITEM,
             createImportItem
+        );
+    }
+
+    public getImportById(
+        importId: number
+    ): Observable<ApolloQueryResult<{ findImportById: UseCaseResponseDTO<CreateImportResponsetDTO> }>> {
+        return this.dynamicGraphqlPathService.executeQuery(
+            this.servicePath,
+            FIND_IMPORT_BY_ID,
+            { importId }
         );
     }
 

@@ -21,7 +21,7 @@ import { licenseStatusCssMap, quarantinedCssMap, quarantinedValueMap, temperatur
 import { snakeCase } from 'lodash';
 import { FuseCardComponent } from '@fuse/components/card/public-api';
 import { scannedValidatorStartWithAnd, scannedValidatorStartWithEqual } from 'app/shared/forms/biopro-validators';
-import { catchError, map, take, tap } from 'rxjs';
+import { catchError, map, Observable, switchMap, take, tap } from 'rxjs';
 import { ReceivingService } from '../../service/receiving.service';
 import { ValidateBarcodeRequestDTO } from '../../graphql/query-definitions/validate-bar-code.graphql';
 import { consumeUseCaseNotifications } from 'app/shared/utils/notification.handling';
@@ -29,7 +29,7 @@ import { Store } from '@ngrx/store';
 import { getAuthState } from 'app/core/state/auth/auth.selectors';
 import { ApolloError } from '@apollo/client';
 import handleApolloError from 'app/shared/utils/apollo-error-handling';
- 
+
 export enum Field {
   UNIT_NUMBER = 'unitNumber',
   PRODUCT_CODE = 'productCode',
@@ -73,8 +73,9 @@ export class EnterProductInformationComponent implements OnInit, AfterViewInit {
   readonly field = Field;
   productInformationForm: FormGroup;
   addImportItemRequest = signal<AddImportItemRequestDTO>({} as AddImportItemRequestDTO);
-  importData = signal<CreateImportResponsetDTO>({} as CreateImportResponsetDTO) 
+  importData = signal<CreateImportResponsetDTO>({} as CreateImportResponsetDTO)
   employeeId: string;
+  routeIdComputed = computed(() => Number(this.route?.snapshot?.params?.id));
 
   readonly fieldDisplayNames = {
     [Field.UNIT_NUMBER]: 'Unit Number',
@@ -183,9 +184,8 @@ export class EnterProductInformationComponent implements OnInit, AfterViewInit {
     private toastr: ToastrService,
     public header: ProcessHeaderService,
     private service: ReceivingService,
-    private router: Router,
+    protected route: ActivatedRoute,
     private store: Store,
-    private activatedRoute: ActivatedRoute
   ) {
     this.setemployeeId();
   }
@@ -206,37 +206,27 @@ export class EnterProductInformationComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.initializeForm();
     this.initMaps();
-    this.importData.set(
-      {
-        "id": 1,
-        "temperatureCategory": "ROOM_TEMPERATURE",
-        "transitStartDateTime": "2025-06-08T05:22:53.108",
-        "transitStartTimeZone": "America/New_York",
-        "transitEndDateTime": "2025-06-08T23:28:53.108",
-        "transitEndTimeZone": "America/New_York",
-        "thermometerCode": "THERM-001",
-        "locationCode": "123456789",
-        "comments": null,
-        "employeeId": "test",
-        "isQuarantined": true,
-        "maxNumberOfProducts": 50,
-        "products": [
-          {
-            "id": 1,
-            "importId": 1,
-            "visualInspection": "UNSATISFACTORY",
-            "licenseStatus": "LICENSED",
-            "unitNumber": "W0365898786805",
-            "productCode": "E6170V00",
-            "aboRh": "A Positive",
-            "isQuarantined": true,
-            "expirationDate": "2007-12-03T23:59:59",
-            "productDescription": "LIQ CP2D PLS MNI REF"
-          } as ImportedItemResponseDTO
-        ]
-      } as CreateImportResponsetDTO
-    )
+
+
+          this.loadImportDetails(this.routeIdComputed())
+              .subscribe();
   }
+
+    loadImportDetails(
+        id: number
+    ): Observable<CreateImportResponsetDTO> {
+        return this.service.getImportById(id).pipe(
+            catchError((error: ApolloError) => {
+                handleApolloError(this.toastr, error);
+            }),
+            tap(data => consumeUseCaseNotifications(this.toastr, data.data?.findImportById.notifications)),
+            map((response) => {
+                const { data } = response.data.findImportById;
+                this.importData.set(data)
+                return data;
+            })
+        );
+    }
 
   private initMaps() {
     this.parseTypeMap.set('unitNumber', 'BARCODE_UNIT_NUMBER');
@@ -353,7 +343,7 @@ export class EnterProductInformationComponent implements OnInit, AfterViewInit {
   }
 
   validateRequest(
-    controlKey: Field, value: string 
+    controlKey: Field, value: string
   ): ValidateBarcodeRequestDTO{
     return {
       temperatureCategory: this.importData().temperatureCategory,

@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.receiving.domain.model;
 
+import com.arcone.biopro.distribution.receiving.domain.model.enumeration.ParseType;
 import com.arcone.biopro.distribution.receiving.domain.model.vo.AboRh;
 import com.arcone.biopro.distribution.receiving.domain.model.vo.ValidationResult;
 import com.arcone.biopro.distribution.receiving.domain.service.ConfigurationService;
@@ -54,7 +55,7 @@ public class BarcodeValidator {
                         .flatMap(translation -> Mono.just(ValidationResult.builder().valid(true)
                                 .result(AboRh.getInstance(translation.getToValue()).value())
                             .resultDescription(AboRh.getInstance(translation.getToValue()).description()).build()))
-                        .switchIfEmpty(Mono.just( ValidationResult.builder().valid(false).message("Invalid Blood Type").build()))
+                        .switchIfEmpty(Mono.just( ValidationResult.builder().valid(false).message("Invalid ABO/Rh").build()))
                         .block();
             };
         }
@@ -62,7 +63,7 @@ public class BarcodeValidator {
         return ValidationResult
             .builder()
             .valid(false)
-            .message("Barcode is not valid")
+            .message(getInvalidBarcodeMessage(validateBarcodeCommand.getParseType()))
             .build();
     }
 
@@ -76,5 +77,16 @@ public class BarcodeValidator {
             log.error("Not able to parse Expiration Date {}",e.getMessage());
             return ValidationResult.builder().valid(false).message("Invalid Expiration Date").build();
         }
+    }
+
+    private static String getInvalidBarcodeMessage(ParseType parseType){
+
+        return switch (parseType) {
+            case BARCODE_UNIT_NUMBER -> "Invalid Unit Number";
+            case BARCODE_PRODUCT_CODE -> "Invalid Product Code";
+            case BARCODE_EXPIRATION_DATE -> "Invalid Expiration Date";
+            case BARCODE_BLOOD_GROUP -> "Invalid ABO/Rh";
+            default -> "Barcode is not valid";
+        };
     }
 }

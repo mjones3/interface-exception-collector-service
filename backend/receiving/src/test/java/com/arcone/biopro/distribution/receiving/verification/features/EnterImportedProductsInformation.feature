@@ -243,7 +243,7 @@ Feature: Enter Imported Products Information
             Examples:
                 | Device Location Code | Device ID | Device Category  | Device Type |Temperature Category | Unit Number      | Product Code | Blood Type | Expiration Date | message                    |
                 | 123456789            | THERM-001 | THERMOMETER      | TEMPERATURE |ROOM_TEMPERATURE     | =W036880500      | =<E6170V00   | =%6200     | &>0260422359    | Invalid unit number format |
-                | 123456789            | THERM-001 | THERMOMETER      | TEMPERATURE |ROOM_TEMPERATURE     | =W03689878680500 | =<E6170V00   | =%6200     | &>0260422359    | Invalid blood type         |
+                | 123456789            | THERM-001 | THERMOMETER      | TEMPERATURE |ROOM_TEMPERATURE     | =W03659878680500 | =<E6170V00   | =%6200     | &>0260422359    | Invalid blood type         |
                 | 123456789            | THERM-001 | THERMOMETER      | TEMPERATURE |ROOM_TEMPERATURE     | =W03689878680500 | =<E6170V00   | =%6200     | &>0260422359    | Invalid expiration date    |
                 | 123456789            | THERM-001 | THERMOMETER      | TEMPERATURE |ROOM_TEMPERATURE     | =W03689878680500 | =<E617       | =%6200     | &>0260422359    | Invalid ISBT product code  |
                 | 123456789            | THERM-001 | THERMOMETER      | TEMPERATURE |ROOM_TEMPERATURE     | =W03339878680500 | =<E617       | =%6200     | &>0260422359    | Invalid FIN number         |
