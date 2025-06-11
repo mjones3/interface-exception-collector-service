@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, Renderer2, signal } from '@angular/core';
 import { ActionButtonComponent } from '../../../../shared/components/buttons/action-button.component';
 import { AsyncPipe } from '@angular/common';
 import { FuseCardComponent } from '../../../../../@fuse';
@@ -63,6 +63,7 @@ export class ImportsEnterShipmentInformationComponent implements OnInit {
     protected readonly TemperatureProductCategoryIconMap = TemperatureProductCategoryIconMap;
     protected readonly NotificationTypeMap = NotificationTypeMap;
 
+    renderer = inject(Renderer2);
     router = inject(Router);
     store = inject(Store);
     formBuilder = inject(FormBuilder);
@@ -82,7 +83,7 @@ export class ImportsEnterShipmentInformationComponent implements OnInit {
             endZone: ['', []],
         }),
         temperature: this.formBuilder.group({
-            thermometerId: ['', []],
+            thermometerId: ['', { updateOn: 'blur' }],
             temperature: [0, [ Validators.min(-273), Validators.max(99) ]],
         }),
         comments: ['', []]
@@ -100,10 +101,15 @@ export class ImportsEnterShipmentInformationComponent implements OnInit {
         .pipe(combineLatestWith(this.form.controls.temperature.controls.thermometerId.valueChanges)));
     thermometerStatusWithValueChangeEffect = effect(() => {
         const [ status, value ] = this.thermometerStatusWithValueSignal();
+        this.form.controls.temperature.controls.temperature.reset();
         if (status === 'VALID' && !!value) {
             this.form.controls.temperature.controls.temperature.enable();
+            const temperature = this.renderer.selectRootElement('input[data-testid="temperature"]') as HTMLInputElement;
+            temperature.focus();
         } else {
-            this.form.controls.temperature.controls.temperature.disable()
+            this.form.controls.temperature.controls.temperature.disable();
+            const thermometerIdInput = this.renderer.selectRootElement('input[data-testid="thermometer-id"]') as HTMLInputElement;
+            thermometerIdInput.focus();
         }
     });
 
@@ -186,6 +192,11 @@ export class ImportsEnterShipmentInformationComponent implements OnInit {
                 this.form.controls.productCategory.setValue(productCategory);
                 this.form.updateValueAndValidity();
             });
+    }
+
+    confirmThermometerId(event: Event) {
+        const input = event.target as HTMLInputElement;
+        input.blur();
     }
 
     updateFormValidators(shippingInformationDTO: ShippingInformationDTO): void {

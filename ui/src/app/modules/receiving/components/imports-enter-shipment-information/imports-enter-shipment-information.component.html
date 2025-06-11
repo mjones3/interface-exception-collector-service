@@ -121,7 +121,7 @@
                     @if (form.controls.transitTime.controls.endDate.hasError('required')) { <mat-error>Transit End Date is required</mat-error> }
                 </mat-form-field>
                 <mat-form-field class="md:col-span-2" [formGroup]="form.controls.transitTime">
-                    <mat-label>End Time</mat-label>
+                    <mat-label>Transit End Time</mat-label>
                     <input data-testid="transit-time-end-time"
                            type="time"
                            formControlName="endTime"
@@ -159,23 +159,22 @@
                 @if (shippingInformationSignal()?.displayTemperature) {
                 <mat-form-field class="md:col-span-3" [formGroup]="form.controls.temperature">
                     <mat-label>Thermometer ID</mat-label>
-                    <input #thermometerId
-                           data-testid="thermometer-id"
+                    <input data-testid="thermometer-id"
                            type="text"
                            formControlName="thermometerId"
                            matInput
                            required
+                           (keydown.enter)="this.confirmThermometerId($event)"
                     />
                     @if (form.controls.temperature.controls.thermometerId.valid) { <mat-icon matIconSuffix>check</mat-icon> }
-                    @if (form.controls.temperature.controls.thermometerId.hasError('required')) { <mat-error>Thermometer ID is required</mat-error> }
-                    @if (form.controls.temperature.controls.thermometerId.hasError('deviceValidation')) { <mat-error>{{ form.controls.temperature.controls.thermometerId.getError('deviceValidation') }}</mat-error> }
+                    @if (form.controls.temperature.controls.thermometerId.hasError('required')) { <mat-error [attr.data-testid]="'required-validation-error'">Thermometer ID is required</mat-error> }
+                    @if (form.controls.temperature.controls.thermometerId.hasError('deviceIdValidation')) { <mat-error [attr.data-testid]="'device-id-validation-error'">{{ form.controls.temperature.controls.thermometerId.getError('deviceIdValidation') }}</mat-error> }
                 </mat-form-field>
 
                 <!-- Temperature -->
                 <mat-form-field class="md:col-span-3" [formGroup]="form.controls.temperature">
                     <mat-label>Temperature</mat-label>
-                    <input #temperature
-                           data-testid="temperature"
+                    <input data-testid="temperature"
                            type="number"
                            formControlName="temperature"
                            min="-273"
