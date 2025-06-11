@@ -54,7 +54,7 @@ Feature: Device
             And I select to enter information for a "<Temperature Category>" product category.
             Then The temperature field should be "disabled".
             When I enter thermometer ID "<thermometer ID>".
-            Then I should see a "<message_type>" message: "<message>".
+            Then I should see "thermometer ID" field validation error message: "<message>".
             And The temperature field should be "disabled".
             Examples:
                 | Imports Location Code | Device Location Code | thermometer ID | Device ID     | Temperature Category | Device Type | Device Category | message_type | message                     |

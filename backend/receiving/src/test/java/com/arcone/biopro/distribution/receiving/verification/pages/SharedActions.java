@@ -393,4 +393,13 @@ public class SharedActions {
         }
 
     }
+
+    public void sendKeysAndEnter(WebDriver driver, By locator, String text) throws InterruptedException {
+        Thread.sleep(500);
+        waitForVisible(locator);
+        waitForEnabled(locator);
+        driver.findElement(locator).sendKeys(text);
+        driver.findElement(locator).sendKeys(Keys.ENTER);
+    }
+
 }

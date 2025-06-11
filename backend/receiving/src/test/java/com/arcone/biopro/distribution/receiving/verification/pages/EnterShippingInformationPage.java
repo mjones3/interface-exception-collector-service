@@ -1,6 +1,7 @@
 package com.arcone.biopro.distribution.receiving.verification.pages;
 
 import com.arcone.biopro.distribution.receiving.verification.support.SharedContext;
+import org.junit.jupiter.api.Assertions;
 import org.openqa.selenium.By;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -31,6 +32,9 @@ public class EnterShippingInformationPage extends CommonPageFactory {
     @Autowired
     private SharedContext sharedContext;
 
+    private By matErrorDataTestId(String name) {
+        return By.xpath(String.format("//mat-error[@data-testid='%s']", name));
+    }
 
     private By selectInputOption(String optionText) {
         return By.xpath(String.format("//mat-option//*[contains(text() , '%s')]", optionText));
@@ -145,8 +149,8 @@ public class EnterShippingInformationPage extends CommonPageFactory {
         return sharedActions.isElementEnabled(driver, temperatureInput);
     }
 
-    public void enterThermometerId(String thermometerId) {
-        sharedActions.sendKeys(thermometerIdInput, thermometerId);
+    public void enterThermometerId(String thermometerId) throws InterruptedException {
+        sharedActions.sendKeysAndEnter(driver, thermometerIdInput, thermometerId);
     }
 
     public void waitForTemperatureFieldToBeEnabled() {
@@ -160,4 +164,15 @@ public class EnterShippingInformationPage extends CommonPageFactory {
     public boolean isContinueButtonEnabled() {
         return sharedActions.isElementEnabled(driver, continueButton);
     }
+
+    public void verifyFieldErrorMessage(String name, String message) {
+        var dataTestId = "";
+        if ("thermometer ID".equalsIgnoreCase(name)) {
+            dataTestId = "device-id-validation-error";
+        }
+        var matError = matErrorDataTestId(dataTestId);
+        sharedActions.waitForVisible(matError);
+        Assertions.assertEquals(message, sharedActions.getText(matError));
+    }
+
 }

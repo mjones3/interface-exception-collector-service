@@ -84,7 +84,6 @@ public class ImportProductSteps {
     @When("I enter thermometer ID {string}.")
     public void iEnterThermometerID(String thermometerId) throws InterruptedException {
         enterShippingInformationPage.enterThermometerId(thermometerId);
-        Thread.sleep(1000);
     }
 
     @When("I request to validate the temperature of {string} for the Temperature Category {string}.")
