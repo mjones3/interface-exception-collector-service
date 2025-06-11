@@ -1,12 +1,18 @@
 package com.arcone.biopro.distribution.receiving.unit.domain.model;
 
+import com.arcone.biopro.distribution.receiving.domain.model.AddImportItemCommand;
 import com.arcone.biopro.distribution.receiving.domain.model.CreateImportCommand;
+import com.arcone.biopro.distribution.receiving.domain.model.FinNumber;
 import com.arcone.biopro.distribution.receiving.domain.model.Import;
+import com.arcone.biopro.distribution.receiving.domain.model.ImportItem;
+import com.arcone.biopro.distribution.receiving.domain.model.Product;
 import com.arcone.biopro.distribution.receiving.domain.model.ProductConsequence;
 import com.arcone.biopro.distribution.receiving.domain.model.TemperatureValidator;
 import com.arcone.biopro.distribution.receiving.domain.model.TransitTimeValidator;
+import com.arcone.biopro.distribution.receiving.domain.model.vo.ImportItemConsequence;
 import com.arcone.biopro.distribution.receiving.domain.model.vo.ValidationResult;
 import com.arcone.biopro.distribution.receiving.domain.repository.ProductConsequenceRepository;
+import com.arcone.biopro.distribution.receiving.domain.service.ConfigurationService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,10 +22,15 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -28,6 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,8 +55,12 @@ class ImportTest {
 
     private MockedStatic<TemperatureValidator> temperatureValidatorMockedStatic;
 
+    private MockedStatic<ImportItem> importItemMockedStatic;
+
     private LocalDateTime now;
     private ZonedDateTime zonedNow;
+
+    private ConfigurationService configurationService;
 
     @BeforeEach
     void setUp() {
@@ -52,6 +68,8 @@ class ImportTest {
         zonedNow = ZonedDateTime.now();
         mockedStaticTransitValidator = Mockito.mockStatic(TransitTimeValidator.class);
         temperatureValidatorMockedStatic = Mockito.mockStatic(TemperatureValidator.class);
+        configurationService = Mockito.mock(ConfigurationService.class);
+        importItemMockedStatic = Mockito.mockStatic(ImportItem.class);
     }
 
     @AfterEach
@@ -61,6 +79,9 @@ class ImportTest {
         }
         if (temperatureValidatorMockedStatic != null) {
             temperatureValidatorMockedStatic.close();
+        }
+        if (importItemMockedStatic != null){
+            importItemMockedStatic.close();
         }
     }
 
@@ -136,7 +157,7 @@ class ImportTest {
             "PENDING",
             "EMP123",
             zonedNow,
-            zonedNow
+            zonedNow,null,10
         );
 
         // Assert
@@ -334,7 +355,7 @@ class ImportTest {
                 "PENDING",
                 "EMP123",
                 zonedNow,
-                zonedNow
+                zonedNow,null,10
             ));
         assertEquals("Thermometer code is required", exception.getMessage());
 
@@ -362,7 +383,7 @@ class ImportTest {
                 "PENDING",
                 "EMP123",
                 zonedNow,
-                zonedNow
+                zonedNow,null,10
             ));
         assertEquals("Temperature result is required", exception.getMessage());
 
@@ -390,7 +411,7 @@ class ImportTest {
                 "PENDING",
                 "EMP123",
                 zonedNow,
-                zonedNow
+                zonedNow,null,10
             ));
         assertEquals("Transit start time zone is required", exception.getMessage());
 
@@ -418,7 +439,7 @@ class ImportTest {
                 "PENDING",
                 "EMP123",
                 zonedNow,
-                zonedNow
+                zonedNow,null,10
             ));
         assertEquals("Transit end date time is required", exception.getMessage());
 
@@ -446,7 +467,7 @@ class ImportTest {
                 "PENDING",
                 "EMP123",
                 zonedNow,
-                zonedNow
+                zonedNow,null,10
             ));
         assertEquals("Transit time result is required", exception.getMessage());
 
@@ -464,4 +485,308 @@ class ImportTest {
         when(createImportCommand.getComments()).thenReturn("Test comment");
         when(createImportCommand.getEmployeeId()).thenReturn("EMP123");
     }
+
+
+    @Test
+    void createImportItem_ValidData_CreatesItem() {
+
+        when(configurationService.findByCodeAndTemperatureCategory(anyString(),anyString())).thenReturn(Mono.just(Mockito.mock(Product.class)));
+
+        var finNumber = Mockito.mock(FinNumber.class);
+        when(configurationService.findByFinNumber(anyString())).thenReturn(Mono.just(finNumber));
+
+        Import importObj = Import.fromRepository(
+            1L,
+            "FROZEN",
+            now,
+            "UTC",
+            now.plusHours(2),
+            "UTC",
+            "2",
+            "ACCEPTABLE",
+            BigDecimal.valueOf(20.5),
+            "THERM123",
+            "ACCEPTABLE",
+            "LOC123",
+            "Test comment",
+            "PENDING",
+            "EMP123",
+            zonedNow,
+            zonedNow,null,10
+        );
+
+        // Arrange
+        Long importId = 2L;
+        String unitNumber = "UNIT123";
+        String productCode = "PROD123";
+        String aboRh = "AP";
+        LocalDateTime expirationDate = LocalDateTime.now().plusDays(30);
+
+        AddImportItemCommand command = new AddImportItemCommand(
+            importId,
+            unitNumber,
+            productCode,
+            aboRh,
+            expirationDate,
+            "SATISFACTORY",
+            "LICENSED",
+            "validEmployeeId"
+        );
+
+        ImportItem item = Mockito.mock(ImportItem.class);
+
+
+        importItemMockedStatic.when(() -> ImportItem.create(any(), any(),Mockito.argThat(List::isEmpty))).thenReturn(item);
+
+        // Act
+        ImportItem result = importObj.createImportItem(command,configurationService,productConsequenceRepository);
+
+        // Assert
+        assertNotNull(result);
+
+    }
+
+    @Test
+    void shouldNotCreateImportItem_WhenInvalidFinNumber() {
+
+        when(configurationService.findByFinNumber(anyString())).thenReturn(Mono.empty());
+
+        Import importObj = Import.fromRepository(1L,"FROZEN",now,"UTC", now.plusHours(2),"UTC",
+            "2","ACCEPTABLE", BigDecimal.valueOf(20.5),            "THERM123",
+            "ACCEPTABLE",
+            "LOC123",
+            "Test comment",
+            "PENDING",
+            "EMP123",
+            zonedNow,
+            zonedNow,null,10
+        );
+
+        // Arrange
+        Long importId = 2L;
+        String unitNumber = "UNIT123";
+        String productCode = "PROD123";
+        String aboRh = "AP";
+        LocalDateTime expirationDate = LocalDateTime.now().plusDays(30);
+
+        AddImportItemCommand command = new AddImportItemCommand(
+            importId,
+            unitNumber,
+            productCode,
+            aboRh,
+            expirationDate,
+            "SATISFACTORY",
+            "LICENSED",
+            "validEmployeeId"
+        );
+
+        // Assert
+        Exception exception = assertThrows(IllegalArgumentException.class,
+            () -> importObj.createImportItem(command,configurationService,productConsequenceRepository));
+        assertEquals("FIN is not associated with a registered facility", exception.getMessage());
+
+    }
+
+    @Test
+    void shouldNotCreateImportItem_WhenInvalidProduct() {
+
+        when(configurationService.findByCodeAndTemperatureCategory(anyString(),anyString())).thenReturn(Mono.empty());
+
+        var finNumber = Mockito.mock(FinNumber.class);
+        when(configurationService.findByFinNumber(anyString())).thenReturn(Mono.just(finNumber));
+
+
+
+        Import importObj = Import.fromRepository(1L,"FROZEN",now,"UTC", now.plusHours(2),"UTC",
+            "2","ACCEPTABLE", BigDecimal.valueOf(20.5),            "THERM123",
+            "ACCEPTABLE",
+            "LOC123",
+            "Test comment",
+            "PENDING",
+            "EMP123",
+            zonedNow,
+            zonedNow,null,10
+        );
+
+        // Arrange
+        Long importId = 2L;
+        String unitNumber = "UNIT123";
+        String productCode = "PROD123";
+        String aboRh = "AP";
+        LocalDateTime expirationDate = LocalDateTime.now().plusDays(30);
+
+        AddImportItemCommand command = new AddImportItemCommand(
+            importId,
+            unitNumber,
+            productCode,
+            aboRh,
+            expirationDate,
+            "SATISFACTORY",
+            "LICENSED",
+            "validEmployeeId"
+        );
+
+        // Assert
+        Exception exception = assertThrows(IllegalArgumentException.class,
+            () -> importObj.createImportItem(command,configurationService,productConsequenceRepository));
+        assertEquals("Product type does not match", exception.getMessage());
+
+    }
+
+    @Test
+    void createImportItem_ValidData_CreatesItemWithValidQuarantines() {
+
+        when(configurationService.findByCodeAndTemperatureCategory(anyString(),anyString())).thenReturn(Mono.just(Mockito.mock(Product.class)));
+
+        var finNumber = Mockito.mock(FinNumber.class);
+        when(configurationService.findByFinNumber(anyString())).thenReturn(Mono.just(finNumber));
+
+        ProductConsequence consequenceVisualInspection = Mockito.mock(ProductConsequence.class);
+        Mockito.when(consequenceVisualInspection.isAcceptable()).thenReturn(false);
+        Mockito.when(consequenceVisualInspection.getConsequenceType()).thenReturn("VISUAL_INSPECTION_TYPE");
+        Mockito.when(consequenceVisualInspection.getConsequenceReason()).thenReturn("VISUAL_INSPECTION_REASON");
+
+        when(productConsequenceRepository.findAllByProductCategoryAndResultProperty(any(), Mockito.eq("VISUAL_INSPECTION"))).thenReturn(Flux.just(consequenceVisualInspection));
+
+
+        ProductConsequence consequenceTemperature = Mockito.mock(ProductConsequence.class);
+        Mockito.when(consequenceTemperature.isAcceptable()).thenReturn(false);
+        Mockito.when(consequenceTemperature.getConsequenceType()).thenReturn("TEMPERATURE_TYPE");
+        Mockito.when(consequenceTemperature.getConsequenceReason()).thenReturn("TEMPERATURE_REASON");
+
+        when(productConsequenceRepository.findAllByProductCategoryAndResultProperty(any(), Mockito.eq("TEMPERATURE"))).thenReturn(Flux.just(consequenceTemperature));
+
+        ProductConsequence consequenceTransitTime = Mockito.mock(ProductConsequence.class);
+        Mockito.when(consequenceTransitTime.isAcceptable()).thenReturn(false);
+        Mockito.when(consequenceTransitTime.getConsequenceType()).thenReturn("TRANSIT_TIME_TYPE");
+        Mockito.when(consequenceTransitTime.getConsequenceReason()).thenReturn("TRANSIT_TIME_REASON");
+
+        when(productConsequenceRepository.findAllByProductCategoryAndResultProperty(any(), Mockito.eq("TRANSIT_TIME"))).thenReturn(Flux.just(consequenceTransitTime));
+
+        Import importObj = Import.fromRepository(
+            1L,
+            "FROZEN",
+            now,
+            "UTC",
+            now.plusHours(2),
+            "UTC",
+            "2",
+            "UNACCEPTABLE",
+            BigDecimal.valueOf(20.5),
+            "THERM123",
+            "UNACCEPTABLE",
+            "LOC123",
+            "Test comment",
+            "PENDING",
+            "EMP123",
+            zonedNow,
+            zonedNow,null,10
+        );
+
+        // Arrange
+        Long importId = 2L;
+        String unitNumber = "UNIT123";
+        String productCode = "PROD123";
+        String aboRh = "AP";
+        LocalDateTime expirationDate = LocalDateTime.now().plusDays(30);
+
+        AddImportItemCommand command = new AddImportItemCommand(
+            importId,
+            unitNumber,
+            productCode,
+            aboRh,
+            expirationDate,
+            "UNSATISFACTORY",
+            "LICENSED",
+            "validEmployeeId"
+        );
+
+        ImportItem item = Mockito.mock(ImportItem.class);
+
+        importItemMockedStatic.when(() -> ImportItem.create(any(AddImportItemCommand.class),any(ConfigurationService.class),Mockito.argThat(arg -> arg.stream()
+            .anyMatch(itemArg -> itemArg.consequenceType().equals("TEMPERATURE_TYPE"))
+            && arg.stream()
+            .anyMatch(itemArg -> itemArg.consequenceType().equals("TRANSIT_TIME_TYPE"))
+            && arg.stream()
+            .anyMatch(itemArg -> itemArg.consequenceType().equals("VISUAL_INSPECTION_TYPE"))
+        ))).thenReturn(item);
+
+        // Act
+        ImportItem result = importObj.createImportItem(command,configurationService,productConsequenceRepository);
+
+        // Assert
+        assertNotNull(result);
+
+    }
+
+    @Test
+    void shouldNotCreateImportItem_WhenCommandIsNull() {
+
+        Import importObj = Import.fromRepository(1L,"FROZEN",now,"UTC", now.plusHours(2),"UTC",
+            "2","ACCEPTABLE", BigDecimal.valueOf(20.5),            "THERM123",
+            "ACCEPTABLE",
+            "LOC123",
+            "Test comment",
+            "PENDING",
+            "EMP123",
+            zonedNow,
+            zonedNow,null,10
+        );
+
+        // Assert
+        Exception exception = assertThrows(IllegalArgumentException.class,
+            () -> importObj.createImportItem(null,configurationService,productConsequenceRepository));
+        assertEquals("AddImportItemCommand is required", exception.getMessage());
+
+    }
+
+    @Test
+    void shouldNotCreateImportItem_WhenConfigServiceIsNull() {
+
+        Import importObj = Import.fromRepository(1L,"FROZEN",now,"UTC", now.plusHours(2),"UTC",
+            "2","ACCEPTABLE", BigDecimal.valueOf(20.5),            "THERM123",
+            "ACCEPTABLE",
+            "LOC123",
+            "Test comment",
+            "PENDING",
+            "EMP123",
+            zonedNow,
+            zonedNow,null,10
+        );
+
+        // Assert
+        Exception exception = assertThrows(IllegalArgumentException.class,
+            () -> importObj.createImportItem(Mockito.mock(AddImportItemCommand.class),null,productConsequenceRepository));
+        assertEquals("Configuration Service is required", exception.getMessage());
+
+    }
+
+    @Test
+    void shouldNotCreateImportItem_WhenMaxNumberOfProductsReached() {
+
+        var item = Mockito.mock(ImportItem.class);
+
+        Import importObj = Import.fromRepository(1L,"FROZEN",now,"UTC", now.plusHours(2),"UTC",
+            "2","ACCEPTABLE", BigDecimal.valueOf(20.5),            "THERM123",
+            "ACCEPTABLE",
+            "LOC123",
+            "Test comment",
+            "PENDING",
+            "EMP123",
+            zonedNow,
+            zonedNow,List.of(item),1
+        );
+
+        // Assert
+        Exception exception = assertThrows(IllegalArgumentException.class,
+            () -> importObj.createImportItem(Mockito.mock(AddImportItemCommand.class),configurationService,productConsequenceRepository));
+        assertEquals("Max number of products reached", exception.getMessage());
+
+    }
 }
+
+
+
+
+
+

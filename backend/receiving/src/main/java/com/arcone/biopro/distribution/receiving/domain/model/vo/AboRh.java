@@ -20,7 +20,7 @@ public record AboRh(String value, String description) {
 
     public static void validateAboRh(String value) {
         if (!validAboRh.contains(value)) {
-            throw new TypeNotConfiguredException("ABO_RH_NOT_CONFIGURED");
+            throw new TypeNotConfiguredException("ABO/RH is Invalid");
         }
     }
 

@@ -64,4 +64,10 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             .map(productEntityMapper::toModel);
     }
 
+    @Override
+    public Mono<Product> findProductByCode(String productCode) {
+        return productEntityRepository.findFirstByProductCodeAndActiveIsTrue(productCode)
+            .map(productEntityMapper::toModel);
+    }
+
 }

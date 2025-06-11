@@ -13,6 +13,7 @@ type Query {
 
 type Mutation {
     createImport(createImportRequest:CreateImportRequestDTO!): UseCaseResponseDTO!
+    createImportItem(createImportItemRequest:AddImportItemRequestDTO!): UseCaseResponseDTO!
 
 }
 
@@ -70,6 +71,17 @@ input ValidateBarcodeRequestDTO {
     temperatureCategory:String!
     barcodeValue:String!
     barcodePattern:String!
+}
+
+input AddImportItemRequestDTO {
+    importId:ID!
+    unitNumber:String!
+    productCode:String!
+    aboRh:String!
+    expirationDate:DateTime!
+    visualInspection:String!
+    licenseStatus:String!
+    employeeId:String!
 }
 
 type UseCaseNotificationDTO {

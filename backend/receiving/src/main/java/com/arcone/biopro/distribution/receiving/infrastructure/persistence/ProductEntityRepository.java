@@ -14,4 +14,6 @@ public interface ProductEntityRepository extends ReactiveCrudRepository<ProductE
         " where l.product_code = :productCode " +
         " and lpf.temperature_category = :temperatureCategory)")
     Mono<ProductEntity> findByProductCodeAndTemperatureCategory(@Param("productCode") String productCode , @Param("temperatureCategory") String temperatureCategory);
+
+    Mono<ProductEntity> findFirstByProductCodeAndActiveIsTrue(String productCode);
 }

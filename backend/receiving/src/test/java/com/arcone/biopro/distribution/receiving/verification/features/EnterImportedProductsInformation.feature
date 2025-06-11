@@ -115,7 +115,7 @@ Feature: Enter Imported Products Information
                 | temperature          | 26.80                    |
                 | thermometerCode      | THERM-001                |
             When I request to enter the product information with Unit Number as "<Unit Number>" , Product Code as "<Product Code>", Blood Type as "<Blood Type>" Expiration date as "<Expiration Date>" , License status as "<License Status>" and Visual Inspection as "<Visual Inspection>"
-            Then The product should be add into list of added products.
+            Then The product should be added into list of added products.
             And The product should be flagged for quarantine.
             Examples:
                 | Unit Number    | Product Code | Blood Type | Expiration Date | License Status | Visual Inspection |
@@ -144,7 +144,7 @@ Feature: Enter Imported Products Information
                 | transitEndDateTime   | 2025-05-13T23:28:53.108Z |
                 | transitEndTimeZone   | America/New_York         |
             When I request to enter the product information with Unit Number as "<Unit Number>" , Product Code as "<Product Code>", Blood Type as "<Blood Type>" Expiration date as "<Expiration Date>" , License status as "<License Status>" and Visual Inspection as "<Visual Inspection>"
-            Then The product should be add into list of added products.
+            Then The product should be added into list of added products.
             And The product should be flagged for quarantine.
             Examples:
                 | Unit Number    | Product Code | Blood Type | Expiration Date | License Status | Visual Inspection |
@@ -246,7 +246,7 @@ Feature: Enter Imported Products Information
                 | 123456789            | THERM-001 | THERMOMETER      | TEMPERATURE |ROOM_TEMPERATURE     | =W03689878680500 | =<E6170V00   | =%6200     | &>0260422359    | Invalid blood type         |
                 | 123456789            | THERM-001 | THERMOMETER      | TEMPERATURE |ROOM_TEMPERATURE     | =W03689878680500 | =<E6170V00   | =%6200     | &>0260422359    | Invalid expiration date    |
                 | 123456789            | THERM-001 | THERMOMETER      | TEMPERATURE |ROOM_TEMPERATURE     | =W03689878680500 | =<E617       | =%6200     | &>0260422359    | Invalid ISBT product code  |
-                | 123456789            | THERM-001 | THERMOMETER      | TEMPERATURE |ROOM_TEMPERATURE     | =W03689878680500 | =<E617       | =%6200     | &>0260422359    | Invalid FIN number         |
+                | 123456789            | THERM-001 | THERMOMETER      | TEMPERATURE |ROOM_TEMPERATURE     | =W03339878680500 | =<E617       | =%6200     | &>0260422359    | Invalid FIN number         |
                 | 123456789            | THERM-001 | THERMOMETER      | TEMPERATURE |REFRIGERATED         | =W03689878680500 | =<E617       | =%6200     | &>0260422359    | Invalid Product Type       |
 
 

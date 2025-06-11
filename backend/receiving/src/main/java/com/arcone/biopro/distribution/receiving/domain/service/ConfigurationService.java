@@ -17,5 +17,6 @@ public interface ConfigurationService {
 
     Mono<Product> findByCodeAndTemperatureCategory(String productCode , String temperatureCategory);
 
+    Mono<Product> findProductByCode(String productCode);
 
 }

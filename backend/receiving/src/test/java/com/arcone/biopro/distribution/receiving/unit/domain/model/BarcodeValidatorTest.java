@@ -5,7 +5,6 @@ import com.arcone.biopro.distribution.receiving.domain.model.BarcodeTranslation;
 import com.arcone.biopro.distribution.receiving.domain.model.BarcodeValidator;
 import com.arcone.biopro.distribution.receiving.domain.model.FinNumber;
 import com.arcone.biopro.distribution.receiving.domain.model.Product;
-import com.arcone.biopro.distribution.receiving.domain.model.ShippingInformation;
 import com.arcone.biopro.distribution.receiving.domain.model.ValidateBarcodeCommand;
 import com.arcone.biopro.distribution.receiving.domain.model.enumeration.ParseType;
 import com.arcone.biopro.distribution.receiving.domain.model.vo.ValidationResult;

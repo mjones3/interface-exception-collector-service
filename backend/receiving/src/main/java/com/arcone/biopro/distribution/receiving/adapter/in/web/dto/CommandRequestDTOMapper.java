@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.receiving.adapter.in.web.dto;
 
+import com.arcone.biopro.distribution.receiving.application.dto.AddImportItemCommandInput;
 import com.arcone.biopro.distribution.receiving.application.dto.CreateImportCommandInput;
 import com.arcone.biopro.distribution.receiving.application.dto.EnterShippingInformationCommandInput;
 import com.arcone.biopro.distribution.receiving.application.dto.ValidateBarcodeCommandInput;
@@ -17,4 +18,5 @@ public interface CommandRequestDTOMapper {
     ValidateTransitTimeCommandInput toCommandInput(ValidateTransitTimeRequestDTO validateTransitTimeRequestDTO);
     CreateImportCommandInput toCommandInput(CreateImportRequestDTO createImportRequestDTO);
     ValidateBarcodeCommandInput toCommandInput(ValidateBarcodeRequestDTO validateBarcodeRequestDTO);
+    AddImportItemCommandInput toCommandInput(AddImportItemRequestDTO addImportItemRequestDTO);
 }
