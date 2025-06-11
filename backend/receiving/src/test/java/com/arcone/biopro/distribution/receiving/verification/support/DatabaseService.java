@@ -16,13 +16,13 @@ public class DatabaseService {
     private final DatabaseClient databaseClient;
 
     public Mono<Long> executeSql(String sql) {
-        log.info("Running SQL {}", sql);
+        log.debug("Running SQL {}", sql);
         DatabaseClient.GenericExecuteSpec spec = databaseClient.sql(sql);
         return spec.fetch().rowsUpdated();
     }
 
     public FetchSpec<Map<String, Object>> fetchData(String sql) {
-        log.info("Running SQL {}", sql);
+        log.debug("Running SQL {}", sql);
         DatabaseClient.GenericExecuteSpec spec = databaseClient.sql(sql);
         return spec.fetch();
     }

@@ -380,4 +380,26 @@ public class SharedActions {
             throw new NoSuchElementException("Acknowledgment message not found");
         }
     }
+
+    public void verifyAlert(String header, String message, boolean expectVisible) {
+        By alertText = By.cssSelector("biopro-global-message");
+        if (expectVisible) {
+            waitForVisible(alertText);
+            String[] alert = getText(alertText).split("\n");
+            Assert.assertEquals(alert[0], header);
+            Assert.assertEquals(alert[1], message);
+        } else {
+            waitForNotVisible(alertText);
+        }
+
+    }
+
+    public void sendKeysAndEnter(WebDriver driver, By locator, String text) throws InterruptedException {
+        Thread.sleep(500);
+        waitForVisible(locator);
+        waitForEnabled(locator);
+        driver.findElement(locator).sendKeys(text);
+        driver.findElement(locator).sendKeys(Keys.ENTER);
+    }
+
 }

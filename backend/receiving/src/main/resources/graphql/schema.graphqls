@@ -6,6 +6,7 @@ type Query {
     findAllLookupsByType(type: String!): [LookupDTO]!
     enterShippingInformation(enterShippingInformationRequest:EnterShippingInformationRequestDTO!): UseCaseResponseDTO!
     validateDevice(validateDeviceRequest:ValidateDeviceRequestDTO!): UseCaseResponseDTO!
+    validateTemperature(validateTemperatureRequest:ValidateTemperatureRequestDTO!): UseCaseResponseDTO!
 }
 
 input InputQuerySortDTO {
@@ -30,6 +31,11 @@ input EnterShippingInformationRequestDTO {
 input ValidateDeviceRequestDTO {
     bloodCenterId:String!
     locationCode:String!
+}
+
+input ValidateTemperatureRequestDTO{
+    temperature:Float!
+    temperatureCategory:String!
 }
 
 type UseCaseNotificationDTO {

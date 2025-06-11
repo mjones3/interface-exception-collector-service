@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.receiving.verification.steps;
 
+import com.arcone.biopro.distribution.receiving.verification.pages.EnterShippingInformationPage;
 import com.arcone.biopro.distribution.receiving.verification.support.ApiHelper;
 import com.arcone.biopro.distribution.receiving.verification.support.TestUtils;
 import com.arcone.biopro.distribution.receiving.verification.support.graphql.GraphQLQueryMapper;
@@ -27,6 +28,8 @@ public class DeviceSteps {
     ObjectMapper objectMapper;
     @Autowired
     ApiHelper apiHelper;
+    @Autowired
+    EnterShippingInformationPage enterShippingInformationPage;
 
     Map validateDeviceResponse;
 
@@ -59,4 +62,10 @@ public class DeviceSteps {
         Assert.assertEquals(deviceCategory, validateDeviceResponse.get("deviceCategory").toString());
         Assert.assertEquals(deviceType, validateDeviceResponse.get("deviceType").toString());
     }
+
+    @Then("I should see {string} field validation error message: {string}.")
+    public void iShouldSeeFieldValidationErrorMessage(String field, String message) {
+        enterShippingInformationPage.verifyFieldErrorMessage(field, message);
+    }
+
 }

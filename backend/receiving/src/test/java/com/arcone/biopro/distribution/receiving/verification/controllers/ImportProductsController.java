@@ -28,9 +28,14 @@ public class ImportProductsController {
 
     public Map enterShippingInformation(String temperatureCategory) {
 
-        String payload = GraphQLQueryMapper.enterShippingInformation(temperatureCategory,employeeId, sharedContext.getLocationCode());
-        var response = apiHelper.graphQlRequest(payload, "enterShippingInformation");
-        log.debug("Response: {}", response);
-        return response;
+        String payload = GraphQLQueryMapper.enterShippingInformation(temperatureCategory, employeeId, sharedContext.getLocationCode());
+        return apiHelper.graphQlRequest(payload, "enterShippingInformation");
+    }
+
+    public boolean isTemperatureValid(String temperatureCategory, String temperatureValue) {
+        String payload = GraphQLQueryMapper.validateTemperature(temperatureCategory, temperatureValue);
+        var response = apiHelper.graphQlRequest(payload, "validateTemperature");
+
+        return Boolean.parseBoolean(((Map) response.get("data")).get("valid").toString());
     }
 }

@@ -5,4 +5,8 @@ public class DatabaseQueries {
     public static String DELETE_DEVICE_BY_ID_LIKE(String key) {
         return String.format("DELETE FROM BLD_DEVICE WHERE blood_center_id like '%%%s%%'", key);
     }
+
+    public static String UPDATE_TEMPERATURE_ACCEPTABLE_CONFIG(String temperatureCategory, String minTemperature, String maxTemperature) {
+        return String.format("UPDATE lk_product_consequence SET result_value = 'TEMPERATURE >= %s && TEMPERATURE <= %s' WHERE result_property = 'TEMPERATURE' AND acceptable is true AND product_category = '%s'", minTemperature, maxTemperature, temperatureCategory);
+    }
 }
