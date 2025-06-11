@@ -119,6 +119,8 @@ export class ImportsEnterShipmentInformationComponent implements OnInit {
         if (this.temperatureValueSignal()) {
             this.loadTemperatureValidation(this.temperatureValueSignal(), this.form.controls.productCategory.value)
                 .subscribe(notification => this.temperatureQuarantineNotificationSignal.set(notification))
+        } else {
+            this.temperatureQuarantineNotificationSignal.set(null);
         }
     }, { allowSignalWrites: true });
 
