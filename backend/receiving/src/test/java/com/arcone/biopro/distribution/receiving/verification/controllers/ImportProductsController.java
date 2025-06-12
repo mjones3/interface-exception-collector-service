@@ -28,7 +28,7 @@ public class ImportProductsController {
 
     public Map enterShippingInformation(String temperatureCategory, String locationCode) {
 
-        String payload = GraphQLQueryMapper.enterShippingInformation(temperatureCategory,employeeId, locationCode);
+        String payload = GraphQLQueryMapper.enterShippingInformation(temperatureCategory, employeeId, locationCode);
         var response = apiHelper.graphQlRequest(payload, "enterShippingInformation");
         log.debug("Response: {}", response);
         return response;
@@ -39,5 +39,22 @@ public class ImportProductsController {
         var response = apiHelper.graphQlRequest(payload, "validateTemperature");
 
         return Boolean.parseBoolean(((Map) response.get("data")).get("valid").toString());
+    }
+
+    public boolean isTotalTransitTimeValid(String temperatureCategory, String startDateTime, String startTimeZone, String endDateTime, String endTimeZone) {
+        String payload = GraphQLQueryMapper.validateTransitTime(temperatureCategory, startDateTime, startTimeZone, endDateTime, endTimeZone);
+        var response = apiHelper.graphQlRequest(payload, "validateTransitTime");
+
+        if (response.get("data") != null) {
+            boolean isValid = Boolean.parseBoolean(((Map) response.get("data")).get("valid").toString());
+            sharedContext.setTotalTransitTime(((Map) response.get("data")).get("result").toString());
+            return isValid;
+        } else {
+            return false;
+        }
+    }
+
+    public String getTotalTransitTime() {
+        return sharedContext.getTotalTransitTime();
     }
 }

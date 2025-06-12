@@ -9,4 +9,8 @@ public class DatabaseQueries {
     public static String UPDATE_TEMPERATURE_ACCEPTABLE_CONFIG(String temperatureCategory, String minTemperature, String maxTemperature) {
         return String.format("UPDATE lk_product_consequence SET result_value = 'TEMPERATURE >= %s && TEMPERATURE <= %s' WHERE result_property = 'TEMPERATURE' AND acceptable is true AND product_category = '%s'", minTemperature, maxTemperature, temperatureCategory);
     }
+
+    public static String UPDATE_TRANSIT_TIME_ACCEPTABLE_CONFIG(String temperatureCategory, String minTransitTime, String maxTransitTime) {
+        return String.format("UPDATE lk_product_consequence SET result_value = 'TRANSIT_TIME >= %s && TRANSIT_TIME <= %s' WHERE result_property = 'TRANSIT_TIME' AND acceptable is true AND product_category = '%s'", minTransitTime, maxTransitTime, temperatureCategory);
+    }
 }

@@ -26,4 +26,15 @@ public class DatabaseSteps {
             db.executeSql(sql).block();
         }
     }
+
+    @Given("The following transit time thresholds are configured:")
+    public void theFollowingTransitTimeThresholdsAreConfigured(DataTable dataTable) {
+        var headers = dataTable.row(0);
+        for (int i = 1; i < dataTable.height(); i++) {
+            var row = dataTable.row(i);
+            String sql = DatabaseQueries.UPDATE_TRANSIT_TIME_ACCEPTABLE_CONFIG(row.get(headers.indexOf("Temperature Category")), row.get(headers.indexOf("Min Transit Time")), row.get(headers.indexOf("Max Transit Time")));
+
+            db.executeSql(sql).block();
+        }
+    }
 }

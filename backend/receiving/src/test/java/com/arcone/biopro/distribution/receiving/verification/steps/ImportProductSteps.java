@@ -3,14 +3,17 @@ package com.arcone.biopro.distribution.receiving.verification.steps;
 import com.arcone.biopro.distribution.receiving.verification.controllers.ImportProductsController;
 import com.arcone.biopro.distribution.receiving.verification.pages.EnterShippingInformationPage;
 import com.arcone.biopro.distribution.receiving.verification.support.TestUtils;
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
 
+@Slf4j
 public class ImportProductSteps {
 
     @Autowired
@@ -23,7 +26,8 @@ public class ImportProductSteps {
     private EnterShippingInformationPage enterShippingInformationPage;
 
     private Map apiResponse;
-    private boolean isValid;
+    private boolean isTemperatureValid;
+    private boolean isTransitTimeValid;
 
     @Given("I request to enter shipping data for a {string} product category and location code {string}.")
     public void iRequestToEnterShippingDataForAProductCategory(String temperatureCategory , String locationCode) {
@@ -88,15 +92,15 @@ public class ImportProductSteps {
 
     @When("I request to validate the temperature of {string} for the Temperature Category {string}.")
     public void iRequestToValidateTheTemperatureOfForTheTemperatureCategory(String temperatureValue, String temperatureCategory) {
-        isValid = importProductsController.isTemperatureValid(temperatureCategory, temperatureValue);
+        isTemperatureValid = importProductsController.isTemperatureValid(temperatureCategory, temperatureValue);
     }
 
     @Then("The system {string} accept the temperature.")
     public void theSystemAcceptTheTemperature(String shouldShouldNot) {
         if ("should".equalsIgnoreCase(shouldShouldNot)) {
-            Assert.assertTrue(isValid);
+            Assert.assertTrue(isTemperatureValid);
         } else if ("should not".equalsIgnoreCase(shouldShouldNot)) {
-            Assert.assertFalse(isValid);
+            Assert.assertFalse(isTemperatureValid);
         } else {
             Assert.fail("Invalid value for should/ShouldNot");
         }
@@ -117,5 +121,28 @@ public class ImportProductSteps {
         } else {
             Assert.fail("The continue button should be enabled or disabled");
         }
+    }
+
+    @When("I request to validate the total transit time of Stat date time as {string}, Start Time Zone as {string}, End date time as {string} and End Time Zone as {string}  for the Temperature Category {string}.")
+    public void validateTransitTime(String startDateTime, String startTimeZone, String endDateTime, String endTimeZone, String temperatureCategory) {
+        isTransitTimeValid = importProductsController.isTotalTransitTimeValid(temperatureCategory, startDateTime, startTimeZone, endDateTime, endTimeZone);
+    }
+
+    @Then("The system {string} accept the transit time.")
+    public void theSystemShouldAcceptTheTransitTime(String shouldShouldNot) {
+        if ("should".equalsIgnoreCase(shouldShouldNot)) {
+            Assert.assertTrue(isTransitTimeValid);
+        } else if ("should not".equalsIgnoreCase(shouldShouldNot)) {
+            Assert.assertFalse(isTransitTimeValid);
+        } else {
+            Assert.fail("Invalid value for should/ShouldNot");
+        }
+    }
+
+    @And("I should receive the total transit time as {string}.")
+    public void iShouldReceiveTheTotalTransitTimeAs(String totalTransitTime) {
+        String actualTotalTransitTime = importProductsController.getTotalTransitTime();
+        log.debug("Expecting total transit time to be: {}. Received {}", totalTransitTime, actualTotalTransitTime);
+        Assert.assertEquals(totalTransitTime, actualTotalTransitTime);
     }
 }
