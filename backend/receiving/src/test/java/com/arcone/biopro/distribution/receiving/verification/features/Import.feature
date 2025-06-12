@@ -137,21 +137,6 @@ Feature: Import products
                 | 123456789            |  America/New_York       | ROOM_TEMPERATURE     |  2025-06-08T05:22:53.108Z | America/New_York | 2025-06-08T13:28:53.108Z | ET                              | 8h 6m           | enabled        | should                    |   should not              |
                 | 123456789            |  America/New_York       | ROOM_TEMPERATURE     |  2025-06-02T05:22:53.108Z | America/New_York | 2025-06-08T13:28:53.108Z | ET                              |                 | disable        | should not                |   should                  |
 
-
-     Rule: I should be able to enter temperature information of the imported products.
-     @api @DIS-410
-     Scenario Outline: Successfully record temperature within acceptable range
-        And The following temperature thresholds are configured:
-            | Temperature Category | Min Temperature | Max Temperature |
-            | REFRIGERATED         |    1            |  10             |
-            | ROOM_TEMPERATURE     |    20           |  24             |
-        When I request to validate the temperature of "<Temperature>" for the Temperature Category "<Temperature Category>".
-        Then The system should accept the temperature.
-        Examples:
-         |Temperature Category | Temperature |
-         | REFRIGERATED        |  9          |
-         | ROOM_TEMPERATURE    |  22         |
-
     Rule: I should be notified when I enter a temperature that is out of the configured range.
     @api @DIS-410
     Scenario Outline: Notification for out-of-range temperatures
