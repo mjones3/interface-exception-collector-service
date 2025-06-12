@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, OnInit, Renderer2, signal } from '@angular/core';
+import { Component, computed, effect, ElementRef, inject, OnInit, signal, viewChild } from '@angular/core';
 import { ActionButtonComponent } from '../../../../shared/components/buttons/action-button.component';
 import { AsyncPipe } from '@angular/common';
 import { FuseCardComponent } from '../../../../../@fuse';
@@ -13,7 +13,7 @@ import { MatIcon } from '@angular/material/icon';
 import { ReceivingService } from '../../service/receiving.service';
 import { Store } from '@ngrx/store';
 import { getAuthState } from '../../../../core/state/auth/auth.selectors';
-import { catchError, combineLatestWith, debounceTime, map, Observable, tap } from 'rxjs';
+import { catchError, combineLatestWith, map, Observable, tap } from 'rxjs';
 import { CookieService } from 'ngx-cookie-service';
 import { ApolloError } from '@apollo/client';
 import {
@@ -63,7 +63,6 @@ export class ImportsEnterShipmentInformationComponent implements OnInit {
     protected readonly TemperatureProductCategoryIconMap = TemperatureProductCategoryIconMap;
     protected readonly NotificationTypeMap = NotificationTypeMap;
 
-    renderer = inject(Renderer2);
     router = inject(Router);
     store = inject(Store);
     formBuilder = inject(FormBuilder);
@@ -71,6 +70,9 @@ export class ImportsEnterShipmentInformationComponent implements OnInit {
     processHeaderService = inject(ProcessHeaderService);
     receivingService = inject(ReceivingService);
     cookieService = inject(CookieService);
+
+    thermometerField = viewChild<ElementRef<HTMLInputElement>>('thermometerId');
+    temperatureField = viewChild<ElementRef<HTMLInputElement>>('temperature');
 
     form = this.formBuilder.group({
         productCategory: ['', [ Validators.required ]],
@@ -84,7 +86,7 @@ export class ImportsEnterShipmentInformationComponent implements OnInit {
         }),
         temperature: this.formBuilder.group({
             thermometerId: ['', { updateOn: 'blur' }],
-            temperature: [0, [ Validators.min(-273), Validators.max(99) ]],
+            temperature: [0, { updateOn: 'blur', validators: [ Validators.min(-273), Validators.max(99) ] }],
         }),
         comments: ['', []]
     });
@@ -104,22 +106,21 @@ export class ImportsEnterShipmentInformationComponent implements OnInit {
         this.form.controls.temperature.controls.temperature.reset();
         if (status === 'VALID' && !!value) {
             this.form.controls.temperature.controls.temperature.enable();
-            const temperature = this.renderer.selectRootElement('input[data-testid="temperature"]') as HTMLInputElement;
-            temperature.focus();
+            this.temperatureField()?.nativeElement?.focus();
         } else {
             this.form.controls.temperature.controls.temperature.disable();
-            const thermometerIdInput = this.renderer.selectRootElement('input[data-testid="thermometer-id"]') as HTMLInputElement;
-            thermometerIdInput.focus();
+            this.thermometerField()?.nativeElement?.focus();
         }
     });
 
-    temperatureValueSignal = toSignal(this.form.controls.temperature.controls.temperature.valueChanges.pipe(debounceTime(500)));
+    temperatureValueSignal = toSignal(this.form.controls.temperature.controls.temperature.statusChanges
+        .pipe(combineLatestWith(this.form.controls.temperature.controls.temperature.valueChanges)));
     temperatureQuarantineNotificationSignal = signal<UseCaseNotificationDTO>(null);
     temperatureValueChangeEffect = effect(() => {
-        if (this.temperatureValueSignal()) {
-            this.loadTemperatureValidation(this.temperatureValueSignal(), this.form.controls.productCategory.value)
-                .subscribe(notification => this.temperatureQuarantineNotificationSignal.set(notification))
-        } else {
+        const [ status, value ] = this.temperatureValueSignal();
+        if (status === 'VALID' && value !== null && value !== undefined && isFinite(value)) {
+            this.loadTemperatureValidation(value, this.form.controls.productCategory.value).subscribe();
+        } else if (!value) {
             this.temperatureQuarantineNotificationSignal.set(null);
         }
     }, { allowSignalWrites: true });
@@ -178,6 +179,9 @@ export class ImportsEnterShipmentInformationComponent implements OnInit {
                 map(response => {
                     return response.data?.validateTemperature?.notifications?.filter(n => n.type === 'CAUTION')?.[0];
                 }),
+                tap(notification => {
+                    this.temperatureQuarantineNotificationSignal.set(notification);
+                }),
             );
     }
 
@@ -196,9 +200,12 @@ export class ImportsEnterShipmentInformationComponent implements OnInit {
             });
     }
 
-    confirmThermometerId(event: Event) {
-        const input = event.target as HTMLInputElement;
-        input.blur();
+    confirmThermometerId() {
+        this.thermometerField().nativeElement.blur();
+    }
+
+    confirmTemperature() {
+        this.temperatureField().nativeElement.blur();
     }
 
     updateFormValidators(shippingInformationDTO: ShippingInformationDTO): void {
