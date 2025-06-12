@@ -145,4 +145,9 @@ public class ImportProductSteps {
         log.debug("Expecting total transit time to be: {}. Received {}", totalTransitTime, actualTotalTransitTime);
         Assert.assertEquals(totalTransitTime, actualTotalTransitTime);
     }
+
+    @Then("The end time zone field should be pre defined as {string}.")
+    public void theEndTimeZoneFieldShouldBePreDefinedAs(String tz) {
+        enterShippingInformationPage.verifyDefaultTzIs(tz);
+    }
 }

@@ -120,13 +120,12 @@ Feature: Import products
         Scenario Outline: Enter transit time within different ranges
             Given The following transit time thresholds are configured:
                 | Temperature Category | Min Transit Time | Max Transit Time |
-                | ROOM_TEMPERATURE     |    1             |  24              |
-
-            And The location default timezone is configured as "<defaultLocationTimeZone>"
+                | ROOM_TEMPERATURE     | 1                | 24               |
             And The user location is "<Imports Location Code>".
+            And The location default timezone is configured as "<defaultLocationTimeZone>"
             And I am at the Enter Shipping Information Page.
             And I select to enter information for a "<Temperature Category>" product category.
-            Then I the end time zone field should be pre defined as "<defaultLocationTimeZoneSelected>".
+            Then The end time zone field should be pre defined as "<defaultLocationTimeZoneSelected>".
             And I enter the Stat date time as "<StartDateTime>", Start Time Zone as "<StartTimeZone>", End date time as "<EndDateTime>".
             ## Check with the team/PO if we should have a button to trigger the calculation or not
             When I choose calculate total transit time.

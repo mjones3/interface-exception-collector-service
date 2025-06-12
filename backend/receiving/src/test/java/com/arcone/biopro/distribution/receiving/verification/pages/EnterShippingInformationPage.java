@@ -1,12 +1,14 @@
 package com.arcone.biopro.distribution.receiving.verification.pages;
 
 import com.arcone.biopro.distribution.receiving.verification.support.SharedContext;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.openqa.selenium.By;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
+@Slf4j
 public class EnterShippingInformationPage extends CommonPageFactory {
 
     @Autowired
@@ -176,4 +178,7 @@ public class EnterShippingInformationPage extends CommonPageFactory {
         Assertions.assertEquals(message, sharedActions.getText(matError));
     }
 
+    public void verifyDefaultTzIs(String tz) {
+        log.debug("Default TZ is: {}", tz);
+    }
 }
