@@ -44,6 +44,7 @@ public class ImportItem implements Validatable {
     private Map<String,String> properties;
     private List<ImportItemConsequence> consequences;
 
+
     public static ImportItem create(AddImportItemCommand command , ConfigurationService configurationService, List<ImportItemConsequence> consequenceList) {
 
         if(command == null) {

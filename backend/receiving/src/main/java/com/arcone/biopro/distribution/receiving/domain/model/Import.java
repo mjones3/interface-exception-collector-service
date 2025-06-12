@@ -42,15 +42,18 @@ public class Import implements Validatable {
     private String temperatureResult;
     private final String locationCode;
     private final String comments;
-    private final String status;
+    private String status;
     private final String employeeId;
     private ZonedDateTime createDate;
     private ZonedDateTime modificationDate;
     private List<ImportItem> items;
     private int maxNumberOfProducts;
+    private ZonedDateTime completeDate;
+    private String completeEmployeeId;
 
     private static final String ACCEPTABLE_RESULT = "ACCEPTABLE";
     private static final String UNACCEPTABLE_RESULT = "UNACCEPTABLE";
+    private static final String STATUS_COMPLETED = "COMPLETED";
 
     public static Import create(CreateImportCommand createImportCommand , ProductConsequenceRepository productConsequenceRepository) {
         if (createImportCommand == null) {
@@ -219,6 +222,10 @@ public class Import implements Validatable {
             throw new IllegalArgumentException("Max number of products reached");
         }
 
+        if(STATUS_COMPLETED.equals(this.status)){
+            throw new IllegalArgumentException("Import is completed");
+        }
+
 
         validateFinNumber(addImportItemCommand.getUnitNumber(), configurationService);
 
@@ -306,6 +313,31 @@ public class Import implements Validatable {
                 .build())
             .blockFirst();
 
+    }
+
+    public Import completeImport(String completeEmployeeId){
+        if(completeEmployeeId == null || completeEmployeeId.isBlank()){
+            throw new IllegalArgumentException("Complete Employee Id is required");
+        }
+
+        if(STATUS_COMPLETED.equals(this.status)){
+            throw new IllegalArgumentException("Import is already completed");
+        }
+
+        if(this.items == null || this.items.isEmpty()){
+            throw new IllegalArgumentException("Import must have at least one product in the batch");
+        }
+
+        this.status = STATUS_COMPLETED;
+        this.completeEmployeeId = completeEmployeeId;
+        this.modificationDate = ZonedDateTime.now();
+        this.completeDate = ZonedDateTime.now();
+
+        return this;
+    }
+
+    public boolean canComplete(){
+        return "PENDING".equals(this.status) && this.items != null && !this.items.isEmpty();
     }
 
 }

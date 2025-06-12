@@ -53,6 +53,12 @@ public class ImportRepositoryImpl implements ImportRepository {
             });
     }
 
+    @Override
+    public Mono<Import> update(Import importModel) {
+        return importEntityRepository.save(importEntityMapper.toEntity(importModel))
+            .flatMap(importEntity -> this.findOneById(importEntity.getId()));
+    }
+
     private Flux<ImportItem> findAllByImportId(Long importId) {
         return importItemEntityRepository.findAllByImportId(importId)
             .flatMap(importItem -> {

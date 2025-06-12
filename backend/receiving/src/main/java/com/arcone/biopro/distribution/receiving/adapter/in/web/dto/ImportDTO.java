@@ -26,6 +26,7 @@ public record ImportDTO(
         String modificationDate,
         boolean isQuarantined,
         int maxNumberOfProducts,
-        List<ImportItemDTO> products
+        List<ImportItemDTO> products,
+        boolean canComplete
 ) implements Serializable {
 }

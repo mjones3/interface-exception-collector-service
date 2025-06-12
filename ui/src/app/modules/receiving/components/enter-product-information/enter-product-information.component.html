@@ -28,8 +28,9 @@
                 id="productInformationSubmit"
                 btnId="productInformationSubmitActionButton"
                 label="Submit"
-                [disabled]="true"
+                [disabled]="!importData()?.canComplete"
                 color="primary"
+                (click) = "completeImport()"
                 icon="heroicons_outline:paper-airplane"
             />
         </div>
@@ -142,7 +143,7 @@
                                 [options]="visualInspectionOptions"
                                 [control]="productInformationForm.get('visualInspection')"
                             >
-                        </biopro-custom-button-toggle> 
+                        </biopro-custom-button-toggle>
                         </div>
                     </form>
 

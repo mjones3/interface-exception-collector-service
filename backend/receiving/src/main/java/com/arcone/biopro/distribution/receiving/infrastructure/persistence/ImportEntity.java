@@ -78,6 +78,12 @@ public class ImportEntity implements Persistable<Long> {
         @Column( "modification_date")
         private ZonedDateTime modificationDate;
 
+        @Column( "complete_date")
+        private ZonedDateTime completeDate;
+
+        @Column( "complete_employee_id")
+        private String completeEmployeeId;
+
         @Override
         public Long getId() {
             return id;

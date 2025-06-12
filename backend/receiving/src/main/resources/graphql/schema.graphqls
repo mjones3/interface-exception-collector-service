@@ -15,6 +15,7 @@ type Query {
 type Mutation {
     createImport(createImportRequest:CreateImportRequestDTO!): UseCaseResponseDTO!
     createImportItem(createImportItemRequest:AddImportItemRequestDTO!): UseCaseResponseDTO!
+    completeImport(completeImportRequest:CompleteImportRequestDTO!): UseCaseResponseDTO!
 
 }
 
@@ -83,6 +84,12 @@ input AddImportItemRequestDTO {
     visualInspection:String!
     licenseStatus:String!
     employeeId:String!
+}
+
+input CompleteImportRequestDTO {
+    importId:ID!
+    completeEmployeeId:String!
+
 }
 
 type UseCaseNotificationDTO {
