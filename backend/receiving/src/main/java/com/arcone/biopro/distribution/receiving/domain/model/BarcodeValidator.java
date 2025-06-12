@@ -8,7 +8,11 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.Temporal;
+import java.time.temporal.TemporalAdjuster;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,6 +22,7 @@ public class BarcodeValidator {
 
     private static final DateTimeFormatter JULIAN_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("0yyDDDHHmm", Locale.US);
     private static final DateTimeFormatter EXPIRATION_DATE_FORMAT = DateTimeFormatter.ofPattern("MMM dd, yyyy", Locale.US);
+    private static final DateTimeFormatter EXPIRATION_DATE_RESULT_FORMAT = DateTimeFormatter.ofPattern("yyyy-dd-MM'T'HH:mm:ss'Z'", Locale.US);
     private static final String DONATION_TYPE_V = "V";
 
     public static ValidationResult validateBarcode(ValidateBarcodeCommand validateBarcodeCommand , ConfigurationService configurationService) {
@@ -72,7 +77,7 @@ public class BarcodeValidator {
             var expirationDate = LocalDateTime.parse(foundText, JULIAN_DATE_TIME_FORMATTER);
             return ValidationResult.builder().valid(true)
                 .resultDescription(EXPIRATION_DATE_FORMAT.format(expirationDate))
-                .result(expirationDate.toString()).build();
+                .result(EXPIRATION_DATE_RESULT_FORMAT.format(expirationDate.toLocalDate().atTime(23, 59, 59).atZone(ZoneId.of("UTC")))).build();
         }catch (Exception e){
             log.error("Not able to parse Expiration Date {}",e.getMessage());
             return ValidationResult.builder().valid(false).message("Invalid Expiration Date").build();
@@ -80,13 +85,14 @@ public class BarcodeValidator {
     }
 
     private static String getInvalidBarcodeMessage(ParseType parseType){
-
+        if(parseType == null){
+            return "Barcode is not valid";
+        }
         return switch (parseType) {
             case BARCODE_UNIT_NUMBER -> "Invalid Unit Number";
             case BARCODE_PRODUCT_CODE -> "Invalid Product Code";
             case BARCODE_EXPIRATION_DATE -> "Invalid Expiration Date";
             case BARCODE_BLOOD_GROUP -> "Invalid ABO/Rh";
-            default -> "Barcode is not valid";
         };
     }
 }

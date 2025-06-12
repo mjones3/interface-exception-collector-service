@@ -29,6 +29,7 @@ import { Store } from '@ngrx/store';
 import { getAuthState } from 'app/core/state/auth/auth.selectors';
 import { ApolloError } from '@apollo/client';
 import handleApolloError from 'app/shared/utils/apollo-error-handling';
+import { UseCaseNotificationDTO } from '../../../../shared/models/use-case-response.dto';
 
 export enum Field {
   UNIT_NUMBER = 'unitNumber',
@@ -400,7 +401,20 @@ export class EnterProductInformationComponent implements OnInit, AfterViewInit {
   addImportItems(){
     const req = this.prepareAddProductReq();
     this.service.addImportItems(req).pipe(
-      catchError((error: ApolloError) => handleApolloError(this.toastr, error)),
+      catchError((error: ApolloError) => {
+          if(error.message.includes("R2DBC commit")){
+              const notification = [{
+                  type: "WARN",
+                  message: "Product already added"
+              }] as UseCaseNotificationDTO[]
+              consumeUseCaseNotifications(this.toastr, notification)
+              throw error;
+          }else{
+              handleApolloError(this.toastr, error)
+          }
+
+        }
+      ),
     ).subscribe((response) => {
       if(response.data?.createImportItem?.notifications[0]?.type === 'SUCCESS'){
         this.resetForm();
@@ -412,12 +426,10 @@ export class EnterProductInformationComponent implements OnInit, AfterViewInit {
   }
 
   prepareAddProductReq(): AddImportItemRequestDTO{
-    // TODO
-    this.addImportItemRequest().expirationDate = '2007-12-03T23:59:59Z';
     this.addImportItemRequest().licenseStatus = this.productInformationForm.get('licenseStatus').value;
     this.addImportItemRequest().visualInspection = this.productInformationForm.get('visualInspection').value;
     this.addImportItemRequest().employeeId = this.employeeId;
-    this.addImportItemRequest().importId = 1;
+    this.addImportItemRequest().importId = this.importData().id;
     return this.addImportItemRequest();
   }
 }

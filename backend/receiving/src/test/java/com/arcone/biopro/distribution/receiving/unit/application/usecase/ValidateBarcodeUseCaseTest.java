@@ -9,24 +9,21 @@ import com.arcone.biopro.distribution.receiving.application.dto.ValidateBarcodeC
 import com.arcone.biopro.distribution.receiving.application.dto.ValidationResultOutput;
 import com.arcone.biopro.distribution.receiving.application.mapper.ValidationResultOutputMapper;
 import com.arcone.biopro.distribution.receiving.application.usecase.ValidateBarcodeUseCase;
-import com.arcone.biopro.distribution.receiving.domain.model.BarcodeValidator;
-import com.arcone.biopro.distribution.receiving.domain.model.ValidateBarcodeCommand;
-import com.arcone.biopro.distribution.receiving.domain.model.vo.ValidationResult;
+import com.arcone.biopro.distribution.receiving.domain.model.BarcodePattern;
 import com.arcone.biopro.distribution.receiving.domain.service.ConfigurationService;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -44,79 +41,77 @@ class ValidateBarcodeUseCaseTest {
     @Test
     void validateBarcode_WhenValidBarcode_ShouldReturnSuccessOutput() {
         // Arrange
+        var pattern = Mockito.mock(BarcodePattern.class);
 
-        try (MockedStatic<BarcodeValidator> utilities = Mockito.mockStatic(BarcodeValidator.class)) {
-            ValidateBarcodeCommandInput input = new ValidateBarcodeCommandInput("123456", "BARCODE_UNIT_NUMBER", "FROZEN");
-            ValidationResult validationResult = ValidationResult.builder()
-                .valid(true)
-                .message("Valid barcode")
-                .build();
-            ValidationResultOutput validationResultOutput = ValidationResultOutput.builder()
-                .valid(true)
-                .message("Valid barcode")
-                .build();
+        when(pattern.getPattern()).thenReturn("(\\&\\>)(\\d{3}\\d{3}\\d{2}\\d{2})");
+        when(pattern.getMatchGroups()).thenReturn(2);
 
-            utilities.when(() -> BarcodeValidator.validateBarcode(any(ValidateBarcodeCommand.class), any(ConfigurationService.class))).thenReturn(validationResult);
+        when(configurationService.findByParseType(any())).thenReturn(Mono.just(pattern));
 
-            when(validationResultOutputMapper.toOutput(validationResult))
-                .thenReturn(validationResultOutput);
 
-            // Act
-            StepVerifier.create(validateBarcodeUseCase.validateBarcode(input))
-                // Assert
-                .expectNext(new UseCaseOutput<>(Collections.emptyList(), validationResultOutput, null))
-                .verifyComplete();
-        }
+        ValidateBarcodeCommandInput input = new ValidateBarcodeCommandInput("&>0260422359", "BARCODE_EXPIRATION_DATE", "FROZEN");
 
+        ValidationResultOutput validationResultOutput = ValidationResultOutput.builder()
+            .valid(true)
+            .message("Valid barcode")
+            .build();
+
+
+        when(validationResultOutputMapper.toOutput(any())).thenReturn(validationResultOutput);
+
+        // Act
+        StepVerifier.create(validateBarcodeUseCase.validateBarcode(input))
+            // Assert
+            .assertNext(response -> {
+                Assertions.assertNotNull(response);
+                Assertions.assertEquals(response.data().message(),"Valid barcode");
+                Assertions.assertTrue(response.data().valid());
+            })
+            .verifyComplete();
 
     }
 
     @Test
     void validateBarcode_WhenInvalidBarcode_ShouldReturnWarningOutput() {
         // Arrange
-        try (MockedStatic<BarcodeValidator> utilities = Mockito.mockStatic(BarcodeValidator.class)) {
 
-            ValidateBarcodeCommandInput input = new ValidateBarcodeCommandInput("invalid", "BARCODE_UNIT_NUMBER", "FROZEN");
-            ValidationResult validationResult = ValidationResult.builder()
-                .valid(false)
-                .message("Invalid barcode format")
-                .build();
+        var pattern = Mockito.mock(BarcodePattern.class);
 
-            ValidationResultOutput validationResultOutput = new ValidationResultOutput(false, "Invalid barcode format",null,null);
+        when(pattern.getPattern()).thenReturn("(\\=\\%)(\\w{4})");
+        when(pattern.getMatchGroups()).thenReturn(2);
 
-            utilities.when(() -> BarcodeValidator.validateBarcode(any(ValidateBarcodeCommand.class), eq(configurationService)))
-                .thenReturn(validationResult);
-            when(validationResultOutputMapper.toOutput(validationResult))
-                .thenReturn(validationResultOutput);
+        when(configurationService.findByParseType(any())).thenReturn(Mono.just(pattern));
 
-            UseCaseNotificationOutput expectedNotification = UseCaseNotificationOutput.builder()
-                .useCaseMessage(
-                    UseCaseMessage.builder()
-                        .message("Invalid barcode format")
-                        .code(6)
-                        .type(UseCaseNotificationType.WARN)
-                        .build())
-                .build();
+        ValidateBarcodeCommandInput input = new ValidateBarcodeCommandInput("invalid", "BARCODE_UNIT_NUMBER", "FROZEN");
+        UseCaseNotificationOutput expectedNotification = UseCaseNotificationOutput.builder()
+            .useCaseMessage(
+                UseCaseMessage.builder()
+                    .message("Invalid Unit Number")
+                    .code(6)
+                    .type(UseCaseNotificationType.WARN)
+                    .build())
+            .build();
 
-            // Act
-            StepVerifier.create(validateBarcodeUseCase.validateBarcode(input))
-                // Assert
-                .expectNext(new UseCaseOutput<>(List.of(expectedNotification), validationResultOutput, null))
-                .verifyComplete();
-        }
+        // Act
+        StepVerifier.create(validateBarcodeUseCase.validateBarcode(input))
+            // Assert
+            .assertNext(response -> {
+                Assertions.assertNotNull(response);
+                Assertions.assertEquals(expectedNotification, response.notifications().getFirst());
+            })
+            .verifyComplete();
+
 
     }
 
     @Test
     void validateBarcode_WhenSystemError_ShouldReturnErrorOutput() {
         // Arrange
-        try (MockedStatic<BarcodeValidator> utilities = Mockito.mockStatic(BarcodeValidator.class)) {
 
             ValidateBarcodeCommandInput input = new ValidateBarcodeCommandInput("123456", "BARCODE_UNIT_NUMBER", "FROZEN");
             RuntimeException exception = new RuntimeException("System error");
 
-            utilities.when(() -> BarcodeValidator.validateBarcode(any(ValidateBarcodeCommand.class), eq(configurationService)))
-                .thenThrow(exception);
+            when(configurationService.findByParseType(any())).thenThrow(exception);
 
             UseCaseNotificationOutput expectedNotification = UseCaseNotificationOutput.builder()
                 .useCaseMessage(
@@ -132,8 +127,6 @@ class ValidateBarcodeUseCaseTest {
                 // Assert
                 .expectNext(new UseCaseOutput<>(List.of(expectedNotification), null, null))
                 .verifyComplete();
-        }
-
     }
 
     @Test
