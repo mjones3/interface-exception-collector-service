@@ -73,8 +73,9 @@ public class EnterShippingInformationPage extends CommonPageFactory {
         sharedActions.sendKeys(thermometerIdInput, id);
     }
 
-    public void setTemperature(String temperature) {
-        sharedActions.sendKeys(temperatureInput, temperature);
+    public void setTemperature(String temperature) throws InterruptedException {
+        sharedActions.sendKeysAndEnter(driver, temperatureInput, temperature);
+        Thread.sleep(200); // Wait backend to process
     }
 
     public void setStartTransitDate(String date) {

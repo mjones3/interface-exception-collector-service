@@ -103,7 +103,7 @@ public class ImportProductSteps {
     }
 
     @When("I enter the temperature {string}.")
-    public void iEnterTheTemperature(String temperatureValue) {
+    public void iEnterTheTemperature(String temperatureValue) throws InterruptedException {
         enterShippingInformationPage.setTemperature(temperatureValue);
     }
 
