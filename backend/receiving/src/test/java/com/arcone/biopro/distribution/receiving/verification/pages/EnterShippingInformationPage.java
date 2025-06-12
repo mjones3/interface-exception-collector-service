@@ -30,6 +30,7 @@ public class EnterShippingInformationPage extends CommonPageFactory {
     private final By thermometerIdInput = By.xpath("//input[@data-testid='thermometer-id']");
     private final By commentsInput = By.xpath("//textarea[@data-testid='comments']");
     private final By continueButton = By.id("importsEnterShipmentInformationContinueActionButton");
+    private final By totalTransitTimeValueLabel = By.id("total-transit-time-value");
 
     @Autowired
     private SharedContext sharedContext;
@@ -46,6 +47,8 @@ public class EnterShippingInformationPage extends CommonPageFactory {
     private By temperatureCategoryCard(String temperatureCategory) {
         return By.xpath(String.format("//button[@data-testid='select-temperature-category-%s'] ", temperatureCategory));
     }
+
+
 
     @Override
     public boolean isLoaded() {
@@ -179,6 +182,20 @@ public class EnterShippingInformationPage extends CommonPageFactory {
     }
 
     public void verifyDefaultTzIs(String tz) {
+        //TODO
         log.debug("Default TZ is: {}", tz);
+    }
+
+    public void pressEnter() {
+        sharedActions.pressEnter(driver);
+    }
+
+    public void verifyTotalTransitTimeVisibilityIs(boolean expectVisible, String totalTransitTime) {
+        if (expectVisible) {
+            sharedActions.waitForVisible(totalTransitTimeValueLabel);
+            Assertions.assertEquals(totalTransitTime, sharedActions.getText(totalTransitTimeValueLabel));
+        } else {
+            sharedActions.waitForNotVisible(totalTransitTimeValueLabel);
+        }
     }
 }

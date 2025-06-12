@@ -2,7 +2,8 @@
 Feature: Import products
 
     Background: Clean-up
-        Given I have removed all created devices which ID contains "-DST-".
+        Given I have removed all created devices which ID contains "-DST-410".
+        And I have removed all created devices which ID contains "-DST-411".
 
     Rule: I should be able to input shipping details like product category, transit date and time, temperature, thermometer ID and comments as necessary.
     Rule: The system should show the appropriate fields based on the selected product category.
@@ -81,10 +82,10 @@ Feature: Import products
             And  I "<should_should_not>" see a "Caution" alert: "Temperature does not meet thresholds all products will be quarantined".
             Examples:
                 | Imports Location Code | Device Location Code | thermometer ID | Device ID     | Temperature Category | Device Type | Device Category | Temperature Field Status | Temperature | continue_status | should_should_not |
-                | 123456789             | 123456789            | THERM-DST-001  | THERM-DST-001 | REFRIGERATED         | THERMOMETER | TEMPERATURE     | enabled                  | 9           | enabled         | should not        |
-                | 123456789             | 123456789            | THERM-DST-001  | THERM-DST-001 | REFRIGERATED         | THERMOMETER | TEMPERATURE     | enabled                  | 15          | enabled         | should            |
+                | 123456789             | 123456789            | THERM-DST-410  | THERM-DST-410 | REFRIGERATED         | THERMOMETER | TEMPERATURE     | enabled                  | 9           | enabled         | should not        |
+                | 123456789             | 123456789            | THERM-DST-410  | THERM-DST-410 | REFRIGERATED         | THERMOMETER | TEMPERATURE     | enabled                  | 15          | enabled         | should            |
 
-        Rule: I should be able to see the total transit time of the imported products.
+    Rule: I should be able to see the total transit time of the imported products.
         @api @DIS-411
         Scenario Outline: Successfully record transit time within acceptable range
             Given The following transit time thresholds are configured:
@@ -121,21 +122,23 @@ Feature: Import products
             Given The following transit time thresholds are configured:
                 | Temperature Category | Min Transit Time | Max Transit Time |
                 | ROOM_TEMPERATURE     | 1                | 24               |
+            And I have a thermometer configured as location "123456789", Device ID as "THERM-DST-411", Category as "TEMPERATURE" and Device Type as "THERMOMETER".
             And The user location is "<Imports Location Code>".
             And The location default timezone is configured as "<defaultLocationTimeZone>"
             And I am at the Enter Shipping Information Page.
             And I select to enter information for a "<Temperature Category>" product category.
             Then The end time zone field should be pre defined as "<defaultLocationTimeZoneSelected>".
             And I enter the Stat date time as "<StartDateTime>", Start Time Zone as "<StartTimeZone>", End date time as "<EndDateTime>".
-            ## Check with the team/PO if we should have a button to trigger the calculation or not
+            And I enter thermometer ID "THERM-DST-411".
+            And I enter the temperature "20".
             When I choose calculate total transit time.
-            Then The continue option should be "<continue_status>"
-            And I "<should_should_not_transit>" see the total transit time as "<totalTransitTime>"
-            And  I "<should_should_not_caution>" see a "CAUTION" message: "Total Transit Time does not meet thresholds all products will be quarantined".
+            Then The continue option should be "<continue_status>".
+            And I "<should_should_not_transit>" see the total transit time as "<totalTransitTime>".
+            And  I "<should_should_not_caution>" see a "Caution" alert: "Total Transit Time does not meet thresholds all products will be quarantined".
             Examples:
-                |Imports Location Code | defaultLocationTimeZone | Temperature Category | StartDateTime             | StartTimeZone    | EndDateTime              | defaultLocationTimeZoneSelected |totalTransitTime |continue_status | should_should_not_transit | should_should_not_caution |
-                | 123456789            |  America/New_York       | ROOM_TEMPERATURE     |  2025-06-08T05:22:53.108Z | America/New_York | 2025-06-08T13:28:53.108Z | ET                              | 8h 6m           | enabled        | should                    |   should not              |
-                | 123456789            |  America/New_York       | ROOM_TEMPERATURE     |  2025-06-02T05:22:53.108Z | America/New_York | 2025-06-08T13:28:53.108Z | ET                              |                 | disable        | should not                |   should                  |
+                | Imports Location Code | defaultLocationTimeZone | Temperature Category | StartDateTime       | StartTimeZone    | EndDateTime         | defaultLocationTimeZoneSelected | totalTransitTime | continue_status | should_should_not_transit | should_should_not_caution |
+                | 123456789             | America/New_York        | ROOM_TEMPERATURE     | 06/08/2025 14:00 AM | America/New_York | 06/08/2025 15:10 AM | ET                              | 1h 10m           | enabled         | should                    | should not                |
+                | 123456789             | America/New_York        | ROOM_TEMPERATURE     | 06/08/2025 14:00 AM | America/New_York | 06/10/2025 14:00 AM | ET                              |                  | disable         | should not                | should                    |
 
 
 

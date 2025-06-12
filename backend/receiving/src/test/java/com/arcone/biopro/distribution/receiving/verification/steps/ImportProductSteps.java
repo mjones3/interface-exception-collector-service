@@ -150,4 +150,38 @@ public class ImportProductSteps {
     public void theEndTimeZoneFieldShouldBePreDefinedAs(String tz) {
         enterShippingInformationPage.verifyDefaultTzIs(tz);
     }
+
+    @And("I enter the Stat date time as {string}, Start Time Zone as {string}, End date time as {string}.")
+    public void iEnterTheStatDateTimeAsStartTimeZoneAsEndDateTimeAs(String startDateTime, String startTz, String endDateTime) {
+        String startDate = startDateTime.split(" ")[0];
+        String startTime = startDateTime.split(" ")[1];
+        String amPm = startDateTime.split(" ")[2];
+
+        enterShippingInformationPage.setStartTransitDate(startDate);
+        enterShippingInformationPage.setStartTransitTime(startTime + " " + amPm);
+        enterShippingInformationPage.selectStartTransitTimeZone(true, startTz);
+
+        String endDate = endDateTime.split(" ")[0];
+        String endTime = endDateTime.split(" ")[1];
+        String amPmEnd = endDateTime.split(" ")[2];
+
+        enterShippingInformationPage.setEndTransitDate(endDate);
+        enterShippingInformationPage.setEndTransitTime(endTime + " " + amPmEnd);
+    }
+
+    @When("I choose calculate total transit time.")
+    public void iChooseCalculateTotalTransitTime() {
+        enterShippingInformationPage.pressEnter();
+    }
+
+    @And("I {string} see the total transit time as {string}.")
+    public void iSeeTheTotalTransitTimeAs(String shouldShouldNot, String totalTransitTime) {
+        if ("should".equalsIgnoreCase(shouldShouldNot)) {
+            enterShippingInformationPage.verifyTotalTransitTimeVisibilityIs(true, totalTransitTime);
+        } else if ("should not".equalsIgnoreCase(shouldShouldNot)) {
+            enterShippingInformationPage.verifyTotalTransitTimeVisibilityIs(false, null);
+        } else {
+            Assert.fail("Invalid value for should/ShouldNot");
+        }
+    }
 }

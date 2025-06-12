@@ -1,7 +1,7 @@
 Feature: Device
 
     Background: Clean-up
-        Given I have removed all created devices which ID contains "-DST-".
+        Given I have removed all created devices which ID contains "-DST-409".
 
 
         Rule: I should be able to enter the thermometer ID configured for location where products are imported.
@@ -12,7 +12,7 @@ Feature: Device
             Then I should receive the device details containing Device ID as "<Device ID>", Category as "<Device Category>" and Device Type as "<Device Type>".
             Examples:
                 | Imports Location Code | Device Location Code | Device ID     | Device Type | Device Category | Temperature Category |
-                | 123456789             | 123456789            | THERM-DST-001 | THERMOMETER | TEMPERATURE     |FROZEN                |
+                | 123456789             | 123456789            | THERM-DST-409 | THERMOMETER | TEMPERATURE     | FROZEN               |
 
         Rule: I should be notified when I enter a thermometer ID that is not configured for the location.
         Rule: I should not be able to proceed if the thermometer ID that is not configured for the location.
@@ -25,9 +25,9 @@ Feature: Device
             Then I should receive a "<message_type>" message response "<message>".
             Examples:
                 | Imports Location Code | Device Location Code | thermometer ID | Device ID     | Temperature Category | Device Type | Device Category   | message_type | message                     |
-                | 5678910               | 123456789            | THERM-DST-001  | THERM-DST-001 | ROOM_TEMPERATURE     | THERMOMETER | TEMPERATURE       | WARN         | Thermometer does not exist. |
-                | 123456789             | 123456789            | THERM-DST-001  | THERM-DST-002 | ROOM_TEMPERATURE     | THERMOMETER | TEMPERATURE       | WARN         | Thermometer does not exist. |
-                | 123456789             | 123456789            | THERM-DST-001  | THERM-DST-001 | ROOM_TEMPERATURE     | FREEZER     | SECONDARY_STORAGE | WARN         | Thermometer does not exist. |
+                | 5678910               | 123456789            | THERM-DST-409  | THERM-DST-409 | ROOM_TEMPERATURE     | THERMOMETER | TEMPERATURE       | WARN         | Thermometer does not exist. |
+                | 123456789             | 123456789            | THERM-DST-409  | THERM-DST-002 | ROOM_TEMPERATURE     | THERMOMETER | TEMPERATURE       | WARN         | Thermometer does not exist. |
+                | 123456789             | 123456789            | THERM-DST-409  | THERM-DST-409 | ROOM_TEMPERATURE     | FREEZER     | SECONDARY_STORAGE | WARN         | Thermometer does not exist. |
 
 
         Rule: I should be able to enter the thermometer ID configured for location where products are imported.
@@ -42,7 +42,7 @@ Feature: Device
             Then The temperature field should be "enabled".
             Examples:
                 | Imports Location Code | Device Location Code | thermometer ID | Device ID     | Temperature Category | Device Type | Device Category |
-                | 123456789             | 123456789            | THERM-DST-001  | THERM-DST-001 | ROOM_TEMPERATURE     | THERMOMETER | TEMPERATURE     |
+                | 123456789             | 123456789            | THERM-DST-409  | THERM-DST-409 | ROOM_TEMPERATURE     | THERMOMETER | TEMPERATURE     |
 
 
         Rule: I should not be able to enter the temperature information if the thermometer is not valid.
@@ -57,5 +57,5 @@ Feature: Device
             Then I should see "thermometer ID" field validation error message: "<message>".
             And The temperature field should be "disabled".
             Examples:
-                | Imports Location Code | Device Location Code | thermometer ID | Device ID     | Temperature Category | Device Type | Device Category | message_type | message                     |
-                | 123456789             | 123456789            | THERM-DST-002  | THERM-DST-001 | ROOM_TEMPERATURE     | THERMOMETER | TEMPERATURE     | WARNING      | Thermometer does not exist. |
+                | Imports Location Code | Device Location Code | thermometer ID | Device ID     | Temperature Category | Device Type | Device Category | message                     |
+                | 123456789             | 123456789            | THERM-DST-409  | THERM-DST-002 | ROOM_TEMPERATURE     | THERMOMETER | TEMPERATURE     | Thermometer does not exist. |
