@@ -462,15 +462,3 @@ class ImportTest {
         when(createImportCommand.getEmployeeId()).thenReturn("EMP123");
     }
 }
-
-import com.arcone.biopro.distribution.receiving.domain.model.ValidateTemperatureCommand;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.ArgumentMatchers.anyString;
-    void validateTemperature_WhenCommandIsNull_ThrowsException() {
-        IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> Import.validateTemperature(null, productConsequenceRepository)
-        );
-        assertEquals("Temperature Information is required", exception.getMessage());
-    void validateTemperature_WhenRepositoryIsNull_ThrowsException() {
-        ValidateTemperatureCommand command = new ValidateTemperatureCommand(new BigDecimal("-18.0"),"FROZEN");

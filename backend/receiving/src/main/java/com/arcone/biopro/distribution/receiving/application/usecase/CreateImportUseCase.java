@@ -34,7 +34,7 @@ public class CreateImportUseCase implements ImportService {
     private final InputCommandMapper inputCommandMapper;
     private final ProductConsequenceRepository productConsequenceRepository;
     private final DeviceRepository deviceRepository;
-    private static final String IMPORT_PRODUCT_INFORMATION_URL = "imports/%s/imports-details";
+    private static final String IMPORT_PRODUCT_INFORMATION_URL = "receiving/%s/product-information";
 
 
     @Override
@@ -42,7 +42,7 @@ public class CreateImportUseCase implements ImportService {
     public Mono<UseCaseOutput<ImportOutput>> createImport(CreateImportCommandInput createImportCommandInput) {
             return Mono.fromCallable(() -> inputCommandMapper.toCommand(createImportCommandInput,productConsequenceRepository,deviceRepository))
                 .subscribeOn(Schedulers.boundedElastic())
-                .flatMap(createCommand -> Mono.fromSupplier(() -> Import.create(createCommand,productConsequenceRepository))
+                .flatMap(createCommand -> Mono.just(Import.create(createCommand,productConsequenceRepository))
                     .flatMap(importRepository::create)
                     .flatMap(createImport -> {
                         return Mono.just(new UseCaseOutput<>(List.of(UseCaseNotificationOutput
