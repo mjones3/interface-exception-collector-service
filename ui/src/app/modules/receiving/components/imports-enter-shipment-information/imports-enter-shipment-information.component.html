@@ -159,12 +159,13 @@
                 @if (shippingInformationSignal()?.displayTemperature) {
                 <mat-form-field class="md:col-span-3" [formGroup]="form.controls.temperature">
                     <mat-label>Thermometer ID</mat-label>
-                    <input data-testid="thermometer-id"
+                    <input #thermometerId
+                           data-testid="thermometer-id"
                            type="text"
                            formControlName="thermometerId"
                            matInput
                            required
-                           (keydown.enter)="this.confirmThermometerId($event)"
+                           (keydown.enter)="this.confirmThermometerId()"
                     />
                     @if (form.controls.temperature.controls.thermometerId.valid) { <mat-icon matIconSuffix>check</mat-icon> }
                     @if (form.controls.temperature.controls.thermometerId.hasError('required')) { <mat-error [attr.data-testid]="'required-validation-error'">Thermometer ID is required</mat-error> }
@@ -174,16 +175,20 @@
                 <!-- Temperature -->
                 <mat-form-field class="md:col-span-3" [formGroup]="form.controls.temperature">
                     <mat-label>Temperature</mat-label>
-                    <input data-testid="temperature"
+                    <input #temperature
+                           data-testid="temperature"
                            type="number"
                            formControlName="temperature"
                            min="-273"
                            max="99"
                            matInput
                            required
+                           (keydown.enter)="this.confirmTemperature()"
                     />
                     <span matTextSuffix>&deg; C</span>
                     @if (form.controls.temperature.controls.temperature.hasError('required')) { <mat-error>Temperature is required</mat-error> }
+                    @if (form.controls.temperature.controls.temperature.hasError('min')) { <mat-error>Temperature must be greater than -273 &deg; C</mat-error> }
+                    @if (form.controls.temperature.controls.temperature.hasError('max')) { <mat-error>Temperature must be lesser than 99 &deg; C</mat-error> }
                 </mat-form-field>
                 }
 
