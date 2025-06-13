@@ -69,7 +69,8 @@ class ImportTest {
 
         ValidationResult validationResult = ValidationResult.builder()
             .valid(false)
-            .result("2")
+            .result("PT2H")
+            .resultDescription("2")
             .build();
 
         mockedStaticTransitValidator.when(() -> TransitTimeValidator.validateTransitTime(any(), any())).thenReturn(validationResult);
@@ -105,8 +106,6 @@ class ImportTest {
         assertEquals("EMP123", result.getEmployeeId());
         assertNotNull(result.getCreateDate());
         assertNotNull(result.getModificationDate());
-
-
     }
 
     @Test
@@ -228,12 +227,14 @@ class ImportTest {
 
         ValidationResult validationResult = ValidationResult.builder()
             .valid(true)
-            .result("2")
+            .result("PT2H")
+            .resultDescription("2")
             .build();
 
         ValidationResult validationResultTemperature = ValidationResult.builder()
             .valid(false)
-            .result("2")
+            .result("PT2H")
+            .resultDescription("2")
             .build();
 
         mockedStaticTransitValidator.when(() -> TransitTimeValidator.validateTransitTime(any(), any())).thenReturn(validationResult);
@@ -260,7 +261,8 @@ class ImportTest {
         setupValidCreateImportCommand();
         ValidationResult validationResult = ValidationResult.builder()
             .valid(false)
-            .result("2")
+            .result("PT2H")
+            .resultDescription("2")
             .build();
 
         mockedStaticTransitValidator.when(() -> TransitTimeValidator.validateTransitTime(any(), any())).thenReturn(validationResult);
@@ -287,7 +289,8 @@ class ImportTest {
         setupValidCreateImportCommand();
         ValidationResult validationResult = ValidationResult.builder()
             .valid(true)
-            .result("2")
+            .result("PT2H")
+            .resultDescription("2")
             .build();
 
         mockedStaticTransitValidator.when(() -> TransitTimeValidator.validateTransitTime(any(), any())).thenReturn(validationResult);

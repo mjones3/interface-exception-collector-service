@@ -60,7 +60,7 @@ class ValidateTransitTimeUseCaseTest {
             .result("2")
             .build();
 
-        validationResultOutput = new ValidationResultOutput(true, "2", null);
+        validationResultOutput = new ValidationResultOutput(true, "2", null, null);
     }
 
     @Test
@@ -98,7 +98,7 @@ class ValidateTransitTimeUseCaseTest {
             Mockito.when(productConsequenceRepository.findAllByProductCategoryAndResultProperty(any(), any())).thenReturn(Flux.just(consequence));
 
             ValidationResultOutput invalidOutput = new ValidationResultOutput(false, null,
-                "Temperature does not meet thresholds all products will be quarantined");
+                null, "Temperature does not meet thresholds all products will be quarantined");
 
             when(validationResultOutputMapper.toOutput(any(ValidationResult.class)))
                 .thenReturn(invalidOutput);

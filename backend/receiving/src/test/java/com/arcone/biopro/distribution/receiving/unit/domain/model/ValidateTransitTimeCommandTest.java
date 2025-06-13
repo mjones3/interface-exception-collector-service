@@ -177,20 +177,6 @@ class ValidateTransitTimeCommandTest {
     }
 
     @Test
-    void constructor_StartDateTimeAfterEndDateTime_ThrowsException() {
-        Exception exception = assertThrows(IllegalArgumentException.class, () ->
-            new ValidateTransitTimeCommand(
-                validTemperatureCategory,
-                now.plusHours(3),
-                validTimeZone,
-                now,
-                validTimeZone
-            )
-        );
-        assertEquals("Invalid transit time", exception.getMessage());
-    }
-
-    @Test
     void constructor_DifferentValidTimeZones_CreatesInstance() {
         ValidateTransitTimeCommand command = new ValidateTransitTimeCommand(
             validTemperatureCategory,

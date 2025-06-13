@@ -8,6 +8,7 @@ import java.io.Serializable;
 public record ValidationResult(
         boolean valid,
         String message,
-        String result
+        String result,
+        String resultDescription
 ) implements Serializable {
 }

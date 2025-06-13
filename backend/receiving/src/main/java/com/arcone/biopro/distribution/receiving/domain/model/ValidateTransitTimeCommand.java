@@ -5,10 +5,8 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 
 @Getter
 @EqualsAndHashCode
@@ -59,12 +57,8 @@ public class ValidateTransitTimeCommand implements Validatable {
         }
         try{
             endZoneId = ZoneId.of(endTimeZone);
-        }catch (Exception e){
+        } catch (Exception e){
             throw new IllegalArgumentException("Invalid end time zone");
-        }
-
-        if (startDateTime.isAfter(endDateTime)) {
-            throw new IllegalArgumentException("Invalid transit time");
         }
     }
 }

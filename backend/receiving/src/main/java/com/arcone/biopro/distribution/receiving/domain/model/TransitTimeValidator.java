@@ -32,28 +32,29 @@ public class TransitTimeValidator {
         var utcTimeZone = TimeZone.getTimeZone("UTC");
         var duration  = Duration.ofMinutes(ChronoUnit.MINUTES.between(start.withZoneSameInstant(utcTimeZone.toZoneId()), end.withZoneSameInstant(utcTimeZone.toZoneId())));
 
-        var productConsequence = getTransitTimeConsequence(duration.toHours(),productConsequenceList);
+        var productConsequence = getTransitTimeConsequence(duration.toMinutes(),productConsequenceList);
 
         if (productConsequence == null){
-
             throw new IllegalArgumentException("Product Consequence not found.");
         }
 
         if(productConsequence.isAcceptable()){
             return ValidationResult.builder()
                 .valid(true)
-                .result(formatTime(duration))
+                .result(duration.toString())
+                .resultDescription(formatTime(duration))
                 .build();
         }else{
             return ValidationResult.builder()
                 .valid(false)
-                .result(formatTime(duration))
+                .result(duration.toString())
+                .resultDescription(formatTime(duration))
                 .message("Total Transit Time does not meet thresholds. All products will be quarantined.")
                 .build();
         }
     }
 
-    private static ProductConsequence getTransitTimeConsequence(final long totalTransitTime , List<ProductConsequence> productConsequenceList ){
+    private static ProductConsequence getTransitTimeConsequence(final long totalTransitTimeMinutes , List<ProductConsequence> productConsequenceList ){
 
         return productConsequenceList.stream()
             .filter(consequence -> consequence.getResultValue() != null)
@@ -62,7 +63,7 @@ public class TransitTimeValidator {
                     ExpressionParser expressionParser = new SpelExpressionParser();
                     Expression expression = expressionParser.parseExpression(consequence.getResultValue());
                     Map<String, Object> parameters = new HashMap<>();
-                    parameters.put("TRANSIT_TIME", totalTransitTime);
+                    parameters.put("TRANSIT_TIME", totalTransitTimeMinutes);
                     StandardEvaluationContext context = new StandardEvaluationContext(parameters);
                     context.addPropertyAccessor(new MapAccessor());
                     return Boolean.TRUE.equals(expression.getValue(context, Boolean.class));

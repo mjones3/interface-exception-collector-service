@@ -63,7 +63,7 @@ class ValidateTemperatureUseCaseTest {
                 .valid(true)
                 .build();
 
-            ValidationResultOutput validationResultOutput = new ValidationResultOutput(true, null,null);
+            ValidationResultOutput validationResultOutput = new ValidationResultOutput(true, null,null, null);
 
 
             when(validationResultOutputMapper.toOutput(validationResult))
@@ -100,8 +100,7 @@ class ValidateTemperatureUseCaseTest {
             .message("Temperature does not meet thresholds")
             .build();
 
-        ValidationResultOutput validationResultOutput = new ValidationResultOutput(false,
-            "Temperature does not meet thresholds","");
+        ValidationResultOutput validationResultOutput = new ValidationResultOutput(false, "Temperature does not meet thresholds","", "");
 
         when(validationResultOutputMapper.toOutput(validationResult)).thenReturn(validationResultOutput);
 

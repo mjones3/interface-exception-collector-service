@@ -10,6 +10,7 @@ import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -171,8 +172,14 @@ public class Import implements Validatable {
         if(createImportCommand.getTransitStartDateTime() != null){
             var validationResult = TransitTimeValidator.validateTransitTime(new ValidateTransitTimeCommand(createImportCommand.getTemperatureCategory(), createImportCommand.getTransitStartDateTime(), createImportCommand.getTransitStartTimeZone()
                 , createImportCommand.getTransitEndDateTime(), createImportCommand.getTransitEndTimeZone()), getProductConsequenceByProperty("TRANSIT_TIME" , createImportCommand.getTemperatureCategory(), productConsequenceRepository));
-            if(validationResult != null){
-                importBuilder.totalTransitTime(validationResult.result());
+
+            if (validationResult != null) {
+                var duration = Duration.parse(validationResult.result());
+                if (duration.isNegative()) {
+                    throw new IllegalArgumentException("Total transit time cannot be negative");
+                }
+
+                importBuilder.totalTransitTime(validationResult.resultDescription());
                 importBuilder.transitTimeResult(validationResult.valid() ? ACCEPTABLE_RESULT : UNACCEPTABLE_RESULT);
             }
         }
