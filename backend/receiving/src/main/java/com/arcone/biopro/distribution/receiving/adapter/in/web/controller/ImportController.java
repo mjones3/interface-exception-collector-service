@@ -1,7 +1,7 @@
 package com.arcone.biopro.distribution.receiving.adapter.in.web.controller;
 
 import com.arcone.biopro.distribution.receiving.adapter.in.web.dto.AddImportItemRequestDTO;
-import com.arcone.biopro.distribution.receiving.adapter.in.web.dto.CommandRequestDTOMapper;
+import com.arcone.biopro.distribution.receiving.adapter.in.web.mapper.CommandRequestDTOMapper;
 import com.arcone.biopro.distribution.receiving.adapter.in.web.dto.CreateImportRequestDTO;
 import com.arcone.biopro.distribution.receiving.adapter.in.web.dto.ImportDTO;
 import com.arcone.biopro.distribution.receiving.adapter.in.web.dto.UseCaseResponseDTO;

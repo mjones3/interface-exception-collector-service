@@ -1,6 +1,6 @@
 package com.arcone.biopro.distribution.receiving.adapter.in.web.controller;
 
-import com.arcone.biopro.distribution.receiving.adapter.in.web.dto.CommandRequestDTOMapper;
+import com.arcone.biopro.distribution.receiving.adapter.in.web.mapper.CommandRequestDTOMapper;
 import com.arcone.biopro.distribution.receiving.adapter.in.web.dto.UseCaseResponseDTO;
 import com.arcone.biopro.distribution.receiving.adapter.in.web.dto.ValidateBarcodeRequestDTO;
 import com.arcone.biopro.distribution.receiving.adapter.in.web.dto.ValidationResultDTO;
