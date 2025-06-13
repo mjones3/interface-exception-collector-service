@@ -149,6 +149,7 @@ public class SharedActions {
 
     public void sendKeys(By locator, String text) {
         waitForVisible(locator);
+        waitForEnabled(locator);
         wait.until(e -> {
             log.debug("Sending keys {} to element {}.", text, locator);
             sendKeys(e.findElement(locator), text);

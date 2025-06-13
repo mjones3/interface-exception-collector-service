@@ -210,14 +210,14 @@ Feature: Enter Imported Products Information
                 | transitEndDateTime   | 2025-06-08T15:25:53.108Z |
                 | transitEndTimeZone   | America/New_York         |
             And I am at the Enter Product Information Page.
-            And I scan the product information with Unit Number as "<Unit Number>" , Product Code as "<Product Code>", Blood Type as "<Blood Type>" Expiration date as "<Expiration Date>".
+            And I scan the product information with Unit Number as "<Unit Number>", Product Code as "<Product Code>", Blood Type as "<Blood Type>", and Expiration date as "<Expiration Date>".
             And I select License status as "<License Status>".
             And I select Visual Inspection as "<Visual Inspection>".
-            When I choose to add a product
-            Then I should see product unit number "<W036898786805>" and product code "<Product Code>" in the list of added products
+            When I choose to add a product.
+            Then I "should" see product unit number "<Unit Number>" and product code "<Product Code>" in the list of added products.
             Examples:
                 | Device Location Code | Device ID     | Device Category | Device Type | Unit Number      | Product Code | Blood Type | Expiration Date | License Status | Visual Inspection |
-                | 123456789            | THERM-DST-412 | TEMPERATURE     | THERMOMETER | =W03689878680500 | =<E6170V00   | =%6200     | &>0260422359    | LICENSED       | SATISFACTORY      |
+                | 123456789            | THERM-DST-412 | TEMPERATURE     | THERMOMETER | =W03659878680500 | =<E6170V00   | =%6200     | &>0260422359    | LICENSED       | SATISFACTORY      |
 
 
         Rule: I should be notified when I enter an invalid unit number.
@@ -249,18 +249,18 @@ Feature: Enter Imported Products Information
                 | locationCode         | 123456789                |
                 | comments             | comments                 |
             And I am at the Enter Product Information Page.
-            And I scan the product information with Unit Number as "<Unit Number>" , Product Code as "<Product Code>", Blood Type as "<Blood Type>", Expiration date as "<Expiration Date>" and product category as "<Temperature Category>".
-            Then I should not see product unit number "<W036898786805>" and product code "<Product Code>" in the list of added products
-            And I should see a "WARN" message "<message>".
-            And The add product option should be disabled.
+            And I scan the product information with Unit Number as "<Unit Number>", Product Code as "<Product Code>", Blood Type as "<Blood Type>", and Expiration date as "<Expiration Date>".
+            Then I "should not" see product unit number "<W036898786805>" and product code "<Product Code>" in the list of added products.
+            And I should see a "WARNING" message: "<message>".
+            And The add product option should be "disabled".
             Examples:
-                | Device Location Code | Device ID     | Device Type | Device Category | Temperature Category | Unit Number      | Product Code | Blood Type | Expiration Date | message                    |
-                | 123456789            | THERM-DST-412 | THERMOMETER | TEMPERATURE     | ROOM_TEMPERATURE     | =W036880500      | =<E6170V00   | =%6200     | &>0260422359    | Invalid unit number format |
-                | 123456789            | THERM-DST-412 | THERMOMETER | TEMPERATURE     | ROOM_TEMPERATURE     | =W03659878680500 | =<E6170V00   | =%6200     | &>0260422359    | Invalid blood type         |
-                | 123456789            | THERM-DST-412 | THERMOMETER | TEMPERATURE     | ROOM_TEMPERATURE     | =W03689878680500 | =<E6170V00   | =%6200     | &>0260422359    | Invalid expiration date    |
-                | 123456789            | THERM-DST-412 | THERMOMETER | TEMPERATURE     | ROOM_TEMPERATURE     | =W03689878680500 | =<E617       | =%6200     | &>0260422359    | Invalid ISBT product code  |
-                | 123456789            | THERM-DST-412 | THERMOMETER | TEMPERATURE     | ROOM_TEMPERATURE     | =W03339878680500 | =<E617       | =%6200     | &>0260422359    | Invalid FIN number         |
-                | 123456789            | THERM-DST-412 | THERMOMETER | TEMPERATURE     | REFRIGERATED         | =W03689878680500 | =<E617       | =%6200     | &>0260422359    | Invalid Product Type       |
+                | Device Location Code | Device ID     | Device Type | Device Category | Temperature Category | Unit Number      | Product Code | Blood Type | Expiration Date | message                                          |
+                | 123456789            | THERM-DST-412 | THERMOMETER | TEMPERATURE     | ROOM_TEMPERATURE     | =W036880500      | =<E6170V00   | =%6200     | &>0260422359    | Invalid Unit Number                              |
+                | 123456789            | THERM-DST-412 | THERMOMETER | TEMPERATURE     | ROOM_TEMPERATURE     | =W03659878680500 | =<E6170V00   | =%0200     | &>0260422359    | Invalid ABO/RH                                   |
+                | 123456789            | THERM-DST-412 | THERMOMETER | TEMPERATURE     | ROOM_TEMPERATURE     | =W03659878680500 | =<E6170V00   | =%6200     | &>0200002359    | Invalid expiration date                          |
+                | 123456789            | THERM-DST-412 | THERMOMETER | TEMPERATURE     | ROOM_TEMPERATURE     | =W03659878680500 | =<E617       | =%6200     | &>0260422359    | Invalid Product Code                             |
+                | 123456789            | THERM-DST-412 | THERMOMETER | TEMPERATURE     | ROOM_TEMPERATURE     | =W03399878680500 | =<E6170V00   | =%6200     | &>0260422359    | FIN is not associated with a registered facility |
+                | 123456789            | THERM-DST-412 | THERMOMETER | TEMPERATURE     | REFRIGERATED         | =W03659878680500 | =<E0023V00   | =%6200     | &>0260422359    | Product type does not match                      |
 
 
 
