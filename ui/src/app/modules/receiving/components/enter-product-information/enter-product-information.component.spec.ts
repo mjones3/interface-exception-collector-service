@@ -44,7 +44,8 @@ describe('EnterProductInformationComponent', () => {
     mockReceivingService = {
       validateScannedField: jest.fn().mockReturnValue(of()),
       getImportById: jest.fn().mockReturnValue(of()),
-      addImportItems: jest.fn().mockReturnValue(of())
+      addImportItems: jest.fn().mockReturnValue(of()),
+      completeImport: jest.fn().mockReturnValue(of())
     } as Partial<ReceivingService> as jest.Mocked<ReceivingService>;
 
     const headerServiceMock = {
@@ -496,6 +497,101 @@ describe('EnterProductInformationComponent', () => {
       expect(component.fieldDisplayNames[Field.ABO_RH]).toBe('ABO/RH');
       expect(component.fieldDisplayNames[Field.VISUAL_INSPECTION]).toBe('Visual Inspection');
       expect(component.fieldDisplayNames[Field.LICENSE_STATUS]).toBe('License Status');
+    });
+  });
+
+
+  describe('completeImport', () => {
+    const mockImportId = 123;
+    const mockEmployeeId = 'mock-user-id';
+    const mockNextUrl = '/next-page';
+
+    beforeEach(() => {
+      component.employeeId = 'mock-user-id';
+      //set value for importData
+      const mockData = component.importData.set({
+        id: 1,
+        maxNumberOfProducts: 11,
+        temperatureCategory: '',
+        transitStartDateTime:'',
+        transitStartTimeZone:'',
+        transitEndDateTime:'',
+        transitEndTimeZone:'',
+        temperature:null,
+        thermometerCode:'',
+        locationCode:'',
+        isQuarantined: true,
+        comments:'',
+        employeeId:'',
+        products: []
+      });
+    })
+
+    it('should prepare correct request payload', () => {
+      const request = component.completeRequest();
+      expect(request).toEqual({
+        importId: 1,
+        completeEmployeeId: mockEmployeeId
+      });
+    });
+
+    it('should call service and handle successful response', () => {
+      const mockResponse = {
+        data: {
+          completeImport: {
+            _links: {
+              next: '/next-page'
+            },
+            notifications: [
+              { type: 'SUCCESS', message: 'Import completed' }
+            ]
+          }
+        }
+      } as MutationResult
+
+      jest.spyOn(mockReceivingService,'completeImport').mockReturnValue(of(mockResponse));
+      jest.spyOn(router, 'navigateByUrl');
+
+      jest.spyOn(component, 'handleNavigation');
+
+      component.completeImport();
+      expect(mockReceivingService.completeImport).toHaveBeenCalledWith({
+        importId: 1,
+        completeEmployeeId: mockEmployeeId
+      });
+      expect(router.navigateByUrl).toHaveBeenCalled();
+      expect(component.handleNavigation).toHaveBeenCalled();
+    });
+
+    it('should handle error response', () => {
+      const error = new ApolloError({ graphQLErrors: [{ message: 'Test error' }] });
+      jest.spyOn(toastrService, 'error');
+      jest.spyOn(mockReceivingService,'completeImport').mockReturnValue(throwError(() => error));
+      component.completeImport();
+
+      expect(mockReceivingService.completeImport).toHaveBeenCalledWith({
+        importId: 1,
+        completeEmployeeId: mockEmployeeId
+      });
+      expect(toastrService.error).toHaveBeenCalled();
+    });
+
+    it('should not navigate if no next URL is provided', () => {
+      const mockResponse = {
+        data: {
+          completeImport: {
+            notifications: [
+              { type: 'SUCCESS', message: 'Import completed' }
+            ]
+          }
+        }
+      };
+
+      mockReceivingService.completeImport.mockReturnValue(of(mockResponse));
+      jest.spyOn(component, 'handleNavigation');
+      component.completeImport();
+
+      expect(component.handleNavigation).not.toHaveBeenCalled();
     });
   });
 });

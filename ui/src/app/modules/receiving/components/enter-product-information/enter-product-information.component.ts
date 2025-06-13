@@ -435,30 +435,31 @@ export class EnterProductInformationComponent implements OnInit, AfterViewInit {
     return this.addImportItemRequest();
   }
 
-    completeImport(){
-        const req = this.completeRequest();
-        this.service.completeImport(req).pipe(
-            catchError((error: ApolloError) => {
-                        handleApolloError(this.toastr, error)
-                }
-            ),
-        ).subscribe((response) => {
-            const url = response.data?.completeImport?._links?.next;
-            consumeUseCaseNotifications(this.toastr, response.data?.completeImport?.notifications)
-            if (url) {
-                this.handleNavigation(url);
-            }
-        } );
-    }
+  completeImport(){
+      const req = this.completeRequest();
+      this.service.completeImport(req)
+      .pipe(
+          catchError((error: ApolloError) => {
+                handleApolloError(this.toastr, error)
+              }
+          ),
+      ).subscribe((response) => {
+          const url = response.data?.completeImport?._links?.next;
+          consumeUseCaseNotifications(this.toastr, response.data?.completeImport?.notifications)
+          if (url) {
+              this.handleNavigation(url);
+          }
+      });
+  }
 
-    completeRequest(): CompleteImportRequestDTO{
-        return {
-            importId: this.importData().id,
-            completeEmployeeId: this.employeeId
-        }
-    }
+  completeRequest(): CompleteImportRequestDTO{
+      return {
+          importId: this.importData().id,
+          completeEmployeeId: this.employeeId
+      }
+  }
 
-    private handleNavigation(url: string): void {
-        this.router.navigateByUrl(url);
-    }
+  handleNavigation(url: string): void {
+      this.router.navigateByUrl(url);
+  }
 }
