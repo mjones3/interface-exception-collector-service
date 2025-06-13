@@ -90,7 +90,7 @@ Feature: Import products
         Scenario Outline: Successfully record transit time within acceptable range
             Given The following transit time thresholds are configured:
                   | Temperature Category | Min Transit Time | Max Transit Time |
-                  | ROOM_TEMPERATURE     |    1             |  24              |
+                  | ROOM_TEMPERATURE     |    0             |  (24 * 60)              |
             When I request to validate the total transit time of Stat date time as "<StartDateTime>", Start Time Zone as "<StartTimeZone>", End date time as "<EndDateTime>" and End Time Zone as "<EndTimeZone>"  for the Temperature Category "<Temperature Category>".
             Then The system "should" accept the transit time.
             And I should receive the total transit time as "<totalTransitTime>".
@@ -103,7 +103,7 @@ Feature: Import products
         Scenario Outline: Notification for out-of-range transit time
             Given The following transit time thresholds are configured:
                 | Temperature Category | Min Transit Time | Max Transit Time |
-                | ROOM_TEMPERATURE     |    1             |  24              |
+                | ROOM_TEMPERATURE     |    0             |  (24 * 60)              |
             When I request to validate the total transit time of Stat date time as "<StartDateTime>", Start Time Zone as "<StartTimeZone>", End date time as "<EndDateTime>" and End Time Zone as "<EndTimeZone>"  for the Temperature Category "<Temperature Category>".
             Then I should receive a "<message_type>" message response "<message>".
             Examples:
@@ -121,7 +121,7 @@ Feature: Import products
         Scenario Outline: Enter transit time within different ranges
             Given The following transit time thresholds are configured:
                 | Temperature Category | Min Transit Time | Max Transit Time |
-                | ROOM_TEMPERATURE     | 1                | 24               |
+                | ROOM_TEMPERATURE     | 0                | (24 * 60)        |
             And I have a thermometer configured as location "123456789", Device ID as "THERM-DST-411", Category as "TEMPERATURE" and Device Type as "THERMOMETER".
             And The user location is "<Imports Location Code>".
             And The location default timezone is configured as "<defaultLocationTimeZone>"
@@ -132,13 +132,13 @@ Feature: Import products
             And I enter thermometer ID "THERM-DST-411".
             And I enter the temperature "20".
             When I choose calculate total transit time.
-            Then The continue option should be "<continue_status>".
+            Then The continue option should be "enabled".
             And I "<should_should_not_transit>" see the total transit time as "<totalTransitTime>".
             And  I "<should_should_not_caution>" see a "Caution" alert: "Total Transit Time does not meet thresholds. All products will be quarantined.".
             Examples:
-                | Imports Location Code | defaultLocationTimeZone | Temperature Category | StartDateTime       | StartTimeZone    | EndDateTime         | defaultLocationTimeZoneSelected | totalTransitTime | continue_status | should_should_not_transit | should_should_not_caution |
-                | 123456789             | America/New_York        | ROOM_TEMPERATURE     | 06/08/2025 14:00 AM | America/New_York | 06/08/2025 15:10 AM | ET                              | 1h 10m           | enabled         | should                    | should not                |
-                | 123456789             | America/New_York        | ROOM_TEMPERATURE     | 06/08/2025 14:00 AM | America/New_York | 06/10/2025 14:00 AM | ET                              |                  | disable         | should not                | should                    |
+                | Imports Location Code | defaultLocationTimeZone | Temperature Category | StartDateTime       | StartTimeZone | EndDateTime         | defaultLocationTimeZoneSelected | totalTransitTime |  should_should_not_transit | should_should_not_caution |
+                | 123456789             | America/New_York        | ROOM_TEMPERATURE     | 06/08/2025 14:00 AM | ET            | 06/08/2025 15:10 AM | ET                              | 1h 10m           |  should                    | should not                |
+                | 123456789             | America/New_York        | ROOM_TEMPERATURE     | 06/08/2025 14:00 AM | ET            | 06/10/2025 14:00 AM | ET                              | 48h 0m           |  should                    | should                    |
 
 
 

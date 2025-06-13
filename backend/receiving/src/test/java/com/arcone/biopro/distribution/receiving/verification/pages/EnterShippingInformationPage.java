@@ -182,8 +182,8 @@ public class EnterShippingInformationPage extends CommonPageFactory {
     }
 
     public void verifyDefaultTzIs(String tz) {
-        //TODO
         log.debug("Default TZ is: {}", tz);
+        Assertions.assertEquals(tz, sharedActions.getText(endTransitTiZoneInput));
     }
 
     public void pressEnter() {
