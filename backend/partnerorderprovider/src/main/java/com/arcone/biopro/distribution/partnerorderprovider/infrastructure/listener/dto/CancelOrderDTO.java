@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 @Schema(
     name = "CancelOrderPayload",
@@ -14,6 +15,14 @@ import java.io.Serializable;
 @Builder
 @Getter
 public class CancelOrderDTO implements Serializable {
+
+    @Schema(
+        title = "Transaction ID",
+        description = "The transaction ID",
+        example = "123e4567-e89b-12d3-a456-426614174000",
+        requiredMode = Schema.RequiredMode.REQUIRED
+    )
+    private UUID transactionId;
 
     @Schema(
         title = "External Order ID",

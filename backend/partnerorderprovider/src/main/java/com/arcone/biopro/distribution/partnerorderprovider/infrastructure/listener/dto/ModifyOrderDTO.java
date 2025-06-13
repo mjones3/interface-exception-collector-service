@@ -6,6 +6,7 @@ import lombok.Builder;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.UUID;
 
 @Schema(
     name = "ModifyOrderPayload",
@@ -14,6 +15,13 @@ import java.util.List;
 )
 @Builder
 public record ModifyOrderDTO(
+    @Schema(
+        title = "Transaction ID",
+        description = "The transaction ID",
+        example = "123e4567-e89b-12d3-a456-426614174000",
+        requiredMode = Schema.RequiredMode.REQUIRED
+    )
+    UUID transactionId,
     @Schema(
         title = "External Order ID",
         description = "The external order ID",
