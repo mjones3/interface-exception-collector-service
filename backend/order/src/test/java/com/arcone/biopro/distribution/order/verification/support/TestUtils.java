@@ -10,6 +10,11 @@ import org.testcontainers.shaded.org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.function.IntFunction;
 
 @Component
 @Slf4j
@@ -50,6 +55,20 @@ public class TestUtils {
 
     public String[] getCommaSeparatedList(String param) {
         return Arrays.stream(param.split(",")).map(String::trim).toArray(String[]::new);
+    }
+
+    public <R> R[] getCommaSeparatedList(String param, Function<String, R> mappingFunction, IntFunction<R[]> arrayTypeGenerator) {
+        return (R[]) Arrays.stream(param.split(","))
+            .map(String::trim)
+            .map(mappingFunction)
+            .toArray(arrayTypeGenerator);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <R extends Comparable<? super R>> List<Map> sortListOfMapByProperty(List<Map> listOfMap, String key, Class<R> propertyReturnType) {
+        return listOfMap.stream()
+            .sorted(Comparator.comparing(e -> (R) e.get(key)))
+            .toList();
     }
 
 }

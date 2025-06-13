@@ -202,6 +202,52 @@ public class GraphQLMutationMapper {
                 """
             , externalTransferId, hospitalTransferId, employeeId));
     }
+
+    public static String cancelExternalTransferInformationMutation(Long externalTransferId , String employeeId) {
+        return (String.format(
+            """
+                mutation {
+                    cancelExternalTransfer(cancelExternalTransferRequestDTO:{
+                        externalTransferId:%s
+                        , employeeId:"%s"
+                    }){
+                        ruleCode
+                        results
+                        notifications{
+                            statusCode
+                            notificationType
+                            message
+
+                        }
+                        _links
+                    }
+                }
+                """
+            , externalTransferId, employeeId));
+    }
+
+    public static String confirmCancelExternalTransferInformationMutation(Long externalTransferId , String employeeId) {
+        return (String.format(
+            """
+                mutation {
+                    confirmCancelExternalTransfer(cancelExternalTransferRequestDTO:{
+                        externalTransferId:%s
+                        , employeeId:"%s"
+                    }){
+                        ruleCode
+                        results
+                        notifications{
+                            statusCode
+                            notificationType
+                            message
+
+                        }
+                        _links
+                    }
+                }
+                """
+            , externalTransferId, employeeId));
+    }
 }
 
 

@@ -57,7 +57,7 @@ import { ShipmentService } from '../../services/shipment.service';
         ScanUnitNumberCheckDigitComponent,
         MatButtonModule,
     ],
-    selector: 'rsa-enter-unit-number-product-code',
+    selector: 'biopro-enter-unit-number-product-code',
     templateUrl: './enter-unit-number-product-code.component.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })

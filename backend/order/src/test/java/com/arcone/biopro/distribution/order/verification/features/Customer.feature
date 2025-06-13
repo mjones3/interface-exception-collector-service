@@ -22,5 +22,5 @@ Feature: Customer validation
         Then I should see a message "<Message>".
 
         Examples:
-            | Message                               |
-            | Data for code \"Z0000\" was not found |
+            | Message          |
+            | No Results Found |

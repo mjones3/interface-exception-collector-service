@@ -1,7 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ApolloModule } from 'apollo-angular';
 import { ToastrModule } from 'ngx-toastr';
 import { SearchShipmentsComponent } from './search-shipments.component';
+import { ApolloTestingModule } from 'apollo-angular/testing';
+import { ActivatedRoute } from '@angular/router';
+import { of } from 'rxjs';
 
 describe('SearchShipmentsComponent', () => {
     let component: SearchShipmentsComponent;
@@ -11,8 +13,16 @@ describe('SearchShipmentsComponent', () => {
         await TestBed.configureTestingModule({
             imports: [
                 SearchShipmentsComponent,
-                ApolloModule,
+                ApolloTestingModule,
                 ToastrModule.forRoot(),
+            ],
+            providers: [
+                {
+                    provide: ActivatedRoute,
+                    useValue: {
+                        paramMap: of({})
+                    },
+                },
             ],
         });
         fixture = TestBed.createComponent(SearchShipmentsComponent);

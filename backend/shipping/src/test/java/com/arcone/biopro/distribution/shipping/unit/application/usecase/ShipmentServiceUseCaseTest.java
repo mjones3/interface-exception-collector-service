@@ -1,17 +1,9 @@
 package com.arcone.biopro.distribution.shipping.unit.application.usecase;
 
 import com.arcone.biopro.distribution.shipping.adapter.in.web.dto.ShipmentDetailResponseDTO;
-import com.arcone.biopro.distribution.shipping.adapter.in.web.dto.ShipmentItemResponseDTO;
-import com.arcone.biopro.distribution.shipping.application.dto.PackItemRequest;
-import com.arcone.biopro.distribution.shipping.application.dto.ReasonDTO;
-import com.arcone.biopro.distribution.shipping.application.dto.RuleResponseDTO;
-import com.arcone.biopro.distribution.shipping.application.mapper.ReasonDomainMapper;
-import com.arcone.biopro.distribution.shipping.application.mapper.ShipmentEventMapper;
 import com.arcone.biopro.distribution.shipping.application.mapper.ShipmentMapper;
 import com.arcone.biopro.distribution.shipping.application.usecase.ShipmentServiceUseCase;
-import com.arcone.biopro.distribution.shipping.application.util.ShipmentServiceMessages;
 import com.arcone.biopro.distribution.shipping.domain.event.ShipmentCreatedEvent;
-import com.arcone.biopro.distribution.shipping.domain.model.Reason;
 import com.arcone.biopro.distribution.shipping.domain.model.Shipment;
 import com.arcone.biopro.distribution.shipping.domain.model.ShipmentItem;
 import com.arcone.biopro.distribution.shipping.domain.model.ShipmentItemPacked;
@@ -19,43 +11,30 @@ import com.arcone.biopro.distribution.shipping.domain.model.ShipmentItemShortDat
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.BloodType;
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.ShipmentPriority;
 import com.arcone.biopro.distribution.shipping.domain.model.enumeration.ShipmentStatus;
-import com.arcone.biopro.distribution.shipping.domain.model.enumeration.VisualInspection;
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemPackedRepository;
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemRepository;
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentItemShortDateProductRepository;
 import com.arcone.biopro.distribution.shipping.domain.repository.ShipmentRepository;
 import com.arcone.biopro.distribution.shipping.domain.service.ConfigService;
-import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryNotificationDTO;
-import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryResponseDTO;
-import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryValidationRequest;
-import com.arcone.biopro.distribution.shipping.infrastructure.controller.dto.InventoryValidationResponseDTO;
 import com.arcone.biopro.distribution.shipping.infrastructure.listener.dto.OrderFulfilledMessage;
 import com.arcone.biopro.distribution.shipping.infrastructure.listener.dto.OrderItemFulfilledMessage;
 import com.arcone.biopro.distribution.shipping.infrastructure.listener.dto.ShortDateItem;
-import com.arcone.biopro.distribution.shipping.infrastructure.service.FacilityServiceMock;
 import com.arcone.biopro.distribution.shipping.infrastructure.service.InventoryRsocketClient;
-import com.arcone.biopro.distribution.shipping.infrastructure.service.errors.InventoryServiceNotAvailableException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.http.HttpStatus;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(MockitoJUnitRunner.class)

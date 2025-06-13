@@ -6,8 +6,10 @@ import com.arcone.biopro.distribution.inventory.application.mapper.InventoryOutp
 import com.arcone.biopro.distribution.inventory.common.TestUtil;
 import com.arcone.biopro.distribution.inventory.domain.model.Inventory;
 import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
+import com.arcone.biopro.distribution.inventory.domain.model.Property;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.MessageType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.PropertyKey;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.ProductCode;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.UnitNumber;
 import com.arcone.biopro.distribution.inventory.domain.repository.InventoryAggregateRepository;
@@ -24,6 +26,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,7 +65,7 @@ class ValidateInventoryUseCaseTest {
         InventoryInput input = InventoryInput.builder()
             .unitNumber(UNIT_NUMBER)
             .productCode(PRODUCT_CODE)
-            .location(LOCATION_1)
+            .inventoryLocation(LOCATION_1)
             .build();
 
         when(inventoryAggregateRepository.findByUnitNumberAndProductCode(any(), any()))
@@ -84,7 +87,7 @@ class ValidateInventoryUseCaseTest {
         InventoryInput input = InventoryInput.builder()
             .unitNumber(UNIT_NUMBER)
             .productCode(PRODUCT_CODE)
-            .location(LOCATION_1)
+            .inventoryLocation(LOCATION_1)
             .build();
 
         when(inventoryAggregateRepository.findByUnitNumberAndProductCode(any(), any()))
@@ -108,12 +111,13 @@ class ValidateInventoryUseCaseTest {
         InventoryInput input = InventoryInput.builder()
             .unitNumber(UNIT_NUMBER)
             .productCode(PRODUCT_CODE)
-            .location(LOCATION_1)
+            .inventoryLocation(LOCATION_1)
             .build();
 
         var inventoryAggregate = createInventoryAggregate(InventoryStatus.SHIPPED, LocalDateTime.now().plusDays(1));
         inventoryAggregate.getInventory().setIsLabeled(Boolean.FALSE);
         inventoryAggregate.getInventory().setQuarantines(TestUtil.createQuarantines());
+        inventoryAggregate.populateProperties(List.of(Property.builder().key(PropertyKey.QUARANTINED.name()).value("Y").build()));
 
         when(inventoryAggregateRepository.findByUnitNumberAndProductCode(any(), any()))
             .thenReturn(Mono.just(inventoryAggregate));
@@ -131,7 +135,7 @@ class ValidateInventoryUseCaseTest {
 
     @Test
     void execute_shouldValidate_inventory_is_not_found() {
-        InventoryInput input = new InventoryInput(UNIT_NUMBER, PRODUCT_CODE, null, null, true, 300, null, LOCATION_1, null, null);
+        InventoryInput input = new InventoryInput(UNIT_NUMBER, PRODUCT_CODE, null, null, true, 300, null, LOCATION_1, LOCATION_1, null, null, null);
 
         when(inventoryAggregateRepository.findByUnitNumberAndProductCode(any(), any()))
             .thenReturn(Mono.empty());
@@ -153,7 +157,7 @@ class ValidateInventoryUseCaseTest {
                     .id(UUID.randomUUID())
                     .unitNumber(new UnitNumber(UNIT_NUMBER))
                     .productCode(new ProductCode(PRODUCT_CODE))
-                    .location(LOCATION_1)
+                    .inventoryLocation(LOCATION_1)
                     .inventoryStatus(status)
                     .expirationDate(expirationDate)
                     .isLabeled(Boolean.TRUE)

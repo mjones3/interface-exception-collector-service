@@ -1,5 +1,6 @@
 package com.arcone.biopro.distribution.inventory.domain.model;
 
+import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.MessageType;
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.ShipmentType;
@@ -25,7 +26,7 @@ class InventoryAggregateTest {
     @BeforeEach
     void setUp() {
         inventoryMock = mock(Inventory.class);
-        when(inventoryMock.getLocation()).thenReturn("LOCATION_1");
+        when(inventoryMock.getInventoryLocation()).thenReturn("LOCATION_1");
         when(inventoryMock.getExpirationDate()).thenReturn(LocalDateTime.now().plusDays(1));
 
         inventoryAggregate = InventoryAggregate.builder()
@@ -36,7 +37,7 @@ class InventoryAggregateTest {
 
     @Test
     void testIsExpired_ShouldReturnTrue_WhenExpirationDateIsBeforeNow() {
-        when(inventoryMock.getExpirationDate()).thenReturn(LocalDateTime.now().minusDays(1));
+        when(inventoryMock.isExpired()).thenReturn(true);
         assertTrue(inventoryAggregate.isExpired(), "Expected inventory to be expired");
     }
 
@@ -50,6 +51,7 @@ class InventoryAggregateTest {
     void testCheckIfIsValidToShip_ShouldAddNotification_WhenInventoryIsExpired() {
         when(inventoryMock.getInventoryStatus()).thenReturn(InventoryStatus.AVAILABLE);
         when(inventoryMock.getExpirationDate()).thenReturn(LocalDateTime.now().minusDays(1));
+        when(inventoryMock.isExpired()).thenReturn(true);
         when(inventoryMock.getIsLabeled()).thenReturn(Boolean.TRUE);
 
         inventoryAggregate.checkIfIsValidToShip("LOCATION_1");
@@ -63,11 +65,11 @@ class InventoryAggregateTest {
     void testCheckIfIsValidToShip_ShouldAddNotification_WhenLocationDoesNotMatch() {
         when(inventoryMock.getInventoryStatus()).thenReturn(InventoryStatus.AVAILABLE);
         when(inventoryMock.getExpirationDate()).thenReturn(LocalDateTime.now().plusDays(1));
-        when(inventoryMock.getLocation()).thenReturn("LOCATION_2");
+        when(inventoryMock.getInventoryLocation()).thenReturn("LOCATION_2");
 
         inventoryAggregate.checkIfIsValidToShip("LOCATION_1");
 
-        assertFalse(inventoryAggregate.getNotificationMessages().isEmpty(), "Expected notification messages when location does not match");
+        assertFalse(inventoryAggregate.getNotificationMessages().isEmpty(), "Expected notification messages when inventoryLocation does not match");
         NotificationMessage message = inventoryAggregate.getNotificationMessages().get(0);
         assertEquals(MessageType.INVENTORY_NOT_FOUND_IN_LOCATION.name(), message.name());
     }
@@ -108,6 +110,13 @@ class InventoryAggregateTest {
     void testAddQuarantine_ShouldAddNewQuarantine() {
         inventoryAggregate.addQuarantine(1L, "Contamination", "Detected contamination");
         verify(inventoryMock).addQuarantine(1L, "Contamination", "Detected contamination");
+    }
+
+    @Test
+    @DisplayName("Should Add Volumes")
+    void shouldAddVolumes() {
+        inventoryAggregate.completeProduct(List.of(new Volume("volume", 50, "MILLILITERS")), AboRhType.OP);
+        verify(inventoryMock).addVolume("volume", 50, "MILLILITERS");
     }
 
     @Test
@@ -184,8 +193,9 @@ class InventoryAggregateTest {
     void testLabel() {
         String finalProductCode = "E1234V12";
         Boolean isLicensed = true;
+        LocalDateTime expirationDate = LocalDateTime.now();
 
-        InventoryAggregate result = inventoryAggregate.label(isLicensed, finalProductCode);
+        InventoryAggregate result = inventoryAggregate.label(isLicensed, finalProductCode, expirationDate);
 
         verify(inventoryMock).setIsLabeled(true);
         verify(inventoryMock).setIsLicensed(isLicensed);
@@ -200,8 +210,9 @@ class InventoryAggregateTest {
     void testLabel_Unlicensed() {
         String finalProductCode = "E1234V12";
         Boolean isLicensed = false;
+        LocalDateTime expirationDate = LocalDateTime.now();
 
-        InventoryAggregate result = inventoryAggregate.label(isLicensed, finalProductCode);
+        InventoryAggregate result = inventoryAggregate.label(isLicensed, finalProductCode,expirationDate);
 
         verify(inventoryMock).setIsLabeled(true);
         verify(inventoryMock).setIsLicensed(false);
@@ -221,6 +232,29 @@ class InventoryAggregateTest {
         verify(inventoryMock).isConverted();
         verify(inventoryMock).setUnsuitableReason(reason);
         assertSame(inventoryAggregate, result, "Should return the same instance");
+    }
+
+    @Test
+    @DisplayName("Should Update Inventory Status")
+    void shouldUpdateInventoryStatus() {
+        InventoryAggregate result = inventoryAggregate.cartonShipped();
+        verify(inventoryMock).transitionStatus(InventoryStatus.SHIPPED, null);
+        assertSame(inventoryAggregate, result, "Should return the same instance");
+    }
+
+    @Test
+    @DisplayName(("Should Add and Remove Quarantine Flag"))
+    void shouldAddAndRemoveQuarantineFlag() {
+
+        InventoryAggregate aggregate =InventoryAggregate.builder().inventory(Inventory.builder().build()).build();
+
+        aggregate.addQuarantine(1L, "REASON", null);
+
+        assertTrue(aggregate.isQuarantined());
+
+        aggregate.removeQuarantine(1L);
+
+        assertFalse(aggregate.isQuarantined());
     }
 
 }

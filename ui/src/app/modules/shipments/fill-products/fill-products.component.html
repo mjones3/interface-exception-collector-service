@@ -36,14 +36,14 @@
 
             <fuse-card class="flex w-full flex-col space-y-2">
                 <div class="mt-3">
-                    <rsa-enter-unit-number-product-code
+                    <biopro-enter-unit-number-product-code
                         #productSelection
                         [showCheckDigit]="showCheckDigit"
                         [showVisualInspection]="showVisualInspection"
                         (unitNumberProductCodeSelected)="
                             unitNumberProductCodeSelected($event)
                         "
-                    ></rsa-enter-unit-number-product-code>
+                    ></biopro-enter-unit-number-product-code>
                 </div>
             </fuse-card>
 
@@ -124,7 +124,8 @@
                     id: shipmentInfo?.orderNumber,
                     externalId: shipmentInfo?.externalId,
                     priority: shipmentInfo?.priority,
-                    labelingProductCategory: shipmentInfo?.productCategory,
+                    labelingProductCategory:
+                        ProductCategoryMap[shipmentInfo?.productCategory],
                 }"
                 [comments]="shipmentInfo?.comments"
                 [shippingInput]="{
@@ -135,7 +136,8 @@
                     method: shipmentInfo?.shippingMethod,
                 }"
                 [productInput]="{
-                    temperatureCategory: shipmentInfo?.productCategory,
+                    temperatureCategory:
+                        ProductCategoryMap[shipmentInfo?.productCategory],
                     productFamily: productFamily,
                     bloodType: shipmentProduct?.bloodType,
                 }"

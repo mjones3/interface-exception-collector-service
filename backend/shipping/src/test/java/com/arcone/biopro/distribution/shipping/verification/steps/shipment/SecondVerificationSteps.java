@@ -5,7 +5,6 @@ import com.arcone.biopro.distribution.shipping.verification.pages.distribution.H
 import com.arcone.biopro.distribution.shipping.verification.pages.distribution.ShipmentDetailPage;
 import com.arcone.biopro.distribution.shipping.verification.pages.distribution.VerifyProductsPage;
 import com.arcone.biopro.distribution.shipping.verification.support.ApiHelper;
-import com.arcone.biopro.distribution.shipping.verification.support.ScreenshotService;
 import com.arcone.biopro.distribution.shipping.verification.support.SharedContext;
 import com.arcone.biopro.distribution.shipping.verification.support.controllers.ShipmentTestingController;
 import com.arcone.biopro.distribution.shipping.verification.support.graphql.GraphQLMutationMapper;
@@ -37,8 +36,6 @@ public class SecondVerificationSteps {
     @Autowired
     VerifyProductsPage verifyProductsPage;
 
-    @Autowired
-    private ScreenshotService screenshot;
 
     @Value("${save.all.screenshots}")
     private boolean saveAllScreenshots;
@@ -66,7 +63,6 @@ public class SecondVerificationSteps {
     @Then("I can see the Order Information Details and the Shipping Information Details.")
     public void checkPageContent(){
         verifyProductsPage.viewPageContent();
-        screenshot.attachConditionalScreenshot(saveAllScreenshots);
     }
 
     @When("I scan the unit {string} with product code {string}.")

@@ -102,4 +102,20 @@ export const defaultNavigation: FuseNavigationItem[] = [
         link: 'external-transfer',
         disabled: false,
     },
+    {
+        id: 12,
+        title: 'Recovered Plasma Shipping',
+        type: 'basic',
+        link: 'recovered-plasma',
+        icon: 'local_shipping',
+        disabled: false,
+    },
+    {
+        id: 13,
+        title: 'Imports',
+        type: 'basic',
+        link: 'receiving/imports-enter-shipment-information',
+        icon: 'local_shipping',
+        disabled: false,
+    },
 ];

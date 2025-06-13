@@ -11,7 +11,9 @@ public record CheckInCompletedInput(
     String productCode,
     String productDescription,
     String productFamily,
-    String location,
+    String inventoryLocation,
+    String collectionLocation,
+    String collectionTimeZone,
     ZonedDateTime collectionDate,
     AboRhType aboRh
 ) {

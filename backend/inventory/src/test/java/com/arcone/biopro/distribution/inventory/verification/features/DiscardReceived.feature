@@ -1,3 +1,4 @@
+# Feature Unit Number reference: W777725002000
 @api @LAB-312
 Feature: Discard Created event
     Rule: As an inventory service I want to listen to discard created event so that I can change the status to DISCARDED
@@ -16,6 +17,6 @@ Feature: Discard Created event
 
             Examples:
                 | Unit Number   | Product Code | Reason  | Comment Length |
-                | W036824211111 | E765000      | OTHER   | 25             |
-                | W036824211112 | E453200      | EXPIRED | 2000           |
+                | W777725002001 | E765000      | OTHER   | 25             |
+                | W777725002002 | E453200      | EXPIRED | 2000           |
 

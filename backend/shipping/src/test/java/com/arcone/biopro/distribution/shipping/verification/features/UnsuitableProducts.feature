@@ -1,9 +1,9 @@
-@AOA-40 @AOA-6 @AOA-152
+@AOA-40 @AOA-6 @AOA-152 @AOA-128 @AOA-105 @AOA-240
 Feature: Prevent filling a shipment with unsuitable products
     As a distribution technician, I want to prevent filling a shipment with unsuitable products, so that I can avoid shipping the wrong products to the customer.
 
     Background:
-        Given I cleaned up from the database, all shipments with order number "999771,999778,999764,999779,999765,999766,999767,999768,999769,999770".
+        Given I cleaned up from the database, all shipments with order number "999771,999778,999764,999779,999765,999766,999767,999768,999769,999770,999771,999772,999773,999774,999775,999776".
 
     @ui @DIS-125 @DIS-78 @DIS-56 @DIS-194 @DIS-162
     Scenario Outline: Entering an unsuitable product
@@ -40,18 +40,24 @@ Feature: Prevent filling a shipment with unsuitable products
 
 
     Rule: I should not be able fill orders with ineligible Products.
-        @api @DIS-254
+        @api @DIS-254 @bug @DIS-321 @DIS-336 @DIS-337
         Scenario Outline: Fill shipments with ineligible Products.
-            Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>".
+            Given The shipment details are order Number "<Order Number>", customer ID "<Customer ID>", Customer Name "<Customer Name>", Product Details: Quantities "<Quantity>", Blood Types: "<BloodType>", Product Families "<ProductFamily>" , Temperature Category "<Temperature Category>".
             And The visual inspection configuration is "enabled".
             And I have received a shipment fulfillment request with above details.
             When I fill an unsuitable product with the unit number "<UN>", product code "<Code>", and visual Inspection "<Inspection>".
             Then I should receive a "<Message Type>" message "<Message>".
             And The product unit number "<UN>" and product code "<Code>" should not be packed in the shipment.
             Examples:
-                | Order Number | Customer ID | Customer Name    | Quantity | BloodType | ProductFamily                | UN            | Code     | Inspection     | Message                                                                                                   | Message Type |
-                | 999766       | 1           | Testing Customer | 10       | ANY       | PLASMA_TRANSFUSABLE          | W036898786756 | E0701V00 | SATISFACTORY   | This product is expired and has been discarded. Place in biohazard container.                             | INFO         |
-                | 999767       | 1           | Testing Customer | 5        | ANY       | RED_BLOOD_CELLS_LEUKOREDUCED | W036898786758 | E0703V00 | SATISFACTORY   | This product is quarantined and cannot be shipped                                                         | INFO         |
-                | 999768       | 1           | Testing Customer | 5        | ABP       | WHOLE_BLOOD_LEUKOREDUCED     | W812530107002 | E0023V00 | SATISFACTORY   | Product Family does not match                                                                             | WARN         |
-                | 999769       | 1           | Testing Customer | 5        | BP        | WHOLE_BLOOD                  | W812530107002 | E0023V00 | SATISFACTORY   | Blood type does not match                                                                                 | WARN         |
-                | 999770       | 1           | Testing Customer | 5        | ON        | RED_BLOOD_CELLS              | W812530107003 | E0167V00 | UNSATISFACTORY | This product has been discarded for failed visual inspection in the system. Place in biohazard container. | WARN         |
+                | Order Number | Customer ID | Customer Name    | Quantity | BloodType | ProductFamily                    | Temperature Category | UN            | Code     | Inspection     | Message                                                                                                  | Message Type |
+                | 999766       | 1           | Testing Customer | 10       | ANY       | PLASMA_TRANSFUSABLE              |  FROZEN              |W036898786756 | E0701V00 | SATISFACTORY   | This product is expired and has been discarded. Place in biohazard container.                             | INFO         |
+                | 999767       | 1           | Testing Customer | 5        | ANY       | RED_BLOOD_CELLS_LEUKOREDUCED     |  FROZEN              |W036898786758 | E0703V00 | SATISFACTORY   | This product is quarantined and cannot be shipped                                                         | INFO         |
+                | 999768       | 1           | Testing Customer | 5        | ABP       | WHOLE_BLOOD_LEUKOREDUCED         |  FROZEN              |W812530107002 | E0023V00 | SATISFACTORY   | Product Family does not match                                                                             | WARN         |
+                | 999769       | 1           | Testing Customer | 5        | BP        | WHOLE_BLOOD                      |  FROZEN              |W812530107002 | E0023V00 | SATISFACTORY   | Blood type does not match                                                                                 | WARN         |
+                | 999770       | 1           | Testing Customer | 5        | ON        | RED_BLOOD_CELLS                  |  FROZEN              |W812530107003 | E0167V00 | UNSATISFACTORY | This product has been discarded for failed visual inspection in the system. Place in biohazard container. | WARN         |
+                | 999771       | 1           | Testing Customer | 5        | ON        | PLASMA_TRANSFUSABLE              |  FROZEN              |W812530107004 | E2457V00 | SATISFACTORY   | Temperature Category does not match                                                                       | WARN         |
+                | 999772       | 1           | Testing Customer | 5        | ABP       | PLASMA_TRANSFUSABLE              |  FROZEN              |W812530107005 | E2469V00 | SATISFACTORY   | Temperature Category does not match                                                                       | WARN         |
+                | 999773       | 1           | Testing Customer | 5        | AP        | APHERESIS_PLATELETS_LEUKOREDUCED |  FROZEN              |W812530107008 | EA141V00 | SATISFACTORY   | Temperature Category does not match                                                                       | WARN         |
+                | 999774       | 1           | Testing Customer | 5        | AP        | PRT_APHERESIS_PLATELETS          |  FROZEN              |W812530107009 | E8340V00 | SATISFACTORY   | Temperature Category does not match                                                                       | WARN         |
+                | 999775       | 1           | Testing Customer | 5        | BP        | PRT_APHERESIS_PLATELETS          |  FROZEN              |W812530107010 | EB317V00 | SATISFACTORY   | Temperature Category does not match                                                                       | WARN         |
+                | 999776       | 1           | Testing Customer | 5        | AP        | RED_BLOOD_CELLS_LEUKOREDUCED     |  REFRIGERATED        |W812530107012 | E5107V00 | SATISFACTORY   | Temperature Category does not match                                                                       | WARN         |

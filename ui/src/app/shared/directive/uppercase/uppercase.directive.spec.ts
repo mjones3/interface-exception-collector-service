@@ -1,19 +1,26 @@
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { UppercaseDirective } from './uppercase.directive';
 
 @Component({
-    template: ` <input type="text" appUppercase />`,
+    template: ` <input
+        type="text"
+        [formControl]="upperCaseForm"
+        appUppercase
+    />`,
 })
-class TestComponent {}
+class TestComponent {
+    upperCaseForm = new FormControl('');
+}
 
 describe('UppercaseDirective', () => {
     let fixture: ComponentFixture<TestComponent>;
     beforeEach(() => {
         TestBed.configureTestingModule({
             declarations: [TestComponent],
-            imports: [UppercaseDirective],
+            imports: [UppercaseDirective, ReactiveFormsModule],
         });
         fixture = TestBed.createComponent(TestComponent);
         fixture.detectChanges();

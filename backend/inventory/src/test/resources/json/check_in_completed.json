@@ -17,6 +17,7 @@
     "donationType": "ALLOGENEIC",
     "procedureType": "APHERESIS_PLASMA",
     "collectionLocation": "123456789",
+    "collectionTimeZone": "America/New_York",
     "checkInLocation": "123456789",
     "aboRh": "AP",
     "consequences": [

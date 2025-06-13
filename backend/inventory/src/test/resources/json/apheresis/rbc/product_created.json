@@ -4,7 +4,7 @@
   "eventType":"ApheresisRBCProductCreated",
   "eventVersion":"1.0",
   "payload":{
-    "unitNumber":"W036824009001",
+    "unitNumber":"W777724009001",
     "productCode":"E067800",
     "productDescription":"APH AS3 LR",
     "productFamily":"RED_BLOOD_CELLS_LEUKOREDUCED",

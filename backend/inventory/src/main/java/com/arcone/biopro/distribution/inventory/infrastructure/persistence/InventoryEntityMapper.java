@@ -2,6 +2,7 @@ package com.arcone.biopro.distribution.inventory.infrastructure.persistence;
 
 import com.arcone.biopro.distribution.inventory.domain.model.Inventory;
 import com.arcone.biopro.distribution.inventory.domain.model.InventoryAggregate;
+import com.arcone.biopro.distribution.inventory.domain.model.Property;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -20,7 +21,16 @@ public interface InventoryEntityMapper {
 
     @Mapping(target = "inventory", source = "inventoryEntity")
     @Mapping(target = "notificationMessages", ignore = true)
+    @Mapping(target = "properties", ignore = true)
     InventoryAggregate toAggregate(InventoryEntity inventoryEntity);
 
     List<InventoryAggregate> toAggregate(List<InventoryEntity> inventoryEntity);
+
+    @Mapping(target = "id", expression = "java(java.util.UUID.randomUUID())")
+    @Mapping(target = "key", source = "property.key")
+    @Mapping(target = "value", source = "property.value")
+    @Mapping(target = "inventoryId", source = "inventoryEntity.id")
+    PropertyEntity toEntity(Property property, InventoryEntity inventoryEntity);
+
+    Property toDomain(PropertyEntity propertyEntity);
 }

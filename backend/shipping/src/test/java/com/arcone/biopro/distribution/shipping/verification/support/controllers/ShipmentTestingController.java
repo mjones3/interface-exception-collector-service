@@ -89,7 +89,7 @@ public class ShipmentTestingController {
         return shipmentDetail.getOrderNumber();
     }
 
-    public long createShippingRequest(long orderNumber, String priority , String shippingDate) throws Exception {
+    public long createShippingRequest(long orderNumber, String priority , String shippingDate, String shippingMethod) throws Exception {
 
         var shippingDateFormat = Optional.ofNullable(shippingDate).map(shippingDateMap -> "\""+shippingDateMap+"\"").orElse("null");
 
@@ -97,6 +97,12 @@ public class ShipmentTestingController {
             .replace("{order.number}", String.valueOf(orderNumber))
             .replace("{order.priority}",priority)
             .replace("\"{order.shipping_date}\"",shippingDateFormat);
+
+        if (shippingMethod != null && !shippingMethod.isBlank()) {
+            resource = resource.replace("{SHIPPING_METHOD}", shippingMethod);
+        } else {
+            resource = resource.replace("{SHIPPING_METHOD}", "TEST");
+        }
 
         kafkaHelper.sendEvent(UUID.randomUUID().toString(), objectMapper.readValue(resource, OrderFulfilledEventType.class), Topics.ORDER_FULFILLED).block();
         // Add sleep to wait for the message to be consumed.
@@ -243,7 +249,8 @@ public class ShipmentTestingController {
             .shippingMethod(shippingMethod)
             .productCategory(productCategory)
             .shippingDate(shippingDate)
-            .department(department)
+            .departmentName(department)
+            .departmentCode("DPT_CODE")
             .customerPhoneNumber(customerPhoneNumber)
             .customerAddressState(customerAddressState)
             .customerAddressPostalCode(customerAddressPostalCode)
@@ -255,7 +262,6 @@ public class ShipmentTestingController {
             .customerAddressAddressLine2(customerAddressAddressLine2)
             .billingCustomerCode(billingCustomerCode)
             .billingCustomerName(billingCustomerName)
-            .department(department)
             .deliveryType(deliveryType)
             .createDate(ZonedDateTime.now())
             .shippingCustomerCode(shippingCustomerCode)
@@ -290,7 +296,7 @@ public class ShipmentTestingController {
     }
 
     public ShipmentRequestDetailsResponseType buildShipmentRequestDetailsResponseType(long orderNumber, String locationCode, String customerID, String customerName, String department, String addressLine1, String addressLine2, String unitNumber, String productCode, String productFamily, String bloodType, String expiration, long quantity) {
-        return this.buildShipmentRequestDetailsResponseType(orderNumber, "ASAP", "OPEN", customerID, 0L, locationCode, "TEST", "TEST", "Frozen", LocalDate.now(), customerName, department, "", "123456789", "FL", "33016", "US", "1", "Miami", "Miami", addressLine1, addressLine2, String.valueOf(quantity), bloodType, productFamily, unitNumber, productCode);
+        return this.buildShipmentRequestDetailsResponseType(orderNumber, "ASAP", "OPEN", customerID, 0L, locationCode, "TEST", "TEST", "FROZEN", LocalDate.now(), customerName, department, "", "123456789", "FL", "33016", "US", "1", "Miami", "Miami", addressLine1, addressLine2, String.valueOf(quantity), bloodType, productFamily, unitNumber, productCode);
     }
 
     public boolean getCheckDigitConfiguration() {
@@ -334,7 +340,7 @@ public class ShipmentTestingController {
             "(order_number, customer_code, customer_name, customer_phone_number, location_code, delivery_type, priority, shipment_method, product_category, status, state, postal_code, country" +
             " , country_code, city, district, address_line1, address_line2, address_contact_name, shipping_date, create_date, modification_date, delete_date, \"comments\", department_name, created_by_employee_id" +
             " , completed_by_employee_id, complete_date, external_id) " +
-            " VALUES(%s,'B2346', 'Advanced Medical Center', '234-567-8901', '123456789', 'STAT', 'STAT', 'FEDEX', 'REFRIGERATED', 'OPEN', 'CA', '90210', 'US', 'US', 'Beverly Hills', 'LA', '456 Elm Street', 'Suite 200', NULL, '2024-10-07', '2024-10-07 12:45:34.084', '2024-10-07 12:45:34.084', NULL, '', 'Cardiology', 'mock-employee-id', NULL, NULL, 'DST108');";
+            " VALUES(%s,'B2346', 'Advanced Medical Center', '234-567-8901', '123456789', 'STAT', 'STAT', 'FEDEX', 'FROZEN', 'OPEN', 'CA', '90210', 'US', 'US', 'Beverly Hills', 'LA', '456 Elm Street', 'Suite 200', NULL, '2024-10-07', '2024-10-07 12:45:34.084', '2024-10-07 12:45:34.084', NULL, '', 'Cardiology', 'mock-employee-id', NULL, NULL, 'DST108');";
 
         databaseService.executeSql(String.format(insertShipment, orderNumber)).block();
 

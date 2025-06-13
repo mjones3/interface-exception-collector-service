@@ -15,7 +15,9 @@ public record InventoryInput(
     Boolean isLicensed,
     Integer weight,
     ZonedDateTime collectionDate,
-    String location,
+    String inventoryLocation,
+    String collectionLocation,
+    String collectionTimeZone,
     String productFamily,
     AboRhType aboRh) {
 }

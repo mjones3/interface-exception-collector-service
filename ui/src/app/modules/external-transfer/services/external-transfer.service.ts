@@ -9,7 +9,12 @@ import {
     COMPLETE_EXTERNAL_TRANSFER,
     EXTERNAL_TRANSFER_ITEM,
 } from '../graphql/external-transfer-item.graphql';
-import { VERIFY_TRANSFER_INFO } from '../graphql/external-transfer.graphql';
+import {
+    CANCEL_EXTERNAL_TRANSFER_PROCESS,
+    CONFIRM_CANCEL_EXTERNAL_TRANSFER_PROCESS,
+    CancelExternalTransferRequest,
+    VERIFY_TRANSFER_INFO,
+} from '../graphql/external-transfer.graphql';
 import {
     CreateExternalTransferRequestDTO,
     CustomerOptionDTO,
@@ -66,6 +71,34 @@ export class ExternalTransferService {
             this.servicePath,
             COMPLETE_EXTERNAL_TRANSFER,
             inputs
+        );
+    }
+
+    public cancelExternalTransferProcess(
+        cancelExternalTransferRequest: CancelExternalTransferRequest
+    ): Observable<
+        MutationResult<{
+            cancelExternalTransfer: RuleResponseDTO;
+        }>
+    > {
+        return this.dynamicGraphqlPathService.executeMutation(
+            this.servicePath,
+            CANCEL_EXTERNAL_TRANSFER_PROCESS,
+            cancelExternalTransferRequest
+        );
+    }
+
+    public confirmCancelExternalTransferProcess(
+        confirmCancelExternalTransferProcessRequest: CancelExternalTransferRequest
+    ): Observable<
+        MutationResult<{
+            confirmCancelExternalTransfer: RuleResponseDTO;
+        }>
+    > {
+        return this.dynamicGraphqlPathService.executeMutation(
+            this.servicePath,
+            CONFIRM_CANCEL_EXTERNAL_TRANSFER_PROCESS,
+            confirmCancelExternalTransferProcessRequest
         );
     }
 }

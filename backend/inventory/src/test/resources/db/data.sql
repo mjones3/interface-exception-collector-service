@@ -1,1 +1,0 @@
-truncate bld_inventory;

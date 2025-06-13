@@ -755,6 +755,7 @@
                         <includes>
                             <include>**/*Suite.java</include>
                             <include>**/*IT.java</include>
+
                         </includes>
                         <argLine>@{argLine} -XX:+AllowRedefinitionToAddDeleteMethods
                             -Dspring.profiles.active=${profile.test}

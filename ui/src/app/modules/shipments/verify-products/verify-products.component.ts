@@ -11,16 +11,17 @@ import {
     ProcessHeaderService,
     ToastrImplService,
 } from '@shared';
-import { ScanUnitNumberProductCodeComponent } from 'app/scan-unit-number-product-code/scan-unit-number-product-code.component';
 import { ActionButtonComponent } from 'app/shared/components/buttons/action-button.component';
 import { NotificationComponent } from 'app/shared/components/notification/notification.component';
+import { ScanUnitNumberProductCodeComponent } from 'app/shared/components/scan-unit-number-product-code/scan-unit-number-product-code.component';
 import { finalize, tap } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { FuseCardComponent } from '../../../../@fuse';
 import { FuseConfirmationService } from '../../../../@fuse/services/confirmation';
-import { ProgressBarComponent } from '../../../progress-bar/progress-bar.component';
 import { GlobalMessageComponent } from '../../../shared/components/global-message/global-message.component';
+import { ProgressBarComponent } from '../../../shared/components/progress-bar/progress-bar.component';
 import { UnitNumberCardComponent } from '../../../shared/components/unit-number-card/unit-number-card.component';
+import { ProductCategoryMap } from '../../../shared/models/product-category.model';
 import { ProductIconsService } from '../../../shared/services/product-icon.service';
 import handleApolloError from '../../../shared/utils/apollo-error-handling';
 import { consumeNotifications } from '../../../shared/utils/notification.handling';
@@ -296,19 +297,25 @@ export class VerifyProductsComponent
         notifications.forEach((notification) => {
             const notificationType =
                 NotificationTypeMap[notification.notificationType];
-            this.toaster.show(
-                notification.message,
-                notificationType.title,
-                {
-                    ...(notificationType.timeOut
-                        ? { timeOut: notificationType.timeOut }
-                        : {}),
-                    ...(notification.notificationType === 'SYSTEM'
-                        ? { timeOut: 0 }
-                        : {}), // Overrides timeout definition for SYSTEM notifications
-                },
-                notificationType.type
-            );
+            this.toaster
+                .show(
+                    notification.message,
+                    notificationType.title,
+                    {
+                        ...(notificationType.timeOut
+                            ? { timeOut: notificationType.timeOut }
+                            : {}),
+                        ...(notification.notificationType === 'SYSTEM'
+                            ? { timeOut: 0 }
+                            : {}), // Overrides timeout definition for SYSTEM notifications
+                    },
+                    notificationType.type
+                )
+                .onTap.subscribe(() =>
+                    this.scanUnitNumberProductCode.focusOnUnitNumber()
+                );
         });
     }
+
+    protected readonly ProductCategoryMap = ProductCategoryMap;
 }

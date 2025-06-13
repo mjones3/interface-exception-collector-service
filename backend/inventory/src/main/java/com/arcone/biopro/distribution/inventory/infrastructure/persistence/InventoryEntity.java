@@ -4,6 +4,7 @@ import com.arcone.biopro.distribution.inventory.domain.model.enumeration.AboRhTy
 import com.arcone.biopro.distribution.inventory.domain.model.enumeration.InventoryStatus;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.History;
 import com.arcone.biopro.distribution.inventory.domain.model.vo.Quarantine;
+import com.arcone.biopro.distribution.inventory.domain.model.vo.Volume;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -70,8 +71,8 @@ public class InventoryEntity implements Serializable, Persistable<UUID> {
     Integer weight;
 
     @NotNull
-    @Column("location")
-    String location;
+    @Column("inventory_location")
+    String inventoryLocation;
 
     @NotNull
     @Column("product_family")
@@ -117,6 +118,27 @@ public class InventoryEntity implements Serializable, Persistable<UUID> {
     @NotNull
     @Column("unsuitable_reason")
     String unsuitableReason;
+
+    @Column("temperature_category")
+    String temperatureCategory;
+
+    @Column("carton_number")
+    String cartonNumber;
+
+    @Column("collection_location")
+    String collectionLocation;
+
+    @Column("collection_timezone")
+    String collectionTimeZone;
+
+    @Column("modification_location")
+    String modificationLocation;
+
+    @Column("product_modification_date")
+    ZonedDateTime productModificationDate;
+
+    @Column("volumes")
+    List<Volume> volumes;
 
     @JsonIgnore
     @Override

@@ -1,0 +1,22 @@
+Create BDD steps using Cucumber/Java to cover the following BDD scenarios from a graphql API
+
+Scenario: Successfully retrieve shipment details via API
+        Given a shipment exists with number "SHP-2024-001"
+        When I send a GET request to "/api/shipments/SHP-2024-001"
+        Then the response status code should be 200
+        And the response should contain the following shipment information:
+            | field                       | value         |
+            | shipmentNumber             | SHP-2024-001  |
+            | customerCode               | CUST001       |
+            | customerName               | Test Customer |
+            | productType                | Plasma        |
+            | shipmentStatus             | Created       |
+            | shipmentDate               | 2024-01-20    |
+            | transportationReferenceNo  | TRN001        |
+            | totalProducts              | 100           |
+            | totalCartons               | 20            |
+
+Scenario: Attempt to retrieve non-existent shipment
+        When I send a GET request to "/api/shipments/NON-EXISTENT"
+        Then the response status code should be 404
+        And the response should contain error message "Shipment not found"

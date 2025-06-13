@@ -30,6 +30,7 @@ import java.util.UUID;
 public class InventoryMockController {
     private final ObjectMapper objectMapper;
     private List<InventoryResponseDTO> inventoryResponseDTOList;
+    private static final String DISCARD_COMMENTS_250_CHARS = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec.";
 
     @MessageMapping("validateInventory")
     public Mono<InventoryValidationResponseDTO> validateInventory(@Payload InventoryValidationRequest request) {
@@ -41,10 +42,12 @@ public class InventoryMockController {
 
             /*| Expired            | W036898786756  | E0701V00    Expired error message     |
             | Discarded            | =W03689878675700 | =<E0713V00  Discarded error message   |
+            | Discarded            | W036898786759 | E0713V00  Discarded error message plus discard comments  |
             | Quarantined          | W036898786758    | E0707V00    Quarantined error message |
             | Non existent         | =W03689878675900 | =<E0701V00  Non existent error        |
             | Different Location   | =W03689878676300 | =<E0703V00  Product not found error   |
-            | Already Shipped      | W036898786700    | E0707V00                                */
+            | Already Shipped      | W036898786700    | E0707V00
+            */
 
 
         switch (request.unitNumber()) {
@@ -94,6 +97,29 @@ public class InventoryMockController {
                         .errorCode(3)
                         .errorType("INFO")
                         .errorMessage(ShipmentServiceMessages.INVENTORY_DISCARDED_ERROR)
+                        .build()))
+                    .build());
+            case "W036898786759":
+                return Mono.just(InventoryValidationResponseDTO
+                    .builder()
+                    .inventoryResponseDTO(InventoryResponseDTO
+                        .builder()
+                        .productFamily("PLASMA_TRANSFUSABLE")
+                        .id(UUID.randomUUID())
+                        .aboRh("AB")
+                        .locationCode("123456789")
+                        .productCode("E0713V00")
+                        .collectionDate(ZonedDateTime.now())
+                        .unitNumber("W036898786759")
+                        .expirationDate(LocalDateTime.now())
+                        .productDescription("PRODUCT_DESCRIPTION")
+                        .build())
+                    .inventoryNotificationsDTO(List.of(InventoryNotificationDTO
+                        .builder()
+                        .errorName("INVENTORY_IS_DISCARDED")
+                        .errorCode(3)
+                        .errorType("INFO")
+                        .errorMessage(ShipmentServiceMessages.INVENTORY_DISCARDED_ERROR + DISCARD_COMMENTS_250_CHARS)
                         .build()))
                     .build());
             case "W036898786758":

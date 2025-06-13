@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -55,6 +56,8 @@ public class SharedContext {
     // General API response data
     private List<Map> apiMessageResponse;
 
+    private List<LinkedHashMap> apiMessageResultResponse;
+
     public void clear() {
         this.orderNumber = null;
         this.shipmentId = null;
@@ -66,5 +69,6 @@ public class SharedContext {
         this.toBeRemoved = 0;
         this.cancelSecondVerificationResponse = null;
         this.apiMessageResponse = null;
+        this.apiMessageResultResponse = null;
     }
 }

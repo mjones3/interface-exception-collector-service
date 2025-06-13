@@ -17,6 +17,7 @@ import { of } from 'rxjs';
 import { VerifyFilledProductDto } from '../models/shipment-info.dto';
 import { ShipmentService } from '../services/shipment.service';
 import { FillProductsComponent } from './fill-products.component';
+import { AuthState } from 'app/core/state/auth/auth.reducer';
 
 describe('FillProductsComponent', () => {
     let component: FillProductsComponent;
@@ -27,6 +28,11 @@ describe('FillProductsComponent', () => {
     let confirmationAcknowledgmentService: ConfirmationAcknowledgmentService;
     let controller: ApolloTestingController;
     let datePipe: DatePipe;
+
+    const initialState: AuthState = {
+        id: 'mock-user-id',
+        loaded: true,
+    };
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
@@ -49,7 +55,7 @@ describe('FillProductsComponent', () => {
                         },
                     },
                 },
-                provideMockStore(),
+                provideMockStore({ initialState }),
                 ShipmentService,
             ],
         }).compileComponents();

@@ -14,6 +14,9 @@ public interface LabelAppliedMessageMapper extends MessageMapper<InventoryInput,
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
 
     @Mapping(target = "shortDescription", source = "productDescription")
+    @Mapping(target = "inventoryLocation", source = "location")
+    @Mapping(target = "collectionLocation", ignore = true)
+    @Mapping(target = "collectionTimeZone", ignore = true)
     InventoryInput toInput(LabelAppliedMessage message);
 
     default  LocalDateTime toLocalDateTime(String dateTimeString) {

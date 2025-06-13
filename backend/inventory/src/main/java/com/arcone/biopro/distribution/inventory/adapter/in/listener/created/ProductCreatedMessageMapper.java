@@ -10,6 +10,11 @@ public interface ProductCreatedMessageMapper extends MessageMapper<ProductCreate
 
     @Mapping(target = "weight", source = "weight.value")
     @Mapping(target = "collectionDate", source = "drawTime")
-    @Mapping(target = "location", source = "manufacturingLocation")
+    @Mapping(target = "inventoryLocation", source = "manufacturingLocation")
+    @Mapping(target = "collectionLocation", source = "collectionLocation")
+    @Mapping(target = "collectionTimeZone", source = "collectionTimeZone")
+    @Mapping(target = "licensed", ignore = true)
+    @Mapping(target = "quarantines", ignore = true)
+    @Mapping(target = "temperatureCategory", ignore = true)
     ProductCreatedInput toInput(ProductCreatedMessage message);
 }

@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 
@@ -22,6 +23,7 @@ public class OrderEntityMapper {
     private final CustomerService customerService;
     private final LookupService lookupService;
     private final OrderConfigService orderConfigService;
+    private static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     public OrderEntity mapToEntity(final Order order) {
         return OrderEntity.builder()
@@ -81,7 +83,7 @@ public class OrderEntityMapper {
             orderEntity.getStatus(),
             orderEntity.getDeliveryType(),
             orderEntity.getCreateEmployeeId(),
-            orderEntity.getCreateDate(),
+            ofNullable(orderEntity.getCreateDate()).map(dateTime -> DateTimeFormatter.ofPattern(DATE_TIME_FORMAT).format(dateTime)).orElse(null),
             orderEntity.getModificationDate(),
             orderEntity.getDeleteDate()
         );

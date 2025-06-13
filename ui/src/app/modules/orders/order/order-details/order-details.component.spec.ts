@@ -12,6 +12,7 @@ import { ToastrModule } from 'ngx-toastr';
 import { of } from 'rxjs';
 import { OrderService } from '../../services/order.service';
 import { OrderDetailsComponent } from './order-details.component';
+import { AuthState } from 'app/core/state/auth/auth.reducer';
 
 describe('OrderDetailsComponent', () => {
     let component: OrderDetailsComponent;
@@ -20,6 +21,11 @@ describe('OrderDetailsComponent', () => {
     let orderService: OrderService;
     let productIconService: ProductIconsService;
     let datePipe: DatePipe;
+
+    const initialState: AuthState = {
+        id: 'mock-user-id',
+        loaded: true,
+    };
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
@@ -33,7 +39,7 @@ describe('OrderDetailsComponent', () => {
             ],
             providers: [
                 provideHttpClient(),
-                provideMockStore({}),
+                provideMockStore({ initialState }),
                 DatePipe,
                 {
                     provide: ActivatedRoute,

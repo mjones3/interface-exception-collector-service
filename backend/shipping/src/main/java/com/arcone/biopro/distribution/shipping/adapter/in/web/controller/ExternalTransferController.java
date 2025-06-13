@@ -1,12 +1,15 @@
 package com.arcone.biopro.distribution.shipping.adapter.in.web.controller;
 
 import com.arcone.biopro.distribution.shipping.adapter.in.web.dto.AddProductTransferRequestDTO;
+import com.arcone.biopro.distribution.shipping.adapter.in.web.dto.CancelExternalTransferRequestDTO;
 import com.arcone.biopro.distribution.shipping.adapter.in.web.dto.CompleteExternalTransferRequestDTO;
 import com.arcone.biopro.distribution.shipping.adapter.in.web.dto.CreateExternalTransferRequestDTO;
+import com.arcone.biopro.distribution.shipping.application.dto.CancelExternalTransferRequest;
 import com.arcone.biopro.distribution.shipping.application.dto.RuleResponseDTO;
 import com.arcone.biopro.distribution.shipping.application.mapper.ExternalTransferDomainMapper;
 import com.arcone.biopro.distribution.shipping.application.usecase.CreateExternalTransferUseCase;
 import com.arcone.biopro.distribution.shipping.domain.service.AddProductTransferService;
+import com.arcone.biopro.distribution.shipping.domain.service.CancelExternalTransferService;
 import com.arcone.biopro.distribution.shipping.domain.service.CompleteExternalTransferService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +27,7 @@ public class ExternalTransferController {
     private final ExternalTransferDomainMapper externalTransferDomainMapper;
     private final AddProductTransferService addProductTransferService;
     private final CompleteExternalTransferService completeExternalTransferService;
+    private final CancelExternalTransferService cancelExternalTransferService;
 
     @MutationMapping("createExternalTransfer")
     public Mono<RuleResponseDTO> createExternalTransfer(@Argument("createExternalTransferRequest") CreateExternalTransferRequestDTO createExternalTransferRequest) {
@@ -41,6 +45,19 @@ public class ExternalTransferController {
     public Mono<RuleResponseDTO> completeExternalTransfer(@Argument("completeExternalTransferRequestDTO") CompleteExternalTransferRequestDTO completeExternalTransferRequestDTO) {
         log.debug("Request to complete a external transfer {}", completeExternalTransferRequestDTO);
         return completeExternalTransferService.completeExternalTransfer(externalTransferDomainMapper.toCommand(completeExternalTransferRequestDTO));
+    }
+
+
+    @MutationMapping("cancelExternalTransfer")
+    public Mono<RuleResponseDTO> cancelExternalTransfer(@Argument("cancelExternalTransferRequestDTO") CancelExternalTransferRequestDTO cancelExternalTransferRequestDTO) {
+        log.debug("Request to cancel external Transfer {}", cancelExternalTransferRequestDTO);
+        return cancelExternalTransferService.cancelExternalTransfer(new CancelExternalTransferRequest(cancelExternalTransferRequestDTO.externalTransferId(), cancelExternalTransferRequestDTO.employeeId()));
+    }
+
+    @MutationMapping("confirmCancelExternalTransfer")
+    public Mono<RuleResponseDTO> confirmCancelExternalTransfer(@Argument("cancelExternalTransferRequestDTO") CancelExternalTransferRequestDTO cancelExternalTransferRequestDTO) {
+        log.info("Request to confirm cancel external transfer {}", cancelExternalTransferRequestDTO);
+        return cancelExternalTransferService.confirmCancelExternalTransfer(new CancelExternalTransferRequest(cancelExternalTransferRequestDTO.externalTransferId(), cancelExternalTransferRequestDTO.employeeId()));
     }
 
 }

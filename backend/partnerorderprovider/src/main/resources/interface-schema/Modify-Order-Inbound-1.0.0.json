@@ -91,13 +91,29 @@
           "$ref": "#/definitions/orderPickType.phoneNumber"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "if": {
+        "properties": {
+          "willCallPickUp": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "phoneNumber": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50
+          }
+        }
+      }
     },
     "orderPickType.willCallPickUp": {
       "type": "boolean"
     },
     "orderPickType.phoneNumber": {
-      "type": "string"
+      "type": ["null","string"]
     },
     "productCategory": {
       "type": "string",

@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import {
     MAT_DATE_FORMATS,
@@ -11,7 +11,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { Router } from '@angular/router';
 import { MutationResult } from '@apollo/client';
+import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { provideMockStore } from '@ngrx/store/testing';
 import { NotificationDto, ToastrImplService } from '@shared';
 import { ApolloTestingModule } from 'apollo-angular/testing';
@@ -21,6 +23,7 @@ import { of } from 'rxjs';
 import { ExternalTransferItemDTO } from '../../models/external-transfer.dto';
 import { ExternalTransferService } from '../../services/external-transfer.service';
 import { ExternalTransfersComponent } from './external-transfers.component';
+import { AuthState } from 'app/core/state/auth/auth.reducer';
 
 describe('ExternalTransfersComponent', () => {
     let component: ExternalTransfersComponent;
@@ -28,6 +31,11 @@ describe('ExternalTransfersComponent', () => {
     let dateInput: HTMLInputElement;
     let service: ExternalTransferService;
     let toastr: ToastrImplService;
+    const routerMock = {
+        navigateByUrl: jest.fn(() => Promise.resolve(true)),
+        navigate: jest.fn(),
+    };
+    let fuseConfirmationService: FuseConfirmationService;
 
     const addedProductsMockData = {
         unitNumber: 'W036898786807',
@@ -35,6 +43,11 @@ describe('ExternalTransfersComponent', () => {
         employeeId: '4c973896-5761-41fc-8217-07c5d13a004b',
         productFamily: 'PLASMA_TRANSFUSABLE',
         externalTransferId: 1,
+    };
+
+    const initialState: AuthState = {
+        id: 'mock-user-id',
+        loaded: true,
     };
 
     beforeEach(async () => {
@@ -53,10 +66,14 @@ describe('ExternalTransfersComponent', () => {
             ],
             providers: [
                 ExternalTransferService,
-                provideMockStore({}),
+                provideMockStore({initialState}),
                 {
                     provide: MAT_DATE_FORMATS,
                     useValue: MAT_NATIVE_DATE_FORMATS,
+                },
+                {
+                    provide: Router,
+                    useValue: routerMock,
                 },
             ],
         }).compileComponents();
@@ -64,13 +81,15 @@ describe('ExternalTransfersComponent', () => {
         fixture = TestBed.createComponent(ExternalTransfersComponent);
         component = fixture.componentInstance;
         service = TestBed.inject(ExternalTransferService);
-        toastr = TestBed.inject(ToastrImplService);
         jest.spyOn(service, 'customerInfo').mockReturnValue(of());
         jest.spyOn(service, 'verifyExternalTransferItem').mockReturnValue(of());
         jest.spyOn(service, 'completeExternalTransfer').mockReturnValue(of());
         toastr = TestBed.inject(ToastrImplService);
         fixture.detectChanges();
         dateInput = fixture.debugElement.query(By.css('input')).nativeElement;
+        fuseConfirmationService = TestBed.inject(
+            FuseConfirmationService
+        ) as jest.Mocked<FuseConfirmationService>;
     });
 
     function getMatErrorText() {
@@ -277,4 +296,101 @@ describe('ExternalTransfersComponent', () => {
         component.submitExternalTransfer();
         expect(toastr.show).toHaveBeenCalled();
     });
+
+    it("should open cancel dialog when there's a confirmation notification", fakeAsync(async () => {
+        const cancelExternalTransferSpy = jest
+            .spyOn(service, 'cancelExternalTransferProcess')
+            .mockReturnValue(
+                of<
+                    MutationResult<{
+                        cancelExternalTransfer: RuleResponseDTO<never>;
+                    }>
+                >({
+                    data: {
+                        cancelExternalTransfer: {
+                            ruleCode: '200 OK',
+                            _links: null,
+                            results: null,
+                            notifications: [
+                                {
+                                    name: 'EXTERNAL_TRANSFER_CANCEL_CONFIRMATION',
+                                    statusCode: 200,
+                                    notificationType: 'CONFIRMATION',
+                                    code: 200,
+                                    action: null,
+                                    reason: null,
+                                    message:
+                                        'When cancelling, all external transfer information will be removed. Are you sure you want to cancel?',
+                                },
+                            ],
+                        },
+                    },
+                } as MutationResult)
+            );
+        const fuseConfirmationOpenDialogSpy = jest.spyOn(
+            fuseConfirmationService,
+            'open'
+        );
+        const toastrSpy = jest.spyOn(toastr, 'show');
+        const pageCancelButton = fixture.debugElement.query(
+            By.css('#cancelActionBtn')
+        ).nativeElement as HTMLButtonElement;
+        expect(pageCancelButton.disabled).toBeFalsy();
+        pageCancelButton.click();
+        component.cancelExternalTransfer();
+        fixture.detectChanges();
+        expect(cancelExternalTransferSpy).toHaveBeenCalled();
+        expect(fuseConfirmationOpenDialogSpy).toHaveBeenCalled();
+        expect(toastrSpy).not.toHaveBeenCalled();
+    }));
+
+    it('should get confirmation when cancel external transfer process is complete', () => {
+        const cancelExternalTransferSpy = jest
+            .spyOn(service, 'confirmCancelExternalTransferProcess')
+            .mockReturnValue(
+                of<
+                    MutationResult<{
+                        confirmCancelExternalTransfer: RuleResponseDTO<never>;
+                    }>
+                >({
+                    data: {
+                        confirmCancelExternalTransfer: {
+                            ruleCode: '200 OK',
+                            _links: {
+                                next: '/external-transfer',
+                            },
+                            results: null,
+                            notifications: [
+                                {
+                                    name: null,
+                                    statusCode: 200,
+                                    notificationType: 'SUCCESS',
+                                    code: null,
+                                    action: null,
+                                    reason: null,
+                                    message:
+                                        'External transfer cancellation completed',
+                                },
+                            ],
+                        },
+                    },
+                } as MutationResult)
+            );
+
+        const handleNavigationSpy = jest.spyOn(component, 'handleNavigation');
+        const toastrSpy = jest.spyOn(toastr, 'show');
+        component.confirmCancel();
+        fixture.detectChanges();
+        expect(cancelExternalTransferSpy).toHaveBeenCalled();
+        expect(handleNavigationSpy).toHaveBeenCalledWith('/external-transfer');
+        expect(toastrSpy).toHaveBeenCalled();
+    });
+
+    it('should redirect to the link', fakeAsync(async () => {
+        const navigateBySpy = jest.spyOn(routerMock, 'navigateByUrl');
+        const url = '/external-transfer';
+        const newUrl = '/external-transfer/new';
+        component.handleNavigation(url);
+        expect(navigateBySpy).toHaveBeenCalledWith(newUrl);
+    }));
 });
