@@ -65,6 +65,15 @@
                     />
                 </div>
                 }
+                @if(transitTimeQuarantineNotificationSignal(); as transitTimeQuarantineNotification){
+                    <div class="md:col-span-6">
+                        <biopro-global-message
+                            [messageType]="NotificationTypeMap[transitTimeQuarantineNotification.type].type"
+                            [message]="transitTimeQuarantineNotification.message"
+                            [appearance]="'border'"
+                        />
+                    </div>
+                }
 
                 @if (shippingInformationSignal()?.displayTransitInformation) {
                 <!-- START TRANSIT TIME -->
@@ -98,7 +107,7 @@
                     <mat-label>Start Time Zone</mat-label>
                     <mat-select [attr.data-testid]="'transit-time-start-zone'" formControlName="startZone" required>
                         @for (timeZone of availableTimeZonesSignal(); track $index) {
-                            <mat-option [value]="timeZone">{{timeZone}}</mat-option>
+                            <mat-option [value]="timeZone.optionValue">{{timeZone.descriptionKey}}</mat-option>
                         }
                     </mat-select>
                     @if (form.controls.transitTime.controls.startZone.hasError('required')) { <mat-error>Start Time Zone is required</mat-error> }
@@ -136,7 +145,7 @@
                     <mat-label>End Time Zone</mat-label>
                     <mat-select [attr.data-testid]="'transit-time-end-zone'" formControlName="endZone" required>
                         @for (timeZone of availableTimeZonesSignal(); track $index) {
-                            <mat-option [value]="timeZone">{{timeZone}}</mat-option>
+                            <mat-option [value]="timeZone.optionValue">{{timeZone.descriptionKey}}</mat-option>
                         }
                     </mat-select>
                     @if (form.controls.transitTime.controls.endZone.hasError('required')) { <mat-error>End Time Zone is required</mat-error> }
@@ -144,13 +153,9 @@
 
 
                 <!-- Total Transit Time -->
-                @if (
-                        form.controls.transitTime.controls.startDate?.value && form.controls.transitTime.controls.endDate?.value &&
-                        form.controls.transitTime.controls.startTime?.value && form.controls.transitTime.controls.endTime?.value &&
-                        form.controls.transitTime.controls.startZone?.value && form.controls.transitTime.controls.endZone?.value
-                ) {
+                @if (transitTimeHumanReadableSignal(); as transitTimeHumanReadable) {
                 <div class="md:col-span-6 rounded-md bg-blue-100 p-6 text-center mb-2">
-                    <b>Total Transit Time:</b> 00h 00m
+                    <b>Total Transit Time:</b> <span data-testid="total-transit-time-value">{{ transitTimeHumanReadable }}</span>
                 </div>
                 }
                 }

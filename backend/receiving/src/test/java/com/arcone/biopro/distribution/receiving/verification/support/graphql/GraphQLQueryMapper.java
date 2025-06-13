@@ -19,7 +19,7 @@ public class GraphQLQueryMapper {
                            _links
                 }
             }
-            """, temperatureCategory,employeeId,temperatureCategory));
+            """, temperatureCategory,employeeId,locationCode));
     }
 
     public static String validateDevice(String bloodCenterId, String locationCode) {
@@ -64,5 +64,35 @@ public class GraphQLQueryMapper {
                 }
             }
             """, temperatureValue, temperatureCategory);
+    }
+
+    public static String validateTransitTime(String temperatureCategory, String startDateTime, String startTimeZone, String endDateTime, String endTimeZone ) {
+        return String.format("""
+            query ValidateTransitTime {
+                validateTransitTime(
+                    validateTransitTimeRequest: {
+                        temperatureCategory: "%s"
+                        startDateTime: "%s"
+                        startTimeZone: "%s"
+                        endDateTime: "%s"
+                        endTimeZone: "%s"
+                    }
+                ) {
+                    _links
+                    data
+                    notifications {
+                        message
+                        type
+                        code
+                        action
+                        reason
+                        details
+                        name
+                    }
+                }
+            }
+
+            """, temperatureCategory, startDateTime, startTimeZone, endDateTime, endTimeZone);
+
     }
 }

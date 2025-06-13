@@ -30,31 +30,30 @@ public class ValidateTemperatureUseCase implements ValidateTemperatureService {
 
     @Override
     public Mono<UseCaseOutput<ValidationResultOutput>> validateTemperature(ValidateTemperatureCommandInput validateTemperatureCommandInput) {
-
         return Mono.fromSupplier(() -> new ValidateTemperatureCommand(validateTemperatureCommandInput.temperature(), validateTemperatureCommandInput.temperatureCategory()))
             .flatMap(validateTemperatureCommand -> {
-                    return productConsequenceRepository.findAllByProductCategoryAndResultProperty(validateTemperatureCommand.getTemperatureCategory(),"TEMPERATURE")
-                        .collectList()
-                        .flatMap(productConsequenceList -> {
-                            return Mono.fromSupplier(() -> TemperatureValidator.validateTemperature(validateTemperatureCommand,productConsequenceList));
-                        });
-                }).flatMap(validationResult -> {
-                    if(validationResult.valid()){
-                        return Mono.just(new UseCaseOutput<>(Collections.emptyList(), validationResultOutputMapper.toOutput(validationResult), null));
-                    }else{
-                        return Mono.just(new UseCaseOutput<>(List.of(UseCaseNotificationOutput
-                            .builder()
-                            .useCaseMessage(
-                                UseCaseMessage
-                                    .builder()
-                                    .message(validationResult.message())
-                                    .code(5)
-                                    .type(UseCaseNotificationType.CAUTION)
-                                    .build())
-                            .build()), validationResultOutputMapper.toOutput(validationResult), null));
+                return productConsequenceRepository.findAllByProductCategoryAndResultProperty(validateTemperatureCommand.getTemperatureCategory(), "TEMPERATURE")
+                    .collectList()
+                    .flatMap(productConsequenceList -> {
+                        return Mono.fromSupplier(() -> TemperatureValidator.validateTemperature(validateTemperatureCommand, productConsequenceList));
+                    });
+            }).flatMap(validationResult -> {
+                if (validationResult.valid()) {
+                    return Mono.just(new UseCaseOutput<>(Collections.emptyList(), validationResultOutputMapper.toOutput(validationResult), null));
+                } else {
+                    return Mono.just(new UseCaseOutput<>(List.of(UseCaseNotificationOutput
+                        .builder()
+                        .useCaseMessage(
+                            UseCaseMessage
+                                .builder()
+                                .message(validationResult.message())
+                                .code(5)
+                                .type(UseCaseNotificationType.CAUTION)
+                                .build())
+                        .build()), validationResultOutputMapper.toOutput(validationResult), null));
                 }
             }).onErrorResume(error -> {
-                log.error("Not able to validate temperature: {}",error.getMessage());
+                log.error("Not able to validate temperature: {}", error.getMessage());
                 return Mono.just(new UseCaseOutput<>(List.of(UseCaseNotificationOutput
                     .builder()
                     .useCaseMessage(

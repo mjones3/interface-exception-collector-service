@@ -55,6 +55,7 @@ public class SharedContext {
     private String initialShipmentDate;
     private String finalShipmentDate;
     private Map lastShipmentCloseResponse;
+    private String totalTransitTime;
 
 
     // RecoveredPlasmaCriteriaConfiguration

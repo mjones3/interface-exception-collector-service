@@ -1,5 +1,5 @@
 import { AbstractControl, AsyncValidatorFn, ValidationErrors } from '@angular/forms';
-import { catchError, map, Observable, of } from 'rxjs';
+import { catchError, first, map, Observable, of } from 'rxjs';
 import { ReceivingService } from '../service/receiving.service';
 import { ToastrService } from 'ngx-toastr';
 import { ApolloError } from '@apollo/client';
@@ -7,8 +7,8 @@ import handleApolloError from '../../../shared/utils/apollo-error-handling';
 
 export class DeviceIdValidator {
 
-    public static using(toastrService: ToastrService, receivingService: ReceivingService, locationCode: string): AsyncValidatorFn {
-        return (control: AbstractControl<string, string>): Observable<ValidationErrors | null> => {
+    public static asyncValidatorUsing(toastrService: ToastrService, receivingService: ReceivingService, locationCode: string): AsyncValidatorFn {
+        return (control: AbstractControl<string>): Observable<ValidationErrors | null> => {
             if (!control.value) {
                 return of(null);
             }
@@ -19,6 +19,7 @@ export class DeviceIdValidator {
                     locationCode: locationCode
                 })
                 .pipe(
+                    first(),
                     catchError((error: ApolloError) => handleApolloError(toastrService, error)),
                     map(response => {
                         const warning = response.data

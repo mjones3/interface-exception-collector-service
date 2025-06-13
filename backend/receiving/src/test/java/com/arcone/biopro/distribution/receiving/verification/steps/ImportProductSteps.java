@@ -3,14 +3,17 @@ package com.arcone.biopro.distribution.receiving.verification.steps;
 import com.arcone.biopro.distribution.receiving.verification.controllers.ImportProductsController;
 import com.arcone.biopro.distribution.receiving.verification.pages.EnterShippingInformationPage;
 import com.arcone.biopro.distribution.receiving.verification.support.TestUtils;
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
 
+@Slf4j
 public class ImportProductSteps {
 
     @Autowired
@@ -23,11 +26,12 @@ public class ImportProductSteps {
     private EnterShippingInformationPage enterShippingInformationPage;
 
     private Map apiResponse;
-    private boolean isValid;
+    private boolean isTemperatureValid;
+    private boolean isTransitTimeValid;
 
-    @Given("I request to enter shipping data for a {string} product category.")
-    public void iRequestToEnterShippingDataForAProductCategory(String temperatureCategory) {
-        this.apiResponse = importProductsController.enterShippingInformation(temperatureCategory);
+    @Given("I request to enter shipping data for a {string} product category and location code {string}.")
+    public void iRequestToEnterShippingDataForAProductCategory(String temperatureCategory , String locationCode) {
+        this.apiResponse = importProductsController.enterShippingInformation(temperatureCategory , locationCode);
         Assert.assertNotNull(apiResponse);
     }
 
@@ -88,22 +92,22 @@ public class ImportProductSteps {
 
     @When("I request to validate the temperature of {string} for the Temperature Category {string}.")
     public void iRequestToValidateTheTemperatureOfForTheTemperatureCategory(String temperatureValue, String temperatureCategory) {
-        isValid = importProductsController.isTemperatureValid(temperatureCategory, temperatureValue);
+        isTemperatureValid = importProductsController.isTemperatureValid(temperatureCategory, temperatureValue);
     }
 
     @Then("The system {string} accept the temperature.")
     public void theSystemAcceptTheTemperature(String shouldShouldNot) {
         if ("should".equalsIgnoreCase(shouldShouldNot)) {
-            Assert.assertTrue(isValid);
+            Assert.assertTrue(isTemperatureValid);
         } else if ("should not".equalsIgnoreCase(shouldShouldNot)) {
-            Assert.assertFalse(isValid);
+            Assert.assertFalse(isTemperatureValid);
         } else {
             Assert.fail("Invalid value for should/ShouldNot");
         }
     }
 
     @When("I enter the temperature {string}.")
-    public void iEnterTheTemperature(String temperatureValue) {
+    public void iEnterTheTemperature(String temperatureValue) throws InterruptedException {
         enterShippingInformationPage.setTemperature(temperatureValue);
     }
 
@@ -116,6 +120,68 @@ public class ImportProductSteps {
             Assert.assertFalse(enterShippingInformationPage.isContinueButtonEnabled());
         } else {
             Assert.fail("The continue button should be enabled or disabled");
+        }
+    }
+
+    @When("I request to validate the total transit time of Stat date time as {string}, Start Time Zone as {string}, End date time as {string} and End Time Zone as {string}  for the Temperature Category {string}.")
+    public void validateTransitTime(String startDateTime, String startTimeZone, String endDateTime, String endTimeZone, String temperatureCategory) {
+        isTransitTimeValid = importProductsController.isTotalTransitTimeValid(temperatureCategory, startDateTime, startTimeZone, endDateTime, endTimeZone);
+    }
+
+    @Then("The system {string} accept the transit time.")
+    public void theSystemShouldAcceptTheTransitTime(String shouldShouldNot) {
+        if ("should".equalsIgnoreCase(shouldShouldNot)) {
+            Assert.assertTrue(isTransitTimeValid);
+        } else if ("should not".equalsIgnoreCase(shouldShouldNot)) {
+            Assert.assertFalse(isTransitTimeValid);
+        } else {
+            Assert.fail("Invalid value for should/ShouldNot");
+        }
+    }
+
+    @And("I should receive the total transit time as {string}.")
+    public void iShouldReceiveTheTotalTransitTimeAs(String totalTransitTime) {
+        String actualTotalTransitTime = importProductsController.getTotalTransitTime();
+        log.debug("Expecting total transit time to be: {}. Received {}", totalTransitTime, actualTotalTransitTime);
+        Assert.assertEquals(totalTransitTime, actualTotalTransitTime);
+    }
+
+    @Then("The end time zone field should be pre defined as {string}.")
+    public void theEndTimeZoneFieldShouldBePreDefinedAs(String tz) {
+        enterShippingInformationPage.verifyDefaultTzIs(tz);
+    }
+
+    @And("I enter the Stat date time as {string}, Start Time Zone as {string}, End date time as {string}.")
+    public void iEnterTheStatDateTimeAsStartTimeZoneAsEndDateTimeAs(String startDateTime, String startTz, String endDateTime) {
+        String startDate = startDateTime.split(" ")[0];
+        String startTime = startDateTime.split(" ")[1];
+        String amPm = startDateTime.split(" ")[2];
+
+        enterShippingInformationPage.setStartTransitDate(startDate);
+        enterShippingInformationPage.setStartTransitTime(startTime + " " + amPm);
+        enterShippingInformationPage.selectStartTransitTimeZone(true, startTz);
+
+        String endDate = endDateTime.split(" ")[0];
+        String endTime = endDateTime.split(" ")[1];
+        String amPmEnd = endDateTime.split(" ")[2];
+
+        enterShippingInformationPage.setEndTransitDate(endDate);
+        enterShippingInformationPage.setEndTransitTime(endTime + " " + amPmEnd);
+    }
+
+    @When("I choose calculate total transit time.")
+    public void iChooseCalculateTotalTransitTime() {
+        enterShippingInformationPage.pressEnter();
+    }
+
+    @And("I {string} see the total transit time as {string}.")
+    public void iSeeTheTotalTransitTimeAs(String shouldShouldNot, String totalTransitTime) {
+        if ("should".equalsIgnoreCase(shouldShouldNot)) {
+            enterShippingInformationPage.verifyTotalTransitTimeVisibilityIs(true, totalTransitTime);
+        } else if ("should not".equalsIgnoreCase(shouldShouldNot)) {
+            enterShippingInformationPage.verifyTotalTransitTimeVisibilityIs(false, null);
+        } else {
+            Assert.fail("Invalid value for should/ShouldNot");
         }
     }
 }

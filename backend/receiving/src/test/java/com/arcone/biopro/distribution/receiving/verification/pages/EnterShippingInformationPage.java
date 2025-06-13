@@ -1,12 +1,14 @@
 package com.arcone.biopro.distribution.receiving.verification.pages;
 
 import com.arcone.biopro.distribution.receiving.verification.support.SharedContext;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.openqa.selenium.By;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
+@Slf4j
 public class EnterShippingInformationPage extends CommonPageFactory {
 
     @Autowired
@@ -28,6 +30,7 @@ public class EnterShippingInformationPage extends CommonPageFactory {
     private final By thermometerIdInput = By.xpath("//input[@data-testid='thermometer-id']");
     private final By commentsInput = By.xpath("//textarea[@data-testid='comments']");
     private final By continueButton = By.id("importsEnterShipmentInformationContinueActionButton");
+    private final By totalTransitTimeValueLabel = By.xpath("//span[@data-testid='total-transit-time-value']");
 
     @Autowired
     private SharedContext sharedContext;
@@ -44,6 +47,8 @@ public class EnterShippingInformationPage extends CommonPageFactory {
     private By temperatureCategoryCard(String temperatureCategory) {
         return By.xpath(String.format("//button[@data-testid='select-temperature-category-%s'] ", temperatureCategory));
     }
+
+
 
     @Override
     public boolean isLoaded() {
@@ -73,8 +78,9 @@ public class EnterShippingInformationPage extends CommonPageFactory {
         sharedActions.sendKeys(thermometerIdInput, id);
     }
 
-    public void setTemperature(String temperature) {
-        sharedActions.sendKeys(temperatureInput, temperature);
+    public void setTemperature(String temperature) throws InterruptedException {
+        sharedActions.sendKeysAndEnter(driver, temperatureInput, temperature);
+        Thread.sleep(200); // Wait backend to process
     }
 
     public void setStartTransitDate(String date) {
@@ -175,4 +181,21 @@ public class EnterShippingInformationPage extends CommonPageFactory {
         Assertions.assertEquals(message, sharedActions.getText(matError));
     }
 
+    public void verifyDefaultTzIs(String tz) {
+        log.debug("Default TZ is: {}", tz);
+        Assertions.assertEquals(tz, sharedActions.getText(endTransitTiZoneInput));
+    }
+
+    public void pressEnter() {
+        sharedActions.pressEnter(driver);
+    }
+
+    public void verifyTotalTransitTimeVisibilityIs(boolean expectVisible, String totalTransitTime) {
+        if (expectVisible) {
+            sharedActions.waitForVisible(totalTransitTimeValueLabel);
+            Assertions.assertEquals(totalTransitTime, sharedActions.getText(totalTransitTimeValueLabel));
+        } else {
+            sharedActions.waitForNotVisible(totalTransitTimeValueLabel);
+        }
+    }
 }

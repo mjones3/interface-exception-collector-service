@@ -1,29 +1,33 @@
 import { gql } from 'apollo-angular';
 import { UseCaseResponseDTO } from '../../../../shared/models/use-case-response.dto';
+import { ValidationResultDTO } from '../../models/validation-result-dto.model';
 
-export interface ValidationResultDTO {
-    valid: boolean;
-    message: string;
-    result: string;
-}
-
-export interface ValidateTemperatureRequestDTO {
-    temperature: number;
+export interface ValidateTransitTimeRequestDTO {
     temperatureCategory: string;
+    startDateTime: string;
+    startTimeZone: string;
+    endDateTime: string;
+    endTimeZone: string;
 }
 
-export const VALIDATE_TEMPERATURE = gql<
-    { validateTemperature: UseCaseResponseDTO<ValidationResultDTO> },
-    ValidateTemperatureRequestDTO
+export const VALIDATE_TRANSIT_TIME = gql<
+    { validateTransitTime: UseCaseResponseDTO<ValidationResultDTO> },
+    ValidateTransitTimeRequestDTO
 >`
-    query ValidateTemperature(
-        $temperature: Float!
+    query ValidateTransitTime(
         $temperatureCategory: String!
+        $startDateTime: DateTime!
+        $startTimeZone: String!
+        $endDateTime: DateTime!
+        $endTimeZone: String!
     ) {
-        validateTemperature(
-            validateTemperatureRequest: {
-                temperature: $temperature,
-                temperatureCategory: $temperatureCategory
+        validateTransitTime(
+            validateTransitTimeRequest: {
+                temperatureCategory: $temperatureCategory,
+                startDateTime: $startDateTime,
+                startTimeZone: $startTimeZone,
+                endDateTime: $endDateTime,
+                endTimeZone: $endTimeZone
             }
         ) {
             _links

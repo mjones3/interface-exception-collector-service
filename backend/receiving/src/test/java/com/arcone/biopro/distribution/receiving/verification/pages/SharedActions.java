@@ -402,4 +402,7 @@ public class SharedActions {
         driver.findElement(locator).sendKeys(Keys.ENTER);
     }
 
+    public void pressEnter(WebDriver driver) {
+        driver.switchTo().activeElement().sendKeys(Keys.ENTER);
+    }
 }

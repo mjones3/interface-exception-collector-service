@@ -7,6 +7,12 @@ type Query {
     enterShippingInformation(enterShippingInformationRequest:EnterShippingInformationRequestDTO!): UseCaseResponseDTO!
     validateDevice(validateDeviceRequest:ValidateDeviceRequestDTO!): UseCaseResponseDTO!
     validateTemperature(validateTemperatureRequest:ValidateTemperatureRequestDTO!): UseCaseResponseDTO!
+    validateTransitTime(validateTransitTimeRequest:ValidateTransitTimeRequestDTO!): UseCaseResponseDTO!
+}
+
+type Mutation {
+    createImport(createImportRequest:CreateImportRequestDTO!): UseCaseResponseDTO!
+
 }
 
 input InputQuerySortDTO {
@@ -36,6 +42,27 @@ input ValidateDeviceRequestDTO {
 input ValidateTemperatureRequestDTO{
     temperature:Float!
     temperatureCategory:String!
+}
+
+input ValidateTransitTimeRequestDTO {
+    temperatureCategory:String!
+    startDateTime:DateTime!
+    startTimeZone:String!
+    endDateTime:DateTime!
+    endTimeZone:String!
+}
+
+input CreateImportRequestDTO {
+    temperatureCategory:String!
+    transitStartDateTime:DateTime
+    transitStartTimeZone:String
+    transitEndDateTime:DateTime
+    transitEndTimeZone:String
+    temperature:Float
+    thermometerCode:String
+    locationCode:String!
+    comments:String
+    employeeId:String!
 }
 
 type UseCaseNotificationDTO {

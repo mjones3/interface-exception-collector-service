@@ -27,6 +27,7 @@ export interface ShippingInformationDTO {
     displayTemperature: boolean;
     transitTimeZoneList: LookUpDto[];
     visualInspectionList: LookUpDto[];
+    defaultTimeZone: string;
 }
 
 export const ENTER_SHIPPING_INFORMATION = gql<

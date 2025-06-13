@@ -17,8 +17,12 @@ import {
 } from '../graphql/query-definitions/imports-validate-device.graphql';
 import {
     VALIDATE_TEMPERATURE,
-    ValidateTemperatureRequestDTO,
-    ValidationResultDTO
+    ValidateTemperatureRequestDTO
+} from '../graphql/query-definitions/imports-validate-temperature.graphql';
+import { ValidationResultDTO } from '../models/validation-result-dto.model';
+import {
+    VALIDATE_TRANSIT_TIME,
+    ValidateTransitTimeRequestDTO
 } from '../graphql/query-definitions/imports-validate-transit-time.graphql';
 
 @Injectable({
@@ -66,6 +70,16 @@ export class ReceivingService {
             this.servicePath,
             VALIDATE_TEMPERATURE,
             validateTemperatureRequestDTO
+        );
+    }
+
+    public validateTransitTime(validateTransitTimeRequestDTO: ValidateTransitTimeRequestDTO)
+        : Observable<ApolloQueryResult<{ validateTransitTime: UseCaseResponseDTO<ValidationResultDTO> }>> {
+
+        return this.dynamicGraphqlPathService.executeQuery(
+            this.servicePath,
+            VALIDATE_TRANSIT_TIME,
+            validateTransitTimeRequestDTO
         );
     }
 

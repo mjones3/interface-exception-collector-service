@@ -37,7 +37,7 @@ public class TemperatureValidator {
         }else{
             return ValidationResult.builder()
                 .valid(false)
-                .message("Temperature does not meet thresholds all products will be quarantined")
+                .message("Temperature does not meet thresholds. All products will be quarantined.")
                 .build();
         }
     }
