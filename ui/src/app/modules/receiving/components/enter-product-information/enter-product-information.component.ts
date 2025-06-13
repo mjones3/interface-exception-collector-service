@@ -157,25 +157,25 @@ export class EnterProductInformationComponent implements OnInit, AfterViewInit {
             id: 'expirationDate',
             header: 'Expiration Date',
             sort: false,
-            columnTempRef: this.expirationDateTemplateRef(),
+            columnTempRef: this.expirationDateTemplateRef()
           },
           {
             id: 'licenseStatus',
             header: 'License Status',
             sort: false,
-            columnTempRef: this.licenseStatusTemplateRef(),
+            columnTempRef: this.licenseStatusTemplateRef()
           },
           {
             id: 'visualInspection',
             header: 'Visual Inspection',
             sort: false,
-            columnTempRef: this.visualInspectionTemplateRef(),
+            columnTempRef: this.visualInspectionTemplateRef()
           },
           {
             id: 'isQuarantined',
             header: 'Quarantined',
             sort: false,
-            columnTempRef: this.quarantinedTemplateRef(),
+            columnTempRef: this.quarantinedTemplateRef()
           }
         ],
   }));
@@ -188,10 +188,10 @@ export class EnterProductInformationComponent implements OnInit, AfterViewInit {
     protected route: ActivatedRoute,
     private store: Store,
   ) {
-    this.setemployeeId();
+    this.setEmployeeId();
   }
 
-  private setemployeeId() {
+  private setEmployeeId() {
     this.store
         .select(getAuthState)
         .pipe(take(1))
@@ -207,27 +207,26 @@ export class EnterProductInformationComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.initializeForm();
     this.initMaps();
-
-
-          this.loadImportDetails(this.routeIdComputed())
-              .subscribe();
+    this.loadImportDetails(this.routeIdComputed())
+    .subscribe();
   }
 
-    loadImportDetails(
-        id: number
-    ): Observable<CreateImportResponsetDTO> {
-        return this.service.getImportById(id).pipe(
-            catchError((error: ApolloError) => {
-                handleApolloError(this.toastr, error);
-            }),
-            tap(data => consumeUseCaseNotifications(this.toastr, data.data?.findImportById.notifications)),
-            map((response) => {
-                const { data } = response.data.findImportById;
-                this.importData.set(data)
-                return data;
-            })
-        );
-    }
+  loadImportDetails(
+      id: number
+  ): Observable<CreateImportResponsetDTO> {
+      return this.service.getImportById(id)
+      .pipe(
+          catchError((error: ApolloError) => {
+              handleApolloError(this.toastr, error);
+          }),
+          tap(data => consumeUseCaseNotifications(this.toastr, data.data?.findImportById.notifications)),
+          map((response) => {
+              const { data } = response.data.findImportById;
+              this.importData.set(data)
+              return data;
+          })
+      );
+  }
 
   private initMaps() {
     this.parseTypeMap.set('unitNumber', 'BARCODE_UNIT_NUMBER');
@@ -283,16 +282,12 @@ export class EnterProductInformationComponent implements OnInit, AfterViewInit {
     const value = this.productInformationForm.get(control).value;
     if (!value || !/^[=&]/.test(value)) {
         if (control === Field.UNIT_NUMBER) {
-            this.productInformationForm.get(control).reset();
-            this.fieldsMap.get(control).focus = true;
+          this.fieldsMap.get(control).focus = true;
         } else if (control === Field.ABO_RH) {
-          this.productInformationForm.get(control).reset();
           this.fieldsMap.get(control).focus = true;
         } else if (control === Field.PRODUCT_CODE) {
-            this.productInformationForm.get(control).reset();
             this.fieldsMap.get(control).focus = true;
         } else if (control === Field.EXPIRATION_DATE) {
-          this.productInformationForm.get(control).reset();
           this.fieldsMap.get(control).focus = true;
       }
         else {
@@ -400,7 +395,8 @@ export class EnterProductInformationComponent implements OnInit, AfterViewInit {
 
   addImportItems(){
     const req = this.prepareAddProductReq();
-    this.service.addImportItems(req).pipe(
+    this.service.addImportItems(req)
+    .pipe(
       catchError((error: ApolloError) => {
           if(error.message.includes("R2DBC commit")){
               const notification = [{
@@ -422,7 +418,7 @@ export class EnterProductInformationComponent implements OnInit, AfterViewInit {
       } else {
         consumeUseCaseNotifications(this.toastr, response.data?.createImportItem?.notifications)
       }
-    } );
+    });
   }
 
   prepareAddProductReq(): AddImportItemRequestDTO{
