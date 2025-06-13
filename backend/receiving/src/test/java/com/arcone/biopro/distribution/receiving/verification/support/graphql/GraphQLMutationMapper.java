@@ -1,5 +1,7 @@
 package com.arcone.biopro.distribution.receiving.verification.support.graphql;
 
+import org.jetbrains.annotations.Nullable;
+
 public class GraphQLMutationMapper {
 
     public static String createImportMutation(String temperatureCategory, String transitStartDateTime, String transitStartTimeZone, String transitEndDateTime, String transitEndTimeZone, String temperature, String thermometerCode, String locationCode, String comments, String employeeId) {
@@ -7,16 +9,16 @@ public class GraphQLMutationMapper {
             mutation CreateImport {
                 createImport(
                     createImportRequest: {
-                        temperatureCategory: "%s"
-                        transitStartDateTime: "%s"
-                        transitStartTimeZone: "%s"
-                        transitEndDateTime: "%s"
-                        transitEndTimeZone: "%s"
+                        temperatureCategory: %s
+                        transitStartDateTime: %s
+                        transitStartTimeZone: %s
+                        transitEndDateTime: %s
+                        transitEndTimeZone: %s
                         temperature: %s
-                        thermometerCode: "%s"
-                        locationCode: "%s"
-                        comments: "%s"
-                        employeeId: "%s"
+                        thermometerCode: %s
+                        locationCode: %s
+                        comments: %s
+                        employeeId: %s
                     }
                 ) {
                     _links
@@ -32,7 +34,11 @@ public class GraphQLMutationMapper {
                     }
                 }
             }
-            """, temperatureCategory, transitStartDateTime, transitStartTimeZone, transitEndDateTime, transitEndTimeZone, temperature, thermometerCode, locationCode, comments, employeeId);
+            """, formatNullString(temperatureCategory), formatNullString(transitStartDateTime), formatNullString(transitStartTimeZone), formatNullString(transitEndDateTime), formatNullString(transitEndTimeZone), temperature, formatNullString(thermometerCode), formatNullString(locationCode), formatNullString(comments), formatNullString(employeeId));
+    }
+
+    private static @Nullable String formatNullString(String field) {
+        return field != null ? "\"" + field + "\"" : null;
     }
 
     public static String createImportItemMutation(String importId,String unitNumber,String productCode,String aboRh,String expirationDate,String visualInspection,String licenseStatus, String employeeId) {

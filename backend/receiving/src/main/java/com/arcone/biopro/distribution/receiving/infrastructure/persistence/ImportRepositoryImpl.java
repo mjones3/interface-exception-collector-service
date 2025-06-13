@@ -56,7 +56,7 @@ public class ImportRepositoryImpl implements ImportRepository {
     private Flux<ImportItem> findAllByImportId(Long importId) {
         return importItemEntityRepository.findAllByImportId(importId)
             .flatMap(importItem -> {
-                return Mono.zip(importItemConsequenceEntityRepository.findAllByImportItemId(importItem.getImportId()).collectList()
+                return Mono.zip(importItemConsequenceEntityRepository.findAllByImportItemId(importItem.getId()).collectList()
                         , importItemPropertyEntityRepository.findAllByImportItemId(importItem.getId()).collectList())
                     .map(tuple -> importItemEntityMapper.mapToDomain(importItem, tuple.getT1(), tuple.getT2()));
             });

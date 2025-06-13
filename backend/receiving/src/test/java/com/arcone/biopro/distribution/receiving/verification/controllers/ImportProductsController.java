@@ -80,7 +80,11 @@ public class ImportProductsController {
         );
         var response = apiHelper.graphQlRequest(payload, "createImportItem");
         log.debug("Create import item response: {}", response);
-        sharedContext.setCreateImportItemResponse((Map) response.get("data"));
+        if (response.get("data") != null) {
+            sharedContext.setCreateImportItemResponse((Map) response.get("data"));
+        } else {
+            sharedContext.setCreateImportItemResponse(null);
+        }
     }
 
     public boolean isUnitImported(String unitNumber) {

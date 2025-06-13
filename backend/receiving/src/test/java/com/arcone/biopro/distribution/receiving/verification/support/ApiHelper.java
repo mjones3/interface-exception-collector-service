@@ -137,6 +137,9 @@ public class ApiHelper {
                 context.setApiListMessageResponse(notifications);
                 context.setApiMessageResponse((List<Map>) response.get("notifications"));
             }
+            if (response.get("errors") != null) {
+                context.setApiErrorResponse((Map) ((List) response.get("errors")).getFirst());
+            }
             return response;
         } catch (FieldAccessException e) {
             this.setErrorContext(e);
@@ -154,7 +157,7 @@ public class ApiHelper {
         }
     }
 
-    private void setErrorContext(FieldAccessException e){
+    private void setErrorContext(FieldAccessException e) {
         log.error("Not able to retrieve data from {}", e.getResponse());
         var error = e.getResponse().getErrors().getFirst();
         var errorMap = new HashMap<>();
